@@ -1,0 +1,23 @@
+# Normalize text files in the repository
+* text=auto
+
+# Python / project files should use LF in Git
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.json text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# PowerShell scripts can also use LF
+*.ps1 text eol=lf
+
+# Keep common binary files untouched
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
