@@ -1,5 +1,7 @@
 # Skat AI
 
+![Check](https://github.com/hnnng-w/skat-ai/actions/workflows/check.yml/badge.svg)
+
 A local Python-based Skat analysis and simulation tool.
 
 The project analyzes a given Skat position, checks legal cards, simulates immediate trick outcomes, estimates expected point swings, and recommends a card based on the current situation.
