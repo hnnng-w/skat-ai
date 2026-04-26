@@ -1,0 +1,231 @@
+import argparse
+from typing import Any
+
+from skat_ai.analysis_report import (
+    build_card_analysis_report,
+    build_strategic_summary,
+    format_card_analysis_report,
+)
+from skat_ai.input_loader import (
+    build_game_state_from_input,
+    get_simulation_settings_from_input,
+    load_position_from_json,
+)
+from skat_ai.output_writer import write_analysis_result_to_json
+from skat_ai.recommender import recommend_card_by_expected_value
+from skat_ai.rules import get_legal_cards
+
+
+def apply_cli_overrides(
+    settings: dict[str, Any],
+    sample_count: int | None,
+    random_seed: int | None,
+    opponent_strategy: str | None,
+) -> dict[str, Any]:
+    """
+    Applies optional command-line overrides to simulation settings.
+    """
+    updated_settings = settings.copy()
+
+    if sample_count is not None:
+        updated_settings["sample_count"] = sample_count
+
+    if random_seed is not None:
+        updated_settings["random_seed"] = random_seed
+
+    if opponent_strategy == "basic":
+        updated_settings["use_basic_opponent_strategy"] = True
+
+    if opponent_strategy == "random":
+        updated_settings["use_basic_opponent_strategy"] = False
+
+    return updated_settings
+
+
+def build_analysis_result(
+    file_path: str,
+    sample_count_override: int | None = None,
+    random_seed_override: int | None = None,
+    opponent_strategy_override: str | None = None,
+) -> dict[str, Any]:
+    """
+    Builds the full analysis result as a structured dictionary.
+    """
+    data = load_position_from_json(file_path)
+    state = build_game_state_from_input(data)
+    settings = get_simulation_settings_from_input(data)
+
+    settings = apply_cli_overrides(
+        settings=settings,
+        sample_count=sample_count_override,
+        random_seed=random_seed_override,
+        opponent_strategy=opponent_strategy_override,
+    )
+
+    legal_cards = get_legal_cards(
+        hand=state.hand,
+        current_trick=state.current_trick,
+        game_type=state.game_type,
+    )
+
+    recommended_card, reason, _ = recommend_card_by_expected_value(
+        state=state,
+        left_hand_size=settings["left_hand_size"],
+        right_hand_size=settings["right_hand_size"],
+        sample_count=settings["sample_count"],
+        random_seed=settings["random_seed"],
+        use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+    )
+
+    report = build_card_analysis_report(
+        state=state,
+        left_hand_size=settings["left_hand_size"],
+        right_hand_size=settings["right_hand_size"],
+        sample_count=settings["sample_count"],
+        random_seed=settings["random_seed"],
+        use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+    )
+
+    strategic_summary = build_strategic_summary(report)
+
+    return {
+        "input_file": file_path,
+        "position": {
+            "game_type": state.game_type,
+            "player_role": state.player_role,
+            "player_position": state.player_position,
+            "trick_leader": state.trick_leader,
+            "hand": state.hand,
+            "current_trick": state.current_trick,
+            "played_cards": state.played_cards,
+            "skat": state.skat,
+        },
+        "settings": settings,
+        "legal_cards": legal_cards,
+        "analysis_report": report,
+        "strategic_summary": strategic_summary,
+        "recommendation": {
+            "card": recommended_card,
+            "reason": reason,
+        },
+    }
+
+
+def print_analysis_result(result: dict[str, Any]) -> None:
+    """
+    Prints the analysis result in a readable text format.
+    """
+    position = result["position"]
+    settings = result["settings"]
+
+    print("JSON position analysis")
+    print("Input file:", result["input_file"])
+    print("Game type:", position["game_type"])
+    print("Player role:", position["player_role"])
+    print("Player position:", position["player_position"])
+    print("Trick leader:", position["trick_leader"])
+    print("Hand:", position["hand"])
+    print("Current trick:", position["current_trick"])
+    print("Played cards:", position["played_cards"])
+    print("Skat:", position["skat"])
+    print("Legal cards:", result["legal_cards"])
+    print("Left hand size:", settings["left_hand_size"])
+    print("Right hand size:", settings["right_hand_size"])
+    print("Sample count:", settings["sample_count"])
+    print("Random seed:", settings["random_seed"])
+    print("Use basic opponent strategy:", settings["use_basic_opponent_strategy"])
+
+    print()
+    print(format_card_analysis_report(result["analysis_report"]))
+
+    print()
+    print(result["strategic_summary"])
+
+    print()
+    print("Recommended card:", result["recommendation"]["card"])
+    print("Reason:", result["recommendation"]["reason"])
+
+
+def run_json_position_analysis(
+    file_path: str,
+    sample_count_override: int | None = None,
+    random_seed_override: int | None = None,
+    opponent_strategy_override: str | None = None,
+    output_path: str | None = None,
+) -> None:
+    result = build_analysis_result(
+        file_path=file_path,
+        sample_count_override=sample_count_override,
+        random_seed_override=random_seed_override,
+        opponent_strategy_override=opponent_strategy_override,
+    )
+
+    print_analysis_result(result)
+
+    if output_path is not None:
+        write_analysis_result_to_json(
+            output_path=output_path,
+            result=result,
+        )
+        print()
+        print("Output file written:", output_path)
+
+
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Analyze a Skat position from a JSON input file.",
+    )
+
+    parser.add_argument(
+        "--input",
+        default="input_position.json",
+        help="Path to the JSON input file. Default: input_position.json",
+    )
+
+    parser.add_argument(
+        "--samples",
+        type=int,
+        default=None,
+        help="Override sample_count from the JSON input file.",
+    )
+
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Override random_seed from the JSON input file.",
+    )
+
+    parser.add_argument(
+        "--opponent-strategy",
+        choices=["basic", "random"],
+        default=None,
+        help="Override opponent strategy from the JSON input file. Choices: basic, random.",
+    )
+
+    parser.add_argument(
+        "--output",
+        default=None,
+        help="Optional path to write the analysis result as JSON.",
+    )
+
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_arguments()
+
+    try:
+        run_json_position_analysis(
+            file_path=args.input,
+            sample_count_override=args.samples,
+            random_seed_override=args.seed,
+            opponent_strategy_override=args.opponent_strategy,
+            output_path=args.output,
+        )
+    except (ValueError, FileNotFoundError) as error:
+        print("Input error:", error)
+
+
+if __name__ == "__main__":
+    main()

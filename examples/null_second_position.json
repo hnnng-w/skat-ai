@@ -1,0 +1,15 @@
+{
+  "game_type": "null",
+  "player_role": "declarer",
+  "player_position": "middlehand",
+  "trick_leader": "left",
+  "hand": ["C7", "C8", "S7", "S8", "H9"],
+  "current_trick": ["CJ"],
+  "played_cards": [],
+  "skat": [],
+  "left_hand_size": 5,
+  "right_hand_size": 5,
+  "sample_count": 1000,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true
+}

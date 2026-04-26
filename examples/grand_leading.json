@@ -1,0 +1,15 @@
+{
+  "game_type": "grand",
+  "player_role": "declarer",
+  "player_position": "forehand",
+  "trick_leader": "me",
+  "hand": ["CJ", "SA", "S10", "S9", "H10", "D7"],
+  "current_trick": [],
+  "played_cards": [],
+  "skat": [],
+  "left_hand_size": 6,
+  "right_hand_size": 6,
+  "sample_count": 1000,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true
+}
