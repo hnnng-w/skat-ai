@@ -9,6 +9,7 @@ from skat_ai.simulation import (
     generate_multiple_random_opponent_hands,
     generate_random_opponent_hands,
     simulate_immediate_trick_once,
+    simulate_immediate_trick_once_detailed,
     simulate_immediate_trick_once_with_points,
 )
 
@@ -611,3 +612,179 @@ def test_estimate_immediate_trick_value_supports_third_position() -> None:
     )
 
     assert 0.0 <= value["win_rate"] <= 1.0
+
+
+def test_simulate_immediate_trick_once_detailed_returns_expected_keys() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+        played_cards=[],
+        skat=[],
+    )
+
+    result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=None,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert set(result.keys()) == {
+        "trick",
+        "did_win",
+        "trick_points",
+        "completed_trick",
+    }
+
+
+def test_simulate_immediate_trick_once_detailed_returns_completed_three_card_trick() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+        played_cards=[],
+        skat=[],
+    )
+
+    result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=None,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert len(result["trick"]) == 3
+    assert result["trick"][0] == "S7"
+    assert result["trick"][1] == "SA"
+
+
+def test_simulate_immediate_trick_once_detailed_returns_completed_trick_entry() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+        played_cards=[],
+        skat=[],
+    )
+
+    result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=None,
+        use_basic_opponent_strategy=True,
+    )
+
+    completed_trick = result["completed_trick"]
+
+    assert completed_trick["cards"] == result["trick"]
+    assert completed_trick["winner_role"] in ["declarer", "defenders"]
+
+
+def test_simulate_immediate_trick_once_detailed_is_reproducible_with_seed() -> None:
+    import random
+
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+        played_cards=[],
+        skat=[],
+    )
+
+    first_result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=True,
+    )
+
+    second_result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=True,
+    )
+
+    assert first_result == second_result
+
+
+def test_existing_boolean_simulation_uses_detailed_result_consistently() -> None:
+    import random
+
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+        played_cards=[],
+        skat=[],
+    )
+
+    detailed_result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=True,
+    )
+
+    boolean_result = simulate_immediate_trick_once(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=True,
+    )
+
+    assert boolean_result == detailed_result["did_win"]
+
+
+def test_existing_points_simulation_uses_detailed_result_consistently() -> None:
+    import random
+
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+        played_cards=[],
+        skat=[],
+    )
+
+    detailed_result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=True,
+    )
+
+    did_win, trick_points = simulate_immediate_trick_once_with_points(
+        state=state,
+        candidate_card="SA",
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=True,
+    )
+
+    assert did_win == detailed_result["did_win"]
+    assert trick_points == detailed_result["trick_points"]

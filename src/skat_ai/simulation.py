@@ -1,6 +1,8 @@
 import random
+from typing import Any
 
 from skat_ai.card_tracking import get_unseen_cards
+from skat_ai.game_history import build_completed_trick_from_state_and_candidate
 from skat_ai.game_state import GameState
 from skat_ai.rules import (
     get_card_points,
@@ -246,34 +248,16 @@ def simulate_immediate_trick_once(
 
     Returns True if candidate_card wins the completed trick.
     """
-    rng = random_generator or random
-
-    validate_candidate_card_for_current_trick(state, candidate_card)
-
-    left_hand, right_hand = generate_random_opponent_hands(
-        state=state,
-        left_hand_size=left_hand_size,
-        right_hand_size=right_hand_size,
-        random_generator=rng,
-    )
-
-    trick = complete_trick_after_candidate_card(
+    result = simulate_immediate_trick_once_detailed(
         state=state,
         candidate_card=candidate_card,
-        left_hand=left_hand,
-        right_hand=right_hand,
-        random_generator=rng,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
     )
 
-    winner_index = get_trick_winner(
-        trick=trick,
-        game_type=state.game_type,
-    )
-
-    candidate_index = len(state.current_trick)
-
-    return winner_index == candidate_index
+    return bool(result["did_win"])
 
 
 def estimate_immediate_trick_win_rate(
@@ -356,35 +340,16 @@ def simulate_immediate_trick_once_with_points(
     Simulates the current trick once and returns whether candidate_card wins
     plus the point value of the completed trick.
     """
-    rng = random_generator or random
-
-    validate_candidate_card_for_current_trick(state, candidate_card)
-
-    left_hand, right_hand = generate_random_opponent_hands(
-        state=state,
-        left_hand_size=left_hand_size,
-        right_hand_size=right_hand_size,
-        random_generator=rng,
-    )
-
-    trick = complete_trick_after_candidate_card(
+    result = simulate_immediate_trick_once_detailed(
         state=state,
         candidate_card=candidate_card,
-        left_hand=left_hand,
-        right_hand=right_hand,
-        random_generator=rng,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
     )
 
-    winner_index = get_trick_winner(
-        trick=trick,
-        game_type=state.game_type,
-    )
-
-    candidate_index = len(state.current_trick)
-    trick_points = get_trick_points(trick)
-
-    return winner_index == candidate_index, trick_points
+    return bool(result["did_win"]), int(result["trick_points"])
 
 
 def estimate_immediate_trick_value(
@@ -471,4 +436,63 @@ def estimate_immediate_trick_values_for_legal_cards(
             use_basic_opponent_strategy=use_basic_opponent_strategy,
         )
         for card in legal_cards
+    }
+
+
+def simulate_immediate_trick_once_detailed(
+    state: GameState,
+    candidate_card: str,
+    left_hand_size: int,
+    right_hand_size: int,
+    random_generator: random.Random | None = None,
+    use_basic_opponent_strategy: bool = True,
+) -> dict[str, Any]:
+    """
+    Simulates the current trick once and returns detailed information.
+
+    Returned fields:
+    - trick: the completed three-card trick
+    - did_win: whether the candidate card won the trick
+    - trick_points: total points in the trick
+    - completed_trick: completed trick entry with cards and winner_role
+    """
+    rng = random_generator or random
+
+    validate_candidate_card_for_current_trick(state, candidate_card)
+
+    left_hand, right_hand = generate_random_opponent_hands(
+        state=state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        random_generator=rng,
+    )
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card=candidate_card,
+        left_hand=left_hand,
+        right_hand=right_hand,
+        random_generator=rng,
+        use_basic_opponent_strategy=use_basic_opponent_strategy,
+    )
+
+    winner_index = get_trick_winner(
+        trick=trick,
+        game_type=state.game_type,
+    )
+
+    candidate_index = len(state.current_trick)
+    did_win = winner_index == candidate_index
+    trick_points = get_trick_points(trick)
+
+    completed_trick = build_completed_trick_from_state_and_candidate(
+        state=state,
+        completed_trick_cards=trick,
+    )
+
+    return {
+        "trick": trick,
+        "did_win": did_win,
+        "trick_points": trick_points,
+        "completed_trick": completed_trick,
     }
