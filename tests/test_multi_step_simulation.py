@@ -2,6 +2,7 @@ from skat_ai.card_selection import choose_first_legal_card
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import (
     get_multi_step_stop_reason,
+    prepare_state_for_player_action,
     should_continue_multi_step_simulation,
     simulate_multiple_steps,
 )
@@ -431,7 +432,19 @@ def test_should_continue_multi_step_simulation_allows_later_step_when_next_playe
     assert should_continue_multi_step_simulation(state, step_index=1) is True
 
 
-def test_should_continue_multi_step_stops_when_next_player_is_not_me() -> None:
+def test_should_continue_multi_step_allows_right_next_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="right",
+    )
+
+    assert should_continue_multi_step_simulation(state, step_index=1) is True
+
+
+def test_should_continue_multi_step_stops_when_left_is_next_player() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
@@ -460,7 +473,7 @@ def test_get_multi_step_stop_reason_when_hand_is_empty() -> None:
     assert reason == "Player has no cards left."
 
 
-def test_get_multi_step_stop_reason_when_next_player_is_not_me() -> None:
+def test_get_multi_step_stop_reason_when_left_is_next_player() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
@@ -474,16 +487,17 @@ def test_get_multi_step_stop_reason_when_next_player_is_not_me() -> None:
         step_index=1,
     )
 
-    assert reason == "Next player is left, not me."
+    assert reason == "Next player is left. Opponent second-hand simulation is not implemented yet."
 
 
-def test_simulate_multiple_steps_stops_when_next_player_is_not_me_after_first_step() -> None:
+def test_simulate_multiple_steps_stops_when_left_is_next_player() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
         hand=["S9", "D7"],
-        current_trick=["S7"],
+        current_trick=[],
         trick_leader="left",
+        next_player="left",
     )
 
     result = simulate_multiple_steps(
@@ -496,10 +510,97 @@ def test_simulate_multiple_steps_stops_when_next_player_is_not_me_after_first_st
         card_selection_policy="lowest_point",
     )
 
-    assert result["steps_simulated"] <= 3
+    assert result["steps_simulated"] == 0
+    assert result["stop_reason"] == (
+        "Next player is left. Opponent second-hand simulation is not implemented yet."
+    )
 
-    if result["final_state"].next_player != "me":
-        assert (
-            "not me" in result["stop_reason"]
-            or result["stop_reason"] == "Requested step count reached."
+
+def test_prepare_state_for_player_action_returns_state_when_next_player_is_me() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="me",
+    )
+
+    prepared_state, opponent_lead_result = prepare_state_for_player_action(
+        current_state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=__import__("random").Random(42),
+    )
+
+    assert prepared_state == state
+    assert opponent_lead_result is None
+
+
+def test_prepare_state_for_player_action_simulates_right_lead() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=[],
+        next_player="right",
+    )
+
+    prepared_state, opponent_lead_result = prepare_state_for_player_action(
+        current_state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=__import__("random").Random(42),
+    )
+
+    assert opponent_lead_result is not None
+    assert opponent_lead_result["leader"] == "right"
+    assert prepared_state.trick_leader == "right"
+    assert prepared_state.next_player == "me"
+    assert len(prepared_state.current_trick) == 1
+
+
+def test_prepare_state_for_player_action_rejects_left_next_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    try:
+        prepare_state_for_player_action(
+            current_state=state,
+            left_hand_size=5,
+            right_hand_size=5,
+            random_generator=__import__("random").Random(42),
         )
+    except ValueError as error:
+        assert "Cannot prepare player action" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_simulate_multiple_steps_continues_after_right_lead() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=[],
+        next_player="right",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+    )
+
+    assert result["steps_simulated"] == 1
+    assert result["steps"][0]["opponent_lead_result"] is not None
+    assert result["steps"][0]["opponent_lead_result"]["leader"] == "right"
+    assert result["steps"][0]["candidate_card"] in ["SA", "S10", "S9"]

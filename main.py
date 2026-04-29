@@ -193,9 +193,15 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     for step in steps:
         detailed_result = step["detailed_result"]
         completed_trick = detailed_result["completed_trick"]
+        opponent_lead_result = step.get("opponent_lead_result")
 
         print()
         print("Step:", step["step_index"])
+
+        if opponent_lead_result is not None:
+            print("Opponent lead player:", opponent_lead_result["leader"])
+            print("Opponent lead card:", opponent_lead_result["lead_card"])
+
         print("Candidate card:", step["candidate_card"])
         print("Trick:", detailed_result["trick"])
         print("Did win:", detailed_result["did_win"])

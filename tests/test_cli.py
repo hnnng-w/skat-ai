@@ -265,6 +265,7 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
         "steps": [
             {
                 "step_index": 0,
+                "opponent_lead_result": None,
                 "candidate_card": "SA",
                 "detailed_result": {
                     "trick": ["S7", "SA", "S8"],
@@ -305,3 +306,60 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
     assert "Requested steps: 1" in captured.out
     assert "Steps simulated: 1" in captured.out
     assert "Stop reason: Requested step count reached." in captured.out
+
+
+def test_print_multi_step_result_outputs_opponent_lead(capsys) -> None:
+    from skat_ai.game_state import GameState
+
+    result = {
+        "card_selection_policy": "first_legal",
+        "requested_step_count": 1,
+        "steps_simulated": 1,
+        "stop_reason": "Requested step count reached.",
+        "steps": [
+            {
+                "step_index": 0,
+                "opponent_lead_result": {
+                    "leader": "right",
+                    "lead_card": "D7",
+                },
+                "candidate_card": "DA",
+                "detailed_result": {
+                    "trick": ["D7", "DA", "D8"],
+                    "did_win": True,
+                    "trick_points": 11,
+                    "completed_trick": {
+                        "cards": ["D7", "DA", "D8"],
+                        "players": ["right", "me", "left"],
+                        "winner_role": "declarer",
+                        "winner_player": "me",
+                    },
+                },
+            }
+        ],
+        "final_state": GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["S10", "S9"],
+            current_trick=[],
+            completed_tricks=[
+                {
+                    "cards": ["D7", "DA", "D8"],
+                    "players": ["right", "me", "left"],
+                    "winner_role": "declarer",
+                    "winner_player": "me",
+                }
+            ],
+            declarer_points=11,
+            defender_points=0,
+            next_player="me",
+        ),
+    }
+
+    print_multi_step_result(result)
+
+    captured = capsys.readouterr()
+
+    assert "Opponent lead player: right" in captured.out
+    assert "Opponent lead card: D7" in captured.out
+    assert "Candidate card: DA" in captured.out
