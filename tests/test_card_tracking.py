@@ -50,3 +50,24 @@ def test_unseen_cards_exclude_seen_cards() -> None:
     assert "H10" not in unseen_cards
     assert "D7" not in unseen_cards
     assert "D8" not in unseen_cards
+
+
+def test_seen_cards_include_completed_tricks() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        completed_tricks=[
+            {
+                "cards": ["CA", "C10", "CK"],
+                "winner_role": "declarer",
+            }
+        ],
+    )
+
+    seen_cards = get_seen_cards(state)
+
+    assert "CA" in seen_cards
+    assert "C10" in seen_cards
+    assert "CK" in seen_cards

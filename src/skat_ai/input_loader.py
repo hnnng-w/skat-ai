@@ -36,6 +36,10 @@ def build_game_state_from_input(data: dict[str, Any]) -> GameState:
         skat=data.get("skat", []),
         player_position=data.get("player_position", "unknown"),
         trick_leader=data.get("trick_leader", "unknown"),
+        completed_tricks=data.get("completed_tricks", []),
+        declarer_points=data.get("declarer_points", 0),
+        defender_points=data.get("defender_points", 0),
+        next_player=data.get("next_player", "unknown"),
     )
 
 

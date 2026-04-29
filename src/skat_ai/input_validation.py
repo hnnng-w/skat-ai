@@ -6,6 +6,8 @@ from skat_ai.rules import GAME_TYPES
 VALID_PLAYER_ROLES = ["declarer", "defender", "unknown"]
 VALID_PLAYER_POSITIONS = ["forehand", "middlehand", "rearhand", "unknown"]
 VALID_TRICK_LEADERS = ["me", "left", "right", "unknown"]
+VALID_NEXT_PLAYERS = ["me", "left", "right", "unknown"]
+VALID_COMPLETED_TRICK_WINNER_ROLES = ["declarer", "defenders"]
 
 
 def validate_required_keys(data: dict[str, Any]) -> None:
@@ -88,7 +90,16 @@ def validate_no_duplicate_cards(data: dict[str, Any]) -> None:
     for field in known_card_fields:
         all_cards.extend(data.get(field, []))
 
-    duplicates = sorted({card for card in all_cards if all_cards.count(card) > 1})
+    all_cards.extend(
+        get_cards_from_completed_tricks_input(
+            data.get("completed_tricks", []),
+        )
+    )
+
+    duplicates = sorted({
+        card for card in all_cards
+        if all_cards.count(card) > 1
+    })
 
     if duplicates:
         raise ValueError(f"Duplicate known cards found: {duplicates}")
@@ -165,11 +176,13 @@ def validate_position_input(data: dict[str, Any]) -> None:
     current_trick = data["current_trick"]
     played_cards = data.get("played_cards", [])
     skat = data.get("skat", [])
+    completed_tricks = data.get("completed_tricks", [])
 
     validate_cards(hand, "hand")
     validate_cards(current_trick, "current_trick")
     validate_cards(played_cards, "played_cards")
     validate_cards(skat, "skat")
+    validate_completed_tricks(completed_tricks)
 
     validate_no_duplicate_cards(data)
     validate_current_trick(current_trick)
@@ -182,5 +195,74 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_positive_integer(data["right_hand_size"], "right_hand_size")
     validate_positive_integer(data["sample_count"], "sample_count")
 
+    validate_non_negative_integer(data.get("declarer_points", 0), "declarer_points")
+    validate_non_negative_integer(data.get("defender_points", 0), "defender_points")
+    validate_next_player(data.get("next_player", "unknown"))
+
     validate_optional_random_seed(data.get("random_seed"))
-    validate_boolean(data.get("use_basic_opponent_strategy", True), "use_basic_opponent_strategy")
+    validate_boolean(
+        data.get("use_basic_opponent_strategy", True),
+        "use_basic_opponent_strategy",
+    )
+
+
+def validate_next_player(next_player: str) -> None:
+    """
+    Validates who acts next.
+    """
+    if next_player not in VALID_NEXT_PLAYERS:
+        raise ValueError(f"Invalid next player: {next_player}")
+
+
+def validate_non_negative_integer(value: Any, field_name: str) -> None:
+    """
+    Validates that a value is a non-negative integer.
+    """
+    if not isinstance(value, int) or value < 0:
+        raise ValueError(f"{field_name} must be a non-negative integer.")
+
+
+def get_cards_from_completed_tricks_input(completed_tricks: list[dict[str, Any]]) -> list[str]:
+    """
+    Returns all cards from completed tricks in input data.
+    """
+    cards = []
+
+    for completed_trick in completed_tricks:
+        cards.extend(completed_trick.get("cards", []))
+
+    return cards
+
+
+def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
+    """
+    Validates completed trick entries.
+    """
+    full_deck = set(get_full_deck())
+
+    for completed_trick in completed_tricks:
+        if "cards" not in completed_trick:
+            raise ValueError("Completed trick is missing required key: cards")
+
+        if "winner_role" not in completed_trick:
+            raise ValueError("Completed trick is missing required key: winner_role")
+
+        cards = completed_trick["cards"]
+        winner_role = completed_trick["winner_role"]
+
+        if not isinstance(cards, list):
+            raise ValueError("Completed trick cards must be a list.")
+
+        if len(cards) != 3:
+            raise ValueError("Completed trick must contain exactly 3 cards.")
+
+        invalid_cards = [
+            card for card in cards
+            if card not in full_deck
+        ]
+
+        if invalid_cards:
+            raise ValueError(f"Invalid cards in completed_tricks: {invalid_cards}")
+
+        if winner_role not in VALID_COMPLETED_TRICK_WINNER_ROLES:
+            raise ValueError(f"Invalid completed trick winner role: {winner_role}")

@@ -6,6 +6,7 @@ from skat_ai.analysis_report import (
     build_strategic_summary,
     format_card_analysis_report,
 )
+from skat_ai.game_history import build_score_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
     get_simulation_settings_from_input,
@@ -88,6 +89,8 @@ def build_analysis_result(
 
     strategic_summary = build_strategic_summary(report)
 
+    score_summary = build_score_summary(state)
+
     return {
         "input_file": file_path,
         "position": {
@@ -98,12 +101,17 @@ def build_analysis_result(
             "hand": state.hand,
             "current_trick": state.current_trick,
             "played_cards": state.played_cards,
+            "completed_tricks": state.completed_tricks,
+            "declarer_points": state.declarer_points,
+            "defender_points": state.defender_points,
+            "next_player": state.next_player,
             "skat": state.skat,
         },
         "settings": settings,
         "legal_cards": legal_cards,
         "analysis_report": report,
         "strategic_summary": strategic_summary,
+        "score_summary": score_summary,
         "recommendation": {
             "card": recommended_card,
             "reason": reason,
@@ -128,6 +136,10 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print("Current trick:", position["current_trick"])
     print("Played cards:", position["played_cards"])
     print("Skat:", position["skat"])
+    print("Completed tricks:", position["completed_tricks"])
+    print("Declarer points:", position["declarer_points"])
+    print("Defender points:", position["defender_points"])
+    print("Next player:", position["next_player"])
     print("Legal cards:", result["legal_cards"])
     print("Left hand size:", settings["left_hand_size"])
     print("Right hand size:", settings["right_hand_size"])
@@ -140,6 +152,7 @@ def print_analysis_result(result: dict[str, Any]) -> None:
 
     print()
     print(result["strategic_summary"])
+    print("Score summary:", result["score_summary"])
 
     print()
     print("Recommended card:", result["recommendation"]["card"])

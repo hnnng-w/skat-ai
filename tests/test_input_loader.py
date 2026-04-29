@@ -14,6 +14,15 @@ def test_build_game_state_from_input() -> None:
         "current_trick": ["D7"],
         "played_cards": ["H7"],
         "skat": ["C7", "D8"],
+        "completed_tricks": [
+            {
+                "cards": ["CA", "C10", "CK"],
+                "winner_role": "declarer",
+            }
+        ],
+        "declarer_points": 10,
+        "defender_points": 5,
+        "next_player": "right",
     }
 
     state = build_game_state_from_input(data)
@@ -26,6 +35,15 @@ def test_build_game_state_from_input() -> None:
     assert state.current_trick == ["D7"]
     assert state.played_cards == ["H7"]
     assert state.skat == ["C7", "D8"]
+    assert state.completed_tricks == [
+        {
+            "cards": ["CA", "C10", "CK"],
+            "winner_role": "declarer",
+        }
+    ]
+    assert state.declarer_points == 10
+    assert state.defender_points == 5
+    assert state.next_player == "right"
 
 
 def test_build_game_state_from_input_uses_defaults_for_optional_lists() -> None:
@@ -42,6 +60,10 @@ def test_build_game_state_from_input_uses_defaults_for_optional_lists() -> None:
     assert state.skat == []
     assert state.player_position == "unknown"
     assert state.trick_leader == "unknown"
+    assert state.completed_tricks == []
+    assert state.declarer_points == 0
+    assert state.defender_points == 0
+    assert state.next_player == "unknown"
 
 
 def test_get_simulation_settings_from_input() -> None:

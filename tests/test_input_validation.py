@@ -1,9 +1,12 @@
 from skat_ai.input_validation import (
     validate_boolean,
     validate_cards,
+    validate_completed_tricks,
     validate_current_trick,
     validate_game_type,
+    validate_next_player,
     validate_no_duplicate_cards,
+    validate_non_negative_integer,
     validate_optional_random_seed,
     validate_player_position,
     validate_player_role,
@@ -302,5 +305,78 @@ def test_validate_position_input_rejects_invalid_position_fields() -> None:
         validate_position_input(data)
     except ValueError as error:
         assert "Invalid player position" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_tricks_accepts_valid_completed_trick() -> None:
+    validate_completed_tricks(
+        [
+            {
+                "cards": ["CA", "C10", "CK"],
+                "winner_role": "declarer",
+            }
+        ]
+    )
+
+
+def test_validate_completed_tricks_rejects_invalid_card() -> None:
+    try:
+        validate_completed_tricks(
+            [
+                {
+                    "cards": ["CA", "C1O", "CK"],
+                    "winner_role": "declarer",
+                }
+            ]
+        )
+    except ValueError as error:
+        assert "Invalid cards in completed_tricks" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_tricks_rejects_invalid_winner_role() -> None:
+    try:
+        validate_completed_tricks(
+            [
+                {
+                    "cards": ["CA", "C10", "CK"],
+                    "winner_role": "unknown",
+                }
+            ]
+        )
+    except ValueError as error:
+        assert "Invalid completed trick winner role" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_next_player_accepts_valid_next_player() -> None:
+    validate_next_player("me")
+    validate_next_player("left")
+    validate_next_player("right")
+    validate_next_player("unknown")
+
+
+def test_validate_next_player_rejects_invalid_next_player() -> None:
+    try:
+        validate_next_player("dealer")
+    except ValueError as error:
+        assert "Invalid next player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_non_negative_integer_accepts_zero_and_positive_integer() -> None:
+    validate_non_negative_integer(0, "declarer_points")
+    validate_non_negative_integer(10, "declarer_points")
+
+
+def test_validate_non_negative_integer_rejects_negative_integer() -> None:
+    try:
+        validate_non_negative_integer(-1, "declarer_points")
+    except ValueError as error:
+        assert "non-negative integer" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

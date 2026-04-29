@@ -174,6 +174,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "legal_cards",
         "analysis_report",
         "strategic_summary",
+        "score_summary",
         "recommendation",
     }
 
