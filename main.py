@@ -186,7 +186,9 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     print()
     print("Multi-step simulation")
     print("Card selection policy:", result["card_selection_policy"])
-    print("Steps simulated:", len(steps))
+    print("Requested steps:", result.get("requested_step_count", len(steps)))
+    print("Steps simulated:", result.get("steps_simulated", len(steps)))
+    print("Stop reason:", result.get("stop_reason", "unknown"))
 
     for step in steps:
         detailed_result = step["detailed_result"]
@@ -256,6 +258,9 @@ def run_json_position_analysis(
 
         result["multi_step_result"] = {
             "card_selection_policy": multi_step_result["card_selection_policy"],
+            "requested_step_count": multi_step_result["requested_step_count"],
+            "steps_simulated": multi_step_result["steps_simulated"],
+            "stop_reason": multi_step_result["stop_reason"],
             "steps": [
                 {
                     "step_index": step["step_index"],

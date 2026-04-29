@@ -259,6 +259,9 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
 
     result = {
         "card_selection_policy": "first_legal",
+        "requested_step_count": 1,
+        "steps_simulated": 1,
+        "stop_reason": "Requested step count reached.",
         "steps": [
             {
                 "step_index": 0,
@@ -299,3 +302,6 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
     assert "Card selection policy: first_legal" in captured.out
     assert "Candidate card: SA" in captured.out
     assert "Final state" in captured.out
+    assert "Requested steps: 1" in captured.out
+    assert "Steps simulated: 1" in captured.out
+    assert "Stop reason: Requested step count reached." in captured.out
