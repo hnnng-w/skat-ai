@@ -1,10 +1,12 @@
 from skat_ai.game_state import GameState
 from skat_ai.rules import get_card_points, get_legal_cards
+from skat_ai.simulation import estimate_immediate_trick_values_for_legal_cards
 
 VALID_CARD_SELECTION_POLICIES = [
     "first_legal",
     "lowest_point",
     "highest_point",
+    "highest_expected_value",
 ]
 
 
@@ -55,9 +57,50 @@ def choose_highest_point_card(state: GameState) -> str:
     return max(legal_cards, key=get_card_points)
 
 
+def calculate_expected_point_swing(value: dict[str, float]) -> float:
+    """
+    Calculates expected point swing for one simulated card value.
+    """
+    return value["average_points_won"] - value["average_points_lost"]
+
+
+def choose_highest_expected_value_card(
+    state: GameState,
+    left_hand_size: int,
+    right_hand_size: int,
+    sample_count: int,
+    random_seed: int | None = None,
+    use_basic_opponent_strategy: bool = True,
+) -> str:
+    """
+    Chooses the legal card with the highest estimated immediate expected point swing.
+    """
+    values = estimate_immediate_trick_values_for_legal_cards(
+        state=state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        sample_count=sample_count,
+        random_seed=random_seed,
+        use_basic_opponent_strategy=use_basic_opponent_strategy,
+    )
+
+    if not values:
+        raise ValueError("No legal cards available.")
+
+    return max(
+        values,
+        key=lambda card: calculate_expected_point_swing(values[card]),
+    )
+
+
 def choose_card_by_policy(
     state: GameState,
     policy: str,
+    left_hand_size: int | None = None,
+    right_hand_size: int | None = None,
+    expected_value_sample_count: int = 100,
+    random_seed: int | None = None,
+    use_basic_opponent_strategy: bool = True,
 ) -> str:
     """
     Chooses a card using the given card-selection policy.
@@ -70,5 +113,20 @@ def choose_card_by_policy(
 
     if policy == "highest_point":
         return choose_highest_point_card(state)
+
+    if policy == "highest_expected_value":
+        if left_hand_size is None or right_hand_size is None:
+            raise ValueError(
+                "left_hand_size and right_hand_size are required for highest_expected_value."
+            )
+
+        return choose_highest_expected_value_card(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            sample_count=expected_value_sample_count,
+            random_seed=random_seed,
+            use_basic_opponent_strategy=use_basic_opponent_strategy,
+        )
 
     raise ValueError(f"Invalid card selection policy: {policy}")

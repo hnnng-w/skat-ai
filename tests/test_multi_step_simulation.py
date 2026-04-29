@@ -326,3 +326,67 @@ def test_simulate_multiple_steps_rejects_invalid_card_selection_policy() -> None
         assert "Invalid card selection policy" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_simulate_multiple_steps_supports_highest_expected_value_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+    )
+
+    assert result["card_selection_policy"] == "highest_expected_value"
+    assert result["steps"][0]["card_selection_policy"] == "highest_expected_value"
+    assert result["steps"][0]["candidate_card"] in ["SA", "S10", "S9"]
+
+
+def test_simulate_multiple_steps_highest_expected_value_is_reproducible_with_seed() -> None:
+    first_state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+    )
+
+    second_state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+    )
+
+    first_result = simulate_multiple_steps(
+        state=first_state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+    )
+
+    second_result = simulate_multiple_steps(
+        state=second_state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+    )
+
+    assert first_result == second_result

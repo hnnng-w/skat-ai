@@ -14,12 +14,13 @@ def simulate_multiple_steps(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     card_selection_policy: str = "first_legal",
+    expected_value_sample_count: int = 100,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential trick steps.
 
     Current simplifications:
-    - The candidate card is selected with a configurable simple policy.
+    - The candidate card is selected with a configurable policy.
     - Each step assumes the player can act in the current state.
     - Opponent hands are resampled each step from unseen cards.
     """
@@ -35,9 +36,16 @@ def simulate_multiple_steps(
         if not current_state.hand:
             break
 
+        card_selection_seed = rng.randint(0, 10**9) if random_seed is not None else None
+
         candidate_card = choose_card_by_policy(
             state=current_state,
             policy=card_selection_policy,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            expected_value_sample_count=expected_value_sample_count,
+            random_seed=card_selection_seed,
+            use_basic_opponent_strategy=use_basic_opponent_strategy,
         )
 
         step_result = simulate_and_advance_once(

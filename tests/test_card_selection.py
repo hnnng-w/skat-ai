@@ -1,6 +1,8 @@
 from skat_ai.card_selection import (
+    calculate_expected_point_swing,
     choose_card_by_policy,
     choose_first_legal_card,
+    choose_highest_expected_value_card,
     choose_highest_point_card,
     choose_lowest_point_card,
     get_legal_cards_for_state,
@@ -139,5 +141,108 @@ def test_choose_first_legal_card_rejects_empty_hand() -> None:
         choose_first_legal_card(state)
     except ValueError as error:
         assert "No legal cards" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_expected_point_swing() -> None:
+    value = {
+        "win_rate": 0.5,
+        "average_trick_points": 12.0,
+        "average_points_won": 8.0,
+        "average_points_lost": 3.0,
+    }
+
+    assert calculate_expected_point_swing(value) == 5.0
+
+
+def test_choose_highest_expected_value_card_returns_legal_card() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+    )
+
+    selected_card = choose_highest_expected_value_card(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        sample_count=20,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert selected_card in ["SA", "S10", "S9"]
+
+
+def test_choose_highest_expected_value_card_is_reproducible_with_seed() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+    )
+
+    first_selected_card = choose_highest_expected_value_card(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        sample_count=20,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+    )
+
+    second_selected_card = choose_highest_expected_value_card(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        sample_count=20,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert first_selected_card == second_selected_card
+
+
+def test_choose_card_by_policy_supports_highest_expected_value() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+    )
+
+    selected_card = choose_card_by_policy(
+        state=state,
+        policy="highest_expected_value",
+        left_hand_size=5,
+        right_hand_size=5,
+        expected_value_sample_count=20,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert selected_card in ["SA", "S10", "S9"]
+
+
+def test_choose_card_by_policy_requires_hand_sizes_for_highest_expected_value() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+    )
+
+    try:
+        choose_card_by_policy(
+            state=state,
+            policy="highest_expected_value",
+            expected_value_sample_count=20,
+            random_seed=42,
+            use_basic_opponent_strategy=True,
+        )
+    except ValueError as error:
+        assert "left_hand_size and right_hand_size" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
