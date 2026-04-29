@@ -6,9 +6,13 @@ from skat_ai.game_history import (
     get_all_played_cards,
     get_completed_trick_cards,
     get_completed_trick_points,
+    get_completed_trick_winner_player,
     get_completed_trick_winner_role,
     get_played_cards_from_completed_tricks,
+    get_players_for_trick_leader,
+    get_winner_player_from_trick_players,
     get_winner_role_for_trick_winner,
+    get_winner_role_for_winner_player,
 )
 from skat_ai.game_state import GameState
 
@@ -180,12 +184,13 @@ def test_build_completed_trick_from_cards_for_declarer_win() -> None:
         game_type="grand",
         player_index=1,
         player_role="declarer",
+        trick_players=["left", "me", "right"],
     )
 
-    assert completed_trick == {
-        "cards": ["S7", "SA", "S8"],
-        "winner_role": "declarer",
-    }
+    assert completed_trick["cards"] == ["S7", "SA", "S8"]
+    assert completed_trick["players"] == ["left", "me", "right"]
+    assert completed_trick["winner_role"] == "declarer"
+    assert completed_trick["winner_player"] == "me"
 
 
 def test_build_completed_trick_from_cards_for_declarer_loss() -> None:
@@ -194,12 +199,13 @@ def test_build_completed_trick_from_cards_for_declarer_loss() -> None:
         game_type="grand",
         player_index=1,
         player_role="declarer",
+        trick_players=["left", "me", "right"],
     )
 
-    assert completed_trick == {
-        "cards": ["S7", "S9", "SA"],
-        "winner_role": "defenders",
-    }
+    assert completed_trick["cards"] == ["S7", "S9", "SA"]
+    assert completed_trick["players"] == ["left", "me", "right"]
+    assert completed_trick["winner_role"] == "defenders"
+    assert completed_trick["winner_player"] == "right"
 
 
 def test_build_completed_trick_from_cards_requires_three_cards() -> None:
@@ -236,6 +242,7 @@ def test_build_completed_trick_from_state_and_candidate_second_position() -> Non
         player_role="declarer",
         hand=["SA", "S9"],
         current_trick=["S7"],
+        trick_leader="left",
     )
 
     completed_trick = build_completed_trick_from_state_and_candidate(
@@ -243,10 +250,10 @@ def test_build_completed_trick_from_state_and_candidate_second_position() -> Non
         completed_trick_cards=["S7", "SA", "S8"],
     )
 
-    assert completed_trick == {
-        "cards": ["S7", "SA", "S8"],
-        "winner_role": "declarer",
-    }
+    assert completed_trick["cards"] == ["S7", "SA", "S8"]
+    assert completed_trick["players"] == ["left", "me", "right"]
+    assert completed_trick["winner_role"] == "declarer"
+    assert completed_trick["winner_player"] == "me"
 
 
 def test_build_completed_trick_from_state_and_candidate_third_position() -> None:
@@ -255,6 +262,7 @@ def test_build_completed_trick_from_state_and_candidate_third_position() -> None
         player_role="declarer",
         hand=["SA", "S9"],
         current_trick=["S7", "S8"],
+        trick_leader="right",
     )
 
     completed_trick = build_completed_trick_from_state_and_candidate(
@@ -262,7 +270,116 @@ def test_build_completed_trick_from_state_and_candidate_third_position() -> None
         completed_trick_cards=["S7", "S8", "SA"],
     )
 
-    assert completed_trick == {
-        "cards": ["S7", "S8", "SA"],
+    assert completed_trick["cards"] == ["S7", "S8", "SA"]
+    assert completed_trick["players"] == ["right", "left", "me"]
+    assert completed_trick["winner_role"] == "declarer"
+    assert completed_trick["winner_player"] == "me"
+
+
+def test_get_players_for_trick_leader_me() -> None:
+    assert get_players_for_trick_leader("me") == ["me", "left", "right"]
+
+
+def test_get_players_for_trick_leader_left() -> None:
+    assert get_players_for_trick_leader("left") == ["left", "me", "right"]
+
+
+def test_get_players_for_trick_leader_right() -> None:
+    assert get_players_for_trick_leader("right") == ["right", "left", "me"]
+
+
+def test_get_players_for_trick_leader_rejects_unknown() -> None:
+    try:
+        get_players_for_trick_leader("unknown")
+    except ValueError as error:
+        assert "Cannot determine trick players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_get_winner_player_from_trick_players() -> None:
+    winner_player = get_winner_player_from_trick_players(
+        winner_index=2,
+        trick_players=["left", "me", "right"],
+    )
+
+    assert winner_player == "right"
+
+
+def test_get_winner_player_from_trick_players_rejects_invalid_index() -> None:
+    try:
+        get_winner_player_from_trick_players(
+            winner_index=3,
+            trick_players=["left", "me", "right"],
+        )
+    except ValueError as error:
+        assert "winner_index" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_get_winner_player_from_trick_players_rejects_invalid_player_list_length() -> None:
+    try:
+        get_winner_player_from_trick_players(
+            winner_index=0,
+            trick_players=["left", "me"],
+        )
+    except ValueError as error:
+        assert "exactly 3 players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_get_winner_role_for_winner_player_when_declarer_is_me() -> None:
+    assert get_winner_role_for_winner_player("me", "declarer") == "declarer"
+    assert get_winner_role_for_winner_player("left", "declarer") == "defenders"
+    assert get_winner_role_for_winner_player("right", "declarer") == "defenders"
+
+
+def test_get_winner_role_for_winner_player_when_player_is_defender() -> None:
+    assert get_winner_role_for_winner_player("me", "defender") == "defenders"
+    assert get_winner_role_for_winner_player("left", "defender") == "declarer"
+    assert get_winner_role_for_winner_player("right", "defender") == "declarer"
+
+
+def test_get_completed_trick_winner_player_defaults_to_unknown() -> None:
+    completed_trick = {
+        "cards": ["S7", "SA", "S8"],
         "winner_role": "declarer",
     }
+
+    assert get_completed_trick_winner_player(completed_trick) == "unknown"
+
+
+def test_build_completed_trick_from_cards_with_known_players() -> None:
+    completed_trick = build_completed_trick_from_cards(
+        cards=["S7", "SA", "S8"],
+        game_type="grand",
+        player_index=1,
+        player_role="declarer",
+        trick_players=["left", "me", "right"],
+    )
+
+    assert completed_trick["cards"] == ["S7", "SA", "S8"]
+    assert completed_trick["players"] == ["left", "me", "right"]
+    assert completed_trick["winner_role"] == "declarer"
+    assert completed_trick["winner_player"] == "me"
+
+
+def test_build_completed_trick_from_state_and_candidate_uses_trick_leader() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S9"],
+        current_trick=["S7"],
+        trick_leader="left",
+    )
+
+    completed_trick = build_completed_trick_from_state_and_candidate(
+        state=state,
+        completed_trick_cards=["S7", "SA", "S8"],
+    )
+
+    assert completed_trick["players"] == ["left", "me", "right"]
+    assert completed_trick["winner_player"] == "me"
+    assert completed_trick["winner_role"] == "declarer"

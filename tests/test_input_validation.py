@@ -380,3 +380,52 @@ def test_validate_non_negative_integer_rejects_negative_integer() -> None:
         assert "non-negative integer" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_tricks_accepts_players_and_winner_player() -> None:
+    validate_completed_tricks(
+        [
+            {
+                "cards": ["CA", "C10", "CK"],
+                "players": ["left", "me", "right"],
+                "winner_role": "defenders",
+                "winner_player": "left",
+            }
+        ]
+    )
+
+
+def test_validate_completed_tricks_rejects_invalid_players() -> None:
+    try:
+        validate_completed_tricks(
+            [
+                {
+                    "cards": ["CA", "C10", "CK"],
+                    "players": ["left", "me", "dealer"],
+                    "winner_role": "defenders",
+                    "winner_player": "left",
+                }
+            ]
+        )
+    except ValueError as error:
+        assert "Invalid completed trick players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_tricks_rejects_invalid_winner_player() -> None:
+    try:
+        validate_completed_tricks(
+            [
+                {
+                    "cards": ["CA", "C10", "CK"],
+                    "players": ["left", "me", "right"],
+                    "winner_role": "defenders",
+                    "winner_player": "dealer",
+                }
+            ]
+        )
+    except ValueError as error:
+        assert "Invalid completed trick winner player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

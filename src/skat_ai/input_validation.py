@@ -8,6 +8,7 @@ VALID_PLAYER_POSITIONS = ["forehand", "middlehand", "rearhand", "unknown"]
 VALID_TRICK_LEADERS = ["me", "left", "right", "unknown"]
 VALID_NEXT_PLAYERS = ["me", "left", "right", "unknown"]
 VALID_COMPLETED_TRICK_WINNER_ROLES = ["declarer", "defenders"]
+VALID_TRICK_PLAYERS = ["me", "left", "right"]
 
 
 def validate_required_keys(data: dict[str, Any]) -> None:
@@ -251,6 +252,8 @@ def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
 
         cards = completed_trick["cards"]
         winner_role = completed_trick["winner_role"]
+        players = completed_trick.get("players")
+        winner_player = completed_trick.get("winner_player")
 
         if not isinstance(cards, list):
             raise ValueError("Completed trick cards must be a list.")
@@ -268,3 +271,21 @@ def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
 
         if winner_role not in VALID_COMPLETED_TRICK_WINNER_ROLES:
             raise ValueError(f"Invalid completed trick winner role: {winner_role}")
+
+        if players is not None:
+            if not isinstance(players, list):
+                raise ValueError("Completed trick players must be a list.")
+
+            if len(players) != 3:
+                raise ValueError("Completed trick players must contain exactly 3 players.")
+
+            invalid_players = [
+                player for player in players
+                if player not in VALID_TRICK_PLAYERS
+            ]
+
+            if invalid_players:
+                raise ValueError(f"Invalid completed trick players: {invalid_players}")
+
+        if winner_player is not None and winner_player not in VALID_TRICK_PLAYERS:
+            raise ValueError(f"Invalid completed trick winner player: {winner_player}")

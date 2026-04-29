@@ -23,15 +23,16 @@ def determine_next_player_from_completed_trick(
     player_role: str,
 ) -> str:
     """
-    Determines a simple next-player marker after a completed trick.
+    Determines the next player after a completed trick.
 
-    Current simplification:
-    - If the player's side won the trick, next_player is "me".
-    - If the opposing side won the trick, next_player is "unknown".
-
-    This is intentionally simple because exact left/right ownership still
-    requires more detailed player identity tracking.
+    If winner_player is available, that player leads the next trick.
+    If only winner_role is available, fall back to legacy behavior.
     """
+    winner_player = completed_trick.get("winner_player", "unknown")
+
+    if winner_player in ["me", "left", "right"]:
+        return winner_player
+
     winner_role = completed_trick["winner_role"]
 
     if player_role == "declarer":

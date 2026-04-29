@@ -302,3 +302,19 @@ def test_advance_state_after_detailed_trick_does_not_mutate_original_state() -> 
             "winner_role": "declarer",
         }
     ]
+
+
+def test_determine_next_player_uses_winner_player_when_available() -> None:
+    completed_trick = {
+        "cards": ["S7", "S9", "SJ"],
+        "players": ["left", "me", "right"],
+        "winner_role": "defenders",
+        "winner_player": "right",
+    }
+
+    next_player = determine_next_player_from_completed_trick(
+        completed_trick=completed_trick,
+        player_role="declarer",
+    )
+
+    assert next_player == "right"

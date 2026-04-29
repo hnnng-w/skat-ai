@@ -18,6 +18,15 @@ def get_completed_trick_winner_role(completed_trick: dict[str, Any]) -> str:
     return completed_trick["winner_role"]
 
 
+def get_completed_trick_winner_player(completed_trick: dict[str, Any]) -> str:
+    """
+    Returns the concrete winner player from one completed trick.
+
+    Older completed_trick entries may not contain winner_player yet.
+    """
+    return completed_trick.get("winner_player", "unknown")
+
+
 def get_completed_trick_points(completed_trick: dict[str, Any]) -> int:
     """
     Returns the point value of one completed trick.
@@ -136,6 +145,7 @@ def build_completed_trick_from_cards(
     game_type: str,
     player_index: int,
     player_role: str,
+    trick_players: list[str] | None = None,
 ) -> dict[str, Any]:
     """
     Builds a completed trick entry from exactly three trick cards.
@@ -143,7 +153,9 @@ def build_completed_trick_from_cards(
     Completed trick format:
     {
         "cards": ["S7", "SA", "S8"],
-        "winner_role": "declarer"
+        "players": ["left", "me", "right"],
+        "winner_role": "declarer",
+        "winner_player": "me"
     }
     """
     if len(cards) != 3:
@@ -157,15 +169,35 @@ def build_completed_trick_from_cards(
         game_type=game_type,
     )
 
-    winner_role = get_winner_role_for_trick_winner(
-        winner_index=winner_index,
-        player_index=player_index,
-        player_role=player_role,
+    if trick_players is None:
+        trick_players = ["unknown", "unknown", "unknown"]
+
+    winner_player = (
+        get_winner_player_from_trick_players(
+            winner_index=winner_index,
+            trick_players=trick_players,
+        )
+        if "unknown" not in trick_players
+        else "unknown"
     )
+
+    if winner_player == "unknown":
+        winner_role = get_winner_role_for_trick_winner(
+            winner_index=winner_index,
+            player_index=player_index,
+            player_role=player_role,
+        )
+    else:
+        winner_role = get_winner_role_for_winner_player(
+            winner_player=winner_player,
+            player_role=player_role,
+        )
 
     return {
         "cards": cards,
+        "players": trick_players,
         "winner_role": winner_role,
+        "winner_player": winner_player,
     }
 
 
@@ -181,9 +213,75 @@ def build_completed_trick_from_state_and_candidate(
     """
     player_index = len(state.current_trick)
 
+    trick_players = (
+        get_players_for_trick_leader(state.trick_leader)
+        if state.trick_leader != "unknown"
+        else None
+    )
+
     return build_completed_trick_from_cards(
         cards=completed_trick_cards,
         game_type=state.game_type,
         player_index=player_index,
         player_role=state.player_role,
+        trick_players=trick_players,
     )
+
+
+def get_players_for_trick_leader(trick_leader: str) -> list[str]:
+    """
+    Returns the player order for a trick based on who led the trick.
+
+    Player order always represents the order of cards in the trick.
+    """
+    if trick_leader == "me":
+        return ["me", "left", "right"]
+
+    if trick_leader == "left":
+        return ["left", "me", "right"]
+
+    if trick_leader == "right":
+        return ["right", "left", "me"]
+
+    raise ValueError(f"Cannot determine trick players for trick leader: {trick_leader}")
+
+
+def get_winner_player_from_trick_players(
+    winner_index: int,
+    trick_players: list[str],
+) -> str:
+    """
+    Returns the concrete winner player from winner_index and trick player order.
+    """
+    if winner_index not in [0, 1, 2]:
+        raise ValueError("winner_index must be 0, 1, or 2.")
+
+    if len(trick_players) != 3:
+        raise ValueError("trick_players must contain exactly 3 players.")
+
+    return trick_players[winner_index]
+
+
+def get_winner_role_for_winner_player(
+    winner_player: str,
+    player_role: str,
+) -> str:
+    """
+    Determines whether the concrete winner player belongs to declarer or defenders.
+    """
+    if winner_player not in ["me", "left", "right"]:
+        raise ValueError(f"Invalid winner player: {winner_player}")
+
+    if player_role not in ["declarer", "defender"]:
+        raise ValueError(f"Unsupported player role for winner-role detection: {player_role}")
+
+    if player_role == "declarer":
+        if winner_player == "me":
+            return "declarer"
+
+        return "defenders"
+
+    if winner_player == "me":
+        return "defenders"
+
+    return "declarer"
