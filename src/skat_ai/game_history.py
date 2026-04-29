@@ -1,7 +1,7 @@
 from typing import Any
 
 from skat_ai.game_state import GameState
-from skat_ai.rules import get_trick_points
+from skat_ai.rules import get_trick_points, get_trick_winner
 
 
 def get_completed_trick_cards(completed_trick: dict[str, Any]) -> list[str]:
@@ -101,3 +101,89 @@ def get_all_played_cards(state: GameState) -> list[str]:
     all_played_cards.extend(get_played_cards_from_completed_tricks(state.completed_tricks))
 
     return all_played_cards
+
+
+def get_winner_role_for_trick_winner(
+    winner_index: int,
+    player_index: int,
+    player_role: str,
+) -> str:
+    """
+    Determines whether the completed trick was won by the declarer or defenders.
+
+    Args:
+        winner_index: Index of the winning card in the completed trick.
+        player_index: Index of the player's card in the completed trick.
+        player_role: Role of the player, usually "declarer" or "defender".
+    """
+    if player_role not in ["declarer", "defender"]:
+        raise ValueError(f"Unsupported player role for winner-role detection: {player_role}")
+
+    if winner_index == player_index:
+        if player_role == "declarer":
+            return "declarer"
+
+        return "defenders"
+
+    if player_role == "declarer":
+        return "defenders"
+
+    return "declarer"
+
+
+def build_completed_trick_from_cards(
+    cards: list[str],
+    game_type: str,
+    player_index: int,
+    player_role: str,
+) -> dict[str, Any]:
+    """
+    Builds a completed trick entry from exactly three trick cards.
+
+    Completed trick format:
+    {
+        "cards": ["S7", "SA", "S8"],
+        "winner_role": "declarer"
+    }
+    """
+    if len(cards) != 3:
+        raise ValueError("A completed trick must contain exactly 3 cards.")
+
+    if player_index not in [0, 1, 2]:
+        raise ValueError("player_index must be 0, 1, or 2.")
+
+    winner_index = get_trick_winner(
+        trick=cards,
+        game_type=game_type,
+    )
+
+    winner_role = get_winner_role_for_trick_winner(
+        winner_index=winner_index,
+        player_index=player_index,
+        player_role=player_role,
+    )
+
+    return {
+        "cards": cards,
+        "winner_role": winner_role,
+    }
+
+
+def build_completed_trick_from_state_and_candidate(
+    state: GameState,
+    completed_trick_cards: list[str],
+) -> dict[str, Any]:
+    """
+    Builds a completed trick entry from a GameState and completed trick cards.
+
+    The player's card index is inferred from len(state.current_trick), because the
+    candidate card is played after the existing cards in current_trick.
+    """
+    player_index = len(state.current_trick)
+
+    return build_completed_trick_from_cards(
+        cards=completed_trick_cards,
+        game_type=state.game_type,
+        player_index=player_index,
+        player_role=state.player_role,
+    )
