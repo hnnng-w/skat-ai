@@ -154,6 +154,30 @@ Write the result to a folder:
 python main.py --input examples/grand_leading.json --output outputs/grand_leading_result.json
 ```
 
+Run a multi-step simulation:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2
+```
+
+Use a specific card-selection policy:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy lowest_point
+```
+
+Use the expected-value card-selection policy:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy highest_expected_value --expected-value-samples 20
+```
+
+Write a multi-step result to JSON:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy highest_expected_value --expected-value-samples 20 --output outputs/multi_step_result.json
+```
+
 ## Example positions
 
 The project includes example JSON input files in the `examples/` folder.

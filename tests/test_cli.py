@@ -1,4 +1,9 @@
-from main import apply_cli_overrides, build_analysis_result
+from main import (
+    apply_cli_overrides,
+    build_analysis_result,
+    print_multi_step_result,
+    run_json_position_analysis,
+)
 
 
 def test_apply_cli_overrides_keeps_settings_when_no_overrides_are_given() -> None:
@@ -203,3 +208,94 @@ def test_build_analysis_result_applies_cli_overrides() -> None:
     assert result["settings"]["sample_count"] == 20
     assert result["settings"]["random_seed"] == 123
     assert result["settings"]["use_basic_opponent_strategy"] is False
+
+
+def test_run_json_position_analysis_supports_multi_step() -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="first_legal",
+        expected_value_sample_count=20,
+    )
+
+
+def test_run_json_position_analysis_rejects_zero_multi_step_count() -> None:
+    try:
+        run_json_position_analysis(
+            file_path="examples/grand_second_position.json",
+            sample_count_override=20,
+            random_seed_override=42,
+            opponent_strategy_override="basic",
+            output_path=None,
+            multi_step_count=0,
+            card_selection_policy="first_legal",
+            expected_value_sample_count=20,
+        )
+    except ValueError as error:
+        assert "multi_step_count" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_run_json_position_analysis_supports_highest_expected_value_multi_step() -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+    )
+
+
+def test_print_multi_step_result_outputs_summary(capsys) -> None:
+    from skat_ai.game_state import GameState
+
+    result = {
+        "card_selection_policy": "first_legal",
+        "steps": [
+            {
+                "step_index": 0,
+                "candidate_card": "SA",
+                "detailed_result": {
+                    "trick": ["S7", "SA", "S8"],
+                    "did_win": True,
+                    "trick_points": 11,
+                    "completed_trick": {
+                        "cards": ["S7", "SA", "S8"],
+                        "winner_role": "declarer",
+                    },
+                },
+            }
+        ],
+        "final_state": GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["S10", "S9"],
+            current_trick=[],
+            completed_tricks=[
+                {
+                    "cards": ["S7", "SA", "S8"],
+                    "winner_role": "declarer",
+                }
+            ],
+            declarer_points=11,
+            defender_points=0,
+            next_player="me",
+        ),
+    }
+
+    print_multi_step_result(result)
+
+    captured = capsys.readouterr()
+
+    assert "Multi-step simulation" in captured.out
+    assert "Card selection policy: first_legal" in captured.out
+    assert "Candidate card: SA" in captured.out
+    assert "Final state" in captured.out
