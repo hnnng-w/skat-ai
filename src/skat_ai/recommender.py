@@ -1,3 +1,4 @@
+from skat_ai.game_history import get_all_played_cards
 from skat_ai.game_state import GameState
 from skat_ai.rules import (
     SUIT_GAME_RANK_STRENGTH,
@@ -53,15 +54,21 @@ def classify_higher_cards(card: str, state: GameState) -> dict[str, list[str]]:
     - unknown: higher cards that are neither played nor in the player's hand
     """
     higher_cards = get_higher_cards_in_same_suit(card, state)
+    played_cards = get_all_played_cards(state)
 
-    played = [higher_card for higher_card in higher_cards if higher_card in state.played_cards]
+    played = [
+        higher_card for higher_card in higher_cards
+        if higher_card in played_cards
+    ]
 
-    in_hand = [higher_card for higher_card in higher_cards if higher_card in state.hand]
+    in_hand = [
+        higher_card for higher_card in higher_cards
+        if higher_card in state.hand
+    ]
 
     unknown = [
-        higher_card
-        for higher_card in higher_cards
-        if higher_card not in state.played_cards and higher_card not in state.hand
+        higher_card for higher_card in higher_cards
+        if higher_card not in played_cards and higher_card not in state.hand
     ]
 
     return {

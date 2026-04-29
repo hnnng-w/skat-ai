@@ -384,3 +384,25 @@ def test_recommend_card_by_expected_value_supports_third_position() -> None:
     assert recommended_card in ["SA", "S10", "S9"]
     assert recommended_card in values
     assert "expected point swing" in reason.lower()
+
+
+def test_classify_higher_cards_detects_higher_card_in_completed_tricks() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S10", "S9"],
+        current_trick=[],
+        played_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["SA", "C7", "D7"],
+                "winner_role": "defenders",
+            }
+        ],
+    )
+
+    classification = classify_higher_cards("S10", state)
+
+    assert classification["played"] == ["SA"]
+    assert classification["in_hand"] == []
+    assert classification["unknown"] == []

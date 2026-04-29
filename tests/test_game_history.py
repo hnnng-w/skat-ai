@@ -1,9 +1,11 @@
 from skat_ai.game_history import (
     build_score_summary,
     calculate_completed_trick_points_by_side,
+    get_all_played_cards,
     get_completed_trick_cards,
     get_completed_trick_points,
     get_completed_trick_winner_role,
+    get_played_cards_from_completed_tricks,
 )
 from skat_ai.game_state import GameState
 
@@ -77,3 +79,40 @@ def test_build_score_summary() -> None:
     assert summary["completed_trick_defender_points"] == 0
     assert summary["total_declarer_points"] == 35
     assert summary["total_defender_points"] == 5
+
+
+def test_get_played_cards_from_completed_tricks() -> None:
+    completed_tricks = [
+        {
+            "cards": ["CA", "C10", "CK"],
+            "winner_role": "declarer",
+        },
+        {
+            "cards": ["SA", "S10", "SK"],
+            "winner_role": "defenders",
+        },
+    ]
+
+    played_cards = get_played_cards_from_completed_tricks(completed_tricks)
+
+    assert played_cards == ["CA", "C10", "CK", "SA", "S10", "SK"]
+
+
+def test_get_all_played_cards_combines_legacy_played_cards_and_completed_tricks() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["H7"],
+        current_trick=[],
+        played_cards=["D7"],
+        completed_tricks=[
+            {
+                "cards": ["CA", "C10", "CK"],
+                "winner_role": "declarer",
+            }
+        ],
+    )
+
+    played_cards = get_all_played_cards(state)
+
+    assert played_cards == ["D7", "CA", "C10", "CK"]

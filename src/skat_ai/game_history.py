@@ -71,3 +71,33 @@ def build_score_summary(state: GameState) -> dict[str, int]:
         "total_declarer_points": state.declarer_points + completed_points["declarer_points"],
         "total_defender_points": state.defender_points + completed_points["defender_points"],
     }
+
+
+def get_played_cards_from_completed_tricks(
+    completed_tricks: list[dict[str, Any]],
+) -> list[str]:
+    """
+    Returns all played cards from completed tricks.
+    """
+    played_cards = []
+
+    for completed_trick in completed_tricks:
+        played_cards.extend(get_completed_trick_cards(completed_trick))
+
+    return played_cards
+
+
+def get_all_played_cards(state: GameState) -> list[str]:
+    """
+    Returns all played cards known from both legacy played_cards
+    and completed_tricks.
+
+    This keeps backward compatibility while allowing completed_tricks
+    to become the preferred source over time.
+    """
+    all_played_cards = []
+
+    all_played_cards.extend(state.played_cards)
+    all_played_cards.extend(get_played_cards_from_completed_tricks(state.completed_tricks))
+
+    return all_played_cards
