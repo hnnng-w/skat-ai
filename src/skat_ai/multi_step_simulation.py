@@ -1,30 +1,9 @@
 import random
 from typing import Any
 
+from skat_ai.card_selection import choose_card_by_policy
 from skat_ai.game_state import GameState
-from skat_ai.rules import get_legal_cards
 from skat_ai.simulation_step import simulate_and_advance_once
-
-
-def choose_first_legal_card(
-    state: GameState,
-) -> str:
-    """
-    Chooses the first legal card from the current state.
-
-    This is a simple placeholder policy for multi-step simulation.
-    Smarter policies can be added later.
-    """
-    legal_cards = get_legal_cards(
-        hand=state.hand,
-        current_trick=state.current_trick,
-        game_type=state.game_type,
-    )
-
-    if not legal_cards:
-        raise ValueError("No legal cards available.")
-
-    return legal_cards[0]
 
 
 def simulate_multiple_steps(
@@ -34,12 +13,13 @@ def simulate_multiple_steps(
     step_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    card_selection_policy: str = "first_legal",
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential trick steps.
 
     Current simplifications:
-    - The candidate card is selected with a simple first-legal-card policy.
+    - The candidate card is selected with a configurable simple policy.
     - Each step assumes the player can act in the current state.
     - Opponent hands are resampled each step from unseen cards.
     """
@@ -55,7 +35,10 @@ def simulate_multiple_steps(
         if not current_state.hand:
             break
 
-        candidate_card = choose_first_legal_card(current_state)
+        candidate_card = choose_card_by_policy(
+            state=current_state,
+            policy=card_selection_policy,
+        )
 
         step_result = simulate_and_advance_once(
             state=current_state,
@@ -70,6 +53,7 @@ def simulate_multiple_steps(
             {
                 "step_index": step_index,
                 "candidate_card": candidate_card,
+                "card_selection_policy": card_selection_policy,
                 "detailed_result": step_result["detailed_result"],
                 "next_state": step_result["next_state"],
             }
@@ -80,5 +64,6 @@ def simulate_multiple_steps(
     return {
         "initial_state": state,
         "final_state": current_state,
+        "card_selection_policy": card_selection_policy,
         "steps": steps,
     }

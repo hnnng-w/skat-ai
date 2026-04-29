@@ -1,8 +1,6 @@
+from skat_ai.card_selection import choose_first_legal_card
 from skat_ai.game_state import GameState
-from skat_ai.multi_step_simulation import (
-    choose_first_legal_card,
-    simulate_multiple_steps,
-)
+from skat_ai.multi_step_simulation import simulate_multiple_steps
 
 
 def test_choose_first_legal_card_returns_first_legal_card_when_leading() -> None:
@@ -67,6 +65,7 @@ def test_simulate_multiple_steps_returns_expected_keys() -> None:
     assert set(result.keys()) == {
         "initial_state",
         "final_state",
+        "card_selection_policy",
         "steps",
     }
 
@@ -236,5 +235,94 @@ def test_simulate_multiple_steps_rejects_zero_steps() -> None:
         )
     except ValueError as error:
         assert "step_count" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_simulate_multiple_steps_uses_default_card_selection_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert result["card_selection_policy"] == "first_legal"
+    assert result["steps"][0]["card_selection_policy"] == "first_legal"
+
+
+def test_simulate_multiple_steps_supports_lowest_point_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="lowest_point",
+    )
+
+    assert result["card_selection_policy"] == "lowest_point"
+    assert result["steps"][0]["candidate_card"] == "S9"
+
+
+def test_simulate_multiple_steps_supports_highest_point_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+    )
+
+    assert result["card_selection_policy"] == "highest_point"
+    assert result["steps"][0]["candidate_card"] == "SA"
+
+
+def test_simulate_multiple_steps_rejects_invalid_card_selection_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10", "D7"],
+        current_trick=["S7"],
+    )
+
+    try:
+        simulate_multiple_steps(
+            state=state,
+            left_hand_size=5,
+            right_hand_size=5,
+            step_count=1,
+            random_seed=42,
+            use_basic_opponent_strategy=True,
+            card_selection_policy="invalid_policy",
+        )
+    except ValueError as error:
+        assert "Invalid card selection policy" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

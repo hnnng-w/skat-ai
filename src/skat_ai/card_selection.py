@@ -1,0 +1,74 @@
+from skat_ai.game_state import GameState
+from skat_ai.rules import get_card_points, get_legal_cards
+
+VALID_CARD_SELECTION_POLICIES = [
+    "first_legal",
+    "lowest_point",
+    "highest_point",
+]
+
+
+def get_legal_cards_for_state(state: GameState) -> list[str]:
+    """
+    Returns all legal cards for the current state.
+    """
+    return get_legal_cards(
+        hand=state.hand,
+        current_trick=state.current_trick,
+        game_type=state.game_type,
+    )
+
+
+def choose_first_legal_card(state: GameState) -> str:
+    """
+    Chooses the first legal card from the current state.
+    """
+    legal_cards = get_legal_cards_for_state(state)
+
+    if not legal_cards:
+        raise ValueError("No legal cards available.")
+
+    return legal_cards[0]
+
+
+def choose_lowest_point_card(state: GameState) -> str:
+    """
+    Chooses the legal card with the lowest point value.
+    """
+    legal_cards = get_legal_cards_for_state(state)
+
+    if not legal_cards:
+        raise ValueError("No legal cards available.")
+
+    return min(legal_cards, key=get_card_points)
+
+
+def choose_highest_point_card(state: GameState) -> str:
+    """
+    Chooses the legal card with the highest point value.
+    """
+    legal_cards = get_legal_cards_for_state(state)
+
+    if not legal_cards:
+        raise ValueError("No legal cards available.")
+
+    return max(legal_cards, key=get_card_points)
+
+
+def choose_card_by_policy(
+    state: GameState,
+    policy: str,
+) -> str:
+    """
+    Chooses a card using the given card-selection policy.
+    """
+    if policy == "first_legal":
+        return choose_first_legal_card(state)
+
+    if policy == "lowest_point":
+        return choose_lowest_point_card(state)
+
+    if policy == "highest_point":
+        return choose_highest_point_card(state)
+
+    raise ValueError(f"Invalid card selection policy: {policy}")
