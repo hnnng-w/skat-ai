@@ -125,6 +125,7 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     """
     position = result["position"]
     settings = result["settings"]
+    score_summary = result["score_summary"]
 
     print("JSON position analysis")
     print("Input file:", result["input_file"])
@@ -148,11 +149,25 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print("Use basic opponent strategy:", settings["use_basic_opponent_strategy"])
 
     print()
+    print("Score summary")
+    print("Explicit declarer points:", score_summary["explicit_declarer_points"])
+    print("Explicit defender points:", score_summary["explicit_defender_points"])
+    print(
+        "Completed-trick declarer points:",
+        score_summary["completed_trick_declarer_points"],
+    )
+    print(
+        "Completed-trick defender points:",
+        score_summary["completed_trick_defender_points"],
+    )
+    print("Total declarer points:", score_summary["total_declarer_points"])
+    print("Total defender points:", score_summary["total_defender_points"])
+
+    print()
     print(format_card_analysis_report(result["analysis_report"]))
 
     print()
     print(result["strategic_summary"])
-    print("Score summary:", result["score_summary"])
 
     print()
     print("Recommended card:", result["recommendation"]["card"])
