@@ -8,7 +8,12 @@ class GameState:
     player_role: str
     hand: list[str]
     current_trick: list[str]
+
+    # Legacy field:
+    # Keep for backward compatibility with older inputs.
+    # Prefer completed_tricks for newly recorded played cards.
     played_cards: list[str] = field(default_factory=list)
+
     skat: list[str] = field(default_factory=list)
     player_position: str = "unknown"
     trick_leader: str = "unknown"

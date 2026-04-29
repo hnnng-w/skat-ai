@@ -192,6 +192,15 @@ Example `input_position.json`:
   "hand": ["SA", "S10", "S9", "H10", "D7"],
   "current_trick": ["S7"],
   "played_cards": [],
+  "completed_tricks": [
+    {
+      "cards": ["CA", "C10", "CK"],
+      "winner_role": "defenders"
+    }
+  ],
+  "declarer_points": 0,
+  "defender_points": 0,
+  "next_player": "me",
   "skat": [],
   "left_hand_size": 5,
   "right_hand_size": 5,
@@ -200,6 +209,32 @@ Example `input_position.json`:
   "use_basic_opponent_strategy": true
 }
 ```
+
+## Game history fields
+
+The preferred way to record completed tricks is `completed_tricks`.
+
+Example:
+
+```json
+"completed_tricks": [
+  {
+    "cards": ["CA", "C10", "CK"],
+    "winner_role": "defenders"
+  }
+]
+```
+
+Allowed `winner_role` values:
+
+```text
+declarer
+defenders
+```
+
+The field `played_cards` is still supported for backward compatibility with older inputs, but new inputs should prefer `completed_tricks`.
+
+Do not list the same card in both `played_cards` and `completed_tricks`, because duplicate known cards are rejected by input validation.
 
 ## Card notation
 

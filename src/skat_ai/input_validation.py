@@ -174,6 +174,8 @@ def validate_position_input(data: dict[str, Any]) -> None:
 
     hand = data["hand"]
     current_trick = data["current_trick"]
+    # Legacy field:
+    # Keep for backward compatibility. Prefer completed_tricks for completed tricks.
     played_cards = data.get("played_cards", [])
     skat = data.get("skat", [])
     completed_tricks = data.get("completed_tricks", [])
