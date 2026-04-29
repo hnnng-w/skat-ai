@@ -440,3 +440,15 @@ Possible next steps:
 ## Disclaimer
 
 This tool provides statistical and rule-based recommendations based on simplified simulations. It is intended as a learning and analysis aid, not as a perfect Skat engine.
+
+## Roadmap and issues
+
+Development tasks are tracked with GitHub Issues.
+
+Main roadmap areas:
+
+- Full-game state tracking
+- Multi-trick simulation
+- Smarter opponent strategies
+- Game score calculation
+- More realistic example positions
