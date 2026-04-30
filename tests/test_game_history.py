@@ -242,7 +242,7 @@ def test_build_completed_trick_from_state_and_candidate_second_position() -> Non
         player_role="declarer",
         hand=["SA", "S9"],
         current_trick=["S7"],
-        trick_leader="left",
+        trick_leader="right",
     )
 
     completed_trick = build_completed_trick_from_state_and_candidate(
@@ -251,7 +251,7 @@ def test_build_completed_trick_from_state_and_candidate_second_position() -> Non
     )
 
     assert completed_trick["cards"] == ["S7", "SA", "S8"]
-    assert completed_trick["players"] == ["left", "me", "right"]
+    assert completed_trick["players"] == ["right", "me", "left"]
     assert completed_trick["winner_role"] == "declarer"
     assert completed_trick["winner_player"] == "me"
 
@@ -262,7 +262,7 @@ def test_build_completed_trick_from_state_and_candidate_third_position() -> None
         player_role="declarer",
         hand=["SA", "S9"],
         current_trick=["S7", "S8"],
-        trick_leader="right",
+        trick_leader="left",
     )
 
     completed_trick = build_completed_trick_from_state_and_candidate(
@@ -271,7 +271,7 @@ def test_build_completed_trick_from_state_and_candidate_third_position() -> None
     )
 
     assert completed_trick["cards"] == ["S7", "S8", "SA"]
-    assert completed_trick["players"] == ["right", "left", "me"]
+    assert completed_trick["players"] == ["left", "right", "me"]
     assert completed_trick["winner_role"] == "declarer"
     assert completed_trick["winner_player"] == "me"
 
@@ -281,12 +281,10 @@ def test_get_players_for_trick_leader_me() -> None:
 
 
 def test_get_players_for_trick_leader_left() -> None:
-    assert get_players_for_trick_leader("left") == ["left", "me", "right"]
-
+    assert get_players_for_trick_leader("left") == ["left", "right", "me"]
 
 def test_get_players_for_trick_leader_right() -> None:
-    assert get_players_for_trick_leader("right") == ["right", "left", "me"]
-
+    assert get_players_for_trick_leader("right") == ["right", "me", "left"]
 
 def test_get_players_for_trick_leader_rejects_unknown() -> None:
     try:
@@ -371,15 +369,15 @@ def test_build_completed_trick_from_state_and_candidate_uses_trick_leader() -> N
         game_type="grand",
         player_role="declarer",
         hand=["SA", "S9"],
-        current_trick=["S7"],
+        current_trick=["S7", "S8"],
         trick_leader="left",
     )
 
     completed_trick = build_completed_trick_from_state_and_candidate(
         state=state,
-        completed_trick_cards=["S7", "SA", "S8"],
+        completed_trick_cards=["S7", "S8", "SA"],
     )
 
-    assert completed_trick["players"] == ["left", "me", "right"]
+    assert completed_trick["players"] == ["left", "right", "me"]
     assert completed_trick["winner_player"] == "me"
     assert completed_trick["winner_role"] == "declarer"

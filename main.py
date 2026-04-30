@@ -189,6 +189,8 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     print("Requested steps:", result.get("requested_step_count", len(steps)))
     print("Steps simulated:", result.get("steps_simulated", len(steps)))
     print("Stop reason:", result.get("stop_reason", "unknown"))
+    if "context_summary" in result:
+        print("Context summary:", result["context_summary"])
 
     for step in steps:
         detailed_result = step["detailed_result"]
@@ -201,6 +203,10 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
         if opponent_lead_result is not None:
             print("Opponent lead player:", opponent_lead_result["leader"])
             print("Opponent lead card:", opponent_lead_result["lead_card"])
+
+            if "responder" in opponent_lead_result:
+                print("Opponent response player:", opponent_lead_result["responder"])
+                print("Opponent response card:", opponent_lead_result["response_card"])
 
         print("Candidate card:", step["candidate_card"])
         print("Trick:", detailed_result["trick"])
@@ -267,9 +273,20 @@ def run_json_position_analysis(
             "requested_step_count": multi_step_result["requested_step_count"],
             "steps_simulated": multi_step_result["steps_simulated"],
             "stop_reason": multi_step_result["stop_reason"],
+            "context_summary": multi_step_result["context_summary"],
             "steps": [
                 {
                     "step_index": step["step_index"],
+                    "opponent_lead_result": (
+                        {
+                            "leader": step["opponent_lead_result"]["leader"],
+                            "lead_card": step["opponent_lead_result"]["lead_card"],
+                            "responder": step["opponent_lead_result"].get("responder"),
+                            "response_card": step["opponent_lead_result"].get("response_card"),
+                        }
+                        if step["opponent_lead_result"] is not None
+                        else None
+                    ),
                     "candidate_card": step["candidate_card"],
                     "card_selection_policy": step["card_selection_policy"],
                     "detailed_result": step["detailed_result"],

@@ -233,15 +233,17 @@ def get_players_for_trick_leader(trick_leader: str) -> list[str]:
     Returns the player order for a trick based on who led the trick.
 
     Player order always represents the order of cards in the trick.
+    Seating model:
+    me -> left -> right -> me
     """
     if trick_leader == "me":
         return ["me", "left", "right"]
 
     if trick_leader == "left":
-        return ["left", "me", "right"]
+        return ["left", "right", "me"]
 
     if trick_leader == "right":
-        return ["right", "left", "me"]
+        return ["right", "me", "left"]
 
     raise ValueError(f"Cannot determine trick players for trick leader: {trick_leader}")
 
