@@ -707,3 +707,53 @@ def test_simulate_multiple_steps_returns_context_summary() -> None:
     assert "context_summary" in result
     assert result["context_summary"]["event_count"] == 1
     assert result["context_summary"]["simulated_opponent_card_count"] >= 1
+
+def test_simulate_multiple_steps_context_tracks_opponent_cards() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+    )
+
+    context = result["context"]
+
+    assert len(context.simulated_opponent_cards) >= 1
+    assert result["context_summary"]["simulated_opponent_card_count"] >= 1
+
+
+def test_simulate_multiple_steps_applies_context_to_later_sampling() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9", "H10"],
+        current_trick=[],
+        trick_leader="me",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=2,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+    )
+
+    context = result["context"]
+
+    assert result["steps_simulated"] >= 1
+    assert len(context.simulated_opponent_cards) >= 1

@@ -11,6 +11,7 @@ from skat_ai.simulation_context import (
     SimulationContext,
     add_simulated_opponent_cards,
     add_simulation_event,
+    apply_context_to_state_for_sampling,
     build_context_summary,
 )
 from skat_ai.simulation_step import simulate_and_advance_once
@@ -176,8 +177,13 @@ def simulate_multiple_steps(
             stop_reason = f"Next player is {current_state.next_player}, not supported."
             break
 
+        sampling_state = apply_context_to_state_for_sampling(
+            state=current_state,
+            context=context,
+        )
+
         prepared_state, opponent_lead_result = prepare_state_for_player_action(
-            current_state=current_state,
+            current_state=sampling_state,
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             random_generator=rng,

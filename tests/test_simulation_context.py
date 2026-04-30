@@ -1,8 +1,10 @@
+from skat_ai.game_state import GameState
 from skat_ai.simulation_context import (
     SimulationContext,
     add_simulated_opponent_card,
     add_simulated_opponent_cards,
     add_simulation_event,
+    apply_context_to_state_for_sampling,
     build_context_summary,
     get_duplicate_simulated_opponent_cards,
     get_unique_simulated_opponent_cards,
@@ -128,3 +130,104 @@ def test_build_context_summary() -> None:
         "duplicate_simulated_opponent_cards": ["S7"],
         "event_count": 2,
     }
+
+
+def test_apply_context_to_state_for_sampling_adds_simulated_cards_to_played_cards() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        played_cards=[],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7", "S8"],
+    )
+
+    updated_state = apply_context_to_state_for_sampling(
+        state=state,
+        context=context,
+    )
+
+    assert updated_state.played_cards == ["S7", "S8"]
+
+
+def test_apply_context_to_state_for_sampling_does_not_duplicate_played_cards() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        played_cards=["S7"],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7", "S8"],
+    )
+
+    updated_state = apply_context_to_state_for_sampling(
+        state=state,
+        context=context,
+    )
+
+    assert updated_state.played_cards == ["S7", "S8"]
+
+
+def test_apply_context_to_state_for_sampling_does_not_add_cards_from_hand() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S7"],
+        current_trick=[],
+        played_cards=[],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7", "S8"],
+    )
+
+    updated_state = apply_context_to_state_for_sampling(
+        state=state,
+        context=context,
+    )
+
+    assert updated_state.played_cards == ["S8"]
+
+
+def test_apply_context_to_state_for_sampling_does_not_add_cards_from_current_trick() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7"],
+        played_cards=[],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7", "S8"],
+    )
+
+    updated_state = apply_context_to_state_for_sampling(
+        state=state,
+        context=context,
+    )
+
+    assert updated_state.played_cards == ["S8"]
+
+
+def test_apply_context_to_state_for_sampling_does_not_mutate_original_state() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        played_cards=[],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7"],
+    )
+
+    updated_state = apply_context_to_state_for_sampling(
+        state=state,
+        context=context,
+    )
+
+    assert state.played_cards == []
+    assert updated_state.played_cards == ["S7"]

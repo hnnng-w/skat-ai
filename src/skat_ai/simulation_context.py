@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+from skat_ai.game_state import GameState
+
 
 @dataclass
 class SimulationContext:
@@ -108,3 +110,42 @@ def build_context_summary(
         "duplicate_simulated_opponent_cards": duplicates,
         "event_count": len(context.events),
     }
+
+def apply_context_to_state_for_sampling(
+    state: GameState,
+    context: SimulationContext,
+) -> GameState:
+    """
+    Returns a copy of the state where simulated opponent cards are treated
+    as already played cards for future sampling.
+
+    This prevents future opponent-hand sampling from drawing the same
+    simulated opponent cards again.
+    """
+    known_simulated_cards = get_unique_simulated_opponent_cards(context)
+
+    updated_played_cards = state.played_cards.copy()
+
+    for card in known_simulated_cards:
+        if (
+            card not in updated_played_cards
+            and card not in state.hand
+            and card not in state.current_trick
+            and card not in state.skat
+        ):
+            updated_played_cards.append(card)
+
+    return GameState(
+        game_type=state.game_type,
+        player_role=state.player_role,
+        hand=state.hand.copy(),
+        current_trick=state.current_trick.copy(),
+        played_cards=updated_played_cards,
+        skat=state.skat.copy(),
+        player_position=state.player_position,
+        trick_leader=state.trick_leader,
+        completed_tricks=[completed_trick.copy() for completed_trick in state.completed_tricks],
+        declarer_points=state.declarer_points,
+        defender_points=state.defender_points,
+        next_player=state.next_player,
+    )
