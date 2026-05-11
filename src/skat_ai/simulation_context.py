@@ -149,3 +149,17 @@ def apply_context_to_state_for_sampling(
         defender_points=state.defender_points,
         next_player=state.next_player,
     )
+
+def validate_no_duplicate_simulated_opponent_cards(
+    context: SimulationContext,
+) -> None:
+    """
+    Raises a ValueError if duplicate simulated opponent cards exist.
+    """
+    duplicates = get_duplicate_simulated_opponent_cards(context)
+
+    if duplicates:
+        raise ValueError(
+            "Duplicate simulated opponent cards detected: "
+            f"{duplicates}"
+        )

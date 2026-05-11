@@ -8,6 +8,7 @@ from skat_ai.simulation_context import (
     build_context_summary,
     get_duplicate_simulated_opponent_cards,
     get_unique_simulated_opponent_cards,
+    validate_no_duplicate_simulated_opponent_cards,
 )
 
 
@@ -231,3 +232,24 @@ def test_apply_context_to_state_for_sampling_does_not_mutate_original_state() ->
 
     assert state.played_cards == []
     assert updated_state.played_cards == ["S7"]
+
+def test_validate_no_duplicate_simulated_opponent_cards_accepts_unique_cards() -> None:
+    context = SimulationContext(
+        simulated_opponent_cards=["S7", "S8", "H10"],
+    )
+
+    validate_no_duplicate_simulated_opponent_cards(context)
+
+
+def test_validate_no_duplicate_simulated_opponent_cards_rejects_duplicates() -> None:
+    context = SimulationContext(
+        simulated_opponent_cards=["S7", "S8", "S7"],
+    )
+
+    try:
+        validate_no_duplicate_simulated_opponent_cards(context)
+    except ValueError as error:
+        assert "Duplicate simulated opponent cards detected" in str(error)
+        assert "S7" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

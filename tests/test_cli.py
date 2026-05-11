@@ -487,3 +487,16 @@ def test_print_multi_step_result_outputs_duplicate_context_warning(capsys) -> No
     assert "Context summary:" in captured.out
     assert "Context warning: duplicate simulated opponent cards detected:" in captured.out
     assert "['S7']" in captured.out
+
+def test_run_json_position_analysis_supports_strict_context() -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=True,
+    )

@@ -243,6 +243,7 @@ def run_json_position_analysis(
     multi_step_count: int | None = None,
     card_selection_policy: str = "first_legal",
     expected_value_sample_count: int = 100,
+    strict_context: bool = False,
 ) -> None:
     result = build_analysis_result(
         file_path=file_path,
@@ -277,6 +278,7 @@ def run_json_position_analysis(
             use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
             card_selection_policy=card_selection_policy,
             expected_value_sample_count=expected_value_sample_count,
+            strict_context=strict_context,
         )
 
         result["multi_step_result"] = {
@@ -284,6 +286,7 @@ def run_json_position_analysis(
             "requested_step_count": multi_step_result["requested_step_count"],
             "steps_simulated": multi_step_result["steps_simulated"],
             "stop_reason": multi_step_result["stop_reason"],
+            "strict_context": multi_step_result["strict_context"],
             "context_summary": multi_step_result["context_summary"],
             "steps": [
                 {
@@ -384,6 +387,12 @@ def parse_arguments() -> argparse.Namespace:
         help="Sample count used by the highest_expected_value card policy.",
     )
 
+    parser.add_argument(
+        "--strict-context",
+        action="store_true",
+        help="Fail if duplicate simulated opponent cards are detected.",
+    )
+
     return parser.parse_args()
 
 
@@ -400,6 +409,7 @@ def main() -> None:
             multi_step_count=args.multi_step,
             card_selection_policy=args.card_policy,
             expected_value_sample_count=args.expected_value_samples,
+            strict_context=args.strict_context,
         )
     except (ValueError, FileNotFoundError) as error:
         print("Input error:", error)

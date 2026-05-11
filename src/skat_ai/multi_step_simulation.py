@@ -13,6 +13,7 @@ from skat_ai.simulation_context import (
     add_simulation_event,
     apply_context_to_state_for_sampling,
     build_context_summary,
+    validate_no_duplicate_simulated_opponent_cards,
 )
 from skat_ai.simulation_step import simulate_and_advance_once
 
@@ -139,6 +140,7 @@ def simulate_multiple_steps(
     use_basic_opponent_strategy: bool = True,
     card_selection_policy: str = "first_legal",
     expected_value_sample_count: int = 100,
+    strict_context: bool = False,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -234,6 +236,9 @@ def simulate_multiple_steps(
             },
         )
 
+        if strict_context:
+            validate_no_duplicate_simulated_opponent_cards(context)
+
         steps.append(step)
 
         current_state = step_result["next_state"]
@@ -248,6 +253,7 @@ def simulate_multiple_steps(
         "requested_step_count": step_count,
         "steps_simulated": len(steps),
         "stop_reason": stop_reason,
+        "strict_context": strict_context,
         "context": context,
         "context_summary": build_context_summary(context),
         "steps": steps,

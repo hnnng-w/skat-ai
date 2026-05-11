@@ -160,6 +160,14 @@ Run a multi-step simulation:
 python main.py --input examples/grand_second_position.json --multi-step 2
 ```
 
+Run multi-step simulation in strict context mode:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 3 --card-policy lowest_point --strict-context
+```
+
+Strict context mode fails if duplicate simulated opponent cards are detected during a multi-step run.
+
 Use a specific card-selection policy:
 
 ```powershell
