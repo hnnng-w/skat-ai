@@ -1,0 +1,131 @@
+from skat_ai.game_state import GameState
+from skat_ai.policy_comparison import (
+    compare_multi_step_policies,
+    find_best_policy_by_final_point_swing,
+)
+
+
+def test_compare_multi_step_policies_returns_expected_keys() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        policies=["first_legal", "lowest_point"],
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        expected_value_sample_count=20,
+        strict_context=False,
+    )
+
+    assert set(result.keys()) == {
+        "requested_step_count",
+        "random_seed",
+        "expected_value_sample_count",
+        "use_basic_opponent_strategy",
+        "strict_context",
+        "policies",
+        "policy_results",
+    }
+
+
+def test_compare_multi_step_policies_runs_selected_policies() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        policies=["first_legal", "lowest_point"],
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        expected_value_sample_count=20,
+        strict_context=False,
+    )
+
+    assert result["policies"] == ["first_legal", "lowest_point"]
+    assert len(result["policy_results"]) == 2
+    assert result["policy_results"][0]["policy"] == "first_legal"
+    assert result["policy_results"][1]["policy"] == "lowest_point"
+
+
+def test_compare_multi_step_policies_policy_result_contains_score_fields() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        policies=["highest_point"],
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        expected_value_sample_count=20,
+        strict_context=False,
+    )
+
+    policy_result = result["policy_results"][0]
+
+    assert "declarer_points_gained" in policy_result
+    assert "defender_points_gained" in policy_result
+    assert "final_point_swing" in policy_result
+    assert "steps_simulated" in policy_result
+    assert "stop_reason" in policy_result
+
+
+def test_find_best_policy_by_final_point_swing() -> None:
+    comparison_result = {
+        "policy_results": [
+            {
+                "policy": "lowest_point",
+                "final_point_swing": -3,
+            },
+            {
+                "policy": "highest_point",
+                "final_point_swing": 12,
+            },
+            {
+                "policy": "first_legal",
+                "final_point_swing": 4,
+            },
+        ]
+    }
+
+    best_policy = find_best_policy_by_final_point_swing(comparison_result)
+
+    assert best_policy["policy"] == "highest_point"
+    assert best_policy["final_point_swing"] == 12
+
+
+def test_find_best_policy_by_final_point_swing_rejects_empty_results() -> None:
+    comparison_result = {
+        "policy_results": [],
+    }
+
+    try:
+        find_best_policy_by_final_point_swing(comparison_result)
+    except ValueError as error:
+        assert "No policy results available" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

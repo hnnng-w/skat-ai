@@ -15,6 +15,10 @@ from skat_ai.input_loader import (
 )
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.output_writer import write_analysis_result_to_json
+from skat_ai.policy_comparison import (
+    compare_multi_step_policies,
+    find_best_policy_by_final_point_swing,
+)
 from skat_ai.recommender import recommend_card_by_expected_value
 from skat_ai.rules import get_legal_cards
 
@@ -237,6 +241,44 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     print("Next player:", final_state.next_player)
 
 
+def print_policy_comparison_result(result: dict[str, Any]) -> None:
+    """
+    Prints a compact policy comparison result.
+    """
+    best_policy = find_best_policy_by_final_point_swing(result)
+
+    print()
+    print("Policy comparison")
+    print("Requested steps:", result["requested_step_count"])
+    print("Random seed:", result["random_seed"])
+    print("Expected-value samples:", result["expected_value_sample_count"])
+    print("Use basic opponent strategy:", result["use_basic_opponent_strategy"])
+    print("Strict context:", result["strict_context"])
+
+    print()
+    print(
+        f"{'Policy':<24}"
+        f"{'Steps':>7}"
+        f"{'Decl. +':>10}"
+        f"{'Def. +':>10}"
+        f"{'Swing':>10}"
+    )
+    print("-" * 61)
+
+    for policy_result in result["policy_results"]:
+        print(
+            f"{policy_result['policy']:<24}"
+            f"{policy_result['steps_simulated']:>7}"
+            f"{policy_result['declarer_points_gained']:>10}"
+            f"{policy_result['defender_points_gained']:>10}"
+            f"{policy_result['final_point_swing']:>10}"
+        )
+
+    print()
+    print("Best policy:", best_policy["policy"])
+    print("Best final point swing:", best_policy["final_point_swing"])
+
+
 def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
     """
     Prints a compact multi-step score summary.
@@ -269,6 +311,7 @@ def run_json_position_analysis(
     card_selection_policy: str = "first_legal",
     expected_value_sample_count: int = 100,
     strict_context: bool = False,
+    compare_policies: bool = False,
 ) -> None:
     result = build_analysis_result(
         file_path=file_path,
@@ -345,6 +388,22 @@ def run_json_position_analysis(
 
         print_multi_step_result(multi_step_result)
 
+        if compare_policies:
+            policy_comparison_result = compare_multi_step_policies(
+                state=state,
+                left_hand_size=settings["left_hand_size"],
+                right_hand_size=settings["right_hand_size"],
+                step_count=multi_step_count,
+                random_seed=settings["random_seed"],
+                use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+                expected_value_sample_count=expected_value_sample_count,
+                strict_context=strict_context,
+            )
+
+            result["policy_comparison_result"] = policy_comparison_result
+
+            print_policy_comparison_result(policy_comparison_result)
+
     if output_path is not None:
         write_analysis_result_to_json(
             output_path=output_path,
@@ -419,6 +478,12 @@ def parse_arguments() -> argparse.Namespace:
         help="Fail if duplicate simulated opponent cards are detected.",
     )
 
+    parser.add_argument(
+        "--compare-policies",
+        action="store_true",
+        help="Compare all card-selection policies for the given multi-step setup.",
+    )
+
     return parser.parse_args()
 
 
@@ -436,6 +501,7 @@ def main() -> None:
             card_selection_policy=args.card_policy,
             expected_value_sample_count=args.expected_value_samples,
             strict_context=args.strict_context,
+            compare_policies=args.compare_policies,
         )
     except (ValueError, FileNotFoundError) as error:
         print("Input error:", error)

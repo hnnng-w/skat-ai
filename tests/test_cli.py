@@ -2,6 +2,7 @@ from main import (
     apply_cli_overrides,
     build_analysis_result,
     print_multi_step_result,
+    print_policy_comparison_result,
     run_json_position_analysis,
 )
 
@@ -589,4 +590,63 @@ def test_run_json_position_analysis_supports_strict_context() -> None:
         card_selection_policy="highest_expected_value",
         expected_value_sample_count=20,
         strict_context=True,
+    )
+
+def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
+    result = {
+        "requested_step_count": 2,
+        "random_seed": 42,
+        "expected_value_sample_count": 20,
+        "use_basic_opponent_strategy": True,
+        "strict_context": False,
+        "policies": ["lowest_point", "highest_point"],
+        "policy_results": [
+            {
+                "policy": "lowest_point",
+                "requested_step_count": 2,
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": False,
+                "declarer_points_gained": 4,
+                "defender_points_gained": 10,
+                "final_point_swing": -6,
+                "context_summary": {},
+            },
+            {
+                "policy": "highest_point",
+                "requested_step_count": 2,
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": False,
+                "declarer_points_gained": 14,
+                "defender_points_gained": 2,
+                "final_point_swing": 12,
+                "context_summary": {},
+            },
+        ],
+    }
+
+    print_policy_comparison_result(result)
+
+    captured = capsys.readouterr()
+
+    assert "Policy comparison" in captured.out
+    assert "lowest_point" in captured.out
+    assert "highest_point" in captured.out
+    assert "Best policy: highest_point" in captured.out
+    assert "Best final point swing: 12" in captured.out
+
+
+def test_run_json_position_analysis_supports_policy_comparison() -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=True,
     )
