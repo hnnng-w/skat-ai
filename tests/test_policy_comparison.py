@@ -2,6 +2,7 @@ from skat_ai.game_state import GameState
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
+    sort_policy_results_by_final_point_swing,
 )
 
 
@@ -60,8 +61,13 @@ def test_compare_multi_step_policies_runs_selected_policies() -> None:
 
     assert result["policies"] == ["first_legal", "lowest_point"]
     assert len(result["policy_results"]) == 2
-    assert result["policy_results"][0]["policy"] == "first_legal"
-    assert result["policy_results"][1]["policy"] == "lowest_point"
+    assert {
+        policy_result["policy"]
+        for policy_result in result["policy_results"]
+    } == {
+        "first_legal",
+        "lowest_point",
+    }
 
 
 def test_compare_multi_step_policies_policy_result_contains_score_fields() -> None:
@@ -129,3 +135,55 @@ def test_find_best_policy_by_final_point_swing_rejects_empty_results() -> None:
         assert "No policy results available" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_sort_policy_results_by_final_point_swing() -> None:
+    policy_results = [
+        {
+            "policy": "lowest_point",
+            "final_point_swing": -3,
+        },
+        {
+            "policy": "highest_point",
+            "final_point_swing": 12,
+        },
+        {
+            "policy": "first_legal",
+            "final_point_swing": 4,
+        },
+    ]
+
+    sorted_results = sort_policy_results_by_final_point_swing(policy_results)
+
+    assert [result["policy"] for result in sorted_results] == [
+        "highest_point",
+        "first_legal",
+        "lowest_point",
+    ]
+
+def test_compare_multi_step_policies_returns_sorted_policy_results() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        policies=["first_legal", "lowest_point", "highest_point"],
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        expected_value_sample_count=20,
+        strict_context=False,
+    )
+
+    swings = [
+        policy_result["final_point_swing"]
+        for policy_result in result["policy_results"]
+    ]
+
+    assert swings == sorted(swings, reverse=True)

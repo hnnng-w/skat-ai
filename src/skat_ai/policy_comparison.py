@@ -53,6 +53,8 @@ def compare_multi_step_policies(
             }
         )
 
+    sorted_policy_results = sort_policy_results_by_final_point_swing(policy_results)
+
     return {
         "requested_step_count": step_count,
         "random_seed": random_seed,
@@ -60,7 +62,7 @@ def compare_multi_step_policies(
         "use_basic_opponent_strategy": use_basic_opponent_strategy,
         "strict_context": strict_context,
         "policies": selected_policies,
-        "policy_results": policy_results,
+        "policy_results": sorted_policy_results,
     }
 
 
@@ -78,4 +80,16 @@ def find_best_policy_by_final_point_swing(
     return max(
         policy_results,
         key=lambda result: result["final_point_swing"],
+    )
+
+def sort_policy_results_by_final_point_swing(
+    policy_results: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """
+    Sorts policy results by final point swing, best first.
+    """
+    return sorted(
+        policy_results,
+        key=lambda result: result["final_point_swing"],
+        reverse=True,
     )

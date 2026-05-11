@@ -211,6 +211,8 @@ Write a multi-step result to JSON:
 python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy highest_expected_value --expected-value-samples 20 --output outputs/multi_step_result.json
 ```
 
+Policy comparison results are sorted by `final_point_swing`, with the best policy shown first.
+
 ## Example positions
 
 The project includes example JSON input files in the `examples/` folder.
