@@ -70,26 +70,35 @@ def find_best_policy_by_final_point_swing(
     comparison_result: dict[str, Any],
 ) -> dict[str, Any]:
     """
-    Returns the policy result with the highest final point swing.
+    Returns the best policy result using the same ordering as the comparison table.
     """
     policy_results = comparison_result["policy_results"]
 
     if not policy_results:
         raise ValueError("No policy results available.")
 
-    return max(
-        policy_results,
-        key=lambda result: result["final_point_swing"],
-    )
+    return sort_policy_results_by_final_point_swing(policy_results)[0]
 
 def sort_policy_results_by_final_point_swing(
     policy_results: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """
-    Sorts policy results by final point swing, best first.
+    Sorts policy results by quality, best first.
+
+    Tie-breakers:
+    1. Higher final point swing
+    2. Higher declarer points gained
+    3. Lower defender points gained
+    4. Higher number of simulated steps
+    5. Policy name alphabetically
     """
     return sorted(
         policy_results,
-        key=lambda result: result["final_point_swing"],
-        reverse=True,
+        key=lambda result: (
+            -result["final_point_swing"],
+            -result["declarer_points_gained"],
+            result["defender_points_gained"],
+            -result["steps_simulated"],
+            result["policy"],
+        ),
     )

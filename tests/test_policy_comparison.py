@@ -106,14 +106,23 @@ def test_find_best_policy_by_final_point_swing() -> None:
             {
                 "policy": "lowest_point",
                 "final_point_swing": -3,
+                "declarer_points_gained": 4,
+                "defender_points_gained": 7,
+                "steps_simulated": 1,
             },
             {
                 "policy": "highest_point",
                 "final_point_swing": 12,
+                "declarer_points_gained": 14,
+                "defender_points_gained": 2,
+                "steps_simulated": 1,
             },
             {
                 "policy": "first_legal",
                 "final_point_swing": 4,
+                "declarer_points_gained": 8,
+                "defender_points_gained": 4,
+                "steps_simulated": 1,
             },
         ]
     }
@@ -123,6 +132,29 @@ def test_find_best_policy_by_final_point_swing() -> None:
     assert best_policy["policy"] == "highest_point"
     assert best_policy["final_point_swing"] == 12
 
+def test_find_best_policy_by_final_point_swing_uses_tie_breakers() -> None:
+    comparison_result = {
+        "policy_results": [
+            {
+                "policy": "lower_defender_gain",
+                "final_point_swing": 10,
+                "declarer_points_gained": 12,
+                "defender_points_gained": 1,
+                "steps_simulated": 1,
+            },
+            {
+                "policy": "higher_declarer_gain",
+                "final_point_swing": 10,
+                "declarer_points_gained": 13,
+                "defender_points_gained": 3,
+                "steps_simulated": 1,
+            },
+        ]
+    }
+
+    best_policy = find_best_policy_by_final_point_swing(comparison_result)
+
+    assert best_policy["policy"] == "higher_declarer_gain"
 
 def test_find_best_policy_by_final_point_swing_rejects_empty_results() -> None:
     comparison_result = {
@@ -141,14 +173,23 @@ def test_sort_policy_results_by_final_point_swing() -> None:
         {
             "policy": "lowest_point",
             "final_point_swing": -3,
+            "declarer_points_gained": 4,
+            "defender_points_gained": 7,
+            "steps_simulated": 1,
         },
         {
             "policy": "highest_point",
             "final_point_swing": 12,
+            "declarer_points_gained": 14,
+            "defender_points_gained": 2,
+            "steps_simulated": 1,
         },
         {
             "policy": "first_legal",
             "final_point_swing": 4,
+            "declarer_points_gained": 8,
+            "defender_points_gained": 4,
+            "steps_simulated": 1,
         },
     ]
 
@@ -158,6 +199,63 @@ def test_sort_policy_results_by_final_point_swing() -> None:
         "highest_point",
         "first_legal",
         "lowest_point",
+    ]
+
+def test_sort_policy_results_uses_tie_breakers() -> None:
+    policy_results = [
+        {
+            "policy": "z_policy",
+            "final_point_swing": 10,
+            "declarer_points_gained": 12,
+            "defender_points_gained": 2,
+            "steps_simulated": 1,
+        },
+        {
+            "policy": "a_policy",
+            "final_point_swing": 10,
+            "declarer_points_gained": 12,
+            "defender_points_gained": 2,
+            "steps_simulated": 1,
+        },
+        {
+            "policy": "more_steps",
+            "final_point_swing": 10,
+            "declarer_points_gained": 12,
+            "defender_points_gained": 2,
+            "steps_simulated": 2,
+        },
+        {
+            "policy": "lower_defender_gain",
+            "final_point_swing": 10,
+            "declarer_points_gained": 12,
+            "defender_points_gained": 1,
+            "steps_simulated": 1,
+        },
+        {
+            "policy": "higher_declarer_gain",
+            "final_point_swing": 10,
+            "declarer_points_gained": 13,
+            "defender_points_gained": 3,
+            "steps_simulated": 1,
+        },
+        {
+            "policy": "higher_swing",
+            "final_point_swing": 11,
+            "declarer_points_gained": 0,
+            "defender_points_gained": 0,
+            "steps_simulated": 1,
+        },
+    ]
+
+    sorted_results = sort_policy_results_by_final_point_swing(policy_results)
+
+    assert [result["policy"] for result in sorted_results] == [
+        "higher_swing",
+        "higher_declarer_gain",
+        "lower_defender_gain",
+        "more_steps",
+        "a_policy",
+        "z_policy",
     ]
 
 def test_compare_multi_step_policies_returns_sorted_policy_results() -> None:
