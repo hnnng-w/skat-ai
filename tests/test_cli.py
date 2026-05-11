@@ -625,6 +625,15 @@ def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
                 "context_summary": {},
             },
         ],
+        "recommended_policy": {
+            "policy": "highest_point",
+            "reason": "Best final point swing after tie-breakers.",
+            "final_point_swing": 12,
+            "declarer_points_gained": 14,
+            "defender_points_gained": 2,
+            "steps_simulated": 1,
+            "stop_reason": "Requested step count reached.",
+        },
     }
 
     print_policy_comparison_result(result)
@@ -634,9 +643,9 @@ def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
     assert "Policy comparison" in captured.out
     assert "lowest_point" in captured.out
     assert "highest_point" in captured.out
-    assert "Best policy: highest_point" in captured.out
-    assert "Best final point swing: 12" in captured.out
-
+    assert "Recommended policy: highest_point" in captured.out
+    assert "Recommendation reason: Best final point swing after tie-breakers." in captured.out
+    assert "Recommended final point swing: 12" in captured.out
 
 def test_run_json_position_analysis_supports_policy_comparison() -> None:
     run_json_position_analysis(
@@ -695,6 +704,15 @@ def test_build_serializable_policy_comparison_result() -> None:
                 },
             },
         ],
+        "recommended_policy": {
+            "policy": "highest_point",
+            "reason": "Best final point swing after tie-breakers.",
+            "final_point_swing": 12,
+            "declarer_points_gained": 14,
+            "defender_points_gained": 2,
+            "steps_simulated": 1,
+            "stop_reason": "Requested step count reached.",
+        },
     }
 
     serializable_result = build_serializable_policy_comparison_result(result)
@@ -725,4 +743,5 @@ def test_run_json_position_analysis_writes_policy_comparison_to_output(tmp_path)
 
     assert "policy_comparison_result" in result
     assert "policy_results" in result["policy_comparison_result"]
+    assert "recommended_policy" in result["policy_comparison_result"]
     assert len(result["policy_comparison_result"]["policy_results"]) >= 1

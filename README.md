@@ -212,6 +212,8 @@ python main.py --input examples/grand_second_position.json --multi-step 2 --card
 ```
 
 Policy comparison results are sorted by `final_point_swing`, with the best policy shown first.
+If multiple policies have the same `final_point_swing`, the comparison uses tie-breakers: higher declarer gain, lower defender gain, more simulated steps, then policy name.
+The comparison also includes a `recommended_policy`, selected by the sorted policy comparison order and its tie-breakers.
 
 ## Example positions
 

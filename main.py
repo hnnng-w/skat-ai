@@ -274,9 +274,17 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
             f"{policy_result['final_point_swing']:>10}"
         )
 
+    recommended_policy = result.get("recommended_policy")
+
     print()
-    print("Best policy:", best_policy["policy"])
-    print("Best final point swing:", best_policy["final_point_swing"])
+
+    if recommended_policy is not None:
+        print("Recommended policy:", recommended_policy["policy"])
+        print("Recommendation reason:", recommended_policy["reason"])
+        print("Recommended final point swing:", recommended_policy["final_point_swing"])
+    else:
+        print("Best policy:", best_policy["policy"])
+        print("Best final point swing:", best_policy["final_point_swing"])
 
 
 def build_serializable_policy_comparison_result(
@@ -288,7 +296,7 @@ def build_serializable_policy_comparison_result(
     The original policy comparison result is already mostly serializable,
     but this function keeps the JSON output explicit and stable.
     """
-    return {
+    serializable_result = {
         "requested_step_count": result["requested_step_count"],
         "random_seed": result["random_seed"],
         "expected_value_sample_count": result["expected_value_sample_count"],
@@ -310,6 +318,11 @@ def build_serializable_policy_comparison_result(
             for policy_result in result["policy_results"]
         ],
     }
+
+    if "recommended_policy" in result:
+        serializable_result["recommended_policy"] = result["recommended_policy"]
+
+    return serializable_result
 
 
 def print_multi_step_score_summary(summary: dict[str, Any]) -> None:

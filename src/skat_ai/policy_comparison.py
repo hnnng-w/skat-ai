@@ -55,7 +55,7 @@ def compare_multi_step_policies(
 
     sorted_policy_results = sort_policy_results_by_final_point_swing(policy_results)
 
-    return {
+    comparison_result = {
         "requested_step_count": step_count,
         "random_seed": random_seed,
         "expected_value_sample_count": expected_value_sample_count,
@@ -64,6 +64,10 @@ def compare_multi_step_policies(
         "policies": selected_policies,
         "policy_results": sorted_policy_results,
     }
+
+    comparison_result["recommended_policy"] = build_policy_recommendation(comparison_result)
+
+    return comparison_result
 
 
 def find_best_policy_by_final_point_swing(
@@ -102,3 +106,21 @@ def sort_policy_results_by_final_point_swing(
             result["policy"],
         ),
     )
+
+def build_policy_recommendation(
+    comparison_result: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Builds a compact policy recommendation from a policy comparison result.
+    """
+    best_policy = find_best_policy_by_final_point_swing(comparison_result)
+
+    return {
+        "policy": best_policy["policy"],
+        "reason": "Best final point swing after tie-breakers.",
+        "final_point_swing": best_policy["final_point_swing"],
+        "declarer_points_gained": best_policy["declarer_points_gained"],
+        "defender_points_gained": best_policy["defender_points_gained"],
+        "steps_simulated": best_policy["steps_simulated"],
+        "stop_reason": best_policy["stop_reason"],
+    }

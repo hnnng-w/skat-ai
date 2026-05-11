@@ -1,5 +1,6 @@
 from skat_ai.game_state import GameState
 from skat_ai.policy_comparison import (
+    build_policy_recommendation,
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
     sort_policy_results_by_final_point_swing,
@@ -35,6 +36,7 @@ def test_compare_multi_step_policies_returns_expected_keys() -> None:
         "strict_context",
         "policies",
         "policy_results",
+        "recommended_policy",
     }
 
 
@@ -285,3 +287,72 @@ def test_compare_multi_step_policies_returns_sorted_policy_results() -> None:
     ]
 
     assert swings == sorted(swings, reverse=True)
+
+
+def test_build_policy_recommendation() -> None:
+    comparison_result = {
+        "policy_results": [
+            {
+                "policy": "lowest_point",
+                "requested_step_count": 2,
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": False,
+                "declarer_points_gained": 4,
+                "defender_points_gained": 10,
+                "final_point_swing": -6,
+                "context_summary": {},
+            },
+            {
+                "policy": "highest_point",
+                "requested_step_count": 2,
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": False,
+                "declarer_points_gained": 14,
+                "defender_points_gained": 2,
+                "final_point_swing": 12,
+                "context_summary": {},
+            },
+        ]
+    }
+
+    recommendation = build_policy_recommendation(comparison_result)
+
+    assert recommendation == {
+        "policy": "highest_point",
+        "reason": "Best final point swing after tie-breakers.",
+        "final_point_swing": 12,
+        "declarer_points_gained": 14,
+        "defender_points_gained": 2,
+        "steps_simulated": 1,
+        "stop_reason": "Requested step count reached.",
+    }
+
+
+def test_compare_multi_step_policies_returns_recommended_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        policies=["first_legal", "lowest_point"],
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        expected_value_sample_count=20,
+        strict_context=False,
+    )
+
+    assert "recommended_policy" in result
+    assert result["recommended_policy"]["policy"] in ["first_legal", "lowest_point"]
+    assert result["recommended_policy"]["reason"] == (
+        "Best final point swing after tie-breakers."
+    )
