@@ -185,6 +185,14 @@ python main.py --input examples/grand_second_position.json --multi-step 2 --comp
 
 The policy comparison runs all available card-selection policies on the same input and prints their compact multi-step score summaries side by side.
 
+Write a policy comparison to JSON:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --expected-value-samples 20 --output outputs/policy_comparison.json
+```
+
+The JSON output includes `policy_comparison_result` with one compact result per card-selection policy.
+
 Use a specific card-selection policy:
 
 ```powershell

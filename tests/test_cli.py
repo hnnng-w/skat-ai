@@ -1,6 +1,7 @@
 from main import (
     apply_cli_overrides,
     build_analysis_result,
+    build_serializable_policy_comparison_result,
     print_multi_step_result,
     print_policy_comparison_result,
     run_json_position_analysis,
@@ -650,3 +651,78 @@ def test_run_json_position_analysis_supports_policy_comparison() -> None:
         strict_context=False,
         compare_policies=True,
     )
+
+
+def test_build_serializable_policy_comparison_result() -> None:
+    result = {
+        "requested_step_count": 2,
+        "random_seed": 42,
+        "expected_value_sample_count": 20,
+        "use_basic_opponent_strategy": True,
+        "strict_context": False,
+        "policies": ["lowest_point", "highest_point"],
+        "policy_results": [
+            {
+                "policy": "lowest_point",
+                "requested_step_count": 2,
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": False,
+                "declarer_points_gained": 4,
+                "defender_points_gained": 10,
+                "final_point_swing": -6,
+                "context_summary": {
+                    "simulated_opponent_card_count": 2,
+                    "unique_simulated_opponent_card_count": 2,
+                    "duplicate_simulated_opponent_cards": [],
+                    "event_count": 1,
+                },
+            },
+            {
+                "policy": "highest_point",
+                "requested_step_count": 2,
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": False,
+                "declarer_points_gained": 14,
+                "defender_points_gained": 2,
+                "final_point_swing": 12,
+                "context_summary": {
+                    "simulated_opponent_card_count": 2,
+                    "unique_simulated_opponent_card_count": 2,
+                    "duplicate_simulated_opponent_cards": [],
+                    "event_count": 1,
+                },
+            },
+        ],
+    }
+
+    serializable_result = build_serializable_policy_comparison_result(result)
+
+    assert serializable_result == result
+
+
+def test_run_json_position_analysis_writes_policy_comparison_to_output(tmp_path) -> None:
+    import json
+
+    output_path = tmp_path / "policy_comparison.json"
+
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=str(output_path),
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=True,
+    )
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert "policy_comparison_result" in result
+    assert "policy_results" in result["policy_comparison_result"]
+    assert len(result["policy_comparison_result"]["policy_results"]) >= 1

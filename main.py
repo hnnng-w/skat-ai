@@ -279,6 +279,39 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
     print("Best final point swing:", best_policy["final_point_swing"])
 
 
+def build_serializable_policy_comparison_result(
+    result: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Builds a JSON-serializable policy comparison result.
+
+    The original policy comparison result is already mostly serializable,
+    but this function keeps the JSON output explicit and stable.
+    """
+    return {
+        "requested_step_count": result["requested_step_count"],
+        "random_seed": result["random_seed"],
+        "expected_value_sample_count": result["expected_value_sample_count"],
+        "use_basic_opponent_strategy": result["use_basic_opponent_strategy"],
+        "strict_context": result["strict_context"],
+        "policies": result["policies"],
+        "policy_results": [
+            {
+                "policy": policy_result["policy"],
+                "requested_step_count": policy_result["requested_step_count"],
+                "steps_simulated": policy_result["steps_simulated"],
+                "stop_reason": policy_result["stop_reason"],
+                "strict_context": policy_result["strict_context"],
+                "declarer_points_gained": policy_result["declarer_points_gained"],
+                "defender_points_gained": policy_result["defender_points_gained"],
+                "final_point_swing": policy_result["final_point_swing"],
+                "context_summary": policy_result["context_summary"],
+            }
+            for policy_result in result["policy_results"]
+        ],
+    }
+
+
 def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
     """
     Prints a compact multi-step score summary.
@@ -400,7 +433,9 @@ def run_json_position_analysis(
                 strict_context=strict_context,
             )
 
-            result["policy_comparison_result"] = policy_comparison_result
+            result["policy_comparison_result"] = build_serializable_policy_comparison_result(
+                policy_comparison_result
+            )
 
             print_policy_comparison_result(policy_comparison_result)
 
