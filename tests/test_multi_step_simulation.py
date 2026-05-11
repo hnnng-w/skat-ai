@@ -78,6 +78,7 @@ def test_simulate_multiple_steps_returns_expected_keys() -> None:
         "strict_context",
         "context",
         "context_summary",
+        "summary",
         "steps",
     }
 
@@ -802,3 +803,27 @@ def test_simulate_multiple_steps_supports_strict_context() -> None:
     )
 
     assert result["strict_context"] is True
+
+def test_simulate_multiple_steps_returns_summary() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+    )
+
+    assert "summary" in result
+    assert result["summary"]["steps_simulated"] == result["steps_simulated"]
+    assert "score_summary" in result["summary"]
+    assert "final_point_swing" in result["summary"]["score_summary"]

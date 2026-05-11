@@ -3,6 +3,7 @@ from typing import Any
 
 from skat_ai.card_selection import choose_card_by_policy
 from skat_ai.game_state import GameState
+from skat_ai.multi_step_summary import build_multi_step_summary
 from skat_ai.opponent_lead import (
     simulate_left_lead_and_right_response_once,
     simulate_opponent_lead_once,
@@ -246,7 +247,7 @@ def simulate_multiple_steps(
     if stop_reason is None and len(steps) == step_count:
         stop_reason = "Requested step count reached."
 
-    return {
+    result = {
         "initial_state": state,
         "final_state": current_state,
         "card_selection_policy": card_selection_policy,
@@ -258,3 +259,7 @@ def simulate_multiple_steps(
         "context_summary": build_context_summary(context),
         "steps": steps,
     }
+
+    result["summary"] = build_multi_step_summary(result)
+
+    return result

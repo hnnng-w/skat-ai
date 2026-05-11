@@ -299,6 +299,28 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
             defender_points=0,
             next_player="me",
         ),
+        "summary": {
+            "requested_step_count": 1,
+            "steps_simulated": 1,
+            "stop_reason": "Requested step count reached.",
+            "card_selection_policy": "first_legal",
+            "strict_context": False,
+            "score_summary": {
+                "initial_declarer_points": 0,
+                "initial_defender_points": 0,
+                "final_declarer_points": 11,
+                "final_defender_points": 0,
+                "declarer_points_gained": 11,
+                "defender_points_gained": 0,
+                "final_point_swing": 11,
+            },
+            "context_summary": {
+                "simulated_opponent_card_count": 2,
+                "unique_simulated_opponent_card_count": 2,
+                "duplicate_simulated_opponent_cards": [],
+                "event_count": 1,
+            },
+        },
     }
 
     print_multi_step_result(result)
@@ -314,6 +336,8 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
     assert "Context warning: none" in captured.out
     assert "Candidate card: SA" in captured.out
     assert "Final state" in captured.out
+    assert "Multi-step score summary" in captured.out
+    assert "Final point swing: 11" in captured.out
 
 
 def test_print_multi_step_result_outputs_opponent_lead(capsys) -> None:
@@ -362,6 +386,28 @@ def test_print_multi_step_result_outputs_opponent_lead(capsys) -> None:
             defender_points=0,
             next_player="me",
         ),
+        "summary": {
+            "requested_step_count": 1,
+            "steps_simulated": 1,
+            "stop_reason": "Requested step count reached.",
+            "card_selection_policy": "first_legal",
+            "strict_context": False,
+            "score_summary": {
+                "initial_declarer_points": 0,
+                "initial_defender_points": 0,
+                "final_declarer_points": 11,
+                "final_defender_points": 0,
+                "declarer_points_gained": 11,
+                "defender_points_gained": 0,
+                "final_point_swing": 11,
+            },
+            "context_summary": {
+                "simulated_opponent_card_count": 2,
+                "unique_simulated_opponent_card_count": 2,
+                "duplicate_simulated_opponent_cards": [],
+                "event_count": 1,
+            },
+        },
     }
 
     print_multi_step_result(result)
@@ -421,6 +467,28 @@ def test_print_multi_step_result_outputs_opponent_response(capsys) -> None:
             defender_points=0,
             next_player="me",
         ),
+        "summary": {
+            "requested_step_count": 1,
+            "steps_simulated": 1,
+            "stop_reason": "Requested step count reached.",
+            "card_selection_policy": "first_legal",
+            "strict_context": False,
+            "score_summary": {
+                "initial_declarer_points": 0,
+                "initial_defender_points": 0,
+                "final_declarer_points": 11,
+                "final_defender_points": 0,
+                "declarer_points_gained": 11,
+                "defender_points_gained": 0,
+                "final_point_swing": 11,
+            },
+            "context_summary": {
+                "simulated_opponent_card_count": 2,
+                "unique_simulated_opponent_card_count": 2,
+                "duplicate_simulated_opponent_cards": [],
+                "event_count": 1,
+            },
+        },
     }
 
     print_multi_step_result(result)
@@ -478,6 +546,28 @@ def test_print_multi_step_result_outputs_duplicate_context_warning(capsys) -> No
             defender_points=0,
             next_player="me",
         ),
+        "summary": {
+            "requested_step_count": 1,
+            "steps_simulated": 1,
+            "stop_reason": "Requested step count reached.",
+            "card_selection_policy": "first_legal",
+            "strict_context": False,
+            "score_summary": {
+                "initial_declarer_points": 0,
+                "initial_defender_points": 0,
+                "final_declarer_points": 11,
+                "final_defender_points": 0,
+                "declarer_points_gained": 11,
+                "defender_points_gained": 0,
+                "final_point_swing": 11,
+            },
+            "context_summary": {
+                "simulated_opponent_card_count": 2,
+                "unique_simulated_opponent_card_count": 2,
+                "duplicate_simulated_opponent_cards": [],
+                "event_count": 1,
+            },
+        },
     }
 
     print_multi_step_result(result)

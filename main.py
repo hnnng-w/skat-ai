@@ -183,6 +183,9 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     final_state = result["final_state"]
     steps = result["steps"]
 
+    if "summary" in result:
+        print_multi_step_score_summary(result["summary"])
+
     print()
     print("Multi-step simulation")
     print("Card selection policy:", result["card_selection_policy"])
@@ -232,6 +235,28 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     print("Declarer points:", final_state.declarer_points)
     print("Defender points:", final_state.defender_points)
     print("Next player:", final_state.next_player)
+
+
+def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
+    """
+    Prints a compact multi-step score summary.
+    """
+    score_summary = summary["score_summary"]
+
+    print()
+    print("Multi-step score summary")
+    print("Requested steps:", summary["requested_step_count"])
+    print("Steps simulated:", summary["steps_simulated"])
+    print("Stop reason:", summary["stop_reason"])
+    print("Card selection policy:", summary["card_selection_policy"])
+    print("Strict context:", summary["strict_context"])
+    print("Initial declarer points:", score_summary["initial_declarer_points"])
+    print("Initial defender points:", score_summary["initial_defender_points"])
+    print("Final declarer points:", score_summary["final_declarer_points"])
+    print("Final defender points:", score_summary["final_defender_points"])
+    print("Declarer points gained:", score_summary["declarer_points_gained"])
+    print("Defender points gained:", score_summary["defender_points_gained"])
+    print("Final point swing:", score_summary["final_point_swing"])
 
 
 def run_json_position_analysis(
@@ -287,6 +312,7 @@ def run_json_position_analysis(
             "steps_simulated": multi_step_result["steps_simulated"],
             "stop_reason": multi_step_result["stop_reason"],
             "strict_context": multi_step_result["strict_context"],
+            "summary": multi_step_result["summary"],
             "context_summary": multi_step_result["context_summary"],
             "steps": [
                 {

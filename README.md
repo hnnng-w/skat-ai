@@ -168,6 +168,15 @@ python main.py --input examples/grand_second_position.json --multi-step 3 --card
 
 Strict context mode fails if duplicate simulated opponent cards are detected during a multi-step run.
 
+The multi-step output includes a compact score summary:
+
+```text
+Multi-step score summary
+Requested steps: 3
+Steps simulated: 2
+Final point swing: 16
+```
+
 Use a specific card-selection policy:
 
 ```powershell
