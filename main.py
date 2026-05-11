@@ -190,7 +190,18 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     print("Steps simulated:", result.get("steps_simulated", len(steps)))
     print("Stop reason:", result.get("stop_reason", "unknown"))
     if "context_summary" in result:
-        print("Context summary:", result["context_summary"])
+        context_summary = result["context_summary"]
+        duplicate_cards = context_summary["duplicate_simulated_opponent_cards"]
+
+        print("Context summary:", context_summary)
+
+        if duplicate_cards:
+            print(
+                "Context warning: duplicate simulated opponent cards detected:",
+                duplicate_cards,
+            )
+        else:
+            print("Context warning: none")
 
     for step in steps:
         detailed_result = step["detailed_result"]

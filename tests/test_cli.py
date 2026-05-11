@@ -311,6 +311,7 @@ def test_print_multi_step_result_outputs_summary(capsys) -> None:
     assert "Steps simulated: 1" in captured.out
     assert "Stop reason: Requested step count reached." in captured.out
     assert "Context summary:" in captured.out
+    assert "Context warning: none" in captured.out
     assert "Candidate card: SA" in captured.out
     assert "Final state" in captured.out
 
@@ -431,3 +432,58 @@ def test_print_multi_step_result_outputs_opponent_response(capsys) -> None:
     assert "Opponent response player: right" in captured.out
     assert "Opponent response card: D9" in captured.out
     assert "Candidate card: DA" in captured.out
+
+def test_print_multi_step_result_outputs_duplicate_context_warning(capsys) -> None:
+    from skat_ai.game_state import GameState
+
+    result = {
+        "card_selection_policy": "first_legal",
+        "requested_step_count": 1,
+        "steps_simulated": 1,
+        "stop_reason": "Requested step count reached.",
+        "context_summary": {
+            "simulated_opponent_card_count": 3,
+            "unique_simulated_opponent_card_count": 2,
+            "duplicate_simulated_opponent_cards": ["S7"],
+            "event_count": 1,
+        },
+        "steps": [
+            {
+                "step_index": 0,
+                "opponent_lead_result": None,
+                "candidate_card": "SA",
+                "detailed_result": {
+                    "trick": ["S7", "SA", "S8"],
+                    "did_win": True,
+                    "trick_points": 11,
+                    "completed_trick": {
+                        "cards": ["S7", "SA", "S8"],
+                        "winner_role": "declarer",
+                    },
+                },
+            }
+        ],
+        "final_state": GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["S10", "S9"],
+            current_trick=[],
+            completed_tricks=[
+                {
+                    "cards": ["S7", "SA", "S8"],
+                    "winner_role": "declarer",
+                }
+            ],
+            declarer_points=11,
+            defender_points=0,
+            next_player="me",
+        ),
+    }
+
+    print_multi_step_result(result)
+
+    captured = capsys.readouterr()
+
+    assert "Context summary:" in captured.out
+    assert "Context warning: duplicate simulated opponent cards detected:" in captured.out
+    assert "['S7']" in captured.out
