@@ -745,3 +745,46 @@ def test_run_json_position_analysis_writes_policy_comparison_to_output(tmp_path)
     assert "policy_results" in result["policy_comparison_result"]
     assert "recommended_policy" in result["policy_comparison_result"]
     assert len(result["policy_comparison_result"]["policy_results"]) >= 1
+
+
+def test_run_json_position_analysis_supports_comparison_only(capsys) -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=True,
+        comparison_only=True,
+    )
+
+    captured = capsys.readouterr()
+
+    assert "Policy comparison" in captured.out
+    assert "Recommended policy:" in captured.out
+    assert "Multi-step simulation" not in captured.out
+    assert "Multi-step score summary" not in captured.out
+
+def test_run_json_position_analysis_rejects_comparison_only_without_compare_policies() -> None:
+    try:
+        run_json_position_analysis(
+            file_path="examples/grand_second_position.json",
+            sample_count_override=20,
+            random_seed_override=42,
+            opponent_strategy_override="basic",
+            output_path=None,
+            multi_step_count=1,
+            card_selection_policy="highest_expected_value",
+            expected_value_sample_count=20,
+            strict_context=False,
+            compare_policies=False,
+            comparison_only=True,
+        )
+    except ValueError as error:
+        assert "comparison_only requires compare_policies" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

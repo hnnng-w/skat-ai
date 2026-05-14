@@ -215,6 +215,14 @@ Policy comparison results are sorted by `final_point_swing`, with the best polic
 If multiple policies have the same `final_point_swing`, the comparison uses tie-breakers: higher declarer gain, lower defender gain, more simulated steps, then policy name.
 The comparison also includes a `recommended_policy`, selected by the sorted policy comparison order and its tie-breakers.
 
+Print only the policy comparison without the individual multi-step details:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --comparison-only --expected-value-samples 20
+```
+
+`--comparison-only` requires `--compare-policies`.
+
 ## Example positions
 
 The project includes example JSON input files in the `examples/` folder.

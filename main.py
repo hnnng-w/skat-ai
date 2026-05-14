@@ -358,6 +358,7 @@ def run_json_position_analysis(
     expected_value_sample_count: int = 100,
     strict_context: bool = False,
     compare_policies: bool = False,
+    comparison_only: bool = False,
 ) -> None:
     result = build_analysis_result(
         file_path=file_path,
@@ -367,6 +368,9 @@ def run_json_position_analysis(
     )
 
     print_analysis_result(result)
+
+    if comparison_only and not compare_policies:
+        raise ValueError("comparison_only requires compare_policies to be enabled.")
 
     if multi_step_count is not None:
         if multi_step_count <= 0:
@@ -432,7 +436,8 @@ def run_json_position_analysis(
             },
         }
 
-        print_multi_step_result(multi_step_result)
+        if not comparison_only:
+            print_multi_step_result(multi_step_result)
 
         if compare_policies:
             policy_comparison_result = compare_multi_step_policies(
@@ -532,6 +537,12 @@ def parse_arguments() -> argparse.Namespace:
         help="Compare all card-selection policies for the given multi-step setup.",
     )
 
+    parser.add_argument(
+        "--comparison-only",
+        action="store_true",
+        help="Only print the policy comparison, not the individual multi-step details.",
+    )
+
     return parser.parse_args()
 
 
@@ -550,6 +561,7 @@ def main() -> None:
             expected_value_sample_count=args.expected_value_samples,
             strict_context=args.strict_context,
             compare_policies=args.compare_policies,
+            comparison_only=args.comparison_only,
         )
     except (ValueError, FileNotFoundError) as error:
         print("Input error:", error)
