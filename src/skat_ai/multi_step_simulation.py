@@ -19,6 +19,7 @@ from skat_ai.simulation_context import (
     validate_no_duplicate_simulated_opponent_cards,
 )
 from skat_ai.simulation_step import simulate_and_advance_once
+from skat_ai.strategic_metadata import StrategicMetadata
 
 
 def should_continue_multi_step_simulation(
@@ -106,6 +107,7 @@ def simulate_multiple_steps(
     card_selection_policy: str = "first_legal",
     expected_value_sample_count: int = 100,
     strict_context: bool = False,
+    strategic_metadata: StrategicMetadata | None = None,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -126,8 +128,12 @@ def simulate_multiple_steps(
     current_state = state
     steps = []
     stop_reason = None
-    context = SimulationContext()
-
+    context = (
+        SimulationContext(strategic_metadata=strategic_metadata)
+        if strategic_metadata is not None
+        else SimulationContext()
+    )
+    
     for step_index in range(step_count):
         stop_reason = get_multi_step_stop_reason(
             current_state=current_state,

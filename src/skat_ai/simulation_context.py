@@ -8,6 +8,10 @@ from skat_ai.known_cards import (
     get_unique_cards_preserving_order,
     validate_no_duplicate_known_cards,
 )
+from skat_ai.strategic_metadata import (
+    StrategicMetadata,
+    build_default_strategic_metadata,
+)
 
 
 @dataclass
@@ -19,6 +23,9 @@ class SimulationContext:
     """
     simulated_opponent_cards: list[str] = field(default_factory=list)
     events: list[dict[str, Any]] = field(default_factory=list)
+    strategic_metadata: StrategicMetadata = field(
+        default_factory=build_default_strategic_metadata
+    )
 
 
 def add_simulated_opponent_card(
@@ -34,6 +41,7 @@ def add_simulated_opponent_card(
     return SimulationContext(
         simulated_opponent_cards=updated_cards,
         events=context.events.copy(),
+        strategic_metadata=context.strategic_metadata,
     )
 
 
@@ -68,6 +76,7 @@ def add_simulation_event(
     return SimulationContext(
         simulated_opponent_cards=context.simulated_opponent_cards.copy(),
         events=updated_events,
+        strategic_metadata=context.strategic_metadata,
     )
 
 
@@ -103,6 +112,11 @@ def build_context_summary(
         "unique_simulated_opponent_card_count": len(unique_cards),
         "duplicate_simulated_opponent_cards": duplicates,
         "event_count": len(context.events),
+        "strategic_metadata": {
+            "analysis_mode": context.strategic_metadata.analysis_mode,
+            "skat_visibility": context.strategic_metadata.skat_visibility,
+            "game_end_reason": context.strategic_metadata.game_end_reason,
+        },
     }
 
 def get_context_cards_safe_to_add_to_played_cards(

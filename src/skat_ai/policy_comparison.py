@@ -3,6 +3,7 @@ from typing import Any
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import simulate_multiple_steps
+from skat_ai.strategic_metadata import StrategicMetadata
 
 
 def compare_multi_step_policies(
@@ -15,6 +16,7 @@ def compare_multi_step_policies(
     use_basic_opponent_strategy: bool = True,
     expected_value_sample_count: int = 100,
     strict_context: bool = False,
+    strategic_metadata: StrategicMetadata | None = None,
 ) -> dict[str, Any]:
     """
     Compares multiple card-selection policies on the same multi-step setup.
@@ -34,6 +36,7 @@ def compare_multi_step_policies(
             card_selection_policy=policy,
             expected_value_sample_count=expected_value_sample_count,
             strict_context=strict_context,
+            strategic_metadata=strategic_metadata,
         )
 
         summary = multi_step_result["summary"]

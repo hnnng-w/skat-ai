@@ -5,6 +5,7 @@ from skat_ai.policy_comparison import (
     find_best_policy_by_final_point_swing,
     sort_policy_results_by_final_point_swing,
 )
+from skat_ai.strategic_metadata import StrategicMetadata
 
 
 def test_compare_multi_step_policies_returns_expected_keys() -> None:
@@ -356,3 +357,38 @@ def test_compare_multi_step_policies_returns_recommended_policy() -> None:
     assert result["recommended_policy"]["reason"] == (
         "Best final point swing after tie-breakers."
     )
+
+def test_compare_multi_step_policies_accepts_strategic_metadata() -> None:
+    metadata = StrategicMetadata(
+        analysis_mode="post_game_review",
+        skat_visibility="known_post_game",
+        game_end_reason="normal_completion",
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        policies=["highest_point"],
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        expected_value_sample_count=20,
+        strict_context=False,
+        strategic_metadata=metadata,
+    )
+
+    context_summary = result["policy_results"][0]["context_summary"]
+
+    assert context_summary["strategic_metadata"] == {
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_end_reason": "normal_completion",
+    }

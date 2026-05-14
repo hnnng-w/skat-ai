@@ -11,6 +11,7 @@ from skat_ai.simulation_context import (
     get_unique_simulated_opponent_cards,
     validate_no_duplicate_simulated_opponent_cards,
 )
+from skat_ai.strategic_metadata import StrategicMetadata
 
 
 def test_simulation_context_defaults_to_empty_lists() -> None:
@@ -131,6 +132,11 @@ def test_build_context_summary() -> None:
         "unique_simulated_opponent_card_count": 2,
         "duplicate_simulated_opponent_cards": ["S7"],
         "event_count": 2,
+        "strategic_metadata": {
+            "analysis_mode": "live_decision",
+            "skat_visibility": "unknown",
+            "game_end_reason": "not_ended",
+        },
     }
 
 
@@ -297,3 +303,59 @@ def test_apply_context_to_state_for_sampling_rejects_duplicate_known_cards() -> 
         assert "Duplicate known cards detected" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_simulation_context_uses_default_strategic_metadata() -> None:
+    context = SimulationContext()
+
+    assert context.strategic_metadata.analysis_mode == "live_decision"
+    assert context.strategic_metadata.skat_visibility == "unknown"
+    assert context.strategic_metadata.game_end_reason == "not_ended"
+
+
+def test_simulation_context_preserves_strategic_metadata_when_adding_card() -> None:
+    metadata = StrategicMetadata(
+        analysis_mode="post_game_review",
+        skat_visibility="known_post_game",
+        game_end_reason="normal_completion",
+    )
+    context = SimulationContext(strategic_metadata=metadata)
+
+    updated_context = add_simulated_opponent_card(
+        context=context,
+        card="S7",
+    )
+
+    assert updated_context.strategic_metadata == metadata
+
+
+def test_simulation_context_preserves_strategic_metadata_when_adding_event() -> None:
+    metadata = StrategicMetadata(
+        analysis_mode="post_game_review",
+        skat_visibility="known_post_game",
+        game_end_reason="normal_completion",
+    )
+    context = SimulationContext(strategic_metadata=metadata)
+
+    updated_context = add_simulation_event(
+        context=context,
+        event={"type": "test"},
+    )
+
+    assert updated_context.strategic_metadata == metadata
+
+
+def test_build_context_summary_includes_strategic_metadata() -> None:
+    metadata = StrategicMetadata(
+        analysis_mode="post_game_review",
+        skat_visibility="known_post_game",
+        game_end_reason="normal_completion",
+    )
+    context = SimulationContext(strategic_metadata=metadata)
+
+    summary = build_context_summary(context)
+
+    assert summary["strategic_metadata"] == {
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_end_reason": "normal_completion",
+    }

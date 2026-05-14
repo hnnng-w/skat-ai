@@ -7,6 +7,7 @@ from skat_ai.multi_step_simulation import (
     should_continue_multi_step_simulation,
     simulate_multiple_steps,
 )
+from skat_ai.strategic_metadata import StrategicMetadata
 
 
 def test_choose_first_legal_card_returns_first_legal_card_when_leading() -> None:
@@ -827,3 +828,35 @@ def test_simulate_multiple_steps_returns_summary() -> None:
     assert result["summary"]["steps_simulated"] == result["steps_simulated"]
     assert "score_summary" in result["summary"]
     assert "final_point_swing" in result["summary"]["score_summary"]
+
+def test_simulate_multiple_steps_accepts_strategic_metadata() -> None:
+    metadata = StrategicMetadata(
+        analysis_mode="post_game_review",
+        skat_visibility="known_post_game",
+        game_end_reason="normal_completion",
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+        strategic_metadata=metadata,
+    )
+
+    assert result["context"].strategic_metadata == metadata
+    assert result["context_summary"]["strategic_metadata"] == {
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_end_reason": "normal_completion",
+    }
