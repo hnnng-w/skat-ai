@@ -1,4 +1,7 @@
-from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
+from skat_ai.opponent_policy_preset import (
+    apply_opponent_policy_preset,
+    validate_opponent_policy_preset,
+)
 from skat_ai.player_profile import PlayerProfile
 
 
@@ -88,3 +91,51 @@ def choose_opponent_policy_preset_for_profile(
     validate_opponent_policy_preset(preset)
 
     return preset
+
+def choose_combined_profile_policy_preset(
+    left_profile: PlayerProfile,
+    right_profile: PlayerProfile,
+) -> str:
+    """
+    Chooses one combined opponent policy preset from both opponent profiles.
+
+    Current simple rule:
+    - If either opponent looks aggressive, use aggressive_points.
+    - Else if either opponent looks like a cautious defender, use cautious_defender.
+    - Else use simple_lowest.
+    """
+    left_preset = choose_opponent_policy_preset_for_profile(left_profile)
+    right_preset = choose_opponent_policy_preset_for_profile(right_profile)
+
+    if "aggressive_points" in [left_preset, right_preset]:
+        return "aggressive_points"
+
+    if "cautious_defender" in [left_preset, right_preset]:
+        return "cautious_defender"
+
+    return "simple_lowest"
+
+
+def apply_profile_based_policy_preset(
+    opponent_policy_settings: dict[str, str],
+    left_profile: PlayerProfile,
+    right_profile: PlayerProfile,
+    use_profile_presets: bool,
+) -> dict[str, str]:
+    """
+    Applies a profile-derived opponent policy preset if enabled.
+
+    If disabled, settings are returned unchanged.
+    """
+    if not use_profile_presets:
+        return opponent_policy_settings.copy()
+
+    preset = choose_combined_profile_policy_preset(
+        left_profile=left_profile,
+        right_profile=right_profile,
+    )
+
+    return apply_opponent_policy_preset(
+        opponent_policy_settings=opponent_policy_settings,
+        preset=preset,
+    )

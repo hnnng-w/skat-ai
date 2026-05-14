@@ -94,3 +94,13 @@ def get_opponent_policy_settings_from_input(
         settings["opponent_response_policy"] = data["opponent_response_policy"]
 
     return settings
+
+def get_profile_preset_settings_from_input(
+    data: dict[str, Any],
+) -> dict[str, bool]:
+    """
+    Extracts profile-preset settings from input data.
+    """
+    return {
+        "use_profile_presets": data.get("use_profile_presets", False),
+    }

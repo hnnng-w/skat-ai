@@ -2,6 +2,7 @@ from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
     get_opponent_policy_settings_from_input,
+    get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
 )
 
@@ -201,4 +202,23 @@ def test_get_opponent_policy_settings_from_input_explicit_values_override_preset
     assert settings == {
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "basic_defender_response",
+    }
+
+def test_get_profile_preset_settings_from_input_defaults() -> None:
+    settings = get_profile_preset_settings_from_input({})
+
+    assert settings == {
+        "use_profile_presets": False,
+    }
+
+
+def test_get_profile_preset_settings_from_input_reads_value() -> None:
+    settings = get_profile_preset_settings_from_input(
+        {
+            "use_profile_presets": True,
+        }
+    )
+
+    assert settings == {
+        "use_profile_presets": True,
     }

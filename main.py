@@ -13,11 +13,13 @@ from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
     get_opponent_policy_settings_from_input,
+    get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
     load_position_from_json,
 )
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
+from skat_ai.opponent_profile_policy import apply_profile_based_policy_preset
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
@@ -80,6 +82,20 @@ def apply_opponent_policy_cli_overrides(
 
     return updated_settings
 
+def apply_profile_preset_cli_overrides(
+    profile_preset_settings: dict[str, bool],
+    use_profile_presets: bool = False,
+) -> dict[str, bool]:
+    """
+    Applies CLI overrides to profile-preset settings.
+    """
+    updated_settings = profile_preset_settings.copy()
+
+    if use_profile_presets:
+        updated_settings["use_profile_presets"] = True
+
+    return updated_settings
+
 def build_analysis_result(
     file_path: str,
     sample_count_override: int | None = None,
@@ -94,6 +110,7 @@ def build_analysis_result(
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
     opponent_policy_settings = get_opponent_policy_settings_from_input(data)
+    profile_preset_settings = get_profile_preset_settings_from_input(data)
 
     settings = apply_cli_overrides(
         settings=settings,
@@ -104,6 +121,10 @@ def build_analysis_result(
 
     opponent_policy_settings = apply_opponent_policy_cli_overrides(
         opponent_policy_settings=opponent_policy_settings,
+    )
+
+    profile_preset_settings = apply_profile_preset_cli_overrides(
+        profile_preset_settings=profile_preset_settings,
     )
 
     legal_cards = get_legal_cards(
@@ -152,6 +173,7 @@ def build_analysis_result(
         },
         "settings": settings,
         "opponent_policy_settings": opponent_policy_settings,
+        "profile_preset_settings": profile_preset_settings,
         "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
         "legal_cards": legal_cards,
         "analysis_report": report,
@@ -377,6 +399,7 @@ def run_json_position_analysis(
     opponent_policy_preset_override: str | None = None,
     opponent_lead_policy_override: str | None = None,
     opponent_response_policy_override: str | None = None,
+    use_profile_presets_override: bool = False,
 ) -> None:
     result = build_analysis_result(
         file_path=file_path,
@@ -399,9 +422,27 @@ def run_json_position_analysis(
         settings = get_simulation_settings_from_input(position_data)
         analysis_metadata = get_analysis_metadata_from_input(position_data)
         opponent_policy_settings = get_opponent_policy_settings_from_input(position_data)
+
+        profile_preset_settings = get_profile_preset_settings_from_input(position_data)
+        profile_preset_settings = apply_profile_preset_cli_overrides(
+            profile_preset_settings=profile_preset_settings,
+            use_profile_presets=use_profile_presets_override,
+        )
+
         opponent_policy_settings = apply_opponent_policy_cli_overrides(
             opponent_policy_settings=opponent_policy_settings,
             opponent_policy_preset=opponent_policy_preset_override,
+        )
+
+        opponent_policy_settings = apply_profile_based_policy_preset(
+            opponent_policy_settings=opponent_policy_settings,
+            left_profile=analysis_metadata.left_player_profile,
+            right_profile=analysis_metadata.right_player_profile,
+            use_profile_presets=profile_preset_settings["use_profile_presets"],
+        )
+
+        opponent_policy_settings = apply_opponent_policy_cli_overrides(
+            opponent_policy_settings=opponent_policy_settings,
             opponent_lead_policy=opponent_lead_policy_override,
             opponent_response_policy=opponent_response_policy_override,
         )
@@ -431,6 +472,7 @@ def run_json_position_analysis(
         result["multi_step_result"] = build_serializable_multi_step_result(
             multi_step_result
         )
+        result["profile_preset_settings"] = profile_preset_settings
 
         if not comparison_only:
             print_multi_step_result(multi_step_result)
@@ -582,6 +624,12 @@ def parse_arguments() -> argparse.Namespace:
         help="Opponent policy preset for multi-step simulations.",
     )
 
+    parser.add_argument(
+        "--use-profile-presets",
+        action="store_true",
+        help="Use player profiles to derive opponent policy presets.",
+    )
+
     return parser.parse_args()
 
 
@@ -604,6 +652,7 @@ def main() -> None:
             opponent_policy_preset_override=args.opponent_policy_preset,
             opponent_lead_policy_override=args.opponent_lead_policy,
             opponent_response_policy_override=args.opponent_response_policy,
+            use_profile_presets_override=args.use_profile_presets,
         )
     except (ValueError, FileNotFoundError) as error:
         print("Input error:", error)

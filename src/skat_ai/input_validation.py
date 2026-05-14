@@ -216,6 +216,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     )
     validate_optional_analysis_metadata(data)
     validate_optional_opponent_policies(data)
+    validate_optional_profile_preset_settings(data)
 
 
 def validate_next_player(next_player: str) -> None:
@@ -376,3 +377,10 @@ def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
 
     if "opponent_response_policy" in data:
         validate_opponent_card_policy(data["opponent_response_policy"])
+
+def validate_optional_profile_preset_settings(data: dict[str, Any]) -> None:
+    """
+    Validates optional profile-preset settings.
+    """
+    if "use_profile_presets" in data:
+        validate_boolean(data["use_profile_presets"], "use_profile_presets")

@@ -1,6 +1,7 @@
 from main import (
     apply_cli_overrides,
     apply_opponent_policy_cli_overrides,
+    apply_profile_preset_cli_overrides,
     build_analysis_result,
     print_multi_step_result,
     print_policy_comparison_result,
@@ -185,6 +186,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "score_summary",
         "recommendation",
         "opponent_policy_settings",
+        "profile_preset_settings",
     }
 
 
@@ -823,3 +825,62 @@ def test_apply_opponent_policy_cli_overrides_explicit_values_override_preset() -
         "opponent_lead_policy": "basic_defender_lead",
         "opponent_response_policy": "highest_point",
     }
+
+
+def test_apply_profile_preset_cli_overrides_defaults_to_unchanged() -> None:
+    settings = {
+        "use_profile_presets": False,
+    }
+
+    updated_settings = apply_profile_preset_cli_overrides(
+        profile_preset_settings=settings,
+        use_profile_presets=False,
+    )
+
+    assert updated_settings == {
+        "use_profile_presets": False,
+    }
+    assert updated_settings is not settings
+
+
+def test_apply_profile_preset_cli_overrides_enables_profile_presets() -> None:
+    settings = {
+        "use_profile_presets": False,
+    }
+
+    updated_settings = apply_profile_preset_cli_overrides(
+        profile_preset_settings=settings,
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == {
+        "use_profile_presets": True,
+    }
+
+
+def test_build_analysis_result_includes_profile_preset_settings() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["profile_preset_settings"] == {
+        "use_profile_presets": False,
+    }
+
+def test_build_analysis_result_applies_profile_presets_from_input() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position_with_metadata.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    if result["profile_preset_settings"]["use_profile_presets"]:
+        assert result["opponent_policy_settings"]["opponent_lead_policy"] in [
+            "lowest_point",
+            "basic_defender_lead",
+            "highest_point",
+        ]

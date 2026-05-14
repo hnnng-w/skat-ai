@@ -159,6 +159,7 @@ Input files may include optional metadata. These fields are currently stored and
   "analysis_mode": "post_game_review",
   "skat_visibility": "known_post_game",
   "game_end_reason": "normal_completion",
+  "use_profile_presets": true,
   "left_player_profile": {
     "games_played": 1240,
     "solo_games_played": 380,
@@ -185,6 +186,8 @@ Input files may include optional metadata. These fields are currently stored and
   }
 }
 ```
+
+If use_profile_presets true, player profiles are used to derive opponent policy presets. Explicit opponent policy fields and CLI lead/response overrides still take precedence.
 
 Supported `analysis_mode` values:
 
@@ -283,6 +286,14 @@ Aggressive profile:
 
 Unknown or low-confidence profile:
 - recommended preset: simple_lowest
+
+Profile-based opponent presets can be enabled explicitly:
+
+python main.py --input examples/grand_second_position_with_metadata.json --multi-step 2 --use-profile-presets
+
+When enabled, the tool derives an opponent policy preset from the left and right player profiles.
+
+This is optional. By default, player profiles are stored and reported but do not affect simulation behavior.
 
 ## Policy comparison
 

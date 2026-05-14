@@ -20,6 +20,7 @@
   "skat_visibility": "known_post_game",
   "game_end_reason": "normal_completion",
   "opponent_policy_preset": "cautious_defender",
+  "use_profile_presets": true,
   "left_player_profile": {
     "games_played": 1240,
     "solo_games_played": 380,

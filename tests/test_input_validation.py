@@ -10,6 +10,7 @@ from skat_ai.input_validation import (
     validate_optional_analysis_metadata,
     validate_optional_opponent_policies,
     validate_optional_player_profile,
+    validate_optional_profile_preset_settings,
     validate_optional_random_seed,
     validate_player_position,
     validate_player_role,
@@ -552,5 +553,26 @@ def test_validate_optional_opponent_policies_rejects_invalid_preset() -> None:
         )
     except ValueError as error:
         assert "Invalid opponent policy preset" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_optional_profile_preset_settings_accepts_boolean() -> None:
+    validate_optional_profile_preset_settings(
+        {
+            "use_profile_presets": True,
+        }
+    )
+
+
+def test_validate_optional_profile_preset_settings_rejects_non_boolean() -> None:
+    try:
+        validate_optional_profile_preset_settings(
+            {
+                "use_profile_presets": "yes",
+            }
+        )
+    except ValueError as error:
+        assert "use_profile_presets" in str(error)
+        assert "boolean" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

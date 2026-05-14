@@ -1,4 +1,6 @@
 from skat_ai.opponent_profile_policy import (
+    apply_profile_based_policy_preset,
+    choose_combined_profile_policy_preset,
     choose_opponent_policy_preset_for_profile,
     get_profile_data_confidence,
     is_aggressive_profile,
@@ -147,3 +149,112 @@ def test_choose_opponent_policy_preset_for_neutral_profile() -> None:
     )
 
     assert choose_opponent_policy_preset_for_profile(profile) == "simple_lowest"
+
+
+def test_choose_combined_profile_policy_preset_prefers_aggressive() -> None:
+    left_profile = PlayerProfile(
+        games_played=1000,
+        solo_rate=0.38,
+    )
+    right_profile = PlayerProfile(
+        games_played=1000,
+        defender_win_rate=0.55,
+    )
+
+    preset = choose_combined_profile_policy_preset(
+        left_profile=left_profile,
+        right_profile=right_profile,
+    )
+
+    assert preset == "aggressive_points"
+
+
+def test_choose_combined_profile_policy_preset_uses_cautious_defender() -> None:
+    left_profile = PlayerProfile(
+        games_played=1000,
+        solo_rate=0.25,
+        grand_rate=0.15,
+        hand_game_rate=0.03,
+        defender_win_rate=0.55,
+    )
+    right_profile = PlayerProfile()
+
+    preset = choose_combined_profile_policy_preset(
+        left_profile=left_profile,
+        right_profile=right_profile,
+    )
+
+    assert preset == "cautious_defender"
+
+
+def test_choose_combined_profile_policy_preset_falls_back_to_simple_lowest() -> None:
+    left_profile = PlayerProfile()
+    right_profile = PlayerProfile()
+
+    preset = choose_combined_profile_policy_preset(
+        left_profile=left_profile,
+        right_profile=right_profile,
+    )
+
+    assert preset == "simple_lowest"
+
+
+def test_apply_profile_based_policy_preset_returns_copy_when_disabled() -> None:
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    updated_settings = apply_profile_based_policy_preset(
+        opponent_policy_settings=settings,
+        left_profile=PlayerProfile(games_played=1000, solo_rate=0.38),
+        right_profile=PlayerProfile(),
+        use_profile_presets=False,
+    )
+
+    assert updated_settings == settings
+    assert updated_settings is not settings
+
+
+def test_apply_profile_based_policy_preset_applies_aggressive_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    updated_settings = apply_profile_based_policy_preset(
+        opponent_policy_settings=settings,
+        left_profile=PlayerProfile(games_played=1000, solo_rate=0.38),
+        right_profile=PlayerProfile(),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
+def test_apply_profile_based_policy_preset_applies_cautious_defender_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    updated_settings = apply_profile_based_policy_preset(
+        opponent_policy_settings=settings,
+        left_profile=PlayerProfile(
+            games_played=1000,
+            solo_rate=0.25,
+            grand_rate=0.15,
+            hand_game_rate=0.03,
+            defender_win_rate=0.55,
+        ),
+        right_profile=PlayerProfile(),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
