@@ -8,6 +8,7 @@ from skat_ai.input_validation import (
     validate_no_duplicate_cards,
     validate_non_negative_integer,
     validate_optional_analysis_metadata,
+    validate_optional_opponent_policies,
     validate_optional_player_profile,
     validate_optional_random_seed,
     validate_player_position,
@@ -496,5 +497,26 @@ def test_validate_optional_analysis_metadata_rejects_invalid_analysis_mode() -> 
         )
     except ValueError as error:
         assert "Invalid analysis mode" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_optional_opponent_policies_accepts_valid_policies() -> None:
+    validate_optional_opponent_policies(
+        {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "basic_trick_play",
+        }
+    )
+
+
+def test_validate_optional_opponent_policies_rejects_invalid_policy() -> None:
+    try:
+        validate_optional_opponent_policies(
+            {
+                "opponent_lead_policy": "reckless",
+            }
+        )
+    except ValueError as error:
+        assert "Invalid opponent card policy" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

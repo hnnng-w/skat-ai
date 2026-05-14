@@ -233,6 +233,18 @@ python main.py --input examples/grand_second_position.json --multi-step 3 --stri
 
 Strict context mode fails if duplicate simulated opponent cards are detected during a multi-step run.
 
+Opponent lead and response policies can be configured:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-lead-policy highest_point --opponent-response-policy basic_trick_play
+
+Supported opponent policies:
+
+lowest_point
+highest_point
+random_legal
+basic_trick_play
+
 ## Policy comparison
 
 Compare all available card-selection policies:

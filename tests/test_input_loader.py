@@ -1,6 +1,7 @@
 from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
+    get_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
 )
 
@@ -127,3 +128,25 @@ def test_get_analysis_metadata_from_input_reads_metadata() -> None:
     assert metadata.strategic_metadata.analysis_mode == "post_game_review"
     assert metadata.left_player_profile.games_played == 1240
     assert metadata.right_player_profile.defender_win_rate == 0.49
+
+def test_get_opponent_policy_settings_from_input_defaults() -> None:
+    settings = get_opponent_policy_settings_from_input({})
+
+    assert settings == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+
+def test_get_opponent_policy_settings_from_input_reads_values() -> None:
+    settings = get_opponent_policy_settings_from_input(
+        {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "basic_trick_play",
+        }
+    )
+
+    assert settings == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }

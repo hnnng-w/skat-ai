@@ -233,6 +233,10 @@ def simulate_multiple_steps(
         "steps_simulated": len(steps),
         "stop_reason": stop_reason,
         "strict_context": strict_context,
+        "opponent_policy_settings": {
+            "opponent_lead_policy": opponent_lead_policy,
+            "opponent_response_policy": opponent_response_policy,
+        },
         "context": context,
         "context_summary": build_context_summary(context),
         "steps": steps,

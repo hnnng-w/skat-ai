@@ -55,6 +55,7 @@ def build_serializable_multi_step_result(
         "steps_simulated": result["steps_simulated"],
         "stop_reason": result["stop_reason"],
         "strict_context": result["strict_context"],
+        "opponent_policy_settings": result.get("opponent_policy_settings", {}),
         "summary": result["summary"],
         "context_summary": result["context_summary"],
         "steps": [
@@ -77,6 +78,8 @@ def build_serializable_policy_comparison_result(
         "expected_value_sample_count": result["expected_value_sample_count"],
         "use_basic_opponent_strategy": result["use_basic_opponent_strategy"],
         "strict_context": result["strict_context"],
+        "opponent_lead_policy": result.get("opponent_lead_policy", "lowest_point"),
+        "opponent_response_policy": result.get("opponent_response_policy", "lowest_point"),
         "policies": result["policies"],
         "policy_results": [
             {

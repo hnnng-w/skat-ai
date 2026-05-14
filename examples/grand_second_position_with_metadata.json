@@ -19,6 +19,8 @@
   "analysis_mode": "post_game_review",
   "skat_visibility": "known_post_game",
   "game_end_reason": "normal_completion",
+  "opponent_lead_policy": "lowest_point",
+  "opponent_response_policy": "basic_trick_play",
   "left_player_profile": {
     "games_played": 1240,
     "solo_games_played": 380,

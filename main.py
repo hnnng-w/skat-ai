@@ -12,6 +12,7 @@ from skat_ai.game_history import build_score_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
+    get_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_position_from_json,
 )
@@ -54,6 +55,23 @@ def apply_cli_overrides(
 
     return updated_settings
 
+def apply_opponent_policy_cli_overrides(
+    opponent_policy_settings: dict[str, str],
+    opponent_lead_policy: str | None = None,
+    opponent_response_policy: str | None = None,
+) -> dict[str, str]:
+    """
+    Applies CLI overrides to opponent policy settings.
+    """
+    updated_settings = opponent_policy_settings.copy()
+
+    if opponent_lead_policy is not None:
+        updated_settings["opponent_lead_policy"] = opponent_lead_policy
+
+    if opponent_response_policy is not None:
+        updated_settings["opponent_response_policy"] = opponent_response_policy
+
+    return updated_settings
 
 def build_analysis_result(
     file_path: str,
@@ -68,12 +86,17 @@ def build_analysis_result(
     state = build_game_state_from_input(data)
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
+    opponent_policy_settings = get_opponent_policy_settings_from_input(data)
 
     settings = apply_cli_overrides(
         settings=settings,
         sample_count=sample_count_override,
         random_seed=random_seed_override,
         opponent_strategy=opponent_strategy_override,
+    )
+
+    opponent_policy_settings = apply_opponent_policy_cli_overrides(
+        opponent_policy_settings=opponent_policy_settings,
     )
 
     legal_cards = get_legal_cards(
@@ -121,6 +144,7 @@ def build_analysis_result(
             "skat": state.skat,
         },
         "settings": settings,
+        "opponent_policy_settings": opponent_policy_settings,
         "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
         "legal_cards": legal_cards,
         "analysis_report": report,
@@ -204,6 +228,15 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     print("Requested steps:", result.get("requested_step_count", len(steps)))
     print("Steps simulated:", result.get("steps_simulated", len(steps)))
     print("Stop reason:", result.get("stop_reason", "unknown"))
+    if "opponent_policy_settings" in result:
+        print(
+            "Opponent lead policy:",
+            result["opponent_policy_settings"]["opponent_lead_policy"],
+        )
+        print(
+            "Opponent response policy:",
+            result["opponent_policy_settings"]["opponent_response_policy"],
+        )
     if "context_summary" in result:
         context_summary = result["context_summary"]
         duplicate_cards = context_summary["duplicate_simulated_opponent_cards"]
@@ -262,6 +295,11 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
     print("Expected-value samples:", result["expected_value_sample_count"])
     print("Use basic opponent strategy:", result["use_basic_opponent_strategy"])
     print("Strict context:", result["strict_context"])
+    print("Opponent lead policy:", result.get("opponent_lead_policy", "lowest_point"))
+    print(
+        "Opponent response policy:",
+        result.get("opponent_response_policy", "lowest_point"),
+    )
 
     print()
     print(
@@ -329,6 +367,8 @@ def run_json_position_analysis(
     strict_context: bool = False,
     compare_policies: bool = False,
     comparison_only: bool = False,
+    opponent_lead_policy_override: str | None = None,
+    opponent_response_policy_override: str | None = None,
 ) -> None:
     result = build_analysis_result(
         file_path=file_path,
@@ -350,6 +390,12 @@ def run_json_position_analysis(
         state = build_game_state_from_input(position_data)
         settings = get_simulation_settings_from_input(position_data)
         analysis_metadata = get_analysis_metadata_from_input(position_data)
+        opponent_policy_settings = get_opponent_policy_settings_from_input(position_data)
+        opponent_policy_settings = apply_opponent_policy_cli_overrides(
+            opponent_policy_settings=opponent_policy_settings,
+            opponent_lead_policy=opponent_lead_policy_override,
+            opponent_response_policy=opponent_response_policy_override,
+        )
 
         settings = apply_cli_overrides(
             settings=settings,
@@ -369,6 +415,8 @@ def run_json_position_analysis(
             expected_value_sample_count=expected_value_sample_count,
             strict_context=strict_context,
             strategic_metadata=analysis_metadata.strategic_metadata,
+            opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
+            opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
         )
 
         result["multi_step_result"] = build_serializable_multi_step_result(
@@ -389,6 +437,8 @@ def run_json_position_analysis(
                 expected_value_sample_count=expected_value_sample_count,
                 strict_context=strict_context,
                 strategic_metadata=analysis_metadata.strategic_metadata,
+                opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
+                opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
             )
 
             result["policy_comparison_result"] = build_serializable_policy_comparison_result(
@@ -483,6 +533,30 @@ def parse_arguments() -> argparse.Namespace:
         help="Only print the policy comparison, not the individual multi-step details.",
     )
 
+    parser.add_argument(
+        "--opponent-lead-policy",
+        choices=[
+            "lowest_point",
+            "highest_point",
+            "random_legal",
+            "basic_trick_play",
+        ],
+        default=None,
+        help="Opponent lead card policy for multi-step simulations.",
+    )
+
+    parser.add_argument(
+        "--opponent-response-policy",
+        choices=[
+            "lowest_point",
+            "highest_point",
+            "random_legal",
+            "basic_trick_play",
+        ],
+        default=None,
+        help="Opponent response card policy for multi-step simulations.",
+    )
+
     return parser.parse_args()
 
 
@@ -502,6 +576,8 @@ def main() -> None:
             strict_context=args.strict_context,
             compare_policies=args.compare_policies,
             comparison_only=args.comparison_only,
+            opponent_lead_policy_override=args.opponent_lead_policy,
+            opponent_response_policy_override=args.opponent_response_policy,
         )
     except (ValueError, FileNotFoundError) as error:
         print("Input error:", error)

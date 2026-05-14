@@ -38,6 +38,8 @@ def test_compare_multi_step_policies_returns_expected_keys() -> None:
         "policies",
         "policy_results",
         "recommended_policy",
+        "opponent_lead_policy",
+        "opponent_response_policy",
     }
 
 
@@ -392,3 +394,26 @@ def test_compare_multi_step_policies_accepts_strategic_metadata() -> None:
         "skat_visibility": "known_post_game",
         "game_end_reason": "normal_completion",
     }
+
+def test_compare_multi_step_policies_returns_opponent_policy_settings() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        policies=["highest_point"],
+        random_seed=42,
+        opponent_lead_policy="highest_point",
+        opponent_response_policy="basic_trick_play",
+    )
+
+    assert result["opponent_lead_policy"] == "highest_point"
+    assert result["opponent_response_policy"] == "basic_trick_play"

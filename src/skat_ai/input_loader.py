@@ -66,3 +66,17 @@ def get_analysis_metadata_from_input(
     Extracts analysis metadata from input data.
     """
     return build_analysis_metadata_from_input(data)
+
+def get_opponent_policy_settings_from_input(
+    data: dict[str, Any],
+) -> dict[str, str]:
+    """
+    Extracts opponent policy settings from input data.
+    """
+    return {
+        "opponent_lead_policy": data.get("opponent_lead_policy", "lowest_point"),
+        "opponent_response_policy": data.get(
+            "opponent_response_policy",
+            "lowest_point",
+        ),
+    }

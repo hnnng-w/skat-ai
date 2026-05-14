@@ -17,6 +17,8 @@ def compare_multi_step_policies(
     expected_value_sample_count: int = 100,
     strict_context: bool = False,
     strategic_metadata: StrategicMetadata | None = None,
+    opponent_lead_policy: str = "lowest_point",
+    opponent_response_policy: str = "lowest_point",
 ) -> dict[str, Any]:
     """
     Compares multiple card-selection policies on the same multi-step setup.
@@ -37,6 +39,8 @@ def compare_multi_step_policies(
             expected_value_sample_count=expected_value_sample_count,
             strict_context=strict_context,
             strategic_metadata=strategic_metadata,
+            opponent_lead_policy=opponent_lead_policy,
+            opponent_response_policy=opponent_response_policy,
         )
 
         summary = multi_step_result["summary"]
@@ -64,6 +68,8 @@ def compare_multi_step_policies(
         "expected_value_sample_count": expected_value_sample_count,
         "use_basic_opponent_strategy": use_basic_opponent_strategy,
         "strict_context": strict_context,
+        "opponent_lead_policy": opponent_lead_policy,
+        "opponent_response_policy": opponent_response_policy,
         "policies": selected_policies,
         "policy_results": sorted_policy_results,
     }

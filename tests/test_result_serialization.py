@@ -185,6 +185,10 @@ def test_build_serializable_multi_step_result() -> None:
             }
         ],
         "final_state": final_state,
+        "opponent_policy_settings": {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+},
     }
 
     serializable_result = build_serializable_multi_step_result(result)
@@ -194,6 +198,10 @@ def test_build_serializable_multi_step_result() -> None:
     assert serializable_result["summary"]["score_summary"]["final_point_swing"] == 11
     assert serializable_result["final_state"]["hand"] == ["S10"]
     assert "next_state" not in serializable_result["steps"][0]
+    assert serializable_result["opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
 
 
 def test_build_serializable_policy_comparison_result() -> None:
@@ -231,6 +239,8 @@ def test_build_serializable_policy_comparison_result() -> None:
                 },
             },
         ],
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
     }
 
     serializable_result = build_serializable_policy_comparison_result(result)

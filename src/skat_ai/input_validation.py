@@ -1,6 +1,7 @@
 from typing import Any
 
 from skat_ai.deck import get_full_deck
+from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.rules import GAME_TYPES
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
@@ -213,6 +214,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
         "use_basic_opponent_strategy",
     )
     validate_optional_analysis_metadata(data)
+    validate_optional_opponent_policies(data)
 
 
 def validate_next_player(next_player: str) -> None:
@@ -360,3 +362,13 @@ def validate_optional_analysis_metadata(data: dict[str, Any]) -> None:
         profile=data.get("right_player_profile"),
         field_name="right_player_profile",
     )
+
+def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
+    """
+    Validates optional opponent policy fields.
+    """
+    if "opponent_lead_policy" in data:
+        validate_opponent_card_policy(data["opponent_lead_policy"])
+
+    if "opponent_response_policy" in data:
+        validate_opponent_card_policy(data["opponent_response_policy"])
