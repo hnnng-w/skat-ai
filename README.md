@@ -2,30 +2,30 @@
 
 ![Check](https://github.com/hnnng-w/skat-ai/actions/workflows/check.yml/badge.svg)
 
-A local Python-based Skat analysis and simulation tool.
+Skat AI Analysis Tool is a Python-based analysis engine for Skat positions.
 
-The project analyzes a given Skat position, checks legal cards, simulates immediate trick outcomes, estimates expected point swings, and recommends a card based on the current situation.
+It evaluates legal card choices, estimates immediate trick outcomes with simulation, tracks game state, and can run basic multi-step projections. The project currently focuses on rule-based and probability-based analysis rather than machine learning.
+
+The long-term goal is to support more advanced strategic analysis, including opponent tendencies and post-game review.
 
 ## Current capabilities
 
-- Card parsing
-- Card point calculation
-- Trump detection
-- Effective suit detection
+The tool currently supports:
+
+- JSON-based position analysis
 - Legal card detection
-- Trick winner calculation
-- Trick point calculation
-- Full 32-card deck tracking
-- Seen and unseen card tracking
-- JSON-based position input
-- Input validation
-- Random opponent hand generation
-- Basic opponent strategy
 - Immediate trick simulation
-- Win-rate estimation
-- Expected point swing estimation
-- Strategic summary generation
-- Reproducible simulations with `random_seed`
+- Expected point swing calculation
+- Card recommendation based on expected value
+- Score summaries from completed tricks
+- Multi-step simulation
+- Opponent lead and response simulation
+- Simulation context tracking
+- Duplicate-card warnings in simulation context
+- Strict context mode
+- Policy comparison across card-selection strategies
+- JSON output for analysis results
+- Optional strategic metadata and player profile fields
 
 ## Project structure
 
@@ -62,166 +62,49 @@ skat-ai/
 Create and activate a virtual environment:
 
 ```powershell
-py -m venv .venv
-.venv\Scripts\Activate.ps1
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
-Install the package with development dependencies:
+Install dependencies:
 
 ```powershell
 python -m pip install -e ".[dev]"
+```
+
+Run checks:
+
+```powershell
+.\scripts\check.ps1
 ```
 
 This installs the local package plus development tools such as `pytest` and `ruff`.
 
 ## Running the tool
 
-Edit the file:
-
-```text
-input_position.json
-```
-
-Then run:
+Run the default analysis:
 
 ```powershell
 python main.py
 ```
 
-You can also pass a specific input file:
-
-```powershell
-python main.py --input input_position.json
-```
-
-Example:
+Run analysis with a specific input file:
 
 ```powershell
 python main.py --input examples/grand_second_position.json
 ```
 
-Show command-line help:
+Override simulation settings:
 
 ```powershell
-python main.py --help
+python main.py --input examples/grand_second_position.json --samples 100 --seed 42
 ```
 
-Override the number of simulation samples:
+Write output to JSON:
 
 ```powershell
-python main.py --input examples/grand_leading.json --samples 5000
+python main.py --input examples/grand_second_position.json --output outputs/result.json
 ```
-
-Override the random seed:
-
-```powershell
-python main.py --input examples/grand_leading.json --seed 123
-```
-
-Override both:
-
-```powershell
-python main.py --input examples/grand_leading.json --samples 5000 --seed 123
-```
-
-Override the opponent strategy:
-
-```powershell
-python main.py --input examples/grand_leading.json --opponent-strategy basic
-```
-
-Use random legal opponent moves instead:
-
-```powershell
-python main.py --input examples/grand_leading.json --opponent-strategy random
-```
-
-Combine CLI overrides:
-
-```powershell
-python main.py --input examples/grand_leading.json --samples 5000 --seed 123 --opponent-strategy random
-```
-
-Write the analysis result to a JSON file:
-
-```powershell
-python main.py --input examples/grand_leading.json --output analysis_result.json
-```
-
-Write the result to a folder:
-
-```powershell
-python main.py --input examples/grand_leading.json --output outputs/grand_leading_result.json
-```
-
-Run a multi-step simulation:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2
-```
-
-Run multi-step simulation in strict context mode:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 3 --card-policy lowest_point --strict-context
-```
-
-Strict context mode fails if duplicate simulated opponent cards are detected during a multi-step run.
-
-The multi-step output includes a compact score summary:
-
-```text
-Multi-step score summary
-Requested steps: 3
-Steps simulated: 2
-Final point swing: 16
-```
-
-Compare card-selection policies:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --expected-value-samples 20
-```
-
-The policy comparison runs all available card-selection policies on the same input and prints their compact multi-step score summaries side by side.
-
-Write a policy comparison to JSON:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --expected-value-samples 20 --output outputs/policy_comparison.json
-```
-
-The JSON output includes `policy_comparison_result` with one compact result per card-selection policy.
-
-Use a specific card-selection policy:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy lowest_point
-```
-
-Use the expected-value card-selection policy:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy highest_expected_value --expected-value-samples 20
-```
-
-Write a multi-step result to JSON:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy highest_expected_value --expected-value-samples 20 --output outputs/multi_step_result.json
-```
-
-Policy comparison results are sorted by `final_point_swing`, with the best policy shown first.
-If multiple policies have the same `final_point_swing`, the comparison uses tie-breakers: higher declarer gain, lower defender gain, more simulated steps, then policy name.
-The comparison also includes a `recommended_policy`, selected by the sorted policy comparison order and its tie-breakers.
-
-Print only the policy comparison without the individual multi-step details:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --comparison-only --expected-value-samples 20
-```
-
-`--comparison-only` requires `--compare-policies`.
 
 ## Example positions
 
@@ -248,29 +131,24 @@ Run another example:
 python main.py --input examples/null_second_position.json
 ```
 
-## Input format
+## Input JSON format
 
-Example `input_position.json`:
+A basic input file describes one Skat position:
 
 ```json
 {
   "game_type": "grand",
   "player_role": "declarer",
-  "player_position": "forehand",
+  "player_position": "middlehand",
   "trick_leader": "left",
   "hand": ["SA", "S10", "S9", "H10", "D7"],
   "current_trick": ["S7"],
   "played_cards": [],
-  "completed_tricks": [
-    {
-      "cards": ["CA", "C10", "CK"],
-      "winner_role": "defenders"
-    }
-  ],
+  "skat": [],
+  "completed_tricks": [],
   "declarer_points": 0,
   "defender_points": 0,
   "next_player": "me",
-  "skat": [],
   "left_hand_size": 5,
   "right_hand_size": 5,
   "sample_count": 1000,
@@ -279,7 +157,27 @@ Example `input_position.json`:
 }
 ```
 
-Optional analysis metadata:
+Important fields:
+
+- `game_type`: currently supports game types such as `grand`, suit games, and null games according to the implemented rule logic.
+- `player_role`: whether the player is `declarer` or `defender`.
+- `player_position`: position of the player in the current trick.
+- `trick_leader`: player who led the current trick.
+- `hand`: current player hand.
+- `current_trick`: cards already played in the current trick.
+- `played_cards`: known played cards outside completed tricks.
+- `skat`: skat cards, if known.
+- `completed_tricks`: previously completed tricks.
+- `declarer_points` / `defender_points`: explicit current score values.
+- `next_player`: next player to act, if known.
+- `left_hand_size` / `right_hand_size`: assumed remaining opponent hand sizes.
+- `sample_count`: number of simulation samples.
+- `random_seed`: optional seed for reproducible simulations.
+- `use_basic_opponent_strategy`: whether basic opponent strategy is used during simulation.
+
+## Optional analysis metadata
+
+Input files may include optional metadata. These fields are currently stored and passed through the analysis pipeline, but they do not yet change recommendations.
 
 ```json
 {
@@ -288,22 +186,107 @@ Optional analysis metadata:
   "game_end_reason": "normal_completion",
   "left_player_profile": {
     "games_played": 1240,
+    "solo_games_played": 380,
+    "defender_games_played": 860,
     "solo_rate": 0.31,
     "solo_win_rate": 0.66,
+    "hand_game_rate": 0.08,
+    "suit_game_rate": 0.46,
     "grand_rate": 0.22,
+    "null_game_rate": 0.04,
     "defender_win_rate": 0.54
   },
   "right_player_profile": {
     "games_played": 520,
+    "solo_games_played": 160,
+    "defender_games_played": 360,
     "solo_rate": 0.28,
     "solo_win_rate": 0.59,
+    "hand_game_rate": 0.05,
+    "suit_game_rate": 0.51,
     "grand_rate": 0.18,
+    "null_game_rate": 0.06,
     "defender_win_rate": 0.49
   }
 }
 ```
 
-These fields are currently stored and passed through the analysis pipeline. They do not yet change card recommendations.
+Supported `analysis_mode` values:
+
+- `live_decision`
+- `post_game_review`
+
+Supported `skat_visibility` values:
+
+- `unknown`
+- `known_to_declarer`
+- `known_post_game`
+
+Supported `game_end_reason` values:
+
+- `not_ended`
+- `normal_completion`
+- `declarer_claimed_remaining_tricks`
+- `declarer_conceded_remaining_tricks`
+- `defenders_conceded_remaining_tricks`
+
+## Multi-step simulation
+
+Run a multi-step simulation:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2
+```
+
+Use a specific card-selection policy:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy lowest_point
+```
+
+Use expected-value card selection:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --card-policy highest_expected_value --expected-value-samples 20
+```
+
+Run strict context mode:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 3 --strict-context
+```
+
+Strict context mode fails if duplicate simulated opponent cards are detected during a multi-step run.
+
+## Policy comparison
+
+Compare all available card-selection policies:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --expected-value-samples 20
+```
+
+Print only the policy comparison without individual multi-step details:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --comparison-only --expected-value-samples 20
+```
+
+Write policy comparison to JSON:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --comparison-only --expected-value-samples 20 --output outputs/policy_comparison.json
+```
+
+Policy comparison results are sorted by:
+
+1. Higher final point swing
+2. Higher declarer points gained
+3. Lower defender points gained
+4. Higher number of simulated steps
+5. Policy name alphabetically
+
+The comparison also includes a `recommended_policy`.
 
 ## Game history fields
 
@@ -473,6 +456,73 @@ H10       0.000      13.28       0.00      13.28     -13.28
 S10       0.000      15.04       0.00      15.04     -15.04
 ```
 
+## JSON output
+
+The JSON output contains the full structured result.
+
+Example command:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --output outputs/result.json
+```
+
+Top-level fields may include:
+
+- `input_file`
+- `position`
+- `settings`
+- `analysis_metadata`
+- `legal_cards`
+- `analysis_report`
+- `strategic_summary`
+- `score_summary`
+- `recommendation`
+- `multi_step_result`
+- `policy_comparison_result`
+
+`multi_step_result` contains a serializable multi-step summary, context summary, final state, and step list.
+
+`policy_comparison_result` contains one compact result per card-selection policy and a `recommended_policy`.
+
+## Architecture overview
+
+Key modules:
+
+- `main.py`: CLI entry point and human-readable printing
+- `input_loader.py`: loads JSON input and builds initial state/settings
+- `input_validation.py`: validates input data
+- `game_state.py`: core game state structure
+- `rules.py`: Skat rule logic such as legal cards and trick winners
+- `simulation.py`: immediate trick simulation and opponent hand sampling
+- `simulation_step.py`: simulate-and-advance logic for one player action
+- `multi_step_simulation.py`: multi-step simulation orchestration
+- `opponent_lead.py`: low-level opponent lead and response behavior
+- `opponent_sequence.py`: prepares opponent action sequences before the player acts
+- `simulation_context.py`: tracks simulated opponent cards and run events
+- `known_cards.py`: central known-card utilities
+- `sampling_validation.py`: validates card availability for sampling
+- `multi_step_summary.py`: compact multi-step score summaries
+- `policy_comparison.py`: compares card-selection policies
+- `result_serialization.py`: JSON-serializable output structures
+- `analysis_metadata.py`: optional metadata bundle for strategic context and player profiles
+- `strategic_metadata.py`: analysis mode, skat visibility, and game-end metadata
+- `player_profile.py`: placeholder structure for future opponent modeling
+
+## Known limitations
+
+Current limitations:
+
+- Opponent behavior is still simplified.
+- Player profiles are stored but do not yet influence decisions.
+- Strategic metadata is stored but does not yet influence recommendations.
+- Early termination logic is not implemented yet.
+- Claiming remaining tricks is not implemented yet.
+- Conceding or gifting remaining points is not implemented yet.
+- Skat visibility is tracked as metadata but not yet used to change decision logic.
+- Multi-step simulations still rely on sampled hidden cards.
+- Opponent hand consistency has improved, but the engine is not yet a full perfect-information game simulator.
+- The tool currently focuses on analysis and simulation, not on training a machine-learning model.
+
 ## Running tests
 
 Run:
@@ -571,14 +621,34 @@ Possible next steps:
 
 This tool provides statistical and rule-based recommendations based on simplified simulations. It is intended as a learning and analysis aid, not as a perfect Skat engine.
 
-## Roadmap and issues
+## Roadmap
 
-Development tasks are tracked with GitHub Issues.
+Planned next areas:
 
-Main roadmap areas:
+### Simulation engine
 
-- Full-game state tracking
-- Multi-trick simulation
-- Smarter opponent strategies
-- Game score calculation
-- More realistic example positions
+- Improve opponent behavior policies
+- Improve consistency of sampled opponent hands
+- Add stronger game-end handling
+- Add claim/concession logic
+- Add better handling of known and unknown skat cards
+
+### Player modeling
+
+- Use `PlayerProfile` values to influence opponent decisions
+- Add confidence weighting based on `games_played`
+- Model aggressive and conservative opponents
+- Model strong and weak defenders
+
+### Analysis modes
+
+- Distinguish live decision support from post-game review
+- Prevent post-game-only information from influencing live recommendations
+- Use known skat information only when allowed by `skat_visibility`
+
+### Output and usability
+
+- Improve JSON schema documentation
+- Add more examples
+- Add compact reporting modes
+- Prepare a first `0.1.0` release
