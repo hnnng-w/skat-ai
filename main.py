@@ -17,6 +17,7 @@ from skat_ai.input_loader import (
     load_position_from_json,
 )
 from skat_ai.multi_step_simulation import simulate_multiple_steps
+from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
@@ -57,13 +58,19 @@ def apply_cli_overrides(
 
 def apply_opponent_policy_cli_overrides(
     opponent_policy_settings: dict[str, str],
+    opponent_policy_preset: str | None = None,
     opponent_lead_policy: str | None = None,
     opponent_response_policy: str | None = None,
 ) -> dict[str, str]:
     """
     Applies CLI overrides to opponent policy settings.
+
+    Preset is applied first. Explicit lead/response overrides win.
     """
-    updated_settings = opponent_policy_settings.copy()
+    updated_settings = apply_opponent_policy_preset(
+        opponent_policy_settings=opponent_policy_settings,
+        preset=opponent_policy_preset,
+    )
 
     if opponent_lead_policy is not None:
         updated_settings["opponent_lead_policy"] = opponent_lead_policy
@@ -367,6 +374,7 @@ def run_json_position_analysis(
     strict_context: bool = False,
     compare_policies: bool = False,
     comparison_only: bool = False,
+    opponent_policy_preset_override: str | None = None,
     opponent_lead_policy_override: str | None = None,
     opponent_response_policy_override: str | None = None,
 ) -> None:
@@ -393,6 +401,7 @@ def run_json_position_analysis(
         opponent_policy_settings = get_opponent_policy_settings_from_input(position_data)
         opponent_policy_settings = apply_opponent_policy_cli_overrides(
             opponent_policy_settings=opponent_policy_settings,
+            opponent_policy_preset=opponent_policy_preset_override,
             opponent_lead_policy=opponent_lead_policy_override,
             opponent_response_policy=opponent_response_policy_override,
         )
@@ -561,6 +570,18 @@ def parse_arguments() -> argparse.Namespace:
         help="Opponent response card policy for multi-step simulations.",
     )
 
+    parser.add_argument(
+        "--opponent-policy-preset",
+        choices=[
+            "simple_lowest",
+            "cautious_defender",
+            "aggressive_points",
+            "random",
+        ],
+        default=None,
+        help="Opponent policy preset for multi-step simulations.",
+    )
+
     return parser.parse_args()
 
 
@@ -580,6 +601,7 @@ def main() -> None:
             strict_context=args.strict_context,
             compare_policies=args.compare_policies,
             comparison_only=args.comparison_only,
+            opponent_policy_preset_override=args.opponent_policy_preset,
             opponent_lead_policy_override=args.opponent_lead_policy,
             opponent_response_policy_override=args.opponent_response_policy,
         )

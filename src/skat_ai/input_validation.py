@@ -2,6 +2,7 @@ from typing import Any
 
 from skat_ai.deck import get_full_deck
 from skat_ai.opponent_policy import validate_opponent_card_policy
+from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.rules import GAME_TYPES
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
@@ -367,6 +368,9 @@ def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
     """
     Validates optional opponent policy fields.
     """
+    if "opponent_policy_preset" in data:
+        validate_opponent_policy_preset(data["opponent_policy_preset"])
+
     if "opponent_lead_policy" in data:
         validate_opponent_card_policy(data["opponent_lead_policy"])
 

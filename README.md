@@ -250,6 +250,27 @@ basic_defender_lead
 basic_defender_response tries to add points when the defenders partner is currently winning the trick. Otherwise it falls back to basic trick-play behavior.
 basic_defender_lead prefers low-point non-trump cards when opening a trick.
 
+Opponent policy presets are available:
+
+simple_lowest:
+- lead: lowest_point
+- response: lowest_point
+
+cautious_defender:
+- lead: basic_defender_lead
+- response: basic_defender_response
+
+aggressive_points:
+- lead: highest_point
+- response: highest_point
+
+random:
+- lead: random_legal
+- response: random_legal
+
+python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-policy-preset cautious_defender
+Explicit --opponent-lead-policy and --opponent-response-policy override the preset values.
+
 ## Policy comparison
 
 Compare all available card-selection policies:

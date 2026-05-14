@@ -534,3 +534,23 @@ def test_validate_optional_opponent_policies_accepts_basic_defender_lead() -> No
             "opponent_lead_policy": "basic_defender_lead",
         }
     )
+
+def test_validate_optional_opponent_policies_accepts_preset() -> None:
+    validate_optional_opponent_policies(
+        {
+            "opponent_policy_preset": "cautious_defender",
+        }
+    )
+
+
+def test_validate_optional_opponent_policies_rejects_invalid_preset() -> None:
+    try:
+        validate_optional_opponent_policies(
+            {
+                "opponent_policy_preset": "reckless",
+            }
+        )
+    except ValueError as error:
+        assert "Invalid opponent policy preset" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

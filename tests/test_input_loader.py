@@ -176,3 +176,29 @@ def test_get_opponent_policy_settings_from_input_reads_basic_defender_lead() -> 
         "opponent_lead_policy": "basic_defender_lead",
         "opponent_response_policy": "basic_defender_response",
     }
+
+def test_get_opponent_policy_settings_from_input_applies_preset() -> None:
+    settings = get_opponent_policy_settings_from_input(
+        {
+            "opponent_policy_preset": "cautious_defender",
+        }
+    )
+
+    assert settings == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+
+def test_get_opponent_policy_settings_from_input_explicit_values_override_preset() -> None:
+    settings = get_opponent_policy_settings_from_input(
+        {
+            "opponent_policy_preset": "cautious_defender",
+            "opponent_lead_policy": "highest_point",
+        }
+    )
+
+    assert settings == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_defender_response",
+    }

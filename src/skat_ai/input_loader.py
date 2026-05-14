@@ -8,6 +8,7 @@ from skat_ai.analysis_metadata import (
 )
 from skat_ai.game_state import GameState
 from skat_ai.input_validation import validate_position_input
+from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
 
 
 def load_position_from_json(file_path: str) -> dict[str, Any]:
@@ -72,11 +73,24 @@ def get_opponent_policy_settings_from_input(
 ) -> dict[str, str]:
     """
     Extracts opponent policy settings from input data.
+
+    A preset is applied first. Explicit lead/response policy fields then
+    override the preset.
     """
-    return {
-        "opponent_lead_policy": data.get("opponent_lead_policy", "lowest_point"),
-        "opponent_response_policy": data.get(
-            "opponent_response_policy",
-            "lowest_point",
-        ),
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
     }
+
+    settings = apply_opponent_policy_preset(
+        opponent_policy_settings=settings,
+        preset=data.get("opponent_policy_preset"),
+    )
+
+    if "opponent_lead_policy" in data:
+        settings["opponent_lead_policy"] = data["opponent_lead_policy"]
+
+    if "opponent_response_policy" in data:
+        settings["opponent_response_policy"] = data["opponent_response_policy"]
+
+    return settings

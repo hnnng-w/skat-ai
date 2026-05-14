@@ -792,3 +792,34 @@ def test_apply_opponent_policy_cli_overrides() -> None:
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "basic_trick_play",
     }
+
+
+def test_apply_opponent_policy_cli_overrides_applies_preset() -> None:
+    settings = apply_opponent_policy_cli_overrides(
+        opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+        opponent_policy_preset="cautious_defender",
+    )
+
+    assert settings == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+
+def test_apply_opponent_policy_cli_overrides_explicit_values_override_preset() -> None:
+    settings = apply_opponent_policy_cli_overrides(
+        opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+        opponent_policy_preset="cautious_defender",
+        opponent_response_policy="highest_point",
+    )
+
+    assert settings == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "highest_point",
+    }
