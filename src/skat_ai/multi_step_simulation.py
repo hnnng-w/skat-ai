@@ -60,6 +60,8 @@ def prepare_state_for_player_action(
     left_hand_size: int,
     right_hand_size: int,
     random_generator: random.Random,
+    opponent_lead_policy: str = "lowest_point",
+    opponent_response_policy: str = "lowest_point",
 ) -> tuple[GameState, dict[str, Any] | None]:
     """
     Prepares a state where the player can act.
@@ -71,6 +73,8 @@ def prepare_state_for_player_action(
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=random_generator,
+        opponent_lead_policy=opponent_lead_policy,
+        opponent_response_policy=opponent_response_policy,
     )
 
 def extract_opponent_cards_from_step(
@@ -108,6 +112,8 @@ def simulate_multiple_steps(
     expected_value_sample_count: int = 100,
     strict_context: bool = False,
     strategic_metadata: StrategicMetadata | None = None,
+    opponent_lead_policy: str = "lowest_point",
+    opponent_response_policy: str = "lowest_point",
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -133,7 +139,7 @@ def simulate_multiple_steps(
         if strategic_metadata is not None
         else SimulationContext()
     )
-    
+
     for step_index in range(step_count):
         stop_reason = get_multi_step_stop_reason(
             current_state=current_state,
@@ -160,6 +166,8 @@ def simulate_multiple_steps(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             random_generator=rng,
+            opponent_lead_policy=opponent_lead_policy,
+            opponent_response_policy=opponent_response_policy,
         )
 
         candidate_card = choose_card_by_policy(

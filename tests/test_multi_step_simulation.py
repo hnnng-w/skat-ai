@@ -860,3 +860,27 @@ def test_simulate_multiple_steps_accepts_strategic_metadata() -> None:
         "skat_visibility": "known_post_game",
         "game_end_reason": "normal_completion",
     }
+
+def test_simulate_multiple_steps_accepts_opponent_policies() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10", "S9"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+        opponent_lead_policy="highest_point",
+        opponent_response_policy="basic_trick_play",
+    )
+
+    assert result["steps_simulated"] == 1
+    assert result["steps"][0]["opponent_lead_result"] is not None

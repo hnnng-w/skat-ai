@@ -206,3 +206,26 @@ def test_extract_opponent_sequence_cards_for_left_lead_and_response() -> None:
     )
 
     assert cards == ["D7", "D9"]
+
+def test_prepare_player_action_state_supports_opponent_policies() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        opponent_lead_policy="highest_point",
+        opponent_response_policy="basic_trick_play",
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["leader"] == "left"
+    assert opponent_sequence_result["responder"] == "right"
+    assert prepared_state.next_player == "me"

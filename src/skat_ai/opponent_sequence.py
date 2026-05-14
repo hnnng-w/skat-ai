@@ -44,6 +44,8 @@ def prepare_player_action_state(
     left_hand_size: int,
     right_hand_size: int,
     random_generator: random.Random,
+    opponent_lead_policy: str = "lowest_point",
+    opponent_response_policy: str = "lowest_point",
 ) -> tuple[GameState, dict[str, Any] | None]:
     """
     Prepares a state where the player can act.
@@ -67,6 +69,7 @@ def prepare_player_action_state(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             random_generator=random_generator,
+            opponent_lead_policy=opponent_lead_policy,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result
@@ -77,6 +80,8 @@ def prepare_player_action_state(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             random_generator=random_generator,
+            opponent_lead_policy=opponent_lead_policy,
+            opponent_response_policy=opponent_response_policy,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result

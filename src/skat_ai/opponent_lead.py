@@ -2,7 +2,10 @@ import random
 from typing import Any
 
 from skat_ai.game_state import GameState
-from skat_ai.rules import get_card_points, get_legal_cards
+from skat_ai.opponent_policy import (
+    choose_opponent_lead_card_by_policy,
+    choose_opponent_response_card_by_policy,
+)
 from skat_ai.simulation import generate_random_opponent_hands
 
 
@@ -13,8 +16,10 @@ def choose_lowest_point_lead_card(hand: list[str]) -> str:
     if not hand:
         raise ValueError("Opponent hand is empty.")
 
-    return min(hand, key=get_card_points)
-
+    return choose_opponent_lead_card_by_policy(
+        hand=hand,
+        policy="lowest_point",
+    )
 
 def choose_lowest_point_legal_response_card(
     hand: list[str],
@@ -24,16 +29,19 @@ def choose_lowest_point_legal_response_card(
     """
     Chooses the lowest-point legal response card from an opponent hand.
     """
-    legal_cards = get_legal_cards(
-        hand=hand,
-        current_trick=current_trick,
-        game_type=game_type,
-    )
+    try:
+        return choose_opponent_response_card_by_policy(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=len(current_trick),
+            policy="lowest_point",
+        )
+    except ValueError as error:
+        if "Opponent has no legal cards" in str(error):
+            raise ValueError("Opponent has no legal response cards.") from error
 
-    if not legal_cards:
-        raise ValueError("Opponent has no legal response cards.")
-
-    return min(legal_cards, key=get_card_points)
+        raise
 
 
 def get_next_player_after_opponent_lead(leader: str) -> str:
@@ -121,6 +129,7 @@ def simulate_opponent_lead_once(
     left_hand_size: int,
     right_hand_size: int,
     random_generator: random.Random | None = None,
+    opponent_lead_policy: str = "lowest_point",
 ) -> dict[str, str | GameState]:
     """
     Simulates one opponent lead when next_player is left or right.
@@ -144,7 +153,11 @@ def simulate_opponent_lead_once(
     else:
         leader_hand = right_hand
 
-    lead_card = choose_lowest_point_lead_card(leader_hand)
+    lead_card = choose_opponent_lead_card_by_policy(
+        hand=leader_hand,
+        policy=opponent_lead_policy,
+        random_generator=rng,
+    )
 
     next_state = build_state_after_opponent_lead(
         state=state,
@@ -164,6 +177,8 @@ def simulate_left_lead_and_right_response_once(
     left_hand_size: int,
     right_hand_size: int,
     random_generator: random.Random | None = None,
+    opponent_lead_policy: str = "lowest_point",
+    opponent_response_policy: str = "lowest_point",
 ) -> dict[str, Any]:
     """
     Simulates the sequence:
@@ -184,7 +199,11 @@ def simulate_left_lead_and_right_response_once(
         random_generator=rng,
     )
 
-    lead_card = choose_lowest_point_lead_card(left_hand)
+    lead_card = choose_opponent_lead_card_by_policy(
+        hand=left_hand,
+        policy=opponent_lead_policy,
+        random_generator=rng,
+    )
 
     state_after_left_lead = build_state_after_opponent_lead(
         state=state,
@@ -192,10 +211,13 @@ def simulate_left_lead_and_right_response_once(
         leader="left",
     )
 
-    response_card = choose_lowest_point_legal_response_card(
+    response_card = choose_opponent_response_card_by_policy(
         hand=right_hand,
         current_trick=state_after_left_lead.current_trick,
         game_type=state.game_type,
+        player_index=1,
+        policy=opponent_response_policy,
+        random_generator=rng,
     )
 
     next_state = build_state_after_opponent_second_hand_play(
