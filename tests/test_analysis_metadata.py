@@ -2,6 +2,7 @@ from skat_ai.analysis_metadata import (
     AnalysisMetadata,
     build_analysis_metadata_from_input,
     build_default_analysis_metadata,
+    build_recommended_opponent_policy_presets_from_metadata,
     build_serializable_analysis_metadata,
 )
 from skat_ai.player_profile import PlayerProfile
@@ -76,3 +77,30 @@ def test_build_serializable_analysis_metadata() -> None:
     assert result["left_player_profile"]["solo_rate"] == 0.31
     assert result["right_player_profile"]["games_played"] == 520
     assert result["right_player_profile"]["defender_win_rate"] == 0.49
+    assert result["recommended_opponent_policy_presets"] == {
+        "left_player_recommended_preset": "simple_lowest",
+        "right_player_recommended_preset": "simple_lowest",
+    }
+
+def test_build_recommended_opponent_policy_presets_from_metadata() -> None:
+    metadata = AnalysisMetadata(
+        left_player_profile=PlayerProfile(
+            games_played=1000,
+            solo_rate=0.25,
+            grand_rate=0.15,
+            hand_game_rate=0.03,
+            defender_win_rate=0.55,
+        ),
+        right_player_profile=PlayerProfile(
+            games_played=1000,
+            solo_rate=0.38,
+            grand_rate=0.27,
+        ),
+    )
+
+    presets = build_recommended_opponent_policy_presets_from_metadata(metadata)
+
+    assert presets == {
+        "left_player_recommended_preset": "cautious_defender",
+        "right_player_recommended_preset": "aggressive_points",
+    }

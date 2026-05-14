@@ -271,6 +271,19 @@ random:
 python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-policy-preset cautious_defender
 Explicit --opponent-lead-policy and --opponent-response-policy override the preset values.
 
+Player profiles can now be translated into recommended opponent policy presets for informational output.
+
+This does not yet automatically affect the simulation.
+
+High-confidence defensive profile:
+- recommended preset: cautious_defender
+
+Aggressive profile:
+- recommended preset: aggressive_points
+
+Unknown or low-confidence profile:
+- recommended preset: simple_lowest
+
 ## Policy comparison
 
 Compare all available card-selection policies:

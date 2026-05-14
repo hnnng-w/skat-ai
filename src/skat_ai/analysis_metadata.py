@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+from skat_ai.opponent_profile_policy import choose_opponent_policy_preset_for_profile
 from skat_ai.player_profile import (
     PlayerProfile,
     build_default_player_profile,
@@ -110,6 +111,26 @@ def build_serializable_analysis_metadata(
             metadata.left_player_profile
         ),
         "right_player_profile": build_serializable_player_profile(
+            metadata.right_player_profile
+        ),
+        "recommended_opponent_policy_presets": (
+            build_recommended_opponent_policy_presets_from_metadata(metadata)
+        ),
+    }
+
+def build_recommended_opponent_policy_presets_from_metadata(
+    metadata: AnalysisMetadata,
+) -> dict[str, str]:
+    """
+    Builds recommended opponent policy presets from player profiles.
+
+    This is currently informational and does not automatically affect simulation.
+    """
+    return {
+        "left_player_recommended_preset": choose_opponent_policy_preset_for_profile(
+            metadata.left_player_profile
+        ),
+        "right_player_recommended_preset": choose_opponent_policy_preset_for_profile(
             metadata.right_player_profile
         ),
     }
