@@ -1,7 +1,6 @@
 from main import (
     apply_cli_overrides,
     build_analysis_result,
-    build_serializable_policy_comparison_result,
     print_multi_step_result,
     print_policy_comparison_result,
     run_json_position_analysis,
@@ -660,64 +659,6 @@ def test_run_json_position_analysis_supports_policy_comparison() -> None:
         strict_context=False,
         compare_policies=True,
     )
-
-
-def test_build_serializable_policy_comparison_result() -> None:
-    result = {
-        "requested_step_count": 2,
-        "random_seed": 42,
-        "expected_value_sample_count": 20,
-        "use_basic_opponent_strategy": True,
-        "strict_context": False,
-        "policies": ["lowest_point", "highest_point"],
-        "policy_results": [
-            {
-                "policy": "lowest_point",
-                "requested_step_count": 2,
-                "steps_simulated": 1,
-                "stop_reason": "Requested step count reached.",
-                "strict_context": False,
-                "declarer_points_gained": 4,
-                "defender_points_gained": 10,
-                "final_point_swing": -6,
-                "context_summary": {
-                    "simulated_opponent_card_count": 2,
-                    "unique_simulated_opponent_card_count": 2,
-                    "duplicate_simulated_opponent_cards": [],
-                    "event_count": 1,
-                },
-            },
-            {
-                "policy": "highest_point",
-                "requested_step_count": 2,
-                "steps_simulated": 1,
-                "stop_reason": "Requested step count reached.",
-                "strict_context": False,
-                "declarer_points_gained": 14,
-                "defender_points_gained": 2,
-                "final_point_swing": 12,
-                "context_summary": {
-                    "simulated_opponent_card_count": 2,
-                    "unique_simulated_opponent_card_count": 2,
-                    "duplicate_simulated_opponent_cards": [],
-                    "event_count": 1,
-                },
-            },
-        ],
-        "recommended_policy": {
-            "policy": "highest_point",
-            "reason": "Best final point swing after tie-breakers.",
-            "final_point_swing": 12,
-            "declarer_points_gained": 14,
-            "defender_points_gained": 2,
-            "steps_simulated": 1,
-            "stop_reason": "Requested step count reached.",
-        },
-    }
-
-    serializable_result = build_serializable_policy_comparison_result(result)
-
-    assert serializable_result == result
 
 
 def test_run_json_position_analysis_writes_policy_comparison_to_output(tmp_path) -> None:

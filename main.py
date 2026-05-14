@@ -20,6 +20,10 @@ from skat_ai.policy_comparison import (
     find_best_policy_by_final_point_swing,
 )
 from skat_ai.recommender import recommend_card_by_expected_value
+from skat_ai.result_serialization import (
+    build_serializable_multi_step_result,
+    build_serializable_policy_comparison_result,
+)
 from skat_ai.rules import get_legal_cards
 
 
@@ -287,44 +291,6 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
         print("Best final point swing:", best_policy["final_point_swing"])
 
 
-def build_serializable_policy_comparison_result(
-    result: dict[str, Any],
-) -> dict[str, Any]:
-    """
-    Builds a JSON-serializable policy comparison result.
-
-    The original policy comparison result is already mostly serializable,
-    but this function keeps the JSON output explicit and stable.
-    """
-    serializable_result = {
-        "requested_step_count": result["requested_step_count"],
-        "random_seed": result["random_seed"],
-        "expected_value_sample_count": result["expected_value_sample_count"],
-        "use_basic_opponent_strategy": result["use_basic_opponent_strategy"],
-        "strict_context": result["strict_context"],
-        "policies": result["policies"],
-        "policy_results": [
-            {
-                "policy": policy_result["policy"],
-                "requested_step_count": policy_result["requested_step_count"],
-                "steps_simulated": policy_result["steps_simulated"],
-                "stop_reason": policy_result["stop_reason"],
-                "strict_context": policy_result["strict_context"],
-                "declarer_points_gained": policy_result["declarer_points_gained"],
-                "defender_points_gained": policy_result["defender_points_gained"],
-                "final_point_swing": policy_result["final_point_swing"],
-                "context_summary": policy_result["context_summary"],
-            }
-            for policy_result in result["policy_results"]
-        ],
-    }
-
-    if "recommended_policy" in result:
-        serializable_result["recommended_policy"] = result["recommended_policy"]
-
-    return serializable_result
-
-
 def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
     """
     Prints a compact multi-step score summary.
@@ -399,42 +365,9 @@ def run_json_position_analysis(
             strict_context=strict_context,
         )
 
-        result["multi_step_result"] = {
-            "card_selection_policy": multi_step_result["card_selection_policy"],
-            "requested_step_count": multi_step_result["requested_step_count"],
-            "steps_simulated": multi_step_result["steps_simulated"],
-            "stop_reason": multi_step_result["stop_reason"],
-            "strict_context": multi_step_result["strict_context"],
-            "summary": multi_step_result["summary"],
-            "context_summary": multi_step_result["context_summary"],
-            "steps": [
-                {
-                    "step_index": step["step_index"],
-                    "opponent_lead_result": (
-                        {
-                            "leader": step["opponent_lead_result"]["leader"],
-                            "lead_card": step["opponent_lead_result"]["lead_card"],
-                            "responder": step["opponent_lead_result"].get("responder"),
-                            "response_card": step["opponent_lead_result"].get("response_card"),
-                        }
-                        if step["opponent_lead_result"] is not None
-                        else None
-                    ),
-                    "candidate_card": step["candidate_card"],
-                    "card_selection_policy": step["card_selection_policy"],
-                    "detailed_result": step["detailed_result"],
-                }
-                for step in multi_step_result["steps"]
-            ],
-            "final_state": {
-                "hand": multi_step_result["final_state"].hand,
-                "current_trick": multi_step_result["final_state"].current_trick,
-                "completed_tricks": multi_step_result["final_state"].completed_tricks,
-                "declarer_points": multi_step_result["final_state"].declarer_points,
-                "defender_points": multi_step_result["final_state"].defender_points,
-                "next_player": multi_step_result["final_state"].next_player,
-            },
-        }
+        result["multi_step_result"] = build_serializable_multi_step_result(
+            multi_step_result
+        )
 
         if not comparison_only:
             print_multi_step_result(multi_step_result)
