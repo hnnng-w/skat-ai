@@ -14,6 +14,9 @@ def test_build_default_player_profile() -> None:
 def test_build_player_profile_from_dict() -> None:
     profile = build_player_profile_from_dict(
         {
+            "games_played": 1240,
+            "solo_games_played": 380,
+            "defender_games_played": 860,
             "solo_rate": 0.35,
             "solo_win_rate": 0.7,
             "hand_game_rate": 0.1,
@@ -24,6 +27,9 @@ def test_build_player_profile_from_dict() -> None:
         }
     )
 
+    assert profile.games_played == 1240
+    assert profile.solo_games_played == 380
+    assert profile.defender_games_played == 860
     assert profile.solo_rate == 0.35
     assert profile.solo_win_rate == 0.7
     assert profile.hand_game_rate == 0.1
@@ -36,12 +42,15 @@ def test_build_player_profile_from_dict() -> None:
 def test_build_player_profile_from_partial_dict() -> None:
     profile = build_player_profile_from_dict(
         {
+            "games_played": 1240,
             "solo_rate": 0.35,
             "grand_rate": 0.25,
         }
     )
 
+    assert profile.games_played == 1240
     assert profile.solo_rate == 0.35
     assert profile.grand_rate == 0.25
+    assert profile.solo_games_played is None
     assert profile.solo_win_rate is None
     assert profile.defender_win_rate is None

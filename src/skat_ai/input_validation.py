@@ -2,6 +2,11 @@ from typing import Any
 
 from skat_ai.deck import get_full_deck
 from skat_ai.rules import GAME_TYPES
+from skat_ai.strategic_metadata import (
+    validate_analysis_mode,
+    validate_game_end_reason,
+    validate_skat_visibility,
+)
 
 VALID_PLAYER_ROLES = ["declarer", "defender", "unknown"]
 VALID_PLAYER_POSITIONS = ["forehand", "middlehand", "rearhand", "unknown"]
@@ -207,6 +212,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
         data.get("use_basic_opponent_strategy", True),
         "use_basic_opponent_strategy",
     )
+    validate_optional_analysis_metadata(data)
 
 
 def validate_next_player(next_player: str) -> None:
@@ -289,3 +295,68 @@ def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
 
         if winner_player is not None and winner_player not in VALID_TRICK_PLAYERS:
             raise ValueError(f"Invalid completed trick winner player: {winner_player}")
+
+def validate_optional_player_profile(
+    profile: dict[str, Any] | None,
+    field_name: str,
+) -> None:
+    """
+    Validates an optional player profile input.
+    """
+    if profile is None:
+        return
+
+    if not isinstance(profile, dict):
+        raise ValueError(f"{field_name} must be an object.")
+
+    integer_fields = [
+        "games_played",
+        "solo_games_played",
+        "defender_games_played",
+    ]
+    rate_fields = [
+        "solo_rate",
+        "solo_win_rate",
+        "hand_game_rate",
+        "suit_game_rate",
+        "grand_rate",
+        "null_game_rate",
+        "defender_win_rate",
+    ]
+
+    for key in integer_fields:
+        if key in profile and profile[key] is not None:
+            value = profile[key]
+
+            if not isinstance(value, int) or value < 0:
+                raise ValueError(f"{field_name}.{key} must be a non-negative integer.")
+
+    for key in rate_fields:
+        if key in profile and profile[key] is not None:
+            value = profile[key]
+
+            if not isinstance(value, int | float) or value < 0 or value > 1:
+                raise ValueError(f"{field_name}.{key} must be a number between 0 and 1.")
+
+
+def validate_optional_analysis_metadata(data: dict[str, Any]) -> None:
+    """
+    Validates optional analysis metadata fields.
+    """
+    if "analysis_mode" in data:
+        validate_analysis_mode(data["analysis_mode"])
+
+    if "skat_visibility" in data:
+        validate_skat_visibility(data["skat_visibility"])
+
+    if "game_end_reason" in data:
+        validate_game_end_reason(data["game_end_reason"])
+
+    validate_optional_player_profile(
+        profile=data.get("left_player_profile"),
+        field_name="left_player_profile",
+    )
+    validate_optional_player_profile(
+        profile=data.get("right_player_profile"),
+        field_name="right_player_profile",
+    )

@@ -279,6 +279,32 @@ Example `input_position.json`:
 }
 ```
 
+Optional analysis metadata:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "known_post_game",
+  "game_end_reason": "normal_completion",
+  "left_player_profile": {
+    "games_played": 1240,
+    "solo_rate": 0.31,
+    "solo_win_rate": 0.66,
+    "grand_rate": 0.22,
+    "defender_win_rate": 0.54
+  },
+  "right_player_profile": {
+    "games_played": 520,
+    "solo_rate": 0.28,
+    "solo_win_rate": 0.59,
+    "grand_rate": 0.18,
+    "defender_win_rate": 0.49
+  }
+}
+```
+
+These fields are currently stored and passed through the analysis pipeline. They do not yet change card recommendations.
+
 ## Game history fields
 
 The preferred way to record completed tricks is `completed_tricks`.

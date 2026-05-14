@@ -7,8 +7,11 @@ class PlayerProfile:
     Describes long-term player tendencies.
 
     This is currently a placeholder for future opponent modeling.
-    The simulation engine does not use these values yet.
+    The simulation engine does not actively use these values yet.
     """
+    games_played: int | None = None
+    solo_games_played: int | None = None
+    defender_games_played: int | None = None
     solo_rate: float | None = None
     solo_win_rate: float | None = None
     hand_game_rate: float | None = None
@@ -28,12 +31,15 @@ def build_default_player_profile() -> PlayerProfile:
 
 
 def build_player_profile_from_dict(
-    data: dict[str, float | None],
+    data: dict[str, float | int | None],
 ) -> PlayerProfile:
     """
     Builds a PlayerProfile from a dictionary.
     """
     return PlayerProfile(
+        games_played=data.get("games_played"),
+        solo_games_played=data.get("solo_games_played"),
+        defender_games_played=data.get("defender_games_played"),
         solo_rate=data.get("solo_rate"),
         solo_win_rate=data.get("solo_win_rate"),
         hand_game_rate=data.get("hand_game_rate"),

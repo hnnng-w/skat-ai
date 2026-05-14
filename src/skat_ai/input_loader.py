@@ -2,6 +2,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+from skat_ai.analysis_metadata import (
+    AnalysisMetadata,
+    build_analysis_metadata_from_input,
+)
 from skat_ai.game_state import GameState
 from skat_ai.input_validation import validate_position_input
 
@@ -54,3 +58,11 @@ def get_simulation_settings_from_input(data: dict[str, Any]) -> dict[str, Any]:
         "random_seed": data.get("random_seed"),
         "use_basic_opponent_strategy": data.get("use_basic_opponent_strategy", True),
     }
+
+def get_analysis_metadata_from_input(
+    data: dict[str, Any],
+) -> AnalysisMetadata:
+    """
+    Extracts analysis metadata from input data.
+    """
+    return build_analysis_metadata_from_input(data)

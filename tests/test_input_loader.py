@@ -1,5 +1,6 @@
 from skat_ai.input_loader import (
     build_game_state_from_input,
+    get_analysis_metadata_from_input,
     get_simulation_settings_from_input,
 )
 
@@ -97,3 +98,32 @@ def test_get_simulation_settings_from_input_uses_default_strategy_flag() -> None
     settings = get_simulation_settings_from_input(data)
 
     assert settings["use_basic_opponent_strategy"] is True
+
+def test_get_analysis_metadata_from_input_defaults() -> None:
+    metadata = get_analysis_metadata_from_input({})
+
+    assert metadata.strategic_metadata.analysis_mode == "live_decision"
+    assert metadata.strategic_metadata.skat_visibility == "unknown"
+    assert metadata.strategic_metadata.game_end_reason == "not_ended"
+
+
+def test_get_analysis_metadata_from_input_reads_metadata() -> None:
+    metadata = get_analysis_metadata_from_input(
+        {
+            "analysis_mode": "post_game_review",
+            "skat_visibility": "known_post_game",
+            "game_end_reason": "normal_completion",
+            "left_player_profile": {
+                "games_played": 1240,
+                "solo_rate": 0.31,
+            },
+            "right_player_profile": {
+                "games_played": 520,
+                "defender_win_rate": 0.49,
+            },
+        }
+    )
+
+    assert metadata.strategic_metadata.analysis_mode == "post_game_review"
+    assert metadata.left_player_profile.games_played == 1240
+    assert metadata.right_player_profile.defender_win_rate == 0.49

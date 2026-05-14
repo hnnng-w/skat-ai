@@ -7,6 +7,8 @@ from skat_ai.input_validation import (
     validate_next_player,
     validate_no_duplicate_cards,
     validate_non_negative_integer,
+    validate_optional_analysis_metadata,
+    validate_optional_player_profile,
     validate_optional_random_seed,
     validate_player_position,
     validate_player_role,
@@ -427,5 +429,72 @@ def test_validate_completed_tricks_rejects_invalid_winner_player() -> None:
         )
     except ValueError as error:
         assert "Invalid completed trick winner player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_optional_player_profile_accepts_valid_profile() -> None:
+    validate_optional_player_profile(
+        {
+            "games_played": 1240,
+            "solo_rate": 0.31,
+            "solo_win_rate": 0.66,
+        },
+        "left_player_profile",
+    )
+
+
+def test_validate_optional_player_profile_rejects_negative_games_played() -> None:
+    try:
+        validate_optional_player_profile(
+            {
+                "games_played": -1,
+            },
+            "left_player_profile",
+        )
+    except ValueError as error:
+        assert "games_played" in str(error)
+        assert "non-negative integer" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_optional_player_profile_rejects_invalid_rate() -> None:
+    try:
+        validate_optional_player_profile(
+            {
+                "solo_rate": 1.5,
+            },
+            "left_player_profile",
+        )
+    except ValueError as error:
+        assert "solo_rate" in str(error)
+        assert "between 0 and 1" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_optional_analysis_metadata_accepts_valid_metadata() -> None:
+    validate_optional_analysis_metadata(
+        {
+            "analysis_mode": "post_game_review",
+            "skat_visibility": "known_post_game",
+            "game_end_reason": "normal_completion",
+            "left_player_profile": {
+                "games_played": 1240,
+                "solo_rate": 0.31,
+            },
+        }
+    )
+
+
+def test_validate_optional_analysis_metadata_rejects_invalid_analysis_mode() -> None:
+    try:
+        validate_optional_analysis_metadata(
+            {
+                "analysis_mode": "future_mode",
+            }
+        )
+    except ValueError as error:
+        assert "Invalid analysis mode" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

@@ -177,6 +177,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "input_file",
         "position",
         "settings",
+        "analysis_metadata",
         "legal_cards",
         "analysis_report",
         "strategic_summary",
@@ -729,3 +730,34 @@ def test_run_json_position_analysis_rejects_comparison_only_without_compare_poli
         assert "comparison_only requires compare_policies" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_build_analysis_result_includes_default_analysis_metadata() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["analysis_metadata"]["strategic_metadata"] == {
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+    }
+
+
+def test_build_analysis_result_reads_analysis_metadata() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position_with_metadata.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["analysis_metadata"]["strategic_metadata"] == {
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_end_reason": "normal_completion",
+    }
+    assert result["analysis_metadata"]["left_player_profile"]["games_played"] == 1240
+    assert result["analysis_metadata"]["right_player_profile"]["games_played"] == 520

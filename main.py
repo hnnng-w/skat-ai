@@ -1,6 +1,7 @@
 import argparse
 from typing import Any
 
+from skat_ai.analysis_metadata import build_serializable_analysis_metadata
 from skat_ai.analysis_report import (
     build_card_analysis_report,
     build_strategic_summary,
@@ -10,6 +11,7 @@ from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
 from skat_ai.game_history import build_score_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
+    get_analysis_metadata_from_input,
     get_simulation_settings_from_input,
     load_position_from_json,
 )
@@ -65,6 +67,7 @@ def build_analysis_result(
     data = load_position_from_json(file_path)
     state = build_game_state_from_input(data)
     settings = get_simulation_settings_from_input(data)
+    analysis_metadata = get_analysis_metadata_from_input(data)
 
     settings = apply_cli_overrides(
         settings=settings,
@@ -118,6 +121,7 @@ def build_analysis_result(
             "skat": state.skat,
         },
         "settings": settings,
+        "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
         "legal_cards": legal_cards,
         "analysis_report": report,
         "strategic_summary": strategic_summary,
@@ -345,6 +349,7 @@ def run_json_position_analysis(
         position_data = load_position_from_json(file_path)
         state = build_game_state_from_input(position_data)
         settings = get_simulation_settings_from_input(position_data)
+        analysis_metadata = get_analysis_metadata_from_input(position_data)
 
         settings = apply_cli_overrides(
             settings=settings,
@@ -363,6 +368,7 @@ def run_json_position_analysis(
             card_selection_policy=card_selection_policy,
             expected_value_sample_count=expected_value_sample_count,
             strict_context=strict_context,
+            strategic_metadata=analysis_metadata.strategic_metadata,
         )
 
         result["multi_step_result"] = build_serializable_multi_step_result(
@@ -382,6 +388,7 @@ def run_json_position_analysis(
                 use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
                 expected_value_sample_count=expected_value_sample_count,
                 strict_context=strict_context,
+                strategic_metadata=analysis_metadata.strategic_metadata,
             )
 
             result["policy_comparison_result"] = build_serializable_policy_comparison_result(
