@@ -4,9 +4,11 @@ from typing import Any
 from skat_ai.card_selection import choose_card_by_policy
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_summary import build_multi_step_summary
-from skat_ai.opponent_lead import (
-    simulate_left_lead_and_right_response_once,
-    simulate_opponent_lead_once,
+from skat_ai.opponent_sequence import (
+    can_prepare_player_action,
+    extract_opponent_sequence_cards,
+    get_unsupported_next_player_reason,
+    prepare_player_action_state,
 )
 from skat_ai.simulation_context import (
     SimulationContext,
@@ -26,15 +28,14 @@ def should_continue_multi_step_simulation(
     """
     Determines whether the multi-step simulation should continue.
 
-    The first step is always allowed.
-    Later player-action steps are allowed if the player is next to act.
-    If right is next to act, right can lead because me acts second.
-    If left is next to act, left can lead and right can respond because me acts third.
+    The first step is always allowed for backward compatibility.
+    Later steps continue only if the engine can prepare a state where
+    the player can act.
     """
     if step_index == 0:
         return True
 
-    return current_state.next_player in ["me", "right", "left"]
+    return can_prepare_player_action(current_state.next_player)
 
 
 def get_multi_step_stop_reason(
@@ -47,8 +48,8 @@ def get_multi_step_stop_reason(
     if current_state.hand == []:
         return "Player has no cards left."
 
-    if step_index > 0 and current_state.next_player not in ["me", "right", "left", "unknown"]:
-        return f"Next player is {current_state.next_player}, not supported."
+    if step_index > 0 and not can_prepare_player_action(current_state.next_player):
+        return get_unsupported_next_player_reason(current_state.next_player)
 
     return None
 
@@ -62,44 +63,13 @@ def prepare_state_for_player_action(
     """
     Prepares a state where the player can act.
 
-    If current_state.next_player is "right", right leads a new trick and
-    the returned next state has next_player set to "me".
-
-    If current_state.next_player is "left", left leads and right responds,
-    so the returned next state has two cards in current_trick and next_player
-    set to "me".
-
-    If current_state.next_player is already "me", the state is returned unchanged.
-
-    If current_state.next_player is "unknown", the state is also returned unchanged.
-    This keeps older inputs and tests compatible where next_player was not tracked yet.
+    Kept as a compatibility wrapper around opponent_sequence.prepare_player_action_state.
     """
-    if current_state.next_player in ["me", "unknown"]:
-        return current_state, None
-
-    if current_state.next_player == "right":
-        opponent_lead_result = simulate_opponent_lead_once(
-            state=current_state,
-            left_hand_size=left_hand_size,
-            right_hand_size=right_hand_size,
-            random_generator=random_generator,
-        )
-
-        return opponent_lead_result["next_state"], opponent_lead_result
-
-    if current_state.next_player == "left":
-        opponent_lead_result = simulate_left_lead_and_right_response_once(
-            state=current_state,
-            left_hand_size=left_hand_size,
-            right_hand_size=right_hand_size,
-            random_generator=random_generator,
-        )
-
-        return opponent_lead_result["next_state"], opponent_lead_result
-
-    raise ValueError(
-        "Cannot prepare player action when "
-        f"next_player is {current_state.next_player}."
+    return prepare_player_action_state(
+        current_state=current_state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        random_generator=random_generator,
     )
 
 def extract_opponent_cards_from_step(
@@ -109,18 +79,12 @@ def extract_opponent_cards_from_step(
     Extracts simulated opponent cards from one multi-step result.
 
     Sources:
-    - opponent lead card
-    - opponent response card
+    - opponent sequence cards
     - opponent cards inside the completed trick, excluding the candidate card
     """
-    opponent_cards = []
-
-    opponent_lead_result = step.get("opponent_lead_result")
-    if opponent_lead_result is not None:
-        opponent_cards.append(opponent_lead_result["lead_card"])
-
-        if opponent_lead_result.get("response_card") is not None:
-            opponent_cards.append(opponent_lead_result["response_card"])
+    opponent_cards = extract_opponent_sequence_cards(
+        step.get("opponent_lead_result")
+    )
 
     detailed_result = step["detailed_result"]
     trick = detailed_result["trick"]

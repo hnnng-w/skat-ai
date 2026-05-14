@@ -1,0 +1,208 @@
+import random
+
+from skat_ai.game_state import GameState
+from skat_ai.opponent_sequence import (
+    build_serializable_opponent_sequence_result,
+    can_prepare_player_action,
+    extract_opponent_sequence_cards,
+    get_unsupported_next_player_reason,
+    prepare_player_action_state,
+)
+
+
+def test_can_prepare_player_action_supports_known_values() -> None:
+    assert can_prepare_player_action("me") is True
+    assert can_prepare_player_action("unknown") is True
+    assert can_prepare_player_action("right") is True
+    assert can_prepare_player_action("left") is True
+
+
+def test_can_prepare_player_action_rejects_invalid_value() -> None:
+    assert can_prepare_player_action("dealer") is False
+
+
+def test_get_unsupported_next_player_reason() -> None:
+    reason = get_unsupported_next_player_reason("dealer")
+
+    assert reason == "Next player is dealer, not supported."
+
+
+def test_prepare_player_action_state_returns_state_when_next_player_is_me() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="me",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+
+    assert prepared_state == state
+    assert opponent_sequence_result is None
+
+
+def test_prepare_player_action_state_returns_state_when_next_player_is_unknown() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="unknown",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+
+    assert prepared_state == state
+    assert opponent_sequence_result is None
+
+
+def test_prepare_player_action_state_simulates_right_lead() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=[],
+        next_player="right",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["leader"] == "right"
+    assert prepared_state.trick_leader == "right"
+    assert prepared_state.next_player == "me"
+    assert len(prepared_state.current_trick) == 1
+
+
+def test_prepare_player_action_state_simulates_left_lead_and_right_response() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["leader"] == "left"
+    assert opponent_sequence_result["responder"] == "right"
+    assert prepared_state.trick_leader == "left"
+    assert prepared_state.next_player == "me"
+    assert len(prepared_state.current_trick) == 2
+
+
+def test_prepare_player_action_state_rejects_unsupported_next_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="dealer",
+    )
+
+    try:
+        prepare_player_action_state(
+            current_state=state,
+            left_hand_size=5,
+            right_hand_size=5,
+            random_generator=random.Random(42),
+        )
+    except ValueError as error:
+        assert "Next player is dealer, not supported." in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_build_serializable_opponent_sequence_result_returns_none() -> None:
+    result = build_serializable_opponent_sequence_result(None)
+
+    assert result is None
+
+
+def test_build_serializable_opponent_sequence_result_for_right_lead() -> None:
+    result = build_serializable_opponent_sequence_result(
+        {
+            "leader": "right",
+            "lead_card": "D7",
+            "next_state": "ignored",
+        }
+    )
+
+    assert result == {
+        "leader": "right",
+        "lead_card": "D7",
+        "responder": None,
+        "response_card": None,
+    }
+
+
+def test_build_serializable_opponent_sequence_result_for_left_lead_and_response() -> None:
+    result = build_serializable_opponent_sequence_result(
+        {
+            "leader": "left",
+            "lead_card": "D7",
+            "responder": "right",
+            "response_card": "D9",
+            "next_state": "ignored",
+        }
+    )
+
+    assert result == {
+        "leader": "left",
+        "lead_card": "D7",
+        "responder": "right",
+        "response_card": "D9",
+    }
+
+
+def test_extract_opponent_sequence_cards_returns_empty_list_without_sequence() -> None:
+    cards = extract_opponent_sequence_cards(None)
+
+    assert cards == []
+
+
+def test_extract_opponent_sequence_cards_for_right_lead() -> None:
+    cards = extract_opponent_sequence_cards(
+        {
+            "leader": "right",
+            "lead_card": "D7",
+        }
+    )
+
+    assert cards == ["D7"]
+
+
+def test_extract_opponent_sequence_cards_for_left_lead_and_response() -> None:
+    cards = extract_opponent_sequence_cards(
+        {
+            "leader": "left",
+            "lead_card": "D7",
+            "responder": "right",
+            "response_card": "D9",
+        }
+    )
+
+    assert cards == ["D7", "D9"]
