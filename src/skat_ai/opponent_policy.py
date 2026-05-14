@@ -7,6 +7,7 @@ VALID_OPPONENT_CARD_POLICIES = [
     "highest_point",
     "random_legal",
     "basic_trick_play",
+    "basic_defender_response",
 ]
 
 SUIT_BY_GAME_TYPE = {
@@ -240,6 +241,41 @@ def choose_basic_trick_play_card(
 
     return choose_lowest_point_card(legal_cards)
 
+def choose_basic_defender_response_card(
+    hand: list[str],
+    current_trick: list[str],
+    game_type: str,
+    player_index: int,
+    partner_currently_winning: bool = False,
+) -> str:
+    """
+    Chooses a basic defender response card.
+
+    If the defender's partner is currently winning the trick, the opponent
+    plays the highest-point legal card to add points to the trick.
+
+    Otherwise, the opponent uses basic trick-play logic:
+    - win with the lowest-point winning card if possible
+    - otherwise play the lowest-point legal card
+    """
+    legal_cards = get_legal_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+    )
+
+    if not legal_cards:
+        raise ValueError("Opponent has no legal cards.")
+
+    if partner_currently_winning:
+        return choose_highest_point_card(legal_cards)
+
+    return choose_basic_trick_play_card(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+        player_index=player_index,
+    )
 
 def choose_opponent_lead_card_by_policy(
     hand: list[str],
@@ -253,7 +289,7 @@ def choose_opponent_lead_card_by_policy(
     """
     validate_opponent_card_policy(policy)
 
-    if policy in ["lowest_point", "basic_trick_play"]:
+    if policy in ["lowest_point", "basic_trick_play", "basic_defender_response"]:
         return choose_lowest_point_card(hand)
 
     if policy == "highest_point":
@@ -275,6 +311,7 @@ def choose_opponent_response_card_by_policy(
     player_index: int,
     policy: str = "basic_trick_play",
     random_generator: random.Random | None = None,
+    partner_currently_winning: bool = False,
 ) -> str:
     """
     Chooses an opponent response card by policy.
@@ -308,6 +345,15 @@ def choose_opponent_response_card_by_policy(
             current_trick=current_trick,
             game_type=game_type,
             player_index=player_index,
+        )
+    
+    if policy == "basic_defender_response":
+        return choose_basic_defender_response_card(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=player_index,
+            partner_currently_winning=partner_currently_winning,
         )
 
     raise ValueError(f"Invalid opponent card policy: {policy}")

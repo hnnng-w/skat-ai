@@ -1,6 +1,7 @@
 import random
 
 from skat_ai.opponent_policy import (
+    choose_basic_defender_response_card,
     choose_basic_trick_play_card,
     choose_highest_point_card,
     choose_lowest_point_card,
@@ -172,6 +173,55 @@ def test_choose_opponent_response_card_by_basic_trick_play_policy() -> None:
         game_type="grand",
         player_index=1,
         policy="basic_trick_play",
+    )
+
+    assert selected_card == "S9"
+
+def test_validate_opponent_card_policy_accepts_basic_defender_response() -> None:
+    validate_opponent_card_policy("basic_defender_response")
+
+
+def test_choose_basic_defender_response_smears_when_partner_is_winning() -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["D10", "D9", "H7"],
+        current_trick=["D7"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=True,
+    )
+
+    assert selected_card == "D10"
+
+
+def test_choose_basic_defender_response_uses_basic_play_when_partner_is_not_winning() -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["D10", "D9", "H7"],
+        current_trick=["DA"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "D9"
+
+
+def test_choose_opponent_response_card_by_basic_defender_response_policy_smears() -> None:
+    selected_card = choose_opponent_response_card_by_policy(
+        hand=["D10", "D9", "H7"],
+        current_trick=["D7"],
+        game_type="grand",
+        player_index=1,
+        policy="basic_defender_response",
+        partner_currently_winning=True,
+    )
+
+    assert selected_card == "D10"
+
+
+def test_choose_opponent_lead_card_by_basic_defender_response_policy() -> None:
+    selected_card = choose_opponent_lead_card_by_policy(
+        hand=["SA", "S10", "S9"],
+        policy="basic_defender_response",
     )
 
     assert selected_card == "S9"

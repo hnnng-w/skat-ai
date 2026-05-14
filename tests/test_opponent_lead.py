@@ -445,3 +445,27 @@ def test_simulate_left_lead_and_right_response_once_supports_response_policy() -
     assert result["responder"] == "right"
     assert isinstance(result["lead_card"], str)
     assert isinstance(result["response_card"], str)
+
+def test_simulate_left_lead_and_right_response_once_supports_basic_defender_response(
+) -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    result = simulate_left_lead_and_right_response_once(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+        opponent_lead_policy="lowest_point",
+        opponent_response_policy="basic_defender_response",
+    )
+
+    assert result["leader"] == "left"
+    assert result["responder"] == "right"
+    assert isinstance(result["lead_card"], str)
+    assert isinstance(result["response_card"], str)

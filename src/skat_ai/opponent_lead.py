@@ -218,6 +218,7 @@ def simulate_left_lead_and_right_response_once(
         player_index=1,
         policy=opponent_response_policy,
         random_generator=rng,
+        partner_currently_winning=True,
     )
 
     next_state = build_state_after_opponent_second_hand_play(

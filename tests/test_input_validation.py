@@ -520,3 +520,10 @@ def test_validate_optional_opponent_policies_rejects_invalid_policy() -> None:
         assert "Invalid opponent card policy" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_optional_opponent_policies_accepts_basic_defender_response() -> None:
+    validate_optional_opponent_policies(
+        {
+            "opponent_response_policy": "basic_defender_response",
+        }
+    )

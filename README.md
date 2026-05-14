@@ -244,6 +244,9 @@ lowest_point
 highest_point
 random_legal
 basic_trick_play
+basic_defender_response
+
+basic_defender_response tries to add points when the defenders partner is currently winning the trick. Otherwise it falls back to basic trick-play behavior.
 
 ## Policy comparison
 
