@@ -1,4 +1,4 @@
-from skat_ai.card_tracking import get_seen_cards, get_unseen_cards
+from skat_ai.card_tracking import get_seen_cards, get_unseen_cards, get_unseen_cards_for_state
 from skat_ai.deck import get_full_deck
 from skat_ai.game_state import GameState
 
@@ -71,3 +71,29 @@ def test_seen_cards_include_completed_tricks() -> None:
     assert "CA" in seen_cards
     assert "C10" in seen_cards
     assert "CK" in seen_cards
+
+def test_get_unseen_cards_for_state_excludes_known_cards() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7"],
+        played_cards=["C7"],
+        skat=["D7"],
+        completed_tricks=[
+            {
+                "cards": ["CA", "C10", "CK"],
+                "winner_role": "defenders",
+            }
+        ],
+    )
+
+    unseen_cards = get_unseen_cards_for_state(state)
+
+    assert "SA" not in unseen_cards
+    assert "S7" not in unseen_cards
+    assert "C7" not in unseen_cards
+    assert "D7" not in unseen_cards
+    assert "CA" not in unseen_cards
+    assert "C10" not in unseen_cards
+    assert "CK" not in unseen_cards

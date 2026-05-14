@@ -6,6 +6,7 @@ from skat_ai.simulation_context import (
     add_simulation_event,
     apply_context_to_state_for_sampling,
     build_context_summary,
+    get_context_cards_safe_to_add_to_played_cards,
     get_duplicate_simulated_opponent_cards,
     get_unique_simulated_opponent_cards,
     validate_no_duplicate_simulated_opponent_cards,
@@ -251,5 +252,48 @@ def test_validate_no_duplicate_simulated_opponent_cards_rejects_duplicates() -> 
     except ValueError as error:
         assert "Duplicate simulated opponent cards detected" in str(error)
         assert "S7" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_get_context_cards_safe_to_add_to_played_cards() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7"],
+        played_cards=["C7"],
+        skat=["D7"],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7", "S8", "C7", "D7", "H10"],
+    )
+
+    safe_cards = get_context_cards_safe_to_add_to_played_cards(
+        state=state,
+        context=context,
+    )
+
+    assert safe_cards == ["S8", "H10"]
+
+
+def test_apply_context_to_state_for_sampling_rejects_duplicate_known_cards() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        played_cards=["SA"],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7"],
+    )
+
+    try:
+        apply_context_to_state_for_sampling(
+            state=state,
+            context=context,
+        )
+    except ValueError as error:
+        assert "Duplicate known cards detected" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

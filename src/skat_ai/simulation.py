@@ -12,6 +12,7 @@ from skat_ai.rules import (
     get_trick_points,
     get_trick_winner,
 )
+from skat_ai.sampling_validation import validate_enough_cards_for_opponent_sampling
 
 
 def generate_random_opponent_hands(
@@ -21,12 +22,15 @@ def generate_random_opponent_hands(
     random_generator: random.Random | None = None,
 ) -> tuple[list[str], list[str]]:
     """
-    Generates one random possible card distribution for the two opponents.
-
-    The function uses only cards that are currently unseen from the player's perspective.
+    Generates random opponent hands from unseen cards.
     """
-    rng = random_generator or random
+    validate_enough_cards_for_opponent_sampling(
+        state=state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+    )
 
+    rng = random_generator or random
     unseen_cards = get_unseen_cards(state)
     required_card_count = left_hand_size + right_hand_size
 

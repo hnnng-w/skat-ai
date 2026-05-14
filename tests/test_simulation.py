@@ -96,7 +96,9 @@ def test_generate_random_opponent_hands_raises_error_when_too_many_cards_request
             right_hand_size=20,
         )
     except ValueError as error:
-        assert "more opponent cards" in str(error)
+        assert "Not enough available cards for opponent sampling" in str(error)
+        assert "required 40" in str(error)
+        assert "available 27" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
