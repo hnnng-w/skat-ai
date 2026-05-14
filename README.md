@@ -160,6 +160,9 @@ Input files may include optional metadata. These fields are currently stored and
   "skat_visibility": "known_post_game",
   "game_end_reason": "normal_completion",
   "use_profile_presets": true,
+  "opponent_policy_preset": "cautious_defender",
+  "opponent_lead_policy": "basic_defender_lead",
+  "opponent_response_policy": "basic_defender_response",
   "left_player_profile": {
     "games_played": 1240,
     "solo_games_played": 380,
@@ -186,7 +189,9 @@ Input files may include optional metadata. These fields are currently stored and
   }
 }
 ```
+`opponent_policy_preset`, `opponent_lead_policy`, `opponent_response_policy`, and `use_profile_presets` are optional.
 
+If both a preset and explicit lead/response policies are provided, the explicit lead/response policies win.
 If use_profile_presets true, player profiles are used to derive opponent policy presets. Explicit opponent policy fields and CLI lead/response overrides still take precedence.
 
 Supported `analysis_mode` values:
@@ -324,6 +329,99 @@ Policy comparison results are sorted by:
 5. Policy name alphabetically
 
 The comparison also includes a `recommended_policy`.
+
+## Opponent modeling
+
+Opponent behavior can be configured through opponent card policies, policy presets, and optional profile-based presets.
+
+This is still rule-based. The tool does not yet train or use a machine-learning model.
+
+### Opponent policy priority
+
+Opponent policies are resolved in this order:
+
+1. Default values: `lowest_point` / `lowest_point`
+2. Input JSON `opponent_policy_preset`
+3. Input JSON `use_profile_presets`
+4. Input JSON explicit `opponent_lead_policy` / `opponent_response_policy`
+5. CLI `--opponent-policy-preset`
+6. CLI `--use-profile-presets`
+7. CLI explicit `--opponent-lead-policy` / `--opponent-response-policy`
+
+Explicit lead and response policies always have the highest priority.
+
+### Opponent card policies
+
+Supported opponent policies:
+
+- `lowest_point`
+- `highest_point`
+- `random_legal`
+- `basic_trick_play`
+- `basic_defender_response`
+- `basic_defender_lead`
+
+Policy meanings:
+
+- `lowest_point`: choose the legal card with the lowest point value.
+- `highest_point`: choose the legal card with the highest point value.
+- `random_legal`: choose a random legal card.
+- `basic_trick_play`: win with the lowest-point winning card if possible; otherwise play the lowest-point legal card.
+- `basic_defender_response`: if the defender's partner is currently winning the trick, add points with the highest-point legal card; otherwise fall back to `basic_trick_play`.
+- `basic_defender_lead`: when leading a trick, prefer low-point non-trump cards; otherwise fall back to the lowest-point card.
+
+Configure lead and response policies directly:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-lead-policy basic_defender_lead --opponent-response-policy basic_defender_response
+```
+
+### Opponent policy presets
+
+Opponent policy presets combine a lead policy and a response policy.
+
+Supported presets:
+
+| Preset | Lead policy | Response policy |
+|---|---|---|
+| `simple_lowest` | `lowest_point` | `lowest_point` |
+| `cautious_defender` | `basic_defender_lead` | `basic_defender_response` |
+| `aggressive_points` | `highest_point` | `highest_point` |
+| `random` | `random_legal` | `random_legal` |
+
+Use a preset:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-policy-preset cautious_defender
+```
+
+Explicit lead or response policies override preset values:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-policy-preset cautious_defender --opponent-response-policy highest_point
+```
+
+### Profile-based presets
+
+Player profiles can be used to derive an opponent policy preset.
+
+This is optional. By default, player profiles are stored and reported but do not affect simulation behavior.
+
+Enable profile-based presets:
+
+```powershell
+python main.py --input examples/grand_second_position_with_metadata.json --multi-step 2 --use-profile-presets
+```
+
+Profile-based preset selection currently uses simple rule-based heuristics:
+
+- unknown or low-confidence profiles → `simple_lowest`
+- aggressive profiles → `aggressive_points`
+- reliable defender profiles → `cautious_defender`
+
+Profile confidence currently depends on `games_played`.
+
+Explicit lead and response policy overrides still take precedence over profile-based presets.
 
 ## Game history fields
 
@@ -560,6 +658,11 @@ Current limitations:
 - Opponent hand consistency has improved, but the engine is not yet a full perfect-information or full-game solver.
 - Bidding logic, game value calculation, Schneider, Schwarz, Hand, Ouvert, and complete final scoring are not fully modeled yet.
 - The tool currently focuses on analysis and simulation, not on training a machine-learning model.
+- Opponent policy presets are still simple rule-based approximations.
+- Profile-based presets use rough heuristics and are not yet learned from data.
+- Player profiles influence simulations only when profile-based presets are explicitly enabled.
+- The same combined opponent preset is currently applied to both opponents.
+- The engine does not yet model different individual policies for left and right opponents during the same simulation.
 
 ## Running tests
 
@@ -640,6 +743,8 @@ Planned next areas:
 - Add stronger game-end handling
 - Add claim/concession logic
 - Add better handling of known and unknown skat cards
+- Improve defender cooperation logic
+- Improve lead-card selection based on game phase and score
 
 ### Player modeling
 
@@ -647,6 +752,10 @@ Planned next areas:
 - Add confidence weighting based on `games_played`
 - Model aggressive and conservative opponents
 - Model strong and weak defenders
+- Support separate left/right opponent policies
+- Improve profile-to-policy mapping
+- Add confidence weighting based on profile sample size
+- Learn profile behavior from real game history
 
 ### Analysis modes
 
