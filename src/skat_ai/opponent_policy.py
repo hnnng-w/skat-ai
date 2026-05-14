@@ -8,6 +8,7 @@ VALID_OPPONENT_CARD_POLICIES = [
     "random_legal",
     "basic_trick_play",
     "basic_defender_response",
+    "basic_defender_lead",
 ]
 
 SUIT_BY_GAME_TYPE = {
@@ -277,10 +278,34 @@ def choose_basic_defender_response_card(
         player_index=player_index,
     )
 
+def choose_basic_defender_lead_card(
+    hand: list[str],
+    game_type: str,
+) -> str:
+    """
+    Chooses a cautious defender lead card.
+
+    The policy prefers low-point non-trump cards. If no non-trump cards are
+    available, it falls back to the lowest-point card.
+    """
+    if not hand:
+        raise ValueError("Cannot choose from an empty card list.")
+
+    non_trump_cards = [
+        card for card in hand
+        if not is_trump_card(card, game_type)
+    ]
+
+    if non_trump_cards:
+        return choose_lowest_point_card(non_trump_cards)
+
+    return choose_lowest_point_card(hand)
+
 def choose_opponent_lead_card_by_policy(
     hand: list[str],
     policy: str = "lowest_point",
     random_generator: random.Random | None = None,
+    game_type: str = "grand",
 ) -> str:
     """
     Chooses an opponent lead card by policy.
@@ -291,6 +316,12 @@ def choose_opponent_lead_card_by_policy(
 
     if policy in ["lowest_point", "basic_trick_play", "basic_defender_response"]:
         return choose_lowest_point_card(hand)
+
+    if policy == "basic_defender_lead":
+        return choose_basic_defender_lead_card(
+            hand=hand,
+            game_type=game_type,
+        )
 
     if policy == "highest_point":
         return choose_highest_point_card(hand)
@@ -354,6 +385,14 @@ def choose_opponent_response_card_by_policy(
             game_type=game_type,
             player_index=player_index,
             partner_currently_winning=partner_currently_winning,
+        )
+    
+    if policy == "basic_defender_lead":
+        return choose_basic_trick_play_card(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=player_index,
         )
 
     raise ValueError(f"Invalid opponent card policy: {policy}")

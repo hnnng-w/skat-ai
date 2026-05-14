@@ -1,6 +1,7 @@
 import random
 
 from skat_ai.opponent_policy import (
+    choose_basic_defender_lead_card,
     choose_basic_defender_response_card,
     choose_basic_trick_play_card,
     choose_highest_point_card,
@@ -222,6 +223,50 @@ def test_choose_opponent_lead_card_by_basic_defender_response_policy() -> None:
     selected_card = choose_opponent_lead_card_by_policy(
         hand=["SA", "S10", "S9"],
         policy="basic_defender_response",
+    )
+
+    assert selected_card == "S9"
+
+def test_validate_opponent_card_policy_accepts_basic_defender_lead() -> None:
+    validate_opponent_card_policy("basic_defender_lead")
+
+
+def test_choose_basic_defender_lead_prefers_low_point_non_trump() -> None:
+    selected_card = choose_basic_defender_lead_card(
+        hand=["CJ", "SA", "S9", "H10", "D7"],
+        game_type="grand",
+    )
+
+    assert selected_card == "S9"
+
+
+def test_choose_basic_defender_lead_falls_back_to_lowest_point_when_only_trumps() -> None:
+    selected_card = choose_basic_defender_lead_card(
+        hand=["CJ", "SJ", "HJ"],
+        game_type="grand",
+    )
+
+    assert selected_card == "CJ"
+
+
+def test_choose_opponent_lead_card_by_basic_defender_lead_policy() -> None:
+    selected_card = choose_opponent_lead_card_by_policy(
+        hand=["CJ", "SA", "S9", "H10", "D7"],
+        policy="basic_defender_lead",
+        game_type="grand",
+    )
+
+    assert selected_card == "S9"
+
+
+def test_choose_opponent_response_card_by_basic_defender_lead_policy_falls_back_to_basic_play(
+) -> None:
+    selected_card = choose_opponent_response_card_by_policy(
+        hand=["SA", "S10", "S9", "H10"],
+        current_trick=["S7"],
+        game_type="grand",
+        player_index=1,
+        policy="basic_defender_lead",
     )
 
     assert selected_card == "S9"

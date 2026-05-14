@@ -19,6 +19,7 @@ def choose_lowest_point_lead_card(hand: list[str]) -> str:
     return choose_opponent_lead_card_by_policy(
         hand=hand,
         policy="lowest_point",
+        game_type="grand",
     )
 
 def choose_lowest_point_legal_response_card(
@@ -157,6 +158,7 @@ def simulate_opponent_lead_once(
         hand=leader_hand,
         policy=opponent_lead_policy,
         random_generator=rng,
+        game_type=state.game_type,
     )
 
     next_state = build_state_after_opponent_lead(
@@ -203,6 +205,7 @@ def simulate_left_lead_and_right_response_once(
         hand=left_hand,
         policy=opponent_lead_policy,
         random_generator=rng,
+        game_type=state.game_type,
     )
 
     state_after_left_lead = build_state_after_opponent_lead(

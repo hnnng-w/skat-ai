@@ -527,3 +527,10 @@ def test_validate_optional_opponent_policies_accepts_basic_defender_response() -
             "opponent_response_policy": "basic_defender_response",
         }
     )
+
+def test_validate_optional_opponent_policies_accepts_basic_defender_lead() -> None:
+    validate_optional_opponent_policies(
+        {
+            "opponent_lead_policy": "basic_defender_lead",
+        }
+    )

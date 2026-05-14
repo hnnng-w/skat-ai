@@ -163,3 +163,16 @@ def test_get_opponent_policy_settings_from_input_reads_basic_defender_response()
         "opponent_lead_policy": "lowest_point",
         "opponent_response_policy": "basic_defender_response",
     }
+
+def test_get_opponent_policy_settings_from_input_reads_basic_defender_lead() -> None:
+    settings = get_opponent_policy_settings_from_input(
+        {
+            "opponent_lead_policy": "basic_defender_lead",
+            "opponent_response_policy": "basic_defender_response",
+        }
+    )
+
+    assert settings == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
