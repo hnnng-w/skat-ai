@@ -98,6 +98,56 @@ def get_schwarz_status(
     return "none"
 
 
+def get_effective_schneider_status(
+    declarer_points: int,
+    defender_points: int,
+) -> str:
+    """
+    Returns Schneider status only when all card points are assigned.
+
+    Possible values:
+    - declarer_made_schneider
+    - defenders_made_schneider
+    - none
+    - pending
+    """
+    if not is_card_point_result_complete(
+        declarer_points=declarer_points,
+        defender_points=defender_points,
+    ):
+        return "pending"
+
+    return get_schneider_status(
+        declarer_points=declarer_points,
+        defender_points=defender_points,
+    )
+
+
+def get_effective_schwarz_status(
+    declarer_points: int,
+    defender_points: int,
+) -> str:
+    """
+    Returns Schwarz status only when all card points are assigned.
+
+    Possible values:
+    - declarer_made_schwarz
+    - defenders_made_schwarz
+    - none
+    - pending
+    """
+    if not is_card_point_result_complete(
+        declarer_points=declarer_points,
+        defender_points=defender_points,
+    ):
+        return "pending"
+
+    return get_schwarz_status(
+        declarer_points=declarer_points,
+        defender_points=defender_points,
+    )
+
+
 def get_card_point_result_status(
     declarer_points: int,
     defender_points: int,
@@ -152,11 +202,19 @@ def build_game_result_summary_from_points(
             declarer_points=declarer_points,
             defender_points=defender_points,
         ),
-        "schneider_status": get_schneider_status(
+        "raw_schneider_status": get_schneider_status(
             declarer_points=declarer_points,
             defender_points=defender_points,
         ),
-        "schwarz_status": get_schwarz_status(
+        "raw_schwarz_status": get_schwarz_status(
+            declarer_points=declarer_points,
+            defender_points=defender_points,
+        ),
+        "effective_schneider_status": get_effective_schneider_status(
+            declarer_points=declarer_points,
+            defender_points=defender_points,
+        ),
+        "effective_schwarz_status": get_effective_schwarz_status(
             declarer_points=declarer_points,
             defender_points=defender_points,
         ),

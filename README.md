@@ -684,6 +684,34 @@ Schwarz:
 
 These values are currently raw point-based indicators. In an unfinished game, they may still change.
 
+The game_result_summary includes raw and effective Schneider/Schwarz indicators.
+
+Raw indicators are based only on the currently known card points and may change while a game is still in progress.
+
+Effective indicators are only set once all 120 card points have been assigned. Until then, they return pending.
+
+raw_schneider_status:
+- declarer_made_schneider
+- defenders_made_schneider
+- none
+
+raw_schwarz_status:
+- declarer_made_schwarz
+- defenders_made_schwarz
+- none
+
+effective_schneider_status:
+- declarer_made_schneider
+- defenders_made_schneider
+- none
+- pending
+
+effective_schwarz_status:
+- declarer_made_schwarz
+- defenders_made_schwarz
+- none
+- pending
+
 ## Architecture overview
 
 Key modules:
@@ -732,7 +760,7 @@ Current limitations:
 - Game value calculation currently uses declared metadata and does not yet infer matadors, Schneider, or Schwarz automatically from the final game state.
 - Lost-game doubling and overbid handling are not implemented yet.
 - game_result_summary is currently based on card points only and does not yet represent final settlement scoring.
-- Schneider and Schwarz status are currently raw point-based indicators and are not yet final-state aware.
+- Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but final game settlement scoring is not complete yet.
 
 ## Running tests
 

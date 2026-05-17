@@ -3,6 +3,8 @@ from skat_ai.game_result import (
     build_game_result_summary_from_score_summary,
     get_card_point_result_status,
     get_card_point_winner,
+    get_effective_schneider_status,
+    get_effective_schwarz_status,
     get_points_remaining,
     get_schneider_status,
     get_schwarz_status,
@@ -69,8 +71,10 @@ def test_build_game_result_summary_from_points() -> None:
         "is_complete": False,
         "winner": "declarer",
         "status": "currently_decided",
-        "schneider_status": "declarer_made_schneider",
-        "schwarz_status": "none",
+        "raw_schneider_status": "declarer_made_schneider",
+        "raw_schwarz_status": "none",
+        "effective_schneider_status": "pending",
+        "effective_schwarz_status": "pending",
         "thresholds": {
             "declarer_win": 61,
             "defender_win": 60,
@@ -118,3 +122,37 @@ def test_get_schwarz_status_defenders_made_schwarz() -> None:
 
 def test_get_schwarz_status_none() -> None:
     assert get_schwarz_status(70, 50) == "none"
+
+def test_get_effective_schneider_status_pending_when_incomplete() -> None:
+    assert get_effective_schneider_status(0, 0) == "pending"
+
+
+def test_get_effective_schneider_status_when_complete() -> None:
+    assert get_effective_schneider_status(90, 30) == "declarer_made_schneider"
+
+
+def test_get_effective_schneider_status_none_when_complete() -> None:
+    assert get_effective_schneider_status(70, 50) == "none"
+
+
+def test_get_effective_schwarz_status_pending_when_incomplete() -> None:
+    assert get_effective_schwarz_status(0, 0) == "pending"
+
+
+def test_get_effective_schwarz_status_when_complete() -> None:
+    assert get_effective_schwarz_status(120, 0) == "declarer_made_schwarz"
+
+
+def test_get_effective_schwarz_status_none_when_complete() -> None:
+    assert get_effective_schwarz_status(70, 50) == "none"
+
+def test_build_game_result_summary_from_points_complete_schneider() -> None:
+    summary = build_game_result_summary_from_points(
+        declarer_points=90,
+        defender_points=30,
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["raw_schneider_status"] == "declarer_made_schneider"
+    assert summary["effective_schneider_status"] == "declarer_made_schneider"
+    assert summary["effective_schwarz_status"] == "none"

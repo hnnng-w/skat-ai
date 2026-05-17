@@ -946,8 +946,10 @@ def test_build_analysis_result_includes_game_result_summary() -> None:
         "is_complete": False,
         "winner": "undecided",
         "status": "in_progress",
-        "schneider_status": "declarer_made_schneider",
-        "schwarz_status": "declarer_made_schwarz",
+        "raw_schneider_status": "declarer_made_schneider",
+        "raw_schwarz_status": "declarer_made_schwarz",
+        "effective_schneider_status": "pending",
+        "effective_schwarz_status": "pending",
         "thresholds": {
             "declarer_win": 61,
             "defender_win": 60,
