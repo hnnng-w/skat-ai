@@ -653,6 +653,7 @@ Top-level fields may include:
 - `strategic_summary`
 - `score_summary`
 - `game_result_summary`
+- `final_settlement_summary`
 - `recommendation`
 - `multi_step_result`
 - `policy_comparison_result`
@@ -712,6 +713,19 @@ effective_schwarz_status:
 - none
 - pending
 
+The final_settlement_summary combines game_value_summary and game_result_summary.
+
+It is currently a placeholder for full Skat settlement scoring.
+
+It reports:
+- whether final settlement is complete
+- missing inputs
+- whether the declarer won by card points
+- game value if available
+- placeholder fields for settlement_score, loss handling, and overbid handling
+
+Full final settlement scoring is not implemented yet.
+
 ## Architecture overview
 
 Key modules:
@@ -761,6 +775,8 @@ Current limitations:
 - Lost-game doubling and overbid handling are not implemented yet.
 - game_result_summary is currently based on card points only and does not yet represent final settlement scoring.
 - Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but final game settlement scoring is not complete yet.
+- final_settlement_summary is currently a conservative placeholder and does not yet calculate final settlement_score.
+- Lost-game doubling and overbid handling are still pending.
 
 ## Running tests
 

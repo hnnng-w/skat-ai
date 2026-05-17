@@ -190,6 +190,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "game_declaration",
         "game_value_summary",
         "game_result_summary",
+        "final_settlement_summary",
     }
 
 
@@ -957,4 +958,28 @@ def test_build_analysis_result_includes_game_result_summary() -> None:
             "schwarz": 0,
             "total_card_points": 120,
         },
+    }
+
+def test_build_analysis_result_includes_final_settlement_summary() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["final_settlement_summary"] == {
+        "is_complete": False,
+        "missing_inputs": ["complete_card_points", "game_value"],
+        "declarer_won_by_card_points": None,
+        "winner": None,
+        "game_value": None,
+        "settlement_score": None,
+        "is_loss": None,
+        "is_overbid": None,
+        "notes": [
+            "Final settlement scoring is not fully implemented yet.",
+            "Lost-game doubling is not implemented yet.",
+            "Overbid handling is not implemented yet.",
+        ],
     }
