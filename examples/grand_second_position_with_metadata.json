@@ -25,7 +25,7 @@
   "ouvert": false,
   "schneider_announced": false,
   "schwarz_announced": false,
-  "matadors": null,
+  "matadors": 2,
   "left_player_profile": {
     "games_played": 1240,
     "solo_games_played": 380,

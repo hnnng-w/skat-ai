@@ -226,6 +226,34 @@ schneider_announced
 schwarz_announced
 matadors
 
+The tool also calculates a basic game_value_summary from the declaration metadata.
+
+For suit and grand games:
+
+game value = base value × game level
+
+Current base values:
+- clubs: 12
+- spades: 11
+- hearts: 10
+- diamonds: 9
+- grand: 24
+
+Current game level:
+- matadors + 1
+- plus hand_game
+- plus schneider_announced
+- plus schwarz_announced
+- plus ouvert
+
+If matadors is null, the current implementation uses a default matador multiplier of 1.
+
+Null games use fixed values:
+- null: 23
+- null hand: 35
+- null ouvert: 46
+- null hand ouvert: 59
+
 ## Multi-step simulation
 
 Run a multi-step simulation:
@@ -677,6 +705,8 @@ Current limitations:
 - The same combined opponent preset is currently applied to both opponents.
 - The engine does not yet model different individual policies for left and right opponents during the same simulation.
 - Game declaration metadata is stored, but full game-value scoring is not complete yet.
+- Game value calculation currently uses declared metadata and does not yet infer matadors, Schneider, or Schwarz automatically from the final game state.
+- Lost-game doubling and overbid handling are not implemented yet.
 
 ## Running tests
 

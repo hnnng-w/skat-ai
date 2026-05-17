@@ -188,6 +188,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "opponent_policy_settings",
         "profile_preset_settings",
         "game_declaration",
+        "game_value_summary",
     }
 
 
@@ -901,4 +902,30 @@ def test_build_analysis_result_includes_game_declaration() -> None:
         "schneider_announced": False,
         "schwarz_announced": False,
         "matadors": None,
+    }
+
+def test_build_analysis_result_includes_game_value_summary() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["game_value_summary"] == {
+        "game_type": "grand",
+        "is_null_game": False,
+        "base_value": 24,
+        "game_level": None,
+        "game_value": None,
+        "details": {
+            "matadors": None,
+            "matador_multiplier": None,
+            "hand_game": False,
+            "schneider_announced": False,
+            "schwarz_announced": False,
+            "ouvert": False,
+            "modifier_multiplier": 0,
+            "is_complete": False,
+        },
     }
