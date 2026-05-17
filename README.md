@@ -652,6 +652,7 @@ Top-level fields may include:
 - `analysis_report`
 - `strategic_summary`
 - `score_summary`
+- `game_result_summary`
 - `recommendation`
 - `multi_step_result`
 - `policy_comparison_result`
@@ -659,6 +660,13 @@ Top-level fields may include:
 `multi_step_result` contains a serializable multi-step summary, context summary, final state, and step list.
 
 `policy_comparison_result` contains one compact result per card-selection policy and a `recommended_policy`.
+
+The game_result_summary derives a simple card-point result status from the current score.
+
+Declarer wins by card points with at least 61 points.
+Defenders win by card points with at least 60 points.
+
+This summary does not yet include final game-value settlement, overbid handling, or lost-game doubling.
 
 ## Architecture overview
 
@@ -707,6 +715,7 @@ Current limitations:
 - Game declaration metadata is stored, but full game-value scoring is not complete yet.
 - Game value calculation currently uses declared metadata and does not yet infer matadors, Schneider, or Schwarz automatically from the final game state.
 - Lost-game doubling and overbid handling are not implemented yet.
+- game_result_summary is currently based on card points only and does not yet represent final settlement scoring.
 
 ## Running tests
 

@@ -189,6 +189,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "profile_preset_settings",
         "game_declaration",
         "game_value_summary",
+        "game_result_summary",
     }
 
 
@@ -927,5 +928,27 @@ def test_build_analysis_result_includes_game_value_summary() -> None:
             "ouvert": False,
             "modifier_multiplier": 0,
             "is_complete": False,
+        },
+    }
+
+def test_build_analysis_result_includes_game_result_summary() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["game_result_summary"] == {
+        "declarer_points": 0,
+        "defender_points": 0,
+        "points_remaining": 120,
+        "is_complete": False,
+        "winner": "undecided",
+        "status": "in_progress",
+        "thresholds": {
+            "declarer_win": 61,
+            "defender_win": 60,
+            "total_card_points": 120,
         },
     }
