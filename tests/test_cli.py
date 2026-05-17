@@ -946,9 +946,13 @@ def test_build_analysis_result_includes_game_result_summary() -> None:
         "is_complete": False,
         "winner": "undecided",
         "status": "in_progress",
+        "schneider_status": "declarer_made_schneider",
+        "schwarz_status": "declarer_made_schwarz",
         "thresholds": {
             "declarer_win": 61,
             "defender_win": 60,
+            "schneider": 30,
+            "schwarz": 0,
             "total_card_points": 120,
         },
     }

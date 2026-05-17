@@ -668,6 +668,22 @@ Defenders win by card points with at least 60 points.
 
 This summary does not yet include final game-value settlement, overbid handling, or lost-game doubling.
 
+The game_result_summary also includes raw Schneider and Schwarz status based on currently known card points.
+
+Current status values:
+
+Schneider:
+- declarer_made_schneider
+- defenders_made_schneider
+- none
+
+Schwarz:
+- declarer_made_schwarz
+- defenders_made_schwarz
+- none
+
+These values are currently raw point-based indicators. In an unfinished game, they may still change.
+
 ## Architecture overview
 
 Key modules:
@@ -716,6 +732,7 @@ Current limitations:
 - Game value calculation currently uses declared metadata and does not yet infer matadors, Schneider, or Schwarz automatically from the final game state.
 - Lost-game doubling and overbid handling are not implemented yet.
 - game_result_summary is currently based on card points only and does not yet represent final settlement scoring.
+- Schneider and Schwarz status are currently raw point-based indicators and are not yet final-state aware.
 
 ## Running tests
 
