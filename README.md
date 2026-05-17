@@ -732,6 +732,12 @@ It reports:
 
 Full final settlement scoring is not implemented yet.
 
+Complete settlement example:
+
+python main.py --input examples/grand_complete_declarer_win.json --output outputs/complete_declarer_win.json
+
+This example contains complete card points and known matadors, so final_settlement_summary can calculate a settlement_score.
+
 ## Architecture overview
 
 Key modules:

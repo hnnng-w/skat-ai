@@ -983,3 +983,41 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
             "Overbid handling is not implemented yet.",
         ],
     }
+
+def test_build_analysis_result_complete_declarer_win_settlement() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_complete_declarer_win.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["game_value_summary"]["game_value"] == 72
+    assert result["game_result_summary"]["is_complete"] is True
+    assert result["game_result_summary"]["winner"] == "declarer"
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["missing_inputs"] == []
+    assert result["final_settlement_summary"]["declarer_won_by_card_points"] is True
+    assert result["final_settlement_summary"]["winner"] == "declarer"
+    assert result["final_settlement_summary"]["game_value"] == 72
+    assert result["final_settlement_summary"]["settlement_score"] == 72
+    assert result["final_settlement_summary"]["is_loss"] is False
+
+def test_build_analysis_result_complete_declarer_loss_settlement() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_complete_declarer_loss.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["game_value_summary"]["game_value"] == 72
+    assert result["game_result_summary"]["is_complete"] is True
+    assert result["game_result_summary"]["winner"] == "defenders"
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["missing_inputs"] == []
+    assert result["final_settlement_summary"]["declarer_won_by_card_points"] is False
+    assert result["final_settlement_summary"]["winner"] == "defenders"
+    assert result["final_settlement_summary"]["game_value"] == 72
+    assert result["final_settlement_summary"]["settlement_score"] == -144
+    assert result["final_settlement_summary"]["is_loss"] is True
