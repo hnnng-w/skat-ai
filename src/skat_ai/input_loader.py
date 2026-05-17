@@ -6,6 +6,10 @@ from skat_ai.analysis_metadata import (
     AnalysisMetadata,
     build_analysis_metadata_from_input,
 )
+from skat_ai.game_declaration import (
+    GameDeclaration,
+    build_game_declaration_from_input,
+)
 from skat_ai.game_state import GameState
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
@@ -104,3 +108,11 @@ def get_profile_preset_settings_from_input(
     return {
         "use_profile_presets": data.get("use_profile_presets", False),
     }
+
+def get_game_declaration_from_input(
+    data: dict[str, Any],
+) -> GameDeclaration:
+    """
+    Extracts game declaration metadata from input data.
+    """
+    return build_game_declaration_from_input(data)

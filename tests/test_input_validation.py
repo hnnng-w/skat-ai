@@ -8,6 +8,7 @@ from skat_ai.input_validation import (
     validate_no_duplicate_cards,
     validate_non_negative_integer,
     validate_optional_analysis_metadata,
+    validate_optional_game_declaration,
     validate_optional_opponent_policies,
     validate_optional_player_profile,
     validate_optional_profile_preset_settings,
@@ -574,5 +575,29 @@ def test_validate_optional_profile_preset_settings_rejects_non_boolean() -> None
     except ValueError as error:
         assert "use_profile_presets" in str(error)
         assert "boolean" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_optional_game_declaration_accepts_valid_declaration() -> None:
+    validate_optional_game_declaration(
+        {
+            "game_type": "grand",
+            "hand": True,
+            "schneider_announced": True,
+            "matadors": 2,
+        }
+    )
+
+
+def test_validate_optional_game_declaration_rejects_invalid_null_declaration() -> None:
+    try:
+        validate_optional_game_declaration(
+            {
+                "game_type": "null",
+                "schneider_announced": True,
+            }
+        )
+    except ValueError as error:
+        assert "Null games cannot have schneider announced" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

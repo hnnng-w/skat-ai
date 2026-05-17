@@ -1,6 +1,7 @@
 from typing import Any
 
 from skat_ai.deck import get_full_deck
+from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.rules import GAME_TYPES
@@ -217,6 +218,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_analysis_metadata(data)
     validate_optional_opponent_policies(data)
     validate_optional_profile_preset_settings(data)
+    validate_optional_game_declaration(data)
 
 
 def validate_next_player(next_player: str) -> None:
@@ -384,3 +386,9 @@ def validate_optional_profile_preset_settings(data: dict[str, Any]) -> None:
     """
     if "use_profile_presets" in data:
         validate_boolean(data["use_profile_presets"], "use_profile_presets")
+
+def validate_optional_game_declaration(data: dict[str, Any]) -> None:
+    """
+    Validates optional game declaration scoring fields.
+    """
+    build_game_declaration_from_input(data)

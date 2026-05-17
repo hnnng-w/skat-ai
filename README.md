@@ -128,7 +128,12 @@ A basic input file describes one Skat position:
   "right_hand_size": 5,
   "sample_count": 1000,
   "random_seed": 42,
-  "use_basic_opponent_strategy": true
+  "use_basic_opponent_strategy": true,
+  "hand_game": false,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": null
 }
 ```
 
@@ -212,6 +217,14 @@ Supported `game_end_reason` values:
 - `declarer_claimed_remaining_tricks`
 - `declarer_conceded_remaining_tricks`
 - `defenders_conceded_remaining_tricks`
+
+Optional game declaration fields:
+
+hand_game
+ouvert
+schneider_announced
+schwarz_announced
+matadors
 
 ## Multi-step simulation
 
@@ -663,6 +676,7 @@ Current limitations:
 - Player profiles influence simulations only when profile-based presets are explicitly enabled.
 - The same combined opponent preset is currently applied to both opponents.
 - The engine does not yet model different individual policies for left and right opponents during the same simulation.
+- Game declaration metadata is stored, but full game-value scoring is not complete yet.
 
 ## Running tests
 

@@ -1,6 +1,7 @@
 from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
+    get_game_declaration_from_input,
     get_opponent_policy_settings_from_input,
     get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
@@ -222,3 +223,37 @@ def test_get_profile_preset_settings_from_input_reads_value() -> None:
     assert settings == {
         "use_profile_presets": True,
     }
+
+def test_get_game_declaration_from_input_defaults() -> None:
+    declaration = get_game_declaration_from_input(
+        {
+            "game_type": "grand",
+        }
+    )
+
+    assert declaration.game_type == "grand"
+    assert declaration.hand is False
+    assert declaration.ouvert is False
+    assert declaration.schneider_announced is False
+    assert declaration.schwarz_announced is False
+    assert declaration.matadors is None
+
+
+def test_get_game_declaration_from_input_reads_values() -> None:
+    declaration = get_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "hand_game": True,
+            "ouvert": False,
+            "schneider_announced": True,
+            "schwarz_announced": False,
+            "matadors": 2,
+        }
+    )
+
+    assert declaration.game_type == "grand"
+    assert declaration.hand is True
+    assert declaration.ouvert is False
+    assert declaration.schneider_announced is True
+    assert declaration.schwarz_announced is False
+    assert declaration.matadors == 2

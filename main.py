@@ -8,10 +8,12 @@ from skat_ai.analysis_report import (
     format_card_analysis_report,
 )
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
+from skat_ai.game_declaration import build_serializable_game_declaration
 from skat_ai.game_history import build_score_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
+    get_game_declaration_from_input,
     get_opponent_policy_settings_from_input,
     get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
@@ -109,6 +111,7 @@ def build_analysis_result(
     state = build_game_state_from_input(data)
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
+    game_declaration = get_game_declaration_from_input(data)
     opponent_policy_settings = get_opponent_policy_settings_from_input(data)
     profile_preset_settings = get_profile_preset_settings_from_input(data)
 
@@ -175,6 +178,7 @@ def build_analysis_result(
         "opponent_policy_settings": opponent_policy_settings,
         "profile_preset_settings": profile_preset_settings,
         "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
+        "game_declaration": build_serializable_game_declaration(game_declaration),
         "legal_cards": legal_cards,
         "analysis_report": report,
         "strategic_summary": strategic_summary,

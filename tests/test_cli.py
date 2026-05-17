@@ -187,6 +187,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "recommendation",
         "opponent_policy_settings",
         "profile_preset_settings",
+        "game_declaration",
     }
 
 
@@ -884,3 +885,20 @@ def test_build_analysis_result_applies_profile_presets_from_input() -> None:
             "basic_defender_lead",
             "highest_point",
         ]
+
+def test_build_analysis_result_includes_game_declaration() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["game_declaration"] == {
+        "game_type": "grand",
+        "hand_game": False,
+        "ouvert": False,
+        "schneider_announced": False,
+        "schwarz_announced": False,
+        "matadors": None,
+    }

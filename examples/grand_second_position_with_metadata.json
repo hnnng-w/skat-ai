@@ -21,6 +21,11 @@
   "game_end_reason": "normal_completion",
   "opponent_policy_preset": "cautious_defender",
   "use_profile_presets": true,
+  "hand_game": false,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": null,
   "left_player_profile": {
     "games_played": 1240,
     "solo_games_played": 380,
