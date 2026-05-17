@@ -81,14 +81,29 @@ Write output to JSON:
 python main.py --input examples/grand_second_position.json --output outputs/result.json
 ```
 
+Run a complete settlement example:
+
+```powershell
+python main.py --input examples/grand_complete_declarer_win.json --output outputs/complete_declarer_win.json
+```
+
+Run a complete declarer-loss example:
+
+```powershell
+python main.py --input examples/grand_complete_declarer_loss.json --output outputs/complete_declarer_loss.json
+```
+
 ## Example positions
 
 The project includes example JSON input files in the `examples/` folder.
 
 ```text
 examples/
+  grand_complete_declarer_loss.json
+  grand_complete_declarer_win.json
   grand_leading.json
   grand_second_position.json
+  grand_second_position_with_metadata.json
   grand_third_position.json
   hearts_leading.json
   null_second_position.json
@@ -538,6 +553,236 @@ grand
 null
 ```
 
+## Scoring and settlement
+
+The tool separates card points, declared game value, card-point result status, and final settlement.
+
+These concepts are intentionally modeled separately.
+
+### Score summary
+
+`score_summary` describes the currently known card points.
+
+It combines:
+
+- explicit declarer points
+- explicit defender points
+- points from completed tricks
+
+Example output:
+
+```json
+{
+  "explicit_declarer_points": 0,
+  "explicit_defender_points": 0,
+  "completed_trick_declarer_points": 90,
+  "completed_trick_defender_points": 30,
+  "total_declarer_points": 90,
+  "total_defender_points": 30
+}
+```
+
+### Game declaration
+
+`game_declaration` describes the declared game and scoring metadata.
+
+Example:
+
+```json
+{
+  "game_type": "grand",
+  "hand_game": false,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": 2
+}
+```
+
+Important:
+
+- `position.hand` means the player's cards.
+- `game_declaration.hand_game` means whether the game was declared as Hand.
+- `matadors` must be known to calculate a complete suit or grand game value.
+- If `matadors` is `null`, the game value remains incomplete.
+
+### Game value summary
+
+`game_value_summary` describes the declared game value if it can be calculated.
+
+For suit and grand games:
+
+```text
+game value = base value × game level
+```
+
+Current base values:
+
+| Game type | Base value |
+|---|---:|
+| clubs | 12 |
+| spades | 11 |
+| hearts | 10 |
+| diamonds | 9 |
+| grand | 24 |
+
+Current game level:
+
+```text
+matadors + 1
++ hand_game
++ schneider_announced
++ schwarz_announced
++ ouvert
+```
+
+Example:
+
+```json
+{
+  "game_type": "grand",
+  "is_null_game": false,
+  "base_value": 24,
+  "game_level": 3,
+  "game_value": 72,
+  "details": {
+    "matadors": 2,
+    "matador_multiplier": 3,
+    "hand_game": false,
+    "schneider_announced": false,
+    "schwarz_announced": false,
+    "ouvert": false,
+    "modifier_multiplier": 0,
+    "is_complete": true
+  }
+}
+```
+
+If `matadors` is unknown:
+
+```json
+{
+  "game_level": null,
+  "game_value": null,
+  "details": {
+    "matadors": null,
+    "matador_multiplier": null,
+    "is_complete": false
+  }
+}
+```
+
+### Null game values
+
+Null games use fixed values:
+
+| Game | Value |
+|---|---:|
+| null | 23 |
+| null hand | 35 |
+| null ouvert | 46 |
+| null hand ouvert | 59 |
+
+### Game result summary
+
+`game_result_summary` describes the current or final card-point result.
+
+The declarer wins by card points with at least 61 points.
+
+The defenders win by card points with at least 60 points.
+
+Example:
+
+```json
+{
+  "declarer_points": 90,
+  "defender_points": 30,
+  "points_remaining": 0,
+  "is_complete": true,
+  "winner": "declarer",
+  "status": "final_decided",
+  "raw_schneider_status": "declarer_made_schneider",
+  "raw_schwarz_status": "none",
+  "effective_schneider_status": "declarer_made_schneider",
+  "effective_schwarz_status": "none"
+}
+```
+
+Raw Schneider and Schwarz indicators are based on the currently known card points and may change while the game is still in progress.
+
+Effective Schneider and Schwarz indicators are only final once all 120 card points have been assigned. Until then, they return `pending`.
+
+### Final settlement summary
+
+`final_settlement_summary` combines `game_value_summary` and `game_result_summary`.
+
+It calculates a basic settlement score if both the game value and final card-point result are complete.
+
+Current simplified settlement rule:
+
+```text
+declarer wins  → settlement_score = game_value
+declarer loses → settlement_score = -2 × game_value
+```
+
+Example declarer win:
+
+```json
+{
+  "is_complete": true,
+  "missing_inputs": [],
+  "declarer_won_by_card_points": true,
+  "winner": "declarer",
+  "game_value": 72,
+  "settlement_score": 72,
+  "is_loss": false,
+  "is_overbid": null
+}
+```
+
+Example declarer loss:
+
+```json
+{
+  "is_complete": true,
+  "missing_inputs": [],
+  "declarer_won_by_card_points": false,
+  "winner": "defenders",
+  "game_value": 72,
+  "settlement_score": -144,
+  "is_loss": true,
+  "is_overbid": null
+}
+```
+
+If required information is missing, the summary remains incomplete:
+
+```json
+{
+  "is_complete": false,
+  "missing_inputs": [
+    "complete_card_points",
+    "game_value"
+  ],
+  "settlement_score": null
+}
+```
+
+### Individual game settlement vs. performance rating
+
+`final_settlement_summary` describes the settlement of a single game.
+
+It does not represent list, series, or tournament performance scoring.
+
+Performance rating according to tournament/list rules is a separate layer. It may include additional values such as:
+
+- bonus points for own won games
+- penalty points for own lost games
+- bonus points for opponents' lost games
+- table-size-dependent values
+
+This should be implemented separately in a future `performance_rating` module and should not be mixed into `final_settlement_summary`.
+
 ## Player roles
 
 Allowed values:
@@ -652,11 +897,13 @@ Top-level fields may include:
 - `analysis_report`
 - `strategic_summary`
 - `score_summary`
-- `game_result_summary`
-- `final_settlement_summary`
 - `recommendation`
 - `multi_step_result`
 - `policy_comparison_result`
+- `game_declaration`
+- `game_value_summary`
+- `game_result_summary`
+- `final_settlement_summary`
 
 `multi_step_result` contains a serializable multi-step summary, context summary, final state, and step list.
 
@@ -789,6 +1036,12 @@ Current limitations:
 - Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but final game settlement scoring is not complete yet.
 - final_settlement_summary currently uses simplified settlement scoring and does not yet support overbid handling.
 - Lost-game doubling and overbid handling are still pending.
+- Game value calculation uses declared metadata and does not yet infer matadors automatically.
+- Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but full settlement scoring is still simplified.
+- final_settlement_summary currently uses simplified settlement scoring.
+- Overbid handling is not implemented yet.
+- Performance rating for lists, series, or tournament play is not implemented yet.
+- Performance rating should be modeled separately from individual game settlement.
 
 ## Running tests
 
@@ -871,6 +1124,14 @@ Planned next areas:
 - Add better handling of known and unknown skat cards
 - Improve defender cooperation logic
 - Improve lead-card selection based on game phase and score
+
+### Scoring and settlement
+
+- Infer matadors automatically from known cards
+- Add overbid handling
+- Improve final settlement scoring
+- Add performance rating for list/series/tournament scoring
+- Keep individual game settlement separate from performance rating
 
 ### Player modeling
 
