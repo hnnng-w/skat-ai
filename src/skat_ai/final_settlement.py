@@ -19,6 +19,23 @@ def get_missing_final_settlement_inputs(
     return missing_inputs
 
 
+def calculate_basic_settlement_score(
+    game_value: int,
+    declarer_won_by_card_points: bool,
+) -> int:
+    """
+    Calculates a basic settlement score.
+
+    Current simplified model:
+    - declarer win: +game_value
+    - declarer loss: -2 * game_value
+    """
+    if declarer_won_by_card_points:
+        return game_value
+
+    return -2 * game_value
+
+
 def is_declarer_winner_by_card_points(
     game_result_summary: dict[str, Any],
 ) -> bool | None:
@@ -51,6 +68,19 @@ def build_final_settlement_summary(
     declarer_won_by_card_points = is_declarer_winner_by_card_points(
         game_result_summary
     )
+    is_loss = (
+        declarer_won_by_card_points is False
+        if declarer_won_by_card_points is not None
+        else None
+    )
+    settlement_score = (
+        calculate_basic_settlement_score(
+            game_value=game_value_summary["game_value"],
+            declarer_won_by_card_points=declarer_won_by_card_points,
+        )
+        if is_complete and declarer_won_by_card_points is not None
+        else None
+    )
 
     return {
         "is_complete": is_complete,
@@ -58,16 +88,12 @@ def build_final_settlement_summary(
         "declarer_won_by_card_points": declarer_won_by_card_points,
         "winner": game_result_summary["winner"] if is_complete else None,
         "game_value": game_value_summary["game_value"],
-        "settlement_score": None,
-        "is_loss": (
-            declarer_won_by_card_points is False
-            if declarer_won_by_card_points is not None
-            else None
-        ),
+        "settlement_score": settlement_score,
+        "is_loss": is_loss,
         "is_overbid": None,
         "notes": [
-            "Final settlement scoring is not fully implemented yet.",
-            "Lost-game doubling is not implemented yet.",
+            "Settlement score uses simplified Skat logic.",
+            "Lost declarer games are counted as -2 * game_value.",
             "Overbid handling is not implemented yet.",
         ],
     }

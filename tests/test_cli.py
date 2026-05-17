@@ -978,8 +978,8 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
         "is_loss": None,
         "is_overbid": None,
         "notes": [
-            "Final settlement scoring is not fully implemented yet.",
-            "Lost-game doubling is not implemented yet.",
+            "Settlement score uses simplified Skat logic.",
+            "Lost declarer games are counted as -2 * game_value.",
             "Overbid handling is not implemented yet.",
         ],
     }

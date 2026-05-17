@@ -715,7 +715,13 @@ effective_schwarz_status:
 
 The final_settlement_summary combines game_value_summary and game_result_summary.
 
-It is currently a placeholder for full Skat settlement scoring.
+It now calculates a basic settlement score when both card points and game value are complete.
+
+Current simplified settlement rule:
+- declarer wins by card points: settlement_score = game_value
+- declarer loses by card points: settlement_score = -2 * game_value
+
+Overbid handling is not implemented yet.
 
 It reports:
 - whether final settlement is complete
@@ -775,7 +781,7 @@ Current limitations:
 - Lost-game doubling and overbid handling are not implemented yet.
 - game_result_summary is currently based on card points only and does not yet represent final settlement scoring.
 - Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but final game settlement scoring is not complete yet.
-- final_settlement_summary is currently a conservative placeholder and does not yet calculate final settlement_score.
+- final_settlement_summary currently uses simplified settlement scoring and does not yet support overbid handling.
 - Lost-game doubling and overbid handling are still pending.
 
 ## Running tests
