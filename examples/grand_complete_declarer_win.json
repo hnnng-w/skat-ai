@@ -21,5 +21,6 @@
   "ouvert": false,
   "schneider_announced": false,
   "schwarz_announced": false,
-  "matadors": 2
+  "matadors": 2,
+  "bid_value": 72
 }

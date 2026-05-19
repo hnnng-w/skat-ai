@@ -708,3 +708,61 @@ def test_validate_position_input_rejects_rule_wrong_completed_trick_winner() -> 
         assert "winner_player is inconsistent with trick rules" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_position_input_rejects_zero_bid_value() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "bid_value": 0,
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "bid_value must be a positive integer" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_position_input_rejects_non_integer_bid_value() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "bid_value": "72",
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "bid_value must be a positive integer" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

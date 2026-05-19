@@ -17,11 +17,11 @@ def test_is_null_game() -> None:
 
 def test_get_null_game_value() -> None:
     assert get_null_game_value(GameDeclaration(game_type="null")) == 23
-    assert get_null_game_value(GameDeclaration(game_type="null", hand=True)) == 35
+    assert get_null_game_value(GameDeclaration(game_type="null", hand_game=True)) == 35
     assert get_null_game_value(GameDeclaration(game_type="null", ouvert=True)) == 46
     assert (
         get_null_game_value(
-            GameDeclaration(game_type="null", hand=True, ouvert=True)
+            GameDeclaration(game_type="null", hand_game=True, ouvert=True)
         )
         == 59
     )
@@ -65,7 +65,7 @@ def test_get_modifier_multiplier_defaults_to_zero() -> None:
 def test_get_modifier_multiplier_counts_modifiers() -> None:
     declaration = GameDeclaration(
         game_type="grand",
-        hand=True,
+        hand_game=True,
         schneider_announced=True,
         schwarz_announced=True,
         ouvert=True,
@@ -78,7 +78,7 @@ def test_calculate_suit_or_grand_game_level() -> None:
     declaration = GameDeclaration(
         game_type="grand",
         matadors=2,
-        hand=True,
+        hand_game=True,
         schneider_announced=True,
     )
 
@@ -107,7 +107,7 @@ def test_calculate_game_value_for_suit_game() -> None:
     declaration = GameDeclaration(
         game_type="hearts",
         matadors=1,
-        hand=True,
+        hand_game=True,
     )
 
     assert calculate_game_value(declaration) == 30
@@ -116,7 +116,7 @@ def test_calculate_game_value_for_suit_game() -> None:
 def test_calculate_game_value_for_null() -> None:
     declaration = GameDeclaration(
         game_type="null",
-        hand=True,
+        hand_game=True,
         ouvert=True,
     )
 
@@ -127,7 +127,7 @@ def test_build_game_value_summary_for_grand() -> None:
     declaration = GameDeclaration(
         game_type="grand",
         matadors=2,
-        hand=True,
+        hand_game=True,
         schneider_announced=False,
         schwarz_announced=False,
         ouvert=False,
@@ -157,7 +157,7 @@ def test_build_game_value_summary_for_grand() -> None:
 def test_build_game_value_summary_for_null() -> None:
     declaration = GameDeclaration(
         game_type="null",
-        hand=True,
+        hand_game=True,
         ouvert=True,
     )
 

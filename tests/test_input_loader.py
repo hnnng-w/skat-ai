@@ -232,7 +232,7 @@ def test_get_game_declaration_from_input_defaults() -> None:
     )
 
     assert declaration.game_type == "grand"
-    assert declaration.hand is False
+    assert declaration.hand_game is False
     assert declaration.ouvert is False
     assert declaration.schneider_announced is False
     assert declaration.schwarz_announced is False
@@ -252,8 +252,18 @@ def test_get_game_declaration_from_input_reads_values() -> None:
     )
 
     assert declaration.game_type == "grand"
-    assert declaration.hand is True
+    assert declaration.hand_game is True
     assert declaration.ouvert is False
     assert declaration.schneider_announced is True
     assert declaration.schwarz_announced is False
     assert declaration.matadors == 2
+
+def test_get_game_declaration_from_input_reads_bid_value() -> None:
+    data = {
+        "game_type": "grand",
+        "bid_value": 72,
+    }
+
+    declaration = get_game_declaration_from_input(data)
+
+    assert declaration.bid_value == 72

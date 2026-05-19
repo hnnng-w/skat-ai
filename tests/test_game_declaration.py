@@ -42,7 +42,7 @@ def test_validate_matadors_rejects_negative_integer() -> None:
 def test_validate_game_declaration_accepts_grand() -> None:
     declaration = GameDeclaration(
         game_type="grand",
-        hand=True,
+        hand_game=True,
         matadors=2,
     )
 
@@ -100,7 +100,7 @@ def test_build_game_declaration_from_input_defaults() -> None:
 
     assert declaration == GameDeclaration(
         game_type="grand",
-        hand=False,
+        hand_game=False,
         ouvert=False,
         schneider_announced=False,
         schwarz_announced=False,
@@ -122,7 +122,7 @@ def test_build_game_declaration_from_input_reads_fields() -> None:
 
     assert declaration == GameDeclaration(
         game_type="grand",
-        hand=True,
+        hand_game=True,
         ouvert=False,
         schneider_announced=True,
         schwarz_announced=False,
@@ -133,7 +133,7 @@ def test_build_game_declaration_from_input_reads_fields() -> None:
 def test_build_serializable_game_declaration() -> None:
     declaration = GameDeclaration(
         game_type="grand",
-        hand=True,
+        hand_game=True,
         ouvert=False,
         schneider_announced=True,
         schwarz_announced=False,
@@ -149,6 +149,7 @@ def test_build_serializable_game_declaration() -> None:
         "schneider_announced": True,
         "schwarz_announced": False,
         "matadors": 3,
+        "bid_value": None,
     }
 
 
@@ -165,5 +166,31 @@ def test_get_base_game_value_rejects_null() -> None:
         get_base_game_value("null")
     except ValueError as error:
         assert "Null games do not use" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_game_declaration_defaults_bid_value_to_none() -> None:
+    declaration = GameDeclaration(game_type="grand")
+
+    assert declaration.bid_value is None
+
+def test_game_declaration_accepts_bid_value() -> None:
+    declaration = GameDeclaration(
+        game_type="grand",
+        bid_value=72,
+    )
+
+    assert declaration.bid_value == 72
+
+def test_validate_game_declaration_rejects_non_positive_bid_value() -> None:
+    try:
+        validate_game_declaration(
+            GameDeclaration(
+                game_type="grand",
+                bid_value=0,
+            )
+        )
+    except ValueError as error:
+        assert "bid_value must be a positive integer" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

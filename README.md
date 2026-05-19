@@ -26,6 +26,16 @@ The tool currently supports:
 - Policy comparison across card-selection strategies
 - JSON output for analysis results
 - Optional strategic metadata and player profile fields
+- Game declaration metadata
+- Game value summary
+- Card-point result summary
+- Final settlement summary
+- Game-end handling for claim and concession
+- Adjusted game result summary
+- Completed-trick structure and rule validation
+- Example regression tests
+- Opponent policy presets
+- Optional profile-based opponent policy presets
 
 ## Requirements
 
@@ -211,7 +221,7 @@ Important fields:
 
 ## Optional analysis metadata
 
-Input files may include optional metadata. These fields are currently stored and passed through the analysis pipeline, but they do not yet change recommendations.
+Input files may include optional metadata. Some fields are stored for reporting and future logic. Profile-based presets can optionally influence opponent policy selection when `use_profile_presets` is enabled.
 
 ```json
 {
@@ -306,7 +316,7 @@ Current game level:
 - plus schwarz_announced
 - plus ouvert
 
-If matadors is null, the current implementation uses a default matador multiplier of 1.
+If `matadors` is `null`, the game value remains incomplete for suit and grand games. This prevents the engine from guessing a game value when the matador count is unknown.
 
 Null games use fixed values:
 - null: 23
@@ -346,6 +356,7 @@ Opponent lead and response policies can be configured:
 
 ```powershell
 python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-lead-policy highest_point --opponent-response-policy basic_trick_play
+```
 
 Supported opponent policies:
 
@@ -550,34 +561,43 @@ The field `played_cards` is still supported for backward compatibility with olde
 
 Do not list the same card in both `played_cards` and `completed_tricks`, because duplicate known cards are rejected by input validation.
 
-If `players` and `winner_player` are provided for completed tricks, the engine validates trick sequence consistency.
+### Completed trick validation
 
-Rules:
-- `players` must follow the known seating order.
+The preferred way to record completed tricks is `completed_tricks`.
+
+A detailed completed trick can include:
+
+```json
+{
+  "cards": ["CJ", "SJ", "DJ"],
+  "players": ["me", "left", "right"],
+  "winner_role": "declarer",
+  "winner_player": "me"
+}
+```
+
+When detailed completed-trick metadata is provided, the engine validates structure, sequence consistency, and the actual trick winner.
+
+Validation rules:
+
+- `cards` must contain exactly three cards.
+- `players` must contain exactly three unique players when provided.
+- `players` must follow the known seating order:
+  - `["me", "left", "right"]`
+  - `["left", "right", "me"]`
+  - `["right", "me", "left"]`
+- `winner_player` must be valid when provided.
+- `winner_role` must be valid when provided.
+- `winner_role` is checked against `winner_player` when the local `player_role` allows a safe inference.
 - the winner of one completed trick must lead the next completed trick.
 - if `current_trick` is not empty, `trick_leader` must match the winner of the last completed trick.
+- when `cards`, `players`, and `winner_player` are provided, the engine validates that `winner_player` actually won the trick according to the implemented Skat rules.
 
-Older inputs without `players` or `winner_player` remain supported.
+Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly.
 
-Completed tricks are validated structurally when detailed metadata is provided.
+The field `played_cards` is still supported for backward compatibility with older inputs, but new inputs should prefer `completed_tricks`.
 
-Rules:
-- completed_trick.cards must contain exactly three cards.
-- completed_trick.players must contain exactly three unique players if provided.
-- completed_trick.winner_player must be valid if provided.
-- completed_trick.winner_role must be valid if provided.
-- winner_role is checked against winner_player when the local player role allows a safe inference.
-
-The engine does not yet verify whether winner_player actually won the trick according to Skat rules. This is planned separately.
-
-Completed trick winners are validated against the implemented Skat trick rules when `cards`, `players`, and `winner_player` are provided.
-
-The engine:
-- determines the winning card from `completed_trick.cards` and `game_type`
-- maps the winning card index to `completed_trick.players`
-- compares that player with `completed_trick.winner_player`
-
-Older completed trick entries without `players` or `winner_player` remain supported.
+Do not list the same card in both `played_cards` and `completed_tricks`, because duplicate known cards are rejected by input validation.
 
 ### Adding new example positions
 
@@ -1102,85 +1122,15 @@ Top-level fields may include:
 - multi_step_result
 - policy_comparison_result
 
+`game_result_summary` contains the raw card-point result before game-end adjustment.
+
+`adjusted_game_result_summary` contains the card-point result after applying `game_end_reason`, such as claim or concession.
+
+`final_settlement_summary` combines `game_value_summary` and `adjusted_game_result_summary`.
+
 `multi_step_result` contains a serializable multi-step summary, context summary, final state, and step list.
 
 `policy_comparison_result` contains one compact result per card-selection policy and a `recommended_policy`.
-
-The game_result_summary derives a simple card-point result status from the current score.
-
-Declarer wins by card points with at least 61 points.
-Defenders win by card points with at least 60 points.
-
-This summary does not yet include final game-value settlement, overbid handling, or lost-game doubling.
-
-The game_result_summary also includes raw Schneider and Schwarz status based on currently known card points.
-
-Current status values:
-
-Schneider:
-- declarer_made_schneider
-- defenders_made_schneider
-- none
-
-Schwarz:
-- declarer_made_schwarz
-- defenders_made_schwarz
-- none
-
-These values are currently raw point-based indicators. In an unfinished game, they may still change.
-
-The game_result_summary includes raw and effective Schneider/Schwarz indicators.
-
-Raw indicators are based only on the currently known card points and may change while a game is still in progress.
-
-Effective indicators are only set once all 120 card points have been assigned. Until then, they return pending.
-
-raw_schneider_status:
-- declarer_made_schneider
-- defenders_made_schneider
-- none
-
-raw_schwarz_status:
-- declarer_made_schwarz
-- defenders_made_schwarz
-- none
-
-effective_schneider_status:
-- declarer_made_schneider
-- defenders_made_schneider
-- none
-- pending
-
-effective_schwarz_status:
-- declarer_made_schwarz
-- defenders_made_schwarz
-- none
-- pending
-
-The final_settlement_summary combines game_value_summary and game_result_summary.
-
-It now calculates a basic settlement score when both card points and game value are complete.
-
-Current simplified settlement rule:
-- declarer wins by card points: settlement_score = game_value
-- declarer loses by card points: settlement_score = -2 * game_value
-
-Overbid handling is not implemented yet.
-
-It reports:
-- whether final settlement is complete
-- missing inputs
-- whether the declarer won by card points
-- game value if available
-- placeholder fields for settlement_score, loss handling, and overbid handling
-
-Full final settlement scoring is not implemented yet.
-
-Complete settlement example:
-
-python main.py --input examples/grand_complete_declarer_win.json --output outputs/complete_declarer_win.json
-
-This example contains complete card points and known matadors, so final_settlement_summary can calculate a settlement_score.
 
 ## Architecture overview
 
@@ -1212,52 +1162,40 @@ Key modules:
 
 Current limitations:
 
-- Opponent behavior is still simplified.
-- Player profiles are stored but do not yet influence decisions.
-- Strategic metadata is stored but does not yet influence recommendations.
-- Early termination logic is not implemented yet.
-- Claiming remaining tricks is not implemented yet.
-- Conceding or gifting remaining points is not implemented yet.
-- Skat visibility is tracked as metadata but not yet used to change decision logic.
-- Multi-step simulations still rely on sampled hidden cards.
-- Opponent hand consistency has improved, but the engine is not yet a full perfect-information or full-game solver.
-- Bidding logic, game value calculation, Schneider, Schwarz, Hand, Ouvert, and complete final scoring are not fully modeled yet.
-- The tool currently focuses on analysis and simulation, not on training a machine-learning model.
-- Opponent policy presets are still simple rule-based approximations.
-- Profile-based presets use rough heuristics and are not yet learned from data.
+- Opponent behavior is still simplified and rule-based.
 - Player profiles influence simulations only when profile-based presets are explicitly enabled.
+- Profile-based presets use rough heuristics and are not learned from data.
 - The same combined opponent preset is currently applied to both opponents.
 - The engine does not yet model different individual policies for left and right opponents during the same simulation.
-- Game declaration metadata is stored, but full game-value scoring is not complete yet.
-- Game value calculation currently uses declared metadata and does not yet infer matadors, Schneider, or Schwarz automatically from the final game state.
-- Lost-game doubling and overbid handling are not implemented yet.
-- game_result_summary is currently based on card points only and does not yet represent final settlement scoring.
-- Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but final game settlement scoring is not complete yet.
-- final_settlement_summary currently uses simplified settlement scoring and does not yet support overbid handling.
-- Lost-game doubling and overbid handling are still pending.
+- Multi-step simulations still rely on sampled hidden cards.
+- The engine is not yet a full perfect-information or full-game solver.
+- Skat visibility is tracked as metadata but is not yet used to change live decision logic.
 - Game value calculation uses declared metadata and does not yet infer matadors automatically.
-- Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but full settlement scoring is still simplified.
-- final_settlement_summary currently uses simplified settlement scoring.
-- Overbid handling is not implemented yet.
+- Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but settlement scoring is still simplified.
+- `final_settlement_summary` currently uses simplified settlement scoring and does not yet support overbid handling.
 - Performance rating for lists, series, or tournament play is not implemented yet.
 - Performance rating should be modeled separately from individual game settlement.
 - Completed trick validation checks implemented rule logic, but the engine still depends on the correctness of the provided position context.
 - Older completed-trick inputs without `players` or `winner_player` are supported but cannot be fully validated.
-- The engine validates completed trick winners according to the implemented rules, but it does not yet infer missing completed-trick metadata automatically.
 - Claim and concession handling currently assigns all remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
 - The engine does not yet verify whether a claim was strategically or legally justified.
 - The engine does not yet model player agreement or disputes around claim/concession.
-- Game-end handling affects card-point settlement, but full overbid handling is still not implemented.
+- Bidding logic, overbid handling, game declaration value constraints, and full official settlement scoring are not fully modeled yet.
+- The tool currently focuses on analysis and simulation, not on training a machine-learning model.
 
 ## Running tests
 
 Run:
 
+```powershell
 python -m pytest
+```
 
 Or run the combined check script:
 
+```powershell
 .\scripts\check.ps1
+```
 
 The exact number of tests may change as the project grows. The important result is that all tests pass.
 

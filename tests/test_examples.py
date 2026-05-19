@@ -190,6 +190,7 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["final_settlement_summary"]["game_value"] == 72
     assert result["final_settlement_summary"]["settlement_score"] == 72
     assert result["final_settlement_summary"]["is_loss"] is False
+    assert result["game_declaration"]["bid_value"] == 72
 
 def test_complete_declarer_loss_example_settlement_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_loss.json")

@@ -31,7 +31,7 @@ def get_null_game_value(
     if not is_null_game(declaration):
         raise ValueError("Only null games use null game values.")
 
-    return NULL_GAME_VALUES[(declaration.hand, declaration.ouvert)]
+    return NULL_GAME_VALUES[(declaration.hand_game, declaration.ouvert)]
 
 
 def get_matador_multiplier(
@@ -56,7 +56,7 @@ def get_modifier_multiplier(
     """
     multiplier = 0
 
-    if declaration.hand:
+    if declaration.hand_game:
         multiplier += 1
 
     if declaration.schneider_announced:
@@ -123,7 +123,7 @@ def build_game_value_summary(
             "game_level": None,
             "game_value": calculate_game_value(declaration),
             "details": {
-                "hand_game": declaration.hand,
+                "hand_game": declaration.hand_game,
                 "ouvert": declaration.ouvert,
             },
         }
@@ -150,7 +150,7 @@ def build_game_value_summary(
         "details": {
             "matadors": declaration.matadors,
             "matador_multiplier": matador_multiplier,
-            "hand_game": declaration.hand,
+            "hand_game": declaration.hand_game,
             "schneider_announced": declaration.schneider_announced,
             "schwarz_announced": declaration.schwarz_announced,
             "ouvert": declaration.ouvert,

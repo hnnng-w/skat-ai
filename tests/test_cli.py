@@ -905,6 +905,7 @@ def test_build_analysis_result_includes_game_declaration() -> None:
         "schneider_announced": False,
         "schwarz_announced": False,
         "matadors": None,
+        "bid_value": None,
     }
 
 def test_build_analysis_result_includes_game_value_summary() -> None:

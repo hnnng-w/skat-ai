@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 VALID_DECLARATION_GAME_TYPES = [
     "clubs",
@@ -27,11 +28,12 @@ class GameDeclaration:
     It does not replace GameState.game_type yet.
     """
     game_type: str
-    hand: bool = False
+    hand_game: bool = False
     ouvert: bool = False
     schneider_announced: bool = False
     schwarz_announced: bool = False
     matadors: int | None = None
+    bid_value: int | None = None
 
 
 def validate_declaration_game_type(game_type: str) -> None:
@@ -60,6 +62,10 @@ def validate_game_declaration(declaration: GameDeclaration) -> None:
     validate_declaration_game_type(declaration.game_type)
     validate_matadors(declaration.matadors)
 
+    if declaration.bid_value is not None:
+        if not isinstance(declaration.bid_value, int) or declaration.bid_value <= 0:
+            raise ValueError("bid_value must be a positive integer when provided.")
+
     if declaration.game_type == "null":
         if declaration.schneider_announced:
             raise ValueError("Null games cannot have schneider announced.")
@@ -72,20 +78,19 @@ def validate_game_declaration(declaration: GameDeclaration) -> None:
 
 
 def build_game_declaration_from_input(
-    data: dict,
+    data: dict[str, Any],
 ) -> GameDeclaration:
     """
-    Builds a game declaration from input data.
-
-    Defaults to the existing game_type field.
+    Builds and validates a game declaration from input data.
     """
     declaration = GameDeclaration(
         game_type=data["game_type"],
-        hand=data.get("hand_game", False),
+        hand_game=data.get("hand_game", False),
         ouvert=data.get("ouvert", False),
         schneider_announced=data.get("schneider_announced", False),
         schwarz_announced=data.get("schwarz_announced", False),
         matadors=data.get("matadors"),
+        bid_value=data.get("bid_value"),
     )
 
     validate_game_declaration(declaration)
@@ -101,11 +106,12 @@ def build_serializable_game_declaration(
     """
     return {
         "game_type": declaration.game_type,
-        "hand_game": declaration.hand,
+        "hand_game": declaration.hand_game,
         "ouvert": declaration.ouvert,
         "schneider_announced": declaration.schneider_announced,
         "schwarz_announced": declaration.schwarz_announced,
         "matadors": declaration.matadors,
+        "bid_value": declaration.bid_value,
     }
 
 
