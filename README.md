@@ -102,14 +102,14 @@ examples/
   grand_complete_declarer_loss.json
   grand_complete_declarer_win.json
   grand_leading.json
+  grand_midgame_declarer_ahead.json
+  grand_midgame_defenders_ahead.json
+  grand_post_game_known_skat.json
   grand_second_position.json
   grand_second_position_with_metadata.json
   grand_third_position.json
   hearts_leading.json
   null_second_position.json
-  grand_midgame_declarer_ahead.json
-  grand_midgame_defenders_ahead.json
-  grand_post_game_known_skat.json
 ```
 
 Run an example:
@@ -118,17 +118,25 @@ Run an example:
 python main.py --input examples/grand_leading.json
 ```
 
-Run another example:
+Run a mid-game example:
 
 ```powershell
-python main.py --input examples/null_second_position.json
+python main.py --input examples/grand_midgame_declarer_ahead.json
 ```
 
-The mid-game examples include completed tricks and partial card-point totals.
+Run a complete settlement example:
 
-The post-game example includes known skat cards, player profiles, and profile-based opponent policy presets.
+```powershell
+python main.py --input examples/grand_complete_declarer_win.json --output outputs/complete_declarer_win.json
+```
 
-The examples are covered by regression tests that validate key output invariants such as score summaries, game values, final settlement status, and metadata handling.
+Run a post-game review example with known skat cards:
+
+```powershell
+python main.py --input examples/grand_post_game_known_skat.json --output outputs/post_game_known_skat.json
+```
+
+The examples are used as regression tests. They are expected to remain valid and to produce stable key output values such as score summaries, game values, settlement status, and metadata output.
 
 ## Input JSON format
 
@@ -542,6 +550,54 @@ The engine:
 - compares that player with `completed_trick.winner_player`
 
 Older completed trick entries without `players` or `winner_player` remain supported.
+
+### Adding new example positions
+
+When adding a new example file:
+
+- Avoid duplicate known cards across `hand`, `current_trick`, `played_cards`, `skat`, and `completed_tricks`.
+- Prefer `completed_tricks` over manually duplicating played cards in `played_cards`.
+- If `players` are provided in completed tricks, make sure the order matches the seating order.
+- Make sure `winner_player` matches the actual trick winner.
+- Make sure the winner of one completed trick leads the next completed trick.
+- If a current trick is already in progress, `trick_leader` must match the previous trick winner.
+- Use `matadors` when the game value should be complete.
+- Use `matadors: null` when the game value should intentionally remain incomplete.
+- Use `analysis_mode: post_game_review` and `skat_visibility: known_post_game` for post-game review examples.
+
+### Completed trick validation
+
+The preferred way to record completed tricks is `completed_tricks`.
+
+When detailed completed-trick metadata is provided, the engine validates both structure and consistency.
+
+A detailed completed trick can include:
+
+```json
+{
+  "cards": ["CJ", "SJ", "DJ"],
+  "players": ["me", "left", "right"],
+  "winner_role": "declarer",
+  "winner_player": "me"
+}
+```
+
+Validation rules:
+
+- `cards` must contain exactly three cards.
+- `players` must contain exactly three unique players when provided.
+- `players` must follow the known seating order:
+  - `["me", "left", "right"]`
+  - `["left", "right", "me"]`
+  - `["right", "me", "left"]`
+- `winner_player` must be valid when provided.
+- `winner_role` must be valid when provided.
+- `winner_role` is checked against `winner_player` when the local `player_role` allows a safe inference.
+- the winner of one completed trick must lead the next completed trick.
+- if `current_trick` is not empty, `trick_leader` must match the winner of the last completed trick.
+- when `cards`, `players`, and `winner_player` are provided, the engine validates that `winner_player` actually won the trick according to the implemented Skat rules.
+
+Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly.
 
 ## Card notation
 
@@ -1046,6 +1102,7 @@ Key modules:
 - `analysis_metadata.py`: optional metadata bundle for strategic context and player profiles
 - `strategic_metadata.py`: analysis mode, skat visibility, and game-end metadata
 - `player_profile.py`: placeholder structure for future opponent modeling
+- `game_history.py`: completed-trick representation, score extraction, and completed-trick consistency validation
 
 ## Known limitations
 
@@ -1080,6 +1137,9 @@ Current limitations:
 - Overbid handling is not implemented yet.
 - Performance rating for lists, series, or tournament play is not implemented yet.
 - Performance rating should be modeled separately from individual game settlement.
+- Completed trick validation checks implemented rule logic, but the engine still depends on the correctness of the provided position context.
+- Older completed-trick inputs without `players` or `winner_player` are supported but cannot be fully validated.
+- The engine validates completed trick winners according to the implemented rules, but it does not yet infer missing completed-trick metadata automatically.
 
 ## Running tests
 
@@ -1094,6 +1154,20 @@ Or run the combined check script:
 The exact number of tests may change as the project grows. The important result is that all tests pass.
 
 The test suite also validates all JSON files in the examples/ folder. If an example position contains invalid cards, duplicate cards, inconsistent trick leader information, or invalid simulation settings, the tests will fail.
+
+The test suite also validates all JSON files in the `examples/` folder.
+
+Example tests check that:
+
+- every example can be loaded and validated
+- every example can build a game state and settings
+- every example has legal cards for the current position
+- every example can build an analysis report
+- key example output invariants remain stable
+
+Concrete example invariants are tested in `tests/test_examples.py`.
+
+General CLI and result-structure behavior is tested in `tests/test_cli.py`.
 
 ## Code quality
 
