@@ -128,6 +128,8 @@ The mid-game examples include completed tricks and partial card-point totals.
 
 The post-game example includes known skat cards, player profiles, and profile-based opponent policy presets.
 
+The examples are covered by regression tests that validate key output invariants such as score summaries, game values, final settlement status, and metadata handling.
+
 ## Input JSON format
 
 A basic input file describes one Skat position:
