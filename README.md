@@ -521,6 +521,17 @@ Rules:
 
 Older inputs without `players` or `winner_player` remain supported.
 
+Completed tricks are validated structurally when detailed metadata is provided.
+
+Rules:
+- completed_trick.cards must contain exactly three cards.
+- completed_trick.players must contain exactly three unique players if provided.
+- completed_trick.winner_player must be valid if provided.
+- completed_trick.winner_role must be valid if provided.
+- winner_role is checked against winner_player when the local player role allows a safe inference.
+
+The engine does not yet verify whether winner_player actually won the trick according to Skat rules. This is planned separately.
+
 ## Card notation
 
 The tool uses compact English card notation.

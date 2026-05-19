@@ -636,3 +636,39 @@ def test_validate_position_input_rejects_inconsistent_completed_trick_sequence()
         assert "trick_leader is inconsistent" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_position_input_rejects_inconsistent_winner_role() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "me",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "players": ["me", "left", "right"],
+                "winner_role": "defenders",
+                "winner_player": "me",
+            }
+        ],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "winner_role is inconsistent" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

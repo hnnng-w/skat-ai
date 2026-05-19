@@ -8,6 +8,7 @@ from skat_ai.game_history import (
     get_completed_trick_points,
     get_completed_trick_winner_player,
     get_completed_trick_winner_role,
+    get_expected_winner_role_for_player,
     get_played_cards_from_completed_tricks,
     get_players_for_trick_leader,
     get_winner_player_from_trick_players,
@@ -15,6 +16,8 @@ from skat_ai.game_history import (
     get_winner_role_for_winner_player,
     validate_completed_trick_player_order,
     validate_completed_trick_sequence,
+    validate_completed_trick_structure,
+    validate_completed_trick_winner_consistency,
 )
 from skat_ai.game_state import GameState
 
@@ -501,5 +504,155 @@ def test_validate_completed_trick_sequence_uses_winner_without_players() -> None
         )
     except ValueError as error:
         assert "trick_leader is inconsistent" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_completed_trick_structure_accepts_valid_trick() -> None:
+    validate_completed_trick_structure(
+        {
+            "cards": ["S7", "S8", "SA"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+            "winner_player": "me",
+        }
+    )
+
+
+def test_validate_completed_trick_structure_rejects_wrong_card_count() -> None:
+    try:
+        validate_completed_trick_structure(
+            {
+                "cards": ["S7", "S8"],
+                "players": ["left", "right", "me"],
+            }
+        )
+    except ValueError as error:
+        assert "completed_trick.cards" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_structure_rejects_wrong_player_count() -> None:
+    try:
+        validate_completed_trick_structure(
+            {
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "right"],
+            }
+        )
+    except ValueError as error:
+        assert "completed_trick.players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_structure_rejects_invalid_player() -> None:
+    try:
+        validate_completed_trick_structure(
+            {
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "right", "north"],
+            }
+        )
+    except ValueError as error:
+        assert "Invalid completed_trick player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_structure_rejects_invalid_winner_player() -> None:
+    try:
+        validate_completed_trick_structure(
+            {
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "right", "me"],
+                "winner_player": "north",
+            }
+        )
+    except ValueError as error:
+        assert "Invalid completed_trick winner_player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_structure_rejects_invalid_winner_role() -> None:
+    try:
+        validate_completed_trick_structure(
+            {
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "right", "me"],
+                "winner_role": "solo",
+            }
+        )
+    except ValueError as error:
+        assert "Invalid completed_trick winner_role" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_structure_rejects_winner_player_not_in_players() -> None:
+    try:
+        validate_completed_trick_structure(
+            {
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "right", "me"],
+                "winner_player": "north",
+            }
+        )
+    except ValueError as error:
+        assert "Invalid completed_trick winner_player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_completed_trick_structure_rejects_duplicate_players() -> None:
+    try:
+        validate_completed_trick_structure(
+            {
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "left", "me"],
+            }
+        )
+    except ValueError as error:
+        assert "three unique players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_get_expected_winner_role_for_player_when_me_is_declarer() -> None:
+    assert get_expected_winner_role_for_player("me", "declarer") == "declarer"
+
+
+def test_get_expected_winner_role_for_player_when_left_wins_against_declarer() -> None:
+    assert get_expected_winner_role_for_player("left", "declarer") == "defenders"
+
+
+def test_get_expected_winner_role_for_player_is_tolerant_for_defender_context() -> None:
+    assert get_expected_winner_role_for_player("left", "defender") is None
+
+
+def test_validate_completed_trick_winner_consistency_accepts_consistent_role() -> None:
+    validate_completed_trick_winner_consistency(
+        completed_trick={
+            "cards": ["S7", "S8", "SA"],
+            "players": ["left", "right", "me"],
+            "winner_player": "me",
+            "winner_role": "declarer",
+        },
+        player_role="declarer",
+    )
+
+
+def test_validate_completed_trick_winner_consistency_rejects_inconsistent_role() -> None:
+    try:
+        validate_completed_trick_winner_consistency(
+            completed_trick={
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "right", "me"],
+                "winner_player": "me",
+                "winner_role": "defenders",
+            },
+            player_role="declarer",
+        )
+    except ValueError as error:
+        assert "winner_role is inconsistent" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

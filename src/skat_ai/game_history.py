@@ -3,6 +3,17 @@ from typing import Any
 from skat_ai.game_state import GameState
 from skat_ai.rules import get_trick_points, get_trick_winner
 
+VALID_COMPLETED_TRICK_WINNER_ROLES = [
+    "declarer",
+    "defenders",
+]
+
+VALID_COMPLETED_TRICK_PLAYERS = [
+    "me",
+    "left",
+    "right",
+]
+
 
 def get_completed_trick_cards(completed_trick: dict[str, Any]) -> list[str]:
     """
@@ -294,13 +305,12 @@ def validate_completed_trick_player_order(
     """
     Validates that a completed trick contains a valid player order.
     """
+    validate_completed_trick_structure(completed_trick)
+
     players = completed_trick.get("players")
 
     if players is None:
         return
-
-    if not isinstance(players, list) or len(players) != 3:
-        raise ValueError("completed_trick.players must contain exactly three players.")
 
     trick_leader = players[0]
     expected_players = get_players_for_trick_leader(trick_leader)
@@ -315,6 +325,7 @@ def validate_completed_trick_sequence(
     completed_tricks: list[dict],
     current_trick: list[str],
     trick_leader: str,
+    player_role: str = "unknown",
 ) -> None:
     """
     Validates completed trick sequence consistency.
@@ -329,6 +340,10 @@ def validate_completed_trick_sequence(
 
     for completed_trick in completed_tricks:
         validate_completed_trick_player_order(completed_trick)
+        validate_completed_trick_winner_consistency(
+            completed_trick=completed_trick,
+            player_role=player_role,
+        )
 
         players = completed_trick.get("players")
         winner_player = completed_trick.get("winner_player")
@@ -349,4 +364,98 @@ def validate_completed_trick_sequence(
         raise ValueError(
             "trick_leader is inconsistent with completed_tricks: "
             f"expected {previous_winner}, got {trick_leader}."
+        )
+
+
+def validate_completed_trick_structure(
+    completed_trick: dict,
+) -> None:
+    """
+    Validates basic completed-trick structure.
+    """
+    cards = completed_trick.get("cards")
+
+    if not isinstance(cards, list) or len(cards) != 3:
+        raise ValueError("completed_trick.cards must contain exactly three cards.")
+
+    players = completed_trick.get("players")
+
+    if players is not None:
+        if not isinstance(players, list) or len(players) != 3:
+            raise ValueError(
+                "completed_trick.players must contain exactly three players."
+            )
+
+        for player in players:
+            if player not in VALID_COMPLETED_TRICK_PLAYERS:
+                raise ValueError(f"Invalid completed_trick player: {player}")
+
+        if len(set(players)) != 3:
+            raise ValueError("completed_trick.players must contain three unique players.")
+
+    winner_player = completed_trick.get("winner_player")
+
+    if (
+        winner_player is not None
+        and winner_player not in VALID_COMPLETED_TRICK_PLAYERS
+    ):
+        raise ValueError(f"Invalid completed_trick winner_player: {winner_player}")
+
+    winner_role = completed_trick.get("winner_role")
+
+    if winner_role is not None and winner_role not in VALID_COMPLETED_TRICK_WINNER_ROLES:
+        raise ValueError(f"Invalid completed_trick winner_role: {winner_role}")
+
+    if players is not None and winner_player is not None and winner_player not in players:
+        raise ValueError("completed_trick.winner_player must be included in players.")
+
+
+def get_expected_winner_role_for_player(
+    winner_player: str,
+    player_role: str,
+) -> str | None:
+    """
+    Returns the expected winner_role for a winner_player.
+
+    The expectation is only strict when the local player is declarer.
+    If the local player is defender, left/right roles are ambiguous for now.
+    """
+    if player_role == "unknown":
+        return None
+
+    if winner_player == "me":
+        return player_role
+
+    if player_role == "declarer":
+        return "defenders"
+
+    return None
+
+def validate_completed_trick_winner_consistency(
+    completed_trick: dict,
+    player_role: str,
+) -> None:
+    """
+    Validates consistency between winner_player and winner_role when possible.
+    """
+    validate_completed_trick_structure(completed_trick)
+
+    winner_player = completed_trick.get("winner_player")
+    winner_role = completed_trick.get("winner_role")
+
+    if winner_player is None or winner_role is None:
+        return
+
+    expected_winner_role = get_expected_winner_role_for_player(
+        winner_player=winner_player,
+        player_role=player_role,
+    )
+
+    if expected_winner_role is None:
+        return
+
+    if winner_role != expected_winner_role:
+        raise ValueError(
+            "completed_trick winner_role is inconsistent with winner_player: "
+            f"expected {expected_winner_role}, got {winner_role}."
         )
