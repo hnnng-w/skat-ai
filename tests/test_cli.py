@@ -192,6 +192,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "game_result_summary",
         "final_settlement_summary",
         "adjusted_game_result_summary",
+        "overbid_summary",
     }
 
 
@@ -219,6 +220,22 @@ def test_build_analysis_result_applies_cli_overrides() -> None:
     assert result["settings"]["sample_count"] == 20
     assert result["settings"]["random_seed"] == 123
     assert result["settings"]["use_basic_opponent_strategy"] is False
+
+def test_build_analysis_result_includes_overbid_summary() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["overbid_summary"] == {
+        "bid_value": None,
+        "game_value": None,
+        "is_overbid": None,
+        "margin": None,
+        "status": "unknown_bid_value",
+    }
 
 
 def test_run_json_position_analysis_supports_multi_step() -> None:

@@ -27,6 +27,7 @@ from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
 from skat_ai.opponent_profile_policy import apply_profile_based_policy_preset
 from skat_ai.output_writer import write_analysis_result_to_json
+from skat_ai.overbid import build_overbid_summary
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
@@ -117,6 +118,10 @@ def build_analysis_result(
     analysis_metadata = get_analysis_metadata_from_input(data)
     game_declaration = get_game_declaration_from_input(data)
     game_value_summary = build_game_value_summary(game_declaration)
+    overbid_summary = build_overbid_summary(
+        game_value_summary=game_value_summary,
+        bid_value=game_declaration.bid_value,
+    )
     opponent_policy_settings = get_opponent_policy_settings_from_input(data)
     profile_preset_settings = get_profile_preset_settings_from_input(data)
 
@@ -194,6 +199,7 @@ def build_analysis_result(
         "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
         "game_declaration": build_serializable_game_declaration(game_declaration),
         "game_value_summary": game_value_summary,
+        "overbid_summary": overbid_summary,
         "legal_cards": legal_cards,
         "analysis_report": report,
         "strategic_summary": strategic_summary,
