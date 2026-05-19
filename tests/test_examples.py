@@ -213,3 +213,59 @@ def test_default_grand_second_position_has_incomplete_game_value() -> None:
         "complete_card_points",
         "game_value",
     ]
+
+def test_claimed_remaining_tricks_example_adjusts_result() -> None:
+    result = build_example_analysis_result("grand_claimed_remaining_tricks.json")
+
+    assert result["game_result_summary"]["declarer_points"] == 46
+    assert result["game_result_summary"]["defender_points"] == 45
+    assert result["game_result_summary"]["points_remaining"] == 29
+    assert result["game_result_summary"]["is_complete"] is False
+
+    assert result["adjusted_game_result_summary"]["declarer_points"] == 75
+    assert result["adjusted_game_result_summary"]["defender_points"] == 45
+    assert result["adjusted_game_result_summary"]["points_remaining"] == 0
+    assert result["adjusted_game_result_summary"]["is_complete"] is True
+    assert result["adjusted_game_result_summary"]["winner"] == "declarer"
+    assert (
+        result["adjusted_game_result_summary"]["game_end_reason"]
+        == "declarer_claimed_remaining_tricks"
+    )
+    assert result["adjusted_game_result_summary"]["remaining_points_recipient"] == (
+        "declarer"
+    )
+    assert result["adjusted_game_result_summary"]["remaining_points_assigned"] == 29
+
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["winner"] == "declarer"
+    assert result["final_settlement_summary"]["settlement_score"] == 72
+    assert result["final_settlement_summary"]["is_loss"] is False
+
+def test_declarer_conceded_remaining_tricks_example_adjusts_result() -> None:
+    result = build_example_analysis_result(
+        "grand_declarer_conceded_remaining_tricks.json"
+    )
+
+    assert result["game_result_summary"]["declarer_points"] == 36
+    assert result["game_result_summary"]["defender_points"] == 55
+    assert result["game_result_summary"]["points_remaining"] == 29
+    assert result["game_result_summary"]["is_complete"] is False
+
+    assert result["adjusted_game_result_summary"]["declarer_points"] == 36
+    assert result["adjusted_game_result_summary"]["defender_points"] == 84
+    assert result["adjusted_game_result_summary"]["points_remaining"] == 0
+    assert result["adjusted_game_result_summary"]["is_complete"] is True
+    assert result["adjusted_game_result_summary"]["winner"] == "defenders"
+    assert (
+        result["adjusted_game_result_summary"]["game_end_reason"]
+        == "declarer_conceded_remaining_tricks"
+    )
+    assert result["adjusted_game_result_summary"]["remaining_points_recipient"] == (
+        "defenders"
+    )
+    assert result["adjusted_game_result_summary"]["remaining_points_assigned"] == 29
+
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["winner"] == "defenders"
+    assert result["final_settlement_summary"]["settlement_score"] == -144
+    assert result["final_settlement_summary"]["is_loss"] is True

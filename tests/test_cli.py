@@ -191,6 +191,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "game_value_summary",
         "game_result_summary",
         "final_settlement_summary",
+        "adjusted_game_result_summary",
     }
 
 
@@ -982,4 +983,35 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
             "Lost declarer games are counted as -2 * game_value.",
             "Overbid handling is not implemented yet.",
         ],
+    }
+
+def test_build_analysis_result_includes_adjusted_game_result_summary() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["adjusted_game_result_summary"] == {
+        "declarer_points": 0,
+        "defender_points": 0,
+        "points_remaining": 120,
+        "is_complete": False,
+        "winner": "undecided",
+        "status": "in_progress",
+        "raw_schneider_status": "declarer_made_schneider",
+        "raw_schwarz_status": "declarer_made_schwarz",
+        "effective_schneider_status": "pending",
+        "effective_schwarz_status": "pending",
+        "thresholds": {
+            "declarer_win": 61,
+            "defender_win": 60,
+            "schneider": 30,
+            "schwarz": 0,
+            "total_card_points": 120,
+        },
+        "game_end_reason": "not_ended",
+        "remaining_points_recipient": None,
+        "remaining_points_assigned": 0,
     }

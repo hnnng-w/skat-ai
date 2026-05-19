@@ -10,6 +10,7 @@ from skat_ai.analysis_report import (
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
 from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.game_declaration import build_serializable_game_declaration
+from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
 from skat_ai.game_value import build_game_value_summary
@@ -162,9 +163,13 @@ def build_analysis_result(
 
     score_summary = build_score_summary(state)
     game_result_summary = build_game_result_summary_from_score_summary(score_summary)
+    adjusted_game_result_summary = apply_remaining_points_assignment(
+        game_result_summary=game_result_summary,
+        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
+    )
     final_settlement_summary = build_final_settlement_summary(
         game_value_summary=game_value_summary,
-        game_result_summary=game_result_summary,
+        game_result_summary=adjusted_game_result_summary,
     )
 
     return {
@@ -194,6 +199,7 @@ def build_analysis_result(
         "strategic_summary": strategic_summary,
         "score_summary": score_summary,
         "game_result_summary": game_result_summary,
+        "adjusted_game_result_summary": adjusted_game_result_summary,
         "final_settlement_summary": final_settlement_summary,
         "recommendation": {
             "card": recommended_card,
