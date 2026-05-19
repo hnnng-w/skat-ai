@@ -91,6 +91,7 @@ def test_apply_remaining_points_assignment_for_defenders_concession() -> None:
     assert summary["is_complete"] is True
     assert summary["winner"] == "declarer"
     assert summary["remaining_points_recipient"] == "declarer"
+    assert summary["remaining_points_assigned"] == 29
 
 
 def build_declarer_behind_game_result_summary() -> dict:
