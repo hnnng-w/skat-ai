@@ -2,6 +2,7 @@ from typing import Any
 
 from skat_ai.deck import get_full_deck
 from skat_ai.game_declaration import build_game_declaration_from_input
+from skat_ai.game_history import validate_completed_trick_sequence
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.rules import GAME_TYPES
@@ -219,6 +220,11 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_opponent_policies(data)
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
+    validate_completed_trick_sequence(
+        completed_tricks=data.get("completed_tricks", []),
+        current_trick=data.get("current_trick", []),
+        trick_leader=data.get("trick_leader", "unknown"),
+    )
 
 
 def validate_next_player(next_player: str) -> None:

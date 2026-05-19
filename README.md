@@ -512,6 +512,15 @@ The field `played_cards` is still supported for backward compatibility with olde
 
 Do not list the same card in both `played_cards` and `completed_tricks`, because duplicate known cards are rejected by input validation.
 
+If `players` and `winner_player` are provided for completed tricks, the engine validates trick sequence consistency.
+
+Rules:
+- `players` must follow the known seating order.
+- the winner of one completed trick must lead the next completed trick.
+- if `current_trick` is not empty, `trick_leader` must match the winner of the last completed trick.
+
+Older inputs without `players` or `winner_player` remain supported.
+
 ## Card notation
 
 The tool uses compact English card notation.

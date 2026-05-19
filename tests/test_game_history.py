@@ -13,6 +13,8 @@ from skat_ai.game_history import (
     get_winner_player_from_trick_players,
     get_winner_role_for_trick_winner,
     get_winner_role_for_winner_player,
+    validate_completed_trick_player_order,
+    validate_completed_trick_sequence,
 )
 from skat_ai.game_state import GameState
 
@@ -381,3 +383,123 @@ def test_build_completed_trick_from_state_and_candidate_uses_trick_leader() -> N
     assert completed_trick["players"] == ["left", "right", "me"]
     assert completed_trick["winner_player"] == "me"
     assert completed_trick["winner_role"] == "declarer"
+
+def test_validate_completed_trick_player_order_accepts_valid_order() -> None:
+    validate_completed_trick_player_order(
+        {
+            "cards": ["S7", "S8", "SA"],
+            "players": ["left", "right", "me"],
+            "winner_player": "me",
+        }
+    )
+
+
+def test_validate_completed_trick_player_order_rejects_invalid_order() -> None:
+    try:
+        validate_completed_trick_player_order(
+            {
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "me", "right"],
+                "winner_player": "me",
+            }
+        )
+    except ValueError as error:
+        assert "expected player order" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_sequence_accepts_consistent_sequence() -> None:
+    validate_completed_trick_sequence(
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "players": ["me", "left", "right"],
+                "winner_player": "me",
+            },
+            {
+                "cards": ["DA", "D10", "DK"],
+                "players": ["me", "left", "right"],
+                "winner_player": "left",
+            },
+            {
+                "cards": ["HK", "HA", "H10"],
+                "players": ["left", "right", "me"],
+                "winner_player": "left",
+            },
+        ],
+        current_trick=["S7"],
+        trick_leader="left",
+    )
+
+
+def test_validate_completed_trick_sequence_rejects_wrong_next_leader() -> None:
+    try:
+        validate_completed_trick_sequence(
+            completed_tricks=[
+                {
+                    "cards": ["CJ", "SJ", "DJ"],
+                    "players": ["me", "left", "right"],
+                    "winner_player": "me",
+                },
+                {
+                    "cards": ["DA", "D10", "DK"],
+                    "players": ["left", "right", "me"],
+                    "winner_player": "left",
+                },
+            ],
+            current_trick=[],
+            trick_leader="unknown",
+        )
+    except ValueError as error:
+        assert "expected next trick leader me" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_sequence_rejects_current_trick_leader_mismatch() -> None:
+    try:
+        validate_completed_trick_sequence(
+            completed_tricks=[
+                {
+                    "cards": ["CJ", "SJ", "DJ"],
+                    "players": ["me", "left", "right"],
+                    "winner_player": "me",
+                }
+            ],
+            current_trick=["S7"],
+            trick_leader="left",
+        )
+    except ValueError as error:
+        assert "trick_leader is inconsistent" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_sequence_is_tolerant_without_players() -> None:
+    validate_completed_trick_sequence(
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+            }
+        ],
+        current_trick=["S7"],
+        trick_leader="left",
+    )
+
+def test_validate_completed_trick_sequence_uses_winner_without_players() -> None:
+    try:
+        validate_completed_trick_sequence(
+            completed_tricks=[
+                {
+                    "cards": ["CJ", "SJ", "DJ"],
+                    "winner_player": "me",
+                }
+            ],
+            current_trick=["S7"],
+            trick_leader="left",
+        )
+    except ValueError as error:
+        assert "trick_leader is inconsistent" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

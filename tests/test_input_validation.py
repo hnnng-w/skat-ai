@@ -601,3 +601,38 @@ def test_validate_optional_game_declaration_rejects_invalid_null_declaration() -
         assert "Null games cannot have schneider announced" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_position_input_rejects_inconsistent_completed_trick_sequence() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "left",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": ["S7"],
+        "played_cards": [],
+        "completed_tricks": [
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "players": ["me", "left", "right"],
+                "winner_role": "declarer",
+                "winner_player": "me",
+            }
+        ],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "trick_leader is inconsistent" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

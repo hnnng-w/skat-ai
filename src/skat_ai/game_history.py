@@ -287,3 +287,66 @@ def get_winner_role_for_winner_player(
         return "defenders"
 
     return "declarer"
+
+def validate_completed_trick_player_order(
+    completed_trick: dict,
+) -> None:
+    """
+    Validates that a completed trick contains a valid player order.
+    """
+    players = completed_trick.get("players")
+
+    if players is None:
+        return
+
+    if not isinstance(players, list) or len(players) != 3:
+        raise ValueError("completed_trick.players must contain exactly three players.")
+
+    trick_leader = players[0]
+    expected_players = get_players_for_trick_leader(trick_leader)
+
+    if players != expected_players:
+        raise ValueError(
+            "completed_trick.players does not match expected player order: "
+            f"expected {expected_players}, got {players}."
+        )
+
+def validate_completed_trick_sequence(
+    completed_tricks: list[dict],
+    current_trick: list[str],
+    trick_leader: str,
+) -> None:
+    """
+    Validates completed trick sequence consistency.
+
+    Rules:
+    - each completed trick with players must follow the known player order
+    - winner_player of one completed trick must lead the next completed trick
+    - winner_player of the last completed trick must match trick_leader
+      if current_trick is not empty
+    """
+    previous_winner = None
+
+    for completed_trick in completed_tricks:
+        validate_completed_trick_player_order(completed_trick)
+
+        players = completed_trick.get("players")
+        winner_player = completed_trick.get("winner_player")
+
+        if players is None or winner_player is None:
+            previous_winner = winner_player
+            continue
+
+        if previous_winner is not None and players[0] != previous_winner:
+            raise ValueError(
+                "completed_tricks sequence is inconsistent: "
+                f"expected next trick leader {previous_winner}, got {players[0]}."
+            )
+
+        previous_winner = winner_player
+
+    if current_trick and previous_winner is not None and trick_leader != previous_winner:
+        raise ValueError(
+            "trick_leader is inconsistent with completed_tricks: "
+            f"expected {previous_winner}, got {trick_leader}."
+        )

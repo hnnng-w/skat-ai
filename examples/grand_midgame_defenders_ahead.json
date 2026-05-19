@@ -2,7 +2,7 @@
   "game_type": "grand",
   "player_role": "declarer",
   "player_position": "rearhand",
-  "trick_leader": "right",
+  "trick_leader": "left",
   "hand": ["SA", "S10", "H9", "D7"],
   "current_trick": ["H7", "H10"],
   "played_cards": [],
@@ -14,16 +14,16 @@
       "winner_player": "me"
     },
     {
-      "cards": ["DA", "D10", "DK"],
-      "players": ["left", "right", "me"],
+      "cards": ["DK", "DA", "D10"],
+      "players": ["me", "left", "right"],
       "winner_role": "defenders",
       "winner_player": "left"
     },
     {
       "cards": ["CA", "C10", "CK"],
-      "players": ["right", "me", "left"],
+      "players": ["left", "right", "me"],
       "winner_role": "defenders",
-      "winner_player": "right"
+      "winner_player": "left"
     }
   ],
   "declarer_points": 0,
