@@ -993,9 +993,12 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
         "declarer_won_by_card_points": None,
         "winner": None,
         "game_value": None,
+        "bid_value": None,
         "settlement_score": None,
         "is_loss": None,
         "is_overbid": None,
+        "overbid_margin": None,
+        "overbid_status": "unknown_bid_value",
         "notes": [
             "Settlement score uses simplified Skat logic.",
             "Lost declarer games are counted as -2 * game_value.",

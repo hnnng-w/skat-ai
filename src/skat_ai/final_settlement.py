@@ -50,9 +50,22 @@ def is_declarer_winner_by_card_points(
     return game_result_summary["winner"] == "declarer"
 
 
+def build_default_overbid_summary() -> dict[str, Any]:
+    """
+    Builds a default unknown overbid summary.
+    """
+    return {
+        "bid_value": None,
+        "game_value": None,
+        "is_overbid": None,
+        "margin": None,
+        "status": "unknown",
+    }
+
 def build_final_settlement_summary(
     game_value_summary: dict[str, Any],
     game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Builds a placeholder final settlement summary.
@@ -60,6 +73,9 @@ def build_final_settlement_summary(
     This is intentionally conservative. Full Skat settlement logic such as
     lost-game doubling and overbid handling is not implemented yet.
     """
+    if overbid_summary is None:
+        overbid_summary = build_default_overbid_summary()
+
     missing_inputs = get_missing_final_settlement_inputs(
         game_value_summary=game_value_summary,
         game_result_summary=game_result_summary,
@@ -88,9 +104,12 @@ def build_final_settlement_summary(
         "declarer_won_by_card_points": declarer_won_by_card_points,
         "winner": game_result_summary["winner"] if is_complete else None,
         "game_value": game_value_summary["game_value"],
+        "bid_value": overbid_summary["bid_value"],
         "settlement_score": settlement_score,
         "is_loss": is_loss,
-        "is_overbid": None,
+        "is_overbid": overbid_summary["is_overbid"],
+        "overbid_margin": overbid_summary["margin"],
+        "overbid_status": overbid_summary["status"],
         "notes": [
             "Settlement score uses simplified Skat logic.",
             "Lost declarer games are counted as -2 * game_value.",

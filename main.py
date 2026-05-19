@@ -175,6 +175,7 @@ def build_analysis_result(
     final_settlement_summary = build_final_settlement_summary(
         game_value_summary=game_value_summary,
         game_result_summary=adjusted_game_result_summary,
+        overbid_summary=overbid_summary,
     )
 
     return {

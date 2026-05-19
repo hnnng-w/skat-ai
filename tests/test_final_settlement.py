@@ -178,3 +178,66 @@ def test_build_final_settlement_summary_complete_declarer_loss() -> None:
     assert summary["settlement_score"] == -144
     assert summary["is_loss"] is True
     assert summary["is_overbid"] is None
+
+def build_not_overbid_summary() -> dict:
+    return {
+        "bid_value": 72,
+        "game_value": 72,
+        "is_overbid": False,
+        "margin": 0,
+        "status": "not_overbid",
+    }
+
+
+def build_unknown_overbid_summary() -> dict:
+    return {
+        "bid_value": None,
+        "game_value": None,
+        "is_overbid": None,
+        "margin": None,
+        "status": "unknown_bid_value",
+    }
+
+def test_build_final_settlement_summary_includes_not_overbid_status() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={
+            "game_value": 72,
+        },
+        game_result_summary={
+            "is_complete": True,
+            "winner": "declarer",
+        },
+        overbid_summary=build_not_overbid_summary(),
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["game_value"] == 72
+    assert summary["bid_value"] == 72
+    assert summary["is_overbid"] is False
+    assert summary["overbid_margin"] == 0
+    assert summary["overbid_status"] == "not_overbid"
+
+def test_build_final_settlement_summary_includes_overbid_status() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={
+            "game_value": 48,
+        },
+        game_result_summary={
+            "is_complete": True,
+            "winner": "declarer",
+        },
+        overbid_summary={
+            "bid_value": 60,
+            "game_value": 48,
+            "is_overbid": True,
+            "margin": -12,
+            "status": "overbid",
+        },
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["game_value"] == 48
+    assert summary["bid_value"] == 60
+    assert summary["is_overbid"] is True
+    assert summary["overbid_margin"] == -12
+    assert summary["overbid_status"] == "overbid"
