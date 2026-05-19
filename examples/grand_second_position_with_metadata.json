@@ -18,7 +18,7 @@
   "use_basic_opponent_strategy": true,
   "analysis_mode": "post_game_review",
   "skat_visibility": "known_post_game",
-  "game_end_reason": "normal_completion",
+  "game_end_reason": "not_ended",
   "opponent_policy_preset": "cautious_defender",
   "use_profile_presets": true,
   "hand_game": false,

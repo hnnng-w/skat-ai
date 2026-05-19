@@ -1,6 +1,8 @@
 from skat_ai.game_end import (
     apply_remaining_points_assignment,
     get_remaining_points_recipient,
+    validate_game_end_reason,
+    validate_game_end_reason_for_points,
 )
 
 
@@ -146,3 +148,119 @@ def test_apply_remaining_points_assignment_for_not_ended_keeps_points() -> None:
     assert summary["remaining_points_recipient"] is None
     assert summary["remaining_points_assigned"] == 0
     assert summary is not original_summary
+
+def test_validate_game_end_reason_accepts_valid_reason() -> None:
+    validate_game_end_reason("not_ended")
+    validate_game_end_reason("normal_completion")
+    validate_game_end_reason("declarer_claimed_remaining_tricks")
+    validate_game_end_reason("declarer_conceded_remaining_tricks")
+    validate_game_end_reason("defenders_conceded_remaining_tricks")
+
+
+def test_validate_game_end_reason_rejects_unknown_reason() -> None:
+    try:
+        validate_game_end_reason("unknown_reason")
+    except ValueError as error:
+        assert "Unknown game_end_reason" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_game_end_reason_for_points_accepts_not_ended_with_remaining_points() -> None:
+    validate_game_end_reason_for_points(
+        game_end_reason="not_ended",
+        points_remaining=10,
+    )
+
+
+def test_validate_game_end_reason_for_points_rejects_not_ended_without_remaining_points() -> None:
+    try:
+        validate_game_end_reason_for_points(
+            game_end_reason="not_ended",
+            points_remaining=0,
+        )
+    except ValueError as error:
+        assert "not_ended requires remaining card points" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_game_end_reason_accepts_completed_normal_game() -> None:
+    validate_game_end_reason_for_points(
+        game_end_reason="normal_completion",
+        points_remaining=0,
+    )
+
+
+def test_validate_game_end_reason_rejects_incomplete_normal_game() -> None:
+    try:
+        validate_game_end_reason_for_points(
+            game_end_reason="normal_completion",
+            points_remaining=10,
+        )
+    except ValueError as error:
+        assert "normal_completion requires zero remaining card points" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_game_end_reason_for_points_accepts_claim_with_remaining_points() -> None:
+    validate_game_end_reason_for_points(
+        game_end_reason="declarer_claimed_remaining_tricks",
+        points_remaining=10,
+    )
+
+
+def test_validate_game_end_reason_for_points_rejects_claim_without_remaining_points() -> None:
+    try:
+        validate_game_end_reason_for_points(
+            game_end_reason="declarer_claimed_remaining_tricks",
+            points_remaining=0,
+        )
+    except ValueError as error:
+        assert "requires remaining card points" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_game_end_reason_for_points_rejects_negative_points_remaining() -> None:
+    try:
+        validate_game_end_reason_for_points(
+            game_end_reason="not_ended",
+            points_remaining=-1,
+        )
+    except ValueError as error:
+        assert "points_remaining cannot be negative" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+    
+
+
+def test_apply_remaining_points_assignment_rejects_invalid_game_end_points_combination() -> None:
+    try:
+        apply_remaining_points_assignment(
+            game_result_summary={
+                "declarer_points": 90,
+                "defender_points": 30,
+                "points_remaining": 0,
+                "is_complete": True,
+                "winner": "declarer",
+                "status": "final_decided",
+                "raw_schneider_status": "declarer_made_schneider",
+                "raw_schwarz_status": "none",
+                "effective_schneider_status": "declarer_made_schneider",
+                "effective_schwarz_status": "none",
+                "thresholds": {
+                    "declarer_win": 61,
+                    "defender_win": 60,
+                    "schneider": 30,
+                    "schwarz": 0,
+                    "total_card_points": 120,
+                },
+            },
+            game_end_reason="declarer_claimed_remaining_tricks",
+        )
+    except ValueError as error:
+        assert "requires remaining card points" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

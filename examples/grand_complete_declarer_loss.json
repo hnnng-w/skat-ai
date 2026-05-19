@@ -10,6 +10,7 @@
   "declarer_points": 50,
   "defender_points": 70,
   "next_player": "me",
+  "game_end_reason": "normal_completion",
   "skat": [],
   "left_hand_size": 3,
   "right_hand_size": 3,

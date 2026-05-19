@@ -184,10 +184,11 @@ def test_post_game_known_skat_example_metadata_invariants() -> None:
     assert result["position"]["next_player"] == "unknown"
     assert result["position"]["current_trick"] == []
 
-    assert result["score_summary"]["total_declarer_points"] == 51
-    assert result["score_summary"]["total_defender_points"] == 35
-    assert result["game_value_summary"]["game_value"] == 72
-    assert result["final_settlement_summary"]["is_complete"] is False
+    assert result["score_summary"]["total_declarer_points"] == 75
+    assert result["score_summary"]["total_defender_points"] == 45
+    assert result["adjusted_game_result_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["settlement_score"] == 72
 
     assert (
         result["analysis_metadata"]["recommended_opponent_policy_presets"][

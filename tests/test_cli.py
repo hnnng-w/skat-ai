@@ -766,7 +766,7 @@ def test_build_analysis_result_reads_analysis_metadata() -> None:
     assert result["analysis_metadata"]["strategic_metadata"] == {
         "analysis_mode": "post_game_review",
         "skat_visibility": "known_post_game",
-        "game_end_reason": "normal_completion",
+        "game_end_reason": "not_ended",
     }
     assert result["analysis_metadata"]["left_player_profile"]["games_played"] == 1240
     assert result["analysis_metadata"]["right_player_profile"]["games_played"] == 520
