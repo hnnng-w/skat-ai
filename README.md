@@ -532,6 +532,15 @@ Rules:
 
 The engine does not yet verify whether winner_player actually won the trick according to Skat rules. This is planned separately.
 
+Completed trick winners are validated against the implemented Skat trick rules when `cards`, `players`, and `winner_player` are provided.
+
+The engine:
+- determines the winning card from `completed_trick.cards` and `game_type`
+- maps the winning card index to `completed_trick.players`
+- compares that player with `completed_trick.winner_player`
+
+Older completed trick entries without `players` or `winner_player` remain supported.
+
 ## Card notation
 
 The tool uses compact English card notation.

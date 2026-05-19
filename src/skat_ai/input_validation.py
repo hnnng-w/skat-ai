@@ -225,6 +225,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
         current_trick=data.get("current_trick", []),
         trick_leader=data.get("trick_leader", "unknown"),
         player_role=data.get("player_role", "unknown"),
+        game_type=data.get("game_type", "grand"),
     )
 
 

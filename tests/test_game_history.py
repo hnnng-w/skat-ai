@@ -15,6 +15,7 @@ from skat_ai.game_history import (
     get_winner_role_for_trick_winner,
     get_winner_role_for_winner_player,
     validate_completed_trick_player_order,
+    validate_completed_trick_rule_winner,
     validate_completed_trick_sequence,
     validate_completed_trick_structure,
     validate_completed_trick_winner_consistency,
@@ -421,12 +422,12 @@ def test_validate_completed_trick_sequence_accepts_consistent_sequence() -> None
                 "winner_player": "me",
             },
             {
-                "cards": ["DA", "D10", "DK"],
+                "cards": ["DK", "DA", "D10"],
                 "players": ["me", "left", "right"],
                 "winner_player": "left",
             },
             {
-                "cards": ["HK", "HA", "H10"],
+                "cards": ["HA", "H10", "HK"],
                 "players": ["left", "right", "me"],
                 "winner_player": "left",
             },
@@ -654,5 +655,83 @@ def test_validate_completed_trick_winner_consistency_rejects_inconsistent_role()
         )
     except ValueError as error:
         assert "winner_role is inconsistent" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_completed_trick_rule_winner_accepts_correct_winner() -> None:
+    validate_completed_trick_rule_winner(
+        completed_trick={
+            "cards": ["S7", "S8", "SA"],
+            "players": ["left", "right", "me"],
+            "winner_player": "me",
+        },
+        game_type="grand",
+    )
+
+
+def test_validate_completed_trick_rule_winner_rejects_wrong_winner() -> None:
+    try:
+        validate_completed_trick_rule_winner(
+            completed_trick={
+                "cards": ["S7", "S8", "SA"],
+                "players": ["left", "right", "me"],
+                "winner_player": "left",
+            },
+            game_type="grand",
+        )
+    except ValueError as error:
+        assert "winner_player is inconsistent with trick rules" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_rule_winner_accepts_grand_jack_winner() -> None:
+    validate_completed_trick_rule_winner(
+        completed_trick={
+            "cards": ["SA", "CJ", "S10"],
+            "players": ["left", "right", "me"],
+            "winner_player": "right",
+        },
+        game_type="grand",
+    )
+
+
+def test_validate_completed_trick_rule_winner_is_tolerant_without_players() -> None:
+    validate_completed_trick_rule_winner(
+        completed_trick={
+            "cards": ["S7", "S8", "SA"],
+            "winner_player": "me",
+        },
+        game_type="grand",
+    )
+
+
+def test_validate_completed_trick_rule_winner_is_tolerant_without_winner_player() -> None:
+    validate_completed_trick_rule_winner(
+        completed_trick={
+            "cards": ["S7", "S8", "SA"],
+            "players": ["left", "right", "me"],
+        },
+        game_type="grand",
+    )
+
+
+def test_validate_completed_trick_sequence_rejects_rule_wrong_winner() -> None:
+    try:
+        validate_completed_trick_sequence(
+            completed_tricks=[
+                {
+                    "cards": ["S7", "S8", "SA"],
+                    "players": ["left", "right", "me"],
+                    "winner_player": "left",
+                }
+            ],
+            current_trick=[],
+            trick_leader="unknown",
+            player_role="unknown",
+            game_type="grand",
+        )
+    except ValueError as error:
+        assert "winner_player is inconsistent with trick rules" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")

@@ -326,6 +326,7 @@ def validate_completed_trick_sequence(
     current_trick: list[str],
     trick_leader: str,
     player_role: str = "unknown",
+    game_type: str = "grand",
 ) -> None:
     """
     Validates completed trick sequence consistency.
@@ -343,6 +344,10 @@ def validate_completed_trick_sequence(
         validate_completed_trick_winner_consistency(
             completed_trick=completed_trick,
             player_role=player_role,
+        )
+        validate_completed_trick_rule_winner(
+            completed_trick=completed_trick,
+            game_type=game_type,
         )
 
         players = completed_trick.get("players")
@@ -458,4 +463,35 @@ def validate_completed_trick_winner_consistency(
         raise ValueError(
             "completed_trick winner_role is inconsistent with winner_player: "
             f"expected {expected_winner_role}, got {winner_role}."
+        )
+
+def validate_completed_trick_rule_winner(
+    completed_trick: dict,
+    game_type: str,
+) -> None:
+    """
+    Validates that winner_player matches the actual trick winner by rules.
+
+    This check only runs when cards, players, and winner_player are available.
+    Older partial completed_trick inputs remain supported.
+    """
+    validate_completed_trick_structure(completed_trick)
+
+    cards = completed_trick.get("cards")
+    players = completed_trick.get("players")
+    winner_player = completed_trick.get("winner_player")
+
+    if players is None or winner_player is None:
+        return
+
+    winner_index = get_trick_winner(
+        trick=cards,
+        game_type=game_type,
+    )
+    expected_winner_player = players[winner_index]
+
+    if winner_player != expected_winner_player:
+        raise ValueError(
+            "completed_trick winner_player is inconsistent with trick rules: "
+            f"expected {expected_winner_player}, got {winner_player}."
         )
