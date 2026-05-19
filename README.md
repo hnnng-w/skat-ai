@@ -99,8 +99,11 @@ The project includes example JSON input files in the `examples/` folder.
 
 ```text
 examples/
+  grand_claimed_remaining_tricks.json
   grand_complete_declarer_loss.json
   grand_complete_declarer_win.json
+  grand_declarer_conceded_remaining_tricks.json
+  grand_defenders_conceded_remaining_tricks.json
   grand_leading.json
   grand_midgame_declarer_ahead.json
   grand_midgame_defenders_ahead.json
@@ -137,6 +140,24 @@ python main.py --input examples/grand_post_game_known_skat.json --output outputs
 ```
 
 The examples are used as regression tests. They are expected to remain valid and to produce stable key output values such as score summaries, game values, settlement status, and metadata output.
+
+Run a declarer-claim example:
+
+```powershell
+python main.py --input examples/grand_claimed_remaining_tricks.json --output outputs/claim_test.json
+```
+
+Run a declarer-concession example:
+
+```powershell
+python main.py --input examples/grand_declarer_conceded_remaining_tricks.json --output outputs/declarer_concession_test.json
+```
+
+Run a defenders-concession example:
+
+```powershell
+python main.py --input examples/grand_defenders_conceded_remaining_tricks.json --output outputs/defenders_concession_test.json
+```
 
 ## Input JSON format
 
@@ -186,6 +207,7 @@ Important fields:
 - `sample_count`: number of simulation samples.
 - `random_seed`: optional seed for reproducible simulations.
 - `use_basic_opponent_strategy`: whether basic opponent strategy is used during simulation.
+- `game_end_reason`: describes whether the game is still running, completed normally, or ended early through claim/concession.
 
 ## Optional analysis metadata
 
@@ -249,6 +271,12 @@ Supported `game_end_reason` values:
 - `declarer_claimed_remaining_tricks`
 - `declarer_conceded_remaining_tricks`
 - `defenders_conceded_remaining_tricks`
+
+`game_end_reason` must be consistent with the current card-point state:
+
+- use `not_ended` while card points are still remaining
+- use `normal_completion` only when all 120 card points are assigned
+- use claim/concession reasons only when card points are still remaining
 
 Optional game declaration fields:
 
@@ -806,9 +834,81 @@ Raw Schneider and Schwarz indicators are based on the currently known card point
 
 Effective Schneider and Schwarz indicators are only final once all 120 card points have been assigned. Until then, they return `pending`.
 
+### Game-end handling
+
+The tool supports explicit game-end reasons through `game_end_reason`.
+
+This field describes whether the game is still running, completed normally, or ended early through claim or concession.
+
+Supported values:
+
+| Value | Meaning |
+|---|---|
+| `not_ended` | The game is still in progress. |
+| `normal_completion` | The game ended normally and all 120 card points are assigned. |
+| `declarer_claimed_remaining_tricks` | The declarer claimed the remaining tricks. |
+| `declarer_conceded_remaining_tricks` | The declarer conceded the remaining tricks. |
+| `defenders_conceded_remaining_tricks` | The defenders conceded the remaining tricks. |
+
+The original card-point result is stored in `game_result_summary`.
+
+The game-end-adjusted result is stored in `adjusted_game_result_summary`.
+
+`final_settlement_summary` uses `adjusted_game_result_summary`, not the raw `game_result_summary`.
+
+#### Remaining-point assignment
+
+When a game ends early, remaining card points are assigned according to `game_end_reason`.
+
+| game_end_reason | Remaining points go to |
+|---|---|
+| `declarer_claimed_remaining_tricks` | declarer |
+| `defenders_conceded_remaining_tricks` | declarer |
+| `declarer_conceded_remaining_tricks` | defenders |
+| `not_ended` | no assignment |
+| `normal_completion` | no assignment |
+
+Example:
+
+```json
+{
+  "game_result_summary": {
+    "declarer_points": 46,
+    "defender_points": 45,
+    "points_remaining": 29,
+    "is_complete": false
+  },
+  "adjusted_game_result_summary": {
+    "declarer_points": 75,
+    "defender_points": 45,
+    "points_remaining": 0,
+    "is_complete": true,
+    "winner": "declarer",
+    "game_end_reason": "declarer_claimed_remaining_tricks",
+    "remaining_points_recipient": "declarer",
+    "remaining_points_assigned": 29
+  }
+}
+```
+
+#### Game-end validation
+
+The engine validates `game_end_reason` against the known card-point state.
+
+Rules:
+
+- `not_ended` requires remaining card points.
+- `normal_completion` requires zero remaining card points.
+- claim/concession reasons require remaining card points.
+- unknown `game_end_reason` values are rejected.
+
+This prevents inconsistent inputs such as a normally completed game with only 86 assigned card points, or an unfinished game with all 120 points already assigned.
+
 ### Final settlement summary
 
-`final_settlement_summary` combines `game_value_summary` and `game_result_summary`.
+`final_settlement_summary` combines `game_value_summary` and `adjusted_game_result_summary`.
+
+This means early game-end reasons such as claim or concession can affect the final settlement.
 
 It calculates a basic settlement score if both the game value and final card-point result are complete.
 
@@ -983,21 +1083,24 @@ python main.py --input examples/grand_second_position.json --multi-step 2 --comp
 
 Top-level fields may include:
 
-- `input_file`
-- `position`
-- `settings`
-- `analysis_metadata`
-- `legal_cards`
-- `analysis_report`
-- `strategic_summary`
-- `score_summary`
-- `recommendation`
-- `multi_step_result`
-- `policy_comparison_result`
-- `game_declaration`
-- `game_value_summary`
-- `game_result_summary`
-- `final_settlement_summary`
+- input_file
+- position
+- settings
+- opponent_policy_settings
+- profile_preset_settings
+- analysis_metadata
+- game_declaration
+- game_value_summary
+- legal_cards
+- analysis_report
+- strategic_summary
+- score_summary
+- game_result_summary
+- adjusted_game_result_summary
+- final_settlement_summary
+- recommendation
+- multi_step_result
+- policy_comparison_result
 
 `multi_step_result` contains a serializable multi-step summary, context summary, final state, and step list.
 
@@ -1103,6 +1206,7 @@ Key modules:
 - `strategic_metadata.py`: analysis mode, skat visibility, and game-end metadata
 - `player_profile.py`: placeholder structure for future opponent modeling
 - `game_history.py`: completed-trick representation, score extraction, and completed-trick consistency validation
+- `game_end.py`: game-end reason handling and remaining-point assignment for claim/concession scenarios
 
 ## Known limitations
 
@@ -1140,6 +1244,10 @@ Current limitations:
 - Completed trick validation checks implemented rule logic, but the engine still depends on the correctness of the provided position context.
 - Older completed-trick inputs without `players` or `winner_player` are supported but cannot be fully validated.
 - The engine validates completed trick winners according to the implemented rules, but it does not yet infer missing completed-trick metadata automatically.
+- Claim and concession handling currently assigns all remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
+- The engine does not yet verify whether a claim was strategically or legally justified.
+- The engine does not yet model player agreement or disputes around claim/concession.
+- Game-end handling affects card-point settlement, but full overbid handling is still not implemented.
 
 ## Running tests
 
