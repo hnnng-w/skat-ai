@@ -107,6 +107,9 @@ examples/
   grand_third_position.json
   hearts_leading.json
   null_second_position.json
+  grand_midgame_declarer_ahead.json
+  grand_midgame_defenders_ahead.json
+  grand_post_game_known_skat.json
 ```
 
 Run an example:
@@ -120,6 +123,10 @@ Run another example:
 ```powershell
 python main.py --input examples/null_second_position.json
 ```
+
+The mid-game examples include completed tricks and partial card-point totals.
+
+The post-game example includes known skat cards, player profiles, and profile-based opponent policy presets.
 
 ## Input JSON format
 

@@ -1021,3 +1021,65 @@ def test_build_analysis_result_complete_declarer_loss_settlement() -> None:
     assert result["final_settlement_summary"]["game_value"] == 72
     assert result["final_settlement_summary"]["settlement_score"] == -144
     assert result["final_settlement_summary"]["is_loss"] is True
+
+def test_build_analysis_result_midgame_declarer_ahead() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_midgame_declarer_ahead.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["score_summary"]["completed_trick_declarer_points"] == 31
+    assert result["score_summary"]["completed_trick_defender_points"] == 25
+    assert result["score_summary"]["total_declarer_points"] == 31
+    assert result["score_summary"]["total_defender_points"] == 25
+    assert result["game_value_summary"]["game_value"] == 72
+    assert result["final_settlement_summary"]["is_complete"] is False
+
+
+def test_build_analysis_result_midgame_defenders_ahead() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_midgame_defenders_ahead.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["score_summary"]["completed_trick_declarer_points"] == 6
+    assert result["score_summary"]["completed_trick_defender_points"] == 50
+    assert result["score_summary"]["total_declarer_points"] == 6
+    assert result["score_summary"]["total_defender_points"] == 50
+    assert result["game_value_summary"]["game_value"] == 48
+    assert result["final_settlement_summary"]["is_complete"] is False
+
+
+def test_build_analysis_result_post_game_known_skat() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_post_game_known_skat.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["analysis_metadata"]["strategic_metadata"] == {
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_end_reason": "normal_completion",
+    }
+    assert result["position"]["skat"] == ["C7", "D8"]
+    assert result["score_summary"]["total_declarer_points"] == 51
+    assert result["score_summary"]["total_defender_points"] == 35
+    assert result["game_value_summary"]["game_value"] == 72
+    assert (
+        result["analysis_metadata"]["recommended_opponent_policy_presets"][
+            "left_player_recommended_preset"
+        ]
+        == "cautious_defender"
+    )
+    assert (
+        result["analysis_metadata"]["recommended_opponent_policy_presets"][
+            "right_player_recommended_preset"
+        ]
+        == "aggressive_points"
+    )

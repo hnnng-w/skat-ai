@@ -1,0 +1,44 @@
+{
+  "game_type": "grand",
+  "player_role": "declarer",
+  "player_position": "rearhand",
+  "trick_leader": "right",
+  "hand": ["SA", "S10", "H9", "D7"],
+  "current_trick": ["H7", "H10"],
+  "played_cards": [],
+  "completed_tricks": [
+    {
+      "cards": ["CJ", "SJ", "HJ"],
+      "players": ["me", "left", "right"],
+      "winner_role": "declarer",
+      "winner_player": "me"
+    },
+    {
+      "cards": ["DA", "D10", "DK"],
+      "players": ["left", "right", "me"],
+      "winner_role": "defenders",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["CA", "C10", "CK"],
+      "players": ["right", "me", "left"],
+      "winner_role": "defenders",
+      "winner_player": "right"
+    }
+  ],
+  "declarer_points": 0,
+  "defender_points": 0,
+  "next_player": "me",
+  "skat": [],
+  "left_hand_size": 4,
+  "right_hand_size": 4,
+  "sample_count": 500,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true,
+  "hand_game": false,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": 1,
+  "opponent_policy_preset": "cautious_defender"
+}
