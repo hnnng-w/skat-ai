@@ -96,6 +96,79 @@ def build_example_analysis_result(file_name: str) -> dict:
         opponent_strategy_override="basic",
     )
 
+def assert_adjusted_result_metadata(
+    result: dict,
+    game_end_reason: str,
+    remaining_points_recipient: str | None,
+    remaining_points_assigned: int,
+) -> None:
+    adjusted_result = result["adjusted_game_result_summary"]
+
+    assert adjusted_result["game_end_reason"] == game_end_reason
+    assert adjusted_result["remaining_points_recipient"] == remaining_points_recipient
+    assert adjusted_result["remaining_points_assigned"] == remaining_points_assigned
+
+
+def assert_final_settlement_uses_adjusted_result(
+    result: dict,
+) -> None:
+    adjusted_result = result["adjusted_game_result_summary"]
+    final_settlement = result["final_settlement_summary"]
+
+    if not final_settlement["is_complete"]:
+        return
+
+    assert final_settlement["winner"] == adjusted_result["winner"]
+    assert final_settlement["declarer_won_by_card_points"] == (
+        adjusted_result["winner"] == "declarer"
+    )
+
+def test_not_ended_example_adjusted_result_invariants() -> None:
+    result = build_example_analysis_result("grand_second_position.json")
+
+    assert result["game_result_summary"]["is_complete"] is False
+    assert result["adjusted_game_result_summary"]["is_complete"] is False
+
+    assert result["adjusted_game_result_summary"]["declarer_points"] == (
+        result["game_result_summary"]["declarer_points"]
+    )
+    assert result["adjusted_game_result_summary"]["defender_points"] == (
+        result["game_result_summary"]["defender_points"]
+    )
+    assert result["adjusted_game_result_summary"]["points_remaining"] == (
+        result["game_result_summary"]["points_remaining"]
+    )
+
+    assert_adjusted_result_metadata(
+        result=result,
+        game_end_reason="not_ended",
+        remaining_points_recipient=None,
+        remaining_points_assigned=0,
+    )
+
+def test_normal_completion_example_adjusted_result_invariants() -> None:
+    result = build_example_analysis_result("grand_complete_declarer_win.json")
+
+    assert result["game_result_summary"]["is_complete"] is True
+    assert result["adjusted_game_result_summary"]["is_complete"] is True
+
+    assert result["adjusted_game_result_summary"]["declarer_points"] == (
+        result["game_result_summary"]["declarer_points"]
+    )
+    assert result["adjusted_game_result_summary"]["defender_points"] == (
+        result["game_result_summary"]["defender_points"]
+    )
+    assert result["adjusted_game_result_summary"]["points_remaining"] == 0
+
+    assert_adjusted_result_metadata(
+        result=result,
+        game_end_reason="normal_completion",
+        remaining_points_recipient=None,
+        remaining_points_assigned=0,
+    )
+
+    assert_final_settlement_uses_adjusted_result(result)
+
 def test_complete_declarer_win_example_settlement_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_win.json")
 
@@ -228,19 +301,25 @@ def test_claimed_remaining_tricks_example_adjusts_result() -> None:
     assert result["adjusted_game_result_summary"]["points_remaining"] == 0
     assert result["adjusted_game_result_summary"]["is_complete"] is True
     assert result["adjusted_game_result_summary"]["winner"] == "declarer"
-    assert (
-        result["adjusted_game_result_summary"]["game_end_reason"]
-        == "declarer_claimed_remaining_tricks"
+    assert_adjusted_result_metadata(
+        result=result,
+        game_end_reason="declarer_claimed_remaining_tricks",
+        remaining_points_recipient="declarer",
+        remaining_points_assigned=29,
     )
-    assert result["adjusted_game_result_summary"]["remaining_points_recipient"] == (
-        "declarer"
-    )
-    assert result["adjusted_game_result_summary"]["remaining_points_assigned"] == 29
 
     assert result["final_settlement_summary"]["is_complete"] is True
     assert result["final_settlement_summary"]["winner"] == "declarer"
     assert result["final_settlement_summary"]["settlement_score"] == 72
     assert result["final_settlement_summary"]["is_loss"] is False
+    assert_adjusted_result_metadata(
+        result=result,
+        game_end_reason="declarer_claimed_remaining_tricks",
+        remaining_points_recipient="declarer",
+        remaining_points_assigned=29,
+    )
+
+    assert_final_settlement_uses_adjusted_result(result)
 
 def test_declarer_conceded_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result(
@@ -270,6 +349,14 @@ def test_declarer_conceded_remaining_tricks_example_adjusts_result() -> None:
     assert result["final_settlement_summary"]["winner"] == "defenders"
     assert result["final_settlement_summary"]["settlement_score"] == -144
     assert result["final_settlement_summary"]["is_loss"] is True
+    assert_adjusted_result_metadata(
+        result=result,
+        game_end_reason="declarer_conceded_remaining_tricks",
+        remaining_points_recipient="defenders",
+        remaining_points_assigned=29,
+    )
+
+    assert_final_settlement_uses_adjusted_result(result)
 
 def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result(
@@ -299,3 +386,11 @@ def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
     assert result["final_settlement_summary"]["winner"] == "declarer"
     assert result["final_settlement_summary"]["settlement_score"] == 72
     assert result["final_settlement_summary"]["is_loss"] is False
+    assert_adjusted_result_metadata(
+        result=result,
+        game_end_reason="defenders_conceded_remaining_tricks",
+        remaining_points_recipient="declarer",
+        remaining_points_assigned=29,
+    )
+
+    assert_final_settlement_uses_adjusted_result(result)
