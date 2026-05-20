@@ -1,6 +1,7 @@
 from skat_ai.performance_rating import (
     build_performance_rating_summary,
     get_game_outcome_for_rating,
+    get_performance_rating_unsupported_reason,
 )
 
 
@@ -97,6 +98,22 @@ def test_build_performance_rating_summary_accepts_placeholder_rating_system() ->
     assert summary["game_outcome"] == "declarer_win"
 
 
+def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> None:
+    summary = build_performance_rating_summary(
+        final_settlement_summary={
+            "is_complete": True,
+            "is_loss": False,
+            "settlement_score": 72,
+        },
+        rating_system="isko_list",
+    )
+
+    assert summary["is_implemented"] is False
+    assert summary["rating_system"] == "isko_list"
+    assert summary["game_outcome"] == "declarer_win"
+    assert summary["rating_score"] is None
+    assert summary["unsupported_reason"] == "isko_list_rating_not_implemented"
+
 def test_build_performance_rating_summary_rejects_unknown_rating_system() -> None:
     try:
         build_performance_rating_summary(
@@ -105,9 +122,26 @@ def test_build_performance_rating_summary_rejects_unknown_rating_system() -> Non
                 "is_loss": False,
                 "settlement_score": 72,
             },
-            rating_system="isko_list",
+            rating_system="unknown_system",
         )
     except ValueError as error:
         assert "Unknown performance rating system" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_get_performance_rating_unsupported_reason_for_default() -> None:
+    assert get_performance_rating_unsupported_reason(None) == (
+        "performance_rating_not_implemented"
+    )
+
+
+def test_get_performance_rating_unsupported_reason_for_placeholder() -> None:
+    assert get_performance_rating_unsupported_reason("placeholder") == (
+        "performance_rating_not_implemented"
+    )
+
+
+def test_get_performance_rating_unsupported_reason_for_isko_list() -> None:
+    assert get_performance_rating_unsupported_reason("isko_list") == (
+        "isko_list_rating_not_implemented"
+    )

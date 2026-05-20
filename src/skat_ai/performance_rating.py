@@ -2,6 +2,7 @@ from typing import Any
 
 SUPPORTED_PERFORMANCE_RATING_SYSTEMS = [
     "placeholder",
+    "isko_list",
 ]
 
 
@@ -24,6 +25,17 @@ def get_game_outcome_for_rating(
 
     return "unknown"
 
+def get_performance_rating_unsupported_reason(
+    rating_system: str | None,
+) -> str:
+    """
+    Returns why performance rating is not implemented yet.
+    """
+    if rating_system == "isko_list":
+        return "isko_list_rating_not_implemented"
+
+    return "performance_rating_not_implemented"
+
 
 def build_performance_rating_summary(
     final_settlement_summary: dict[str, Any],
@@ -35,7 +47,10 @@ def build_performance_rating_summary(
     Performance rating is intentionally separated from individual game settlement.
     It will later cover list, series, and tournament scoring.
     """
-    if rating_system is not None and rating_system not in SUPPORTED_PERFORMANCE_RATING_SYSTEMS:
+    if (
+        rating_system is not None
+        and rating_system not in SUPPORTED_PERFORMANCE_RATING_SYSTEMS
+    ):
         raise ValueError(f"Unknown performance rating system: {rating_system}")
 
     game_outcome = get_game_outcome_for_rating(final_settlement_summary)
@@ -49,7 +64,9 @@ def build_performance_rating_summary(
         "rating_score": None,
         "declarer_rating_points": None,
         "defender_rating_points": None,
-        "unsupported_reason": "performance_rating_not_implemented",
+        "unsupported_reason": get_performance_rating_unsupported_reason(
+            rating_system
+        ),
         "notes": [
             "Performance rating is separate from individual game settlement.",
             "List, series, and tournament rating are not implemented yet.",
