@@ -47,11 +47,7 @@ def build_performance_rating_summary(
     Performance rating is intentionally separated from individual game settlement.
     It will later cover list, series, and tournament scoring.
     """
-    if (
-        rating_system is not None
-        and rating_system not in SUPPORTED_PERFORMANCE_RATING_SYSTEMS
-    ):
-        raise ValueError(f"Unknown performance rating system: {rating_system}")
+    validate_performance_rating_system(rating_system)
 
     game_outcome = get_game_outcome_for_rating(final_settlement_summary)
 
@@ -73,3 +69,15 @@ def build_performance_rating_summary(
             "final_settlement_summary remains the source for single-game settlement.",
         ],
     }
+
+def validate_performance_rating_system(
+    rating_system: str | None,
+) -> None:
+    """
+    Validates the optional performance rating system.
+    """
+    if rating_system is None:
+        return
+
+    if rating_system not in SUPPORTED_PERFORMANCE_RATING_SYSTEMS:
+        raise ValueError(f"Unknown performance rating system: {rating_system}")

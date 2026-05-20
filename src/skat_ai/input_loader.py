@@ -116,3 +116,11 @@ def get_game_declaration_from_input(
     Extracts game declaration metadata from input data.
     """
     return build_game_declaration_from_input(data)
+
+def get_performance_rating_system_from_input(
+    data: dict[str, Any],
+) -> str | None:
+    """
+    Extracts the optional performance rating system from input data.
+    """
+    return data.get("performance_rating_system")

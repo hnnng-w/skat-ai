@@ -198,9 +198,6 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["settlement_score"] == 72
     assert result["performance_rating_summary"]["rating_score"] is None
     assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
-    assert result["performance_rating_summary"]["unsupported_reason"] == (
-        "performance_rating_not_implemented"
-    )
     assert result["overbid_summary"] == {
         "bid_value": 72,
         "game_value": 72,
@@ -209,6 +206,14 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
         "required_game_value": 72,
         "status": "not_overbid",
     }
+    assert result["performance_rating_summary"]["rating_system"] == "isko_list"
+    assert result["performance_rating_summary"]["is_implemented"] is False
+    assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
+    assert result["performance_rating_summary"]["settlement_score"] == 72
+    assert result["performance_rating_summary"]["rating_score"] is None
+    assert result["performance_rating_summary"]["unsupported_reason"] == (
+        "isko_list_rating_not_implemented"
+    )
 
 def test_complete_declarer_loss_example_settlement_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_loss.json")

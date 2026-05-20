@@ -19,6 +19,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_opponent_policy_settings_from_input,
+    get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
     load_position_from_json,
@@ -118,6 +119,7 @@ def build_analysis_result(
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
     game_declaration = get_game_declaration_from_input(data)
+    performance_rating_system = get_performance_rating_system_from_input(data)
     game_value_summary = build_game_value_summary(game_declaration)
     overbid_summary = build_overbid_summary(
         game_value_summary=game_value_summary,
@@ -180,6 +182,7 @@ def build_analysis_result(
     )
     performance_rating_summary = build_performance_rating_summary(
         final_settlement_summary=final_settlement_summary,
+        rating_system=performance_rating_system,
     )
 
     return {

@@ -3,6 +3,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_opponent_policy_settings_from_input,
+    get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
 )
@@ -267,3 +268,14 @@ def test_get_game_declaration_from_input_reads_bid_value() -> None:
     declaration = get_game_declaration_from_input(data)
 
     assert declaration.bid_value == 72
+
+def test_get_performance_rating_system_from_input_defaults_to_none() -> None:
+    assert get_performance_rating_system_from_input({}) is None
+
+
+def test_get_performance_rating_system_from_input_reads_value() -> None:
+    assert get_performance_rating_system_from_input(
+        {
+            "performance_rating_system": "isko_list",
+        }
+    ) == "isko_list"

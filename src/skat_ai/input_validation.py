@@ -5,6 +5,7 @@ from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.game_history import validate_completed_trick_sequence
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
+from skat_ai.performance_rating import validate_performance_rating_system
 from skat_ai.rules import GAME_TYPES
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
@@ -220,6 +221,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_opponent_policies(data)
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
+    validate_performance_rating_system(data.get("performance_rating_system"))
     validate_completed_trick_sequence(
         completed_tricks=data.get("completed_tricks", []),
         current_trick=data.get("current_trick", []),

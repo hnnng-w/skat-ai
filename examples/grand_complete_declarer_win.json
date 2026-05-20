@@ -22,5 +22,6 @@
   "schneider_announced": false,
   "schwarz_announced": false,
   "matadors": 2,
-  "bid_value": 72
+  "bid_value": 72,
+  "performance_rating_system": "isko_list"
 }

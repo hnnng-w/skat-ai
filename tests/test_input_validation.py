@@ -766,3 +766,56 @@ def test_validate_position_input_rejects_non_integer_bid_value() -> None:
         assert "bid_value must be a positive integer" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_position_input_accepts_known_performance_rating_system() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "performance_rating_system": "isko_list",
+    }
+
+    validate_position_input(data)
+
+def test_validate_position_input_rejects_unknown_performance_rating_system() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "performance_rating_system": "unknown_system",
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "Unknown performance rating system" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
