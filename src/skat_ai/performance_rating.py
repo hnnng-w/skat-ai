@@ -54,6 +54,29 @@ def is_performance_rating_partially_implemented(
     """
     return rating_system == "isko_list"
 
+def get_performance_rating_implemented_scope(
+    rating_system: str | None,
+) -> str | None:
+    """
+    Returns the scope that is currently implemented for the selected rating system.
+    """
+    if rating_system == "isko_list":
+        return "declarer_single_game_rating"
+
+    return None
+
+
+def get_performance_rating_unsupported_scope(
+    rating_system: str | None,
+) -> str:
+    """
+    Returns the scope that is not implemented yet for the selected rating system.
+    """
+    if rating_system == "isko_list":
+        return "full_list_series_tournament_rating"
+
+    return "performance_rating_not_implemented"
+
 def get_performance_rating_unsupported_reason(
     rating_system: str | None,
 ) -> str:
@@ -108,6 +131,12 @@ def build_performance_rating_summary(
     return {
         "is_implemented": False,
         "is_partially_implemented": is_performance_rating_partially_implemented(
+            rating_system
+        ),
+        "implemented_scope": get_performance_rating_implemented_scope(
+            rating_system
+        ),
+        "unsupported_scope": get_performance_rating_unsupported_scope(
             rating_system
         ),
         "rating_system": rating_system,

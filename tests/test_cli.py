@@ -249,6 +249,8 @@ def test_build_analysis_result_includes_performance_rating_summary() -> None:
 
     assert result["performance_rating_summary"] == {
         "is_implemented": False,
+        "implemented_scope": None,
+        "unsupported_scope": "performance_rating_not_implemented",
         "rating_system": None,
         "basis": "individual_game_settlement",
         "game_outcome": "incomplete",

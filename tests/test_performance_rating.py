@@ -4,7 +4,9 @@ from skat_ai.performance_rating import (
     calculate_isko_declarer_rating_points,
     calculate_isko_declarer_rating_score,
     get_game_outcome_for_rating,
+    get_performance_rating_implemented_scope,
     get_performance_rating_unsupported_reason,
+    get_performance_rating_unsupported_scope,
     is_performance_rating_partially_implemented,
 )
 
@@ -57,6 +59,8 @@ def test_build_performance_rating_summary_for_complete_settlement() -> None:
     assert summary == {
         "is_implemented": False,
         "is_partially_implemented": False,
+        "implemented_scope": None,
+        "unsupported_scope": "performance_rating_not_implemented",
         "rating_system": None,
         "table_player_count": 3,
         "basis": "individual_game_settlement",
@@ -106,6 +110,8 @@ def test_build_performance_rating_summary_accepts_placeholder_rating_system() ->
     assert summary == {
         "is_implemented": False,
         "is_partially_implemented": False,
+        "implemented_scope": None,
+        "unsupported_scope": "performance_rating_not_implemented",
         "rating_system": "placeholder",
         "table_player_count": 3,
         "basis": "individual_game_settlement",
@@ -139,6 +145,8 @@ def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> N
     assert summary == {
         "is_implemented": False,
         "is_partially_implemented": True,
+        "implemented_scope": "declarer_single_game_rating",
+        "unsupported_scope": "full_list_series_tournament_rating",
         "rating_system": "isko_list",
         "table_player_count": 3,
         "basis": "individual_game_settlement",
@@ -171,6 +179,8 @@ def test_build_performance_rating_summary_for_isko_declarer_loss() -> None:
     assert summary == {
         "is_implemented": False,
         "is_partially_implemented": True,
+        "implemented_scope": "declarer_single_game_rating",
+        "unsupported_scope": "full_list_series_tournament_rating",
         "rating_system": "isko_list",
         "table_player_count": 3,
         "basis": "individual_game_settlement",
@@ -305,3 +315,34 @@ def test_build_performance_rating_summary_rating_score_aliases_declarer_score() 
     assert summary["rating_score"] == 122
     assert summary["declarer_rating_score"] == 122
     assert summary["rating_score"] == summary["declarer_rating_score"]
+
+def test_get_performance_rating_implemented_scope_for_isko_list() -> None:
+    assert get_performance_rating_implemented_scope("isko_list") == (
+        "declarer_single_game_rating"
+    )
+
+
+def test_get_performance_rating_implemented_scope_for_placeholder() -> None:
+    assert get_performance_rating_implemented_scope("placeholder") is None
+
+
+def test_get_performance_rating_implemented_scope_for_none() -> None:
+    assert get_performance_rating_implemented_scope(None) is None
+
+
+def test_get_performance_rating_unsupported_scope_for_isko_list() -> None:
+    assert get_performance_rating_unsupported_scope("isko_list") == (
+        "full_list_series_tournament_rating"
+    )
+
+
+def test_get_performance_rating_unsupported_scope_for_placeholder() -> None:
+    assert get_performance_rating_unsupported_scope("placeholder") == (
+        "performance_rating_not_implemented"
+    )
+
+
+def test_get_performance_rating_unsupported_scope_for_none() -> None:
+    assert get_performance_rating_unsupported_scope(None) == (
+        "performance_rating_not_implemented"
+    )

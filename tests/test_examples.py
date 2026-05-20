@@ -206,6 +206,12 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
 
     assert result["performance_rating_summary"]["is_implemented"] is False
     assert result["performance_rating_summary"]["is_partially_implemented"] is True
+    assert result["performance_rating_summary"]["implemented_scope"] == (
+        "declarer_single_game_rating"
+    )
+    assert result["performance_rating_summary"]["unsupported_scope"] == (
+        "full_list_series_tournament_rating"
+    )
     assert result["performance_rating_summary"]["rating_system"] == "isko_list"
     assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
     assert result["performance_rating_summary"]["settlement_score"] == 72
@@ -248,6 +254,12 @@ def test_complete_declarer_loss_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["counterparty_rating_points"] == 40
     assert result["performance_rating_summary"]["defender_rating_points"] == 40
     assert result["performance_rating_summary"]["is_partially_implemented"] is True
+    assert result["performance_rating_summary"]["implemented_scope"] == (
+        "declarer_single_game_rating"
+    )
+    assert result["performance_rating_summary"]["unsupported_scope"] == (
+        "full_list_series_tournament_rating"
+    )
 
 def test_midgame_declarer_ahead_example_score_invariants() -> None:
     result = build_example_analysis_result("grand_midgame_declarer_ahead.json")
