@@ -63,12 +63,14 @@ def test_build_performance_rating_summary_for_complete_settlement() -> None:
         "game_outcome": "declarer_win",
         "settlement_score": 72,
         "rating_score": None,
+        "declarer_rating_score": None,
         "declarer_rating_points": None,
         "counterparty_rating_points": None,
         "defender_rating_points": None,
         "unsupported_reason": "performance_rating_not_implemented",
         "notes": [
             "Performance rating is separate from individual game settlement.",
+            "rating_score currently represents the declarer's rating score.",
             "List, series, and tournament rating are not fully implemented yet.",
             "final_settlement_summary remains the source for single-game settlement.",
         ],
@@ -105,17 +107,19 @@ def test_build_performance_rating_summary_accepts_placeholder_rating_system() ->
         "is_implemented": False,
         "is_partially_implemented": False,
         "rating_system": "placeholder",
+        "table_player_count": 3,
         "basis": "individual_game_settlement",
         "game_outcome": "declarer_win",
         "settlement_score": 72,
         "rating_score": None,
+        "declarer_rating_score": None,
         "declarer_rating_points": None,
+        "counterparty_rating_points": None,
         "defender_rating_points": None,
         "unsupported_reason": "performance_rating_not_implemented",
-        "table_player_count": 3,
-        "counterparty_rating_points": None,
         "notes": [
             "Performance rating is separate from individual game settlement.",
+            "rating_score currently represents the declarer's rating score.",
             "List, series, and tournament rating are not fully implemented yet.",
             "final_settlement_summary remains the source for single-game settlement.",
         ],
@@ -141,12 +145,14 @@ def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> N
         "game_outcome": "declarer_win",
         "settlement_score": 72,
         "rating_score": 122,
+        "declarer_rating_score": 122,
         "declarer_rating_points": 50,
         "counterparty_rating_points": 0,
         "defender_rating_points": 0,
         "unsupported_reason": "isko_list_rating_not_implemented",
         "notes": [
             "Performance rating is separate from individual game settlement.",
+            "rating_score currently represents the declarer's rating score.",
             "List, series, and tournament rating are not fully implemented yet.",
             "final_settlement_summary remains the source for single-game settlement.",
         ],
@@ -162,17 +168,27 @@ def test_build_performance_rating_summary_for_isko_declarer_loss() -> None:
         rating_system="isko_list",
     )
 
-    assert summary["is_implemented"] is False
-    assert summary["is_partially_implemented"] is True
-    assert summary["rating_system"] == "isko_list"
-    assert summary["table_player_count"] == 3
-    assert summary["game_outcome"] == "declarer_loss"
-    assert summary["settlement_score"] == -144
-    assert summary["rating_score"] == -194
-    assert summary["declarer_rating_points"] == -50
-    assert summary["counterparty_rating_points"] == 40
-    assert summary["defender_rating_points"] == 40
-    assert summary["unsupported_reason"] == "isko_list_rating_not_implemented"
+    assert summary == {
+        "is_implemented": False,
+        "is_partially_implemented": True,
+        "rating_system": "isko_list",
+        "table_player_count": 3,
+        "basis": "individual_game_settlement",
+        "game_outcome": "declarer_loss",
+        "settlement_score": -144,
+        "rating_score": -194,
+        "declarer_rating_score": -194,
+        "declarer_rating_points": -50,
+        "counterparty_rating_points": 40,
+        "defender_rating_points": 40,
+        "unsupported_reason": "isko_list_rating_not_implemented",
+        "notes": [
+            "Performance rating is separate from individual game settlement.",
+            "rating_score currently represents the declarer's rating score.",
+            "List, series, and tournament rating are not fully implemented yet.",
+            "final_settlement_summary remains the source for single-game settlement.",
+        ],
+    }
 
 def test_build_performance_rating_summary_rejects_unknown_rating_system() -> None:
     try:
@@ -275,3 +291,17 @@ def test_calculate_isko_declarer_rating_score_without_declarer_points() -> None:
         settlement_score=72,
         declarer_rating_points=None,
     ) is None
+
+def test_build_performance_rating_summary_rating_score_aliases_declarer_score() -> None:
+    summary = build_performance_rating_summary(
+        final_settlement_summary={
+            "is_complete": True,
+            "is_loss": False,
+            "settlement_score": 72,
+        },
+        rating_system="isko_list",
+    )
+
+    assert summary["rating_score"] == 122
+    assert summary["declarer_rating_score"] == 122
+    assert summary["rating_score"] == summary["declarer_rating_score"]

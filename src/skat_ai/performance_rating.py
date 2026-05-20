@@ -91,10 +91,16 @@ def build_performance_rating_summary(
             game_outcome
         )
     
-    rating_score = None
+    declarer_rating_score = None
 
     if rating_system == "isko_list":
-        rating_score = calculate_isko_declarer_rating_score(
+        declarer_rating_points = calculate_isko_declarer_rating_points(
+            game_outcome
+        )
+        counterparty_rating_points = calculate_isko_counterparty_rating_points(
+            game_outcome
+        )
+        declarer_rating_score = calculate_isko_declarer_rating_score(
             settlement_score=final_settlement_summary["settlement_score"],
             declarer_rating_points=declarer_rating_points,
         )
@@ -109,7 +115,8 @@ def build_performance_rating_summary(
         "basis": "individual_game_settlement",
         "game_outcome": game_outcome,
         "settlement_score": final_settlement_summary["settlement_score"],
-        "rating_score": rating_score,
+        "rating_score": declarer_rating_score,
+        "declarer_rating_score": declarer_rating_score,
         "declarer_rating_points": declarer_rating_points,
         "counterparty_rating_points": counterparty_rating_points,
         "defender_rating_points": counterparty_rating_points,
@@ -118,6 +125,7 @@ def build_performance_rating_summary(
         ),
         "notes": [
             "Performance rating is separate from individual game settlement.",
+            "rating_score currently represents the declarer's rating score.",
             "List, series, and tournament rating are not fully implemented yet.",
             "final_settlement_summary remains the source for single-game settlement.",
         ],

@@ -254,6 +254,7 @@ def test_build_analysis_result_includes_performance_rating_summary() -> None:
         "game_outcome": "incomplete",
         "settlement_score": None,
         "rating_score": None,
+        "declarer_rating_score": None,
         "declarer_rating_points": None,
         "defender_rating_points": None,
         "unsupported_reason": "performance_rating_not_implemented",
@@ -262,6 +263,7 @@ def test_build_analysis_result_includes_performance_rating_summary() -> None:
         "counterparty_rating_points": None,
         "notes": [
             "Performance rating is separate from individual game settlement.",
+            "rating_score currently represents the declarer's rating score.",
             "List, series, and tournament rating are not fully implemented yet.",
             "final_settlement_summary remains the source for single-game settlement.",
         ],

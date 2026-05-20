@@ -210,6 +210,7 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
     assert result["performance_rating_summary"]["settlement_score"] == 72
     assert result["performance_rating_summary"]["rating_score"] == 122
+    assert result["performance_rating_summary"]["declarer_rating_score"] == 122
     assert result["performance_rating_summary"]["declarer_rating_points"] == 50
     assert result["performance_rating_summary"]["counterparty_rating_points"] == 0
     assert result["performance_rating_summary"]["defender_rating_points"] == 0
@@ -242,6 +243,7 @@ def test_complete_declarer_loss_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["game_outcome"] == "declarer_loss"
     assert result["performance_rating_summary"]["settlement_score"] == -144
     assert result["performance_rating_summary"]["rating_score"] == -194
+    assert result["performance_rating_summary"]["declarer_rating_score"] == -194
     assert result["performance_rating_summary"]["declarer_rating_points"] == -50
     assert result["performance_rating_summary"]["counterparty_rating_points"] == 40
     assert result["performance_rating_summary"]["defender_rating_points"] == 40
