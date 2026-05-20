@@ -246,6 +246,13 @@ If omitted, `performance_rating_summary.rating_system` is `null`.
 
 Unknown values are rejected during input validation.
 
+For partial ISkO-style single-game rating, use:
+
+```json
+"performance_rating_system": "isko_list"
+```
+The current implementation assumes a fixed three-player table. No table-size input field is required.
+
 ## Optional analysis metadata
 
 Input files may include optional metadata. Some fields are stored for reporting and future logic. Profile-based presets can optionally influence opponent policy selection when `use_profile_presets` is enabled.
@@ -1169,6 +1176,86 @@ The settlement loss is visible through:
 "is_overbid": true
 ```
 
+### Partial ISkO list rating implementation
+
+The project includes a partial ISkO-style performance rating implementation for single-game declarer perspective.
+
+This is separate from `final_settlement_summary`.
+
+Current assumptions:
+
+- The table is always a fixed three-player table.
+- Four-player table rating is not modeled.
+- `rating_system` must be set to `isko_list`.
+- The implementation currently covers single-game declarer rating only.
+- Full list, series, and tournament aggregation is not implemented yet.
+
+Implemented rating points:
+
+| Game outcome | Declarer rating points | Counterparty rating points |
+|---|---:|---:|
+| Declarer wins | +50 | 0 |
+| Declarer loses | -50 | +40 per counterparty player |
+
+The project exposes the fixed table assumption through:
+
+```json
+"table_player_count": 3
+```
+
+#### Declarer rating score
+
+`declarer_rating_score` is the current implemented ISkO-style score from the declarer's perspective.
+
+```text
+declarer_rating_score = settlement_score + declarer_rating_points
+```
+
+`rating_score` is currently an alias for `declarer_rating_score`.
+
+Examples:
+
+| Settlement score | Declarer rating points | Declarer rating score |
+|---:|---:|---:|
+| 72 | 50 | 122 |
+| -144 | -50 | -194 |
+
+The counterparty rating points are shown separately and are not added to the declarer's `rating_score`.
+
+Relevant output fields:
+
+| Field | Meaning |
+|---|---|
+| `rating_score` | Alias for `declarer_rating_score`. |
+| `declarer_rating_score` | Settlement score plus declarer rating points. |
+| `declarer_rating_points` | +50 for declarer win, -50 for declarer loss. |
+| `counterparty_rating_points` | Points per counterparty player. Currently 0 for declarer win and 40 for declarer loss. |
+| `defender_rating_points` | Alias for `counterparty_rating_points`. |
+
+#### Implemented and unsupported rating scope
+
+`performance_rating_summary` also exposes the current implementation scope.
+
+For `rating_system = "isko_list"`:
+
+```json
+{
+  "is_implemented": false,
+  "is_partially_implemented": true,
+  "implemented_scope": "declarer_single_game_rating",
+  "unsupported_scope": "full_list_series_tournament_rating"
+}
+```
+
+Meaning:
+
+| Field | Meaning |
+|---|---|
+| `is_implemented` | `false`, because full list/series/tournament rating is not complete. |
+| `is_partially_implemented` | `true` for `isko_list`, because single-game declarer rating is calculated. |
+| `implemented_scope` | The part that is currently calculated. |
+| `unsupported_scope` | The part that is still missing. |
+
 #### Null-game overbid safeguard
 
 Null games use fixed game values rather than base-value multipliers.
@@ -1340,6 +1427,43 @@ Top-level fields may include:
 
 `policy_comparison_result` contains one compact result per card-selection policy and a `recommended_policy`.
 
+
+Example `performance_rating_summary` for a won declarer game:
+
+```json
+"performance_rating_summary": {
+  "is_implemented": false,
+  "is_partially_implemented": true,
+  "implemented_scope": "declarer_single_game_rating",
+  "unsupported_scope": "full_list_series_tournament_rating",
+  "rating_system": "isko_list",
+  "table_player_count": 3,
+  "basis": "individual_game_settlement",
+  "game_outcome": "declarer_win",
+  "settlement_score": 72,
+  "rating_score": 122,
+  "declarer_rating_score": 122,
+  "declarer_rating_points": 50,
+  "counterparty_rating_points": 0,
+  "defender_rating_points": 0,
+  "unsupported_reason": "isko_list_rating_not_implemented"
+}
+```
+
+Example for a lost declarer game:
+
+```json
+"performance_rating_summary": {
+  "game_outcome": "declarer_loss",
+  "settlement_score": -144,
+  "rating_score": -194,
+  "declarer_rating_score": -194,
+  "declarer_rating_points": -50,
+  "counterparty_rating_points": 40,
+  "defender_rating_points": 40
+}
+```
+
 ## Architecture overview
 
 Key modules:
@@ -1394,8 +1518,15 @@ Current limitations:
 - Full official settlement scoring is still simplified and does not yet cover every tournament/rules nuance.
 - Individual game settlement and performance rating are intentionally separated.
 - `performance_rating_summary` is currently a scaffold and does not yet calculate official list, series, or tournament rating points.
-- `performance_rating_system = "isko_list"` is recognized and validated, but ISkO performance rating is not implemented yet.
+- `performance_rating_system = "isko_list"` is recognized and validated.
+- ISkO performance rating is partially implemented for single-game declarer perspective, but full list/series/tournament aggregation is not implemented yet.
 - `final_settlement_summary` remains the source of truth for single-game settlement.
+- ISkO-style performance rating is partially implemented for a fixed three-player table.
+- The current ISkO rating implementation covers single-game declarer perspective only.
+- `rating_score` currently equals `declarer_rating_score`.
+- Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
+- Full list, series, and tournament aggregation is not implemented yet.
+- Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.
 
 ## Running tests
 
