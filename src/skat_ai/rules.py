@@ -151,10 +151,18 @@ def get_legal_cards(hand: list[str], current_trick: list[str], game_type: str) -
 
 def get_card_strength(card: str, game_type: str, lead_effective_suit: str) -> int:
     """
-    Returns a comparable strength value for a card within a trick.
+    Returns an internal comparable strength value for a card within a trick.
 
-    Higher value means stronger card.
-    Cards that cannot win the trick receive 0.
+    Higher values mean stronger cards for trick-winning comparison.
+    These values are not Skat card points and must not be used for scoring.
+
+    Cards that cannot win the trick because they do not follow the required
+    effective suit receive 0.
+
+    The numeric ranges are intentionally separated:
+    - Jacks/trumps receive high internal values.
+    - Suit-following non-trump cards receive lower internal values.
+    - Off-suit cards receive 0.
     """
     if game_type == "null":
         if get_effective_suit(card, game_type) != lead_effective_suit:

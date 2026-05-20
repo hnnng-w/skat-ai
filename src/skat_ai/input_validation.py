@@ -6,7 +6,7 @@ from skat_ai.game_history import validate_completed_trick_sequence
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.performance_rating import validate_performance_rating_system
-from skat_ai.rules import GAME_TYPES
+from skat_ai.rules import GAME_TYPES, get_card_points
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
     validate_game_end_reason,
@@ -402,3 +402,22 @@ def validate_optional_game_declaration(data: dict[str, Any]) -> None:
     Validates optional game declaration scoring fields.
     """
     build_game_declaration_from_input(data)
+
+def validate_total_known_card_points(data: dict[str, Any]) -> None:
+    explicit_declarer_points = data.get("declarer_points", 0)
+    explicit_defender_points = data.get("defender_points", 0)
+
+    completed_trick_points = 0
+    for completed_trick in data.get("completed_tricks", []):
+        completed_trick_points += sum(
+            get_card_points(card) for card in completed_trick["cards"]
+        )
+
+    total_points = (
+        explicit_declarer_points
+        + explicit_defender_points
+        + completed_trick_points
+    )
+
+    if total_points > 120:
+        raise ValueError("Known card points cannot exceed 120.")

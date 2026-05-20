@@ -75,10 +75,12 @@ def build_final_settlement_summary(
     overbid_summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
-    Builds a placeholder final settlement summary.
+    Builds the final single-game settlement summary.
 
-    This is intentionally conservative. Full Skat settlement logic such as
-    lost-game doubling and overbid handling is not implemented yet.
+    This uses simplified Skat settlement logic. Lost games are counted as
+    -2 * effective_game_value. Supported Suit/Grand overbid cases use the
+    required game value from overbid_summary. Full official settlement nuances
+    are not completely modeled yet.
     """
     if overbid_summary is None:
         overbid_summary = build_default_overbid_summary()

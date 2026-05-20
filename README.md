@@ -255,7 +255,7 @@ The current implementation assumes a fixed three-player table. No table-size inp
 
 ## Optional analysis metadata
 
-Input files may include optional metadata. Some fields are stored for reporting and future logic. Profile-based presets can optionally influence opponent policy selection when `use_profile_presets` is enabled.
+Input files may include optional metadata. Some fields are stored for reporting and future logic. Profile-based presets currently affect multi-step simulation policy selection when enabled. The immediate single-trick analysis still uses the base opponent strategy path.
 
 ```json
 {

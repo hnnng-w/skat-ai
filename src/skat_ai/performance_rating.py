@@ -84,7 +84,7 @@ def get_performance_rating_unsupported_reason(
     Returns why performance rating is not implemented yet.
     """
     if rating_system == "isko_list":
-        return "isko_list_rating_not_implemented"
+        return "full_list_series_tournament_rating_not_implemented"
 
     return "performance_rating_not_implemented"
 
@@ -105,15 +105,6 @@ def build_performance_rating_summary(
 
     declarer_rating_points = None
     counterparty_rating_points = None
-
-    if rating_system == "isko_list":
-        declarer_rating_points = calculate_isko_declarer_rating_points(
-            game_outcome
-        )
-        counterparty_rating_points = calculate_isko_counterparty_rating_points(
-            game_outcome
-        )
-    
     declarer_rating_score = None
 
     if rating_system == "isko_list":
