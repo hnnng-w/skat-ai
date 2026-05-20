@@ -2,6 +2,7 @@ from skat_ai.performance_rating import (
     build_performance_rating_summary,
     calculate_isko_counterparty_rating_points,
     calculate_isko_declarer_rating_points,
+    calculate_isko_declarer_rating_score,
     get_game_outcome_for_rating,
     get_performance_rating_unsupported_reason,
     is_performance_rating_partially_implemented,
@@ -139,7 +140,7 @@ def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> N
         "basis": "individual_game_settlement",
         "game_outcome": "declarer_win",
         "settlement_score": 72,
-        "rating_score": None,
+        "rating_score": 122,
         "declarer_rating_points": 50,
         "counterparty_rating_points": 0,
         "defender_rating_points": 0,
@@ -167,7 +168,7 @@ def test_build_performance_rating_summary_for_isko_declarer_loss() -> None:
     assert summary["table_player_count"] == 3
     assert summary["game_outcome"] == "declarer_loss"
     assert summary["settlement_score"] == -144
-    assert summary["rating_score"] is None
+    assert summary["rating_score"] == -194
     assert summary["declarer_rating_points"] == -50
     assert summary["counterparty_rating_points"] == 40
     assert summary["defender_rating_points"] == 40
@@ -246,3 +247,31 @@ def test_calculate_isko_counterparty_rating_points_for_incomplete_game() -> None
 
 def test_calculate_isko_counterparty_rating_points_for_unknown_outcome() -> None:
     assert calculate_isko_counterparty_rating_points("unknown") is None
+
+
+def test_calculate_isko_declarer_rating_score_for_win() -> None:
+    assert calculate_isko_declarer_rating_score(
+        settlement_score=72,
+        declarer_rating_points=50,
+    ) == 122
+
+
+def test_calculate_isko_declarer_rating_score_for_loss() -> None:
+    assert calculate_isko_declarer_rating_score(
+        settlement_score=-144,
+        declarer_rating_points=-50,
+    ) == -194
+
+
+def test_calculate_isko_declarer_rating_score_without_settlement_score() -> None:
+    assert calculate_isko_declarer_rating_score(
+        settlement_score=None,
+        declarer_rating_points=50,
+    ) is None
+
+
+def test_calculate_isko_declarer_rating_score_without_declarer_points() -> None:
+    assert calculate_isko_declarer_rating_score(
+        settlement_score=72,
+        declarer_rating_points=None,
+    ) is None

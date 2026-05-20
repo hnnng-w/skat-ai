@@ -90,6 +90,14 @@ def build_performance_rating_summary(
         counterparty_rating_points = calculate_isko_counterparty_rating_points(
             game_outcome
         )
+    
+    rating_score = None
+
+    if rating_system == "isko_list":
+        rating_score = calculate_isko_declarer_rating_score(
+            settlement_score=final_settlement_summary["settlement_score"],
+            declarer_rating_points=declarer_rating_points,
+        )
 
     return {
         "is_implemented": False,
@@ -101,7 +109,7 @@ def build_performance_rating_summary(
         "basis": "individual_game_settlement",
         "game_outcome": game_outcome,
         "settlement_score": final_settlement_summary["settlement_score"],
-        "rating_score": None,
+        "rating_score": rating_score,
         "declarer_rating_points": declarer_rating_points,
         "counterparty_rating_points": counterparty_rating_points,
         "defender_rating_points": counterparty_rating_points,
@@ -142,3 +150,18 @@ def calculate_isko_counterparty_rating_points(
         return ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE
 
     return None
+
+def calculate_isko_declarer_rating_score(
+    settlement_score: int | None,
+    declarer_rating_points: int | None,
+) -> int | None:
+    """
+    Calculates the declarer's partial ISkO-style rating score.
+
+    This combines the individual game settlement score with the declarer's
+    win/loss rating points.
+    """
+    if settlement_score is None or declarer_rating_points is None:
+        return None
+
+    return settlement_score + declarer_rating_points
