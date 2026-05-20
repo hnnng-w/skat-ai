@@ -193,6 +193,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "final_settlement_summary",
         "adjusted_game_result_summary",
         "overbid_summary",
+        "performance_rating_summary",
     }
 
 
@@ -236,6 +237,27 @@ def test_build_analysis_result_includes_overbid_summary() -> None:
         "margin": None,
         "status": "unknown_bid_value",
         "required_game_value": None,
+    }
+
+def test_build_analysis_result_includes_performance_rating_summary() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["performance_rating_summary"] == {
+        "is_implemented": False,
+        "basis": "individual_game_settlement",
+        "settlement_score": None,
+        "rating_score": None,
+        "rating_system": None,
+        "notes": [
+            "Performance rating is separate from individual game settlement.",
+            "List, series, and tournament rating are not implemented yet.",
+            "final_settlement_summary remains the source for single-game settlement.",
+        ],
     }
 
 

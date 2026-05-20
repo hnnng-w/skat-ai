@@ -28,6 +28,7 @@ from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
 from skat_ai.opponent_profile_policy import apply_profile_based_policy_preset
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
+from skat_ai.performance_rating import build_performance_rating_summary
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
@@ -177,6 +178,9 @@ def build_analysis_result(
         game_result_summary=adjusted_game_result_summary,
         overbid_summary=overbid_summary,
     )
+    performance_rating_summary = build_performance_rating_summary(
+        final_settlement_summary=final_settlement_summary,
+    )
 
     return {
         "input_file": file_path,
@@ -208,6 +212,7 @@ def build_analysis_result(
         "game_result_summary": game_result_summary,
         "adjusted_game_result_summary": adjusted_game_result_summary,
         "final_settlement_summary": final_settlement_summary,
+        "performance_rating_summary": performance_rating_summary,
         "recommendation": {
             "card": recommended_card,
             "reason": reason,

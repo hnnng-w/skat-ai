@@ -194,6 +194,9 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["final_settlement_summary"]["overbid_required_game_value"] == 72
 
     assert result["game_declaration"]["bid_value"] == 72
+    assert result["performance_rating_summary"]["is_implemented"] is False
+    assert result["performance_rating_summary"]["settlement_score"] == 72
+    assert result["performance_rating_summary"]["rating_score"] is None
     assert result["overbid_summary"] == {
         "bid_value": 72,
         "game_value": 72,
