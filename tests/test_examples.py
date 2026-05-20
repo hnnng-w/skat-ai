@@ -197,6 +197,10 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["is_implemented"] is False
     assert result["performance_rating_summary"]["settlement_score"] == 72
     assert result["performance_rating_summary"]["rating_score"] is None
+    assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
+    assert result["performance_rating_summary"]["unsupported_reason"] == (
+        "performance_rating_not_implemented"
+    )
     assert result["overbid_summary"] == {
         "bid_value": 72,
         "game_value": 72,
@@ -364,6 +368,8 @@ def test_declarer_conceded_remaining_tricks_example_adjusts_result() -> None:
     assert result["final_settlement_summary"]["winner"] == "defenders"
     assert result["final_settlement_summary"]["settlement_score"] == -144
     assert result["final_settlement_summary"]["is_loss"] is True
+    assert result["performance_rating_summary"]["game_outcome"] == "declarer_loss"
+    assert result["performance_rating_summary"]["settlement_score"] == -144
     assert_adjusted_result_metadata(
         result=result,
         game_end_reason="declarer_conceded_remaining_tricks",
@@ -434,6 +440,8 @@ def test_overbid_example_declarer_wins_card_points_but_loses_settlement() -> Non
     assert result["final_settlement_summary"]["declarer_won_by_card_points"] is True
     assert result["final_settlement_summary"]["is_overbid"] is True
     assert result["final_settlement_summary"]["is_loss"] is True
+    assert result["performance_rating_summary"]["game_outcome"] == "declarer_loss"
+    assert result["performance_rating_summary"]["settlement_score"] == -144
     assert result["final_settlement_summary"]["game_value"] == 48
     assert result["final_settlement_summary"]["effective_game_value"] == 72
     assert result["final_settlement_summary"]["bid_value"] == 60

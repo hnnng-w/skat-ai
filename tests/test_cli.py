@@ -249,10 +249,14 @@ def test_build_analysis_result_includes_performance_rating_summary() -> None:
 
     assert result["performance_rating_summary"] == {
         "is_implemented": False,
+        "rating_system": None,
         "basis": "individual_game_settlement",
+        "game_outcome": "incomplete",
         "settlement_score": None,
         "rating_score": None,
-        "rating_system": None,
+        "declarer_rating_points": None,
+        "defender_rating_points": None,
+        "unsupported_reason": "performance_rating_not_implemented",
         "notes": [
             "Performance rating is separate from individual game settlement.",
             "List, series, and tournament rating are not implemented yet.",
