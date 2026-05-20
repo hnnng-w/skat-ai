@@ -1,5 +1,6 @@
 from skat_ai.performance_rating import (
     build_performance_rating_summary,
+    calculate_isko_counterparty_rating_points,
     calculate_isko_declarer_rating_points,
     get_game_outcome_for_rating,
     get_performance_rating_unsupported_reason,
@@ -56,11 +57,13 @@ def test_build_performance_rating_summary_for_complete_settlement() -> None:
         "is_implemented": False,
         "is_partially_implemented": False,
         "rating_system": None,
+        "table_player_count": 3,
         "basis": "individual_game_settlement",
         "game_outcome": "declarer_win",
         "settlement_score": 72,
         "rating_score": None,
         "declarer_rating_points": None,
+        "counterparty_rating_points": None,
         "defender_rating_points": None,
         "unsupported_reason": "performance_rating_not_implemented",
         "notes": [
@@ -108,6 +111,8 @@ def test_build_performance_rating_summary_accepts_placeholder_rating_system() ->
         "declarer_rating_points": None,
         "defender_rating_points": None,
         "unsupported_reason": "performance_rating_not_implemented",
+        "table_player_count": 3,
+        "counterparty_rating_points": None,
         "notes": [
             "Performance rating is separate from individual game settlement.",
             "List, series, and tournament rating are not fully implemented yet.",
@@ -130,12 +135,14 @@ def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> N
         "is_implemented": False,
         "is_partially_implemented": True,
         "rating_system": "isko_list",
+        "table_player_count": 3,
         "basis": "individual_game_settlement",
         "game_outcome": "declarer_win",
         "settlement_score": 72,
         "rating_score": None,
         "declarer_rating_points": 50,
-        "defender_rating_points": None,
+        "counterparty_rating_points": 0,
+        "defender_rating_points": 0,
         "unsupported_reason": "isko_list_rating_not_implemented",
         "notes": [
             "Performance rating is separate from individual game settlement.",
@@ -143,6 +150,28 @@ def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> N
             "final_settlement_summary remains the source for single-game settlement.",
         ],
     }
+
+def test_build_performance_rating_summary_for_isko_declarer_loss() -> None:
+    summary = build_performance_rating_summary(
+        final_settlement_summary={
+            "is_complete": True,
+            "is_loss": True,
+            "settlement_score": -144,
+        },
+        rating_system="isko_list",
+    )
+
+    assert summary["is_implemented"] is False
+    assert summary["is_partially_implemented"] is True
+    assert summary["rating_system"] == "isko_list"
+    assert summary["table_player_count"] == 3
+    assert summary["game_outcome"] == "declarer_loss"
+    assert summary["settlement_score"] == -144
+    assert summary["rating_score"] is None
+    assert summary["declarer_rating_points"] == -50
+    assert summary["counterparty_rating_points"] == 40
+    assert summary["defender_rating_points"] == 40
+    assert summary["unsupported_reason"] == "isko_list_rating_not_implemented"
 
 def test_build_performance_rating_summary_rejects_unknown_rating_system() -> None:
     try:
@@ -202,3 +231,18 @@ def test_is_performance_rating_partially_implemented_for_placeholder() -> None:
 
 def test_is_performance_rating_partially_implemented_for_none() -> None:
     assert is_performance_rating_partially_implemented(None) is False
+
+def test_calculate_isko_counterparty_rating_points_for_declarer_win() -> None:
+    assert calculate_isko_counterparty_rating_points("declarer_win") == 0
+
+
+def test_calculate_isko_counterparty_rating_points_for_declarer_loss() -> None:
+    assert calculate_isko_counterparty_rating_points("declarer_loss") == 40
+
+
+def test_calculate_isko_counterparty_rating_points_for_incomplete_game() -> None:
+    assert calculate_isko_counterparty_rating_points("incomplete") is None
+
+
+def test_calculate_isko_counterparty_rating_points_for_unknown_outcome() -> None:
+    assert calculate_isko_counterparty_rating_points("unknown") is None

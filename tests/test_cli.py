@@ -258,6 +258,8 @@ def test_build_analysis_result_includes_performance_rating_summary() -> None:
         "defender_rating_points": None,
         "unsupported_reason": "performance_rating_not_implemented",
         "is_partially_implemented": False,
+        "table_player_count": 3,
+        "counterparty_rating_points": None,
         "notes": [
             "Performance rating is separate from individual game settlement.",
             "List, series, and tournament rating are not fully implemented yet.",

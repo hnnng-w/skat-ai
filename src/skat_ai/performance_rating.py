@@ -6,6 +6,8 @@ SUPPORTED_PERFORMANCE_RATING_SYSTEMS = [
 ]
 ISKO_DECLARER_WIN_POINTS = 50
 ISKO_DECLARER_LOSS_POINTS = -50
+ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE = 40
+ISKO_FIXED_TABLE_PLAYER_COUNT = 3
 
 
 def get_game_outcome_for_rating(
@@ -79,9 +81,13 @@ def build_performance_rating_summary(
     game_outcome = get_game_outcome_for_rating(final_settlement_summary)
 
     declarer_rating_points = None
+    counterparty_rating_points = None
 
     if rating_system == "isko_list":
         declarer_rating_points = calculate_isko_declarer_rating_points(
+            game_outcome
+        )
+        counterparty_rating_points = calculate_isko_counterparty_rating_points(
             game_outcome
         )
 
@@ -91,12 +97,14 @@ def build_performance_rating_summary(
             rating_system
         ),
         "rating_system": rating_system,
+        "table_player_count": ISKO_FIXED_TABLE_PLAYER_COUNT,
         "basis": "individual_game_settlement",
         "game_outcome": game_outcome,
         "settlement_score": final_settlement_summary["settlement_score"],
         "rating_score": None,
         "declarer_rating_points": declarer_rating_points,
-        "defender_rating_points": None,
+        "counterparty_rating_points": counterparty_rating_points,
+        "defender_rating_points": counterparty_rating_points,
         "unsupported_reason": get_performance_rating_unsupported_reason(
             rating_system
         ),
@@ -118,3 +126,19 @@ def validate_performance_rating_system(
 
     if rating_system not in SUPPORTED_PERFORMANCE_RATING_SYSTEMS:
         raise ValueError(f"Unknown performance rating system: {rating_system}")
+
+def calculate_isko_counterparty_rating_points(
+    game_outcome: str,
+) -> int | None:
+    """
+    Calculates ISkO-style counterparty rating points per counterparty member.
+
+    This project assumes a fixed three-player table.
+    """
+    if game_outcome == "declarer_win":
+        return 0
+
+    if game_outcome == "declarer_loss":
+        return ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE
+
+    return None

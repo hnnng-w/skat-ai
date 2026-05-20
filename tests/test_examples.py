@@ -211,7 +211,8 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["settlement_score"] == 72
     assert result["performance_rating_summary"]["rating_score"] is None
     assert result["performance_rating_summary"]["declarer_rating_points"] == 50
-    assert result["performance_rating_summary"]["defender_rating_points"] is None
+    assert result["performance_rating_summary"]["counterparty_rating_points"] == 0
+    assert result["performance_rating_summary"]["defender_rating_points"] == 0
     assert result["performance_rating_summary"]["unsupported_reason"] == (
         "isko_list_rating_not_implemented"
     )
@@ -235,6 +236,16 @@ def test_complete_declarer_loss_example_settlement_invariants() -> None:
     assert result["final_settlement_summary"]["game_value"] == 72
     assert result["final_settlement_summary"]["settlement_score"] == -144
     assert result["final_settlement_summary"]["is_loss"] is True
+
+    assert result["performance_rating_summary"]["rating_system"] == "isko_list"
+    assert result["performance_rating_summary"]["table_player_count"] == 3
+    assert result["performance_rating_summary"]["game_outcome"] == "declarer_loss"
+    assert result["performance_rating_summary"]["settlement_score"] == -144
+    assert result["performance_rating_summary"]["rating_score"] is None
+    assert result["performance_rating_summary"]["declarer_rating_points"] == -50
+    assert result["performance_rating_summary"]["counterparty_rating_points"] == 40
+    assert result["performance_rating_summary"]["defender_rating_points"] == 40
+    assert result["performance_rating_summary"]["is_partially_implemented"] is True
 
 def test_midgame_declarer_ahead_example_score_invariants() -> None:
     result = build_example_analysis_result("grand_midgame_declarer_ahead.json")
