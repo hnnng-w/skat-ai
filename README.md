@@ -103,6 +103,12 @@ Run a complete declarer-loss example:
 python main.py --input examples/grand_complete_declarer_loss.json --output outputs/complete_declarer_loss.json
 ```
 
+Run an overbid example where the declarer wins card points but loses settlement:
+
+```powershell
+python main.py --input examples/grand_overbid_declarer_card_points_win.json --output outputs/overbid_test.json
+```
+
 ## Example positions
 
 The project includes example JSON input files in the `examples/` folder.
@@ -737,6 +743,7 @@ Example:
   "ouvert": false,
   "schneider_announced": false,
   "schwarz_announced": false,
+  "bid_value": 72,
   "matadors": 2
 }
 ```
@@ -746,7 +753,32 @@ Important:
 - `position.hand` means the player's cards.
 - `game_declaration.hand_game` means whether the game was declared as Hand.
 - `matadors` must be known to calculate a complete suit or grand game value.
+- `bid_value`: optional integer. The bid value at which the declarer won the auction / accepted the game. Used for overbid detection and final settlement.
 - If `matadors` is `null`, the game value remains incomplete.
+
+### Bid value and overbid detection
+
+Input files can optionally include `bid_value`.
+
+```json
+{
+  "game_type": "grand",
+  "matadors": 1,
+  "bid_value": 60
+}
+```
+
+The engine compares `bid_value` with the calculated `game_value`.
+
+Examples:
+
+| game_value | bid_value | Result |
+|---:|---:|---|
+| 72 | 72 | not overbid |
+| 72 | 60 | not overbid |
+| 48 | 60 | overbid |
+| null | 60 | unknown game value |
+| 72 | null | unknown bid value |
 
 ### Game value summary
 
@@ -824,6 +856,34 @@ Null games use fixed values:
 | null hand | 35 |
 | null ouvert | 46 |
 | null hand ouvert | 59 |
+
+### Overbid summary
+
+`overbid_summary` describes whether the declared game value covers the bid value.
+
+Example:
+
+```json
+"overbid_summary": {
+  "bid_value": 60,
+  "game_value": 48,
+  "is_overbid": true,
+  "margin": -12,
+  "required_game_value": 72,
+  "status": "overbid"
+}
+```
+
+Fields:
+
+| Field | Meaning |
+|---|---|
+| `bid_value` | The bid value from the input, or `null` if unknown. |
+| `game_value` | The calculated game value, or `null` if incomplete. |
+| `is_overbid` | `true`, `false`, or `null` if unknown. |
+| `margin` | `game_value - bid_value`. Negative means overbid. |
+| `required_game_value` | The smallest reachable Suit/Grand game value that covers the bid. |
+| `status` | One of `not_overbid`, `overbid`, `unknown_bid_value`, or `unknown_game_value`. |
 
 ### Game result summary
 
@@ -982,6 +1042,72 @@ If required information is missing, the summary remains incomplete:
 }
 ```
 
+### Overbid settlement
+
+`final_settlement_summary` uses `overbid_summary` when calculating settlement.
+
+For non-overbid games:
+
+```text
+effective_game_value = game_value
+```
+
+For overbid Suit/Grand games:
+
+```text
+effective_game_value = required_game_value
+settlement_score = -2 * effective_game_value
+```
+
+This means the declarer can win by card points but still lose the settlement because the bid value was not covered by the calculated game value.
+
+Example:
+
+```json
+{
+  "game_value": 48,
+  "bid_value": 60,
+  "is_overbid": true,
+  "effective_game_value": 72,
+  "settlement_score": -144
+}
+```
+
+In this example, the calculated game value is 48, but the bid was 60. The smallest Grand/Suit game value that covers 60 is 72, so the overbid loss is counted as `-2 * 72 = -144`.
+
+The raw card-point winner remains visible through:
+
+```json
+"winner": "declarer",
+"declarer_won_by_card_points": true
+```
+
+The settlement loss is visible through:
+
+```json
+"is_loss": true,
+"is_overbid": true
+```
+
+#### Null-game overbid safeguard
+
+Null games use fixed game values rather than base-value multipliers.
+
+For this reason, overbid settlement scoring is currently supported for Suit and Grand games when `required_game_value` is available.
+
+If a Null game is detected as overbid and no `required_game_value` is available, `final_settlement_summary` remains incomplete instead of guessing a settlement score.
+
+In that case:
+
+```json
+{
+  "is_complete": false,
+  "missing_inputs": ["overbid_required_game_value"],
+  "is_overbid": true,
+  "settlement_score": null
+}
+```
+
 ### Individual game settlement vs. performance rating
 
 `final_settlement_summary` describes the settlement of a single game.
@@ -1121,6 +1247,7 @@ Top-level fields may include:
 - recommendation
 - multi_step_result
 - policy_comparison_result
+- overbid_summary
 
 `game_result_summary` contains the raw card-point result before game-end adjustment.
 
@@ -1180,8 +1307,11 @@ Current limitations:
 - Claim and concession handling currently assigns all remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
 - The engine does not yet verify whether a claim was strategically or legally justified.
 - The engine does not yet model player agreement or disputes around claim/concession.
-- Bidding logic, overbid handling, game declaration value constraints, and full official settlement scoring are not fully modeled yet.
+- Bidding logic, game declaration value constraints, and full official settlement scoring are not fully modeled yet.
 - The tool currently focuses on analysis and simulation, not on training a machine-learning model.
+- Overbid settlement is supported for Suit and Grand games when `required_game_value` is available.
+- Null-game overbid detection is supported, but settlement scoring remains conservative when no `required_game_value` is available.
+- Full official settlement scoring is still simplified and does not yet cover every tournament/rules nuance.
 
 ## Running tests
 
