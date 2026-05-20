@@ -188,14 +188,18 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["final_settlement_summary"]["missing_inputs"] == []
     assert result["final_settlement_summary"]["winner"] == "declarer"
     assert result["final_settlement_summary"]["game_value"] == 72
+    assert result["final_settlement_summary"]["effective_game_value"] == 72
     assert result["final_settlement_summary"]["settlement_score"] == 72
     assert result["final_settlement_summary"]["is_loss"] is False
+    assert result["final_settlement_summary"]["overbid_required_game_value"] == 72
+
     assert result["game_declaration"]["bid_value"] == 72
     assert result["overbid_summary"] == {
         "bid_value": 72,
         "game_value": 72,
         "is_overbid": False,
         "margin": 0,
+        "required_game_value": 72,
         "status": "not_overbid",
     }
 
@@ -402,3 +406,32 @@ def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
     )
 
     assert_final_settlement_uses_adjusted_result(result)
+
+def test_overbid_example_declarer_wins_card_points_but_loses_settlement() -> None:
+    result = build_example_analysis_result(
+        "grand_overbid_declarer_card_points_win.json"
+    )
+
+    assert result["game_result_summary"]["is_complete"] is True
+    assert result["game_result_summary"]["winner"] == "declarer"
+
+    assert result["game_value_summary"]["game_value"] == 48
+
+    assert result["overbid_summary"] == {
+        "bid_value": 60,
+        "game_value": 48,
+        "is_overbid": True,
+        "margin": -12,
+        "required_game_value": 72,
+        "status": "overbid",
+    }
+
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["winner"] == "declarer"
+    assert result["final_settlement_summary"]["declarer_won_by_card_points"] is True
+    assert result["final_settlement_summary"]["is_overbid"] is True
+    assert result["final_settlement_summary"]["is_loss"] is True
+    assert result["final_settlement_summary"]["game_value"] == 48
+    assert result["final_settlement_summary"]["effective_game_value"] == 72
+    assert result["final_settlement_summary"]["bid_value"] == 60
+    assert result["final_settlement_summary"]["settlement_score"] == -144

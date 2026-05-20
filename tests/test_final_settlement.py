@@ -122,9 +122,14 @@ def test_build_final_settlement_summary_incomplete() -> None:
     assert summary["declarer_won_by_card_points"] is None
     assert summary["winner"] is None
     assert summary["game_value"] is None
+    assert summary["effective_game_value"] is None
+    assert summary["bid_value"] is None
     assert summary["settlement_score"] is None
     assert summary["is_loss"] is None
     assert summary["is_overbid"] is None
+    assert summary["overbid_margin"] is None
+    assert summary["overbid_status"] == "unknown"
+    assert summary["overbid_required_game_value"] is None
     assert summary["notes"] == [
         "Settlement score uses simplified Skat logic.",
         "Lost declarer games are counted as -2 * game_value.",
@@ -151,9 +156,14 @@ def test_build_final_settlement_summary_complete_declarer_win() -> None:
     assert summary["declarer_won_by_card_points"] is True
     assert summary["winner"] == "declarer"
     assert summary["game_value"] == 72
+    assert summary["effective_game_value"] == 72
+    assert summary["bid_value"] is None
     assert summary["settlement_score"] == 72
     assert summary["is_loss"] is False
     assert summary["is_overbid"] is None
+    assert summary["overbid_margin"] is None
+    assert summary["overbid_status"] == "unknown"
+    assert summary["overbid_required_game_value"] is None
 
 
 def test_build_final_settlement_summary_complete_declarer_loss() -> None:
@@ -175,9 +185,14 @@ def test_build_final_settlement_summary_complete_declarer_loss() -> None:
     assert summary["declarer_won_by_card_points"] is False
     assert summary["winner"] == "defenders"
     assert summary["game_value"] == 72
+    assert summary["effective_game_value"] == 72
+    assert summary["bid_value"] is None
     assert summary["settlement_score"] == -144
     assert summary["is_loss"] is True
     assert summary["is_overbid"] is None
+    assert summary["overbid_margin"] is None
+    assert summary["overbid_status"] == "unknown"
+    assert summary["overbid_required_game_value"] is None
 
 def build_not_overbid_summary() -> dict:
     return {
@@ -185,6 +200,7 @@ def build_not_overbid_summary() -> dict:
         "game_value": 72,
         "is_overbid": False,
         "margin": 0,
+        "required_game_value": 72,
         "status": "not_overbid",
     }
 
@@ -195,6 +211,7 @@ def build_unknown_overbid_summary() -> dict:
         "game_value": None,
         "is_overbid": None,
         "margin": None,
+        "required_game_value": None,
         "status": "unknown_bid_value",
     }
 
@@ -212,6 +229,8 @@ def test_build_final_settlement_summary_includes_not_overbid_status() -> None:
 
     assert summary["is_complete"] is True
     assert summary["game_value"] == 72
+    assert summary["effective_game_value"] == 72
+    assert summary["overbid_required_game_value"] == 72
     assert summary["bid_value"] == 72
     assert summary["is_overbid"] is False
     assert summary["overbid_margin"] == 0
@@ -231,6 +250,7 @@ def test_build_final_settlement_summary_includes_overbid_status() -> None:
             "game_value": 48,
             "is_overbid": True,
             "margin": -12,
+            "required_game_value": 72,
             "status": "overbid",
         },
     )
@@ -241,3 +261,35 @@ def test_build_final_settlement_summary_includes_overbid_status() -> None:
     assert summary["is_overbid"] is True
     assert summary["overbid_margin"] == -12
     assert summary["overbid_status"] == "overbid"
+    assert summary["effective_game_value"] == 72
+    assert summary["overbid_required_game_value"] == 72
+
+def test_build_final_settlement_summary_applies_overbid_loss_score() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={
+            "game_value": 48,
+        },
+        game_result_summary={
+            "is_complete": True,
+            "winner": "declarer",
+        },
+        overbid_summary={
+            "bid_value": 60,
+            "game_value": 48,
+            "is_overbid": True,
+            "margin": -12,
+            "required_game_value": 72,
+            "status": "overbid",
+        },
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["declarer_won_by_card_points"] is True
+    assert summary["winner"] == "declarer"
+    assert summary["game_value"] == 48
+    assert summary["effective_game_value"] == 72
+    assert summary["bid_value"] == 60
+    assert summary["is_overbid"] is True
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -144
+    assert summary["overbid_required_game_value"] == 72

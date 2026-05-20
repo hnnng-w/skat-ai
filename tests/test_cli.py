@@ -235,6 +235,7 @@ def test_build_analysis_result_includes_overbid_summary() -> None:
         "is_overbid": None,
         "margin": None,
         "status": "unknown_bid_value",
+        "required_game_value": None,
     }
 
 
@@ -999,6 +1000,8 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
         "is_overbid": None,
         "overbid_margin": None,
         "overbid_status": "unknown_bid_value",
+        "effective_game_value": None,
+        "overbid_required_game_value": None,
         "notes": [
             "Settlement score uses simplified Skat logic.",
             "Lost declarer games are counted as -2 * game_value.",
