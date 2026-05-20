@@ -1,7 +1,9 @@
 from skat_ai.performance_rating import (
     build_performance_rating_summary,
+    calculate_isko_declarer_rating_points,
     get_game_outcome_for_rating,
     get_performance_rating_unsupported_reason,
+    is_performance_rating_partially_implemented,
 )
 
 
@@ -52,6 +54,7 @@ def test_build_performance_rating_summary_for_complete_settlement() -> None:
 
     assert summary == {
         "is_implemented": False,
+        "is_partially_implemented": False,
         "rating_system": None,
         "basis": "individual_game_settlement",
         "game_outcome": "declarer_win",
@@ -62,7 +65,7 @@ def test_build_performance_rating_summary_for_complete_settlement() -> None:
         "unsupported_reason": "performance_rating_not_implemented",
         "notes": [
             "Performance rating is separate from individual game settlement.",
-            "List, series, and tournament rating are not implemented yet.",
+            "List, series, and tournament rating are not fully implemented yet.",
             "final_settlement_summary remains the source for single-game settlement.",
         ],
     }
@@ -94,8 +97,23 @@ def test_build_performance_rating_summary_accepts_placeholder_rating_system() ->
         rating_system="placeholder",
     )
 
-    assert summary["rating_system"] == "placeholder"
-    assert summary["game_outcome"] == "declarer_win"
+    assert summary == {
+        "is_implemented": False,
+        "is_partially_implemented": False,
+        "rating_system": "placeholder",
+        "basis": "individual_game_settlement",
+        "game_outcome": "declarer_win",
+        "settlement_score": 72,
+        "rating_score": None,
+        "declarer_rating_points": None,
+        "defender_rating_points": None,
+        "unsupported_reason": "performance_rating_not_implemented",
+        "notes": [
+            "Performance rating is separate from individual game settlement.",
+            "List, series, and tournament rating are not fully implemented yet.",
+            "final_settlement_summary remains the source for single-game settlement.",
+        ],
+    }
 
 
 def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> None:
@@ -108,11 +126,23 @@ def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> N
         rating_system="isko_list",
     )
 
-    assert summary["is_implemented"] is False
-    assert summary["rating_system"] == "isko_list"
-    assert summary["game_outcome"] == "declarer_win"
-    assert summary["rating_score"] is None
-    assert summary["unsupported_reason"] == "isko_list_rating_not_implemented"
+    assert summary == {
+        "is_implemented": False,
+        "is_partially_implemented": True,
+        "rating_system": "isko_list",
+        "basis": "individual_game_settlement",
+        "game_outcome": "declarer_win",
+        "settlement_score": 72,
+        "rating_score": None,
+        "declarer_rating_points": 50,
+        "defender_rating_points": None,
+        "unsupported_reason": "isko_list_rating_not_implemented",
+        "notes": [
+            "Performance rating is separate from individual game settlement.",
+            "List, series, and tournament rating are not fully implemented yet.",
+            "final_settlement_summary remains the source for single-game settlement.",
+        ],
+    }
 
 def test_build_performance_rating_summary_rejects_unknown_rating_system() -> None:
     try:
@@ -126,6 +156,7 @@ def test_build_performance_rating_summary_rejects_unknown_rating_system() -> Non
         )
     except ValueError as error:
         assert "Unknown performance rating system" in str(error)
+        assert "unknown_system" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
@@ -145,3 +176,29 @@ def test_get_performance_rating_unsupported_reason_for_isko_list() -> None:
     assert get_performance_rating_unsupported_reason("isko_list") == (
         "isko_list_rating_not_implemented"
     )
+
+def test_calculate_isko_declarer_rating_points_for_declarer_win() -> None:
+    assert calculate_isko_declarer_rating_points("declarer_win") == 50
+
+
+def test_calculate_isko_declarer_rating_points_for_declarer_loss() -> None:
+    assert calculate_isko_declarer_rating_points("declarer_loss") == -50
+
+
+def test_calculate_isko_declarer_rating_points_for_incomplete_game() -> None:
+    assert calculate_isko_declarer_rating_points("incomplete") is None
+
+
+def test_calculate_isko_declarer_rating_points_for_unknown_outcome() -> None:
+    assert calculate_isko_declarer_rating_points("unknown") is None
+
+def test_is_performance_rating_partially_implemented_for_isko_list() -> None:
+    assert is_performance_rating_partially_implemented("isko_list") is True
+
+
+def test_is_performance_rating_partially_implemented_for_placeholder() -> None:
+    assert is_performance_rating_partially_implemented("placeholder") is False
+
+
+def test_is_performance_rating_partially_implemented_for_none() -> None:
+    assert is_performance_rating_partially_implemented(None) is False

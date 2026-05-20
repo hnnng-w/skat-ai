@@ -4,6 +4,8 @@ SUPPORTED_PERFORMANCE_RATING_SYSTEMS = [
     "placeholder",
     "isko_list",
 ]
+ISKO_DECLARER_WIN_POINTS = 50
+ISKO_DECLARER_LOSS_POINTS = -50
 
 
 def get_game_outcome_for_rating(
@@ -24,6 +26,31 @@ def get_game_outcome_for_rating(
         return "declarer_win"
 
     return "unknown"
+
+def calculate_isko_declarer_rating_points(
+    game_outcome: str,
+) -> int | None:
+    """
+    Calculates basic ISkO-style declarer rating points.
+
+    This only covers the declarer's basic win/loss rating points.
+    Defender and tournament/list-specific additions are added later.
+    """
+    if game_outcome == "declarer_win":
+        return ISKO_DECLARER_WIN_POINTS
+
+    if game_outcome == "declarer_loss":
+        return ISKO_DECLARER_LOSS_POINTS
+
+    return None
+
+def is_performance_rating_partially_implemented(
+    rating_system: str | None,
+) -> bool:
+    """
+    Returns whether the selected rating system has partial implementation.
+    """
+    return rating_system == "isko_list"
 
 def get_performance_rating_unsupported_reason(
     rating_system: str | None,
@@ -51,21 +78,31 @@ def build_performance_rating_summary(
 
     game_outcome = get_game_outcome_for_rating(final_settlement_summary)
 
+    declarer_rating_points = None
+
+    if rating_system == "isko_list":
+        declarer_rating_points = calculate_isko_declarer_rating_points(
+            game_outcome
+        )
+
     return {
         "is_implemented": False,
+        "is_partially_implemented": is_performance_rating_partially_implemented(
+            rating_system
+        ),
         "rating_system": rating_system,
         "basis": "individual_game_settlement",
         "game_outcome": game_outcome,
         "settlement_score": final_settlement_summary["settlement_score"],
         "rating_score": None,
-        "declarer_rating_points": None,
+        "declarer_rating_points": declarer_rating_points,
         "defender_rating_points": None,
         "unsupported_reason": get_performance_rating_unsupported_reason(
             rating_system
         ),
         "notes": [
             "Performance rating is separate from individual game settlement.",
-            "List, series, and tournament rating are not implemented yet.",
+            "List, series, and tournament rating are not fully implemented yet.",
             "final_settlement_summary remains the source for single-game settlement.",
         ],
     }
