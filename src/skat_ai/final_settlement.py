@@ -4,6 +4,7 @@ from typing import Any
 def get_missing_final_settlement_inputs(
     game_value_summary: dict[str, Any],
     game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any] | None = None,
 ) -> list[str]:
     """
     Returns missing inputs that prevent final settlement calculation.
@@ -15,6 +16,11 @@ def get_missing_final_settlement_inputs(
 
     if game_value_summary["game_value"] is None:
         missing_inputs.append("game_value")
+
+    if overbid_summary is not None and not is_overbid_settlement_supported(
+        overbid_summary
+    ):
+        missing_inputs.append("overbid_required_game_value")
 
     return missing_inputs
 
@@ -80,6 +86,7 @@ def build_final_settlement_summary(
     missing_inputs = get_missing_final_settlement_inputs(
         game_value_summary=game_value_summary,
         game_result_summary=game_result_summary,
+        overbid_summary=overbid_summary,
     )
     is_complete = len(missing_inputs) == 0
     declarer_won_by_card_points = is_declarer_winner_by_card_points(
@@ -90,7 +97,9 @@ def build_final_settlement_summary(
             game_value=game_value_summary["game_value"],
             overbid_summary=overbid_summary,
         )
-        if is_complete and game_value_summary["game_value"] is not None
+        if is_complete
+        and game_value_summary["game_value"] is not None
+        and is_overbid_settlement_supported(overbid_summary)
         else None
     )
 
@@ -132,8 +141,9 @@ def build_final_settlement_summary(
         "overbid_required_game_value": overbid_summary["required_game_value"],
         "notes": [
             "Settlement score uses simplified Skat logic.",
-            "Lost declarer games are counted as -2 * game_value.",
-            "Overbid handling is not implemented yet.",
+            "Lost declarer games are counted as -2 * effective_game_value.",
+            "Overbid settlement is supported for suit and grand games when "
+            "required_game_value is available.",
         ],
     }
 
@@ -157,3 +167,14 @@ def get_effective_settlement_game_value(
         return required_game_value
 
     return game_value
+
+def is_overbid_settlement_supported(
+    overbid_summary: dict[str, Any],
+) -> bool:
+    """
+    Returns whether overbid settlement can be scored.
+    """
+    if overbid_summary["is_overbid"] is not True:
+        return True
+
+    return overbid_summary["required_game_value"] is not None

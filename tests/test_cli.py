@@ -1004,8 +1004,9 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
         "overbid_required_game_value": None,
         "notes": [
             "Settlement score uses simplified Skat logic.",
-            "Lost declarer games are counted as -2 * game_value.",
-            "Overbid handling is not implemented yet.",
+            "Lost declarer games are counted as -2 * effective_game_value.",
+            "Overbid settlement is supported for suit and grand games when "
+            "required_game_value is available."
         ],
     }
 

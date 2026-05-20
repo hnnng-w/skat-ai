@@ -3,6 +3,7 @@ from skat_ai.final_settlement import (
     calculate_basic_settlement_score,
     get_missing_final_settlement_inputs,
     is_declarer_winner_by_card_points,
+    is_overbid_settlement_supported,
 )
 
 
@@ -132,8 +133,11 @@ def test_build_final_settlement_summary_incomplete() -> None:
     assert summary["overbid_required_game_value"] is None
     assert summary["notes"] == [
         "Settlement score uses simplified Skat logic.",
-        "Lost declarer games are counted as -2 * game_value.",
-        "Overbid handling is not implemented yet.",
+        "Lost declarer games are counted as -2 * effective_game_value.",
+        (
+            "Overbid settlement is supported for suit and grand games when "
+            "required_game_value is available."
+        ),
     ]
 
 
@@ -293,3 +297,76 @@ def test_build_final_settlement_summary_applies_overbid_loss_score() -> None:
     assert summary["is_loss"] is True
     assert summary["settlement_score"] == -144
     assert summary["overbid_required_game_value"] == 72
+
+def test_is_overbid_settlement_supported_for_not_overbid() -> None:
+    assert is_overbid_settlement_supported(
+        {
+            "is_overbid": False,
+            "required_game_value": None,
+        }
+    ) is True
+
+
+def test_is_overbid_settlement_supported_for_overbid_with_required_value() -> None:
+    assert is_overbid_settlement_supported(
+        {
+            "is_overbid": True,
+            "required_game_value": 72,
+        }
+    ) is True
+
+
+def test_is_overbid_settlement_supported_for_overbid_without_required_value() -> None:
+    assert is_overbid_settlement_supported(
+        {
+            "is_overbid": True,
+            "required_game_value": None,
+        }
+    ) is False
+
+def test_get_missing_final_settlement_inputs_detects_unsupported_overbid() -> None:
+    missing_inputs = get_missing_final_settlement_inputs(
+        game_value_summary={
+            "game_value": 23,
+        },
+        game_result_summary={
+            "is_complete": True,
+        },
+        overbid_summary={
+            "is_overbid": True,
+            "required_game_value": None,
+        },
+    )
+
+    assert missing_inputs == ["overbid_required_game_value"]
+
+def test_build_final_settlement_summary_for_unsupported_null_overbid() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={
+            "game_value": 23,
+        },
+        game_result_summary={
+            "is_complete": True,
+            "winner": "declarer",
+        },
+        overbid_summary={
+            "bid_value": 24,
+            "game_value": 23,
+            "is_overbid": True,
+            "margin": -1,
+            "required_game_value": None,
+            "status": "overbid",
+        },
+    )
+
+    assert summary["is_complete"] is False
+    assert summary["missing_inputs"] == ["overbid_required_game_value"]
+    assert summary["declarer_won_by_card_points"] is True
+    assert summary["winner"] is None
+    assert summary["game_value"] == 23
+    assert summary["effective_game_value"] is None
+    assert summary["bid_value"] == 24
+    assert summary["settlement_score"] is None
+    assert summary["is_loss"] is True
+    assert summary["is_overbid"] is True
+    assert summary["overbid_required_game_value"] is None

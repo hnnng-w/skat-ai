@@ -127,3 +127,60 @@ def test_calculate_required_overbid_game_value_rejects_invalid_base_value() -> N
         assert "base_value must be a positive integer" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_build_overbid_summary_rounds_required_value_up_for_overbid() -> None:
+    summary = build_overbid_summary(
+        game_value_summary={
+            "game_value": 72,
+            "base_value": 24,
+            "is_null_game": False,
+        },
+        bid_value=73,
+    )
+
+    assert summary == {
+        "bid_value": 73,
+        "game_value": 72,
+        "is_overbid": True,
+        "margin": -1,
+        "required_game_value": 96,
+        "status": "overbid",
+    }
+
+def test_build_overbid_summary_for_null_overbid_has_no_required_game_value() -> None:
+    summary = build_overbid_summary(
+        game_value_summary={
+            "game_value": 23,
+            "base_value": None,
+            "is_null_game": True,
+        },
+        bid_value=24,
+    )
+
+    assert summary == {
+        "bid_value": 24,
+        "game_value": 23,
+        "is_overbid": True,
+        "margin": -1,
+        "required_game_value": None,
+        "status": "overbid",
+    }
+
+def test_build_overbid_summary_for_null_not_overbid() -> None:
+    summary = build_overbid_summary(
+        game_value_summary={
+            "game_value": 23,
+            "base_value": None,
+            "is_null_game": True,
+        },
+        bid_value=23,
+    )
+
+    assert summary == {
+        "bid_value": 23,
+        "game_value": 23,
+        "is_overbid": False,
+        "margin": 0,
+        "required_game_value": 23,
+        "status": "not_overbid",
+    }
