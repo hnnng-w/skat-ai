@@ -157,7 +157,7 @@ def test_build_performance_rating_summary_accepts_isko_list_rating_system() -> N
         "declarer_rating_points": 50,
         "counterparty_rating_points": 0,
         "defender_rating_points": 0,
-        "unsupported_reason": "isko_list_rating_not_implemented",
+        "unsupported_reason": "full_list_series_tournament_rating_not_implemented",
         "notes": [
             "Performance rating is separate from individual game settlement.",
             "rating_score currently represents the declarer's rating score.",
@@ -191,7 +191,7 @@ def test_build_performance_rating_summary_for_isko_declarer_loss() -> None:
         "declarer_rating_points": -50,
         "counterparty_rating_points": 40,
         "defender_rating_points": 40,
-        "unsupported_reason": "isko_list_rating_not_implemented",
+        "unsupported_reason": "full_list_series_tournament_rating_not_implemented",
         "notes": [
             "Performance rating is separate from individual game settlement.",
             "rating_score currently represents the declarer's rating score.",
@@ -230,7 +230,7 @@ def test_get_performance_rating_unsupported_reason_for_placeholder() -> None:
 
 def test_get_performance_rating_unsupported_reason_for_isko_list() -> None:
     assert get_performance_rating_unsupported_reason("isko_list") == (
-        "isko_list_rating_not_implemented"
+        "full_list_series_tournament_rating_not_implemented"
     )
 
 def test_calculate_isko_declarer_rating_points_for_declarer_win() -> None:

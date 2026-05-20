@@ -221,7 +221,7 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["counterparty_rating_points"] == 0
     assert result["performance_rating_summary"]["defender_rating_points"] == 0
     assert result["performance_rating_summary"]["unsupported_reason"] == (
-        "isko_list_rating_not_implemented"
+        "full_list_series_tournament_rating_not_implemented"
     )
     
 def test_complete_declarer_loss_example_settlement_invariants() -> None:
