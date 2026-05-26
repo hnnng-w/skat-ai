@@ -841,33 +841,11 @@ Null games use fixed values:
 | null ouvert | 46 |
 | null hand ouvert | 59 |
 
-### Overbid summary
+### Overbid handling
 
-`overbid_summary` describes whether the declared game value covers the bid value.
+For `bid_value`, `overbid_summary`, `required_game_value`, `effective_game_value`, and supported Suit/Grand overbid settlement, see:
 
-Example:
-
-```json
-"overbid_summary": {
-  "bid_value": 60,
-  "game_value": 48,
-  "is_overbid": true,
-  "margin": -12,
-  "required_game_value": 72,
-  "status": "overbid"
-}
-```
-
-Fields:
-
-| Field | Meaning |
-|---|---|
-| `bid_value` | The bid value from the input, or `null` if unknown. |
-| `game_value` | The calculated game value, or `null` if incomplete. |
-| `is_overbid` | `true`, `false`, or `null` if unknown. |
-| `margin` | `game_value - bid_value`. Negative means overbid. |
-| `required_game_value` | The smallest reachable Suit/Grand game value that covers the bid. |
-| `status` | One of `not_overbid`, `overbid`, `unknown_bid_value`, or `unknown_game_value`. |
+[Overbid handling documentation](docs/overbid.md)
 
 ### Game result summary
 
@@ -898,27 +876,11 @@ Raw Schneider and Schwarz indicators are based on the currently known card point
 
 Effective Schneider and Schwarz indicators are only final once all 120 card points have been assigned. Until then, they return `pending`.
 
-### Game-end handling
+## Game-end handling
 
-The tool supports explicit game-end reasons through `game_end_reason`.
+For normal completion, claim, concession, remaining-point assignment, and `adjusted_game_result_summary`, see:
 
-This field describes whether the game is still running, completed normally, or ended early through claim or concession.
-
-Supported values:
-
-| Value | Meaning |
-|---|---|
-| `not_ended` | The game is still in progress. |
-| `normal_completion` | The game ended normally and all 120 card points are assigned. |
-| `declarer_claimed_remaining_tricks` | The declarer claimed the remaining tricks. |
-| `declarer_conceded_remaining_tricks` | The declarer conceded the remaining tricks. |
-| `defenders_conceded_remaining_tricks` | The defenders conceded the remaining tricks. |
-
-The original card-point result is stored in `game_result_summary`.
-
-The game-end-adjusted result is stored in `adjusted_game_result_summary`.
-
-`final_settlement_summary` uses `adjusted_game_result_summary`, not the raw `game_result_summary`.
+[Game-end handling documentation](docs/game_end.md)
 
 #### Remaining-point assignment
 
@@ -1085,53 +1047,6 @@ Fields:
 | `defender_rating_points` | Future defender-side rating points. Currently `null`. |
 | `unsupported_reason` | Explains why no performance rating score is calculated yet. |
 
-### Overbid settlement
-
-`final_settlement_summary` uses `overbid_summary` when calculating settlement.
-
-For non-overbid games:
-
-```text
-effective_game_value = game_value
-```
-
-For overbid Suit/Grand games:
-
-```text
-effective_game_value = required_game_value
-settlement_score = -2 * effective_game_value
-```
-
-This means the declarer can win by card points but still lose the settlement because the bid value was not covered by the calculated game value.
-
-Example:
-
-```json
-{
-  "game_value": 48,
-  "bid_value": 60,
-  "is_overbid": true,
-  "effective_game_value": 72,
-  "settlement_score": -144
-}
-```
-
-In this example, the calculated game value is 48, but the bid was 60. The smallest Grand/Suit game value that covers 60 is 72, so the overbid loss is counted as `-2 * 72 = -144`.
-
-The raw card-point winner remains visible through:
-
-```json
-"winner": "declarer",
-"declarer_won_by_card_points": true
-```
-
-The settlement loss is visible through:
-
-```json
-"is_loss": true,
-"is_overbid": true
-```
-
 ### Partial ISkO list rating implementation
 
 The project includes a partial ISkO-style performance rating implementation for single-game declarer perspective.
@@ -1244,7 +1159,7 @@ Performance rating according to tournament/list rules is a separate layer. It ma
 - bonus points for opponents' lost games
 - table-size-dependent values
 
-This should be implemented separately in a future `performance_rating` module and should not be mixed into `final_settlement_summary`.
+Performance rating is implemented separately in `performance_rating_summary` and is intentionally not mixed into `final_settlement_summary`.
 
 ## Player roles
 
@@ -1386,7 +1301,7 @@ Current limitations:
 - Skat visibility is tracked as metadata but is not yet used to change live decision logic.
 - Game value calculation uses declared metadata and does not yet infer matadors automatically.
 - Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but settlement scoring is still simplified.
-- `final_settlement_summary` currently uses simplified settlement scoring and does not yet support overbid handling.
+- `final_settlement_summary` uses simplified settlement scoring. Supported Suit/Grand overbid cases are settlement-aware, but full official settlement scoring is not complete yet.
 - Performance rating should be modeled separately from individual game settlement.
 - Completed trick validation checks implemented rule logic, but the engine still depends on the correctness of the provided position context.
 - Older completed-trick inputs without `players` or `winner_player` are supported but cannot be fully validated.
@@ -1510,13 +1425,11 @@ Planned next areas:
 - Improve defender cooperation logic
 - Improve lead-card selection based on game phase and score
 
-### Scoring and settlement
+## Scoring and settlement
 
-- Infer matadors automatically from known cards
-- Add overbid handling
-- Improve final settlement scoring
-- Add performance rating for list/series/tournament scoring
-- Keep individual game settlement separate from performance rating
+For card points, game value, Schneider/Schwarz, game result summaries, and final single-game settlement, see:
+
+[Scoring and settlement documentation](docs/scoring.md)
 
 ### Player modeling
 
