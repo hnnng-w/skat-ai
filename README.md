@@ -201,13 +201,9 @@ Supported `skat_visibility` values:
 - `known_to_declarer`
 - `known_post_game`
 
-Supported `game_end_reason` values:
+Game-end metadata such as `game_end_reason` is supported. For supported values and validation rules, see:
 
-- `not_ended`
-- `normal_completion`
-- `declarer_claimed_remaining_tricks`
-- `declarer_conceded_remaining_tricks`
-- `defenders_conceded_remaining_tricks`
+[Game-end handling documentation](docs/game_end.md)
 
 `game_end_reason` must be consistent with the current card-point state:
 
@@ -819,205 +815,6 @@ For normal completion, claim, concession, remaining-point assignment, and `adjus
 
 [Game-end handling documentation](docs/game_end.md)
 
-#### Remaining-point assignment
-
-When a game ends early, remaining card points are assigned according to `game_end_reason`.
-
-| game_end_reason | Remaining points go to |
-|---|---|
-| `declarer_claimed_remaining_tricks` | declarer |
-| `defenders_conceded_remaining_tricks` | declarer |
-| `declarer_conceded_remaining_tricks` | defenders |
-| `not_ended` | no assignment |
-| `normal_completion` | no assignment |
-
-Example:
-
-```json
-{
-  "game_result_summary": {
-    "declarer_points": 46,
-    "defender_points": 45,
-    "points_remaining": 29,
-    "is_complete": false
-  },
-  "adjusted_game_result_summary": {
-    "declarer_points": 75,
-    "defender_points": 45,
-    "points_remaining": 0,
-    "is_complete": true,
-    "winner": "declarer",
-    "game_end_reason": "declarer_claimed_remaining_tricks",
-    "remaining_points_recipient": "declarer",
-    "remaining_points_assigned": 29
-  }
-}
-```
-
-#### Game-end validation
-
-The engine validates `game_end_reason` against the known card-point state.
-
-Rules:
-
-- `not_ended` requires remaining card points.
-- `normal_completion` requires zero remaining card points.
-- claim/concession reasons require remaining card points.
-- unknown `game_end_reason` values are rejected.
-
-This prevents inconsistent inputs such as a normally completed game with only 86 assigned card points, or an unfinished game with all 120 points already assigned.
-
-### Final settlement summary
-
-`final_settlement_summary` combines `game_value_summary` and `adjusted_game_result_summary`.
-
-This means early game-end reasons such as claim or concession can affect the final settlement.
-
-It calculates a basic settlement score if both the game value and final card-point result are complete.
-
-Current simplified settlement rule:
-
-```text
-declarer wins  → settlement_score = game_value
-declarer loses → settlement_score = -2 × game_value
-```
-
-Example declarer win:
-
-```json
-{
-  "is_complete": true,
-  "missing_inputs": [],
-  "declarer_won_by_card_points": true,
-  "winner": "declarer",
-  "game_value": 72,
-  "settlement_score": 72,
-  "is_loss": false,
-  "is_overbid": null
-}
-```
-
-Example declarer loss:
-
-```json
-{
-  "is_complete": true,
-  "missing_inputs": [],
-  "declarer_won_by_card_points": false,
-  "winner": "defenders",
-  "game_value": 72,
-  "settlement_score": -144,
-  "is_loss": true,
-  "is_overbid": null
-}
-```
-
-If required information is missing, the summary remains incomplete:
-
-```json
-{
-  "is_complete": false,
-  "missing_inputs": [
-    "complete_card_points",
-    "game_value"
-  ],
-  "settlement_score": null
-}
-```
-
-### Settlement vs. performance rating
-
-The project intentionally separates individual game settlement from list, series, or tournament performance rating.
-
-`final_settlement_summary` describes the settlement of a single Skat game.
-
-It answers questions such as:
-
-- Did the declarer win or lose the individual game?
-- What is the game value?
-- Was the game overbid?
-- Which effective game value is used for settlement?
-- What is the individual settlement score?
-
-`performance_rating_summary` is a separate output layer for future list, series, or tournament rating.
-
-It is intentionally not mixed into `final_settlement_summary`.
-
-This separation is important because official Skat performance rating can add or subtract rating points beyond the individual game value. Those rating systems should be modeled separately from the settlement of a single game.
-
-### Performance rating summary
-
-`performance_rating_summary` is currently a scaffold.
-
-Example:
-
-```json
-"performance_rating_summary": {
-  "is_implemented": false,
-  "rating_system": "isko_list",
-  "basis": "individual_game_settlement",
-  "game_outcome": "declarer_win",
-  "settlement_score": 72,
-  "rating_score": null,
-  "declarer_rating_points": null,
-  "defender_rating_points": null,
-  "unsupported_reason": "isko_list_rating_not_implemented",
-  "notes": [
-    "Performance rating is separate from individual game settlement.",
-    "List, series, and tournament rating are not fully implemented yet.",
-    "final_settlement_summary remains the source for single-game settlement."
-  ]
-}
-```
-
-Fields:
-
-| Field | Meaning |
-|---|---|
-| `is_implemented` | Whether this rating system is fully implemented. Currently `false`. |
-| `rating_system` | Requested performance rating system, or `null`. |
-| `basis` | The source layer used as basis. Currently `individual_game_settlement`. |
-| `game_outcome` | One of `incomplete`, `declarer_win`, `declarer_loss`, or `unknown`. |
-| `settlement_score` | The individual game settlement score from `final_settlement_summary`. |
-| `rating_score` | Future final rating score. Currently `null`. |
-| `declarer_rating_points` | Future declarer-side rating points. Currently `null`. |
-| `defender_rating_points` | Future defender-side rating points. Currently `null`. |
-| `unsupported_reason` | Explains why no performance rating score is calculated yet. |
-
-#### Null-game overbid safeguard
-
-Null games use fixed game values rather than base-value multipliers.
-
-For this reason, overbid settlement scoring is currently supported for Suit and Grand games when `required_game_value` is available.
-
-If a Null game is detected as overbid and no `required_game_value` is available, `final_settlement_summary` remains incomplete instead of guessing a settlement score.
-
-In that case:
-
-```json
-{
-  "is_complete": false,
-  "missing_inputs": ["overbid_required_game_value"],
-  "is_overbid": true,
-  "settlement_score": null
-}
-```
-
-### Individual game settlement vs. performance rating
-
-`final_settlement_summary` describes the settlement of a single game.
-
-It does not represent list, series, or tournament performance scoring.
-
-Performance rating according to tournament/list rules is a separate layer. It may include additional values such as:
-
-- bonus points for own won games
-- penalty points for own lost games
-- bonus points for opponents' lost games
-- table-size-dependent values
-
-Performance rating is implemented separately in `performance_rating_summary` and is intentionally not mixed into `final_settlement_summary`.
-
 ## Player roles
 
 Allowed values:
@@ -1124,43 +921,11 @@ For the project structure and module overview, see:
 
 [Architecture documentation](docs/architecture.md)
 
-## Known limitations
+## Roadmap and limitations
 
-Current limitations:
+For completed areas, known limitations, planned improvements, and issue-cleanup notes, see:
 
-- Opponent behavior is still simplified and rule-based.
-- Player profiles influence simulations only when profile-based presets are explicitly enabled.
-- Profile-based presets use rough heuristics and are not learned from data.
-- The same combined opponent preset is currently applied to both opponents.
-- The engine does not yet model different individual policies for left and right opponents during the same simulation.
-- Multi-step simulations still rely on sampled hidden cards.
-- The engine is not yet a full perfect-information or full-game solver.
-- Skat visibility is tracked as metadata but is not yet used to change live decision logic.
-- Game value calculation uses declared metadata and does not yet infer matadors automatically.
-- Schneider and Schwarz raw status is point-based. Effective Schneider and Schwarz status is final-state aware, but settlement scoring is still simplified.
-- `final_settlement_summary` uses simplified settlement scoring. Supported Suit/Grand overbid cases are settlement-aware, but full official settlement scoring is not complete yet.
-- Performance rating should be modeled separately from individual game settlement.
-- Completed trick validation checks implemented rule logic, but the engine still depends on the correctness of the provided position context.
-- Older completed-trick inputs without `players` or `winner_player` are supported but cannot be fully validated.
-- Claim and concession handling currently assigns all remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
-- The engine does not yet verify whether a claim was strategically or legally justified.
-- The engine does not yet model player agreement or disputes around claim/concession.
-- Bidding logic, game declaration value constraints, and full official settlement scoring are not fully modeled yet.
-- The tool currently focuses on analysis and simulation, not on training a machine-learning model.
-- Overbid settlement is supported for Suit and Grand games when `required_game_value` is available.
-- Null-game overbid detection is supported, but settlement scoring remains conservative when no `required_game_value` is available.
-- Full official settlement scoring is still simplified and does not yet cover every tournament/rules nuance.
-- Individual game settlement and performance rating are intentionally separated.
-- `performance_rating_summary` is currently a scaffold and does not yet calculate official list, series, or tournament rating points.
-- `performance_rating_system = "isko_list"` is recognized and validated.
-- ISkO performance rating is partially implemented for single-game declarer perspective, but full list/series/tournament aggregation is not implemented yet.
-- `final_settlement_summary` remains the source of truth for single-game settlement.
-- ISkO-style performance rating is partially implemented for a fixed three-player table.
-- The current ISkO rating implementation covers single-game declarer perspective only.
-- Performance rating is partially implemented for fixed three-player single-game declarer rating. Full list, series, and tournament aggregation are not implemented yet.
-- Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
-- Full list, series, and tournament aggregation is not implemented yet.
-- Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.
+[Roadmap documentation](docs/roadmap.md)
 
 ## Running tests
 
@@ -1248,16 +1013,11 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 This tool provides statistical and rule-based recommendations based on simplified simulations. It is intended as a learning and analysis aid, not as a perfect Skat engine.
 
-## Roadmap
-
-Planned next areas:
-
 ### Simulation engine
 
 - Improve opponent behavior policies
 - Improve consistency of sampled opponent hands
 - Add stronger game-end handling
-- Add claim/concession logic
 - Add better handling of known and unknown skat cards
 - Improve defender cooperation logic
 - Improve lead-card selection based on game phase and score
