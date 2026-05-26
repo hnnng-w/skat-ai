@@ -175,55 +175,11 @@ Run a defenders-concession example:
 python main.py --input examples/grand_defenders_conceded_remaining_tricks.json --output outputs/defenders_concession_test.json
 ```
 
-## Input JSON format
+## Input JSON
 
-A basic input file describes one Skat position:
+For the detailed input format, supported fields, card notation, metadata, completed tricks, and validation rules, see:
 
-```json
-{
-  "game_type": "grand",
-  "player_role": "declarer",
-  "player_position": "middlehand",
-  "trick_leader": "left",
-  "hand": ["SA", "S10", "S9", "H10", "D7"],
-  "current_trick": ["S7"],
-  "played_cards": [],
-  "skat": [],
-  "completed_tricks": [],
-  "declarer_points": 0,
-  "defender_points": 0,
-  "next_player": "me",
-  "left_hand_size": 5,
-  "right_hand_size": 5,
-  "sample_count": 1000,
-  "random_seed": 42,
-  "use_basic_opponent_strategy": true,
-  "hand_game": false,
-  "ouvert": false,
-  "schneider_announced": false,
-  "schwarz_announced": false,
-  "matadors": null
-}
-```
-
-Important fields:
-
-- `game_type`: currently supports game types such as `grand`, suit games, and null games according to the implemented rule logic.
-- `player_role`: whether the player is `declarer` or `defender`.
-- `player_position`: position of the player in the current trick.
-- `trick_leader`: player who led the current trick.
-- `hand`: current player hand.
-- `current_trick`: cards already played in the current trick.
-- `played_cards`: known played cards outside completed tricks.
-- `skat`: skat cards, if known.
-- `completed_tricks`: previously completed tricks.
-- `declarer_points` / `defender_points`: explicit current score values.
-- `next_player`: next player to act, if known.
-- `left_hand_size` / `right_hand_size`: assumed remaining opponent hand sizes.
-- `sample_count`: number of simulation samples.
-- `random_seed`: optional seed for reproducible simulations.
-- `use_basic_opponent_strategy`: whether basic opponent strategy is used during simulation.
-- `game_end_reason`: describes whether the game is still running, completed normally, or ended early through claim/concession.
+[Input JSON documentation](docs/input_json.md)
 
 ### Performance rating system
 
@@ -240,7 +196,7 @@ Supported values:
 | Value | Meaning |
 |---|---|
 | `placeholder` | Generic placeholder rating system. |
-| `isko_list` | ISkO-style list/performance rating placeholder. Known, but not implemented yet. |
+| `isko_list` | Partially implemented ISkO-style single-game rating for the fixed three-player table. Full list/series/tournament aggregation is not implemented yet. |
 
 If omitted, `performance_rating_summary.rating_system` is `null`.
 
@@ -1109,7 +1065,7 @@ Example:
   "unsupported_reason": "isko_list_rating_not_implemented",
   "notes": [
     "Performance rating is separate from individual game settlement.",
-    "List, series, and tournament rating are not implemented yet.",
+    "List, series, and tournament rating are not fully implemented yet.",
     "final_settlement_summary remains the source for single-game settlement."
   ]
 }
@@ -1384,85 +1340,11 @@ H10       0.000      13.28       0.00      13.28     -13.28
 S10       0.000      15.04       0.00      15.04     -15.04
 ```
 
-## JSON output
+## Output JSON
 
-The JSON output contains the full structured result.
+For the detailed output structure and field descriptions, see:
 
-Example command:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --compare-policies --output outputs/result.json
-```
-
-Top-level fields may include:
-
-- input_file
-- position
-- settings
-- opponent_policy_settings
-- profile_preset_settings
-- analysis_metadata
-- game_declaration
-- game_value_summary
-- legal_cards
-- analysis_report
-- strategic_summary
-- score_summary
-- game_result_summary
-- adjusted_game_result_summary
-- final_settlement_summary
-- recommendation
-- multi_step_result
-- policy_comparison_result
-- overbid_summary
-- performance_rating_summary
-
-`game_result_summary` contains the raw card-point result before game-end adjustment.
-
-`adjusted_game_result_summary` contains the card-point result after applying `game_end_reason`, such as claim or concession.
-
-`final_settlement_summary` combines `game_value_summary` and `adjusted_game_result_summary`.
-
-`multi_step_result` contains a serializable multi-step summary, context summary, final state, and step list.
-
-`policy_comparison_result` contains one compact result per card-selection policy and a `recommended_policy`.
-
-
-Example `performance_rating_summary` for a won declarer game:
-
-```json
-"performance_rating_summary": {
-  "is_implemented": false,
-  "is_partially_implemented": true,
-  "implemented_scope": "declarer_single_game_rating",
-  "unsupported_scope": "full_list_series_tournament_rating",
-  "rating_system": "isko_list",
-  "table_player_count": 3,
-  "basis": "individual_game_settlement",
-  "game_outcome": "declarer_win",
-  "settlement_score": 72,
-  "rating_score": 122,
-  "declarer_rating_score": 122,
-  "declarer_rating_points": 50,
-  "counterparty_rating_points": 0,
-  "defender_rating_points": 0,
-  "unsupported_reason": "isko_list_rating_not_implemented"
-}
-```
-
-Example for a lost declarer game:
-
-```json
-"performance_rating_summary": {
-  "game_outcome": "declarer_loss",
-  "settlement_score": -144,
-  "rating_score": -194,
-  "declarer_rating_score": -194,
-  "declarer_rating_points": -50,
-  "counterparty_rating_points": 40,
-  "defender_rating_points": 40
-}
-```
+[Output JSON documentation](docs/output_json.md)
 
 ## Architecture overview
 
