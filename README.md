@@ -109,71 +109,11 @@ Run an overbid example where the declarer wins card points but loses settlement:
 python main.py --input examples/grand_overbid_declarer_card_points_win.json --output outputs/overbid_test.json
 ```
 
-## Example positions
+## Examples
 
-The project includes example JSON input files in the `examples/` folder.
+For example input files, example commands, post-game review examples, claim/concession examples, overbid examples, multi-step simulation examples, and policy-comparison examples, see:
 
-```text
-examples/
-  grand_claimed_remaining_tricks.json
-  grand_complete_declarer_loss.json
-  grand_complete_declarer_win.json
-  grand_declarer_conceded_remaining_tricks.json
-  grand_defenders_conceded_remaining_tricks.json
-  grand_leading.json
-  grand_midgame_declarer_ahead.json
-  grand_midgame_defenders_ahead.json
-  grand_post_game_known_skat.json
-  grand_second_position.json
-  grand_second_position_with_metadata.json
-  grand_third_position.json
-  hearts_leading.json
-  null_second_position.json
-```
-
-Run an example:
-
-```powershell
-python main.py --input examples/grand_leading.json
-```
-
-Run a mid-game example:
-
-```powershell
-python main.py --input examples/grand_midgame_declarer_ahead.json
-```
-
-Run a complete settlement example:
-
-```powershell
-python main.py --input examples/grand_complete_declarer_win.json --output outputs/complete_declarer_win.json
-```
-
-Run a post-game review example with known skat cards:
-
-```powershell
-python main.py --input examples/grand_post_game_known_skat.json --output outputs/post_game_known_skat.json
-```
-
-The examples are used as regression tests. They are expected to remain valid and to produce stable key output values such as score summaries, game values, settlement status, and metadata output.
-
-Run a declarer-claim example:
-
-```powershell
-python main.py --input examples/grand_claimed_remaining_tricks.json --output outputs/claim_test.json
-```
-
-Run a declarer-concession example:
-
-```powershell
-python main.py --input examples/grand_declarer_conceded_remaining_tricks.json --output outputs/declarer_concession_test.json
-```
-
-Run a defenders-concession example:
-
-```powershell
-python main.py --input examples/grand_defenders_conceded_remaining_tricks.json --output outputs/defenders_concession_test.json
-```
+[Examples documentation](docs/examples.md)
 
 ## Input JSON
 
@@ -1178,31 +1118,11 @@ For the detailed output structure and field descriptions, see:
 
 [Output JSON documentation](docs/output_json.md)
 
-## Architecture overview
+## Architecture
 
-Key modules:
+For the project structure and module overview, see:
 
-- `main.py`: CLI entry point and human-readable printing
-- `input_loader.py`: loads JSON input and builds initial state/settings
-- `input_validation.py`: validates input data
-- `game_state.py`: core game state structure
-- `rules.py`: Skat rule logic such as legal cards and trick winners
-- `simulation.py`: immediate trick simulation and opponent hand sampling
-- `simulation_step.py`: simulate-and-advance logic for one player action
-- `multi_step_simulation.py`: multi-step simulation orchestration
-- `opponent_lead.py`: low-level opponent lead and response behavior
-- `opponent_sequence.py`: prepares opponent action sequences before the player acts
-- `simulation_context.py`: tracks simulated opponent cards and run events
-- `known_cards.py`: central known-card utilities
-- `sampling_validation.py`: validates card availability for sampling
-- `multi_step_summary.py`: compact multi-step score summaries
-- `policy_comparison.py`: compares card-selection policies
-- `result_serialization.py`: JSON-serializable output structures
-- `analysis_metadata.py`: optional metadata bundle for strategic context and player profiles
-- `strategic_metadata.py`: analysis mode, skat visibility, and game-end metadata
-- `player_profile.py`: placeholder structure for future opponent modeling
-- `game_history.py`: completed-trick representation, score extraction, and completed-trick consistency validation
-- `game_end.py`: game-end reason handling and remaining-point assignment for claim/concession scenarios
+[Architecture documentation](docs/architecture.md)
 
 ## Known limitations
 
