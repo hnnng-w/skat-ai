@@ -1659,3 +1659,17 @@ Planned next areas:
 - Add more examples
 - Add compact reporting modes
 - Prepare a first `0.1.0` release
+
+## Documentation
+
+Detailed documentation is split into topic-specific files:
+
+- [Input JSON](docs/input_json.md)
+- [Output JSON](docs/output_json.md)
+- [Scoring and settlement](docs/scoring.md)
+- [Game-end handling](docs/game_end.md)
+- [Overbid handling](docs/overbid.md)
+- [Performance rating](docs/performance_rating.md)
+- [Examples](docs/examples.md)
+- [Architecture](docs/architecture.md)
+- [Roadmap](docs/roadmap.md)
