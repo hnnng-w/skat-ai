@@ -4,6 +4,7 @@ from skat_ai.input_validation import (
     validate_completed_tricks,
     validate_current_trick,
     validate_game_type,
+    validate_live_decision_has_no_known_skat_cards,
     validate_next_player,
     validate_no_duplicate_cards,
     validate_non_negative_integer,
@@ -850,3 +851,86 @@ def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
         assert "post_game_review" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_live_decision_has_no_known_skat_cards_accepts_live_empty_skat() -> None:
+    validate_live_decision_has_no_known_skat_cards(
+        analysis_mode="live_decision",
+        skat=[],
+    )
+
+
+def test_validate_live_decision_has_no_known_skat_cards_accepts_post_game_known_skat() -> None:
+    validate_live_decision_has_no_known_skat_cards(
+        analysis_mode="post_game_review",
+        skat=["C7", "D8"],
+    )
+
+
+def test_validate_live_decision_has_no_known_skat_cards_rejects_live_known_skat() -> None:
+    try:
+        validate_live_decision_has_no_known_skat_cards(
+            analysis_mode="live_decision",
+            skat=["C7", "D8"],
+        )
+    except ValueError as error:
+        assert "Known skat cards" in str(error)
+        assert "live_decision" in str(error)
+        assert "post_game_review" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+    
+def test_validate_position_input_rejects_live_decision_with_known_skat_cards() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": ["C7", "D8"],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "Known skat cards" in str(error)
+        assert "live_decision" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_position_input_accepts_post_game_review_with_known_skat_cards() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": ["C7", "D8"],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+    }
+
+    validate_position_input(data)

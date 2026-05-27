@@ -234,6 +234,10 @@ def validate_position_input(data: dict[str, Any]) -> None:
         analysis_mode=data.get("analysis_mode", "live_decision"),
         skat_visibility=data.get("skat_visibility", "unknown"),
     )
+    validate_live_decision_has_no_known_skat_cards(
+        analysis_mode=data.get("analysis_mode", "live_decision"),
+        skat=data.get("skat", []),
+    )
 
 
 def validate_next_player(next_player: str) -> None:
@@ -426,3 +430,16 @@ def validate_total_known_card_points(data: dict[str, Any]) -> None:
 
     if total_points > 120:
         raise ValueError("Known card points cannot exceed 120.")
+
+def validate_live_decision_has_no_known_skat_cards(
+    analysis_mode: str,
+    skat: list[str],
+) -> None:
+    """
+    Validates that live decisions do not include known skat cards.
+    """
+    if analysis_mode == "live_decision" and skat:
+        raise ValueError(
+            "Known skat cards are not allowed for analysis_mode='live_decision'. "
+            "Use analysis_mode='post_game_review' for post-game known skat cards."
+        )
