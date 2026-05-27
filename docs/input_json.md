@@ -2,6 +2,14 @@
 
 This document describes the supported input JSON format for `skat-ai`.
 
+## JSON schema
+
+A draft input JSON schema is available at:
+
+[`schemas/input.schema.json`](../schemas/input.schema.json)
+
+The schema is intended as a documentation and validation aid. Runtime validation is still handled by the Python input-validation layer.
+
 ## Required fields
 
 A basic input position requires:

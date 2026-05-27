@@ -85,6 +85,7 @@ For more examples, see [Examples documentation](docs/examples.md).
 Detailed documentation is split into topic-specific files:
 
 - [Input JSON](docs/input_json.md)
+- [Input JSON schema](schemas/input.schema.json)
 - [Output JSON](docs/output_json.md)
 - [Scoring and settlement](docs/scoring.md)
 - [Game-end handling](docs/game_end.md)

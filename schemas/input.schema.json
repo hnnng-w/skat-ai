@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/input.schema.json",
+  "title": "skat-ai input position",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "game_type",
+    "player_role",
+    "player_position",
+    "trick_leader",
+    "hand",
+    "current_trick",
+    "played_cards",
+    "completed_tricks",
+    "declarer_points",
+    "defender_points",
+    "next_player",
+    "skat",
+    "left_hand_size",
+    "right_hand_size",
+    "sample_count",
+    "random_seed",
+    "use_basic_opponent_strategy"
+  ],
+  "properties": {
+    "game_type": {
+      "type": "string",
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "player_role": {
+      "type": "string",
+      "enum": ["declarer", "defender", "unknown"]
+    },
+    "player_position": {
+      "type": "string",
+      "enum": ["forehand", "middlehand", "rearhand", "unknown"]
+    },
+    "trick_leader": {
+      "$ref": "#/$defs/player"
+    },
+    "next_player": {
+      "$ref": "#/$defs/player"
+    },
+    "hand": {
+      "$ref": "#/$defs/card_array"
+    },
+    "current_trick": {
+      "$ref": "#/$defs/card_array"
+    },
+    "played_cards": {
+      "$ref": "#/$defs/card_array"
+    },
+    "skat": {
+      "$ref": "#/$defs/card_array"
+    },
+    "completed_tricks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/completed_trick"
+      }
+    },
+    "declarer_points": {
+      "$ref": "#/$defs/non_negative_integer"
+    },
+    "defender_points": {
+      "$ref": "#/$defs/non_negative_integer"
+    },
+    "left_hand_size": {
+      "$ref": "#/$defs/positive_integer"
+    },
+    "right_hand_size": {
+      "$ref": "#/$defs/positive_integer"
+    },
+    "sample_count": {
+      "$ref": "#/$defs/positive_integer"
+    },
+    "random_seed": {
+      "type": "integer"
+    },
+    "use_basic_opponent_strategy": {
+      "type": "boolean"
+    },
+
+    "hand_game": {
+      "type": "boolean"
+    },
+    "ouvert": {
+      "type": "boolean"
+    },
+    "schneider_announced": {
+      "type": "boolean"
+    },
+    "schwarz_announced": {
+      "type": "boolean"
+    },
+    "matadors": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "bid_value": {
+      "type": ["integer", "null"],
+      "minimum": 1
+    },
+
+    "analysis_mode": {
+      "type": "string",
+      "enum": ["live_decision", "post_game_review"]
+    },
+    "skat_visibility": {
+      "type": "string",
+      "enum": ["unknown", "known_post_game"]
+    },
+    "game_end_reason": {
+      "type": "string",
+      "enum": [
+        "not_ended",
+        "normal_completion",
+        "declarer_claimed_remaining_tricks",
+        "declarer_conceded_remaining_tricks",
+        "defenders_conceded_remaining_tricks"
+      ]
+    },
+
+    "opponent_lead_policy": {
+      "type": "string"
+    },
+    "opponent_response_policy": {
+      "type": "string"
+    },
+    "opponent_policy_preset": {
+      "type": "string"
+    },
+    "use_profile_presets": {
+      "type": "boolean"
+    },
+    "performance_rating_system": {
+      "type": ["string", "null"],
+      "enum": ["placeholder", "isko_list", null]
+    }
+  },
+  "$defs": {
+    "player": {
+      "type": "string",
+      "enum": ["me", "left", "right", "unknown"]
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "card_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/card"
+      }
+    },
+    "non_negative_integer": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "positive_integer": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "winner_role": {
+      "type": "string",
+      "enum": ["declarer", "defenders", "unknown"]
+    },
+    "completed_trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cards"],
+      "properties": {
+        "cards": {
+          "$ref": "#/$defs/card_array",
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "players": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/player"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "winner_role": {
+          "$ref": "#/$defs/winner_role"
+        },
+        "winner_player": {
+          "$ref": "#/$defs/player"
+        }
+      }
+    }
+  }
+}
