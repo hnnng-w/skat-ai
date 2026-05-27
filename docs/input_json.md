@@ -30,6 +30,10 @@ The schema intentionally checks stable structural constraints such as:
 
 More advanced cross-field validation, such as duplicate cards across all known-card lists or completed-trick sequence consistency, is handled by the Python validation layer.
 
+For the validation-layer overview and schema limitations, see:
+
+[Schema validation documentation](schema_validation.md)
+
 ## Required fields
 
 A basic input position requires:

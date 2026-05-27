@@ -88,6 +88,7 @@ Detailed documentation is split into topic-specific files:
 - [Input JSON schema](schemas/input.schema.json)
 - [Output JSON](docs/output_json.md)
 - [Output JSON schema](schemas/output.schema.json)
+- [Schema validation](docs/schema_validation.md)
 - [Scoring and settlement](docs/scoring.md)
 - [Game-end handling](docs/game_end.md)
 - [Overbid handling](docs/overbid.md)

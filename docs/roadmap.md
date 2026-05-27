@@ -66,7 +66,7 @@ Recommended cleanup areas:
 
 - Keep README short and topic-focused.
 - Continue improving topic-specific docs in `docs/`.
-- Add or generate JSON schema documentation for input and output.
+- Continue improving JSON schema coverage and generated-output validation.
 - Centralize completed-trick validation responsibilities more clearly.
 - Review profile-preset behavior across immediate analysis and multi-step simulation.
 - Add clearer release notes or changelog once the project stabilizes.

@@ -18,6 +18,10 @@ python scripts/validate_generated_outputs_schema.py
 The project check script also runs generated-output schema validation.
 ```
 
+For the validation-layer overview and schema limitations, see:
+
+[Schema validation documentation](schema_validation.md)
+
 ## Top-level fields
 
 Typical top-level fields include:
