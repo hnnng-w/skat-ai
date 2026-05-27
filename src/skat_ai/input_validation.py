@@ -9,6 +9,7 @@ from skat_ai.performance_rating import validate_performance_rating_system
 from skat_ai.rules import GAME_TYPES, get_card_points
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
+    validate_analysis_mode_skat_visibility_combination,
     validate_game_end_reason,
     validate_skat_visibility,
 )
@@ -228,6 +229,10 @@ def validate_position_input(data: dict[str, Any]) -> None:
         trick_leader=data.get("trick_leader", "unknown"),
         player_role=data.get("player_role", "unknown"),
         game_type=data.get("game_type", "grand"),
+    )
+    validate_analysis_mode_skat_visibility_combination(
+        analysis_mode=data.get("analysis_mode", "live_decision"),
+        skat_visibility=data.get("skat_visibility", "unknown"),
     )
 
 

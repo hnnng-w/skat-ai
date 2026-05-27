@@ -64,6 +64,10 @@ def validate_strategic_metadata(metadata: StrategicMetadata) -> None:
     validate_analysis_mode(metadata.analysis_mode)
     validate_skat_visibility(metadata.skat_visibility)
     validate_game_end_reason(metadata.game_end_reason)
+    validate_analysis_mode_skat_visibility_combination(
+        analysis_mode=metadata.analysis_mode,
+        skat_visibility=metadata.skat_visibility,
+    )
 
 
 def build_default_strategic_metadata() -> StrategicMetadata:
@@ -88,3 +92,19 @@ def build_strategic_metadata_from_dict(
     validate_strategic_metadata(metadata)
 
     return metadata
+
+def validate_analysis_mode_skat_visibility_combination(
+    analysis_mode: str,
+    skat_visibility: str,
+) -> None:
+    """
+    Validates that skat visibility is compatible with the analysis mode.
+    """
+    if (
+        analysis_mode == "live_decision"
+        and skat_visibility == "known_post_game"
+    ):
+        raise ValueError(
+            "skat_visibility='known_post_game' is only allowed "
+            "for analysis_mode='post_game_review'."
+        )

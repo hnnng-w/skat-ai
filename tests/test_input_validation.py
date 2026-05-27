@@ -819,3 +819,34 @@ def test_validate_position_input_rejects_unknown_performance_rating_system() -> 
         assert "Unknown performance rating system" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "known_post_game",
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "known_post_game" in str(error)
+        assert "post_game_review" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

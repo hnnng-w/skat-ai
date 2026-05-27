@@ -3,6 +3,7 @@ from skat_ai.strategic_metadata import (
     build_default_strategic_metadata,
     build_strategic_metadata_from_dict,
     validate_analysis_mode,
+    validate_analysis_mode_skat_visibility_combination,
     validate_game_end_reason,
     validate_skat_visibility,
     validate_strategic_metadata,
@@ -105,5 +106,46 @@ def test_validate_strategic_metadata_rejects_invalid_metadata() -> None:
         validate_strategic_metadata(metadata)
     except ValueError as error:
         assert "Invalid analysis mode" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_strategic_metadata_rejects_live_known_post_game_skat() -> None:
+    metadata = StrategicMetadata(
+        analysis_mode="live_decision",
+        skat_visibility="known_post_game",
+        game_end_reason="not_ended",
+    )
+
+    try:
+        validate_strategic_metadata(metadata)
+    except ValueError as error:
+        assert "known_post_game" in str(error)
+        assert "post_game_review" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_validate_analysis_mode_skat_visibility_accepts_live_unknown() -> None:
+    validate_analysis_mode_skat_visibility_combination(
+        analysis_mode="live_decision",
+        skat_visibility="unknown",
+    )
+
+
+def test_validate_analysis_mode_skat_visibility_accepts_post_game_known() -> None:
+    validate_analysis_mode_skat_visibility_combination(
+        analysis_mode="post_game_review",
+        skat_visibility="known_post_game",
+    )
+
+
+def test_validate_analysis_mode_skat_visibility_rejects_live_known_post_game() -> None:
+    try:
+        validate_analysis_mode_skat_visibility_combination(
+            analysis_mode="live_decision",
+            skat_visibility="known_post_game",
+        )
+    except ValueError as error:
+        assert "known_post_game" in str(error)
+        assert "post_game_review" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
