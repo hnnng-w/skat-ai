@@ -18,6 +18,18 @@ python scripts/validate_examples_schema.py
 The project check script also runs schema validation if it is enabled in scripts/check.ps1.
 ```
 
+The schema intentionally checks stable structural constraints such as:
+
+- valid card notation
+- maximum hand size
+- maximum skat size
+- maximum current-trick size
+- unique cards within individual card arrays
+- card-point fields between 0 and 120
+- supported analysis and game-end metadata values
+
+More advanced cross-field validation, such as duplicate cards across all known-card lists or completed-trick sequence consistency, is handled by the Python validation layer.
+
 ## Required fields
 
 A basic input position requires:

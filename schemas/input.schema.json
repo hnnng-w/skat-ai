@@ -43,16 +43,23 @@
       "$ref": "#/$defs/player"
     },
     "hand": {
-      "$ref": "#/$defs/card_array"
+      "$ref": "#/$defs/card_array",
+      "maxItems": 10,
+      "uniqueItems": true
     },
     "current_trick": {
-      "$ref": "#/$defs/card_array"
+      "$ref": "#/$defs/card_array",
+      "maxItems": 2,
+      "uniqueItems": true
     },
     "played_cards": {
-      "$ref": "#/$defs/card_array"
+      "$ref": "#/$defs/card_array",
+      "uniqueItems": true
     },
     "skat": {
-      "$ref": "#/$defs/card_array"
+      "$ref": "#/$defs/card_array",
+      "maxItems": 2,
+      "uniqueItems": true
     },
     "completed_tricks": {
       "type": "array",
@@ -61,19 +68,21 @@
       }
     },
     "declarer_points": {
-      "$ref": "#/$defs/non_negative_integer"
+      "$ref": "#/$defs/card_points"
     },
     "defender_points": {
-      "$ref": "#/$defs/non_negative_integer"
+      "$ref": "#/$defs/card_points"
     },
     "left_hand_size": {
-      "$ref": "#/$defs/positive_integer"
+      "$ref": "#/$defs/hand_size"
     },
     "right_hand_size": {
-      "$ref": "#/$defs/positive_integer"
+      "$ref": "#/$defs/hand_size"
     },
     "sample_count": {
-      "$ref": "#/$defs/positive_integer"
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
     },
     "random_seed": {
       "type": "integer"
@@ -154,6 +163,16 @@
         "$ref": "#/$defs/card"
       }
     },
+    "card_points": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120
+    },
+    "hand_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
     "non_negative_integer": {
       "type": "integer",
       "minimum": 0
@@ -174,7 +193,8 @@
         "cards": {
           "$ref": "#/$defs/card_array",
           "minItems": 3,
-          "maxItems": 3
+          "maxItems": 3,
+          "uniqueItems": true
         },
         "players": {
           "type": "array",
