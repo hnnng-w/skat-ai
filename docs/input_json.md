@@ -10,6 +10,14 @@ A draft input JSON schema is available at:
 
 The schema is intended as a documentation and validation aid. Runtime validation is still handled by the Python input-validation layer.
 
+Example files can be validated against the schema with:
+
+```powershell
+python scripts/validate_examples_schema.py
+
+The project check script also runs schema validation if it is enabled in scripts/check.ps1.
+```
+
 ## Required fields
 
 A basic input position requires:

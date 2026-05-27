@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 
 [project.optional-dependencies]
 dev = [
+    "jsonschema>=4.0.0",
     "pytest>=9.0.0",
     "ruff>=0.14.0",
 ]
