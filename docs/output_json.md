@@ -2,6 +2,14 @@
 
 This document describes the JSON output produced by `skat-ai`.
 
+## JSON schema
+
+A draft output JSON schema is available at:
+
+[`schemas/output.schema.json`](../schemas/output.schema.json)
+
+The schema is intended as a documentation and validation aid. It checks the main output structure and important summary fields, but it is intentionally not a fully strict representation of every nested analysis detail.
+
 ## Top-level fields
 
 Typical top-level fields include:

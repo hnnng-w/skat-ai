@@ -1,0 +1,506 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/output.schema.json",
+  "title": "skat-ai output result",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "input_file",
+    "position",
+    "settings",
+    "analysis_metadata",
+    "game_declaration",
+    "game_value_summary",
+    "overbid_summary",
+    "legal_cards",
+    "analysis_report",
+    "score_summary",
+    "game_result_summary",
+    "adjusted_game_result_summary",
+    "final_settlement_summary",
+    "performance_rating_summary",
+    "recommendation"
+  ],
+  "properties": {
+    "input_file": {
+      "type": "string"
+    },
+    "position": {
+      "type": "object"
+    },
+    "settings": {
+      "type": "object"
+    },
+    "opponent_policy_settings": {
+      "type": "object"
+    },
+    "profile_preset_settings": {
+      "type": "object"
+    },
+    "analysis_metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "game_declaration": {
+      "$ref": "#/$defs/game_declaration"
+    },
+    "game_value_summary": {
+      "$ref": "#/$defs/game_value_summary"
+    },
+    "overbid_summary": {
+      "$ref": "#/$defs/overbid_summary"
+    },
+    "legal_cards": {
+      "$ref": "#/$defs/card_array"
+    },
+    "analysis_report": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/analysis_report_item"
+      }
+    },
+    "strategic_summary": {
+      "type": "string"
+    },
+    "score_summary": {
+      "$ref": "#/$defs/score_summary"
+    },
+    "game_result_summary": {
+      "$ref": "#/$defs/game_result_summary"
+    },
+    "adjusted_game_result_summary": {
+      "$ref": "#/$defs/adjusted_game_result_summary"
+    },
+    "final_settlement_summary": {
+      "$ref": "#/$defs/final_settlement_summary"
+    },
+    "performance_rating_summary": {
+      "$ref": "#/$defs/performance_rating_summary"
+    },
+    "recommendation": {
+      "$ref": "#/$defs/recommendation"
+    },
+    "multi_step_result": {
+      "type": ["object", "null"]
+    },
+    "policy_comparison_result": {
+      "type": ["object", "null"]
+    }
+  },
+  "$defs": {
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "card_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/card"
+      }
+    },
+    "nullable_integer": {
+      "type": ["integer", "null"]
+    },
+    "nullable_number": {
+      "type": ["number", "null"]
+    },
+    "nullable_boolean": {
+      "type": ["boolean", "null"]
+    },
+    "game_declaration": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "game_type",
+        "hand_game",
+        "ouvert",
+        "schneider_announced",
+        "schwarz_announced",
+        "matadors",
+        "bid_value"
+      ],
+      "properties": {
+        "game_type": {
+          "type": "string",
+          "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+        },
+        "hand_game": {
+          "type": "boolean"
+        },
+        "ouvert": {
+          "type": "boolean"
+        },
+        "schneider_announced": {
+          "type": "boolean"
+        },
+        "schwarz_announced": {
+          "type": "boolean"
+        },
+        "matadors": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "bid_value": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    },
+    "game_value_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "game_type",
+        "is_null_game",
+        "base_value",
+        "game_level",
+        "game_value",
+        "details"
+      ],
+      "properties": {
+        "game_type": {
+          "type": "string",
+          "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+        },
+        "is_null_game": {
+          "type": "boolean"
+        },
+        "base_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "game_level": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "game_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "details": {
+          "type": "object"
+        }
+      }
+    },
+    "overbid_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "bid_value",
+        "game_value",
+        "is_overbid",
+        "margin",
+        "required_game_value",
+        "status"
+      ],
+      "properties": {
+        "bid_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "game_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "is_overbid": {
+          "$ref": "#/$defs/nullable_boolean"
+        },
+        "margin": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "required_game_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "unknown_bid_value",
+            "unknown_game_value",
+            "not_overbid",
+            "overbid"
+          ]
+        }
+      }
+    },
+    "analysis_report_item": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "card",
+        "win_rate",
+        "average_trick_points",
+        "average_points_won",
+        "average_points_lost",
+        "expected_point_swing",
+        "is_recommended"
+      ],
+      "properties": {
+        "card": {
+          "$ref": "#/$defs/card"
+        },
+        "win_rate": {
+          "type": "number"
+        },
+        "average_trick_points": {
+          "type": "number"
+        },
+        "average_points_won": {
+          "type": "number"
+        },
+        "average_points_lost": {
+          "type": "number"
+        },
+        "expected_point_swing": {
+          "type": "number"
+        },
+        "is_recommended": {
+          "type": "boolean"
+        }
+      }
+    },
+    "score_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "explicit_declarer_points",
+        "explicit_defender_points",
+        "completed_trick_declarer_points",
+        "completed_trick_defender_points",
+        "total_declarer_points",
+        "total_defender_points"
+      ],
+      "properties": {
+        "explicit_declarer_points": {
+          "type": "integer"
+        },
+        "explicit_defender_points": {
+          "type": "integer"
+        },
+        "completed_trick_declarer_points": {
+          "type": "integer"
+        },
+        "completed_trick_defender_points": {
+          "type": "integer"
+        },
+        "total_declarer_points": {
+          "type": "integer"
+        },
+        "total_defender_points": {
+          "type": "integer"
+        }
+      }
+    },
+    "game_result_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "declarer_points",
+        "defender_points",
+        "points_remaining",
+        "is_complete",
+        "winner"
+      ],
+      "properties": {
+        "declarer_points": {
+          "type": "integer"
+        },
+        "defender_points": {
+          "type": "integer"
+        },
+        "points_remaining": {
+          "type": "integer"
+        },
+        "is_complete": {
+          "type": "boolean"
+        },
+        "winner": {
+          "type": "string",
+          "enum": ["declarer", "defenders", "undecided"]
+        }
+      }
+    },
+    "adjusted_game_result_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "declarer_points",
+        "defender_points",
+        "points_remaining",
+        "is_complete",
+        "winner",
+        "game_end_reason",
+        "remaining_points_recipient",
+        "remaining_points_assigned"
+      ],
+      "properties": {
+        "declarer_points": {
+          "type": "integer"
+        },
+        "defender_points": {
+          "type": "integer"
+        },
+        "points_remaining": {
+          "type": "integer"
+        },
+        "is_complete": {
+          "type": "boolean"
+        },
+        "winner": {
+          "type": "string",
+          "enum": ["declarer", "defenders", "undecided"]
+        },
+        "game_end_reason": {
+          "type": "string"
+        },
+        "remaining_points_recipient": {
+          "type": ["string", "null"]
+        },
+        "remaining_points_assigned": {
+          "type": "integer"
+        }
+      }
+    },
+    "final_settlement_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "is_complete",
+        "missing_inputs",
+        "declarer_won_by_card_points",
+        "winner",
+        "game_value",
+        "effective_game_value",
+        "bid_value",
+        "settlement_score",
+        "is_loss",
+        "is_overbid",
+        "overbid_margin",
+        "overbid_status",
+        "overbid_required_game_value"
+      ],
+      "properties": {
+        "is_complete": {
+          "type": "boolean"
+        },
+        "missing_inputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "declarer_won_by_card_points": {
+          "$ref": "#/$defs/nullable_boolean"
+        },
+        "winner": {
+          "type": ["string", "null"],
+          "enum": ["declarer", "defenders", null]
+        },
+        "game_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "effective_game_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "bid_value": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "settlement_score": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "is_loss": {
+          "$ref": "#/$defs/nullable_boolean"
+        },
+        "is_overbid": {
+          "$ref": "#/$defs/nullable_boolean"
+        },
+        "overbid_margin": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "overbid_status": {
+          "type": "string"
+        },
+        "overbid_required_game_value": {
+          "$ref": "#/$defs/nullable_integer"
+        }
+      }
+    },
+    "performance_rating_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "is_implemented",
+        "is_partially_implemented",
+        "implemented_scope",
+        "unsupported_scope",
+        "rating_system",
+        "table_player_count",
+        "basis",
+        "game_outcome",
+        "settlement_score",
+        "rating_score",
+        "declarer_rating_score",
+        "declarer_rating_points",
+        "counterparty_rating_points",
+        "defender_rating_points",
+        "unsupported_reason"
+      ],
+      "properties": {
+        "is_implemented": {
+          "type": "boolean"
+        },
+        "is_partially_implemented": {
+          "type": "boolean"
+        },
+        "implemented_scope": {
+          "type": ["string", "null"]
+        },
+        "unsupported_scope": {
+          "type": "string"
+        },
+        "rating_system": {
+          "type": ["string", "null"]
+        },
+        "table_player_count": {
+          "type": "integer"
+        },
+        "basis": {
+          "type": "string"
+        },
+        "game_outcome": {
+          "type": "string",
+          "enum": ["incomplete", "declarer_win", "declarer_loss", "unknown"]
+        },
+        "settlement_score": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "rating_score": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "declarer_rating_score": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "declarer_rating_points": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "counterparty_rating_points": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "defender_rating_points": {
+          "$ref": "#/$defs/nullable_integer"
+        },
+        "unsupported_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["card", "reason"],
+      "properties": {
+        "card": {
+          "type": ["string", "null"]
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
