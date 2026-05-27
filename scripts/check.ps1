@@ -14,6 +14,14 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+Write-Host "Running generated output schema validation..."
+python scripts/validate_generated_outputs_schema.py
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Generated output schema validation failed."
+    exit $LASTEXITCODE
+}
+
 Write-Host "Running tests..."
 python -m pytest
 

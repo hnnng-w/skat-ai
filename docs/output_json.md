@@ -10,6 +10,14 @@ A draft output JSON schema is available at:
 
 The schema is intended as a documentation and validation aid. It checks the main output structure and important summary fields, but it is intentionally not a fully strict representation of every nested analysis detail.
 
+Generated outputs for selected examples can be validated against the schema with:
+
+```powershell
+python scripts/validate_generated_outputs_schema.py
+
+The project check script also runs generated-output schema validation.
+```
+
 ## Top-level fields
 
 Typical top-level fields include:
