@@ -1,14 +1,9 @@
 from skat_ai.input_validation import (
-    calculate_known_card_points_from_input,
     validate_boolean,
     validate_cards,
     validate_completed_tricks,
     validate_current_trick,
-    validate_ended_game_requires_post_game_review,
     validate_game_type,
-    validate_live_completed_trick_metadata,
-    validate_live_decision_has_no_known_skat_cards,
-    validate_live_decision_is_not_complete_game,
     validate_next_player,
     validate_no_duplicate_cards,
     validate_non_negative_integer,
@@ -856,33 +851,7 @@ def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
-def test_validate_live_decision_has_no_known_skat_cards_accepts_live_empty_skat() -> None:
-    validate_live_decision_has_no_known_skat_cards(
-        analysis_mode="live_decision",
-        skat=[],
-    )
-
-
-def test_validate_live_decision_has_no_known_skat_cards_accepts_post_game_known_skat() -> None:
-    validate_live_decision_has_no_known_skat_cards(
-        analysis_mode="post_game_review",
-        skat=["C7", "D8"],
-    )
-
-
-def test_validate_live_decision_has_no_known_skat_cards_rejects_live_known_skat() -> None:
-    try:
-        validate_live_decision_has_no_known_skat_cards(
-            analysis_mode="live_decision",
-            skat=["C7", "D8"],
-        )
-    except ValueError as error:
-        assert "Known skat cards" in str(error)
-        assert "live_decision" in str(error)
-        assert "post_game_review" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
-    
+   
 def test_validate_position_input_rejects_live_decision_with_known_skat_cards() -> None:
     data = {
         "game_type": "grand",
@@ -938,81 +907,6 @@ def test_validate_position_input_accepts_post_game_review_with_known_skat_cards(
     }
 
     validate_position_input(data)
-
-def test_live_trick_accepts_without_winner_metadata() -> None:
-    validate_live_completed_trick_metadata(
-        analysis_mode="live_decision",
-        completed_tricks=[
-            {
-                "cards": ["CJ", "SJ", "DJ"],
-            }
-        ],
-    )
-
-
-def test_live_trick_accepts_players_and_winner() -> None:
-    validate_live_completed_trick_metadata(
-        analysis_mode="live_decision",
-        completed_tricks=[
-            {
-                "cards": ["CJ", "SJ", "DJ"],
-                "players": ["me", "left", "right"],
-                "winner_player": "me",
-                "winner_role": "declarer",
-            }
-        ],
-    )
-
-
-def test_post_game_trick_accepts_winner_without_players() -> None:
-    validate_live_completed_trick_metadata(
-        analysis_mode="post_game_review",
-        completed_tricks=[
-            {
-                "cards": ["CJ", "SJ", "DJ"],
-                "winner_player": "me",
-                "winner_role": "declarer",
-            }
-        ],
-    )
-
-
-def test_live_trick_rejects_winner_player_without_players() -> None:
-    try:
-        validate_live_completed_trick_metadata(
-            analysis_mode="live_decision",
-            completed_tricks=[
-                {
-                    "cards": ["CJ", "SJ", "DJ"],
-                    "winner_player": "me",
-                }
-            ],
-        )
-    except ValueError as error:
-        assert "winner_player" in str(error)
-        assert "players" in str(error)
-        assert "live_decision" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
-
-
-def test_live_trick_rejects_winner_role_without_players() -> None:
-    try:
-        validate_live_completed_trick_metadata(
-            analysis_mode="live_decision",
-            completed_tricks=[
-                {
-                    "cards": ["CJ", "SJ", "DJ"],
-                    "winner_role": "declarer",
-                }
-            ],
-        )
-    except ValueError as error:
-        assert "winner_role" in str(error)
-        assert "players" in str(error)
-        assert "live_decision" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
 
 
 def test_position_input_rejects_live_winner_player_without_players() -> None:
@@ -1084,95 +978,6 @@ def test_position_input_accepts_live_trick_with_players_and_winner() -> None:
     }
 
     validate_position_input(data)
-
-
-def test_ended_game_rule_accepts_live_not_ended() -> None:
-    validate_ended_game_requires_post_game_review(
-        analysis_mode="live_decision",
-        game_end_reason="not_ended",
-    )
-
-
-def test_ended_game_rule_accepts_post_game_normal_completion() -> None:
-    validate_ended_game_requires_post_game_review(
-        analysis_mode="post_game_review",
-        game_end_reason="normal_completion",
-    )
-
-
-def test_ended_game_rule_accepts_post_game_claim() -> None:
-    validate_ended_game_requires_post_game_review(
-        analysis_mode="post_game_review",
-        game_end_reason="declarer_claimed_remaining_tricks",
-    )
-
-
-def test_ended_game_rule_rejects_live_normal_completion() -> None:
-    try:
-        validate_ended_game_requires_post_game_review(
-            analysis_mode="live_decision",
-            game_end_reason="normal_completion",
-        )
-    except ValueError as error:
-        assert "game_end_reason" in str(error)
-        assert "not_ended" in str(error)
-        assert "post_game_review" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
-
-
-def test_ended_game_rule_rejects_live_claim() -> None:
-    try:
-        validate_ended_game_requires_post_game_review(
-            analysis_mode="live_decision",
-            game_end_reason="declarer_claimed_remaining_tricks",
-        )
-    except ValueError as error:
-        assert "game_end_reason" in str(error)
-        assert "post_game_review" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
-    
-
-def test_live_decision_accepts_incomplete_known_points() -> None:
-    validate_live_decision_is_not_complete_game(
-        analysis_mode="live_decision",
-        known_card_points=119,
-    )
-
-
-def test_post_game_accepts_complete_known_points() -> None:
-    validate_live_decision_is_not_complete_game(
-        analysis_mode="post_game_review",
-        known_card_points=120,
-    )
-
-
-def test_live_decision_rejects_complete_known_points() -> None:
-    try:
-        validate_live_decision_is_not_complete_game(
-            analysis_mode="live_decision",
-            known_card_points=120,
-        )
-    except ValueError as error:
-        assert "live_decision" in str(error)
-        assert "120" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
-
-
-def test_calculate_known_card_points_from_input_combines_explicit_and_tricks() -> None:
-    assert calculate_known_card_points_from_input(
-        {
-            "declarer_points": 20,
-            "defender_points": 10,
-            "completed_tricks": [
-                {
-                    "cards": ["CA", "C10", "CK"],
-                }
-            ],
-        }
-    ) == 55
 
 
 def test_validate_position_input_rejects_live_normal_completion() -> None:

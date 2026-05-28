@@ -3,10 +3,11 @@ from typing import Any
 from skat_ai.deck import get_full_deck
 from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.game_history import validate_completed_trick_sequence
+from skat_ai.information_policy import validate_information_policy_from_input
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.performance_rating import validate_performance_rating_system
-from skat_ai.rules import GAME_TYPES, get_card_points, get_trick_points
+from skat_ai.rules import GAME_TYPES, get_card_points
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
     validate_analysis_mode_skat_visibility_combination,
@@ -191,8 +192,6 @@ def validate_position_input(data: dict[str, Any]) -> None:
     played_cards = data.get("played_cards", [])
     skat = data.get("skat", [])
     completed_tricks = data.get("completed_tricks", [])
-    analysis_mode = data.get("analysis_mode", "live_decision")
-    game_end_reason = data.get("game_end_reason", "not_ended")
 
     validate_cards(hand, "hand")
     validate_cards(current_trick, "current_trick")
@@ -233,26 +232,11 @@ def validate_position_input(data: dict[str, Any]) -> None:
         game_type=data.get("game_type", "grand"),
     )
     validate_analysis_mode_skat_visibility_combination(
-        analysis_mode=analysis_mode,
+        analysis_mode=data.get("analysis_mode", "live_decision"),
         skat_visibility=data.get("skat_visibility", "unknown"),
     )
-    validate_live_decision_has_no_known_skat_cards(
-        analysis_mode=analysis_mode,
-        skat=data.get("skat", []),
-    )
-    validate_live_completed_trick_metadata(
-        analysis_mode=analysis_mode,
-        completed_tricks=data.get("completed_tricks", []),
-    )
-    validate_ended_game_requires_post_game_review(
-        analysis_mode=analysis_mode,
-        game_end_reason=game_end_reason,
-    )
 
-    validate_live_decision_is_not_complete_game(
-        analysis_mode=analysis_mode,
-        known_card_points=calculate_known_card_points_from_input(data),
-    )
+    validate_information_policy_from_input(data)
 
 
 def validate_next_player(next_player: str) -> None:
@@ -445,89 +429,3 @@ def validate_total_known_card_points(data: dict[str, Any]) -> None:
 
     if total_points > 120:
         raise ValueError("Known card points cannot exceed 120.")
-
-def validate_live_decision_has_no_known_skat_cards(
-    analysis_mode: str,
-    skat: list[str],
-) -> None:
-    """
-    Validates that live decisions do not include known skat cards.
-    """
-    if analysis_mode == "live_decision" and skat:
-        raise ValueError(
-            "Known skat cards are not allowed for analysis_mode='live_decision'. "
-            "Use analysis_mode='post_game_review' for post-game known skat cards."
-        )
-
-def validate_live_completed_trick_metadata(
-    analysis_mode: str,
-    completed_tricks: list[dict],
-) -> None:
-    """
-    Validates that live decisions do not contain unverifiable
-    post-game-style completed-trick metadata.
-    """
-    if analysis_mode != "live_decision":
-        return
-
-    for completed_trick in completed_tricks:
-        has_players = "players" in completed_trick
-        has_winner_player = "winner_player" in completed_trick
-        has_winner_role = "winner_role" in completed_trick
-
-        if has_winner_player and not has_players:
-            raise ValueError(
-                "winner_player in completed_tricks is only allowed for "
-                "analysis_mode='live_decision' when players are provided."
-            )
-
-        if has_winner_role and not has_players:
-            raise ValueError(
-                "winner_role in completed_tricks is only allowed for "
-                "analysis_mode='live_decision' when players are provided."
-            )
-
-def validate_ended_game_requires_post_game_review(
-    analysis_mode: str,
-    game_end_reason: str,
-) -> None:
-    """
-    Validates that ended games are analyzed as post-game reviews.
-    """
-    if game_end_reason != "not_ended" and analysis_mode != "post_game_review":
-        raise ValueError(
-            "game_end_reason values other than 'not_ended' require "
-            "analysis_mode='post_game_review'."
-        )
-
-
-def calculate_known_card_points_from_input(
-    data: dict[str, Any],
-) -> int:
-    """
-    Calculates known card points from explicit points and completed tricks.
-    """
-    explicit_points = data.get("declarer_points", 0) + data.get(
-        "defender_points", 0
-    )
-
-    completed_trick_points = 0
-
-    for completed_trick in data.get("completed_tricks", []):
-        completed_trick_points += get_trick_points(completed_trick["cards"])
-
-    return explicit_points + completed_trick_points
-
-
-def validate_live_decision_is_not_complete_game(
-    analysis_mode: str,
-    known_card_points: int,
-) -> None:
-    """
-    Validates that live decisions do not already represent a completed game.
-    """
-    if analysis_mode == "live_decision" and known_card_points == 120:
-        raise ValueError(
-            "analysis_mode='live_decision' cannot be used for a completed game "
-            "with all 120 card points assigned."
-        )
