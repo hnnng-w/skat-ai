@@ -94,6 +94,24 @@ def apply_opponent_policy_cli_overrides(
 
     return updated_settings
 
+def apply_single_opponent_policy_cli_overrides(
+    opponent_policy_settings: dict[str, str],
+    opponent_lead_policy: str | None = None,
+    opponent_response_policy: str | None = None,
+) -> dict[str, str]:
+    """
+    Applies CLI overrides to one normalized opponent policy settings dictionary.
+    """
+    updated_settings = dict(opponent_policy_settings)
+
+    if opponent_lead_policy is not None:
+        updated_settings["opponent_lead_policy"] = opponent_lead_policy
+
+    if opponent_response_policy is not None:
+        updated_settings["opponent_response_policy"] = opponent_response_policy
+
+    return updated_settings
+
 def apply_profile_preset_cli_overrides(
     profile_preset_settings: dict[str, bool],
     use_profile_presets: bool = False,
@@ -113,6 +131,10 @@ def build_analysis_result(
     sample_count_override: int | None = None,
     random_seed_override: int | None = None,
     opponent_strategy_override: str | None = None,
+    left_opponent_lead_policy_override: str | None = None,
+    left_opponent_response_policy_override: str | None = None,
+    right_opponent_lead_policy_override: str | None = None,
+    right_opponent_response_policy_override: str | None = None,
 ) -> dict[str, Any]:
     """
     Builds the full analysis result as a structured dictionary.
@@ -131,6 +153,17 @@ def build_analysis_result(
     opponent_policy_settings = get_opponent_policy_settings_from_input(data)
     left_opponent_policy_settings = get_left_opponent_policy_settings_from_input(data)
     right_opponent_policy_settings = get_right_opponent_policy_settings_from_input(data)
+    left_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
+        opponent_policy_settings=left_opponent_policy_settings,
+        opponent_lead_policy=left_opponent_lead_policy_override,
+        opponent_response_policy=left_opponent_response_policy_override,
+    )
+
+    right_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
+        opponent_policy_settings=right_opponent_policy_settings,
+        opponent_lead_policy=right_opponent_lead_policy_override,
+        opponent_response_policy=right_opponent_response_policy_override,
+    )
     profile_preset_settings = get_profile_preset_settings_from_input(data)
 
     settings = apply_cli_overrides(
@@ -439,6 +472,10 @@ def run_json_position_analysis(
     sample_count_override: int | None = None,
     random_seed_override: int | None = None,
     opponent_strategy_override: str | None = None,
+    left_opponent_lead_policy_override: str | None = None,
+    left_opponent_response_policy_override: str | None = None,
+    right_opponent_lead_policy_override: str | None = None,
+    right_opponent_response_policy_override: str | None = None,
     output_path: str | None = None,
     multi_step_count: int | None = None,
     card_selection_policy: str = "first_legal",
@@ -456,6 +493,10 @@ def run_json_position_analysis(
         sample_count_override=sample_count_override,
         random_seed_override=random_seed_override,
         opponent_strategy_override=opponent_strategy_override,
+        left_opponent_lead_policy_override=left_opponent_lead_policy_override,
+        left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_lead_policy_override=right_opponent_lead_policy_override,
+        right_opponent_response_policy_override=right_opponent_response_policy_override,
     )
 
     print_analysis_result(result)
@@ -680,6 +721,51 @@ def parse_arguments() -> argparse.Namespace:
         help="Use player profiles to derive opponent policy presets.",
     )
 
+    parser.add_argument(
+        "--left-opponent-lead-policy",
+        choices=[
+            "lowest_point",
+            "highest_point",
+            "basic_trick_play",
+            "basic_defender_lead",
+            "basic_defender_response",
+        ],
+        default=None,
+    )
+    parser.add_argument(
+        "--left-opponent-response-policy",
+        choices=[
+            "lowest_point",
+            "highest_point",
+            "basic_trick_play",
+            "basic_defender_lead",
+            "basic_defender_response",
+        ],
+        default=None,
+    )
+    parser.add_argument(
+        "--right-opponent-lead-policy",
+        choices=[
+            "lowest_point",
+            "highest_point",
+            "basic_trick_play",
+            "basic_defender_lead",
+            "basic_defender_response",
+        ],
+        default=None,
+    )
+    parser.add_argument(
+        "--right-opponent-response-policy",
+        choices=[
+            "lowest_point",
+            "highest_point",
+            "basic_trick_play",
+            "basic_defender_lead",
+            "basic_defender_response",
+        ],
+        default=None,
+    )
+
     return parser.parse_args()
 
 
@@ -692,6 +778,10 @@ def main() -> None:
             sample_count_override=args.samples,
             random_seed_override=args.seed,
             opponent_strategy_override=args.opponent_strategy,
+            left_opponent_lead_policy_override=args.left_opponent_lead_policy,
+            left_opponent_response_policy_override=args.left_opponent_response_policy,
+            right_opponent_lead_policy_override=args.right_opponent_lead_policy,
+            right_opponent_response_policy_override=args.right_opponent_response_policy,
             output_path=args.output,
             multi_step_count=args.multi_step,
             card_selection_policy=args.card_policy,
