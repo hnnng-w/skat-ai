@@ -186,6 +186,8 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "score_summary",
         "recommendation",
         "opponent_policy_settings",
+        "left_opponent_policy_settings",
+        "right_opponent_policy_settings",
         "profile_preset_settings",
         "game_declaration",
         "game_value_summary",
@@ -1092,4 +1094,21 @@ def test_build_analysis_result_includes_adjusted_game_result_summary() -> None:
         "game_end_reason": "not_ended",
         "remaining_points_recipient": None,
         "remaining_points_assigned": 0,
+    }
+
+def test_build_analysis_result_includes_left_right_opponent_policy_settings() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
     }

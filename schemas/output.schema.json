@@ -20,7 +20,10 @@
     "final_settlement_summary",
     "performance_rating_summary",
     "recommendation",
-    "information_policy_summary"
+    "information_policy_summary",
+    "opponent_policy_settings",
+    "left_opponent_policy_settings",
+    "right_opponent_policy_settings"
   ],
   "properties": {
     "input_file": {
@@ -33,7 +36,13 @@
       "type": "object"
     },
     "opponent_policy_settings": {
-      "type": "object"
+      "$ref": "#/$defs/opponent_policy_settings"
+    },
+    "left_opponent_policy_settings": {
+      "$ref": "#/$defs/opponent_policy_settings"
+    },
+    "right_opponent_policy_settings": {
+      "$ref": "#/$defs/opponent_policy_settings"
     },
     "profile_preset_settings": {
       "type": "object"
@@ -147,6 +156,22 @@
         "bid_value": {
           "type": ["integer", "null"],
           "minimum": 1
+        }
+      }
+    },
+    "opponent_policy_settings": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "opponent_lead_policy",
+        "opponent_response_policy"
+      ],
+      "properties": {
+        "opponent_lead_policy": {
+          "type": "string"
+        },
+        "opponent_response_policy": {
+          "type": "string"
         }
       }
     },

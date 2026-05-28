@@ -2,9 +2,11 @@ from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
+    get_left_opponent_policy_settings_from_input,
     get_opponent_policy_settings_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
+    get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
 )
 
@@ -279,3 +281,74 @@ def test_get_performance_rating_system_from_input_reads_value() -> None:
             "performance_rating_system": "isko_list",
         }
     ) == "isko_list"
+
+def test_get_left_opponent_policy_settings_defaults_to_global_values() -> None:
+    assert get_left_opponent_policy_settings_from_input(
+        {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "basic_trick_play",
+        }
+    ) == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+
+
+def test_get_right_opponent_policy_settings_defaults_to_global_values() -> None:
+    assert get_right_opponent_policy_settings_from_input(
+        {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "basic_trick_play",
+        }
+    ) == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+
+
+def test_get_left_opponent_policy_settings_reads_specific_values() -> None:
+    assert get_left_opponent_policy_settings_from_input(
+        {
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+            "left_opponent_lead_policy": "highest_point",
+            "left_opponent_response_policy": "basic_trick_play",
+        }
+    ) == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+
+
+def test_get_right_opponent_policy_settings_reads_specific_values() -> None:
+    assert get_right_opponent_policy_settings_from_input(
+        {
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+            "right_opponent_lead_policy": "highest_point",
+            "right_opponent_response_policy": "basic_trick_play",
+        }
+    ) == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+
+
+def test_left_and_right_opponent_policy_settings_can_differ() -> None:
+    data = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+        "left_opponent_lead_policy": "highest_point",
+        "left_opponent_response_policy": "basic_trick_play",
+        "right_opponent_lead_policy": "lowest_point",
+        "right_opponent_response_policy": "highest_point",
+    }
+
+    assert get_left_opponent_policy_settings_from_input(data) == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+    assert get_right_opponent_policy_settings_from_input(data) == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "highest_point",
+    }

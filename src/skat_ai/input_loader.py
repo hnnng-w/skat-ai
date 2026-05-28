@@ -99,6 +99,45 @@ def get_opponent_policy_settings_from_input(
 
     return settings
 
+def get_left_opponent_policy_settings_from_input(
+    data: dict[str, Any],
+) -> dict[str, str]:
+    """
+    Extracts normalized left-opponent policy settings from input data.
+
+    Falls back to the global opponent policy settings for backward compatibility.
+    """
+    return {
+        "opponent_lead_policy": data.get(
+            "left_opponent_lead_policy",
+            data.get("opponent_lead_policy", "lowest_point"),
+        ),
+        "opponent_response_policy": data.get(
+            "left_opponent_response_policy",
+            data.get("opponent_response_policy", "lowest_point"),
+        ),
+    }
+
+
+def get_right_opponent_policy_settings_from_input(
+    data: dict[str, Any],
+) -> dict[str, str]:
+    """
+    Extracts normalized right-opponent policy settings from input data.
+
+    Falls back to the global opponent policy settings for backward compatibility.
+    """
+    return {
+        "opponent_lead_policy": data.get(
+            "right_opponent_lead_policy",
+            data.get("opponent_lead_policy", "lowest_point"),
+        ),
+        "opponent_response_policy": data.get(
+            "right_opponent_response_policy",
+            data.get("opponent_response_policy", "lowest_point"),
+        ),
+    }
+
 def get_profile_preset_settings_from_input(
     data: dict[str, Any],
 ) -> dict[str, bool]:

@@ -19,9 +19,11 @@ from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
+    get_left_opponent_policy_settings_from_input,
     get_opponent_policy_settings_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
+    get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_position_from_json,
 )
@@ -127,6 +129,8 @@ def build_analysis_result(
         bid_value=game_declaration.bid_value,
     )
     opponent_policy_settings = get_opponent_policy_settings_from_input(data)
+    left_opponent_policy_settings = get_left_opponent_policy_settings_from_input(data)
+    right_opponent_policy_settings = get_right_opponent_policy_settings_from_input(data)
     profile_preset_settings = get_profile_preset_settings_from_input(data)
 
     settings = apply_cli_overrides(
@@ -209,6 +213,8 @@ def build_analysis_result(
         },
         "settings": settings,
         "opponent_policy_settings": opponent_policy_settings,
+        "left_opponent_policy_settings": left_opponent_policy_settings,
+        "right_opponent_policy_settings": right_opponent_policy_settings,
         "profile_preset_settings": profile_preset_settings,
         "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
         "information_policy_summary": information_policy_summary,
