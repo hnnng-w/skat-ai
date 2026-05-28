@@ -191,6 +191,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     played_cards = data.get("played_cards", [])
     skat = data.get("skat", [])
     completed_tricks = data.get("completed_tricks", [])
+    analysis_mode = data.get("analysis_mode", "live_decision")
 
     validate_cards(hand, "hand")
     validate_cards(current_trick, "current_trick")
@@ -231,12 +232,16 @@ def validate_position_input(data: dict[str, Any]) -> None:
         game_type=data.get("game_type", "grand"),
     )
     validate_analysis_mode_skat_visibility_combination(
-        analysis_mode=data.get("analysis_mode", "live_decision"),
+        analysis_mode=analysis_mode,
         skat_visibility=data.get("skat_visibility", "unknown"),
     )
     validate_live_decision_has_no_known_skat_cards(
-        analysis_mode=data.get("analysis_mode", "live_decision"),
+        analysis_mode=analysis_mode,
         skat=data.get("skat", []),
+    )
+    validate_live_completed_trick_metadata(
+        analysis_mode=analysis_mode,
+        completed_tricks=data.get("completed_tricks", []),
     )
 
 
@@ -443,3 +448,31 @@ def validate_live_decision_has_no_known_skat_cards(
             "Known skat cards are not allowed for analysis_mode='live_decision'. "
             "Use analysis_mode='post_game_review' for post-game known skat cards."
         )
+
+def validate_live_completed_trick_metadata(
+    analysis_mode: str,
+    completed_tricks: list[dict],
+) -> None:
+    """
+    Validates that live decisions do not contain unverifiable
+    post-game-style completed-trick metadata.
+    """
+    if analysis_mode != "live_decision":
+        return
+
+    for completed_trick in completed_tricks:
+        has_players = "players" in completed_trick
+        has_winner_player = "winner_player" in completed_trick
+        has_winner_role = "winner_role" in completed_trick
+
+        if has_winner_player and not has_players:
+            raise ValueError(
+                "winner_player in completed_tricks is only allowed for "
+                "analysis_mode='live_decision' when players are provided."
+            )
+
+        if has_winner_role and not has_players:
+            raise ValueError(
+                "winner_role in completed_tricks is only allowed for "
+                "analysis_mode='live_decision' when players are provided."
+            )

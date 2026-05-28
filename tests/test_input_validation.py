@@ -4,6 +4,7 @@ from skat_ai.input_validation import (
     validate_completed_tricks,
     validate_current_trick,
     validate_game_type,
+    validate_live_completed_trick_metadata,
     validate_live_decision_has_no_known_skat_cards,
     validate_next_player,
     validate_no_duplicate_cards,
@@ -931,6 +932,152 @@ def test_validate_position_input_accepts_post_game_review_with_known_skat_cards(
         "use_basic_opponent_strategy": True,
         "analysis_mode": "post_game_review",
         "skat_visibility": "known_post_game",
+    }
+
+    validate_position_input(data)
+
+def test_live_trick_accepts_without_winner_metadata() -> None:
+    validate_live_completed_trick_metadata(
+        analysis_mode="live_decision",
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+            }
+        ],
+    )
+
+
+def test_live_trick_accepts_players_and_winner() -> None:
+    validate_live_completed_trick_metadata(
+        analysis_mode="live_decision",
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "players": ["me", "left", "right"],
+                "winner_player": "me",
+                "winner_role": "declarer",
+            }
+        ],
+    )
+
+
+def test_post_game_trick_accepts_winner_without_players() -> None:
+    validate_live_completed_trick_metadata(
+        analysis_mode="post_game_review",
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "winner_player": "me",
+                "winner_role": "declarer",
+            }
+        ],
+    )
+
+
+def test_live_trick_rejects_winner_player_without_players() -> None:
+    try:
+        validate_live_completed_trick_metadata(
+            analysis_mode="live_decision",
+            completed_tricks=[
+                {
+                    "cards": ["CJ", "SJ", "DJ"],
+                    "winner_player": "me",
+                }
+            ],
+        )
+    except ValueError as error:
+        assert "winner_player" in str(error)
+        assert "players" in str(error)
+        assert "live_decision" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_live_trick_rejects_winner_role_without_players() -> None:
+    try:
+        validate_live_completed_trick_metadata(
+            analysis_mode="live_decision",
+            completed_tricks=[
+                {
+                    "cards": ["CJ", "SJ", "DJ"],
+                    "winner_role": "declarer",
+                }
+            ],
+        )
+    except ValueError as error:
+        assert "winner_role" in str(error)
+        assert "players" in str(error)
+        assert "live_decision" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_position_input_rejects_live_winner_player_without_players() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "winner_player": "me",
+                "winner_role": "declarer",
+            }
+        ],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "winner_player" in str(error)
+        assert "players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+    
+
+def test_position_input_accepts_live_trick_with_players_and_winner() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "me",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "players": ["me", "left", "right"],
+                "winner_player": "me",
+                "winner_role": "declarer",
+            }
+        ],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
     }
 
     validate_position_input(data)
