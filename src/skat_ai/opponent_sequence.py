@@ -96,6 +96,12 @@ def prepare_player_action_state(
             left_opponent_policy_settings=left_opponent_policy_settings,
             right_opponent_policy_settings=right_opponent_policy_settings,
         )
+        right_policy_settings = get_opponent_policy_settings_for_player(
+            player="right",
+            opponent_policy_settings=opponent_policy_settings,
+            left_opponent_policy_settings=left_opponent_policy_settings,
+            right_opponent_policy_settings=right_opponent_policy_settings,
+        )
 
         opponent_sequence_result = simulate_left_lead_and_right_response_once(
             state=current_state,
@@ -103,7 +109,7 @@ def prepare_player_action_state(
             right_hand_size=right_hand_size,
             random_generator=random_generator,
             opponent_lead_policy=left_policy_settings["opponent_lead_policy"],
-            opponent_response_policy=opponent_response_policy,
+            opponent_response_policy=right_policy_settings["opponent_response_policy"],
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result

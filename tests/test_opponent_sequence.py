@@ -258,3 +258,37 @@ def test_prepare_player_action_state_uses_right_lead_policy() -> None:
     assert opponent_sequence_result is not None
     assert opponent_sequence_result["leader"] == "right"
     assert opponent_sequence_result["lead_card"] is not None
+
+def test_prepare_player_action_state_uses_right_response_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["H7", "H8", "H9"],
+        current_trick=[],
+        completed_tricks=[],
+        declarer_points=0,
+        defender_points=0,
+        next_player="left",
+    )
+
+    _, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=3,
+        right_hand_size=3,
+        random_generator=random.Random(42),
+        opponent_lead_policy="lowest_point",
+        opponent_response_policy="lowest_point",
+        left_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+        right_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "highest_point",
+        },
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["leader"] == "left"
+    assert opponent_sequence_result["responder"] == "right"
+    assert opponent_sequence_result["response_card"] is not None
