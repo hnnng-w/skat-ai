@@ -28,6 +28,7 @@ from skat_ai.input_loader import (
     load_position_from_json,
 )
 from skat_ai.multi_step_simulation import simulate_multiple_steps
+from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
 from skat_ai.opponent_profile_policy import apply_profile_based_policy_preset
 from skat_ai.output_writer import write_analysis_result_to_json
@@ -699,28 +700,14 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "--opponent-lead-policy",
-        choices=[
-            "lowest_point",
-            "highest_point",
-            "random_legal",
-            "basic_trick_play",
-            "basic_defender_response",
-            "basic_defender_lead",
-        ],
+        choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
         help="Opponent lead card policy for multi-step simulations.",
     )
 
     parser.add_argument(
         "--opponent-response-policy",
-        choices=[
-            "lowest_point",
-            "highest_point",
-            "random_legal",
-            "basic_trick_play",
-            "basic_defender_response",
-            "basic_defender_lead",
-        ],
+        choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
         help="Opponent response card policy for multi-step simulations.",
     )
@@ -745,46 +732,22 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "--left-opponent-lead-policy",
-        choices=[
-            "lowest_point",
-            "highest_point",
-            "basic_trick_play",
-            "basic_defender_lead",
-            "basic_defender_response",
-        ],
+        choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
     )
     parser.add_argument(
         "--left-opponent-response-policy",
-        choices=[
-            "lowest_point",
-            "highest_point",
-            "basic_trick_play",
-            "basic_defender_lead",
-            "basic_defender_response",
-        ],
+        choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
     )
     parser.add_argument(
         "--right-opponent-lead-policy",
-        choices=[
-            "lowest_point",
-            "highest_point",
-            "basic_trick_play",
-            "basic_defender_lead",
-            "basic_defender_response",
-        ],
+        choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
     )
     parser.add_argument(
         "--right-opponent-response-policy",
-        choices=[
-            "lowest_point",
-            "highest_point",
-            "basic_trick_play",
-            "basic_defender_lead",
-            "basic_defender_response",
-        ],
+        choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
     )
 

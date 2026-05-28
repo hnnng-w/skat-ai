@@ -186,9 +186,17 @@ def test_build_serializable_multi_step_result() -> None:
         ],
         "final_state": final_state,
         "opponent_policy_settings": {
-        "opponent_lead_policy": "highest_point",
-        "opponent_response_policy": "basic_trick_play",
-},
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "basic_trick_play",
+        },
+        "left_opponent_policy_settings": {
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+        "right_opponent_policy_settings": {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "basic_defender_response",
+        },
     }
 
     serializable_result = build_serializable_multi_step_result(result)
@@ -201,6 +209,14 @@ def test_build_serializable_multi_step_result() -> None:
     assert serializable_result["opponent_policy_settings"] == {
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "basic_trick_play",
+    }
+    assert serializable_result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert serializable_result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_defender_response",
     }
 
 

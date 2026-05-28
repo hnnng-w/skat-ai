@@ -56,6 +56,8 @@ def build_serializable_multi_step_result(
         "stop_reason": result["stop_reason"],
         "strict_context": result["strict_context"],
         "opponent_policy_settings": result.get("opponent_policy_settings", {}),
+        "left_opponent_policy_settings": result.get("left_opponent_policy_settings"),
+        "right_opponent_policy_settings": result.get("right_opponent_policy_settings"),
         "summary": result["summary"],
         "context_summary": result["context_summary"],
         "steps": [

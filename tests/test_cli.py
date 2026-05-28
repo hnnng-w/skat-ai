@@ -1235,3 +1235,23 @@ def test_run_json_position_analysis_writes_left_right_policy_settings_to_output(
         "opponent_lead_policy": "lowest_point",
         "opponent_response_policy": "highest_point",
     }
+
+
+def test_run_json_position_analysis_accepts_random_left_right_policy_overrides() -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+        left_opponent_lead_policy_override="random_legal",
+        left_opponent_response_policy_override="random_legal",
+        right_opponent_lead_policy_override="random_legal",
+        right_opponent_response_policy_override="random_legal",
+    )
