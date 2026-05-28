@@ -28,6 +28,18 @@
       "type": "string",
       "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
     },
+    "left_opponent_lead_policy": {
+      "type": "string"
+    },
+    "left_opponent_response_policy": {
+      "type": "string"
+    },
+    "right_opponent_lead_policy": {
+      "type": "string"
+    },
+    "right_opponent_response_policy": {
+      "type": "string"
+    },
     "player_role": {
       "type": "string",
       "enum": ["declarer", "defender", "unknown"]

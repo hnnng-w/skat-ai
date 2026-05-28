@@ -398,6 +398,18 @@ def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
     if "opponent_response_policy" in data:
         validate_opponent_card_policy(data["opponent_response_policy"])
 
+    if "left_opponent_lead_policy" in data:
+        validate_opponent_card_policy(data["left_opponent_lead_policy"])
+
+    if "left_opponent_response_policy" in data:
+        validate_opponent_card_policy(data["left_opponent_response_policy"])
+
+    if "right_opponent_lead_policy" in data:
+        validate_opponent_card_policy(data["right_opponent_lead_policy"])
+
+    if "right_opponent_response_policy" in data:
+        validate_opponent_card_policy(data["right_opponent_response_policy"])
+
 def validate_optional_profile_preset_settings(data: dict[str, Any]) -> None:
     """
     Validates optional profile-preset settings.

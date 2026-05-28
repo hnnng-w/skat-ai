@@ -1072,3 +1072,25 @@ def test_validate_position_input_accepts_post_game_complete_points() -> None:
     }
 
     validate_position_input(data)
+
+def test_validate_optional_opponent_policies_accepts_left_right_values() -> None:
+    validate_optional_opponent_policies(
+        {
+            "left_opponent_lead_policy": "highest_point",
+            "left_opponent_response_policy": "basic_trick_play",
+            "right_opponent_lead_policy": "lowest_point",
+            "right_opponent_response_policy": "highest_point",
+        }
+    )
+
+def test_validate_optional_opponent_policies_rejects_invalid_left_lead() -> None:
+    try:
+        validate_optional_opponent_policies(
+            {
+                "left_opponent_lead_policy": "invalid_policy",
+            }
+        )
+    except ValueError as error:
+        assert "opponent card policy" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
