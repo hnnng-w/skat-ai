@@ -146,6 +146,10 @@ def test_not_ended_example_adjusted_result_invariants() -> None:
         remaining_points_assigned=0,
     )
 
+    assert result["information_policy_summary"]["live_information_enforced"] is True
+    assert result["information_policy_summary"]["known_skat_cards_allowed"] is False
+    assert result["information_policy_summary"]["ended_game_allowed"] is False
+
 def test_normal_completion_example_adjusted_result_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_win.json")
 
@@ -168,6 +172,10 @@ def test_normal_completion_example_adjusted_result_invariants() -> None:
     )
 
     assert_final_settlement_uses_adjusted_result(result)
+
+    assert result["information_policy_summary"]["live_information_enforced"] is False
+    assert result["information_policy_summary"]["known_skat_cards_allowed"] is True
+    assert result["information_policy_summary"]["ended_game_allowed"] is True
 
 def test_complete_declarer_win_example_settlement_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_win.json")

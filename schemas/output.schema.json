@@ -19,7 +19,8 @@
     "adjusted_game_result_summary",
     "final_settlement_summary",
     "performance_rating_summary",
-    "recommendation"
+    "recommendation",
+    "information_policy_summary"
   ],
   "properties": {
     "input_file": {
@@ -40,6 +41,9 @@
     "analysis_metadata": {
       "type": "object",
       "additionalProperties": true
+    },
+    "information_policy_summary": {
+      "$ref": "#/$defs/information_policy_summary"
     },
     "game_declaration": {
       "$ref": "#/$defs/game_declaration"
@@ -499,6 +503,48 @@
         },
         "reason": {
           "type": "string"
+        }
+      }
+    },
+    "information_policy_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analysis_mode",
+        "skat_visibility",
+        "game_end_reason",
+        "live_information_enforced",
+        "known_post_game_skat_allowed",
+        "known_skat_cards_allowed",
+        "ended_game_allowed",
+        "unverifiable_completed_trick_winner_metadata_allowed"
+      ],
+      "properties": {
+        "analysis_mode": {
+          "type": "string",
+          "enum": ["live_decision", "post_game_review"]
+        },
+        "skat_visibility": {
+          "type": "string",
+          "enum": ["unknown", "known_post_game"]
+        },
+        "game_end_reason": {
+          "type": "string"
+        },
+        "live_information_enforced": {
+          "type": "boolean"
+        },
+        "known_post_game_skat_allowed": {
+          "type": "boolean"
+        },
+        "known_skat_cards_allowed": {
+          "type": "boolean"
+        },
+        "ended_game_allowed": {
+          "type": "boolean"
+        },
+        "unverifiable_completed_trick_winner_metadata_allowed": {
+          "type": "boolean"
         }
       }
     }

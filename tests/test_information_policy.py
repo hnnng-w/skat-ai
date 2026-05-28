@@ -1,0 +1,46 @@
+from skat_ai.information_policy import (
+    build_information_policy_summary,
+    is_live_information_enforced,
+)
+
+
+def test_is_live_information_enforced_for_live_decision() -> None:
+    assert is_live_information_enforced("live_decision") is True
+
+
+def test_is_live_information_enforced_for_post_game_review() -> None:
+    assert is_live_information_enforced("post_game_review") is False
+
+
+def test_build_information_policy_summary_for_live_decision() -> None:
+    assert build_information_policy_summary(
+        analysis_mode="live_decision",
+        skat_visibility="unknown",
+        game_end_reason="not_ended",
+    ) == {
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+        "live_information_enforced": True,
+        "known_post_game_skat_allowed": False,
+        "known_skat_cards_allowed": False,
+        "ended_game_allowed": False,
+        "unverifiable_completed_trick_winner_metadata_allowed": False,
+    }
+
+
+def test_build_information_policy_summary_for_post_game_review() -> None:
+    assert build_information_policy_summary(
+        analysis_mode="post_game_review",
+        skat_visibility="known_post_game",
+        game_end_reason="normal_completion",
+    ) == {
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_end_reason": "normal_completion",
+        "live_information_enforced": False,
+        "known_post_game_skat_allowed": True,
+        "known_skat_cards_allowed": True,
+        "ended_game_allowed": True,
+        "unverifiable_completed_trick_winner_metadata_allowed": True,
+    }

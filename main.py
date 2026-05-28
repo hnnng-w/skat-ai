@@ -14,6 +14,7 @@ from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.information_policy import build_information_policy_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
     get_analysis_metadata_from_input,
@@ -184,9 +185,14 @@ def build_analysis_result(
         final_settlement_summary=final_settlement_summary,
         rating_system=performance_rating_system,
     )
+    information_policy_summary = build_information_policy_summary(
+        analysis_mode=analysis_metadata.strategic_metadata.analysis_mode,
+        skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
+        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
+    )
 
     return {
-        "input_file": file_path,
+        "input_file": str(file_path),
         "position": {
             "game_type": state.game_type,
             "player_role": state.player_role,
@@ -205,6 +211,7 @@ def build_analysis_result(
         "opponent_policy_settings": opponent_policy_settings,
         "profile_preset_settings": profile_preset_settings,
         "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
+        "information_policy_summary": information_policy_summary,
         "game_declaration": build_serializable_game_declaration(game_declaration),
         "game_value_summary": game_value_summary,
         "overbid_summary": overbid_summary,

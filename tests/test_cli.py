@@ -194,6 +194,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "adjusted_game_result_summary",
         "overbid_summary",
         "performance_rating_summary",
+        "information_policy_summary",
     }
 
 
@@ -805,6 +806,25 @@ def test_build_analysis_result_includes_default_analysis_metadata() -> None:
         "game_end_reason": "not_ended",
     }
 
+def test_build_analysis_result_includes_information_policy_summary() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["information_policy_summary"] == {
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+        "live_information_enforced": True,
+        "known_post_game_skat_allowed": False,
+        "known_skat_cards_allowed": False,
+        "ended_game_allowed": False,
+        "unverifiable_completed_trick_winner_metadata_allowed": False,
+    }
+    
 
 def test_build_analysis_result_reads_analysis_metadata() -> None:
     result = build_analysis_result(
