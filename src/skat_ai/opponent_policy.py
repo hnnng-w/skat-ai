@@ -396,3 +396,23 @@ def choose_opponent_response_card_by_policy(
         )
 
     raise ValueError(f"Invalid opponent card policy: {policy}")
+
+def get_opponent_policy_settings_for_player(
+    player: str,
+    opponent_policy_settings: dict[str, str],
+    left_opponent_policy_settings: dict[str, str] | None = None,
+    right_opponent_policy_settings: dict[str, str] | None = None,
+) -> dict[str, str]:
+    """
+    Returns opponent policy settings for a specific opponent player.
+
+    Falls back to global opponent policy settings when no specific settings
+    are available.
+    """
+    if player == "left" and left_opponent_policy_settings is not None:
+        return left_opponent_policy_settings
+
+    if player == "right" and right_opponent_policy_settings is not None:
+        return right_opponent_policy_settings
+
+    return opponent_policy_settings

@@ -1,3 +1,4 @@
+
 from skat_ai.card_selection import choose_first_legal_card
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import (
@@ -82,8 +83,10 @@ def test_simulate_multiple_steps_returns_expected_keys() -> None:
         "summary",
         "steps",
         "opponent_policy_settings",
+        "left_opponent_policy_settings",
+        "right_opponent_policy_settings",
     }
-
+    
 
 def test_simulate_multiple_steps_runs_requested_number_of_steps_when_possible() -> None:
     state = GameState(

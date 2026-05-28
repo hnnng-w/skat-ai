@@ -62,10 +62,10 @@ def prepare_state_for_player_action(
     random_generator: random.Random,
     opponent_lead_policy: str = "lowest_point",
     opponent_response_policy: str = "lowest_point",
+    left_opponent_policy_settings: dict[str, str] | None = None,
+    right_opponent_policy_settings: dict[str, str] | None = None,
 ) -> tuple[GameState, dict[str, Any] | None]:
     """
-    Prepares a state where the player can act.
-
     Kept as a compatibility wrapper around opponent_sequence.prepare_player_action_state.
     """
     return prepare_player_action_state(
@@ -75,6 +75,8 @@ def prepare_state_for_player_action(
         random_generator=random_generator,
         opponent_lead_policy=opponent_lead_policy,
         opponent_response_policy=opponent_response_policy,
+        left_opponent_policy_settings=left_opponent_policy_settings,
+        right_opponent_policy_settings=right_opponent_policy_settings,
     )
 
 def extract_opponent_cards_from_step(
@@ -114,6 +116,8 @@ def simulate_multiple_steps(
     strategic_metadata: StrategicMetadata | None = None,
     opponent_lead_policy: str = "lowest_point",
     opponent_response_policy: str = "lowest_point",
+    left_opponent_policy_settings: dict[str, str] | None = None,
+    right_opponent_policy_settings: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -168,6 +172,8 @@ def simulate_multiple_steps(
             random_generator=rng,
             opponent_lead_policy=opponent_lead_policy,
             opponent_response_policy=opponent_response_policy,
+            left_opponent_policy_settings=left_opponent_policy_settings,
+            right_opponent_policy_settings=right_opponent_policy_settings,
         )
 
         candidate_card = choose_card_by_policy(
@@ -237,6 +243,8 @@ def simulate_multiple_steps(
             "opponent_lead_policy": opponent_lead_policy,
             "opponent_response_policy": opponent_response_policy,
         },
+        "left_opponent_policy_settings": left_opponent_policy_settings,
+        "right_opponent_policy_settings": right_opponent_policy_settings,
         "context": context,
         "context_summary": build_context_summary(context),
         "steps": steps,

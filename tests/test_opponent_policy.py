@@ -9,6 +9,7 @@ from skat_ai.opponent_policy import (
     choose_opponent_lead_card_by_policy,
     choose_opponent_response_card_by_policy,
     choose_random_card,
+    get_opponent_policy_settings_for_player,
     get_winning_legal_cards,
     validate_opponent_card_policy,
 )
@@ -270,3 +271,59 @@ def test_choose_opponent_response_card_by_basic_defender_lead_policy_falls_back_
     )
 
     assert selected_card == "S9"
+
+
+def test_get_opponent_policy_settings_for_player_returns_left_settings() -> None:
+    global_settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    left_settings = {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+    right_settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+    assert get_opponent_policy_settings_for_player(
+        player="left",
+        opponent_policy_settings=global_settings,
+        left_opponent_policy_settings=left_settings,
+        right_opponent_policy_settings=right_settings,
+    ) == left_settings
+
+
+def test_get_opponent_policy_settings_for_player_returns_right_settings() -> None:
+    global_settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    left_settings = {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+    right_settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+    assert get_opponent_policy_settings_for_player(
+        player="right",
+        opponent_policy_settings=global_settings,
+        left_opponent_policy_settings=left_settings,
+        right_opponent_policy_settings=right_settings,
+    ) == right_settings
+
+
+def test_get_opponent_policy_settings_for_player_falls_back_to_global() -> None:
+    global_settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    assert get_opponent_policy_settings_for_player(
+        player="unknown",
+        opponent_policy_settings=global_settings,
+    ) == global_settings
