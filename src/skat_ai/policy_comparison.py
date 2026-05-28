@@ -19,6 +19,8 @@ def compare_multi_step_policies(
     strategic_metadata: StrategicMetadata | None = None,
     opponent_lead_policy: str = "lowest_point",
     opponent_response_policy: str = "lowest_point",
+    left_opponent_policy_settings: dict[str, str] | None = None,
+    right_opponent_policy_settings: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """
     Compares multiple card-selection policies on the same multi-step setup.
@@ -41,6 +43,8 @@ def compare_multi_step_policies(
             strategic_metadata=strategic_metadata,
             opponent_lead_policy=opponent_lead_policy,
             opponent_response_policy=opponent_response_policy,
+            left_opponent_policy_settings=left_opponent_policy_settings,
+            right_opponent_policy_settings=right_opponent_policy_settings,
         )
 
         summary = multi_step_result["summary"]

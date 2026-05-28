@@ -513,6 +513,24 @@ def run_json_position_analysis(
         settings = get_simulation_settings_from_input(position_data)
         analysis_metadata = get_analysis_metadata_from_input(position_data)
         opponent_policy_settings = get_opponent_policy_settings_from_input(position_data)
+        left_opponent_policy_settings = get_left_opponent_policy_settings_from_input(
+            position_data
+        )
+        right_opponent_policy_settings = get_right_opponent_policy_settings_from_input(
+            position_data
+        )
+
+        left_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
+            opponent_policy_settings=left_opponent_policy_settings,
+            opponent_lead_policy=left_opponent_lead_policy_override,
+            opponent_response_policy=left_opponent_response_policy_override,
+        )
+
+        right_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
+            opponent_policy_settings=right_opponent_policy_settings,
+            opponent_lead_policy=right_opponent_lead_policy_override,
+            opponent_response_policy=right_opponent_response_policy_override,
+        )
 
         profile_preset_settings = get_profile_preset_settings_from_input(position_data)
         profile_preset_settings = apply_profile_preset_cli_overrides(
@@ -558,6 +576,8 @@ def run_json_position_analysis(
             strategic_metadata=analysis_metadata.strategic_metadata,
             opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
             opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
+            left_opponent_policy_settings=left_opponent_policy_settings,
+            right_opponent_policy_settings=right_opponent_policy_settings,
         )
 
         result["multi_step_result"] = build_serializable_multi_step_result(
@@ -581,6 +601,8 @@ def run_json_position_analysis(
                 strategic_metadata=analysis_metadata.strategic_metadata,
                 opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
                 opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
+                left_opponent_policy_settings=left_opponent_policy_settings,
+                right_opponent_policy_settings=right_opponent_policy_settings,
             )
 
             result["policy_comparison_result"] = build_serializable_policy_comparison_result(

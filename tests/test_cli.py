@@ -1177,3 +1177,61 @@ def test_run_json_position_analysis_supports_left_right_policy_overrides() -> No
         right_opponent_lead_policy_override="lowest_point",
         right_opponent_response_policy_override="highest_point",
     )
+
+
+def test_run_json_position_analysis_threads_left_right_policies_to_multi_step() -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+        left_opponent_lead_policy_override="highest_point",
+        left_opponent_response_policy_override="basic_trick_play",
+        right_opponent_lead_policy_override="lowest_point",
+        right_opponent_response_policy_override="highest_point",
+    )
+
+
+def test_run_json_position_analysis_writes_left_right_policy_settings_to_output(
+    tmp_path,
+) -> None:
+    import json
+
+    output_path = tmp_path / "result.json"
+
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=str(output_path),
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+        left_opponent_lead_policy_override="highest_point",
+        left_opponent_response_policy_override="basic_trick_play",
+        right_opponent_lead_policy_override="lowest_point",
+        right_opponent_response_policy_override="highest_point",
+    )
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "highest_point",
+    }
