@@ -244,7 +244,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
         analysis_mode=analysis_mode,
         completed_tricks=data.get("completed_tricks", []),
     )
-    validate_live_decision_has_no_game_end_reason(
+    validate_ended_game_requires_post_game_review(
         analysis_mode=analysis_mode,
         game_end_reason=game_end_reason,
     )
@@ -487,17 +487,17 @@ def validate_live_completed_trick_metadata(
                 "analysis_mode='live_decision' when players are provided."
             )
 
-def validate_live_decision_has_no_game_end_reason(
+def validate_ended_game_requires_post_game_review(
     analysis_mode: str,
     game_end_reason: str,
 ) -> None:
     """
-    Validates that live decisions are not marked as ended games.
+    Validates that ended games are analyzed as post-game reviews.
     """
-    if analysis_mode == "live_decision" and game_end_reason != "not_ended":
+    if game_end_reason != "not_ended" and analysis_mode != "post_game_review":
         raise ValueError(
-            "analysis_mode='live_decision' requires "
-            "game_end_reason='not_ended'."
+            "game_end_reason values other than 'not_ended' require "
+            "analysis_mode='post_game_review'."
         )
 
 

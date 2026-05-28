@@ -4,9 +4,9 @@ from skat_ai.input_validation import (
     validate_cards,
     validate_completed_tricks,
     validate_current_trick,
+    validate_ended_game_requires_post_game_review,
     validate_game_type,
     validate_live_completed_trick_metadata,
-    validate_live_decision_has_no_game_end_reason,
     validate_live_decision_has_no_known_skat_cards,
     validate_live_decision_is_not_complete_game,
     validate_next_player,
@@ -1086,31 +1086,53 @@ def test_position_input_accepts_live_trick_with_players_and_winner() -> None:
     validate_position_input(data)
 
 
-def test_live_decision_accepts_not_ended_reason() -> None:
-    validate_live_decision_has_no_game_end_reason(
+def test_ended_game_rule_accepts_live_not_ended() -> None:
+    validate_ended_game_requires_post_game_review(
         analysis_mode="live_decision",
         game_end_reason="not_ended",
     )
 
 
-def test_post_game_accepts_normal_completion_reason() -> None:
-    validate_live_decision_has_no_game_end_reason(
+def test_ended_game_rule_accepts_post_game_normal_completion() -> None:
+    validate_ended_game_requires_post_game_review(
         analysis_mode="post_game_review",
         game_end_reason="normal_completion",
     )
 
 
-def test_live_decision_rejects_normal_completion_reason() -> None:
+def test_ended_game_rule_accepts_post_game_claim() -> None:
+    validate_ended_game_requires_post_game_review(
+        analysis_mode="post_game_review",
+        game_end_reason="declarer_claimed_remaining_tricks",
+    )
+
+
+def test_ended_game_rule_rejects_live_normal_completion() -> None:
     try:
-        validate_live_decision_has_no_game_end_reason(
+        validate_ended_game_requires_post_game_review(
             analysis_mode="live_decision",
             game_end_reason="normal_completion",
         )
     except ValueError as error:
-        assert "live_decision" in str(error)
+        assert "game_end_reason" in str(error)
         assert "not_ended" in str(error)
+        assert "post_game_review" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_ended_game_rule_rejects_live_claim() -> None:
+    try:
+        validate_ended_game_requires_post_game_review(
+            analysis_mode="live_decision",
+            game_end_reason="declarer_claimed_remaining_tricks",
+        )
+    except ValueError as error:
+        assert "game_end_reason" in str(error)
+        assert "post_game_review" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+    
 
 def test_live_decision_accepts_incomplete_known_points() -> None:
     validate_live_decision_is_not_complete_game(
@@ -1180,8 +1202,9 @@ def test_validate_position_input_rejects_live_normal_completion() -> None:
     try:
         validate_position_input(data)
     except ValueError as error:
-        assert "live_decision" in str(error)
+        assert "game_end_reason" in str(error)
         assert "not_ended" in str(error)
+        assert "post_game_review" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
