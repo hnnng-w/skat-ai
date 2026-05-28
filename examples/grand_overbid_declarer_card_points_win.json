@@ -16,13 +16,13 @@
   "sample_count": 100,
   "random_seed": 42,
   "use_basic_opponent_strategy": true,
-  "analysis_mode": "post_game_review",
-  "skat_visibility": "known_post_game",
-  "game_end_reason": "normal_completion",
   "hand_game": false,
   "ouvert": false,
   "schneider_announced": false,
   "schwarz_announced": false,
   "matadors": 1,
-  "bid_value": 60
+  "bid_value": 60,
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "unknown",
+  "game_end_reason": "normal_completion"
 }

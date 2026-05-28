@@ -23,5 +23,7 @@
   "schwarz_announced": false,
   "matadors": 2,
   "performance_rating_system": "isko_list",
-  "bid_value": 72
+  "bid_value": 72,
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "unknown"
 }

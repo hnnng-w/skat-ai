@@ -1,11 +1,14 @@
 from skat_ai.input_validation import (
+    calculate_known_card_points_from_input,
     validate_boolean,
     validate_cards,
     validate_completed_tricks,
     validate_current_trick,
     validate_game_type,
     validate_live_completed_trick_metadata,
+    validate_live_decision_has_no_game_end_reason,
     validate_live_decision_has_no_known_skat_cards,
+    validate_live_decision_is_not_complete_game,
     validate_next_player,
     validate_no_duplicate_cards,
     validate_non_negative_integer,
@@ -1078,6 +1081,166 @@ def test_position_input_accepts_live_trick_with_players_and_winner() -> None:
         "use_basic_opponent_strategy": True,
         "analysis_mode": "live_decision",
         "skat_visibility": "unknown",
+    }
+
+    validate_position_input(data)
+
+
+def test_live_decision_accepts_not_ended_reason() -> None:
+    validate_live_decision_has_no_game_end_reason(
+        analysis_mode="live_decision",
+        game_end_reason="not_ended",
+    )
+
+
+def test_post_game_accepts_normal_completion_reason() -> None:
+    validate_live_decision_has_no_game_end_reason(
+        analysis_mode="post_game_review",
+        game_end_reason="normal_completion",
+    )
+
+
+def test_live_decision_rejects_normal_completion_reason() -> None:
+    try:
+        validate_live_decision_has_no_game_end_reason(
+            analysis_mode="live_decision",
+            game_end_reason="normal_completion",
+        )
+    except ValueError as error:
+        assert "live_decision" in str(error)
+        assert "not_ended" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+def test_live_decision_accepts_incomplete_known_points() -> None:
+    validate_live_decision_is_not_complete_game(
+        analysis_mode="live_decision",
+        known_card_points=119,
+    )
+
+
+def test_post_game_accepts_complete_known_points() -> None:
+    validate_live_decision_is_not_complete_game(
+        analysis_mode="post_game_review",
+        known_card_points=120,
+    )
+
+
+def test_live_decision_rejects_complete_known_points() -> None:
+    try:
+        validate_live_decision_is_not_complete_game(
+            analysis_mode="live_decision",
+            known_card_points=120,
+        )
+    except ValueError as error:
+        assert "live_decision" in str(error)
+        assert "120" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_known_card_points_from_input_combines_explicit_and_tricks() -> None:
+    assert calculate_known_card_points_from_input(
+        {
+            "declarer_points": 20,
+            "defender_points": 10,
+            "completed_tricks": [
+                {
+                    "cards": ["CA", "C10", "CK"],
+                }
+            ],
+        }
+    ) == 55
+
+
+def test_validate_position_input_rejects_live_normal_completion() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 70,
+        "defender_points": 50,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "normal_completion",
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "live_decision" in str(error)
+        assert "not_ended" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_position_input_rejects_live_complete_points() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 70,
+        "defender_points": 50,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+    }
+
+    try:
+        validate_position_input(data)
+    except ValueError as error:
+        assert "live_decision" in str(error)
+        assert "120" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_position_input_accepts_post_game_complete_points() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "unknown",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 70,
+        "defender_points": 50,
+        "next_player": "unknown",
+        "skat": [],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "unknown",
+        "game_end_reason": "normal_completion",
     }
 
     validate_position_input(data)

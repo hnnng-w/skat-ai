@@ -6,7 +6,7 @@ from skat_ai.game_history import validate_completed_trick_sequence
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.performance_rating import validate_performance_rating_system
-from skat_ai.rules import GAME_TYPES, get_card_points
+from skat_ai.rules import GAME_TYPES, get_card_points, get_trick_points
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
     validate_analysis_mode_skat_visibility_combination,
@@ -192,6 +192,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     skat = data.get("skat", [])
     completed_tricks = data.get("completed_tricks", [])
     analysis_mode = data.get("analysis_mode", "live_decision")
+    game_end_reason = data.get("game_end_reason", "not_ended")
 
     validate_cards(hand, "hand")
     validate_cards(current_trick, "current_trick")
@@ -242,6 +243,15 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_live_completed_trick_metadata(
         analysis_mode=analysis_mode,
         completed_tricks=data.get("completed_tricks", []),
+    )
+    validate_live_decision_has_no_game_end_reason(
+        analysis_mode=analysis_mode,
+        game_end_reason=game_end_reason,
+    )
+
+    validate_live_decision_is_not_complete_game(
+        analysis_mode=analysis_mode,
+        known_card_points=calculate_known_card_points_from_input(data),
     )
 
 
@@ -476,3 +486,48 @@ def validate_live_completed_trick_metadata(
                 "winner_role in completed_tricks is only allowed for "
                 "analysis_mode='live_decision' when players are provided."
             )
+
+def validate_live_decision_has_no_game_end_reason(
+    analysis_mode: str,
+    game_end_reason: str,
+) -> None:
+    """
+    Validates that live decisions are not marked as ended games.
+    """
+    if analysis_mode == "live_decision" and game_end_reason != "not_ended":
+        raise ValueError(
+            "analysis_mode='live_decision' requires "
+            "game_end_reason='not_ended'."
+        )
+
+
+def calculate_known_card_points_from_input(
+    data: dict[str, Any],
+) -> int:
+    """
+    Calculates known card points from explicit points and completed tricks.
+    """
+    explicit_points = data.get("declarer_points", 0) + data.get(
+        "defender_points", 0
+    )
+
+    completed_trick_points = 0
+
+    for completed_trick in data.get("completed_tricks", []):
+        completed_trick_points += get_trick_points(completed_trick["cards"])
+
+    return explicit_points + completed_trick_points
+
+
+def validate_live_decision_is_not_complete_game(
+    analysis_mode: str,
+    known_card_points: int,
+) -> None:
+    """
+    Validates that live decisions do not already represent a completed game.
+    """
+    if analysis_mode == "live_decision" and known_card_points == 120:
+        raise ValueError(
+            "analysis_mode='live_decision' cannot be used for a completed game "
+            "with all 120 card points assigned."
+        )
