@@ -564,6 +564,10 @@ def run_json_position_analysis(
             opponent_strategy=opponent_strategy_override,
         )
 
+        result["opponent_policy_settings"] = opponent_policy_settings
+        result["left_opponent_policy_settings"] = left_opponent_policy_settings
+        result["right_opponent_policy_settings"] = right_opponent_policy_settings
+
         multi_step_result = simulate_multiple_steps(
             state=state,
             left_hand_size=settings["left_hand_size"],

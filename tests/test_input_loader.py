@@ -352,3 +352,18 @@ def test_left_and_right_opponent_policy_settings_can_differ() -> None:
         "opponent_lead_policy": "lowest_point",
         "opponent_response_policy": "highest_point",
     }
+
+
+def test_left_right_opponent_policy_settings_fall_back_to_global_preset() -> None:
+    data = {
+        "opponent_policy_preset": "aggressive_points",
+    }
+
+    assert get_left_opponent_policy_settings_from_input(data) == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+    assert get_right_opponent_policy_settings_from_input(data) == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }

@@ -1,3 +1,5 @@
+import json
+
 from main import (
     apply_cli_overrides,
     apply_opponent_policy_cli_overrides,
@@ -1255,3 +1257,57 @@ def test_run_json_position_analysis_accepts_random_left_right_policy_overrides()
         right_opponent_lead_policy_override="random_legal",
         right_opponent_response_policy_override="random_legal",
     )
+
+
+def test_run_json_position_analysis_writes_updated_policy_settings_to_output(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    run_json_position_analysis(
+        file_path="examples/grand_second_position.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=str(output_path),
+        multi_step_count=1,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+        opponent_lead_policy_override="highest_point",
+        opponent_response_policy_override="basic_trick_play",
+        left_opponent_lead_policy_override="lowest_point",
+        left_opponent_response_policy_override="basic_defender_response",
+        right_opponent_lead_policy_override="basic_defender_lead",
+        right_opponent_response_policy_override="highest_point",
+    )
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "highest_point",
+    }
+    assert result["multi_step_result"]["opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+    assert result["multi_step_result"]["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert result["multi_step_result"]["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "highest_point",
+    }

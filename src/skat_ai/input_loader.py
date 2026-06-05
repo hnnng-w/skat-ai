@@ -105,16 +105,19 @@ def get_left_opponent_policy_settings_from_input(
     """
     Extracts normalized left-opponent policy settings from input data.
 
-    Falls back to the global opponent policy settings for backward compatibility.
+    Falls back to the normalized global opponent policy settings for backward
+    compatibility.
     """
+    global_settings = get_opponent_policy_settings_from_input(data)
+
     return {
         "opponent_lead_policy": data.get(
             "left_opponent_lead_policy",
-            data.get("opponent_lead_policy", "lowest_point"),
+            global_settings["opponent_lead_policy"],
         ),
         "opponent_response_policy": data.get(
             "left_opponent_response_policy",
-            data.get("opponent_response_policy", "lowest_point"),
+            global_settings["opponent_response_policy"],
         ),
     }
 
@@ -125,16 +128,19 @@ def get_right_opponent_policy_settings_from_input(
     """
     Extracts normalized right-opponent policy settings from input data.
 
-    Falls back to the global opponent policy settings for backward compatibility.
+    Falls back to the normalized global opponent policy settings for backward
+    compatibility.
     """
+    global_settings = get_opponent_policy_settings_from_input(data)
+
     return {
         "opponent_lead_policy": data.get(
             "right_opponent_lead_policy",
-            data.get("opponent_lead_policy", "lowest_point"),
+            global_settings["opponent_lead_policy"],
         ),
         "opponent_response_policy": data.get(
             "right_opponent_response_policy",
-            data.get("opponent_response_policy", "lowest_point"),
+            global_settings["opponent_response_policy"],
         ),
     }
 
