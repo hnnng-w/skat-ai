@@ -201,6 +201,7 @@ Examples:
   "game_end_reason": "normal_completion",
   "skat": ["C7", "D8"]
 }
+```
 
 ## Performance rating fields
 

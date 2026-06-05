@@ -104,3 +104,29 @@ Important regression areas:
 - CLI result structure
 - multi-step simulation
 - opponent policies
+
+## Information policy
+
+`information_policy.py` centralizes live-vs-post-game information rules.
+
+It rejects post-game-only information in `live_decision`, requires `post_game_review` for ended games, and builds `information_policy_summary`.
+
+## Left/right opponent policy flow
+
+Opponent policy handling starts with global settings and normalized left/right settings.
+
+- `input_loader.py` normalizes global and left/right policy settings.
+- `input_validation.py` validates policy values.
+- `main.py` applies CLI overrides.
+- `multi_step_simulation.py` passes settings into opponent sequence preparation.
+- `opponent_sequence.py` selects left/right lead and response policies.
+- `opponent_policy.py` contains policy selection helpers.
+
+## Validation layers
+
+The project uses:
+
+1. JSON Schema validation for stable input/output structure.
+2. Python validation for Skat-specific cross-field rules.
+3. Pytest regression tests for behavior and examples.
+4. Ruff for code quality.

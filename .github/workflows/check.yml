@@ -30,5 +30,11 @@ jobs:
       - name: Run Ruff
         run: python -m ruff check .
 
+      - name: Run input JSON schema validation
+        run: python scripts/validate_examples_schema.py
+
+      - name: Run generated output JSON schema validation
+        run: python scripts/validate_generated_outputs_schema.py
+
       - name: Run tests
         run: python -m pytest
