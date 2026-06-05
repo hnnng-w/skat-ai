@@ -14,22 +14,34 @@ It evaluates legal card choices, estimates immediate trick outcomes with simulat
 - Expected point swing calculation
 - Card recommendations
 - Multi-step simulation
+- Policy comparison across card-selection strategies
+- Opponent lead and response simulation
 - Opponent policy presets
 - Optional profile-based policy presets
+- Separate left/right opponent policy settings
+- Left/right opponent policy CLI overrides
 - Completed-trick structure, sequence, and rule-winner validation
-- Game declaration and game-value summaries
 - Score and game-result summaries
+- Game declaration and game-value summaries
 - Claim/concession game-end handling
+- Adjusted game-result summaries
 - Final single-game settlement summaries
 - Supported Suit/Grand overbid settlement
 - Partial fixed-three-player ISkO-style performance rating
+- Live-vs-post-game information enforcement
+- Information policy summary output
+- Input and output JSON schema validation
+- Generated-output schema validation for selected examples
 - JSON output for regression-friendly analysis
 
 ## Requirements
 
 - Python 3.11 or newer
 - PowerShell for helper scripts on Windows
-- `pytest` and `ruff` for development checks
+- Development dependencies from `.[dev]`, including:
+  - `pytest`
+  - `ruff`
+  - `jsonschema`
 
 ## Installation
 
@@ -66,6 +78,18 @@ Run analysis with a specific input file:
 python main.py --input examples/grand_second_position.json
 ```
 
+Run a multi-step analysis:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2
+```
+
+Run a multi-step analysis with separate left/right opponent policies:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
+```
+
 Write output to JSON:
 
 ```powershell
@@ -96,6 +120,7 @@ Detailed documentation is split into topic-specific files:
 - [Examples](docs/examples.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [Project handoff](docs/project_handoff.md)
 
 ## Development
 
@@ -127,7 +152,7 @@ The test suite also validates all JSON files in `examples/`. If an example conta
 
 ## Project status
 
-Skat AI is an experimental analysis tool. It already supports a broad set of single-position analysis, game-result, settlement, overbid, and partial fixed-three-player ISkO rating features.
+Skat AI is an experimental analysis tool. It already supports a broad set of single-position analysis, multi-step simulation, opponent-policy modeling, game-result, settlement, overbid, live-vs-post-game, and partial fixed-three-player ISkO rating features.
 
 Known limitations and planned improvements are tracked in [Roadmap documentation](docs/roadmap.md).
 
