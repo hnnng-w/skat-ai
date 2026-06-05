@@ -4,35 +4,101 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
-The following areas are implemented or partially implemented:
+The following areas are implemented or partially implemented.
+
+### Core analysis
 
 - Core card rules and legal-card handling
-- Monte Carlo card analysis
+- Card-point calculation
+- Trump and trick-winner logic
+- JSON-based position analysis
+- Monte Carlo-style card analysis
+- Expected point swing calculation
+- Card recommendation
+- JSON output for regression-friendly analysis
+
+### Simulation
+
+- Immediate trick simulation
 - Multi-step simulation
-- Opponent policy presets
-- Profile-based policy recommendations
-- Game declaration metadata
-- Game value calculation for suit, grand, and null games
-- Card-point score summaries
-- Game result summaries
-- Completed-trick structure and sequence validation
+- Simulation context tracking
+- Strict simulation context checks
+- Policy comparison across card-selection strategies
+- Result serialization for multi-step and policy-comparison output
+
+### Game history and scoring
+
+- Completed-trick structure validation
+- Completed-trick sequence validation
 - Completed-trick rule-winner validation
-- Game-end handling for normal completion, claim, and concession
-- Remaining-point assignment for claim/concession scenarios
+- Explicit and completed-trick point summaries
+- Game result summaries
+- Schneider/Schwarz status summaries
+
+### Game declaration and settlement
+
+- Game declaration metadata
+- Game value summaries for suit, grand, and null games
 - Final single-game settlement summary
-- Supported Suit/Grand overbid detection and settlement
+- Supported Suit/Grand overbid detection
+- Supported Suit/Grand overbid settlement loss handling
+
+### Game-end handling
+
+- Normal completion
+- Declarer claims remaining tricks
+- Declarer concedes remaining tricks
+- Defenders concede remaining tricks
+- Remaining-point assignment for claim/concession scenarios
+- Adjusted game-result summaries
+
+### Performance rating
+
 - Partial fixed-three-player ISkO-style single-game rating
-- Example regression tests
+- Declarer rating score
+- Declarer rating points
+- Counterparty/defender rating points
+- Explicit separation between settlement score and rating score
+
+### Metadata and information control
+
+- Strategic metadata
+- Player profiles
+- Profile-based policy recommendations
+- Live-vs-post-game information enforcement
+- `information_policy_summary` output
+- Rejection of post-game-only information in `live_decision`
+- Requirement that ended game reasons use `post_game_review`
+
+### Opponent modeling
+
+- Opponent policy presets
+- Optional profile-based policy presets
+- Separate left/right opponent policy settings
+- Left/right opponent policy input fields
+- Left/right opponent policy CLI overrides
+- Left/right opponent policy output settings
+- Left/right policy handling in multi-step opponent lead and response paths
+
+### Validation and documentation
+
+- Input JSON schema
+- Output JSON schema
+- Input example schema validation
+- Generated-output schema validation
+- Full check script with Ruff, schema validation, generated-output validation, and pytest
 - Topic-specific documentation split into `docs/`
+- Project handoff documentation
 
 ## Current known limitations
 
 ### Gameplay and rules
 
-- The engine is not a full perfect-information or full-game solver.
+- The engine is not a full perfect-information solver.
+- The engine is not a complete official tournament system.
 - The engine focuses on analysis and simulation, not on training a machine-learning model.
 - Game value calculation uses declared metadata and does not yet infer matadors automatically.
-- Full official settlement nuances are not completely modeled yet.
+- Full official settlement nuance coverage is not complete.
 - Claim and concession handling assigns remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
 - The engine does not yet verify whether a claim was strategically or legally justified.
 - The engine does not yet model player agreement or disputes around claim/concession.
@@ -49,27 +115,36 @@ The following areas are implemented or partially implemented:
 ### Opponent modeling
 
 - Opponent behavior is still simplified and rule-based.
+- Defender cooperation logic is still simplified.
 - Player profiles influence recommendations and policy presets, but the model does not learn from historical player data.
 - Profile-based presets use rough heuristics and are not learned from data.
-- The same combined opponent preset may still be used in places where separate left/right opponent behavior would be more realistic.
-- Defender cooperation logic is still simplified.
+- PlayerProfile confidence is not yet deeply used in simulation decisions.
 
 ### Information modeling
 
-- Skat visibility and analysis mode are tracked as metadata, but stricter live-vs-post-game enforcement should still be improved.
-- The engine depends on the correctness of the provided position context.
-- Older completed-trick inputs without `players` or `winner_player` are supported but cannot be fully validated.
+- The project now enforces the main live-vs-post-game information boundaries.
+- The engine still depends on the correctness of the provided position context.
+- Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
+- Live decision examples should not contain post-game-only information.
 
-## Open technical cleanup
+## Recommended next milestone
 
-Recommended cleanup areas:
+### Milestone 14: Post-game review decision quality
 
-- Keep README short and topic-focused.
-- Continue improving topic-specific docs in `docs/`.
-- Continue improving JSON schema coverage and generated-output validation.
-- Centralize completed-trick validation responsibilities more clearly.
-- Review profile-preset behavior across immediate analysis and multi-step simulation.
-- Add clearer release notes or changelog once the project stabilizes.
+Recommended scope:
+
+- Add optional `actual_card_played` input field.
+- Validate that `actual_card_played` is a valid card.
+- Validate that `actual_card_played` is legal in the analyzed position.
+- Compare `actual_card_played` with the recommended card.
+- Calculate expected-value difference between actual and recommended card.
+- Add `post_game_review_summary` to output.
+- Classify decision quality, for example:
+  - `optimal`
+  - `acceptable`
+  - `suboptimal`
+  - `mistake`
+- Add examples and tests.
 
 ## Open gameplay improvements
 
@@ -77,11 +152,11 @@ Potential future gameplay improvements:
 
 - Infer matadors automatically from known declaration/card context where possible.
 - Improve defender cooperation logic.
-- Support separate left/right opponent policies consistently across simulation paths.
-- Improve live-vs-post-game information enforcement.
-- Add more realistic post-game review examples.
+- Add richer post-game review examples.
 - Add more realistic profile-preset example variants.
-- Improve opponent modeling with player-profile confidence.
+- Add dedicated examples for separate left/right opponent policies.
+- Improve opponent modeling with PlayerProfile confidence.
+- Add stronger tests for left/right opponent policy effects with controlled opponent hands.
 
 ## Open performance-rating improvements
 
@@ -93,14 +168,25 @@ Potential future rating improvements:
 - Add series/tournament aggregation.
 - Add official list-report output formats if needed.
 
+## Open technical cleanup
+
+Recommended cleanup areas:
+
+- Add clearer release notes or a changelog once the project stabilizes.
+- Keep README short and topic-focused.
+- Keep topic-specific docs in `docs/` aligned with implemented behavior.
+- Continue improving JSON schema coverage where useful without duplicating too much Python validation logic.
+- Centralize any remaining duplicated CLI/configuration constants.
+- Review profile-preset behavior across immediate analysis and multi-step simulation.
+
 ## Related GitHub issues
 
-Some historical GitHub issues may now be completed or partially completed.
+Completed issues should be closed when their implementation is covered by tests and documentation.
 
-Suggested issue cleanup:
+Recommended current issue focus:
 
-- Close completed claim/concession handling issues.
-- Close completed completed-trick sequence-validation issues.
-- Update performance-rating issues to reflect the current partial ISkO implementation.
-- Update game-value issues to focus on missing automatic matador inference, if still desired.
-- Keep JSON schema documentation issues open until schema docs are complete.
+- Keep full list/series/tournament rating work open as a future performance-rating issue.
+- Keep defender cooperation logic open as a future opponent-modeling issue.
+- Keep PlayerProfile confidence in opponent modeling open as a future strategy issue.
+- Keep post-game review examples or decision-quality work open for the next milestone.
+- Keep matador inference open as a focused future scoring/rules issue.
