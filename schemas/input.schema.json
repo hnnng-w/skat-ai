@@ -64,6 +64,9 @@
       "maxItems": 2,
       "uniqueItems": true
     },
+    "actual_card_played": {
+      "$ref": "#/$defs/card"
+    },
     "played_cards": {
       "$ref": "#/$defs/card_array",
       "uniqueItems": true

@@ -7,7 +7,7 @@ from skat_ai.information_policy import validate_information_policy_from_input
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.performance_rating import validate_performance_rating_system
-from skat_ai.rules import GAME_TYPES, get_card_points
+from skat_ai.rules import GAME_TYPES, get_card_points, get_legal_cards
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
     validate_analysis_mode_skat_visibility_combination,
@@ -150,6 +150,35 @@ def validate_trick_leader_matches_current_trick(
         raise ValueError("trick_leader cannot be 'me' when current_trick is not empty.")
 
 
+def validate_actual_card_played(data: dict[str, Any]) -> None:
+    """Validates the optional actual card played in post-game review mode."""
+    actual_card_played = data.get("actual_card_played")
+
+    if actual_card_played is None:
+        return
+
+    validate_cards([actual_card_played], "actual_card_played")
+
+    analysis_mode = data.get("analysis_mode", "live_decision")
+    if analysis_mode != "post_game_review":
+        raise ValueError(
+            "actual_card_played requires analysis_mode to be post_game_review."
+        )
+
+    hand = data["hand"]
+    if actual_card_played not in hand:
+        raise ValueError("actual_card_played must be contained in hand.")
+
+    legal_cards = get_legal_cards(
+        hand=hand,
+        current_trick=data["current_trick"],
+        game_type=data["game_type"],
+    )
+
+    if actual_card_played not in legal_cards:
+        raise ValueError("actual_card_played must be legal in the current position.")
+
+
 def validate_positive_integer(value: Any, field_name: str) -> None:
     """
     Validates that a value is a positive integer.
@@ -205,6 +234,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
         trick_leader=data.get("trick_leader", "unknown"),
         current_trick=current_trick,
     )
+    validate_actual_card_played(data)
 
     validate_positive_integer(data["left_hand_size"], "left_hand_size")
     validate_positive_integer(data["right_hand_size"], "right_hand_size")

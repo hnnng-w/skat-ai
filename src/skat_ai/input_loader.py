@@ -169,3 +169,8 @@ def get_performance_rating_system_from_input(
     Extracts the optional performance rating system from input data.
     """
     return data.get("performance_rating_system")
+
+
+def get_actual_card_played_from_input(data: dict[str, Any]) -> str | None:
+    """Extracts the optional actual card played from parsed input data."""
+    return data.get("actual_card_played")

@@ -21,6 +21,7 @@
     "performance_rating_summary",
     "recommendation",
     "information_policy_summary",
+    "post_game_review_summary",
     "opponent_policy_settings",
     "left_opponent_policy_settings",
     "right_opponent_policy_settings"
@@ -53,6 +54,9 @@
     },
     "information_policy_summary": {
       "$ref": "#/$defs/information_policy_summary"
+    },
+    "post_game_review_summary": {
+      "$ref": "#/$defs/post_game_review_summary"
     },
     "game_declaration": {
       "$ref": "#/$defs/game_declaration"
@@ -570,6 +574,59 @@
         },
         "unverifiable_completed_trick_winner_metadata_allowed": {
           "type": "boolean"
+        }
+      }
+    },
+    "post_game_review_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_available",
+        "reason",
+        "actual_card_played",
+        "recommended_card",
+        "actual_expected_point_swing",
+        "recommended_expected_point_swing",
+        "expected_point_swing_difference",
+        "decision_quality"
+      ],
+      "properties": {
+        "is_available": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "actual_card_played_not_provided",
+            "actual_card_played_provided"
+          ]
+        },
+        "actual_card_played": {
+          "type": ["string", "null"],
+          "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+        },
+        "recommended_card": {
+          "type": ["string", "null"],
+          "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+        },
+        "actual_expected_point_swing": {
+          "$ref": "#/$defs/nullable_number"
+        },
+        "recommended_expected_point_swing": {
+          "$ref": "#/$defs/nullable_number"
+        },
+        "expected_point_swing_difference": {
+          "$ref": "#/$defs/nullable_number"
+        },
+        "decision_quality": {
+          "type": "string",
+          "enum": [
+            "not_available",
+            "optimal",
+            "acceptable",
+            "suboptimal",
+            "mistake"
+          ]
         }
       }
     }

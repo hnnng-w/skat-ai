@@ -17,6 +17,7 @@ from skat_ai.game_value import build_game_value_summary
 from skat_ai.information_policy import build_information_policy_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
+    get_actual_card_played_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_left_opponent_policy_settings_from_input,
@@ -38,6 +39,7 @@ from skat_ai.policy_comparison import (
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
 )
+from skat_ai.post_game_review import build_post_game_review_summary
 from skat_ai.recommender import recommend_card_by_expected_value
 from skat_ai.result_serialization import (
     build_serializable_multi_step_result,
@@ -144,6 +146,7 @@ def build_analysis_result(
     state = build_game_state_from_input(data)
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
+    actual_card_played = get_actual_card_played_from_input(data)
     game_declaration = get_game_declaration_from_input(data)
     performance_rating_system = get_performance_rating_system_from_input(data)
     game_value_summary = build_game_value_summary(game_declaration)
@@ -206,6 +209,11 @@ def build_analysis_result(
         use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
     )
 
+    post_game_review_summary = build_post_game_review_summary(
+        actual_card_played=actual_card_played,
+        analysis_report=report,
+    )
+
     strategic_summary = build_strategic_summary(report)
 
     score_summary = build_score_summary(state)
@@ -252,6 +260,7 @@ def build_analysis_result(
         "profile_preset_settings": profile_preset_settings,
         "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
         "information_policy_summary": information_policy_summary,
+        "post_game_review_summary": post_game_review_summary,
         "game_declaration": build_serializable_game_declaration(game_declaration),
         "game_value_summary": game_value_summary,
         "overbid_summary": overbid_summary,

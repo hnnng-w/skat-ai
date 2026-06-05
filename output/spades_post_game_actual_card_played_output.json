@@ -1,0 +1,251 @@
+{
+  "input_file": "examples/spades_post_game_actual_card_played.json",
+  "position": {
+    "game_type": "spades",
+    "player_role": "declarer",
+    "player_position": "middlehand",
+    "trick_leader": "left",
+    "hand": [
+      "C7",
+      "SA",
+      "S7"
+    ],
+    "current_trick": [
+      "CA"
+    ],
+    "played_cards": [],
+    "completed_tricks": [],
+    "declarer_points": 0,
+    "defender_points": 0,
+    "next_player": "me",
+    "skat": [
+      "H7",
+      "D8"
+    ]
+  },
+  "settings": {
+    "left_hand_size": 10,
+    "right_hand_size": 10,
+    "sample_count": 20,
+    "random_seed": 42,
+    "use_basic_opponent_strategy": true
+  },
+  "opponent_policy_settings": {
+    "opponent_lead_policy": "lowest_point",
+    "opponent_response_policy": "lowest_point"
+  },
+  "left_opponent_policy_settings": {
+    "opponent_lead_policy": "lowest_point",
+    "opponent_response_policy": "lowest_point"
+  },
+  "right_opponent_policy_settings": {
+    "opponent_lead_policy": "lowest_point",
+    "opponent_response_policy": "lowest_point"
+  },
+  "profile_preset_settings": {
+    "use_profile_presets": false
+  },
+  "analysis_metadata": {
+    "strategic_metadata": {
+      "analysis_mode": "post_game_review",
+      "skat_visibility": "known_post_game",
+      "game_end_reason": "not_ended"
+    },
+    "left_player_profile": {
+      "games_played": null,
+      "solo_games_played": null,
+      "defender_games_played": null,
+      "solo_rate": null,
+      "solo_win_rate": null,
+      "hand_game_rate": null,
+      "suit_game_rate": null,
+      "grand_rate": null,
+      "null_game_rate": null,
+      "defender_win_rate": null
+    },
+    "right_player_profile": {
+      "games_played": null,
+      "solo_games_played": null,
+      "defender_games_played": null,
+      "solo_rate": null,
+      "solo_win_rate": null,
+      "hand_game_rate": null,
+      "suit_game_rate": null,
+      "grand_rate": null,
+      "null_game_rate": null,
+      "defender_win_rate": null
+    },
+    "recommended_opponent_policy_presets": {
+      "left_player_recommended_preset": "simple_lowest",
+      "right_player_recommended_preset": "simple_lowest"
+    }
+  },
+  "information_policy_summary": {
+    "analysis_mode": "post_game_review",
+    "skat_visibility": "known_post_game",
+    "game_end_reason": "not_ended",
+    "live_information_enforced": false,
+    "known_post_game_skat_allowed": true,
+    "known_skat_cards_allowed": true,
+    "ended_game_allowed": true,
+    "unverifiable_completed_trick_winner_metadata_allowed": true
+  },
+  "post_game_review_summary": {
+    "is_available": true,
+    "reason": "actual_card_played_provided",
+    "actual_card_played": "C7",
+    "recommended_card": "C7",
+    "actual_expected_point_swing": -13.05,
+    "recommended_expected_point_swing": -13.05,
+    "expected_point_swing_difference": 0.0,
+    "decision_quality": "optimal"
+  },
+  "game_declaration": {
+    "game_type": "spades",
+    "hand_game": false,
+    "ouvert": false,
+    "schneider_announced": false,
+    "schwarz_announced": false,
+    "matadors": null,
+    "bid_value": null
+  },
+  "game_value_summary": {
+    "game_type": "spades",
+    "is_null_game": false,
+    "base_value": 11,
+    "game_level": null,
+    "game_value": null,
+    "details": {
+      "matadors": null,
+      "matador_multiplier": null,
+      "hand_game": false,
+      "schneider_announced": false,
+      "schwarz_announced": false,
+      "ouvert": false,
+      "modifier_multiplier": 0,
+      "is_complete": false
+    }
+  },
+  "overbid_summary": {
+    "bid_value": null,
+    "game_value": null,
+    "is_overbid": null,
+    "margin": null,
+    "required_game_value": null,
+    "status": "unknown_bid_value"
+  },
+  "legal_cards": [
+    "C7"
+  ],
+  "analysis_report": [
+    {
+      "card": "C7",
+      "win_rate": 0.0,
+      "average_trick_points": 13.05,
+      "average_points_won": 0.0,
+      "average_points_lost": 13.05,
+      "expected_point_swing": -13.05,
+      "is_recommended": true
+    }
+  ],
+  "strategic_summary": "Strategic summary: C7 is the only legal card. Its estimated expected point swing is -13.05 with a win rate of 0.000.",
+  "score_summary": {
+    "explicit_declarer_points": 0,
+    "explicit_defender_points": 0,
+    "completed_trick_declarer_points": 0,
+    "completed_trick_defender_points": 0,
+    "total_declarer_points": 0,
+    "total_defender_points": 0
+  },
+  "game_result_summary": {
+    "declarer_points": 0,
+    "defender_points": 0,
+    "points_remaining": 120,
+    "is_complete": false,
+    "winner": "undecided",
+    "status": "in_progress",
+    "raw_schneider_status": "declarer_made_schneider",
+    "raw_schwarz_status": "declarer_made_schwarz",
+    "effective_schneider_status": "pending",
+    "effective_schwarz_status": "pending",
+    "thresholds": {
+      "declarer_win": 61,
+      "defender_win": 60,
+      "schneider": 30,
+      "schwarz": 0,
+      "total_card_points": 120
+    }
+  },
+  "adjusted_game_result_summary": {
+    "declarer_points": 0,
+    "defender_points": 0,
+    "points_remaining": 120,
+    "is_complete": false,
+    "winner": "undecided",
+    "status": "in_progress",
+    "raw_schneider_status": "declarer_made_schneider",
+    "raw_schwarz_status": "declarer_made_schwarz",
+    "effective_schneider_status": "pending",
+    "effective_schwarz_status": "pending",
+    "thresholds": {
+      "declarer_win": 61,
+      "defender_win": 60,
+      "schneider": 30,
+      "schwarz": 0,
+      "total_card_points": 120
+    },
+    "game_end_reason": "not_ended",
+    "remaining_points_recipient": null,
+    "remaining_points_assigned": 0
+  },
+  "final_settlement_summary": {
+    "is_complete": false,
+    "missing_inputs": [
+      "complete_card_points",
+      "game_value"
+    ],
+    "declarer_won_by_card_points": null,
+    "winner": null,
+    "game_value": null,
+    "effective_game_value": null,
+    "bid_value": null,
+    "settlement_score": null,
+    "is_loss": null,
+    "is_overbid": null,
+    "overbid_margin": null,
+    "overbid_status": "unknown_bid_value",
+    "overbid_required_game_value": null,
+    "notes": [
+      "Settlement score uses simplified Skat logic.",
+      "Lost declarer games are counted as -2 * effective_game_value.",
+      "Overbid settlement is supported for suit and grand games when required_game_value is available."
+    ]
+  },
+  "performance_rating_summary": {
+    "is_implemented": false,
+    "is_partially_implemented": false,
+    "implemented_scope": null,
+    "unsupported_scope": "performance_rating_not_implemented",
+    "rating_system": null,
+    "table_player_count": 3,
+    "basis": "individual_game_settlement",
+    "game_outcome": "incomplete",
+    "settlement_score": null,
+    "rating_score": null,
+    "declarer_rating_score": null,
+    "declarer_rating_points": null,
+    "counterparty_rating_points": null,
+    "defender_rating_points": null,
+    "unsupported_reason": "performance_rating_not_implemented",
+    "notes": [
+      "Performance rating is separate from individual game settlement.",
+      "rating_score currently represents the declarer's rating score.",
+      "List, series, and tournament rating are not fully implemented yet.",
+      "final_settlement_summary remains the source for single-game settlement."
+    ]
+  },
+  "recommendation": {
+    "card": "C7",
+    "reason": "This card has the highest estimated immediate expected point swing: -13.05."
+  }
+}

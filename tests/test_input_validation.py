@@ -1,3 +1,5 @@
+import pytest
+
 from skat_ai.input_validation import (
     validate_boolean,
     validate_cards,
@@ -21,6 +23,30 @@ from skat_ai.input_validation import (
     validate_trick_leader,
     validate_trick_leader_matches_current_trick,
 )
+
+
+def build_valid_input() -> dict[str, object]:
+    return {
+        "game_type": "spades",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "left",
+        "hand": ["C7", "SA", "S7"],
+        "current_trick": ["CA"],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 10,
+        "right_hand_size": 10,
+        "sample_count": 10,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+    }
 
 
 def test_validate_required_keys_accepts_complete_input() -> None:
@@ -1094,3 +1120,50 @@ def test_validate_optional_opponent_policies_rejects_invalid_left_lead() -> None
         assert "opponent card policy" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_position_input_accepts_legal_actual_card_in_post_game_review() -> None:
+    data = build_valid_input()
+    data["actual_card_played"] = "C7"
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_invalid_actual_card() -> None:
+    data = build_valid_input()
+    data["actual_card_played"] = "XX"
+
+    with pytest.raises(ValueError, match="Invalid cards in actual_card_played"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_actual_card_in_live_decision() -> None:
+    data = build_valid_input()
+    data["analysis_mode"] = "live_decision"
+    data["skat_visibility"] = "unknown"
+    data["actual_card_played"] = "C7"
+
+    with pytest.raises(
+        ValueError,
+        match="actual_card_played requires analysis_mode to be post_game_review",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_actual_card_not_in_hand() -> None:
+    data = build_valid_input()
+    data["actual_card_played"] = "D7"
+
+    with pytest.raises(ValueError, match="actual_card_played must be contained in hand"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_illegal_actual_card() -> None:
+    data = build_valid_input()
+    data["actual_card_played"] = "SA"
+
+    with pytest.raises(
+        ValueError,
+        match="actual_card_played must be legal in the current position",
+    ):
+        validate_position_input(data)

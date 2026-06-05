@@ -1,0 +1,31 @@
+{
+  "game_type": "spades",
+  "player_role": "declarer",
+  "player_position": "middlehand",
+  "trick_leader": "left",
+  "hand": ["C7", "SA", "S7"],
+  "current_trick": ["CA"],
+  "played_cards": [],
+  "completed_tricks": [],
+  "declarer_points": 0,
+  "defender_points": 0,
+  "next_player": "me",
+  "skat": ["H7", "D8"],
+  "left_hand_size": 10,
+  "right_hand_size": 10,
+  "sample_count": 20,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true,
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "known_post_game",
+  "actual_card_played": "C7",
+  "game_declaration": {
+    "declarer": "me",
+    "contract": "spades",
+    "hand_game": false,
+    "schneider_announced": false,
+    "schwarz_announced": false,
+    "ouvert": false,
+    "matadors": 1
+  }
+}

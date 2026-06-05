@@ -200,6 +200,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "overbid_summary",
         "performance_rating_summary",
         "information_policy_summary",
+        "post_game_review_summary",
     }
 
 
@@ -1310,4 +1311,80 @@ def test_run_json_position_analysis_writes_updated_policy_settings_to_output(
     assert result["multi_step_result"]["right_opponent_policy_settings"] == {
         "opponent_lead_policy": "basic_defender_lead",
         "opponent_response_policy": "highest_point",
+    }
+
+
+def write_position_file(tmp_path, data: dict[str, object]) -> str:
+    input_path = tmp_path / "position.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+    return str(input_path)
+
+
+def build_post_game_position_input() -> dict[str, object]:
+    return {
+        "game_type": "spades",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "left",
+        "hand": ["C7", "SA", "S7"],
+        "current_trick": ["CA"],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 10,
+        "right_hand_size": 10,
+        "sample_count": 10,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+    }
+
+
+def test_build_analysis_result_includes_unavailable_post_game_review_summary(
+    tmp_path,
+) -> None:
+    data = build_post_game_position_input()
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert "post_game_review_summary" in result
+    assert result["post_game_review_summary"]["is_available"] is False
+    assert (
+        result["post_game_review_summary"]["reason"]
+        == "actual_card_played_not_provided"
+    )
+    assert result["post_game_review_summary"]["actual_card_played"] is None
+    assert (
+        result["post_game_review_summary"]["decision_quality"]
+        == "not_available"
+    )
+
+
+def test_build_analysis_result_includes_available_post_game_review_summary(
+    tmp_path,
+) -> None:
+    data = build_post_game_position_input()
+    data["actual_card_played"] = "C7"
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+    summary = result["post_game_review_summary"]
+
+    assert summary["is_available"] is True
+    assert summary["reason"] == "actual_card_played_provided"
+    assert summary["actual_card_played"] == "C7"
+    assert summary["recommended_card"] is not None
+    assert isinstance(summary["actual_expected_point_swing"], float)
+    assert isinstance(summary["recommended_expected_point_swing"], float)
+    assert isinstance(summary["expected_point_swing_difference"], float)
+    assert summary["decision_quality"] in {
+        "optimal",
+        "acceptable",
+        "suboptimal",
+        "mistake",
     }
