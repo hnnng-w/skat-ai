@@ -170,6 +170,38 @@ Supported `game_end_reason` values:
 | `declarer_conceded_remaining_tricks` | Declarer conceded the remaining tricks. |
 | `defenders_conceded_remaining_tricks` | Defenders conceded the remaining tricks. |
 
+### Live vs post-game information rules
+
+The project separates live decision analysis from post-game review.
+
+`live_decision` is intended for in-game decisions and must not use post-game-only information.
+
+`post_game_review` is intended for completed or retrospectively analyzed games.
+
+Important validation rules:
+
+- `analysis_mode = "live_decision"` cannot use `skat_visibility = "known_post_game"`.
+- `analysis_mode = "live_decision"` cannot include known skat cards in `skat`.
+- `game_end_reason` values other than `not_ended` require `analysis_mode = "post_game_review"`.
+- `analysis_mode = "live_decision"` cannot describe a completed game with all 120 card points assigned.
+- In `live_decision`, completed-trick winner metadata such as `winner_player` or `winner_role` must be verifiable. If winner metadata is provided, `players` should also be provided.
+
+Examples:
+
+```json
+{
+  "analysis_mode": "live_decision",
+  "skat_visibility": "unknown",
+  "game_end_reason": "not_ended"
+}
+
+{
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "known_post_game",
+  "game_end_reason": "normal_completion",
+  "skat": ["C7", "D8"]
+}
+
 ## Performance rating fields
 
 Input files may optionally include:
@@ -190,6 +222,56 @@ Supported values:
 If omitted, `performance_rating_summary.rating_system` is `null`.
 
 The project assumes a fixed three-player table. No table-size input field is required.
+
+## Opponent policy fields
+
+Input files can define opponent card-selection policies.
+
+Global opponent policy fields are backward-compatible and apply as defaults:
+
+```json
+{
+  "opponent_lead_policy": "lowest_point",
+  "opponent_response_policy": "lowest_point"
+}
+```
+
+Supported opponent card policies:
+
+| Value | Meaning |
+|---|---|
+| `lowest_point` | Choose the lowest-point legal card. |
+| `highest_point` | Choose the highest-point legal card. |
+| `random_legal` | Choose a random legal card. |
+| `basic_trick_play` | Use basic trick-play behavior. |
+| `basic_defender_lead` | Use a cautious defender lead policy. |
+| `basic_defender_response` | Use a basic defender response policy. |
+
+The project also supports separate left/right opponent policy fields:
+
+```json
+{
+  "left_opponent_lead_policy": "highest_point",
+  "left_opponent_response_policy": "basic_trick_play",
+  "right_opponent_lead_policy": "basic_defender_lead",
+  "right_opponent_response_policy": "basic_defender_response"
+}
+```
+
+Normalization behavior:
+
+- `left_opponent_lead_policy` falls back to `opponent_lead_policy`.
+- `left_opponent_response_policy` falls back to `opponent_response_policy`.
+- `right_opponent_lead_policy` falls back to `opponent_lead_policy`.
+- `right_opponent_response_policy` falls back to `opponent_response_policy`.
+
+Current multi-step behavior:
+
+- If `right` leads, the engine uses `right_opponent_lead_policy`.
+- If `left` leads, the engine uses `left_opponent_lead_policy`.
+- If `left` leads and `right` responds, the engine uses `right_opponent_response_policy`.
+
+Global policy fields remain supported for backward compatibility.
 
 ## Completed tricks
 
@@ -239,3 +321,8 @@ Input validation rejects:
 - inconsistent `game_end_reason` and remaining card points
 - invalid `bid_value`
 - unknown `performance_rating_system`
+- invalid opponent policy values
+- invalid live-vs-post-game information combinations
+- known skat cards in live decision mode
+- ended game reasons outside post-game review mode
+- complete 120-point game states in live decision mode

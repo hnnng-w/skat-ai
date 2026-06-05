@@ -2,6 +2,29 @@
 
 This document describes the JSON output produced by `skat-ai`.
 
+## Multi-step result
+
+When a multi-step simulation is requested, the output can include `multi_step_result`.
+
+`multi_step_result` contains the serialized multi-step simulation result, including:
+
+| Field | Meaning |
+|---|---|
+| `card_selection_policy` | Card-selection policy used for player decisions. |
+| `requested_step_count` | Number of requested simulation steps. |
+| `steps_simulated` | Number of steps that were actually simulated. |
+| `stop_reason` | Reason why the simulation stopped. |
+| `strict_context` | Whether strict simulation-context validation was active. |
+| `summary` | Multi-step score and context summary. |
+| `context_summary` | Summary of simulated opponent-card context. |
+| `steps` | Serialized step-by-step simulation details. |
+| `final_state` | Final serialized game state after the simulated steps. |
+| `opponent_policy_settings` | Global opponent policy settings used as fallback. |
+| `left_opponent_policy_settings` | Left-opponent policy settings passed into multi-step simulation. |
+| `right_opponent_policy_settings` | Right-opponent policy settings passed into multi-step simulation. |
+
+The exact fields depend on whether a multi-step simulation was requested.
+
 ## JSON schema
 
 A draft output JSON schema is available at:
@@ -48,6 +71,46 @@ Typical top-level fields include:
 | `recommendation` | Recommended card and reason. |
 | `multi_step_result` | Optional multi-step simulation result. |
 | `policy_comparison_result` | Optional policy-comparison result. |
+| `information_policy_summary` | Summary of the active live-vs-post-game information policy. |
+| `left_opponent_policy_settings` | Normalized policy settings for the left opponent. |
+| `right_opponent_policy_settings` | Normalized policy settings for the right opponent. |
+
+## Opponent policy settings
+
+The output contains global and normalized left/right opponent policy settings.
+
+Example:
+
+```json
+{
+  "opponent_policy_settings": {
+    "opponent_lead_policy": "lowest_point",
+    "opponent_response_policy": "lowest_point"
+  },
+  "left_opponent_policy_settings": {
+    "opponent_lead_policy": "highest_point",
+    "opponent_response_policy": "basic_trick_play"
+  },
+  "right_opponent_policy_settings": {
+    "opponent_lead_policy": "basic_defender_lead",
+    "opponent_response_policy": "basic_defender_response"
+  }
+}
+```
+
+Meaning:
+
+| Field | Meaning |
+|---|---|
+| `opponent_policy_settings` | Global opponent policy settings and backward-compatible fallback. |
+| `left_opponent_policy_settings` | Normalized policy settings for the left opponent. |
+| `right_opponent_policy_settings` | Normalized policy settings for the right opponent. |
+
+Current multi-step behavior:
+
+- `right` lead uses `right_opponent_policy_settings.opponent_lead_policy`.
+- `left` lead uses `left_opponent_policy_settings.opponent_lead_policy`.
+- `right` response after a left lead uses `right_opponent_policy_settings.opponent_response_policy`.
 
 ## Game declaration
 
@@ -198,6 +261,53 @@ Example:
 `effective_game_value` is the value used for settlement scoring.
 
 For supported Suit/Grand overbid cases, `effective_game_value` equals `required_game_value`.
+
+## Information policy summary
+
+`information_policy_summary` describes which information-boundary rules apply to the analysis.
+
+Example for live analysis:
+
+```json
+{
+  "analysis_mode": "live_decision",
+  "skat_visibility": "unknown",
+  "game_end_reason": "not_ended",
+  "live_information_enforced": true,
+  "known_post_game_skat_allowed": false,
+  "known_skat_cards_allowed": false,
+  "ended_game_allowed": false,
+  "unverifiable_completed_trick_winner_metadata_allowed": false
+}
+```
+
+Example for post-game review:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "known_post_game",
+  "game_end_reason": "normal_completion",
+  "live_information_enforced": false,
+  "known_post_game_skat_allowed": true,
+  "known_skat_cards_allowed": true,
+  "ended_game_allowed": true,
+  "unverifiable_completed_trick_winner_metadata_allowed": true
+}
+```
+
+Fields:
+
+| Field | Meaning |
+|---|---|
+| `analysis_mode` | Active analysis mode. |
+| `skat_visibility` | Whether the skat is unknown or known from post-game review. |
+| `game_end_reason` | Game-end metadata used for remaining-point assignment. |
+| `live_information_enforced` | Whether live-information restrictions are active. |
+| `known_post_game_skat_allowed` | Whether post-game skat visibility is allowed. |
+| `known_skat_cards_allowed` | Whether known skat cards are allowed in the input. |
+| `ended_game_allowed` | Whether completed game states are allowed. |
+| `unverifiable_completed_trick_winner_metadata_allowed` | Whether winner metadata without full verification context is allowed. |
 
 ## Performance rating summary
 
