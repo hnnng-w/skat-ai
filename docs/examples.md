@@ -2,9 +2,52 @@
 
 This document describes the example input files in `examples/`.
 
+The examples are used for manual testing, regression tests, input schema validation, and generated-output schema validation.
+
+## Example validation
+
+All example JSON files should remain valid.
+
+Run the full project check:
+
+```powershell
+.\scripts\check.ps1
+```
+
+The check script validates:
+
+- Ruff checks
+- input JSON schema validation
+- generated output JSON schema validation
+- pytest regression tests
+
+Run input schema validation directly:
+
+```powershell
+python scripts/validate_examples_schema.py
+```
+
+Run generated-output schema validation directly:
+
+```powershell
+python scripts/validate_generated_outputs_schema.py
+```
+
 ## Live decision examples
 
 These examples represent ongoing positions where the tool recommends a card.
+
+Typical metadata:
+
+```json
+{
+  "analysis_mode": "live_decision",
+  "skat_visibility": "unknown",
+  "game_end_reason": "not_ended"
+}
+```
+
+Live decision examples must not include post-game-only information such as known skat cards or completed game-end reasons.
 
 | File | Purpose |
 |---|---|
@@ -30,7 +73,39 @@ These examples represent ongoing positions where the tool recommends a card.
 | `grand_complete_declarer_win.json` | Complete game where declarer wins. Also demonstrates `bid_value` and partial ISkO performance-rating metadata. |
 | `grand_complete_declarer_loss.json` | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points. |
 
+These examples represent completed or retrospectively analyzed games.
+
+Typical metadata:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "known_post_game",
+  "game_end_reason": "normal_completion"
+}
+```
+
+Post-game review examples may include known skat cards and completed game information.
+
 ## Claim and concession examples
+
+These examples test game-end handling where remaining card points are assigned without normal trick completion.
+
+Supported game-end reasons include:
+
+- `declarer_claimed_remaining_tricks`
+- `declarer_conceded_remaining_tricks`
+- `defenders_conceded_remaining_tricks`
+
+These examples should use:
+
+```json
+{
+  "analysis_mode": "post_game_review"
+}
+```
+
+because ended game reasons are post-game review information.
 
 | File | Purpose |
 |---|---|
@@ -104,6 +179,39 @@ Run a policy comparison:
 python main.py --input examples/grand_second_position.json --compare-policies
 ```
 
+## Left/right opponent policy examples
+
+The project supports separate left/right opponent policy settings.
+
+Input fields:
+
+```json
+{
+  "opponent_lead_policy": "lowest_point",
+  "opponent_response_policy": "lowest_point",
+  "left_opponent_lead_policy": "highest_point",
+  "left_opponent_response_policy": "basic_trick_play",
+  "right_opponent_lead_policy": "basic_defender_lead",
+  "right_opponent_response_policy": "basic_defender_response"
+}
+```
+
+Global policy fields remain backward-compatible and are used as fallback values.
+
+Current multi-step behavior:
+
+- if `right` leads, `right_opponent_lead_policy` is used
+- if `left` leads, `left_opponent_lead_policy` is used
+- if `left` leads and `right` responds, `right_opponent_response_policy` is used
+
+Run a multi-step simulation with separate left/right opponent policies:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
+```
+
+A dedicated example for separate left/right policies should be added in a future examples task.
+
 ## Notes
 
 The examples are also used as regression fixtures in `tests/test_examples.py`.
@@ -113,6 +221,38 @@ When adding new examples:
 - keep card notation valid
 - avoid duplicate known cards
 - keep point totals within 120
+- set `analysis_mode` consistently with the example type
+- keep live decision examples free of post-game-only information
+- use `post_game_review` for completed games, claim/concession scenarios, and known post-game skat
 - set `game_end_reason` consistently with known card points
+- add explicit `players` to completed tricks when winner metadata must be verifiable
 - prefer `completed_tricks` over `played_cards`
 - use `performance_rating_system: "isko_list"` only when partial ISkO rating output should be demonstrated
+- run `.\scripts\check.ps1` before committing
+
+## Expected output behavior
+
+Generated outputs may include:
+
+- `position`
+- `settings`
+- `opponent_policy_settings`
+- `left_opponent_policy_settings`
+- `right_opponent_policy_settings`
+- `analysis_metadata`
+- `information_policy_summary`
+- `game_declaration`
+- `game_value_summary`
+- `overbid_summary`
+- `score_summary`
+- `game_result_summary`
+- `adjusted_game_result_summary`
+- `final_settlement_summary`
+- `performance_rating_summary`
+- `recommendation`
+- `multi_step_result`, if multi-step simulation is requested
+- `policy_comparison_result`, if policy comparison is requested
+
+For detailed output field descriptions, see:
+
+- [Output JSON documentation](output_json.md)
