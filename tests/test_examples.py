@@ -334,6 +334,26 @@ def test_post_game_known_skat_example_metadata_invariants() -> None:
         == "aggressive_points"
     )
 
+
+def test_post_game_mistake_actual_card_example_has_gap_details() -> None:
+    result = build_example_analysis_result("grand_post_game_mistake_actual_card.json")
+
+    summary = result["post_game_review_summary"]
+
+    assert summary["is_available"] is True
+    assert summary["actual_card_played"] == "S9"
+    assert summary["recommended_card"] == "SA"
+    assert summary["expected_point_swing_difference"] == 11.0
+    assert summary["decision_quality"] == "mistake"
+    assert summary["decision_factors"] == [
+        "lower_expected_point_swing_than_recommendation",
+        "large_expected_point_swing_gap",
+    ]
+    assert summary["actual_card_rank"] == 3
+    assert summary["recommended_card_rank"] == 1
+    assert summary["candidate_count"] == 3
+    assert summary["better_card_count"] == 2
+
 def test_default_grand_second_position_infers_game_value() -> None:
     result = build_example_analysis_result("grand_second_position.json")
 

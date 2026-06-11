@@ -91,6 +91,7 @@ Post-game review examples may include known skat cards and completed game inform
 | File                                       | Purpose                                                                                                                      |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | `grand_post_game_known_skat.json`          | Post-game review with known skat and completed tricks.                                                                       |
+| `grand_post_game_mistake_actual_card.json` | Post-game review where the actual card is ranked below the recommendation and gap details are populated.                     |
 | `spades_post_game_actual_card_played.json` | Post-game review with `actual_card_played`, decision quality, decision factors, explanation, and recommendation gap details. |
 | `grand_complete_declarer_win.json`         | Complete game where declarer wins. Also demonstrates `bid_value` and partial ISkO performance-rating metadata.               |
 | `grand_complete_declarer_loss.json`        | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points.                           |
@@ -99,6 +100,12 @@ Run a post-game review example with actual-card comparison:
 
 ```powershell
 python main.py --input examples/spades_post_game_actual_card_played.json
+```
+
+Run a post-game review example with a missed recommendation:
+
+```powershell
+python main.py --input examples/grand_post_game_mistake_actual_card.json
 ```
 
 The output includes:
