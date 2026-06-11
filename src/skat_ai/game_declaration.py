@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+from skat_ai.matador_inference import infer_matadors_from_declarer_cards
+
 VALID_DECLARATION_GAME_TYPES = [
     "clubs",
     "spades",
@@ -77,6 +79,36 @@ def validate_game_declaration(declaration: GameDeclaration) -> None:
             raise ValueError("Null games cannot have matadors.")
 
 
+def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
+    """Infers missing matadors from currently known declarer cards."""
+    game_declaration_data = data.get("game_declaration", {})
+
+    if not isinstance(game_declaration_data, dict):
+        game_declaration_data = {}
+
+    if game_declaration_data.get("matadors") is not None:
+        return game_declaration_data["matadors"]
+
+    if data.get("matadors") is not None:
+        return data["matadors"]
+
+    hand = data.get("hand", [])
+    skat = data.get("skat", [])
+
+    if not isinstance(hand, list):
+        hand = []
+
+    if not isinstance(skat, list):
+        skat = []
+
+    declarer_cards = [*hand, *skat]
+
+    return infer_matadors_from_declarer_cards(
+        game_type=data["game_type"],
+        declarer_cards=declarer_cards,
+    )
+
+
 def build_game_declaration_from_input(
     data: dict[str, Any],
 ) -> GameDeclaration:
@@ -89,7 +121,7 @@ def build_game_declaration_from_input(
         ouvert=data.get("ouvert", False),
         schneider_announced=data.get("schneider_announced", False),
         schwarz_announced=data.get("schwarz_announced", False),
-        matadors=data.get("matadors"),
+        matadors=infer_missing_matadors_from_input(data),
         bid_value=data.get("bid_value"),
     )
 

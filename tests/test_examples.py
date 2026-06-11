@@ -334,17 +334,15 @@ def test_post_game_known_skat_example_metadata_invariants() -> None:
         == "aggressive_points"
     )
 
-def test_default_grand_second_position_has_incomplete_game_value() -> None:
+def test_default_grand_second_position_infers_game_value() -> None:
     result = build_example_analysis_result("grand_second_position.json")
 
-    assert result["game_declaration"]["matadors"] is None
-    assert result["game_value_summary"]["game_value"] is None
-    assert result["game_value_summary"]["details"]["is_complete"] is False
-    assert result["final_settlement_summary"]["is_complete"] is False
-    assert result["final_settlement_summary"]["missing_inputs"] == [
-        "complete_card_points",
-        "game_value",
-    ]
+    assert result["game_declaration"]["matadors"] == 4
+    assert result["game_value_summary"]["game_level"] == 5
+    assert result["game_value_summary"]["game_value"] == 120
+    assert result["game_value_summary"]["details"]["matadors"] == 4
+    assert result["game_value_summary"]["details"]["matador_multiplier"] == 5
+    assert result["game_value_summary"]["details"]["is_complete"] is True
 
 def test_claimed_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result("grand_claimed_remaining_tricks.json")

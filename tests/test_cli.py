@@ -239,7 +239,7 @@ def test_build_analysis_result_includes_overbid_summary() -> None:
 
     assert result["overbid_summary"] == {
         "bid_value": None,
-        "game_value": None,
+        "game_value": 120,
         "is_overbid": None,
         "margin": None,
         "status": "unknown_bid_value",
@@ -981,7 +981,7 @@ def test_build_analysis_result_includes_game_declaration() -> None:
         "ouvert": False,
         "schneider_announced": False,
         "schwarz_announced": False,
-        "matadors": None,
+        "matadors": 4,
         "bid_value": None,
     }
 
@@ -997,17 +997,17 @@ def test_build_analysis_result_includes_game_value_summary() -> None:
         "game_type": "grand",
         "is_null_game": False,
         "base_value": 24,
-        "game_level": None,
-        "game_value": None,
+        "game_level": 5,
+        "game_value": 120,
         "details": {
-            "matadors": None,
-            "matador_multiplier": None,
+            "matadors": 4,
+            "matador_multiplier": 5,
             "hand_game": False,
             "schneider_announced": False,
             "schwarz_announced": False,
             "ouvert": False,
             "modifier_multiplier": 0,
-            "is_complete": False,
+            "is_complete": True,
         },
     }
 
@@ -1049,10 +1049,10 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
 
     assert result["final_settlement_summary"] == {
         "is_complete": False,
-        "missing_inputs": ["complete_card_points", "game_value"],
+        "missing_inputs": ["complete_card_points"],
         "declarer_won_by_card_points": None,
         "winner": None,
-        "game_value": None,
+        "game_value": 120,
         "bid_value": None,
         "settlement_score": None,
         "is_loss": None,
