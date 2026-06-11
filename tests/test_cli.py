@@ -1388,3 +1388,54 @@ def test_build_analysis_result_includes_available_post_game_review_summary(
         "suboptimal",
         "mistake",
     }
+
+
+def test_run_json_position_analysis_prints_available_post_game_review_summary(
+    capsys,
+) -> None:
+    run_json_position_analysis(
+        file_path="examples/spades_post_game_actual_card_played.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=None,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+    )
+
+    captured = capsys.readouterr()
+
+    assert "Post-game review summary" in captured.out
+    assert "Actual card played: C7" in captured.out
+    assert "Recommended card: C7" in captured.out
+    assert "Actual expected point swing:" in captured.out
+    assert "Recommended expected point swing:" in captured.out
+    assert "Expected point swing difference:" in captured.out
+    assert "Decision quality: optimal" in captured.out
+
+
+def test_run_json_position_analysis_prints_unavailable_post_game_review_summary(
+    capsys,
+) -> None:
+    run_json_position_analysis(
+        file_path="examples/grand_leading.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=None,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+    )
+
+    captured = capsys.readouterr()
+
+    assert "Post-game review summary" in captured.out
+    assert "Not available: actual_card_played_not_provided" in captured.out

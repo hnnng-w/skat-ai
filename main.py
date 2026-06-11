@@ -279,6 +279,43 @@ def build_analysis_result(
     }
 
 
+def print_post_game_review_summary(result: dict[str, object]) -> None:
+    """Prints the post-game review summary for human-readable CLI output."""
+    summary = result.get("post_game_review_summary")
+
+    if not isinstance(summary, dict):
+        return
+
+    print()
+    print("Post-game review summary")
+
+    if summary.get("is_available") is not True:
+        reason = summary.get("reason", "not_available")
+        print(f"Not available: {reason}")
+        return
+
+    actual_expected_point_swing = float(summary["actual_expected_point_swing"])
+    recommended_expected_point_swing = float(
+        summary["recommended_expected_point_swing"]
+    )
+    expected_point_swing_difference = float(
+        summary["expected_point_swing_difference"]
+    )
+
+    print(f"Actual card played: {summary['actual_card_played']}")
+    print(f"Recommended card: {summary['recommended_card']}")
+    print(f"Actual expected point swing: {actual_expected_point_swing:.2f}")
+    print(
+        "Recommended expected point swing: "
+        f"{recommended_expected_point_swing:.2f}"
+    )
+    print(
+        "Expected point swing difference: "
+        f"{expected_point_swing_difference:.2f}"
+    )
+    print(f"Decision quality: {summary['decision_quality']}")
+
+
 def print_analysis_result(result: dict[str, Any]) -> None:
     """
     Prints the analysis result in a readable text format.
@@ -332,6 +369,8 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print()
     print("Recommended card:", result["recommendation"]["card"])
     print("Reason:", result["recommendation"]["reason"])
+
+    print_post_game_review_summary(result)
 
 
 def print_multi_step_result(result: dict[str, Any]) -> None:
