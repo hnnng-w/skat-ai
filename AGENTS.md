@@ -184,6 +184,19 @@ Do not change dependency versions unless the task explicitly requires it.
 
 Do not introduce new dependencies unless clearly justified and approved.
 
+## GitHub issue update comments
+
+At the end of issue-related work, always provide a ready-to-paste GitHub issue update comment.
+
+The issue update comment should include:
+
+* what was implemented
+* changed files or areas
+* checks that were run
+* whether the full check passed
+* whether product code changed
+* whether the issue is ready to close or should remain open
+
 ## Completion criteria
 
 A task is complete only when:
