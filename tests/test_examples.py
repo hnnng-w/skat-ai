@@ -344,6 +344,23 @@ def test_default_grand_second_position_infers_game_value() -> None:
     assert result["game_value_summary"]["details"]["matador_multiplier"] == 5
     assert result["game_value_summary"]["details"]["is_complete"] is True
 
+
+def test_left_right_opponent_policy_example_uses_distinct_policy_settings() -> None:
+    result = build_example_analysis_result("grand_left_right_opponent_policies.json")
+
+    assert result["opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
 def test_claimed_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result("grand_claimed_remaining_tricks.json")
 
