@@ -67,10 +67,11 @@ Live decision examples must not include post-game-only information such as known
 
 ## Midgame examples
 
-| File                                 | Purpose                                                     |
-| ------------------------------------ | ----------------------------------------------------------- |
-| `grand_midgame_declarer_ahead.json`  | Midgame position where declarer is ahead by known points.   |
-| `grand_midgame_defenders_ahead.json` | Midgame position where defenders are ahead by known points. |
+| File                                      | Purpose                                                                                       |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `grand_midgame_declarer_ahead.json`       | Midgame position where declarer is ahead by known points.                                     |
+| `grand_midgame_defenders_ahead.json`      | Midgame position where defenders are ahead by known points.                                   |
+| `grand_midgame_profile_preset_live.json`  | Live midgame position with strategic metadata, player profiles, and profile preset settings.  |
 
 ## Post-game review examples
 

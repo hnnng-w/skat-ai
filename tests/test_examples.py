@@ -301,6 +301,29 @@ def test_midgame_defenders_ahead_example_score_invariants() -> None:
         "complete_card_points"
     ]
 
+
+def test_midgame_profile_preset_example_metadata_invariants() -> None:
+    result = build_example_analysis_result("grand_midgame_profile_preset_live.json")
+
+    assert result["analysis_metadata"]["strategic_metadata"] == {
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+    }
+    assert result["profile_preset_settings"] == {
+        "use_profile_presets": True,
+    }
+    assert result["opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert result["analysis_metadata"]["left_player_profile"]["games_played"] == 860
+    assert result["analysis_metadata"]["right_player_profile"]["solo_rate"] == 0.42
+    assert result["analysis_metadata"]["recommended_opponent_policy_presets"] == {
+        "left_player_recommended_preset": "cautious_defender",
+        "right_player_recommended_preset": "aggressive_points",
+    }
+
 def test_post_game_known_skat_example_metadata_invariants() -> None:
     result = build_example_analysis_result("grand_post_game_known_skat.json")
 
