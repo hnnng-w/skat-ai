@@ -6,6 +6,8 @@ from skat_ai.post_game_review import (
     NOT_AVAILABLE_DECISION_QUALITY,
     OPTIMAL_DECISION_QUALITY,
     SUBOPTIMAL_DECISION_QUALITY,
+    build_decision_explanation,
+    build_decision_factors,
     build_post_game_review_summary,
     classify_decision_quality,
     get_recommended_report_row,
@@ -129,6 +131,11 @@ def test_build_post_game_review_summary_returns_not_available_without_actual_car
         "recommended_expected_point_swing": 6.0,
         "expected_point_swing_difference": None,
         "decision_quality": NOT_AVAILABLE_DECISION_QUALITY,
+        "decision_factors": ["actual_card_played_not_provided"],
+        "decision_explanation": (
+            "No post-game review decision quality is available because "
+            "actual_card_played was not provided."
+        ),
     }
 
 
@@ -145,6 +152,11 @@ def test_build_post_game_review_summary_marks_recommended_actual_card_as_optimal
     assert summary["recommended_expected_point_swing"] == 6.0
     assert summary["expected_point_swing_difference"] == 0.0
     assert summary["decision_quality"] == OPTIMAL_DECISION_QUALITY
+    assert summary["decision_factors"] == ["no_missed_expected_point_swing"]
+    assert (
+        summary["decision_explanation"]
+        == "The actual card matches the recommended card or has no missed expected point swing."
+    )
 
 
 def test_build_post_game_review_summary_calculates_expected_value_difference() -> None:
@@ -157,6 +169,11 @@ def test_build_post_game_review_summary_calculates_expected_value_difference() -
     assert summary["recommended_expected_point_swing"] == 6.0
     assert summary["expected_point_swing_difference"] == 2.0
     assert summary["decision_quality"] == ACCEPTABLE_DECISION_QUALITY
+    assert summary["decision_factors"] == [
+        "lower_expected_point_swing_than_recommendation",
+        "small_expected_point_swing_gap",
+    ]
+    assert "small missed expected point swing of 2.00" in summary["decision_explanation"]
 
 
 def test_build_post_game_review_summary_classifies_large_gap_as_mistake() -> None:
@@ -169,3 +186,43 @@ def test_build_post_game_review_summary_classifies_large_gap_as_mistake() -> Non
     assert summary["recommended_expected_point_swing"] == 6.0
     assert summary["expected_point_swing_difference"] == 10.0
     assert summary["decision_quality"] == MISTAKE_DECISION_QUALITY
+    assert summary["decision_factors"] == [
+        "lower_expected_point_swing_than_recommendation",
+        "large_expected_point_swing_gap",
+    ]
+    assert "much lower expected point swing" in summary["decision_explanation"]
+    assert "10.00" in summary["decision_explanation"]
+
+
+def test_build_decision_factors_returns_not_available_factor_without_actual_card() -> None:
+    assert build_decision_factors(
+        actual_card_played=None,
+        expected_point_swing_difference=None,
+    ) == ["actual_card_played_not_provided"]
+
+
+def test_build_decision_factors_returns_optimal_factor_without_missed_swing() -> None:
+    assert build_decision_factors(
+        actual_card_played="SA",
+        expected_point_swing_difference=0.0,
+    ) == ["no_missed_expected_point_swing"]
+
+
+def test_build_decision_factors_returns_large_gap_factor() -> None:
+    assert build_decision_factors(
+        actual_card_played="S9",
+        expected_point_swing_difference=10.0,
+    ) == [
+        "lower_expected_point_swing_than_recommendation",
+        "large_expected_point_swing_gap",
+    ]
+
+
+def test_build_decision_explanation_mentions_missed_swing_for_mistake() -> None:
+    explanation = build_decision_explanation(
+        decision_quality=MISTAKE_DECISION_QUALITY,
+        expected_point_swing_difference=10.0,
+    )
+
+    assert "much lower expected point swing" in explanation
+    assert "10.00" in explanation

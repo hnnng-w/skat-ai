@@ -58,6 +58,16 @@ def build_post_game_review_summary(
     recommended_expected_point_swing = recommended_row["expected_point_swing"]
 
     if actual_card_played is None:
+        decision_quality = NOT_AVAILABLE_DECISION_QUALITY
+        decision_factors = build_decision_factors(
+            actual_card_played=None,
+            expected_point_swing_difference=None,
+        )
+        decision_explanation = build_decision_explanation(
+            decision_quality=decision_quality,
+            expected_point_swing_difference=None,
+        )
+
         return {
             "is_available": False,
             "reason": "actual_card_played_not_provided",
@@ -66,7 +76,9 @@ def build_post_game_review_summary(
             "actual_expected_point_swing": None,
             "recommended_expected_point_swing": recommended_expected_point_swing,
             "expected_point_swing_difference": None,
-            "decision_quality": NOT_AVAILABLE_DECISION_QUALITY,
+            "decision_quality": decision_quality,
+            "decision_factors": decision_factors,
+            "decision_explanation": decision_explanation,
         }
 
     actual_row = get_report_row_for_card(
@@ -78,6 +90,18 @@ def build_post_game_review_summary(
         recommended_expected_point_swing - actual_expected_point_swing
     )
 
+    decision_quality = classify_decision_quality(
+        expected_point_swing_difference
+    )
+    decision_factors = build_decision_factors(
+        actual_card_played=actual_card_played,
+        expected_point_swing_difference=expected_point_swing_difference,
+    )
+    decision_explanation = build_decision_explanation(
+        decision_quality=decision_quality,
+        expected_point_swing_difference=expected_point_swing_difference,
+    )
+
     return {
         "is_available": True,
         "reason": "actual_card_played_provided",
@@ -86,7 +110,73 @@ def build_post_game_review_summary(
         "actual_expected_point_swing": actual_expected_point_swing,
         "recommended_expected_point_swing": recommended_expected_point_swing,
         "expected_point_swing_difference": expected_point_swing_difference,
-        "decision_quality": classify_decision_quality(
-            expected_point_swing_difference
-        ),
+        "decision_quality": decision_quality,
+        "decision_factors": decision_factors,
+        "decision_explanation": decision_explanation,
     }
+
+
+def build_decision_factors(
+    actual_card_played: str | None,
+    expected_point_swing_difference: float | None,
+) -> list[str]:
+    """Builds machine-readable factors for the post-game decision quality."""
+    if actual_card_played is None:
+        return ["actual_card_played_not_provided"]
+
+    if expected_point_swing_difference is None:
+        return ["expected_point_swing_difference_not_available"]
+
+    if expected_point_swing_difference <= 0.0:
+        return ["no_missed_expected_point_swing"]
+
+    factors = ["lower_expected_point_swing_than_recommendation"]
+
+    if expected_point_swing_difference <= 2.0:
+        factors.append("small_expected_point_swing_gap")
+    elif expected_point_swing_difference <= 6.0:
+        factors.append("medium_expected_point_swing_gap")
+    else:
+        factors.append("large_expected_point_swing_gap")
+
+    return factors
+
+
+def build_decision_explanation(
+    decision_quality: str,
+    expected_point_swing_difference: float | None,
+) -> str:
+    """Builds a human-readable explanation for the post-game decision quality."""
+    if decision_quality == NOT_AVAILABLE_DECISION_QUALITY:
+        return (
+            "No post-game review decision quality is available because "
+            "actual_card_played was not provided."
+        )
+
+    if decision_quality == OPTIMAL_DECISION_QUALITY:
+        return (
+            "The actual card matches the recommended card or has no missed "
+            "expected point swing."
+        )
+
+    if decision_quality == ACCEPTABLE_DECISION_QUALITY:
+        return (
+            "The actual card is close to the recommended card with only a small "
+            f"missed expected point swing of {expected_point_swing_difference:.2f}."
+        )
+
+    if decision_quality == SUBOPTIMAL_DECISION_QUALITY:
+        return (
+            "The actual card has a clearly lower expected point swing than the "
+            f"recommended card. Missed expected point swing: "
+            f"{expected_point_swing_difference:.2f}."
+        )
+
+    if decision_quality == MISTAKE_DECISION_QUALITY:
+        return (
+            "The actual card has a much lower expected point swing than the "
+            f"recommended card. Missed expected point swing: "
+            f"{expected_point_swing_difference:.2f}."
+        )
+
+    raise ValueError(f"Unsupported decision quality: {decision_quality}")

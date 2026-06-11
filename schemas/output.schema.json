@@ -588,7 +588,9 @@
         "actual_expected_point_swing",
         "recommended_expected_point_swing",
         "expected_point_swing_difference",
-        "decision_quality"
+        "decision_quality",
+        "decision_factors",
+        "decision_explanation"
       ],
       "properties": {
         "is_available": {
@@ -627,6 +629,24 @@
             "suboptimal",
             "mistake"
           ]
+        },
+        "decision_factors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "actual_card_played_not_provided",
+              "expected_point_swing_difference_not_available",
+              "no_missed_expected_point_swing",
+              "lower_expected_point_swing_than_recommendation",
+              "small_expected_point_swing_gap",
+              "medium_expected_point_swing_gap",
+              "large_expected_point_swing_gap"
+            ]
+          }
+        },
+        "decision_explanation": {
+          "type": "string"
         }
       }
     }
