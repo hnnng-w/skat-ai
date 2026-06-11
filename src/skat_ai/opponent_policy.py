@@ -242,31 +242,20 @@ def choose_basic_trick_play_card(
 
     return choose_lowest_point_card(legal_cards)
 
+
 def choose_basic_defender_response_card(
     hand: list[str],
     current_trick: list[str],
     game_type: str,
     player_index: int,
-    partner_currently_winning: bool = False,
+    partner_currently_winning: bool,
 ) -> str:
-    """
-    Chooses a basic defender response card.
-
-    If the defender's partner is currently winning the trick, the opponent
-    plays the highest-point legal card to add points to the trick.
-
-    Otherwise, the opponent uses basic trick-play logic:
-    - win with the lowest-point winning card if possible
-    - otherwise play the lowest-point legal card
-    """
+    """Chooses a basic cooperative defender response card."""
     legal_cards = get_legal_cards(
         hand=hand,
         current_trick=current_trick,
         game_type=game_type,
     )
-
-    if not legal_cards:
-        raise ValueError("Opponent has no legal cards.")
 
     if partner_currently_winning:
         partner_safe_cards = get_partner_safe_legal_cards(
@@ -281,12 +270,38 @@ def choose_basic_defender_response_card(
 
         return choose_highest_point_card(legal_cards)
 
+    winning_cards = get_winning_legal_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+        player_index=player_index,
+    )
+
+    if winning_cards:
+        return choose_basic_trick_play_card(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=player_index,
+        )
+
+    losing_cards = get_losing_legal_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+        player_index=player_index,
+    )
+
+    if losing_cards:
+        return choose_lowest_point_card(losing_cards)
+
     return choose_basic_trick_play_card(
         hand=hand,
         current_trick=current_trick,
         game_type=game_type,
         player_index=player_index,
     )
+
 
 def choose_basic_defender_lead_card(
     hand: list[str],
@@ -454,3 +469,31 @@ def get_partner_safe_legal_cards(
             partner_safe_cards.append(card)
 
     return partner_safe_cards
+
+
+def get_losing_legal_cards(
+    hand: list[str],
+    current_trick: list[str],
+    game_type: str,
+    player_index: int,
+) -> list[str]:
+    """Returns legal cards that do not make the player win the current trick."""
+    legal_cards = get_legal_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+    )
+
+    losing_cards = []
+
+    for card in legal_cards:
+        trick = [*current_trick, card]
+        winner_index = determine_current_trick_winner_index(
+            cards=trick,
+            game_type=game_type,
+        )
+
+        if winner_index != player_index:
+            losing_cards.append(card)
+
+    return losing_cards

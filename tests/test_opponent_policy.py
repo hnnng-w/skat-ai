@@ -9,6 +9,7 @@ from skat_ai.opponent_policy import (
     choose_opponent_lead_card_by_policy,
     choose_opponent_response_card_by_policy,
     choose_random_card,
+    get_losing_legal_cards,
     get_opponent_policy_settings_for_player,
     get_partner_safe_legal_cards,
     get_winning_legal_cards,
@@ -351,3 +352,38 @@ def test_choose_basic_defender_response_smears_without_overtaking_partner() -> N
     )
 
     assert selected_card == "DK"
+
+
+def test_get_losing_legal_cards_returns_cards_that_do_not_win() -> None:
+    losing_cards = get_losing_legal_cards(
+        hand=["C10", "CK", "C9"],
+        current_trick=["CA"],
+        game_type="grand",
+        player_index=1,
+    )
+
+    assert losing_cards == ["C10", "CK", "C9"]
+
+
+def test_choose_basic_defender_response_discards_lowest_points_when_unable_to_win() -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["C10", "CK", "C9"],
+        current_trick=["CA"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "C9"
+
+
+def test_choose_basic_defender_response_still_wins_when_possible() -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["CA", "C9", "D7"],
+        current_trick=["C10"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "CA"
