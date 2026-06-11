@@ -269,6 +269,16 @@ def choose_basic_defender_response_card(
         raise ValueError("Opponent has no legal cards.")
 
     if partner_currently_winning:
+        partner_safe_cards = get_partner_safe_legal_cards(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            partner_index=0,
+        )
+
+        if partner_safe_cards:
+            return choose_highest_point_card(partner_safe_cards)
+
         return choose_highest_point_card(legal_cards)
 
     return choose_basic_trick_play_card(
@@ -416,3 +426,31 @@ def get_opponent_policy_settings_for_player(
         return right_opponent_policy_settings
 
     return opponent_policy_settings
+
+
+def get_partner_safe_legal_cards(
+    hand: list[str],
+    current_trick: list[str],
+    game_type: str,
+    partner_index: int,
+) -> list[str]:
+    """Returns legal cards that keep the defender's partner winning the trick."""
+    legal_cards = get_legal_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+    )
+
+    partner_safe_cards = []
+
+    for card in legal_cards:
+        trick = [*current_trick, card]
+        winner_index = determine_current_trick_winner_index(
+            cards=trick,
+            game_type=game_type,
+        )
+
+        if winner_index == partner_index:
+            partner_safe_cards.append(card)
+
+    return partner_safe_cards

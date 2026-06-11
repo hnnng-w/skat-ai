@@ -10,6 +10,7 @@ from skat_ai.opponent_policy import (
     choose_opponent_response_card_by_policy,
     choose_random_card,
     get_opponent_policy_settings_for_player,
+    get_partner_safe_legal_cards,
     get_winning_legal_cards,
     validate_opponent_card_policy,
 )
@@ -327,3 +328,26 @@ def test_get_opponent_policy_settings_for_player_falls_back_to_global() -> None:
         player="unknown",
         opponent_policy_settings=global_settings,
     ) == global_settings
+
+
+def test_get_partner_safe_legal_cards_keeps_partner_winning() -> None:
+    safe_cards = get_partner_safe_legal_cards(
+        hand=["DK", "DQ", "DA"],
+        current_trick=["D10"],
+        game_type="grand",
+        partner_index=0,
+    )
+
+    assert safe_cards == ["DK", "DQ"]
+
+
+def test_choose_basic_defender_response_smears_without_overtaking_partner() -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["DK", "DQ", "DA"],
+        current_trick=["D10"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=True,
+    )
+
+    assert selected_card == "DK"
