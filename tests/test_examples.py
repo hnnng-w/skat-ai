@@ -324,6 +324,34 @@ def test_midgame_profile_preset_example_metadata_invariants() -> None:
         "right_player_recommended_preset": "aggressive_points",
     }
 
+def test_spades_midgame_defender_live_example_invariants() -> None:
+    result = build_example_analysis_result(
+        "spades_midgame_defender_rearhand_live.json"
+    )
+
+    assert result["position"]["player_role"] == "defender"
+    assert result["position"]["player_position"] == "rearhand"
+    assert result["position"]["current_trick"] == ["C10", "CQ"]
+    assert result["position"]["skat"] == []
+
+    assert result["analysis_metadata"]["strategic_metadata"] == {
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+    }
+    assert result["information_policy_summary"]["live_information_enforced"] is True
+    assert result["information_policy_summary"]["known_skat_cards_allowed"] is False
+    assert result["information_policy_summary"]["ended_game_allowed"] is False
+
+    assert result["score_summary"]["completed_trick_declarer_points"] == 59
+    assert result["score_summary"]["completed_trick_defender_points"] == 21
+    assert result["score_summary"]["total_declarer_points"] == 59
+    assert result["score_summary"]["total_defender_points"] == 21
+
+    assert result["game_value_summary"]["game_value"] == 22
+    assert result["game_result_summary"]["is_complete"] is False
+    assert result["final_settlement_summary"]["is_complete"] is False
+
 def test_post_game_known_skat_example_metadata_invariants() -> None:
     result = build_example_analysis_result("grand_post_game_known_skat.json")
 

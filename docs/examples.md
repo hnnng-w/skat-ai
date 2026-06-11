@@ -72,6 +72,7 @@ Live decision examples must not include post-game-only information such as known
 | `grand_midgame_declarer_ahead.json`       | Midgame position where declarer is ahead by known points.                                     |
 | `grand_midgame_defenders_ahead.json`      | Midgame position where defenders are ahead by known points.                                   |
 | `grand_midgame_profile_preset_live.json`  | Live midgame position with strategic metadata, player profiles, and profile preset settings.  |
+| `spades_midgame_defender_rearhand_live.json` | Live midgame defender rearhand position with completed-trick metadata and unknown skat.        |
 
 ## Post-game review examples
 

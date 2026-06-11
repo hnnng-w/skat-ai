@@ -1,0 +1,59 @@
+{
+  "game_type": "spades",
+  "player_role": "defender",
+  "player_position": "rearhand",
+  "trick_leader": "left",
+  "hand": ["CK", "C7", "S9", "H8", "D9"],
+  "current_trick": ["C10", "CQ"],
+  "played_cards": [],
+  "completed_tricks": [
+    {
+      "cards": ["CJ", "DJ", "HJ"],
+      "players": ["left", "right", "me"],
+      "winner_role": "declarer",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["SA", "S10", "S8"],
+      "players": ["left", "right", "me"],
+      "winner_role": "declarer",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["HA", "H7", "H10"],
+      "players": ["left", "right", "me"],
+      "winner_role": "declarer",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["D10", "DA", "D7"],
+      "players": ["left", "right", "me"],
+      "winner_role": "defenders",
+      "winner_player": "right"
+    },
+    {
+      "cards": ["C8", "C9", "CA"],
+      "players": ["right", "me", "left"],
+      "winner_role": "declarer",
+      "winner_player": "left"
+    }
+  ],
+  "declarer_points": 0,
+  "defender_points": 0,
+  "next_player": "me",
+  "skat": [],
+  "left_hand_size": 4,
+  "right_hand_size": 4,
+  "sample_count": 500,
+  "random_seed": 7,
+  "use_basic_opponent_strategy": true,
+  "analysis_mode": "live_decision",
+  "skat_visibility": "unknown",
+  "game_end_reason": "not_ended",
+  "hand_game": false,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": 1,
+  "bid_value": 22
+}
