@@ -48,6 +48,34 @@ def get_report_row_for_card(
     return matching_rows[0]
 
 
+def build_card_rank_lookup(
+    analysis_report: list[dict[str, Any]],
+) -> dict[str, int]:
+    """Builds one-based card ranks by expected point swing."""
+    sorted_rows = sorted(
+        analysis_report,
+        key=lambda row: float(row["expected_point_swing"]),
+        reverse=True,
+    )
+
+    return {
+        str(row["card"]): index + 1
+        for index, row in enumerate(sorted_rows)
+    }
+
+
+def count_better_cards(
+    analysis_report: list[dict[str, Any]],
+    actual_expected_point_swing: float,
+) -> int:
+    """Counts cards with a higher expected point swing than the actual card."""
+    return sum(
+        1
+        for row in analysis_report
+        if float(row["expected_point_swing"]) > actual_expected_point_swing
+    )
+
+
 def build_post_game_review_summary(
     actual_card_played: str | None,
     analysis_report: list[dict[str, Any]],
@@ -56,6 +84,9 @@ def build_post_game_review_summary(
     recommended_row = get_recommended_report_row(analysis_report)
     recommended_card = recommended_row["card"]
     recommended_expected_point_swing = recommended_row["expected_point_swing"]
+    card_rank_lookup = build_card_rank_lookup(analysis_report)
+    candidate_count = len(analysis_report)
+    recommended_card_rank = card_rank_lookup[str(recommended_card)]
 
     if actual_card_played is None:
         decision_quality = NOT_AVAILABLE_DECISION_QUALITY
@@ -79,6 +110,10 @@ def build_post_game_review_summary(
             "decision_quality": decision_quality,
             "decision_factors": decision_factors,
             "decision_explanation": decision_explanation,
+            "actual_card_rank": None,
+            "recommended_card_rank": recommended_card_rank,
+            "candidate_count": candidate_count,
+            "better_card_count": None,
         }
 
     actual_row = get_report_row_for_card(
@@ -88,6 +123,13 @@ def build_post_game_review_summary(
     actual_expected_point_swing = actual_row["expected_point_swing"]
     expected_point_swing_difference = (
         recommended_expected_point_swing - actual_expected_point_swing
+    )
+
+    actual_expected_point_swing_float = float(actual_expected_point_swing)
+    actual_card_rank = card_rank_lookup[actual_card_played]
+    better_card_count = count_better_cards(
+        analysis_report=analysis_report,
+        actual_expected_point_swing=actual_expected_point_swing_float,
     )
 
     decision_quality = classify_decision_quality(
@@ -113,6 +155,10 @@ def build_post_game_review_summary(
         "decision_quality": decision_quality,
         "decision_factors": decision_factors,
         "decision_explanation": decision_explanation,
+        "actual_card_rank": actual_card_rank,
+        "recommended_card_rank": recommended_card_rank,
+        "candidate_count": candidate_count,
+        "better_card_count": better_card_count,
     }
 
 

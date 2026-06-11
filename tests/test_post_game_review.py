@@ -6,10 +6,12 @@ from skat_ai.post_game_review import (
     NOT_AVAILABLE_DECISION_QUALITY,
     OPTIMAL_DECISION_QUALITY,
     SUBOPTIMAL_DECISION_QUALITY,
+    build_card_rank_lookup,
     build_decision_explanation,
     build_decision_factors,
     build_post_game_review_summary,
     classify_decision_quality,
+    count_better_cards,
     get_recommended_report_row,
     get_report_row_for_card,
 )
@@ -136,6 +138,10 @@ def test_build_post_game_review_summary_returns_not_available_without_actual_car
             "No post-game review decision quality is available because "
             "actual_card_played was not provided."
         ),
+        "actual_card_rank": None,
+        "recommended_card_rank": 1,
+        "candidate_count": 3,
+        "better_card_count": None,
     }
 
 
@@ -157,6 +163,10 @@ def test_build_post_game_review_summary_marks_recommended_actual_card_as_optimal
         summary["decision_explanation"]
         == "The actual card matches the recommended card or has no missed expected point swing."
     )
+    assert summary["actual_card_rank"] == 1
+    assert summary["recommended_card_rank"] == 1
+    assert summary["candidate_count"] == 3
+    assert summary["better_card_count"] == 0
 
 
 def test_build_post_game_review_summary_calculates_expected_value_difference() -> None:
@@ -174,6 +184,10 @@ def test_build_post_game_review_summary_calculates_expected_value_difference() -
         "small_expected_point_swing_gap",
     ]
     assert "small missed expected point swing of 2.00" in summary["decision_explanation"]
+    assert summary["actual_card_rank"] == 2
+    assert summary["recommended_card_rank"] == 1
+    assert summary["candidate_count"] == 3
+    assert summary["better_card_count"] == 1
 
 
 def test_build_post_game_review_summary_classifies_large_gap_as_mistake() -> None:
@@ -192,6 +206,10 @@ def test_build_post_game_review_summary_classifies_large_gap_as_mistake() -> Non
     ]
     assert "much lower expected point swing" in summary["decision_explanation"]
     assert "10.00" in summary["decision_explanation"]
+    assert summary["actual_card_rank"] == 3
+    assert summary["recommended_card_rank"] == 1
+    assert summary["candidate_count"] == 3
+    assert summary["better_card_count"] == 2
 
 
 def test_build_decision_factors_returns_not_available_factor_without_actual_card() -> None:
@@ -226,3 +244,31 @@ def test_build_decision_explanation_mentions_missed_swing_for_mistake() -> None:
 
     assert "much lower expected point swing" in explanation
     assert "10.00" in explanation
+
+
+def test_build_card_rank_lookup_ranks_cards_by_expected_point_swing() -> None:
+    rank_lookup = build_card_rank_lookup(build_analysis_report())
+
+    assert rank_lookup == {
+        "SA": 1,
+        "S10": 2,
+        "S9": 3,
+    }
+
+
+def test_count_better_cards_counts_cards_above_actual_expected_point_swing() -> None:
+    better_card_count = count_better_cards(
+        analysis_report=build_analysis_report(),
+        actual_expected_point_swing=4.0,
+    )
+
+    assert better_card_count == 1
+
+
+def test_count_better_cards_returns_zero_for_best_card() -> None:
+    better_card_count = count_better_cards(
+        analysis_report=build_analysis_report(),
+        actual_expected_point_swing=6.0,
+    )
+
+    assert better_card_count == 0

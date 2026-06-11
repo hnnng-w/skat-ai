@@ -590,7 +590,11 @@
         "expected_point_swing_difference",
         "decision_quality",
         "decision_factors",
-        "decision_explanation"
+        "decision_explanation",
+        "actual_card_rank",
+        "recommended_card_rank",
+        "candidate_count",
+        "better_card_count"
       ],
       "properties": {
         "is_available": {
@@ -647,6 +651,22 @@
         },
         "decision_explanation": {
           "type": "string"
+        },
+        "actual_card_rank": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "recommended_card_rank": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "better_card_count": {
+          "type": ["integer", "null"],
+          "minimum": 0
         }
       }
     }
