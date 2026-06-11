@@ -1,6 +1,6 @@
 import random
 
-from skat_ai.rules import get_card_points, get_legal_cards
+from skat_ai.rules import get_card_points, get_legal_cards, is_trump
 
 VALID_OPPONENT_CARD_POLICIES = [
     "lowest_point",
@@ -307,24 +307,17 @@ def choose_basic_defender_lead_card(
     hand: list[str],
     game_type: str,
 ) -> str:
-    """
-    Chooses a cautious defender lead card.
-
-    The policy prefers low-point non-trump cards. If no non-trump cards are
-    available, it falls back to the lowest-point card.
-    """
-    if not hand:
-        raise ValueError("Cannot choose from an empty card list.")
-
-    non_trump_cards = [
-        card for card in hand
-        if not is_trump_card(card, game_type)
-    ]
+    """Chooses a basic defender lead card."""
+    non_trump_cards = get_non_trump_cards(
+        cards=hand,
+        game_type=game_type,
+    )
 
     if non_trump_cards:
         return choose_lowest_point_card(non_trump_cards)
 
     return choose_lowest_point_card(hand)
+
 
 def choose_opponent_lead_card_by_policy(
     hand: list[str],
@@ -497,3 +490,8 @@ def get_losing_legal_cards(
             losing_cards.append(card)
 
     return losing_cards
+
+
+def get_non_trump_cards(cards: list[str], game_type: str) -> list[str]:
+    """Returns all cards that are not trump cards for the given game type."""
+    return [card for card in cards if not is_trump(card, game_type)]

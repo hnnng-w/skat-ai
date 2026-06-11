@@ -10,6 +10,7 @@ from skat_ai.opponent_policy import (
     choose_opponent_response_card_by_policy,
     choose_random_card,
     get_losing_legal_cards,
+    get_non_trump_cards,
     get_opponent_policy_settings_for_player,
     get_partner_safe_legal_cards,
     get_winning_legal_cards,
@@ -387,3 +388,39 @@ def test_choose_basic_defender_response_still_wins_when_possible() -> None:
     )
 
     assert selected_card == "CA"
+
+
+def test_get_non_trump_cards_filters_trumps_in_suit_game() -> None:
+    non_trump_cards = get_non_trump_cards(
+        cards=["SJ", "SA", "HA", "D7", "C9"],
+        game_type="spades",
+    )
+
+    assert non_trump_cards == ["HA", "D7", "C9"]
+
+
+def test_get_non_trump_cards_filters_jacks_in_grand() -> None:
+    non_trump_cards = get_non_trump_cards(
+        cards=["CJ", "SJ", "SA", "D7"],
+        game_type="grand",
+    )
+
+    assert non_trump_cards == ["SA", "D7"]
+
+
+def test_choose_basic_defender_lead_card_prefers_lowest_point_non_trump() -> None:
+    selected_card = choose_basic_defender_lead_card(
+        hand=["SJ", "SA", "HA", "D7"],
+        game_type="spades",
+    )
+
+    assert selected_card == "D7"
+
+
+def test_choose_basic_defender_lead_card_falls_back_to_lowest_point_when_only_trumps() -> None:
+    selected_card = choose_basic_defender_lead_card(
+        hand=["SJ", "SA", "S9"],
+        game_type="spades",
+    )
+
+    assert selected_card == "S9"
