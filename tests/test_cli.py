@@ -1416,6 +1416,11 @@ def test_run_json_position_analysis_prints_available_post_game_review_summary(
     assert "Recommended expected point swing:" in captured.out
     assert "Expected point swing difference:" in captured.out
     assert "Decision quality: optimal" in captured.out
+    assert "Decision factors: no_missed_expected_point_swing" in captured.out
+    assert (
+        "Decision explanation: The actual card matches the recommended card "
+        "or has no missed expected point swing."
+    ) in captured.out
 
 
 def test_run_json_position_analysis_prints_unavailable_post_game_review_summary(
@@ -1439,6 +1444,11 @@ def test_run_json_position_analysis_prints_unavailable_post_game_review_summary(
 
     assert "Post-game review summary" in captured.out
     assert "Not available: actual_card_played_not_provided" in captured.out
+    assert "Decision factors: actual_card_played_not_provided" in captured.out
+    assert (
+        "Decision explanation: No post-game review decision quality is available "
+        "because actual_card_played was not provided."
+    ) in captured.out
 
 
 def test_build_analysis_result_infers_missing_matadors_from_known_declarer_cards(

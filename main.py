@@ -279,6 +279,17 @@ def build_analysis_result(
     }
 
 
+def format_decision_factors(summary: dict[str, object]) -> str:
+    """Formats post-game review decision factors for CLI output."""
+    decision_factors = summary.get("decision_factors", [])
+
+    if not isinstance(decision_factors, list):
+        return str(decision_factors)
+
+    return ", ".join(str(factor) for factor in decision_factors)
+
+
+
 def print_post_game_review_summary(result: dict[str, object]) -> None:
     """Prints the post-game review summary for human-readable CLI output."""
     summary = result.get("post_game_review_summary")
@@ -289,9 +300,14 @@ def print_post_game_review_summary(result: dict[str, object]) -> None:
     print()
     print("Post-game review summary")
 
+    decision_factors = format_decision_factors(summary)
+    decision_explanation = summary.get("decision_explanation", "")
+
     if summary.get("is_available") is not True:
         reason = summary.get("reason", "not_available")
         print(f"Not available: {reason}")
+        print(f"Decision factors: {decision_factors}")
+        print(f"Decision explanation: {decision_explanation}")
         return
 
     actual_expected_point_swing = float(summary["actual_expected_point_swing"])
@@ -314,6 +330,8 @@ def print_post_game_review_summary(result: dict[str, object]) -> None:
         f"{expected_point_swing_difference:.2f}"
     )
     print(f"Decision quality: {summary['decision_quality']}")
+    print(f"Decision factors: {decision_factors}")
+    print(f"Decision explanation: {decision_explanation}")
 
 
 def print_analysis_result(result: dict[str, Any]) -> None:
