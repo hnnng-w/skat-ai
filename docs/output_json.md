@@ -2,32 +2,9 @@
 
 This document describes the JSON output produced by `skat-ai`.
 
-## Multi-step result
-
-When a multi-step simulation is requested, the output can include `multi_step_result`.
-
-`multi_step_result` contains the serialized multi-step simulation result, including:
-
-| Field | Meaning |
-|---|---|
-| `card_selection_policy` | Card-selection policy used for player decisions. |
-| `requested_step_count` | Number of requested simulation steps. |
-| `steps_simulated` | Number of steps that were actually simulated. |
-| `stop_reason` | Reason why the simulation stopped. |
-| `strict_context` | Whether strict simulation-context validation was active. |
-| `summary` | Multi-step score and context summary. |
-| `context_summary` | Summary of simulated opponent-card context. |
-| `steps` | Serialized step-by-step simulation details. |
-| `final_state` | Final serialized game state after the simulated steps. |
-| `opponent_policy_settings` | Global opponent policy settings used as fallback. |
-| `left_opponent_policy_settings` | Left-opponent policy settings passed into multi-step simulation. |
-| `right_opponent_policy_settings` | Right-opponent policy settings passed into multi-step simulation. |
-
-The exact fields depend on whether a multi-step simulation was requested.
-
 ## JSON schema
 
-A draft output JSON schema is available at:
+The output JSON schema is available at:
 
 [`schemas/output.schema.json`](../schemas/output.schema.json)
 
@@ -37,8 +14,12 @@ Generated outputs for selected examples can be validated against the schema with
 
 ```powershell
 python scripts/validate_generated_outputs_schema.py
+```
 
-The project check script also runs generated-output schema validation.
+The project check script also runs generated-output schema validation:
+
+```powershell
+.\scripts\check.ps1
 ```
 
 For the validation-layer overview and schema limitations, see:
@@ -49,31 +30,32 @@ For the validation-layer overview and schema limitations, see:
 
 Typical top-level fields include:
 
-| Field | Meaning |
-|---|---|
-| `input_file` | Source input file. |
-| `position` | Normalized position data. |
-| `settings` | Simulation settings. |
-| `opponent_policy_settings` | Opponent policy configuration. |
-| `profile_preset_settings` | Profile-preset configuration. |
-| `analysis_metadata` | Strategic metadata. |
-| `game_declaration` | Serializable game declaration. |
-| `game_value_summary` | Game value calculation result. |
-| `overbid_summary` | Bid-value and overbid evaluation. |
-| `legal_cards` | Legal cards for the current decision. |
-| `analysis_report` | Card analysis report. |
-| `strategic_summary` | Human-readable strategic summary. |
-| `score_summary` | Raw known card-point summary. |
-| `game_result_summary` | Raw game result from known card points. |
-| `adjusted_game_result_summary` | Game result after game-end adjustment. |
-| `final_settlement_summary` | Single-game settlement summary. |
-| `performance_rating_summary` | Performance-rating layer. |
-| `recommendation` | Recommended card and reason. |
-| `multi_step_result` | Optional multi-step simulation result. |
-| `policy_comparison_result` | Optional policy-comparison result. |
-| `information_policy_summary` | Summary of the active live-vs-post-game information policy. |
-| `left_opponent_policy_settings` | Normalized policy settings for the left opponent. |
-| `right_opponent_policy_settings` | Normalized policy settings for the right opponent. |
+| Field                            | Meaning                                                     |
+| -------------------------------- | ----------------------------------------------------------- |
+| `input_file`                     | Source input file.                                          |
+| `position`                       | Normalized position data.                                   |
+| `settings`                       | Simulation settings.                                        |
+| `opponent_policy_settings`       | Global opponent policy configuration.                       |
+| `profile_preset_settings`        | Profile-preset configuration.                               |
+| `analysis_metadata`              | Strategic and analysis metadata.                            |
+| `game_declaration`               | Serializable game declaration.                              |
+| `game_value_summary`             | Game value calculation result.                              |
+| `overbid_summary`                | Bid-value and overbid evaluation.                           |
+| `legal_cards`                    | Legal cards for the current decision.                       |
+| `analysis_report`                | Card analysis report.                                       |
+| `strategic_summary`              | Human-readable strategic summary.                           |
+| `score_summary`                  | Raw known card-point summary.                               |
+| `game_result_summary`            | Raw game result from known card points.                     |
+| `adjusted_game_result_summary`   | Game result after game-end adjustment.                      |
+| `final_settlement_summary`       | Single-game settlement summary.                             |
+| `performance_rating_summary`     | Performance-rating layer.                                   |
+| `recommendation`                 | Recommended card and reason.                                |
+| `post_game_review_summary`       | Actual-card comparison and post-game review result.         |
+| `multi_step_result`              | Optional multi-step simulation result.                      |
+| `policy_comparison_result`       | Optional policy-comparison result.                          |
+| `information_policy_summary`     | Summary of the active live-vs-post-game information policy. |
+| `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.           |
+| `right_opponent_policy_settings` | Normalized policy settings for the right opponent.          |
 
 ## Opponent policy settings
 
@@ -100,17 +82,17 @@ Example:
 
 Meaning:
 
-| Field | Meaning |
-|---|---|
-| `opponent_policy_settings` | Global opponent policy settings and backward-compatible fallback. |
-| `left_opponent_policy_settings` | Normalized policy settings for the left opponent. |
-| `right_opponent_policy_settings` | Normalized policy settings for the right opponent. |
+| Field                            | Meaning                                                           |
+| -------------------------------- | ----------------------------------------------------------------- |
+| `opponent_policy_settings`       | Global opponent policy settings and backward-compatible fallback. |
+| `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.                 |
+| `right_opponent_policy_settings` | Normalized policy settings for the right opponent.                |
 
 Current multi-step behavior:
 
-- `right` lead uses `right_opponent_policy_settings.opponent_lead_policy`.
-- `left` lead uses `left_opponent_policy_settings.opponent_lead_policy`.
-- `right` response after a left lead uses `right_opponent_policy_settings.opponent_response_policy`.
+* `right` lead uses `right_opponent_policy_settings.opponent_lead_policy`.
+* `left` lead uses `left_opponent_policy_settings.opponent_lead_policy`.
+* `right` response after a left lead uses `right_opponent_policy_settings.opponent_response_policy`.
 
 ## Game declaration
 
@@ -127,6 +109,8 @@ Example:
   "bid_value": 72
 }
 ```
+
+`matadors` can be explicitly provided in the input. If it is missing or `null`, the engine may infer it from known declarer cards where possible.
 
 ## Game value summary
 
@@ -152,7 +136,7 @@ Example:
 }
 ```
 
-If required inputs are missing, `game_value` may be `null`.
+If required inputs are missing and matadors cannot be inferred, `game_value` may be `null`.
 
 ## Overbid summary
 
@@ -171,14 +155,14 @@ Example:
 
 Fields:
 
-| Field | Meaning |
-|---|---|
-| `bid_value` | Bid value from input, or `null`. |
-| `game_value` | Calculated game value, or `null`. |
-| `is_overbid` | `true`, `false`, or `null` if unknown. |
-| `margin` | `game_value - bid_value`. Negative means overbid. |
-| `required_game_value` | Smallest reachable Suit/Grand game value that covers the bid. |
-| `status` | `not_overbid`, `overbid`, `unknown_bid_value`, or `unknown_game_value`. |
+| Field                 | Meaning                                                                 |
+| --------------------- | ----------------------------------------------------------------------- |
+| `bid_value`           | Bid value from input, or `null`.                                        |
+| `game_value`          | Calculated game value, or `null`.                                       |
+| `is_overbid`          | `true`, `false`, or `null` if unknown.                                  |
+| `margin`              | `game_value - bid_value`. Negative means overbid.                       |
+| `required_game_value` | Smallest reachable Suit/Grand game value that covers the bid.           |
+| `status`              | `not_overbid`, `overbid`, `unknown_bid_value`, or `unknown_game_value`. |
 
 ## Score summary
 
@@ -298,15 +282,15 @@ Example for post-game review:
 
 Fields:
 
-| Field | Meaning |
-|---|---|
-| `analysis_mode` | Active analysis mode. |
-| `skat_visibility` | Whether the skat is unknown or known from post-game review. |
-| `game_end_reason` | Game-end metadata used for remaining-point assignment. |
-| `live_information_enforced` | Whether live-information restrictions are active. |
-| `known_post_game_skat_allowed` | Whether post-game skat visibility is allowed. |
-| `known_skat_cards_allowed` | Whether known skat cards are allowed in the input. |
-| `ended_game_allowed` | Whether completed game states are allowed. |
+| Field                                                  | Meaning                                                               |
+| ------------------------------------------------------ | --------------------------------------------------------------------- |
+| `analysis_mode`                                        | Active analysis mode.                                                 |
+| `skat_visibility`                                      | Whether the skat is unknown or known from post-game review.           |
+| `game_end_reason`                                      | Game-end metadata used for remaining-point assignment.                |
+| `live_information_enforced`                            | Whether live-information restrictions are active.                     |
+| `known_post_game_skat_allowed`                         | Whether post-game skat visibility is allowed.                         |
+| `known_skat_cards_allowed`                             | Whether known skat cards are allowed in the input.                    |
+| `ended_game_allowed`                                   | Whether completed game states are allowed.                            |
 | `unverifiable_completed_trick_winner_metadata_allowed` | Whether winner metadata without full verification context is allowed. |
 
 ## Performance rating summary
@@ -337,15 +321,15 @@ Example for a won declarer game with `rating_system = "isko_list"`:
 
 Meaning:
 
-| Field | Meaning |
-|---|---|
-| `rating_score` | Alias for `declarer_rating_score`. |
-| `declarer_rating_score` | `settlement_score + declarer_rating_points`. |
-| `declarer_rating_points` | +50 for declarer win, -50 for declarer loss. |
-| `counterparty_rating_points` | Points per counterparty player. |
-| `defender_rating_points` | Alias for `counterparty_rating_points`. |
-| `implemented_scope` | Scope currently calculated. |
-| `unsupported_scope` | Scope still missing. |
+| Field                        | Meaning                                      |
+| ---------------------------- | -------------------------------------------- |
+| `rating_score`               | Alias for `declarer_rating_score`.           |
+| `declarer_rating_score`      | `settlement_score + declarer_rating_points`. |
+| `declarer_rating_points`     | +50 for declarer win, -50 for declarer loss. |
+| `counterparty_rating_points` | Points per counterparty player.              |
+| `defender_rating_points`     | Alias for `counterparty_rating_points`.      |
+| `implemented_scope`          | Scope currently calculated.                  |
+| `unsupported_scope`          | Scope still missing.                         |
 
 ## Analysis report
 
@@ -375,3 +359,106 @@ Example:
   "reason": "This card has the highest estimated immediate expected point swing: 3.87."
 }
 ```
+
+## Post-game review summary
+
+`post_game_review_summary` compares the actual played card with the recommended card.
+
+If `actual_card_played` was not provided, the summary is still present but marked as unavailable.
+
+Example without `actual_card_played`:
+
+```json
+"post_game_review_summary": {
+  "is_available": false,
+  "reason": "actual_card_played_not_provided",
+  "actual_card_played": null,
+  "recommended_card": "SA",
+  "actual_expected_point_swing": null,
+  "recommended_expected_point_swing": 6.0,
+  "expected_point_swing_difference": null,
+  "decision_quality": "not_available",
+  "decision_factors": ["actual_card_played_not_provided"],
+  "decision_explanation": "No post-game review decision quality is available because actual_card_played was not provided.",
+  "actual_card_rank": null,
+  "recommended_card_rank": 1,
+  "candidate_count": 3,
+  "better_card_count": null
+}
+```
+
+Example with `actual_card_played`:
+
+```json
+"post_game_review_summary": {
+  "is_available": true,
+  "reason": "actual_card_played_provided",
+  "actual_card_played": "S9",
+  "recommended_card": "SA",
+  "actual_expected_point_swing": -4.0,
+  "recommended_expected_point_swing": 6.0,
+  "expected_point_swing_difference": 10.0,
+  "decision_quality": "mistake",
+  "decision_factors": [
+    "lower_expected_point_swing_than_recommendation",
+    "large_expected_point_swing_gap"
+  ],
+  "decision_explanation": "The actual card has a much lower expected point swing than the recommended card. Missed expected point swing: 10.00.",
+  "actual_card_rank": 3,
+  "recommended_card_rank": 1,
+  "candidate_count": 3,
+  "better_card_count": 2
+}
+```
+
+Fields:
+
+| Field                              | Meaning                                                                                   |
+| ---------------------------------- | ----------------------------------------------------------------------------------------- |
+| `is_available`                     | Whether actual-card review is available.                                                  |
+| `reason`                           | Availability reason.                                                                      |
+| `actual_card_played`               | Actual card from input, or `null`.                                                        |
+| `recommended_card`                 | Recommended card from analysis.                                                           |
+| `actual_expected_point_swing`      | Expected point swing of the actual card, or `null`.                                       |
+| `recommended_expected_point_swing` | Expected point swing of the recommended card.                                             |
+| `expected_point_swing_difference`  | Recommended swing minus actual swing, or `null`.                                          |
+| `decision_quality`                 | `not_available`, `optimal`, `acceptable`, `suboptimal`, or `mistake`.                     |
+| `decision_factors`                 | Machine-readable explanation factors.                                                     |
+| `decision_explanation`             | Human-readable explanation.                                                               |
+| `actual_card_rank`                 | Rank of the actual card by expected point swing, or `null`.                               |
+| `recommended_card_rank`            | Rank of the recommended card by expected point swing.                                     |
+| `candidate_count`                  | Number of legal candidate cards in the analysis report.                                   |
+| `better_card_count`                | Number of legal cards with a higher expected point swing than the actual card, or `null`. |
+
+Decision quality thresholds are based on the missed expected point swing:
+
+| Quality         | Meaning                                                   |
+| --------------- | --------------------------------------------------------- |
+| `not_available` | No actual card was provided.                              |
+| `optimal`       | Actual card has no missed expected point swing.           |
+| `acceptable`    | Actual card has only a small missed expected point swing. |
+| `suboptimal`    | Actual card has a clearly lower expected point swing.     |
+| `mistake`       | Actual card has a much lower expected point swing.        |
+
+## Multi-step result
+
+When a multi-step simulation is requested, the output can include `multi_step_result`.
+
+`multi_step_result` contains the serialized multi-step simulation result, including:
+
+| Field                            | Meaning                                                           |
+| -------------------------------- | ----------------------------------------------------------------- |
+| `card_selection_policy`          | Card-selection policy used for player decisions.                  |
+| `requested_step_count`           | Number of requested simulation steps.                             |
+| `steps_simulated`                | Number of steps that were actually simulated.                     |
+| `stop_reason`                    | Reason why the simulation stopped.                                |
+| `strict_context`                 | Whether strict simulation-context validation was active.          |
+| `summary`                        | Multi-step score and context summary.                             |
+| `context_summary`                | Summary of simulated opponent-card context.                       |
+| `steps`                          | Serialized step-by-step simulation details.                       |
+| `final_state`                    | Final serialized game state after the simulated steps.            |
+| `opponent_policy_settings`       | Global opponent policy settings used as fallback.                 |
+| `left_opponent_policy_settings`  | Left-opponent policy settings passed into multi-step simulation.  |
+| `right_opponent_policy_settings` | Right-opponent policy settings passed into multi-step simulation. |
+
+The exact fields depend on whether a multi-step simulation was requested.
