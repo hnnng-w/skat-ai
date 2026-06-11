@@ -31,7 +31,10 @@ from skat_ai.input_loader import (
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
-from skat_ai.opponent_profile_policy import apply_profile_based_policy_preset
+from skat_ai.opponent_profile_policy import (
+    apply_profile_based_policy_preset,
+    apply_profile_based_side_policy_preset,
+)
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.performance_rating import build_performance_rating_summary
@@ -613,18 +616,6 @@ def run_json_position_analysis(
             position_data
         )
 
-        left_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
-            opponent_policy_settings=left_opponent_policy_settings,
-            opponent_lead_policy=left_opponent_lead_policy_override,
-            opponent_response_policy=left_opponent_response_policy_override,
-        )
-
-        right_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
-            opponent_policy_settings=right_opponent_policy_settings,
-            opponent_lead_policy=right_opponent_lead_policy_override,
-            opponent_response_policy=right_opponent_response_policy_override,
-        )
-
         profile_preset_settings = get_profile_preset_settings_from_input(position_data)
         profile_preset_settings = apply_profile_preset_cli_overrides(
             profile_preset_settings=profile_preset_settings,
@@ -647,6 +638,29 @@ def run_json_position_analysis(
             opponent_policy_settings=opponent_policy_settings,
             opponent_lead_policy=opponent_lead_policy_override,
             opponent_response_policy=opponent_response_policy_override,
+        )
+
+        left_opponent_policy_settings = apply_profile_based_side_policy_preset(
+            opponent_policy_settings=left_opponent_policy_settings,
+            profile=analysis_metadata.left_player_profile,
+            use_profile_presets=profile_preset_settings["use_profile_presets"],
+        )
+        right_opponent_policy_settings = apply_profile_based_side_policy_preset(
+            opponent_policy_settings=right_opponent_policy_settings,
+            profile=analysis_metadata.right_player_profile,
+            use_profile_presets=profile_preset_settings["use_profile_presets"],
+        )
+
+        left_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
+            opponent_policy_settings=left_opponent_policy_settings,
+            opponent_lead_policy=left_opponent_lead_policy_override,
+            opponent_response_policy=left_opponent_response_policy_override,
+        )
+
+        right_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
+            opponent_policy_settings=right_opponent_policy_settings,
+            opponent_lead_policy=right_opponent_lead_policy_override,
+            opponent_response_policy=right_opponent_response_policy_override,
         )
 
         settings = apply_cli_overrides(

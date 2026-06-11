@@ -1314,6 +1314,93 @@ def test_run_json_position_analysis_writes_updated_policy_settings_to_output(
     }
 
 
+def test_run_json_position_analysis_applies_profile_presets_to_left_right_output(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    run_json_position_analysis(
+        file_path="examples/grand_midgame_profile_preset_live.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=str(output_path),
+        multi_step_count=1,
+        card_selection_policy="highest_point",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+    )
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["profile_preset_settings"] == {
+        "use_profile_presets": True,
+    }
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+    assert result["multi_step_result"]["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert result["multi_step_result"]["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
+def test_run_json_position_analysis_keeps_left_right_cli_overrides_final(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    run_json_position_analysis(
+        file_path="examples/grand_midgame_profile_preset_live.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=str(output_path),
+        multi_step_count=1,
+        card_selection_policy="highest_point",
+        expected_value_sample_count=20,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+        left_opponent_lead_policy_override="lowest_point",
+        left_opponent_response_policy_override="lowest_point",
+        right_opponent_lead_policy_override="basic_defender_lead",
+        right_opponent_response_policy_override="basic_defender_response",
+    )
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert result["multi_step_result"]["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert result["multi_step_result"]["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+
 def write_position_file(tmp_path, data: dict[str, object]) -> str:
     input_path = tmp_path / "position.json"
     input_path.write_text(json.dumps(data), encoding="utf-8")

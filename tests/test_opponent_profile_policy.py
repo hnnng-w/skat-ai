@@ -1,5 +1,6 @@
 from skat_ai.opponent_profile_policy import (
     apply_profile_based_policy_preset,
+    apply_profile_based_side_policy_preset,
     choose_combined_profile_policy_preset,
     choose_opponent_policy_preset_for_profile,
     get_profile_data_confidence,
@@ -283,6 +284,118 @@ def test_apply_profile_based_policy_preset_applies_cautious_defender_profile() -
             defender_win_rate=0.55,
         ),
         right_profile=PlayerProfile(),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+
+def test_apply_profile_based_side_policy_preset_returns_copy_when_disabled() -> None:
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    updated_settings = apply_profile_based_side_policy_preset(
+        opponent_policy_settings=settings,
+        profile=PlayerProfile(games_played=1000, solo_rate=0.38),
+        use_profile_presets=False,
+    )
+
+    assert updated_settings == settings
+    assert updated_settings is not settings
+
+
+def test_apply_profile_based_side_policy_preset_keeps_unknown_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+    updated_settings = apply_profile_based_side_policy_preset(
+        opponent_policy_settings=settings,
+        profile=PlayerProfile(),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == settings
+    assert updated_settings is not settings
+
+
+def test_apply_profile_based_side_policy_preset_keeps_low_confidence_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+    updated_settings = apply_profile_based_side_policy_preset(
+        opponent_policy_settings=settings,
+        profile=PlayerProfile(games_played=20, solo_rate=0.40, grand_rate=0.30),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == settings
+    assert updated_settings is not settings
+
+
+def test_apply_profile_based_side_policy_preset_keeps_neutral_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+    updated_settings = apply_profile_based_side_policy_preset(
+        opponent_policy_settings=settings,
+        profile=PlayerProfile(
+            games_played=1000,
+            solo_rate=0.25,
+            grand_rate=0.15,
+            hand_game_rate=0.03,
+            defender_win_rate=0.50,
+        ),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == settings
+    assert updated_settings is not settings
+
+
+def test_apply_profile_based_side_policy_preset_applies_aggressive_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    updated_settings = apply_profile_based_side_policy_preset(
+        opponent_policy_settings=settings,
+        profile=PlayerProfile(games_played=1000, solo_rate=0.38),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
+def test_apply_profile_based_side_policy_preset_applies_cautious_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    updated_settings = apply_profile_based_side_policy_preset(
+        opponent_policy_settings=settings,
+        profile=PlayerProfile(
+            games_played=1000,
+            solo_rate=0.25,
+            grand_rate=0.15,
+            hand_game_rate=0.03,
+            defender_win_rate=0.55,
+        ),
         use_profile_presets=True,
     )
 

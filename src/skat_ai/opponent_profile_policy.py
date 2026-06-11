@@ -11,6 +11,11 @@ PROFILE_DATA_CONFIDENCE_RANKS = {
     "high": 3,
 }
 
+NON_SIMPLE_PROFILE_POLICY_PRESETS = [
+    "aggressive_points",
+    "cautious_defender",
+]
+
 
 def get_profile_data_confidence(
     profile: PlayerProfile,
@@ -159,6 +164,31 @@ def apply_profile_based_policy_preset(
         left_profile=left_profile,
         right_profile=right_profile,
     )
+
+    return apply_opponent_policy_preset(
+        opponent_policy_settings=opponent_policy_settings,
+        preset=preset,
+    )
+
+
+def apply_profile_based_side_policy_preset(
+    opponent_policy_settings: dict[str, str],
+    profile: PlayerProfile,
+    use_profile_presets: bool,
+) -> dict[str, str]:
+    """
+    Applies a non-simple profile-derived policy preset for one opponent side.
+
+    If disabled or the profile produces simple_lowest, settings are returned
+    unchanged.
+    """
+    if not use_profile_presets:
+        return opponent_policy_settings.copy()
+
+    preset = choose_opponent_policy_preset_for_profile(profile)
+
+    if preset not in NON_SIMPLE_PROFILE_POLICY_PRESETS:
+        return opponent_policy_settings.copy()
 
     return apply_opponent_policy_preset(
         opponent_policy_settings=opponent_policy_settings,
