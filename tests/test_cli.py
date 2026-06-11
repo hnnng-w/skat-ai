@@ -1520,3 +1520,69 @@ def test_build_analysis_result_keeps_explicit_matadors_over_inference(
     assert result["game_value_summary"]["details"]["matadors"] == 1
     assert result["game_value_summary"]["game_level"] == 2
     assert result["game_value_summary"]["game_value"] == 48
+
+
+def test_build_analysis_result_uses_inferred_matadors_for_final_settlement(
+    tmp_path,
+) -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "me",
+        "hand": ["CJ", "SJ", "HJ", "D7"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [
+            {
+                "cards": ["CA", "C10", "CK"],
+                "winner_role": "declarer",
+            },
+            {
+                "cards": ["SA", "S10", "SK"],
+                "winner_role": "declarer",
+            },
+            {
+                "cards": ["HA", "H10", "HK"],
+                "winner_role": "defenders",
+            },
+            {
+                "cards": ["DA", "D10", "DK"],
+                "winner_role": "defenders",
+            },
+        ],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": ["C7", "D8"],
+        "left_hand_size": 6,
+        "right_hand_size": 6,
+        "sample_count": 10,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_end_reason": "defenders_conceded_remaining_tricks",
+        "game_declaration": {
+            "hand_game": False,
+            "ouvert": False,
+            "schneider_announced": False,
+            "schwarz_announced": False,
+        },
+    }
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["game_declaration"]["matadors"] == 3
+    assert result["game_value_summary"]["details"]["matadors"] == 3
+    assert result["game_value_summary"]["game_level"] == 4
+    assert result["game_value_summary"]["game_value"] == 96
+
+    assert result["adjusted_game_result_summary"]["is_complete"] is True
+    assert result["adjusted_game_result_summary"]["winner"] == "declarer"
+
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["winner"] == "declarer"
+    assert result["final_settlement_summary"]["game_value"] == 96
+    assert result["final_settlement_summary"]["settlement_score"] == 96
