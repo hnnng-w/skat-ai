@@ -189,7 +189,7 @@ def test_validate_opponent_card_policy_accepts_basic_defender_response() -> None
 def test_choose_basic_defender_response_smears_when_partner_is_winning() -> None:
     selected_card = choose_basic_defender_response_card(
         hand=["D10", "D9", "H7"],
-        current_trick=["D7"],
+        current_trick=["DA"],
         game_type="grand",
         player_index=1,
         partner_currently_winning=True,
@@ -213,7 +213,7 @@ def test_choose_basic_defender_response_uses_basic_play_when_partner_is_not_winn
 def test_choose_opponent_response_card_by_basic_defender_response_policy_smears() -> None:
     selected_card = choose_opponent_response_card_by_policy(
         hand=["D10", "D9", "H7"],
-        current_trick=["D7"],
+        current_trick=["DA"],
         game_type="grand",
         player_index=1,
         policy="basic_defender_response",
@@ -347,6 +347,18 @@ def test_choose_basic_defender_response_smears_without_overtaking_partner() -> N
     selected_card = choose_basic_defender_response_card(
         hand=["DK", "DQ", "DA"],
         current_trick=["D10"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=True,
+    )
+
+    assert selected_card == "DK"
+
+
+def test_choose_basic_defender_response_minimizes_forced_partner_overtake() -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["DA", "D10", "DK"],
+        current_trick=["D7"],
         game_type="grand",
         player_index=1,
         partner_currently_winning=True,

@@ -268,7 +268,7 @@ def choose_basic_defender_response_card(
         if partner_safe_cards:
             return choose_highest_point_card(partner_safe_cards)
 
-        return choose_highest_point_card(legal_cards)
+        return choose_lowest_point_card(legal_cards)
 
     winning_cards = get_winning_legal_cards(
         hand=hand,
