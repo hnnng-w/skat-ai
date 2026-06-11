@@ -4,6 +4,13 @@ from skat_ai.opponent_policy_preset import (
 )
 from skat_ai.player_profile import PlayerProfile
 
+PROFILE_DATA_CONFIDENCE_RANKS = {
+    "unknown": 0,
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+}
+
 
 def get_profile_data_confidence(
     profile: PlayerProfile,
@@ -106,6 +113,24 @@ def choose_combined_profile_policy_preset(
     """
     left_preset = choose_opponent_policy_preset_for_profile(left_profile)
     right_preset = choose_opponent_policy_preset_for_profile(right_profile)
+
+    if (
+        left_preset != right_preset
+        and left_preset != "simple_lowest"
+        and right_preset != "simple_lowest"
+    ):
+        left_confidence_rank = PROFILE_DATA_CONFIDENCE_RANKS[
+            get_profile_data_confidence(left_profile)
+        ]
+        right_confidence_rank = PROFILE_DATA_CONFIDENCE_RANKS[
+            get_profile_data_confidence(right_profile)
+        ]
+
+        if left_confidence_rank > right_confidence_rank:
+            return left_preset
+
+        if right_confidence_rank > left_confidence_rank:
+            return right_preset
 
     if "aggressive_points" in [left_preset, right_preset]:
         return "aggressive_points"
