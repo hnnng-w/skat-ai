@@ -289,6 +289,13 @@ def format_decision_factors(summary: dict[str, object]) -> str:
     return ", ".join(str(factor) for factor in decision_factors)
 
 
+def format_optional_cli_value(value: object) -> str:
+    """Formats optional values for human-readable CLI output."""
+    if value is None:
+        return "not available"
+
+    return str(value)
+
 
 def print_post_game_review_summary(result: dict[str, object]) -> None:
     """Prints the post-game review summary for human-readable CLI output."""
@@ -308,6 +315,21 @@ def print_post_game_review_summary(result: dict[str, object]) -> None:
         print(f"Not available: {reason}")
         print(f"Decision factors: {decision_factors}")
         print(f"Decision explanation: {decision_explanation}")
+        print(
+            "Actual card rank: "
+            f"{format_optional_cli_value(summary.get('actual_card_rank'))}"
+        )
+        print(
+            "Recommended card rank: "
+            f"{format_optional_cli_value(summary.get('recommended_card_rank'))}"
+        )
+        print(
+            f"Candidate count: {format_optional_cli_value(summary.get('candidate_count'))}"
+        )
+        print(
+            "Better card count: "
+            f"{format_optional_cli_value(summary.get('better_card_count'))}"
+        )
         return
 
     actual_expected_point_swing = float(summary["actual_expected_point_swing"])
@@ -332,6 +354,10 @@ def print_post_game_review_summary(result: dict[str, object]) -> None:
     print(f"Decision quality: {summary['decision_quality']}")
     print(f"Decision factors: {decision_factors}")
     print(f"Decision explanation: {decision_explanation}")
+    print(f"Actual card rank: {summary['actual_card_rank']}")
+    print(f"Recommended card rank: {summary['recommended_card_rank']}")
+    print(f"Candidate count: {summary['candidate_count']}")
+    print(f"Better card count: {summary['better_card_count']}")
 
 
 def print_analysis_result(result: dict[str, Any]) -> None:

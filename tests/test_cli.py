@@ -1421,6 +1421,10 @@ def test_run_json_position_analysis_prints_available_post_game_review_summary(
         "Decision explanation: The actual card matches the recommended card "
         "or has no missed expected point swing."
     ) in captured.out
+    assert "Actual card rank: 1" in captured.out
+    assert "Recommended card rank: 1" in captured.out
+    assert "Candidate count: 1" in captured.out
+    assert "Better card count: 0" in captured.out
 
 
 def test_run_json_position_analysis_prints_unavailable_post_game_review_summary(
@@ -1449,6 +1453,10 @@ def test_run_json_position_analysis_prints_unavailable_post_game_review_summary(
         "Decision explanation: No post-game review decision quality is available "
         "because actual_card_played was not provided."
     ) in captured.out
+    assert "Actual card rank: not available" in captured.out
+    assert "Recommended card rank: 1" in captured.out
+    assert "Candidate count:" in captured.out
+    assert "Better card count: not available" in captured.out
 
 
 def test_build_analysis_result_infers_missing_matadors_from_known_declarer_cards(
