@@ -61,6 +61,7 @@ Live decision examples must not include post-game-only information such as known
 | `grand_second_position_with_metadata.json` | Grand second-position example with strategic metadata.                                                                       |
 | `grand_third_position.json`                | Grand game, local player acts third.                                                                                         |
 | `grand_leading.json`                       | Grand game where local player leads the trick.                                                                               |
+| `grand_left_right_opponent_policies.json`  | Grand game with distinct global, left-opponent, and right-opponent policy settings.                                           |
 | `hearts_leading.json`                      | Suit game example.                                                                                                           |
 | `null_second_position.json`                | Null game example.                                                                                                           |
 
@@ -255,10 +256,8 @@ Current multi-step behavior:
 Run a multi-step simulation with separate left/right opponent policies:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
+python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2
 ```
-
-A dedicated example for separate left/right policies should be added in a future examples task.
 
 ## Notes
 
