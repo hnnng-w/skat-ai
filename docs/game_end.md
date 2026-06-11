@@ -2,19 +2,11 @@
 
 This document explains how `skat-ai` handles normal completion, claim, and concession.
 
-## Supported game_end_reason values
+## Purpose
 
-| Value | Meaning |
-|---|---|
-| `not_ended` | The game is still in progress. |
-| `normal_completion` | The game ended normally and all 120 card points are assigned. |
-| `declarer_claimed_remaining_tricks` | The declarer claimed the remaining tricks. |
-| `declarer_conceded_remaining_tricks` | The declarer conceded the remaining tricks. |
-| `defenders_conceded_remaining_tricks` | The defenders conceded the remaining tricks. |
+Game-end handling separates the raw known card-point state from the adjusted final result used for settlement.
 
-## Raw and adjusted result
-
-The original card-point result is stored in:
+The raw card-point result is stored in:
 
 ```text
 game_result_summary
@@ -28,17 +20,55 @@ adjusted_game_result_summary
 
 `final_settlement_summary` uses `adjusted_game_result_summary`, not the raw `game_result_summary`.
 
+## Supported game_end_reason values
+
+| Value                                 | Meaning                                                       |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `not_ended`                           | The game is still in progress.                                |
+| `normal_completion`                   | The game ended normally and all 120 card points are assigned. |
+| `declarer_claimed_remaining_tricks`   | The declarer claimed the remaining tricks.                    |
+| `declarer_conceded_remaining_tricks`  | The declarer conceded the remaining tricks.                   |
+| `defenders_conceded_remaining_tricks` | The defenders conceded the remaining tricks.                  |
+
+## Analysis mode
+
+Ended game reasons are post-game information.
+
+Therefore, these values require:
+
+```json
+{
+  "analysis_mode": "post_game_review"
+}
+```
+
+This applies to:
+
+* `normal_completion`
+* `declarer_claimed_remaining_tricks`
+* `declarer_conceded_remaining_tricks`
+* `defenders_conceded_remaining_tricks`
+
+Live decision analysis should use:
+
+```json
+{
+  "analysis_mode": "live_decision",
+  "game_end_reason": "not_ended"
+}
+```
+
 ## Remaining-point assignment
 
 When a game ends early, remaining card points are assigned according to `game_end_reason`.
 
-| game_end_reason | Remaining points go to |
-|---|---|
-| `declarer_claimed_remaining_tricks` | declarer |
-| `defenders_conceded_remaining_tricks` | declarer |
-| `declarer_conceded_remaining_tricks` | defenders |
-| `not_ended` | no assignment |
-| `normal_completion` | no assignment |
+| game_end_reason                       | Remaining points go to |
+| ------------------------------------- | ---------------------- |
+| `declarer_claimed_remaining_tricks`   | declarer               |
+| `defenders_conceded_remaining_tricks` | declarer               |
+| `declarer_conceded_remaining_tricks`  | defenders              |
+| `not_ended`                           | no assignment          |
+| `normal_completion`                   | no assignment          |
 
 Example:
 
@@ -48,7 +78,8 @@ Example:
     "declarer_points": 46,
     "defender_points": 45,
     "points_remaining": 29,
-    "is_complete": false
+    "is_complete": false,
+    "winner": "undecided"
   },
   "adjusted_game_result_summary": {
     "declarer_points": 75,
@@ -63,27 +94,68 @@ Example:
 }
 ```
 
+## Normal completion
+
+`normal_completion` means the game ended by playing all tricks and all 120 card points are assigned.
+
+Validation expects:
+
+```text
+points_remaining = 0
+```
+
+If a game has fewer than 120 assigned card points, it should not use `normal_completion`.
+
+## Claim and concession
+
+Claim and concession scenarios are modeled by assigning all remaining card points to the appropriate side.
+
+Examples:
+
+| Scenario                           | game_end_reason                       | Result                            |
+| ---------------------------------- | ------------------------------------- | --------------------------------- |
+| Declarer claims remaining tricks   | `declarer_claimed_remaining_tricks`   | Remaining points go to declarer.  |
+| Defenders concede remaining tricks | `defenders_conceded_remaining_tricks` | Remaining points go to declarer.  |
+| Declarer concedes remaining tricks | `declarer_conceded_remaining_tricks`  | Remaining points go to defenders. |
+
+This is intentionally a scoring adjustment, not a full simulation of the remaining tricks.
+
 ## Validation rules
 
 The engine validates `game_end_reason` against the known card-point state.
 
 Rules:
 
-- `not_ended` requires remaining card points.
-- `normal_completion` requires zero remaining card points.
-- claim/concession reasons require remaining card points.
-- unknown `game_end_reason` values are rejected.
-- remaining card points cannot be negative.
+* `not_ended` requires remaining card points.
+* `normal_completion` requires zero remaining card points.
+* claim/concession reasons require remaining card points.
+* unknown `game_end_reason` values are rejected.
+* remaining card points cannot be negative.
+* ended game reasons are rejected in `live_decision`.
 
 This prevents inconsistent inputs such as:
 
-- a normally completed game with only 86 assigned card points
-- an unfinished game with all 120 card points already assigned
-- claim/concession when no card points remain
+* a normally completed game with only 86 assigned card points
+* an unfinished game with all 120 card points already assigned
+* claim/concession when no card points remain
+* ended game metadata in live decision mode
+
+## Relationship to settlement
+
+`final_settlement_summary` uses the adjusted result.
+
+This means claim/concession handling can decide the final winner before settlement is calculated.
+
+For example:
+
+1. `game_result_summary` may be incomplete.
+2. `adjusted_game_result_summary` assigns remaining points.
+3. `adjusted_game_result_summary.winner` becomes complete.
+4. `final_settlement_summary` uses the adjusted winner and game value.
 
 ## Current limitations
 
-- Claim and concession handling currently assigns all remaining card points according to `game_end_reason`.
-- It does not simulate the actual remaining tricks.
-- The engine does not yet verify whether a claim was strategically or legally justified.
-- The engine does not yet model player agreement or disputes around claim/concession.
+* Claim and concession handling currently assigns all remaining card points according to `game_end_reason`.
+* It does not simulate the actual remaining tricks.
+* The engine does not yet verify whether a claim was strategically or legally justified.
+* The engine does not yet model player agreement or disputes around claim/concession.

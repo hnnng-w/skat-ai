@@ -1,12 +1,20 @@
 # Overbid handling
 
-This document explains bid value handling and overbid settlement.
+This document explains bid value handling and overbid settlement in `skat-ai`.
 
-## bid_value
+## Purpose
+
+Overbid handling compares the declared or bid value with the calculated game value.
+
+If the bid value is higher than the game value, the declarer is overbid.
+
+For supported Suit and Grand games, the engine can calculate the required game value needed to cover the bid and use it for settlement loss calculation.
+
+## bid_value input
 
 Input files can optionally include `bid_value`.
 
-Example:
+Top-level example:
 
 ```json
 {
@@ -16,17 +24,30 @@ Example:
 }
 ```
 
-The engine compares `bid_value` with the calculated `game_value`.
+Nested game declaration example:
 
-Examples:
+```json
+{
+  "game_declaration": {
+    "matadors": 1,
+    "bid_value": 60
+  }
+}
+```
 
-| game_value | bid_value | Result |
-|---:|---:|---|
-| 72 | 72 | not overbid |
-| 72 | 60 | not overbid |
-| 48 | 60 | overbid |
-| null | 60 | unknown game value |
-| 72 | null | unknown bid value |
+If `bid_value` is missing, overbid status is unknown.
+
+## Basic comparison
+
+The engine compares `bid_value` with `game_value`.
+
+| game_value | bid_value | Result             |
+| ---------: | --------: | ------------------ |
+|         72 |        72 | not overbid        |
+|         72 |        60 | not overbid        |
+|         48 |        60 | overbid            |
+|       null |        60 | unknown game value |
+|         72 |      null | unknown bid value  |
 
 ## overbid_summary
 
@@ -45,14 +66,14 @@ Example:
 
 Fields:
 
-| Field | Meaning |
-|---|---|
-| `bid_value` | The bid value from the input, or `null` if unknown. |
-| `game_value` | The calculated game value, or `null` if incomplete. |
-| `is_overbid` | `true`, `false`, or `null` if unknown. |
-| `margin` | `game_value - bid_value`. Negative means overbid. |
-| `required_game_value` | The smallest reachable Suit/Grand game value that covers the bid. |
-| `status` | One of `not_overbid`, `overbid`, `unknown_bid_value`, or `unknown_game_value`. |
+| Field                 | Meaning                                                                 |
+| --------------------- | ----------------------------------------------------------------------- |
+| `bid_value`           | The bid value from the input, or `null` if unknown.                     |
+| `game_value`          | The calculated game value, or `null` if incomplete.                     |
+| `is_overbid`          | `true`, `false`, or `null` if unknown.                                  |
+| `margin`              | `game_value - bid_value`. Negative means overbid.                       |
+| `required_game_value` | The smallest reachable Suit/Grand game value that covers the bid.       |
+| `status`              | `not_overbid`, `overbid`, `unknown_bid_value`, or `unknown_game_value`. |
 
 ## required_game_value
 
@@ -66,9 +87,10 @@ Example:
 Grand base value = 24
 game_value = 48
 bid_value = 60
-
 required_game_value = 72
 ```
+
+This means the declarer needed a Grand value of 72 to cover the bid.
 
 ## effective_game_value
 
@@ -99,29 +121,44 @@ Example:
 
 ```json
 {
+  "declarer_won_by_card_points": true,
+  "winner": "defenders",
   "game_value": 48,
-  "bid_value": 60,
-  "is_overbid": true,
   "effective_game_value": 72,
+  "bid_value": 60,
+  "is_loss": true,
+  "is_overbid": true,
   "settlement_score": -144
 }
 ```
 
-In this example, the declarer may still have won by card points. The settlement loss is caused by overbidding.
+In this example, the declarer may still have won by card points.
 
 The raw card-point result remains visible through:
 
 ```json
-"winner": "declarer",
-"declarer_won_by_card_points": true
+{
+  "declarer_won_by_card_points": true
+}
 ```
 
 The settlement loss is visible through:
 
 ```json
-"is_loss": true,
-"is_overbid": true
+{
+  "winner": "defenders",
+  "is_loss": true,
+  "is_overbid": true
+}
 ```
+
+## Relationship to game value
+
+Overbid handling depends on `game_value_summary`.
+
+If the game value is incomplete, overbid status may be unknown.
+
+Automatic matador inference can make some Suit/Grand game values complete even when `matadors` was not explicitly provided, as long as the currently known declarer-card context is sufficient.
 
 ## Null-game safeguard
 
@@ -141,3 +178,9 @@ Example:
   "settlement_score": null
 }
 ```
+
+## Current limitations
+
+* Suit/Grand overbid settlement is supported when `required_game_value` can be calculated.
+* Null-game overbid settlement remains conservative when no `required_game_value` is available.
+* The engine does not yet model all official settlement nuances.
