@@ -168,16 +168,26 @@ The project also supports nested declaration metadata:
 | `matadors`            | Matador count for suit and grand games.                       |
 | `bid_value`           | Optional bid value used for overbid detection and settlement. |
 
-If `matadors` is provided, the explicit value is used.
+If `matadors` is provided, the explicit value is authoritative and is used as provided.
 
-If `matadors` is missing or `null`, the engine tries to infer the matador count from currently known declarer cards where possible.
+If `matadors` is missing or `null`, the engine may infer the matador count when known ownership is deterministic.
 
-Automatic matador inference currently uses known declarer-card context from:
+Automatic matador inference can use known declarer-card context from:
 
-* `hand`
+* the local declarer `hand`
 * `skat`, when available and allowed by the analysis mode
+* `completed_tricks`, but only from tricks that provide both `cards` and ordered `players`
 
-If matadors cannot be inferred for a suit or grand game, the game value may remain incomplete.
+Completed-trick ownership inference is intentionally conservative:
+
+* It currently applies only when `player_role == "declarer"`.
+* It maps each completed-trick card to declarer or non-declarer ownership from the paired `cards` and ordered `players` entries.
+* It does not infer ownership from `winner_role` or `winner_player` alone.
+* It does not infer matadors from defender or unknown perspective.
+* It does not guess hidden cards.
+* If completed-trick ownership is incomplete or inconclusive, inference falls back to the existing known-card behavior.
+
+If matadors still cannot be inferred for a suit or grand game, the game value may remain incomplete.
 
 Null games do not use matadors.
 
@@ -384,6 +394,8 @@ Validation rules:
 * When `cards`, `players`, and `winner_player` are provided, the engine validates that `winner_player` actually won the trick according to the implemented Skat rules.
 
 Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly.
+
+For matador inference, completed tricks contribute ownership facts only when both `cards` and ordered `players` are present. `winner_role` and `winner_player` alone are not used to infer matador ownership.
 
 ## Validation rules
 

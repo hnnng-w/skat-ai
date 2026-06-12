@@ -16,7 +16,7 @@ The project focuses on:
 * multi-step simulation
 * opponent policy modeling
 * game result and settlement summaries
-* automatic matador inference where supported by known declarer-card context
+* automatic matador inference where supported by known declarer-card context and safe completed-trick ownership
 * post-game review support
 * JSON input/output for regression-friendly testing
 
@@ -116,7 +116,7 @@ Implemented:
 
 * game declaration metadata
 * game value summaries for suit, grand, and null games
-* automatic matador inference from known declarer cards where possible
+* automatic matador inference from known declarer cards and safe local-declarer completed-trick ownership where possible
 * final single-game settlement summary
 * supported Suit/Grand overbid detection
 * supported Suit/Grand overbid settlement loss handling
@@ -125,7 +125,7 @@ Known remaining areas:
 
 * full official settlement nuance coverage is not complete
 * Null-game overbid settlement remains conservative when no required game value is available
-* matador inference does not yet reconstruct all possible information from completed-trick history in every scenario
+* matador inference does not yet reconstruct completed-trick ownership beyond safe local-declarer `cards` and `players` facts
 
 ### Game-end handling
 
@@ -362,7 +362,7 @@ Recommended future topics:
 * deeper PlayerProfile confidence usage in opponent modeling
 * richer realistic example positions
 * richer post-game review examples
-* extended matador inference from completed-trick history
+* broader matador inference from completed-trick history beyond safe local-declarer ownership facts
 * richer explanation details for recommended-card reasoning
 
 ## GitHub issue cleanup recommendations
