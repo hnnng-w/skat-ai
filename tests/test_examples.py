@@ -196,8 +196,8 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["final_settlement_summary"]["missing_inputs"] == []
     assert result["final_settlement_summary"]["winner"] == "declarer"
     assert result["final_settlement_summary"]["game_value"] == 72
-    assert result["final_settlement_summary"]["effective_game_value"] == 72
-    assert result["final_settlement_summary"]["settlement_score"] == 72
+    assert result["final_settlement_summary"]["effective_game_value"] == 96
+    assert result["final_settlement_summary"]["settlement_score"] == 96
     assert result["final_settlement_summary"]["is_loss"] is False
     assert result["final_settlement_summary"]["overbid_required_game_value"] == 72
 
@@ -222,9 +222,9 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     )
     assert result["performance_rating_summary"]["rating_system"] == "isko_list"
     assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
-    assert result["performance_rating_summary"]["settlement_score"] == 72
-    assert result["performance_rating_summary"]["rating_score"] == 122
-    assert result["performance_rating_summary"]["declarer_rating_score"] == 122
+    assert result["performance_rating_summary"]["settlement_score"] == 96
+    assert result["performance_rating_summary"]["rating_score"] == 146
+    assert result["performance_rating_summary"]["declarer_rating_score"] == 146
     assert result["performance_rating_summary"]["declarer_rating_points"] == 50
     assert result["performance_rating_summary"]["counterparty_rating_points"] == 0
     assert result["performance_rating_summary"]["defender_rating_points"] == 0

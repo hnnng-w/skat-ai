@@ -94,16 +94,23 @@ def build_final_settlement_summary(
     declarer_won_by_card_points = is_declarer_winner_by_card_points(
         game_result_summary
     )
-    effective_game_value = (
-        get_effective_settlement_game_value(
+    effective_game_value = None
+
+    if (
+        is_complete
+        and game_value_summary["game_value"] is not None
+        and is_overbid_settlement_supported(overbid_summary)
+    ):
+        effective_game_value = get_effective_settlement_game_value(
             game_value=game_value_summary["game_value"],
             overbid_summary=overbid_summary,
         )
-        if is_complete
-        and game_value_summary["game_value"] is not None
-        and is_overbid_settlement_supported(overbid_summary)
-        else None
-    )
+        effective_game_value = apply_achieved_schneider_settlement_level(
+            settlement_game_value=effective_game_value,
+            game_value_summary=game_value_summary,
+            game_result_summary=game_result_summary,
+            overbid_summary=overbid_summary,
+        )
 
     effective_declarer_won = (
         False
@@ -148,6 +155,38 @@ def build_final_settlement_summary(
             "required_game_value is available.",
         ],
     }
+
+
+def apply_achieved_schneider_settlement_level(
+    settlement_game_value: int,
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any],
+) -> int:
+    """
+    Adds one base-value level for achieved Schneider in completed suit/grand games.
+    """
+    if overbid_summary["is_overbid"] is True:
+        return settlement_game_value
+
+    if not game_result_summary["is_complete"]:
+        return settlement_game_value
+
+    if game_value_summary.get("is_null_game") is not False:
+        return settlement_game_value
+
+    base_value = game_value_summary.get("base_value")
+
+    if base_value is None:
+        return settlement_game_value
+
+    if game_result_summary.get("effective_schneider_status") not in [
+        "declarer_made_schneider",
+        "defenders_made_schneider",
+    ]:
+        return settlement_game_value
+
+    return settlement_game_value + base_value
 
 def get_effective_settlement_game_value(
     game_value: int,

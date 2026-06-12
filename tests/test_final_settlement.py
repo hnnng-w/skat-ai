@@ -198,6 +198,46 @@ def test_build_final_settlement_summary_complete_declarer_loss() -> None:
     assert summary["overbid_status"] == "unknown"
     assert summary["overbid_required_game_value"] is None
 
+
+def test_build_final_settlement_summary_applies_declarer_schneider_level() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={
+            "game_value": 72,
+            "base_value": 24,
+            "is_null_game": False,
+        },
+        game_result_summary={
+            "is_complete": True,
+            "winner": "declarer",
+            "effective_schneider_status": "declarer_made_schneider",
+        },
+    )
+
+    assert summary["game_value"] == 72
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == 96
+    assert summary["is_loss"] is False
+
+
+def test_build_final_settlement_summary_applies_defender_schneider_level() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={
+            "game_value": 72,
+            "base_value": 24,
+            "is_null_game": False,
+        },
+        game_result_summary={
+            "is_complete": True,
+            "winner": "defenders",
+            "effective_schneider_status": "defenders_made_schneider",
+        },
+    )
+
+    assert summary["game_value"] == 72
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == -192
+    assert summary["is_loss"] is True
+
 def build_not_overbid_summary() -> dict:
     return {
         "bid_value": 72,

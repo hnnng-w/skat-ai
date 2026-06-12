@@ -160,11 +160,22 @@ That is handled separately by `performance_rating_summary`.
 
 `effective_game_value` is the value used for settlement scoring.
 
-In normal cases:
+In normal non-Schneider cases:
 
 ```text
 effective_game_value = game_value
 ```
+
+For completed non-null suit and grand games where either side achieved Schneider,
+final settlement adds one base-value level:
+
+```text
+effective_game_value = game_value + base_value
+```
+
+`game_value_summary.game_value` remains the declared/pre-result game value. The
+Schneider adjustment is reflected only in
+`final_settlement_summary.effective_game_value` and the derived settlement score.
 
 In supported Suit/Grand overbid cases:
 
@@ -174,14 +185,18 @@ effective_game_value = required_game_value
 
 ## Settlement score
 
-Current simplified settlement scoring:
+Current settlement scoring:
 
 ```text
 Declarer wins: settlement_score = effective_game_value
 Declarer loses: settlement_score = -2 * effective_game_value
 ```
 
+Completed non-null suit and grand games include achieved Schneider by adding one base-value level to `effective_game_value`.
+
 Supported Suit/Grand overbid cases force the declarer into a settlement loss and use the required game value.
+
+Schwarz and announcement-specific settlement nuances are not implemented in this slice.
 
 Example:
 
@@ -189,7 +204,7 @@ Example:
 "final_settlement_summary": {
   "is_complete": true,
   "declarer_won_by_card_points": true,
-  "winner": "defenders",
+  "winner": "declarer",
   "game_value": 48,
   "effective_game_value": 72,
   "bid_value": 60,

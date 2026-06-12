@@ -122,7 +122,7 @@ Example:
 ```json
 {
   "declarer_won_by_card_points": true,
-  "winner": "defenders",
+  "winner": "declarer",
   "game_value": 48,
   "effective_game_value": 72,
   "bid_value": 60,
@@ -146,7 +146,7 @@ The settlement loss is visible through:
 
 ```json
 {
-  "winner": "defenders",
+  "winner": "declarer",
   "is_loss": true,
   "is_overbid": true
 }

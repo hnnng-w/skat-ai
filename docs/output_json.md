@@ -244,6 +244,10 @@ Example:
 
 `effective_game_value` is the value used for settlement scoring.
 
+For completed non-null suit and grand games with achieved Schneider,
+`effective_game_value` includes one additional base-value level while
+`game_value` remains the declared/pre-result value.
+
 For supported Suit/Grand overbid cases, `effective_game_value` equals `required_game_value`.
 
 ## Information policy summary
