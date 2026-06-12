@@ -112,11 +112,15 @@ def build_final_settlement_summary(
             overbid_summary=overbid_summary,
         )
 
-    effective_declarer_won = (
-        False
-        if overbid_summary["is_overbid"] is True
-        else declarer_won_by_card_points
-    )
+    if overbid_summary["is_overbid"] is True:
+        effective_declarer_won = False
+    elif is_schneider_announcement_failed(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+    ):
+        effective_declarer_won = False
+    else:
+        effective_declarer_won = declarer_won_by_card_points
     is_loss = (
         effective_declarer_won is False
         if effective_declarer_won is not None
@@ -165,6 +169,9 @@ def apply_achieved_schneider_settlement_level(
 ) -> int:
     """
     Adds one base-value level for achieved Schneider in completed suit/grand games.
+
+    When Schneider was announced, game_value already includes the announcement
+    level. Only declarer-made Schneider adds the separate achieved level.
     """
     if overbid_summary["is_overbid"] is True:
         return settlement_game_value
@@ -180,13 +187,59 @@ def apply_achieved_schneider_settlement_level(
     if base_value is None:
         return settlement_game_value
 
-    if game_result_summary.get("effective_schneider_status") not in [
+    effective_schneider_status = game_result_summary.get(
+        "effective_schneider_status"
+    )
+
+    if effective_schneider_status not in [
         "declarer_made_schneider",
         "defenders_made_schneider",
     ]:
         return settlement_game_value
 
+    if (
+        is_schneider_announced(game_value_summary)
+        and effective_schneider_status != "declarer_made_schneider"
+    ):
+        return settlement_game_value
+
     return settlement_game_value + base_value
+
+
+def is_schneider_announced(
+    game_value_summary: dict[str, Any],
+) -> bool:
+    """
+    Returns whether Schneider was announced in the declared game value model.
+    """
+    details = game_value_summary.get("details", {})
+
+    if not isinstance(details, dict):
+        return False
+
+    return details.get("schneider_announced") is True
+
+
+def is_schneider_announcement_failed(
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+) -> bool:
+    """
+    Returns whether an announced Schneider was missed in a completed suit/grand game.
+    """
+    if not game_result_summary["is_complete"]:
+        return False
+
+    if game_value_summary.get("is_null_game") is not False:
+        return False
+
+    if not is_schneider_announced(game_value_summary):
+        return False
+
+    return (
+        game_result_summary.get("effective_schneider_status")
+        != "declarer_made_schneider"
+    )
 
 def get_effective_settlement_game_value(
     game_value: int,

@@ -166,16 +166,18 @@ In normal non-Schneider cases:
 effective_game_value = game_value
 ```
 
-For completed non-null suit and grand games where either side achieved Schneider,
-final settlement adds one base-value level:
+For completed non-null suit and grand games, final settlement may add one
+achieved-Schneider base-value level:
 
 ```text
 effective_game_value = game_value + base_value
 ```
 
-`game_value_summary.game_value` remains the declared/pre-result game value. The
-Schneider adjustment is reflected only in
-`final_settlement_summary.effective_game_value` and the derived settlement score.
+`game_value_summary.game_value` remains the declared/pre-result game value. If
+Schneider was announced, that declared value already includes the announcement
+level. A successful Schneider announcement adds only the separate achieved
+Schneider level. A failed Schneider announcement does not add an achieved
+Schneider level.
 
 In supported Suit/Grand overbid cases:
 
@@ -194,9 +196,15 @@ Declarer loses: settlement_score = -2 * effective_game_value
 
 Completed non-null suit and grand games include achieved Schneider by adding one base-value level to `effective_game_value`.
 
+If Schneider was announced but the completed game did not result in
+`effective_schneider_status == "declarer_made_schneider"`, the declarer loses
+for settlement purposes. The card-point `winner` remains unchanged, and
+`effective_game_value` remains the declared game value that already includes the
+Schneider announcement level.
+
 Supported Suit/Grand overbid cases force the declarer into a settlement loss and use the required game value.
 
-Schwarz and announcement-specific settlement nuances are not implemented in this slice.
+Schwarz and Schwarz-announcement-specific settlement nuances are not implemented.
 
 Example:
 
