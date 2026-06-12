@@ -355,6 +355,19 @@ def test_choose_basic_defender_response_smears_without_overtaking_partner() -> N
     assert selected_card == "DK"
 
 
+def test_choose_basic_defender_response_uses_weakest_card_for_equal_point_safe_smear(
+) -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["SJ", "HJ", "DJ"],
+        current_trick=["CJ"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=True,
+    )
+
+    assert selected_card == "DJ"
+
+
 def test_choose_basic_defender_response_minimizes_forced_partner_overtake() -> None:
     selected_card = choose_basic_defender_response_card(
         hand=["DA", "D10", "DK"],

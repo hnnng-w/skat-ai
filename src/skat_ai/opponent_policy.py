@@ -272,7 +272,17 @@ def choose_basic_defender_response_card(
         )
 
         if partner_safe_cards:
-            return choose_highest_point_card(partner_safe_cards)
+            highest_point_value = max(get_card_points(card) for card in partner_safe_cards)
+            highest_point_safe_cards = [
+                card
+                for card in partner_safe_cards
+                if get_card_points(card) == highest_point_value
+            ]
+            lead_effective_suit = get_effective_suit(current_trick[0], game_type)
+            return min(
+                highest_point_safe_cards,
+                key=lambda card: get_card_strength(card, game_type, lead_effective_suit),
+            )
 
         lead_effective_suit = get_effective_suit(current_trick[0], game_type)
         return min(
