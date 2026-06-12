@@ -130,6 +130,48 @@ def test_build_game_declaration_from_input_reads_fields() -> None:
     )
 
 
+def test_build_game_declaration_infers_matadors_from_completed_trick_ownership() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": ["CJ"],
+            "skat": [],
+            "completed_tricks": [
+                {
+                    "cards": ["SJ", "H7", "HJ"],
+                    "players": ["me", "left", "right"],
+                }
+            ],
+        }
+    )
+
+    assert declaration.matadors == 2
+
+
+def test_build_game_declaration_keeps_explicit_matadors_over_ownership_inference() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": ["CJ"],
+            "skat": [],
+            "matadors": 4,
+            "game_declaration": {
+                "matadors": 1,
+            },
+            "completed_tricks": [
+                {
+                    "cards": ["SJ", "H7", "HJ"],
+                    "players": ["me", "left", "right"],
+                }
+            ],
+        }
+    )
+
+    assert declaration.matadors == 1
+
+
 def test_build_serializable_game_declaration() -> None:
     declaration = GameDeclaration(
         game_type="grand",

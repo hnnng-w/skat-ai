@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import Any
 
-from skat_ai.matador_inference import infer_matadors_from_declarer_cards
+from skat_ai.matador_inference import (
+    infer_matadors_from_declarer_cards,
+    infer_matadors_from_local_declarer_known_ownership,
+)
 
 VALID_DECLARATION_GAME_TYPES = [
     "clubs",
@@ -102,6 +105,20 @@ def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
         skat = []
 
     declarer_cards = [*hand, *skat]
+    completed_tricks = data.get("completed_tricks", [])
+
+    if not isinstance(completed_tricks, list):
+        completed_tricks = []
+
+    inferred_from_ownership = infer_matadors_from_local_declarer_known_ownership(
+        game_type=data["game_type"],
+        player_role=data.get("player_role", "unknown"),
+        declarer_cards=declarer_cards,
+        completed_tricks=completed_tricks,
+    )
+
+    if inferred_from_ownership is not None:
+        return inferred_from_ownership
 
     return infer_matadors_from_declarer_cards(
         game_type=data["game_type"],

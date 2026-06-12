@@ -1,6 +1,7 @@
 from skat_ai.matador_inference import (
     get_trump_order_for_matadors,
     infer_matadors_from_declarer_cards,
+    infer_matadors_from_local_declarer_known_ownership,
 )
 
 
@@ -82,3 +83,72 @@ def test_infer_matadors_counts_without_into_suit_trumps() -> None:
         game_type="spades",
         declarer_cards=["S10", "D7"],
     ) == 5
+
+
+def test_infer_matadors_from_completed_trick_ownership_counts_with_two() -> None:
+    assert infer_matadors_from_local_declarer_known_ownership(
+        game_type="grand",
+        player_role="declarer",
+        declarer_cards=["CJ"],
+        completed_tricks=[
+            {
+                "cards": ["SJ", "H7", "HJ"],
+                "players": ["me", "left", "right"],
+            }
+        ],
+    ) == 2
+
+
+def test_infer_matadors_from_completed_trick_ownership_counts_without_two() -> None:
+    assert infer_matadors_from_local_declarer_known_ownership(
+        game_type="grand",
+        player_role="declarer",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "HJ"],
+                "players": ["left", "right", "me"],
+            }
+        ],
+    ) == 2
+
+
+def test_infer_matadors_from_completed_trick_ownership_requires_known_boundary() -> None:
+    assert infer_matadors_from_local_declarer_known_ownership(
+        game_type="grand",
+        player_role="declarer",
+        declarer_cards=["CJ"],
+        completed_tricks=[
+            {
+                "cards": ["HJ", "D7", "D8"],
+                "players": ["left", "me", "right"],
+            }
+        ],
+    ) is None
+
+
+def test_infer_matadors_from_completed_tricks_ignores_tricks_without_players() -> None:
+    assert infer_matadors_from_local_declarer_known_ownership(
+        game_type="grand",
+        player_role="declarer",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "HJ"],
+            }
+        ],
+    ) is None
+
+
+def test_infer_matadors_from_completed_tricks_requires_local_declarer() -> None:
+    assert infer_matadors_from_local_declarer_known_ownership(
+        game_type="grand",
+        player_role="defender",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "HJ"],
+                "players": ["left", "right", "me"],
+            }
+        ],
+    ) is None
