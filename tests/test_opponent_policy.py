@@ -367,6 +367,19 @@ def test_choose_basic_defender_response_minimizes_forced_partner_overtake() -> N
     assert selected_card == "DK"
 
 
+def test_choose_basic_defender_response_uses_weakest_card_when_forced_to_overtake_partner(
+) -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["CJ", "SJ", "HJ"],
+        current_trick=["DJ"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=True,
+    )
+
+    assert selected_card == "HJ"
+
+
 def test_get_losing_legal_cards_returns_cards_that_do_not_win() -> None:
     losing_cards = get_losing_legal_cards(
         hand=["C10", "CK", "C9"],

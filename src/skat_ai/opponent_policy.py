@@ -1,6 +1,12 @@
 import random
 
-from skat_ai.rules import get_card_points, get_legal_cards, is_trump
+from skat_ai.rules import (
+    get_card_points,
+    get_card_strength,
+    get_effective_suit,
+    get_legal_cards,
+    is_trump,
+)
 
 VALID_OPPONENT_CARD_POLICIES = [
     "lowest_point",
@@ -268,7 +274,14 @@ def choose_basic_defender_response_card(
         if partner_safe_cards:
             return choose_highest_point_card(partner_safe_cards)
 
-        return choose_lowest_point_card(legal_cards)
+        lead_effective_suit = get_effective_suit(current_trick[0], game_type)
+        return min(
+            legal_cards,
+            key=lambda card: (
+                get_card_points(card),
+                get_card_strength(card, game_type, lead_effective_suit),
+            ),
+        )
 
     winning_cards = get_winning_legal_cards(
         hand=hand,
