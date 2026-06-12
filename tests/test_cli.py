@@ -1586,6 +1586,55 @@ def test_build_analysis_result_infers_missing_matadors_from_known_declarer_cards
     assert result["game_value_summary"]["game_value"] == 96
 
 
+def test_build_analysis_result_uses_completed_trick_ownership_for_matadors(
+    tmp_path,
+) -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "me",
+        "hand": ["CJ", "D7", "D8", "D9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [
+            {
+                "cards": ["SJ", "H7", "HJ"],
+                "players": ["me", "left", "right"],
+                "winner_role": "declarer",
+                "winner_player": "me",
+            }
+        ],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": ["C7", "C8"],
+        "left_hand_size": 9,
+        "right_hand_size": 9,
+        "sample_count": 10,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "known_post_game",
+        "game_declaration": {
+            "hand_game": False,
+            "ouvert": False,
+            "schneider_announced": False,
+            "schwarz_announced": False,
+        },
+    }
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["game_declaration"]["matadors"] == 2
+    assert result["game_value_summary"]["details"]["matadors"] == 2
+    assert result["game_value_summary"]["details"]["matador_multiplier"] == 3
+    assert result["game_value_summary"]["game_level"] == 3
+    assert result["game_value_summary"]["game_value"] == 72
+    assert result["game_value_summary"]["details"]["is_complete"] is True
+
+
 def test_build_analysis_result_keeps_explicit_matadors_over_inference(
     tmp_path,
 ) -> None:
