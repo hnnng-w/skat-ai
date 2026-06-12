@@ -301,11 +301,14 @@ def choose_basic_defender_response_card(
     )
 
     if winning_cards:
-        return choose_basic_trick_play_card(
-            hand=hand,
-            current_trick=current_trick,
-            game_type=game_type,
-            player_index=player_index,
+        lowest_point_value = min(get_card_points(card) for card in winning_cards)
+        lowest_point_winning_cards = [
+            card for card in winning_cards if get_card_points(card) == lowest_point_value
+        ]
+        lead_effective_suit = get_effective_suit(current_trick[0], game_type)
+        return min(
+            lowest_point_winning_cards,
+            key=lambda card: get_card_strength(card, game_type, lead_effective_suit),
         )
 
     losing_cards = get_losing_legal_cards(

@@ -428,6 +428,19 @@ def test_choose_basic_defender_response_still_wins_when_possible() -> None:
     assert selected_card == "CA"
 
 
+def test_choose_basic_defender_response_uses_weakest_card_for_equal_point_win(
+) -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["CJ", "SJ", "HJ"],
+        current_trick=["DJ"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "HJ"
+
+
 def test_get_non_trump_cards_filters_trumps_in_suit_game() -> None:
     non_trump_cards = get_non_trump_cards(
         cards=["SJ", "SA", "HA", "D7", "C9"],
