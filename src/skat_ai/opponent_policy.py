@@ -301,6 +301,22 @@ def choose_basic_defender_response_card(
     )
 
     if winning_cards:
+        losing_cards = get_losing_legal_cards(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=player_index,
+        )
+
+        if (
+            len(current_trick) == 1
+            and get_card_points(current_trick[0]) == 0
+            and not is_trump(current_trick[0], game_type)
+            and all(is_trump(card, game_type) for card in winning_cards)
+            and losing_cards
+        ):
+            return choose_lowest_point_card(losing_cards)
+
         lowest_point_value = min(get_card_points(card) for card in winning_cards)
         lowest_point_winning_cards = [
             card for card in winning_cards if get_card_points(card) == lowest_point_value

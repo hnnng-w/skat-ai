@@ -428,6 +428,19 @@ def test_choose_basic_defender_response_still_wins_when_possible() -> None:
     assert selected_card == "CA"
 
 
+def test_choose_basic_defender_response_conserves_trump_on_zero_point_second_hand_trick(
+) -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["CJ", "D7", "H9"],
+        current_trick=["S7"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "D7"
+
+
 def test_choose_basic_defender_response_uses_weakest_card_for_equal_point_win(
 ) -> None:
     selected_card = choose_basic_defender_response_card(
