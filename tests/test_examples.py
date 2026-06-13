@@ -1,11 +1,19 @@
+import random
 from pathlib import Path
 
 from main import build_analysis_result
 from skat_ai.analysis_report import build_card_analysis_report
 from skat_ai.input_loader import (
     build_game_state_from_input,
+    get_left_opponent_policy_settings_from_input,
+    get_opponent_policy_settings_from_input,
+    get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_position_from_json,
+)
+from skat_ai.multi_step_simulation import (
+    prepare_state_for_player_action,
+    simulate_multiple_steps,
 )
 from skat_ai.rules import get_legal_cards
 
@@ -95,6 +103,47 @@ def build_example_analysis_result(file_name: str) -> dict:
         random_seed_override=42,
         opponent_strategy_override="basic",
     )
+
+
+def build_example_opponent_turn_context(file_name: str) -> dict:
+    data = load_position_from_json(f"examples/{file_name}")
+    state = build_game_state_from_input(data)
+    settings = get_simulation_settings_from_input(data)
+    opponent_policy_settings = get_opponent_policy_settings_from_input(data)
+    left_opponent_policy_settings = get_left_opponent_policy_settings_from_input(data)
+    right_opponent_policy_settings = get_right_opponent_policy_settings_from_input(data)
+
+    prepared_state, opponent_lead_result = prepare_state_for_player_action(
+        current_state=state,
+        left_hand_size=settings["left_hand_size"],
+        right_hand_size=settings["right_hand_size"],
+        random_generator=random.Random(settings["random_seed"]),
+        opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
+        opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
+        left_opponent_policy_settings=left_opponent_policy_settings,
+        right_opponent_policy_settings=right_opponent_policy_settings,
+    )
+
+    multi_step_result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=settings["left_hand_size"],
+        right_hand_size=settings["right_hand_size"],
+        step_count=1,
+        random_seed=settings["random_seed"],
+        use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+        card_selection_policy="highest_point",
+        opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
+        opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
+        left_opponent_policy_settings=left_opponent_policy_settings,
+        right_opponent_policy_settings=right_opponent_policy_settings,
+    )
+
+    return {
+        "state": state,
+        "prepared_state": prepared_state,
+        "opponent_lead_result": opponent_lead_result,
+        "multi_step_result": multi_step_result,
+    }
 
 def assert_adjusted_result_metadata(
     result: dict,
@@ -475,6 +524,77 @@ def test_left_right_opponent_policy_example_uses_distinct_policy_settings() -> N
         "opponent_lead_policy": "basic_defender_lead",
         "opponent_response_policy": "basic_defender_response",
     }
+
+
+def test_left_to_act_live_example_prepares_local_third_hand_decision() -> None:
+    context = build_example_opponent_turn_context("grand_left_to_act_live.json")
+    state = context["state"]
+    prepared_state = context["prepared_state"]
+    opponent_lead_result = context["opponent_lead_result"]
+    multi_step_result = context["multi_step_result"]
+
+    assert state.next_player == "left"
+    assert opponent_lead_result == {
+        "leader": "left",
+        "lead_card": "H9",
+        "responder": "right",
+        "response_card": "C8",
+        "next_state": prepared_state,
+    }
+    assert prepared_state.trick_leader == "left"
+    assert prepared_state.current_trick == ["H9", "C8"]
+    assert prepared_state.next_player == "me"
+    assert set(prepared_state.current_trick).isdisjoint(state.hand)
+
+    legal_cards = get_legal_cards(
+        hand=prepared_state.hand,
+        current_trick=prepared_state.current_trick,
+        game_type=prepared_state.game_type,
+    )
+
+    assert legal_cards == state.hand
+
+    step = multi_step_result["steps"][0]
+
+    assert multi_step_result["steps_simulated"] == 1
+    assert step["opponent_lead_result"]["leader"] == "left"
+    assert step["opponent_lead_result"]["responder"] == "right"
+    assert step["candidate_card"] in legal_cards
+    assert step["detailed_result"]["trick"] == ["H9", "C8", "SA"]
+
+
+def test_right_to_act_live_example_prepares_local_second_hand_decision() -> None:
+    context = build_example_opponent_turn_context("grand_right_to_act_live.json")
+    state = context["state"]
+    prepared_state = context["prepared_state"]
+    opponent_lead_result = context["opponent_lead_result"]
+    multi_step_result = context["multi_step_result"]
+
+    assert state.next_player == "right"
+    assert opponent_lead_result == {
+        "leader": "right",
+        "lead_card": "C8",
+        "next_state": prepared_state,
+    }
+    assert prepared_state.trick_leader == "right"
+    assert prepared_state.current_trick == ["C8"]
+    assert prepared_state.next_player == "me"
+    assert set(prepared_state.current_trick).isdisjoint(state.hand)
+
+    legal_cards = get_legal_cards(
+        hand=prepared_state.hand,
+        current_trick=prepared_state.current_trick,
+        game_type=prepared_state.game_type,
+    )
+
+    assert legal_cards == state.hand
+
+    step = multi_step_result["steps"][0]
+
+    assert multi_step_result["steps_simulated"] == 1
+    assert step["opponent_lead_result"]["leader"] == "right"
+    assert step["candidate_card"] in legal_cards
+    assert step["detailed_result"]["trick"] == ["C8", "SA", "H7"]
 
 def test_claimed_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result("grand_claimed_remaining_tricks.json")

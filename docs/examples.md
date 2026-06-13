@@ -58,7 +58,6 @@ Live decision examples must not include post-game-only information such as known
 | File                                       | Purpose                                                                                                                      |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | `grand_second_position.json`               | Grand game, local player acts second. Also demonstrates automatic matador inference from known declarer cards when possible. |
-| `grand_second_position_with_metadata.json` | Grand second-position example with strategic metadata.                                                                       |
 | `grand_third_position.json`                | Grand game, local player acts third.                                                                                         |
 | `grand_leading.json`                       | Grand game where local player leads the trick.                                                                               |
 | `grand_left_right_opponent_policies.json`  | Grand game with distinct global, left-opponent, and right-opponent policy settings.                                           |
@@ -73,6 +72,35 @@ Live decision examples must not include post-game-only information such as known
 | `grand_midgame_defenders_ahead.json`      | Midgame position where defenders are ahead by known points.                                   |
 | `grand_midgame_profile_preset_live.json`  | Live midgame position with strategic metadata, player profiles, and profile preset settings.  |
 | `spades_midgame_defender_rearhand_live.json` | Live midgame defender rearhand position with completed-trick metadata and unknown skat.        |
+
+## Opponent-turn multi-step examples
+
+These examples represent live positions where the local player is not the next
+player to act. They are intended for the supported multi-step workflow, where
+opponent action is simulated until the local player reaches a decision point.
+
+| File                            | Purpose                                                                                     |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| `grand_left_to_act_live.json`   | `next_player: "left"`; multi-step simulates a left lead, right response, then local action. |
+| `grand_right_to_act_live.json`  | `next_player: "right"`; multi-step simulates a right lead, then local action.               |
+
+Run the left-to-act example:
+
+```powershell
+python main.py --input examples/grand_left_to_act_live.json --multi-step 1 --card-policy highest_point
+```
+
+Run the right-to-act example:
+
+```powershell
+python main.py --input examples/grand_right_to_act_live.json --multi-step 1 --card-policy highest_point
+```
+
+Both files are input-schema validated with all examples. They are covered by
+focused behavioral assertions in `tests/test_examples.py` because their primary
+supported workflow is multi-step opponent-turn preparation. They are not
+registered in generated-output schema validation, which currently covers
+selected standard single-position outputs.
 
 ## Post-game review examples
 
@@ -92,6 +120,7 @@ Post-game review examples may include known skat cards and completed game inform
 
 | File                                       | Purpose                                                                                                                      |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `grand_second_position_with_metadata.json` | Post-game metadata example with known post-game skat visibility, profile presets, and player profiles.                       |
 | `grand_post_game_known_skat.json`          | Post-game review with known skat and completed tricks.                                                                       |
 | `grand_post_game_mistake_actual_card.json` | Post-game review where the actual card is ranked below the recommendation and gap details are populated.                     |
 | `spades_post_game_actual_card_played.json` | Post-game review with `actual_card_played`, decision quality, decision factors, explanation, and recommendation gap details. |
