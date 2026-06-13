@@ -1,4 +1,7 @@
+import pytest
+
 from skat_ai.performance_rating import (
+    build_list_game_contribution_from_analysis_result,
     build_list_performance_summary,
     build_list_performance_summary_from_game_contributions,
     build_performance_rating_summary,
@@ -13,6 +16,301 @@ from skat_ai.performance_rating import (
     get_performance_rating_unsupported_scope,
     is_performance_rating_partially_implemented,
 )
+
+
+def build_contribution_analysis_result(
+    player_role="declarer",
+    is_complete=True,
+    is_loss=False,
+    settlement_score=72,
+    winner="declarer",
+    declarer_won_by_card_points=True,
+    rating_score=122,
+):
+    return {
+        "position": {
+            "player_role": player_role,
+        },
+        "final_settlement_summary": {
+            "is_complete": is_complete,
+            "is_loss": is_loss,
+            "settlement_score": settlement_score,
+            "winner": winner,
+            "declarer_won_by_card_points": declarer_won_by_card_points,
+        },
+        "performance_rating_summary": {
+            "rating_score": rating_score,
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    ("player_role", "is_loss", "settlement_score", "expected_contribution"),
+    [
+        (
+            "declarer",
+            False,
+            72,
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 72,
+            },
+        ),
+        (
+            "declarer",
+            True,
+            -144,
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -144,
+            },
+        ),
+        (
+            "defender",
+            False,
+            72,
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_win",
+                "settlement_score": 72,
+            },
+        ),
+        (
+            "defender",
+            True,
+            -144,
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -144,
+            },
+        ),
+    ],
+)
+def test_build_list_game_contribution_from_analysis_result_maps_completed_games(
+    player_role,
+    is_loss,
+    settlement_score,
+    expected_contribution,
+) -> None:
+    result = build_contribution_analysis_result(
+        player_role=player_role,
+        is_loss=is_loss,
+        settlement_score=settlement_score,
+    )
+
+    assert build_list_game_contribution_from_analysis_result(result) == (
+        expected_contribution
+    )
+
+
+def test_build_list_game_contribution_from_analysis_result_uses_settlement_loss() -> None:
+    result = build_contribution_analysis_result(
+        is_loss=True,
+        settlement_score=-144,
+        winner="declarer",
+        declarer_won_by_card_points=True,
+    )
+
+    assert build_list_game_contribution_from_analysis_result(result) == {
+        "player_role": "declarer",
+        "game_outcome": "declarer_loss",
+        "settlement_score": -144,
+    }
+
+
+def test_analysis_result_contribution_handles_failed_announcement() -> None:
+    result = build_contribution_analysis_result(
+        is_loss=True,
+        settlement_score=-192,
+        winner="declarer",
+        declarer_won_by_card_points=True,
+    )
+
+    assert build_list_game_contribution_from_analysis_result(result) == {
+        "player_role": "declarer",
+        "game_outcome": "declarer_loss",
+        "settlement_score": -192,
+    }
+
+
+def test_build_list_game_contribution_from_analysis_result_ignores_rating_score() -> None:
+    result = build_contribution_analysis_result(
+        settlement_score=72,
+        rating_score=122,
+    )
+
+    contribution = build_list_game_contribution_from_analysis_result(result)
+
+    assert contribution is not None
+    assert contribution["settlement_score"] == 72
+
+
+def test_analysis_result_contribution_returns_none_when_incomplete() -> None:
+    result = build_contribution_analysis_result(
+        is_complete=False,
+        is_loss=None,
+        settlement_score=None,
+        winner=None,
+        declarer_won_by_card_points=None,
+    )
+
+    assert build_list_game_contribution_from_analysis_result(result) is None
+
+
+def test_analysis_result_contribution_returns_none_for_unknown_role() -> None:
+    result = build_contribution_analysis_result(player_role="unknown")
+
+    assert build_list_game_contribution_from_analysis_result(result) is None
+
+
+@pytest.mark.parametrize("analysis_result", [None, [], "result", True, 1])
+def test_build_list_game_contribution_from_analysis_result_rejects_non_object_result(
+    analysis_result,
+) -> None:
+    with pytest.raises(ValueError, match="analysis_result must be an object"):
+        build_list_game_contribution_from_analysis_result(analysis_result)
+
+
+@pytest.mark.parametrize(
+    "analysis_result",
+    [
+        {},
+        {"position": None},
+        {"position": "position"},
+        {"position": []},
+    ],
+)
+def test_build_list_game_contribution_from_analysis_result_rejects_invalid_position(
+    analysis_result,
+) -> None:
+    with pytest.raises(ValueError, match="analysis_result.position must be an object"):
+        build_list_game_contribution_from_analysis_result(analysis_result)
+
+
+def test_build_list_game_contribution_from_analysis_result_rejects_missing_role() -> None:
+    result = build_contribution_analysis_result()
+    del result["position"]["player_role"]
+
+    with pytest.raises(ValueError, match="position.player_role is required"):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+def test_build_list_game_contribution_from_analysis_result_rejects_invalid_role() -> None:
+    result = build_contribution_analysis_result(player_role="attacker")
+
+    with pytest.raises(
+        ValueError,
+        match="Unsupported analysis_result.position.player_role",
+    ):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+@pytest.mark.parametrize(
+    "final_settlement_summary",
+    [None, "summary", []],
+)
+def test_build_list_game_contribution_from_analysis_result_rejects_invalid_settlement(
+    final_settlement_summary,
+) -> None:
+    result = build_contribution_analysis_result()
+    result["final_settlement_summary"] = final_settlement_summary
+
+    with pytest.raises(
+        ValueError,
+        match="analysis_result.final_settlement_summary must be an object",
+    ):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+def test_analysis_result_contribution_rejects_missing_settlement() -> None:
+    result = build_contribution_analysis_result()
+    del result["final_settlement_summary"]
+
+    with pytest.raises(
+        ValueError,
+        match="analysis_result.final_settlement_summary must be an object",
+    ):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+def test_analysis_result_contribution_rejects_missing_is_complete() -> None:
+    result = build_contribution_analysis_result()
+    del result["final_settlement_summary"]["is_complete"]
+
+    with pytest.raises(ValueError, match="is_complete is required"):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+@pytest.mark.parametrize("is_complete", [None, "true", 1, 0])
+def test_build_list_game_contribution_from_analysis_result_rejects_invalid_is_complete(
+    is_complete,
+) -> None:
+    result = build_contribution_analysis_result(is_complete=is_complete)
+
+    with pytest.raises(ValueError, match="is_complete must be a boolean"):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+def test_analysis_result_contribution_rejects_missing_is_loss() -> None:
+    result = build_contribution_analysis_result()
+    del result["final_settlement_summary"]["is_loss"]
+
+    with pytest.raises(ValueError, match="is_loss is required"):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+@pytest.mark.parametrize("is_loss", [None, "false", 1, 0])
+def test_build_list_game_contribution_from_analysis_result_rejects_invalid_is_loss(
+    is_loss,
+) -> None:
+    result = build_contribution_analysis_result(is_loss=is_loss)
+
+    with pytest.raises(ValueError, match="is_loss must be a boolean"):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+def test_build_list_game_contribution_from_analysis_result_rejects_missing_score() -> None:
+    result = build_contribution_analysis_result()
+    del result["final_settlement_summary"]["settlement_score"]
+
+    with pytest.raises(ValueError, match="settlement_score is required"):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+@pytest.mark.parametrize("settlement_score", [None, "72", 72.0, True, False])
+def test_build_list_game_contribution_from_analysis_result_rejects_invalid_score(
+    settlement_score,
+) -> None:
+    result = build_contribution_analysis_result(settlement_score=settlement_score)
+
+    with pytest.raises(ValueError, match="settlement_score must be an integer"):
+        build_list_game_contribution_from_analysis_result(result)
+
+
+@pytest.mark.parametrize(
+    ("is_loss", "settlement_score", "expected_error"),
+    [
+        (False, 0, "positive settlement_score"),
+        (False, -72, "positive settlement_score"),
+        (True, 0, "negative settlement_score"),
+        (True, 72, "negative settlement_score"),
+    ],
+)
+def test_build_list_game_contribution_from_analysis_result_rejects_inconsistent_signs(
+    is_loss,
+    settlement_score,
+    expected_error,
+) -> None:
+    result = build_contribution_analysis_result(
+        is_loss=is_loss,
+        settlement_score=settlement_score,
+    )
+
+    with pytest.raises(ValueError, match=expected_error):
+        build_list_game_contribution_from_analysis_result(result)
 
 
 def test_get_game_outcome_for_rating_returns_incomplete() -> None:

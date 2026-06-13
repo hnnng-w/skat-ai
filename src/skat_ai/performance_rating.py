@@ -61,6 +61,97 @@ def calculate_isko_list_performance_points(
     }
 
 
+def build_list_game_contribution_from_analysis_result(
+    analysis_result: dict[str, Any],
+) -> dict[str, Any] | None:
+    """
+    Builds one normalized list-game contribution for the local player.
+
+    The analysis result is expected to represent the selected player as local
+    "me". The returned contribution is still declarer-centric because list
+    aggregation needs the declarer's settlement score and outcome.
+    """
+    if not isinstance(analysis_result, dict):
+        raise ValueError("analysis_result must be an object.")
+
+    position = analysis_result.get("position")
+    if not isinstance(position, dict):
+        raise ValueError("analysis_result.position must be an object.")
+
+    if "player_role" not in position:
+        raise ValueError("analysis_result.position.player_role is required.")
+
+    player_role = position["player_role"]
+    if player_role not in ["declarer", "defender", "unknown"]:
+        raise ValueError(f"Unsupported analysis_result.position.player_role: {player_role}.")
+
+    final_settlement_summary = analysis_result.get("final_settlement_summary")
+    if not isinstance(final_settlement_summary, dict):
+        raise ValueError("analysis_result.final_settlement_summary must be an object.")
+
+    if "is_complete" not in final_settlement_summary:
+        raise ValueError(
+            "analysis_result.final_settlement_summary.is_complete is required."
+        )
+
+    is_complete = final_settlement_summary["is_complete"]
+    if not isinstance(is_complete, bool):
+        raise ValueError(
+            "analysis_result.final_settlement_summary.is_complete must be a boolean."
+        )
+
+    if not is_complete:
+        return None
+
+    if "is_loss" not in final_settlement_summary:
+        raise ValueError(
+            "analysis_result.final_settlement_summary.is_loss is required for "
+            "completed settlements."
+        )
+
+    is_loss = final_settlement_summary["is_loss"]
+    if not isinstance(is_loss, bool):
+        raise ValueError(
+            "analysis_result.final_settlement_summary.is_loss must be a boolean "
+            "for completed settlements."
+        )
+
+    if "settlement_score" not in final_settlement_summary:
+        raise ValueError(
+            "analysis_result.final_settlement_summary.settlement_score is required "
+            "for completed settlements."
+        )
+
+    settlement_score = final_settlement_summary["settlement_score"]
+    if isinstance(settlement_score, bool) or not isinstance(settlement_score, int):
+        raise ValueError(
+            "analysis_result.final_settlement_summary.settlement_score must be an "
+            "integer for completed settlements."
+        )
+
+    if is_loss:
+        game_outcome = "declarer_loss"
+        if settlement_score >= 0:
+            raise ValueError(
+                "declarer_loss contribution requires a negative settlement_score."
+            )
+    else:
+        game_outcome = "declarer_win"
+        if settlement_score <= 0:
+            raise ValueError(
+                "declarer_win contribution requires a positive settlement_score."
+            )
+
+    if player_role == "unknown":
+        return None
+
+    return {
+        "player_role": player_role,
+        "game_outcome": game_outcome,
+        "settlement_score": settlement_score,
+    }
+
+
 def calculate_isko_list_performance_points_from_game_contributions(
     game_contributions: list[dict[str, Any]],
     table_size: int = ISKO_FIXED_TABLE_PLAYER_COUNT,
