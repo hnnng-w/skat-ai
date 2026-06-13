@@ -3,6 +3,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_left_opponent_policy_settings_from_input,
+    get_list_performance_input_from_input,
     get_opponent_policy_settings_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
@@ -281,6 +282,25 @@ def test_get_performance_rating_system_from_input_reads_value() -> None:
             "performance_rating_system": "isko_list",
         }
     ) == "isko_list"
+
+
+def test_get_list_performance_input_from_input_defaults_to_none() -> None:
+    assert get_list_performance_input_from_input({}) is None
+
+
+def test_get_list_performance_input_from_input_reads_value() -> None:
+    list_performance_input = {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+    }
+
+    assert get_list_performance_input_from_input(
+        {
+            "list_performance_input": list_performance_input,
+        }
+    ) == list_performance_input
 
 def test_get_left_opponent_policy_settings_defaults_to_global_values() -> None:
     assert get_left_opponent_policy_settings_from_input(

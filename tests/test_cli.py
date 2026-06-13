@@ -202,6 +202,18 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "information_policy_summary",
         "post_game_review_summary",
     }
+    assert "list_performance_summary" not in result
+
+
+def test_build_analysis_result_omits_list_performance_summary_when_input_absent() -> None:
+    result = build_analysis_result(
+        file_path="examples/grand_leading.json",
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert "list_performance_summary" not in result
 
 
 def test_build_analysis_result_contains_recommendation() -> None:
@@ -277,6 +289,63 @@ def test_build_analysis_result_includes_performance_rating_summary() -> None:
             "final_settlement_summary remains the source for single-game settlement.",
         ],
     }
+
+
+def test_build_analysis_result_includes_list_performance_summary(tmp_path) -> None:
+    input_path = tmp_path / "list_performance_input.json"
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "left",
+        "hand": ["SA", "S10", "S9", "H10", "D7"],
+        "current_trick": ["S7"],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 5,
+        "right_hand_size": 5,
+        "sample_count": 1000,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "performance_rating_system": "isko_list",
+        "list_performance_input": {
+            "player_game_points": 120,
+            "own_games_won": 3,
+            "own_games_lost": 1,
+            "other_players_lost_games": 2,
+        },
+    }
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "aggregated_list_or_series_totals",
+        "table_size": 3,
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+        "own_game_bonus_points": 100,
+        "opponent_loss_bonus_points": 80,
+        "total_performance_points": 300,
+    }
+    assert result["performance_rating_summary"]["basis"] == (
+        "individual_game_settlement"
+    )
+    assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
+    assert result["performance_rating_summary"]["settlement_score"] is None
+    assert result["performance_rating_summary"]["rating_score"] is None
 
 
 def test_run_json_position_analysis_supports_multi_step() -> None:

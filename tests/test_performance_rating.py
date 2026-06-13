@@ -1,4 +1,5 @@
 from skat_ai.performance_rating import (
+    build_list_performance_summary,
     build_performance_rating_summary,
     calculate_isko_counterparty_rating_points,
     calculate_isko_declarer_rating_points,
@@ -364,6 +365,48 @@ def test_calculate_isko_list_performance_points_for_mixed_positive_totals() -> N
         "total_performance_points": 300,
         "table_size": 3,
     }
+
+
+def test_build_list_performance_summary_for_aggregated_totals() -> None:
+    summary = build_list_performance_summary(
+        list_performance_input={
+            "player_game_points": 120,
+            "own_games_won": 3,
+            "own_games_lost": 1,
+            "other_players_lost_games": 2,
+        },
+        rating_system="isko_list",
+    )
+
+    assert summary == {
+        "rating_system": "isko_list",
+        "basis": "aggregated_list_or_series_totals",
+        "table_size": 3,
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+        "own_game_bonus_points": 100,
+        "opponent_loss_bonus_points": 80,
+        "total_performance_points": 300,
+    }
+
+
+def test_build_list_performance_summary_rejects_missing_rating_system() -> None:
+    try:
+        build_list_performance_summary(
+            list_performance_input={
+                "player_game_points": 120,
+                "own_games_won": 3,
+                "own_games_lost": 1,
+                "other_players_lost_games": 2,
+            },
+            rating_system=None,
+        )
+    except ValueError as error:
+        assert "requires performance_rating_system to be isko_list" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
 
 
 def test_calculate_isko_list_performance_points_allows_negative_game_points() -> None:

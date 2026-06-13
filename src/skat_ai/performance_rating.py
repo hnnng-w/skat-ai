@@ -61,6 +61,50 @@ def calculate_isko_list_performance_points(
     }
 
 
+def build_list_performance_summary(
+    list_performance_input: dict[str, int],
+    rating_system: str | None,
+) -> dict[str, Any]:
+    """
+    Builds a list/series performance summary from already aggregated totals.
+
+    This does not aggregate raw games and stays independent from single-game
+    settlement.
+    """
+    validate_performance_rating_system(rating_system)
+
+    if rating_system != "isko_list":
+        raise ValueError(
+            "list_performance_input requires performance_rating_system to be isko_list."
+        )
+
+    performance_points = calculate_isko_list_performance_points(
+        player_game_points=list_performance_input["player_game_points"],
+        own_games_won=list_performance_input["own_games_won"],
+        own_games_lost=list_performance_input["own_games_lost"],
+        other_players_lost_games=list_performance_input["other_players_lost_games"],
+    )
+
+    return {
+        "rating_system": rating_system,
+        "basis": "aggregated_list_or_series_totals",
+        "table_size": performance_points["table_size"],
+        "player_game_points": performance_points["player_game_points"],
+        "own_games_won": list_performance_input["own_games_won"],
+        "own_games_lost": list_performance_input["own_games_lost"],
+        "other_players_lost_games": list_performance_input[
+            "other_players_lost_games"
+        ],
+        "own_game_bonus_points": performance_points["own_game_bonus_points"],
+        "opponent_loss_bonus_points": performance_points[
+            "opponent_loss_bonus_points"
+        ],
+        "total_performance_points": performance_points[
+            "total_performance_points"
+        ],
+    }
+
+
 def get_game_outcome_for_rating(
     final_settlement_summary: dict[str, Any],
 ) -> str:

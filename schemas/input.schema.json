@@ -161,6 +161,9 @@
     "performance_rating_system": {
       "type": ["string", "null"],
       "enum": ["placeholder", "isko_list", null]
+    },
+    "list_performance_input": {
+      "$ref": "#/$defs/list_performance_input"
     }
   },
   "$defs": {
@@ -199,6 +202,30 @@
     "winner_role": {
       "type": "string",
       "enum": ["declarer", "defenders", "unknown"]
+    },
+    "list_performance_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "player_game_points",
+        "own_games_won",
+        "own_games_lost",
+        "other_players_lost_games"
+      ],
+      "properties": {
+        "player_game_points": {
+          "type": "integer"
+        },
+        "own_games_won": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "own_games_lost": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "other_players_lost_games": {
+          "$ref": "#/$defs/non_negative_integer"
+        }
+      }
     },
     "completed_trick": {
       "type": "object",

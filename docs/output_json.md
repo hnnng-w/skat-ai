@@ -335,6 +335,43 @@ Meaning:
 | `implemented_scope`          | Scope currently calculated.                  |
 | `unsupported_scope`          | Scope still missing.                         |
 
+## List performance summary
+
+`list_performance_summary` is emitted only when the input contains `list_performance_input`.
+
+It is separate from both `performance_rating_summary` and `final_settlement_summary`.
+
+Example:
+
+```json
+"list_performance_summary": {
+  "rating_system": "isko_list",
+  "basis": "aggregated_list_or_series_totals",
+  "table_size": 3,
+  "player_game_points": 120,
+  "own_games_won": 3,
+  "own_games_lost": 1,
+  "other_players_lost_games": 2,
+  "own_game_bonus_points": 100,
+  "opponent_loss_bonus_points": 80,
+  "total_performance_points": 300
+}
+```
+
+Meaning:
+
+| Field                        | Meaning                                                       |
+| ---------------------------- | ------------------------------------------------------------- |
+| `basis`                      | Indicates that the input was already aggregated.              |
+| `table_size`                 | Fixed three-player table size used for ISkO-style points.     |
+| `player_game_points`         | Already aggregated game points for the rated player.          |
+| `own_games_won`              | Count of the rated player's won own games.                    |
+| `own_games_lost`             | Count of the rated player's lost own games.                   |
+| `other_players_lost_games`   | Count of lost games by the other two players.                 |
+| `own_game_bonus_points`      | +50 per own game won and -50 per own game lost.               |
+| `opponent_loss_bonus_points` | +40 per lost game by another player at the three-player table.|
+| `total_performance_points`   | Sum of game points, own-game bonus points, and opponent-loss bonus points. |
+
 ## Analysis report
 
 `analysis_report` contains one entry per legal card.

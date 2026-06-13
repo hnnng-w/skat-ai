@@ -306,11 +306,44 @@ Supported values:
 | Value         | Meaning                                                                               |
 | ------------- | ------------------------------------------------------------------------------------- |
 | `placeholder` | Generic placeholder rating system.                                                    |
-| `isko_list`   | Partially implemented ISkO-style single-game rating for the fixed three-player table. |
+| `isko_list`   | Partially implemented ISkO-style rating for the fixed three-player table.             |
 
 If omitted, `performance_rating_summary.rating_system` is `null`.
 
 The project assumes a fixed three-player table. No table-size input field is required.
+
+Input files may also include already aggregated list or series totals:
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_performance_input": {
+    "player_game_points": 120,
+    "own_games_won": 3,
+    "own_games_lost": 1,
+    "other_players_lost_games": 2
+  }
+}
+```
+
+Fields:
+
+| Field                       | Meaning                                                               |
+| --------------------------- | --------------------------------------------------------------------- |
+| `player_game_points`        | Already aggregated game points for the rated player. May be negative. |
+| `own_games_won`             | Count of the rated player's won own games.                            |
+| `own_games_lost`            | Count of the rated player's lost own games.                           |
+| `other_players_lost_games`  | Count of lost games by the other two players.                         |
+
+Validation rules:
+
+* `list_performance_input` is optional.
+* If provided, `performance_rating_system` must be `isko_list`.
+* All four fields are required and must be integers.
+* `player_game_points` may be negative, zero, or positive.
+* The three game counters must be non-negative.
+* `table_size` is fixed at `3` and is not accepted as an input field.
+* Raw individual games are not aggregated in this input mode.
 
 ## Opponent policy fields
 
@@ -413,6 +446,7 @@ Input validation rejects:
 * inconsistent `game_end_reason` and remaining card points
 * invalid `bid_value`
 * unknown `performance_rating_system`
+* invalid `list_performance_input`
 * invalid opponent policy values
 * invalid live-vs-post-game information combinations
 * known skat cards in live decision mode

@@ -21,6 +21,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_left_opponent_policy_settings_from_input,
+    get_list_performance_input_from_input,
     get_opponent_policy_settings_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
@@ -37,7 +38,10 @@ from skat_ai.opponent_profile_policy import (
 )
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
-from skat_ai.performance_rating import build_performance_rating_summary
+from skat_ai.performance_rating import (
+    build_list_performance_summary,
+    build_performance_rating_summary,
+)
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
@@ -152,6 +156,7 @@ def build_analysis_result(
     actual_card_played = get_actual_card_played_from_input(data)
     game_declaration = get_game_declaration_from_input(data)
     performance_rating_system = get_performance_rating_system_from_input(data)
+    list_performance_input = get_list_performance_input_from_input(data)
     game_value_summary = build_game_value_summary(game_declaration)
     overbid_summary = build_overbid_summary(
         game_value_summary=game_value_summary,
@@ -234,13 +239,19 @@ def build_analysis_result(
         final_settlement_summary=final_settlement_summary,
         rating_system=performance_rating_system,
     )
+    list_performance_summary = None
+    if list_performance_input is not None:
+        list_performance_summary = build_list_performance_summary(
+            list_performance_input=list_performance_input,
+            rating_system=performance_rating_system,
+        )
     information_policy_summary = build_information_policy_summary(
         analysis_mode=analysis_metadata.strategic_metadata.analysis_mode,
         skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
         game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
     )
 
-    return {
+    result = {
         "input_file": str(file_path),
         "position": {
             "game_type": state.game_type,
@@ -280,6 +291,11 @@ def build_analysis_result(
             "reason": reason,
         },
     }
+
+    if list_performance_summary is not None:
+        result["list_performance_summary"] = list_performance_summary
+
+    return result
 
 
 def format_decision_factors(summary: dict[str, object]) -> str:

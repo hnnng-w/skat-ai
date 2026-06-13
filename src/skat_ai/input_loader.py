@@ -171,6 +171,15 @@ def get_performance_rating_system_from_input(
     return data.get("performance_rating_system")
 
 
+def get_list_performance_input_from_input(
+    data: dict[str, Any],
+) -> dict[str, int] | None:
+    """
+    Extracts optional aggregated list/series performance totals from input data.
+    """
+    return data.get("list_performance_input")
+
+
 def get_actual_card_played_from_input(data: dict[str, Any]) -> str | None:
     """Extracts the optional actual card played from parsed input data."""
     return data.get("actual_card_played")

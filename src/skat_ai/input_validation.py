@@ -21,6 +21,17 @@ VALID_TRICK_LEADERS = ["me", "left", "right", "unknown"]
 VALID_NEXT_PLAYERS = ["me", "left", "right", "unknown"]
 VALID_COMPLETED_TRICK_WINNER_ROLES = ["declarer", "defenders"]
 VALID_TRICK_PLAYERS = ["me", "left", "right"]
+LIST_PERFORMANCE_REQUIRED_FIELDS = [
+    "player_game_points",
+    "own_games_won",
+    "own_games_lost",
+    "other_players_lost_games",
+]
+LIST_PERFORMANCE_COUNTER_FIELDS = [
+    "own_games_won",
+    "own_games_lost",
+    "other_players_lost_games",
+]
 
 
 def validate_required_keys(data: dict[str, Any]) -> None:
@@ -254,6 +265,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
+    validate_optional_list_performance_input(data)
     validate_completed_trick_sequence(
         completed_tricks=data.get("completed_tricks", []),
         current_trick=data.get("current_trick", []),
@@ -283,6 +295,55 @@ def validate_non_negative_integer(value: Any, field_name: str) -> None:
     """
     if not isinstance(value, int) or value < 0:
         raise ValueError(f"{field_name} must be a non-negative integer.")
+
+
+def validate_strict_integer(value: Any, field_name: str) -> None:
+    """
+    Validates that a value is an integer and not a boolean.
+    """
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{field_name} must be an integer.")
+
+
+def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
+    """
+    Validates optional already aggregated list/series performance input.
+    """
+    list_performance_input = data.get("list_performance_input")
+
+    if list_performance_input is None:
+        return
+
+    if not isinstance(list_performance_input, dict):
+        raise ValueError("list_performance_input must be an object.")
+
+    if data.get("performance_rating_system") != "isko_list":
+        raise ValueError(
+            "list_performance_input requires performance_rating_system to be isko_list."
+        )
+
+    missing_fields = [
+        field_name
+        for field_name in LIST_PERFORMANCE_REQUIRED_FIELDS
+        if field_name not in list_performance_input
+    ]
+    if missing_fields:
+        raise ValueError(
+            "list_performance_input is missing required keys: "
+            f"{missing_fields}"
+        )
+
+    for field_name in LIST_PERFORMANCE_REQUIRED_FIELDS:
+        validate_strict_integer(
+            list_performance_input[field_name],
+            f"list_performance_input.{field_name}",
+        )
+
+    for field_name in LIST_PERFORMANCE_COUNTER_FIELDS:
+        if list_performance_input[field_name] < 0:
+            raise ValueError(
+                f"list_performance_input.{field_name} must be non-negative."
+            )
 
 
 def get_cards_from_completed_tricks_input(completed_tricks: list[dict[str, Any]]) -> list[str]:

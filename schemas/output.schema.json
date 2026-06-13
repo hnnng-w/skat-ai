@@ -94,6 +94,9 @@
     "performance_rating_summary": {
       "$ref": "#/$defs/performance_rating_summary"
     },
+    "list_performance_summary": {
+      "$ref": "#/$defs/list_performance_summary"
+    },
     "recommendation": {
       "$ref": "#/$defs/recommendation"
     },
@@ -519,6 +522,60 @@
         },
         "unsupported_reason": {
           "type": "string"
+        }
+      }
+    },
+    "list_performance_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rating_system",
+        "basis",
+        "table_size",
+        "player_game_points",
+        "own_games_won",
+        "own_games_lost",
+        "other_players_lost_games",
+        "own_game_bonus_points",
+        "opponent_loss_bonus_points",
+        "total_performance_points"
+      ],
+      "properties": {
+        "rating_system": {
+          "type": "string",
+          "enum": ["isko_list"]
+        },
+        "basis": {
+          "type": "string",
+          "enum": ["aggregated_list_or_series_totals"]
+        },
+        "table_size": {
+          "type": "integer",
+          "const": 3
+        },
+        "player_game_points": {
+          "type": "integer"
+        },
+        "own_games_won": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "own_games_lost": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "other_players_lost_games": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "own_game_bonus_points": {
+          "type": "integer"
+        },
+        "opponent_loss_bonus_points": {
+          "type": "integer"
+        },
+        "total_performance_points": {
+          "type": "integer"
         }
       }
     },

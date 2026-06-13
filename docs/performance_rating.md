@@ -35,7 +35,7 @@ Supported values:
 | Value         | Meaning                                                                               |
 | ------------- | ------------------------------------------------------------------------------------- |
 | `placeholder` | Generic placeholder rating system.                                                    |
-| `isko_list`   | Partially implemented ISkO-style single-game rating for the fixed three-player table. |
+| `isko_list`   | Partially implemented ISkO-style rating for the fixed three-player table.             |
 
 If omitted, `performance_rating_summary.rating_system` is `null`.
 
@@ -66,7 +66,8 @@ Current assumptions:
 * The table is always a fixed three-player table.
 * `rating_system` must be set to `isko_list`.
 * The implementation currently covers the declarer's single-game rating perspective.
-* Full list, series, and tournament aggregation is not implemented yet.
+* Already aggregated list or series totals can be supplied directly.
+* Raw game aggregation, player-by-player list models, and tournament aggregation are not implemented yet.
 
 Implemented rating points:
 
@@ -106,6 +107,55 @@ For the fixed three-player table:
 | Declarer loses |                         40 |
 
 `defender_rating_points` is currently an alias for `counterparty_rating_points`.
+
+## Aggregated list or series totals
+
+Input files may optionally include already aggregated list or series totals:
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_performance_input": {
+    "player_game_points": 120,
+    "own_games_won": 3,
+    "own_games_lost": 1,
+    "other_players_lost_games": 2
+  }
+}
+```
+
+`list_performance_input` is optional. If it is absent, no `list_performance_summary` key is emitted.
+
+When `list_performance_input` is present, `performance_rating_system` must be `isko_list`.
+
+The input totals are already aggregated. The engine does not aggregate raw individual games in this mode.
+
+For a fixed three-player table, the summary uses:
+
+```text
+own_game_bonus_points = own_games_won * 50 + own_games_lost * -50
+opponent_loss_bonus_points = other_players_lost_games * 40
+total_performance_points = player_game_points + own_game_bonus_points + opponent_loss_bonus_points
+```
+
+Example output:
+
+```json
+"list_performance_summary": {
+  "rating_system": "isko_list",
+  "basis": "aggregated_list_or_series_totals",
+  "table_size": 3,
+  "player_game_points": 120,
+  "own_games_won": 3,
+  "own_games_lost": 1,
+  "other_players_lost_games": 2,
+  "own_game_bonus_points": 100,
+  "opponent_loss_bonus_points": 80,
+  "total_performance_points": 300
+}
+```
+
+`list_performance_summary` is independent from `final_settlement_summary` and does not change `performance_rating_summary`.
 
 ## Implemented and unsupported scope
 
@@ -191,5 +241,6 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * The current ISkO rating implementation covers single-game declarer perspective only.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
-* Full list, series, and tournament aggregation is not implemented yet.
+* Already aggregated list or series totals can be calculated when supplied via `list_performance_input`.
+* Raw game aggregation, player-by-player list models, multi-list rollups, and tournament aggregation are not implemented yet.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.

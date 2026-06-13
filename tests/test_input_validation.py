@@ -846,6 +846,130 @@ def test_validate_position_input_rejects_unknown_performance_rating_system() -> 
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
+
+def test_validate_position_input_accepts_list_performance_input() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_performance_input"] = {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+    }
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_negative_list_player_game_points() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_performance_input"] = {
+        "player_game_points": -80,
+        "own_games_won": 1,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+    }
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_list_performance_without_rating_system() -> None:
+    data = build_valid_input()
+    data["list_performance_input"] = {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="list_performance_input requires performance_rating_system",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_list_performance_for_placeholder() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "placeholder"
+    data["list_performance_input"] = {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="list_performance_input requires performance_rating_system",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_missing_list_performance_fields() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_performance_input"] = {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="list_performance_input is missing required keys",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_non_integer_list_performance_values() -> None:
+    cases = [
+        ("player_game_points", "120"),
+        ("own_games_won", 1.5),
+        ("own_games_lost", True),
+        ("other_players_lost_games", False),
+    ]
+
+    for field_name, value in cases:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_performance_input"] = {
+            "player_game_points": 120,
+            "own_games_won": 3,
+            "own_games_lost": 1,
+            "other_players_lost_games": 2,
+        }
+        data["list_performance_input"][field_name] = value
+
+        with pytest.raises(
+            ValueError,
+            match=f"list_performance_input.{field_name} must be an integer",
+        ):
+            validate_position_input(data)
+
+
+def test_validate_position_input_rejects_negative_list_game_counters() -> None:
+    for field_name in [
+        "own_games_won",
+        "own_games_lost",
+        "other_players_lost_games",
+    ]:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_performance_input"] = {
+            "player_game_points": 120,
+            "own_games_won": 3,
+            "own_games_lost": 1,
+            "other_players_lost_games": 2,
+        }
+        data["list_performance_input"][field_name] = -1
+
+        with pytest.raises(
+            ValueError,
+            match=f"list_performance_input.{field_name} must be non-negative",
+        ):
+            validate_position_input(data)
+
 def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
     data = {
         "game_type": "grand",
