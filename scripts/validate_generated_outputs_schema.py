@@ -16,6 +16,7 @@ EXAMPLE_INPUTS = [
     PROJECT_ROOT / "examples" / "grand_second_position.json",
     PROJECT_ROOT / "examples" / "grand_complete_declarer_win.json",
     PROJECT_ROOT / "examples" / "grand_complete_declarer_loss.json",
+    PROJECT_ROOT / "examples" / "grand_list_performance_input.json",
     PROJECT_ROOT / "examples" / "grand_overbid_declarer_card_points_win.json",
 ]
 

@@ -269,6 +269,28 @@ def test_complete_declarer_loss_example_settlement_invariants() -> None:
         "full_list_series_tournament_rating"
     )
 
+
+def test_list_performance_input_example_adds_aggregated_summary() -> None:
+    baseline_result = build_example_analysis_result("grand_complete_declarer_win.json")
+    result = build_example_analysis_result("grand_list_performance_input.json")
+
+    assert result["performance_rating_summary"] == baseline_result[
+        "performance_rating_summary"
+    ]
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "aggregated_list_or_series_totals",
+        "table_size": 3,
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+        "own_game_bonus_points": 100,
+        "opponent_loss_bonus_points": 80,
+        "total_performance_points": 300,
+    }
+
+
 def test_midgame_declarer_ahead_example_score_invariants() -> None:
     result = build_example_analysis_result("grand_midgame_declarer_ahead.json")
 

@@ -97,6 +97,7 @@ Post-game review examples may include known skat cards and completed game inform
 | `spades_post_game_actual_card_played.json` | Post-game review with `actual_card_played`, decision quality, decision factors, explanation, and recommendation gap details. |
 | `grand_complete_declarer_win.json`         | Complete game where declarer wins. Also demonstrates `bid_value` and partial ISkO performance-rating metadata.               |
 | `grand_complete_declarer_loss.json`        | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points.                           |
+| `grand_list_performance_input.json`        | Complete game with partial ISkO single-game rating plus already aggregated list performance input and output.                 |
 
 Run a post-game review example with actual-card comparison:
 
@@ -157,6 +158,28 @@ because ended game reasons are post-game review information.
 | File                                          | Purpose                                                                        |
 | --------------------------------------------- | ------------------------------------------------------------------------------ |
 | `grand_overbid_declarer_card_points_win.json` | Declarer wins by card points but loses settlement because the game is overbid. |
+
+## Performance rating examples
+
+`grand_list_performance_input.json` demonstrates `performance_rating_system: "isko_list"` with optional already aggregated list or series totals:
+
+```json
+"list_performance_input": {
+  "player_game_points": 120,
+  "own_games_won": 3,
+  "own_games_lost": 1,
+  "other_players_lost_games": 2
+}
+```
+
+Expected list performance calculation for the fixed three-player table:
+
+* `own_game_bonus_points`: `3 * 50 + 1 * -50 = 100`
+* `opponent_loss_bonus_points`: `2 * 40 = 80`
+* `total_performance_points`: `120 + 100 + 80 = 300`
+* `table_size`: `3`
+
+The example still emits the normal single-game `performance_rating_summary`; `list_performance_summary` is additional and does not change it.
 
 ## Matador inference examples
 
@@ -306,6 +329,7 @@ Generated outputs may include:
 * `adjusted_game_result_summary`
 * `final_settlement_summary`
 * `performance_rating_summary`
+* `list_performance_summary`, if `list_performance_input` is provided
 * `recommendation`
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested
