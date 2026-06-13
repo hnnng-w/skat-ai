@@ -98,6 +98,7 @@ Post-game review examples may include known skat cards and completed game inform
 | `grand_complete_declarer_win.json`         | Complete game where declarer wins. Also demonstrates `bid_value` and partial ISkO performance-rating metadata.               |
 | `grand_complete_declarer_loss.json`        | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points.                           |
 | `grand_list_performance_input.json`        | Complete game with partial ISkO single-game rating plus already aggregated list performance input and output.                 |
+| `grand_list_analysis_results.json`         | Complete game with partial ISkO single-game rating plus list performance aggregated from local analysis-result objects.       |
 
 Run a post-game review example with actual-card comparison:
 
@@ -180,6 +181,36 @@ Expected list performance calculation for the fixed three-player table:
 * `table_size`: `3`
 
 The example still emits the normal single-game `performance_rating_summary`; `list_performance_summary` is additional and does not change it.
+
+`grand_list_analysis_results.json` demonstrates `performance_rating_system: "isko_list"` with local analysis-result objects for one consistently represented local player:
+
+```json
+"list_analysis_results": [
+  {
+    "position": {
+      "player_role": "declarer"
+    },
+    "final_settlement_summary": {
+      "is_complete": true,
+      "is_loss": false,
+      "settlement_score": 96
+    }
+  }
+]
+```
+
+The example file includes one local declarer win with score `96`, one local declarer loss with score `-72`, and one local defender game where the declarer loses with score `-120`.
+
+Expected local analysis-result list calculation for the example:
+
+* `player_game_points`: `96 + (-72) = 24`
+* `own_game_bonus_points`: `1 * 50 + 1 * (-50) = 0`
+* `opponent_loss_bonus_points`: `1 * 40 = 40`
+* `total_performance_points`: `24 + 0 + 40 = 64`
+* `basis`: `local_analysis_results`
+* `table_size`: `3`
+
+The top-level completed game still emits its normal single-game `performance_rating_summary`; the local analysis-result aggregation only adds `list_performance_summary`.
 
 ## Matador inference examples
 
@@ -329,7 +360,7 @@ Generated outputs may include:
 * `adjusted_game_result_summary`
 * `final_settlement_summary`
 * `performance_rating_summary`
-* `list_performance_summary`, if `list_performance_input` is provided
+* `list_performance_summary`, if a list performance input mode is provided
 * `recommendation`
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested
