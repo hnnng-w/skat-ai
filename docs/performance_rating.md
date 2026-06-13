@@ -151,11 +151,44 @@ As an alternative, input files may include normalized per-game contributions:
 }
 ```
 
-`list_performance_input` and `list_game_contributions` are alternative input
-modes. Supplying both is rejected.
+As a third alternative, input files may include local analysis results:
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_analysis_results": [
+    {
+      "position": {
+        "player_role": "declarer"
+      },
+      "final_settlement_summary": {
+        "is_complete": true,
+        "is_loss": false,
+        "settlement_score": 96
+      }
+    }
+  ]
+}
+```
+
+Each `list_analysis_results` entry is assumed to represent the same rated
+player as local `me`. The minimal required subset is `position.player_role`,
+`final_settlement_summary.is_complete`, and, for complete settlements,
+`final_settlement_summary.is_loss` plus `final_settlement_summary.settlement_score`.
+Complete generated analysis-result objects are accepted as supersets; the input
+schema intentionally does not embed the full output schema.
+
+`list_performance_input`, `list_game_contributions`, and
+`list_analysis_results` are alternative input modes. Supplying more than one is
+rejected.
 
 An empty `list_game_contributions` array is valid and emits a zeroed
 `list_performance_summary`.
+
+An empty `list_analysis_results` array is also valid and emits a zeroed
+`list_performance_summary`. Incomplete analysis results and results with
+`position.player_role: "unknown"` are skipped. Malformed analysis results are
+rejected instead of skipped.
 
 Each normalized contribution contains the rated player's role, the declarer's
 game outcome, and the declarer's settlement score before performance points.
@@ -187,6 +220,9 @@ Example output:
 
 Contribution-derived summaries use the same field set with
 `"basis": "normalized_game_contributions"`.
+
+Analysis-result-derived summaries use the same field set with
+`"basis": "local_analysis_results"`.
 
 `list_performance_summary` is independent from `final_settlement_summary` and does not change `performance_rating_summary`.
 

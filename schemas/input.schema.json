@@ -24,7 +24,17 @@
     "use_basic_opponent_strategy"
   ],
   "not": {
-    "required": ["list_performance_input", "list_game_contributions"]
+    "anyOf": [
+      {
+        "required": ["list_performance_input", "list_game_contributions"]
+      },
+      {
+        "required": ["list_performance_input", "list_analysis_results"]
+      },
+      {
+        "required": ["list_game_contributions", "list_analysis_results"]
+      }
+    ]
   },
   "allOf": [
     {
@@ -43,6 +53,19 @@
     {
       "if": {
         "required": ["list_game_contributions"]
+      },
+      "then": {
+        "required": ["performance_rating_system"],
+        "properties": {
+          "performance_rating_system": {
+            "const": "isko_list"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["list_analysis_results"]
       },
       "then": {
         "required": ["performance_rating_system"],
@@ -198,6 +221,9 @@
     },
     "list_game_contributions": {
       "$ref": "#/$defs/list_game_contributions"
+    },
+    "list_analysis_results": {
+      "$ref": "#/$defs/list_analysis_results"
     }
   },
   "$defs": {
@@ -308,6 +334,109 @@
             "properties": {
               "game_outcome": {
                 "const": "declarer_loss"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "settlement_score": {
+                "maximum": -1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "list_analysis_results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/list_analysis_result"
+      }
+    },
+    "list_analysis_result": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["position", "final_settlement_summary"],
+      "properties": {
+        "position": {
+          "$ref": "#/$defs/list_analysis_result_position"
+        },
+        "final_settlement_summary": {
+          "$ref": "#/$defs/list_analysis_result_final_settlement_summary"
+        }
+      }
+    },
+    "list_analysis_result_position": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["player_role"],
+      "properties": {
+        "player_role": {
+          "type": "string",
+          "enum": ["declarer", "defender", "unknown"]
+        }
+      }
+    },
+    "list_analysis_result_final_settlement_summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["is_complete"],
+      "properties": {
+        "is_complete": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["is_complete"],
+            "properties": {
+              "is_complete": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": ["is_loss", "settlement_score"],
+            "properties": {
+              "is_loss": {
+                "type": "boolean"
+              },
+              "settlement_score": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["is_complete", "is_loss"],
+            "properties": {
+              "is_complete": {
+                "const": true
+              },
+              "is_loss": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "settlement_score": {
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["is_complete", "is_loss"],
+            "properties": {
+              "is_complete": {
+                "const": true
+              },
+              "is_loss": {
+                "const": true
               }
             }
           },

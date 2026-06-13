@@ -386,8 +386,66 @@ Validation rules:
 * `settlement_score` must be an integer.
 * `declarer_win` requires a positive `settlement_score`.
 * `declarer_loss` requires a negative `settlement_score`.
-* `list_performance_input` and `list_game_contributions` are alternative input modes and cannot both be supplied.
+* `list_performance_input`, `list_game_contributions`, and `list_analysis_results` are alternative input modes and cannot be combined.
 * `table_size` is fixed at `3` and is not accepted as an input field.
+
+As a third alternative, input files may include already-built local analysis
+results. Each entry is assumed to represent the same rated player as local
+`me`; the project does not validate stable player identities across entries.
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_analysis_results": [
+    {
+      "position": {
+        "player_role": "declarer"
+      },
+      "final_settlement_summary": {
+        "is_complete": true,
+        "is_loss": false,
+        "settlement_score": 96
+      }
+    },
+    {
+      "position": {
+        "player_role": "defender"
+      },
+      "final_settlement_summary": {
+        "is_complete": true,
+        "is_loss": true,
+        "settlement_score": -144
+      }
+    }
+  ]
+}
+```
+
+Required analysis-result subset:
+
+| Field                                             | Meaning                                                            |
+| ------------------------------------------------- | ------------------------------------------------------------------ |
+| `position.player_role`                            | Rated player's local role: `declarer`, `defender`, or `unknown`.   |
+| `final_settlement_summary.is_complete`            | Whether the settlement is complete.                                |
+| `final_settlement_summary.is_loss`                | Required only for complete settlements.                            |
+| `final_settlement_summary.settlement_score`       | Required only for complete settlements.                            |
+
+Validation rules:
+
+* `list_analysis_results` is optional.
+* If provided, `performance_rating_system` must be `isko_list`.
+* It must be an array. An empty array is valid.
+* Each item must be an object with `position` and `final_settlement_summary` objects.
+* Additional fields are accepted on each item, on `position`, and on `final_settlement_summary`, so complete generated analysis-result objects can be supplied.
+* Complete output objects are accepted as supersets, but the input schema does not embed the full output schema.
+* `final_settlement_summary.is_complete` must be a boolean.
+* If `is_complete` is `false`, the result is valid and skipped for list aggregation.
+* If `is_complete` is `true`, `is_loss` must be a boolean and `settlement_score` must be an integer.
+* `is_loss: false` requires a positive `settlement_score`.
+* `is_loss: true` requires a negative `settlement_score`.
+* Results with `position.player_role: "unknown"` are skipped.
+* Malformed results are rejected and include the list index in validation errors.
+* `list_performance_input`, `list_game_contributions`, and `list_analysis_results` are mutually exclusive.
 
 ## Opponent policy fields
 

@@ -3,6 +3,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_left_opponent_policy_settings_from_input,
+    get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
     get_list_performance_input_from_input,
     get_opponent_policy_settings_from_input,
@@ -328,6 +329,39 @@ def test_get_list_game_contributions_from_input_preserves_empty_list() -> None:
     assert get_list_game_contributions_from_input(
         {
             "list_game_contributions": [],
+        }
+    ) == []
+
+
+def test_get_list_analysis_results_from_input_defaults_to_none() -> None:
+    assert get_list_analysis_results_from_input({}) is None
+
+
+def test_get_list_analysis_results_from_input_reads_value() -> None:
+    list_analysis_results = [
+        {
+            "position": {
+                "player_role": "declarer",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": False,
+                "settlement_score": 96,
+            },
+        },
+    ]
+
+    assert get_list_analysis_results_from_input(
+        {
+            "list_analysis_results": list_analysis_results,
+        }
+    ) == list_analysis_results
+
+
+def test_get_list_analysis_results_from_input_preserves_empty_list() -> None:
+    assert get_list_analysis_results_from_input(
+        {
+            "list_analysis_results": [],
         }
     ) == []
 

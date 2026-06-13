@@ -338,7 +338,8 @@ Meaning:
 ## List performance summary
 
 `list_performance_summary` is emitted only when the input contains
-`list_performance_input` or `list_game_contributions`.
+`list_performance_input`, `list_game_contributions`, or
+`list_analysis_results`.
 
 It is separate from both `performance_rating_summary` and `final_settlement_summary`.
 
@@ -363,7 +364,7 @@ Meaning:
 
 | Field                        | Meaning                                                       |
 | ---------------------------- | ------------------------------------------------------------- |
-| `basis`                      | `aggregated_list_or_series_totals` or `normalized_game_contributions`. |
+| `basis`                      | `aggregated_list_or_series_totals`, `normalized_game_contributions`, or `local_analysis_results`. |
 | `table_size`                 | Fixed three-player table size used for ISkO-style points.     |
 | `player_game_points`         | Already aggregated game points for the rated player.          |
 | `own_games_won`              | Count of the rated player's won own games.                    |
@@ -376,6 +377,10 @@ Meaning:
 When the summary is derived from `list_game_contributions`, it keeps the same
 field set and uses `basis: "normalized_game_contributions"`. No contribution
 rows are echoed in the output.
+
+When the summary is derived from `list_analysis_results`, it keeps the same
+field set and uses `basis: "local_analysis_results"`. Analysis-result rows are
+not echoed in the output.
 
 ## Analysis report
 

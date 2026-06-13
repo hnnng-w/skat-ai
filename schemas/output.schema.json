@@ -549,7 +549,8 @@
           "type": "string",
           "enum": [
             "aggregated_list_or_series_totals",
-            "normalized_game_contributions"
+            "normalized_game_contributions",
+            "local_analysis_results"
           ]
         },
         "table_size": {

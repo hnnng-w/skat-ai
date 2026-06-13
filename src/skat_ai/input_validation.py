@@ -6,7 +6,10 @@ from skat_ai.game_history import validate_completed_trick_sequence
 from skat_ai.information_policy import validate_information_policy_from_input
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
-from skat_ai.performance_rating import validate_performance_rating_system
+from skat_ai.performance_rating import (
+    build_list_game_contribution_from_analysis_result,
+    validate_performance_rating_system,
+)
 from skat_ai.rules import GAME_TYPES, get_card_points, get_legal_cards
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
@@ -275,6 +278,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_list_performance_input_modes(data)
     validate_optional_list_performance_input(data)
     validate_optional_list_game_contributions(data)
+    validate_optional_list_analysis_results(data)
     validate_completed_trick_sequence(
         completed_tricks=data.get("completed_tricks", []),
         current_trick=data.get("current_trick", []),
@@ -318,10 +322,20 @@ def validate_list_performance_input_modes(data: dict[str, Any]) -> None:
     """
     Validates that only one list/series performance input mode is supplied.
     """
-    if "list_performance_input" in data and "list_game_contributions" in data:
+    supplied_modes = [
+        field_name
+        for field_name in [
+            "list_performance_input",
+            "list_game_contributions",
+            "list_analysis_results",
+        ]
+        if field_name in data
+    ]
+
+    if len(supplied_modes) > 1:
         raise ValueError(
-            "list_performance_input and list_game_contributions are alternative "
-            "input modes. Provide only one."
+            "list_performance_input, list_game_contributions, and "
+            "list_analysis_results are alternative input modes. Provide only one."
         )
 
 
@@ -437,6 +451,31 @@ def validate_list_game_contribution(contribution: Any, index: int) -> None:
         raise ValueError(
             f"{field_prefix} declarer_loss requires a negative settlement_score."
         )
+
+
+def validate_optional_list_analysis_results(data: dict[str, Any]) -> None:
+    """
+    Validates optional local analysis results for list/series performance input.
+    """
+    if "list_analysis_results" not in data:
+        return
+
+    list_analysis_results = data["list_analysis_results"]
+
+    if not isinstance(list_analysis_results, list):
+        raise ValueError("list_analysis_results must be an array.")
+
+    if data.get("performance_rating_system") != "isko_list":
+        raise ValueError(
+            "list_analysis_results requires performance_rating_system to be "
+            "isko_list."
+        )
+
+    for index, analysis_result in enumerate(list_analysis_results):
+        try:
+            build_list_game_contribution_from_analysis_result(analysis_result)
+        except ValueError as error:
+            raise ValueError(f"list_analysis_results[{index}]: {error}") from error
 
 
 def get_cards_from_completed_tricks_input(completed_tricks: list[dict[str, Any]]) -> list[str]:

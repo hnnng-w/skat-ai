@@ -3,6 +3,7 @@ import pytest
 from skat_ai.performance_rating import (
     build_list_game_contribution_from_analysis_result,
     build_list_performance_summary,
+    build_list_performance_summary_from_analysis_results,
     build_list_performance_summary_from_game_contributions,
     build_performance_rating_summary,
     calculate_isko_counterparty_rating_points,
@@ -1240,6 +1241,114 @@ def test_build_list_performance_summary_from_empty_contributions() -> None:
         "opponent_loss_bonus_points": 0,
         "total_performance_points": 0,
     }
+
+
+def test_build_list_performance_summary_from_analysis_results() -> None:
+    summary = build_list_performance_summary_from_analysis_results(
+        analysis_results=[
+            build_contribution_analysis_result(
+                player_role="declarer",
+                is_loss=False,
+                settlement_score=96,
+            ),
+            build_contribution_analysis_result(
+                player_role="defender",
+                is_loss=True,
+                settlement_score=-144,
+            ),
+        ],
+        rating_system="isko_list",
+    )
+
+    assert summary == {
+        "rating_system": "isko_list",
+        "basis": "local_analysis_results",
+        "table_size": 3,
+        "player_game_points": 96,
+        "own_games_won": 1,
+        "own_games_lost": 0,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 50,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 186,
+    }
+
+
+def test_build_list_performance_summary_from_empty_analysis_results() -> None:
+    summary = build_list_performance_summary_from_analysis_results(
+        analysis_results=[],
+        rating_system="isko_list",
+    )
+
+    assert summary == {
+        "rating_system": "isko_list",
+        "basis": "local_analysis_results",
+        "table_size": 3,
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+    }
+
+
+def test_build_list_performance_summary_from_analysis_results_skips_none_results() -> None:
+    summary = build_list_performance_summary_from_analysis_results(
+        analysis_results=[
+            build_contribution_analysis_result(
+                is_complete=False,
+                is_loss=None,
+                settlement_score=None,
+                winner=None,
+                declarer_won_by_card_points=None,
+            ),
+            build_contribution_analysis_result(player_role="unknown"),
+            build_contribution_analysis_result(
+                player_role="defender",
+                is_loss=True,
+                settlement_score=-72,
+            ),
+        ],
+        rating_system="isko_list",
+    )
+
+    assert summary == {
+        "rating_system": "isko_list",
+        "basis": "local_analysis_results",
+        "table_size": 3,
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 40,
+    }
+
+
+def test_build_list_performance_summary_from_analysis_results_rejects_malformed() -> None:
+    analysis_result = build_contribution_analysis_result()
+    del analysis_result["final_settlement_summary"]["settlement_score"]
+
+    with pytest.raises(ValueError, match="settlement_score is required"):
+        build_list_performance_summary_from_analysis_results(
+            analysis_results=[analysis_result],
+            rating_system="isko_list",
+        )
+
+
+def test_build_list_performance_summary_from_analysis_results_rejects_rating_system() -> None:
+    for rating_system in [None, "placeholder"]:
+        with pytest.raises(
+            ValueError,
+            match="requires performance_rating_system to be isko_list",
+        ):
+            build_list_performance_summary_from_analysis_results(
+                analysis_results=[],
+                rating_system=rating_system,
+            )
 
 
 def test_build_list_performance_summary_from_contributions_rejects_rating_system() -> None:

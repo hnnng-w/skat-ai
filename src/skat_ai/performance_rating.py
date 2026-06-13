@@ -365,6 +365,45 @@ def build_list_performance_summary_from_game_contributions(
     }
 
 
+def build_list_performance_summary_from_analysis_results(
+    analysis_results: list[dict[str, Any]],
+    rating_system: str | None,
+) -> dict[str, Any]:
+    """
+    Builds a list/series performance summary from local analysis results.
+
+    The analysis results must represent the same rated player as local "me".
+    """
+    validate_performance_rating_system(rating_system)
+
+    if rating_system != "isko_list":
+        raise ValueError(
+            "list_analysis_results requires performance_rating_system to be "
+            "isko_list."
+        )
+
+    performance_points = calculate_isko_list_performance_points_from_analysis_results(
+        analysis_results=analysis_results,
+    )
+
+    return {
+        "rating_system": rating_system,
+        "basis": "local_analysis_results",
+        "table_size": performance_points["table_size"],
+        "player_game_points": performance_points["player_game_points"],
+        "own_games_won": performance_points["own_games_won"],
+        "own_games_lost": performance_points["own_games_lost"],
+        "other_players_lost_games": performance_points["other_players_lost_games"],
+        "own_game_bonus_points": performance_points["own_game_bonus_points"],
+        "opponent_loss_bonus_points": performance_points[
+            "opponent_loss_bonus_points"
+        ],
+        "total_performance_points": performance_points[
+            "total_performance_points"
+        ],
+    }
+
+
 def get_game_outcome_for_rating(
     final_settlement_summary: dict[str, Any],
 ) -> str:

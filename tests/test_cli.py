@@ -427,6 +427,137 @@ def test_build_analysis_result_includes_empty_contribution_list_performance_summ
     }
 
 
+def test_build_analysis_result_includes_analysis_result_list_performance_summary(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "list_analysis_results.json"
+    data = build_list_performance_cli_input()
+    data["list_analysis_results"] = [
+        {
+            "position": {
+                "player_role": "declarer",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": False,
+                "settlement_score": 96,
+            },
+        },
+        {
+            "position": {
+                "player_role": "defender",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": True,
+                "settlement_score": -144,
+            },
+        },
+    ]
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "local_analysis_results",
+        "table_size": 3,
+        "player_game_points": 96,
+        "own_games_won": 1,
+        "own_games_lost": 0,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 50,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 186,
+    }
+    assert result["performance_rating_summary"]["basis"] == (
+        "individual_game_settlement"
+    )
+    assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
+
+
+def test_build_analysis_result_includes_empty_analysis_result_list_summary(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "empty_list_analysis_results.json"
+    data = build_list_performance_cli_input()
+    data["list_analysis_results"] = []
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "local_analysis_results",
+        "table_size": 3,
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+    }
+
+
+def test_build_analysis_result_includes_only_skipped_analysis_result_list_summary(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "skipped_list_analysis_results.json"
+    data = build_list_performance_cli_input()
+    data["list_analysis_results"] = [
+        {
+            "position": {
+                "player_role": "declarer",
+            },
+            "final_settlement_summary": {
+                "is_complete": False,
+            },
+        },
+        {
+            "position": {
+                "player_role": "unknown",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": False,
+                "settlement_score": 96,
+            },
+        },
+    ]
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "local_analysis_results",
+        "table_size": 3,
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+    }
+
+
 def test_run_json_position_analysis_supports_multi_step() -> None:
     run_json_position_analysis(
         file_path="examples/grand_second_position.json",

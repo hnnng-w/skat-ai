@@ -189,6 +189,15 @@ def get_list_game_contributions_from_input(
     return data.get("list_game_contributions")
 
 
+def get_list_analysis_results_from_input(
+    data: dict[str, Any],
+) -> list[dict[str, Any]] | None:
+    """
+    Extracts optional local analysis results for list/series performance input.
+    """
+    return data.get("list_analysis_results")
+
+
 def get_actual_card_played_from_input(data: dict[str, Any]) -> str | None:
     """Extracts the optional actual card played from parsed input data."""
     return data.get("actual_card_played")

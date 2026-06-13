@@ -21,6 +21,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_left_opponent_policy_settings_from_input,
+    get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
     get_list_performance_input_from_input,
     get_opponent_policy_settings_from_input,
@@ -41,6 +42,7 @@ from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.performance_rating import (
     build_list_performance_summary,
+    build_list_performance_summary_from_analysis_results,
     build_list_performance_summary_from_game_contributions,
     build_performance_rating_summary,
 )
@@ -160,6 +162,7 @@ def build_analysis_result(
     performance_rating_system = get_performance_rating_system_from_input(data)
     list_performance_input = get_list_performance_input_from_input(data)
     list_game_contributions = get_list_game_contributions_from_input(data)
+    list_analysis_results = get_list_analysis_results_from_input(data)
     game_value_summary = build_game_value_summary(game_declaration)
     overbid_summary = build_overbid_summary(
         game_value_summary=game_value_summary,
@@ -251,6 +254,11 @@ def build_analysis_result(
     elif list_game_contributions is not None:
         list_performance_summary = build_list_performance_summary_from_game_contributions(
             game_contributions=list_game_contributions,
+            rating_system=performance_rating_system,
+        )
+    elif list_analysis_results is not None:
+        list_performance_summary = build_list_performance_summary_from_analysis_results(
+            analysis_results=list_analysis_results,
             rating_system=performance_rating_system,
         )
     information_policy_summary = build_information_policy_summary(

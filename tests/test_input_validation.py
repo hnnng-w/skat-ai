@@ -1177,6 +1177,392 @@ def test_validate_position_input_rejects_list_game_contribution_score_signs() ->
             validate_position_input(data)
 
 
+def build_valid_list_analysis_result(
+    player_role="declarer",
+    is_complete=True,
+    is_loss=False,
+    settlement_score=96,
+) -> dict[str, object]:
+    return {
+        "position": {
+            "player_role": player_role,
+        },
+        "final_settlement_summary": {
+            "is_complete": is_complete,
+            "is_loss": is_loss,
+            "settlement_score": settlement_score,
+        },
+    }
+
+
+def add_list_performance_mode(data: dict[str, object], mode: str) -> None:
+    if mode == "list_performance_input":
+        data[mode] = {
+            "player_game_points": 120,
+            "own_games_won": 3,
+            "own_games_lost": 1,
+            "other_players_lost_games": 2,
+        }
+        return
+
+    if mode == "list_game_contributions":
+        data[mode] = [
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 96,
+            }
+        ]
+        return
+
+    data[mode] = [build_valid_list_analysis_result()]
+
+
+def test_validate_position_input_accepts_list_analysis_results() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(
+            player_role="declarer",
+            is_loss=False,
+            settlement_score=96,
+        ),
+        build_valid_list_analysis_result(
+            player_role="defender",
+            is_loss=True,
+            settlement_score=-144,
+        ),
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_list_analysis_result_supersets() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        {
+            "input_file": "generated.json",
+            "position": {
+                "player_role": "declarer",
+                "game_type": "grand",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": False,
+                "settlement_score": 96,
+                "winner": "declarer",
+            },
+            "recommendation": {
+                "card": "SA",
+            },
+        }
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_empty_list_analysis_results() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = []
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_incomplete_list_analysis_result() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        {
+            "position": {
+                "player_role": "declarer",
+            },
+            "final_settlement_summary": {
+                "is_complete": False,
+            },
+        }
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_unknown_role_list_analysis_result() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(player_role="unknown")
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_non_array_list_analysis_results() -> None:
+    for list_analysis_results in [None, {}, "results", True]:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_analysis_results"] = list_analysis_results
+
+        with pytest.raises(ValueError, match="list_analysis_results must be an array"):
+            validate_position_input(data)
+
+
+def test_validate_position_input_rejects_non_object_list_analysis_result() -> None:
+    for analysis_result in [None, [], "result", True, 1]:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_analysis_results"] = [analysis_result]
+
+        with pytest.raises(
+            ValueError,
+            match=r"list_analysis_results\[0\]: analysis_result must be an object",
+        ):
+            validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "analysis_result",
+    [
+        {},
+        {"position": None},
+        {"position": []},
+        {"position": "position"},
+    ],
+)
+def test_validate_position_input_rejects_invalid_list_analysis_result_position(
+    analysis_result,
+) -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [analysis_result]
+
+    with pytest.raises(ValueError, match="analysis_result.position must be an object"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_missing_list_analysis_result_role() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    analysis_result = build_valid_list_analysis_result()
+    del analysis_result["position"]["player_role"]
+    data["list_analysis_results"] = [analysis_result]
+
+    with pytest.raises(ValueError, match="position.player_role is required"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_invalid_list_analysis_result_role() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(player_role="attacker")
+    ]
+
+    with pytest.raises(ValueError, match="Unsupported analysis_result.position.player_role"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "final_settlement_summary",
+    [None, [], "summary"],
+)
+def test_validate_position_input_rejects_invalid_list_analysis_result_settlement(
+    final_settlement_summary,
+) -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    analysis_result = build_valid_list_analysis_result()
+    analysis_result["final_settlement_summary"] = final_settlement_summary
+    data["list_analysis_results"] = [analysis_result]
+
+    with pytest.raises(
+        ValueError,
+        match="analysis_result.final_settlement_summary must be an object",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_missing_list_analysis_result_settlement() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    analysis_result = build_valid_list_analysis_result()
+    del analysis_result["final_settlement_summary"]
+    data["list_analysis_results"] = [analysis_result]
+
+    with pytest.raises(
+        ValueError,
+        match="analysis_result.final_settlement_summary must be an object",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_missing_list_analysis_result_is_complete() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    analysis_result = build_valid_list_analysis_result()
+    del analysis_result["final_settlement_summary"]["is_complete"]
+    data["list_analysis_results"] = [analysis_result]
+
+    with pytest.raises(ValueError, match="is_complete is required"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize("is_complete", [None, "true", 1, 0])
+def test_validate_position_input_rejects_invalid_list_analysis_result_is_complete(
+    is_complete,
+) -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(is_complete=is_complete)
+    ]
+
+    with pytest.raises(ValueError, match="is_complete must be a boolean"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_completed_list_analysis_result_missing_is_loss() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    analysis_result = build_valid_list_analysis_result()
+    del analysis_result["final_settlement_summary"]["is_loss"]
+    data["list_analysis_results"] = [analysis_result]
+
+    with pytest.raises(ValueError, match="is_loss is required"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize("is_loss", [None, "false", 1, 0])
+def test_validate_position_input_rejects_completed_list_analysis_result_invalid_is_loss(
+    is_loss,
+) -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(is_loss=is_loss)
+    ]
+
+    with pytest.raises(ValueError, match="is_loss must be a boolean"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_completed_list_analysis_result_missing_score() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    analysis_result = build_valid_list_analysis_result()
+    del analysis_result["final_settlement_summary"]["settlement_score"]
+    data["list_analysis_results"] = [analysis_result]
+
+    with pytest.raises(ValueError, match="settlement_score is required"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize("settlement_score", [None, "96", 96.0, True, False])
+def test_validate_position_input_rejects_completed_list_analysis_result_invalid_score(
+    settlement_score,
+) -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(settlement_score=settlement_score)
+    ]
+
+    with pytest.raises(ValueError, match="settlement_score must be an integer"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    ("is_loss", "settlement_score", "expected_error"),
+    [
+        (False, 0, "positive settlement_score"),
+        (False, -96, "positive settlement_score"),
+        (True, 0, "negative settlement_score"),
+        (True, 96, "negative settlement_score"),
+    ],
+)
+def test_validate_position_input_rejects_list_analysis_result_score_signs(
+    is_loss,
+    settlement_score,
+    expected_error,
+) -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(
+            is_loss=is_loss,
+            settlement_score=settlement_score,
+        )
+    ]
+
+    with pytest.raises(ValueError, match=expected_error):
+        validate_position_input(data)
+
+
+def test_validate_position_input_adds_index_to_list_analysis_result_errors() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    malformed_result = build_valid_list_analysis_result()
+    del malformed_result["final_settlement_summary"]["settlement_score"]
+    data["list_analysis_results"] = [
+        build_valid_list_analysis_result(),
+        malformed_result,
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match=r"list_analysis_results\[1\]: .*settlement_score is required",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_list_analysis_results_without_rating_system() -> None:
+    data = build_valid_input()
+    data["list_analysis_results"] = []
+
+    with pytest.raises(
+        ValueError,
+        match="list_analysis_results requires performance_rating_system",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_list_analysis_results_for_placeholder() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "placeholder"
+    data["list_analysis_results"] = []
+
+    with pytest.raises(
+        ValueError,
+        match="list_analysis_results requires performance_rating_system",
+    ):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "modes",
+    [
+        ("list_performance_input", "list_game_contributions"),
+        ("list_performance_input", "list_analysis_results"),
+        ("list_game_contributions", "list_analysis_results"),
+        (
+            "list_performance_input",
+            "list_game_contributions",
+            "list_analysis_results",
+        ),
+    ],
+)
+def test_validate_position_input_rejects_multiple_list_performance_input_modes(
+    modes,
+) -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    for mode in modes:
+        add_list_performance_mode(data, mode)
+
+    with pytest.raises(ValueError, match="alternative input modes"):
+        validate_position_input(data)
+
+
 def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
     data = {
         "game_type": "grand",
