@@ -202,6 +202,28 @@ def test_choose_combined_profile_policy_preset_prefers_higher_confidence_signal(
     assert preset == "cautious_defender"
 
 
+def test_choose_combined_profile_policy_preset_prefers_higher_aggressive_confidence() -> None:
+    left_profile = PlayerProfile(
+        games_played=250,
+        solo_rate=0.25,
+        grand_rate=0.15,
+        hand_game_rate=0.03,
+        defender_win_rate=0.55,
+    )
+    right_profile = PlayerProfile(
+        games_played=1000,
+        solo_rate=0.38,
+        grand_rate=0.27,
+    )
+
+    preset = choose_combined_profile_policy_preset(
+        left_profile=left_profile,
+        right_profile=right_profile,
+    )
+
+    assert preset == "aggressive_points"
+
+
 def test_choose_combined_profile_policy_preset_uses_cautious_defender() -> None:
     left_profile = PlayerProfile(
         games_played=1000,

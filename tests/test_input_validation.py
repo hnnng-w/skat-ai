@@ -487,6 +487,26 @@ def test_validate_optional_player_profile_rejects_negative_games_played() -> Non
         raise AssertionError("Expected ValueError was not raised.")
 
 
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "games_played",
+        "solo_games_played",
+        "defender_games_played",
+    ],
+)
+def test_validate_optional_player_profile_rejects_boolean_integer_fields(
+    field_name: str,
+) -> None:
+    with pytest.raises(ValueError, match=field_name):
+        validate_optional_player_profile(
+            {
+                field_name: True,
+            },
+            "left_player_profile",
+        )
+
+
 def test_validate_optional_player_profile_rejects_invalid_rate() -> None:
     try:
         validate_optional_player_profile(
@@ -502,6 +522,48 @@ def test_validate_optional_player_profile_rejects_invalid_rate() -> None:
         raise AssertionError("Expected ValueError was not raised.")
 
 
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "solo_rate",
+        "solo_win_rate",
+        "hand_game_rate",
+        "suit_game_rate",
+        "grand_rate",
+        "null_game_rate",
+        "defender_win_rate",
+    ],
+)
+def test_validate_optional_player_profile_rejects_boolean_rate_fields(
+    field_name: str,
+) -> None:
+    with pytest.raises(ValueError, match=field_name):
+        validate_optional_player_profile(
+            {
+                field_name: False,
+            },
+            "left_player_profile",
+        )
+
+
+def test_validate_optional_player_profile_accepts_zero_and_rate_boundaries() -> None:
+    validate_optional_player_profile(
+        {
+            "games_played": 0,
+            "solo_games_played": 0,
+            "defender_games_played": 0,
+            "solo_rate": 0,
+            "solo_win_rate": 1,
+            "hand_game_rate": 0.0,
+            "suit_game_rate": 1.0,
+            "grand_rate": 0,
+            "null_game_rate": 1,
+            "defender_win_rate": 0.5,
+        },
+        "left_player_profile",
+    )
+
+
 def test_validate_optional_analysis_metadata_accepts_valid_metadata() -> None:
     validate_optional_analysis_metadata(
         {
@@ -511,6 +573,37 @@ def test_validate_optional_analysis_metadata_accepts_valid_metadata() -> None:
             "left_player_profile": {
                 "games_played": 1240,
                 "solo_rate": 0.31,
+            },
+        }
+    )
+
+
+def test_validate_optional_analysis_metadata_accepts_valid_left_and_right_profiles() -> None:
+    validate_optional_analysis_metadata(
+        {
+            "left_player_profile": {
+                "games_played": 1240,
+                "solo_games_played": 380,
+                "defender_games_played": 860,
+                "solo_rate": 0.31,
+                "solo_win_rate": 0.66,
+                "hand_game_rate": 0.08,
+                "suit_game_rate": 0.46,
+                "grand_rate": 0.22,
+                "null_game_rate": 0.04,
+                "defender_win_rate": 0.54,
+            },
+            "right_player_profile": {
+                "games_played": 520,
+                "solo_games_played": 160,
+                "defender_games_played": 360,
+                "solo_rate": 0.28,
+                "solo_win_rate": 0.59,
+                "hand_game_rate": 0.05,
+                "suit_game_rate": 0.51,
+                "grand_rate": 0.18,
+                "null_game_rate": 0.06,
+                "defender_win_rate": 0.49,
             },
         }
     )

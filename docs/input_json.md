@@ -32,6 +32,7 @@ The schema checks stable structural constraints such as:
 * card-point fields between 0 and 120
 * supported analysis metadata values
 * supported game-end metadata values
+* supported player profile field types and numeric ranges
 * supported opponent policy values
 * supported performance rating values
 
@@ -226,6 +227,57 @@ Supported `game_end_reason` values:
 | `declarer_claimed_remaining_tricks`   | Declarer claimed the remaining tricks.                 |
 | `declarer_conceded_remaining_tricks`  | Declarer conceded the remaining tricks.                |
 | `defenders_conceded_remaining_tricks` | Defenders conceded the remaining tricks.               |
+
+## Player profile fields
+
+Input files may include optional left/right player profiles:
+
+```json
+{
+  "left_player_profile": {
+    "games_played": 860,
+    "solo_rate": 0.2,
+    "grand_rate": 0.13,
+    "hand_game_rate": 0.03,
+    "defender_win_rate": 0.56
+  },
+  "right_player_profile": {
+    "games_played": 720,
+    "solo_rate": 0.42,
+    "grand_rate": 0.28,
+    "hand_game_rate": 0.11,
+    "defender_win_rate": 0.48
+  }
+}
+```
+
+Supported profile fields:
+
+| Field                   | Validation                      | Current policy use                                      |
+| ----------------------- | ------------------------------- | ------------------------------------------------------- |
+| `games_played`          | Non-negative integer.           | Derives rough profile confidence.                       |
+| `solo_games_played`     | Non-negative integer.           | Informational only.                                     |
+| `defender_games_played` | Non-negative integer.           | Informational only.                                     |
+| `solo_rate`             | Number between `0` and `1`.     | Aggressive-profile signal at `0.35` or higher.          |
+| `solo_win_rate`         | Number between `0` and `1`.     | Informational only.                                     |
+| `hand_game_rate`        | Number between `0` and `1`.     | Aggressive-profile signal at `0.10` or higher.          |
+| `suit_game_rate`        | Number between `0` and `1`.     | Informational only.                                     |
+| `grand_rate`            | Number between `0` and `1`.     | Aggressive-profile signal at `0.25` or higher.          |
+| `null_game_rate`        | Number between `0` and `1`.     | Informational only.                                     |
+| `defender_win_rate`     | Number between `0` and `1`.     | Cautious-defender signal at `0.52` or higher with enough confidence and no aggressive signal. |
+
+Profile confidence is derived from `games_played` only:
+
+| `games_played` value | Confidence |
+| -------------------- | ---------- |
+| Missing              | `unknown`  |
+| `0` to `99`          | `low`      |
+| `100` to `499`       | `medium`   |
+| `500` or more        | `high`     |
+
+When `use_profile_presets` is enabled, profile-derived presets can affect multi-step opponent policy settings. If cautious and aggressive profile-derived presets conflict, the higher-confidence side wins. If both conflicting sides have equal confidence, `aggressive_points` remains the fallback over `cautious_defender` for backward-compatible behavior.
+
+Left and right profile presets affect their respective effective left/right policies in multi-step simulation. Explicit side-specific CLI overrides are applied last and remain authoritative.
 
 ## Live vs post-game information rules
 

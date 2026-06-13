@@ -78,6 +78,7 @@ Implemented:
 * Strategic metadata
 * Player profiles
 * Profile-based policy recommendations
+* Profile confidence derived from `games_played`
 * Live-vs-post-game information enforcement
 * `information_policy_summary` output
 * Rejection of post-game-only information in `live_decision`
@@ -89,7 +90,9 @@ Implemented:
 
 * Opponent policy presets
 * Optional profile-based policy presets
+* Profile-confidence conflict resolution for cautious/aggressive preset evidence
 * Separate left/right opponent policy settings
+* Left/right profile-derived presets applied to effective left/right multi-step policies
 * Left/right opponent policy input fields
 * Left/right opponent policy CLI overrides
 * Left/right opponent policy output settings
@@ -166,7 +169,7 @@ Implemented:
 * Defender cooperation has improved, but it is still heuristic and not a full tactical model.
 * Player profiles influence recommendations and policy presets, but the model does not learn from historical player data.
 * Profile-based presets use rough heuristics and are not learned from data.
-* PlayerProfile confidence is not yet deeply used in simulation decisions.
+* PlayerProfile confidence is currently used for profile-derived preset selection and conflict resolution, not deeper tactical simulation decisions.
 
 ### Information modeling
 
@@ -195,7 +198,7 @@ Potential future gameplay improvements:
 * Add richer post-game review examples.
 * Add more realistic profile-preset example variants.
 * Add dedicated examples for separate left/right opponent policies.
-* Improve opponent modeling with PlayerProfile confidence.
+* Explore deeper PlayerProfile confidence usage beyond preset selection.
 * Add stronger tests for left/right opponent policy effects with controlled opponent hands.
 * Improve matador inference from historical completed-trick context where safe and verifiable.
 * Add richer explanation details for why a recommended card is preferred.
@@ -229,7 +232,7 @@ Recommended current issue handling:
 
 * Close or update issues for game score calculation, claim/concession handling, live-vs-post-game enforcement, JSON schema documentation, defender cooperation logic, full Skat game value scoring, and post-game review decision quality if their implemented scope is covered.
 * Keep full list/series/tournament rating work open as a future performance-rating issue.
-* Keep PlayerProfile confidence in opponent modeling open as a future strategy issue.
+* Close current PlayerProfile-confidence preset-selection work when tests and documentation are complete; keep deeper tactical opponent modeling as separate future work.
 * Keep richer post-game review examples open as an examples/documentation task.
 * Keep more realistic example positions open as an examples/testing task.
 * Consider opening a focused issue for extended matador inference from completed-trick history if needed.

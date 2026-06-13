@@ -198,11 +198,15 @@ Implemented:
 * left/right settings threaded into multi-step simulation
 * opponent lead uses the specific left/right lead policy
 * right response uses `right_opponent_policy_settings` when left leads
+* profile confidence derived from `games_played`
+* profile-confidence conflict resolution for cautious/aggressive preset evidence
+* left/right profile-derived presets applied to effective left/right multi-step policies
+* explicit side-specific CLI policy overrides applied after profile-derived presets
 
 Known remaining areas:
 
 * further defender-cooperation strategy can still be improved
-* profile confidence is not yet used deeply in simulation decisions
+* deeper PlayerProfile confidence usage beyond preset selection remains future work
 
 ### Defender cooperation
 
@@ -270,6 +274,7 @@ Current output fields include:
   * card validation
   * completed-trick validation hooks
   * optional policy validation
+  * optional player profile validation
 * `information_policy.py`
 
   * live-vs-post-game information policy rules
@@ -361,7 +366,7 @@ Recommended future topics:
 
 * full ISkO list/series/tournament aggregation
 * improved defender cooperation logic
-* deeper PlayerProfile confidence usage in opponent modeling
+* deeper PlayerProfile confidence usage beyond preset selection
 * richer realistic example positions
 * richer post-game review examples
 * broader matador inference from completed-trick history beyond safe local-declarer ownership facts
@@ -377,17 +382,18 @@ Likely completed and closable or reducible:
 * Add JSON schema documentation
 * Add full Skat game value scoring
 * Improve defender cooperation logic, if the current basic defender improvements are considered sufficient for the issue scope
+* Use PlayerProfile confidence in opponent policy presets, if the issue scope is preset-level confidence
 
 Likely partially completed and should be updated:
 
 * Add performance rating for Skat lists and series
-* Add profile-aware opponent policy
+* Add deeper profile-aware opponent policy behavior beyond preset selection
 * Add realistic examples with metadata and policy presets
 * Add post-game review examples
 
 Likely still open:
 
-* Use PlayerProfile confidence in opponent modeling
+* Deeper PlayerProfile confidence usage beyond preset selection
 * Add more realistic example positions
 * Full list/series/tournament rating aggregation
 

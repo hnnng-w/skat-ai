@@ -107,6 +107,12 @@ The simulation layer is probabilistic and heuristic. It is designed for analysis
 
 Opponent policy handling supports both global and separate left/right opponent policy settings.
 
+Profile-based policy presets use rough, rule-based `PlayerProfile` heuristics. Profile confidence is derived from `games_played` only: missing data is `unknown`, fewer than 100 games is `low`, fewer than 500 games is `medium`, and 500 or more games is `high`. When cautious and aggressive profile-derived presets conflict, the higher-confidence side wins; equal confidence preserves the existing `aggressive_points` over `cautious_defender` fallback.
+
+When profile presets are enabled for multi-step simulation, the left and right player profiles can affect their respective effective left/right opponent policy settings. Explicit side-specific CLI overrides are applied last and remain authoritative.
+
+Some profile fields are currently informational only: `solo_games_played`, `defender_games_played`, `solo_win_rate`, `suit_game_rate`, and `null_game_rate`.
+
 The current defender cooperation model includes:
 
 * safer defender lead behavior
@@ -123,10 +129,11 @@ Flow:
 
 1. `input_loader.py` normalizes global and left/right policy settings.
 2. `input_validation.py` validates policy values.
-3. `main.py` applies CLI overrides.
-4. `multi_step_simulation.py` passes settings into opponent sequence preparation.
-5. `opponent_sequence.py` selects left/right lead and response policies.
-6. `opponent_policy.py` contains shared policy selection helpers.
+3. `main.py` applies profile-derived left/right presets when enabled for multi-step simulation.
+4. `main.py` applies explicit side-specific CLI overrides last.
+5. `multi_step_simulation.py` passes settings into opponent sequence preparation.
+6. `opponent_sequence.py` selects left/right lead and response policies.
+7. `opponent_policy.py` contains shared policy selection helpers.
 
 ## Analysis and recommendation
 

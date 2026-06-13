@@ -52,6 +52,7 @@ The input schema checks things such as:
 * supported `analysis_mode` values
 * supported `skat_visibility` values
 * supported `game_end_reason` values
+* supported `left_player_profile` and `right_player_profile` field types and numeric ranges
 * supported `performance_rating_system` values
 * supported opponent policy values
 * basic `actual_card_played` type and card notation
@@ -160,6 +161,7 @@ Examples:
 * whether `actual_card_played` is legal in the analyzed position
 * whether known skat cards are allowed in the selected `analysis_mode`
 * whether ended game states are allowed in `live_decision`
+* how profile-derived opponent policy presets are selected from validated profile fields
 * overbid settlement support for Null games
 * strategic live-vs-post-game information rules
 * whether matadors can be inferred from the currently known declarer-card context

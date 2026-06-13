@@ -575,14 +575,19 @@ def validate_optional_player_profile(
         if key in profile and profile[key] is not None:
             value = profile[key]
 
-            if not isinstance(value, int) or value < 0:
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
                 raise ValueError(f"{field_name}.{key} must be a non-negative integer.")
 
     for key in rate_fields:
         if key in profile and profile[key] is not None:
             value = profile[key]
 
-            if not isinstance(value, int | float) or value < 0 or value > 1:
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, int | float)
+                or value < 0
+                or value > 1
+            ):
                 raise ValueError(f"{field_name}.{key} must be a number between 0 and 1.")
 
 

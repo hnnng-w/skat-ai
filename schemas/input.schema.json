@@ -199,6 +199,12 @@
         "defenders_conceded_remaining_tricks"
       ]
     },
+    "left_player_profile": {
+      "$ref": "#/$defs/player_profile"
+    },
+    "right_player_profile": {
+      "$ref": "#/$defs/player_profile"
+    },
 
     "opponent_lead_policy": {
       "type": "string"
@@ -258,6 +264,47 @@
     "positive_integer": {
       "type": "integer",
       "minimum": 1
+    },
+    "profile_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "player_profile": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "games_played": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "solo_games_played": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "defender_games_played": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "solo_rate": {
+          "$ref": "#/$defs/profile_rate"
+        },
+        "solo_win_rate": {
+          "$ref": "#/$defs/profile_rate"
+        },
+        "hand_game_rate": {
+          "$ref": "#/$defs/profile_rate"
+        },
+        "suit_game_rate": {
+          "$ref": "#/$defs/profile_rate"
+        },
+        "grand_rate": {
+          "$ref": "#/$defs/profile_rate"
+        },
+        "null_game_rate": {
+          "$ref": "#/$defs/profile_rate"
+        },
+        "defender_win_rate": {
+          "$ref": "#/$defs/profile_rate"
+        }
+      }
     },
     "winner_role": {
       "type": "string",
