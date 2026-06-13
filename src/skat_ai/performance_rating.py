@@ -61,6 +61,97 @@ def calculate_isko_list_performance_points(
     }
 
 
+def calculate_isko_list_performance_points_from_game_contributions(
+    game_contributions: list[dict[str, Any]],
+    table_size: int = ISKO_FIXED_TABLE_PLAYER_COUNT,
+) -> dict[str, int]:
+    """
+    Aggregates normalized single-game contributions for one list player.
+
+    The caller must provide games from one consistently represented player
+    perspective. Each settlement_score is the declarer's single-game settlement
+    score, not a pre-bonused performance rating score.
+    """
+    if table_size != ISKO_FIXED_TABLE_PLAYER_COUNT:
+        raise ValueError(
+            f"Unsupported ISkO list table size: {table_size}. "
+            "Only three-player tables are supported."
+        )
+
+    player_game_points = 0
+    own_games_won = 0
+    own_games_lost = 0
+    other_players_lost_games = 0
+
+    for contribution in game_contributions:
+        for field_name in ["player_role", "game_outcome", "settlement_score"]:
+            if field_name not in contribution:
+                raise ValueError(
+                    "game contribution is missing required field: "
+                    f"{field_name}."
+                )
+
+        player_role = contribution["player_role"]
+        if player_role not in ["declarer", "defender"]:
+            raise ValueError(
+                f"Unsupported contribution player_role: {player_role}."
+            )
+
+        game_outcome = contribution["game_outcome"]
+        if game_outcome not in ["declarer_win", "declarer_loss"]:
+            raise ValueError(
+                f"Unsupported contribution game_outcome: {game_outcome}."
+            )
+
+        settlement_score = contribution["settlement_score"]
+        if isinstance(settlement_score, bool) or not isinstance(settlement_score, int):
+            raise ValueError("contribution settlement_score must be an integer.")
+
+        if game_outcome == "declarer_win" and settlement_score <= 0:
+            raise ValueError(
+                "declarer_win contribution requires a positive settlement_score."
+            )
+
+        if game_outcome == "declarer_loss" and settlement_score >= 0:
+            raise ValueError(
+                "declarer_loss contribution requires a negative settlement_score."
+            )
+
+        if player_role == "declarer":
+            player_game_points += settlement_score
+
+            if game_outcome == "declarer_win":
+                own_games_won += 1
+            else:
+                own_games_lost += 1
+
+        elif game_outcome == "declarer_loss":
+            other_players_lost_games += 1
+
+    performance_points = calculate_isko_list_performance_points(
+        player_game_points=player_game_points,
+        own_games_won=own_games_won,
+        own_games_lost=own_games_lost,
+        other_players_lost_games=other_players_lost_games,
+        table_size=table_size,
+    )
+
+    return {
+        "player_game_points": performance_points["player_game_points"],
+        "own_games_won": own_games_won,
+        "own_games_lost": own_games_lost,
+        "other_players_lost_games": other_players_lost_games,
+        "own_game_bonus_points": performance_points["own_game_bonus_points"],
+        "opponent_loss_bonus_points": performance_points[
+            "opponent_loss_bonus_points"
+        ],
+        "total_performance_points": performance_points[
+            "total_performance_points"
+        ],
+        "table_size": performance_points["table_size"],
+    }
+
+
 def build_list_performance_summary(
     list_performance_input: dict[str, int],
     rating_system: str | None,

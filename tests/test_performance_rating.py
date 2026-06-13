@@ -5,6 +5,7 @@ from skat_ai.performance_rating import (
     calculate_isko_declarer_rating_points,
     calculate_isko_declarer_rating_score,
     calculate_isko_list_performance_points,
+    calculate_isko_list_performance_points_from_game_contributions,
     get_game_outcome_for_rating,
     get_performance_rating_implemented_scope,
     get_performance_rating_unsupported_reason,
@@ -365,6 +366,298 @@ def test_calculate_isko_list_performance_points_for_mixed_positive_totals() -> N
         "total_performance_points": 300,
         "table_size": 3,
     }
+
+
+def test_calculate_isko_list_performance_points_from_mixed_contributions() -> None:
+    result = calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=[
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 72,
+            },
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 48,
+            },
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 96,
+            },
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -96,
+            },
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -72,
+            },
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -48,
+            },
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_win",
+                "settlement_score": 48,
+            },
+        ]
+    )
+
+    assert result == {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+        "own_game_bonus_points": 100,
+        "opponent_loss_bonus_points": 80,
+        "total_performance_points": 300,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_from_declarer_win() -> None:
+    result = calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=[
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 72,
+            },
+        ]
+    )
+
+    assert result["player_game_points"] == 72
+    assert result["own_games_won"] == 1
+    assert result["own_games_lost"] == 0
+    assert result["other_players_lost_games"] == 0
+    assert result["total_performance_points"] == 122
+
+
+def test_calculate_isko_list_performance_points_from_declarer_loss() -> None:
+    result = calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=[
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -144,
+            },
+        ]
+    )
+
+    assert result["player_game_points"] == -144
+    assert result["own_games_won"] == 0
+    assert result["own_games_lost"] == 1
+    assert result["other_players_lost_games"] == 0
+    assert result["total_performance_points"] == -194
+
+
+def test_calculate_isko_list_performance_points_from_defender_declarer_loss() -> None:
+    result = calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=[
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -144,
+            },
+        ]
+    )
+
+    assert result["player_game_points"] == 0
+    assert result["own_games_won"] == 0
+    assert result["own_games_lost"] == 0
+    assert result["other_players_lost_games"] == 1
+    assert result["total_performance_points"] == 40
+
+
+def test_calculate_isko_list_performance_points_from_defender_declarer_win() -> None:
+    result = calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=[
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_win",
+                "settlement_score": 72,
+            },
+        ]
+    )
+
+    assert result == {
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_from_empty_contributions() -> None:
+    result = calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=[]
+    )
+
+    assert result == {
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_from_contributions_rejects_role() -> None:
+    try:
+        calculate_isko_list_performance_points_from_game_contributions(
+            game_contributions=[
+                {
+                    "player_role": "unknown",
+                    "game_outcome": "declarer_win",
+                    "settlement_score": 72,
+                },
+            ]
+        )
+    except ValueError as error:
+        assert "Unsupported contribution player_role" in str(error)
+        assert "unknown" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_isko_list_performance_points_from_contributions_rejects_outcome() -> None:
+    for game_outcome in ["incomplete", "unknown", "defender_win"]:
+        try:
+            calculate_isko_list_performance_points_from_game_contributions(
+                game_contributions=[
+                    {
+                        "player_role": "declarer",
+                        "game_outcome": game_outcome,
+                        "settlement_score": 72,
+                    },
+                ]
+            )
+        except ValueError as error:
+            assert "Unsupported contribution game_outcome" in str(error)
+            assert game_outcome in str(error)
+        else:
+            raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_isko_list_performance_points_from_contributions_rejects_missing_fields() -> None:
+    for field_name in ["player_role", "game_outcome", "settlement_score"]:
+        contribution = {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 72,
+        }
+        del contribution[field_name]
+
+        try:
+            calculate_isko_list_performance_points_from_game_contributions(
+                game_contributions=[contribution]
+            )
+        except ValueError as error:
+            assert "missing required field" in str(error)
+            assert field_name in str(error)
+        else:
+            raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_isko_list_contributions_reject_non_integer_scores() -> None:
+    for settlement_score in [None, "72", 72.0, True, False]:
+        try:
+            calculate_isko_list_performance_points_from_game_contributions(
+                game_contributions=[
+                    {
+                        "player_role": "declarer",
+                        "game_outcome": "declarer_win",
+                        "settlement_score": settlement_score,
+                    },
+                ]
+            )
+        except ValueError as error:
+            assert "settlement_score must be an integer" in str(error)
+        else:
+            raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_isko_list_performance_points_from_contributions_rejects_score_signs() -> None:
+    cases = [
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 0,
+            "expected_error": "positive settlement_score",
+        },
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": -72,
+            "expected_error": "positive settlement_score",
+        },
+        {
+            "player_role": "defender",
+            "game_outcome": "declarer_win",
+            "settlement_score": -72,
+            "expected_error": "positive settlement_score",
+        },
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_loss",
+            "settlement_score": 0,
+            "expected_error": "negative settlement_score",
+        },
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_loss",
+            "settlement_score": 72,
+            "expected_error": "negative settlement_score",
+        },
+        {
+            "player_role": "defender",
+            "game_outcome": "declarer_loss",
+            "settlement_score": 72,
+            "expected_error": "negative settlement_score",
+        },
+    ]
+
+    for case in cases:
+        try:
+            calculate_isko_list_performance_points_from_game_contributions(
+                game_contributions=[
+                    {
+                        "player_role": case["player_role"],
+                        "game_outcome": case["game_outcome"],
+                        "settlement_score": case["settlement_score"],
+                    },
+                ]
+            )
+        except ValueError as error:
+            assert case["expected_error"] in str(error)
+        else:
+            raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_isko_list_performance_points_from_contributions_rejects_table_size() -> None:
+    try:
+        calculate_isko_list_performance_points_from_game_contributions(
+            game_contributions=[],
+            table_size=4,
+        )
+    except ValueError as error:
+        assert "Unsupported ISkO list table size" in str(error)
+        assert "three-player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
 
 
 def test_build_list_performance_summary_for_aggregated_totals() -> None:
