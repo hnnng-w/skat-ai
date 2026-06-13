@@ -149,10 +149,12 @@ Implemented:
 * declarer rating points
 * counterparty/defender rating points
 * clear distinction between settlement score and rating score
+* already aggregated list or series totals via `list_performance_input`
+* normalized per-game list or series contributions via `list_game_contributions`
 
 Not implemented:
 
-* full list aggregation
+* raw full-game list aggregation
 * series aggregation
 * tournament aggregation
 * full player-by-player list output

@@ -970,6 +970,213 @@ def test_validate_position_input_rejects_negative_list_game_counters() -> None:
         ):
             validate_position_input(data)
 
+
+def test_validate_position_input_accepts_list_game_contributions() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_game_contributions"] = [
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 96,
+        },
+        {
+            "player_role": "defender",
+            "game_outcome": "declarer_loss",
+            "settlement_score": -144,
+        },
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_empty_list_game_contributions() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_game_contributions"] = []
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_both_list_performance_input_modes() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_performance_input"] = {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+    }
+    data["list_game_contributions"] = []
+
+    with pytest.raises(ValueError, match="alternative input modes"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_list_game_contributions_without_rating_system() -> None:
+    data = build_valid_input()
+    data["list_game_contributions"] = []
+
+    with pytest.raises(
+        ValueError,
+        match="list_game_contributions requires performance_rating_system",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_list_game_contributions_for_placeholder() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "placeholder"
+    data["list_game_contributions"] = []
+
+    with pytest.raises(
+        ValueError,
+        match="list_game_contributions requires performance_rating_system",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_non_array_list_game_contributions() -> None:
+    for list_game_contributions in [None, {}, "games", True]:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_game_contributions"] = list_game_contributions
+
+        with pytest.raises(
+            ValueError,
+            match="list_game_contributions must be an array",
+        ):
+            validate_position_input(data)
+
+
+def test_validate_position_input_rejects_non_object_list_game_contribution() -> None:
+    for contribution in [None, "game", 1, True]:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_game_contributions"] = [contribution]
+
+        with pytest.raises(ValueError, match="must be an object"):
+            validate_position_input(data)
+
+
+def test_validate_position_input_rejects_missing_list_game_contribution_fields() -> None:
+    for field_name in ["player_role", "game_outcome", "settlement_score"]:
+        contribution = {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 96,
+        }
+        del contribution[field_name]
+
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_game_contributions"] = [contribution]
+
+        with pytest.raises(ValueError, match="missing required keys"):
+            validate_position_input(data)
+
+
+def test_validate_position_input_rejects_additional_list_game_contribution_fields() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_game_contributions"] = [
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 96,
+            "table_size": 3,
+        }
+    ]
+
+    with pytest.raises(ValueError, match="unsupported keys"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_invalid_list_game_contribution_role() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_game_contributions"] = [
+        {
+            "player_role": "unknown",
+            "game_outcome": "declarer_win",
+            "settlement_score": 96,
+        }
+    ]
+
+    with pytest.raises(ValueError, match="Unsupported .*player_role"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_invalid_list_game_contribution_outcome() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_game_contributions"] = [
+        {
+            "player_role": "declarer",
+            "game_outcome": "unknown",
+            "settlement_score": 96,
+        }
+    ]
+
+    with pytest.raises(ValueError, match="Unsupported .*game_outcome"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_non_integer_list_game_contribution_scores() -> None:
+    for settlement_score in [None, "96", 96.0, True, False]:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_game_contributions"] = [
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": settlement_score,
+            }
+        ]
+
+        with pytest.raises(ValueError, match="settlement_score must be an integer"):
+            validate_position_input(data)
+
+
+def test_validate_position_input_rejects_list_game_contribution_score_signs() -> None:
+    cases = [
+        {
+            "game_outcome": "declarer_win",
+            "settlement_score": 0,
+            "expected_error": "positive settlement_score",
+        },
+        {
+            "game_outcome": "declarer_win",
+            "settlement_score": -96,
+            "expected_error": "positive settlement_score",
+        },
+        {
+            "game_outcome": "declarer_loss",
+            "settlement_score": 0,
+            "expected_error": "negative settlement_score",
+        },
+        {
+            "game_outcome": "declarer_loss",
+            "settlement_score": 96,
+            "expected_error": "negative settlement_score",
+        },
+    ]
+
+    for case in cases:
+        data = build_valid_input()
+        data["performance_rating_system"] = "isko_list"
+        data["list_game_contributions"] = [
+            {
+                "player_role": "declarer",
+                "game_outcome": case["game_outcome"],
+                "settlement_score": case["settlement_score"],
+            }
+        ]
+
+        with pytest.raises(ValueError, match=case["expected_error"]):
+            validate_position_input(data)
+
+
 def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
     data = {
         "game_type": "grand",

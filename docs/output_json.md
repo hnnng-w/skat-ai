@@ -337,7 +337,8 @@ Meaning:
 
 ## List performance summary
 
-`list_performance_summary` is emitted only when the input contains `list_performance_input`.
+`list_performance_summary` is emitted only when the input contains
+`list_performance_input` or `list_game_contributions`.
 
 It is separate from both `performance_rating_summary` and `final_settlement_summary`.
 
@@ -362,7 +363,7 @@ Meaning:
 
 | Field                        | Meaning                                                       |
 | ---------------------------- | ------------------------------------------------------------- |
-| `basis`                      | Indicates that the input was already aggregated.              |
+| `basis`                      | `aggregated_list_or_series_totals` or `normalized_game_contributions`. |
 | `table_size`                 | Fixed three-player table size used for ISkO-style points.     |
 | `player_game_points`         | Already aggregated game points for the rated player.          |
 | `own_games_won`              | Count of the rated player's won own games.                    |
@@ -371,6 +372,10 @@ Meaning:
 | `own_game_bonus_points`      | +50 per own game won and -50 per own game lost.               |
 | `opponent_loss_bonus_points` | +40 per lost game by another player at the three-player table.|
 | `total_performance_points`   | Sum of game points, own-game bonus points, and opponent-loss bonus points. |
+
+When the summary is derived from `list_game_contributions`, it keeps the same
+field set and uses `basis: "normalized_game_contributions"`. No contribution
+rows are echoed in the output.
 
 ## Analysis report
 

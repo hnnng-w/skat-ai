@@ -32,6 +32,13 @@ LIST_PERFORMANCE_COUNTER_FIELDS = [
     "own_games_lost",
     "other_players_lost_games",
 ]
+LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS = [
+    "player_role",
+    "game_outcome",
+    "settlement_score",
+]
+VALID_LIST_GAME_CONTRIBUTION_PLAYER_ROLES = ["declarer", "defender"]
+VALID_LIST_GAME_CONTRIBUTION_OUTCOMES = ["declarer_win", "declarer_loss"]
 
 
 def validate_required_keys(data: dict[str, Any]) -> None:
@@ -265,7 +272,9 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
+    validate_list_performance_input_modes(data)
     validate_optional_list_performance_input(data)
+    validate_optional_list_game_contributions(data)
     validate_completed_trick_sequence(
         completed_tricks=data.get("completed_tricks", []),
         current_trick=data.get("current_trick", []),
@@ -305,14 +314,25 @@ def validate_strict_integer(value: Any, field_name: str) -> None:
         raise ValueError(f"{field_name} must be an integer.")
 
 
+def validate_list_performance_input_modes(data: dict[str, Any]) -> None:
+    """
+    Validates that only one list/series performance input mode is supplied.
+    """
+    if "list_performance_input" in data and "list_game_contributions" in data:
+        raise ValueError(
+            "list_performance_input and list_game_contributions are alternative "
+            "input modes. Provide only one."
+        )
+
+
 def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
     """
     Validates optional already aggregated list/series performance input.
     """
-    list_performance_input = data.get("list_performance_input")
-
-    if list_performance_input is None:
+    if "list_performance_input" not in data:
         return
+
+    list_performance_input = data["list_performance_input"]
 
     if not isinstance(list_performance_input, dict):
         raise ValueError("list_performance_input must be an object.")
@@ -344,6 +364,79 @@ def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
             raise ValueError(
                 f"list_performance_input.{field_name} must be non-negative."
             )
+
+
+def validate_optional_list_game_contributions(data: dict[str, Any]) -> None:
+    """
+    Validates optional normalized list/series game contributions.
+    """
+    if "list_game_contributions" not in data:
+        return
+
+    list_game_contributions = data["list_game_contributions"]
+
+    if not isinstance(list_game_contributions, list):
+        raise ValueError("list_game_contributions must be an array.")
+
+    if data.get("performance_rating_system") != "isko_list":
+        raise ValueError(
+            "list_game_contributions requires performance_rating_system to be "
+            "isko_list."
+        )
+
+    for index, contribution in enumerate(list_game_contributions):
+        validate_list_game_contribution(contribution, index)
+
+
+def validate_list_game_contribution(contribution: Any, index: int) -> None:
+    """
+    Validates one normalized list/series game contribution.
+    """
+    field_prefix = f"list_game_contributions[{index}]"
+
+    if not isinstance(contribution, dict):
+        raise ValueError(f"{field_prefix} must be an object.")
+
+    missing_fields = [
+        field_name
+        for field_name in LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS
+        if field_name not in contribution
+    ]
+    if missing_fields:
+        raise ValueError(
+            f"{field_prefix} is missing required keys: {missing_fields}"
+        )
+
+    additional_fields = sorted(
+        set(contribution) - set(LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS)
+    )
+    if additional_fields:
+        raise ValueError(
+            f"{field_prefix} has unsupported keys: {additional_fields}"
+        )
+
+    player_role = contribution["player_role"]
+    if player_role not in VALID_LIST_GAME_CONTRIBUTION_PLAYER_ROLES:
+        raise ValueError(f"Unsupported {field_prefix}.player_role: {player_role}.")
+
+    game_outcome = contribution["game_outcome"]
+    if game_outcome not in VALID_LIST_GAME_CONTRIBUTION_OUTCOMES:
+        raise ValueError(
+            f"Unsupported {field_prefix}.game_outcome: {game_outcome}."
+        )
+
+    settlement_score = contribution["settlement_score"]
+    validate_strict_integer(settlement_score, f"{field_prefix}.settlement_score")
+
+    if game_outcome == "declarer_win" and settlement_score <= 0:
+        raise ValueError(
+            f"{field_prefix} declarer_win requires a positive settlement_score."
+        )
+
+    if game_outcome == "declarer_loss" and settlement_score >= 0:
+        raise ValueError(
+            f"{field_prefix} declarer_loss requires a negative settlement_score."
+        )
 
 
 def get_cards_from_completed_tricks_input(completed_tricks: list[dict[str, Any]]) -> list[str]:

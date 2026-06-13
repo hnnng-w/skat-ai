@@ -67,7 +67,8 @@ Current assumptions:
 * `rating_system` must be set to `isko_list`.
 * The implementation currently covers the declarer's single-game rating perspective.
 * Already aggregated list or series totals can be supplied directly.
-* Raw game aggregation, player-by-player list models, and tournament aggregation are not implemented yet.
+* Normalized per-game list or series contributions can be supplied directly.
+* Raw full-game aggregation, player-by-player list models, and tournament aggregation are not implemented yet.
 
 Implemented rating points:
 
@@ -108,7 +109,7 @@ For the fixed three-player table:
 
 `defender_rating_points` is currently an alias for `counterparty_rating_points`.
 
-## Aggregated list or series totals
+## List or series input modes
 
 Input files may optionally include already aggregated list or series totals:
 
@@ -129,6 +130,35 @@ Input files may optionally include already aggregated list or series totals:
 When `list_performance_input` is present, `performance_rating_system` must be `isko_list`.
 
 The input totals are already aggregated. The engine does not aggregate raw individual games in this mode.
+
+As an alternative, input files may include normalized per-game contributions:
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_game_contributions": [
+    {
+      "player_role": "declarer",
+      "game_outcome": "declarer_win",
+      "settlement_score": 96
+    },
+    {
+      "player_role": "defender",
+      "game_outcome": "declarer_loss",
+      "settlement_score": -144
+    }
+  ]
+}
+```
+
+`list_performance_input` and `list_game_contributions` are alternative input
+modes. Supplying both is rejected.
+
+An empty `list_game_contributions` array is valid and emits a zeroed
+`list_performance_summary`.
+
+Each normalized contribution contains the rated player's role, the declarer's
+game outcome, and the declarer's settlement score before performance points.
 
 For a fixed three-player table, the summary uses:
 
@@ -154,6 +184,9 @@ Example output:
   "total_performance_points": 300
 }
 ```
+
+Contribution-derived summaries use the same field set with
+`"basis": "normalized_game_contributions"`.
 
 `list_performance_summary` is independent from `final_settlement_summary` and does not change `performance_rating_summary`.
 
@@ -242,5 +275,6 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
 * Already aggregated list or series totals can be calculated when supplied via `list_performance_input`.
-* Raw game aggregation, player-by-player list models, multi-list rollups, and tournament aggregation are not implemented yet.
+* Normalized per-game contributions can be calculated when supplied via `list_game_contributions`.
+* Raw full-game aggregation, player-by-player list models, multi-list rollups, and tournament aggregation are not implemented yet.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.

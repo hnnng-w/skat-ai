@@ -547,7 +547,10 @@
         },
         "basis": {
           "type": "string",
-          "enum": ["aggregated_list_or_series_totals"]
+          "enum": [
+            "aggregated_list_or_series_totals",
+            "normalized_game_contributions"
+          ]
         },
         "table_size": {
           "type": "integer",

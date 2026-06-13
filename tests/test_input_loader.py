@@ -3,6 +3,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_left_opponent_policy_settings_from_input,
+    get_list_game_contributions_from_input,
     get_list_performance_input_from_input,
     get_opponent_policy_settings_from_input,
     get_performance_rating_system_from_input,
@@ -301,6 +302,35 @@ def test_get_list_performance_input_from_input_reads_value() -> None:
             "list_performance_input": list_performance_input,
         }
     ) == list_performance_input
+
+
+def test_get_list_game_contributions_from_input_defaults_to_none() -> None:
+    assert get_list_game_contributions_from_input({}) is None
+
+
+def test_get_list_game_contributions_from_input_reads_value() -> None:
+    list_game_contributions = [
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 96,
+        },
+    ]
+
+    assert get_list_game_contributions_from_input(
+        {
+            "list_game_contributions": list_game_contributions,
+        }
+    ) == list_game_contributions
+
+
+def test_get_list_game_contributions_from_input_preserves_empty_list() -> None:
+    assert get_list_game_contributions_from_input(
+        {
+            "list_game_contributions": [],
+        }
+    ) == []
+
 
 def test_get_left_opponent_policy_settings_defaults_to_global_values() -> None:
     assert get_left_opponent_policy_settings_from_input(

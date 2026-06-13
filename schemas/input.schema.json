@@ -23,6 +23,37 @@
     "random_seed",
     "use_basic_opponent_strategy"
   ],
+  "not": {
+    "required": ["list_performance_input", "list_game_contributions"]
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["list_performance_input"]
+      },
+      "then": {
+        "required": ["performance_rating_system"],
+        "properties": {
+          "performance_rating_system": {
+            "const": "isko_list"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["list_game_contributions"]
+      },
+      "then": {
+        "required": ["performance_rating_system"],
+        "properties": {
+          "performance_rating_system": {
+            "const": "isko_list"
+          }
+        }
+      }
+    }
+  ],
   "properties": {
     "game_type": {
       "type": "string",
@@ -164,6 +195,9 @@
     },
     "list_performance_input": {
       "$ref": "#/$defs/list_performance_input"
+    },
+    "list_game_contributions": {
+      "$ref": "#/$defs/list_game_contributions"
     }
   },
   "$defs": {
@@ -226,6 +260,66 @@
           "$ref": "#/$defs/non_negative_integer"
         }
       }
+    },
+    "list_game_contributions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/list_game_contribution"
+      }
+    },
+    "list_game_contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_role", "game_outcome", "settlement_score"],
+      "properties": {
+        "player_role": {
+          "type": "string",
+          "enum": ["declarer", "defender"]
+        },
+        "game_outcome": {
+          "type": "string",
+          "enum": ["declarer_win", "declarer_loss"]
+        },
+        "settlement_score": {
+          "type": "integer"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["game_outcome"],
+            "properties": {
+              "game_outcome": {
+                "const": "declarer_win"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "settlement_score": {
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["game_outcome"],
+            "properties": {
+              "game_outcome": {
+                "const": "declarer_loss"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "settlement_score": {
+                "maximum": -1
+              }
+            }
+          }
+        }
+      ]
     },
     "completed_trick": {
       "type": "object",

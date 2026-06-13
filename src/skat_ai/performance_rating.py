@@ -83,13 +83,25 @@ def calculate_isko_list_performance_points_from_game_contributions(
     own_games_lost = 0
     other_players_lost_games = 0
 
+    required_fields = ["player_role", "game_outcome", "settlement_score"]
+
     for contribution in game_contributions:
-        for field_name in ["player_role", "game_outcome", "settlement_score"]:
+        if not isinstance(contribution, dict):
+            raise ValueError("game contribution must be an object.")
+
+        for field_name in required_fields:
             if field_name not in contribution:
                 raise ValueError(
                     "game contribution is missing required field: "
                     f"{field_name}."
                 )
+
+        additional_fields = sorted(set(contribution) - set(required_fields))
+        if additional_fields:
+            raise ValueError(
+                "game contribution has unsupported fields: "
+                f"{additional_fields}."
+            )
 
         player_role = contribution["player_role"]
         if player_role not in ["declarer", "defender"]:
@@ -186,6 +198,45 @@ def build_list_performance_summary(
         "other_players_lost_games": list_performance_input[
             "other_players_lost_games"
         ],
+        "own_game_bonus_points": performance_points["own_game_bonus_points"],
+        "opponent_loss_bonus_points": performance_points[
+            "opponent_loss_bonus_points"
+        ],
+        "total_performance_points": performance_points[
+            "total_performance_points"
+        ],
+    }
+
+
+def build_list_performance_summary_from_game_contributions(
+    game_contributions: list[dict[str, Any]],
+    rating_system: str | None,
+) -> dict[str, Any]:
+    """
+    Builds a list/series performance summary from normalized game contributions.
+
+    This stays independent from the currently analyzed game's settlement.
+    """
+    validate_performance_rating_system(rating_system)
+
+    if rating_system != "isko_list":
+        raise ValueError(
+            "list_game_contributions requires performance_rating_system to be "
+            "isko_list."
+        )
+
+    performance_points = calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=game_contributions,
+    )
+
+    return {
+        "rating_system": rating_system,
+        "basis": "normalized_game_contributions",
+        "table_size": performance_points["table_size"],
+        "player_game_points": performance_points["player_game_points"],
+        "own_games_won": performance_points["own_games_won"],
+        "own_games_lost": performance_points["own_games_lost"],
+        "other_players_lost_games": performance_points["other_players_lost_games"],
         "own_game_bonus_points": performance_points["own_game_bonus_points"],
         "opponent_loss_bonus_points": performance_points[
             "opponent_loss_bonus_points"

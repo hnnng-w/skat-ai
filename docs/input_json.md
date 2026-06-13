@@ -345,6 +345,50 @@ Validation rules:
 * `table_size` is fixed at `3` and is not accepted as an input field.
 * Raw individual games are not aggregated in this input mode.
 
+As an alternative to already aggregated totals, input files may include
+normalized per-game list or series contributions:
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_game_contributions": [
+    {
+      "player_role": "declarer",
+      "game_outcome": "declarer_win",
+      "settlement_score": 96
+    },
+    {
+      "player_role": "defender",
+      "game_outcome": "declarer_loss",
+      "settlement_score": -144
+    }
+  ]
+}
+```
+
+Contribution fields:
+
+| Field              | Meaning                                                            |
+| ------------------ | ------------------------------------------------------------------ |
+| `player_role`      | Rated player's role in that game: `declarer` or `defender`.        |
+| `game_outcome`     | Declarer's game outcome: `declarer_win` or `declarer_loss`.        |
+| `settlement_score` | Declarer's single-game settlement score before performance points. |
+
+Validation rules:
+
+* `list_game_contributions` is optional.
+* If provided, `performance_rating_system` must be `isko_list`.
+* It must be an array. An empty array is valid.
+* Each contribution must contain exactly `player_role`, `game_outcome`, and `settlement_score`.
+* Additional contribution fields are rejected.
+* `player_role` must be `declarer` or `defender`.
+* `game_outcome` must be `declarer_win` or `declarer_loss`.
+* `settlement_score` must be an integer.
+* `declarer_win` requires a positive `settlement_score`.
+* `declarer_loss` requires a negative `settlement_score`.
+* `list_performance_input` and `list_game_contributions` are alternative input modes and cannot both be supplied.
+* `table_size` is fixed at `3` and is not accepted as an input field.
+
 ## Opponent policy fields
 
 Input files can define opponent card-selection policies.

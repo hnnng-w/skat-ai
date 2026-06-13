@@ -1,5 +1,6 @@
 from skat_ai.performance_rating import (
     build_list_performance_summary,
+    build_list_performance_summary_from_game_contributions,
     build_performance_rating_summary,
     calculate_isko_counterparty_rating_points,
     calculate_isko_declarer_rating_points,
@@ -572,6 +573,37 @@ def test_calculate_isko_list_performance_points_from_contributions_rejects_missi
             raise AssertionError("Expected ValueError was not raised.")
 
 
+def test_calculate_isko_list_performance_points_from_contributions_rejects_non_objects() -> None:
+    for contribution in [None, "game", 1, True]:
+        try:
+            calculate_isko_list_performance_points_from_game_contributions(
+                game_contributions=[contribution]
+            )
+        except ValueError as error:
+            assert "game contribution must be an object" in str(error)
+        else:
+            raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_isko_list_performance_points_from_contributions_rejects_extra_fields() -> None:
+    try:
+        calculate_isko_list_performance_points_from_game_contributions(
+            game_contributions=[
+                {
+                    "player_role": "declarer",
+                    "game_outcome": "declarer_win",
+                    "settlement_score": 72,
+                    "table_size": 3,
+                },
+            ]
+        )
+    except ValueError as error:
+        assert "unsupported fields" in str(error)
+        assert "table_size" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
 def test_calculate_isko_list_contributions_reject_non_integer_scores() -> None:
     for settlement_score in [None, "72", 72.0, True, False]:
         try:
@@ -683,6 +715,95 @@ def test_build_list_performance_summary_for_aggregated_totals() -> None:
         "opponent_loss_bonus_points": 80,
         "total_performance_points": 300,
     }
+
+
+def test_build_list_performance_summary_from_mixed_contributions() -> None:
+    summary = build_list_performance_summary_from_game_contributions(
+        game_contributions=[
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 72,
+            },
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 48,
+            },
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_win",
+                "settlement_score": 96,
+            },
+            {
+                "player_role": "declarer",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -96,
+            },
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -72,
+            },
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -48,
+            },
+            {
+                "player_role": "defender",
+                "game_outcome": "declarer_win",
+                "settlement_score": 48,
+            },
+        ],
+        rating_system="isko_list",
+    )
+
+    assert summary == {
+        "rating_system": "isko_list",
+        "basis": "normalized_game_contributions",
+        "table_size": 3,
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+        "own_game_bonus_points": 100,
+        "opponent_loss_bonus_points": 80,
+        "total_performance_points": 300,
+    }
+
+
+def test_build_list_performance_summary_from_empty_contributions() -> None:
+    summary = build_list_performance_summary_from_game_contributions(
+        game_contributions=[],
+        rating_system="isko_list",
+    )
+
+    assert summary == {
+        "rating_system": "isko_list",
+        "basis": "normalized_game_contributions",
+        "table_size": 3,
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+    }
+
+
+def test_build_list_performance_summary_from_contributions_rejects_rating_system() -> None:
+    for rating_system in [None, "placeholder"]:
+        try:
+            build_list_performance_summary_from_game_contributions(
+                game_contributions=[],
+                rating_system=rating_system,
+            )
+        except ValueError as error:
+            assert "requires performance_rating_system to be isko_list" in str(error)
+        else:
+            raise AssertionError("Expected ValueError was not raised.")
 
 
 def test_build_list_performance_summary_rejects_missing_rating_system() -> None:
