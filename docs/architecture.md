@@ -113,13 +113,26 @@ When profile presets are enabled for multi-step simulation, the left and right p
 
 Some profile fields are currently informational only: `solo_games_played`, `defender_games_played`, `solo_win_rate`, `suit_game_rate`, and `null_game_rate`.
 
-The current defender cooperation model includes:
+The current defender cooperation model is heuristic, explainable, and implemented for the fixed three-player table. It includes:
 
 * safer defender lead behavior
-* safe smear when the partner is currently winning
+* avoiding overtaking a winning partner when a partner-safe legal card exists
+* safe smear while preserving the partner's winning position
+* forced partner overtake using the lowest-point legal winning card
+* equal-point forced-overtake tie-break using weakest sufficient trick strength
+* winning-card selection using the lowest-point legal winner
+* equal-point winning-card tie-break using weakest sufficient trick strength
+* equal-point safe-smear tie-break using weakest trick strength
 * safer discard when the declarer is winning and the defender cannot win
+* narrow second-hand trump conservation on zero-point non-trump leads when only trump wins and a losing discard exists
 
-These behaviors are still heuristic and not a full partnership model.
+Issue #22's current heuristic and explainable defender-partnership scope is implemented. Current limitations remain future strategy work rather than blockers for that issue:
+
+* partnership inference is strongest in the currently supported second-hand path
+* no complete rear-hand partnership model exists
+* no dedicated null-game defender-partnership strategy exists
+* no stable declarer/partner identity exists when the local player itself is only known generically as `defender`
+* no perfect-information solving, search, machine learning, or hidden-card inference is used
 
 ## Left/right opponent policy flow
 

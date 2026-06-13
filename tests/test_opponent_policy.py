@@ -441,6 +441,45 @@ def test_choose_basic_defender_response_conserves_trump_on_zero_point_second_han
     assert selected_card == "D7"
 
 
+def test_choose_basic_defender_response_conserves_suit_game_trump_on_zero_point_second_hand_trick(
+) -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["S7", "D7", "C9"],
+        current_trick=["H7"],
+        game_type="spades",
+        player_index=1,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "D7"
+
+
+def test_choose_basic_defender_response_wins_on_point_bearing_second_hand_lead(
+) -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["HJ", "DJ", "D7"],
+        current_trick=["S10"],
+        game_type="grand",
+        player_index=1,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "DJ"
+
+
+def test_choose_basic_defender_response_does_not_conserve_trump_in_rear_hand(
+) -> None:
+    selected_card = choose_basic_defender_response_card(
+        hand=["DJ", "D7", "C9"],
+        current_trick=["S7", "H8"],
+        game_type="grand",
+        player_index=2,
+        partner_currently_winning=False,
+    )
+
+    assert selected_card == "DJ"
+
+
 def test_choose_basic_defender_response_uses_weakest_card_for_equal_point_win(
 ) -> None:
     selected_card = choose_basic_defender_response_card(

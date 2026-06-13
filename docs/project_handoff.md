@@ -212,14 +212,28 @@ Known remaining areas:
 
 Implemented:
 
-* safe smear when the partner is currently winning
+* safe smear while preserving the partner's winning position
+* avoiding overtaking a winning partner when a partner-safe legal card exists
+* forced partner overtake using the lowest-point legal winning card
+* equal-point forced-overtake tie-break using weakest sufficient trick strength
+* winning-card selection using the lowest-point legal winner
+* equal-point winning-card tie-break using weakest sufficient trick strength
+* equal-point safe-smear tie-break using weakest trick strength
+* narrow second-hand trump conservation on zero-point non-trump leads when only trump wins and a losing discard exists
 * safer discard when the declarer is currently winning and the defender cannot win
 * safer defender lead that prefers low-point non-trumps when possible
 
+Issue #22's current heuristic and explainable defender-partnership scope is implemented.
+
 Known remaining areas:
 
-* defender behavior is still heuristic
+* defender behavior is still heuristic and assumes a fixed three-player table
+* partnership inference is strongest in the currently supported second-hand path
+* no complete rear-hand partnership model exists yet
+* no dedicated null-game defender-partnership strategy exists yet
+* no stable declarer/partner identity exists when the local player itself is only known generically as `defender`
 * no full partnership/tactical plan model exists yet
+* no perfect-information solving, search, machine learning, or hidden-card inference is used
 
 ### Post-game review
 

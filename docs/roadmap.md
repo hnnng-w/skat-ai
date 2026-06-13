@@ -97,10 +97,17 @@ Implemented:
 * Left/right opponent policy CLI overrides
 * Left/right opponent policy output settings
 * Left/right policy handling in multi-step opponent lead and response paths
-* Basic defender cooperation improvements:
+* Basic defender cooperation improvements and issue #22's current heuristic defender-partnership scope:
 
   * safer defender lead
-  * safe smear when the partner is winning
+  * avoiding overtaking a winning partner when a partner-safe legal card exists
+  * safe smear while preserving the partner's winning position
+  * forced partner overtake using the lowest-point legal winning card
+  * equal-point forced-overtake tie-break using weakest sufficient trick strength
+  * winning-card selection using the lowest-point legal winner
+  * equal-point winning-card tie-break using weakest sufficient trick strength
+  * equal-point safe-smear tie-break using weakest trick strength
+  * narrow second-hand trump conservation on zero-point non-trump leads when only trump wins and a losing discard exists
   * safer discard when the declarer is winning and the defender cannot win
 
 ### Post-game review
@@ -167,6 +174,12 @@ Implemented:
 
 * Opponent behavior is still simplified and rule-based.
 * Defender cooperation has improved, but it is still heuristic and not a full tactical model.
+* Defender cooperation assumes the fixed three-player table.
+* Defender partnership inference is strongest in the currently supported second-hand path.
+* There is no complete rear-hand partnership model.
+* There is no dedicated null-game defender-partnership strategy.
+* There is no stable declarer/partner identity when the local player itself is only known generically as `defender`.
+* Defender cooperation does not use perfect-information solving, search, machine learning, or hidden-card inference.
 * Player profiles influence recommendations and policy presets, but the model does not learn from historical player data.
 * Profile-based presets use rough heuristics and are not learned from data.
 * PlayerProfile confidence is currently used for profile-derived preset selection and conflict resolution, not deeper tactical simulation decisions.
@@ -199,6 +212,7 @@ Potential future gameplay improvements:
 * Add more realistic profile-preset example variants.
 * Add dedicated examples for separate left/right opponent policies.
 * Explore deeper PlayerProfile confidence usage beyond preset selection.
+* Explore broader defender strategy beyond issue #22's implemented heuristic scope.
 * Add stronger tests for left/right opponent policy effects with controlled opponent hands.
 * Improve matador inference from historical completed-trick context where safe and verifiable.
 * Add richer explanation details for why a recommended card is preferred.
@@ -230,7 +244,7 @@ Completed issues should be closed when their implementation is covered by tests 
 
 Recommended current issue handling:
 
-* Close or update issues for game score calculation, claim/concession handling, live-vs-post-game enforcement, JSON schema documentation, defender cooperation logic, full Skat game value scoring, and post-game review decision quality if their implemented scope is covered.
+* Close or update issues for game score calculation, claim/concession handling, live-vs-post-game enforcement, JSON schema documentation, defender cooperation logic including issue #22, full Skat game value scoring, and post-game review decision quality if their implemented scope is covered.
 * Keep full list/series/tournament rating work open as a future performance-rating issue.
 * Close current PlayerProfile-confidence preset-selection work when tests and documentation are complete; keep deeper tactical opponent modeling as separate future work.
 * Keep richer post-game review examples open as an examples/documentation task.
