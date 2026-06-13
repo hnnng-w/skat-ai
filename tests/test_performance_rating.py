@@ -9,6 +9,7 @@ from skat_ai.performance_rating import (
     calculate_isko_declarer_rating_points,
     calculate_isko_declarer_rating_score,
     calculate_isko_list_performance_points,
+    calculate_isko_list_performance_points_from_analysis_results,
     calculate_isko_list_performance_points_from_game_contributions,
     get_game_outcome_for_rating,
     get_performance_rating_implemented_scope,
@@ -311,6 +312,156 @@ def test_build_list_game_contribution_from_analysis_result_rejects_inconsistent_
 
     with pytest.raises(ValueError, match=expected_error):
         build_list_game_contribution_from_analysis_result(result)
+
+
+def test_calculate_isko_list_performance_points_from_analysis_results_mixed_results() -> None:
+    result = calculate_isko_list_performance_points_from_analysis_results(
+        analysis_results=[
+            build_contribution_analysis_result(
+                player_role="declarer",
+                is_loss=False,
+                settlement_score=72,
+            ),
+            build_contribution_analysis_result(
+                player_role="declarer",
+                is_loss=True,
+                settlement_score=-96,
+            ),
+            build_contribution_analysis_result(
+                player_role="defender",
+                is_loss=True,
+                settlement_score=-48,
+            ),
+            build_contribution_analysis_result(
+                player_role="defender",
+                is_loss=False,
+                settlement_score=48,
+            ),
+        ]
+    )
+
+    assert result == {
+        "player_game_points": -24,
+        "own_games_won": 1,
+        "own_games_lost": 1,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 16,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_from_analysis_results_skips_none_results() -> None:
+    result = calculate_isko_list_performance_points_from_analysis_results(
+        analysis_results=[
+            build_contribution_analysis_result(
+                is_complete=False,
+                is_loss=None,
+                settlement_score=None,
+                winner=None,
+                declarer_won_by_card_points=None,
+            ),
+            build_contribution_analysis_result(player_role="unknown"),
+            build_contribution_analysis_result(
+                player_role="defender",
+                is_loss=True,
+                settlement_score=-72,
+            ),
+        ]
+    )
+
+    assert result == {
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 40,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_from_empty_analysis_results() -> None:
+    result = calculate_isko_list_performance_points_from_analysis_results(
+        analysis_results=[]
+    )
+
+    assert result == {
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_from_only_skipped_results() -> None:
+    result = calculate_isko_list_performance_points_from_analysis_results(
+        analysis_results=[
+            build_contribution_analysis_result(
+                is_complete=False,
+                is_loss=None,
+                settlement_score=None,
+                winner=None,
+                declarer_won_by_card_points=None,
+            ),
+            build_contribution_analysis_result(player_role="unknown"),
+        ]
+    )
+
+    assert result == {
+        "player_game_points": 0,
+        "own_games_won": 0,
+        "own_games_lost": 0,
+        "other_players_lost_games": 0,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": 0,
+        "table_size": 3,
+    }
+
+
+@pytest.mark.parametrize("analysis_results", [None, {}, (), "results", True, 1])
+def test_calculate_isko_list_performance_points_from_analysis_results_rejects_non_list(
+    analysis_results,
+) -> None:
+    with pytest.raises(ValueError, match="analysis_results must be a list"):
+        calculate_isko_list_performance_points_from_analysis_results(
+            analysis_results=analysis_results
+        )
+
+
+@pytest.mark.parametrize("analysis_result", [None, [], "result", True, 1])
+def test_calculate_isko_list_performance_points_from_analysis_results_rejects_entries(
+    analysis_result,
+) -> None:
+    with pytest.raises(ValueError, match="analysis_result must be an object"):
+        calculate_isko_list_performance_points_from_analysis_results(
+            analysis_results=[analysis_result]
+        )
+
+
+def test_calculate_isko_list_performance_points_from_analysis_results_rejects_malformed() -> None:
+    analysis_result = build_contribution_analysis_result()
+    del analysis_result["final_settlement_summary"]["settlement_score"]
+
+    with pytest.raises(ValueError, match="settlement_score is required"):
+        calculate_isko_list_performance_points_from_analysis_results(
+            analysis_results=[analysis_result]
+        )
+
+
+def test_calculate_isko_list_performance_points_from_analysis_results_rejects_table_size() -> None:
+    with pytest.raises(ValueError, match="Unsupported ISkO list table size"):
+        calculate_isko_list_performance_points_from_analysis_results(
+            analysis_results=[],
+            table_size=4,
+        )
 
 
 def test_get_game_outcome_for_rating_returns_incomplete() -> None:

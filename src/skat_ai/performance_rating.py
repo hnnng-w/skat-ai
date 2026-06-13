@@ -152,6 +152,33 @@ def build_list_game_contribution_from_analysis_result(
     }
 
 
+def calculate_isko_list_performance_points_from_analysis_results(
+    analysis_results: list[dict[str, Any]],
+    table_size: int = ISKO_FIXED_TABLE_PLAYER_COUNT,
+) -> dict[str, int]:
+    """
+    Aggregates already-built analysis results for one local list player.
+
+    The caller must provide results from one consistently represented local
+    "me" player. Incomplete games and unknown local player roles are skipped.
+    """
+    if not isinstance(analysis_results, list):
+        raise ValueError("analysis_results must be a list.")
+
+    game_contributions = []
+    for analysis_result in analysis_results:
+        contribution = build_list_game_contribution_from_analysis_result(
+            analysis_result
+        )
+        if contribution is not None:
+            game_contributions.append(contribution)
+
+    return calculate_isko_list_performance_points_from_game_contributions(
+        game_contributions=game_contributions,
+        table_size=table_size,
+    )
+
+
 def calculate_isko_list_performance_points_from_game_contributions(
     game_contributions: list[dict[str, Any]],
     table_size: int = ISKO_FIXED_TABLE_PLAYER_COUNT,
