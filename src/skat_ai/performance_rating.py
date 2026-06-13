@@ -10,6 +10,57 @@ ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE = 40
 ISKO_FIXED_TABLE_PLAYER_COUNT = 3
 
 
+def calculate_isko_list_performance_points(
+    player_game_points: int,
+    own_games_won: int,
+    own_games_lost: int,
+    other_players_lost_games: int,
+    table_size: int = ISKO_FIXED_TABLE_PLAYER_COUNT,
+) -> dict[str, int]:
+    """
+    Calculates ISkO-style list performance points for one player.
+
+    Inputs are already aggregated list or series totals. This is separate from
+    single-game final settlement and does not inspect final_settlement_summary.
+    """
+    if table_size != ISKO_FIXED_TABLE_PLAYER_COUNT:
+        raise ValueError(
+            f"Unsupported ISkO list table size: {table_size}. "
+            "Only three-player tables are supported."
+        )
+
+    game_counters = {
+        "own_games_won": own_games_won,
+        "own_games_lost": own_games_lost,
+        "other_players_lost_games": other_players_lost_games,
+    }
+    for field_name, value in game_counters.items():
+        if value < 0:
+            raise ValueError(f"{field_name} must be non-negative.")
+
+    own_game_bonus_points = (
+        own_games_won * ISKO_DECLARER_WIN_POINTS
+        + own_games_lost * ISKO_DECLARER_LOSS_POINTS
+    )
+    opponent_loss_bonus_points = (
+        other_players_lost_games
+        * ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE
+    )
+    total_performance_points = (
+        player_game_points
+        + own_game_bonus_points
+        + opponent_loss_bonus_points
+    )
+
+    return {
+        "player_game_points": player_game_points,
+        "own_game_bonus_points": own_game_bonus_points,
+        "opponent_loss_bonus_points": opponent_loss_bonus_points,
+        "total_performance_points": total_performance_points,
+        "table_size": table_size,
+    }
+
+
 def get_game_outcome_for_rating(
     final_settlement_summary: dict[str, Any],
 ) -> str:

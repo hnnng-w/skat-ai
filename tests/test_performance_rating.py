@@ -3,6 +3,7 @@ from skat_ai.performance_rating import (
     calculate_isko_counterparty_rating_points,
     calculate_isko_declarer_rating_points,
     calculate_isko_declarer_rating_score,
+    calculate_isko_list_performance_points,
     get_game_outcome_for_rating,
     get_performance_rating_implemented_scope,
     get_performance_rating_unsupported_reason,
@@ -346,3 +347,136 @@ def test_get_performance_rating_unsupported_scope_for_none() -> None:
     assert get_performance_rating_unsupported_scope(None) == (
         "performance_rating_not_implemented"
     )
+
+
+def test_calculate_isko_list_performance_points_for_mixed_positive_totals() -> None:
+    result = calculate_isko_list_performance_points(
+        player_game_points=120,
+        own_games_won=3,
+        own_games_lost=1,
+        other_players_lost_games=2,
+    )
+
+    assert result == {
+        "player_game_points": 120,
+        "own_game_bonus_points": 100,
+        "opponent_loss_bonus_points": 80,
+        "total_performance_points": 300,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_allows_negative_game_points() -> None:
+    result = calculate_isko_list_performance_points(
+        player_game_points=-80,
+        own_games_won=1,
+        own_games_lost=0,
+        other_players_lost_games=0,
+    )
+
+    assert result == {
+        "player_game_points": -80,
+        "own_game_bonus_points": 50,
+        "opponent_loss_bonus_points": 0,
+        "total_performance_points": -30,
+        "table_size": 3,
+    }
+
+
+def test_calculate_isko_list_performance_points_counts_own_game_losses() -> None:
+    result = calculate_isko_list_performance_points(
+        player_game_points=0,
+        own_games_won=0,
+        own_games_lost=2,
+        other_players_lost_games=0,
+    )
+
+    assert result["own_game_bonus_points"] == -100
+    assert result["total_performance_points"] == -100
+
+
+def test_calculate_isko_list_performance_points_counts_opponent_losses() -> None:
+    result = calculate_isko_list_performance_points(
+        player_game_points=0,
+        own_games_won=0,
+        own_games_lost=0,
+        other_players_lost_games=3,
+    )
+
+    assert result["opponent_loss_bonus_points"] == 120
+    assert result["total_performance_points"] == 120
+
+
+def test_calculate_isko_list_performance_points_defaults_to_three_players() -> None:
+    result = calculate_isko_list_performance_points(
+        player_game_points=0,
+        own_games_won=0,
+        own_games_lost=0,
+        other_players_lost_games=0,
+    )
+
+    assert result["table_size"] == 3
+
+
+def test_calculate_isko_list_performance_points_accepts_explicit_three_players() -> None:
+    result = calculate_isko_list_performance_points(
+        player_game_points=0,
+        own_games_won=0,
+        own_games_lost=0,
+        other_players_lost_games=0,
+        table_size=3,
+    )
+
+    assert result["table_size"] == 3
+
+
+def test_calculate_isko_list_performance_points_rejects_non_three_player_table() -> None:
+    try:
+        calculate_isko_list_performance_points(
+            player_game_points=0,
+            own_games_won=0,
+            own_games_lost=0,
+            other_players_lost_games=0,
+            table_size=4,
+        )
+    except ValueError as error:
+        assert "Unsupported ISkO list table size" in str(error)
+        assert "three-player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_calculate_isko_list_performance_points_rejects_negative_counters() -> None:
+    cases = [
+        {
+            "own_games_won": -1,
+            "own_games_lost": 0,
+            "other_players_lost_games": 0,
+            "expected_error": "own_games_won must be non-negative.",
+        },
+        {
+            "own_games_won": 0,
+            "own_games_lost": -1,
+            "other_players_lost_games": 0,
+            "expected_error": "own_games_lost must be non-negative.",
+        },
+        {
+            "own_games_won": 0,
+            "own_games_lost": 0,
+            "other_players_lost_games": -1,
+            "expected_error": "other_players_lost_games must be non-negative.",
+        },
+    ]
+
+    for case in cases:
+        try:
+            calculate_isko_list_performance_points(
+                player_game_points=0,
+                own_games_won=case["own_games_won"],
+                own_games_lost=case["own_games_lost"],
+                other_players_lost_games=case["other_players_lost_games"],
+            )
+        except ValueError as error:
+            assert str(error) == case["expected_error"]
+        else:
+            raise AssertionError("Expected ValueError was not raised.")
