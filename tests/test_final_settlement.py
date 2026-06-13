@@ -411,6 +411,35 @@ def test_build_final_settlement_summary_applies_overbid_loss_score() -> None:
     assert summary["settlement_score"] == -144
     assert summary["overbid_required_game_value"] == 72
 
+
+def test_overbid_required_value_takes_precedence_over_achieved_schneider() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={
+            "game_value": 48,
+            "base_value": 24,
+            "is_null_game": False,
+        },
+        game_result_summary={
+            "is_complete": True,
+            "winner": "declarer",
+            "effective_schneider_status": "declarer_made_schneider",
+        },
+        overbid_summary={
+            "bid_value": 73,
+            "game_value": 48,
+            "is_overbid": True,
+            "margin": -25,
+            "required_game_value": 96,
+            "status": "overbid",
+        },
+    )
+
+    assert summary["winner"] == "declarer"
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == -192
+    assert summary["is_loss"] is True
+
+
 def test_is_overbid_settlement_supported_for_not_overbid() -> None:
     assert is_overbid_settlement_supported(
         {
