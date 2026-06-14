@@ -71,6 +71,7 @@ def choose_highest_expected_value_card(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> str:
     """
     Chooses the legal card with the highest estimated immediate expected point swing.
@@ -82,6 +83,7 @@ def choose_highest_expected_value_card(
         sample_count=sample_count,
         random_seed=random_seed,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     if not values:
@@ -101,6 +103,7 @@ def choose_card_by_policy(
     expected_value_sample_count: int = 100,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> str:
     """
     Chooses a card using the given card-selection policy.
@@ -127,6 +130,7 @@ def choose_card_by_policy(
             sample_count=expected_value_sample_count,
             random_seed=random_seed,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
 
     raise ValueError(f"Invalid card selection policy: {policy}")

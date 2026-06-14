@@ -7,6 +7,7 @@ from skat_ai.game_history import (
     get_players_for_trick_leader,
 )
 from skat_ai.game_state import GameState
+from skat_ai.opponent_policy import choose_opponent_response_card_by_policy
 from skat_ai.rules import (
     get_card_points,
     get_card_strength,
@@ -169,6 +170,7 @@ def complete_trick_after_candidate_card(
     right_hand: list[str],
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> list[str]:
     """
     Completes the current trick after the player plays candidate_card.
@@ -183,8 +185,22 @@ def complete_trick_after_candidate_card(
     def choose_and_remove_opponent_card(
         hand: list[str],
         current_trick: list[str],
+        player: str | None,
     ) -> str:
-        if use_basic_opponent_strategy:
+        if (
+            player is not None
+            and opponent_response_policy_by_player is not None
+            and player in opponent_response_policy_by_player
+        ):
+            selected_card = choose_opponent_response_card_by_policy(
+                hand=hand,
+                current_trick=current_trick,
+                game_type=state.game_type,
+                player_index=len(current_trick),
+                policy=opponent_response_policy_by_player[player],
+                random_generator=rng,
+            )
+        elif use_basic_opponent_strategy:
             selected_card = choose_basic_opponent_card(
                 hand=hand,
                 current_trick=current_trick,
@@ -208,6 +224,7 @@ def complete_trick_after_candidate_card(
         left_card = choose_and_remove_opponent_card(
             hand=left_hand,
             current_trick=trick,
+            player="left",
         )
 
         trick.append(left_card)
@@ -215,12 +232,14 @@ def complete_trick_after_candidate_card(
         right_card = choose_and_remove_opponent_card(
             hand=right_hand,
             current_trick=trick,
+            player="right",
         )
 
         trick.append(right_card)
 
     elif len(trick) == 2:
         third_hand = right_hand
+        third_player = None
 
         if state.trick_leader != "unknown":
             trick_players = get_players_for_trick_leader(state.trick_leader)
@@ -239,6 +258,7 @@ def complete_trick_after_candidate_card(
         third_card = choose_and_remove_opponent_card(
             hand=third_hand,
             current_trick=trick,
+            player=third_player,
         )
 
         trick.append(third_card)
@@ -259,6 +279,7 @@ def simulate_immediate_trick_once(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> bool:
     """
     Simulates the current trick once after the player plays candidate_card.
@@ -272,6 +293,7 @@ def simulate_immediate_trick_once(
         right_hand_size=right_hand_size,
         random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     return bool(result["did_win"])
@@ -285,6 +307,7 @@ def estimate_immediate_trick_win_rate(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> float:
     """
     Estimates how often candidate_card wins the current trick.
@@ -304,6 +327,7 @@ def estimate_immediate_trick_win_rate(
             right_hand_size=right_hand_size,
             random_generator=rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
 
         if did_win:
@@ -319,6 +343,7 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> dict[str, float]:
     """
     Estimates immediate trick win rates for all legal cards in the current state.
@@ -340,6 +365,7 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
             sample_count=sample_count,
             random_seed=rng.randint(0, 10**9) if rng is not None else None,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
         for card in legal_cards
     }
@@ -352,6 +378,7 @@ def simulate_immediate_trick_once_with_points(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> tuple[bool, int]:
     """
     Simulates the current trick once and returns whether candidate_card wins
@@ -364,6 +391,7 @@ def simulate_immediate_trick_once_with_points(
         right_hand_size=right_hand_size,
         random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     return bool(result["did_win"]), int(result["trick_points"])
@@ -377,6 +405,7 @@ def estimate_immediate_trick_value(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> dict[str, float]:
     """
     Estimates immediate trick value for one candidate card.
@@ -405,6 +434,7 @@ def estimate_immediate_trick_value(
             right_hand_size=right_hand_size,
             random_generator=rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
 
         total_trick_points += trick_points
@@ -430,6 +460,7 @@ def estimate_immediate_trick_values_for_legal_cards(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> dict[str, dict[str, float]]:
     """
     Estimates immediate trick value metrics for all legal cards in the current state.
@@ -451,6 +482,7 @@ def estimate_immediate_trick_values_for_legal_cards(
             sample_count=sample_count,
             random_seed=rng.randint(0, 10**9) if rng is not None else None,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
         for card in legal_cards
     }
@@ -463,6 +495,7 @@ def simulate_immediate_trick_once_detailed(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """
     Simulates the current trick once and returns detailed information.
@@ -491,6 +524,7 @@ def simulate_immediate_trick_once_detailed(
         right_hand=right_hand,
         random_generator=rng,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     winner_index = get_trick_winner(

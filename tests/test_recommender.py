@@ -338,6 +338,47 @@ def test_recommend_card_by_expected_value_is_reproducible_with_seed() -> None:
     assert first_result == second_result
 
 
+def test_recommend_card_by_expected_value_uses_response_policy_map(monkeypatch) -> None:
+    def fake_generate_random_opponent_hands(
+        state,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator=None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["S8", "S10"], ["S9", "SA"]
+
+    monkeypatch.setattr(
+        "skat_ai.simulation.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S7"],
+        current_trick=[],
+        played_cards=[],
+        skat=[],
+        trick_leader="me",
+    )
+
+    recommended_card, _, values = recommend_card_by_expected_value(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        sample_count=1,
+        random_seed=1,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "left": "highest_point",
+            "right": "highest_point",
+        },
+    )
+
+    assert recommended_card == "S7"
+    assert values["S7"]["average_trick_points"] == 21.0
+
+
 def test_recommend_card_by_expected_value_supports_second_position() -> None:
     state = GameState(
         game_type="grand",

@@ -187,6 +187,48 @@ def test_build_card_analysis_report_marks_first_row_as_recommended() -> None:
     assert report[0]["is_recommended"] is True
 
 
+def test_build_card_analysis_report_uses_response_policy_map(monkeypatch) -> None:
+    def fake_generate_random_opponent_hands(
+        state,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator=None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["S8", "S10"], ["S9", "SA"]
+
+    monkeypatch.setattr(
+        "skat_ai.simulation.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        player_position="forehand",
+        trick_leader="me",
+        hand=["S7"],
+        current_trick=[],
+        played_cards=[],
+        skat=[],
+    )
+
+    report = build_card_analysis_report(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        sample_count=1,
+        random_seed=1,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "left": "highest_point",
+            "right": "highest_point",
+        },
+    )
+
+    assert report[0]["card"] == "S7"
+    assert report[0]["average_trick_points"] == 21.0
+
+
 def test_build_strategic_summary_handles_empty_report() -> None:
     summary = build_strategic_summary([])
 

@@ -140,6 +140,35 @@ def apply_profile_preset_cli_overrides(
 
     return updated_settings
 
+
+def build_explicit_opponent_response_policy_map(
+    data: dict[str, Any],
+) -> dict[str, str] | None:
+    """
+    Builds immediate-analysis response policies from explicit JSON fields only.
+
+    Normalized defaults, presets, profile-derived settings, and CLI overrides are
+    intentionally excluded so legacy immediate behavior remains unchanged unless
+    the input explicitly configures a response policy.
+    """
+    policy_by_player: dict[str, str] = {}
+
+    if "opponent_response_policy" in data:
+        policy_by_player["left"] = data["opponent_response_policy"]
+        policy_by_player["right"] = data["opponent_response_policy"]
+
+    if "left_opponent_response_policy" in data:
+        policy_by_player["left"] = data["left_opponent_response_policy"]
+
+    if "right_opponent_response_policy" in data:
+        policy_by_player["right"] = data["right_opponent_response_policy"]
+
+    if not policy_by_player:
+        return None
+
+    return policy_by_player
+
+
 def build_analysis_result(
     file_path: str,
     sample_count_override: int | None = None,
@@ -155,6 +184,7 @@ def build_analysis_result(
     """
     data = load_position_from_json(file_path)
     state = build_game_state_from_input(data)
+    opponent_response_policy_by_player = build_explicit_opponent_response_policy_map(data)
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
     actual_card_played = get_actual_card_played_from_input(data)
@@ -212,6 +242,7 @@ def build_analysis_result(
         sample_count=settings["sample_count"],
         random_seed=settings["random_seed"],
         use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     report = build_card_analysis_report(
@@ -221,6 +252,7 @@ def build_analysis_result(
         sample_count=settings["sample_count"],
         random_seed=settings["random_seed"],
         use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     post_game_review_summary = build_post_game_review_summary(

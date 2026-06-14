@@ -19,6 +19,7 @@ def build_card_analysis_report(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> list[dict[str, float | str | bool]]:
     """
     Builds an analysis report for all legal cards.
@@ -33,6 +34,7 @@ def build_card_analysis_report(
         sample_count=sample_count,
         random_seed=random_seed,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     report = []

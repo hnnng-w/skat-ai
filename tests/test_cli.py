@@ -1441,6 +1441,154 @@ def test_build_analysis_result_applies_left_right_policy_overrides() -> None:
     }
 
 
+def build_immediate_response_policy_input(
+    policy_fields: dict[str, object] | None = None,
+) -> dict[str, object]:
+    data: dict[str, object] = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "forehand",
+        "trick_leader": "me",
+        "hand": ["S7"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 2,
+        "right_hand_size": 2,
+        "sample_count": 1,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+        "hand_game": False,
+        "ouvert": False,
+        "schneider_announced": False,
+        "schwarz_announced": False,
+        "matadors": 1,
+    }
+
+    if policy_fields is not None:
+        data.update(policy_fields)
+
+    return data
+
+
+def build_immediate_response_policy_result(
+    tmp_path,
+    monkeypatch,
+    policy_fields: dict[str, object] | None = None,
+) -> dict[str, object]:
+    def fake_generate_random_opponent_hands(
+        state,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator=None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["S8", "S10"], ["S9", "SA"]
+
+    monkeypatch.setattr(
+        "skat_ai.simulation.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    input_path = tmp_path / "immediate_response_policy.json"
+    input_path.write_text(
+        json.dumps(build_immediate_response_policy_input(policy_fields)),
+        encoding="utf-8",
+    )
+
+    return build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=1,
+        random_seed_override=1,
+        opponent_strategy_override="basic",
+    )
+
+
+def get_only_analysis_report_row(result: dict[str, object]) -> dict[str, object]:
+    report = result["analysis_report"]
+
+    assert isinstance(report, list)
+    assert len(report) == 1
+
+    row = report[0]
+    assert isinstance(row, dict)
+
+    return row
+
+
+def test_build_analysis_result_without_explicit_response_policy_keeps_legacy_immediate_result(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 0.0
+
+
+def test_build_analysis_result_applies_explicit_global_response_policy_to_both_sides(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "opponent_response_policy": "highest_point",
+        },
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 21.0
+
+
+def test_build_analysis_result_right_response_policy_overrides_global_response_policy(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "opponent_response_policy": "highest_point",
+            "right_opponent_response_policy": "lowest_point",
+        },
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 10.0
+
+
+def test_build_analysis_result_left_response_policy_overrides_global_response_policy(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "opponent_response_policy": "highest_point",
+            "left_opponent_response_policy": "lowest_point",
+        },
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 11.0
+
+
 def test_run_json_position_analysis_supports_left_right_policy_overrides() -> None:
     run_json_position_analysis(
         file_path="examples/grand_second_position.json",

@@ -209,6 +209,7 @@ def recommend_card_by_simulation(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> tuple[str, str, dict[str, float]]:
     """
     Recommends a card based on immediate trick win-rate simulation.
@@ -226,6 +227,7 @@ def recommend_card_by_simulation(
         sample_count=sample_count,
         random_seed=random_seed,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     if not win_rates:
@@ -252,6 +254,7 @@ def recommend_card_by_expected_value(
     sample_count: int,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> tuple[str, str, dict[str, dict[str, float]]]:
     """
     Recommends a card based on immediate expected point swing.
@@ -272,6 +275,7 @@ def recommend_card_by_expected_value(
         sample_count=sample_count,
         random_seed=random_seed,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     if not values:

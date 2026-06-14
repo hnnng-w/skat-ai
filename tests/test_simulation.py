@@ -1,5 +1,6 @@
 from skat_ai.game_history import build_completed_trick_from_state_and_candidate
 from skat_ai.game_state import GameState
+from skat_ai.rules import get_legal_cards
 from skat_ai.simulation import (
     choose_basic_opponent_card,
     choose_random_legal_card,
@@ -780,6 +781,236 @@ def test_complete_trick_after_local_lead_uses_left_then_right_hands() -> None:
     assert left_hand == ["H10"]
     assert right_hand == ["D10"]
     assert completed_trick["players"] == ["me", "left", "right"]
+
+
+def test_complete_trick_without_policy_keeps_legacy_basic_behavior() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S7"],
+        current_trick=[],
+        trick_leader="me",
+    )
+    left_hand = ["S8", "S10"]
+    right_hand = ["S9", "SA"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S7",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert trick == ["S7", "S8", "S9"]
+    assert left_hand == ["S10"]
+    assert right_hand == ["SA"]
+
+
+def test_complete_trick_without_policy_keeps_seeded_random_behavior() -> None:
+    import random
+
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S7"],
+        current_trick=[],
+        trick_leader="me",
+    )
+
+    first_trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S7",
+        left_hand=["S8", "S10"],
+        right_hand=["S9", "SA"],
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=False,
+    )
+    second_trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S7",
+        left_hand=["S8", "S10"],
+        right_hand=["S9", "SA"],
+        random_generator=random.Random(42),
+        use_basic_opponent_strategy=False,
+    )
+
+    assert first_trick == second_trick
+
+
+def test_explicit_lowest_response_policy_overrides_legacy_basic_play() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["H8"],
+        current_trick=["S7"],
+        trick_leader="right",
+    )
+    left_hand = ["H7", "CJ"]
+    right_hand = ["S8"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="H8",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "left": "lowest_point",
+        },
+    )
+
+    assert trick == ["S7", "H8", "H7"]
+    assert left_hand == ["CJ"]
+    assert right_hand == ["S8"]
+
+
+def test_explicit_response_policies_can_select_different_cards() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S7"],
+        current_trick=[],
+        trick_leader="me",
+    )
+    lowest_left_hand = ["S8", "S10"]
+    lowest_right_hand = ["S9", "SA"]
+    highest_left_hand = ["S8", "S10"]
+    highest_right_hand = ["S9", "SA"]
+
+    lowest_trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S7",
+        left_hand=lowest_left_hand,
+        right_hand=lowest_right_hand,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "left": "lowest_point",
+            "right": "lowest_point",
+        },
+    )
+    highest_trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S7",
+        left_hand=highest_left_hand,
+        right_hand=highest_right_hand,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "left": "highest_point",
+            "right": "highest_point",
+        },
+    )
+
+    assert lowest_trick == ["S7", "S8", "S9"]
+    assert highest_trick == ["S7", "S10", "SA"]
+    assert lowest_trick != highest_trick
+    assert lowest_trick[1] in get_legal_cards(
+        hand=["S8", "S10"],
+        current_trick=["S7"],
+        game_type="grand",
+    )
+    assert highest_trick[2] in get_legal_cards(
+        hand=["S9", "SA"],
+        current_trick=["S7", "S10"],
+        game_type="grand",
+    )
+    assert lowest_left_hand == ["S10"]
+    assert lowest_right_hand == ["SA"]
+    assert highest_left_hand == ["S8"]
+    assert highest_right_hand == ["S9"]
+
+
+def test_complete_trick_after_right_lead_uses_left_response_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S8"],
+        current_trick=["S7"],
+        trick_leader="right",
+    )
+    left_hand = ["S9", "SA"]
+    right_hand = ["S10", "H7"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S8",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "left": "highest_point",
+            "right": "lowest_point",
+        },
+    )
+    completed_trick = build_completed_trick_from_state_and_candidate(
+        state=state,
+        completed_trick_cards=trick,
+    )
+
+    assert trick == ["S7", "S8", "SA"]
+    assert left_hand == ["S9"]
+    assert right_hand == ["S10", "H7"]
+    assert completed_trick["players"] == ["right", "me", "left"]
+
+
+def test_complete_trick_after_local_lead_uses_both_side_response_policies() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S7"],
+        current_trick=[],
+        trick_leader="me",
+    )
+    left_hand = ["S8", "S10"]
+    right_hand = ["S9", "SA"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S7",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "left": "lowest_point",
+            "right": "highest_point",
+        },
+    )
+    completed_trick = build_completed_trick_from_state_and_candidate(
+        state=state,
+        completed_trick_cards=trick,
+    )
+
+    assert trick == ["S7", "S8", "SA"]
+    assert left_hand == ["S10"]
+    assert right_hand == ["S9"]
+    assert completed_trick["players"] == ["me", "left", "right"]
+
+
+def test_unknown_one_card_leader_does_not_apply_side_response_policy() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S8"],
+        current_trick=["S7"],
+        trick_leader="unknown",
+    )
+    left_hand = ["SA"]
+    right_hand = ["S9", "S10"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S8",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+        opponent_response_policy_by_player={
+            "right": "highest_point",
+        },
+    )
+
+    assert trick == ["S7", "S8", "S9"]
+    assert left_hand == ["SA"]
+    assert right_hand == ["S10"]
 
 
 def test_simulate_immediate_trick_once_detailed_is_reproducible_with_seed() -> None:
