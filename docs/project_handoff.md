@@ -202,11 +202,15 @@ Implemented:
 * profile-confidence conflict resolution for cautious/aggressive preset evidence
 * left/right profile-derived presets applied to effective left/right multi-step policies
 * explicit side-specific CLI policy overrides applied after profile-derived presets
+* configured response policies applied to immediate analysis when explicitly activated
+* sparse immediate response-policy maps that preserve legacy basic/random defaults
+* opponent lead policies documented as multi-step preparation behavior
 
 Known remaining areas:
 
 * further defender-cooperation strategy can still be improved
 * deeper PlayerProfile confidence usage beyond preset selection remains future work
+* immediate and multi-step policy precedence are not yet fully centralized
 
 ### Defender cooperation
 

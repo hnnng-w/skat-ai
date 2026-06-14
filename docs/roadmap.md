@@ -97,6 +97,8 @@ Implemented:
 * Left/right opponent policy CLI overrides
 * Left/right opponent policy output settings
 * Left/right policy handling in multi-step opponent lead and response paths
+* Explicitly activated opponent response policies in immediate analysis
+* Immediate response-policy precedence for input presets, profile presets, and CLI overrides
 * Basic defender cooperation improvements and issue #22's current heuristic defender-partnership scope:
 
   * safer defender lead
@@ -236,7 +238,7 @@ Recommended cleanup areas:
 * Keep topic-specific docs in `docs/` aligned with implemented behavior.
 * Continue improving JSON schema coverage where useful without duplicating too much Python validation logic.
 * Centralize any remaining duplicated CLI/configuration constants.
-* Review profile-preset behavior across immediate analysis and multi-step simulation.
+* Consider fully centralizing immediate and multi-step opponent-policy precedence once the existing multi-step compatibility behavior can be changed safely.
 
 ## Related GitHub issues
 

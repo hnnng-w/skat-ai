@@ -523,6 +523,14 @@ Supported opponent card policies:
 | `basic_defender_lead`     | Use a cautious defender lead policy.  |
 | `basic_defender_response` | Use a basic defender response policy. |
 
+Named presets can set both lead and response policies:
+
+```json
+{
+  "opponent_policy_preset": "cautious_defender"
+}
+```
+
 The project also supports separate left/right opponent policy fields:
 
 ```json
@@ -548,6 +556,34 @@ Current multi-step behavior:
 * If `left` leads and `right` responds, the engine uses `right_opponent_response_policy`.
 
 Global policy fields remain supported for backward compatibility.
+
+Immediate candidate analysis starts with the local candidate card and only simulates remaining opponent responses. It does not simulate a new opponent lead. Opponent lead policies are used during multi-step opponent-turn preparation.
+
+Immediate response-policy behavior is activated only by explicit policy sources:
+
+* `opponent_policy_preset`
+* `opponent_response_policy`
+* `left_opponent_response_policy`
+* `right_opponent_response_policy`
+* `use_profile_presets: true`
+* relevant CLI overrides
+
+Absent fields normalized to defaults, `use_profile_presets: false`, and player profiles without enabled profile presets do not activate policy-driven immediate analysis. In those cases, immediate analysis keeps the legacy basic or random opponent response behavior from `use_basic_opponent_strategy`.
+
+Immediate response-policy precedence, from lowest to highest, is:
+
+1. input global policy preset
+2. explicit input global response policy
+3. input-activated profile-derived side response policies
+4. explicit input side response policies
+5. global CLI policy preset
+6. CLI-activated profile-derived side response policies
+7. explicit global CLI response policy
+8. explicit side-specific CLI response policies
+
+Global presets and global response policies apply to both `left` and `right`. Profile-derived policies and side-specific response policies affect only their side. The immediate response-policy map is sparse, so an explicit left-side policy alone does not populate a right-side default entry.
+
+Immediate and multi-step policy resolution are related but not fully centralized yet. Multi-step keeps its existing effective policy path for opponent-turn preparation and lead simulation.
 
 ## Completed tricks
 

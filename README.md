@@ -17,6 +17,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Card-point calculation
 * Trump and trick-winner logic
 * Immediate trick simulation
+* Configured opponent response policies for immediate analysis
 * Expected point swing calculation
 * Card recommendations
 * JSON output for regression-friendly analysis
@@ -129,6 +130,12 @@ Run analysis with a specific input file:
 
 ```powershell
 python main.py --input examples/grand_second_position.json
+```
+
+Run immediate analysis with a configured opponent response policy:
+
+```powershell
+python main.py --input examples/grand_second_position.json --opponent-response-policy highest_point
 ```
 
 Run a multi-step analysis:

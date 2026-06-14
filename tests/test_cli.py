@@ -6,10 +6,12 @@ from main import (
     apply_profile_preset_cli_overrides,
     apply_single_opponent_policy_cli_overrides,
     build_analysis_result,
+    build_effective_immediate_response_policy_map,
     print_multi_step_result,
     print_policy_comparison_result,
     run_json_position_analysis,
 )
+from skat_ai.player_profile import PlayerProfile
 
 
 def test_apply_cli_overrides_keeps_settings_when_no_overrides_are_given() -> None:
@@ -1478,10 +1480,37 @@ def build_immediate_response_policy_input(
     return data
 
 
+def build_immediate_response_policy_map_for_test(
+    policy_fields: dict[str, object] | None = None,
+    left_player_profile: PlayerProfile | None = None,
+    right_player_profile: PlayerProfile | None = None,
+    opponent_policy_preset_override: str | None = None,
+    opponent_response_policy_override: str | None = None,
+    use_profile_presets_override: bool = False,
+    left_opponent_response_policy_override: str | None = None,
+    right_opponent_response_policy_override: str | None = None,
+) -> dict[str, str] | None:
+    return build_effective_immediate_response_policy_map(
+        data=build_immediate_response_policy_input(policy_fields),
+        left_player_profile=left_player_profile or PlayerProfile(),
+        right_player_profile=right_player_profile or PlayerProfile(),
+        opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_response_policy_override=opponent_response_policy_override,
+        use_profile_presets_override=use_profile_presets_override,
+        left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_response_policy_override=right_opponent_response_policy_override,
+    )
+
+
 def build_immediate_response_policy_result(
     tmp_path,
     monkeypatch,
     policy_fields: dict[str, object] | None = None,
+    opponent_policy_preset_override: str | None = None,
+    opponent_response_policy_override: str | None = None,
+    use_profile_presets_override: bool = False,
+    left_opponent_response_policy_override: str | None = None,
+    right_opponent_response_policy_override: str | None = None,
 ) -> dict[str, object]:
     def fake_generate_random_opponent_hands(
         state,
@@ -1507,6 +1536,11 @@ def build_immediate_response_policy_result(
         sample_count_override=1,
         random_seed_override=1,
         opponent_strategy_override="basic",
+        opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_response_policy_override=opponent_response_policy_override,
+        use_profile_presets_override=use_profile_presets_override,
+        left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_response_policy_override=right_opponent_response_policy_override,
     )
 
 
@@ -1520,6 +1554,278 @@ def get_only_analysis_report_row(result: dict[str, object]) -> dict[str, object]
     assert isinstance(row, dict)
 
     return row
+
+
+def build_aggressive_profile() -> PlayerProfile:
+    return PlayerProfile(
+        games_played=1000,
+        solo_rate=0.38,
+    )
+
+
+def build_cautious_profile() -> PlayerProfile:
+    return PlayerProfile(
+        games_played=1000,
+        solo_rate=0.25,
+        grand_rate=0.15,
+        hand_game_rate=0.03,
+        defender_win_rate=0.55,
+    )
+
+
+def test_immediate_policy_map_defaults_to_none() -> None:
+    policy_map = build_immediate_response_policy_map_for_test()
+
+    assert policy_map is None
+
+
+def test_immediate_policy_map_ignores_profiles_when_disabled() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        left_player_profile=build_cautious_profile(),
+        right_player_profile=build_aggressive_profile(),
+    )
+
+    assert policy_map is None
+
+
+def test_immediate_policy_map_ignores_false_profile_flag() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "use_profile_presets": False,
+        },
+        left_player_profile=build_cautious_profile(),
+        right_player_profile=build_aggressive_profile(),
+    )
+
+    assert policy_map is None
+
+
+def test_immediate_policy_map_applies_global_json_policy() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "opponent_response_policy": "highest_point",
+        },
+    )
+
+    assert policy_map == {
+        "left": "highest_point",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_keeps_side_only_policy_sparse() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "left_opponent_response_policy": "highest_point",
+        },
+    )
+
+    assert policy_map == {
+        "left": "highest_point",
+    }
+
+
+def test_immediate_policy_map_explicit_lowest_activates() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "left_opponent_response_policy": "lowest_point",
+        },
+    )
+
+    assert policy_map == {
+        "left": "lowest_point",
+    }
+
+
+def test_immediate_policy_map_side_json_overrides_global_json() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "opponent_response_policy": "highest_point",
+            "right_opponent_response_policy": "lowest_point",
+        },
+    )
+
+    assert policy_map == {
+        "left": "highest_point",
+        "right": "lowest_point",
+    }
+
+
+def test_immediate_policy_map_input_preset_activates_both_sides() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "opponent_policy_preset": "cautious_defender",
+        },
+    )
+
+    assert policy_map == {
+        "left": "basic_defender_response",
+        "right": "basic_defender_response",
+    }
+
+
+def test_immediate_policy_map_global_json_overrides_input_preset() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "opponent_policy_preset": "cautious_defender",
+            "opponent_response_policy": "highest_point",
+        },
+    )
+
+    assert policy_map == {
+        "left": "highest_point",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_side_json_overrides_preset_and_global() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "opponent_policy_preset": "aggressive_points",
+            "opponent_response_policy": "basic_trick_play",
+            "left_opponent_response_policy": "lowest_point",
+        },
+    )
+
+    assert policy_map == {
+        "left": "lowest_point",
+        "right": "basic_trick_play",
+    }
+
+
+def test_immediate_policy_map_input_profile_presets_apply_by_side() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "use_profile_presets": True,
+        },
+        left_player_profile=build_cautious_profile(),
+        right_player_profile=build_aggressive_profile(),
+    )
+
+    assert policy_map == {
+        "left": "basic_defender_response",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_keeps_non_applicable_profile_side_absent() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "use_profile_presets": True,
+        },
+        right_player_profile=build_aggressive_profile(),
+    )
+
+    assert policy_map == {
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_cli_profile_presets_apply_by_side() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        left_player_profile=build_cautious_profile(),
+        right_player_profile=build_aggressive_profile(),
+        use_profile_presets_override=True,
+    )
+
+    assert policy_map == {
+        "left": "basic_defender_response",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_side_json_overrides_profile_policy() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "use_profile_presets": True,
+            "left_opponent_response_policy": "lowest_point",
+        },
+        left_player_profile=build_cautious_profile(),
+        right_player_profile=build_aggressive_profile(),
+    )
+
+    assert policy_map == {
+        "left": "lowest_point",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_cli_preset_overrides_input_side() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "left_opponent_response_policy": "basic_trick_play",
+        },
+        opponent_policy_preset_override="aggressive_points",
+    )
+
+    assert policy_map == {
+        "left": "highest_point",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_cli_profile_overrides_cli_preset_side() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        right_player_profile=build_cautious_profile(),
+        opponent_policy_preset_override="random",
+        use_profile_presets_override=True,
+    )
+
+    assert policy_map == {
+        "left": "random_legal",
+        "right": "basic_defender_response",
+    }
+
+
+def test_immediate_policy_map_global_cli_response_overrides_profile() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "use_profile_presets": True,
+        },
+        right_player_profile=build_aggressive_profile(),
+        opponent_response_policy_override="lowest_point",
+    )
+
+    assert policy_map == {
+        "left": "lowest_point",
+        "right": "lowest_point",
+    }
+
+
+def test_immediate_policy_map_global_cli_response_overrides_input_side() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        policy_fields={
+            "left_opponent_response_policy": "basic_trick_play",
+        },
+        opponent_response_policy_override="highest_point",
+    )
+
+    assert policy_map == {
+        "left": "highest_point",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_side_cli_response_is_final() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        opponent_response_policy_override="highest_point",
+        left_opponent_response_policy_override="lowest_point",
+    )
+
+    assert policy_map == {
+        "left": "lowest_point",
+        "right": "highest_point",
+    }
+
+
+def test_immediate_policy_map_side_only_cli_response_is_sparse() -> None:
+    policy_map = build_immediate_response_policy_map_for_test(
+        right_opponent_response_policy_override="highest_point",
+    )
+
+    assert policy_map == {
+        "right": "highest_point",
+    }
 
 
 def test_build_analysis_result_without_explicit_response_policy_keeps_legacy_immediate_result(
@@ -1587,6 +1893,161 @@ def test_build_analysis_result_left_response_policy_overrides_global_response_po
 
     assert row["card"] == "S7"
     assert row["average_trick_points"] == 11.0
+
+
+def test_build_analysis_result_applies_cli_response_policy_to_immediate_analysis(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        opponent_response_policy_override="highest_point",
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 21.0
+
+
+def test_build_analysis_result_applies_cli_preset_to_immediate_analysis(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        opponent_policy_preset_override="aggressive_points",
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 21.0
+
+
+def test_build_analysis_result_applies_profile_presets_to_immediate_analysis(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "right_player_profile": {
+                "games_played": 1000,
+                "solo_rate": 0.38,
+            },
+        },
+        use_profile_presets_override=True,
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 11.0
+
+
+def test_build_analysis_result_side_cli_policy_uses_correct_immediate_responder(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    from skat_ai.opponent_policy import choose_opponent_response_card_by_policy
+
+    calls = []
+
+    def fake_generate_random_opponent_hands(
+        state,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator=None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["S9", "SA"], ["S10", "H7"]
+
+    def recording_choose_opponent_response_card_by_policy(
+        hand,
+        current_trick,
+        game_type,
+        player_index,
+        policy="basic_trick_play",
+        random_generator=None,
+        partner_currently_winning=False,
+    ):
+        selected_card = choose_opponent_response_card_by_policy(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=player_index,
+            policy=policy,
+            random_generator=random_generator,
+            partner_currently_winning=partner_currently_winning,
+        )
+        calls.append(
+            {
+                "hand": hand.copy(),
+                "policy": policy,
+                "selected_card": selected_card,
+            }
+        )
+        return selected_card
+
+    monkeypatch.setattr(
+        "skat_ai.simulation.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    monkeypatch.setattr(
+        "skat_ai.simulation.choose_opponent_response_card_by_policy",
+        recording_choose_opponent_response_card_by_policy,
+    )
+
+    input_path = tmp_path / "immediate_left_responder_policy.json"
+    input_path.write_text(
+        json.dumps(
+            {
+                "game_type": "grand",
+                "player_role": "declarer",
+                "player_position": "middlehand",
+                "trick_leader": "right",
+                "hand": ["S8"],
+                "current_trick": ["S7"],
+                "played_cards": [],
+                "completed_tricks": [],
+                "declarer_points": 0,
+                "defender_points": 0,
+                "next_player": "me",
+                "skat": [],
+                "left_hand_size": 2,
+                "right_hand_size": 2,
+                "sample_count": 1,
+                "random_seed": 1,
+                "use_basic_opponent_strategy": True,
+                "analysis_mode": "live_decision",
+                "skat_visibility": "unknown",
+                "game_end_reason": "not_ended",
+                "hand_game": False,
+                "ouvert": False,
+                "schneider_announced": False,
+                "schwarz_announced": False,
+                "matadors": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=1,
+        random_seed_override=1,
+        opponent_strategy_override="basic",
+        left_opponent_response_policy_override="highest_point",
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert row["card"] == "S8"
+    assert row["average_trick_points"] == 11.0
+    assert calls
+    assert all(call["hand"] == ["S9", "SA"] for call in calls)
+    assert all(call["policy"] == "highest_point" for call in calls)
+    assert all(call["selected_card"] == "SA" for call in calls)
 
 
 def test_run_json_position_analysis_supports_left_right_policy_overrides() -> None:

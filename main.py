@@ -33,7 +33,10 @@ from skat_ai.input_loader import (
 )
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
-from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
+from skat_ai.opponent_policy_preset import (
+    apply_opponent_policy_preset,
+    get_opponent_policy_settings_for_preset,
+)
 from skat_ai.opponent_profile_policy import (
     apply_profile_based_policy_preset,
     apply_profile_based_side_policy_preset,
@@ -46,6 +49,7 @@ from skat_ai.performance_rating import (
     build_list_performance_summary_from_game_contributions,
     build_performance_rating_summary,
 )
+from skat_ai.player_profile import PlayerProfile
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
@@ -141,27 +145,76 @@ def apply_profile_preset_cli_overrides(
     return updated_settings
 
 
-def build_explicit_opponent_response_policy_map(
+def build_effective_immediate_response_policy_map(
     data: dict[str, Any],
+    left_player_profile: PlayerProfile,
+    right_player_profile: PlayerProfile,
+    opponent_policy_preset_override: str | None = None,
+    opponent_response_policy_override: str | None = None,
+    use_profile_presets_override: bool = False,
+    left_opponent_response_policy_override: str | None = None,
+    right_opponent_response_policy_override: str | None = None,
 ) -> dict[str, str] | None:
     """
-    Builds immediate-analysis response policies from explicit JSON fields only.
+    Builds effective immediate-analysis response policies from explicit sources.
 
-    Normalized defaults, presets, profile-derived settings, and CLI overrides are
-    intentionally excluded so legacy immediate behavior remains unchanged unless
-    the input explicitly configures a response policy.
+    Normalized defaults alone intentionally do not activate policy-driven
+    immediate analysis. The returned map is sparse: only sides affected by an
+    explicit source, preset, or applicable enabled profile-derived policy are
+    included.
     """
     policy_by_player: dict[str, str] = {}
 
+    def apply_global_response_policy(policy: str) -> None:
+        policy_by_player["left"] = policy
+        policy_by_player["right"] = policy
+
+    def apply_global_preset(preset: str) -> None:
+        preset_settings = get_opponent_policy_settings_for_preset(preset)
+        apply_global_response_policy(preset_settings["opponent_response_policy"])
+
+    def apply_profile_response_policy(player: str, profile: PlayerProfile) -> None:
+        side_settings = apply_profile_based_side_policy_preset(
+            opponent_policy_settings={},
+            profile=profile,
+            use_profile_presets=True,
+        )
+
+        response_policy = side_settings.get("opponent_response_policy")
+        if response_policy is not None:
+            policy_by_player[player] = response_policy
+
+    if "opponent_policy_preset" in data:
+        apply_global_preset(data["opponent_policy_preset"])
+
     if "opponent_response_policy" in data:
-        policy_by_player["left"] = data["opponent_response_policy"]
-        policy_by_player["right"] = data["opponent_response_policy"]
+        apply_global_response_policy(data["opponent_response_policy"])
+
+    if data.get("use_profile_presets") is True:
+        apply_profile_response_policy("left", left_player_profile)
+        apply_profile_response_policy("right", right_player_profile)
 
     if "left_opponent_response_policy" in data:
         policy_by_player["left"] = data["left_opponent_response_policy"]
 
     if "right_opponent_response_policy" in data:
         policy_by_player["right"] = data["right_opponent_response_policy"]
+
+    if opponent_policy_preset_override is not None:
+        apply_global_preset(opponent_policy_preset_override)
+
+    if use_profile_presets_override:
+        apply_profile_response_policy("left", left_player_profile)
+        apply_profile_response_policy("right", right_player_profile)
+
+    if opponent_response_policy_override is not None:
+        apply_global_response_policy(opponent_response_policy_override)
+
+    if left_opponent_response_policy_override is not None:
+        policy_by_player["left"] = left_opponent_response_policy_override
+
+    if right_opponent_response_policy_override is not None:
+        policy_by_player["right"] = right_opponent_response_policy_override
 
     if not policy_by_player:
         return None
@@ -178,15 +231,27 @@ def build_analysis_result(
     left_opponent_response_policy_override: str | None = None,
     right_opponent_lead_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
+    opponent_policy_preset_override: str | None = None,
+    opponent_response_policy_override: str | None = None,
+    use_profile_presets_override: bool = False,
 ) -> dict[str, Any]:
     """
     Builds the full analysis result as a structured dictionary.
     """
     data = load_position_from_json(file_path)
     state = build_game_state_from_input(data)
-    opponent_response_policy_by_player = build_explicit_opponent_response_policy_map(data)
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
+    opponent_response_policy_by_player = build_effective_immediate_response_policy_map(
+        data=data,
+        left_player_profile=analysis_metadata.left_player_profile,
+        right_player_profile=analysis_metadata.right_player_profile,
+        opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_response_policy_override=opponent_response_policy_override,
+        use_profile_presets_override=use_profile_presets_override,
+        left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_response_policy_override=right_opponent_response_policy_override,
+    )
     actual_card_played = get_actual_card_played_from_input(data)
     game_declaration = get_game_declaration_from_input(data)
     performance_rating_system = get_performance_rating_system_from_input(data)
@@ -223,10 +288,13 @@ def build_analysis_result(
 
     opponent_policy_settings = apply_opponent_policy_cli_overrides(
         opponent_policy_settings=opponent_policy_settings,
+        opponent_policy_preset=opponent_policy_preset_override,
+        opponent_response_policy=opponent_response_policy_override,
     )
 
     profile_preset_settings = apply_profile_preset_cli_overrides(
         profile_preset_settings=profile_preset_settings,
+        use_profile_presets=use_profile_presets_override,
     )
 
     legal_cards = get_legal_cards(
@@ -662,6 +730,9 @@ def run_json_position_analysis(
         left_opponent_response_policy_override=left_opponent_response_policy_override,
         right_opponent_lead_policy_override=right_opponent_lead_policy_override,
         right_opponent_response_policy_override=right_opponent_response_policy_override,
+        opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_response_policy_override=opponent_response_policy_override,
+        use_profile_presets_override=use_profile_presets_override,
     )
 
     print_analysis_result(result)
@@ -888,7 +959,10 @@ def parse_arguments() -> argparse.Namespace:
         "--opponent-response-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
-        help="Opponent response card policy for multi-step simulations.",
+        help=(
+            "Opponent response card policy for immediate response analysis "
+            "and multi-step simulations."
+        ),
     )
 
     parser.add_argument(
@@ -900,13 +974,19 @@ def parse_arguments() -> argparse.Namespace:
             "random",
         ],
         default=None,
-        help="Opponent policy preset for multi-step simulations.",
+        help=(
+            "Opponent policy preset for immediate response analysis "
+            "and multi-step simulations."
+        ),
     )
 
     parser.add_argument(
         "--use-profile-presets",
         action="store_true",
-        help="Use player profiles to derive opponent policy presets.",
+        help=(
+            "Use player profiles to derive opponent policy presets for immediate "
+            "response analysis and multi-step simulations."
+        ),
     )
 
     parser.add_argument(
@@ -918,6 +998,10 @@ def parse_arguments() -> argparse.Namespace:
         "--left-opponent-response-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
+        help=(
+            "Left opponent response card policy for immediate response analysis "
+            "and multi-step simulations."
+        ),
     )
     parser.add_argument(
         "--right-opponent-lead-policy",
@@ -928,6 +1012,10 @@ def parse_arguments() -> argparse.Namespace:
         "--right-opponent-response-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
+        help=(
+            "Right opponent response card policy for immediate response analysis "
+            "and multi-step simulations."
+        ),
     )
 
     return parser.parse_args()

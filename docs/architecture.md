@@ -109,7 +109,7 @@ Opponent policy handling supports both global and separate left/right opponent p
 
 Profile-based policy presets use rough, rule-based `PlayerProfile` heuristics. Profile confidence is derived from `games_played` only: missing data is `unknown`, fewer than 100 games is `low`, fewer than 500 games is `medium`, and 500 or more games is `high`. When cautious and aggressive profile-derived presets conflict, the higher-confidence side wins; equal confidence preserves the existing `aggressive_points` over `cautious_defender` fallback.
 
-When profile presets are enabled for multi-step simulation, the left and right player profiles can affect their respective effective left/right opponent policy settings. Explicit side-specific CLI overrides are applied last and remain authoritative.
+When profile presets are enabled, the left and right player profiles can affect their respective effective left/right opponent response policies in immediate analysis and their effective left/right opponent policy settings in multi-step simulation. Explicit side-specific CLI overrides are applied last and remain authoritative.
 
 Some profile fields are currently informational only: `solo_games_played`, `defender_games_played`, `solo_win_rate`, `suit_game_rate`, and `null_game_rate`.
 
@@ -138,7 +138,17 @@ Issue #22's current heuristic and explainable defender-partnership scope is impl
 
 Opponent policy handling starts with global settings and normalized left/right settings.
 
-Flow:
+Immediate analysis flow:
+
+1. `main.py` builds a sparse immediate response-policy map from explicit policy sources only.
+2. Explicit sources include input presets, input response policies, enabled profile presets, and relevant CLI overrides.
+3. Normalized defaults alone do not activate the map; legacy basic or random immediate behavior remains active when no explicit source is present.
+4. The immediate map is passed through `recommender.py`, `analysis_report.py`, and `simulation.py`.
+5. `simulation.py` starts with the local candidate card and applies configured response policies only to the remaining acting opponents.
+
+Immediate response-policy precedence is input global preset, input global response policy, input-activated profile side policies, input side response policies, global CLI preset, CLI-activated profile side policies, global CLI response policy, then side-specific CLI response policies.
+
+Multi-step flow:
 
 1. `input_loader.py` normalizes global and left/right policy settings.
 2. `input_validation.py` validates policy values.
@@ -147,6 +157,8 @@ Flow:
 5. `multi_step_simulation.py` passes settings into opponent sequence preparation.
 6. `opponent_sequence.py` selects left/right lead and response policies.
 7. `opponent_policy.py` contains shared policy selection helpers.
+
+Immediate candidate analysis does not simulate an opponent lead. Opponent leads are simulated during multi-step opponent-turn preparation, where configured lead policies are already applied. Immediate and multi-step policy resolution are not yet one centralized resolver.
 
 ## Analysis and recommendation
 
