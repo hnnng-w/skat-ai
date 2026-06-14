@@ -110,7 +110,14 @@ Example:
 
 ## Game result summary
 
-`game_result_summary` describes the raw card-point result before game-end adjustment.
+`game_result_summary` describes the raw result before game-end adjustment.
+
+For Suit and Grand games, the result is card-point based. For normally
+completed Null games with ten reliable completed tricks, the result is based on
+completed-trick ownership: the declarer wins only if the declarer took zero
+tricks. Any declarer trick loses Null, including a trick worth zero card points.
+Incomplete Null games are not declared wins merely because the declarer has not
+yet taken a trick.
 
 Important fields include:
 
@@ -119,8 +126,8 @@ Important fields include:
 | `declarer_points`  | Known declarer card points.               |
 | `defender_points`  | Known defender card points.               |
 | `points_remaining` | Remaining unassigned card points.         |
-| `is_complete`      | Whether all 120 card points are assigned. |
-| `winner`           | `declarer`, `defenders`, or `undecided`.  |
+| `is_complete`      | Whether the result is complete. Suit/Grand use assigned card points; Null requires complete reliable trick ownership. |
+| `winner`           | Game or contract winner: `declarer`, `defenders`, or `undecided`. |
 
 ## Adjusted game result summary
 
@@ -195,6 +202,10 @@ Declarer loses: settlement_score = -2 * effective_game_value
 ```
 
 Completed non-null suit and grand games include achieved Schneider by adding one base-value level to `effective_game_value`.
+
+The public field `declarer_won_by_card_points` is retained for compatibility.
+For Suit and Grand it is literal. For Null it mirrors whether the declarer won
+the base contract, even though Null is not decided by card points.
 
 If Schneider was announced but the completed game did not result in
 `effective_schneider_status == "declarer_made_schneider"`, the declarer loses

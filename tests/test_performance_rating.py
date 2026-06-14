@@ -1,5 +1,9 @@
 import pytest
 
+from skat_ai.final_settlement import build_final_settlement_summary
+from skat_ai.game_declaration import GameDeclaration
+from skat_ai.game_result import build_game_result_summary_from_score_summary
+from skat_ai.game_value import build_game_value_summary
 from skat_ai.performance_rating import (
     build_list_game_contribution_from_analysis_result,
     build_list_performance_summary,
@@ -18,6 +22,48 @@ from skat_ai.performance_rating import (
     get_performance_rating_unsupported_scope,
     is_performance_rating_partially_implemented,
 )
+
+
+def build_score_summary(
+    declarer_points: int,
+    defender_points: int,
+) -> dict[str, int]:
+    return {
+        "explicit_declarer_points": 0,
+        "explicit_defender_points": 0,
+        "completed_trick_declarer_points": declarer_points,
+        "completed_trick_defender_points": defender_points,
+        "total_declarer_points": declarer_points,
+        "total_defender_points": defender_points,
+    }
+
+
+def build_completed_null_tricks(winner_roles: list[str]) -> list[dict[str, object]]:
+    return [
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": winner_role,
+        }
+        for winner_role in winner_roles
+    ]
+
+
+def build_completed_null_final_settlement(
+    winner_roles: list[str],
+    declarer_points: int,
+    defender_points: int,
+) -> dict:
+    game_result_summary = build_game_result_summary_from_score_summary(
+        score_summary=build_score_summary(declarer_points, defender_points),
+        game_type="null",
+        completed_tricks=build_completed_null_tricks(winner_roles),
+        game_end_reason="normal_completion",
+    )
+
+    return build_final_settlement_summary(
+        game_value_summary=build_game_value_summary(GameDeclaration(game_type="null")),
+        game_result_summary=game_result_summary,
+    )
 
 
 def build_contribution_analysis_result(
@@ -653,6 +699,42 @@ def test_build_performance_rating_summary_for_isko_declarer_loss() -> None:
             "final_settlement_summary remains the source for single-game settlement.",
         ],
     }
+
+
+def test_performance_rating_uses_completed_null_win_settlement() -> None:
+    final_settlement_summary = build_completed_null_final_settlement(
+        winner_roles=["defenders"] * 10,
+        declarer_points=0,
+        defender_points=120,
+    )
+
+    summary = build_performance_rating_summary(
+        final_settlement_summary=final_settlement_summary,
+        rating_system="isko_list",
+    )
+
+    assert final_settlement_summary["settlement_score"] == 23
+    assert summary["game_outcome"] == "declarer_win"
+    assert summary["settlement_score"] == 23
+    assert summary["rating_score"] == 73
+
+
+def test_performance_rating_uses_completed_null_loss_settlement() -> None:
+    final_settlement_summary = build_completed_null_final_settlement(
+        winner_roles=["declarer", *["defenders"] * 9],
+        declarer_points=0,
+        defender_points=120,
+    )
+
+    summary = build_performance_rating_summary(
+        final_settlement_summary=final_settlement_summary,
+        rating_system="isko_list",
+    )
+
+    assert final_settlement_summary["settlement_score"] == -46
+    assert summary["game_outcome"] == "declarer_loss"
+    assert summary["settlement_score"] == -46
+    assert summary["rating_score"] == -96
 
 def test_build_performance_rating_summary_rejects_unknown_rating_system() -> None:
     try:

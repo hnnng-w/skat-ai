@@ -45,7 +45,7 @@ Typical top-level fields include:
 | `analysis_report`                | Card analysis report.                                       |
 | `strategic_summary`              | Human-readable strategic summary.                           |
 | `score_summary`                  | Raw known card-point summary.                               |
-| `game_result_summary`            | Raw game result from known card points.                     |
+| `game_result_summary`            | Raw game result before game-end adjustment.                 |
 | `adjusted_game_result_summary`   | Game result after game-end adjustment.                      |
 | `final_settlement_summary`       | Single-game settlement summary.                             |
 | `performance_rating_summary`     | Performance-rating layer.                                   |
@@ -183,7 +183,16 @@ Example:
 
 ## Game result summary
 
-`game_result_summary` describes the raw known card-point result before game-end adjustment.
+`game_result_summary` describes the raw game result before game-end adjustment.
+Suit and Grand results use card points. Normally completed Null results use
+completed-trick ownership when ten reliable completed tricks are available:
+the declarer wins only with zero declarer tricks, and any declarer trick loses
+Null even if that trick is worth zero card points. Incomplete Null games remain
+incomplete and are not declared wins merely because the declarer has not yet
+taken a trick.
+
+The `winner` field represents the game or contract winner, not the side that
+won the most tricks.
 
 Example:
 
@@ -243,6 +252,11 @@ Example:
 ```
 
 `effective_game_value` is the value used for settlement scoring.
+
+The public field `declarer_won_by_card_points` is retained for compatibility.
+For Suit and Grand it describes the card-point result. For Null it reflects the
+base contract result, even though Null is decided by trick ownership rather than
+card points.
 
 For completed non-null suit and grand games with achieved Schneider,
 `effective_game_value` includes one additional base-value level while

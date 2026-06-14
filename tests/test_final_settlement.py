@@ -2,9 +2,53 @@ from skat_ai.final_settlement import (
     build_final_settlement_summary,
     calculate_basic_settlement_score,
     get_missing_final_settlement_inputs,
-    is_declarer_winner_by_card_points,
+    is_declarer_base_contract_winner,
     is_overbid_settlement_supported,
 )
+from skat_ai.game_declaration import GameDeclaration
+from skat_ai.game_result import build_game_result_summary_from_score_summary
+from skat_ai.game_value import build_game_value_summary
+
+
+def build_score_summary(
+    declarer_points: int,
+    defender_points: int,
+) -> dict[str, int]:
+    return {
+        "explicit_declarer_points": 0,
+        "explicit_defender_points": 0,
+        "completed_trick_declarer_points": declarer_points,
+        "completed_trick_defender_points": defender_points,
+        "total_declarer_points": declarer_points,
+        "total_defender_points": defender_points,
+    }
+
+
+def build_completed_null_tricks(winner_roles: list[str]) -> list[dict[str, object]]:
+    return [
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": winner_role,
+        }
+        for winner_role in winner_roles
+    ]
+
+
+def build_completed_null_result_summary(
+    winner_roles: list[str],
+    declarer_points: int,
+    defender_points: int,
+) -> dict:
+    return build_game_result_summary_from_score_summary(
+        score_summary=build_score_summary(declarer_points, defender_points),
+        game_type="null",
+        completed_tricks=build_completed_null_tricks(winner_roles),
+        game_end_reason="normal_completion",
+    )
+
+
+def build_null_game_value_summary() -> dict:
+    return build_game_value_summary(GameDeclaration(game_type="null"))
 
 
 def test_get_missing_final_settlement_inputs_returns_none_when_complete() -> None:
@@ -63,31 +107,40 @@ def test_get_missing_final_settlement_inputs_detects_multiple_missing_inputs() -
     ) == ["complete_card_points", "game_value"]
 
 
-def test_is_declarer_winner_by_card_points_returns_none_when_incomplete() -> None:
+def test_is_declarer_base_contract_winner_returns_none_when_incomplete() -> None:
     game_result_summary = {
         "is_complete": False,
         "winner": "undecided",
     }
 
-    assert is_declarer_winner_by_card_points(game_result_summary) is None
+    assert is_declarer_base_contract_winner(game_result_summary) is None
 
 
-def test_is_declarer_winner_by_card_points_returns_true() -> None:
+def test_is_declarer_base_contract_winner_returns_true() -> None:
     game_result_summary = {
         "is_complete": True,
         "winner": "declarer",
     }
 
-    assert is_declarer_winner_by_card_points(game_result_summary) is True
+    assert is_declarer_base_contract_winner(game_result_summary) is True
 
 
-def test_is_declarer_winner_by_card_points_returns_false() -> None:
+def test_is_declarer_base_contract_winner_returns_false() -> None:
     game_result_summary = {
         "is_complete": True,
         "winner": "defenders",
     }
 
-    assert is_declarer_winner_by_card_points(game_result_summary) is False
+    assert is_declarer_base_contract_winner(game_result_summary) is False
+
+
+def test_is_declarer_base_contract_winner_returns_none_when_undecided() -> None:
+    game_result_summary = {
+        "is_complete": True,
+        "winner": "undecided",
+    }
+
+    assert is_declarer_base_contract_winner(game_result_summary) is None
 
 
 def test_calculate_basic_settlement_score_for_declarer_win() -> None:
@@ -197,6 +250,71 @@ def test_build_final_settlement_summary_complete_declarer_loss() -> None:
     assert summary["overbid_margin"] is None
     assert summary["overbid_status"] == "unknown"
     assert summary["overbid_required_game_value"] is None
+
+
+def test_build_final_settlement_summary_for_completed_null_win() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_null_game_value_summary(),
+        game_result_summary=build_completed_null_result_summary(
+            winner_roles=["defenders"] * 10,
+            declarer_points=0,
+            defender_points=120,
+        ),
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["missing_inputs"] == []
+    assert summary["winner"] == "declarer"
+    assert summary["declarer_won_by_card_points"] is True
+    assert summary["game_value"] == 23
+    assert summary["effective_game_value"] == 23
+    assert summary["settlement_score"] == 23
+    assert summary["is_loss"] is False
+
+
+def test_build_final_settlement_summary_for_completed_null_zero_point_loss() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_null_game_value_summary(),
+        game_result_summary=build_completed_null_result_summary(
+            winner_roles=["declarer", *["defenders"] * 9],
+            declarer_points=0,
+            defender_points=120,
+        ),
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["winner"] == "defenders"
+    assert summary["declarer_won_by_card_points"] is False
+    assert summary["game_value"] == 23
+    assert summary["effective_game_value"] == 23
+    assert summary["settlement_score"] == -46
+    assert summary["is_loss"] is True
+
+
+def test_completed_null_losses_ignore_declarer_trick_card_points() -> None:
+    zero_point_loss = build_final_settlement_summary(
+        game_value_summary=build_null_game_value_summary(),
+        game_result_summary=build_completed_null_result_summary(
+            winner_roles=["declarer", *["defenders"] * 9],
+            declarer_points=0,
+            defender_points=120,
+        ),
+    )
+    point_bearing_loss = build_final_settlement_summary(
+        game_value_summary=build_null_game_value_summary(),
+        game_result_summary=build_completed_null_result_summary(
+            winner_roles=["declarer", *["defenders"] * 9],
+            declarer_points=70,
+            defender_points=50,
+        ),
+    )
+
+    assert zero_point_loss["winner"] == "defenders"
+    assert point_bearing_loss["winner"] == "defenders"
+    assert zero_point_loss["is_loss"] is True
+    assert point_bearing_loss["is_loss"] is True
+    assert zero_point_loss["settlement_score"] == -46
+    assert point_bearing_loss["settlement_score"] == -46
 
 
 def test_build_final_settlement_summary_applies_declarer_schneider_level() -> None:

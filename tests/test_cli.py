@@ -1686,6 +1686,35 @@ def write_position_file(tmp_path, data: dict[str, object]) -> str:
     return str(input_path)
 
 
+def build_completed_null_defender_tricks() -> list[dict[str, object]]:
+    return [
+        {"cards": ["CA", "C10", "CK"], "winner_role": "defenders"},
+        {"cards": ["CQ", "CJ", "C9"], "winner_role": "defenders"},
+        {"cards": ["C8", "C7", "SA"], "winner_role": "defenders"},
+        {"cards": ["S10", "SK", "SQ"], "winner_role": "defenders"},
+        {"cards": ["SJ", "S9", "S8"], "winner_role": "defenders"},
+        {"cards": ["S7", "HA", "H10"], "winner_role": "defenders"},
+        {"cards": ["HK", "HQ", "HJ"], "winner_role": "defenders"},
+        {"cards": ["H9", "H8", "H7"], "winner_role": "defenders"},
+        {"cards": ["DA", "D10", "DK"], "winner_role": "defenders"},
+        {"cards": ["DQ", "DJ", "D9"], "winner_role": "defenders"},
+    ]
+
+
+def build_stub_analysis_report() -> list[dict[str, object]]:
+    return [
+        {
+            "card": "D8",
+            "win_rate": 0.0,
+            "average_trick_points": 0.0,
+            "average_points_won": 0.0,
+            "average_points_lost": 0.0,
+            "expected_point_swing": 0.0,
+            "is_recommended": True,
+        }
+    ]
+
+
 def build_post_game_position_input() -> dict[str, object]:
     return {
         "game_type": "spades",
@@ -1729,6 +1758,72 @@ def test_build_analysis_result_includes_unavailable_post_game_review_summary(
         result["post_game_review_summary"]["decision_quality"]
         == "not_available"
     )
+
+
+def test_build_analysis_result_uses_completed_null_ownership(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "main.recommend_card_by_expected_value",
+        lambda **_kwargs: ("D8", "Stubbed recommendation.", {}),
+    )
+    monkeypatch.setattr(
+        "main.build_card_analysis_report",
+        lambda **_kwargs: build_stub_analysis_report(),
+    )
+    data = {
+        "game_type": "null",
+        "player_role": "declarer",
+        "player_position": "forehand",
+        "trick_leader": "me",
+        "hand": ["D8", "D7"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": build_completed_null_defender_tricks(),
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 1,
+        "right_hand_size": 1,
+        "sample_count": 1,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "unknown",
+        "game_end_reason": "normal_completion",
+        "hand_game": False,
+        "ouvert": False,
+        "bid_value": 23,
+        "performance_rating_system": "isko_list",
+    }
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["score_summary"]["total_declarer_points"] == 0
+    assert result["score_summary"]["total_defender_points"] == 120
+
+    assert result["game_result_summary"]["is_complete"] is True
+    assert result["game_result_summary"]["winner"] == "declarer"
+    assert result["adjusted_game_result_summary"]["is_complete"] is True
+    assert result["adjusted_game_result_summary"]["winner"] == "declarer"
+    assert result["adjusted_game_result_summary"]["game_end_reason"] == (
+        "normal_completion"
+    )
+
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["winner"] == "declarer"
+    assert result["final_settlement_summary"]["declarer_won_by_card_points"] is True
+    assert result["final_settlement_summary"]["game_value"] == 23
+    assert result["final_settlement_summary"]["effective_game_value"] == 23
+    assert result["final_settlement_summary"]["settlement_score"] == 23
+    assert result["final_settlement_summary"]["is_loss"] is False
+
+    assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
+    assert result["performance_rating_summary"]["settlement_score"] == 23
+    assert result["performance_rating_summary"]["rating_score"] == 73
 
 
 def test_build_analysis_result_includes_available_post_game_review_summary(

@@ -149,6 +149,24 @@ def test_apply_remaining_points_assignment_for_not_ended_keeps_points() -> None:
     assert summary["remaining_points_assigned"] == 0
     assert summary is not original_summary
 
+
+def test_apply_remaining_points_assignment_accepts_complete_normal_result() -> None:
+    original_summary = build_incomplete_game_result_summary()
+    original_summary["is_complete"] = True
+    original_summary["winner"] = "declarer"
+
+    summary = apply_remaining_points_assignment(
+        game_result_summary=original_summary,
+        game_end_reason="normal_completion",
+    )
+
+    assert summary["points_remaining"] == 29
+    assert summary["is_complete"] is True
+    assert summary["winner"] == "declarer"
+    assert summary["game_end_reason"] == "normal_completion"
+    assert summary["remaining_points_recipient"] is None
+    assert summary["remaining_points_assigned"] == 0
+
 def test_validate_game_end_reason_accepts_valid_reason() -> None:
     validate_game_end_reason("not_ended")
     validate_game_end_reason("normal_completion")

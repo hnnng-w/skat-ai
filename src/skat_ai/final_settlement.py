@@ -42,18 +42,24 @@ def calculate_basic_settlement_score(
     return -2 * game_value
 
 
-def is_declarer_winner_by_card_points(
+def is_declarer_base_contract_winner(
     game_result_summary: dict[str, Any],
 ) -> bool | None:
     """
-    Returns whether the declarer won by card points.
+    Returns whether the declarer won the base game or contract.
 
-    Returns None if the card-point result is not complete.
+    Returns None if the result is not complete or has no decided winner.
     """
     if not game_result_summary["is_complete"]:
         return None
 
-    return game_result_summary["winner"] == "declarer"
+    if game_result_summary["winner"] == "declarer":
+        return True
+
+    if game_result_summary["winner"] == "defenders":
+        return False
+
+    return None
 
 
 def build_default_overbid_summary() -> dict[str, Any]:
@@ -91,7 +97,7 @@ def build_final_settlement_summary(
         overbid_summary=overbid_summary,
     )
     is_complete = len(missing_inputs) == 0
-    declarer_won_by_card_points = is_declarer_winner_by_card_points(
+    declarer_won_by_card_points = is_declarer_base_contract_winner(
         game_result_summary
     )
     effective_game_value = None

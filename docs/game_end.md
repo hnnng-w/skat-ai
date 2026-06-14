@@ -96,15 +96,19 @@ Example:
 
 ## Normal completion
 
-`normal_completion` means the game ended by playing all tricks and all 120 card points are assigned.
+`normal_completion` means the game ended by playing all tricks.
 
-Validation expects:
+For Suit and Grand, validation expects all 120 card points to be assigned. For
+Null, the completed result can instead be based on a reliable ten-trick history
+with completed-trick ownership.
+
+For point-based Suit and Grand completion, validation expects:
 
 ```text
 points_remaining = 0
 ```
 
-If a game has fewer than 120 assigned card points, it should not use `normal_completion`.
+If a Suit or Grand game has fewer than 120 assigned card points, it should not use `normal_completion`.
 
 ## Claim and concession
 

@@ -61,9 +61,9 @@ def apply_remaining_points_assignment(
     If no assignment applies, the original summary is returned as a copy.
     """
     points_remaining = game_result_summary["points_remaining"]
-    validate_game_end_reason_for_points(
+    validate_game_end_reason_for_summary(
+        game_result_summary=game_result_summary,
         game_end_reason=game_end_reason,
-        points_remaining=points_remaining,
     )
     recipient = get_remaining_points_recipient(game_end_reason)
 
@@ -126,3 +126,32 @@ def validate_game_end_reason_for_points(
         and points_remaining == 0
     ):
         raise ValueError(f"{game_end_reason} requires remaining card points.")
+
+
+def validate_game_end_reason_for_summary(
+    game_result_summary: dict[str, Any],
+    game_end_reason: str,
+) -> None:
+    """
+    Validates a game-end reason against a result summary.
+
+    Normal completion accepts a result that is already complete. This keeps
+    Null completion based on reliable trick ownership while preserving the
+    point-based validation helper for Suit and Grand callers.
+    """
+    points_remaining = game_result_summary["points_remaining"]
+    validate_game_end_reason(game_end_reason)
+
+    if points_remaining < 0:
+        raise ValueError("points_remaining cannot be negative.")
+
+    if (
+        game_end_reason == "normal_completion"
+        and game_result_summary["is_complete"] is True
+    ):
+        return
+
+    validate_game_end_reason_for_points(
+        game_end_reason=game_end_reason,
+        points_remaining=points_remaining,
+    )

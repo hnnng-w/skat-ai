@@ -231,7 +231,12 @@ def build_analysis_result(
     strategic_summary = build_strategic_summary(report)
 
     score_summary = build_score_summary(state)
-    game_result_summary = build_game_result_summary_from_score_summary(score_summary)
+    game_result_summary = build_game_result_summary_from_score_summary(
+        score_summary=score_summary,
+        game_type=state.game_type,
+        completed_tricks=state.completed_tricks,
+        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
+    )
     adjusted_game_result_summary = apply_remaining_points_assignment(
         game_result_summary=game_result_summary,
         game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
