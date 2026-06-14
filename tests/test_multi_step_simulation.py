@@ -1,4 +1,6 @@
 
+import skat_ai.opponent_lead as opponent_lead_module
+import skat_ai.simulation as simulation_module
 from skat_ai.card_selection import choose_first_legal_card
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import (
@@ -537,6 +539,64 @@ def test_simulate_multiple_steps_continues_after_right_lead() -> None:
     assert result["steps"][0]["opponent_lead_result"] is not None
     assert result["steps"][0]["opponent_lead_result"]["leader"] == "right"
     assert result["steps"][0]["candidate_card"] in ["SA", "S10", "S9"]
+
+
+def test_simulate_multiple_steps_after_right_lead_completes_with_left_hand(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (left_hand_size, right_hand_size, random_generator)
+
+        if not state.current_trick:
+            return ["H10"], ["S7"]
+
+        return ["S8", "H10"], ["S9", "D10"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    monkeypatch.setattr(
+        simulation_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="right",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+    )
+    step = result["steps"][0]
+
+    assert step["opponent_lead_result"]["leader"] == "right"
+    assert step["opponent_lead_result"]["lead_card"] == "S7"
+    assert step["candidate_card"] == "SA"
+    assert step["detailed_result"]["trick"] == ["S7", "SA", "S8"]
+    assert step["detailed_result"]["completed_trick"]["players"] == [
+        "right",
+        "me",
+        "left",
+    ]
+    assert result["context"].simulated_opponent_cards == ["S7", "S8"]
 
 
 def test_should_continue_multi_step_allows_left_next_player() -> None:

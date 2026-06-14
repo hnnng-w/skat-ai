@@ -2,7 +2,10 @@ import random
 from typing import Any
 
 from skat_ai.card_tracking import get_unseen_cards
-from skat_ai.game_history import build_completed_trick_from_state_and_candidate
+from skat_ai.game_history import (
+    build_completed_trick_from_state_and_candidate,
+    get_players_for_trick_leader,
+)
 from skat_ai.game_state import GameState
 from skat_ai.rules import (
     get_card_points,
@@ -177,58 +180,68 @@ def complete_trick_after_candidate_card(
     """
     rng = random_generator or random
 
+    def choose_and_remove_opponent_card(
+        hand: list[str],
+        current_trick: list[str],
+    ) -> str:
+        if use_basic_opponent_strategy:
+            selected_card = choose_basic_opponent_card(
+                hand=hand,
+                current_trick=current_trick,
+                game_type=state.game_type,
+            )
+        else:
+            selected_card = choose_random_legal_card(
+                hand=hand,
+                current_trick=current_trick,
+                game_type=state.game_type,
+                random_generator=rng,
+            )
+
+        hand.remove(selected_card)
+        return selected_card
+
     trick = state.current_trick.copy()
     trick.append(candidate_card)
 
     if len(trick) == 1:
-        if use_basic_opponent_strategy:
-            left_card = choose_basic_opponent_card(
-                hand=left_hand,
-                current_trick=trick,
-                game_type=state.game_type,
-            )
-        else:
-            left_card = choose_random_legal_card(
-                hand=left_hand,
-                current_trick=trick,
-                game_type=state.game_type,
-                random_generator=rng,
-            )
+        left_card = choose_and_remove_opponent_card(
+            hand=left_hand,
+            current_trick=trick,
+        )
 
         trick.append(left_card)
 
-        if use_basic_opponent_strategy:
-            right_card = choose_basic_opponent_card(
-                hand=right_hand,
-                current_trick=trick,
-                game_type=state.game_type,
-            )
-        else:
-            right_card = choose_random_legal_card(
-                hand=right_hand,
-                current_trick=trick,
-                game_type=state.game_type,
-                random_generator=rng,
-            )
+        right_card = choose_and_remove_opponent_card(
+            hand=right_hand,
+            current_trick=trick,
+        )
 
         trick.append(right_card)
 
     elif len(trick) == 2:
-        if use_basic_opponent_strategy:
-            right_card = choose_basic_opponent_card(
-                hand=right_hand,
-                current_trick=trick,
-                game_type=state.game_type,
-            )
-        else:
-            right_card = choose_random_legal_card(
-                hand=right_hand,
-                current_trick=trick,
-                game_type=state.game_type,
-                random_generator=rng,
-            )
+        third_hand = right_hand
 
-        trick.append(right_card)
+        if state.trick_leader != "unknown":
+            trick_players = get_players_for_trick_leader(state.trick_leader)
+
+            if trick_players[1] == "me":
+                third_player = trick_players[2]
+
+                if third_player == "left":
+                    third_hand = left_hand
+                elif third_player == "right":
+                    third_hand = right_hand
+                else:
+                    raise ValueError(f"Invalid third opponent player: {third_player}")
+
+        # Legacy one-card states without a usable leader keep the old fallback.
+        third_card = choose_and_remove_opponent_card(
+            hand=third_hand,
+            current_trick=trick,
+        )
+
+        trick.append(third_card)
 
     elif len(trick) == 3:
         return trick

@@ -594,7 +594,12 @@ def test_right_to_act_live_example_prepares_local_second_hand_decision() -> None
     assert multi_step_result["steps_simulated"] == 1
     assert step["opponent_lead_result"]["leader"] == "right"
     assert step["candidate_card"] in legal_cards
-    assert step["detailed_result"]["trick"] == ["C8", "SA", "H7"]
+    assert step["detailed_result"]["trick"] == ["C8", "SA", "CK"]
+    assert step["detailed_result"]["completed_trick"]["players"] == [
+        "right",
+        "me",
+        "left",
+    ]
 
 def test_claimed_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result("grand_claimed_remaining_tricks.json")

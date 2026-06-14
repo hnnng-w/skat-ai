@@ -1,7 +1,9 @@
+from skat_ai.game_history import build_completed_trick_from_state_and_candidate
 from skat_ai.game_state import GameState
 from skat_ai.simulation import (
     choose_basic_opponent_card,
     choose_random_legal_card,
+    complete_trick_after_candidate_card,
     estimate_immediate_trick_value,
     estimate_immediate_trick_values_for_legal_cards,
     estimate_immediate_trick_win_rate,
@@ -690,6 +692,94 @@ def test_simulate_immediate_trick_once_detailed_returns_completed_trick_entry() 
 
     assert completed_trick["cards"] == result["trick"]
     assert completed_trick["winner_role"] in ["declarer", "defenders"]
+
+
+def test_complete_trick_after_right_lead_uses_left_hand_for_third_card() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7"],
+        trick_leader="right",
+    )
+    left_hand = ["S8", "H10"]
+    right_hand = ["S9", "D10"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="SA",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+    )
+    completed_trick = build_completed_trick_from_state_and_candidate(
+        state=state,
+        completed_trick_cards=trick,
+    )
+
+    assert trick == ["S7", "SA", "S8"]
+    assert left_hand == ["H10"]
+    assert right_hand == ["S9", "D10"]
+    assert completed_trick["cards"] == ["S7", "SA", "S8"]
+    assert completed_trick["players"] == ["right", "me", "left"]
+
+
+def test_complete_trick_after_left_lead_local_third_keeps_opponent_hands() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7", "S8"],
+        trick_leader="left",
+    )
+    left_hand = ["H10"]
+    right_hand = ["S9"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="SA",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+    )
+    completed_trick = build_completed_trick_from_state_and_candidate(
+        state=state,
+        completed_trick_cards=trick,
+    )
+
+    assert trick == ["S7", "S8", "SA"]
+    assert left_hand == ["H10"]
+    assert right_hand == ["S9"]
+    assert completed_trick["players"] == ["left", "right", "me"]
+
+
+def test_complete_trick_after_local_lead_uses_left_then_right_hands() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S7"],
+        current_trick=[],
+        trick_leader="me",
+    )
+    left_hand = ["S8", "H10"]
+    right_hand = ["S9", "D10"]
+
+    trick = complete_trick_after_candidate_card(
+        state=state,
+        candidate_card="S7",
+        left_hand=left_hand,
+        right_hand=right_hand,
+        use_basic_opponent_strategy=True,
+    )
+    completed_trick = build_completed_trick_from_state_and_candidate(
+        state=state,
+        completed_trick_cards=trick,
+    )
+
+    assert trick == ["S7", "S8", "S9"]
+    assert left_hand == ["H10"]
+    assert right_hand == ["D10"]
+    assert completed_trick["players"] == ["me", "left", "right"]
 
 
 def test_simulate_immediate_trick_once_detailed_is_reproducible_with_seed() -> None:
