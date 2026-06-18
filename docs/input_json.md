@@ -514,6 +514,8 @@ Global opponent policy fields are backward-compatible and apply as defaults:
 
 Supported opponent card policies:
 
+Policy values are canonical, exact, and case-sensitive. The runtime does not accept aliases or perform case normalization.
+
 | Value                     | Meaning                               |
 | ------------------------- | ------------------------------------- |
 | `lowest_point`            | Choose the lowest-point legal card.   |
@@ -530,6 +532,17 @@ Named presets can set both lead and response policies:
   "opponent_policy_preset": "cautious_defender"
 }
 ```
+
+Supported opponent policy presets:
+
+| Value                | Lead policy             | Response policy             |
+| -------------------- | ----------------------- | --------------------------- |
+| `simple_lowest`      | `lowest_point`          | `lowest_point`              |
+| `cautious_defender`  | `basic_defender_lead`   | `basic_defender_response`   |
+| `aggressive_points`  | `highest_point`         | `highest_point`             |
+| `random`             | `random_legal`          | `random_legal`              |
+
+Preset values are also exact and case-sensitive. Aliases and normalized casing are not supported.
 
 The project also supports separate left/right opponent policy fields:
 
@@ -600,17 +613,20 @@ A detailed completed trick can include:
 }
 ```
 
+For input, every completed-trick entry requires `cards` and `winner_role`. The `players` and `winner_player` fields remain optional for backward-compatible partial histories.
+
 Validation rules:
 
 * `cards` must contain exactly three cards.
+* `winner_role` is required and must be `declarer` or `defenders`.
 * `players` must contain exactly three unique players when provided.
+* Input trick players are `me`, `left`, or `right`; `unknown` is not accepted inside `completed_tricks[].players` or `completed_tricks[].winner_player`.
 * `players` must follow the known seating order:
 
   * `["me", "left", "right"]`
   * `["left", "right", "me"]`
   * `["right", "me", "left"]`
 * `winner_player` must be valid when provided.
-* `winner_role` must be valid when provided.
 * `winner_role` is checked against `winner_player` when the local `player_role` allows a safe inference.
 * The winner of one completed trick must lead the next completed trick.
 * If `current_trick` is not empty, `trick_leader` must match the winner of the last completed trick.
@@ -619,6 +635,8 @@ Validation rules:
 Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly.
 
 For matador inference, completed tricks contribute ownership facts only when both `cards` and ordered `players` are present. `winner_role` and `winner_player` alone are not used to infer matador ownership.
+
+Basic structural schema acceptance does not require ten completed tricks. Ten reliable trick owners are required only for particular final-result features, such as completed Null contract derivation and Schwarz settlement reliability.
 
 ## Validation rules
 

@@ -83,16 +83,16 @@
       "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
     },
     "left_opponent_lead_policy": {
-      "type": "string"
+      "$ref": "#/$defs/opponent_card_policy"
     },
     "left_opponent_response_policy": {
-      "type": "string"
+      "$ref": "#/$defs/opponent_card_policy"
     },
     "right_opponent_lead_policy": {
-      "type": "string"
+      "$ref": "#/$defs/opponent_card_policy"
     },
     "right_opponent_response_policy": {
-      "type": "string"
+      "$ref": "#/$defs/opponent_card_policy"
     },
     "player_role": {
       "type": "string",
@@ -207,13 +207,13 @@
     },
 
     "opponent_lead_policy": {
-      "type": "string"
+      "$ref": "#/$defs/opponent_card_policy"
     },
     "opponent_response_policy": {
-      "type": "string"
+      "$ref": "#/$defs/opponent_card_policy"
     },
     "opponent_policy_preset": {
-      "type": "string"
+      "$ref": "#/$defs/opponent_policy_preset"
     },
     "use_profile_presets": {
       "type": "boolean"
@@ -236,6 +236,30 @@
     "player": {
       "type": "string",
       "enum": ["me", "left", "right", "unknown"]
+    },
+    "trick_player": {
+      "type": "string",
+      "enum": ["me", "left", "right"]
+    },
+    "opponent_card_policy": {
+      "type": "string",
+      "enum": [
+        "lowest_point",
+        "highest_point",
+        "random_legal",
+        "basic_trick_play",
+        "basic_defender_response",
+        "basic_defender_lead"
+      ]
+    },
+    "opponent_policy_preset": {
+      "type": "string",
+      "enum": [
+        "simple_lowest",
+        "cautious_defender",
+        "aggressive_points",
+        "random"
+      ]
     },
     "card": {
       "type": "string",
@@ -308,7 +332,7 @@
     },
     "winner_role": {
       "type": "string",
-      "enum": ["declarer", "defenders", "unknown"]
+      "enum": ["declarer", "defenders"]
     },
     "list_performance_input": {
       "type": "object",
@@ -500,7 +524,7 @@
     "completed_trick": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["cards"],
+      "required": ["cards", "winner_role"],
       "properties": {
         "cards": {
           "$ref": "#/$defs/card_array",
@@ -511,16 +535,17 @@
         "players": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/player"
+            "$ref": "#/$defs/trick_player"
           },
           "minItems": 3,
-          "maxItems": 3
+          "maxItems": 3,
+          "uniqueItems": true
         },
         "winner_role": {
           "$ref": "#/$defs/winner_role"
         },
         "winner_player": {
-          "$ref": "#/$defs/player"
+          "$ref": "#/$defs/trick_player"
         }
       }
     }

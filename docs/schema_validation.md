@@ -8,13 +8,15 @@ The project uses multiple validation layers.
 
 | Layer                   | Purpose                                                                                    |
 | ----------------------- | ------------------------------------------------------------------------------------------ |
-| JSON Schema             | Checks stable JSON structure, required fields, basic types, enums, and simple size limits. |
-| Python input validation | Checks Skat-specific cross-field rules and gameplay consistency.                           |
+| JSON Schema             | Checks stable JSON structure, required fields, primitive types, canonical enums, object and array shapes, and simple size limits. |
+| Python input validation | Checks Skat-specific cross-field rules, gameplay consistency, phase-specific rules, and settlement reliability requirements.      |
 | Pytest regression tests | Verifies behavior, outputs, examples, and edge cases.                                      |
 
 These layers are complementary.
 
 JSON Schema does not replace Python validation.
+
+Passing JSON Schema validation does not guarantee that the input describes a legal Skat state.
 
 ## Input schema
 
@@ -41,20 +43,23 @@ The project check script also runs this validation:
 The input schema checks things such as:
 
 * required top-level input fields
+* stable required nested fields, such as completed-trick `cards` and `winner_role`
 * valid card notation
 * known `game_type` values
 * known player and position values
+* basic object and array shapes
 * maximum hand size
 * maximum skat size
 * maximum current-trick size
 * unique cards within individual card arrays
+* exact completed-trick card counts and player counts
 * point fields between 0 and 120
 * supported `analysis_mode` values
 * supported `skat_visibility` values
 * supported `game_end_reason` values
 * supported `left_player_profile` and `right_player_profile` field types and numeric ranges
 * supported `performance_rating_system` values
-* supported opponent policy values
+* canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 
 ## Output schema
@@ -152,15 +157,23 @@ Some checks are intentionally handled by Python validation instead of JSON Schem
 Examples:
 
 * duplicate cards across multiple known-card lists
+* card uniqueness across hand, skat, current trick, played cards, and completed tricks
 * completed-trick sequence consistency
+* completed-trick player seating order
+* whether completed-trick `winner_player` is included in `players`
 * whether a recorded `winner_player` actually won a trick
+* whether completed-trick `winner_role` matches the local declarer or defender identity
 * whether `trick_leader` matches the previous trick winner
+* legal current-turn state and phase-specific hand sizes
 * whether `game_end_reason` is consistent with remaining card points
 * whether known explicit points plus completed-trick points exceed 120
 * whether `actual_card_played` is in the player's hand
 * whether `actual_card_played` is legal in the analyzed position
 * whether known skat cards are allowed in the selected `analysis_mode`
 * whether ended game states are allowed in `live_decision`
+* claim and concession semantics
+* game-type-specific declaration rules
+* completed Null and Schwarz settlement reliability requirements
 * how profile-derived opponent policy presets are selected from validated profile fields
 * overbid settlement support for Null games
 * strategic live-vs-post-game information rules
