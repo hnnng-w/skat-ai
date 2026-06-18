@@ -2459,6 +2459,278 @@ def test_run_json_position_analysis_keeps_left_right_cli_overrides_final(
     }
 
 
+def build_policy_orchestration_input(
+    policy_fields: dict[str, object] | None = None,
+) -> dict[str, object]:
+    data: dict[str, object] = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "middlehand",
+        "trick_leader": "left",
+        "hand": ["SA"],
+        "current_trick": ["S7"],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 1,
+        "right_hand_size": 1,
+        "sample_count": 1,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "unknown",
+        "game_end_reason": "not_ended",
+        "hand_game": False,
+        "ouvert": False,
+        "schneider_announced": False,
+        "schwarz_announced": False,
+        "matadors": 1,
+    }
+
+    if policy_fields is not None:
+        data.update(policy_fields)
+
+    return data
+
+
+def capture_multi_step_policy_orchestration(
+    tmp_path,
+    monkeypatch,
+    policy_fields: dict[str, object] | None = None,
+    opponent_policy_preset_override: str | None = None,
+    opponent_lead_policy_override: str | None = None,
+    opponent_response_policy_override: str | None = None,
+    use_profile_presets_override: bool = False,
+    left_opponent_lead_policy_override: str | None = None,
+    left_opponent_response_policy_override: str | None = None,
+    right_opponent_lead_policy_override: str | None = None,
+    right_opponent_response_policy_override: str | None = None,
+) -> dict[str, object]:
+    captured: dict[str, object] = {}
+
+    def fake_simulate_multiple_steps(**kwargs):
+        captured.update(kwargs)
+        state = kwargs["state"]
+
+        return {
+            "initial_state": state,
+            "final_state": state,
+            "card_selection_policy": kwargs["card_selection_policy"],
+            "requested_step_count": kwargs["step_count"],
+            "steps_simulated": 0,
+            "stop_reason": "characterization fake",
+            "strict_context": kwargs["strict_context"],
+            "opponent_policy_settings": {
+                "opponent_lead_policy": kwargs["opponent_lead_policy"],
+                "opponent_response_policy": kwargs["opponent_response_policy"],
+            },
+            "left_opponent_policy_settings": kwargs["left_opponent_policy_settings"],
+            "right_opponent_policy_settings": kwargs["right_opponent_policy_settings"],
+            "context_summary": {
+                "simulated_opponent_card_count": 0,
+                "unique_simulated_opponent_card_count": 0,
+                "duplicate_simulated_opponent_cards": [],
+                "event_count": 0,
+                "strategic_metadata": {
+                    "analysis_mode": "live_decision",
+                    "skat_visibility": "unknown",
+                    "game_end_reason": "not_ended",
+                },
+            },
+            "steps": [],
+            "summary": {
+                "requested_step_count": kwargs["step_count"],
+                "steps_simulated": 0,
+                "stop_reason": "characterization fake",
+                "card_selection_policy": kwargs["card_selection_policy"],
+                "strict_context": kwargs["strict_context"],
+                "score_summary": {
+                    "initial_declarer_points": 0,
+                    "initial_defender_points": 0,
+                    "final_declarer_points": 0,
+                    "final_defender_points": 0,
+                    "declarer_points_gained": 0,
+                    "defender_points_gained": 0,
+                    "final_point_swing": 0,
+                },
+                "context_summary": {},
+            },
+        }
+
+    monkeypatch.setattr("main.simulate_multiple_steps", fake_simulate_multiple_steps)
+    input_path = tmp_path / "policy_orchestration.json"
+    input_path.write_text(
+        json.dumps(build_policy_orchestration_input(policy_fields)),
+        encoding="utf-8",
+    )
+
+    run_json_position_analysis(
+        file_path=str(input_path),
+        sample_count_override=1,
+        random_seed_override=1,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=1,
+        card_selection_policy="highest_point",
+        expected_value_sample_count=1,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+        opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_lead_policy_override=opponent_lead_policy_override,
+        opponent_response_policy_override=opponent_response_policy_override,
+        use_profile_presets_override=use_profile_presets_override,
+        left_opponent_lead_policy_override=left_opponent_lead_policy_override,
+        left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_lead_policy_override=right_opponent_lead_policy_override,
+        right_opponent_response_policy_override=right_opponent_response_policy_override,
+    )
+
+    return captured
+
+
+def test_current_multi_step_global_cli_preset_does_not_cascade_to_input_side_settings(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    captured = capture_multi_step_policy_orchestration(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "left_opponent_lead_policy": "basic_defender_lead",
+            "left_opponent_response_policy": "basic_defender_response",
+            "right_opponent_lead_policy": "lowest_point",
+            "right_opponent_response_policy": "basic_trick_play",
+        },
+        opponent_policy_preset_override="aggressive_points",
+    )
+
+    # Characterizes current behavior scheduled to change in Slice 2.
+    assert captured["opponent_lead_policy"] == "highest_point"
+    assert captured["opponent_response_policy"] == "highest_point"
+    assert captured["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert captured["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+
+
+def test_current_multi_step_global_cli_policies_do_not_cascade_to_input_side_settings(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    captured = capture_multi_step_policy_orchestration(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "left_opponent_lead_policy": "basic_defender_lead",
+            "left_opponent_response_policy": "basic_defender_response",
+            "right_opponent_lead_policy": "lowest_point",
+            "right_opponent_response_policy": "basic_trick_play",
+        },
+        opponent_lead_policy_override="highest_point",
+        opponent_response_policy_override="highest_point",
+    )
+
+    # Characterizes current behavior scheduled to change in Slice 2.
+    assert captured["opponent_lead_policy"] == "highest_point"
+    assert captured["opponent_response_policy"] == "highest_point"
+    assert captured["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert captured["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "basic_trick_play",
+    }
+
+
+def test_current_multi_step_side_profile_overrides_explicit_input_side_settings(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    captured = capture_multi_step_policy_orchestration(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "use_profile_presets": True,
+            "left_opponent_lead_policy": "lowest_point",
+            "left_opponent_response_policy": "lowest_point",
+            "left_player_profile": {
+                "games_played": 1000,
+                "solo_rate": 0.25,
+                "grand_rate": 0.15,
+                "hand_game_rate": 0.03,
+                "defender_win_rate": 0.55,
+            },
+        },
+    )
+
+    # Characterizes current behavior scheduled to change in Slice 2.
+    assert captured["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+
+
+def test_current_multi_step_side_profile_survives_global_cli_policy_non_cascade(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    captured = capture_multi_step_policy_orchestration(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "use_profile_presets": True,
+            "right_player_profile": {
+                "games_played": 1000,
+                "solo_rate": 0.38,
+            },
+        },
+        opponent_response_policy_override="lowest_point",
+    )
+
+    # Characterizes current behavior scheduled to change in Slice 2.
+    assert captured["opponent_response_policy"] == "lowest_point"
+    assert captured["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
+def test_current_multi_step_side_cli_values_remain_final_after_profiles(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    captured = capture_multi_step_policy_orchestration(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "use_profile_presets": True,
+            "left_player_profile": {
+                "games_played": 1000,
+                "solo_rate": 0.25,
+                "grand_rate": 0.15,
+                "hand_game_rate": 0.03,
+                "defender_win_rate": 0.55,
+            },
+        },
+        left_opponent_lead_policy_override="highest_point",
+        left_opponent_response_policy_override="highest_point",
+    )
+
+    assert captured["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
 def write_position_file(tmp_path, data: dict[str, object]) -> str:
     input_path = tmp_path / "position.json"
     input_path.write_text(json.dumps(data), encoding="utf-8")

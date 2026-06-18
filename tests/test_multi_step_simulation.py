@@ -599,6 +599,73 @@ def test_simulate_multiple_steps_after_right_lead_completes_with_left_hand(
     assert result["context"].simulated_opponent_cards == ["S7", "S8"]
 
 
+def test_current_multi_step_candidate_completion_ignores_configured_side_response_policy(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (left_hand_size, right_hand_size, random_generator)
+
+        if not state.current_trick:
+            return ["S9", "SA"], ["S7"]
+
+        return ["S9", "SA"], ["D7"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    monkeypatch.setattr(
+        simulation_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["S8"],
+        current_trick=[],
+        next_player="right",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=1,
+        step_count=1,
+        random_seed=42,
+        use_basic_opponent_strategy=True,
+        card_selection_policy="highest_point",
+        opponent_response_policy="highest_point",
+        left_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "highest_point",
+        },
+        right_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "highest_point",
+        },
+    )
+
+    # Characterizes current behavior scheduled to change in Slice 2: candidate
+    # completion still uses legacy Basic completion instead of side response policy.
+    step = result["steps"][0]
+
+    assert step["opponent_lead_result"]["lead_card"] == "S7"
+    assert step["candidate_card"] == "S8"
+    assert step["detailed_result"]["trick"] == ["S7", "S8", "S9"]
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
 def test_should_continue_multi_step_allows_left_next_player() -> None:
     state = GameState(
         game_type="grand",
