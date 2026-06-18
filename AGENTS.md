@@ -126,7 +126,7 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current stable baseline
 
-The current stable baseline is `v0.1.0`.
+The current stable baseline is `v0.2.0`.
 
 Major completed areas include:
 
