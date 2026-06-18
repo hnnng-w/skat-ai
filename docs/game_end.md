@@ -102,6 +102,11 @@ For Suit and Grand, validation expects all 120 card points to be assigned. For
 Null, the completed result can instead be based on a reliable ten-trick history
 with completed-trick ownership.
 
+For Suit and Grand settlement, a normally completed ten-trick history can also
+prove Schwarz through `completed_tricks[].winner_role`: if the losing side took
+zero tricks, achieved Schwarz can affect `effective_game_value`. Card points
+alone do not prove Schwarz.
+
 For point-based Suit and Grand completion, validation expects:
 
 ```text
@@ -123,6 +128,10 @@ Examples:
 | Declarer concedes remaining tricks | `declarer_conceded_remaining_tricks`  | Remaining points go to defenders. |
 
 This is intentionally a scoring adjustment, not a full simulation of the remaining tricks.
+
+Because claim and concession handling assigns remaining card points without
+recording the actual remaining trick ownership, claims and concessions do not
+establish Schwarz for settlement in the current implementation slice.
 
 ## Validation rules
 
@@ -161,5 +170,6 @@ For example:
 
 * Claim and concession handling currently assigns all remaining card points according to `game_end_reason`.
 * It does not simulate the actual remaining tricks.
+* It does not prove Schwarz trick ownership for settlement.
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * The engine does not yet model player agreement or disputes around claim/concession.

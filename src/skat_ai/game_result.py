@@ -150,6 +150,63 @@ def get_effective_schwarz_status(
     )
 
 
+def get_completed_trick_schwarz_status(
+    completed_tricks: list[dict[str, Any]],
+) -> str:
+    """
+    Returns Schwarz status from reliable completed-trick ownership.
+
+    Possible values:
+    - declarer
+    - defenders
+    - none
+    - unresolved
+    """
+    if len(completed_tricks) < COMPLETED_TRICK_COUNT:
+        return "unresolved"
+
+    if len(completed_tricks) > COMPLETED_TRICK_COUNT:
+        raise ValueError(
+            "Completed Schwarz result requires exactly ten completed tricks."
+        )
+
+    declarer_trick_count = 0
+    defender_trick_count = 0
+
+    for trick_index, completed_trick in enumerate(completed_tricks):
+        if not isinstance(completed_trick, dict):
+            raise ValueError(
+                f"completed_tricks[{trick_index}] must be an object "
+                "for completed Schwarz result."
+            )
+
+        if "winner_role" not in completed_trick:
+            raise ValueError(
+                "completed_tricks["
+                f"{trick_index}].winner_role is required for completed Schwarz result."
+            )
+
+        winner_role = completed_trick["winner_role"]
+        if winner_role not in VALID_COMPLETED_TRICK_WINNER_ROLES:
+            raise ValueError(
+                "Invalid completed Schwarz trick winner_role at index "
+                f"{trick_index}: {winner_role}"
+            )
+
+        if winner_role == "declarer":
+            declarer_trick_count += 1
+        else:
+            defender_trick_count += 1
+
+    if defender_trick_count == 0:
+        return "declarer"
+
+    if declarer_trick_count == 0:
+        return "defenders"
+
+    return "none"
+
+
 def get_card_point_result_status(
     declarer_points: int,
     defender_points: int,

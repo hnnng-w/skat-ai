@@ -1,10 +1,13 @@
 from typing import Any
 
+from skat_ai.game_result import get_completed_trick_schwarz_status
+
 
 def get_missing_final_settlement_inputs(
     game_value_summary: dict[str, Any],
     game_result_summary: dict[str, Any],
     overbid_summary: dict[str, Any] | None = None,
+    completed_tricks: list[dict[str, Any]] | None = None,
 ) -> list[str]:
     """
     Returns missing inputs that prevent final settlement calculation.
@@ -21,6 +24,17 @@ def get_missing_final_settlement_inputs(
         overbid_summary
     ):
         missing_inputs.append("overbid_required_game_value")
+
+    if overbid_summary is None:
+        overbid_summary = build_default_overbid_summary()
+
+    if is_completed_trick_ownership_required_for_schwarz_announcement(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+        overbid_summary=overbid_summary,
+        completed_tricks=completed_tricks,
+    ):
+        missing_inputs.append("complete_trick_ownership")
 
     return missing_inputs
 
@@ -75,10 +89,12 @@ def build_default_overbid_summary() -> dict[str, Any]:
         "status": "unknown",
     }
 
+
 def build_final_settlement_summary(
     game_value_summary: dict[str, Any],
     game_result_summary: dict[str, Any],
     overbid_summary: dict[str, Any] | None = None,
+    completed_tricks: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """
     Builds the final single-game settlement summary.
@@ -95,6 +111,7 @@ def build_final_settlement_summary(
         game_value_summary=game_value_summary,
         game_result_summary=game_result_summary,
         overbid_summary=overbid_summary,
+        completed_tricks=completed_tricks,
     )
     is_complete = len(missing_inputs) == 0
     declarer_won_by_card_points = is_declarer_base_contract_winner(
@@ -117,12 +134,32 @@ def build_final_settlement_summary(
             game_result_summary=game_result_summary,
             overbid_summary=overbid_summary,
         )
+        effective_game_value = apply_achieved_schwarz_settlement_level(
+            settlement_game_value=effective_game_value,
+            game_value_summary=game_value_summary,
+            game_result_summary=game_result_summary,
+            overbid_summary=overbid_summary,
+            completed_tricks=completed_tricks,
+        )
 
     if overbid_summary["is_overbid"] is True:
         effective_declarer_won = False
     elif is_schneider_announcement_failed(
         game_value_summary=game_value_summary,
         game_result_summary=game_result_summary,
+    ):
+        effective_declarer_won = False
+    elif is_completed_trick_ownership_required_for_schwarz_announcement(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+        overbid_summary=overbid_summary,
+        completed_tricks=completed_tricks,
+    ):
+        effective_declarer_won = None
+    elif is_schwarz_announcement_failed(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+        completed_tricks=completed_tricks,
     ):
         effective_declarer_won = False
     else:
@@ -247,6 +284,137 @@ def is_schneider_announcement_failed(
         != "declarer_made_schneider"
     )
 
+
+def apply_achieved_schwarz_settlement_level(
+    settlement_game_value: int,
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any],
+    completed_tricks: list[dict[str, Any]] | None = None,
+) -> int:
+    """
+    Adds one base-value level for achieved Schwarz in completed suit/grand games.
+    """
+    if overbid_summary["is_overbid"] is True:
+        return settlement_game_value
+
+    if not game_result_summary["is_complete"]:
+        return settlement_game_value
+
+    if game_value_summary.get("is_null_game") is not False:
+        return settlement_game_value
+
+    base_value = game_value_summary.get("base_value")
+
+    if base_value is None:
+        return settlement_game_value
+
+    schwarz_status = get_settlement_schwarz_status(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+        completed_tricks=completed_tricks,
+    )
+
+    if schwarz_status not in ["declarer", "defenders"]:
+        return settlement_game_value
+
+    return settlement_game_value + base_value
+
+
+def is_schwarz_announced(
+    game_value_summary: dict[str, Any],
+) -> bool:
+    """
+    Returns whether Schwarz was announced in the declared game value model.
+    """
+    details = game_value_summary.get("details", {})
+
+    if not isinstance(details, dict):
+        return False
+
+    return details.get("schwarz_announced") is True
+
+
+def get_settlement_schwarz_status(
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    completed_tricks: list[dict[str, Any]] | None = None,
+) -> str:
+    """
+    Returns settlement Schwarz status from reliable normal-completion ownership.
+    """
+    if game_value_summary.get("is_null_game") is not False:
+        return "unresolved"
+
+    if (
+        game_result_summary.get("game_end_reason", "normal_completion")
+        != "normal_completion"
+    ):
+        return "unresolved"
+
+    return get_completed_trick_schwarz_status(completed_tricks or [])
+
+
+def is_completed_trick_ownership_required_for_schwarz_announcement(
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any],
+    completed_tricks: list[dict[str, Any]] | None = None,
+) -> bool:
+    """
+    Returns whether an announced Schwarz still needs reliable trick ownership.
+    """
+    if overbid_summary["is_overbid"] is True:
+        return False
+
+    if game_value_summary.get("is_null_game") is not False:
+        return False
+
+    if not is_schwarz_announced(game_value_summary):
+        return False
+
+    if is_schneider_announcement_failed(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+    ):
+        return False
+
+    return get_settlement_schwarz_status(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+        completed_tricks=completed_tricks,
+    ) == "unresolved"
+
+
+def is_schwarz_announcement_failed(
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    completed_tricks: list[dict[str, Any]] | None = None,
+) -> bool:
+    """
+    Returns whether an announced Schwarz was missed in a completed suit/grand game.
+    """
+    if not game_result_summary["is_complete"]:
+        return False
+
+    if game_value_summary.get("is_null_game") is not False:
+        return False
+
+    if not is_schwarz_announced(game_value_summary):
+        return False
+
+    schwarz_status = get_settlement_schwarz_status(
+        game_value_summary=game_value_summary,
+        game_result_summary=game_result_summary,
+        completed_tricks=completed_tricks,
+    )
+
+    if schwarz_status == "unresolved":
+        return False
+
+    return schwarz_status != "declarer"
+
+
 def get_effective_settlement_game_value(
     game_value: int,
     overbid_summary: dict[str, Any],
@@ -267,6 +435,7 @@ def get_effective_settlement_game_value(
         return required_game_value
 
     return game_value
+
 
 def is_overbid_settlement_supported(
     overbid_summary: dict[str, Any],

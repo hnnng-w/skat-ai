@@ -91,6 +91,14 @@ The engine distinguishes between:
 
 This prevents incomplete games from being treated as final Schneider or Schwarz outcomes too early.
 
+For settlement, Schneider remains point-based: the losing side has 30 or fewer
+card points. Schwarz is stricter: the losing side took zero tricks. Card points
+alone do not prove Schwarz, because a zero-point trick still prevents Schwarz.
+
+Suit and Grand Schwarz settlement therefore uses reliable completed-trick
+ownership from `completed_tricks[].winner_role`, not card points or the
+point-based `effective_schwarz_status` field.
+
 ## Score summary
 
 `score_summary` combines explicit points and completed-trick points.
@@ -173,11 +181,11 @@ In normal non-Schneider cases:
 effective_game_value = game_value
 ```
 
-For completed non-null suit and grand games, final settlement may add one
-achieved-Schneider base-value level:
+For completed non-null suit and grand games, final settlement may add achieved
+Schneider and achieved Schwarz base-value levels:
 
 ```text
-effective_game_value = game_value + base_value
+effective_game_value = game_value + achieved levels * base_value
 ```
 
 `game_value_summary.game_value` remains the declared/pre-result game value. If
@@ -185,6 +193,12 @@ Schneider was announced, that declared value already includes the announcement
 level. A successful Schneider announcement adds only the separate achieved
 Schneider level. A failed Schneider announcement does not add an achieved
 Schneider level.
+
+Achieved Schwarz adds one additional base-value level when reliable ten-trick
+ownership proves that the losing side took no tricks. Achieved Schwarz also
+implies achieved Schneider, so normal completed Schwarz settlements can include
+both achieved levels. If Schwarz was announced, `game_value` already includes the
+announced Schwarz level; settlement does not add that declared level again.
 
 In supported Suit/Grand overbid cases:
 
@@ -203,6 +217,8 @@ Declarer loses: settlement_score = -2 * effective_game_value
 
 Completed non-null suit and grand games include achieved Schneider by adding one base-value level to `effective_game_value`.
 
+Completed non-null suit and grand games include achieved Schwarz by adding one more base-value level, but only when exactly ten reliable completed tricks prove the trick ownership. This applies in either direction: declarer Schwarz and defender Schwarz both affect the effective game value, consistent with achieved Schneider handling.
+
 The public field `declarer_won_by_card_points` is retained for compatibility.
 For Suit and Grand it is literal. For Null it mirrors whether the declarer won
 the base contract, even though Null is not decided by card points.
@@ -213,9 +229,18 @@ for settlement purposes. The card-point `winner` remains unchanged, and
 `effective_game_value` remains the declared game value that already includes the
 Schneider announcement level.
 
-Supported Suit/Grand overbid cases force the declarer into a settlement loss and use the required game value.
+If Schwarz was announced, the announcement succeeds only when reliable ten-trick
+ownership proves declarer Schwarz. If reliable ownership proves any other result,
+including a zero-point defender trick or defender Schwarz, the declarer loses for
+settlement purposes. If fewer than ten reliable completed tricks are available,
+the announced-Schwarz settlement remains incomplete with missing
+`complete_trick_ownership`, unless overbid already determines the settlement
+loss.
 
-Schwarz and Schwarz-announcement-specific settlement nuances are not implemented.
+Supported Suit/Grand overbid cases force the declarer into a settlement loss and use the required game value. Overbid takes precedence over announcement failures and achieved levels: `effective_game_value` is `overbid_required_game_value`, and achieved Schneider or Schwarz levels are not added to that overbid-required value.
+
+Claims and concessions assign remaining card points, but they do not prove the
+remaining trick ownership for Schwarz settlement in this slice.
 
 Example:
 
@@ -261,6 +286,7 @@ Current partial ISkO-style rating is documented in:
 
 * Full official settlement nuances are not completely modeled yet.
 * Claim and concession handling assigns remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
+* Claims and concessions do not establish Schwarz trick ownership in settlement.
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * Null-game overbid settlement remains conservative when no `required_game_value` is available.
 * List, series, and tournament performance rating are handled separately and are not fully implemented yet.

@@ -2310,6 +2310,64 @@ def build_completed_null_defender_tricks() -> list[dict[str, object]]:
     ]
 
 
+def build_completed_grand_tricks(winner_roles: list[str]) -> list[dict[str, object]]:
+    cards_by_trick = [
+        ["CA", "C10", "CK"],
+        ["CQ", "CJ", "C9"],
+        ["C8", "C7", "SA"],
+        ["S10", "SK", "SQ"],
+        ["SJ", "S9", "S8"],
+        ["S7", "HA", "H10"],
+        ["HK", "HQ", "HJ"],
+        ["H9", "H8", "H7"],
+        ["DA", "D10", "DK"],
+        ["DQ", "DJ", "D9"],
+    ]
+
+    return [
+        {
+            "cards": cards,
+            "winner_role": winner_role,
+        }
+        for cards, winner_role in zip(cards_by_trick, winner_roles, strict=True)
+    ]
+
+
+def build_completed_grand_schwarz_input(
+    completed_tricks: list[dict[str, object]],
+    schwarz_announced: bool = False,
+) -> dict[str, object]:
+    return {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "forehand",
+        "trick_leader": "me",
+        "hand": ["D8", "D7"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": completed_tricks,
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 1,
+        "right_hand_size": 1,
+        "sample_count": 1,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "unknown",
+        "game_end_reason": "normal_completion",
+        "hand_game": False,
+        "ouvert": False,
+        "schneider_announced": False,
+        "schwarz_announced": schwarz_announced,
+        "matadors": 2,
+        "bid_value": 72,
+        "performance_rating_system": "isko_list",
+    }
+
+
 def build_stub_analysis_report() -> list[dict[str, object]]:
     return [
         {
@@ -2433,6 +2491,57 @@ def test_build_analysis_result_uses_completed_null_ownership(
     assert result["performance_rating_summary"]["game_outcome"] == "declarer_win"
     assert result["performance_rating_summary"]["settlement_score"] == 23
     assert result["performance_rating_summary"]["rating_score"] == 73
+
+
+def test_build_analysis_result_uses_completed_trick_schwarz_settlement(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "main.recommend_card_by_expected_value",
+        lambda **_kwargs: ("D8", "Stubbed recommendation.", {}),
+    )
+    monkeypatch.setattr(
+        "main.build_card_analysis_report",
+        lambda **_kwargs: build_stub_analysis_report(),
+    )
+    declarer_schwarz_input = build_completed_grand_schwarz_input(
+        completed_tricks=build_completed_grand_tricks(["declarer"] * 10),
+    )
+    declarer_schwarz_path = write_position_file(tmp_path, declarer_schwarz_input)
+
+    declarer_schwarz_result = build_analysis_result(declarer_schwarz_path)
+
+    assert declarer_schwarz_result["game_result_summary"]["winner"] == "declarer"
+    assert declarer_schwarz_result["final_settlement_summary"]["game_value"] == 72
+    assert declarer_schwarz_result["final_settlement_summary"]["effective_game_value"] == 120
+    assert declarer_schwarz_result["final_settlement_summary"]["settlement_score"] == 120
+    assert declarer_schwarz_result["final_settlement_summary"]["is_loss"] is False
+    assert declarer_schwarz_result["performance_rating_summary"]["game_outcome"] == (
+        "declarer_win"
+    )
+    assert declarer_schwarz_result["performance_rating_summary"]["settlement_score"] == 120
+
+    failed_announcement_input = build_completed_grand_schwarz_input(
+        completed_tricks=build_completed_grand_tricks(
+            [*["declarer"] * 9, "defenders"]
+        ),
+        schwarz_announced=True,
+    )
+    failed_announcement_path = write_position_file(tmp_path, failed_announcement_input)
+
+    failed_announcement_result = build_analysis_result(failed_announcement_path)
+
+    assert failed_announcement_result["game_result_summary"]["winner"] == "declarer"
+    assert failed_announcement_result["game_value_summary"]["game_value"] == 96
+    assert failed_announcement_result["final_settlement_summary"]["is_loss"] is True
+    assert failed_announcement_result["final_settlement_summary"]["settlement_score"] == -240
+    assert failed_announcement_result["performance_rating_summary"]["game_outcome"] == (
+        "declarer_loss"
+    )
+    assert failed_announcement_result["performance_rating_summary"]["settlement_score"] == (
+        -240
+    )
 
 
 def test_build_analysis_result_includes_available_post_game_review_summary(

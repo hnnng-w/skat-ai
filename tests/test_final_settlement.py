@@ -34,6 +34,47 @@ def build_completed_null_tricks(winner_roles: list[str]) -> list[dict[str, objec
     ]
 
 
+def build_completed_schwarz_tricks(winner_roles: list[str]) -> list[dict[str, object]]:
+    return [
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": winner_role,
+        }
+        for winner_role in winner_roles
+    ]
+
+
+def build_suit_game_value_summary(
+    game_value: int = 72,
+    schneider_announced: bool = False,
+    schwarz_announced: bool = False,
+) -> dict:
+    return {
+        "game_value": game_value,
+        "base_value": 24,
+        "is_null_game": False,
+        "details": {
+            "schneider_announced": schneider_announced,
+            "schwarz_announced": schwarz_announced,
+        },
+    }
+
+
+def build_complete_suit_result_summary(
+    winner: str = "declarer",
+    effective_schneider_status: str = "none",
+    effective_schwarz_status: str = "none",
+    game_end_reason: str = "normal_completion",
+) -> dict:
+    return {
+        "is_complete": True,
+        "winner": winner,
+        "effective_schneider_status": effective_schneider_status,
+        "effective_schwarz_status": effective_schwarz_status,
+        "game_end_reason": game_end_reason,
+    }
+
+
 def build_completed_null_result_summary(
     winner_roles: list[str],
     declarer_points: int,
@@ -428,6 +469,363 @@ def test_failed_schneider_announcement_does_not_add_defender_schneider() -> None
     assert summary["effective_game_value"] == 96
     assert summary["is_loss"] is True
     assert summary["settlement_score"] == -192
+
+
+def test_build_final_settlement_summary_applies_declarer_schwarz_level() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(["declarer"] * 10),
+    )
+
+    assert summary["game_value"] == 72
+    assert summary["effective_game_value"] == 120
+    assert summary["settlement_score"] == 120
+    assert summary["is_loss"] is False
+
+
+def test_build_final_settlement_summary_applies_defender_schwarz_level() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="defenders",
+            effective_schneider_status="defenders_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(["defenders"] * 10),
+    )
+
+    assert summary["game_value"] == 72
+    assert summary["effective_game_value"] == 120
+    assert summary["settlement_score"] == -240
+    assert summary["is_loss"] is True
+
+
+def test_mixed_trick_history_does_not_add_schwarz_level() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(
+            [*["declarer"] * 9, "defenders"]
+        ),
+    )
+
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == 96
+
+
+def test_card_points_alone_do_not_add_schwarz_level() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+            effective_schwarz_status="declarer_made_schwarz",
+        ),
+    )
+
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == 96
+
+
+def test_zero_point_defender_trick_prevents_declarer_schwarz_level() -> None:
+    completed_tricks = build_completed_schwarz_tricks(["declarer"] * 9)
+    completed_tricks.append(
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": "defenders",
+        }
+    )
+
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+            effective_schwarz_status="declarer_made_schwarz",
+        ),
+        completed_tricks=completed_tricks,
+    )
+
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == 96
+
+
+def test_zero_point_declarer_trick_prevents_defender_schwarz_level() -> None:
+    completed_tricks = build_completed_schwarz_tricks(["defenders"] * 9)
+    completed_tricks.append(
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": "declarer",
+        }
+    )
+
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="defenders",
+            effective_schneider_status="defenders_made_schneider",
+            effective_schwarz_status="defenders_made_schwarz",
+        ),
+        completed_tricks=completed_tricks,
+    )
+
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == -192
+
+
+def test_successful_schwarz_announcement_counts_declared_and_achieved_levels_once() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(["declarer"] * 10),
+    )
+
+    assert summary["winner"] == "declarer"
+    assert summary["declarer_won_by_card_points"] is True
+    assert summary["game_value"] == 96
+    assert summary["effective_game_value"] == 144
+    assert summary["is_loss"] is False
+    assert summary["settlement_score"] == 144
+
+
+def test_failed_schwarz_announcement_loses_despite_card_point_win() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(
+            [*["declarer"] * 9, "defenders"]
+        ),
+    )
+
+    assert summary["winner"] == "declarer"
+    assert summary["declarer_won_by_card_points"] is True
+    assert summary["effective_game_value"] == 120
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -240
+
+
+def test_zero_point_defender_trick_fails_schwarz_announcement() -> None:
+    completed_tricks = build_completed_schwarz_tricks(["declarer"] * 9)
+    completed_tricks.append(
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": "defenders",
+        }
+    )
+
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        completed_tricks=completed_tricks,
+    )
+
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -240
+
+
+def test_failed_schwarz_announcement_stays_loss_when_declarer_already_lost() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="defenders",
+            effective_schneider_status="none",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(
+            ["declarer", *["defenders"] * 9]
+        ),
+    )
+
+    assert summary["winner"] == "defenders"
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -192
+
+
+def test_defender_schwarz_fails_declarer_schwarz_announcement() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="defenders",
+            effective_schneider_status="defenders_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(["defenders"] * 10),
+    )
+
+    assert summary["effective_game_value"] == 144
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -288
+
+
+def test_successful_schwarz_announcement_with_overbid_uses_required_value() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        overbid_summary={
+            "bid_value": 100,
+            "game_value": 96,
+            "is_overbid": True,
+            "margin": -4,
+            "required_game_value": 120,
+            "status": "overbid",
+        },
+        completed_tricks=build_completed_schwarz_tricks(["declarer"] * 10),
+    )
+
+    assert summary["effective_game_value"] == 120
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -240
+
+
+def test_failed_schwarz_announcement_with_overbid_uses_required_value() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        overbid_summary={
+            "bid_value": 100,
+            "game_value": 96,
+            "is_overbid": True,
+            "margin": -4,
+            "required_game_value": 120,
+            "status": "overbid",
+        },
+        completed_tricks=build_completed_schwarz_tricks(
+            [*["declarer"] * 9, "defenders"]
+        ),
+    )
+
+    assert summary["effective_game_value"] == 120
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -240
+
+
+def test_achieved_schwarz_does_not_increase_overbid_required_value() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(game_value=72),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        overbid_summary={
+            "bid_value": 73,
+            "game_value": 72,
+            "is_overbid": True,
+            "margin": -1,
+            "required_game_value": 96,
+            "status": "overbid",
+        },
+        completed_tricks=build_completed_schwarz_tricks(["declarer"] * 10),
+    )
+
+    assert summary["effective_game_value"] == 96
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -192
+
+
+def test_incomplete_history_without_schwarz_announcement_keeps_ordinary_settlement() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(game_value=72),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(["declarer"] * 9),
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["effective_game_value"] == 96
+    assert summary["settlement_score"] == 96
+
+
+def test_unresolved_schwarz_announcement_keeps_settlement_incomplete() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        completed_tricks=build_completed_schwarz_tricks(["declarer"] * 9),
+    )
+
+    assert summary["is_complete"] is False
+    assert summary["missing_inputs"] == ["complete_trick_ownership"]
+    assert summary["declarer_won_by_card_points"] is True
+    assert summary["winner"] is None
+    assert summary["effective_game_value"] is None
+    assert summary["settlement_score"] is None
+    assert summary["is_loss"] is None
+
+
+def test_unresolved_schwarz_announcement_with_overbid_keeps_overbid_settlement() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(
+            game_value=96,
+            schwarz_announced=True,
+        ),
+        game_result_summary=build_complete_suit_result_summary(
+            winner="declarer",
+            effective_schneider_status="declarer_made_schneider",
+        ),
+        overbid_summary={
+            "bid_value": 100,
+            "game_value": 96,
+            "is_overbid": True,
+            "margin": -4,
+            "required_game_value": 120,
+            "status": "overbid",
+        },
+        completed_tricks=build_completed_schwarz_tricks(["declarer"] * 9),
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["missing_inputs"] == []
+    assert summary["effective_game_value"] == 120
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] == -240
+
 
 def build_not_overbid_summary() -> dict:
     return {

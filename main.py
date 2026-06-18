@@ -345,6 +345,7 @@ def build_analysis_result(
         game_value_summary=game_value_summary,
         game_result_summary=adjusted_game_result_summary,
         overbid_summary=overbid_summary,
+        completed_tricks=state.completed_tricks,
     )
     performance_rating_summary = build_performance_rating_summary(
         final_settlement_summary=final_settlement_summary,

@@ -262,6 +262,19 @@ For completed non-null suit and grand games with achieved Schneider,
 `effective_game_value` includes one additional base-value level while
 `game_value` remains the declared/pre-result value.
 
+For completed non-null suit and grand games with achieved Schwarz,
+`effective_game_value` includes one additional Schwarz base-value level when a
+reliable ten-trick completed history proves that the losing side took no tricks.
+Schwarz is not inferred from card points. If Schwarz was announced and reliable
+trick ownership proves the announcement failed, `is_loss` is `true` and
+`settlement_score` is negative even when `winner` and
+`declarer_won_by_card_points` show a declarer card-point win.
+
+This slice does not add a public Schwarz-status field to
+`final_settlement_summary`. Schwarz settlement is reflected through existing
+fields: `effective_game_value`, `settlement_score`, `is_loss`, and the derived
+`performance_rating_summary.game_outcome`.
+
 For supported Suit/Grand overbid cases, `effective_game_value` equals `required_game_value`.
 
 ## Information policy summary

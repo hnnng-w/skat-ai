@@ -3,6 +3,7 @@ from skat_ai.game_result import (
     build_game_result_summary_from_score_summary,
     get_card_point_result_status,
     get_card_point_winner,
+    get_completed_trick_schwarz_status,
     get_effective_schneider_status,
     get_effective_schwarz_status,
     get_points_remaining,
@@ -27,6 +28,16 @@ def build_score_summary(
 
 
 def build_completed_null_tricks(winner_roles: list[str]) -> list[dict[str, object]]:
+    return [
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": winner_role,
+        }
+        for winner_role in winner_roles
+    ]
+
+
+def build_completed_schwarz_tricks(winner_roles: list[str]) -> list[dict[str, object]]:
     return [
         {
             "cards": ["C7", "C8", "C9"],
@@ -295,6 +306,90 @@ def test_get_effective_schwarz_status_when_complete() -> None:
 
 def test_get_effective_schwarz_status_none_when_complete() -> None:
     assert get_effective_schwarz_status(70, 50) == "none"
+
+
+def test_completed_trick_schwarz_status_declarer() -> None:
+    assert get_completed_trick_schwarz_status(
+        build_completed_schwarz_tricks(["declarer"] * 10)
+    ) == "declarer"
+
+
+def test_completed_trick_schwarz_status_defenders() -> None:
+    assert get_completed_trick_schwarz_status(
+        build_completed_schwarz_tricks(["defenders"] * 10)
+    ) == "defenders"
+
+
+def test_completed_trick_schwarz_status_none_for_mixed_ownership() -> None:
+    assert get_completed_trick_schwarz_status(
+        build_completed_schwarz_tricks(["declarer", *["defenders"] * 9])
+    ) == "none"
+
+
+def test_completed_trick_schwarz_status_zero_point_trick_prevents_schwarz() -> None:
+    completed_tricks = build_completed_schwarz_tricks(["declarer"] * 9)
+    completed_tricks.append(
+        {
+            "cards": ["C7", "C8", "C9"],
+            "winner_role": "defenders",
+        }
+    )
+
+    assert get_completed_trick_schwarz_status(completed_tricks) == "none"
+
+
+def test_completed_trick_schwarz_status_unresolved_for_incomplete_history() -> None:
+    assert get_completed_trick_schwarz_status(
+        build_completed_schwarz_tricks(["declarer"] * 9)
+    ) == "unresolved"
+
+
+def test_completed_trick_schwarz_status_rejects_overlong_history() -> None:
+    try:
+        get_completed_trick_schwarz_status(
+            build_completed_schwarz_tricks(["declarer"] * 11)
+        )
+    except ValueError as error:
+        assert "exactly ten completed tricks" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_completed_trick_schwarz_status_rejects_missing_winner_role() -> None:
+    completed_tricks = build_completed_schwarz_tricks(["declarer"] * 10)
+    del completed_tricks[0]["winner_role"]
+
+    try:
+        get_completed_trick_schwarz_status(completed_tricks)
+    except ValueError as error:
+        assert "winner_role is required" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_completed_trick_schwarz_status_rejects_invalid_winner_role() -> None:
+    completed_tricks = build_completed_schwarz_tricks(["declarer"] * 10)
+    completed_tricks[0]["winner_role"] = "unknown"
+
+    try:
+        get_completed_trick_schwarz_status(completed_tricks)
+    except ValueError as error:
+        assert "Invalid completed Schwarz trick winner_role" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_completed_trick_schwarz_status_rejects_non_object_entry() -> None:
+    completed_tricks = build_completed_schwarz_tricks(["declarer"] * 10)
+    completed_tricks[0] = "not-an-object"
+
+    try:
+        get_completed_trick_schwarz_status(completed_tricks)
+    except ValueError as error:
+        assert "must be an object" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
 
 def test_build_game_result_summary_from_points_complete_schneider() -> None:
     summary = build_game_result_summary_from_points(
