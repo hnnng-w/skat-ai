@@ -13,6 +13,7 @@ def simulate_and_advance_once(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """
     Simulates one immediate trick and advances the game state.
@@ -28,6 +29,7 @@ def simulate_and_advance_once(
         right_hand_size=right_hand_size,
         random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
     next_state = advance_state_after_detailed_trick(

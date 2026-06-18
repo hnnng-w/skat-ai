@@ -337,13 +337,14 @@ Input fields:
 }
 ```
 
-Global policy fields remain backward-compatible and are used as fallback values.
+Global policy fields remain backward-compatible and cascade to both opponents. Side-specific fields override only their side.
 
-Current multi-step behavior:
+Multi-step behavior:
 
 * if `right` leads, `right_opponent_lead_policy` is used
 * if `left` leads, `left_opponent_lead_policy` is used
 * if `left` leads and `right` responds, `right_opponent_response_policy` is used
+* candidate trick completion uses activated side response policies when an explicit response source exists
 
 Run a multi-step simulation with separate left/right opponent policies:
 

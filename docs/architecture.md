@@ -136,29 +136,39 @@ Issue #22's current heuristic and explainable defender-partnership scope is impl
 
 ## Left/right opponent policy flow
 
-Opponent policy handling starts with global settings and normalized left/right settings.
+Opponent policy handling is centralized in `src/skat_ai/effective_opponent_policy.py`.
+`main.py` builds one `EffectiveOpponentPolicySettings` value per analysis invocation
+and shares it with immediate analysis, multi-step simulation, and multi-step policy
+comparison.
 
-Immediate analysis flow:
+Shared precedence, from lowest to highest, is:
 
-1. `main.py` builds a sparse immediate response-policy map from explicit policy sources only.
-2. Explicit sources include input presets, input response policies, enabled profile presets, and relevant CLI overrides.
-3. Normalized defaults alone do not activate the map; legacy basic or random immediate behavior remains active when no explicit source is present.
-4. The immediate map is passed through `recommender.py`, `analysis_report.py`, and `simulation.py`.
-5. `simulation.py` starts with the local candidate card and applies configured response policies only to the remaining acting opponents.
+1. built-in lowest-point defaults
+2. input global policy preset
+3. explicit input global lead and response policies
+4. input-activated profile-derived side policies
+5. explicit input side lead and response policies
+6. global CLI policy preset
+7. CLI-activated profile-derived side policies
+8. explicit global CLI lead and response policies
+9. explicit side-specific CLI lead and response policies
 
-Immediate response-policy precedence is input global preset, input global response policy, input-activated profile side policies, input side response policies, global CLI preset, CLI-activated profile side policies, global CLI response policy, then side-specific CLI response policies.
+Global presets and global lead/response policies cascade to both `left` and `right`.
+Profile-derived policies and side-specific overrides affect only their side.
 
-Multi-step flow:
+Response-policy activation is tracked separately from complete effective side settings.
+Presets, response policies, and enabled profile presets activate the sparse response map;
+lead-only policy sources do not. When the sparse map is absent, immediate analysis and
+multi-step candidate completion keep the legacy basic or random opponent response
+behavior selected by `use_basic_opponent_strategy`.
 
-1. `input_loader.py` normalizes global and left/right policy settings.
-2. `input_validation.py` validates policy values.
-3. `main.py` applies profile-derived left/right presets when enabled for multi-step simulation.
-4. `main.py` applies explicit side-specific CLI overrides last.
-5. `multi_step_simulation.py` passes settings into opponent sequence preparation.
-6. `opponent_sequence.py` selects left/right lead and response policies.
-7. `opponent_policy.py` contains shared policy selection helpers.
+Immediate candidate analysis does not simulate an opponent lead. It starts with the
+local candidate card and applies the activated response map only to the remaining
+acting opponents. Multi-step opponent-turn preparation uses the effective left/right
+lead and response settings. Multi-step candidate completion and policy comparison
+receive the same activated response map as immediate analysis.
 
-Immediate candidate analysis does not simulate an opponent lead. Opponent leads are simulated during multi-step opponent-turn preparation, where configured lead policies are already applied. Immediate and multi-step policy resolution are not yet one centralized resolver.
+`opponent_policy.py` contains the shared card-selection helpers used by these paths.
 
 ## Analysis and recommendation
 

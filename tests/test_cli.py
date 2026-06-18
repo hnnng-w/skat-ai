@@ -4,15 +4,13 @@ import pytest
 
 from main import (
     apply_cli_overrides,
-    apply_opponent_policy_cli_overrides,
     apply_profile_preset_cli_overrides,
-    apply_single_opponent_policy_cli_overrides,
     build_analysis_result,
-    build_effective_immediate_response_policy_map,
     print_multi_step_result,
     print_policy_comparison_result,
     run_json_position_analysis,
 )
+from skat_ai.effective_opponent_policy import build_effective_opponent_policy_settings
 from skat_ai.player_profile import PlayerProfile
 
 
@@ -1313,53 +1311,6 @@ def test_build_analysis_result_includes_opponent_policy_settings() -> None:
     }
 
 
-def test_apply_opponent_policy_cli_overrides() -> None:
-    settings = apply_opponent_policy_cli_overrides(
-        opponent_policy_settings={
-            "opponent_lead_policy": "lowest_point",
-            "opponent_response_policy": "lowest_point",
-        },
-        opponent_lead_policy="highest_point",
-        opponent_response_policy="basic_trick_play",
-    )
-
-    assert settings == {
-        "opponent_lead_policy": "highest_point",
-        "opponent_response_policy": "basic_trick_play",
-    }
-
-
-def test_apply_opponent_policy_cli_overrides_applies_preset() -> None:
-    settings = apply_opponent_policy_cli_overrides(
-        opponent_policy_settings={
-            "opponent_lead_policy": "lowest_point",
-            "opponent_response_policy": "lowest_point",
-        },
-        opponent_policy_preset="cautious_defender",
-    )
-
-    assert settings == {
-        "opponent_lead_policy": "basic_defender_lead",
-        "opponent_response_policy": "basic_defender_response",
-    }
-
-
-def test_apply_opponent_policy_cli_overrides_explicit_values_override_preset() -> None:
-    settings = apply_opponent_policy_cli_overrides(
-        opponent_policy_settings={
-            "opponent_lead_policy": "lowest_point",
-            "opponent_response_policy": "lowest_point",
-        },
-        opponent_policy_preset="cautious_defender",
-        opponent_response_policy="highest_point",
-    )
-
-    assert settings == {
-        "opponent_lead_policy": "basic_defender_lead",
-        "opponent_response_policy": "highest_point",
-    }
-
-
 def test_apply_profile_preset_cli_overrides_defaults_to_unchanged() -> None:
     settings = {
         "use_profile_presets": False,
@@ -1569,28 +1520,6 @@ def test_build_analysis_result_includes_left_right_opponent_policy_settings() ->
     }
 
 
-def test_apply_single_opponent_policy_cli_overrides_updates_values() -> None:
-    settings = {
-        "opponent_lead_policy": "lowest_point",
-        "opponent_response_policy": "lowest_point",
-    }
-
-    updated_settings = apply_single_opponent_policy_cli_overrides(
-        opponent_policy_settings=settings,
-        opponent_lead_policy="highest_point",
-        opponent_response_policy="basic_trick_play",
-    )
-
-    assert updated_settings == {
-        "opponent_lead_policy": "highest_point",
-        "opponent_response_policy": "basic_trick_play",
-    }
-    assert settings == {
-        "opponent_lead_policy": "lowest_point",
-        "opponent_response_policy": "lowest_point",
-    }
-
-
 def test_build_analysis_result_applies_left_right_policy_overrides() -> None:
     result = build_analysis_result(
         file_path="examples/grand_second_position.json",
@@ -1660,7 +1589,7 @@ def build_immediate_response_policy_map_for_test(
     left_opponent_response_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
 ) -> dict[str, str] | None:
-    return build_effective_immediate_response_policy_map(
+    settings = build_effective_opponent_policy_settings(
         data=build_immediate_response_policy_input(policy_fields),
         left_player_profile=left_player_profile or PlayerProfile(),
         right_player_profile=right_player_profile or PlayerProfile(),
@@ -1671,15 +1600,20 @@ def build_immediate_response_policy_map_for_test(
         right_opponent_response_policy_override=right_opponent_response_policy_override,
     )
 
+    return settings.immediate_response_policy_by_player
+
 
 def build_immediate_response_policy_result(
     tmp_path,
     monkeypatch,
     policy_fields: dict[str, object] | None = None,
     opponent_policy_preset_override: str | None = None,
+    opponent_lead_policy_override: str | None = None,
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
+    left_opponent_lead_policy_override: str | None = None,
     left_opponent_response_policy_override: str | None = None,
+    right_opponent_lead_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
 ) -> dict[str, object]:
     def fake_generate_random_opponent_hands(
@@ -1707,9 +1641,12 @@ def build_immediate_response_policy_result(
         random_seed_override=1,
         opponent_strategy_override="basic",
         opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_lead_policy_override=opponent_lead_policy_override,
         opponent_response_policy_override=opponent_response_policy_override,
         use_profile_presets_override=use_profile_presets_override,
+        left_opponent_lead_policy_override=left_opponent_lead_policy_override,
         left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_lead_policy_override=right_opponent_lead_policy_override,
         right_opponent_response_policy_override=right_opponent_response_policy_override,
     )
 
@@ -2008,6 +1945,58 @@ def test_build_analysis_result_without_explicit_response_policy_keeps_legacy_imm
     )
     row = get_only_analysis_report_row(result)
 
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 0.0
+
+
+def test_build_analysis_result_global_lead_only_cli_does_not_activate_immediate_response_policy(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        opponent_lead_policy_override="highest_point",
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert result["opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert row["card"] == "S7"
+    assert row["average_trick_points"] == 0.0
+
+
+def test_build_analysis_result_input_side_lead_only_does_not_activate_immediate_response_policy(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    result = build_immediate_response_policy_result(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields={
+            "left_opponent_lead_policy": "highest_point",
+        },
+    )
+    row = get_only_analysis_report_row(result)
+
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
     assert row["card"] == "S7"
     assert row["average_trick_points"] == 0.0
 
@@ -2592,7 +2581,7 @@ def capture_multi_step_policy_orchestration(
     return captured
 
 
-def test_current_multi_step_global_cli_preset_does_not_cascade_to_input_side_settings(
+def test_multi_step_global_cli_preset_cascades_to_side_settings(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -2608,20 +2597,23 @@ def test_current_multi_step_global_cli_preset_does_not_cascade_to_input_side_set
         opponent_policy_preset_override="aggressive_points",
     )
 
-    # Characterizes current behavior scheduled to change in Slice 2.
     assert captured["opponent_lead_policy"] == "highest_point"
     assert captured["opponent_response_policy"] == "highest_point"
     assert captured["left_opponent_policy_settings"] == {
-        "opponent_lead_policy": "basic_defender_lead",
-        "opponent_response_policy": "basic_defender_response",
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
     }
     assert captured["right_opponent_policy_settings"] == {
-        "opponent_lead_policy": "lowest_point",
-        "opponent_response_policy": "basic_trick_play",
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+    assert captured["opponent_response_policy_by_player"] == {
+        "left": "highest_point",
+        "right": "highest_point",
     }
 
 
-def test_current_multi_step_global_cli_policies_do_not_cascade_to_input_side_settings(
+def test_multi_step_global_cli_policies_cascade_to_side_settings(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -2638,20 +2630,23 @@ def test_current_multi_step_global_cli_policies_do_not_cascade_to_input_side_set
         opponent_response_policy_override="highest_point",
     )
 
-    # Characterizes current behavior scheduled to change in Slice 2.
     assert captured["opponent_lead_policy"] == "highest_point"
     assert captured["opponent_response_policy"] == "highest_point"
     assert captured["left_opponent_policy_settings"] == {
-        "opponent_lead_policy": "basic_defender_lead",
-        "opponent_response_policy": "basic_defender_response",
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
     }
     assert captured["right_opponent_policy_settings"] == {
-        "opponent_lead_policy": "lowest_point",
-        "opponent_response_policy": "basic_trick_play",
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+    assert captured["opponent_response_policy_by_player"] == {
+        "left": "highest_point",
+        "right": "highest_point",
     }
 
 
-def test_current_multi_step_side_profile_overrides_explicit_input_side_settings(
+def test_multi_step_explicit_input_side_settings_override_input_profiles(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -2672,14 +2667,16 @@ def test_current_multi_step_side_profile_overrides_explicit_input_side_settings(
         },
     )
 
-    # Characterizes current behavior scheduled to change in Slice 2.
     assert captured["left_opponent_policy_settings"] == {
-        "opponent_lead_policy": "basic_defender_lead",
-        "opponent_response_policy": "basic_defender_response",
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert captured["opponent_response_policy_by_player"] == {
+        "left": "lowest_point",
     }
 
 
-def test_current_multi_step_side_profile_survives_global_cli_policy_non_cascade(
+def test_multi_step_global_cli_response_overrides_cli_activated_profile_response(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -2687,24 +2684,27 @@ def test_current_multi_step_side_profile_survives_global_cli_policy_non_cascade(
         tmp_path=tmp_path,
         monkeypatch=monkeypatch,
         policy_fields={
-            "use_profile_presets": True,
             "right_player_profile": {
                 "games_played": 1000,
                 "solo_rate": 0.38,
             },
         },
+        use_profile_presets_override=True,
         opponent_response_policy_override="lowest_point",
     )
 
-    # Characterizes current behavior scheduled to change in Slice 2.
     assert captured["opponent_response_policy"] == "lowest_point"
     assert captured["right_opponent_policy_settings"] == {
         "opponent_lead_policy": "highest_point",
-        "opponent_response_policy": "highest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert captured["opponent_response_policy_by_player"] == {
+        "left": "lowest_point",
+        "right": "lowest_point",
     }
 
 
-def test_current_multi_step_side_cli_values_remain_final_after_profiles(
+def test_multi_step_side_cli_values_remain_final_after_profiles(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -2729,6 +2729,79 @@ def test_current_multi_step_side_cli_values_remain_final_after_profiles(
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "highest_point",
     }
+
+
+@pytest.mark.parametrize(
+    (
+        "policy_fields",
+        "cli_overrides",
+        "expected_right_response_policy",
+    ),
+    [
+        (
+            {"opponent_response_policy": "highest_point"},
+            {},
+            "highest_point",
+        ),
+        (
+            {"right_opponent_response_policy": "basic_defender_response"},
+            {},
+            "basic_defender_response",
+        ),
+        (
+            {"opponent_policy_preset": "cautious_defender"},
+            {},
+            "basic_defender_response",
+        ),
+        (
+            {
+                "use_profile_presets": True,
+                "right_player_profile": {
+                    "games_played": 1000,
+                    "solo_rate": 0.38,
+                },
+            },
+            {},
+            "highest_point",
+        ),
+        (
+            {},
+            {"opponent_policy_preset_override": "aggressive_points"},
+            "highest_point",
+        ),
+        (
+            {},
+            {"opponent_response_policy_override": "highest_point"},
+            "highest_point",
+        ),
+        (
+            {"opponent_response_policy": "highest_point"},
+            {"right_opponent_response_policy_override": "lowest_point"},
+            "lowest_point",
+        ),
+    ],
+)
+def test_multi_step_orchestration_uses_same_effective_response_for_candidate_and_preparation(
+    tmp_path,
+    monkeypatch,
+    policy_fields: dict[str, object],
+    cli_overrides: dict[str, object],
+    expected_right_response_policy: str,
+) -> None:
+    captured = capture_multi_step_policy_orchestration(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        policy_fields=policy_fields,
+        **cli_overrides,
+    )
+
+    response_policy_by_player = captured["opponent_response_policy_by_player"]
+
+    assert isinstance(response_policy_by_player, dict)
+    assert response_policy_by_player["right"] == expected_right_response_policy
+    assert captured["right_opponent_policy_settings"]["opponent_response_policy"] == (
+        expected_right_response_policy
+    )
 
 
 def write_position_file(tmp_path, data: dict[str, object]) -> str:

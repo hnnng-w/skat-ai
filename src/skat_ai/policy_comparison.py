@@ -21,6 +21,7 @@ def compare_multi_step_policies(
     opponent_response_policy: str = "lowest_point",
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """
     Compares multiple card-selection policies on the same multi-step setup.
@@ -45,6 +46,7 @@ def compare_multi_step_policies(
             opponent_response_policy=opponent_response_policy,
             left_opponent_policy_settings=left_opponent_policy_settings,
             right_opponent_policy_settings=right_opponent_policy_settings,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
 
         summary = multi_step_result["summary"]

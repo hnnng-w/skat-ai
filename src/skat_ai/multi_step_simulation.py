@@ -118,6 +118,7 @@ def simulate_multiple_steps(
     opponent_response_policy: str = "lowest_point",
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -126,8 +127,7 @@ def simulate_multiple_steps(
     - The candidate card is selected with a configurable policy.
     - The first step assumes the player can act in the current state.
     - Later steps continue if next_player is "me".
-    - If next_player is "right", right can lead first, because me acts next.
-    - If next_player is "left", simulation stops for now.
+    - If next_player is "left" or "right", opponent-turn preparation can lead first.
     - Opponent hands are resampled each step from unseen cards.
     """
     if step_count <= 0:
@@ -184,6 +184,7 @@ def simulate_multiple_steps(
             expected_value_sample_count=expected_value_sample_count,
             random_seed=rng.randint(0, 10**9) if random_seed is not None else None,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
 
         step_result = simulate_and_advance_once(
@@ -193,6 +194,7 @@ def simulate_multiple_steps(
             right_hand_size=right_hand_size,
             random_generator=rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
 
         step = {

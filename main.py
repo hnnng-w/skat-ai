@@ -8,6 +8,10 @@ from skat_ai.analysis_report import (
     format_card_analysis_report,
 )
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
+from skat_ai.effective_opponent_policy import (
+    EffectiveOpponentPolicySettings,
+    build_effective_opponent_policy_settings,
+)
 from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.game_declaration import build_serializable_game_declaration
 from skat_ai.game_end import apply_remaining_points_assignment
@@ -20,27 +24,16 @@ from skat_ai.input_loader import (
     get_actual_card_played_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
-    get_left_opponent_policy_settings_from_input,
     get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
     get_list_performance_input_from_input,
-    get_opponent_policy_settings_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
-    get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_position_from_json,
 )
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
-from skat_ai.opponent_policy_preset import (
-    apply_opponent_policy_preset,
-    get_opponent_policy_settings_for_preset,
-)
-from skat_ai.opponent_profile_policy import (
-    apply_profile_based_policy_preset,
-    apply_profile_based_side_policy_preset,
-)
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.performance_rating import (
@@ -49,7 +42,6 @@ from skat_ai.performance_rating import (
     build_list_performance_summary_from_game_contributions,
     build_performance_rating_summary,
 )
-from skat_ai.player_profile import PlayerProfile
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
@@ -88,48 +80,6 @@ def apply_cli_overrides(
 
     return updated_settings
 
-def apply_opponent_policy_cli_overrides(
-    opponent_policy_settings: dict[str, str],
-    opponent_policy_preset: str | None = None,
-    opponent_lead_policy: str | None = None,
-    opponent_response_policy: str | None = None,
-) -> dict[str, str]:
-    """
-    Applies CLI overrides to opponent policy settings.
-
-    Preset is applied first. Explicit lead/response overrides win.
-    """
-    updated_settings = apply_opponent_policy_preset(
-        opponent_policy_settings=opponent_policy_settings,
-        preset=opponent_policy_preset,
-    )
-
-    if opponent_lead_policy is not None:
-        updated_settings["opponent_lead_policy"] = opponent_lead_policy
-
-    if opponent_response_policy is not None:
-        updated_settings["opponent_response_policy"] = opponent_response_policy
-
-    return updated_settings
-
-def apply_single_opponent_policy_cli_overrides(
-    opponent_policy_settings: dict[str, str],
-    opponent_lead_policy: str | None = None,
-    opponent_response_policy: str | None = None,
-) -> dict[str, str]:
-    """
-    Applies CLI overrides to one normalized opponent policy settings dictionary.
-    """
-    updated_settings = dict(opponent_policy_settings)
-
-    if opponent_lead_policy is not None:
-        updated_settings["opponent_lead_policy"] = opponent_lead_policy
-
-    if opponent_response_policy is not None:
-        updated_settings["opponent_response_policy"] = opponent_response_policy
-
-    return updated_settings
-
 def apply_profile_preset_cli_overrides(
     profile_preset_settings: dict[str, bool],
     use_profile_presets: bool = False,
@@ -145,81 +95,64 @@ def apply_profile_preset_cli_overrides(
     return updated_settings
 
 
-def build_effective_immediate_response_policy_map(
+def build_effective_opponent_policy_settings_for_analysis(
     data: dict[str, Any],
-    left_player_profile: PlayerProfile,
-    right_player_profile: PlayerProfile,
+    analysis_metadata: Any,
     opponent_policy_preset_override: str | None = None,
+    opponent_lead_policy_override: str | None = None,
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
+    left_opponent_lead_policy_override: str | None = None,
     left_opponent_response_policy_override: str | None = None,
+    right_opponent_lead_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
-) -> dict[str, str] | None:
+) -> EffectiveOpponentPolicySettings:
     """
-    Builds effective immediate-analysis response policies from explicit sources.
-
-    Normalized defaults alone intentionally do not activate policy-driven
-    immediate analysis. The returned map is sparse: only sides affected by an
-    explicit source, preset, or applicable enabled profile-derived policy are
-    included.
+    Builds shared effective opponent policy settings for one analysis invocation.
     """
-    policy_by_player: dict[str, str] = {}
+    return build_effective_opponent_policy_settings(
+        data=data,
+        left_player_profile=analysis_metadata.left_player_profile,
+        right_player_profile=analysis_metadata.right_player_profile,
+        opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_lead_policy_override=opponent_lead_policy_override,
+        opponent_response_policy_override=opponent_response_policy_override,
+        use_profile_presets_override=use_profile_presets_override,
+        left_opponent_lead_policy_override=left_opponent_lead_policy_override,
+        left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_lead_policy_override=right_opponent_lead_policy_override,
+        right_opponent_response_policy_override=right_opponent_response_policy_override,
+    )
 
-    def apply_global_response_policy(policy: str) -> None:
-        policy_by_player["left"] = policy
-        policy_by_player["right"] = policy
 
-    def apply_global_preset(preset: str) -> None:
-        preset_settings = get_opponent_policy_settings_for_preset(preset)
-        apply_global_response_policy(preset_settings["opponent_response_policy"])
+def build_global_opponent_policy_settings(
+    effective_settings: EffectiveOpponentPolicySettings,
+) -> dict[str, str]:
+    """Builds the existing global opponent-policy output shape."""
+    return {
+        "opponent_lead_policy": effective_settings.global_lead_policy,
+        "opponent_response_policy": effective_settings.global_response_policy,
+    }
 
-    def apply_profile_response_policy(player: str, profile: PlayerProfile) -> None:
-        side_settings = apply_profile_based_side_policy_preset(
-            opponent_policy_settings={},
-            profile=profile,
-            use_profile_presets=True,
-        )
 
-        response_policy = side_settings.get("opponent_response_policy")
-        if response_policy is not None:
-            policy_by_player[player] = response_policy
+def build_left_opponent_policy_settings(
+    effective_settings: EffectiveOpponentPolicySettings,
+) -> dict[str, str]:
+    """Builds the existing left-opponent policy output shape."""
+    return {
+        "opponent_lead_policy": effective_settings.left_lead_policy,
+        "opponent_response_policy": effective_settings.left_response_policy,
+    }
 
-    if "opponent_policy_preset" in data:
-        apply_global_preset(data["opponent_policy_preset"])
 
-    if "opponent_response_policy" in data:
-        apply_global_response_policy(data["opponent_response_policy"])
-
-    if data.get("use_profile_presets") is True:
-        apply_profile_response_policy("left", left_player_profile)
-        apply_profile_response_policy("right", right_player_profile)
-
-    if "left_opponent_response_policy" in data:
-        policy_by_player["left"] = data["left_opponent_response_policy"]
-
-    if "right_opponent_response_policy" in data:
-        policy_by_player["right"] = data["right_opponent_response_policy"]
-
-    if opponent_policy_preset_override is not None:
-        apply_global_preset(opponent_policy_preset_override)
-
-    if use_profile_presets_override:
-        apply_profile_response_policy("left", left_player_profile)
-        apply_profile_response_policy("right", right_player_profile)
-
-    if opponent_response_policy_override is not None:
-        apply_global_response_policy(opponent_response_policy_override)
-
-    if left_opponent_response_policy_override is not None:
-        policy_by_player["left"] = left_opponent_response_policy_override
-
-    if right_opponent_response_policy_override is not None:
-        policy_by_player["right"] = right_opponent_response_policy_override
-
-    if not policy_by_player:
-        return None
-
-    return policy_by_player
+def build_right_opponent_policy_settings(
+    effective_settings: EffectiveOpponentPolicySettings,
+) -> dict[str, str]:
+    """Builds the existing right-opponent policy output shape."""
+    return {
+        "opponent_lead_policy": effective_settings.right_lead_policy,
+        "opponent_response_policy": effective_settings.right_response_policy,
+    }
 
 
 def build_analysis_result(
@@ -232,8 +165,10 @@ def build_analysis_result(
     right_opponent_lead_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
     opponent_policy_preset_override: str | None = None,
+    opponent_lead_policy_override: str | None = None,
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
+    effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
 ) -> dict[str, Any]:
     """
     Builds the full analysis result as a structured dictionary.
@@ -242,15 +177,21 @@ def build_analysis_result(
     state = build_game_state_from_input(data)
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
-    opponent_response_policy_by_player = build_effective_immediate_response_policy_map(
-        data=data,
-        left_player_profile=analysis_metadata.left_player_profile,
-        right_player_profile=analysis_metadata.right_player_profile,
-        opponent_policy_preset_override=opponent_policy_preset_override,
-        opponent_response_policy_override=opponent_response_policy_override,
-        use_profile_presets_override=use_profile_presets_override,
-        left_opponent_response_policy_override=left_opponent_response_policy_override,
-        right_opponent_response_policy_override=right_opponent_response_policy_override,
+    if effective_opponent_policy_settings is None:
+        effective_opponent_policy_settings = build_effective_opponent_policy_settings_for_analysis(
+            data=data,
+            analysis_metadata=analysis_metadata,
+            opponent_policy_preset_override=opponent_policy_preset_override,
+            opponent_lead_policy_override=opponent_lead_policy_override,
+            opponent_response_policy_override=opponent_response_policy_override,
+            use_profile_presets_override=use_profile_presets_override,
+            left_opponent_lead_policy_override=left_opponent_lead_policy_override,
+            left_opponent_response_policy_override=left_opponent_response_policy_override,
+            right_opponent_lead_policy_override=right_opponent_lead_policy_override,
+            right_opponent_response_policy_override=right_opponent_response_policy_override,
+        )
+    opponent_response_policy_by_player = (
+        effective_opponent_policy_settings.immediate_response_policy_by_player
     )
     actual_card_played = get_actual_card_played_from_input(data)
     game_declaration = get_game_declaration_from_input(data)
@@ -263,19 +204,14 @@ def build_analysis_result(
         game_value_summary=game_value_summary,
         bid_value=game_declaration.bid_value,
     )
-    opponent_policy_settings = get_opponent_policy_settings_from_input(data)
-    left_opponent_policy_settings = get_left_opponent_policy_settings_from_input(data)
-    right_opponent_policy_settings = get_right_opponent_policy_settings_from_input(data)
-    left_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
-        opponent_policy_settings=left_opponent_policy_settings,
-        opponent_lead_policy=left_opponent_lead_policy_override,
-        opponent_response_policy=left_opponent_response_policy_override,
+    opponent_policy_settings = build_global_opponent_policy_settings(
+        effective_opponent_policy_settings
     )
-
-    right_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
-        opponent_policy_settings=right_opponent_policy_settings,
-        opponent_lead_policy=right_opponent_lead_policy_override,
-        opponent_response_policy=right_opponent_response_policy_override,
+    left_opponent_policy_settings = build_left_opponent_policy_settings(
+        effective_opponent_policy_settings
+    )
+    right_opponent_policy_settings = build_right_opponent_policy_settings(
+        effective_opponent_policy_settings
     )
     profile_preset_settings = get_profile_preset_settings_from_input(data)
 
@@ -284,12 +220,6 @@ def build_analysis_result(
         sample_count=sample_count_override,
         random_seed=random_seed_override,
         opponent_strategy=opponent_strategy_override,
-    )
-
-    opponent_policy_settings = apply_opponent_policy_cli_overrides(
-        opponent_policy_settings=opponent_policy_settings,
-        opponent_policy_preset=opponent_policy_preset_override,
-        opponent_response_policy=opponent_response_policy_override,
     )
 
     profile_preset_settings = apply_profile_preset_cli_overrides(
@@ -722,6 +652,21 @@ def run_json_position_analysis(
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
 ) -> None:
+    position_data = load_position_from_json(file_path)
+    analysis_metadata = get_analysis_metadata_from_input(position_data)
+    effective_opponent_policy_settings = build_effective_opponent_policy_settings_for_analysis(
+        data=position_data,
+        analysis_metadata=analysis_metadata,
+        opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_lead_policy_override=opponent_lead_policy_override,
+        opponent_response_policy_override=opponent_response_policy_override,
+        use_profile_presets_override=use_profile_presets_override,
+        left_opponent_lead_policy_override=left_opponent_lead_policy_override,
+        left_opponent_response_policy_override=left_opponent_response_policy_override,
+        right_opponent_lead_policy_override=right_opponent_lead_policy_override,
+        right_opponent_response_policy_override=right_opponent_response_policy_override,
+    )
+
     result = build_analysis_result(
         file_path=file_path,
         sample_count_override=sample_count_override,
@@ -732,8 +677,10 @@ def run_json_position_analysis(
         right_opponent_lead_policy_override=right_opponent_lead_policy_override,
         right_opponent_response_policy_override=right_opponent_response_policy_override,
         opponent_policy_preset_override=opponent_policy_preset_override,
+        opponent_lead_policy_override=opponent_lead_policy_override,
         opponent_response_policy_override=opponent_response_policy_override,
         use_profile_presets_override=use_profile_presets_override,
+        effective_opponent_policy_settings=effective_opponent_policy_settings,
     )
 
     print_analysis_result(result)
@@ -745,63 +692,22 @@ def run_json_position_analysis(
         if multi_step_count <= 0:
             raise ValueError("multi_step_count must be a positive integer.")
 
-        position_data = load_position_from_json(file_path)
         state = build_game_state_from_input(position_data)
         settings = get_simulation_settings_from_input(position_data)
-        analysis_metadata = get_analysis_metadata_from_input(position_data)
-        opponent_policy_settings = get_opponent_policy_settings_from_input(position_data)
-        left_opponent_policy_settings = get_left_opponent_policy_settings_from_input(
-            position_data
+        opponent_policy_settings = build_global_opponent_policy_settings(
+            effective_opponent_policy_settings
         )
-        right_opponent_policy_settings = get_right_opponent_policy_settings_from_input(
-            position_data
+        left_opponent_policy_settings = build_left_opponent_policy_settings(
+            effective_opponent_policy_settings
+        )
+        right_opponent_policy_settings = build_right_opponent_policy_settings(
+            effective_opponent_policy_settings
         )
 
         profile_preset_settings = get_profile_preset_settings_from_input(position_data)
         profile_preset_settings = apply_profile_preset_cli_overrides(
             profile_preset_settings=profile_preset_settings,
             use_profile_presets=use_profile_presets_override,
-        )
-
-        opponent_policy_settings = apply_opponent_policy_cli_overrides(
-            opponent_policy_settings=opponent_policy_settings,
-            opponent_policy_preset=opponent_policy_preset_override,
-        )
-
-        opponent_policy_settings = apply_profile_based_policy_preset(
-            opponent_policy_settings=opponent_policy_settings,
-            left_profile=analysis_metadata.left_player_profile,
-            right_profile=analysis_metadata.right_player_profile,
-            use_profile_presets=profile_preset_settings["use_profile_presets"],
-        )
-
-        opponent_policy_settings = apply_opponent_policy_cli_overrides(
-            opponent_policy_settings=opponent_policy_settings,
-            opponent_lead_policy=opponent_lead_policy_override,
-            opponent_response_policy=opponent_response_policy_override,
-        )
-
-        left_opponent_policy_settings = apply_profile_based_side_policy_preset(
-            opponent_policy_settings=left_opponent_policy_settings,
-            profile=analysis_metadata.left_player_profile,
-            use_profile_presets=profile_preset_settings["use_profile_presets"],
-        )
-        right_opponent_policy_settings = apply_profile_based_side_policy_preset(
-            opponent_policy_settings=right_opponent_policy_settings,
-            profile=analysis_metadata.right_player_profile,
-            use_profile_presets=profile_preset_settings["use_profile_presets"],
-        )
-
-        left_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
-            opponent_policy_settings=left_opponent_policy_settings,
-            opponent_lead_policy=left_opponent_lead_policy_override,
-            opponent_response_policy=left_opponent_response_policy_override,
-        )
-
-        right_opponent_policy_settings = apply_single_opponent_policy_cli_overrides(
-            opponent_policy_settings=right_opponent_policy_settings,
-            opponent_lead_policy=right_opponent_lead_policy_override,
-            opponent_response_policy=right_opponent_response_policy_override,
         )
 
         settings = apply_cli_overrides(
@@ -830,6 +736,9 @@ def run_json_position_analysis(
             opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
             left_opponent_policy_settings=left_opponent_policy_settings,
             right_opponent_policy_settings=right_opponent_policy_settings,
+            opponent_response_policy_by_player=(
+                effective_opponent_policy_settings.immediate_response_policy_by_player
+            ),
         )
 
         result["multi_step_result"] = build_serializable_multi_step_result(
@@ -855,6 +764,9 @@ def run_json_position_analysis(
                 opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
                 left_opponent_policy_settings=left_opponent_policy_settings,
                 right_opponent_policy_settings=right_opponent_policy_settings,
+                opponent_response_policy_by_player=(
+                    effective_opponent_policy_settings.immediate_response_policy_by_player
+                ),
             )
 
             result["policy_comparison_result"] = build_serializable_policy_comparison_result(

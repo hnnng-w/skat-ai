@@ -96,9 +96,11 @@ Implemented:
 * Left/right opponent policy input fields
 * Left/right opponent policy CLI overrides
 * Left/right opponent policy output settings
+* Shared effective opponent-policy resolver for immediate, multi-step, and policy-comparison paths
 * Left/right policy handling in multi-step opponent lead and response paths
 * Explicitly activated opponent response policies in immediate analysis
-* Immediate response-policy precedence for input presets, profile presets, and CLI overrides
+* Explicitly activated opponent response policies in multi-step candidate completion
+* Unified response-policy precedence for input presets, profile presets, and CLI overrides
 * Basic defender cooperation improvements and issue #22's current heuristic defender-partnership scope:
 
   * safer defender lead

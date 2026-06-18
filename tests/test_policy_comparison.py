@@ -417,3 +417,57 @@ def test_compare_multi_step_policies_returns_opponent_policy_settings() -> None:
 
     assert result["opponent_lead_policy"] == "highest_point"
     assert result["opponent_response_policy"] == "basic_trick_play"
+
+
+def test_compare_multi_step_policies_threads_response_policy_map(monkeypatch) -> None:
+    calls = []
+
+    def fake_simulate_multiple_steps(**kwargs):
+        calls.append(kwargs.copy())
+
+        return {
+            "summary": {
+                "requested_step_count": kwargs["step_count"],
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": kwargs["strict_context"],
+                "score_summary": {
+                    "declarer_points_gained": 0,
+                    "defender_points_gained": 0,
+                    "final_point_swing": 0,
+                },
+                "context_summary": {},
+            }
+        }
+
+    monkeypatch.setattr(
+        "skat_ai.policy_comparison.simulate_multiple_steps",
+        fake_simulate_multiple_steps,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        step_count=1,
+        policies=["first_legal", "highest_point"],
+        random_seed=42,
+        opponent_response_policy_by_player={"left": "highest_point"},
+    )
+
+    assert result["policies"] == ["first_legal", "highest_point"]
+    assert [call["card_selection_policy"] for call in calls] == [
+        "first_legal",
+        "highest_point",
+    ]
+    assert all(
+        call["opponent_response_policy_by_player"] == {"left": "highest_point"}
+        for call in calls
+    )

@@ -17,7 +17,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Card-point calculation
 * Trump and trick-winner logic
 * Immediate trick simulation
-* Configured opponent response policies for immediate analysis
+* Configured opponent response policies for immediate analysis and multi-step candidate completion
 * Expected point swing calculation
 * Card recommendations
 * JSON output for regression-friendly analysis
@@ -32,6 +32,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Optional profile-based policy presets
 * Separate left/right opponent policy settings
 * Left/right opponent policy CLI overrides
+* Shared opponent-policy precedence for immediate and multi-step paths
 * Basic defender cooperation heuristics
 
 ### Game history, scoring, and settlement
@@ -149,6 +150,8 @@ Run a multi-step analysis with separate left/right opponent policies:
 ```powershell
 python main.py --input examples/grand_second_position.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
 ```
+
+Global policy presets and policies cascade to both opponents. Side-specific input fields or CLI overrides win for their side.
 
 Write output to JSON:
 

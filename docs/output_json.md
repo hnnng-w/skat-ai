@@ -88,11 +88,16 @@ Meaning:
 | `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.                 |
 | `right_opponent_policy_settings` | Normalized policy settings for the right opponent.                |
 
-Current multi-step behavior:
+The three settings objects are resolved effective settings. Global presets and global
+lead/response policies cascade to both sides, and side-specific settings override only
+their side.
+
+Multi-step behavior:
 
 * `right` lead uses `right_opponent_policy_settings.opponent_lead_policy`.
 * `left` lead uses `left_opponent_policy_settings.opponent_lead_policy`.
 * `right` response after a left lead uses `right_opponent_policy_settings.opponent_response_policy`.
+* Candidate trick completion uses the same activated response-policy map as immediate analysis.
 
 ## Game declaration
 

@@ -579,18 +579,19 @@ The project also supports separate left/right opponent policy fields:
 }
 ```
 
-Normalization behavior:
+Effective policy behavior:
 
-* `left_opponent_lead_policy` falls back to `opponent_lead_policy`.
-* `left_opponent_response_policy` falls back to `opponent_response_policy`.
-* `right_opponent_lead_policy` falls back to `opponent_lead_policy`.
-* `right_opponent_response_policy` falls back to `opponent_response_policy`.
+* Global presets and global lead/response policies cascade to both `left` and `right`.
+* Left/right fields override only their side.
+* Profile-derived policies affect only their side when `use_profile_presets` is enabled.
+* CLI policy overrides use the same resolver as input fields, and side-specific CLI overrides win last.
 
-Current multi-step behavior:
+Multi-step behavior:
 
 * If `right` leads, the engine uses `right_opponent_lead_policy`.
 * If `left` leads, the engine uses `left_opponent_lead_policy`.
 * If `left` leads and `right` responds, the engine uses `right_opponent_response_policy`.
+* Candidate trick completion uses activated side response policies when an explicit response source exists.
 
 Global policy fields remain supported for backward compatibility.
 
@@ -605,9 +606,21 @@ Immediate response-policy behavior is activated only by explicit policy sources:
 * `use_profile_presets: true`
 * relevant CLI overrides
 
-Absent fields normalized to defaults, `use_profile_presets: false`, and player profiles without enabled profile presets do not activate policy-driven immediate analysis. In those cases, immediate analysis keeps the legacy basic or random opponent response behavior from `use_basic_opponent_strategy`.
+Absent fields normalized to defaults, `use_profile_presets: false`, lead-only policy sources, and player profiles without enabled profile presets do not activate policy-driven immediate analysis or multi-step candidate completion. In those cases, those paths keep the legacy basic or random opponent response behavior from `use_basic_opponent_strategy`.
 
-Immediate response-policy precedence, from lowest to highest, is:
+Shared policy precedence, from lowest to highest, is:
+
+1. built-in lowest-point defaults
+2. input global policy preset
+3. explicit input global lead and response policies
+4. input-activated profile-derived side policies
+5. explicit input side lead and response policies
+6. global CLI policy preset
+7. CLI-activated profile-derived side policies
+8. explicit global CLI lead and response policies
+9. explicit side-specific CLI lead and response policies
+
+Response-policy activation uses the same order but only response-bearing sources activate the sparse response map:
 
 1. input global policy preset
 2. explicit input global response policy
@@ -618,9 +631,7 @@ Immediate response-policy precedence, from lowest to highest, is:
 7. explicit global CLI response policy
 8. explicit side-specific CLI response policies
 
-Global presets and global response policies apply to both `left` and `right`. Profile-derived policies and side-specific response policies affect only their side. The immediate response-policy map is sparse, so an explicit left-side policy alone does not populate a right-side default entry.
-
-Immediate and multi-step policy resolution are related but not fully centralized yet. Multi-step keeps its existing effective policy path for opponent-turn preparation and lead simulation.
+Global presets and global response policies apply to both `left` and `right`. Profile-derived policies and side-specific response policies affect only their side. The activated response-policy map is sparse, so an explicit left-side policy alone does not populate a right-side default entry.
 
 ## Completed tricks
 
