@@ -8,6 +8,110 @@ ISKO_DECLARER_WIN_POINTS = 50
 ISKO_DECLARER_LOSS_POINTS = -50
 ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE = 40
 ISKO_FIXED_TABLE_PLAYER_COUNT = 3
+LIST_ENTRY_METADATA_FIELDS = [
+    "rated_player_id",
+    "game_id",
+]
+
+
+def validate_stable_list_entry_identifier(
+    value: Any,
+    field_path: str,
+) -> None:
+    """
+    Validates one opaque stable identifier for list aggregation metadata.
+
+    Identifiers are intentionally not normalized. Leading or trailing whitespace
+    is rejected instead of being trimmed.
+    """
+    if not isinstance(value, str):
+        raise ValueError(
+            f"{field_path} must be a non-empty string without leading or "
+            "trailing whitespace."
+        )
+
+    if value == "" or value.strip() == "":
+        raise ValueError(
+            f"{field_path} must be a non-empty string without leading or "
+            "trailing whitespace."
+        )
+
+    if value != value.strip():
+        raise ValueError(
+            f"{field_path} must be a non-empty string without leading or "
+            "trailing whitespace."
+        )
+
+
+def validate_list_entry_metadata(
+    entries: list[Any],
+    input_mode: str,
+) -> None:
+    """
+    Validates optional stable metadata for per-game list aggregation entries.
+
+    The validation is intentionally independent from scoring. It checks only
+    supplied rated-player and game identifiers before aggregation ignores them.
+    """
+    if not isinstance(entries, list):
+        raise ValueError(f"{input_mode} must be a list.")
+
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            continue
+
+        for field_name in LIST_ENTRY_METADATA_FIELDS:
+            if field_name in entry:
+                validate_stable_list_entry_identifier(
+                    entry[field_name],
+                    f"{input_mode}[{index}].{field_name}",
+                )
+
+    rated_player_indexes = [
+        index
+        for index, entry in enumerate(entries)
+        if isinstance(entry, dict) and "rated_player_id" in entry
+    ]
+
+    if rated_player_indexes and len(rated_player_indexes) != len(entries):
+        missing_indexes = [
+            index
+            for index, entry in enumerate(entries)
+            if not isinstance(entry, dict) or "rated_player_id" not in entry
+        ]
+        raise ValueError(
+            f"{input_mode}.rated_player_id must be supplied for every entry "
+            "or omitted from every entry; "
+            f"supplied indexes: {rated_player_indexes}; "
+            f"missing indexes: {missing_indexes}."
+        )
+
+    if rated_player_indexes:
+        first_index = rated_player_indexes[0]
+        first_id = entries[first_index]["rated_player_id"]
+
+        for index in rated_player_indexes[1:]:
+            rated_player_id = entries[index]["rated_player_id"]
+            if rated_player_id != first_id:
+                raise ValueError(
+                    f"{input_mode}.rated_player_id values conflict: "
+                    f"index {first_index} has {first_id!r}, "
+                    f"index {index} has {rated_player_id!r}."
+                )
+
+    game_id_first_index: dict[str, int] = {}
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or "game_id" not in entry:
+            continue
+
+        game_id = entry["game_id"]
+        if game_id in game_id_first_index:
+            raise ValueError(
+                f"Duplicate {input_mode}.game_id {game_id!r} at indexes "
+                f"{game_id_first_index[game_id]} and {index}."
+            )
+
+        game_id_first_index[game_id] = index
 
 
 def calculate_isko_list_performance_points(
@@ -165,6 +269,11 @@ def calculate_isko_list_performance_points_from_analysis_results(
     if not isinstance(analysis_results, list):
         raise ValueError("analysis_results must be a list.")
 
+    validate_list_entry_metadata(
+        entries=analysis_results,
+        input_mode="list_analysis_results",
+    )
+
     game_contributions = []
     for analysis_result in analysis_results:
         contribution = build_list_game_contribution_from_analysis_result(
@@ -190,6 +299,11 @@ def calculate_isko_list_performance_points_from_game_contributions(
     perspective. Each settlement_score is the declarer's single-game settlement
     score, not a pre-bonused performance rating score.
     """
+    validate_list_entry_metadata(
+        entries=game_contributions,
+        input_mode="list_game_contributions",
+    )
+
     if table_size != ISKO_FIXED_TABLE_PLAYER_COUNT:
         raise ValueError(
             f"Unsupported ISkO list table size: {table_size}. "
@@ -214,7 +328,8 @@ def calculate_isko_list_performance_points_from_game_contributions(
                     f"{field_name}."
                 )
 
-        additional_fields = sorted(set(contribution) - set(required_fields))
+        supported_fields = set(required_fields) | set(LIST_ENTRY_METADATA_FIELDS)
+        additional_fields = sorted(set(contribution) - supported_fields)
         if additional_fields:
             raise ValueError(
                 "game contribution has unsupported fields: "

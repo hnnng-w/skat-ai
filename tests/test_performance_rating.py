@@ -92,6 +92,44 @@ def build_contribution_analysis_result(
     }
 
 
+def build_valid_game_contribution(
+    player_role="declarer",
+    game_outcome="declarer_win",
+    settlement_score=72,
+    rated_player_id=None,
+    game_id=None,
+):
+    contribution = {
+        "player_role": player_role,
+        "game_outcome": game_outcome,
+        "settlement_score": settlement_score,
+    }
+
+    if rated_player_id is not None:
+        contribution["rated_player_id"] = rated_player_id
+
+    if game_id is not None:
+        contribution["game_id"] = game_id
+
+    return contribution
+
+
+def with_list_metadata(
+    entry: dict,
+    rated_player_id=None,
+    game_id=None,
+) -> dict:
+    updated_entry = dict(entry)
+
+    if rated_player_id is not None:
+        updated_entry["rated_player_id"] = rated_player_id
+
+    if game_id is not None:
+        updated_entry["game_id"] = game_id
+
+    return updated_entry
+
+
 @pytest.mark.parametrize(
     ("player_role", "is_loss", "settlement_score", "expected_contribution"),
     [
@@ -509,6 +547,77 @@ def test_calculate_isko_list_performance_points_from_analysis_results_rejects_ta
             analysis_results=[],
             table_size=4,
         )
+
+
+def test_analysis_result_aggregation_direct_call_rejects_conflicting_player_ids() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"list_analysis_results\.rated_player_id values conflict: .*0.*1",
+    ):
+        calculate_isko_list_performance_points_from_analysis_results(
+            analysis_results=[
+                with_list_metadata(
+                    build_contribution_analysis_result(),
+                    rated_player_id="player-a",
+                ),
+                with_list_metadata(
+                    build_contribution_analysis_result(),
+                    rated_player_id="Player-A",
+                ),
+            ]
+        )
+
+
+def test_analysis_result_aggregation_direct_call_rejects_duplicate_game_ids() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"Duplicate list_analysis_results\.game_id 'game-1' at indexes 0 and 1",
+    ):
+        calculate_isko_list_performance_points_from_analysis_results(
+            analysis_results=[
+                with_list_metadata(
+                    build_contribution_analysis_result(settlement_score=72),
+                    game_id="game-1",
+                ),
+                with_list_metadata(
+                    build_contribution_analysis_result(settlement_score=96),
+                    game_id="game-1",
+                ),
+            ]
+        )
+
+
+def test_analysis_result_aggregation_metadata_does_not_change_scoring() -> None:
+    analysis_results_without_metadata = [
+        build_contribution_analysis_result(
+            player_role="declarer",
+            is_loss=False,
+            settlement_score=96,
+        ),
+        build_contribution_analysis_result(
+            player_role="defender",
+            is_loss=True,
+            settlement_score=-144,
+        ),
+    ]
+    analysis_results_with_metadata = [
+        with_list_metadata(
+            analysis_results_without_metadata[0],
+            rated_player_id="player-1",
+            game_id="game-1",
+        ),
+        with_list_metadata(
+            analysis_results_without_metadata[1],
+            rated_player_id="player-1",
+            game_id="game-2",
+        ),
+    ]
+
+    assert calculate_isko_list_performance_points_from_analysis_results(
+        analysis_results_with_metadata
+    ) == calculate_isko_list_performance_points_from_analysis_results(
+        analysis_results_without_metadata
+    )
 
 
 def test_get_game_outcome_for_rating_returns_incomplete() -> None:
@@ -1222,6 +1331,65 @@ def test_calculate_isko_list_performance_points_from_contributions_rejects_table
         assert "three-player" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_game_contribution_aggregation_direct_call_rejects_conflicting_player_ids() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"list_game_contributions\.rated_player_id values conflict: .*0.*1",
+    ):
+        calculate_isko_list_performance_points_from_game_contributions(
+            game_contributions=[
+                build_valid_game_contribution(rated_player_id="player-a"),
+                build_valid_game_contribution(rated_player_id="Player-A"),
+            ]
+        )
+
+
+def test_game_contribution_aggregation_direct_call_rejects_duplicate_game_ids() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"Duplicate list_game_contributions\.game_id 'game-1' at indexes 0 and 1",
+    ):
+        calculate_isko_list_performance_points_from_game_contributions(
+            game_contributions=[
+                build_valid_game_contribution(settlement_score=72, game_id="game-1"),
+                build_valid_game_contribution(settlement_score=96, game_id="game-1"),
+            ]
+        )
+
+
+def test_game_contribution_metadata_does_not_change_scoring() -> None:
+    contributions_without_metadata = [
+        build_valid_game_contribution(
+            player_role="declarer",
+            game_outcome="declarer_win",
+            settlement_score=96,
+        ),
+        build_valid_game_contribution(
+            player_role="defender",
+            game_outcome="declarer_loss",
+            settlement_score=-144,
+        ),
+    ]
+    contributions_with_metadata = [
+        with_list_metadata(
+            contributions_without_metadata[0],
+            rated_player_id="player-1",
+            game_id="game-1",
+        ),
+        with_list_metadata(
+            contributions_without_metadata[1],
+            rated_player_id="player-1",
+            game_id="game-2",
+        ),
+    ]
+
+    assert calculate_isko_list_performance_points_from_game_contributions(
+        contributions_with_metadata
+    ) == calculate_isko_list_performance_points_from_game_contributions(
+        contributions_without_metadata
+    )
 
 
 def test_build_list_performance_summary_for_aggregated_totals() -> None:

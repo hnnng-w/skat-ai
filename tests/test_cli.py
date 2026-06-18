@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from main import (
     apply_cli_overrides,
     apply_opponent_policy_cli_overrides,
@@ -429,6 +431,50 @@ def test_build_analysis_result_includes_empty_contribution_list_performance_summ
     }
 
 
+def test_build_analysis_result_accepts_contribution_metadata(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "list_game_contributions_with_metadata.json"
+    data = build_list_performance_cli_input()
+    data["list_game_contributions"] = [
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 96,
+            "rated_player_id": "player-1",
+            "game_id": "game-1",
+        },
+        {
+            "player_role": "defender",
+            "game_outcome": "declarer_loss",
+            "settlement_score": -144,
+            "rated_player_id": "player-1",
+            "game_id": "game-2",
+        },
+    ]
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "normalized_game_contributions",
+        "table_size": 3,
+        "player_game_points": 96,
+        "own_games_won": 1,
+        "own_games_lost": 0,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 50,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 186,
+    }
+
+
 def test_build_analysis_result_includes_analysis_result_list_performance_summary(
     tmp_path,
 ) -> None:
@@ -481,6 +527,130 @@ def test_build_analysis_result_includes_analysis_result_list_performance_summary
         "individual_game_settlement"
     )
     assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
+
+
+def test_build_analysis_result_accepts_analysis_result_metadata(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "list_analysis_results_with_metadata.json"
+    data = build_list_performance_cli_input()
+    data["list_analysis_results"] = [
+        {
+            "rated_player_id": "player-1",
+            "game_id": "game-1",
+            "position": {
+                "player_role": "declarer",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": False,
+                "settlement_score": 96,
+            },
+        },
+        {
+            "rated_player_id": "player-1",
+            "game_id": "game-2",
+            "position": {
+                "player_role": "defender",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": True,
+                "settlement_score": -144,
+            },
+        },
+    ]
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "local_analysis_results",
+        "table_size": 3,
+        "player_game_points": 96,
+        "own_games_won": 1,
+        "own_games_lost": 0,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 50,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 186,
+    }
+
+
+def test_build_analysis_result_rejects_conflicting_analysis_result_player_metadata(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "conflicting_list_analysis_results.json"
+    data = build_list_performance_cli_input()
+    data["list_analysis_results"] = [
+        {
+            "rated_player_id": "player-1",
+            "position": {
+                "player_role": "declarer",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": False,
+                "settlement_score": 96,
+            },
+        },
+        {
+            "rated_player_id": "player-2",
+            "position": {
+                "player_role": "declarer",
+            },
+            "final_settlement_summary": {
+                "is_complete": True,
+                "is_loss": False,
+                "settlement_score": 96,
+            },
+        },
+    ]
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="rated_player_id values conflict"):
+        build_analysis_result(
+            file_path=str(input_path),
+            sample_count_override=20,
+            random_seed_override=42,
+            opponent_strategy_override="basic",
+        )
+
+
+def test_build_analysis_result_rejects_duplicate_contribution_game_metadata(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "duplicate_list_game_contributions.json"
+    data = build_list_performance_cli_input()
+    data["list_game_contributions"] = [
+        {
+            "player_role": "declarer",
+            "game_outcome": "declarer_win",
+            "settlement_score": 96,
+            "game_id": "game-1",
+        },
+        {
+            "player_role": "defender",
+            "game_outcome": "declarer_loss",
+            "settlement_score": -144,
+            "game_id": "game-1",
+        },
+    ]
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Duplicate list_game_contributions.game_id"):
+        build_analysis_result(
+            file_path=str(input_path),
+            sample_count_override=20,
+            random_seed_override=42,
+            opponent_strategy_override="basic",
+        )
 
 
 def test_build_analysis_result_includes_empty_analysis_result_list_summary(

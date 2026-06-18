@@ -289,6 +289,10 @@
       "type": "integer",
       "minimum": 1
     },
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1
+    },
     "profile_rate": {
       "type": "number",
       "minimum": 0,
@@ -379,6 +383,12 @@
         },
         "settlement_score": {
           "type": "integer"
+        },
+        "rated_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "game_id": {
+          "$ref": "#/$defs/stable_identifier"
         }
       },
       "allOf": [
@@ -434,6 +444,12 @@
         },
         "final_settlement_summary": {
           "$ref": "#/$defs/list_analysis_result_final_settlement_summary"
+        },
+        "rated_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "game_id": {
+          "$ref": "#/$defs/stable_identifier"
         }
       }
     },

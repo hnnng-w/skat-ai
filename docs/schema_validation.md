@@ -59,6 +59,7 @@ The input schema checks things such as:
 * supported `game_end_reason` values
 * supported `left_player_profile` and `right_player_profile` field types and numeric ranges
 * supported `performance_rating_system` values
+* optional `rated_player_id` and `game_id` primitive shapes for per-game list inputs
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 
@@ -178,8 +179,17 @@ Examples:
 * overbid settlement support for Null games
 * strategic live-vs-post-game information rules
 * whether matadors can be inferred from the currently known declarer-card context
+* whether per-game list entries consistently describe one supplied `rated_player_id`
+* whether supplied per-game list `game_id` values are unique
 
 These checks require cross-field or Skat-specific logic and are easier to test and maintain in Python.
+
+For list aggregation metadata, JSON Schema validates only that optional
+`rated_player_id` and `game_id` fields are strings with at least one character.
+Python validation rejects whitespace-only identifiers, leading or trailing
+whitespace, partial `rated_player_id` presence, conflicting `rated_player_id`
+values, and duplicate supplied `game_id` values. Passing schema validation does
+not prove list-level identity consistency.
 
 ## Adding new examples
 

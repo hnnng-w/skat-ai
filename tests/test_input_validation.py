@@ -1288,6 +1288,49 @@ def build_valid_list_analysis_result(
     }
 
 
+def build_valid_list_game_contribution(
+    player_role="declarer",
+    game_outcome="declarer_win",
+    settlement_score=96,
+) -> dict[str, object]:
+    return {
+        "player_role": player_role,
+        "game_outcome": game_outcome,
+        "settlement_score": settlement_score,
+    }
+
+
+def build_list_mode_data(
+    mode: str,
+    entries: list[dict[str, object]],
+) -> dict[str, object]:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data[mode] = entries
+
+    return data
+
+
+def build_list_mode_entry(
+    mode: str,
+    player_role="declarer",
+    game_outcome="declarer_win",
+    settlement_score=96,
+) -> dict[str, object]:
+    if mode == "list_game_contributions":
+        return build_valid_list_game_contribution(
+            player_role=player_role,
+            game_outcome=game_outcome,
+            settlement_score=settlement_score,
+        )
+
+    return build_valid_list_analysis_result(
+        player_role=player_role,
+        is_loss=game_outcome == "declarer_loss",
+        settlement_score=settlement_score,
+    )
+
+
 def add_list_performance_mode(data: dict[str, object], mode: str) -> None:
     if mode == "list_performance_input":
         data[mode] = {
@@ -1654,6 +1697,234 @@ def test_validate_position_input_rejects_multiple_list_performance_input_modes(
 
     with pytest.raises(ValueError, match="alternative input modes"):
         validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+@pytest.mark.parametrize("field_name", ["rated_player_id", "game_id"])
+@pytest.mark.parametrize(
+    "invalid_value",
+    ["", "   ", " player-1", "player-1 ", True, 123, 1.5, [], {}, None],
+)
+def test_validate_position_input_rejects_invalid_list_entry_identifier_values(
+    mode: str,
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    entry = build_list_mode_entry(mode)
+    entry[field_name] = invalid_value
+    data = build_list_mode_data(mode, [entry])
+
+    with pytest.raises(ValueError) as error:
+        validate_position_input(data)
+
+    error_message = str(error.value)
+    assert mode in error_message
+    assert "[0]" in error_message
+    assert field_name in error_message
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_accepts_same_rated_player_id_for_list_modes(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(
+        mode,
+        player_role="defender",
+        game_outcome="declarer_loss",
+        settlement_score=-144,
+    )
+    first_entry["rated_player_id"] = "player-1"
+    second_entry["rated_player_id"] = "player-1"
+
+    validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_accepts_single_rated_player_id_for_list_modes(
+    mode: str,
+) -> None:
+    entry = build_list_mode_entry(mode)
+    entry["rated_player_id"] = "player-1"
+
+    validate_position_input(build_list_mode_data(mode, [entry]))
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_rejects_conflicting_rated_player_ids(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(mode)
+    first_entry["rated_player_id"] = "player-a"
+    second_entry["rated_player_id"] = "Player-A"
+
+    with pytest.raises(ValueError) as error:
+        validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+    error_message = str(error.value)
+    assert f"{mode}.rated_player_id values conflict" in error_message
+    assert "index 0" in error_message
+    assert "index 1" in error_message
+    assert "player-a" in error_message
+    assert "Player-A" in error_message
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_rejects_partial_rated_player_id_presence(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(mode)
+    first_entry["rated_player_id"] = "player-1"
+
+    with pytest.raises(ValueError) as error:
+        validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+    error_message = str(error.value)
+    assert f"{mode}.rated_player_id" in error_message
+    assert "supplied indexes: [0]" in error_message
+    assert "missing indexes: [1]" in error_message
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_accepts_unique_game_ids_for_list_modes(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(mode)
+    first_entry["game_id"] = "game-1"
+    second_entry["game_id"] = "game-2"
+
+    validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_accepts_partial_unique_game_ids(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(mode)
+    first_entry["game_id"] = "game-1"
+
+    validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_rejects_duplicate_game_ids(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(mode)
+    first_entry["game_id"] = "game-1"
+    second_entry["game_id"] = "game-1"
+
+    with pytest.raises(ValueError) as error:
+        validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+    error_message = str(error.value)
+    assert f"Duplicate {mode}.game_id 'game-1'" in error_message
+    assert "indexes 0 and 1" in error_message
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_rejects_duplicate_game_ids_for_different_content(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(
+        mode,
+        player_role="declarer",
+        game_outcome="declarer_win",
+        settlement_score=96,
+    )
+    second_entry = build_list_mode_entry(
+        mode,
+        player_role="defender",
+        game_outcome="declarer_loss",
+        settlement_score=-144,
+    )
+    first_entry["game_id"] = "game-1"
+    second_entry["game_id"] = "game-1"
+
+    with pytest.raises(ValueError, match="Duplicate .*game_id 'game-1'"):
+        validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_accepts_identical_content_with_different_game_ids(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(mode)
+    first_entry["game_id"] = "game-1"
+    second_entry["game_id"] = "game-2"
+
+    validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["list_game_contributions", "list_analysis_results"],
+)
+def test_validate_position_input_treats_case_different_game_ids_as_distinct(
+    mode: str,
+) -> None:
+    first_entry = build_list_mode_entry(mode)
+    second_entry = build_list_mode_entry(mode)
+    first_entry["game_id"] = "game-1"
+    second_entry["game_id"] = "GAME-1"
+
+    validate_position_input(build_list_mode_data(mode, [first_entry, second_entry]))
+
+
+def test_validate_position_input_reports_rated_player_conflict_before_duplicate_game_id() -> None:
+    first_entry = build_valid_list_game_contribution()
+    second_entry = build_valid_list_game_contribution()
+    first_entry["rated_player_id"] = "player-1"
+    second_entry["rated_player_id"] = "player-2"
+    first_entry["game_id"] = "game-1"
+    second_entry["game_id"] = "game-1"
+    data = build_list_mode_data(
+        "list_game_contributions",
+        [first_entry, second_entry],
+    )
+
+    with pytest.raises(ValueError) as error:
+        validate_position_input(data)
+
+    error_message = str(error.value)
+    assert "rated_player_id values conflict" in error_message
+    assert "Duplicate" not in error_message
 
 
 def test_validate_position_input_rejects_live_known_post_game_skat() -> None:

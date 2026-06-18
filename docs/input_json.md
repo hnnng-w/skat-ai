@@ -425,19 +425,29 @@ Contribution fields:
 | `player_role`      | Rated player's role in that game: `declarer` or `defender`.        |
 | `game_outcome`     | Declarer's game outcome: `declarer_win` or `declarer_loss`.        |
 | `settlement_score` | Declarer's single-game settlement score before performance points. |
+| `rated_player_id`  | Optional opaque stable identifier for the rated player.            |
+| `game_id`          | Optional opaque stable identifier for the game.                    |
 
 Validation rules:
 
 * `list_game_contributions` is optional.
 * If provided, `performance_rating_system` must be `isko_list`.
 * It must be an array. An empty array is valid.
-* Each contribution must contain exactly `player_role`, `game_outcome`, and `settlement_score`.
-* Additional contribution fields are rejected.
+* Each contribution must contain `player_role`, `game_outcome`, and `settlement_score`.
+* Each contribution may also contain `rated_player_id` and `game_id`.
+* Other additional contribution fields are rejected.
 * `player_role` must be `declarer` or `defender`.
 * `game_outcome` must be `declarer_win` or `declarer_loss`.
 * `settlement_score` must be an integer.
 * `declarer_win` requires a positive `settlement_score`.
 * `declarer_loss` requires a negative `settlement_score`.
+* `rated_player_id` and `game_id`, when supplied, must be non-empty strings without leading or trailing whitespace.
+* Identifiers are opaque and case-sensitive. They are not lowercased, uppercased, trimmed, parsed, inferred, or generated.
+* If any contribution supplies `rated_player_id`, every contribution must supply the same `rated_player_id`.
+* Partial `rated_player_id` presence is rejected because same-player verification would be ambiguous.
+* `game_id` may be supplied for all, some, or no contributions.
+* Duplicate supplied `game_id` values are rejected. Duplicate detection applies only to supplied IDs.
+* Identifiers are input validation metadata only and are not echoed in output summaries.
 * `list_performance_input`, `list_game_contributions`, and `list_analysis_results` are alternative input modes and cannot be combined.
 * `table_size` is fixed at `3` and is not accepted as an input field.
 
@@ -477,6 +487,8 @@ Required analysis-result subset:
 
 | Field                                             | Meaning                                                            |
 | ------------------------------------------------- | ------------------------------------------------------------------ |
+| `rated_player_id`                                 | Optional opaque stable identifier for the rated player.            |
+| `game_id`                                         | Optional opaque stable identifier for the game.                    |
 | `position.player_role`                            | Rated player's local role: `declarer`, `defender`, or `unknown`.   |
 | `final_settlement_summary.is_complete`            | Whether the settlement is complete.                                |
 | `final_settlement_summary.is_loss`                | Required only for complete settlements.                            |
@@ -497,7 +509,19 @@ Validation rules:
 * `is_loss: true` requires a negative `settlement_score`.
 * Results with `position.player_role: "unknown"` are skipped.
 * Malformed results are rejected and include the list index in validation errors.
+* `rated_player_id` and `game_id` are optional top-level fields on each list entry, not fields inside `position` or `final_settlement_summary`.
+* `rated_player_id` and `game_id`, when supplied, must be non-empty strings without leading or trailing whitespace.
+* Identifiers are opaque and case-sensitive. They are not lowercased, uppercased, trimmed, parsed, inferred, or generated.
+* No identity is inferred from `me`, `left`, `right`, `player_role`, `player_position`, `trick_leader`, display names, or player profiles.
+* If any analysis result supplies `rated_player_id`, every analysis result must supply the same `rated_player_id`.
+* Partial `rated_player_id` presence is rejected because same-player verification would be ambiguous.
+* `game_id` may be supplied for all, some, or no analysis results.
+* Duplicate supplied `game_id` values are rejected. Duplicate detection applies only to supplied IDs.
+* Identical content without `game_id` is not treated as a duplicate. Identical content with different `game_id` values is valid. Different content with the same `game_id` is rejected.
+* Identifiers are input validation metadata only and are not echoed in output summaries.
 * `list_performance_input`, `list_game_contributions`, and `list_analysis_results` are mutually exclusive.
+
+Already aggregated `list_performance_input` cannot support game-level duplicate detection because per-game records are no longer present. A future player label could be added for aggregated totals, but issue #29 duplicate protection applies only to per-game input modes.
 
 ## Opponent policy fields
 

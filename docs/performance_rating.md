@@ -178,6 +178,39 @@ player as local `me`. The minimal required subset is `position.player_role`,
 Complete generated analysis-result objects are accepted as supersets; the input
 schema intentionally does not embed the full output schema.
 
+Per-game input modes also accept validation-only stable metadata:
+
+```json
+{
+  "rated_player_id": "player-123",
+  "game_id": "game-001"
+}
+```
+
+`rated_player_id` and `game_id` are optional for `list_game_contributions` and
+`list_analysis_results`. They are opaque, case-sensitive strings. The engine
+does not trim, normalize, parse, infer, or generate them.
+
+Within one active per-game input mode, `rated_player_id` is all-or-none: either
+no entry supplies it, or every entry supplies the same value. This verifies that
+the aggregation describes one rated local player. The rated player's role may
+still vary from game to game; declarer and defender roles affect scoring but do
+not define identity.
+
+`game_id` may be supplied for all, some, or no per-game entries. Duplicate
+supplied `game_id` values are rejected. Duplicate detection is identifier-based
+only: the engine does not hash entry content or compare entries structurally for
+duplicates.
+
+Identifiers do not appear in `list_performance_summary` and have no effect on
+ISkO formulas, contribution counts, settlement scores, or summary basis values.
+They do not introduce player-by-player standings, a tournament identity model,
+or an opponent identity model.
+
+Already aggregated `list_performance_input` remains totals-only. It cannot
+support game-level duplicate detection because the per-game records are no
+longer available after aggregation.
+
 `list_performance_input`, `list_game_contributions`, and
 `list_analysis_results` are alternative input modes. Supplying more than one is
 rejected.
@@ -312,5 +345,7 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
 * Already aggregated list or series totals can be calculated when supplied via `list_performance_input`.
 * Normalized per-game contributions can be calculated when supplied via `list_game_contributions`.
+* Optional `rated_player_id` and `game_id` metadata can validate per-game list inputs, but does not affect scoring.
+* Duplicate-game detection only uses supplied `game_id` values; content-based duplicate detection is not implemented.
 * Raw full-game aggregation, player-by-player list models, multi-list rollups, and tournament aggregation are not implemented yet.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.

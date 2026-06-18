@@ -7,7 +7,9 @@ from skat_ai.information_policy import validate_information_policy_from_input
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.performance_rating import (
+    LIST_ENTRY_METADATA_FIELDS,
     build_list_game_contribution_from_analysis_result,
+    validate_list_entry_metadata,
     validate_performance_rating_system,
 )
 from skat_ai.rules import GAME_TYPES, get_card_points, get_legal_cards
@@ -398,6 +400,11 @@ def validate_optional_list_game_contributions(data: dict[str, Any]) -> None:
             "isko_list."
         )
 
+    validate_list_entry_metadata(
+        entries=list_game_contributions,
+        input_mode="list_game_contributions",
+    )
+
     for index, contribution in enumerate(list_game_contributions):
         validate_list_game_contribution(contribution, index)
 
@@ -421,9 +428,10 @@ def validate_list_game_contribution(contribution: Any, index: int) -> None:
             f"{field_prefix} is missing required keys: {missing_fields}"
         )
 
-    additional_fields = sorted(
-        set(contribution) - set(LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS)
+    supported_fields = set(LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS) | set(
+        LIST_ENTRY_METADATA_FIELDS
     )
+    additional_fields = sorted(set(contribution) - supported_fields)
     if additional_fields:
         raise ValueError(
             f"{field_prefix} has unsupported keys: {additional_fields}"
@@ -470,6 +478,11 @@ def validate_optional_list_analysis_results(data: dict[str, Any]) -> None:
             "list_analysis_results requires performance_rating_system to be "
             "isko_list."
         )
+
+    validate_list_entry_metadata(
+        entries=list_analysis_results,
+        input_mode="list_analysis_results",
+    )
 
     for index, analysis_result in enumerate(list_analysis_results):
         try:

@@ -69,6 +69,47 @@ def assert_schema_invalid(data: dict[str, object]) -> None:
     assert errors
 
 
+def build_list_game_contribution_input(
+    entries: list[dict[str, object]],
+) -> dict[str, object]:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_game_contributions"] = entries
+
+    return data
+
+
+def build_list_analysis_result_input(
+    entries: list[dict[str, object]],
+) -> dict[str, object]:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_analysis_results"] = entries
+
+    return data
+
+
+def build_schema_game_contribution() -> dict[str, object]:
+    return {
+        "player_role": "declarer",
+        "game_outcome": "declarer_win",
+        "settlement_score": 96,
+    }
+
+
+def build_schema_analysis_result() -> dict[str, object]:
+    return {
+        "position": {
+            "player_role": "declarer",
+        },
+        "final_settlement_summary": {
+            "is_complete": True,
+            "is_loss": False,
+            "settlement_score": 96,
+        },
+    }
+
+
 @pytest.mark.parametrize("field_name", POLICY_FIELDS)
 @pytest.mark.parametrize("policy", VALID_OPPONENT_CARD_POLICIES)
 def test_policy_fields_accept_canonical_values(
@@ -276,4 +317,91 @@ def test_completed_trick_rule_winner_consistency_remains_python_only() -> None:
         ValueError,
         match="winner_player is inconsistent with trick rules",
     ):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "mode_builder,entry_builder",
+    [
+        (build_list_game_contribution_input, build_schema_game_contribution),
+        (build_list_analysis_result_input, build_schema_analysis_result),
+    ],
+)
+def test_list_entry_schema_accepts_optional_stable_identifiers(
+    mode_builder,
+    entry_builder,
+) -> None:
+    entry = entry_builder()
+    entry["rated_player_id"] = "player-1"
+    entry["game_id"] = "game-1"
+
+    assert_schema_valid(mode_builder([entry]))
+
+
+@pytest.mark.parametrize(
+    "mode_builder,entry_builder",
+    [
+        (build_list_game_contribution_input, build_schema_game_contribution),
+        (build_list_analysis_result_input, build_schema_analysis_result),
+    ],
+)
+def test_list_entry_schema_accepts_missing_stable_identifiers(
+    mode_builder,
+    entry_builder,
+) -> None:
+    assert_schema_valid(mode_builder([entry_builder()]))
+
+
+@pytest.mark.parametrize("field_name", ["rated_player_id", "game_id"])
+@pytest.mark.parametrize(
+    "mode_builder,entry_builder",
+    [
+        (build_list_game_contribution_input, build_schema_game_contribution),
+        (build_list_analysis_result_input, build_schema_analysis_result),
+    ],
+)
+def test_list_entry_schema_rejects_empty_stable_identifier(
+    mode_builder,
+    entry_builder,
+    field_name: str,
+) -> None:
+    entry = entry_builder()
+    entry[field_name] = ""
+
+    assert_schema_invalid(mode_builder([entry]))
+
+
+@pytest.mark.parametrize("field_name", ["rated_player_id", "game_id"])
+@pytest.mark.parametrize("invalid_value", [True, 123, 1.5, [], {}, None])
+@pytest.mark.parametrize(
+    "mode_builder,entry_builder",
+    [
+        (build_list_game_contribution_input, build_schema_game_contribution),
+        (build_list_analysis_result_input, build_schema_analysis_result),
+    ],
+)
+def test_list_entry_schema_rejects_non_string_stable_identifier(
+    mode_builder,
+    entry_builder,
+    invalid_value: object,
+    field_name: str,
+) -> None:
+    entry = entry_builder()
+    entry[field_name] = invalid_value
+
+    assert_schema_invalid(mode_builder([entry]))
+
+
+def test_list_entry_schema_allows_cross_entry_conflicts_for_python_validation() -> None:
+    first_entry = build_schema_game_contribution()
+    second_entry = build_schema_game_contribution()
+    first_entry["rated_player_id"] = "player-1"
+    second_entry["rated_player_id"] = "player-2"
+    first_entry["game_id"] = "game-1"
+    second_entry["game_id"] = "game-1"
+    data = build_list_game_contribution_input([first_entry, second_entry])
+
+    assert_schema_valid(data)
+
+    with pytest.raises(ValueError, match="rated_player_id values conflict"):
         validate_position_input(data)
