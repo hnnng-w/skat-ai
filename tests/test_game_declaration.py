@@ -130,6 +130,82 @@ def test_build_game_declaration_from_input_reads_fields() -> None:
     )
 
 
+def test_build_game_declaration_does_not_infer_matadors_from_defender_hand() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "hand": ["CJ", "SJ", "H7"],
+            "skat": [],
+            "completed_tricks": [],
+        }
+    )
+
+    assert declaration.matadors is None
+
+
+def test_build_game_declaration_does_not_infer_matadors_from_unknown_hand() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "unknown",
+            "hand": ["CJ", "SJ", "H7"],
+            "skat": [],
+            "completed_tricks": [],
+        }
+    )
+
+    assert declaration.matadors is None
+
+
+def test_build_game_declaration_infers_matadors_from_local_declarer_hand() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": ["CJ", "SJ", "HJ", "H7"],
+            "skat": [],
+            "completed_tricks": [],
+        }
+    )
+
+    assert declaration.matadors == 3
+
+
+def test_build_game_declaration_keeps_top_level_matadors_for_non_declarers() -> None:
+    for player_role in ["defender", "unknown"]:
+        declaration = build_game_declaration_from_input(
+            {
+                "game_type": "grand",
+                "player_role": player_role,
+                "hand": ["CJ", "SJ", "H7"],
+                "skat": [],
+                "matadors": 4,
+                "completed_tricks": [],
+            }
+        )
+
+        assert declaration.matadors == 4
+
+
+def test_build_game_declaration_keeps_nested_matadors_for_defender() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "hand": ["CJ", "SJ", "H7"],
+            "skat": [],
+            "matadors": 4,
+            "game_declaration": {
+                "matadors": 1,
+            },
+            "completed_tricks": [],
+        }
+    )
+
+    assert declaration.matadors == 1
+
+
 def test_build_game_declaration_infers_matadors_from_completed_trick_ownership() -> None:
     declaration = build_game_declaration_from_input(
         {
@@ -146,6 +222,96 @@ def test_build_game_declaration_infers_matadors_from_completed_trick_ownership()
         }
     )
 
+    assert declaration.matadors == 2
+
+
+def test_build_game_declaration_ignores_ambiguous_completed_trick_ownership() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": [],
+            "skat": [],
+            "completed_tricks": [
+                {
+                    "cards": ["CJ", "SJ", "HJ"],
+                }
+            ],
+        }
+    )
+
+    assert declaration.matadors is None
+
+
+def test_build_game_declaration_uses_declarer_skat_when_ownership_is_known() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": ["CJ"],
+            "skat": ["SJ"],
+            "completed_tricks": [
+                {
+                    "cards": ["C7", "HJ", "D7"],
+                    "players": ["me", "left", "right"],
+                }
+            ],
+        }
+    )
+
+    assert declaration.matadors == 2
+
+
+def test_build_game_declaration_does_not_infer_matadors_from_defender_skat() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "hand": [],
+            "skat": ["CJ", "SJ"],
+            "analysis_mode": "post_game_review",
+            "skat_visibility": "known_post_game",
+            "completed_tricks": [],
+        }
+    )
+
+    assert declaration.matadors is None
+
+
+def test_build_game_declaration_keeps_live_declarer_skat_inference() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": ["CJ"],
+            "skat": ["SJ", "HJ"],
+            "analysis_mode": "live_decision",
+            "skat_visibility": "unknown",
+            "completed_tricks": [],
+        }
+    )
+
+    assert declaration.matadors == 3
+
+
+def test_build_game_declaration_hand_game_uses_known_local_declarer_context() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand_game": True,
+            "hand": ["CJ"],
+            "skat": ["SJ"],
+            "completed_tricks": [
+                {
+                    "cards": ["C7", "HJ", "D7"],
+                    "players": ["me", "left", "right"],
+                }
+            ],
+        }
+    )
+
+    assert declaration.hand_game is True
     assert declaration.matadors == 2
 
 

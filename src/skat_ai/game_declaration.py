@@ -95,6 +95,11 @@ def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
     if data.get("matadors") is not None:
         return data["matadors"]
 
+    player_role = data.get("player_role", "unknown")
+
+    if player_role != "declarer":
+        return None
+
     hand = data.get("hand", [])
     skat = data.get("skat", [])
 
@@ -112,7 +117,7 @@ def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
 
     inferred_from_ownership = infer_matadors_from_local_declarer_known_ownership(
         game_type=data["game_type"],
-        player_role=data.get("player_role", "unknown"),
+        player_role=player_role,
         declarer_cards=declarer_cards,
         completed_tricks=completed_tricks,
     )
