@@ -168,6 +168,7 @@ def apply_context_to_state_for_sampling(
         played_cards=updated_played_cards,
         skat=state.skat.copy(),
         player_position=state.player_position,
+        declarer_player=state.declarer_player,
         trick_leader=state.trick_leader,
         completed_tricks=[
             completed_trick.copy() 

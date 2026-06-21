@@ -161,14 +161,17 @@ def test_get_winner_role_for_trick_winner_when_defender_wins_own_card() -> None:
     assert winner_role == "defenders"
 
 
-def test_get_winner_role_for_trick_winner_when_defender_loses_to_declarer() -> None:
-    winner_role = get_winner_role_for_trick_winner(
-        winner_index=0,
-        player_index=2,
-        player_role="defender",
-    )
-
-    assert winner_role == "declarer"
+def test_get_winner_role_for_trick_winner_rejects_unresolved_defender_loss() -> None:
+    try:
+        get_winner_role_for_trick_winner(
+            winner_index=0,
+            player_index=2,
+            player_role="defender",
+        )
+    except ValueError as error:
+        assert "without concrete winner_player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
 
 
 def test_get_winner_role_for_trick_winner_rejects_unknown_player_role() -> None:
@@ -340,10 +343,81 @@ def test_get_winner_role_for_winner_player_when_declarer_is_me() -> None:
     assert get_winner_role_for_winner_player("right", "declarer") == "defenders"
 
 
-def test_get_winner_role_for_winner_player_when_player_is_defender() -> None:
-    assert get_winner_role_for_winner_player("me", "defender") == "defenders"
-    assert get_winner_role_for_winner_player("left", "defender") == "declarer"
-    assert get_winner_role_for_winner_player("right", "defender") == "declarer"
+def test_get_winner_role_for_winner_player_when_declarer_is_left() -> None:
+    assert get_winner_role_for_winner_player("left", "defender", "left") == "declarer"
+    assert get_winner_role_for_winner_player("me", "defender", "left") == "defenders"
+    assert get_winner_role_for_winner_player("right", "defender", "left") == "defenders"
+
+
+def test_get_winner_role_for_winner_player_when_declarer_is_right() -> None:
+    assert get_winner_role_for_winner_player("right", "defender", "right") == "declarer"
+    assert get_winner_role_for_winner_player("me", "defender", "right") == "defenders"
+    assert get_winner_role_for_winner_player("left", "defender", "right") == "defenders"
+
+
+def test_get_winner_role_for_winner_player_rejects_unresolved_defender_identity() -> None:
+    try:
+        get_winner_role_for_winner_player("left", "defender")
+    except ValueError as error:
+        assert "player_role='defender'" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_build_completed_trick_from_cards_defender_partner_right_wins() -> None:
+    completed_trick = build_completed_trick_from_cards(
+        cards=["S7", "SA", "S8"],
+        game_type="grand",
+        player_index=2,
+        player_role="defender",
+        trick_players=["left", "right", "me"],
+        declarer_player="left",
+    )
+
+    assert completed_trick["winner_player"] == "right"
+    assert completed_trick["winner_role"] == "defenders"
+
+
+def test_build_completed_trick_from_cards_defender_partner_left_wins() -> None:
+    completed_trick = build_completed_trick_from_cards(
+        cards=["SA", "S7", "S8"],
+        game_type="grand",
+        player_index=2,
+        player_role="defender",
+        trick_players=["left", "right", "me"],
+        declarer_player="right",
+    )
+
+    assert completed_trick["winner_player"] == "left"
+    assert completed_trick["winner_role"] == "defenders"
+
+
+def test_build_completed_trick_from_cards_declarer_left_wins() -> None:
+    completed_trick = build_completed_trick_from_cards(
+        cards=["SA", "S7", "S8"],
+        game_type="grand",
+        player_index=2,
+        player_role="defender",
+        trick_players=["left", "right", "me"],
+        declarer_player="left",
+    )
+
+    assert completed_trick["winner_player"] == "left"
+    assert completed_trick["winner_role"] == "declarer"
+
+
+def test_build_completed_trick_from_cards_local_defender_wins() -> None:
+    completed_trick = build_completed_trick_from_cards(
+        cards=["S7", "S8", "SA"],
+        game_type="grand",
+        player_index=2,
+        player_role="defender",
+        trick_players=["left", "right", "me"],
+        declarer_player="left",
+    )
+
+    assert completed_trick["winner_player"] == "me"
+    assert completed_trick["winner_role"] == "defenders"
 
 
 def test_get_completed_trick_winner_player_defaults_to_unknown() -> None:
@@ -630,6 +704,11 @@ def test_get_expected_winner_role_for_player_is_tolerant_for_defender_context() 
     assert get_expected_winner_role_for_player("left", "defender") is None
 
 
+def test_get_expected_winner_role_for_player_uses_concrete_defender_identity() -> None:
+    assert get_expected_winner_role_for_player("left", "defender", "right") == "defenders"
+    assert get_expected_winner_role_for_player("right", "defender", "right") == "declarer"
+
+
 def test_validate_completed_trick_winner_consistency_accepts_consistent_role() -> None:
     validate_completed_trick_winner_consistency(
         completed_trick={
@@ -657,6 +736,35 @@ def test_validate_completed_trick_winner_consistency_rejects_inconsistent_role()
         assert "winner_role is inconsistent" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_winner_consistency_rejects_defender_side_conflict() -> None:
+    try:
+        validate_completed_trick_winner_consistency(
+            completed_trick={
+                "cards": ["S7", "S8", "SA"],
+                "winner_player": "left",
+                "winner_role": "declarer",
+            },
+            player_role="defender",
+            declarer_player="right",
+        )
+    except ValueError as error:
+        assert "winner_role is inconsistent" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_winner_consistency_accepts_valid_defender_side() -> None:
+    validate_completed_trick_winner_consistency(
+        completed_trick={
+            "cards": ["S7", "S8", "SA"],
+            "winner_player": "left",
+            "winner_role": "defenders",
+        },
+        player_role="defender",
+        declarer_player="right",
+    )
 
 def test_validate_completed_trick_rule_winner_accepts_correct_winner() -> None:
     validate_completed_trick_rule_winner(

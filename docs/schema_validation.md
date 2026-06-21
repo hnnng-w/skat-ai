@@ -47,6 +47,7 @@ The input schema checks things such as:
 * valid card notation
 * known `game_type` values
 * known player and position values
+* concrete declarer identity and supported role/identity combinations
 * basic object and array shapes
 * maximum hand size
 * maximum skat size

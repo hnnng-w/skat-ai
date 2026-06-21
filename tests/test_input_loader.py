@@ -39,6 +39,7 @@ def test_build_game_state_from_input() -> None:
 
     assert state.game_type == "grand"
     assert state.player_role == "declarer"
+    assert state.declarer_player == "me"
     assert state.player_position == "forehand"
     assert state.trick_leader == "left"
     assert state.hand == ["SA", "S10", "S9"]
@@ -69,11 +70,26 @@ def test_build_game_state_from_input_uses_defaults_for_optional_lists() -> None:
     assert state.played_cards == []
     assert state.skat == []
     assert state.player_position == "unknown"
+    assert state.declarer_player == "me"
     assert state.trick_leader == "unknown"
     assert state.completed_tricks == []
     assert state.declarer_points == 0
     assert state.defender_points == 0
     assert state.next_player == "unknown"
+
+
+def test_build_game_state_from_input_loads_defender_declarer_identity() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "right",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+    }
+
+    state = build_game_state_from_input(data)
+
+    assert state.declarer_player == "right"
 
 
 def test_get_simulation_settings_from_input() -> None:

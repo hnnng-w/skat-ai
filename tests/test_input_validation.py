@@ -49,6 +49,93 @@ def build_valid_input() -> dict[str, object]:
     }
 
 
+def test_validate_position_input_normalizes_declarer_missing_to_me() -> None:
+    data = build_valid_input()
+
+    validate_position_input(data)
+
+    assert data["declarer_player"] == "me"
+
+
+def test_validate_position_input_accepts_local_declarer_identity() -> None:
+    data = build_valid_input()
+    data["declarer_player"] = "me"
+
+    validate_position_input(data)
+
+    assert data["declarer_player"] == "me"
+
+
+@pytest.mark.parametrize("declarer_player", ["unknown", "left", "right"])
+def test_validate_position_input_rejects_invalid_local_declarer_identity(
+    declarer_player: str,
+) -> None:
+    data = build_valid_input()
+    data["declarer_player"] = declarer_player
+
+    with pytest.raises(ValueError, match="player_role='declarer'"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize("declarer_player", ["left", "right"])
+def test_validate_position_input_accepts_local_defender_identity(
+    declarer_player: str,
+) -> None:
+    data = build_valid_input()
+    data["player_role"] = "defender"
+    data["declarer_player"] = declarer_player
+
+    validate_position_input(data)
+
+    assert data["declarer_player"] == declarer_player
+
+
+@pytest.mark.parametrize("declarer_player", [None, "unknown", "me"])
+def test_validate_position_input_rejects_invalid_local_defender_identity(
+    declarer_player: str | None,
+) -> None:
+    data = build_valid_input()
+    data["player_role"] = "defender"
+    if declarer_player is None:
+        data.pop("declarer_player", None)
+    else:
+        data["declarer_player"] = declarer_player
+
+    with pytest.raises(ValueError, match="player_role='defender'"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_normalizes_unknown_role_missing_to_unknown() -> None:
+    data = build_valid_input()
+    data["player_role"] = "unknown"
+
+    validate_position_input(data)
+
+    assert data["declarer_player"] == "unknown"
+
+
+def test_validate_position_input_accepts_unknown_role_unknown_declarer() -> None:
+    data = build_valid_input()
+    data["player_role"] = "unknown"
+    data["declarer_player"] = "unknown"
+
+    validate_position_input(data)
+
+    assert data["declarer_player"] == "unknown"
+
+
+@pytest.mark.parametrize("declarer_player", ["me", "left", "right"])
+def test_validate_position_input_rejects_unknown_role_concrete_declarer(
+    declarer_player: str,
+) -> None:
+    data = build_valid_input()
+    data["player_role"] = "unknown"
+    data["declarer_player"] = declarer_player
+
+    with pytest.raises(ValueError, match="player_role='unknown'"):
+        validate_position_input(data)
+
+
 def test_validate_required_keys_accepts_complete_input() -> None:
     data = {
         "game_type": "grand",
@@ -791,6 +878,57 @@ def test_validate_position_input_rejects_inconsistent_winner_role() -> None:
         assert "winner_role is inconsistent" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_position_input_rejects_defender_winner_role_conflict() -> None:
+    data = build_valid_input()
+    data["player_role"] = "defender"
+    data["declarer_player"] = "right"
+    data["completed_tricks"] = [
+        {
+            "cards": ["CJ", "SJ", "DJ"],
+            "winner_role": "declarer",
+            "winner_player": "left",
+        }
+    ]
+
+    with pytest.raises(ValueError, match="winner_role is inconsistent"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_valid_defender_historical_winner_role() -> None:
+    data = build_valid_input()
+    data["player_role"] = "defender"
+    data["declarer_player"] = "right"
+    data["completed_tricks"] = [
+        {
+            "cards": ["CJ", "SJ", "DJ"],
+            "winner_role": "defenders",
+            "winner_player": "left",
+        }
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_does_not_infer_declarer_identity_from_history() -> None:
+    data = build_valid_input()
+    data["player_role"] = "unknown"
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = []
+    data["next_player"] = "unknown"
+    data["completed_tricks"] = [
+        {
+            "cards": ["CJ", "SJ", "DJ"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+            "winner_player": "left",
+        }
+    ]
+
+    validate_position_input(data)
+
+    assert data["declarer_player"] == "unknown"
 
 
 def test_validate_position_input_rejects_rule_wrong_completed_trick_winner() -> None:

@@ -1,6 +1,7 @@
 {
   "game_type": "spades",
   "player_role": "defender",
+  "declarer_player": "left",
   "player_position": "rearhand",
   "trick_leader": "left",
   "hand": ["CK", "C7", "S9", "H8", "D9"],

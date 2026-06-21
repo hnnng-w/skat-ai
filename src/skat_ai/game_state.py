@@ -16,6 +16,7 @@ class GameState:
 
     skat: list[str] = field(default_factory=list)
     player_position: str = "unknown"
+    declarer_player: str = "unknown"
     trick_leader: str = "unknown"
     completed_tricks: list[dict[str, Any]] = field(default_factory=list)
     declarer_points: int = 0

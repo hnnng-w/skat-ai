@@ -13,6 +13,7 @@ from skat_ai.game_declaration import (
 from skat_ai.game_state import GameState
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
+from skat_ai.side_ownership import normalize_declarer_player
 
 
 def load_position_from_json(file_path: str) -> dict[str, Any]:
@@ -44,6 +45,10 @@ def build_game_state_from_input(data: dict[str, Any]) -> GameState:
         played_cards=data.get("played_cards", []),
         skat=data.get("skat", []),
         player_position=data.get("player_position", "unknown"),
+        declarer_player=normalize_declarer_player(
+            player_role=data["player_role"],
+            declarer_player=data.get("declarer_player"),
+        ),
         trick_leader=data.get("trick_leader", "unknown"),
         completed_tricks=data.get("completed_tricks", []),
         declarer_points=data.get("declarer_points", 0),

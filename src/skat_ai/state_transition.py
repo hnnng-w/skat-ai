@@ -21,12 +21,14 @@ def remove_card_from_hand(hand: list[str], card: str) -> list[str]:
 def determine_next_player_from_completed_trick(
     completed_trick: dict[str, Any],
     player_role: str,
+    declarer_player: str = "unknown",
 ) -> str:
     """
     Determines the next player after a completed trick.
 
     If winner_player is available, that player leads the next trick.
-    If only winner_role is available, fall back to legacy behavior.
+    If only side-level ownership is available, return a concrete player only
+    when that player is known from declarer identity.
     """
     winner_player = completed_trick.get("winner_player", "unknown")
 
@@ -35,17 +37,11 @@ def determine_next_player_from_completed_trick(
 
     winner_role = completed_trick["winner_role"]
 
-    if player_role == "declarer":
-        if winner_role == "declarer":
-            return "me"
+    if winner_role == "declarer" and declarer_player in ["me", "left", "right"]:
+        return declarer_player
 
-        return "unknown"
-
-    if player_role == "defender":
-        if winner_role == "defenders":
-            return "me"
-
-        return "unknown"
+    if player_role == "declarer" and winner_role == "declarer":
+        return "me"
 
     return "unknown"
 
@@ -99,6 +95,7 @@ def advance_state_after_detailed_trick(
     next_player = determine_next_player_from_completed_trick(
         completed_trick=completed_trick,
         player_role=state.player_role,
+        declarer_player=state.declarer_player,
     )
 
     return GameState(
@@ -109,6 +106,7 @@ def advance_state_after_detailed_trick(
         played_cards=state.played_cards.copy(),
         skat=state.skat.copy(),
         player_position=state.player_position,
+        declarer_player=state.declarer_player,
         trick_leader=next_player,
         completed_tricks=updated_completed_tricks,
         declarer_points=updated_declarer_points,

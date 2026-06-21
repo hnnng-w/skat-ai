@@ -204,6 +204,7 @@ def test_build_analysis_result_returns_expected_top_level_keys() -> None:
         "information_policy_summary",
         "post_game_review_summary",
     }
+    assert result["position"]["declarer_player"] == "me"
     assert "list_performance_summary" not in result
 
 

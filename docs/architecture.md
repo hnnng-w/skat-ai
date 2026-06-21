@@ -66,7 +66,7 @@ Completed-trick validation is used to prevent inconsistent historical game state
 | `src/skat_ai/matador_inference.py` | Automatic matador inference from known declarer cards where possible.                                     |
 | `src/skat_ai/game_value.py`        | Game value calculation for suit, grand, and null games.                                                   |
 | `src/skat_ai/game_result.py`       | Raw card-point result, winner, remaining points, Schneider/Schwarz status, and adjusted result summaries. |
-| `src/skat_ai/score.py`             | Known point summary from explicit points and completed tricks.                                            |
+| `src/skat_ai/game_history.py`      | Known point summary from explicit points and completed tricks.                                            |
 
 Matador inference is intentionally conservative. It uses currently known declarer-card context where possible and does not yet reconstruct every possible matador state from all historical trick ownership scenarios.
 
@@ -131,7 +131,7 @@ Issue #22's current heuristic and explainable defender-partnership scope is impl
 * partnership inference is strongest in the currently supported second-hand path
 * no complete rear-hand partnership model exists
 * no dedicated null-game defender-partnership strategy exists
-* no stable declarer/partner identity exists when the local player itself is only known generically as `defender`
+* defender partnership heuristics depend on the concrete `declarer_player` identity supplied by the input
 * no perfect-information solving, search, machine learning, or hidden-card inference is used
 
 ## Left/right opponent policy flow

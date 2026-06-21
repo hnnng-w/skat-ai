@@ -2,6 +2,12 @@ from typing import Any
 
 from skat_ai.game_state import GameState
 from skat_ai.rules import get_trick_points, get_trick_winner
+from skat_ai.side_ownership import (
+    get_winner_role as get_side_winner_role,
+)
+from skat_ai.side_ownership import (
+    normalize_declarer_player,
+)
 
 VALID_COMPLETED_TRICK_WINNER_ROLES = [
     "declarer",
@@ -13,6 +19,17 @@ VALID_COMPLETED_TRICK_PLAYERS = [
     "left",
     "right",
 ]
+
+
+def get_compatible_declarer_player(
+    player_role: str,
+    declarer_player: str | None,
+) -> str | None:
+    """Keeps direct local-declarer GameState construction backward-compatible."""
+    if player_role == "declarer" and declarer_player == "unknown":
+        return None
+
+    return declarer_player
 
 
 def get_completed_trick_cards(completed_trick: dict[str, Any]) -> list[str]:
@@ -127,6 +144,7 @@ def get_winner_role_for_trick_winner(
     winner_index: int,
     player_index: int,
     player_role: str,
+    declarer_player: str | None = None,
 ) -> str:
     """
     Determines whether the completed trick was won by the declarer or defenders.
@@ -135,6 +153,7 @@ def get_winner_role_for_trick_winner(
         winner_index: Index of the winning card in the completed trick.
         player_index: Index of the player's card in the completed trick.
         player_role: Role of the player, usually "declarer" or "defender".
+        declarer_player: Concrete declarer when available.
     """
     if player_role not in ["declarer", "defender"]:
         raise ValueError(f"Unsupported player role for winner-role detection: {player_role}")
@@ -148,7 +167,9 @@ def get_winner_role_for_trick_winner(
     if player_role == "declarer":
         return "defenders"
 
-    return "declarer"
+    raise ValueError(
+        "Cannot determine defender winner_role without concrete winner_player."
+    )
 
 
 def build_completed_trick_from_cards(
@@ -157,6 +178,7 @@ def build_completed_trick_from_cards(
     player_index: int,
     player_role: str,
     trick_players: list[str] | None = None,
+    declarer_player: str | None = None,
 ) -> dict[str, Any]:
     """
     Builds a completed trick entry from exactly three trick cards.
@@ -197,11 +219,13 @@ def build_completed_trick_from_cards(
             winner_index=winner_index,
             player_index=player_index,
             player_role=player_role,
+            declarer_player=declarer_player,
         )
     else:
         winner_role = get_winner_role_for_winner_player(
             winner_player=winner_player,
             player_role=player_role,
+            declarer_player=declarer_player,
         )
 
     return {
@@ -236,6 +260,7 @@ def build_completed_trick_from_state_and_candidate(
         player_index=player_index,
         player_role=state.player_role,
         trick_players=trick_players,
+        declarer_player=state.declarer_player,
     )
 
 
@@ -278,6 +303,7 @@ def get_winner_player_from_trick_players(
 def get_winner_role_for_winner_player(
     winner_player: str,
     player_role: str,
+    declarer_player: str | None = None,
 ) -> str:
     """
     Determines whether the concrete winner player belongs to declarer or defenders.
@@ -285,19 +311,22 @@ def get_winner_role_for_winner_player(
     if winner_player not in ["me", "left", "right"]:
         raise ValueError(f"Invalid winner player: {winner_player}")
 
-    if player_role not in ["declarer", "defender"]:
-        raise ValueError(f"Unsupported player role for winner-role detection: {player_role}")
+    normalized_declarer_player = normalize_declarer_player(
+        player_role=player_role,
+        declarer_player=get_compatible_declarer_player(
+            player_role=player_role,
+            declarer_player=declarer_player,
+        ),
+    )
+    winner_role = get_side_winner_role(
+        winner_player=winner_player,
+        declarer_player=normalized_declarer_player,
+    )
 
-    if player_role == "declarer":
-        if winner_player == "me":
-            return "declarer"
+    if winner_role is None:
+        raise ValueError("Cannot determine winner_role without concrete declarer_player.")
 
-        return "defenders"
-
-    if winner_player == "me":
-        return "defenders"
-
-    return "declarer"
+    return winner_role
 
 def validate_completed_trick_player_order(
     completed_trick: dict,
@@ -326,6 +355,7 @@ def validate_completed_trick_sequence(
     current_trick: list[str],
     trick_leader: str,
     player_role: str = "unknown",
+    declarer_player: str | None = None,
     game_type: str = "grand",
 ) -> None:
     """
@@ -344,6 +374,7 @@ def validate_completed_trick_sequence(
         validate_completed_trick_winner_consistency(
             completed_trick=completed_trick,
             player_role=player_role,
+            declarer_player=declarer_player,
         )
         validate_completed_trick_rule_winner(
             completed_trick=completed_trick,
@@ -418,27 +449,36 @@ def validate_completed_trick_structure(
 def get_expected_winner_role_for_player(
     winner_player: str,
     player_role: str,
+    declarer_player: str | None = None,
 ) -> str | None:
     """
     Returns the expected winner_role for a winner_player.
 
-    The expectation is only strict when the local player is declarer.
-    If the local player is defender, left/right roles are ambiguous for now.
+    The expectation is strict only when concrete side ownership is known.
     """
     if player_role == "unknown":
         return None
 
-    if winner_player == "me":
-        return player_role
+    if declarer_player is None and player_role == "defender":
+        return None
 
-    if player_role == "declarer":
-        return "defenders"
+    normalized_declarer_player = normalize_declarer_player(
+        player_role=player_role,
+        declarer_player=get_compatible_declarer_player(
+            player_role=player_role,
+            declarer_player=declarer_player,
+        ),
+    )
 
-    return None
+    return get_side_winner_role(
+        winner_player=winner_player,
+        declarer_player=normalized_declarer_player,
+    )
 
 def validate_completed_trick_winner_consistency(
     completed_trick: dict,
     player_role: str,
+    declarer_player: str | None = None,
 ) -> None:
     """
     Validates consistency between winner_player and winner_role when possible.
@@ -454,6 +494,7 @@ def validate_completed_trick_winner_consistency(
     expected_winner_role = get_expected_winner_role_for_player(
         winner_player=winner_player,
         player_role=player_role,
+        declarer_player=declarer_player,
     )
 
     if expected_winner_role is None:

@@ -75,6 +75,58 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "player_role": {
+            "const": "declarer"
+          }
+        },
+        "required": ["player_role"]
+      },
+      "then": {
+        "properties": {
+          "declarer_player": {
+            "const": "me"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "player_role": {
+            "const": "defender"
+          }
+        },
+        "required": ["player_role"]
+      },
+      "then": {
+        "required": ["declarer_player"],
+        "properties": {
+          "declarer_player": {
+            "enum": ["left", "right"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "player_role": {
+            "const": "unknown"
+          }
+        },
+        "required": ["player_role"]
+      },
+      "then": {
+        "properties": {
+          "declarer_player": {
+            "const": "unknown"
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -97,6 +149,9 @@
     "player_role": {
       "type": "string",
       "enum": ["declarer", "defender", "unknown"]
+    },
+    "declarer_player": {
+      "$ref": "#/$defs/player"
     },
     "player_position": {
       "type": "string",

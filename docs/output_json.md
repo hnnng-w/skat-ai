@@ -57,6 +57,18 @@ Typical top-level fields include:
 | `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.           |
 | `right_opponent_policy_settings` | Normalized policy settings for the right opponent.          |
 
+## Position
+
+`position` echoes normalized position metadata. It includes `declarer_player`, the concrete declarer seat after input normalization.
+
+For local declarer inputs that omit `declarer_player`, output uses:
+
+```json
+"declarer_player": "me"
+```
+
+For local defender inputs, `declarer_player` is required in input and is echoed as `left` or `right`.
+
 ## Opponent policy settings
 
 The output contains global and normalized left/right opponent policy settings.

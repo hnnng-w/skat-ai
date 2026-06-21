@@ -112,6 +112,25 @@ def test_build_state_after_right_opponent_lead() -> None:
     assert next_state.next_player == "me"
 
 
+def test_build_state_after_opponent_lead_preserves_declarer_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="right",
+        hand=["SA", "S10"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    next_state = build_state_after_opponent_lead(
+        state=state,
+        lead_card="D7",
+        leader="left",
+    )
+
+    assert next_state.declarer_player == "right"
+
+
 def test_build_state_after_opponent_second_hand_play() -> None:
     state = GameState(
         game_type="grand",
@@ -131,6 +150,26 @@ def test_build_state_after_opponent_second_hand_play() -> None:
     assert next_state.current_trick == ["D7", "D9"]
     assert next_state.trick_leader == "left"
     assert next_state.next_player == "me"
+
+
+def test_build_state_after_opponent_second_hand_play_preserves_declarer_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["SA", "S10"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    next_state = build_state_after_opponent_second_hand_play(
+        state=state,
+        response_card="D9",
+        responder="right",
+    )
+
+    assert next_state.declarer_player == "left"
 
 
 def test_build_state_after_opponent_second_hand_play_rejects_invalid_responder() -> None:

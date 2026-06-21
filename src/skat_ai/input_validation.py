@@ -13,6 +13,7 @@ from skat_ai.performance_rating import (
     validate_performance_rating_system,
 )
 from skat_ai.rules import GAME_TYPES, get_card_points, get_legal_cards
+from skat_ai.side_ownership import normalize_declarer_player
 from skat_ai.strategic_metadata import (
     validate_analysis_mode,
     validate_analysis_mode_skat_visibility_combination,
@@ -24,6 +25,7 @@ VALID_PLAYER_ROLES = ["declarer", "defender", "unknown"]
 VALID_PLAYER_POSITIONS = ["forehand", "middlehand", "rearhand", "unknown"]
 VALID_TRICK_LEADERS = ["me", "left", "right", "unknown"]
 VALID_NEXT_PLAYERS = ["me", "left", "right", "unknown"]
+VALID_DECLARER_PLAYERS = ["me", "left", "right", "unknown"]
 VALID_COMPLETED_TRICK_WINNER_ROLES = ["declarer", "defenders"]
 VALID_TRICK_PLAYERS = ["me", "left", "right"]
 LIST_PERFORMANCE_REQUIRED_FIELDS = [
@@ -80,6 +82,14 @@ def validate_player_role(player_role: str) -> None:
     """
     if player_role not in VALID_PLAYER_ROLES:
         raise ValueError(f"Invalid player role: {player_role}")
+
+
+def normalize_declarer_identity(data: dict[str, Any]) -> None:
+    """Normalizes and validates the concrete declarer identity in-place."""
+    data["declarer_player"] = normalize_declarer_player(
+        player_role=data["player_role"],
+        declarer_player=data.get("declarer_player"),
+    )
 
 
 def validate_player_position(player_position: str) -> None:
@@ -234,6 +244,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
 
     validate_game_type(data["game_type"])
     validate_player_role(data["player_role"])
+    normalize_declarer_identity(data)
     validate_player_position(data.get("player_position", "unknown"))
     validate_trick_leader(data.get("trick_leader", "unknown"))
 
@@ -286,6 +297,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
         current_trick=data.get("current_trick", []),
         trick_leader=data.get("trick_leader", "unknown"),
         player_role=data.get("player_role", "unknown"),
+        declarer_player=data.get("declarer_player", "unknown"),
         game_type=data.get("game_type", "grand"),
     )
     validate_analysis_mode_skat_visibility_combination(

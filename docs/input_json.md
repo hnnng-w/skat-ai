@@ -84,6 +84,7 @@ A basic input position requires:
 | ----------------------------- | ---------------------------------------------------------------------------------------------- |
 | `game_type`                   | One of `clubs`, `spades`, `hearts`, `diamonds`, `grand`, or `null`.                            |
 | `player_role`                 | Local player role, usually `declarer` or `defender`.                                           |
+| `declarer_player`             | Concrete declarer seat: `me`, `left`, `right`, or `unknown`.                                   |
 | `player_position`             | Local player position such as `forehand`, `middlehand`, `rearhand`, or `unknown`.              |
 | `trick_leader`                | Player who leads the current trick.                                                            |
 | `hand`                        | Known local hand cards.                                                                        |
@@ -99,6 +100,23 @@ A basic input position requires:
 | `sample_count`                | Number of Monte Carlo samples.                                                                 |
 | `random_seed`                 | Random seed for reproducibility.                                                               |
 | `use_basic_opponent_strategy` | Whether to use basic opponent strategy.                                                        |
+
+## Declarer identity
+
+`player_role` describes the local player's side. `declarer_player` identifies the concrete player who declared the game.
+
+Valid combinations are:
+
+| `player_role` | `declarer_player` input | Normalized meaning |
+| ------------- | ----------------------- | ------------------ |
+| `declarer`    | missing                 | `me`               |
+| `declarer`    | `me`                    | `me`               |
+| `defender`    | `left`                  | declarer is left, local defender partner is right |
+| `defender`    | `right`                 | declarer is right, local defender partner is left |
+| `unknown`     | missing                 | `unknown`          |
+| `unknown`     | `unknown`               | `unknown`          |
+
+Invalid combinations are rejected. In particular, defender inputs must provide `declarer_player` as `left` or `right`. The engine does not infer `declarer_player` from completed tricks, trick leaders, player positions, hand sizes, player profiles, or seating heuristics.
 
 ## Card notation
 
@@ -662,12 +680,12 @@ Validation rules:
   * `["left", "right", "me"]`
   * `["right", "me", "left"]`
 * `winner_player` must be valid when provided.
-* `winner_role` is checked against `winner_player` when the local `player_role` allows a safe inference.
+* `winner_role` is checked against `winner_player` when concrete declarer identity allows safe side ownership resolution.
 * The winner of one completed trick must lead the next completed trick.
 * If `current_trick` is not empty, `trick_leader` must match the winner of the last completed trick.
 * When `cards`, `players`, and `winner_player` are provided, the engine validates that `winner_player` actually won the trick according to the implemented Skat rules.
 
-Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly.
+Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly. Existing explicit `winner_role` values remain accepted as side-level facts unless concrete `winner_player` and `declarer_player` prove a conflict.
 
 For matador inference, completed tricks contribute ownership facts only when both `cards` and ordered `players` are present. `winner_role` and `winner_player` alone are not used to infer matador ownership.
 

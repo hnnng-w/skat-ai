@@ -240,6 +240,27 @@ def test_apply_context_to_state_for_sampling_does_not_mutate_original_state() ->
     assert state.played_cards == []
     assert updated_state.played_cards == ["S7"]
 
+
+def test_apply_context_to_state_for_sampling_preserves_declarer_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="right",
+        hand=["SA"],
+        current_trick=[],
+        played_cards=[],
+    )
+    context = SimulationContext(
+        simulated_opponent_cards=["S7"],
+    )
+
+    updated_state = apply_context_to_state_for_sampling(
+        state=state,
+        context=context,
+    )
+
+    assert updated_state.declarer_player == "right"
+
 def test_validate_no_duplicate_simulated_opponent_cards_accepts_unique_cards() -> None:
     context = SimulationContext(
         simulated_opponent_cards=["S7", "S8", "H10"],

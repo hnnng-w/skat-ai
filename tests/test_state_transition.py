@@ -61,7 +61,7 @@ def test_determine_next_player_when_declarer_loses() -> None:
     assert next_player == "unknown"
 
 
-def test_determine_next_player_when_defender_side_wins() -> None:
+def test_determine_next_player_when_only_defender_side_wins_is_unknown() -> None:
     completed_trick = {
         "cards": ["S7", "SA", "S8"],
         "winner_role": "defenders",
@@ -72,7 +72,22 @@ def test_determine_next_player_when_defender_side_wins() -> None:
         player_role="defender",
     )
 
-    assert next_player == "me"
+    assert next_player == "unknown"
+
+
+def test_determine_next_player_when_declarer_role_has_concrete_declarer() -> None:
+    completed_trick = {
+        "cards": ["S7", "SA", "S8"],
+        "winner_role": "declarer",
+    }
+
+    next_player = determine_next_player_from_completed_trick(
+        completed_trick=completed_trick,
+        player_role="defender",
+        declarer_player="right",
+    )
+
+    assert next_player == "right"
 
 
 def test_apply_completed_trick_to_points_adds_points_to_declarer() -> None:
@@ -302,6 +317,35 @@ def test_advance_state_after_detailed_trick_does_not_mutate_original_state() -> 
             "winner_role": "declarer",
         }
     ]
+
+
+def test_advance_state_after_detailed_trick_preserves_declarer_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["SA", "S10", "S9"],
+        current_trick=["S7"],
+    )
+
+    detailed_result = {
+        "trick": ["S7", "SA", "S8"],
+        "did_win": True,
+        "trick_points": 11,
+        "completed_trick": {
+            "cards": ["S7", "SA", "S8"],
+            "winner_role": "defenders",
+            "winner_player": "me",
+        },
+    }
+
+    next_state = advance_state_after_detailed_trick(
+        state=state,
+        candidate_card="SA",
+        detailed_result=detailed_result,
+    )
+
+    assert next_state.declarer_player == "left"
 
 
 def test_determine_next_player_uses_winner_player_when_available() -> None:

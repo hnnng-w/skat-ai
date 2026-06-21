@@ -71,7 +71,7 @@ Live decision examples must not include post-game-only information such as known
 | `grand_midgame_declarer_ahead.json`       | Midgame position where declarer is ahead by known points.                                     |
 | `grand_midgame_defenders_ahead.json`      | Midgame position where defenders are ahead by known points.                                   |
 | `grand_midgame_profile_preset_live.json`  | Live midgame position with strategic metadata, player profiles, and profile preset settings.  |
-| `spades_midgame_defender_rearhand_live.json` | Live midgame defender rearhand position with completed-trick metadata and unknown skat.        |
+| `spades_midgame_defender_rearhand_live.json` | Live midgame defender rearhand position with explicit declarer seat, completed-trick metadata, and unknown skat. |
 
 ## Opponent-turn multi-step examples
 
@@ -363,6 +363,7 @@ When adding new examples:
 * keep point totals within 120
 * set `analysis_mode` consistently with the example type
 * keep live decision examples free of post-game-only information
+* include `declarer_player` as `left` or `right` when `player_role` is `defender`
 * use `post_game_review` for completed games, claim/concession scenarios, known post-game skat, and `actual_card_played`
 * set `game_end_reason` consistently with known card points
 * add explicit `players` to completed tricks when winner metadata must be verifiable

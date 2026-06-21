@@ -309,6 +309,7 @@ def build_analysis_result(
             "game_type": state.game_type,
             "player_role": state.player_role,
             "player_position": state.player_position,
+            "declarer_player": state.declarer_player,
             "trick_leader": state.trick_leader,
             "hand": state.hand,
             "current_trick": state.current_trick,
@@ -444,6 +445,7 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print("Game type:", position["game_type"])
     print("Player role:", position["player_role"])
     print("Player position:", position["player_position"])
+    print("Declarer player:", position["declarer_player"])
     print("Trick leader:", position["trick_leader"])
     print("Hand:", position["hand"])
     print("Current trick:", position["current_trick"])

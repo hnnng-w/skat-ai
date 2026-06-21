@@ -18,6 +18,7 @@ def build_serializable_game_state(
         "played_cards": state.played_cards,
         "skat": state.skat,
         "player_position": state.player_position,
+        "declarer_player": state.declarer_player,
         "trick_leader": state.trick_leader,
         "completed_tricks": state.completed_tricks,
         "declarer_points": state.declarer_points,

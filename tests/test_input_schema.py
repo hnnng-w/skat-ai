@@ -69,6 +69,93 @@ def assert_schema_invalid(data: dict[str, object]) -> None:
     assert errors
 
 
+def test_schema_accepts_declarer_player_enum_values_for_valid_roles() -> None:
+    declarer_data = build_valid_input()
+    declarer_data["declarer_player"] = "me"
+    assert_schema_valid(declarer_data)
+
+    left_defender_data = build_valid_input()
+    left_defender_data["player_role"] = "defender"
+    left_defender_data["declarer_player"] = "left"
+    assert_schema_valid(left_defender_data)
+
+    right_defender_data = build_valid_input()
+    right_defender_data["player_role"] = "defender"
+    right_defender_data["declarer_player"] = "right"
+    assert_schema_valid(right_defender_data)
+
+    unknown_data = build_valid_input()
+    unknown_data["player_role"] = "unknown"
+    unknown_data["declarer_player"] = "unknown"
+    assert_schema_valid(unknown_data)
+
+
+def test_schema_rejects_invalid_declarer_player_value() -> None:
+    data = build_valid_input()
+    data["declarer_player"] = "dealer"
+
+    assert_schema_invalid(data)
+
+
+def test_schema_accepts_local_declarer_missing_declarer_player() -> None:
+    data = build_valid_input()
+
+    assert_schema_valid(data)
+
+
+@pytest.mark.parametrize("declarer_player", ["unknown", "left", "right"])
+def test_schema_rejects_invalid_local_declarer_combinations(
+    declarer_player: str,
+) -> None:
+    data = build_valid_input()
+    data["declarer_player"] = declarer_player
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize("declarer_player", ["left", "right"])
+def test_schema_accepts_valid_local_defender_combinations(
+    declarer_player: str,
+) -> None:
+    data = build_valid_input()
+    data["player_role"] = "defender"
+    data["declarer_player"] = declarer_player
+
+    assert_schema_valid(data)
+
+
+@pytest.mark.parametrize("declarer_player", [None, "unknown", "me"])
+def test_schema_rejects_invalid_local_defender_combinations(
+    declarer_player: str | None,
+) -> None:
+    data = build_valid_input()
+    data["player_role"] = "defender"
+    if declarer_player is None:
+        data.pop("declarer_player", None)
+    else:
+        data["declarer_player"] = declarer_player
+
+    assert_schema_invalid(data)
+
+
+def test_schema_accepts_unknown_role_missing_declarer_player() -> None:
+    data = build_valid_input()
+    data["player_role"] = "unknown"
+
+    assert_schema_valid(data)
+
+
+@pytest.mark.parametrize("declarer_player", ["me", "left", "right"])
+def test_schema_rejects_unknown_role_concrete_declarer(
+    declarer_player: str,
+) -> None:
+    data = build_valid_input()
+    data["player_role"] = "unknown"
+    data["declarer_player"] = declarer_player
+
+    assert_schema_invalid(data)
+
+
 def build_list_game_contribution_input(
     entries: list[dict[str, object]],
 ) -> dict[str, object]:

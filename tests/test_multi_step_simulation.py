@@ -893,6 +893,29 @@ def test_simulate_multiple_steps_returns_context_summary() -> None:
     )
 
     assert "context_summary" in result
+
+
+def test_simulate_multiple_steps_preserves_declarer_player() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["SA"],
+        current_trick=["S7", "S8"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="first_legal",
+    )
+
+    assert result["final_state"].declarer_player == "left"
     assert result["context_summary"]["event_count"] == 1
     assert result["context_summary"]["simulated_opponent_card_count"] >= 1
 

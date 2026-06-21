@@ -31,7 +31,13 @@
       "type": "string"
     },
     "position": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "declarer_player": {
+          "$ref": "#/$defs/player"
+        }
+      }
     },
     "settings": {
       "type": "object"
@@ -117,6 +123,10 @@
       "items": {
         "$ref": "#/$defs/card"
       }
+    },
+    "player": {
+      "type": "string",
+      "enum": ["me", "left", "right", "unknown"]
     },
     "nullable_integer": {
       "type": ["integer", "null"]

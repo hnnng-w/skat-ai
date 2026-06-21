@@ -423,6 +423,7 @@ def test_spades_midgame_defender_live_example_invariants() -> None:
     )
 
     assert result["position"]["player_role"] == "defender"
+    assert result["position"]["declarer_player"] == "left"
     assert result["position"]["player_position"] == "rearhand"
     assert result["position"]["current_trick"] == ["C10", "CQ"]
     assert result["position"]["skat"] == []

@@ -16,6 +16,7 @@ def test_build_serializable_game_state() -> None:
         played_cards=["C7"],
         skat=["D7"],
         player_position="middlehand",
+        declarer_player="me",
         trick_leader="left",
         completed_tricks=[
             {
@@ -38,6 +39,7 @@ def test_build_serializable_game_state() -> None:
         "played_cards": ["C7"],
         "skat": ["D7"],
         "player_position": "middlehand",
+        "declarer_player": "me",
         "trick_leader": "left",
         "completed_tricks": [
             {
