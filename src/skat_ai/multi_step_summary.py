@@ -13,6 +13,10 @@ def build_multi_step_score_summary(
     declarer_points_gained = final_state.declarer_points - initial_state.declarer_points
     defender_points_gained = final_state.defender_points - initial_state.defender_points
     final_point_swing = declarer_points_gained - defender_points_gained
+    local_point_swing = final_point_swing
+
+    if initial_state.player_role == "defender":
+        local_point_swing = defender_points_gained - declarer_points_gained
 
     return {
         "initial_declarer_points": initial_state.declarer_points,
@@ -22,6 +26,7 @@ def build_multi_step_score_summary(
         "declarer_points_gained": declarer_points_gained,
         "defender_points_gained": defender_points_gained,
         "final_point_swing": final_point_swing,
+        "local_point_swing": local_point_swing,
     }
 
 

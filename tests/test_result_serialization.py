@@ -234,6 +234,7 @@ def test_build_serializable_policy_comparison_result() -> None:
             "policy": "highest_point",
             "reason": "Best final point swing after tie-breakers.",
             "final_point_swing": 12,
+            "local_point_swing": 12,
             "declarer_points_gained": 14,
             "defender_points_gained": 2,
             "steps_simulated": 1,
@@ -249,6 +250,7 @@ def test_build_serializable_policy_comparison_result() -> None:
                 "declarer_points_gained": 14,
                 "defender_points_gained": 2,
                 "final_point_swing": 12,
+                "local_point_swing": 12,
                 "context_summary": {
                     "simulated_opponent_card_count": 2,
                     "unique_simulated_opponent_card_count": 2,

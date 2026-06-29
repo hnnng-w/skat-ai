@@ -1,5 +1,6 @@
 from skat_ai.side_ownership import (
     did_local_side_win,
+    did_local_side_win_for_winner_role,
     get_defender_partner,
     get_player_side,
     get_winner_role,
@@ -84,6 +85,13 @@ def test_did_local_side_win() -> None:
     assert did_local_side_win("right", "defender", "left") is True
     assert did_local_side_win("left", "defender", "left") is False
     assert did_local_side_win("me", "declarer", "me") is True
+
+
+def test_did_local_side_win_for_winner_role() -> None:
+    assert did_local_side_win_for_winner_role("defenders", "defender") is True
+    assert did_local_side_win_for_winner_role("declarer", "defender") is False
+    assert did_local_side_win_for_winner_role("declarer", "declarer") is True
+    assert did_local_side_win_for_winner_role(None, "unknown") is None
 
 
 def test_unresolved_direct_call_returns_none() -> None:

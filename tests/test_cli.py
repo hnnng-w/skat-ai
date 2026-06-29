@@ -1128,6 +1128,7 @@ def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
                 "declarer_points_gained": 4,
                 "defender_points_gained": 10,
                 "final_point_swing": -6,
+                "local_point_swing": -6,
                 "context_summary": {},
             },
             {
@@ -1139,6 +1140,7 @@ def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
                 "declarer_points_gained": 14,
                 "defender_points_gained": 2,
                 "final_point_swing": 12,
+                "local_point_swing": 12,
                 "context_summary": {},
             },
         ],
@@ -1146,6 +1148,7 @@ def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
             "policy": "highest_point",
             "reason": "Best final point swing after tie-breakers.",
             "final_point_swing": 12,
+            "local_point_swing": 12,
             "declarer_points_gained": 14,
             "defender_points_gained": 2,
             "steps_simulated": 1,
@@ -1163,6 +1166,7 @@ def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
     assert "Recommended policy: highest_point" in captured.out
     assert "Recommendation reason: Best final point swing after tie-breakers." in captured.out
     assert "Recommended final point swing: 12" in captured.out
+    assert "Recommended local point swing: 12" in captured.out
 
 def test_run_json_position_analysis_supports_policy_comparison() -> None:
     run_json_position_analysis(

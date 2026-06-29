@@ -7,6 +7,7 @@ from skat_ai.opponent_lead import (
     choose_lowest_point_lead_card,
     choose_lowest_point_legal_response_card,
     get_next_player_after_opponent_lead,
+    is_partner_currently_winning_for_response,
     simulate_left_lead_and_right_response_once,
     simulate_opponent_lead_once,
 )
@@ -192,6 +193,37 @@ def test_build_state_after_opponent_second_hand_play_rejects_invalid_responder()
         assert "Invalid opponent responder" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_is_partner_currently_winning_for_local_declarer_response() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+    )
+
+    assert is_partner_currently_winning_for_response(
+        state=state,
+        leader="left",
+        responder="right",
+    ) is True
+
+
+def test_is_partner_currently_winning_for_left_declarer_response() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["SA"],
+        current_trick=[],
+    )
+
+    assert is_partner_currently_winning_for_response(
+        state=state,
+        leader="left",
+        responder="right",
+    ) is False
 
 
 def test_build_state_after_opponent_second_hand_play_requires_one_current_card() -> None:
@@ -508,6 +540,36 @@ def test_simulate_left_lead_and_right_response_once_supports_basic_defender_resp
     assert result["responder"] == "right"
     assert isinstance(result["lead_card"], str)
     assert isinstance(result["response_card"], str)
+
+
+def test_simulate_left_declarer_lead_does_not_treat_declarer_as_partner(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(**_kwargs):
+        return ["DA"], ["D10", "D9"]
+
+    monkeypatch.setattr(
+        "skat_ai.opponent_lead.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["SA"],
+        current_trick=[],
+        next_player="left",
+    )
+
+    result = simulate_left_lead_and_right_response_once(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=2,
+        opponent_response_policy="basic_defender_response",
+    )
+
+    assert result["lead_card"] == "DA"
+    assert result["response_card"] == "D9"
 
 def test_simulate_opponent_lead_once_supports_basic_defender_lead_policy() -> None:
     state = GameState(

@@ -3,7 +3,9 @@ from skat_ai.policy_comparison import (
     build_policy_recommendation,
     compare_multi_step_policies,
     find_best_policy_by_final_point_swing,
+    find_best_policy_by_local_point_swing,
     sort_policy_results_by_final_point_swing,
+    sort_policy_results_by_local_point_swing,
 )
 from skat_ai.strategic_metadata import StrategicMetadata
 
@@ -101,6 +103,7 @@ def test_compare_multi_step_policies_policy_result_contains_score_fields() -> No
     assert "declarer_points_gained" in policy_result
     assert "defender_points_gained" in policy_result
     assert "final_point_swing" in policy_result
+    assert "local_point_swing" in policy_result
     assert "steps_simulated" in policy_result
     assert "stop_reason" in policy_result
 
@@ -136,6 +139,34 @@ def test_find_best_policy_by_final_point_swing() -> None:
 
     assert best_policy["policy"] == "highest_point"
     assert best_policy["final_point_swing"] == 12
+
+
+def test_find_best_policy_by_local_point_swing() -> None:
+    comparison_result = {
+        "policy_results": [
+            {
+                "policy": "good_for_declarer",
+                "final_point_swing": 12,
+                "local_point_swing": -12,
+                "declarer_points_gained": 14,
+                "defender_points_gained": 2,
+                "steps_simulated": 1,
+            },
+            {
+                "policy": "good_for_defenders",
+                "final_point_swing": -3,
+                "local_point_swing": 3,
+                "declarer_points_gained": 4,
+                "defender_points_gained": 7,
+                "steps_simulated": 1,
+            },
+        ]
+    }
+
+    best_policy = find_best_policy_by_local_point_swing(comparison_result)
+
+    assert best_policy["policy"] == "good_for_defenders"
+
 
 def test_find_best_policy_by_final_point_swing_uses_tie_breakers() -> None:
     comparison_result = {
@@ -205,6 +236,35 @@ def test_sort_policy_results_by_final_point_swing() -> None:
         "first_legal",
         "lowest_point",
     ]
+
+
+def test_sort_policy_results_by_local_point_swing() -> None:
+    policy_results = [
+        {
+            "policy": "good_for_declarer",
+            "final_point_swing": 12,
+            "local_point_swing": -12,
+            "declarer_points_gained": 14,
+            "defender_points_gained": 2,
+            "steps_simulated": 1,
+        },
+        {
+            "policy": "good_for_defenders",
+            "final_point_swing": -3,
+            "local_point_swing": 3,
+            "declarer_points_gained": 4,
+            "defender_points_gained": 7,
+            "steps_simulated": 1,
+        },
+    ]
+
+    sorted_results = sort_policy_results_by_local_point_swing(policy_results)
+
+    assert [result["policy"] for result in sorted_results] == [
+        "good_for_defenders",
+        "good_for_declarer",
+    ]
+
 
 def test_sort_policy_results_uses_tie_breakers() -> None:
     policy_results = [
@@ -304,6 +364,7 @@ def test_build_policy_recommendation() -> None:
                 "declarer_points_gained": 4,
                 "defender_points_gained": 10,
                 "final_point_swing": -6,
+                "local_point_swing": -6,
                 "context_summary": {},
             },
             {
@@ -315,6 +376,7 @@ def test_build_policy_recommendation() -> None:
                 "declarer_points_gained": 14,
                 "defender_points_gained": 2,
                 "final_point_swing": 12,
+                "local_point_swing": 12,
                 "context_summary": {},
             },
         ]
@@ -326,6 +388,7 @@ def test_build_policy_recommendation() -> None:
         "policy": "highest_point",
         "reason": "Best final point swing after tie-breakers.",
         "final_point_swing": 12,
+        "local_point_swing": 12,
         "declarer_points_gained": 14,
         "defender_points_gained": 2,
         "steps_simulated": 1,

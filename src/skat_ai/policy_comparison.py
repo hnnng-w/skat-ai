@@ -62,11 +62,15 @@ def compare_multi_step_policies(
                 "declarer_points_gained": score_summary["declarer_points_gained"],
                 "defender_points_gained": score_summary["defender_points_gained"],
                 "final_point_swing": score_summary["final_point_swing"],
+                "local_point_swing": score_summary.get(
+                    "local_point_swing",
+                    score_summary["final_point_swing"],
+                ),
                 "context_summary": summary["context_summary"],
             }
         )
 
-    sorted_policy_results = sort_policy_results_by_final_point_swing(policy_results)
+    sorted_policy_results = sort_policy_results_by_local_point_swing(policy_results)
 
     comparison_result = {
         "requested_step_count": step_count,
@@ -89,6 +93,15 @@ def find_best_policy_by_final_point_swing(
     comparison_result: dict[str, Any],
 ) -> dict[str, Any]:
     """
+    Returns the best policy result using local-perspective ordering.
+    """
+    return find_best_policy_by_local_point_swing(comparison_result)
+
+
+def find_best_policy_by_local_point_swing(
+    comparison_result: dict[str, Any],
+) -> dict[str, Any]:
+    """
     Returns the best policy result using the same ordering as the comparison table.
     """
     policy_results = comparison_result["policy_results"]
@@ -96,24 +109,36 @@ def find_best_policy_by_final_point_swing(
     if not policy_results:
         raise ValueError("No policy results available.")
 
-    return sort_policy_results_by_final_point_swing(policy_results)[0]
+    return sort_policy_results_by_local_point_swing(policy_results)[0]
+
 
 def sort_policy_results_by_final_point_swing(
     policy_results: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """
-    Sorts policy results by quality, best first.
+    Sorts policy results by local-perspective quality, best first.
+    """
+    return sort_policy_results_by_local_point_swing(policy_results)
+
+
+def sort_policy_results_by_local_point_swing(
+    policy_results: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """
+    Sorts policy results by local-perspective quality, best first.
 
     Tie-breakers:
-    1. Higher final point swing
-    2. Higher declarer points gained
-    3. Lower defender points gained
-    4. Higher number of simulated steps
-    5. Policy name alphabetically
+    1. Higher local point swing
+    2. Higher final point swing
+    3. Higher declarer points gained
+    4. Lower defender points gained
+    5. Higher number of simulated steps
+    6. Policy name alphabetically
     """
     return sorted(
         policy_results,
         key=lambda result: (
+            -result.get("local_point_swing", result["final_point_swing"]),
             -result["final_point_swing"],
             -result["declarer_points_gained"],
             result["defender_points_gained"],
@@ -122,18 +147,23 @@ def sort_policy_results_by_final_point_swing(
         ),
     )
 
+
 def build_policy_recommendation(
     comparison_result: dict[str, Any],
 ) -> dict[str, Any]:
     """
     Builds a compact policy recommendation from a policy comparison result.
     """
-    best_policy = find_best_policy_by_final_point_swing(comparison_result)
+    best_policy = find_best_policy_by_local_point_swing(comparison_result)
 
     return {
         "policy": best_policy["policy"],
         "reason": "Best final point swing after tie-breakers.",
         "final_point_swing": best_policy["final_point_swing"],
+        "local_point_swing": best_policy.get(
+            "local_point_swing",
+            best_policy["final_point_swing"],
+        ),
         "declarer_points_gained": best_policy["declarer_points_gained"],
         "defender_points_gained": best_policy["defender_points_gained"],
         "steps_simulated": best_policy["steps_simulated"],

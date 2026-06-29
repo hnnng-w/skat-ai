@@ -36,7 +36,37 @@ def test_build_multi_step_score_summary() -> None:
         "declarer_points_gained": 20,
         "defender_points_gained": 7,
         "final_point_swing": 13,
+        "local_point_swing": 13,
     }
+
+
+def test_build_multi_step_score_summary_uses_defender_local_point_swing() -> None:
+    initial_state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["SA"],
+        current_trick=[],
+        declarer_points=10,
+        defender_points=5,
+    )
+    final_state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=[],
+        current_trick=[],
+        declarer_points=30,
+        defender_points=12,
+    )
+
+    summary = build_multi_step_score_summary(
+        initial_state=initial_state,
+        final_state=final_state,
+    )
+
+    assert summary["final_point_swing"] == 13
+    assert summary["local_point_swing"] == -13
 
 
 def test_build_multi_step_summary() -> None:
@@ -80,4 +110,5 @@ def test_build_multi_step_summary() -> None:
     assert summary["card_selection_policy"] == "highest_point"
     assert summary["strict_context"] is True
     assert summary["score_summary"]["final_point_swing"] == 7
+    assert summary["score_summary"]["local_point_swing"] == 7
     assert summary["context_summary"]["event_count"] == 1

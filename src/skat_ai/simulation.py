@@ -4,6 +4,7 @@ from typing import Any
 from skat_ai.card_tracking import get_unseen_cards
 from skat_ai.game_history import (
     build_completed_trick_from_state_and_candidate,
+    get_compatible_declarer_player,
     get_players_for_trick_leader,
 )
 from skat_ai.game_state import GameState
@@ -17,6 +18,11 @@ from skat_ai.rules import (
     get_trick_winner,
 )
 from skat_ai.sampling_validation import validate_enough_cards_for_opponent_sampling
+from skat_ai.side_ownership import (
+    did_local_side_win,
+    did_local_side_win_for_winner_role,
+    normalize_declarer_player,
+)
 
 
 def generate_random_opponent_hands(
@@ -284,7 +290,7 @@ def simulate_immediate_trick_once(
     """
     Simulates the current trick once after the player plays candidate_card.
 
-    Returns True if candidate_card wins the completed trick.
+    Returns True if the local player's side wins the completed trick.
     """
     result = simulate_immediate_trick_once_detailed(
         state=state,
@@ -310,7 +316,7 @@ def estimate_immediate_trick_win_rate(
     opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> float:
     """
-    Estimates how often candidate_card wins the current trick.
+    Estimates how often the local player's side wins the current trick.
     """
     if sample_count <= 0:
         raise ValueError("Sample count must be greater than zero.")
@@ -381,8 +387,8 @@ def simulate_immediate_trick_once_with_points(
     opponent_response_policy_by_player: dict[str, str] | None = None,
 ) -> tuple[bool, int]:
     """
-    Simulates the current trick once and returns whether candidate_card wins
-    plus the point value of the completed trick.
+    Simulates the current trick once and returns whether the local player's
+    side wins plus the point value of the completed trick.
     """
     result = simulate_immediate_trick_once_detailed(
         state=state,
@@ -411,10 +417,10 @@ def estimate_immediate_trick_value(
     Estimates immediate trick value for one candidate card.
 
     Returned metrics:
-    - win_rate: how often candidate_card wins the trick
+    - win_rate: how often the local player's side wins the trick
     - average_trick_points: average total points in the trick
-    - average_points_won: average points won by the player
-    - average_points_lost: average points lost to opponents
+    - average_points_won: average points won by the local player's side
+    - average_points_lost: average points lost to the other side
     """
     if sample_count <= 0:
         raise ValueError("Sample count must be greater than zero.")
@@ -502,7 +508,9 @@ def simulate_immediate_trick_once_detailed(
 
     Returned fields:
     - trick: the completed three-card trick
-    - did_win: whether the candidate card won the trick
+    - did_win: whether the local player's side won the trick
+    - candidate_card_won: whether the candidate card won the trick
+    - local_side_won: whether the local player's side won the trick
     - trick_points: total points in the trick
     - completed_trick: completed trick entry with cards and winner_role
     """
@@ -533,7 +541,7 @@ def simulate_immediate_trick_once_detailed(
     )
 
     candidate_index = len(state.current_trick)
-    did_win = winner_index == candidate_index
+    candidate_card_won = winner_index == candidate_index
     trick_points = get_trick_points(trick)
 
     completed_trick = build_completed_trick_from_state_and_candidate(
@@ -541,9 +549,30 @@ def simulate_immediate_trick_once_detailed(
         completed_trick_cards=trick,
     )
 
+    normalized_declarer_player = normalize_declarer_player(
+        player_role=state.player_role,
+        declarer_player=get_compatible_declarer_player(
+            player_role=state.player_role,
+            declarer_player=state.declarer_player,
+        ),
+    )
+    if completed_trick["winner_player"] == "unknown":
+        local_side_won = did_local_side_win_for_winner_role(
+            winner_role=completed_trick["winner_role"],
+            player_role=state.player_role,
+        )
+    else:
+        local_side_won = did_local_side_win(
+            winner_player=completed_trick["winner_player"],
+            player_role=state.player_role,
+            declarer_player=normalized_declarer_player,
+        )
+
     return {
         "trick": trick,
-        "did_win": did_win,
+        "did_win": local_side_won,
+        "candidate_card_won": candidate_card_won,
+        "local_side_won": local_side_won,
         "trick_points": trick_points,
         "completed_trick": completed_trick,
     }

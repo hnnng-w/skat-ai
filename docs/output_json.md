@@ -430,6 +430,12 @@ not echoed in the output.
 
 `analysis_report` contains one entry per legal card.
 
+Immediate win-rate and point-value fields are local-side based. For a local
+declarer, `win_rate` means the declarer side wins the trick. For a local
+defender, `win_rate` means either defender wins the trick. `average_points_won`,
+`average_points_lost`, and `expected_point_swing` use the same local-side
+perspective.
+
 Example:
 
 ```json
@@ -556,4 +562,31 @@ When a multi-step simulation is requested, the output can include `multi_step_re
 | `left_opponent_policy_settings`  | Left-opponent policy settings passed into multi-step simulation.  |
 | `right_opponent_policy_settings` | Right-opponent policy settings passed into multi-step simulation. |
 
+Nested `steps[].detailed_result` uses explicit ownership fields:
+
+| Field                  | Meaning                                                            |
+| ---------------------- | ------------------------------------------------------------------ |
+| `did_win`              | Whether the local player's side won the completed trick.           |
+| `local_side_won`       | Same local-side ownership value as `did_win`.                      |
+| `candidate_card_won`   | Whether the candidate card itself won the completed trick.         |
+| `completed_trick`      | Completed trick entry with winner side and, when known, winner player. |
+
+Nested `summary.score_summary` includes both declarer-perspective and
+local-perspective swing fields:
+
+| Field                 | Meaning                                                            |
+| --------------------- | ------------------------------------------------------------------ |
+| `final_point_swing`   | `declarer_points_gained - defender_points_gained`.                 |
+| `local_point_swing`   | Local-side swing. This matches `final_point_swing` for a local declarer and is `defender_points_gained - declarer_points_gained` for a local defender. |
+
 The exact fields depend on whether a multi-step simulation was requested.
+
+## Policy comparison result
+
+When policy comparison is requested, `policy_comparison_result.policy_results`
+contains one row per compared card-selection policy.
+
+Each row includes `final_point_swing` for the declarer-perspective swing and
+`local_point_swing` for the local player's side. Policy results and
+`recommended_policy` are ranked by `local_point_swing`, then by the documented
+tie-breakers.

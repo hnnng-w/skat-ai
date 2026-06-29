@@ -94,6 +94,10 @@ def build_serializable_policy_comparison_result(
                 "declarer_points_gained": policy_result["declarer_points_gained"],
                 "defender_points_gained": policy_result["defender_points_gained"],
                 "final_point_swing": policy_result["final_point_swing"],
+                "local_point_swing": policy_result.get(
+                    "local_point_swing",
+                    policy_result["final_point_swing"],
+                ),
                 "context_summary": policy_result["context_summary"],
             }
             for policy_result in result["policy_results"]

@@ -118,6 +118,24 @@ Example:
 }
 ```
 
+## Expected point swing perspective
+
+Immediate card analysis is local-side based. `win_rate` means the local side
+wins the trick, not necessarily that the candidate card itself takes the trick.
+For a local defender, a partner trick win counts as a local win.
+
+`expected_point_swing` is calculated as:
+
+```text
+average_points_won - average_points_lost
+```
+
+`average_points_won` and `average_points_lost` are measured from the local
+player's side. Multi-step summaries keep the existing
+`final_point_swing = declarer_points_gained - defender_points_gained` field and
+add `local_point_swing` for local-side ranking. For a local defender,
+`local_point_swing = defender_points_gained - declarer_points_gained`.
+
 ## Game result summary
 
 `game_result_summary` describes the raw result before game-end adjustment.

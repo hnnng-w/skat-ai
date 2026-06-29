@@ -1,11 +1,13 @@
 import random
 from typing import Any
 
+from skat_ai.game_history import get_compatible_declarer_player
 from skat_ai.game_state import GameState
 from skat_ai.opponent_policy import (
     choose_opponent_lead_card_by_policy,
     choose_opponent_response_card_by_policy,
 )
+from skat_ai.side_ownership import get_player_side, normalize_declarer_player
 from skat_ai.simulation import generate_random_opponent_hands
 
 
@@ -127,6 +129,31 @@ def build_state_after_opponent_second_hand_play(
     )
 
 
+def is_partner_currently_winning_for_response(
+    state: GameState,
+    leader: str,
+    responder: str,
+) -> bool:
+    """Returns whether the responder's defender partner is winning."""
+    normalized_declarer_player = normalize_declarer_player(
+        player_role=state.player_role,
+        declarer_player=get_compatible_declarer_player(
+            player_role=state.player_role,
+            declarer_player=state.declarer_player,
+        ),
+    )
+    leader_side = get_player_side(
+        player=leader,
+        declarer_player=normalized_declarer_player,
+    )
+    responder_side = get_player_side(
+        player=responder,
+        declarer_player=normalized_declarer_player,
+    )
+
+    return leader_side == "defenders" and responder_side == "defenders"
+
+
 def simulate_opponent_lead_once(
     state: GameState,
     left_hand_size: int,
@@ -223,7 +250,11 @@ def simulate_left_lead_and_right_response_once(
         player_index=1,
         policy=opponent_response_policy,
         random_generator=rng,
-        partner_currently_winning=True,
+        partner_currently_winning=is_partner_currently_winning_for_response(
+            state=state,
+            leader="left",
+            responder="right",
+        ),
     )
 
     next_state = build_state_after_opponent_second_hand_play(

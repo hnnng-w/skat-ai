@@ -44,7 +44,7 @@ from skat_ai.performance_rating import (
 )
 from skat_ai.policy_comparison import (
     compare_multi_step_policies,
-    find_best_policy_by_final_point_swing,
+    find_best_policy_by_local_point_swing,
 )
 from skat_ai.post_game_review import build_post_game_review_summary
 from skat_ai.recommender import recommend_card_by_expected_value
@@ -548,6 +548,10 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
         print("Candidate card:", step["candidate_card"])
         print("Trick:", detailed_result["trick"])
         print("Did win:", detailed_result["did_win"])
+        if "candidate_card_won" in detailed_result:
+            print("Candidate card won:", detailed_result["candidate_card_won"])
+        if "local_side_won" in detailed_result:
+            print("Local side won:", detailed_result["local_side_won"])
         print("Trick points:", detailed_result["trick_points"])
         print("Winner role:", completed_trick["winner_role"])
 
@@ -564,7 +568,7 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
     """
     Prints a compact policy comparison result.
     """
-    best_policy = find_best_policy_by_final_point_swing(result)
+    best_policy = find_best_policy_by_local_point_swing(result)
 
     print()
     print("Policy comparison")
@@ -586,16 +590,22 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
         f"{'Decl. +':>10}"
         f"{'Def. +':>10}"
         f"{'Swing':>10}"
+        f"{'Local':>10}"
     )
-    print("-" * 61)
+    print("-" * 71)
 
     for policy_result in result["policy_results"]:
+        local_point_swing = policy_result.get(
+            "local_point_swing",
+            policy_result["final_point_swing"],
+        )
         print(
             f"{policy_result['policy']:<24}"
             f"{policy_result['steps_simulated']:>7}"
             f"{policy_result['declarer_points_gained']:>10}"
             f"{policy_result['defender_points_gained']:>10}"
             f"{policy_result['final_point_swing']:>10}"
+            f"{local_point_swing:>10}"
         )
 
     recommended_policy = result.get("recommended_policy")
@@ -606,9 +616,20 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
         print("Recommended policy:", recommended_policy["policy"])
         print("Recommendation reason:", recommended_policy["reason"])
         print("Recommended final point swing:", recommended_policy["final_point_swing"])
+        print(
+            "Recommended local point swing:",
+            recommended_policy.get(
+                "local_point_swing",
+                recommended_policy["final_point_swing"],
+            ),
+        )
     else:
         print("Best policy:", best_policy["policy"])
         print("Best final point swing:", best_policy["final_point_swing"])
+        print(
+            "Best local point swing:",
+            best_policy.get("local_point_swing", best_policy["final_point_swing"]),
+        )
 
 
 def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
@@ -631,6 +652,8 @@ def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
     print("Declarer points gained:", score_summary["declarer_points_gained"])
     print("Defender points gained:", score_summary["defender_points_gained"])
     print("Final point swing:", score_summary["final_point_swing"])
+    if "local_point_swing" in score_summary:
+        print("Local point swing:", score_summary["local_point_swing"])
 
 
 def run_json_position_analysis(

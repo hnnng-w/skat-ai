@@ -97,13 +97,27 @@ def did_local_side_win(
     declarer_player: str,
 ) -> bool | None:
     """Returns whether the local side won, or None when ownership is unresolved."""
-    if player_role not in VALID_PLAYER_ROLES:
-        raise ValueError(f"Invalid player role: {player_role}")
-
     winner_role = get_winner_role(
         winner_player=winner_player,
         declarer_player=declarer_player,
     )
+
+    return did_local_side_win_for_winner_role(
+        winner_role=winner_role,
+        player_role=player_role,
+    )
+
+
+def did_local_side_win_for_winner_role(
+    winner_role: str | None,
+    player_role: str,
+) -> bool | None:
+    """Returns whether the local side won from an already-resolved winner side."""
+    if player_role not in VALID_PLAYER_ROLES:
+        raise ValueError(f"Invalid player role: {player_role}")
+
+    if winner_role is not None and winner_role not in VALID_PLAYER_SIDES:
+        raise ValueError(f"Invalid winner role: {winner_role}")
 
     if winner_role is None:
         return None

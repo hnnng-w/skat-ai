@@ -641,9 +641,132 @@ def test_simulate_immediate_trick_once_detailed_returns_expected_keys() -> None:
     assert set(result.keys()) == {
         "trick",
         "did_win",
+        "candidate_card_won",
+        "local_side_won",
         "trick_points",
         "completed_trick",
     }
+
+
+def test_detailed_result_counts_left_declarer_partner_win_as_local_win(monkeypatch) -> None:
+    def fake_generate_random_opponent_hands(**_kwargs):
+        return ["S8"], ["H7"]
+
+    monkeypatch.setattr(
+        "skat_ai.simulation.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["S7"],
+        current_trick=["SA"],
+        trick_leader="right",
+    )
+
+    result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="S7",
+        left_hand_size=1,
+        right_hand_size=1,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert result["trick"] == ["SA", "S7", "S8"]
+    assert result["completed_trick"]["winner_player"] == "right"
+    assert result["candidate_card_won"] is False
+    assert result["local_side_won"] is True
+    assert result["did_win"] is True
+
+
+def test_detailed_result_counts_right_declarer_partner_win_as_local_win(monkeypatch) -> None:
+    def fake_generate_random_opponent_hands(**_kwargs):
+        return ["SA"], ["H7"]
+
+    monkeypatch.setattr(
+        "skat_ai.simulation.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="right",
+        hand=["S8"],
+        current_trick=["S7"],
+        trick_leader="right",
+    )
+
+    result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="S8",
+        left_hand_size=1,
+        right_hand_size=1,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert result["trick"] == ["S7", "S8", "SA"]
+    assert result["completed_trick"]["winner_player"] == "left"
+    assert result["candidate_card_won"] is False
+    assert result["local_side_won"] is True
+    assert result["did_win"] is True
+
+
+def test_detailed_result_counts_left_declarer_win_as_local_loss() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["S8"],
+        current_trick=["SA", "S7"],
+        trick_leader="left",
+    )
+
+    result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="S8",
+        left_hand_size=0,
+        right_hand_size=0,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert result["trick"] == ["SA", "S7", "S8"]
+    assert result["completed_trick"]["winner_player"] == "left"
+    assert result["candidate_card_won"] is False
+    assert result["local_side_won"] is False
+    assert result["did_win"] is False
+
+
+def test_detailed_result_counts_right_declarer_win_as_local_loss(monkeypatch) -> None:
+    def fake_generate_random_opponent_hands(**_kwargs):
+        return ["S8"], ["H7"]
+
+    monkeypatch.setattr(
+        "skat_ai.simulation.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="right",
+        hand=["S7"],
+        current_trick=["SA"],
+        trick_leader="right",
+    )
+
+    result = simulate_immediate_trick_once_detailed(
+        state=state,
+        candidate_card="S7",
+        left_hand_size=1,
+        right_hand_size=1,
+        use_basic_opponent_strategy=True,
+    )
+
+    assert result["trick"] == ["SA", "S7", "S8"]
+    assert result["completed_trick"]["winner_player"] == "right"
+    assert result["candidate_card_won"] is False
+    assert result["local_side_won"] is False
+    assert result["did_win"] is False
 
 
 def test_simulate_immediate_trick_once_detailed_returns_completed_three_card_trick() -> None:

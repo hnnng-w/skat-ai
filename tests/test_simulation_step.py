@@ -49,6 +49,8 @@ def test_simulate_and_advance_once_returns_detailed_result() -> None:
     assert set(detailed_result.keys()) == {
         "trick",
         "did_win",
+        "candidate_card_won",
+        "local_side_won",
         "trick_points",
         "completed_trick",
     }
