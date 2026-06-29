@@ -35,6 +35,10 @@ Nested game declaration example:
 }
 ```
 
+If both top-level and nested `bid_value` are present, the non-null top-level
+value overrides the nested value. `bid_value: null` means the bid value is
+unknown and allows a nested value to be used when one is present.
+
 If `bid_value` is missing, overbid status is unknown.
 
 ## Basic comparison

@@ -290,6 +290,31 @@ def test_get_game_declaration_from_input_reads_bid_value() -> None:
 
     assert declaration.bid_value == 72
 
+
+def test_get_game_declaration_from_input_reads_nested_values() -> None:
+    data = {
+        "game_type": "grand",
+        "game_declaration": {
+            "hand_game": True,
+            "ouvert": False,
+            "schneider_announced": True,
+            "schwarz_announced": False,
+            "matadors": 2,
+            "bid_value": 48,
+        },
+    }
+
+    declaration = get_game_declaration_from_input(data)
+
+    assert declaration.game_type == "grand"
+    assert declaration.hand_game is True
+    assert declaration.ouvert is False
+    assert declaration.schneider_announced is True
+    assert declaration.schwarz_announced is False
+    assert declaration.matadors == 2
+    assert declaration.bid_value == 48
+
+
 def test_get_performance_rating_system_from_input_defaults_to_none() -> None:
     assert get_performance_rating_system_from_input({}) is None
 

@@ -63,6 +63,7 @@ The input schema checks things such as:
 * optional `rated_player_id` and `game_id` primitive shapes for per-game list inputs
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
+* top-level and optional nested `game_declaration` declaration field types
 
 ## Output schema
 
@@ -175,6 +176,7 @@ Examples:
 * whether ended game states are allowed in `live_decision`
 * claim and concession semantics
 * game-type-specific declaration rules
+* top-level-versus-nested declaration precedence
 * completed Null and Schwarz settlement reliability requirements
 * how profile-derived opponent policy presets are selected from validated profile fields
 * overbid settlement support for Null games

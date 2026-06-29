@@ -370,6 +370,7 @@ When adding new examples:
 * prefer `completed_tricks` over `played_cards`
 * use `performance_rating_system: "isko_list"` only when partial ISkO rating output should be demonstrated
 * omit `matadors` only when automatic inference from known declarer cards is intended
+* prefer either top-level declaration fields or nested `game_declaration`; mixing is supported, with top-level fields taking precedence
 * run `.\scripts\check.ps1` before committing
 
 ## Expected output behavior

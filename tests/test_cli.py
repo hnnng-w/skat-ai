@@ -2815,6 +2815,37 @@ def write_position_file(tmp_path, data: dict[str, object]) -> str:
     return str(input_path)
 
 
+def build_simple_nested_declaration_input(
+    game_declaration: dict[str, object],
+    top_level_declaration: dict[str, object] | None = None,
+) -> dict[str, object]:
+    data: dict[str, object] = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "forehand",
+        "trick_leader": "me",
+        "hand": ["D8"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 1,
+        "right_hand_size": 1,
+        "sample_count": 1,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+        "game_declaration": game_declaration,
+    }
+
+    if top_level_declaration is not None:
+        data.update(top_level_declaration)
+
+    return data
+
+
 def build_completed_null_defender_tricks() -> list[dict[str, object]]:
     return [
         {"cards": ["CA", "C10", "CK"], "winner_role": "defenders"},
@@ -2900,6 +2931,120 @@ def build_stub_analysis_report() -> list[dict[str, object]]:
             "is_recommended": True,
         }
     ]
+
+
+def test_build_analysis_result_uses_nested_declaration_for_game_value_and_overbid(
+    tmp_path,
+) -> None:
+    data = build_simple_nested_declaration_input(
+        {
+            "hand_game": True,
+            "matadors": 1,
+            "bid_value": 80,
+        }
+    )
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["game_declaration"]["hand_game"] is True
+    assert result["game_declaration"]["matadors"] == 1
+    assert result["game_declaration"]["bid_value"] == 80
+    assert result["game_value_summary"]["game_level"] == 3
+    assert result["game_value_summary"]["game_value"] == 72
+    assert result["game_value_summary"]["details"]["hand_game"] is True
+    assert result["game_value_summary"]["details"]["matadors"] == 1
+    assert result["overbid_summary"] == {
+        "bid_value": 80,
+        "game_value": 72,
+        "is_overbid": True,
+        "margin": -8,
+        "required_game_value": 96,
+        "status": "overbid",
+    }
+
+
+def test_build_analysis_result_uses_nested_announcement_for_settlement(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "main.recommend_card_by_expected_value",
+        lambda **_kwargs: ("D8", "Stubbed recommendation.", {}),
+    )
+    monkeypatch.setattr(
+        "main.build_card_analysis_report",
+        lambda **_kwargs: build_stub_analysis_report(),
+    )
+    data = build_completed_grand_schwarz_input(
+        completed_tricks=build_completed_grand_tricks(
+            [*["declarer"] * 9, "defenders"]
+        ),
+    )
+    for field_name in [
+        "hand_game",
+        "ouvert",
+        "schneider_announced",
+        "schwarz_announced",
+        "matadors",
+        "bid_value",
+    ]:
+        data.pop(field_name, None)
+    data["game_declaration"] = {
+        "hand_game": False,
+        "ouvert": False,
+        "schneider_announced": False,
+        "schwarz_announced": True,
+        "matadors": 2,
+        "bid_value": 72,
+    }
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["game_declaration"]["schwarz_announced"] is True
+    assert result["game_value_summary"]["details"]["schwarz_announced"] is True
+    assert result["game_value_summary"]["game_value"] == 96
+    assert result["final_settlement_summary"]["is_loss"] is True
+    assert result["final_settlement_summary"]["settlement_score"] == -240
+
+
+def test_build_analysis_result_serializes_top_level_declaration_overrides(
+    tmp_path,
+) -> None:
+    data = build_simple_nested_declaration_input(
+        {
+            "hand_game": True,
+            "ouvert": True,
+            "schneider_announced": True,
+            "schwarz_announced": True,
+            "matadors": 3,
+            "bid_value": 48,
+        },
+        {
+            "hand_game": False,
+            "ouvert": False,
+            "schneider_announced": False,
+            "schwarz_announced": False,
+            "matadors": 0,
+            "bid_value": 72,
+        },
+    )
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["game_declaration"] == {
+        "game_type": "grand",
+        "hand_game": False,
+        "ouvert": False,
+        "schneider_announced": False,
+        "schwarz_announced": False,
+        "matadors": 0,
+        "bid_value": 72,
+    }
+    assert result["game_value_summary"]["game_value"] == 24
+    assert result["overbid_summary"]["bid_value"] == 72
 
 
 def build_post_game_position_input() -> dict[str, object]:

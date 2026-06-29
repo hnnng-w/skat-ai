@@ -69,6 +69,97 @@ def assert_schema_invalid(data: dict[str, object]) -> None:
     assert errors
 
 
+def test_schema_accepts_nested_game_declaration() -> None:
+    data = build_valid_input()
+    data["game_declaration"] = {
+        "hand_game": True,
+        "ouvert": False,
+        "schneider_announced": True,
+        "schwarz_announced": False,
+        "matadors": 2,
+        "bid_value": 48,
+    }
+
+    assert_schema_valid(data)
+
+
+def test_schema_accepts_nested_numeric_nulls() -> None:
+    data = build_valid_input()
+    data["game_declaration"] = {
+        "matadors": None,
+        "bid_value": None,
+    }
+
+    assert_schema_valid(data)
+
+
+def test_schema_accepts_unknown_nested_declaration_properties() -> None:
+    data = build_valid_input()
+    data["game_declaration"] = {
+        "matadors": 2,
+        "comment": "accepted metadata",
+    }
+
+    assert_schema_valid(data)
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "hand_game",
+        "ouvert",
+        "schneider_announced",
+        "schwarz_announced",
+    ],
+)
+@pytest.mark.parametrize("invalid_value", [None, "false", 0, 1])
+def test_schema_rejects_invalid_nested_declaration_booleans(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_valid_input()
+    data["game_declaration"] = {
+        field_name: invalid_value,
+    }
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize("invalid_value", [True, -1, 1.5, "1"])
+def test_schema_rejects_invalid_nested_matadors(invalid_value: object) -> None:
+    data = build_valid_input()
+    data["game_declaration"] = {
+        "matadors": invalid_value,
+    }
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize("invalid_value", [True, 0, -1, 1.5, "18"])
+def test_schema_rejects_invalid_nested_bid_value(invalid_value: object) -> None:
+    data = build_valid_input()
+    data["game_declaration"] = {
+        "bid_value": invalid_value,
+    }
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize("game_declaration", [True, 1, "declaration", []])
+def test_schema_rejects_non_object_game_declaration(game_declaration: object) -> None:
+    data = build_valid_input()
+    data["game_declaration"] = game_declaration
+
+    assert_schema_invalid(data)
+
+
+def test_schema_accepts_null_game_declaration() -> None:
+    data = build_valid_input()
+    data["game_declaration"] = None
+
+    assert_schema_valid(data)
+
+
 def test_schema_accepts_declarer_player_enum_values_for_valid_roles() -> None:
     declarer_data = build_valid_input()
     declarer_data["declarer_player"] = "me"

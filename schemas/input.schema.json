@@ -235,6 +235,9 @@
       "type": ["integer", "null"],
       "minimum": 1
     },
+    "game_declaration": {
+      "$ref": "#/$defs/game_declaration_input"
+    },
 
     "analysis_mode": {
       "type": "string",
@@ -343,6 +346,32 @@
     "positive_integer": {
       "type": "integer",
       "minimum": 1
+    },
+    "game_declaration_input": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "hand_game": {
+          "type": "boolean"
+        },
+        "ouvert": {
+          "type": "boolean"
+        },
+        "schneider_announced": {
+          "type": "boolean"
+        },
+        "schwarz_announced": {
+          "type": "boolean"
+        },
+        "matadors": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "bid_value": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
     },
     "stable_identifier": {
       "type": "string",

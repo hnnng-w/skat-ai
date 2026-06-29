@@ -1,3 +1,5 @@
+import pytest
+
 from skat_ai.game_declaration import (
     GameDeclaration,
     build_game_declaration_from_input,
@@ -7,6 +9,13 @@ from skat_ai.game_declaration import (
     validate_game_declaration,
     validate_matadors,
 )
+
+BOOLEAN_DECLARATION_FIELDS = [
+    "hand_game",
+    "ouvert",
+    "schneider_announced",
+    "schwarz_announced",
+]
 
 
 def test_validate_declaration_game_type_accepts_valid_game_type() -> None:
@@ -33,6 +42,15 @@ def test_validate_matadors_accepts_non_negative_integer() -> None:
 def test_validate_matadors_rejects_negative_integer() -> None:
     try:
         validate_matadors(-1)
+    except ValueError as error:
+        assert "matadors" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_matadors_rejects_boolean() -> None:
+    try:
+        validate_matadors(True)
     except ValueError as error:
         assert "matadors" in str(error)
     else:
@@ -130,6 +148,108 @@ def test_build_game_declaration_from_input_reads_fields() -> None:
     )
 
 
+def test_build_game_declaration_from_input_reads_nested_fields() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                "hand_game": True,
+                "ouvert": True,
+                "schneider_announced": True,
+                "schwarz_announced": True,
+                "matadors": 2,
+                "bid_value": 48,
+            },
+        }
+    )
+
+    assert declaration == GameDeclaration(
+        game_type="grand",
+        hand_game=True,
+        ouvert=True,
+        schneider_announced=True,
+        schwarz_announced=True,
+        matadors=2,
+        bid_value=48,
+    )
+
+
+def test_build_game_declaration_top_level_booleans_override_nested_booleans() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "hand_game": False,
+            "ouvert": True,
+            "schneider_announced": False,
+            "schwarz_announced": True,
+            "game_declaration": {
+                "hand_game": True,
+                "ouvert": False,
+                "schneider_announced": True,
+                "schwarz_announced": False,
+            },
+        }
+    )
+
+    assert declaration.hand_game is False
+    assert declaration.ouvert is True
+    assert declaration.schneider_announced is False
+    assert declaration.schwarz_announced is True
+
+
+def test_build_game_declaration_top_level_numbers_override_nested_numbers() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "matadors": 0,
+            "bid_value": 72,
+            "game_declaration": {
+                "matadors": 3,
+                "bid_value": 48,
+            },
+        }
+    )
+
+    assert declaration.matadors == 0
+    assert declaration.bid_value == 72
+
+
+def test_build_game_declaration_top_level_numeric_null_allows_nested_value() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "matadors": None,
+            "bid_value": None,
+            "game_declaration": {
+                "matadors": 2,
+                "bid_value": 48,
+            },
+        }
+    )
+
+    assert declaration.matadors == 2
+    assert declaration.bid_value == 48
+
+
+def test_build_game_declaration_nested_numeric_null_falls_through() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": ["CJ", "SJ", "H7"],
+            "skat": [],
+            "completed_tricks": [],
+            "game_declaration": {
+                "matadors": None,
+                "bid_value": None,
+            },
+        }
+    )
+
+    assert declaration.matadors == 2
+    assert declaration.bid_value is None
+
+
 def test_build_game_declaration_does_not_infer_matadors_from_defender_hand() -> None:
     declaration = build_game_declaration_from_input(
         {
@@ -188,7 +308,7 @@ def test_build_game_declaration_keeps_top_level_matadors_for_non_declarers() -> 
         assert declaration.matadors == 4
 
 
-def test_build_game_declaration_keeps_nested_matadors_for_defender() -> None:
+def test_build_game_declaration_top_level_matadors_override_nested_matadors() -> None:
     declaration = build_game_declaration_from_input(
         {
             "game_type": "grand",
@@ -203,7 +323,7 @@ def test_build_game_declaration_keeps_nested_matadors_for_defender() -> None:
         }
     )
 
-    assert declaration.matadors == 1
+    assert declaration.matadors == 4
 
 
 def test_build_game_declaration_infers_matadors_from_completed_trick_ownership() -> None:
@@ -335,7 +455,89 @@ def test_build_game_declaration_keeps_explicit_matadors_over_ownership_inference
         }
     )
 
-    assert declaration.matadors == 1
+    assert declaration.matadors == 4
+
+
+@pytest.mark.parametrize("field_name", BOOLEAN_DECLARATION_FIELDS)
+@pytest.mark.parametrize("value", [None, 0, 1, "true", []])
+def test_build_game_declaration_rejects_invalid_boolean_fields(
+    field_name: str,
+    value: object,
+) -> None:
+    for data in [
+        {
+            "game_type": "grand",
+            field_name: value,
+        },
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                field_name: value,
+            },
+        },
+    ]:
+        with pytest.raises(ValueError, match="must be a boolean"):
+            build_game_declaration_from_input(data)
+
+
+@pytest.mark.parametrize("value", [True, -1, 1.5, "1"])
+def test_build_game_declaration_rejects_invalid_matadors(value: object) -> None:
+    for data in [
+        {
+            "game_type": "grand",
+            "matadors": value,
+        },
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                "matadors": value,
+            },
+        },
+    ]:
+        with pytest.raises(ValueError, match="matadors"):
+            build_game_declaration_from_input(data)
+
+
+@pytest.mark.parametrize("value", [True, 0, -1, 1.5, "18"])
+def test_build_game_declaration_rejects_invalid_bid_value(value: object) -> None:
+    for data in [
+        {
+            "game_type": "grand",
+            "bid_value": value,
+        },
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                "bid_value": value,
+            },
+        },
+    ]:
+        with pytest.raises(ValueError, match="bid_value"):
+            build_game_declaration_from_input(data)
+
+
+@pytest.mark.parametrize("game_declaration", [True, 1, "declaration", []])
+def test_build_game_declaration_rejects_non_object_game_declaration(
+    game_declaration: object,
+) -> None:
+    with pytest.raises(ValueError, match="game_declaration must be an object"):
+        build_game_declaration_from_input(
+            {
+                "game_type": "grand",
+                "game_declaration": game_declaration,
+            }
+        )
+
+
+def test_build_game_declaration_allows_null_game_declaration_object() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "game_declaration": None,
+        }
+    )
+
+    assert declaration == GameDeclaration(game_type="grand")
 
 
 def test_build_serializable_game_declaration() -> None:

@@ -178,6 +178,11 @@ The project also supports nested declaration metadata:
 }
 ```
 
+Both forms are supported for the same fields. If both forms provide the same
+field, the explicit top-level field overrides the nested `game_declaration`
+field. Mixing forms is supported for compatibility, but using one form is
+clearer.
+
 | Field                 | Meaning                                                       |
 | --------------------- | ------------------------------------------------------------- |
 | `hand_game`           | Whether the game was announced as a hand game.                |
@@ -187,9 +192,17 @@ The project also supports nested declaration metadata:
 | `matadors`            | Matador count for suit and grand games.                       |
 | `bid_value`           | Optional bid value used for overbid detection and settlement. |
 
-If `matadors` is provided, the explicit value is authoritative and is used as provided.
+Boolean declaration fields must be JSON booleans. Explicit `false` values are
+preserved and override nested `true` values. Boolean `null` is invalid.
 
-If `matadors` is missing or `null`, the engine may infer the matador count when known ownership is deterministic.
+`matadors` uses this resolution order: non-null top-level `matadors`, non-null
+nested `game_declaration.matadors`, safe deterministic inference, then `null`.
+Explicit `0` is preserved as a valid matador count. `matadors: null` means the
+field is missing for precedence and inference purposes.
+
+`bid_value` uses this resolution order: non-null top-level `bid_value`, non-null
+nested `game_declaration.bid_value`, then `null`. It must be a positive integer
+when provided. `bid_value: null` means the bid value is unknown.
 
 Automatic matador inference can use known declarer-card context from:
 

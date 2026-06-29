@@ -51,9 +51,12 @@ The game level is based on:
 
 Suit and grand games use matadors.
 
-If `matadors` is explicitly provided in the input, the explicit value is authoritative and is used as provided.
+If `matadors` is explicitly provided in the input, the explicit value is
+authoritative and is used as provided. Non-null top-level `matadors` overrides
+nested `game_declaration.matadors`. Explicit `0` is preserved as a valid value.
 
-If `matadors` is missing or `null`, the engine may infer the matador count when known ownership is deterministic.
+If top-level and nested `matadors` are missing or `null`, the engine may infer
+the matador count when known ownership is deterministic.
 
 Automatic inference can use known declarer-card context from:
 

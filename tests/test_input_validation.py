@@ -788,11 +788,90 @@ def test_validate_optional_game_declaration_accepts_valid_declaration() -> None:
     validate_optional_game_declaration(
         {
             "game_type": "grand",
-            "hand": True,
+            "hand_game": True,
             "schneider_announced": True,
             "matadors": 2,
         }
     )
+
+
+def test_validate_optional_game_declaration_accepts_valid_nested_declaration() -> None:
+    validate_optional_game_declaration(
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                "hand_game": True,
+                "ouvert": False,
+                "schneider_announced": True,
+                "schwarz_announced": False,
+                "matadors": 2,
+                "bid_value": 48,
+                "comment": "accepted metadata",
+            },
+        }
+    )
+
+
+def test_validate_optional_game_declaration_accepts_nested_numeric_nulls() -> None:
+    validate_optional_game_declaration(
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                "matadors": None,
+                "bid_value": None,
+            },
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value", "expected_error"),
+    [
+        ("hand_game", "true", "must be a boolean"),
+        ("ouvert", None, "must be a boolean"),
+        ("schneider_announced", 1, "must be a boolean"),
+        ("schwarz_announced", 0, "must be a boolean"),
+        ("matadors", True, "matadors"),
+        ("matadors", -1, "matadors"),
+        ("matadors", 1.5, "matadors"),
+        ("bid_value", True, "bid_value"),
+        ("bid_value", 0, "bid_value"),
+        ("bid_value", -1, "bid_value"),
+        ("bid_value", 1.5, "bid_value"),
+    ],
+)
+def test_validate_optional_game_declaration_rejects_invalid_top_level_and_nested_values(
+    field_name: str,
+    invalid_value: object,
+    expected_error: str,
+) -> None:
+    for data in [
+        {
+            "game_type": "grand",
+            field_name: invalid_value,
+        },
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                field_name: invalid_value,
+            },
+        },
+    ]:
+        with pytest.raises(ValueError, match=expected_error):
+            validate_optional_game_declaration(data)
+
+
+@pytest.mark.parametrize("game_declaration", [True, 1, "declaration", []])
+def test_validate_optional_game_declaration_rejects_non_object_game_declaration(
+    game_declaration: object,
+) -> None:
+    with pytest.raises(ValueError, match="game_declaration must be an object"):
+        validate_optional_game_declaration(
+            {
+                "game_type": "grand",
+                "game_declaration": game_declaration,
+            }
+        )
 
 
 def test_validate_optional_game_declaration_rejects_invalid_null_declaration() -> None:
