@@ -17,84 +17,6 @@ VALID_OPPONENT_CARD_POLICIES = [
     "basic_defender_lead",
 ]
 
-SUIT_BY_GAME_TYPE = {
-    "clubs": "C",
-    "spades": "S",
-    "hearts": "H",
-    "diamonds": "D",
-}
-
-JACK_TRUMP_ORDER = {
-    "DJ": 0,
-    "HJ": 1,
-    "SJ": 2,
-    "CJ": 3,
-}
-
-SUIT_GAME_RANK_ORDER = {
-    "7": 0,
-    "8": 1,
-    "9": 2,
-    "Q": 3,
-    "K": 4,
-    "10": 5,
-    "A": 6,
-}
-
-NULL_GAME_RANK_ORDER = {
-    "7": 0,
-    "8": 1,
-    "9": 2,
-    "10": 3,
-    "J": 4,
-    "Q": 5,
-    "K": 6,
-    "A": 7,
-}
-
-
-def get_card_suit(card: str) -> str:
-    """
-    Returns the suit part of a compact card string.
-    """
-    return card[0]
-
-
-def get_card_rank(card: str) -> str:
-    """
-    Returns the rank part of a compact card string.
-    """
-    return card[1:]
-
-
-def is_trump_card(card: str, game_type: str) -> bool:
-    """
-    Returns whether a card is trump in the given game type.
-    """
-    if game_type == "null":
-        return False
-
-    if get_card_rank(card) == "J":
-        return True
-
-    if game_type == "grand":
-        return False
-
-    return get_card_suit(card) == SUIT_BY_GAME_TYPE.get(game_type)
-
-
-def get_trick_order_value(card: str, game_type: str) -> int:
-    """
-    Returns an order value for comparing cards inside the same trick category.
-    """
-    if game_type == "null":
-        return NULL_GAME_RANK_ORDER[get_card_rank(card)]
-
-    if get_card_rank(card) == "J":
-        return JACK_TRUMP_ORDER[card]
-
-    return SUIT_GAME_RANK_ORDER[get_card_rank(card)]
-
 
 def determine_current_trick_winner_index(
     cards: list[str],
@@ -106,37 +28,13 @@ def determine_current_trick_winner_index(
     if not cards:
         raise ValueError("Cannot determine winner for an empty trick.")
 
-    winning_index = 0
-    winning_card = cards[0]
-    lead_suit = get_card_suit(winning_card)
-    lead_is_trump = is_trump_card(winning_card, game_type)
+    lead_effective_suit = get_effective_suit(cards[0], game_type)
+    strengths = [
+        get_card_strength(card, game_type, lead_effective_suit)
+        for card in cards
+    ]
 
-    for index, card in enumerate(cards[1:], start=1):
-        card_is_trump = is_trump_card(card, game_type)
-        winning_card_is_trump = is_trump_card(winning_card, game_type)
-
-        if card_is_trump and not winning_card_is_trump:
-            winning_index = index
-            winning_card = card
-            continue
-
-        if not card_is_trump and winning_card_is_trump:
-            continue
-
-        if lead_is_trump:
-            if not card_is_trump:
-                continue
-        elif get_card_suit(card) != lead_suit:
-            continue
-
-        if get_trick_order_value(card, game_type) > get_trick_order_value(
-            winning_card,
-            game_type,
-        ):
-            winning_index = index
-            winning_card = card
-
-    return winning_index
+    return strengths.index(max(strengths))
 
 
 def validate_opponent_card_policy(policy: str) -> None:

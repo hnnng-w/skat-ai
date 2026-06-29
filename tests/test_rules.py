@@ -66,6 +66,18 @@ def test_hearts_trump_beats_non_trump() -> None:
     assert get_trick_winner(trick, "hearts") == 2
 
 
+def test_suit_game_jack_beats_suit_trump_ace() -> None:
+    trick = ["CJ", "SA", "S7"]
+
+    assert get_trick_winner(trick, "spades") == 0
+
+
+def test_suit_game_jack_beats_suit_trump_ace_when_played_second() -> None:
+    trick = ["SA", "CJ", "S7"]
+
+    assert get_trick_winner(trick, "spades") == 1
+
+
 def test_null_jack_is_normal_suit_card() -> None:
     trick = ["CJ", "CA", "C7"]
 
