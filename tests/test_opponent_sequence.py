@@ -114,6 +114,29 @@ def test_prepare_player_action_state_simulates_left_lead_and_right_response() ->
     assert len(prepared_state.current_trick) == 2
 
 
+def test_prepare_player_action_state_does_not_overwrite_non_empty_trick() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=["D7"],
+        trick_leader="me",
+        next_player="left",
+    )
+
+    try:
+        prepare_player_action_state(
+            current_state=state,
+            left_hand_size=5,
+            right_hand_size=5,
+            random_generator=random.Random(42),
+        )
+    except ValueError as error:
+        assert "empty current_trick" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
 def test_prepare_player_action_state_rejects_unsupported_next_player() -> None:
     state = GameState(
         game_type="grand",

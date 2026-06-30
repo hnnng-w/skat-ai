@@ -101,6 +101,42 @@ A basic input position requires:
 | `random_seed`                 | Random seed for reproducibility.                                                               |
 | `use_basic_opponent_strategy` | Whether to use basic opponent strategy.                                                        |
 
+## Turn phase
+
+`current_trick` is card-only. It contains the cards already played in the
+current trick, in play order, but it does not contain player-card ownership.
+
+For concrete turn phases, `trick_leader`, `len(current_trick)`, and
+`next_player` must follow the fixed three-player order `me -> left -> right`:
+
+| `trick_leader` | `len(current_trick)` | `next_player` |
+| -------------- | -------------------: | ------------- |
+| `me`           |                    0 | `me`          |
+| `me`           |                    1 | `left`        |
+| `me`           |                    2 | `right`       |
+| `left`         |                    0 | `left`        |
+| `left`         |                    1 | `right`       |
+| `left`         |                    2 | `me`          |
+| `right`        |                    0 | `right`       |
+| `right`        |                    1 | `me`          |
+| `right`        |                    2 | `left`        |
+
+If both `trick_leader` and `next_player` are concrete, contradictory
+combinations are rejected. If one field is concrete and the other is missing or
+`unknown`, the missing or unknown counterpart is derived from the table when the
+answer is deterministic.
+
+For a non-empty `current_trick`, both `trick_leader` and `next_player` cannot be
+missing or `unknown`, because the card ownership cannot be reconstructed safely.
+For an empty `current_trick`, `unknown`/`unknown` remains supported for legacy,
+historical, or unavailable states.
+
+When the last completed trick provides a concrete
+`completed_tricks[-1].winner_player`, that player is the leader of the following
+current trick. A missing or `unknown` current `trick_leader` is normalized to
+that winner. A conflicting concrete `trick_leader` is rejected. Side-only
+`winner_role` values never determine a concrete leader or next player.
+
 ## Declarer identity
 
 `player_role` describes the local player's side. `declarer_player` identifies the concrete player who declared the game.

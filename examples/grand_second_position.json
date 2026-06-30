@@ -2,7 +2,7 @@
   "game_type": "grand",
   "player_role": "declarer",
   "player_position": "middlehand",
-  "trick_leader": "left",
+  "trick_leader": "right",
   "hand": ["SA", "S10", "S9", "H10", "D7"],
   "current_trick": ["S7"],
   "played_cards": [],

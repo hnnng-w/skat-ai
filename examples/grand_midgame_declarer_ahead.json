@@ -4,7 +4,7 @@
   "player_position": "middlehand",
   "trick_leader": "left",
   "hand": ["SA", "S10", "S9", "D7"],
-  "current_trick": ["S7"],
+  "current_trick": ["S7", "S8"],
   "played_cards": [],
   "completed_tricks": [
     {

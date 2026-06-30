@@ -2,7 +2,7 @@
   "game_type": "spades",
   "player_role": "declarer",
   "player_position": "middlehand",
-  "trick_leader": "left",
+  "trick_leader": "right",
   "hand": ["C7", "SA", "S7"],
   "current_trick": ["CA"],
   "played_cards": [],

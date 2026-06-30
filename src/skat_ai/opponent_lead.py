@@ -9,6 +9,7 @@ from skat_ai.opponent_policy import (
 )
 from skat_ai.side_ownership import get_player_side, normalize_declarer_player
 from skat_ai.simulation import generate_random_opponent_hands
+from skat_ai.turn_phase import derive_next_player, normalize_turn_phase
 
 
 def choose_lowest_point_lead_card(hand: list[str]) -> str:
@@ -76,6 +77,9 @@ def build_state_after_opponent_lead(
     if leader not in ["left", "right"]:
         raise ValueError(f"Invalid opponent leader: {leader}")
 
+    if state.current_trick:
+        raise ValueError("Opponent lead requires an empty current_trick.")
+
     next_player = get_next_player_after_opponent_lead(leader)
 
     return GameState(
@@ -112,6 +116,24 @@ def build_state_after_opponent_second_hand_play(
     if len(state.current_trick) != 1:
         raise ValueError("Opponent second-hand play requires exactly one card in current_trick.")
 
+    if state.trick_leader == "unknown":
+        raise ValueError("Opponent second-hand play requires a concrete trick_leader.")
+
+    expected_responder = derive_next_player(
+        trick_leader=state.trick_leader,
+        current_trick_length=1,
+    )
+    if responder != expected_responder:
+        raise ValueError(
+            "Opponent second-hand responder is inconsistent with turn phase: "
+            f"expected {expected_responder}, got {responder}."
+        )
+
+    third_player = derive_next_player(
+        trick_leader=state.trick_leader,
+        current_trick_length=2,
+    )
+
     return GameState(
         game_type=state.game_type,
         player_role=state.player_role,
@@ -125,7 +147,7 @@ def build_state_after_opponent_second_hand_play(
         completed_tricks=[completed_trick.copy() for completed_trick in state.completed_tricks],
         declarer_points=state.declarer_points,
         defender_points=state.defender_points,
-        next_player="me",
+        next_player=third_player,
     )
 
 
@@ -166,7 +188,16 @@ def simulate_opponent_lead_once(
 
     This starts a new trick with one opponent card.
     """
-    if state.next_player not in ["left", "right"]:
+    if state.current_trick:
+        raise ValueError("Opponent lead requires an empty current_trick.")
+
+    phase = normalize_turn_phase(
+        trick_leader=state.trick_leader,
+        next_player=state.next_player,
+        current_trick_length=len(state.current_trick),
+    )
+
+    if phase.next_player not in ["left", "right"]:
         raise ValueError("Opponent lead requires next_player to be left or right.")
 
     rng = random_generator or random
@@ -178,7 +209,7 @@ def simulate_opponent_lead_once(
         random_generator=rng,
     )
 
-    if state.next_player == "left":
+    if phase.next_player == "left":
         leader_hand = left_hand
     else:
         leader_hand = right_hand
@@ -193,11 +224,11 @@ def simulate_opponent_lead_once(
     next_state = build_state_after_opponent_lead(
         state=state,
         lead_card=lead_card,
-        leader=state.next_player,
+        leader=phase.next_player,
     )
 
     return {
-        "leader": state.next_player,
+        "leader": phase.next_player,
         "lead_card": lead_card,
         "next_state": next_state,
     }
@@ -218,7 +249,16 @@ def simulate_left_lead_and_right_response_once(
     This prepares a state where the player can act with two cards already
     in current_trick.
     """
-    if state.next_player != "left":
+    if state.current_trick:
+        raise ValueError("Left lead sequence requires an empty current_trick.")
+
+    phase = normalize_turn_phase(
+        trick_leader=state.trick_leader,
+        next_player=state.next_player,
+        current_trick_length=len(state.current_trick),
+    )
+
+    if phase.trick_leader != "left" or phase.next_player != "left":
         raise ValueError("Left lead sequence requires next_player to be left.")
 
     rng = random_generator or random

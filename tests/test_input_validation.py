@@ -30,7 +30,7 @@ def build_valid_input() -> dict[str, object]:
         "game_type": "spades",
         "player_role": "declarer",
         "player_position": "middlehand",
-        "trick_leader": "left",
+        "trick_leader": "right",
         "hand": ["C7", "SA", "S7"],
         "current_trick": ["CA"],
         "played_cards": [],
@@ -361,25 +361,123 @@ def test_validate_trick_leader_rejects_invalid_trick_leader() -> None:
 
 def test_validate_trick_leader_matches_empty_current_trick() -> None:
     validate_trick_leader_matches_current_trick("me", [])
+    validate_trick_leader_matches_current_trick("left", [])
+    validate_trick_leader_matches_current_trick("right", [])
     validate_trick_leader_matches_current_trick("unknown", [])
 
 
-def test_validate_trick_leader_rejects_left_when_current_trick_is_empty() -> None:
+def test_validate_trick_leader_rejects_concrete_phase_contradiction() -> None:
     try:
-        validate_trick_leader_matches_current_trick("left", [])
+        validate_trick_leader_matches_current_trick(
+            trick_leader="left",
+            current_trick=["S7"],
+            next_player="me",
+        )
     except ValueError as error:
-        assert "current_trick is empty" in str(error)
+        assert "turn phase is inconsistent" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
 
-def test_validate_trick_leader_rejects_me_when_current_trick_is_not_empty() -> None:
-    try:
-        validate_trick_leader_matches_current_trick("me", ["S7"])
-    except ValueError as error:
-        assert "cannot be 'me'" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
+@pytest.mark.parametrize(
+    ("trick_leader", "current_trick", "next_player"),
+    [
+        ("me", [], "me"),
+        ("me", ["CA"], "left"),
+        ("me", ["CA", "C10"], "right"),
+        ("left", [], "left"),
+        ("left", ["CA"], "right"),
+        ("left", ["CA", "C10"], "me"),
+        ("right", [], "right"),
+        ("right", ["CA"], "me"),
+        ("right", ["CA", "C10"], "left"),
+    ],
+)
+def test_validate_position_input_accepts_canonical_turn_phases(
+    trick_leader: str,
+    current_trick: list[str],
+    next_player: str,
+) -> None:
+    data = build_valid_input()
+    data["trick_leader"] = trick_leader
+    data["current_trick"] = current_trick
+    data["next_player"] = next_player
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_empty_left_lead() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "left"
+    data["current_trick"] = []
+    data["next_player"] = "left"
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_accepts_empty_right_lead() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "right"
+    data["current_trick"] = []
+    data["next_player"] = "right"
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_derives_unknown_next_from_concrete_leader() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "right"
+    data["current_trick"] = ["CA"]
+    data["next_player"] = "unknown"
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_derives_missing_next_from_concrete_leader() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "left"
+    data["current_trick"] = ["CA", "C10"]
+    data.pop("next_player")
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_derives_unknown_leader_from_concrete_next() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = ["CA"]
+    data["next_player"] = "me"
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_derives_missing_leader_from_concrete_next() -> None:
+    data = build_valid_input()
+    data.pop("trick_leader")
+    data["current_trick"] = ["CA", "C10"]
+    data["next_player"] = "right"
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_explicit_phase_contradiction() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "left"
+    data["current_trick"] = ["CA"]
+    data["next_player"] = "me"
+
+    with pytest.raises(ValueError, match="turn phase is inconsistent"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_non_empty_unresolved_phase() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = ["CA"]
+    data["next_player"] = "unknown"
+
+    with pytest.raises(ValueError, match="Cannot determine turn phase"):
+        validate_position_input(data)
 
 
 def test_validate_position_input_accepts_position_fields() -> None:
@@ -963,6 +1061,8 @@ def test_validate_position_input_rejects_defender_winner_role_conflict() -> None
     data = build_valid_input()
     data["player_role"] = "defender"
     data["declarer_player"] = "right"
+    data["trick_leader"] = "left"
+    data["next_player"] = "right"
     data["completed_tricks"] = [
         {
             "cards": ["CJ", "SJ", "DJ"],
@@ -979,6 +1079,8 @@ def test_validate_position_input_accepts_valid_defender_historical_winner_role()
     data = build_valid_input()
     data["player_role"] = "defender"
     data["declarer_player"] = "right"
+    data["trick_leader"] = "left"
+    data["next_player"] = "right"
     data["completed_tricks"] = [
         {
             "cards": ["CJ", "SJ", "DJ"],
@@ -1044,6 +1146,72 @@ def test_validate_position_input_rejects_rule_wrong_completed_trick_winner() -> 
         assert "winner_player is inconsistent with trick rules" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def build_completed_trick_won_by_me() -> dict[str, object]:
+    return {
+        "cards": ["CJ", "SJ", "DJ"],
+        "players": ["me", "left", "right"],
+        "winner_role": "declarer",
+        "winner_player": "me",
+    }
+
+
+def test_validate_position_input_derives_empty_trick_leader_from_last_winner() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = []
+    data["next_player"] = "unknown"
+    data["completed_tricks"] = [build_completed_trick_won_by_me()]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_keeps_last_winner_for_one_card_partial() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = ["CA"]
+    data["next_player"] = "unknown"
+    data["completed_tricks"] = [build_completed_trick_won_by_me()]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_keeps_last_winner_for_two_card_partial() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = ["CA", "C10"]
+    data["next_player"] = "unknown"
+    data["completed_tricks"] = [build_completed_trick_won_by_me()]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_last_winner_leader_conflict() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "left"
+    data["current_trick"] = []
+    data["next_player"] = "left"
+    data["completed_tricks"] = [build_completed_trick_won_by_me()]
+
+    with pytest.raises(ValueError, match="completed_tricks"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_does_not_derive_from_side_only_winner_role() -> None:
+    data = build_valid_input()
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = ["CA"]
+    data["next_player"] = "unknown"
+    data["completed_tricks"] = [
+        {
+            "cards": ["CJ", "SJ", "DJ"],
+            "winner_role": "declarer",
+        }
+    ]
+
+    with pytest.raises(ValueError, match="Cannot determine turn phase"):
+        validate_position_input(data)
 
 def test_validate_position_input_rejects_zero_bid_value() -> None:
     data = {

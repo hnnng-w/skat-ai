@@ -20,6 +20,7 @@ from skat_ai.strategic_metadata import (
     validate_game_end_reason,
     validate_skat_visibility,
 )
+from skat_ai.turn_phase import normalize_turn_phase_for_position
 
 VALID_PLAYER_ROLES = ["declarer", "defender", "unknown"]
 VALID_PLAYER_POSITIONS = ["forehand", "middlehand", "rearhand", "unknown"]
@@ -167,20 +168,18 @@ def validate_current_trick(current_trick: list[str]) -> None:
 def validate_trick_leader_matches_current_trick(
     trick_leader: str,
     current_trick: list[str],
+    next_player: str = "unknown",
 ) -> None:
     """
-    Validates basic consistency between trick_leader and current_trick.
+    Validates canonical turn-phase consistency.
 
-    Rules:
-    - If current_trick is empty, the player is leading, so trick_leader may be "me" or "unknown".
-    - If current_trick is not empty, another player has already led,
-    so trick_leader should not be "me".
+    Kept as a compatibility wrapper for older tests and direct callers.
     """
-    if len(current_trick) == 0 and trick_leader not in ["me", "unknown"]:
-        raise ValueError("trick_leader must be 'me' or 'unknown' when current_trick is empty.")
-
-    if len(current_trick) > 0 and trick_leader == "me":
-        raise ValueError("trick_leader cannot be 'me' when current_trick is not empty.")
+    normalize_turn_phase_for_position(
+        trick_leader=trick_leader,
+        next_player=next_player,
+        current_trick=current_trick,
+    )
 
 
 def validate_actual_card_played(data: dict[str, Any]) -> None:
@@ -247,6 +246,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     normalize_declarer_identity(data)
     validate_player_position(data.get("player_position", "unknown"))
     validate_trick_leader(data.get("trick_leader", "unknown"))
+    validate_next_player(data.get("next_player", "unknown"))
 
     hand = data["hand"]
     current_trick = data["current_trick"]
@@ -264,9 +264,11 @@ def validate_position_input(data: dict[str, Any]) -> None:
 
     validate_no_duplicate_cards(data)
     validate_current_trick(current_trick)
-    validate_trick_leader_matches_current_trick(
+    normalized_phase = normalize_turn_phase_for_position(
         trick_leader=data.get("trick_leader", "unknown"),
+        next_player=data.get("next_player", "unknown"),
         current_trick=current_trick,
+        completed_tricks=completed_tricks,
     )
     validate_actual_card_played(data)
 
@@ -276,7 +278,6 @@ def validate_position_input(data: dict[str, Any]) -> None:
 
     validate_non_negative_integer(data.get("declarer_points", 0), "declarer_points")
     validate_non_negative_integer(data.get("defender_points", 0), "defender_points")
-    validate_next_player(data.get("next_player", "unknown"))
 
     validate_optional_random_seed(data.get("random_seed"))
     validate_boolean(
@@ -295,7 +296,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_completed_trick_sequence(
         completed_tricks=data.get("completed_tricks", []),
         current_trick=data.get("current_trick", []),
-        trick_leader=data.get("trick_leader", "unknown"),
+        trick_leader=normalized_phase.trick_leader,
         player_role=data.get("player_role", "unknown"),
         declarer_player=data.get("declarer_player", "unknown"),
         game_type=data.get("game_type", "grand"),
