@@ -10,6 +10,7 @@ from skat_ai.post_game_review import (
     build_decision_explanation,
     build_decision_factors,
     build_post_game_review_summary,
+    build_unavailable_post_game_review_summary,
     classify_decision_quality,
     count_better_cards,
     get_recommended_report_row,
@@ -143,6 +144,45 @@ def test_build_post_game_review_summary_returns_not_available_without_actual_car
         "candidate_count": 3,
         "better_card_count": None,
     }
+
+
+def test_build_post_game_review_summary_handles_unavailable_immediate_report() -> None:
+    summary = build_post_game_review_summary(
+        actual_card_played="SA",
+        analysis_report=[],
+    )
+
+    assert summary == {
+        "is_available": False,
+        "reason": "immediate_analysis_unavailable",
+        "actual_card_played": "SA",
+        "recommended_card": None,
+        "actual_expected_point_swing": None,
+        "recommended_expected_point_swing": None,
+        "expected_point_swing_difference": None,
+        "decision_quality": NOT_AVAILABLE_DECISION_QUALITY,
+        "decision_factors": ["immediate_analysis_unavailable"],
+        "decision_explanation": (
+            "No post-game review decision quality is available because "
+            "immediate analysis is unavailable."
+        ),
+        "actual_card_rank": None,
+        "recommended_card_rank": None,
+        "candidate_count": 0,
+        "better_card_count": None,
+    }
+
+
+def test_build_unavailable_post_game_review_summary_uses_stable_shape() -> None:
+    summary = build_unavailable_post_game_review_summary(
+        reason="immediate_analysis_unavailable",
+        actual_card_played=None,
+    )
+
+    assert summary["is_available"] is False
+    assert summary["reason"] == "immediate_analysis_unavailable"
+    assert summary["recommended_card"] is None
+    assert summary["candidate_count"] == 0
 
 
 def test_build_post_game_review_summary_marks_recommended_actual_card_as_optimal() -> None:

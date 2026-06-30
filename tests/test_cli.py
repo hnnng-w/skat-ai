@@ -299,7 +299,7 @@ def build_list_performance_cli_input() -> dict[str, object]:
         "game_type": "grand",
         "player_role": "declarer",
         "player_position": "middlehand",
-        "trick_leader": "left",
+        "trick_leader": "right",
         "hand": ["SA", "S10", "S9", "H10", "D7"],
         "current_trick": ["S7"],
         "played_cards": [],
@@ -2460,7 +2460,7 @@ def build_policy_orchestration_input(
         "game_type": "grand",
         "player_role": "declarer",
         "player_position": "middlehand",
-        "trick_leader": "left",
+        "trick_leader": "right",
         "hand": ["SA"],
         "current_trick": ["S7"],
         "played_cards": [],
@@ -2815,6 +2815,228 @@ def write_position_file(tmp_path, data: dict[str, object]) -> str:
     return str(input_path)
 
 
+def build_turn_phase_position_input(
+    trick_leader: str,
+    current_trick: list[str],
+    next_player: str,
+) -> dict[str, object]:
+    return {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "player_position": "forehand",
+        "trick_leader": trick_leader,
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": current_trick,
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": next_player,
+        "skat": [],
+        "left_hand_size": 5,
+        "right_hand_size": 5,
+        "sample_count": 5,
+        "random_seed": 1,
+        "use_basic_opponent_strategy": True,
+    }
+
+
+def assert_immediate_unavailable_for_opponent_turn(result: dict[str, object]) -> None:
+    assert result["legal_cards"] == []
+    assert result["analysis_report"] == []
+    assert result["recommendation"] == {
+        "card": None,
+        "reason": "Immediate analysis is unavailable because the local player is not next.",
+    }
+    assert result["strategic_summary"] == (
+        "Strategic summary: Immediate analysis is unavailable because the local player is not next."
+    )
+
+
+def test_build_analysis_result_keeps_immediate_available_when_local_player_is_next(
+    tmp_path,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="right",
+        current_trick=["S7"],
+        next_player="me",
+    )
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert len(result["legal_cards"]) > 0
+    assert len(result["analysis_report"]) > 0
+    assert result["recommendation"]["card"] in result["legal_cards"]
+
+
+def test_build_analysis_result_marks_left_turn_immediate_unavailable(
+    tmp_path,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="left",
+        current_trick=[],
+        next_player="left",
+    )
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["position"]["next_player"] == "left"
+    assert_immediate_unavailable_for_opponent_turn(result)
+
+
+def test_build_analysis_result_marks_right_turn_immediate_unavailable(
+    tmp_path,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="right",
+        current_trick=[],
+        next_player="right",
+    )
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["position"]["next_player"] == "right"
+    assert_immediate_unavailable_for_opponent_turn(result)
+
+
+def test_build_analysis_result_skips_immediate_simulation_for_opponent_turn(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    def fail_recommend_card_by_expected_value(**_kwargs):
+        raise AssertionError("Immediate recommendation should not run")
+
+    def fail_build_card_analysis_report(**_kwargs):
+        raise AssertionError("Immediate report should not run")
+
+    monkeypatch.setattr(
+        "main.recommend_card_by_expected_value",
+        fail_recommend_card_by_expected_value,
+    )
+    monkeypatch.setattr(
+        "main.build_card_analysis_report",
+        fail_build_card_analysis_report,
+    )
+    data = build_turn_phase_position_input(
+        trick_leader="left",
+        current_trick=[],
+        next_player="left",
+    )
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert_immediate_unavailable_for_opponent_turn(result)
+
+
+def test_build_analysis_result_post_game_actual_card_is_unavailable_when_opponent_next(
+    tmp_path,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="left",
+        current_trick=[],
+        next_player="left",
+    )
+    data["analysis_mode"] = "post_game_review"
+    data["skat_visibility"] = "known_post_game"
+    data["actual_card_played"] = "SA"
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+    summary = result["post_game_review_summary"]
+
+    assert summary["is_available"] is False
+    assert summary["reason"] == "immediate_analysis_unavailable"
+    assert summary["actual_card_played"] == "SA"
+    assert summary["recommended_card"] is None
+    assert summary["candidate_count"] == 0
+
+
+def test_build_analysis_result_marks_complete_game_immediate_unavailable(
+    tmp_path,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="me",
+        current_trick=[],
+        next_player="me",
+    )
+    data["analysis_mode"] = "post_game_review"
+    data["skat_visibility"] = "unknown"
+    data["game_end_reason"] = "normal_completion"
+    data["declarer_points"] = 120
+    data["defender_points"] = 0
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["legal_cards"] == []
+    assert result["analysis_report"] == []
+    assert result["recommendation"] == {
+        "card": None,
+        "reason": "Immediate analysis is unavailable because the game is complete.",
+    }
+
+
+def test_run_json_position_analysis_prints_no_local_recommendation_for_opponent_turn(
+    tmp_path,
+    capsys,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="left",
+        current_trick=[],
+        next_player="left",
+    )
+    input_path = write_position_file(tmp_path, data)
+
+    run_json_position_analysis(
+        file_path=input_path,
+        output_path=None,
+        multi_step_count=None,
+    )
+
+    captured = capsys.readouterr()
+
+    assert "Next player: left" in captured.out
+    assert "Legal cards: []" in captured.out
+    assert "Recommended card: not available" in captured.out
+    assert "Immediate analysis is unavailable because the local player is not next." in captured.out
+
+
+def test_run_json_position_analysis_keeps_input_position_separate_from_prepared_state(
+    tmp_path,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="left",
+        current_trick=[],
+        next_player="left",
+    )
+    input_path = write_position_file(tmp_path, data)
+    output_path = tmp_path / "result.json"
+
+    run_json_position_analysis(
+        file_path=input_path,
+        output_path=str(output_path),
+        multi_step_count=1,
+        card_selection_policy="highest_point",
+    )
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["position"]["trick_leader"] == "left"
+    assert result["position"]["current_trick"] == []
+    assert result["position"]["next_player"] == "left"
+    assert result["recommendation"]["card"] is None
+    assert result["multi_step_result"]["steps_simulated"] == 1
+    assert result["multi_step_result"]["steps"][0]["prepared_state"]["next_player"] == "me"
+    assert len(
+        result["multi_step_result"]["steps"][0]["prepared_state"]["current_trick"]
+    ) == 2
+
+
 def build_simple_nested_declaration_input(
     game_declaration: dict[str, object],
     top_level_declaration: dict[str, object] | None = None,
@@ -3052,7 +3274,7 @@ def build_post_game_position_input() -> dict[str, object]:
         "game_type": "spades",
         "player_role": "declarer",
         "player_position": "middlehand",
-        "trick_leader": "left",
+        "trick_leader": "right",
         "hand": ["C7", "SA", "S7"],
         "current_trick": ["CA"],
         "played_cards": [],

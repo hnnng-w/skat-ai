@@ -54,6 +54,32 @@ from skat_ai.result_serialization import (
 )
 from skat_ai.rules import get_legal_cards
 
+IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
+    "Immediate analysis is unavailable because the local player is not next."
+)
+IMMEDIATE_UNAVAILABLE_GAME_COMPLETE_REASON = (
+    "Immediate analysis is unavailable because the game is complete."
+)
+
+
+def get_immediate_unavailable_reason(
+    state_next_player: str,
+    game_end_reason: str,
+) -> str | None:
+    """Returns why Immediate Analysis is unavailable, if it is unavailable."""
+    if game_end_reason != "not_ended":
+        return IMMEDIATE_UNAVAILABLE_GAME_COMPLETE_REASON
+
+    if state_next_player != "me":
+        return IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON
+
+    return None
+
+
+def build_unavailable_strategic_summary(reason: str) -> str:
+    """Builds a readable strategic summary for unavailable Immediate Analysis."""
+    return f"Strategic summary: {reason}"
+
 
 def apply_cli_overrides(
     settings: dict[str, Any],
@@ -227,38 +253,51 @@ def build_analysis_result(
         use_profile_presets=use_profile_presets_override,
     )
 
-    legal_cards = get_legal_cards(
-        hand=state.hand,
-        current_trick=state.current_trick,
-        game_type=state.game_type,
+    immediate_unavailable_reason = get_immediate_unavailable_reason(
+        state_next_player=state.next_player,
+        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
     )
 
-    recommended_card, reason, _ = recommend_card_by_expected_value(
-        state=state,
-        left_hand_size=settings["left_hand_size"],
-        right_hand_size=settings["right_hand_size"],
-        sample_count=settings["sample_count"],
-        random_seed=settings["random_seed"],
-        use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-        opponent_response_policy_by_player=opponent_response_policy_by_player,
-    )
+    if immediate_unavailable_reason is None:
+        legal_cards = get_legal_cards(
+            hand=state.hand,
+            current_trick=state.current_trick,
+            game_type=state.game_type,
+        )
 
-    report = build_card_analysis_report(
-        state=state,
-        left_hand_size=settings["left_hand_size"],
-        right_hand_size=settings["right_hand_size"],
-        sample_count=settings["sample_count"],
-        random_seed=settings["random_seed"],
-        use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-        opponent_response_policy_by_player=opponent_response_policy_by_player,
-    )
+        recommended_card, reason, _ = recommend_card_by_expected_value(
+            state=state,
+            left_hand_size=settings["left_hand_size"],
+            right_hand_size=settings["right_hand_size"],
+            sample_count=settings["sample_count"],
+            random_seed=settings["random_seed"],
+            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
+        )
+
+        report = build_card_analysis_report(
+            state=state,
+            left_hand_size=settings["left_hand_size"],
+            right_hand_size=settings["right_hand_size"],
+            sample_count=settings["sample_count"],
+            random_seed=settings["random_seed"],
+            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
+        )
+        strategic_summary = build_strategic_summary(report)
+    else:
+        legal_cards = []
+        recommended_card = None
+        reason = immediate_unavailable_reason
+        report = []
+        strategic_summary = build_unavailable_strategic_summary(
+            immediate_unavailable_reason
+        )
 
     post_game_review_summary = build_post_game_review_summary(
         actual_card_played=actual_card_played,
         analysis_report=report,
     )
-
-    strategic_summary = build_strategic_summary(report)
 
     score_summary = build_score_summary(state)
     game_result_summary = build_game_result_summary_from_score_summary(
@@ -484,7 +523,10 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print(result["strategic_summary"])
 
     print()
-    print("Recommended card:", result["recommendation"]["card"])
+    print(
+        "Recommended card:",
+        format_optional_cli_value(result["recommendation"]["card"]),
+    )
     print("Reason:", result["recommendation"]["reason"])
 
     print_post_game_review_summary(result)

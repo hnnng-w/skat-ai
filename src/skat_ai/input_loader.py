@@ -14,6 +14,7 @@ from skat_ai.game_state import GameState
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
 from skat_ai.side_ownership import normalize_declarer_player
+from skat_ai.turn_phase import normalize_turn_phase_for_position
 
 
 def load_position_from_json(file_path: str) -> dict[str, Any]:
@@ -37,6 +38,13 @@ def build_game_state_from_input(data: dict[str, Any]) -> GameState:
     """
     Builds a GameState object from parsed input data.
     """
+    turn_phase = normalize_turn_phase_for_position(
+        trick_leader=data.get("trick_leader", "unknown"),
+        next_player=data.get("next_player", "unknown"),
+        current_trick=data["current_trick"],
+        completed_tricks=data.get("completed_tricks", []),
+    )
+
     return GameState(
         game_type=data["game_type"],
         player_role=data["player_role"],
@@ -49,11 +57,11 @@ def build_game_state_from_input(data: dict[str, Any]) -> GameState:
             player_role=data["player_role"],
             declarer_player=data.get("declarer_player"),
         ),
-        trick_leader=data.get("trick_leader", "unknown"),
+        trick_leader=turn_phase.trick_leader,
         completed_tricks=data.get("completed_tricks", []),
         declarer_points=data.get("declarer_points", 0),
         defender_points=data.get("defender_points", 0),
-        next_player=data.get("next_player", "unknown"),
+        next_player=turn_phase.next_player,
     )
 
 

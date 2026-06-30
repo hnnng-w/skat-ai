@@ -365,7 +365,7 @@ def validate_completed_trick_sequence(
     - each completed trick with players must follow the known player order
     - winner_player of one completed trick must lead the next completed trick
     - winner_player of the last completed trick must match trick_leader
-      if current_trick is not empty
+      when the current trick leader is concrete
     """
     previous_winner = None
 
@@ -396,7 +396,11 @@ def validate_completed_trick_sequence(
 
         previous_winner = winner_player
 
-    if current_trick and previous_winner is not None and trick_leader != previous_winner:
+    if (
+        previous_winner is not None
+        and trick_leader != "unknown"
+        and trick_leader != previous_winner
+    ):
         raise ValueError(
             "trick_leader is inconsistent with completed_tricks: "
             f"expected {previous_winner}, got {trick_leader}."

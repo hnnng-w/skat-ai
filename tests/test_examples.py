@@ -456,8 +456,8 @@ def test_post_game_known_skat_example_metadata_invariants() -> None:
     }
 
     assert result["position"]["skat"] == ["C7", "D8"]
-    assert result["position"]["trick_leader"] == "unknown"
-    assert result["position"]["next_player"] == "unknown"
+    assert result["position"]["trick_leader"] == "left"
+    assert result["position"]["next_player"] == "left"
     assert result["position"]["current_trick"] == []
 
     assert result["score_summary"]["total_declarer_points"] == 75

@@ -675,7 +675,8 @@
           "type": "string",
           "enum": [
             "actual_card_played_not_provided",
-            "actual_card_played_provided"
+            "actual_card_played_provided",
+            "immediate_analysis_unavailable"
           ]
         },
         "actual_card_played": {
@@ -711,6 +712,7 @@
             "type": "string",
             "enum": [
               "actual_card_played_not_provided",
+              "immediate_analysis_unavailable",
               "expected_point_swing_difference_not_available",
               "no_missed_expected_point_swing",
               "lower_expected_point_swing_than_recommendation",

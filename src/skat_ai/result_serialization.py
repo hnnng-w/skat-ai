@@ -38,6 +38,7 @@ def build_serializable_multi_step_step(
         "opponent_lead_result": build_serializable_opponent_sequence_result(
             step["opponent_lead_result"]
         ),
+        "prepared_state": build_serializable_game_state(step["prepared_state"]),
         "candidate_card": step["candidate_card"],
         "card_selection_policy": step["card_selection_policy"],
         "detailed_result": step["detailed_result"],

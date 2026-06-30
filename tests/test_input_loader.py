@@ -78,6 +78,61 @@ def test_build_game_state_from_input_uses_defaults_for_optional_lists() -> None:
     assert state.next_player == "unknown"
 
 
+def test_build_game_state_from_input_normalizes_unknown_next_player() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "hand": ["SA", "S10"],
+        "current_trick": ["D7"],
+        "trick_leader": "right",
+        "next_player": "unknown",
+    }
+
+    state = build_game_state_from_input(data)
+
+    assert state.trick_leader == "right"
+    assert state.next_player == "me"
+
+
+def test_build_game_state_from_input_normalizes_unknown_trick_leader() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "hand": ["SA", "S10"],
+        "current_trick": ["D7"],
+        "trick_leader": "unknown",
+        "next_player": "me",
+    }
+
+    state = build_game_state_from_input(data)
+
+    assert state.trick_leader == "right"
+    assert state.next_player == "me"
+
+
+def test_build_game_state_from_input_normalizes_from_last_winner_player() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "hand": ["SA", "S10"],
+        "current_trick": [],
+        "trick_leader": "unknown",
+        "next_player": "unknown",
+        "completed_tricks": [
+            {
+                "cards": ["CJ", "SJ", "DJ"],
+                "winner_role": "defenders",
+                "winner_player": "left",
+            }
+        ],
+    }
+
+    state = build_game_state_from_input(data)
+
+    assert state.trick_leader == "left"
+    assert state.next_player == "left"
+
+
 def test_build_game_state_from_input_loads_defender_declarer_identity() -> None:
     data = {
         "game_type": "grand",

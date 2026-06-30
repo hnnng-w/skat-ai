@@ -2,7 +2,7 @@
   "game_type": "null",
   "player_role": "declarer",
   "player_position": "middlehand",
-  "trick_leader": "left",
+  "trick_leader": "right",
   "hand": ["C7", "C8", "S7", "S8", "H9"],
   "current_trick": ["CJ"],
   "played_cards": [],
