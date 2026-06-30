@@ -69,6 +69,28 @@ def assert_schema_invalid(data: dict[str, object]) -> None:
     assert errors
 
 
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "left_hand_size",
+        "right_hand_size",
+        "sample_count",
+        "random_seed",
+        "declarer_points",
+        "defender_points",
+    ],
+)
+@pytest.mark.parametrize("invalid_value", [True, False])
+def test_schema_rejects_boolean_integer_fields(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    assert_schema_invalid(data)
+
+
 def test_schema_accepts_nested_game_declaration() -> None:
     data = build_valid_input()
     data["game_declaration"] = {

@@ -49,6 +49,194 @@ def build_valid_input() -> dict[str, object]:
     }
 
 
+def build_six_point_completed_trick() -> dict[str, object]:
+    return {
+        "cards": ["CJ", "SJ", "DJ"],
+        "winner_role": "declarer",
+    }
+
+
+@pytest.mark.parametrize(
+    ("field_name", "valid_value"),
+    [
+        ("left_hand_size", 1),
+        ("right_hand_size", 1),
+        ("sample_count", 1),
+        ("random_seed", -42),
+        ("declarer_points", 120),
+        ("defender_points", 120),
+    ],
+)
+def test_validate_position_input_accepts_strict_integer_fields(
+    field_name: str,
+    valid_value: object,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = valid_value
+
+    validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "left_hand_size",
+        "right_hand_size",
+        "sample_count",
+        "random_seed",
+        "declarer_points",
+        "defender_points",
+    ],
+)
+@pytest.mark.parametrize("invalid_value", [True, False, 1.5, "1"])
+def test_validate_position_input_rejects_non_strict_integer_fields(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    with pytest.raises(ValueError, match=field_name):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "left_hand_size",
+        "right_hand_size",
+        "sample_count",
+        "declarer_points",
+        "defender_points",
+    ],
+)
+def test_validate_position_input_rejects_null_for_non_nullable_integer_fields(
+    field_name: str,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = None
+
+    with pytest.raises(ValueError, match=field_name):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_null_random_seed() -> None:
+    data = build_valid_input()
+    data["random_seed"] = None
+
+    validate_position_input(data)
+
+
+@pytest.mark.parametrize("field_name", ["random_seed", "declarer_points", "defender_points"])
+def test_validate_position_input_accepts_omitted_optional_numeric_fields(
+    field_name: str,
+) -> None:
+    data = build_valid_input()
+    data.pop(field_name)
+
+    validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value"),
+    [
+        ("left_hand_size", 0),
+        ("right_hand_size", 0),
+        ("sample_count", 0),
+        ("declarer_points", -1),
+        ("defender_points", -1),
+    ],
+)
+def test_validate_position_input_preserves_lower_integer_boundaries(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    with pytest.raises(ValueError, match=field_name):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_negative_random_seed() -> None:
+    data = build_valid_input()
+    data["random_seed"] = -1
+
+    validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    ("declarer_points", "defender_points"),
+    [
+        (59, 60),
+        (70, 50),
+    ],
+)
+def test_validate_position_input_accepts_explicit_known_point_totals_at_or_below_120(
+    declarer_points: int,
+    defender_points: int,
+) -> None:
+    data = build_valid_input()
+    data["declarer_points"] = declarer_points
+    data["defender_points"] = defender_points
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_explicit_known_point_total_above_120() -> None:
+    data = build_valid_input()
+    data["declarer_points"] = 70
+    data["defender_points"] = 51
+
+    with pytest.raises(ValueError, match="Known card points cannot exceed 120"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize("field_name", ["declarer_points", "defender_points"])
+def test_validate_position_input_accepts_one_omitted_side_point_field(
+    field_name: str,
+) -> None:
+    data = build_valid_input()
+    data["declarer_points"] = 30
+    data["defender_points"] = 40
+    data.pop(field_name)
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_counts_completed_trick_points_once() -> None:
+    data = build_valid_input()
+    data["completed_tricks"] = [build_six_point_completed_trick()]
+    data["declarer_points"] = 114
+    data["defender_points"] = 0
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_explicit_plus_completed_points_above_120() -> None:
+    data = build_valid_input()
+    data["completed_tricks"] = [build_six_point_completed_trick()]
+    data["declarer_points"] = 115
+    data["defender_points"] = 0
+
+    with pytest.raises(ValueError, match="Known card points cannot exceed 120"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_boolean_points_before_aggregate_total() -> None:
+    data = build_valid_input()
+    data["completed_tricks"] = [build_six_point_completed_trick()]
+    data["declarer_points"] = True
+    data["defender_points"] = 120
+
+    with pytest.raises(ValueError) as error:
+        validate_position_input(data)
+
+    error_message = str(error.value)
+    assert "declarer_points must be a non-negative integer" in error_message
+    assert "Known card points" not in error_message
+
+
 def test_validate_position_input_normalizes_declarer_missing_to_me() -> None:
     data = build_valid_input()
 
@@ -258,6 +446,12 @@ def test_validate_positive_integer_rejects_zero() -> None:
         raise AssertionError("Expected ValueError was not raised.")
 
 
+@pytest.mark.parametrize("value", [True, False])
+def test_validate_positive_integer_rejects_boolean(value: bool) -> None:
+    with pytest.raises(ValueError, match="positive integer"):
+        validate_positive_integer(value, "sample_count")
+
+
 def test_validate_optional_random_seed_accepts_integer_or_none() -> None:
     validate_optional_random_seed(42)
     validate_optional_random_seed(None)
@@ -270,6 +464,12 @@ def test_validate_optional_random_seed_rejects_string() -> None:
         assert "random_seed" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test_validate_optional_random_seed_rejects_boolean(value: bool) -> None:
+    with pytest.raises(ValueError, match="random_seed"):
+        validate_optional_random_seed(value)
 
 
 def test_validate_boolean_accepts_bool() -> None:
@@ -596,6 +796,12 @@ def test_validate_non_negative_integer_rejects_negative_integer() -> None:
         assert "non-negative integer" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test_validate_non_negative_integer_rejects_boolean(value: bool) -> None:
+    with pytest.raises(ValueError, match="non-negative integer"):
+        validate_non_negative_integer(value, "declarer_points")
 
 
 def test_validate_completed_tricks_accepts_players_and_winner_player() -> None:

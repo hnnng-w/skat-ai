@@ -215,7 +215,7 @@ def validate_positive_integer(value: Any, field_name: str) -> None:
     """
     Validates that a value is a positive integer.
     """
-    if not isinstance(value, int) or value <= 0:
+    if not is_strict_integer(value) or value <= 0:
         raise ValueError(f"{field_name} must be a positive integer.")
 
 
@@ -223,7 +223,7 @@ def validate_optional_random_seed(value: Any) -> None:
     """
     Validates the optional random seed.
     """
-    if value is not None and not isinstance(value, int):
+    if value is not None and not is_strict_integer(value):
         raise ValueError("random_seed must be an integer or null.")
 
 
@@ -305,6 +305,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
         analysis_mode=data.get("analysis_mode", "live_decision"),
         skat_visibility=data.get("skat_visibility", "unknown"),
     )
+    validate_total_known_card_points(data)
 
     validate_information_policy_from_input(data)
 
@@ -321,15 +322,20 @@ def validate_non_negative_integer(value: Any, field_name: str) -> None:
     """
     Validates that a value is a non-negative integer.
     """
-    if not isinstance(value, int) or value < 0:
+    if not is_strict_integer(value) or value < 0:
         raise ValueError(f"{field_name} must be a non-negative integer.")
+
+
+def is_strict_integer(value: Any) -> bool:
+    """Returns whether a value is an integer but not a boolean."""
+    return isinstance(value, int) and not isinstance(value, bool)
 
 
 def validate_strict_integer(value: Any, field_name: str) -> None:
     """
     Validates that a value is an integer and not a boolean.
     """
-    if isinstance(value, bool) or not isinstance(value, int):
+    if not is_strict_integer(value):
         raise ValueError(f"{field_name} must be an integer.")
 
 
