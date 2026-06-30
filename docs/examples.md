@@ -78,6 +78,8 @@ Live decision examples must not include post-game-only information such as known
 These examples represent live positions where the local player is not the next
 player to act. They are intended for the supported multi-step workflow, where
 opponent action is simulated until the local player reaches a decision point.
+Their Immediate Analysis output is intentionally unavailable: `legal_cards` and
+`analysis_report` are empty, and `recommendation.card` is `null`.
 
 | File                            | Purpose                                                                                     |
 | ------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -101,6 +103,10 @@ focused behavioral assertions in `tests/test_examples.py` because their primary
 supported workflow is multi-step opponent-turn preparation. They are not
 registered in generated-output schema validation, which currently covers
 selected standard single-position outputs.
+
+Multi-step also supports a one-card partial trick where `left` has already led
+and `right` is next. In that phase the existing lead card is preserved and only
+right's response is simulated before the local third-hand decision.
 
 ## Post-game review examples
 

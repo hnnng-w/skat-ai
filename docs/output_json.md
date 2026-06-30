@@ -61,6 +61,10 @@ Typical top-level fields include:
 
 `position` echoes normalized position metadata. It includes `declarer_player`, the concrete declarer seat after input normalization.
 
+`position` describes the normalized input position. For opponent-turn inputs it
+can legitimately show `next_player` as `left` or `right`. It is not replaced by
+any internally prepared Multi-Step state.
+
 For local declarer inputs that omit `declarer_player`, output uses:
 
 ```json
@@ -430,6 +434,11 @@ not echoed in the output.
 
 `analysis_report` contains one entry per legal card.
 
+Immediate Analysis is local-action only. When the normalized input position does
+not have `next_player = "me"`, or when the game has already ended,
+`legal_cards` is `[]`, `analysis_report` is `[]`, and `recommendation.card` is
+`null`.
+
 Immediate win-rate and point-value fields are local-side based. For a local
 declarer, `win_rate` means the declarer side wins the trick. For a local
 defender, `win_rate` means either defender wins the trick. `average_points_won`,
@@ -461,11 +470,24 @@ Example:
 }
 ```
 
+For opponent-turn inputs, Immediate Analysis does not create a local card
+recommendation. The unavailable shape is:
+
+```json
+"recommendation": {
+  "card": null,
+  "reason": "Immediate analysis is unavailable because the local player is not next."
+}
+```
+
 ## Post-game review summary
 
 `post_game_review_summary` compares the actual played card with the recommended card.
+It requires an available local Immediate Analysis report.
 
 If `actual_card_played` was not provided, the summary is still present but marked as unavailable.
+If Immediate Analysis is unavailable, the summary is also unavailable and uses
+`reason: "immediate_analysis_unavailable"`.
 
 Example without `actual_card_played`:
 
@@ -561,6 +583,10 @@ When a multi-step simulation is requested, the output can include `multi_step_re
 | `opponent_policy_settings`       | Global opponent policy settings used as fallback.                 |
 | `left_opponent_policy_settings`  | Left-opponent policy settings passed into multi-step simulation.  |
 | `right_opponent_policy_settings` | Right-opponent policy settings passed into multi-step simulation. |
+
+Nested `steps[].prepared_state` is the state after any supported opponent-turn
+preparation and before the local candidate card is simulated. This separates the
+original top-level `position` from the internally advanced local-action state.
 
 Nested `steps[].detailed_result` uses explicit ownership fields:
 

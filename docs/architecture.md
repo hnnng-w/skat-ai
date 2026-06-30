@@ -11,10 +11,10 @@ The main flow is:
 1. Load and validate JSON input.
 2. Build an internal game state.
 3. Apply information-policy checks.
-4. Analyze legal card choices.
-5. Estimate expected point swings.
-6. Build card recommendations.
-7. Optionally run multi-step simulation or policy comparison.
+4. If the normalized current actor is the local player, analyze legal card choices.
+5. Estimate expected point swings for available local decisions.
+6. Build card recommendations or an unavailable Immediate Analysis shape.
+7. Optionally run phase-aware multi-step simulation or policy comparison.
 8. Build game-result, settlement, performance-rating, and post-game review summaries.
 9. Serialize output for CLI and JSON use.
 
@@ -43,6 +43,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/input_validation.py`   | Validates input fields, cards, metadata, points, game-end consistency, policy settings, and rating-system metadata. |
 | `src/skat_ai/known_cards.py`        | Tracks and validates known cards.                                                                                   |
 | `src/skat_ai/information_policy.py` | Centralizes live-vs-post-game information rules and builds `information_policy_summary`.                            |
+| `src/skat_ai/turn_phase.py`         | Normalizes and validates canonical `trick_leader` and `next_player` from the current trick length.                  |
 
 Validation is split between JSON Schema and Python validation:
 
@@ -93,6 +94,16 @@ Claim and concession handling assigns remaining card points according to `game_e
 | `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
 
 The simulation layer is probabilistic and heuristic. It is designed for analysis support, not for perfect-information solving.
+
+Immediate Analysis is available only when the normalized input state has
+`next_player = "me"` and the game has not ended. Opponent-turn input keeps the
+top-level position unchanged and returns an unavailable Immediate Analysis shape.
+
+Multi-step simulation uses the normalized turn phase, not `next_player` alone.
+It can prepare an empty left lead through right response, an empty right lead,
+or right's response to an existing one-card left lead. Valid phases where the
+local player has already acted and only opponents remain stop with
+`unsupported_turn_phase` without mutating the state.
 
 ## Opponent modeling
 
@@ -162,9 +173,10 @@ lead-only policy sources do not. When the sparse map is absent, immediate analys
 multi-step candidate completion keep the legacy basic or random opponent response
 behavior selected by `use_basic_opponent_strategy`.
 
-Immediate candidate analysis does not simulate an opponent lead. It starts with the
-local candidate card and applies the activated response map only to the remaining
-acting opponents. Multi-step opponent-turn preparation uses the effective left/right
+Immediate candidate analysis does not simulate an opponent lead and only runs for
+local-action phases. It starts with the local candidate card and applies the
+activated response map only to the remaining acting opponents. Multi-step
+opponent-turn preparation uses the effective left/right
 lead and response settings. Multi-step candidate completion and policy comparison
 receive the same activated response map as immediate analysis.
 
@@ -181,7 +193,7 @@ receive the same activated response map as immediate analysis.
 | `src/skat_ai/analysis_metadata.py`  | Analysis-mode and metadata handling.        |
 | `src/skat_ai/strategic_metadata.py` | Strategic metadata helpers.                 |
 
-The analysis report is the basis for recommendations, post-game comparison, and several CLI/JSON summaries.
+The analysis report is the basis for recommendations, post-game comparison, and several CLI/JSON summaries when a local decision is available. Opponent-turn and ended-game positions intentionally use an empty report.
 
 ## Post-game review
 
@@ -189,7 +201,7 @@ The analysis report is the basis for recommendations, post-game comparison, and 
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `src/skat_ai/post_game_review.py` | Actual-card comparison, decision quality classification, decision factors, explanation text, and recommendation gap details. |
 
-Post-game review uses the regular analysis report and optionally compares it with `actual_card_played`.
+Post-game review uses the regular analysis report and optionally compares it with `actual_card_played`. If Immediate Analysis is unavailable because there is no current local decision, post-game review returns an unavailable summary instead of comparing against an empty report.
 
 Current post-game review output includes:
 

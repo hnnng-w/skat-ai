@@ -10,6 +10,7 @@ from skat_ai.opponent_lead import (
     is_partner_currently_winning_for_response,
     simulate_left_lead_and_right_response_once,
     simulate_opponent_lead_once,
+    simulate_right_response_to_left_lead_once,
 )
 
 
@@ -479,6 +480,124 @@ def test_simulate_left_lead_and_right_response_once_returns_expected_keys() -> N
         "response_card",
         "next_state",
     }
+
+
+def test_simulate_right_response_to_left_lead_once_returns_expected_keys() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    result = simulate_right_response_to_left_lead_once(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+
+    assert set(result.keys()) == {
+        "leader",
+        "lead_card",
+        "responder",
+        "response_card",
+        "next_state",
+    }
+
+
+def test_simulate_right_response_to_left_lead_once_preserves_existing_lead() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    result = simulate_right_response_to_left_lead_once(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+    next_state = result["next_state"]
+
+    assert result["leader"] == "left"
+    assert result["lead_card"] == "D7"
+    assert result["responder"] == "right"
+    assert next_state.current_trick[0] == "D7"
+    assert len(next_state.current_trick) == 2
+    assert next_state.trick_leader == "left"
+    assert next_state.next_player == "me"
+    assert state.current_trick == ["D7"]
+
+
+def test_simulate_right_response_to_left_lead_once_uses_response_policy(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(**_kwargs):
+        return ["C7"], ["D9", "DA"]
+
+    monkeypatch.setattr(
+        "skat_ai.opponent_lead.generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    result = simulate_right_response_to_left_lead_once(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=2,
+        random_generator=random.Random(42),
+        opponent_response_policy="highest_point",
+    )
+
+    assert result["response_card"] == "DA"
+
+
+def test_simulate_right_response_to_left_lead_once_is_reproducible_with_seed() -> None:
+    first_state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+    second_state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA", "S10"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    first_result = simulate_right_response_to_left_lead_once(
+        state=first_state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+    second_result = simulate_right_response_to_left_lead_once(
+        state=second_state,
+        left_hand_size=5,
+        right_hand_size=5,
+        random_generator=random.Random(42),
+    )
+
+    assert first_result == second_result
 
 
 def test_simulate_left_lead_and_right_response_once_prepares_player_action() -> None:

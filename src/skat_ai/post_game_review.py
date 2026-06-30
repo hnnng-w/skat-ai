@@ -5,6 +5,7 @@ OPTIMAL_DECISION_QUALITY = "optimal"
 ACCEPTABLE_DECISION_QUALITY = "acceptable"
 SUBOPTIMAL_DECISION_QUALITY = "suboptimal"
 MISTAKE_DECISION_QUALITY = "mistake"
+IMMEDIATE_ANALYSIS_UNAVAILABLE_REASON = "immediate_analysis_unavailable"
 
 
 def classify_decision_quality(expected_point_swing_difference: float) -> str:
@@ -81,6 +82,16 @@ def build_post_game_review_summary(
     analysis_report: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Builds a post-game review summary for the actual card played."""
+    if not analysis_report:
+        return build_unavailable_post_game_review_summary(
+            reason=IMMEDIATE_ANALYSIS_UNAVAILABLE_REASON,
+            actual_card_played=actual_card_played,
+            decision_explanation=(
+                "No post-game review decision quality is available because "
+                "immediate analysis is unavailable."
+            ),
+        )
+
     recommended_row = get_recommended_report_row(analysis_report)
     recommended_card = recommended_row["card"]
     recommended_expected_point_swing = recommended_row["expected_point_swing"]
@@ -159,6 +170,36 @@ def build_post_game_review_summary(
         "recommended_card_rank": recommended_card_rank,
         "candidate_count": candidate_count,
         "better_card_count": better_card_count,
+    }
+
+
+def build_unavailable_post_game_review_summary(
+    reason: str,
+    actual_card_played: str | None = None,
+    decision_explanation: str | None = None,
+) -> dict[str, Any]:
+    """Builds the stable unavailable post-game review shape."""
+    if decision_explanation is None:
+        decision_explanation = (
+            "No post-game review decision quality is available because "
+            "immediate analysis is unavailable."
+        )
+
+    return {
+        "is_available": False,
+        "reason": reason,
+        "actual_card_played": actual_card_played,
+        "recommended_card": None,
+        "actual_expected_point_swing": None,
+        "recommended_expected_point_swing": None,
+        "expected_point_swing_difference": None,
+        "decision_quality": NOT_AVAILABLE_DECISION_QUALITY,
+        "decision_factors": [reason],
+        "decision_explanation": decision_explanation,
+        "actual_card_rank": None,
+        "recommended_card_rank": None,
+        "candidate_count": 0,
+        "better_card_count": None,
     }
 
 

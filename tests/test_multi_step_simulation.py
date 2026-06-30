@@ -61,6 +61,8 @@ def test_simulate_multiple_steps_returns_expected_keys() -> None:
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     result = simulate_multiple_steps(
@@ -120,6 +122,8 @@ def test_simulate_multiple_steps_stops_when_hand_is_empty() -> None:
         player_role="declarer",
         hand=["SA"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     result = simulate_multiple_steps(
@@ -188,6 +192,8 @@ def test_simulate_multiple_steps_does_not_mutate_initial_state() -> None:
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
         completed_tricks=[],
     )
 
@@ -214,6 +220,8 @@ def test_simulate_multiple_steps_is_reproducible_with_seed() -> None:
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     second_state = GameState(
@@ -221,6 +229,8 @@ def test_simulate_multiple_steps_is_reproducible_with_seed() -> None:
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     first_result = simulate_multiple_steps(
@@ -250,6 +260,8 @@ def test_simulate_multiple_steps_rejects_zero_steps() -> None:
         player_role="declarer",
         hand=["SA"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     try:
@@ -273,6 +285,8 @@ def test_simulate_multiple_steps_uses_default_card_selection_policy() -> None:
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     result = simulate_multiple_steps(
@@ -294,6 +308,8 @@ def test_simulate_multiple_steps_supports_lowest_point_policy() -> None:
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     result = simulate_multiple_steps(
@@ -316,6 +332,8 @@ def test_simulate_multiple_steps_supports_highest_point_policy() -> None:
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     result = simulate_multiple_steps(
@@ -338,6 +356,8 @@ def test_simulate_multiple_steps_rejects_invalid_card_selection_policy() -> None
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     try:
@@ -362,6 +382,8 @@ def test_simulate_multiple_steps_supports_highest_expected_value_policy() -> Non
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     result = simulate_multiple_steps(
@@ -386,6 +408,8 @@ def test_simulate_multiple_steps_highest_expected_value_is_reproducible_with_see
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     second_state = GameState(
@@ -393,6 +417,8 @@ def test_simulate_multiple_steps_highest_expected_value_is_reproducible_with_see
         player_role="declarer",
         hand=["SA", "S10", "S9", "H10", "D7"],
         current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
     )
 
     first_result = simulate_multiple_steps(
@@ -420,16 +446,17 @@ def test_simulate_multiple_steps_highest_expected_value_is_reproducible_with_see
     assert first_result == second_result
 
 
-def test_should_continue_multi_step_simulation_allows_first_step() -> None:
+def test_should_continue_multi_step_simulation_rejects_unsupported_first_step() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
         hand=["SA"],
         current_trick=["S7"],
+        trick_leader="me",
         next_player="left",
     )
 
-    assert should_continue_multi_step_simulation(state, step_index=0) is True
+    assert should_continue_multi_step_simulation(state, step_index=0) is False
 
 
 def test_should_continue_multi_step_simulation_allows_later_step_when_next_player_is_me() -> None:
@@ -450,6 +477,7 @@ def test_should_continue_multi_step_allows_right_next_player() -> None:
         player_role="declarer",
         hand=["SA"],
         current_trick=[],
+        trick_leader="right",
         next_player="right",
     )
 
@@ -674,6 +702,7 @@ def test_should_continue_multi_step_allows_left_next_player() -> None:
         player_role="declarer",
         hand=["SA"],
         current_trick=[],
+        trick_leader="left",
         next_player="left",
     )
 
@@ -686,6 +715,7 @@ def test_get_multi_step_stop_reason_returns_none_when_left_is_next_player() -> N
         player_role="declarer",
         hand=["SA"],
         current_trick=[],
+        trick_leader="left",
         next_player="left",
     )
 
@@ -1117,3 +1147,287 @@ def test_simulate_multiple_steps_returns_opponent_policy_settings() -> None:
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "basic_trick_play",
     }
+
+
+def test_simulate_multiple_steps_preserves_local_lead_state_before_candidate() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        trick_leader="me",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+
+    assert result["steps"][0]["prepared_state"] == state
+
+
+def test_simulate_multiple_steps_preserves_local_second_hand_state_before_candidate() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7"],
+        trick_leader="right",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+
+    assert result["steps"][0]["prepared_state"] == state
+
+
+def test_simulate_multiple_steps_preserves_local_third_hand_state_before_candidate() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7", "S8"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+
+    assert result["steps"][0]["prepared_state"] == state
+
+
+def test_simulate_multiple_steps_prepares_right_response_to_existing_left_lead(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["C7"], ["D9", "DA"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=2,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+        right_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "highest_point",
+        },
+    )
+    step = result["steps"][0]
+
+    assert step["opponent_lead_result"]["leader"] == "left"
+    assert step["opponent_lead_result"]["lead_card"] == "D7"
+    assert step["opponent_lead_result"]["responder"] == "right"
+    assert step["opponent_lead_result"]["response_card"] == "DA"
+    assert step["prepared_state"].current_trick == ["D7", "DA"]
+    assert step["prepared_state"].next_player == "me"
+    assert state.current_trick == ["D7"]
+
+
+def test_simulate_multiple_steps_existing_left_lead_response_is_reproducible() -> None:
+    first_state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+    second_state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    first_result = simulate_multiple_steps(
+        state=first_state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+        opponent_response_policy="random_legal",
+    )
+    second_result = simulate_multiple_steps(
+        state=second_state,
+        left_hand_size=5,
+        right_hand_size=5,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+        opponent_response_policy="random_legal",
+    )
+
+    assert first_result == second_result
+
+
+def test_get_multi_step_stop_reason_rejects_unsupported_first_step() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7"],
+        trick_leader="me",
+        next_player="left",
+    )
+
+    reason = get_multi_step_stop_reason(
+        current_state=state,
+        step_index=0,
+    )
+
+    assert reason == "unsupported_turn_phase"
+
+
+def test_get_multi_step_stop_reason_stops_terminal_state() -> None:
+    metadata = StrategicMetadata(
+        analysis_mode="post_game_review",
+        skat_visibility="unknown",
+        game_end_reason="normal_completion",
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=[],
+        trick_leader="me",
+        next_player="me",
+    )
+
+    reason = get_multi_step_stop_reason(
+        current_state=state,
+        step_index=0,
+        strategic_metadata=metadata,
+    )
+
+    assert reason == "Game is already complete."
+
+
+def test_simulate_multiple_steps_unsupported_phase_does_not_run_candidate_simulation(
+    monkeypatch,
+) -> None:
+    def fail_choose_card_by_policy(**_kwargs):
+        raise AssertionError("candidate simulation should not run")
+
+    monkeypatch.setattr(
+        "skat_ai.multi_step_simulation.choose_card_by_policy",
+        fail_choose_card_by_policy,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["SA"],
+        current_trick=["S7"],
+        trick_leader="me",
+        next_player="left",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        step_count=1,
+        random_seed=42,
+    )
+
+    assert result["steps_simulated"] == 0
+    assert result["stop_reason"] == "unsupported_turn_phase"
+    assert result["steps"] == []
+    assert result["final_state"] == state
+    assert state.current_trick == ["S7"]
+
+
+def test_simulate_multiple_steps_unsupported_valid_phases_stop_without_mutation(
+    monkeypatch,
+) -> None:
+    def fail_choose_card_by_policy(**_kwargs):
+        raise AssertionError("candidate simulation should not run")
+
+    monkeypatch.setattr(
+        "skat_ai.multi_step_simulation.choose_card_by_policy",
+        fail_choose_card_by_policy,
+    )
+    unsupported_states = [
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7"],
+            trick_leader="me",
+            next_player="left",
+        ),
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7", "S8"],
+            trick_leader="me",
+            next_player="right",
+        ),
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7", "S8"],
+            trick_leader="right",
+            next_player="left",
+        ),
+    ]
+
+    for state in unsupported_states:
+        original_current_trick = state.current_trick.copy()
+        result = simulate_multiple_steps(
+            state=state,
+            left_hand_size=1,
+            right_hand_size=1,
+            step_count=1,
+            random_seed=42,
+        )
+
+        assert result["steps_simulated"] == 0
+        assert result["stop_reason"] == "unsupported_turn_phase"
+        assert result["final_state"] == state
+        assert state.current_trick == original_current_trick

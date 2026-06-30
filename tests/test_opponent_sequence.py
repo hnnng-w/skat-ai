@@ -6,19 +6,107 @@ from skat_ai.opponent_sequence import (
     can_prepare_player_action,
     extract_opponent_sequence_cards,
     get_unsupported_next_player_reason,
+    get_unsupported_turn_phase_reason,
     prepare_player_action_state,
 )
 
 
-def test_can_prepare_player_action_supports_known_values() -> None:
-    assert can_prepare_player_action("me") is True
-    assert can_prepare_player_action("unknown") is True
-    assert can_prepare_player_action("right") is True
-    assert can_prepare_player_action("left") is True
+def test_can_prepare_player_action_supports_local_action_phases() -> None:
+    assert can_prepare_player_action(
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=[],
+            trick_leader="me",
+            next_player="me",
+        )
+    ) is True
+    assert can_prepare_player_action(
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7"],
+            trick_leader="right",
+            next_player="me",
+        )
+    ) is True
+    assert can_prepare_player_action(
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7", "S8"],
+            trick_leader="left",
+            next_player="me",
+        )
+    ) is True
 
 
-def test_can_prepare_player_action_rejects_invalid_value() -> None:
-    assert can_prepare_player_action("dealer") is False
+def test_can_prepare_player_action_supports_opponent_preparation_phases() -> None:
+    assert can_prepare_player_action(
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=[],
+            trick_leader="left",
+            next_player="left",
+        )
+    ) is True
+    assert can_prepare_player_action(
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=[],
+            trick_leader="right",
+            next_player="right",
+        )
+    ) is True
+    assert can_prepare_player_action(
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7"],
+            trick_leader="left",
+            next_player="right",
+        )
+    ) is True
+
+
+def test_can_prepare_player_action_rejects_unsupported_valid_phases() -> None:
+    unsupported_states = [
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7"],
+            trick_leader="me",
+            next_player="left",
+        ),
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7", "S8"],
+            trick_leader="me",
+            next_player="right",
+        ),
+        GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7", "S8"],
+            trick_leader="right",
+            next_player="left",
+        ),
+    ]
+
+    for state in unsupported_states:
+        assert can_prepare_player_action(state) is False
 
 
 def test_get_unsupported_next_player_reason() -> None:
@@ -47,7 +135,7 @@ def test_prepare_player_action_state_returns_state_when_next_player_is_me() -> N
     assert opponent_sequence_result is None
 
 
-def test_prepare_player_action_state_returns_state_when_next_player_is_unknown() -> None:
+def test_prepare_player_action_state_rejects_unknown_phase() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
@@ -56,15 +144,17 @@ def test_prepare_player_action_state_returns_state_when_next_player_is_unknown()
         next_player="unknown",
     )
 
-    prepared_state, opponent_sequence_result = prepare_player_action_state(
-        current_state=state,
-        left_hand_size=5,
-        right_hand_size=5,
-        random_generator=random.Random(42),
-    )
-
-    assert prepared_state == state
-    assert opponent_sequence_result is None
+    try:
+        prepare_player_action_state(
+            current_state=state,
+            left_hand_size=5,
+            right_hand_size=5,
+            random_generator=random.Random(42),
+        )
+    except ValueError as error:
+        assert str(error) == get_unsupported_turn_phase_reason()
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
 
 
 def test_prepare_player_action_state_simulates_right_lead() -> None:
@@ -73,6 +163,7 @@ def test_prepare_player_action_state_simulates_right_lead() -> None:
         player_role="declarer",
         hand=["SA", "S10"],
         current_trick=[],
+        trick_leader="right",
         next_player="right",
     )
 
@@ -96,6 +187,7 @@ def test_prepare_player_action_state_simulates_left_lead_and_right_response() ->
         player_role="declarer",
         hand=["SA", "S10"],
         current_trick=[],
+        trick_leader="left",
         next_player="left",
     )
 
@@ -132,7 +224,7 @@ def test_prepare_player_action_state_does_not_overwrite_non_empty_trick() -> Non
             random_generator=random.Random(42),
         )
     except ValueError as error:
-        assert "empty current_trick" in str(error)
+        assert str(error) == get_unsupported_turn_phase_reason()
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
@@ -154,7 +246,7 @@ def test_prepare_player_action_state_rejects_unsupported_next_player() -> None:
             random_generator=random.Random(42),
         )
     except ValueError as error:
-        assert "Next player is dealer, not supported." in str(error)
+        assert "Invalid next_player" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
 

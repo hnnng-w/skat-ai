@@ -23,6 +23,8 @@ Implemented:
 
 * Immediate trick simulation
 * Multi-step simulation
+* Canonical turn-phase enforcement for Immediate and Multi-Step analysis
+* Opponent-turn Multi-Step preparation for supported left/right lead and response phases
 * Simulation context tracking
 * Strict simulation context checks
 * Policy comparison across card-selection strategies
@@ -139,6 +141,7 @@ Implemented:
   * `candidate_count`
   * `better_card_count`
 * Human-readable CLI output for post-game review summaries
+* Unavailable post-game review shape when Immediate Analysis is unavailable
 
 ### Validation and documentation
 
@@ -163,6 +166,7 @@ Implemented:
 * Claim and concession handling assigns remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * The engine does not yet model player agreement or disputes around claim/concession.
+* Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Null-game overbid detection is supported, but settlement scoring remains conservative when no `required_game_value` is available.
 * Matador inference uses currently known declarer cards from hand and skat context; it does not yet reconstruct all possible matador information from complete historical trick ownership in every scenario.
 

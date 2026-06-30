@@ -176,6 +176,28 @@ def is_partner_currently_winning_for_response(
     return leader_side == "defenders" and responder_side == "defenders"
 
 
+def choose_right_response_to_left_lead_card(
+    state: GameState,
+    right_hand: list[str],
+    random_generator: random.Random,
+    opponent_response_policy: str,
+) -> str:
+    """Chooses right's response after left has led the current trick."""
+    return choose_opponent_response_card_by_policy(
+        hand=right_hand,
+        current_trick=state.current_trick,
+        game_type=state.game_type,
+        player_index=1,
+        policy=opponent_response_policy,
+        random_generator=random_generator,
+        partner_currently_winning=is_partner_currently_winning_for_response(
+            state=state,
+            leader="left",
+            responder="right",
+        ),
+    )
+
+
 def simulate_opponent_lead_once(
     state: GameState,
     left_hand_size: int,
@@ -283,18 +305,11 @@ def simulate_left_lead_and_right_response_once(
         leader="left",
     )
 
-    response_card = choose_opponent_response_card_by_policy(
-        hand=right_hand,
-        current_trick=state_after_left_lead.current_trick,
-        game_type=state.game_type,
-        player_index=1,
-        policy=opponent_response_policy,
+    response_card = choose_right_response_to_left_lead_card(
+        state=state_after_left_lead,
+        right_hand=right_hand,
         random_generator=rng,
-        partner_currently_winning=is_partner_currently_winning_for_response(
-            state=state,
-            leader="left",
-            responder="right",
-        ),
+        opponent_response_policy=opponent_response_policy,
     )
 
     next_state = build_state_after_opponent_second_hand_play(
@@ -306,6 +321,62 @@ def simulate_left_lead_and_right_response_once(
     return {
         "leader": "left",
         "lead_card": lead_card,
+        "responder": "right",
+        "response_card": response_card,
+        "next_state": next_state,
+    }
+
+
+def simulate_right_response_to_left_lead_once(
+    state: GameState,
+    left_hand_size: int,
+    right_hand_size: int,
+    random_generator: random.Random | None = None,
+    opponent_response_policy: str = "lowest_point",
+) -> dict[str, Any]:
+    """
+    Simulates only right's response after an existing left lead.
+
+    This preserves the original lead card and prepares a state where the local
+    player can act third.
+    """
+    if len(state.current_trick) != 1:
+        raise ValueError("Right response sequence requires exactly one current_trick card.")
+
+    phase = normalize_turn_phase(
+        trick_leader=state.trick_leader,
+        next_player=state.next_player,
+        current_trick_length=len(state.current_trick),
+    )
+
+    if phase.trick_leader != "left" or phase.next_player != "right":
+        raise ValueError("Right response sequence requires left lead and right next.")
+
+    rng = random_generator or random
+
+    _, right_hand = generate_random_opponent_hands(
+        state=state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        random_generator=rng,
+    )
+
+    response_card = choose_right_response_to_left_lead_card(
+        state=state,
+        right_hand=right_hand,
+        random_generator=rng,
+        opponent_response_policy=opponent_response_policy,
+    )
+
+    next_state = build_state_after_opponent_second_hand_play(
+        state=state,
+        response_card=response_card,
+        responder="right",
+    )
+
+    return {
+        "leader": "left",
+        "lead_card": state.current_trick[0],
         "responder": "right",
         "response_card": response_card,
         "next_state": next_state,

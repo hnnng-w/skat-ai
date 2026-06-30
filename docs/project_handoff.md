@@ -98,6 +98,9 @@ Implemented:
 * strict simulation context checks
 * policy comparison
 * result serialization
+* canonical turn-phase-aware opponent preparation
+* supported preparation for empty left lead, empty right lead, and right response to an existing left lead
+* deterministic `unsupported_turn_phase` stops for valid phases that do not prepare a current local decision
 
 ### Game history and scoring
 
@@ -255,6 +258,7 @@ Implemented:
 * decision explanation
 * card-rank gap details
 * CLI output for post-game review summaries
+* unavailable summary when Immediate Analysis is unavailable because there is no current local decision
 
 Current output fields include:
 

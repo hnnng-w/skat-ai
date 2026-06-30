@@ -7,7 +7,7 @@ from skat_ai.multi_step_summary import build_multi_step_summary
 from skat_ai.opponent_sequence import (
     can_prepare_player_action,
     extract_opponent_sequence_cards,
-    get_unsupported_next_player_reason,
+    get_unsupported_turn_phase_reason,
     prepare_player_action_state,
 )
 from skat_ai.simulation_context import (
@@ -29,19 +29,18 @@ def should_continue_multi_step_simulation(
     """
     Determines whether the multi-step simulation should continue.
 
-    The first step is always allowed for backward compatibility.
-    Later steps continue only if the engine can prepare a state where
-    the player can act.
+    A step continues only if the engine can either act locally now or prepare
+    a supported opponent sequence that reaches a local action.
     """
-    if step_index == 0:
-        return True
+    _ = step_index
 
-    return can_prepare_player_action(current_state.next_player)
+    return can_prepare_player_action(current_state)
 
 
 def get_multi_step_stop_reason(
     current_state: GameState,
     step_index: int,
+    strategic_metadata: StrategicMetadata | None = None,
 ) -> str | None:
     """
     Returns a human-readable stop reason if simulation should stop.
@@ -49,8 +48,16 @@ def get_multi_step_stop_reason(
     if current_state.hand == []:
         return "Player has no cards left."
 
-    if step_index > 0 and not can_prepare_player_action(current_state.next_player):
-        return get_unsupported_next_player_reason(current_state.next_player)
+    if (
+        strategic_metadata is not None
+        and strategic_metadata.game_end_reason != "not_ended"
+    ):
+        return "Game is already complete."
+
+    _ = step_index
+
+    if not can_prepare_player_action(current_state):
+        return get_unsupported_turn_phase_reason()
 
     return None
 
@@ -148,6 +155,7 @@ def simulate_multiple_steps(
         stop_reason = get_multi_step_stop_reason(
             current_state=current_state,
             step_index=step_index,
+            strategic_metadata=strategic_metadata,
         )
 
         if stop_reason is not None:
@@ -157,7 +165,7 @@ def simulate_multiple_steps(
             current_state=current_state,
             step_index=step_index,
         ):
-            stop_reason = f"Next player is {current_state.next_player}, not supported."
+            stop_reason = get_unsupported_turn_phase_reason()
             break
 
         sampling_state = apply_context_to_state_for_sampling(
@@ -200,6 +208,7 @@ def simulate_multiple_steps(
         step = {
             "step_index": step_index,
             "opponent_lead_result": opponent_lead_result,
+            "prepared_state": prepared_state,
             "candidate_card": candidate_card,
             "card_selection_policy": card_selection_policy,
             "detailed_result": step_result["detailed_result"],

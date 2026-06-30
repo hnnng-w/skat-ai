@@ -137,6 +137,24 @@ current trick. A missing or `unknown` current `trick_leader` is normalized to
 that winner. A conflicting concrete `trick_leader` is rejected. Side-only
 `winner_role` values never determine a concrete leader or next player.
 
+Immediate Analysis is available only for normalized local-action positions where
+`next_player` is `me` and the game has not ended. If the normalized current actor
+is `left` or `right`, the input remains valid when the phase is canonical, but
+Immediate Analysis returns an unavailable recommendation instead of analyzing a
+nonexistent local decision.
+
+Multi-Step can prepare these opponent-turn phases until the local player is next:
+
+| Starting phase | Preparation |
+| -------------- | ----------- |
+| `trick_leader = left`, empty `current_trick`, `next_player = left` | Simulate left lead and right response. |
+| `trick_leader = right`, empty `current_trick`, `next_player = right` | Simulate right lead. |
+| `trick_leader = left`, one-card `current_trick`, `next_player = right` | Preserve the lead card and simulate only right's response. |
+
+Valid phases where the local player has already acted and only an opponent action
+remains are not automatically completed. Multi-Step stops with
+`unsupported_turn_phase` and leaves the state unchanged for those phases.
+
 ## Declarer identity
 
 `player_role` describes the local player's side. `declarer_player` identifies the concrete player who declared the game.

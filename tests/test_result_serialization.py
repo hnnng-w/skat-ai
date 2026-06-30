@@ -57,6 +57,14 @@ def test_build_serializable_multi_step_step_without_opponent_sequence() -> None:
     step = {
         "step_index": 0,
         "opponent_lead_result": None,
+        "prepared_state": GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["S7"],
+            trick_leader="right",
+            next_player="me",
+        ),
         "candidate_card": "SA",
         "card_selection_policy": "highest_point",
         "detailed_result": {
@@ -81,6 +89,21 @@ def test_build_serializable_multi_step_step_without_opponent_sequence() -> None:
     assert result == {
         "step_index": 0,
         "opponent_lead_result": None,
+        "prepared_state": {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "hand": ["SA"],
+            "current_trick": ["S7"],
+            "played_cards": [],
+            "skat": [],
+            "player_position": "unknown",
+            "declarer_player": "unknown",
+            "trick_leader": "right",
+            "completed_tricks": [],
+            "declarer_points": 0,
+            "defender_points": 0,
+            "next_player": "me",
+        },
         "candidate_card": "SA",
         "card_selection_policy": "highest_point",
         "detailed_result": {
@@ -110,6 +133,14 @@ def test_build_serializable_multi_step_step_with_opponent_sequence() -> None:
                 current_trick=["D7", "D9"],
             ),
         },
+        "prepared_state": GameState(
+            game_type="grand",
+            player_role="declarer",
+            hand=["SA"],
+            current_trick=["D7", "D9"],
+            trick_leader="left",
+            next_player="me",
+        ),
         "candidate_card": "DA",
         "card_selection_policy": "highest_point",
         "detailed_result": {
@@ -172,6 +203,14 @@ def test_build_serializable_multi_step_result() -> None:
             {
                 "step_index": 0,
                 "opponent_lead_result": None,
+                "prepared_state": GameState(
+                    game_type="grand",
+                    player_role="declarer",
+                    hand=["SA"],
+                    current_trick=["S7"],
+                    trick_leader="right",
+                    next_player="me",
+                ),
                 "candidate_card": "SA",
                 "card_selection_policy": "highest_point",
                 "detailed_result": {
@@ -208,6 +247,7 @@ def test_build_serializable_multi_step_result() -> None:
     assert serializable_result["summary"]["score_summary"]["final_point_swing"] == 11
     assert serializable_result["final_state"]["hand"] == ["S10"]
     assert "next_state" not in serializable_result["steps"][0]
+    assert serializable_result["steps"][0]["prepared_state"]["next_player"] == "me"
     assert serializable_result["opponent_policy_settings"] == {
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "basic_trick_play",
