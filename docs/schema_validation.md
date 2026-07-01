@@ -73,7 +73,10 @@ The output schema is located at:
 schemas/output.schema.json
 ```
 
-It validates generated outputs for selected example files.
+It validates generated outputs from an explicit deterministic scenario matrix.
+Each scenario invokes the real CLI and output writer, writes a temporary output
+file, parses that generated file, checks the scenario-specific output branch,
+and validates the result against `schemas/output.schema.json`.
 
 Run:
 
@@ -103,8 +106,20 @@ The output schema checks the main output structure, including:
 * `opponent_policy_settings`
 * `left_opponent_policy_settings`
 * `right_opponent_policy_settings`
+* `profile_preset_settings`
+* `multi_step_result`, when Multi-Step simulation is requested
+* `policy_comparison_result`, when policy comparison is requested
 
-The output schema is intentionally not a fully strict representation of every nested analysis detail.
+Generated-output validation uses deterministic CLI settings such as
+`--samples 20` and `--seed 42`, plus scenario-specific mode arguments where
+needed. It is separate from input-example schema validation: input validation
+checks the example JSON files, while generated-output validation checks the
+production JSON output emitted from those inputs.
+
+The output schema is intentionally not a fully strict representation of every
+nested analysis detail, but stable branch contracts such as
+`post_game_review_summary`, `multi_step_result`, and
+`policy_comparison_result` are explicitly structured.
 
 ## Post-game review schema coverage
 

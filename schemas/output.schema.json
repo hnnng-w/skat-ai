@@ -24,7 +24,8 @@
     "post_game_review_summary",
     "opponent_policy_settings",
     "left_opponent_policy_settings",
-    "right_opponent_policy_settings"
+    "right_opponent_policy_settings",
+    "profile_preset_settings"
   ],
   "properties": {
     "input_file": {
@@ -52,7 +53,7 @@
       "$ref": "#/$defs/opponent_policy_settings"
     },
     "profile_preset_settings": {
-      "type": "object"
+      "$ref": "#/$defs/profile_preset_settings"
     },
     "analysis_metadata": {
       "type": "object",
@@ -107,10 +108,10 @@
       "$ref": "#/$defs/recommendation"
     },
     "multi_step_result": {
-      "type": ["object", "null"]
+      "$ref": "#/$defs/multi_step_result"
     },
     "policy_comparison_result": {
-      "type": ["object", "null"]
+      "$ref": "#/$defs/policy_comparison_result"
     }
   },
   "$defs": {
@@ -137,6 +138,89 @@
     "nullable_boolean": {
       "type": ["boolean", "null"]
     },
+    "non_negative_integer": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "game_type": {
+      "type": "string",
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "player_role": {
+      "type": "string",
+      "enum": ["declarer", "defender", "unknown"]
+    },
+    "player_position": {
+      "type": "string",
+      "enum": ["forehand", "middlehand", "rearhand", "unknown"]
+    },
+    "trick_player": {
+      "type": "string",
+      "enum": ["me", "left", "right", "unknown"]
+    },
+    "winner_role": {
+      "type": "string",
+      "enum": ["declarer", "defenders"]
+    },
+    "opponent_card_policy": {
+      "type": "string",
+      "enum": [
+        "lowest_point",
+        "highest_point",
+        "random_legal",
+        "basic_trick_play",
+        "basic_defender_response",
+        "basic_defender_lead"
+      ]
+    },
+    "card_selection_policy": {
+      "type": "string",
+      "enum": [
+        "first_legal",
+        "lowest_point",
+        "highest_point",
+        "highest_expected_value"
+      ]
+    },
+    "game_end_reason": {
+      "type": "string",
+      "enum": [
+        "not_ended",
+        "normal_completion",
+        "declarer_claimed_remaining_tricks",
+        "declarer_conceded_remaining_tricks",
+        "defenders_conceded_remaining_tricks"
+      ]
+    },
+    "overbid_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "unknown_bid_value",
+        "unknown_game_value",
+        "not_overbid",
+        "overbid"
+      ]
+    },
+    "multi_step_stop_reason": {
+      "type": "string",
+      "enum": [
+        "Player has no cards left.",
+        "Game is already complete.",
+        "Requested step count reached.",
+        "unsupported_turn_phase"
+      ]
+    },
+    "profile_preset_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["use_profile_presets"],
+      "properties": {
+        "use_profile_presets": {
+          "type": "boolean"
+        }
+      }
+    },
     "game_declaration": {
       "type": "object",
       "additionalProperties": true,
@@ -151,8 +235,7 @@
       ],
       "properties": {
         "game_type": {
-          "type": "string",
-          "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+          "$ref": "#/$defs/game_type"
         },
         "hand_game": {
           "type": "boolean"
@@ -185,10 +268,10 @@
       ],
       "properties": {
         "opponent_lead_policy": {
-          "type": "string"
+          "$ref": "#/$defs/opponent_card_policy"
         },
         "opponent_response_policy": {
-          "type": "string"
+          "$ref": "#/$defs/opponent_card_policy"
         }
       }
     },
@@ -205,8 +288,7 @@
       ],
       "properties": {
         "game_type": {
-          "type": "string",
-          "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+          "$ref": "#/$defs/game_type"
         },
         "is_null_game": {
           "type": "boolean"
@@ -253,14 +335,7 @@
           "$ref": "#/$defs/nullable_integer"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "unknown",
-            "unknown_bid_value",
-            "unknown_game_value",
-            "not_overbid",
-            "overbid"
-          ]
+          "$ref": "#/$defs/overbid_status"
         }
       }
     },
@@ -392,10 +467,11 @@
           "enum": ["declarer", "defenders", "undecided"]
         },
         "game_end_reason": {
-          "type": "string"
+          "$ref": "#/$defs/game_end_reason"
         },
         "remaining_points_recipient": {
-          "type": ["string", "null"]
+          "type": ["string", "null"],
+          "enum": ["declarer", "defenders", null]
         },
         "remaining_points_assigned": {
           "type": "integer"
@@ -459,7 +535,7 @@
           "$ref": "#/$defs/nullable_integer"
         },
         "overbid_status": {
-          "type": "string"
+          "$ref": "#/$defs/overbid_status"
         },
         "overbid_required_game_value": {
           "$ref": "#/$defs/nullable_integer"
@@ -629,7 +705,7 @@
           "enum": ["unknown", "known_post_game"]
         },
         "game_end_reason": {
-          "type": "string"
+          "$ref": "#/$defs/game_end_reason"
         },
         "live_information_enforced": {
           "type": "boolean"
@@ -740,6 +816,530 @@
         "better_card_count": {
           "type": ["integer", "null"],
           "minimum": 0
+        }
+      }
+    },
+    "completed_trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cards", "winner_role"],
+      "properties": {
+        "cards": {
+          "$ref": "#/$defs/card_array",
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "players": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trick_player"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "winner_role": {
+          "$ref": "#/$defs/winner_role"
+        },
+        "winner_player": {
+          "$ref": "#/$defs/trick_player"
+        }
+      }
+    },
+    "game_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_type",
+        "player_role",
+        "hand",
+        "current_trick",
+        "played_cards",
+        "skat",
+        "player_position",
+        "declarer_player",
+        "trick_leader",
+        "completed_tricks",
+        "declarer_points",
+        "defender_points",
+        "next_player"
+      ],
+      "properties": {
+        "game_type": {
+          "$ref": "#/$defs/game_type"
+        },
+        "player_role": {
+          "$ref": "#/$defs/player_role"
+        },
+        "hand": {
+          "$ref": "#/$defs/card_array"
+        },
+        "current_trick": {
+          "$ref": "#/$defs/card_array",
+          "maxItems": 2
+        },
+        "played_cards": {
+          "$ref": "#/$defs/card_array"
+        },
+        "skat": {
+          "$ref": "#/$defs/card_array",
+          "maxItems": 2
+        },
+        "player_position": {
+          "$ref": "#/$defs/player_position"
+        },
+        "declarer_player": {
+          "$ref": "#/$defs/player"
+        },
+        "trick_leader": {
+          "$ref": "#/$defs/player"
+        },
+        "completed_tricks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/completed_trick"
+          }
+        },
+        "declarer_points": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "defender_points": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "next_player": {
+          "$ref": "#/$defs/player"
+        }
+      }
+    },
+    "opponent_sequence_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["leader", "lead_card", "responder", "response_card"],
+      "properties": {
+        "leader": {
+          "type": ["string", "null"],
+          "enum": ["left", "right", null]
+        },
+        "lead_card": {
+          "type": ["string", "null"],
+          "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+        },
+        "responder": {
+          "type": ["string", "null"],
+          "enum": ["left", "right", null]
+        },
+        "response_card": {
+          "type": ["string", "null"],
+          "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+        }
+      }
+    },
+    "context_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "simulated_opponent_card_count",
+        "unique_simulated_opponent_card_count",
+        "duplicate_simulated_opponent_cards",
+        "event_count",
+        "strategic_metadata"
+      ],
+      "properties": {
+        "simulated_opponent_card_count": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "unique_simulated_opponent_card_count": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "duplicate_simulated_opponent_cards": {
+          "$ref": "#/$defs/card_array"
+        },
+        "event_count": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "strategic_metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["analysis_mode", "skat_visibility", "game_end_reason"],
+          "properties": {
+            "analysis_mode": {
+              "type": "string",
+              "enum": ["live_decision", "post_game_review"]
+            },
+            "skat_visibility": {
+              "type": "string",
+              "enum": ["unknown", "known_post_game"]
+            },
+            "game_end_reason": {
+              "$ref": "#/$defs/game_end_reason"
+            }
+          }
+        }
+      }
+    },
+    "multi_step_score_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial_declarer_points",
+        "initial_defender_points",
+        "final_declarer_points",
+        "final_defender_points",
+        "declarer_points_gained",
+        "defender_points_gained",
+        "final_point_swing",
+        "local_point_swing"
+      ],
+      "properties": {
+        "initial_declarer_points": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "initial_defender_points": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "final_declarer_points": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "final_defender_points": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "declarer_points_gained": {
+          "type": "integer"
+        },
+        "defender_points_gained": {
+          "type": "integer"
+        },
+        "final_point_swing": {
+          "type": "integer"
+        },
+        "local_point_swing": {
+          "type": "integer"
+        }
+      }
+    },
+    "multi_step_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested_step_count",
+        "steps_simulated",
+        "stop_reason",
+        "card_selection_policy",
+        "strict_context",
+        "score_summary",
+        "context_summary"
+      ],
+      "properties": {
+        "requested_step_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "steps_simulated": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "stop_reason": {
+          "$ref": "#/$defs/multi_step_stop_reason"
+        },
+        "card_selection_policy": {
+          "$ref": "#/$defs/card_selection_policy"
+        },
+        "strict_context": {
+          "type": "boolean"
+        },
+        "score_summary": {
+          "$ref": "#/$defs/multi_step_score_summary"
+        },
+        "context_summary": {
+          "$ref": "#/$defs/context_summary"
+        }
+      }
+    },
+    "multi_step_detailed_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trick",
+        "did_win",
+        "candidate_card_won",
+        "local_side_won",
+        "trick_points",
+        "completed_trick"
+      ],
+      "properties": {
+        "trick": {
+          "$ref": "#/$defs/card_array",
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "did_win": {
+          "type": "boolean"
+        },
+        "candidate_card_won": {
+          "type": "boolean"
+        },
+        "local_side_won": {
+          "type": "boolean"
+        },
+        "trick_points": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "completed_trick": {
+          "$ref": "#/$defs/completed_trick"
+        }
+      }
+    },
+    "multi_step_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_index",
+        "opponent_lead_result",
+        "prepared_state",
+        "candidate_card",
+        "card_selection_policy",
+        "detailed_result"
+      ],
+      "properties": {
+        "step_index": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "opponent_lead_result": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/opponent_sequence_result"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prepared_state": {
+          "$ref": "#/$defs/game_state"
+        },
+        "candidate_card": {
+          "$ref": "#/$defs/card"
+        },
+        "card_selection_policy": {
+          "$ref": "#/$defs/card_selection_policy"
+        },
+        "detailed_result": {
+          "$ref": "#/$defs/multi_step_detailed_result"
+        }
+      }
+    },
+    "nullable_opponent_policy_settings": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/opponent_policy_settings"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "multi_step_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card_selection_policy",
+        "requested_step_count",
+        "steps_simulated",
+        "stop_reason",
+        "strict_context",
+        "opponent_policy_settings",
+        "left_opponent_policy_settings",
+        "right_opponent_policy_settings",
+        "summary",
+        "context_summary",
+        "steps",
+        "final_state"
+      ],
+      "properties": {
+        "card_selection_policy": {
+          "$ref": "#/$defs/card_selection_policy"
+        },
+        "requested_step_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "steps_simulated": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "stop_reason": {
+          "$ref": "#/$defs/multi_step_stop_reason"
+        },
+        "strict_context": {
+          "type": "boolean"
+        },
+        "opponent_policy_settings": {
+          "$ref": "#/$defs/opponent_policy_settings"
+        },
+        "left_opponent_policy_settings": {
+          "$ref": "#/$defs/nullable_opponent_policy_settings"
+        },
+        "right_opponent_policy_settings": {
+          "$ref": "#/$defs/nullable_opponent_policy_settings"
+        },
+        "summary": {
+          "$ref": "#/$defs/multi_step_summary"
+        },
+        "context_summary": {
+          "$ref": "#/$defs/context_summary"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/multi_step_step"
+          }
+        },
+        "final_state": {
+          "$ref": "#/$defs/game_state"
+        }
+      }
+    },
+    "policy_comparison_policy_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "requested_step_count",
+        "steps_simulated",
+        "stop_reason",
+        "strict_context",
+        "declarer_points_gained",
+        "defender_points_gained",
+        "final_point_swing",
+        "local_point_swing",
+        "context_summary"
+      ],
+      "properties": {
+        "policy": {
+          "$ref": "#/$defs/card_selection_policy"
+        },
+        "requested_step_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "steps_simulated": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "stop_reason": {
+          "$ref": "#/$defs/multi_step_stop_reason"
+        },
+        "strict_context": {
+          "type": "boolean"
+        },
+        "declarer_points_gained": {
+          "type": "integer"
+        },
+        "defender_points_gained": {
+          "type": "integer"
+        },
+        "final_point_swing": {
+          "type": "integer"
+        },
+        "local_point_swing": {
+          "type": "integer"
+        },
+        "context_summary": {
+          "$ref": "#/$defs/context_summary"
+        }
+      }
+    },
+    "policy_recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "reason",
+        "final_point_swing",
+        "local_point_swing",
+        "declarer_points_gained",
+        "defender_points_gained",
+        "steps_simulated",
+        "stop_reason"
+      ],
+      "properties": {
+        "policy": {
+          "$ref": "#/$defs/card_selection_policy"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "final_point_swing": {
+          "type": "integer"
+        },
+        "local_point_swing": {
+          "type": "integer"
+        },
+        "declarer_points_gained": {
+          "type": "integer"
+        },
+        "defender_points_gained": {
+          "type": "integer"
+        },
+        "steps_simulated": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "stop_reason": {
+          "$ref": "#/$defs/multi_step_stop_reason"
+        }
+      }
+    },
+    "policy_comparison_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested_step_count",
+        "random_seed",
+        "expected_value_sample_count",
+        "use_basic_opponent_strategy",
+        "strict_context",
+        "opponent_lead_policy",
+        "opponent_response_policy",
+        "policies",
+        "policy_results",
+        "recommended_policy"
+      ],
+      "properties": {
+        "requested_step_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "random_seed": {
+          "type": ["integer", "null"]
+        },
+        "expected_value_sample_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "use_basic_opponent_strategy": {
+          "type": "boolean"
+        },
+        "strict_context": {
+          "type": "boolean"
+        },
+        "opponent_lead_policy": {
+          "$ref": "#/$defs/opponent_card_policy"
+        },
+        "opponent_response_policy": {
+          "$ref": "#/$defs/opponent_card_policy"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/card_selection_policy"
+          },
+          "minItems": 1
+        },
+        "policy_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/policy_comparison_policy_result"
+          },
+          "minItems": 1
+        },
+        "recommended_policy": {
+          "$ref": "#/$defs/policy_recommendation"
         }
       }
     }

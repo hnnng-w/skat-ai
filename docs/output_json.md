@@ -8,7 +8,7 @@ The output JSON schema is available at:
 
 [`schemas/output.schema.json`](../schemas/output.schema.json)
 
-The schema is intended as a documentation and validation aid. It checks the main output structure and important summary fields, but it is intentionally not a fully strict representation of every nested analysis detail.
+The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
 
@@ -21,6 +21,11 @@ The project check script also runs generated-output schema validation:
 ```powershell
 .\scripts\check.ps1
 ```
+
+Generated-output schema validation uses the real CLI and output writer. The
+validator writes temporary output files, parses the generated JSON, validates it
+against `schemas/output.schema.json`, and uses deterministic settings such as
+`--samples 20` and `--seed 42`.
 
 For the validation-layer overview and schema limitations, see:
 
@@ -56,6 +61,9 @@ Typical top-level fields include:
 | `information_policy_summary`     | Summary of the active live-vs-post-game information policy. |
 | `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.           |
 | `right_opponent_policy_settings` | Normalized policy settings for the right opponent.          |
+
+`profile_preset_settings` is emitted in production output and is required by
+the output schema.
 
 ## Position
 
@@ -605,7 +613,11 @@ local-perspective swing fields:
 | `final_point_swing`   | `declarer_points_gained - defender_points_gained`.                 |
 | `local_point_swing`   | Local-side swing. This matches `final_point_swing` for a local declarer and is `defender_points_gained - declarer_points_gained` for a local defender. |
 
-The exact fields depend on whether a multi-step simulation was requested.
+The output schema defines the stable `multi_step_result` structure, including
+serialized steps, `steps[].prepared_state`, candidate detailed results,
+`final_state`, context summaries, stop reasons such as
+`unsupported_turn_phase`, and both `final_point_swing` and
+`local_point_swing`.
 
 ## Policy comparison result
 
@@ -616,3 +628,7 @@ Each row includes `final_point_swing` for the declarer-perspective swing and
 `local_point_swing` for the local player's side. Policy results and
 `recommended_policy` are ranked by `local_point_swing`, then by the documented
 tie-breakers.
+
+The output schema defines the stable `policy_comparison_result` structure,
+including requested settings, compared policies, per-policy result rows,
+context summaries, and `recommended_policy`.
