@@ -50,6 +50,29 @@ def build_analysis_report() -> list[dict[str, object]]:
     ]
 
 
+def build_null_analysis_report() -> list[dict[str, object]]:
+    return [
+        {
+            "card": "C7",
+            "win_rate": 0.0,
+            "average_trick_points": 10.0,
+            "average_points_won": 0.0,
+            "average_points_lost": 10.0,
+            "expected_point_swing": -10.0,
+            "is_recommended": True,
+        },
+        {
+            "card": "CA",
+            "win_rate": 1.0,
+            "average_trick_points": 21.0,
+            "average_points_won": 21.0,
+            "average_points_lost": 0.0,
+            "expected_point_swing": 21.0,
+            "is_recommended": False,
+        },
+    ]
+
+
 def test_classify_decision_quality_marks_zero_difference_as_optimal() -> None:
     assert classify_decision_quality(0.0) == OPTIMAL_DECISION_QUALITY
 
@@ -252,6 +275,68 @@ def test_build_post_game_review_summary_classifies_large_gap_as_mistake() -> Non
     assert summary["better_card_count"] == 2
 
 
+def test_build_post_game_review_summary_classifies_null_by_objective() -> None:
+    summary = build_post_game_review_summary(
+        actual_card_played="CA",
+        analysis_report=build_null_analysis_report(),
+        game_type="null",
+        player_role="declarer",
+        game_value=23,
+    )
+
+    assert summary["actual_expected_point_swing"] == 21.0
+    assert summary["recommended_expected_point_swing"] == -10.0
+    assert summary["expected_point_swing_difference"] == -31.0
+    assert summary["decision_quality"] == MISTAKE_DECISION_QUALITY
+    assert summary["decision_factors"] == [
+        "lower_null_objective_than_recommendation",
+        "large_null_objective_gap",
+    ]
+    assert summary["actual_card_rank"] == 2
+    assert summary["recommended_card_rank"] == 1
+    assert summary["better_card_count"] == 1
+    assert "Null contract objective" in summary["decision_explanation"]
+    assert "avoid taking any evaluated trick" in summary["decision_explanation"]
+    assert "expected point swing" not in summary["decision_explanation"]
+
+
+def test_build_post_game_review_summary_does_not_penalize_null_objective_tie() -> None:
+    report = [
+        {
+            "card": "C7",
+            "win_rate": 0.0,
+            "average_trick_points": 10.0,
+            "average_points_won": 0.0,
+            "average_points_lost": 10.0,
+            "expected_point_swing": -10.0,
+            "is_recommended": True,
+        },
+        {
+            "card": "C8",
+            "win_rate": 0.0,
+            "average_trick_points": 14.0,
+            "average_points_won": 0.0,
+            "average_points_lost": 14.0,
+            "expected_point_swing": -14.0,
+            "is_recommended": False,
+        },
+    ]
+
+    summary = build_post_game_review_summary(
+        actual_card_played="C8",
+        analysis_report=report,
+        game_type="null",
+        player_role="declarer",
+        game_value=23,
+    )
+
+    assert summary["expected_point_swing_difference"] == 4.0
+    assert summary["decision_quality"] == OPTIMAL_DECISION_QUALITY
+    assert summary["decision_factors"] == ["no_missed_null_objective"]
+    assert summary["better_card_count"] == 0
+    assert "no missed Null contract-objective utility" in summary["decision_explanation"]
+
+
 def test_build_decision_factors_returns_not_available_factor_without_actual_card() -> None:
     assert build_decision_factors(
         actual_card_played=None,
@@ -293,6 +378,19 @@ def test_build_card_rank_lookup_ranks_cards_by_expected_point_swing() -> None:
         "SA": 1,
         "S10": 2,
         "S9": 3,
+    }
+
+
+def test_build_card_rank_lookup_ranks_null_cards_by_objective() -> None:
+    rank_lookup = build_card_rank_lookup(
+        build_null_analysis_report(),
+        game_type="null",
+        player_role="declarer",
+    )
+
+    assert rank_lookup == {
+        "C7": 1,
+        "CA": 2,
     }
 
 

@@ -100,6 +100,64 @@ def test_build_card_analysis_report_is_sorted_by_expected_point_swing() -> None:
     assert swings == sorted(swings, reverse=True)
 
 
+def test_build_card_analysis_report_sorts_null_by_contract_objective() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    report = build_card_analysis_report(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+
+    assert [row["card"] for row in report] == ["C7", "CA"]
+    assert report[0]["is_recommended"] is True
+    assert report[0]["expected_point_swing"] == -10.0
+    assert report[1]["expected_point_swing"] == 21.0
+
+
+def test_build_strategic_summary_uses_null_objective_wording() -> None:
+    report = [
+        {
+            "card": "C7",
+            "win_rate": 0.0,
+            "average_trick_points": 10.0,
+            "average_points_won": 0.0,
+            "average_points_lost": 10.0,
+            "expected_point_swing": -10.0,
+            "is_recommended": True,
+        },
+        {
+            "card": "CA",
+            "win_rate": 1.0,
+            "average_trick_points": 21.0,
+            "average_points_won": 21.0,
+            "average_points_lost": 0.0,
+            "expected_point_swing": 21.0,
+            "is_recommended": False,
+        },
+    ]
+
+    summary = build_strategic_summary(
+        report,
+        game_type="null",
+        player_role="declarer",
+    )
+
+    assert "Null contract objective" in summary
+    assert "avoid taking any evaluated trick" in summary
+    assert "expected point swing" not in summary
+
+
 def test_format_card_analysis_report_contains_header_and_cards() -> None:
     report = [
         {

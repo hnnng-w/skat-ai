@@ -3456,6 +3456,53 @@ def test_build_analysis_result_includes_available_post_game_review_summary(
     }
 
 
+def test_build_analysis_result_uses_null_objective_for_recommendation_and_review(
+    tmp_path,
+) -> None:
+    data = {
+        "game_type": "null",
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "player_position": "rearhand",
+        "trick_leader": "left",
+        "hand": ["CA", "C7"],
+        "current_trick": ["C10", "C9"],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 1,
+        "right_hand_size": 1,
+        "sample_count": 1,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "unknown",
+        "actual_card_played": "CA",
+    }
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+    summary = result["post_game_review_summary"]
+
+    assert result["recommendation"]["card"] == "C7"
+    assert [row["card"] for row in result["analysis_report"]] == ["C7", "CA"]
+    assert result["analysis_report"][0]["is_recommended"] is True
+    assert result["analysis_report"][0]["expected_point_swing"] == -10.0
+    assert result["analysis_report"][1]["expected_point_swing"] == 21.0
+    assert summary["actual_card_played"] == "CA"
+    assert summary["recommended_card"] == "C7"
+    assert summary["expected_point_swing_difference"] == -31.0
+    assert summary["decision_quality"] == "mistake"
+    assert summary["decision_factors"] == [
+        "lower_null_objective_than_recommendation",
+        "large_null_objective_gap",
+    ]
+    assert "Null contract objective" in summary["decision_explanation"]
+
+
 def test_run_json_position_analysis_prints_available_post_game_review_summary(
     capsys,
 ) -> None:

@@ -1,4 +1,11 @@
 from skat_ai.game_state import GameState
+from skat_ai.objective_utility import (
+    calculate_expected_objective_utility,
+    sort_cards_by_expected_objective,
+)
+from skat_ai.objective_utility import (
+    calculate_expected_point_swing as calculate_value_expected_point_swing,
+)
 from skat_ai.simulation import estimate_immediate_trick_values_for_legal_cards
 
 
@@ -9,7 +16,7 @@ def calculate_expected_point_swing(value: dict[str, float]) -> float:
     Expected point swing:
     average_points_won - average_points_lost
     """
-    return value["average_points_won"] - value["average_points_lost"]
+    return calculate_value_expected_point_swing(value)
 
 
 def build_card_analysis_report(
@@ -54,11 +61,14 @@ def build_card_analysis_report(
             }
         )
 
-    sorted_report = sorted(
-        report,
-        key=lambda row: row["expected_point_swing"],
-        reverse=True,
+    row_by_card = {str(row["card"]): row for row in report}
+    sorted_cards = sort_cards_by_expected_objective(
+        cards=list(values.keys()),
+        values=values,
+        game_type=state.game_type,
+        player_role=state.player_role,
     )
+    sorted_report = [row_by_card[card] for card in sorted_cards]
 
     if sorted_report:
         sorted_report[0]["is_recommended"] = True
@@ -104,7 +114,11 @@ def format_card_analysis_report(report: list[dict[str, float | str | bool]]) -> 
     return "\n".join(lines)
 
 
-def build_strategic_summary(report: list[dict[str, float | str | bool]]) -> str:
+def build_strategic_summary(
+    report: list[dict[str, float | str | bool]],
+    game_type: str = "grand",
+    player_role: str = "unknown",
+) -> str:
     """
     Builds a short strategic interpretation from the card analysis report.
     """
@@ -115,6 +129,12 @@ def build_strategic_summary(report: list[dict[str, float | str | bool]]) -> str:
     best_card = best_row["card"]
     best_swing = best_row["expected_point_swing"]
     best_win_rate = best_row["win_rate"]
+
+    if game_type == "null":
+        return build_null_strategic_summary(
+            report=report,
+            player_role=player_role,
+        )
 
     if len(report) == 1:
         return (
@@ -151,4 +171,58 @@ def build_strategic_summary(report: list[dict[str, float | str | bool]]) -> str:
         "Strategic summary: "
         f"{best_card} is recommended, but the advantage over {second_card} is modest. "
         f"The expected point swing gap is {swing_gap:.2f}, so this position may be close."
+    )
+
+
+def build_null_strategic_summary(
+    report: list[dict[str, float | str | bool]],
+    player_role: str,
+) -> str:
+    """Builds a Null-specific strategic summary from an objective-sorted report."""
+    best_row = report[0]
+    best_card = str(best_row["card"])
+    best_utility = calculate_expected_objective_utility(
+        game_type="null",
+        player_role=player_role,
+        value=best_row,
+    )
+
+    if player_role == "declarer":
+        objective_text = "avoid taking any evaluated trick"
+    elif player_role == "defender":
+        objective_text = "make the concrete declarer take an evaluated trick"
+    else:
+        raise ValueError(
+            "Null strategic summary requires player_role to be declarer or defender."
+        )
+
+    if len(report) == 1:
+        return (
+            "Strategic summary: "
+            f"{best_card} is the only legal card. Its estimated Null objective "
+            f"utility is {best_utility:.3f}; the objective is to {objective_text}."
+        )
+
+    second_row = report[1]
+    second_card = str(second_row["card"])
+    second_utility = calculate_expected_objective_utility(
+        game_type="null",
+        player_role=player_role,
+        value=second_row,
+    )
+    utility_gap = best_utility - second_utility
+
+    if utility_gap > 0.0:
+        return (
+            "Strategic summary: "
+            f"{best_card} is recommended because it best supports the Null "
+            f"contract objective to {objective_text}. It is ahead of {second_card} "
+            f"by {utility_gap:.3f} objective utility."
+        )
+
+    return (
+        "Strategic summary: "
+        f"{best_card} is recommended by stable legal-card order because the Null "
+        f"objective utility is tied with {second_card}. The objective is to "
+        f"{objective_text}."
     )

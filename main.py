@@ -284,7 +284,11 @@ def build_analysis_result(
             use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
             opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
-        strategic_summary = build_strategic_summary(report)
+        strategic_summary = build_strategic_summary(
+            report,
+            game_type=state.game_type,
+            player_role=state.player_role,
+        )
     else:
         legal_cards = []
         recommended_card = None
@@ -297,6 +301,9 @@ def build_analysis_result(
     post_game_review_summary = build_post_game_review_summary(
         actual_card_played=actual_card_played,
         analysis_report=report,
+        game_type=state.game_type,
+        player_role=state.player_role,
+        game_value=game_value_summary["game_value"],
     )
 
     score_summary = build_score_summary(state)

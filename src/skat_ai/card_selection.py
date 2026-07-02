@@ -1,4 +1,10 @@
 from skat_ai.game_state import GameState
+from skat_ai.objective_utility import (
+    calculate_expected_point_swing as calculate_value_expected_point_swing,
+)
+from skat_ai.objective_utility import (
+    choose_best_card_by_expected_objective,
+)
 from skat_ai.rules import get_card_points, get_legal_cards
 from skat_ai.simulation import estimate_immediate_trick_values_for_legal_cards
 
@@ -61,7 +67,7 @@ def calculate_expected_point_swing(value: dict[str, float]) -> float:
     """
     Calculates expected point swing for one simulated card value.
     """
-    return value["average_points_won"] - value["average_points_lost"]
+    return calculate_value_expected_point_swing(value)
 
 
 def choose_highest_expected_value_card(
@@ -89,9 +95,10 @@ def choose_highest_expected_value_card(
     if not values:
         raise ValueError("No legal cards available.")
 
-    return max(
-        values,
-        key=lambda card: calculate_expected_point_swing(values[card]),
+    return choose_best_card_by_expected_objective(
+        values=values,
+        game_type=state.game_type,
+        player_role=state.player_role,
     )
 
 

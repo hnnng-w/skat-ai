@@ -8,6 +8,7 @@ from skat_ai.game_history import (
     get_players_for_trick_leader,
 )
 from skat_ai.game_state import GameState
+from skat_ai.objective_utility import calculate_null_trick_objective_utility
 from skat_ai.opponent_policy import choose_opponent_response_card_by_policy
 from skat_ai.rules import (
     get_card_points,
@@ -431,9 +432,10 @@ def estimate_immediate_trick_value(
     total_trick_points = 0
     total_points_won = 0
     total_points_lost = 0
+    total_objective_utility = 0.0
 
     for _ in range(sample_count):
-        did_win, trick_points = simulate_immediate_trick_once_with_points(
+        detailed_result = simulate_immediate_trick_once_detailed(
             state=state,
             candidate_card=candidate_card,
             left_hand_size=left_hand_size,
@@ -442,6 +444,8 @@ def estimate_immediate_trick_value(
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
         )
+        did_win = bool(detailed_result["did_win"])
+        trick_points = int(detailed_result["trick_points"])
 
         total_trick_points += trick_points
 
@@ -451,12 +455,23 @@ def estimate_immediate_trick_value(
         else:
             total_points_lost += trick_points
 
-    return {
+        if state.game_type == "null":
+            total_objective_utility += calculate_null_trick_objective_utility(
+                player_role=state.player_role,
+                winner_role=str(detailed_result["completed_trick"]["winner_role"]),
+            )
+
+    value = {
         "win_rate": wins / sample_count,
         "average_trick_points": total_trick_points / sample_count,
         "average_points_won": total_points_won / sample_count,
         "average_points_lost": total_points_lost / sample_count,
     }
+
+    if state.game_type == "null":
+        value["expected_objective_utility"] = total_objective_utility / sample_count
+
+    return value
 
 
 def estimate_immediate_trick_values_for_legal_cards(

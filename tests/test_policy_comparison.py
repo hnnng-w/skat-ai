@@ -352,6 +352,91 @@ def test_compare_multi_step_policies_returns_sorted_policy_results() -> None:
     assert swings == sorted(swings, reverse=True)
 
 
+def test_compare_multi_step_policies_sorts_null_by_horizon_objective(monkeypatch) -> None:
+    def fake_simulate_multiple_steps(**kwargs):
+        policy = kwargs["card_selection_policy"]
+        state = kwargs["state"]
+
+        if policy == "point_best":
+            final_state = GameState(
+                game_type="null",
+                player_role="declarer",
+                declarer_player="me",
+                hand=[],
+                current_trick=[],
+                completed_tricks=[{"cards": ["CA", "C10", "C9"], "winner_role": "declarer"}],
+                declarer_points=21,
+                defender_points=0,
+            )
+            score_summary = {
+                "declarer_points_gained": 21,
+                "defender_points_gained": 0,
+                "final_point_swing": 21,
+                "local_point_swing": 21,
+            }
+        else:
+            final_state = GameState(
+                game_type="null",
+                player_role="declarer",
+                declarer_player="me",
+                hand=[],
+                current_trick=[],
+                completed_tricks=[{"cards": ["C10", "C9", "C7"], "winner_role": "defenders"}],
+                declarer_points=0,
+                defender_points=10,
+            )
+            score_summary = {
+                "declarer_points_gained": 0,
+                "defender_points_gained": 10,
+                "final_point_swing": -10,
+                "local_point_swing": -10,
+            }
+
+        return {
+            "initial_state": state,
+            "final_state": final_state,
+            "summary": {
+                "requested_step_count": kwargs["step_count"],
+                "steps_simulated": 1,
+                "stop_reason": "Requested step count reached.",
+                "strict_context": kwargs["strict_context"],
+                "score_summary": score_summary,
+                "context_summary": {},
+            },
+        }
+
+    monkeypatch.setattr(
+        "skat_ai.policy_comparison.simulate_multiple_steps",
+        fake_simulate_multiple_steps,
+    )
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        policies=["point_best", "objective_best"],
+    )
+
+    assert [policy_result["policy"] for policy_result in result["policy_results"]] == [
+        "objective_best",
+        "point_best",
+    ]
+    assert result["recommended_policy"]["policy"] == "objective_best"
+    assert result["recommended_policy"]["reason"] == (
+        "Best Null contract objective after tie-breakers."
+    )
+
+
 def test_build_policy_recommendation() -> None:
     comparison_result = {
         "policy_results": [

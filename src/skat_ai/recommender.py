@@ -1,5 +1,9 @@
 from skat_ai.game_history import get_all_played_cards
 from skat_ai.game_state import GameState
+from skat_ai.objective_utility import (
+    calculate_expected_objective_utility,
+    choose_best_card_by_expected_objective,
+)
 from skat_ai.rules import (
     SUIT_GAME_RANK_STRENGTH,
     get_card_points,
@@ -281,15 +285,26 @@ def recommend_card_by_expected_value(
     if not values:
         raise ValueError("No legal cards available for expected-value recommendation.")
 
-    def get_expected_point_swing(card: str) -> float:
-        return values[card]["average_points_won"] - values[card]["average_points_lost"]
-
-    recommended_card = max(
-        values,
-        key=get_expected_point_swing,
+    recommended_card = choose_best_card_by_expected_objective(
+        values=values,
+        game_type=state.game_type,
+        player_role=state.player_role,
     )
 
-    recommended_swing = get_expected_point_swing(recommended_card)
+    recommended_utility = calculate_expected_objective_utility(
+        game_type=state.game_type,
+        player_role=state.player_role,
+        value=values[recommended_card],
+    )
+
+    if state.game_type == "null":
+        reason = (
+            "This card has the highest estimated Null contract-objective utility: "
+            f"{recommended_utility:.3f}."
+        )
+        return recommended_card, reason, values
+
+    recommended_swing = recommended_utility
 
     reason = (
         "This card has the highest estimated immediate expected point swing: "

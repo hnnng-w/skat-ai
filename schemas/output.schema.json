@@ -794,7 +794,12 @@
               "lower_expected_point_swing_than_recommendation",
               "small_expected_point_swing_gap",
               "medium_expected_point_swing_gap",
-              "large_expected_point_swing_gap"
+              "large_expected_point_swing_gap",
+              "no_missed_null_objective",
+              "lower_null_objective_than_recommendation",
+              "small_null_objective_gap",
+              "medium_null_objective_gap",
+              "large_null_objective_gap"
             ]
           }
         },

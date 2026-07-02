@@ -3,6 +3,7 @@ from typing import Any
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import simulate_multiple_steps
+from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
 from skat_ai.strategic_metadata import StrategicMetadata
 
 
@@ -52,23 +53,30 @@ def compare_multi_step_policies(
         summary = multi_step_result["summary"]
         score_summary = summary["score_summary"]
 
-        policy_results.append(
-            {
-                "policy": policy,
-                "requested_step_count": summary["requested_step_count"],
-                "steps_simulated": summary["steps_simulated"],
-                "stop_reason": summary["stop_reason"],
-                "strict_context": summary["strict_context"],
-                "declarer_points_gained": score_summary["declarer_points_gained"],
-                "defender_points_gained": score_summary["defender_points_gained"],
-                "final_point_swing": score_summary["final_point_swing"],
-                "local_point_swing": score_summary.get(
-                    "local_point_swing",
-                    score_summary["final_point_swing"],
-                ),
-                "context_summary": summary["context_summary"],
-            }
-        )
+        policy_result = {
+            "policy": policy,
+            "requested_step_count": summary["requested_step_count"],
+            "steps_simulated": summary["steps_simulated"],
+            "stop_reason": summary["stop_reason"],
+            "strict_context": summary["strict_context"],
+            "declarer_points_gained": score_summary["declarer_points_gained"],
+            "defender_points_gained": score_summary["defender_points_gained"],
+            "final_point_swing": score_summary["final_point_swing"],
+            "local_point_swing": score_summary.get(
+                "local_point_swing",
+                score_summary["final_point_swing"],
+            ),
+            "context_summary": summary["context_summary"],
+        }
+
+        if state.game_type == "null":
+            policy_result["_objective_utility"] = calculate_null_horizon_utility_from_states(
+                player_role=state.player_role,
+                initial_completed_tricks=state.completed_tricks,
+                final_completed_tricks=multi_step_result["final_state"].completed_tricks,
+            )
+
+        policy_results.append(policy_result)
 
     sorted_policy_results = sort_policy_results_by_local_point_swing(policy_results)
 
@@ -135,17 +143,22 @@ def sort_policy_results_by_local_point_swing(
     5. Higher number of simulated steps
     6. Policy name alphabetically
     """
-    return sorted(
-        policy_results,
-        key=lambda result: (
+    def build_sort_key(result: dict[str, Any]) -> tuple:
+        point_sort_key = (
             -result.get("local_point_swing", result["final_point_swing"]),
             -result["final_point_swing"],
             -result["declarer_points_gained"],
             result["defender_points_gained"],
             -result["steps_simulated"],
             result["policy"],
-        ),
-    )
+        )
+
+        if "_objective_utility" in result:
+            return (-result["_objective_utility"], *point_sort_key)
+
+        return point_sort_key
+
+    return sorted(policy_results, key=build_sort_key)
 
 
 def build_policy_recommendation(
@@ -156,9 +169,13 @@ def build_policy_recommendation(
     """
     best_policy = find_best_policy_by_local_point_swing(comparison_result)
 
+    reason = "Best final point swing after tie-breakers."
+    if "_objective_utility" in best_policy:
+        reason = "Best Null contract objective after tie-breakers."
+
     return {
         "policy": best_policy["policy"],
-        "reason": "Best final point swing after tie-breakers.",
+        "reason": reason,
         "final_point_swing": best_policy["final_point_swing"],
         "local_point_swing": best_policy.get(
             "local_point_swing",

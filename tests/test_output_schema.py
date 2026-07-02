@@ -387,6 +387,28 @@ def test_schema_rejects_invalid_post_game_unavailable_reason() -> None:
     assert_schema_invalid(data)
 
 
+@pytest.mark.parametrize(
+    "decision_factor",
+    [
+        "no_missed_null_objective",
+        "lower_null_objective_than_recommendation",
+        "small_null_objective_gap",
+        "medium_null_objective_gap",
+        "large_null_objective_gap",
+    ],
+)
+def test_schema_accepts_null_post_game_decision_factors(
+    decision_factor: str,
+) -> None:
+    data = build_valid_output()
+    post_game_review_summary = data["post_game_review_summary"]
+
+    assert isinstance(post_game_review_summary, dict)
+    post_game_review_summary["decision_factors"] = [decision_factor]
+
+    assert_schema_valid(data)
+
+
 def test_schema_rejects_missing_required_profile_preset_settings() -> None:
     data = build_valid_output()
     data.pop("profile_preset_settings")

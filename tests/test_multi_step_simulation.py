@@ -402,6 +402,53 @@ def test_simulate_multiple_steps_supports_highest_expected_value_policy() -> Non
     assert result["steps"][0]["candidate_card"] in ["SA", "S10", "S9"]
 
 
+def test_simulate_multiple_steps_highest_expected_value_uses_null_objective() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=1,
+    )
+
+    assert result["steps"][0]["candidate_card"] == "C7"
+
+
+def test_simulate_multiple_steps_highest_point_remains_point_based_for_null() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+
+    assert result["steps"][0]["candidate_card"] == "CA"
+
+
 def test_simulate_multiple_steps_highest_expected_value_is_reproducible_with_seed() -> None:
     first_state = GameState(
         game_type="grand",

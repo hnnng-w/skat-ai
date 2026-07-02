@@ -176,6 +176,43 @@ def test_choose_highest_expected_value_card_returns_legal_card() -> None:
     assert selected_card in ["SA", "S10", "S9"]
 
 
+def test_choose_highest_expected_value_card_uses_null_objective() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    selected_card = choose_highest_expected_value_card(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+
+    assert selected_card == "C7"
+
+
+def test_explicit_point_policies_remain_point_based_for_null() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    assert choose_highest_point_card(state) == "CA"
+    assert choose_lowest_point_card(state) == "C7"
+
+
 def test_choose_highest_expected_value_card_is_reproducible_with_seed() -> None:
     state = GameState(
         game_type="grand",

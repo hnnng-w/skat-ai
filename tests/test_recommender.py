@@ -307,6 +307,56 @@ def test_recommend_card_by_expected_value_returns_legal_card() -> None:
     assert "highest estimated immediate expected point swing" in reason.lower()
 
 
+def test_recommend_card_by_expected_value_prefers_null_declarer_avoiding_trick() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    recommended_card, reason, values = recommend_card_by_expected_value(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+
+    assert recommended_card == "C7"
+    assert values["CA"]["expected_objective_utility"] == 0.0
+    assert values["C7"]["expected_objective_utility"] == 1.0
+    assert "null contract-objective" in reason.lower()
+
+
+def test_recommend_card_by_expected_value_prefers_null_defender_forcing_declarer() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="defender",
+        declarer_player="left",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    recommended_card, reason, values = recommend_card_by_expected_value(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+
+    assert recommended_card == "C7"
+    assert values["CA"]["expected_objective_utility"] == 0.0
+    assert values["C7"]["expected_objective_utility"] == 1.0
+    assert "null contract-objective" in reason.lower()
+
+
 def test_recommend_card_by_expected_value_is_reproducible_with_seed() -> None:
     state = GameState(
         game_type="grand",

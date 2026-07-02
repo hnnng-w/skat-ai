@@ -195,6 +195,12 @@ receive the same activated response map as immediate analysis.
 
 The analysis report is the basis for recommendations, post-game comparison, and several CLI/JSON summaries when a local decision is available. Opponent-turn and ended-game positions intentionally use an empty report.
 
+Suit and Grand candidate ranking uses expected local card-point swing. Null
+candidate ranking uses an internal contract-objective utility: local declarers
+prefer avoiding declarer-won evaluated tricks, while local defenders prefer
+making the concrete declarer win an evaluated trick. Public point fields remain
+card-point metrics.
+
 ## Post-game review
 
 | File                              | Purpose                                                                                                                      |

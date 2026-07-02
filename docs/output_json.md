@@ -453,6 +453,12 @@ defender, `win_rate` means either defender wins the trick. `average_points_won`,
 `average_points_lost`, and `expected_point_swing` use the same local-side
 perspective.
 
+For Null games, candidate ordering and `is_recommended` use the Null contract
+objective instead of card-point swing. A local Null declarer prefers avoiding
+declarer-won evaluated tricks. A local Null defender prefers making the concrete
+declarer win an evaluated trick. The point fields above remain card-point
+metrics and are not redefined as contract utility.
+
 Example:
 
 ```json
@@ -570,6 +576,13 @@ Decision quality thresholds are based on the missed expected point swing:
 | `acceptable`    | Actual card has only a small missed expected point swing. |
 | `suboptimal`    | Actual card has a clearly lower expected point swing.     |
 | `mistake`       | Actual card has a much lower expected point swing.        |
+
+For Null games, post-game review uses the same Null contract objective as the
+recommendation for ranks, better-card counts, and decision quality. The public
+point fields keep their card-point meanings. Null-specific decision factors may
+include `no_missed_null_objective`,
+`lower_null_objective_than_recommendation`, `small_null_objective_gap`,
+`medium_null_objective_gap`, and `large_null_objective_gap`.
 
 ## Multi-step result
 

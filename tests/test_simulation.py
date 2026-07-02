@@ -440,6 +440,74 @@ def test_estimate_immediate_trick_value_returns_values_in_valid_ranges() -> None
     assert 0.0 <= value["average_points_lost"] <= 120.0
 
 
+def test_estimate_immediate_trick_value_tracks_null_declarer_objective() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    ace_value = estimate_immediate_trick_value(
+        state=state,
+        candidate_card="CA",
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+    seven_value = estimate_immediate_trick_value(
+        state=state,
+        candidate_card="C7",
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+
+    assert ace_value["expected_objective_utility"] == 0.0
+    assert ace_value["average_points_won"] == 21.0
+    assert seven_value["expected_objective_utility"] == 1.0
+    assert seven_value["average_points_lost"] == 10.0
+
+
+def test_estimate_immediate_trick_value_tracks_null_defender_objective() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="defender",
+        declarer_player="left",
+        hand=["CA", "C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    ace_value = estimate_immediate_trick_value(
+        state=state,
+        candidate_card="CA",
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+    seven_value = estimate_immediate_trick_value(
+        state=state,
+        candidate_card="C7",
+        left_hand_size=0,
+        right_hand_size=0,
+        sample_count=1,
+        random_seed=42,
+    )
+
+    assert ace_value["expected_objective_utility"] == 0.0
+    assert ace_value["average_points_won"] == 21.0
+    assert seven_value["expected_objective_utility"] == 1.0
+    assert seven_value["average_points_lost"] == 10.0
+
+
 def test_estimate_immediate_trick_value_is_reproducible_with_seed() -> None:
     state = GameState(
         game_type="grand",
