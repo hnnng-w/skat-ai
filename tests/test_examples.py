@@ -17,6 +17,9 @@ from skat_ai.multi_step_simulation import (
 )
 from skat_ai.rules import get_legal_cards
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
+
 
 def get_example_json_files() -> list[Path]:
     examples_dir = Path("examples")
@@ -95,6 +98,27 @@ def test_all_example_json_files_can_build_analysis_report() -> None:
 
         assert len(report) > 0
         assert report[0]["is_recommended"] is True
+
+
+def test_default_input_position_is_runtime_valid_local_action() -> None:
+    data = load_position_from_json(str(DEFAULT_INPUT_PATH))
+    state = build_game_state_from_input(data)
+    legal_cards = get_legal_cards(
+        hand=state.hand,
+        current_trick=state.current_trick,
+        game_type=state.game_type,
+    )
+    result = build_analysis_result(
+        file_path=str(DEFAULT_INPUT_PATH),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert state.next_player == "me"
+    assert legal_cards
+    assert result["recommendation"]["card"] in legal_cards
+
 
 def build_example_analysis_result(file_name: str) -> dict:
     return build_analysis_result(

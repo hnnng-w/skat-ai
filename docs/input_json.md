@@ -61,7 +61,7 @@ A basic input position requires:
   "game_type": "grand",
   "player_role": "declarer",
   "player_position": "middlehand",
-  "trick_leader": "left",
+  "trick_leader": "right",
   "hand": ["SA", "S10", "S9"],
   "current_trick": ["S7"],
   "played_cards": [],

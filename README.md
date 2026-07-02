@@ -121,7 +121,8 @@ Run the combined check script:
 
 ## Usage
 
-Run the default analysis:
+Run the default analysis from the repository root. This reads the root
+`input_position.json` quick-start fixture:
 
 ```powershell
 python main.py

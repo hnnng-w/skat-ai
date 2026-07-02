@@ -44,6 +44,17 @@ def assert_no_success_output(completed_process: subprocess.CompletedProcess[str]
     assert "Output file written:" not in completed_process.stdout
 
 
+def test_cli_default_input_success_exits_zero_and_prints_recommendation() -> None:
+    completed_process = run_cli()
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "JSON position analysis" in completed_process.stdout
+    assert "Input file: input_position.json" in completed_process.stdout
+    assert "Legal cards: ['SA', 'S10', 'S9']" in completed_process.stdout
+    assert "Recommended card: SA" in completed_process.stdout
+
+
 def test_cli_success_exits_zero_and_writes_requested_output(tmp_path) -> None:
     output_path = tmp_path / "analysis.json"
 

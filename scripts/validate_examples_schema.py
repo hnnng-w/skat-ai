@@ -7,6 +7,7 @@ from jsonschema import Draft202012Validator
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
+ROOT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
 EXAMPLES_DIR = PROJECT_ROOT / "examples"
 
 
@@ -23,6 +24,13 @@ def get_example_files() -> list[Path]:
     Returns all example JSON files.
     """
     return sorted(EXAMPLES_DIR.glob("*.json"))
+
+
+def get_schema_input_files() -> list[Path]:
+    """
+    Returns all input files covered by input schema validation.
+    """
+    return [ROOT_INPUT_PATH, *get_example_files()]
 
 
 def format_validation_error(file_path: Path, error) -> str:
@@ -46,7 +54,7 @@ def validate_example_files() -> list[str]:
 
     errors = []
 
-    for example_file in get_example_files():
+    for example_file in get_schema_input_files():
         data = load_json_file(example_file)
 
         for error in sorted(
@@ -70,7 +78,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print("All example JSON files match schemas/input.schema.json.")
+    print("All root input and example JSON files match schemas/input.schema.json.")
     return 0
 
 

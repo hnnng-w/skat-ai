@@ -2,6 +2,10 @@
 
 This document describes the example input files in `examples/`.
 
+The repository-root quick-start command `python main.py` reads the root
+`input_position.json` fixture. Files under `examples/` are selected explicitly
+with `--input`.
+
 The examples are used for:
 
 * manual testing
