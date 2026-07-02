@@ -2,7 +2,6 @@ from copy import deepcopy
 from typing import Any
 
 from skat_ai.game_state import GameState
-from skat_ai.rules import get_trick_points
 
 
 def remove_card_from_hand(hand: list[str], card: str) -> list[str]:
@@ -46,26 +45,6 @@ def determine_next_player_from_completed_trick(
     return "unknown"
 
 
-def apply_completed_trick_to_points(
-    declarer_points: int,
-    defender_points: int,
-    completed_trick: dict[str, Any],
-) -> tuple[int, int]:
-    """
-    Applies completed trick points to declarer or defender points.
-    """
-    trick_points = get_trick_points(completed_trick["cards"])
-    winner_role = completed_trick["winner_role"]
-
-    if winner_role == "declarer":
-        return declarer_points + trick_points, defender_points
-
-    if winner_role == "defenders":
-        return declarer_points, defender_points + trick_points
-
-    raise ValueError(f"Invalid completed trick winner role: {winner_role}")
-
-
 def advance_state_after_detailed_trick(
     state: GameState,
     candidate_card: str,
@@ -86,12 +65,6 @@ def advance_state_after_detailed_trick(
     updated_completed_tricks = deepcopy(state.completed_tricks)
     updated_completed_tricks.append(deepcopy(completed_trick))
 
-    updated_declarer_points, updated_defender_points = apply_completed_trick_to_points(
-        declarer_points=state.declarer_points,
-        defender_points=state.defender_points,
-        completed_trick=completed_trick,
-    )
-
     next_player = determine_next_player_from_completed_trick(
         completed_trick=completed_trick,
         player_role=state.player_role,
@@ -109,7 +82,7 @@ def advance_state_after_detailed_trick(
         declarer_player=state.declarer_player,
         trick_leader=next_player,
         completed_tricks=updated_completed_tricks,
-        declarer_points=updated_declarer_points,
-        defender_points=updated_defender_points,
+        declarer_points=state.declarer_points,
+        defender_points=state.defender_points,
         next_player=next_player,
     )

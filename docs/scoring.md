@@ -107,6 +107,11 @@ matches the canonical side ownership.
 ## Score summary
 
 `score_summary` combines explicit points and completed-trick points.
+Explicit side points exclude card points already represented by
+`completed_tricks`; completed-trick cards provide their own point contribution.
+Advanced simulation states preserve this reusable-state invariant by appending a
+completed trick without adding its points to `declarer_points` or
+`defender_points`.
 
 Example:
 
@@ -138,6 +143,8 @@ player's side. Multi-step summaries keep the existing
 `final_point_swing = declarer_points_gained - defender_points_gained` field and
 add `local_point_swing` for local-side ranking. For a local defender,
 `local_point_swing = defender_points_gained - declarer_points_gained`.
+Multi-step point gains are calculated from canonical total score summaries, so
+completed tricks and explicit side points are counted exactly once.
 
 ## Game result summary
 

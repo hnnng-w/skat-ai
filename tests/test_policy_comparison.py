@@ -108,6 +108,33 @@ def test_compare_multi_step_policies_policy_result_contains_score_fields() -> No
     assert "stop_reason" in policy_result
 
 
+def test_compare_multi_step_policies_uses_canonical_score_summary_fields() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA"],
+        current_trick=["C10", "CK"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = compare_multi_step_policies(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        policies=["highest_point"],
+        random_seed=42,
+    )
+    policy_result = result["policy_results"][0]
+
+    assert policy_result["declarer_points_gained"] == 25
+    assert policy_result["defender_points_gained"] == 0
+    assert policy_result["final_point_swing"] == 25
+    assert policy_result["local_point_swing"] == 25
+
+
 def test_find_best_policy_by_final_point_swing() -> None:
     comparison_result = {
         "policy_results": [

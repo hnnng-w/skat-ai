@@ -1,5 +1,6 @@
 import random
 
+from skat_ai.game_history import build_score_summary
 from skat_ai.game_state import GameState
 from skat_ai.simulation_step import simulate_and_advance_once
 
@@ -148,7 +149,7 @@ def test_simulate_and_advance_once_appends_completed_trick() -> None:
     ]
 
 
-def test_simulate_and_advance_once_updates_points() -> None:
+def test_simulate_and_advance_once_preserves_explicit_points() -> None:
     state = GameState(
         game_type="grand",
         player_role="declarer",
@@ -169,13 +170,17 @@ def test_simulate_and_advance_once_updates_points() -> None:
 
     detailed_result = result["detailed_result"]
     next_state = result["next_state"]
+    score_summary = build_score_summary(next_state)
+
+    assert next_state.declarer_points == 0
+    assert next_state.defender_points == 0
 
     if detailed_result["completed_trick"]["winner_role"] == "declarer":
-        assert next_state.declarer_points == detailed_result["trick_points"]
-        assert next_state.defender_points == 0
+        assert score_summary["total_declarer_points"] == detailed_result["trick_points"]
+        assert score_summary["total_defender_points"] == 0
     else:
-        assert next_state.declarer_points == 0
-        assert next_state.defender_points == detailed_result["trick_points"]
+        assert score_summary["total_declarer_points"] == 0
+        assert score_summary["total_defender_points"] == detailed_result["trick_points"]
 
 
 def test_simulate_and_advance_once_does_not_mutate_original_state() -> None:

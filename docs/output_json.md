@@ -196,6 +196,8 @@ Fields:
 ## Score summary
 
 `score_summary` combines explicit points and completed-trick points.
+Explicit side points exclude card points already represented by
+`completed_tricks`; completed-trick cards provide their own point contribution.
 
 Example:
 
@@ -608,6 +610,12 @@ When a multi-step simulation is requested, the output can include `multi_step_re
 Nested `steps[].prepared_state` is the state after any supported opponent-turn
 preparation and before the local candidate card is simulated. This separates the
 original top-level `position` from the internally advanced local-action state.
+
+Nested `final_state` follows the same reusable-state invariant as input
+positions: `declarer_points` and `defender_points` contain only explicit points
+not already represented by `completed_tricks`. Points from simulated completed
+tricks are contributed by the completed-trick cards and are reflected in the
+summary totals.
 
 Nested `steps[].detailed_result` uses explicit ownership fields:
 

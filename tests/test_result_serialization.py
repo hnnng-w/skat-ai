@@ -1,10 +1,14 @@
+from skat_ai.game_history import build_score_summary
 from skat_ai.game_state import GameState
+from skat_ai.input_loader import build_game_state_from_input
+from skat_ai.input_validation import validate_position_input
 from skat_ai.result_serialization import (
     build_serializable_game_state,
     build_serializable_multi_step_result,
     build_serializable_multi_step_step,
     build_serializable_policy_comparison_result,
 )
+from skat_ai.simulation_step import simulate_and_advance_once
 
 
 def test_build_serializable_game_state() -> None:
@@ -260,6 +264,43 @@ def test_build_serializable_multi_step_result() -> None:
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "basic_defender_response",
     }
+
+
+def test_serialized_advanced_state_round_trips_without_inflated_points() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA"],
+        current_trick=["C10", "CK"],
+        trick_leader="left",
+        next_player="me",
+    )
+    result = simulate_and_advance_once(
+        state=state,
+        candidate_card="CA",
+        left_hand_size=0,
+        right_hand_size=0,
+    )
+    final_state = result["next_state"]
+    original_score_summary = build_score_summary(final_state)
+
+    reconstructed_input = {
+        **build_serializable_game_state(final_state),
+        "left_hand_size": 1,
+        "right_hand_size": 1,
+        "sample_count": 1,
+        "use_basic_opponent_strategy": True,
+    }
+
+    validate_position_input(reconstructed_input)
+    rebuilt_state = build_game_state_from_input(reconstructed_input)
+    rebuilt_score_summary = build_score_summary(rebuilt_state)
+
+    assert original_score_summary["total_declarer_points"] == 25
+    assert original_score_summary["explicit_declarer_points"] == 0
+    assert rebuilt_score_summary == original_score_summary
+    assert rebuilt_score_summary["total_declarer_points"] != 50
 
 
 def test_build_serializable_policy_comparison_result() -> None:

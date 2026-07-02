@@ -19,8 +19,18 @@ def test_build_multi_step_score_summary() -> None:
         player_role="declarer",
         hand=[],
         current_trick=[],
-        declarer_points=30,
-        defender_points=12,
+        completed_tricks=[
+            {
+                "cards": ["SA", "S10", "SK"],
+                "winner_role": "declarer",
+            },
+            {
+                "cards": ["CA", "CQ", "C7"],
+                "winner_role": "defenders",
+            },
+        ],
+        declarer_points=10,
+        defender_points=5,
     )
 
     summary = build_multi_step_score_summary(
@@ -31,12 +41,12 @@ def test_build_multi_step_score_summary() -> None:
     assert summary == {
         "initial_declarer_points": 10,
         "initial_defender_points": 5,
-        "final_declarer_points": 30,
-        "final_defender_points": 12,
-        "declarer_points_gained": 20,
-        "defender_points_gained": 7,
-        "final_point_swing": 13,
-        "local_point_swing": 13,
+        "final_declarer_points": 35,
+        "final_defender_points": 19,
+        "declarer_points_gained": 25,
+        "defender_points_gained": 14,
+        "final_point_swing": 11,
+        "local_point_swing": 11,
     }
 
 
@@ -56,8 +66,18 @@ def test_build_multi_step_score_summary_uses_defender_local_point_swing() -> Non
         declarer_player="left",
         hand=[],
         current_trick=[],
-        declarer_points=30,
-        defender_points=12,
+        completed_tricks=[
+            {
+                "cards": ["SA", "S10", "SK"],
+                "winner_role": "declarer",
+            },
+            {
+                "cards": ["CA", "CQ", "C7"],
+                "winner_role": "defenders",
+            },
+        ],
+        declarer_points=10,
+        defender_points=5,
     )
 
     summary = build_multi_step_score_summary(
@@ -65,8 +85,10 @@ def test_build_multi_step_score_summary_uses_defender_local_point_swing() -> Non
         final_state=final_state,
     )
 
-    assert summary["final_point_swing"] == 13
-    assert summary["local_point_swing"] == -13
+    assert summary["declarer_points_gained"] == 25
+    assert summary["defender_points_gained"] == 14
+    assert summary["final_point_swing"] == 11
+    assert summary["local_point_swing"] == -11
 
 
 def test_build_multi_step_summary() -> None:
@@ -83,8 +105,16 @@ def test_build_multi_step_summary() -> None:
         player_role="declarer",
         hand=[],
         current_trick=[],
-        declarer_points=11,
-        defender_points=4,
+        completed_tricks=[
+            {
+                "cards": ["SA", "S7", "S8"],
+                "winner_role": "declarer",
+            },
+            {
+                "cards": ["CK", "C7", "C8"],
+                "winner_role": "defenders",
+            },
+        ],
     )
     multi_step_result = {
         "initial_state": initial_state,

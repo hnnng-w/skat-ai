@@ -2,6 +2,7 @@
 import skat_ai.opponent_lead as opponent_lead_module
 import skat_ai.simulation as simulation_module
 from skat_ai.card_selection import choose_first_legal_card
+from skat_ai.game_history import build_score_summary
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import (
     extract_opponent_cards_from_step,
@@ -10,6 +11,7 @@ from skat_ai.multi_step_simulation import (
     should_continue_multi_step_simulation,
     simulate_multiple_steps,
 )
+from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
 from skat_ai.strategic_metadata import StrategicMetadata
 
 
@@ -184,6 +186,120 @@ def test_simulate_multiple_steps_appends_completed_tricks() -> None:
     final_state = result["final_state"]
 
     assert len(final_state.completed_tricks) == result["steps_simulated"]
+
+
+def test_simulate_multiple_steps_uses_canonical_final_state_points() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA"],
+        current_trick=["C10", "CK"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+    final_state = result["final_state"]
+    score_summary = build_score_summary(final_state)
+    multi_step_score_summary = result["summary"]["score_summary"]
+
+    assert final_state.declarer_points == 0
+    assert final_state.defender_points == 0
+    assert len(final_state.completed_tricks) == 1
+    assert score_summary["total_declarer_points"] == 25
+    assert multi_step_score_summary["declarer_points_gained"] == 25
+    assert multi_step_score_summary["defender_points_gained"] == 0
+    assert multi_step_score_summary["final_point_swing"] == 25
+    assert multi_step_score_summary["local_point_swing"] == 25
+
+
+def test_simulate_multiple_steps_uses_defender_local_point_swing() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["CA"],
+        current_trick=["C10", "CK"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+    final_state = result["final_state"]
+    score_summary = build_score_summary(final_state)
+    multi_step_score_summary = result["summary"]["score_summary"]
+
+    assert final_state.declarer_points == 0
+    assert final_state.defender_points == 0
+    assert final_state.completed_tricks[-1]["winner_role"] == "defenders"
+    assert score_summary["total_defender_points"] == 25
+    assert multi_step_score_summary["declarer_points_gained"] == 0
+    assert multi_step_score_summary["defender_points_gained"] == 25
+    assert multi_step_score_summary["final_point_swing"] == -25
+    assert multi_step_score_summary["local_point_swing"] == 25
+
+
+def test_simulate_multiple_steps_accumulates_completed_tricks_once(monkeypatch) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["D10"], ["DK"]
+
+    monkeypatch.setattr(
+        simulation_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA", "DA"],
+        current_trick=["C10", "CK"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        step_count=2,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+    final_state = result["final_state"]
+    score_summary = build_score_summary(final_state)
+    multi_step_score_summary = result["summary"]["score_summary"]
+
+    assert result["steps_simulated"] == 2
+    assert final_state.declarer_points == 0
+    assert final_state.defender_points == 0
+    assert len(final_state.completed_tricks) == 2
+    assert score_summary["completed_trick_declarer_points"] == 50
+    assert score_summary["total_declarer_points"] == 50
+    assert multi_step_score_summary["declarer_points_gained"] == 50
+    assert multi_step_score_summary["defender_points_gained"] == 0
+    assert multi_step_score_summary["final_point_swing"] == 50
 
 
 def test_simulate_multiple_steps_does_not_mutate_initial_state() -> None:
@@ -447,6 +563,44 @@ def test_simulate_multiple_steps_highest_point_remains_point_based_for_null() ->
     )
 
     assert result["steps"][0]["candidate_card"] == "CA"
+
+
+def test_simulate_multiple_steps_null_points_are_not_contract_utility() -> None:
+    state = GameState(
+        game_type="null",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["C7"],
+        current_trick=["C10", "C9"],
+        trick_leader="left",
+        next_player="me",
+    )
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=0,
+        right_hand_size=0,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="first_legal",
+    )
+    final_state = result["final_state"]
+    detailed_result = result["steps"][0]["detailed_result"]
+    score_summary = build_score_summary(final_state)
+    objective_utility = calculate_null_horizon_utility_from_states(
+        player_role=state.player_role,
+        initial_completed_tricks=state.completed_tricks,
+        final_completed_tricks=final_state.completed_tricks,
+    )
+
+    assert detailed_result["trick_points"] == 10
+    assert final_state.declarer_points == 0
+    assert final_state.defender_points == 0
+    assert final_state.completed_tricks == [detailed_result["completed_trick"]]
+    assert final_state.completed_tricks[0]["winner_role"] == "defenders"
+    assert score_summary["completed_trick_defender_points"] == 10
+    assert score_summary["total_defender_points"] == 10
+    assert objective_utility == 1.0
 
 
 def test_simulate_multiple_steps_highest_expected_value_is_reproducible_with_seed() -> None:

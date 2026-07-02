@@ -6,8 +6,11 @@ from skat_ai.final_settlement import (
     is_overbid_settlement_supported,
 )
 from skat_ai.game_declaration import GameDeclaration
+from skat_ai.game_history import build_score_summary as build_state_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
+from skat_ai.game_state import GameState
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.simulation_step import simulate_and_advance_once
 
 
 def build_score_summary(
@@ -41,6 +44,20 @@ def build_completed_schwarz_tricks(winner_roles: list[str]) -> list[dict[str, ob
             "winner_role": winner_role,
         }
         for winner_role in winner_roles
+    ]
+
+
+def build_nine_declarer_tricks_before_final_clubs_trick() -> list[dict[str, object]]:
+    return [
+        {"cards": ["CJ", "CQ", "C9"], "winner_role": "declarer"},
+        {"cards": ["SJ", "SA", "S10"], "winner_role": "declarer"},
+        {"cards": ["SK", "SQ", "S9"], "winner_role": "declarer"},
+        {"cards": ["S8", "S7", "HJ"], "winner_role": "declarer"},
+        {"cards": ["HA", "H10", "HK"], "winner_role": "declarer"},
+        {"cards": ["HQ", "H9", "H8"], "winner_role": "declarer"},
+        {"cards": ["H7", "DJ", "DA"], "winner_role": "declarer"},
+        {"cards": ["D10", "DK", "DQ"], "winner_role": "declarer"},
+        {"cards": ["D9", "D8", "D7"], "winner_role": "declarer"},
     ]
 
 
@@ -262,6 +279,53 @@ def test_build_final_settlement_summary_complete_declarer_win() -> None:
     assert summary["overbid_margin"] is None
     assert summary["overbid_status"] == "unknown"
     assert summary["overbid_required_game_value"] is None
+
+
+def test_final_trick_completion_counts_points_once_for_result_and_settlement() -> None:
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+        hand=["CA"],
+        current_trick=["C10", "CK"],
+        trick_leader="left",
+        completed_tricks=build_nine_declarer_tricks_before_final_clubs_trick(),
+        next_player="me",
+    )
+
+    result = simulate_and_advance_once(
+        state=state,
+        candidate_card="CA",
+        left_hand_size=0,
+        right_hand_size=0,
+    )
+    final_state = result["next_state"]
+    score_summary = build_state_score_summary(final_state)
+    game_result_summary = build_game_result_summary_from_score_summary(
+        score_summary=score_summary,
+        game_type="grand",
+        completed_tricks=final_state.completed_tricks,
+        game_end_reason="normal_completion",
+    )
+    settlement_summary = build_final_settlement_summary(
+        game_value_summary=build_suit_game_value_summary(),
+        game_result_summary=game_result_summary,
+        completed_tricks=final_state.completed_tricks,
+    )
+
+    assert len(final_state.completed_tricks) == 10
+    assert final_state.declarer_points == 0
+    assert score_summary["completed_trick_declarer_points"] == 120
+    assert score_summary["total_declarer_points"] == 120
+    assert score_summary["total_defender_points"] == 0
+    assert game_result_summary["is_complete"] is True
+    assert game_result_summary["winner"] == "declarer"
+    assert game_result_summary["effective_schneider_status"] == (
+        "declarer_made_schneider"
+    )
+    assert game_result_summary["effective_schwarz_status"] == "declarer_made_schwarz"
+    assert settlement_summary["effective_game_value"] == 120
+    assert settlement_summary["settlement_score"] == 120
 
 
 def test_build_final_settlement_summary_complete_declarer_loss() -> None:
