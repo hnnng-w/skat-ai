@@ -1,4 +1,5 @@
 import argparse
+import sys
 from typing import Any
 
 from skat_ai.analysis_metadata import build_serializable_analysis_metadata
@@ -60,6 +61,10 @@ IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
 IMMEDIATE_UNAVAILABLE_GAME_COMPLETE_REASON = (
     "Immediate analysis is unavailable because the game is complete."
 )
+
+
+class CliUsageError(ValueError):
+    """Raised when parsed CLI arguments form an invalid invocation."""
 
 
 def get_immediate_unavailable_reason(
@@ -726,6 +731,12 @@ def run_json_position_analysis(
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
 ) -> None:
+    if comparison_only and not compare_policies:
+        raise ValueError("comparison_only requires compare_policies to be enabled.")
+
+    if multi_step_count is not None and multi_step_count <= 0:
+        raise ValueError("multi_step_count must be a positive integer.")
+
     position_data = load_position_from_json(file_path)
     analysis_metadata = get_analysis_metadata_from_input(position_data)
     effective_opponent_policy_settings = build_effective_opponent_policy_settings_for_analysis(
@@ -757,15 +768,10 @@ def run_json_position_analysis(
         effective_opponent_policy_settings=effective_opponent_policy_settings,
     )
 
-    print_analysis_result(result)
-
-    if comparison_only and not compare_policies:
-        raise ValueError("comparison_only requires compare_policies to be enabled.")
+    multi_step_result_to_print = None
+    policy_comparison_result_to_print = None
 
     if multi_step_count is not None:
-        if multi_step_count <= 0:
-            raise ValueError("multi_step_count must be a positive integer.")
-
         state = build_game_state_from_input(position_data)
         settings = get_simulation_settings_from_input(position_data)
         opponent_policy_settings = build_global_opponent_policy_settings(
@@ -821,7 +827,7 @@ def run_json_position_analysis(
         result["profile_preset_settings"] = profile_preset_settings
 
         if not comparison_only:
-            print_multi_step_result(multi_step_result)
+            multi_step_result_to_print = multi_step_result
 
         if compare_policies:
             policy_comparison_result = compare_multi_step_policies(
@@ -847,13 +853,23 @@ def run_json_position_analysis(
                 policy_comparison_result
             )
 
-            print_policy_comparison_result(policy_comparison_result)
+            policy_comparison_result_to_print = policy_comparison_result
 
     if output_path is not None:
         write_analysis_result_to_json(
             output_path=output_path,
             result=result,
         )
+
+    print_analysis_result(result)
+
+    if multi_step_result_to_print is not None:
+        print_multi_step_result(multi_step_result_to_print)
+
+    if policy_comparison_result_to_print is not None:
+        print_policy_comparison_result(policy_comparison_result_to_print)
+
+    if output_path is not None:
         print()
         print("Output file written:", output_path)
 
@@ -1008,10 +1024,29 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def validate_cli_arguments(args: argparse.Namespace) -> None:
+    """Validates semantic CLI-only argument combinations."""
+    if args.samples is not None and args.samples <= 0:
+        raise CliUsageError("--samples must be a positive integer.")
+
+    if args.expected_value_samples <= 0:
+        raise CliUsageError("--expected-value-samples must be a positive integer.")
+
+    if args.multi_step is not None and args.multi_step <= 0:
+        raise CliUsageError("--multi-step must be a positive integer.")
+
+    if args.comparison_only and not args.compare_policies:
+        raise CliUsageError("--comparison-only requires --compare-policies.")
+
+    if args.compare_policies and args.multi_step is None:
+        raise CliUsageError("--compare-policies requires --multi-step.")
+
+
+def main() -> int:
     args = parse_arguments()
 
     try:
+        validate_cli_arguments(args)
         run_json_position_analysis(
             file_path=args.input,
             sample_count_override=args.samples,
@@ -1033,9 +1068,15 @@ def main() -> None:
             opponent_response_policy_override=args.opponent_response_policy,
             use_profile_presets_override=args.use_profile_presets,
         )
-    except (ValueError, FileNotFoundError) as error:
-        print("Input error:", error)
+    except CliUsageError as error:
+        print(f"CLI error: {error}", file=sys.stderr)
+        return 2
+    except (ValueError, OSError) as error:
+        print(f"Error: {error}", file=sys.stderr)
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

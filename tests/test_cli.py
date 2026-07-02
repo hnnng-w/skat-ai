@@ -1,4 +1,7 @@
 import json
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -12,6 +15,305 @@ from main import (
 )
 from skat_ai.effective_opponent_policy import build_effective_opponent_policy_settings
 from skat_ai.player_profile import PlayerProfile
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MAIN_PATH = PROJECT_ROOT / "main.py"
+VALID_INPUT_PATH = PROJECT_ROOT / "examples" / "grand_second_position.json"
+UNSUPPORTED_PHASE_INPUT_PATH = (
+    PROJECT_ROOT
+    / "tests"
+    / "fixtures"
+    / "generated_output_schema"
+    / "grand_unsupported_multi_step_phase.json"
+)
+
+
+def run_cli(*args: object) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(MAIN_PATH), *(str(arg) for arg in args)],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def assert_no_success_output(completed_process: subprocess.CompletedProcess[str]) -> None:
+    assert "JSON position analysis" not in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+    assert "Output file written:" not in completed_process.stdout
+
+
+def test_cli_success_exits_zero_and_writes_requested_output(tmp_path) -> None:
+    output_path = tmp_path / "analysis.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 0
+    assert "JSON position analysis" in completed_process.stdout
+    assert "Output file written:" in completed_process.stdout
+    assert completed_process.stderr == ""
+    assert output_path.exists()
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["input_file"] == str(VALID_INPUT_PATH)
+
+
+@pytest.mark.parametrize("sample_count", ["0", "-1"])
+def test_cli_rejects_invalid_sample_count_before_analysis(
+    tmp_path,
+    sample_count: str,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        sample_count,
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert "CLI error: --samples must be a positive integer." in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_rejects_invalid_expected_value_sample_count_before_analysis(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--expected-value-samples",
+        "0",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert (
+        "CLI error: --expected-value-samples must be a positive integer."
+        in completed_process.stderr
+    )
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_rejects_invalid_multi_step_count_before_analysis(tmp_path) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--multi-step",
+        "0",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert "CLI error: --multi-step must be a positive integer." in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_rejects_comparison_only_without_compare_policies_before_analysis(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--comparison-only",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert "CLI error: --comparison-only requires --compare-policies." in (
+        completed_process.stderr
+    )
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_rejects_compare_policies_without_multi_step_before_analysis(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--compare-policies",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert "CLI error: --compare-policies requires --multi-step." in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_rejects_comparison_only_compare_policies_without_multi_step_before_analysis(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--comparison-only",
+        "--compare-policies",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert "CLI error: --compare-policies requires --multi-step." in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_missing_input_exits_one_without_traceback_or_output(tmp_path) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        tmp_path / "missing.json",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 1
+    assert "Error: Input file not found:" in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_malformed_json_exits_one_without_traceback_or_output(tmp_path) -> None:
+    input_path = tmp_path / "malformed.json"
+    output_path = tmp_path / "result.json"
+    input_path.write_text("{not json", encoding="utf-8")
+
+    completed_process = run_cli(
+        "--input",
+        input_path,
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 1
+    assert "Error:" in completed_process.stderr
+    assert "Expecting" in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_invalid_position_input_exits_one_without_output(tmp_path) -> None:
+    input_path = tmp_path / "invalid_position.json"
+    output_path = tmp_path / "result.json"
+    input_path.write_text(json.dumps({"game_type": "grand"}), encoding="utf-8")
+
+    completed_process = run_cli(
+        "--input",
+        input_path,
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 1
+    assert "Error: Missing required input keys:" in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_output_write_failure_exits_one_before_success_output(tmp_path) -> None:
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--output",
+        tmp_path,
+    )
+
+    assert completed_process.returncode == 1
+    assert "Error:" in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
+    assert_no_success_output(completed_process)
+
+
+@pytest.mark.parametrize(
+    ("args", "expected_error"),
+    [
+        (("--does-not-exist",), "unrecognized arguments"),
+        (("--input",), "expected one argument"),
+        (("--card-policy", "not_a_policy"), "invalid choice"),
+    ],
+)
+def test_cli_preserves_argparse_exit_two_for_parser_errors(
+    args: tuple[str, ...],
+    expected_error: str,
+) -> None:
+    completed_process = run_cli(*args)
+
+    assert completed_process.returncode == 2
+    assert completed_process.stdout == ""
+    assert "usage:" in completed_process.stderr
+    assert expected_error in completed_process.stderr
+
+
+def test_cli_unsupported_multi_step_phase_remains_success(tmp_path) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        UNSUPPORTED_PHASE_INPUT_PATH,
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--multi-step",
+        "1",
+        "--card-policy",
+        "highest_point",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 0
+    assert "unsupported_turn_phase" in completed_process.stdout
+    assert completed_process.stderr == ""
+    assert output_path.exists()
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["multi_step_result"]["stop_reason"] == "unsupported_turn_phase"
 
 
 def test_apply_cli_overrides_keeps_settings_when_no_overrides_are_given() -> None:

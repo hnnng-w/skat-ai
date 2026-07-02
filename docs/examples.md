@@ -323,7 +323,7 @@ python main.py --input examples/grand_second_position.json --multi-step 2 --oppo
 Run a policy comparison:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --compare-policies
+python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
 ```
 
 ## Left/right opponent policy examples

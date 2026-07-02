@@ -171,6 +171,14 @@ Run a post-game review example with an actual played card:
 python main.py --input examples/spades_post_game_actual_card_played.json
 ```
 
+CLI exit codes:
+
+* `0` = success
+* `1` = expected input, runtime, or output failure
+* `2` = invalid CLI usage
+
+Expected errors are written to `stderr`. Successful analysis output remains on `stdout`.
+
 For more examples, see [Examples documentation](docs/examples.md).
 
 ## Documentation
