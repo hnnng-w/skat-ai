@@ -1,4 +1,5 @@
 from skat_ai.game_state import GameState
+from skat_ai.input_loader import build_local_game_state_from_input
 from skat_ai.policy_comparison import (
     build_policy_recommendation,
     compare_multi_step_policies,
@@ -133,6 +134,46 @@ def test_compare_multi_step_policies_uses_canonical_score_summary_fields() -> No
     assert policy_result["defender_points_gained"] == 0
     assert policy_result["final_point_swing"] == 25
     assert policy_result["local_point_swing"] == 25
+
+
+def test_policy_comparison_uses_local_information_state_for_private_skat() -> None:
+    base_input = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "left",
+        "hand": ["SA", "S10"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "trick_leader": "me",
+        "next_player": "me",
+        "skat_visibility": "known_to_declarer",
+    }
+    first_state = build_local_game_state_from_input({**base_input, "skat": ["C7", "D8"]})
+    second_state = build_local_game_state_from_input({**base_input, "skat": ["H7", "D9"]})
+
+    first_result = compare_multi_step_policies(
+        state=first_state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        policies=["first_legal", "lowest_point"],
+        random_seed=42,
+        expected_value_sample_count=5,
+    )
+    second_result = compare_multi_step_policies(
+        state=second_state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        policies=["first_legal", "lowest_point"],
+        random_seed=42,
+        expected_value_sample_count=5,
+    )
+
+    assert first_state == second_state
+    assert first_state.skat == []
+    assert first_result == second_result
 
 
 def test_find_best_policy_by_final_point_swing() -> None:

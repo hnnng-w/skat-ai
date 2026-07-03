@@ -527,6 +527,41 @@ def check_list_performance(data: dict[str, Any]) -> list[str]:
 
 
 
+def check_defender_known_to_declarer_local_view(data: dict[str, Any]) -> list[str]:
+    """
+    Checks generated local-view output for declarer-private Skat cards.
+    """
+    errors = []
+
+    if data["position"]["skat"] != []:
+        errors.append("expected local defender position.skat to be redacted")
+
+    strategic_metadata = data["analysis_metadata"]["strategic_metadata"]
+    if strategic_metadata["skat_visibility"] != "known_to_declarer":
+        errors.append("expected known_to_declarer strategic metadata")
+
+    information_policy = data["information_policy_summary"]
+    if information_policy["skat_visibility"] != "known_to_declarer":
+        errors.append("expected known_to_declarer information policy summary")
+
+    if information_policy["known_skat_cards_allowed"] is not True:
+        errors.append("expected known Skat cards to be allowed for known_to_declarer")
+
+    multi_step_result = data.get("multi_step_result")
+    if not isinstance(multi_step_result, dict):
+        errors.append("expected populated multi_step_result")
+        return errors
+
+    context_metadata = multi_step_result["context_summary"]["strategic_metadata"]
+    if context_metadata["skat_visibility"] != "known_to_declarer":
+        errors.append("expected known_to_declarer multi-step strategic metadata")
+
+    if multi_step_result["final_state"]["skat"] != []:
+        errors.append("expected local defender final_state.skat to be redacted")
+
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -649,6 +684,26 @@ SCENARIOS = (
         input_path=PROJECT_ROOT / "examples" / "grand_list_performance_input.json",
         branch="optional list performance summary",
         check_output=check_list_performance,
+    ),
+    Scenario(
+        name="defender_known_to_declarer_local_view",
+        input_path=(
+            PROJECT_ROOT
+            / "tests"
+            / "fixtures"
+            / "generated_output_schema"
+            / "grand_defender_known_to_declarer_live.json"
+        ),
+        branch="local defender live output with declarer-private Skat redaction",
+        cli_args=(
+            "--multi-step",
+            "1",
+            "--card-policy",
+            "highest_point",
+            "--expected-value-samples",
+            "20",
+        ),
+        check_output=check_defender_known_to_declarer_local_view,
     ),
 )
 

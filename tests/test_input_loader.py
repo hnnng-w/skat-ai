@@ -1,5 +1,6 @@
 from skat_ai.input_loader import (
     build_game_state_from_input,
+    build_local_game_state_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_left_opponent_policy_settings_from_input,
@@ -145,6 +146,70 @@ def test_build_game_state_from_input_loads_defender_declarer_identity() -> None:
     state = build_game_state_from_input(data)
 
     assert state.declarer_player == "right"
+
+
+def test_build_local_game_state_hides_declarer_private_skat_from_defender() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "left",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "skat": ["C7", "D8"],
+        "skat_visibility": "known_to_declarer",
+    }
+
+    state = build_local_game_state_from_input(data)
+
+    assert state.skat == []
+
+
+def test_build_local_game_state_keeps_declarer_private_skat_for_declarer() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "skat": ["C7", "D8"],
+        "skat_visibility": "known_to_declarer",
+    }
+
+    state = build_local_game_state_from_input(data)
+
+    assert state.skat == ["C7", "D8"]
+
+
+def test_build_local_game_state_keeps_known_post_game_skat_for_defender() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "left",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "skat": ["C7", "D8"],
+        "skat_visibility": "known_post_game",
+    }
+
+    state = build_local_game_state_from_input(data)
+
+    assert state.skat == ["C7", "D8"]
+
+
+def test_build_local_game_state_hides_unknown_skat() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "skat": ["C7", "D8"],
+        "skat_visibility": "unknown",
+    }
+
+    state = build_local_game_state_from_input(data)
+
+    assert state.skat == []
 
 
 def test_get_simulation_settings_from_input() -> None:

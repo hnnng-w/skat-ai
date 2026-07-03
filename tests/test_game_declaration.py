@@ -9,6 +9,7 @@ from skat_ai.game_declaration import (
     validate_game_declaration,
     validate_matadors,
 )
+from skat_ai.information_view import build_local_analysis_input
 
 BOOLEAN_DECLARATION_FIELDS = [
     "hand_game",
@@ -380,6 +381,50 @@ def test_build_game_declaration_uses_declarer_skat_when_ownership_is_known() -> 
     )
 
     assert declaration.matadors == 2
+
+
+def test_local_declarer_known_to_declarer_skat_can_affect_matador_inference() -> None:
+    base_input = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "hand": [],
+        "completed_tricks": [],
+        "skat_visibility": "known_to_declarer",
+    }
+
+    with_top_trump = build_game_declaration_from_input(
+        build_local_analysis_input({**base_input, "skat": ["CJ", "SJ"]})
+    )
+    without_top_trump = build_game_declaration_from_input(
+        build_local_analysis_input({**base_input, "skat": ["SJ", "C7"]})
+    )
+
+    assert with_top_trump.matadors == 2
+    assert without_top_trump.matadors == 1
+    assert build_local_analysis_input({**base_input, "skat": ["CJ", "SJ"]})[
+        "skat"
+    ] == ["CJ", "SJ"]
+
+
+def test_local_defender_known_to_declarer_skat_does_not_affect_matadors() -> None:
+    base_input = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "left",
+        "hand": [],
+        "completed_tricks": [],
+        "skat_visibility": "known_to_declarer",
+    }
+    first_declaration = build_game_declaration_from_input(
+        build_local_analysis_input({**base_input, "skat": ["CJ", "C7"]})
+    )
+    second_declaration = build_game_declaration_from_input(
+        build_local_analysis_input({**base_input, "skat": ["SJ", "C7"]})
+    )
+
+    assert first_declaration.matadors is None
+    assert second_declaration.matadors is None
 
 
 def test_build_game_declaration_does_not_infer_matadors_from_defender_skat() -> None:

@@ -21,6 +21,10 @@ def build_information_policy_summary(
     Builds a JSON-serializable information policy summary.
     """
     live_information_enforced = is_live_information_enforced(analysis_mode)
+    known_skat_cards_allowed = (
+        not live_information_enforced
+        or skat_visibility == "known_to_declarer"
+    )
 
     return {
         "analysis_mode": analysis_mode,
@@ -28,7 +32,7 @@ def build_information_policy_summary(
         "game_end_reason": game_end_reason,
         "live_information_enforced": live_information_enforced,
         "known_post_game_skat_allowed": not live_information_enforced,
-        "known_skat_cards_allowed": not live_information_enforced,
+        "known_skat_cards_allowed": known_skat_cards_allowed,
         "ended_game_allowed": not live_information_enforced,
         "unverifiable_completed_trick_winner_metadata_allowed": (
             not live_information_enforced
@@ -56,15 +60,39 @@ def calculate_known_card_points_from_input(
 
 def validate_live_decision_has_no_known_skat_cards(
     analysis_mode: str,
+    skat_visibility: str,
     skat: list[str],
 ) -> None:
     """
     Validates that live decisions do not include known skat cards.
     """
-    if analysis_mode == "live_decision" and skat:
+    if (
+        analysis_mode == "live_decision"
+        and skat
+        and skat_visibility != "known_to_declarer"
+    ):
         raise ValueError(
             "Known skat cards are not allowed for analysis_mode='live_decision'. "
-            "Use analysis_mode='post_game_review' for post-game known skat cards."
+            "Use skat_visibility='known_to_declarer' only when the concrete "
+            "declarer legitimately knows the Skat."
+        )
+
+
+def validate_skat_card_count_for_visibility(
+    skat_visibility: str,
+    skat: list[str],
+) -> None:
+    """Validates concrete Skat-card counts for the visibility state."""
+    if skat_visibility == "unknown" and skat:
+        raise ValueError("skat_visibility='unknown' requires skat to be empty.")
+
+    if (
+        skat_visibility in ["known_to_declarer", "known_post_game"]
+        and len(skat) not in [0, 2]
+    ):
+        raise ValueError(
+            f"skat_visibility='{skat_visibility}' requires either zero or two "
+            "concrete Skat cards."
         )
 
 
@@ -136,6 +164,11 @@ def validate_information_policy_from_input(
 
     validate_live_decision_has_no_known_skat_cards(
         analysis_mode=analysis_mode,
+        skat_visibility=data.get("skat_visibility", "unknown"),
+        skat=data.get("skat", []),
+    )
+    validate_skat_card_count_for_visibility(
+        skat_visibility=data.get("skat_visibility", "unknown"),
         skat=data.get("skat", []),
     )
     validate_live_completed_trick_metadata(

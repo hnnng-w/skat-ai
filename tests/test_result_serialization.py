@@ -1,6 +1,6 @@
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_state import GameState
-from skat_ai.input_loader import build_game_state_from_input
+from skat_ai.input_loader import build_game_state_from_input, build_local_game_state_from_input
 from skat_ai.input_validation import validate_position_input
 from skat_ai.result_serialization import (
     build_serializable_game_state,
@@ -55,6 +55,38 @@ def test_build_serializable_game_state() -> None:
         "defender_points": 25,
         "next_player": "me",
     }
+
+
+def test_serializable_local_defender_state_redacts_known_to_declarer_skat() -> None:
+    state = build_local_game_state_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "declarer_player": "left",
+            "hand": ["SA"],
+            "current_trick": [],
+            "skat": ["C7", "D8"],
+            "skat_visibility": "known_to_declarer",
+        }
+    )
+
+    assert build_serializable_game_state(state)["skat"] == []
+
+
+def test_serializable_local_declarer_state_keeps_known_to_declarer_skat() -> None:
+    state = build_local_game_state_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "declarer_player": "me",
+            "hand": ["SA"],
+            "current_trick": [],
+            "skat": ["C7", "D8"],
+            "skat_visibility": "known_to_declarer",
+        }
+    )
+
+    assert build_serializable_game_state(state)["skat"] == ["C7", "D8"]
 
 
 def test_build_serializable_multi_step_step_without_opponent_sequence() -> None:

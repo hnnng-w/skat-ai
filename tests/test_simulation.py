@@ -1,5 +1,7 @@
 from skat_ai.game_history import build_completed_trick_from_state_and_candidate
 from skat_ai.game_state import GameState
+from skat_ai.input_loader import build_local_game_state_from_input
+from skat_ai.recommender import recommend_card_by_expected_value
 from skat_ai.rules import get_legal_cards
 from skat_ai.simulation import (
     choose_basic_opponent_card,
@@ -11,6 +13,7 @@ from skat_ai.simulation import (
     estimate_immediate_trick_win_rates_for_legal_cards,
     generate_multiple_random_opponent_hands,
     generate_random_opponent_hands,
+    generate_sampled_hidden_state,
     simulate_immediate_trick_once,
     simulate_immediate_trick_once_detailed,
     simulate_immediate_trick_once_with_points,
@@ -80,6 +83,143 @@ def test_generate_random_opponent_hands_has_no_duplicate_cards() -> None:
     all_generated_cards = left_hand + right_hand
 
     assert len(all_generated_cards) == len(set(all_generated_cards))
+
+
+def test_generate_sampled_hidden_state_partitions_local_unseen_cards() -> None:
+    from skat_ai.card_tracking import get_unseen_cards
+
+    state = GameState(
+        game_type="grand",
+        player_role="defender",
+        declarer_player="left",
+        hand=["CJ", "SA", "S9", "H10", "D7"],
+        current_trick=[],
+        played_cards=[],
+        skat=[],
+    )
+    unseen_cards = get_unseen_cards(state)
+
+    sample = generate_sampled_hidden_state(
+        state=state,
+        left_hand_size=5,
+        right_hand_size=5,
+    )
+    sampled_cards = sample.left_hand + sample.right_hand + sample.hypothetical_skat
+
+    assert len(sample.left_hand) == 5
+    assert len(sample.right_hand) == 5
+    assert len(sample.hypothetical_skat) == len(unseen_cards) - 10
+    assert sorted(sampled_cards) == sorted(unseen_cards)
+    assert len(sampled_cards) == len(set(sampled_cards))
+
+
+def test_defender_known_to_declarer_sampling_does_not_use_actual_skat_identities() -> None:
+    import random
+
+    base_input = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "left",
+        "player_position": "middlehand",
+        "trick_leader": "me",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 5,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "known_to_declarer",
+    }
+    first_input = {**base_input, "skat": ["C7", "D8"]}
+    second_input = {**base_input, "skat": ["H7", "D9"]}
+    first_state = build_local_game_state_from_input(first_input)
+    second_state = build_local_game_state_from_input(second_input)
+
+    first_sample = generate_sampled_hidden_state(
+        state=first_state,
+        left_hand_size=3,
+        right_hand_size=3,
+        random_generator=random.Random(7),
+    )
+    second_sample = generate_sampled_hidden_state(
+        state=second_state,
+        left_hand_size=3,
+        right_hand_size=3,
+        random_generator=random.Random(7),
+    )
+    first_values = estimate_immediate_trick_values_for_legal_cards(
+        state=first_state,
+        left_hand_size=3,
+        right_hand_size=3,
+        sample_count=5,
+        random_seed=42,
+    )
+    second_values = estimate_immediate_trick_values_for_legal_cards(
+        state=second_state,
+        left_hand_size=3,
+        right_hand_size=3,
+        sample_count=5,
+        random_seed=42,
+    )
+    first_recommendation = recommend_card_by_expected_value(
+        state=first_state,
+        left_hand_size=3,
+        right_hand_size=3,
+        sample_count=5,
+        random_seed=42,
+    )
+    second_recommendation = recommend_card_by_expected_value(
+        state=second_state,
+        left_hand_size=3,
+        right_hand_size=3,
+        sample_count=5,
+        random_seed=42,
+    )
+
+    assert first_state == second_state
+    assert first_state.skat == []
+    assert first_sample == second_sample
+    assert first_values == second_values
+    assert first_recommendation == second_recommendation
+
+
+def test_declarer_known_to_declarer_sampling_uses_visible_skat_identities() -> None:
+    import random
+
+    from skat_ai.card_tracking import get_unseen_cards
+
+    base_input = {
+        "game_type": "grand",
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "skat_visibility": "known_to_declarer",
+    }
+    first_state = build_local_game_state_from_input({**base_input, "skat": ["C7", "D8"]})
+    second_state = build_local_game_state_from_input({**base_input, "skat": ["H7", "D9"]})
+    first_sample = generate_sampled_hidden_state(
+        state=first_state,
+        left_hand_size=3,
+        right_hand_size=3,
+        random_generator=random.Random(7),
+    )
+
+    assert first_state.skat == ["C7", "D8"]
+    assert second_state.skat == ["H7", "D9"]
+    assert first_state != second_state
+    assert get_unseen_cards(first_state) != get_unseen_cards(second_state)
+    assert "C7" not in first_sample.left_hand + first_sample.right_hand
+    assert "D8" not in first_sample.left_hand + first_sample.right_hand
 
 
 def test_generate_random_opponent_hands_raises_error_when_too_many_cards_requested() -> None:

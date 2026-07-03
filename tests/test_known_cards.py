@@ -1,4 +1,5 @@
 from skat_ai.game_state import GameState
+from skat_ai.input_loader import build_local_game_state_from_input
 from skat_ai.known_cards import (
     get_cards_from_completed_tricks,
     get_duplicate_cards,
@@ -44,6 +45,38 @@ def test_get_known_cards_from_state() -> None:
     known_cards = get_known_cards_from_state(state)
 
     assert known_cards == ["SA", "S7", "C7", "D7", "CA", "C10", "CK"]
+
+
+def test_known_cards_exclude_local_defender_private_skat_after_local_view() -> None:
+    state = build_local_game_state_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "declarer_player": "left",
+            "hand": ["SA"],
+            "current_trick": [],
+            "skat": ["C7", "D8"],
+            "skat_visibility": "known_to_declarer",
+        }
+    )
+
+    assert get_known_cards_from_state(state) == ["SA"]
+
+
+def test_known_cards_include_local_declarer_private_skat_after_local_view() -> None:
+    state = build_local_game_state_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "declarer_player": "me",
+            "hand": ["SA"],
+            "current_trick": [],
+            "skat": ["C7", "D8"],
+            "skat_visibility": "known_to_declarer",
+        }
+    )
+
+    assert get_known_cards_from_state(state) == ["SA", "C7", "D8"]
 
 
 def test_get_duplicate_cards() -> None:

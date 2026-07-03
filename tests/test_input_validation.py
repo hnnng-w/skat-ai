@@ -2581,6 +2581,53 @@ def test_validate_position_input_rejects_live_decision_with_known_skat_cards() -
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
+
+def test_validate_position_input_accepts_live_known_to_declarer_skat_for_defender() -> None:
+    data = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "left",
+        "player_position": "middlehand",
+        "trick_leader": "me",
+        "hand": ["SA", "S10", "S9"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": ["C7", "D8"],
+        "left_hand_size": 3,
+        "right_hand_size": 3,
+        "sample_count": 100,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "live_decision",
+        "skat_visibility": "known_to_declarer",
+    }
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_unknown_visibility_with_skat_cards() -> None:
+    data = build_valid_input()
+    data["analysis_mode"] = "post_game_review"
+    data["skat_visibility"] = "unknown"
+    data["skat"] = ["H8", "D8"]
+
+    with pytest.raises(ValueError, match="skat_visibility='unknown'"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_one_known_to_declarer_skat_card() -> None:
+    data = build_valid_input()
+    data["analysis_mode"] = "post_game_review"
+    data["skat_visibility"] = "known_to_declarer"
+    data["skat"] = ["H8"]
+
+    with pytest.raises(ValueError, match="zero or two"):
+        validate_position_input(data)
+
 def test_validate_position_input_accepts_post_game_review_with_known_skat_cards() -> None:
     data = {
         "game_type": "grand",

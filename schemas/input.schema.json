@@ -245,7 +245,7 @@
     },
     "skat_visibility": {
       "type": "string",
-      "enum": ["unknown", "known_post_game"]
+      "enum": ["unknown", "known_to_declarer", "known_post_game"]
     },
     "game_end_reason": {
       "type": "string",

@@ -4,6 +4,7 @@ import skat_ai.simulation as simulation_module
 from skat_ai.card_selection import choose_first_legal_card
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_state import GameState
+from skat_ai.input_loader import build_local_game_state_from_input
 from skat_ai.multi_step_simulation import (
     extract_opponent_cards_from_step,
     get_multi_step_stop_reason,
@@ -1463,6 +1464,62 @@ def test_simulate_multiple_steps_prepares_right_response_to_existing_left_lead(
     assert step["prepared_state"].current_trick == ["D7", "DA"]
     assert step["prepared_state"].next_player == "me"
     assert state.current_trick == ["D7"]
+
+
+def test_multi_step_advances_local_information_state_for_defender_private_skat(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["C7"], ["D7"]
+
+    monkeypatch.setattr(
+        simulation_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    privileged_input = {
+        "game_type": "grand",
+        "player_role": "defender",
+        "declarer_player": "left",
+        "hand": ["SA"],
+        "current_trick": [],
+        "played_cards": [],
+        "completed_tricks": [],
+        "trick_leader": "me",
+        "next_player": "me",
+        "skat": ["C7", "D8"],
+        "skat_visibility": "known_to_declarer",
+    }
+    state = build_local_game_state_from_input(privileged_input)
+
+    result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=1,
+        right_hand_size=1,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+    final_state = result["final_state"]
+    final_cards = []
+    final_cards.extend(final_state.hand)
+    final_cards.extend(final_state.current_trick)
+    final_cards.extend(final_state.played_cards)
+    final_cards.extend(final_state.skat)
+    for completed_trick in final_state.completed_tricks:
+        final_cards.extend(completed_trick["cards"])
+
+    assert state.skat == []
+    assert final_state.skat == []
+    assert "C7" in final_state.completed_tricks[-1]["cards"]
+    assert len(final_cards) == len(set(final_cards))
+    assert result["steps_simulated"] == 1
 
 
 def test_simulate_multiple_steps_existing_left_lead_response_is_reproducible() -> None:

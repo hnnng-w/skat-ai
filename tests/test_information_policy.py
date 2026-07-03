@@ -44,3 +44,20 @@ def test_build_information_policy_summary_for_post_game_review() -> None:
         "ended_game_allowed": True,
         "unverifiable_completed_trick_winner_metadata_allowed": True,
     }
+
+
+def test_build_information_policy_summary_allows_live_declarer_private_skat() -> None:
+    assert build_information_policy_summary(
+        analysis_mode="live_decision",
+        skat_visibility="known_to_declarer",
+        game_end_reason="not_ended",
+    ) == {
+        "analysis_mode": "live_decision",
+        "skat_visibility": "known_to_declarer",
+        "game_end_reason": "not_ended",
+        "live_information_enforced": True,
+        "known_post_game_skat_allowed": False,
+        "known_skat_cards_allowed": True,
+        "ended_game_allowed": False,
+        "unverifiable_completed_trick_winner_metadata_allowed": False,
+    }

@@ -20,8 +20,10 @@ from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
 from skat_ai.game_value import build_game_value_summary
 from skat_ai.information_policy import build_information_policy_summary
+from skat_ai.information_view import build_local_analysis_input
 from skat_ai.input_loader import (
     build_game_state_from_input,
+    build_local_game_state_from_input,
     get_actual_card_played_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
@@ -205,7 +207,8 @@ def build_analysis_result(
     Builds the full analysis result as a structured dictionary.
     """
     data = load_position_from_json(file_path)
-    state = build_game_state_from_input(data)
+    local_data = build_local_analysis_input(data)
+    state = build_game_state_from_input(local_data)
     settings = get_simulation_settings_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
     if effective_opponent_policy_settings is None:
@@ -225,7 +228,7 @@ def build_analysis_result(
         effective_opponent_policy_settings.immediate_response_policy_by_player
     )
     actual_card_played = get_actual_card_played_from_input(data)
-    game_declaration = get_game_declaration_from_input(data)
+    game_declaration = get_game_declaration_from_input(local_data)
     performance_rating_system = get_performance_rating_system_from_input(data)
     list_performance_input = get_list_performance_input_from_input(data)
     list_game_contributions = get_list_game_contributions_from_input(data)
@@ -772,7 +775,7 @@ def run_json_position_analysis(
     policy_comparison_result_to_print = None
 
     if multi_step_count is not None:
-        state = build_game_state_from_input(position_data)
+        state = build_local_game_state_from_input(position_data)
         settings = get_simulation_settings_from_input(position_data)
         opponent_policy_settings = build_global_opponent_policy_settings(
             effective_opponent_policy_settings

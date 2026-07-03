@@ -1,4 +1,5 @@
 import random
+from dataclasses import dataclass
 from typing import Any
 
 from skat_ai.card_tracking import get_unseen_cards
@@ -26,15 +27,20 @@ from skat_ai.side_ownership import (
 )
 
 
-def generate_random_opponent_hands(
+@dataclass(frozen=True)
+class SampledHiddenState:
+    left_hand: list[str]
+    right_hand: list[str]
+    hypothetical_skat: list[str]
+
+
+def generate_sampled_hidden_state(
     state: GameState,
     left_hand_size: int,
     right_hand_size: int,
     random_generator: random.Random | None = None,
-) -> tuple[list[str], list[str]]:
-    """
-    Generates random opponent hands from unseen cards.
-    """
+) -> SampledHiddenState:
+    """Generates one coherent local-perspective hidden-card sample."""
     validate_enough_cards_for_opponent_sampling(
         state=state,
         left_hand_size=left_hand_size,
@@ -53,8 +59,32 @@ def generate_random_opponent_hands(
 
     left_hand = shuffled_cards[:left_hand_size]
     right_hand = shuffled_cards[left_hand_size:required_card_count]
+    hypothetical_skat = shuffled_cards[required_card_count:]
 
-    return left_hand, right_hand
+    return SampledHiddenState(
+        left_hand=left_hand,
+        right_hand=right_hand,
+        hypothetical_skat=hypothetical_skat,
+    )
+
+
+def generate_random_opponent_hands(
+    state: GameState,
+    left_hand_size: int,
+    right_hand_size: int,
+    random_generator: random.Random | None = None,
+) -> tuple[list[str], list[str]]:
+    """
+    Generates random opponent hands from unseen cards.
+    """
+    sample = generate_sampled_hidden_state(
+        state=state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        random_generator=random_generator,
+    )
+
+    return sample.left_hand, sample.right_hand
 
 
 def generate_multiple_random_opponent_hands(

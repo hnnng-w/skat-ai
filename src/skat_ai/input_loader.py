@@ -11,6 +11,7 @@ from skat_ai.game_declaration import (
     build_game_declaration_from_input,
 )
 from skat_ai.game_state import GameState
+from skat_ai.information_view import build_local_analysis_input
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
 from skat_ai.side_ownership import normalize_declarer_player
@@ -63,6 +64,11 @@ def build_game_state_from_input(data: dict[str, Any]) -> GameState:
         defender_points=data.get("defender_points", 0),
         next_player=turn_phase.next_player,
     )
+
+
+def build_local_game_state_from_input(data: dict[str, Any]) -> GameState:
+    """Builds a GameState from the local-information view of input data."""
+    return build_game_state_from_input(build_local_analysis_input(data))
 
 
 def get_simulation_settings_from_input(data: dict[str, Any]) -> dict[str, Any]:

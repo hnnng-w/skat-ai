@@ -344,16 +344,16 @@ Example for post-game review:
 
 Fields:
 
-| Field                                                  | Meaning                                                               |
-| ------------------------------------------------------ | --------------------------------------------------------------------- |
-| `analysis_mode`                                        | Active analysis mode.                                                 |
-| `skat_visibility`                                      | Whether the skat is unknown or known from post-game review.           |
-| `game_end_reason`                                      | Game-end metadata used for remaining-point assignment.                |
-| `live_information_enforced`                            | Whether live-information restrictions are active.                     |
-| `known_post_game_skat_allowed`                         | Whether post-game skat visibility is allowed.                         |
-| `known_skat_cards_allowed`                             | Whether known skat cards are allowed in the input.                    |
-| `ended_game_allowed`                                   | Whether completed game states are allowed.                            |
-| `unverifiable_completed_trick_winner_metadata_allowed` | Whether winner metadata without full verification context is allowed. |
+| Field                                                  | Meaning                                                                                |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `analysis_mode`                                        | Active analysis mode.                                                                  |
+| `skat_visibility`                                      | Whether the skat is unknown, declarer-private during play, or known from post-game review. |
+| `game_end_reason`                                      | Game-end metadata used for remaining-point assignment.                                 |
+| `live_information_enforced`                            | Whether live-information restrictions are active.                                      |
+| `known_post_game_skat_allowed`                         | Whether post-game skat visibility is allowed.                                          |
+| `known_skat_cards_allowed`                             | Whether known skat cards are allowed in the input under the selected visibility.       |
+| `ended_game_allowed`                                   | Whether completed game states are allowed.                                             |
+| `unverifiable_completed_trick_winner_metadata_allowed` | Whether winner metadata without full verification context is allowed.                  |
 
 ## Performance rating summary
 

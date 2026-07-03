@@ -298,10 +298,11 @@ Supported `analysis_mode` values:
 
 Supported `skat_visibility` values:
 
-| Value             | Meaning                             |
-| ----------------- | ----------------------------------- |
-| `unknown`         | Skat is not visible.                |
-| `known_post_game` | Skat is known for post-game review. |
+| Value                 | Meaning                                           |
+| --------------------- | ------------------------------------------------- |
+| `unknown`             | Skat is not visible.                              |
+| `known_to_declarer`   | Skat is known only to the declarer during play.   |
+| `known_post_game`     | Skat is known for post-game review.               |
 
 Supported `game_end_reason` values:
 
@@ -375,13 +376,25 @@ The project separates live decision analysis from post-game review.
 Important validation rules:
 
 * `analysis_mode = "live_decision"` cannot use `skat_visibility = "known_post_game"`.
-* `analysis_mode = "live_decision"` cannot include known skat cards in `skat`.
+* `analysis_mode = "live_decision"` can include concrete Skat cards only with `skat_visibility = "known_to_declarer"`.
+* With `skat_visibility = "known_to_declarer"`, declarer analysis may use the supplied Skat cards, while defender analysis validates them and then redacts them from the local analysis view.
+* `skat_visibility = "unknown"` cannot include concrete Skat cards in `skat`.
+* `skat_visibility = "known_to_declarer"` and `skat_visibility = "known_post_game"` require either zero or two concrete Skat cards.
 * `game_end_reason` values other than `not_ended` require `analysis_mode = "post_game_review"`.
 * `analysis_mode = "live_decision"` cannot describe a completed game with all 120 card points assigned.
 * In `live_decision`, completed-trick winner metadata such as `winner_player` or `winner_role` must be verifiable.
 * If winner metadata is provided in `live_decision`, `players` should also be provided.
 
 Examples:
+
+```json
+{
+  "analysis_mode": "live_decision",
+  "skat_visibility": "known_to_declarer",
+  "game_end_reason": "not_ended",
+  "skat": ["C7", "D8"]
+}
+```
 
 ```json
 {

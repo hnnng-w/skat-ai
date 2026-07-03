@@ -1,6 +1,7 @@
 from skat_ai.card_tracking import get_seen_cards, get_unseen_cards, get_unseen_cards_for_state
 from skat_ai.deck import get_full_deck
 from skat_ai.game_state import GameState
+from skat_ai.input_loader import build_local_game_state_from_input
 
 
 def test_full_deck_contains_32_cards() -> None:
@@ -49,6 +50,42 @@ def test_unseen_cards_exclude_seen_cards() -> None:
     assert "SA" not in unseen_cards
     assert "H10" not in unseen_cards
     assert "D7" not in unseen_cards
+    assert "D8" not in unseen_cards
+
+
+def test_unseen_cards_include_private_skat_after_local_defender_view() -> None:
+    state = build_local_game_state_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "declarer_player": "left",
+            "hand": ["SA"],
+            "current_trick": [],
+            "skat": ["C7", "D8"],
+            "skat_visibility": "known_to_declarer",
+        }
+    )
+    unseen_cards = get_unseen_cards(state)
+
+    assert "C7" in unseen_cards
+    assert "D8" in unseen_cards
+
+
+def test_unseen_cards_exclude_private_skat_after_local_declarer_view() -> None:
+    state = build_local_game_state_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "declarer",
+            "declarer_player": "me",
+            "hand": ["SA"],
+            "current_trick": [],
+            "skat": ["C7", "D8"],
+            "skat_visibility": "known_to_declarer",
+        }
+    )
+    unseen_cards = get_unseen_cards(state)
+
+    assert "C7" not in unseen_cards
     assert "D8" not in unseen_cards
 
 

@@ -57,11 +57,12 @@ Typical metadata:
 }
 ```
 
-Live decision examples must not include post-game-only information such as known skat cards or completed game-end reasons.
+Live decision examples must not include post-game-only information such as `known_post_game` Skat visibility or completed game-end reasons. They may include `known_to_declarer` Skat cards when those cards are declarer-private live information.
 
 | File                                       | Purpose                                                                                                                      |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | `grand_second_position.json`               | Grand game, local player acts second. Also demonstrates automatic matador inference from known declarer cards when possible. |
+| `grand_declarer_known_to_declarer_live.json` | Grand live declarer position where the local declarer has declarer-private Skat visibility.                                 |
 | `grand_third_position.json`                | Grand game, local player acts third.                                                                                         |
 | `grand_leading.json`                       | Grand game where local player leads the trick.                                                                               |
 | `grand_left_right_opponent_policies.json`  | Grand game with distinct global, left-opponent, and right-opponent policy settings.                                           |

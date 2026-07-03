@@ -3215,6 +3215,65 @@ def test_build_analysis_result_marks_right_turn_immediate_unavailable(
     assert_immediate_unavailable_for_opponent_turn(result)
 
 
+def test_build_analysis_result_redacts_defender_known_to_declarer_skat(
+    tmp_path,
+) -> None:
+    data = build_turn_phase_position_input(
+        trick_leader="me",
+        current_trick=[],
+        next_player="me",
+    )
+    data["player_role"] = "defender"
+    data["declarer_player"] = "left"
+    data["analysis_mode"] = "live_decision"
+    data["skat_visibility"] = "known_to_declarer"
+    data["skat"] = ["C7", "D8"]
+    data["left_hand_size"] = 3
+    data["right_hand_size"] = 3
+    input_path = write_position_file(tmp_path, data)
+
+    result = build_analysis_result(input_path)
+
+    assert result["position"]["skat"] == []
+    assert result["analysis_metadata"]["strategic_metadata"]["skat_visibility"] == (
+        "known_to_declarer"
+    )
+
+
+def test_build_analysis_result_defender_recommendation_ignores_private_skat_identities(
+    tmp_path,
+) -> None:
+    base_data = build_turn_phase_position_input(
+        trick_leader="me",
+        current_trick=[],
+        next_player="me",
+    )
+    base_data["player_role"] = "defender"
+    base_data["declarer_player"] = "left"
+    base_data["analysis_mode"] = "live_decision"
+    base_data["skat_visibility"] = "known_to_declarer"
+    base_data["left_hand_size"] = 3
+    base_data["right_hand_size"] = 3
+    base_data["sample_count"] = 5
+    base_data["random_seed"] = 42
+    first_input_path = write_position_file(
+        tmp_path,
+        {**base_data, "skat": ["C7", "D8"]},
+    )
+    second_path = tmp_path / "second_position.json"
+    second_path.write_text(
+        json.dumps({**base_data, "skat": ["H7", "D9"]}),
+        encoding="utf-8",
+    )
+
+    first_result = build_analysis_result(first_input_path)
+    second_result = build_analysis_result(str(second_path))
+
+    assert first_result["position"] == second_result["position"]
+    assert first_result["analysis_report"] == second_result["analysis_report"]
+    assert first_result["recommendation"] == second_result["recommendation"]
+
+
 def test_build_analysis_result_skips_immediate_simulation_for_opponent_turn(
     tmp_path,
     monkeypatch,
