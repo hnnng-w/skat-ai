@@ -29,12 +29,23 @@ VALID_NEXT_PLAYERS = ["me", "left", "right", "unknown"]
 VALID_DECLARER_PLAYERS = ["me", "left", "right", "unknown"]
 VALID_COMPLETED_TRICK_WINNER_ROLES = ["declarer", "defenders"]
 VALID_TRICK_PLAYERS = ["me", "left", "right"]
+MAX_HAND_CARDS = 10
+MAX_OPPONENT_HAND_SIZE = 10
+MAX_SAMPLE_COUNT = 100_000
+MAX_SKAT_CARDS = 2
+COMPLETED_TRICK_ALLOWED_KEYS = {
+    "cards",
+    "players",
+    "winner_player",
+    "winner_role",
+}
 LIST_PERFORMANCE_REQUIRED_FIELDS = [
     "player_game_points",
     "own_games_won",
     "own_games_lost",
     "other_players_lost_games",
 ]
+
 LIST_PERFORMANCE_COUNTER_FIELDS = [
     "own_games_won",
     "own_games_lost",
@@ -47,6 +58,30 @@ LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS = [
 ]
 VALID_LIST_GAME_CONTRIBUTION_PLAYER_ROLES = ["declarer", "defender"]
 VALID_LIST_GAME_CONTRIBUTION_OUTCOMES = ["declarer_win", "declarer_loss"]
+
+
+def validate_array(value: Any, field_name: str) -> None:
+    """Validates that an explicitly supplied JSON array is a list."""
+    if not isinstance(value, list):
+        raise ValueError(f"{field_name} must be an array.")
+
+
+def validate_max_length(value: list[Any], field_name: str, max_length: int) -> None:
+    """Validates a schema-level maximum array length."""
+    if len(value) > max_length:
+        raise ValueError(f"{field_name} must contain at most {max_length} items.")
+
+
+def validate_positive_integer_maximum(
+    value: Any,
+    field_name: str,
+    maximum: int,
+) -> None:
+    """Validates a positive integer with a schema-level maximum."""
+    validate_positive_integer(value, field_name)
+
+    if value > maximum:
+        raise ValueError(f"{field_name} must be at most {maximum}.")
 
 
 def validate_required_keys(data: dict[str, Any]) -> None:
@@ -256,6 +291,15 @@ def validate_position_input(data: dict[str, Any]) -> None:
     skat = data.get("skat", [])
     completed_tricks = data.get("completed_tricks", [])
 
+    validate_array(hand, "hand")
+    validate_array(current_trick, "current_trick")
+    validate_array(played_cards, "played_cards")
+    validate_array(skat, "skat")
+    validate_array(completed_tricks, "completed_tricks")
+
+    validate_max_length(hand, "hand", MAX_HAND_CARDS)
+    validate_max_length(skat, "skat", MAX_SKAT_CARDS)
+
     validate_cards(hand, "hand")
     validate_cards(current_trick, "current_trick")
     validate_cards(played_cards, "played_cards")
@@ -272,9 +316,21 @@ def validate_position_input(data: dict[str, Any]) -> None:
     )
     validate_actual_card_played(data)
 
-    validate_positive_integer(data["left_hand_size"], "left_hand_size")
-    validate_positive_integer(data["right_hand_size"], "right_hand_size")
-    validate_positive_integer(data["sample_count"], "sample_count")
+    validate_positive_integer_maximum(
+        data["left_hand_size"],
+        "left_hand_size",
+        MAX_OPPONENT_HAND_SIZE,
+    )
+    validate_positive_integer_maximum(
+        data["right_hand_size"],
+        "right_hand_size",
+        MAX_OPPONENT_HAND_SIZE,
+    )
+    validate_positive_integer_maximum(
+        data["sample_count"],
+        "sample_count",
+        MAX_SAMPLE_COUNT,
+    )
 
     validate_non_negative_integer(data.get("declarer_points", 0), "declarer_points")
     validate_non_negative_integer(data.get("defender_points", 0), "defender_points")
@@ -371,6 +427,15 @@ def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
 
     if not isinstance(list_performance_input, dict):
         raise ValueError("list_performance_input must be an object.")
+
+    additional_fields = sorted(
+        set(list_performance_input) - set(LIST_PERFORMANCE_REQUIRED_FIELDS)
+    )
+    if additional_fields:
+        raise ValueError(
+            "list_performance_input has unsupported keys: "
+            f"{additional_fields}"
+        )
 
     if data.get("performance_rating_system") != "isko_list":
         raise ValueError(
@@ -528,7 +593,20 @@ def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
     """
     full_deck = set(get_full_deck())
 
-    for completed_trick in completed_tricks:
+    for index, completed_trick in enumerate(completed_tricks):
+        field_prefix = f"completed_tricks[{index}]"
+
+        if not isinstance(completed_trick, dict):
+            raise ValueError(f"{field_prefix} must be an object.")
+
+        additional_fields = sorted(
+            set(completed_trick) - COMPLETED_TRICK_ALLOWED_KEYS
+        )
+        if additional_fields:
+            raise ValueError(
+                f"{field_prefix} has unsupported keys: {additional_fields}"
+            )
+
         if "cards" not in completed_trick:
             raise ValueError("Completed trick is missing required key: cards")
 
@@ -582,9 +660,6 @@ def validate_optional_player_profile(
     """
     Validates an optional player profile input.
     """
-    if profile is None:
-        return
-
     if not isinstance(profile, dict):
         raise ValueError(f"{field_name} must be an object.")
 
@@ -604,14 +679,14 @@ def validate_optional_player_profile(
     ]
 
     for key in integer_fields:
-        if key in profile and profile[key] is not None:
+        if key in profile:
             value = profile[key]
 
             if isinstance(value, bool) or not isinstance(value, int) or value < 0:
                 raise ValueError(f"{field_name}.{key} must be a non-negative integer.")
 
     for key in rate_fields:
-        if key in profile and profile[key] is not None:
+        if key in profile:
             value = profile[key]
 
             if (
@@ -636,14 +711,17 @@ def validate_optional_analysis_metadata(data: dict[str, Any]) -> None:
     if "game_end_reason" in data:
         validate_game_end_reason(data["game_end_reason"])
 
-    validate_optional_player_profile(
-        profile=data.get("left_player_profile"),
-        field_name="left_player_profile",
-    )
-    validate_optional_player_profile(
-        profile=data.get("right_player_profile"),
-        field_name="right_player_profile",
-    )
+    if "left_player_profile" in data:
+        validate_optional_player_profile(
+            profile=data["left_player_profile"],
+            field_name="left_player_profile",
+        )
+
+    if "right_player_profile" in data:
+        validate_optional_player_profile(
+            profile=data["right_player_profile"],
+            field_name="right_player_profile",
+        )
 
 def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
     """

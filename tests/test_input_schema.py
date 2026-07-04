@@ -91,6 +91,78 @@ def test_schema_rejects_boolean_integer_fields(
     assert_schema_invalid(data)
 
 
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value"),
+    [
+        ("sample_count", 100_001),
+        ("left_hand_size", 11),
+        ("right_hand_size", 11),
+    ],
+)
+def test_schema_rejects_upper_integer_bounds(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_hand_above_maximum() -> None:
+    data = build_valid_input()
+    data["hand"] = [
+        "C7",
+        "C8",
+        "C9",
+        "CJ",
+        "CQ",
+        "CK",
+        "D7",
+        "D8",
+        "D9",
+        "DJ",
+        "DQ",
+    ]
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_skat_above_maximum() -> None:
+    data = build_valid_input()
+    data["skat"] = ["C7", "D8", "H9"]
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    ["hand", "current_trick", "played_cards", "completed_tricks", "skat"],
+)
+def test_schema_rejects_null_card_arrays(field_name: str) -> None:
+    data = build_valid_input()
+    data[field_name] = None
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize("field_name", ["left_player_profile", "right_player_profile"])
+def test_schema_rejects_null_player_profiles(field_name: str) -> None:
+    data = build_valid_input()
+    data[field_name] = None
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_null_known_player_profile_field() -> None:
+    data = build_valid_input()
+    data["left_player_profile"] = {
+        "games_played": None,
+    }
+
+    assert_schema_invalid(data)
+
+
 def test_schema_accepts_nested_game_declaration() -> None:
     data = build_valid_input()
     data["game_declaration"] = {
@@ -390,6 +462,18 @@ def test_completed_trick_accepts_minimal_documented_entry() -> None:
     )
 
     assert_schema_valid(data)
+
+
+def test_completed_trick_rejects_additional_properties() -> None:
+    data = build_input_with_completed_trick(
+        {
+            "cards": ["CA", "C10", "CK"],
+            "winner_role": "declarer",
+            "table_size": 3,
+        }
+    )
+
+    assert_schema_invalid(data)
 
 
 def test_completed_trick_rejects_missing_winner_role() -> None:

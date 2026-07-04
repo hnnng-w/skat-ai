@@ -1,5 +1,6 @@
 import pytest
 
+from skat_ai.input_loader import build_local_game_state_from_input
 from skat_ai.input_validation import (
     validate_boolean,
     validate_cards,
@@ -156,6 +157,35 @@ def test_validate_position_input_preserves_lower_integer_boundaries(
 
     with pytest.raises(ValueError, match=field_name):
         validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value", "expected_error"),
+    [
+        ("sample_count", 100_001, "sample_count must be at most 100000"),
+        ("left_hand_size", 11, "left_hand_size must be at most 10"),
+        ("right_hand_size", 11, "right_hand_size must be at most 10"),
+    ],
+)
+def test_validate_position_input_rejects_schema_upper_integer_bounds(
+    field_name: str,
+    invalid_value: object,
+    expected_error: str,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    with pytest.raises(ValueError, match=expected_error):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_schema_upper_integer_bounds() -> None:
+    data = build_valid_input()
+    data["sample_count"] = 100_000
+    data["left_hand_size"] = 10
+    data["right_hand_size"] = 10
+
+    validate_position_input(data)
 
 
 def test_validate_position_input_accepts_negative_random_seed() -> None:
@@ -431,6 +461,77 @@ def test_validate_current_trick_rejects_three_cards() -> None:
         assert "at most 2 cards" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    ["hand", "current_trick", "played_cards", "completed_tricks", "skat"],
+)
+def test_validate_position_input_rejects_null_card_arrays(field_name: str) -> None:
+    data = build_valid_input()
+    data[field_name] = None
+
+    with pytest.raises(ValueError, match=f"{field_name} must be an array"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value"),
+    [
+        ("hand", "SA"),
+        ("current_trick", "SA"),
+        ("played_cards", "SA"),
+        ("completed_tricks", "not an array"),
+        ("skat", "C7"),
+    ],
+)
+def test_validate_position_input_rejects_non_list_card_arrays(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    with pytest.raises(ValueError, match=f"{field_name} must be an array"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_hand_above_schema_maximum() -> None:
+    data = build_valid_input()
+    data["hand"] = [
+        "C7",
+        "C8",
+        "C9",
+        "CJ",
+        "CQ",
+        "CK",
+        "D7",
+        "D8",
+        "D9",
+        "DJ",
+        "DQ",
+    ]
+
+    with pytest.raises(ValueError, match="hand must contain at most 10 items"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_hand_at_schema_maximum() -> None:
+    data = build_valid_input()
+    data["hand"] = [
+        "C7",
+        "C8",
+        "C9",
+        "CJ",
+        "CQ",
+        "CK",
+        "D7",
+        "D8",
+        "D9",
+        "DJ",
+    ]
+
+    validate_position_input(data)
 
 
 def test_validate_positive_integer_accepts_positive_integer() -> None:
@@ -752,6 +853,30 @@ def test_validate_completed_tricks_rejects_invalid_card() -> None:
         raise AssertionError("Expected ValueError was not raised.")
 
 
+@pytest.mark.parametrize("completed_trick", [None, "not an object", 1, True])
+def test_validate_completed_tricks_rejects_non_object_entries(
+    completed_trick: object,
+) -> None:
+    with pytest.raises(ValueError, match=r"completed_tricks\[0\] must be an object"):
+        validate_completed_tricks([completed_trick])
+
+
+def test_validate_completed_tricks_rejects_unsupported_keys() -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"completed_tricks\[0\] has unsupported keys: \['table_size'\]",
+    ):
+        validate_completed_tricks(
+            [
+                {
+                    "cards": ["CA", "C10", "CK"],
+                    "winner_role": "declarer",
+                    "table_size": 3,
+                }
+            ]
+        )
+
+
 def test_validate_completed_tricks_rejects_invalid_winner_role() -> None:
     try:
         validate_completed_tricks(
@@ -861,6 +986,46 @@ def test_validate_optional_player_profile_accepts_valid_profile() -> None:
         },
         "left_player_profile",
     )
+
+
+@pytest.mark.parametrize("field_name", ["left_player_profile", "right_player_profile"])
+def test_validate_optional_analysis_metadata_rejects_null_player_profiles(
+    field_name: str,
+) -> None:
+    with pytest.raises(ValueError, match=f"{field_name} must be an object"):
+        validate_optional_analysis_metadata({field_name: None})
+
+
+@pytest.mark.parametrize("field_name", ["left_player_profile", "right_player_profile"])
+def test_validate_position_input_rejects_null_player_profile(field_name: str) -> None:
+    data = build_valid_input()
+    data[field_name] = None
+
+    with pytest.raises(ValueError, match=f"{field_name} must be an object"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_null_known_player_profile_field() -> None:
+    data = build_valid_input()
+    data["left_player_profile"] = {
+        "games_played": None,
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="left_player_profile.games_played must be a non-negative integer",
+    ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_unknown_player_profile_fields() -> None:
+    data = build_valid_input()
+    data["left_player_profile"] = {
+        "games_played": 12,
+        "comment": None,
+    }
+
+    validate_position_input(data)
 
 
 def test_validate_optional_player_profile_rejects_negative_games_played() -> None:
@@ -1725,6 +1890,21 @@ def test_validate_position_input_rejects_missing_list_performance_fields() -> No
         ValueError,
         match="list_performance_input is missing required keys",
     ):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_additional_list_performance_fields() -> None:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_performance_input"] = {
+        "player_game_points": 120,
+        "own_games_won": 3,
+        "own_games_lost": 1,
+        "other_players_lost_games": 2,
+        "table_size": 3,
+    }
+
+    with pytest.raises(ValueError, match="list_performance_input has unsupported keys"):
         validate_position_input(data)
 
 
@@ -2653,7 +2833,7 @@ def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
         "declarer_points": 0,
         "defender_points": 0,
         "next_player": "unknown",
-        "skat": [],
+        "skat": ["H8", "D8"],
         "left_hand_size": 3,
         "right_hand_size": 3,
         "sample_count": 100,
@@ -2730,6 +2910,26 @@ def test_validate_position_input_accepts_live_known_to_declarer_skat_for_defende
 
     validate_position_input(data)
 
+    local_state = build_local_game_state_from_input(data)
+
+    assert local_state.skat == []
+
+
+def test_validate_position_input_accepts_live_known_to_declarer_skat_for_declarer() -> None:
+    data = build_valid_input()
+    data["analysis_mode"] = "live_decision"
+    data["skat_visibility"] = "known_to_declarer"
+    data["skat"] = ["H8", "D8"]
+    data["trick_leader"] = "right"
+    data["current_trick"] = ["CA"]
+    data["next_player"] = "me"
+
+    validate_position_input(data)
+
+    local_state = build_local_game_state_from_input(data)
+
+    assert local_state.skat == ["H8", "D8"]
+
 
 def test_validate_position_input_rejects_unknown_visibility_with_skat_cards() -> None:
     data = build_valid_input()
@@ -2748,6 +2948,16 @@ def test_validate_position_input_rejects_one_known_to_declarer_skat_card() -> No
     data["skat"] = ["H8"]
 
     with pytest.raises(ValueError, match="zero or two"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_skat_above_schema_maximum() -> None:
+    data = build_valid_input()
+    data["analysis_mode"] = "post_game_review"
+    data["skat_visibility"] = "known_post_game"
+    data["skat"] = ["H7", "H8", "H9"]
+
+    with pytest.raises(ValueError, match="skat must contain at most 2 items"):
         validate_position_input(data)
 
 def test_validate_position_input_accepts_post_game_review_with_known_skat_cards() -> None:

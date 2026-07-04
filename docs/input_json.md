@@ -28,6 +28,8 @@ The schema checks stable structural constraints such as:
 * maximum hand size
 * maximum skat size
 * maximum current-trick size
+* maximum opponent hand sizes and sample count
+* required array/object shapes for supplied public fields
 * unique cards within individual card arrays
 * card-point fields between 0 and 120
 * supported analysis metadata values
@@ -363,6 +365,11 @@ Profile confidence is derived from `games_played` only:
 
 When `use_profile_presets` is enabled, profile-derived presets can affect multi-step opponent policy settings. If cautious and aggressive profile-derived presets conflict, the higher-confidence side wins. If both conflicting sides have equal confidence, `aggressive_points` remains the fallback over `cautious_defender` for backward-compatible behavior.
 
+When a player profile is supplied, it must be a JSON object. Explicit `null` is
+not accepted for `left_player_profile`, `right_player_profile`, or known profile
+fields such as `games_played`. Unknown extra profile fields remain accepted as
+metadata.
+
 Left and right profile presets affect their respective effective left/right policies in multi-step simulation. Explicit side-specific CLI overrides are applied last and remain authoritative.
 
 ## Live vs post-game information rules
@@ -380,6 +387,7 @@ Important validation rules:
 * With `skat_visibility = "known_to_declarer"`, declarer analysis may use the supplied Skat cards, while defender analysis validates them and then redacts them from the local analysis view.
 * `skat_visibility = "unknown"` cannot include concrete Skat cards in `skat`.
 * `skat_visibility = "known_to_declarer"` and `skat_visibility = "known_post_game"` require either zero or two concrete Skat cards.
+* `skat` must be an array and can contain at most two cards.
 * `game_end_reason` values other than `not_ended` require `analysis_mode = "post_game_review"`.
 * `analysis_mode = "live_decision"` cannot describe a completed game with all 120 card points assigned.
 * In `live_decision`, completed-trick winner metadata such as `winner_player` or `winner_role` must be verifiable.
@@ -753,6 +761,7 @@ Validation rules:
 * `cards` must contain exactly three cards.
 * `winner_role` is required and must be `declarer` or `defenders`.
 * `players` must contain exactly three unique players when provided.
+* Completed-trick entries reject unsupported keys; supported keys are `cards`, `players`, `winner_role`, and `winner_player`.
 * Input trick players are `me`, `left`, or `right`; `unknown` is not accepted inside `completed_tricks[].players` or `completed_tricks[].winner_player`.
 * `players` must follow the known seating order:
 
@@ -779,8 +788,13 @@ Input validation rejects:
 
 * invalid game types
 * invalid card notation
+* explicit `null` or non-array values for card-array fields
+* hands with more than 10 cards
+* opponent hand sizes above 10
+* sample counts above 100000
 * duplicate known cards
 * invalid completed-trick structures
+* unsupported completed-trick keys
 * invalid completed-trick winner metadata
 * inconsistent completed-trick sequence
 * negative point values
@@ -792,7 +806,7 @@ Input validation rejects:
 * invalid `list_performance_input`
 * invalid opponent policy values
 * invalid live-vs-post-game information combinations
-* known skat cards in live decision mode
+* known Skat cards in live decision mode unless `skat_visibility = "known_to_declarer"`
 * ended game reasons outside post-game review mode
 * complete 120-point game states in live decision mode
 * invalid or illegal `actual_card_played`

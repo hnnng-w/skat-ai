@@ -52,6 +52,7 @@ The input schema checks things such as:
 * maximum hand size
 * maximum skat size
 * maximum current-trick size
+* maximum opponent hand sizes and sample count
 * unique cards within individual card arrays
 * exact completed-trick card counts and player counts
 * point fields between 0 and 120
@@ -64,6 +65,13 @@ The input schema checks things such as:
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
+
+Runtime input validation mirrors selected public schema bounds and shapes so
+direct Python callers receive stable `ValueError` failures for malformed public
+input. This includes non-null array checks for card-array fields, max hand and
+Skat lengths, max opponent hand sizes, max `sample_count`, player-profile object
+shapes, and unsupported keys in `completed_tricks` entries. The runtime still
+does not execute the full JSON Schema during loading.
 
 ## Output schema
 

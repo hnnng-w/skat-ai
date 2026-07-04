@@ -260,6 +260,27 @@ def test_cli_invalid_position_input_exits_one_without_output(tmp_path) -> None:
     assert not output_path.exists()
 
 
+def test_cli_invalid_runtime_shape_exits_one_without_output(tmp_path) -> None:
+    input_path = tmp_path / "invalid_runtime_shape.json"
+    output_path = tmp_path / "result.json"
+    data = json.loads(VALID_INPUT_PATH.read_text(encoding="utf-8"))
+    data["sample_count"] = 100_001
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    completed_process = run_cli(
+        "--input",
+        input_path,
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 1
+    assert "Error: sample_count must be at most 100000." in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
 def test_cli_rejects_role_only_completed_trick_conflict(tmp_path) -> None:
     input_path = tmp_path / "wrong_role_only_completed_trick.json"
     output_path = tmp_path / "result.json"
