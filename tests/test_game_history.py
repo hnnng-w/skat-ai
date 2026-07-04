@@ -824,6 +824,105 @@ def test_validate_completed_trick_rule_winner_is_tolerant_without_winner_player(
     )
 
 
+def test_validate_completed_trick_rule_winner_accepts_role_only_side() -> None:
+    validate_completed_trick_rule_winner(
+        completed_trick={
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "defenders",
+        },
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+    )
+
+
+def test_validate_completed_trick_rule_winner_rejects_role_only_side_conflict() -> None:
+    try:
+        validate_completed_trick_rule_winner(
+            completed_trick={
+                "cards": ["SA", "S7", "S8"],
+                "players": ["left", "right", "me"],
+                "winner_role": "declarer",
+            },
+            game_type="grand",
+            player_role="declarer",
+            declarer_player="me",
+        )
+    except ValueError as error:
+        assert "winner_role is inconsistent with trick rules" in str(error)
+        assert "expected defenders, got declarer" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_rule_winner_uses_null_trick_rules_for_role() -> None:
+    try:
+        validate_completed_trick_rule_winner(
+            completed_trick={
+                "cards": ["C10", "CJ", "CA"],
+                "players": ["left", "right", "me"],
+                "winner_role": "defenders",
+            },
+            game_type="null",
+            player_role="declarer",
+            declarer_player="me",
+        )
+    except ValueError as error:
+        assert "winner_role is inconsistent with trick rules" in str(error)
+        assert "expected declarer, got defenders" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_rule_winner_is_tolerant_for_unknown_side() -> None:
+    validate_completed_trick_rule_winner(
+        completed_trick={
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+        },
+        game_type="grand",
+        player_role="unknown",
+        declarer_player="unknown",
+    )
+
+
+def test_validate_completed_trick_rule_winner_keeps_legacy_side_only_history() -> None:
+    validate_completed_trick_rule_winner(
+        completed_trick={
+            "cards": ["SA", "S7", "S8"],
+            "winner_role": "declarer",
+        },
+        game_type="grand",
+        player_role="declarer",
+        declarer_player="me",
+    )
+
+
+def test_validate_completed_trick_sequence_reports_role_only_conflict_path() -> None:
+    try:
+        validate_completed_trick_sequence(
+            completed_tricks=[
+                {
+                    "cards": ["SA", "S7", "S8"],
+                    "players": ["left", "right", "me"],
+                    "winner_role": "declarer",
+                }
+            ],
+            current_trick=[],
+            trick_leader="unknown",
+            player_role="declarer",
+            declarer_player="me",
+            game_type="grand",
+        )
+    except ValueError as error:
+        assert "completed_tricks[0].winner_role" in str(error)
+        assert "expected defenders, got declarer" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
 def test_validate_completed_trick_sequence_rejects_rule_wrong_winner() -> None:
     try:
         validate_completed_trick_sequence(

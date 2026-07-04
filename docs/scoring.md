@@ -100,9 +100,11 @@ alone do not prove Schwarz, because a zero-point trick still prevents Schwarz.
 
 Suit and Grand Schwarz settlement therefore uses reliable completed-trick
 ownership from `completed_tricks[].winner_role`, not card points or the
-point-based `effective_schwarz_status` field. When concrete `winner_player`
-and `declarer_player` are both known, validation checks that `winner_role`
-matches the canonical side ownership.
+point-based `effective_schwarz_status` field. When concrete `players` and
+declarer identity are known, validation derives the rule winner from `cards`
+and checks that `winner_role` matches the canonical side ownership. The same
+side-ownership check applies when concrete `winner_player` and declarer identity
+are both known.
 
 ## Score summary
 

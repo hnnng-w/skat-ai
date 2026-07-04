@@ -180,6 +180,7 @@ Examples:
 * completed-trick player seating order
 * whether completed-trick `winner_player` is included in `players`
 * whether a recorded `winner_player` actually won a trick
+* whether a recorded `winner_role` matches the rule-derived winner side when `cards`, `players`, and declarer identity are known
 * whether completed-trick `winner_role` matches the local declarer or defender identity
 * whether `trick_leader` matches the previous trick winner
 * legal current-turn state and phase-specific hand sizes

@@ -260,6 +260,40 @@ def test_cli_invalid_position_input_exits_one_without_output(tmp_path) -> None:
     assert not output_path.exists()
 
 
+def test_cli_rejects_role_only_completed_trick_conflict(tmp_path) -> None:
+    input_path = tmp_path / "wrong_role_only_completed_trick.json"
+    output_path = tmp_path / "result.json"
+    data = json.loads(VALID_INPUT_PATH.read_text(encoding="utf-8"))
+    data["trick_leader"] = "left"
+    data["next_player"] = "left"
+    data["current_trick"] = []
+    data["hand"] = ["C7", "C8", "C9"]
+    data["left_hand_size"] = 3
+    data["right_hand_size"] = 3
+    data["completed_tricks"] = [
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+        }
+    ]
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    completed_process = run_cli(
+        "--input",
+        input_path,
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 1
+    assert "completed_tricks[0].winner_role" in completed_process.stderr
+    assert "expected defenders, got declarer" in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
 def test_cli_output_write_failure_exits_one_before_success_output(tmp_path) -> None:
     completed_process = run_cli(
         "--input",

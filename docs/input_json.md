@@ -763,9 +763,11 @@ Validation rules:
 * `winner_role` is checked against `winner_player` when concrete declarer identity allows safe side ownership resolution.
 * The winner of one completed trick must lead the next completed trick.
 * If `current_trick` is not empty, `trick_leader` must match the winner of the last completed trick.
-* When `cards`, `players`, and `winner_player` are provided, the engine validates that `winner_player` actually won the trick according to the implemented Skat rules.
+* When `cards` and `players` are provided, the engine derives the actual trick winner according to the implemented Skat rules.
+* When `winner_player` is provided with `cards` and `players`, it must match the derived trick winner.
+* When `winner_role` is provided with `cards`, `players`, and concrete declarer identity, it must match the derived winner side even if `winner_player` is omitted.
 
-Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly. Existing explicit `winner_role` values remain accepted as side-level facts unless concrete `winner_player` and `declarer_player` prove a conflict.
+Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly. Existing explicit `winner_role` values remain accepted as side-level facts unless concrete `players` plus declarer identity, or concrete `winner_player` plus declarer identity, prove a conflict.
 
 For matador inference, completed tricks contribute ownership facts only when both `cards` and ordered `players` are present. `winner_role` and `winner_player` alone are not used to infer matador ownership.
 

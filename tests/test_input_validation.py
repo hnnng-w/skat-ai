@@ -1354,6 +1354,128 @@ def test_validate_position_input_rejects_rule_wrong_completed_trick_winner() -> 
         raise AssertionError("Expected ValueError was not raised.")
 
 
+def test_validate_position_input_rejects_rule_wrong_role_only_completed_trick() -> None:
+    data = build_valid_input()
+    data["game_type"] = "grand"
+    data["player_role"] = "declarer"
+    data["declarer_player"] = "me"
+    data["trick_leader"] = "left"
+    data["next_player"] = "left"
+    data["current_trick"] = []
+    data["hand"] = ["C7", "C8", "C9"]
+    data["completed_tricks"] = [
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+        }
+    ]
+
+    with pytest.raises(ValueError, match=r"completed_tricks\[0\]\.winner_role"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_rule_correct_role_only_completed_trick() -> None:
+    data = build_valid_input()
+    data["game_type"] = "grand"
+    data["player_role"] = "declarer"
+    data["declarer_player"] = "me"
+    data["trick_leader"] = "left"
+    data["next_player"] = "left"
+    data["current_trick"] = []
+    data["hand"] = ["C7", "C8", "C9"]
+    data["completed_tricks"] = [
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "defenders",
+        }
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_defender_rule_wrong_role_only_trick() -> None:
+    data = build_valid_input()
+    data["game_type"] = "grand"
+    data["player_role"] = "defender"
+    data["declarer_player"] = "right"
+    data["trick_leader"] = "left"
+    data["next_player"] = "left"
+    data["current_trick"] = []
+    data["hand"] = ["C7", "C8", "C9"]
+    data["completed_tricks"] = [
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+        }
+    ]
+
+    with pytest.raises(ValueError, match="expected defenders, got declarer"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_null_rule_wrong_role_only_trick() -> None:
+    data = build_valid_input()
+    data["game_type"] = "null"
+    data["player_role"] = "declarer"
+    data["declarer_player"] = "me"
+    data["trick_leader"] = "me"
+    data["next_player"] = "me"
+    data["current_trick"] = []
+    data["hand"] = ["C7", "C8", "C9"]
+    data["completed_tricks"] = [
+        {
+            "cards": ["C10", "CJ", "CA"],
+            "players": ["left", "right", "me"],
+            "winner_role": "defenders",
+        }
+    ]
+
+    with pytest.raises(ValueError, match="expected declarer, got defenders"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_legacy_side_only_post_game_history() -> None:
+    data = build_valid_input()
+    data["game_type"] = "grand"
+    data["player_role"] = "declarer"
+    data["declarer_player"] = "me"
+    data["trick_leader"] = "unknown"
+    data["next_player"] = "unknown"
+    data["current_trick"] = []
+    data["hand"] = ["C7", "C8", "C9"]
+    data["completed_tricks"] = [
+        {
+            "cards": ["SA", "S7", "S8"],
+            "winner_role": "declarer",
+        }
+    ]
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_keeps_unknown_declarer_role_only_tolerance() -> None:
+    data = build_valid_input()
+    data["game_type"] = "grand"
+    data["player_role"] = "unknown"
+    data["declarer_player"] = "unknown"
+    data["trick_leader"] = "unknown"
+    data["next_player"] = "unknown"
+    data["current_trick"] = []
+    data["hand"] = ["C7", "C8", "C9"]
+    data["completed_tricks"] = [
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+        }
+    ]
+
+    validate_position_input(data)
+
+
 def build_completed_trick_won_by_me() -> dict[str, object]:
     return {
         "cards": ["CJ", "SJ", "DJ"],
