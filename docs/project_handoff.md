@@ -366,22 +366,25 @@ Main documentation files:
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
 
+## Release status
+
+`v0.3.0` stabilization issues #40 through #46 are complete. See
+[`CHANGELOG.md`](../CHANGELOG.md) for the release-note summary.
+
+After release-prep validation and merge, the repository is ready for the
+`v0.3.0` tag and GitHub release.
+
 ## Recommended next cleanup milestone
 
-The next useful cleanup milestone is:
+The next useful post-release milestone is:
 
-**Milestone 20: Documentation, README, roadmap, and issue cleanup**
+**Open planning: post-release follow-up**
 
 Recommended scope:
 
-* update README feature summary
-* update architecture documentation
-* update input JSON documentation
-* update output JSON documentation
-* update examples documentation
-* update roadmap
-* update this handoff document
-* review and close or update GitHub issues
+* review open future topics
+* prioritize the next gameplay, examples, or rating milestone
+* review and close or update GitHub issues after the release
 
 ## Open future topics
 

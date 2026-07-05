@@ -239,7 +239,7 @@ Potential future rating improvements:
 
 Recommended cleanup areas:
 
-* Add clearer release notes or a changelog once the project stabilizes.
+* Maintain `CHANGELOG.md` for release notes as future milestones are completed.
 * Keep README short and topic-focused.
 * Keep topic-specific docs in `docs/` aligned with implemented behavior.
 * Continue improving JSON schema coverage where useful without duplicating too much Python validation logic.
