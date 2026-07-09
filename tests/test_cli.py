@@ -1,3 +1,4 @@
+import argparse
 import json
 import subprocess
 import sys
@@ -12,6 +13,7 @@ from main import (
     print_multi_step_result,
     print_policy_comparison_result,
     run_json_position_analysis,
+    validate_cli_arguments,
 )
 from skat_ai.effective_opponent_policy import build_effective_opponent_policy_settings
 from skat_ai.player_profile import PlayerProfile
@@ -205,6 +207,59 @@ def test_cli_rejects_invalid_expected_value_sample_count_before_analysis(
     assert not output_path.exists()
 
 
+def test_cli_rejects_sample_count_above_maximum_before_analysis(tmp_path) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "100001",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert "CLI error: --samples must be at most 100000." in completed_process.stderr
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_cli_rejects_expected_value_sample_count_above_maximum_before_analysis(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--expected-value-samples",
+        "100001",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert (
+        "CLI error: --expected-value-samples must be at most 100000."
+        in completed_process.stderr
+    )
+    assert_no_success_output(completed_process)
+    assert not output_path.exists()
+
+
+def test_validate_cli_arguments_accepts_sample_count_maximum_boundary() -> None:
+    validate_cli_arguments(
+        argparse.Namespace(
+            samples=100000,
+            expected_value_samples=100000,
+            multi_step=None,
+            comparison_only=False,
+            compare_policies=False,
+        )
+    )
+
+
 def test_cli_rejects_invalid_multi_step_count_before_analysis(tmp_path) -> None:
     output_path = tmp_path / "result.json"
 
@@ -281,6 +336,54 @@ def test_cli_rejects_comparison_only_compare_policies_without_multi_step_before_
     assert "CLI error: --compare-policies requires --multi-step." in completed_process.stderr
     assert_no_success_output(completed_process)
     assert not output_path.exists()
+
+
+def test_cli_policy_comparison_prints_analysis_and_comparison_by_default() -> None:
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "20",
+        "--seed",
+        "42",
+        "--multi-step",
+        "1",
+        "--expected-value-samples",
+        "20",
+        "--compare-policies",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "JSON position analysis" in completed_process.stdout
+    assert "Recommended card:" in completed_process.stdout
+    assert "Policy comparison" in completed_process.stdout
+
+
+def test_cli_comparison_only_prints_only_policy_comparison() -> None:
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "20",
+        "--seed",
+        "42",
+        "--multi-step",
+        "1",
+        "--expected-value-samples",
+        "20",
+        "--compare-policies",
+        "--comparison-only",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Policy comparison" in completed_process.stdout
+    assert "Recommended policy:" in completed_process.stdout
+    assert "JSON position analysis" not in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+    assert "Multi-step simulation" not in completed_process.stdout
+    assert "Multi-step score summary" not in completed_process.stdout
 
 
 def test_cli_missing_input_exits_one_without_traceback_or_output(tmp_path) -> None:
@@ -1715,6 +1818,8 @@ def test_run_json_position_analysis_supports_comparison_only(capsys) -> None:
 
     assert "Policy comparison" in captured.out
     assert "Recommended policy:" in captured.out
+    assert "JSON position analysis" not in captured.out
+    assert "Recommended card:" not in captured.out
     assert "Multi-step simulation" not in captured.out
     assert "Multi-step score summary" not in captured.out
 

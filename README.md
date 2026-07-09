@@ -158,7 +158,8 @@ Compare all multi-step local card-selection policies:
 python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
 ```
 
-Print only the policy-comparison summary, without individual multi-step details:
+Print only policy-comparison output, suppressing the normal analysis and
+individual multi-step details:
 
 ```powershell
 python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies --comparison-only

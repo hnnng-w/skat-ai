@@ -35,6 +35,7 @@ from skat_ai.input_loader import (
     get_simulation_settings_from_input,
     load_position_from_json,
 )
+from skat_ai.input_validation import MAX_SAMPLE_COUNT
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.output_writer import write_analysis_result_to_json
@@ -868,7 +869,8 @@ def run_json_position_analysis(
     if quiet:
         return
 
-    print_analysis_result(result)
+    if not comparison_only:
+        print_analysis_result(result)
 
     if multi_step_result_to_print is not None:
         print_multi_step_result(multi_step_result_to_print)
@@ -1062,8 +1064,16 @@ def validate_cli_arguments(args: argparse.Namespace) -> None:
     if args.samples is not None and args.samples <= 0:
         raise CliUsageError("--samples must be a positive integer.")
 
+    if args.samples is not None and args.samples > MAX_SAMPLE_COUNT:
+        raise CliUsageError(f"--samples must be at most {MAX_SAMPLE_COUNT}.")
+
     if args.expected_value_samples <= 0:
         raise CliUsageError("--expected-value-samples must be a positive integer.")
+
+    if args.expected_value_samples > MAX_SAMPLE_COUNT:
+        raise CliUsageError(
+            f"--expected-value-samples must be at most {MAX_SAMPLE_COUNT}."
+        )
 
     if args.multi_step is not None and args.multi_step <= 0:
         raise CliUsageError("--multi-step must be a positive integer.")
