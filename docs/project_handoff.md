@@ -368,23 +368,36 @@ Main documentation files:
 
 ## Release status
 
-`v0.3.0` stabilization issues #40 through #46 are complete. See
-[`CHANGELOG.md`](../CHANGELOG.md) for the release-note summary.
+`v0.3.0` is released and is the current stable baseline.
 
-After release-prep validation and merge, the repository is ready for the
-`v0.3.0` tag and GitHub release.
+The `v0.3.0` stabilization issues #40 through #46 are complete:
 
-## Recommended next cleanup milestone
+* #40 Use Null contract objectives for live card recommendations
+* #41 Prevent advanced states from double-counting completed-trick points
+* #42 Return non-zero exit codes for invalid CLI invocations
+* #43 Restore a valid documented default CLI input
+* #44 Support `known_to_declarer` Skat visibility consistently
+* #45 Validate completed-trick side ownership from cards and player order
+* #46 Align runtime validation with documented input bounds and shapes
 
-The next useful post-release milestone is:
+See [`CHANGELOG.md`](../CHANGELOG.md) for the release-note summary.
 
-**Open planning: post-release follow-up**
+The post-release audit found no open GitHub issues.
+
+## Recommended next milestone
+
+The recommended next milestone is:
+
+**v0.4.0: CLI and user-facing usability**
 
 Recommended scope:
 
-* review open future topics
-* prioritize the next gameplay, examples, or rating milestone
-* review and close or update GitHub issues after the release
+* improve CLI help and command discoverability
+* add optional quiet mode for JSON-output CLI runs
+* add curated examples and walkthroughs for common workflows
+* expand generated-output validation for user-facing workflows
+* improve human-readable post-game review CLI wording
+* clean up stale placeholder wording in metadata and profile documentation
 
 ## Open future topics
 
@@ -398,30 +411,9 @@ Recommended future topics:
 * broader matador inference from completed-trick history beyond safe local-declarer ownership facts
 * richer explanation details for recommended-card reasoning
 
-## GitHub issue cleanup recommendations
-
-Likely completed and closable or reducible:
-
-* Add game score calculation
-* Add claim and concession handling
-* Add live-vs-post-game information enforcement
-* Add JSON schema documentation
-* Add full Skat game value scoring
-* Improve defender cooperation logic, if the current basic defender improvements are considered sufficient for the issue scope
-* Use PlayerProfile confidence in opponent policy presets, if the issue scope is preset-level confidence
-
-Likely partially completed and should be updated:
-
-* Add performance rating for Skat lists and series
-* Add deeper profile-aware opponent policy behavior beyond preset selection
-* Add realistic examples with metadata and policy presets
-* Add post-game review examples
-
-Likely still open:
-
-* Deeper PlayerProfile confidence usage beyond preset selection
-* Add more realistic example positions
-* Full list/series/tournament rating aggregation
+These are future candidates, not the recommended `v0.4.0` scope. The next
+milestone should avoid broad simulation, scoring, settlement, validation, or
+hidden-information changes unless a focused bug is discovered.
 
 ## New-thread starter instruction
 

@@ -201,16 +201,28 @@ Implemented:
 
 ## Recommended next milestone
 
-### Milestone 21: Documentation and issue follow-up
+### v0.4.0: CLI and user-facing usability
 
-Recommended scope:
+`v0.3.0` is released and is the current stable baseline. The post-release audit
+found no open GitHub issues, so the next milestone should not be another issue
+cleanup cycle or broad feature expansion.
 
-* Update README feature summary.
-* Update input and output JSON documentation.
-* Update examples documentation for post-game review and matador inference.
-* Update architecture documentation for new modules.
-* Review open GitHub issues and close or update completed ones.
-* Create new focused issues only for still-relevant future work.
+Recommended `v0.4.0` scope:
+
+* Improve CLI help text and command discoverability.
+* Add optional quiet mode for JSON-output CLI runs.
+* Add curated examples and walkthroughs for common workflows.
+* Expand generated-output validation for user-facing workflows.
+* Improve human-readable post-game review CLI wording.
+* Clean up stale placeholder wording in metadata and profile documentation.
+
+Non-goals for `v0.4.0`:
+
+* Do not turn this into a broad simulation-quality milestone.
+* Do not expand scoring or settlement scope unless a focused bug is found.
+* Do not change Null objective logic, hidden-information sampling, or validation
+  behavior as part of usability work.
+* Do not broadly refactor `main.py`; keep CLI changes small and test-driven.
 
 ## Open gameplay improvements
 
@@ -246,15 +258,8 @@ Recommended cleanup areas:
 * Centralize any remaining duplicated CLI/configuration constants.
 * Consider fully centralizing immediate and multi-step opponent-policy precedence once the existing multi-step compatibility behavior can be changed safely.
 
-## Related GitHub issues
+## GitHub issue status
 
-Completed issues should be closed when their implementation is covered by tests and documentation.
-
-Recommended current issue handling:
-
-* Close or update issues for game score calculation, claim/concession handling, live-vs-post-game enforcement, JSON schema documentation, defender cooperation logic including issue #22, full Skat game value scoring, and post-game review decision quality if their implemented scope is covered.
-* Keep full list/series/tournament rating work open as a future performance-rating issue.
-* Close current PlayerProfile-confidence preset-selection work when tests and documentation are complete; keep deeper tactical opponent modeling as separate future work.
-* Keep richer post-game review examples open as an examples/documentation task.
-* Keep more realistic example positions open as an examples/testing task.
-* Consider opening a focused issue for extended matador inference from completed-trick history if needed.
+The post-`v0.3.0` audit found no open GitHub issues. New issues should be
+created only for focused `v0.4.0` CLI/usability work or for specific bugs found
+during implementation.
