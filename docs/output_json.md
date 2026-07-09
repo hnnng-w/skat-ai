@@ -139,7 +139,7 @@ Example:
 }
 ```
 
-`matadors` can be explicitly provided in the input. If it is missing or `null`, the engine may infer it from known declarer cards where possible.
+`matadors` can be explicitly provided in the input. If it is missing or `null`, the engine may infer it from known declarer-card context where possible, including conservative local-declarer completed-trick ownership facts when both `cards` and ordered `players` are available.
 
 ## Game value summary
 

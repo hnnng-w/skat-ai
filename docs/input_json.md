@@ -468,7 +468,7 @@ Supported values:
 
 If omitted, `performance_rating_summary.rating_system` is `null`.
 
-The project assumes a fixed three-player table. No table-size input field is required.
+The project assumes a fixed three-player table. There is no supported public `table_size` input field. A top-level `table_size`, if supplied as extra metadata, is ignored by rating logic and should not be used for workflow configuration.
 
 Input files may also include already aggregated list or series totals:
 
@@ -500,7 +500,7 @@ Validation rules:
 * All four fields are required and must be integers.
 * `player_game_points` may be negative, zero, or positive.
 * The three game counters must be non-negative.
-* `table_size` is fixed at `3` and is not accepted as an input field.
+* `table_size` is fixed at `3`. Do not include `table_size` inside `list_performance_input`; a top-level `table_size`, if supplied as extra metadata, is ignored and is not part of the supported public contract.
 * Raw individual games are not aggregated in this input mode.
 
 As an alternative to already aggregated totals, input files may include
@@ -555,7 +555,7 @@ Validation rules:
 * Duplicate supplied `game_id` values are rejected. Duplicate detection applies only to supplied IDs.
 * Identifiers are input validation metadata only and are not echoed in output summaries.
 * `list_performance_input`, `list_game_contributions`, and `list_analysis_results` are alternative input modes and cannot be combined.
-* `table_size` is fixed at `3` and is not accepted as an input field.
+* `table_size` is fixed at `3`. There is no supported `table_size` input for this mode; a top-level `table_size`, if supplied as extra metadata, is ignored.
 
 As a third alternative, input files may include already-built local analysis
 results. Each entry is assumed to represent the same rated player as local

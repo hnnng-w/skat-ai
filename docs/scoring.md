@@ -322,4 +322,4 @@ Current partial ISkO-style rating is documented in:
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * Null-game overbid settlement remains conservative when no `required_game_value` is available.
 * List, series, and tournament performance rating are handled separately and are not fully implemented yet.
-* Automatic matador inference is conservative and currently uses known declarer cards from hand, skat context, and safe local-declarer completed-trick ownership facts where possible.
+* Automatic matador inference is conservative and currently uses known declarer-card context from hand, skat context, and safe local-declarer completed-trick ownership facts where possible.

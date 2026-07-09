@@ -20,8 +20,6 @@
   "skat_visibility": "known_post_game",
   "actual_card_played": "C7",
   "game_declaration": {
-    "declarer": "me",
-    "contract": "spades",
     "hand_game": false,
     "schneider_announced": false,
     "schwarz_announced": false,

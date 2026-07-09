@@ -43,6 +43,85 @@ Run generated-output schema validation directly:
 python scripts/validate_generated_outputs_schema.py
 ```
 
+## Workflow walkthroughs
+
+These commands cover the main user-facing CLI workflows. They reuse existing repository fixtures and can be run from the repository root.
+
+Show CLI help and command examples:
+
+```powershell
+python main.py --help
+```
+
+Run the default live recommendation using the root `input_position.json` fixture:
+
+```powershell
+python main.py
+```
+
+Run live recommendation with an explicit input file:
+
+```powershell
+python main.py --input examples/grand_second_position.json
+```
+
+Write structured JSON output:
+
+```powershell
+python main.py --input examples/grand_second_position.json --output outputs/result.json
+```
+
+Write JSON output without successful human-readable stdout output:
+
+```powershell
+python main.py --input examples/grand_second_position.json --output outputs/result.json --quiet
+```
+
+The `--quiet` flag suppresses successful human-readable stdout output, including the output-file confirmation. Expected errors still go to `stderr`.
+
+Prepare an opponent-turn position with Multi-Step until the local player acts:
+
+```powershell
+python main.py --input examples/grand_left_to_act_live.json --multi-step 1 --card-policy highest_point
+```
+
+Run local live Multi-Step analysis:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 2
+```
+
+Compare local card-selection policies:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
+```
+
+Print only policy-comparison output in the human-readable CLI view:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies --comparison-only
+```
+
+Run Multi-Step with side-specific opponent lead policies:
+
+```powershell
+python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-lead-policy basic_defender_lead
+```
+
+Run post-game review with actual-card comparison:
+
+```powershell
+python main.py --input examples/spades_post_game_actual_card_played.json
+```
+
+Validate example inputs and generated output workflows:
+
+```powershell
+python scripts/validate_examples_schema.py
+python scripts/validate_generated_outputs_schema.py
+```
+
 ## Live decision examples
 
 These examples represent ongoing positions where the tool recommends a card.
@@ -61,7 +140,7 @@ Live decision examples must not include post-game-only information such as `know
 
 | File                                       | Purpose                                                                                                                      |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `grand_second_position.json`               | Grand game, local player acts second. Also demonstrates automatic matador inference from known declarer cards when possible. |
+| `grand_second_position.json`               | Grand game, local player acts second. Also demonstrates automatic matador inference from known declarer-card context when possible. |
 | `grand_declarer_known_to_declarer_live.json` | Grand live declarer position where the local declarer has declarer-private Skat visibility.                                 |
 | `grand_third_position.json`                | Grand game, local player acts third.                                                                                         |
 | `grand_leading.json`                       | Grand game where local player leads the trick.                                                                               |
@@ -218,7 +297,7 @@ Expected list performance calculation for the fixed three-player table:
 * `own_game_bonus_points`: `3 * 50 + 1 * -50 = 100`
 * `opponent_loss_bonus_points`: `2 * 40 = 80`
 * `total_performance_points`: `120 + 100 + 80 = 300`
-* `table_size`: `3`
+* `table_size`: `3` in the emitted `list_performance_summary`
 
 The example still emits the normal single-game `performance_rating_summary`; `list_performance_summary` is additional and does not change it.
 
@@ -248,7 +327,7 @@ Expected local analysis-result list calculation for the example:
 * `opponent_loss_bonus_points`: `1 * 40 = 40`
 * `total_performance_points`: `24 + 0 + 40 = 64`
 * `basis`: `local_analysis_results`
-* `table_size`: `3`
+* `table_size`: `3` in the emitted `list_performance_summary`
 
 The top-level completed game still emits its normal single-game `performance_rating_summary`; the local analysis-result aggregation only adds `list_performance_summary`.
 
@@ -256,112 +335,15 @@ The top-level completed game still emits its normal single-game `performance_rat
 
 Automatic matador inference is demonstrated by examples where `matadors` is missing or `null`, but known declarer-card context is sufficient.
 
-The engine currently infers matadors from known declarer cards in:
+The engine currently infers matadors from known declarer-card context in:
 
 * `hand`
 * `skat`, when available and allowed by the analysis mode
+* `completed_tricks`, but only from conservative local-declarer ownership facts with both `cards` and ordered `players`
 
 If an explicit `matadors` value is provided, the explicit value is preserved.
 
 Null games do not use matadors.
-
-## Example commands
-
-Run the repository-root quick-start fixture:
-
-```powershell
-python main.py
-```
-
-Run a basic analysis with an explicit input file:
-
-```powershell
-python main.py --input examples/grand_second_position.json
-```
-
-Write structured JSON output:
-
-```powershell
-python main.py --input examples/grand_second_position.json --output outputs/result.json
-```
-
-Write structured JSON output without successful human-readable stdout output:
-
-```powershell
-python main.py --input examples/grand_second_position.json --output outputs/result.json --quiet
-```
-
-The `--quiet` flag suppresses successful human-readable stdout output, including the usual analysis text and output-file confirmation. It is useful for automation with `--output`, but it can also be used without `--output`. Without `--quiet`, default CLI output is unchanged. Expected errors still go to `stderr`.
-
-Run a post-game review example:
-
-```powershell
-python main.py --input examples/grand_post_game_known_skat.json --output outputs/post_game_review.json
-```
-
-Run a post-game review example with actual-card comparison:
-
-```powershell
-python main.py --input examples/spades_post_game_actual_card_played.json --output outputs/post_game_actual_card.json
-```
-
-Run an overbid example:
-
-```powershell
-python main.py --input examples/grand_overbid_declarer_card_points_win.json --output outputs/overbid_test.json
-```
-
-Run a claim example:
-
-```powershell
-python main.py --input examples/grand_claimed_remaining_tricks.json --output outputs/claim_test.json
-```
-
-Run a declarer-concession example:
-
-```powershell
-python main.py --input examples/grand_declarer_conceded_remaining_tricks.json --output outputs/declarer_concession_test.json
-```
-
-Run a defenders-concession example:
-
-```powershell
-python main.py --input examples/grand_defenders_conceded_remaining_tricks.json --output outputs/defenders_concession_test.json
-```
-
-## Multi-step simulation examples
-
-Run a two-step simulation:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2
-```
-
-Run a two-step simulation with explicit opponent policies:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-lead-policy highest_point --opponent-response-policy basic_trick_play
-```
-
-Run a two-step simulation with side-specific opponent lead policies:
-
-```powershell
-python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-lead-policy basic_defender_lead
-```
-
-## Policy comparison examples
-
-Run a policy comparison:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
-```
-
-Print only policy-comparison output:
-
-```powershell
-python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies --comparison-only
-```
 
 ## Left/right opponent policy examples
 
@@ -418,8 +400,9 @@ When adding new examples:
 * add explicit `players` to completed tricks when winner metadata must be verifiable
 * prefer `completed_tricks` over `played_cards`
 * use `performance_rating_system: "isko_list"` only when partial ISkO rating output should be demonstrated
-* omit `matadors` only when automatic inference from known declarer cards is intended
+* omit `matadors` only when automatic inference from known declarer-card context is intended
 * prefer either top-level declaration fields or nested `game_declaration`; mixing is supported, with top-level fields taking precedence
+* use only documented declaration fields inside nested `game_declaration`; unrelated nested metadata is not part of the supported public input contract
 * run `.\scripts\check.ps1` before committing
 
 ## Expected output behavior

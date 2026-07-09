@@ -16,7 +16,7 @@ The project focuses on:
 * multi-step simulation
 * opponent policy modeling
 * game result and settlement summaries
-* automatic matador inference where supported by known declarer-card context and safe completed-trick ownership
+* automatic matador inference where supported by known declarer-card context and safe local-declarer completed-trick ownership
 * post-game review support
 * JSON input/output for regression-friendly testing
 
@@ -270,6 +270,17 @@ Current output fields include:
 * `candidate_count`
 * `better_card_count`
 
+### CLI and workflow usability
+
+Implemented:
+
+* improved CLI help text and command discoverability
+* optional `--quiet` mode for automation-friendly JSON-output runs
+* generated-output validation for representative user-facing CLI workflows
+* comparison-only policy-comparison CLI output handling
+* CLI sample-bound validation fixes
+* curated documentation walkthroughs for common workflows
+
 ## Current important modules
 
 ### Entry point
@@ -382,22 +393,32 @@ The `v0.3.0` stabilization issues #40 through #46 are complete:
 
 See [`CHANGELOG.md`](../CHANGELOG.md) for the release-note summary.
 
-The post-release audit found no open GitHub issues.
+`v0.4.0` is in progress as a CLI and user-facing usability milestone. Completed
+early `v0.4.0` work includes:
 
-## Recommended next milestone
+* #47 updated the post-`v0.3.0` roadmap and handoff direction
+* #48 improved CLI help text and command discoverability
+* #49 added optional `--quiet` mode for JSON-output CLI runs
+* #50 expanded generated-output validation for user-facing CLI workflows
+* #51 fixed remaining CLI usability validation bugs, including comparison-only and sample-bound handling
+* #52 refreshes documentation and curated workflow walkthroughs
 
-The recommended next milestone is:
+## Current milestone
 
 **v0.4.0: CLI and user-facing usability**
 
-Recommended scope:
+Remaining possible scope:
 
-* improve CLI help and command discoverability
-* add optional quiet mode for JSON-output CLI runs
-* add curated examples and walkthroughs for common workflows
-* expand generated-output validation for user-facing workflows
 * improve human-readable post-game review CLI wording
-* clean up stale placeholder wording in metadata and profile documentation
+* add small workflow examples only when existing fixtures do not already cover the user-facing path
+* keep README, examples, schema-validation docs, roadmap, and handoff notes aligned with completed CLI usability behavior
+
+Deferred deeper investigations:
+
+* broad simulation-quality improvements
+* expanded scoring or settlement scope outside focused bug fixes
+* Null objective, hidden-information sampling, or validation behavior changes that would alter stable behavior
+* broad `main.py` refactors or CLI redesigns
 
 ## Open future topics
 
@@ -411,9 +432,9 @@ Recommended future topics:
 * broader matador inference from completed-trick history beyond safe local-declarer ownership facts
 * richer explanation details for recommended-card reasoning
 
-These are future candidates, not the recommended `v0.4.0` scope. The next
-milestone should avoid broad simulation, scoring, settlement, validation, or
-hidden-information changes unless a focused bug is discovered.
+These are future candidates, not the remaining focused `v0.4.0` usability scope.
+The current milestone should avoid broad simulation, scoring, settlement,
+validation, or hidden-information changes unless a focused bug is discovered.
 
 ## New-thread starter instruction
 

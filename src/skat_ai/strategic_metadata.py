@@ -25,8 +25,8 @@ class StrategicMetadata:
     """
     Describes strategic context around an analysis.
 
-    This is a placeholder for future logic. It is not actively used
-    by the simulation engine yet.
+    These fields drive live-vs-post-game information policy and
+    game-end handling.
     """
     analysis_mode: str = "live_decision"
     skat_visibility: str = "unknown"

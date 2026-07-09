@@ -45,7 +45,7 @@ Unknown values are rejected during input validation.
 
 The project assumes a fixed three-player table.
 
-No table-size input field is required.
+There is no supported public `table_size` input field. A top-level `table_size`, if supplied as extra metadata, is ignored by rating logic.
 
 The fixed assumption is exposed in the output:
 

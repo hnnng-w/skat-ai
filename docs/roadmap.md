@@ -47,7 +47,7 @@ Implemented:
 
 * Game declaration metadata
 * Game value summaries for suit, grand, and null games
-* Automatic matador inference from known declarer cards where possible
+* Automatic matador inference from known declarer-card context and safe local-declarer completed-trick ownership facts where possible
 * Final single-game settlement summary
 * Supported Suit/Grand overbid detection
 * Supported Suit/Grand overbid settlement loss handling
@@ -155,6 +155,17 @@ Implemented:
 * Topic-specific documentation split into `docs/`
 * Project handoff documentation
 
+### CLI and workflow usability
+
+Implemented:
+
+* Improved CLI help text and command discoverability
+* Optional `--quiet` mode for automation-friendly JSON-output runs
+* Curated workflow walkthroughs for common user-facing CLI commands
+* Generated-output validation for representative user-facing workflows
+* Policy-comparison-only CLI output handling
+* CLI sample-bound validation fixes
+
 ## Current known limitations
 
 ### Gameplay and rules
@@ -168,7 +179,7 @@ Implemented:
 * The engine does not yet model player agreement or disputes around claim/concession.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Null-game overbid detection is supported, but settlement scoring remains conservative when no `required_game_value` is available.
-* Matador inference uses currently known declarer cards from hand and skat context; it does not yet reconstruct all possible matador information from complete historical trick ownership in every scenario.
+* Matador inference uses currently known declarer-card context and safe local-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 
 ### Performance rating
 
@@ -199,29 +210,41 @@ Implemented:
 * Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
 * Live decision examples should not contain post-game-only information.
 
-## Recommended next milestone
+## Current milestone
 
 ### v0.4.0: CLI and user-facing usability
 
-`v0.3.0` is released and is the current stable baseline. The post-release audit
-found no open GitHub issues, so the next milestone should not be another issue
-cleanup cycle or broad feature expansion.
+`v0.3.0` is released and remains the current stable baseline. `v0.4.0` is in
+progress and should stay focused on user-facing CLI usability, documentation,
+and validation coverage rather than broad gameplay expansion.
 
-Recommended `v0.4.0` scope:
+Completed early `v0.4.0` work:
 
-* Improve CLI help text and command discoverability.
-* Add optional quiet mode for JSON-output CLI runs.
-* Add curated examples and walkthroughs for common workflows.
-* Expand generated-output validation for user-facing workflows.
-* Improve human-readable post-game review CLI wording.
-* Clean up stale placeholder wording in metadata and profile documentation.
+* #47 refreshed the post-`v0.3.0` roadmap and project handoff direction.
+* #48 improved CLI help text and command discoverability.
+* #49 added optional `--quiet` mode for JSON-output CLI runs.
+* #50 expanded generated-output validation for user-facing CLI workflows.
+* #51 fixed remaining CLI usability validation bugs, including comparison-only and sample-bound handling.
+* #52 refreshes documentation and curated workflow walkthroughs.
+
+Remaining possible `v0.4.0` scope:
+
+* Improve human-readable post-game review CLI wording if a focused usability gap remains.
+* Add small workflow examples only when they cover a real user-facing gap not already represented by existing fixtures.
+* Keep README, walkthroughs, schema-validation docs, and handoff notes aligned with completed CLI usability behavior.
+
+Deferred deeper investigations:
+
+* Broader simulation-quality improvements.
+* Expanded scoring or settlement scope outside focused bug fixes.
+* Null objective, hidden-information sampling, or validation behavior changes that would alter stable behavior.
+* Large `main.py` refactors or CLI redesigns.
 
 Non-goals for `v0.4.0`:
 
 * Do not turn this into a broad simulation-quality milestone.
 * Do not expand scoring or settlement scope unless a focused bug is found.
-* Do not change Null objective logic, hidden-information sampling, or validation
-  behavior as part of usability work.
+* Do not change Null objective logic, hidden-information sampling, or validation behavior as part of usability work.
 * Do not broadly refactor `main.py`; keep CLI changes small and test-driven.
 
 ## Open gameplay improvements
@@ -260,6 +283,7 @@ Recommended cleanup areas:
 
 ## GitHub issue status
 
-The post-`v0.3.0` audit found no open GitHub issues. New issues should be
-created only for focused `v0.4.0` CLI/usability work or for specific bugs found
-during implementation.
+Issue tracking now includes focused `v0.4.0` CLI/usability and documentation work.
+New issues should remain small and should distinguish completed early `v0.4.0`
+usability work from deferred gameplay, scoring, settlement, validation, or
+hidden-information investigations.

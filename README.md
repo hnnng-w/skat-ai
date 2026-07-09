@@ -207,7 +207,7 @@ CLI exit codes:
 
 Expected errors are written to `stderr`. Successful analysis output remains on `stdout`.
 
-For more examples, see [Examples documentation](docs/examples.md).
+For a concise walkthrough of common CLI workflows, see [Examples documentation](docs/examples.md#workflow-walkthroughs).
 
 ## Documentation
 

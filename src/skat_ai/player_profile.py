@@ -6,8 +6,8 @@ class PlayerProfile:
     """
     Describes long-term player tendencies.
 
-    This is currently a placeholder for future opponent modeling.
-    The simulation engine does not actively use these values yet.
+    These values can inform profile-derived opponent policy presets.
+    They are not learned from historical data by this project.
     """
     games_played: int | None = None
     solo_games_played: int | None = None
