@@ -105,9 +105,9 @@ python main.py --input examples/grand_right_to_act_live.json --multi-step 1 --ca
 
 Both files are input-schema validated with all examples. They are covered by
 focused behavioral assertions in `tests/test_examples.py` because their primary
-supported workflow is multi-step opponent-turn preparation. They are not
-registered in generated-output schema validation, which currently covers
-selected standard single-position outputs.
+supported workflow is multi-step opponent-turn preparation. Selected
+opponent-turn generated outputs are also covered by generated-output schema
+validation.
 
 Multi-step also supports a one-card partial trick where `left` has already led
 and `right` is next. In that phase the existing lead card is preserved and only

@@ -31,6 +31,7 @@ class Scenario:
     branch: str
     cli_args: tuple[str, ...] = ()
     check_output: CheckFunction | None = None
+    expect_quiet_stdout: bool = False
 
 
 def load_json_file(file_path: Path) -> dict[str, Any]:
@@ -148,6 +149,17 @@ def run_analysis(
             )
         ]
 
+    if scenario.expect_quiet_stdout and completed_process.stdout != "":
+        return [
+            format_scenario_error(
+                scenario=scenario,
+                message=(
+                    "expected quiet workflow to suppress successful stdout.\n"
+                    f"{format_process_output(completed_process)}"
+                ),
+            )
+        ]
+
     return []
 
 
@@ -257,6 +269,40 @@ def check_opponent_turn_left_multi_step(data: dict[str, Any]) -> list[str]:
     for field_name in ["candidate_card_won", "local_side_won"]:
         if field_name not in detailed_result:
             errors.append(f"expected detailed result field {field_name}")
+
+    return errors
+
+
+def check_local_live_multi_step(data: dict[str, Any]) -> list[str]:
+    """
+    Checks documented local two-step Multi-Step JSON output.
+    """
+    errors = []
+    multi_step_result = data.get("multi_step_result")
+
+    if data["position"]["next_player"] != "me":
+        errors.append("expected top-level position.next_player to remain me")
+
+    if data["recommendation"]["card"] is None:
+        errors.append("expected live recommendation.card to be populated")
+
+    if not isinstance(multi_step_result, dict):
+        errors.append("expected populated multi_step_result")
+        return errors
+
+    if multi_step_result["requested_step_count"] != 2:
+        errors.append("expected requested two-step simulation")
+
+    if multi_step_result["steps_simulated"] != 2:
+        errors.append("expected two simulated multi-step steps")
+
+    if len(multi_step_result["steps"]) != 2:
+        errors.append("expected two serialized multi-step steps")
+
+    score_summary = multi_step_result["summary"]["score_summary"]
+    for field_name in ["final_point_swing", "local_point_swing"]:
+        if field_name not in score_summary:
+            errors.append(f"expected multi-step score field {field_name}")
 
     return errors
 
@@ -445,6 +491,18 @@ def check_policy_comparison(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_comparison_only(data: dict[str, Any]) -> list[str]:
+    """
+    Checks comparison-only workflow output still contains JSON result branches.
+    """
+    errors = check_policy_comparison(data)
+
+    if not isinstance(data.get("multi_step_result"), dict):
+        errors.append("expected comparison-only output to retain multi_step_result")
+
+    return errors
+
+
 def check_side_specific_opponent_policies(data: dict[str, Any]) -> list[str]:
     """
     Checks distinct left/right opponent policy output.
@@ -462,6 +520,35 @@ def check_side_specific_opponent_policies(data: dict[str, Any]) -> list[str]:
         "opponent_response_policy": "basic_defender_response",
     }:
         errors.append("expected distinct right opponent policy settings")
+
+    return errors
+
+
+def check_side_specific_opponent_policy_multi_step(
+    data: dict[str, Any],
+) -> list[str]:
+    """
+    Checks side-specific opponent lead policies in Multi-Step output.
+    """
+    errors = check_side_specific_opponent_policies(data)
+    multi_step_result = data.get("multi_step_result")
+
+    if not isinstance(multi_step_result, dict):
+        errors.append("expected populated multi_step_result")
+        return errors
+
+    if multi_step_result["requested_step_count"] != 2:
+        errors.append("expected requested two-step simulation")
+
+    if multi_step_result["left_opponent_policy_settings"] != (
+        data["left_opponent_policy_settings"]
+    ):
+        errors.append("expected multi-step left opponent settings to match top level")
+
+    if multi_step_result["right_opponent_policy_settings"] != (
+        data["right_opponent_policy_settings"]
+    ):
+        errors.append("expected multi-step right opponent settings to match top level")
 
     return errors
 
@@ -570,6 +657,26 @@ SCENARIOS = (
         check_output=check_normal_local_live,
     ),
     Scenario(
+        name="quiet_json_output",
+        input_path=PROJECT_ROOT / "examples" / "grand_second_position.json",
+        branch="quiet automation-friendly JSON output workflow",
+        cli_args=("--quiet",),
+        check_output=check_normal_local_live,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
+        name="local_live_multi_step_two_steps",
+        input_path=PROJECT_ROOT / "examples" / "grand_second_position.json",
+        branch="documented local live two-step Multi-Step JSON output",
+        cli_args=(
+            "--multi-step",
+            "2",
+            "--expected-value-samples",
+            "20",
+        ),
+        check_output=check_local_live_multi_step,
+    ),
+    Scenario(
         name="opponent_turn_left_multi_step_preparation",
         input_path=PROJECT_ROOT / "examples" / "grand_left_to_act_live.json",
         branch=(
@@ -656,12 +763,46 @@ SCENARIOS = (
         check_output=check_policy_comparison,
     ),
     Scenario(
+        name="comparison_only_policy_comparison",
+        input_path=PROJECT_ROOT / "examples" / "grand_second_position.json",
+        branch="comparison-only policy-comparison CLI workflow",
+        cli_args=(
+            "--multi-step",
+            "1",
+            "--card-policy",
+            "highest_expected_value",
+            "--expected-value-samples",
+            "20",
+            "--compare-policies",
+            "--comparison-only",
+        ),
+        check_output=check_comparison_only,
+    ),
+    Scenario(
         name="side_specific_opponent_policies",
         input_path=(
             PROJECT_ROOT / "examples" / "grand_left_right_opponent_policies.json"
         ),
         branch="distinct left/right opponent policy settings",
         check_output=check_side_specific_opponent_policies,
+    ),
+    Scenario(
+        name="side_specific_opponent_policy_multi_step",
+        input_path=(
+            PROJECT_ROOT / "examples" / "grand_left_right_opponent_policies.json"
+        ),
+        branch="side-specific opponent lead policies in Multi-Step output",
+        cli_args=(
+            "--multi-step",
+            "2",
+            "--left-opponent-lead-policy",
+            "highest_point",
+            "--right-opponent-lead-policy",
+            "basic_defender_lead",
+            "--expected-value-samples",
+            "20",
+        ),
+        check_output=check_side_specific_opponent_policy_multi_step,
     ),
     Scenario(
         name="claim_remaining_tricks_settlement",

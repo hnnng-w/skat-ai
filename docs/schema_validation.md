@@ -124,6 +124,14 @@ needed. It is separate from input-example schema validation: input validation
 checks the example JSON files, while generated-output validation checks the
 production JSON output emitted from those inputs.
 
+The scenario matrix is intentionally bounded. It covers representative
+user-facing CLI workflows, including explicit-input live recommendation, JSON
+output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
+simulation, policy comparison, comparison-only policy output, side-specific
+opponent policies, completed-game settlement/rating, post-game review,
+claim/overbid/list-performance summaries, and local defender redaction for
+`known_to_declarer` Skat visibility.
+
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
 `post_game_review_summary`, `multi_step_result`, and
