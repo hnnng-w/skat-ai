@@ -733,6 +733,7 @@ def run_json_position_analysis(
     opponent_lead_policy_override: str | None = None,
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
+    quiet: bool = False,
 ) -> None:
     if comparison_only and not compare_policies:
         raise ValueError("comparison_only requires compare_policies to be enabled.")
@@ -864,6 +865,9 @@ def run_json_position_analysis(
             result=result,
         )
 
+    if quiet:
+        return
+
     print_analysis_result(result)
 
     if multi_step_result_to_print is not None:
@@ -928,6 +932,12 @@ def parse_arguments() -> argparse.Namespace:
         "--output",
         default=None,
         help="Write the structured analysis result JSON to this path.",
+    )
+
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress successful human-readable stdout output.",
     )
 
     parser.add_argument(
@@ -1090,6 +1100,7 @@ def main() -> int:
             opponent_lead_policy_override=args.opponent_lead_policy,
             opponent_response_policy_override=args.opponent_response_policy,
             use_profile_presets_override=args.use_profile_presets,
+            quiet=args.quiet,
         )
     except CliUsageError as error:
         print(f"CLI error: {error}", file=sys.stderr)

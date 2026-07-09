@@ -285,6 +285,14 @@ Write structured JSON output:
 python main.py --input examples/grand_second_position.json --output outputs/result.json
 ```
 
+Write structured JSON output without successful human-readable stdout output:
+
+```powershell
+python main.py --input examples/grand_second_position.json --output outputs/result.json --quiet
+```
+
+The `--quiet` flag suppresses successful human-readable stdout output, including the usual analysis text and output-file confirmation. It is useful for automation with `--output`, but it can also be used without `--output`. Without `--quiet`, default CLI output is unchanged. Expected errors still go to `stderr`.
+
 Run a post-game review example:
 
 ```powershell

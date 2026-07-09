@@ -178,6 +178,14 @@ Write output to JSON:
 python main.py --input examples/grand_second_position.json --output outputs/result.json
 ```
 
+Suppress successful human-readable stdout output for automation-friendly JSON runs:
+
+```powershell
+python main.py --input examples/grand_second_position.json --output outputs/result.json --quiet
+```
+
+Without `--quiet`, default CLI behavior is unchanged and successful analysis output is still printed to `stdout`. With `--quiet`, analysis still runs normally and JSON output is still written when `--output` is provided. Expected errors are not suppressed and still go to `stderr`.
+
 Run an overbid example where the declarer wins card points but loses settlement:
 
 ```powershell

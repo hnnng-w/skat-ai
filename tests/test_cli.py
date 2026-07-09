@@ -55,6 +55,7 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
     for option in [
         "--input",
         "--output",
+        "--quiet",
         "--samples",
         "--seed",
         "--expected-value-samples",
@@ -105,6 +106,7 @@ def test_cli_success_exits_zero_and_writes_requested_output(tmp_path) -> None:
 
     assert completed_process.returncode == 0
     assert "JSON position analysis" in completed_process.stdout
+    assert "Recommended card:" in completed_process.stdout
     assert "Output file written:" in completed_process.stdout
     assert completed_process.stderr == ""
     assert output_path.exists()
@@ -113,6 +115,49 @@ def test_cli_success_exits_zero_and_writes_requested_output(tmp_path) -> None:
         result = json.load(file)
 
     assert result["input_file"] == str(VALID_INPUT_PATH)
+
+
+def test_cli_quiet_output_writes_json_and_suppresses_success_stdout(tmp_path) -> None:
+    output_path = tmp_path / "analysis.json"
+
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    assert output_path.exists()
+
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+
+    assert result["input_file"] == str(VALID_INPUT_PATH)
+    assert "recommendation" in result
+
+
+def test_cli_quiet_without_output_suppresses_success_stdout() -> None:
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
 
 
 @pytest.mark.parametrize("sample_count", ["0", "-1"])
@@ -255,6 +300,24 @@ def test_cli_missing_input_exits_one_without_traceback_or_output(tmp_path) -> No
     assert not output_path.exists()
 
 
+def test_cli_quiet_missing_input_still_prints_error_to_stderr(tmp_path) -> None:
+    output_path = tmp_path / "result.json"
+
+    completed_process = run_cli(
+        "--input",
+        tmp_path / "missing.json",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 1
+    assert completed_process.stdout == ""
+    assert "Error: Input file not found:" in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
+    assert not output_path.exists()
+
+
 def test_cli_malformed_json_exits_one_without_traceback_or_output(tmp_path) -> None:
     input_path = tmp_path / "malformed.json"
     output_path = tmp_path / "result.json"
@@ -365,6 +428,27 @@ def test_cli_output_write_failure_exits_one_before_success_output(tmp_path) -> N
     assert "Error:" in completed_process.stderr
     assert "Traceback" not in completed_process.stderr
     assert_no_success_output(completed_process)
+
+
+def test_cli_quiet_output_write_failure_exits_one_without_success_output(
+    tmp_path,
+) -> None:
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--output",
+        tmp_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 1
+    assert completed_process.stdout == ""
+    assert "Error:" in completed_process.stderr
+    assert "Traceback" not in completed_process.stderr
 
 
 @pytest.mark.parametrize(
