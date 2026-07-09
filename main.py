@@ -880,85 +880,103 @@ def run_json_position_analysis(
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Analyze a Skat position from a JSON input file.",
+        epilog=(
+            "Examples:\n"
+            "  python main.py\n"
+            "  python main.py --input examples/grand_second_position.json\n"
+            "  python main.py --input examples/grand_second_position.json "
+            "--multi-step 2\n"
+            "  python main.py --input examples/grand_second_position.json "
+            "--multi-step 1 --compare-policies\n"
+            "  python main.py --input examples/grand_second_position.json "
+            "--multi-step 1 --compare-policies --comparison-only"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
         "--input",
         default="input_position.json",
-        help="Path to the JSON input file. Default: input_position.json",
+        help=(
+            "Read position analysis input from this JSON file. "
+            "Default: input_position.json."
+        ),
     )
 
     parser.add_argument(
         "--samples",
         type=int,
         default=None,
-        help="Override sample_count from the JSON input file.",
+        help="Override the JSON sample_count for Monte Carlo card analysis.",
     )
 
     parser.add_argument(
         "--seed",
         type=int,
         default=None,
-        help="Override random_seed from the JSON input file.",
+        help="Override the JSON random_seed for reproducible analysis.",
     )
 
     parser.add_argument(
         "--opponent-strategy",
         choices=["basic", "random"],
         default=None,
-        help="Override opponent strategy from the JSON input file. Choices: basic, random.",
+        help="Override legacy opponent strategy from the JSON input file.",
     )
 
     parser.add_argument(
         "--output",
         default=None,
-        help="Optional path to write the analysis result as JSON.",
+        help="Write the structured analysis result JSON to this path.",
     )
 
     parser.add_argument(
         "--multi-step",
         type=int,
         default=None,
-        help="Optionally run a multi-step simulation with the given number of steps.",
+        help="Run a phase-aware simulation for this many local decision steps.",
     )
 
     parser.add_argument(
         "--card-policy",
         choices=VALID_CARD_SELECTION_POLICIES,
         default="first_legal",
-        help="Card-selection policy for multi-step simulation.",
+        help="Choose local cards during multi-step simulation. Default: first_legal.",
     )
 
     parser.add_argument(
         "--expected-value-samples",
         type=int,
         default=100,
-        help="Sample count used by the highest_expected_value card policy.",
+        help=(
+            "Samples per candidate for the highest_expected_value card policy. "
+            "Default: 100."
+        ),
     )
 
     parser.add_argument(
         "--strict-context",
         action="store_true",
-        help="Fail if duplicate simulated opponent cards are detected.",
+        help="Fail multi-step simulation if duplicate simulated opponent cards are detected.",
     )
 
     parser.add_argument(
         "--compare-policies",
         action="store_true",
-        help="Compare all card-selection policies for the given multi-step setup.",
+        help="Compare all local card policies for the requested multi-step setup.",
     )
 
     parser.add_argument(
         "--comparison-only",
         action="store_true",
-        help="Only print the policy comparison, not the individual multi-step details.",
+        help="Print only policy comparison details; requires --compare-policies.",
     )
 
     parser.add_argument(
         "--opponent-lead-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
-        help="Opponent lead card policy for multi-step simulations.",
+        help="Set both opponents' lead policy for multi-step simulation.",
     )
 
     parser.add_argument(
@@ -966,8 +984,8 @@ def parse_arguments() -> argparse.Namespace:
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
         help=(
-            "Opponent response card policy for immediate response analysis "
-            "and multi-step simulations."
+            "Set both opponents' response policy for immediate analysis "
+            "and multi-step simulation."
         ),
     )
 
@@ -981,8 +999,8 @@ def parse_arguments() -> argparse.Namespace:
         ],
         default=None,
         help=(
-            "Opponent policy preset for immediate response analysis "
-            "and multi-step simulations."
+            "Apply an opponent policy preset to immediate analysis "
+            "and multi-step simulation."
         ),
     )
 
@@ -991,7 +1009,7 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help=(
             "Use player profiles to derive opponent policy presets for immediate "
-            "response analysis and multi-step simulations."
+            "analysis and multi-step simulation."
         ),
     )
 
@@ -999,28 +1017,30 @@ def parse_arguments() -> argparse.Namespace:
         "--left-opponent-lead-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
+        help="Override only left opponent's lead policy for multi-step simulation.",
     )
     parser.add_argument(
         "--left-opponent-response-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
         help=(
-            "Left opponent response card policy for immediate response analysis "
-            "and multi-step simulations."
+            "Override only left opponent's response policy for immediate analysis "
+            "and multi-step simulation."
         ),
     )
     parser.add_argument(
         "--right-opponent-lead-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
+        help="Override only right opponent's lead policy for multi-step simulation.",
     )
     parser.add_argument(
         "--right-opponent-response-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
         help=(
-            "Right opponent response card policy for immediate response analysis "
-            "and multi-step simulations."
+            "Override only right opponent's response policy for immediate analysis "
+            "and multi-step simulation."
         ),
     )
 

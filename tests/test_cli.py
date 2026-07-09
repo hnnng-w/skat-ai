@@ -44,6 +44,40 @@ def assert_no_success_output(completed_process: subprocess.CompletedProcess[str]
     assert "Output file written:" not in completed_process.stdout
 
 
+def test_cli_help_exits_zero_and_lists_important_options() -> None:
+    completed_process = run_cli("--help")
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "usage:" in completed_process.stdout
+    assert "Examples:" in completed_process.stdout
+
+    for option in [
+        "--input",
+        "--output",
+        "--samples",
+        "--seed",
+        "--expected-value-samples",
+        "--multi-step",
+        "--compare-policies",
+        "--comparison-only",
+        "--card-policy",
+        "--opponent-strategy",
+        "--opponent-policy-preset",
+        "--opponent-lead-policy",
+        "--opponent-response-policy",
+        "--left-opponent-lead-policy",
+        "--left-opponent-response-policy",
+        "--right-opponent-lead-policy",
+        "--right-opponent-response-policy",
+        "--use-profile-presets",
+    ]:
+        assert option in completed_process.stdout
+
+    assert "Print only policy comparison details" in completed_process.stdout
+    assert_no_success_output(completed_process)
+
+
 def test_cli_default_input_success_exits_zero_and_prints_recommendation() -> None:
     completed_process = run_cli()
 

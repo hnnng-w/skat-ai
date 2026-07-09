@@ -267,7 +267,19 @@ Null games do not use matadors.
 
 ## Example commands
 
-Run a basic analysis:
+Run the repository-root quick-start fixture:
+
+```powershell
+python main.py
+```
+
+Run a basic analysis with an explicit input file:
+
+```powershell
+python main.py --input examples/grand_second_position.json
+```
+
+Write structured JSON output:
 
 ```powershell
 python main.py --input examples/grand_second_position.json --output outputs/result.json
@@ -323,12 +335,24 @@ Run a two-step simulation with explicit opponent policies:
 python main.py --input examples/grand_second_position.json --multi-step 2 --opponent-lead-policy highest_point --opponent-response-policy basic_trick_play
 ```
 
+Run a two-step simulation with side-specific opponent lead policies:
+
+```powershell
+python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-lead-policy basic_defender_lead
+```
+
 ## Policy comparison examples
 
 Run a policy comparison:
 
 ```powershell
 python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
+```
+
+Print only policy-comparison output:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies --comparison-only
 ```
 
 ## Left/right opponent policy examples
@@ -361,6 +385,12 @@ Run a multi-step simulation with separate left/right opponent policies:
 
 ```powershell
 python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2
+```
+
+Override side-specific opponent policies from the CLI:
+
+```powershell
+python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
 ```
 
 ## Notes

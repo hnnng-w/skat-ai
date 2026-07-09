@@ -121,6 +121,12 @@ Run the combined check script:
 
 ## Usage
 
+Show available CLI options and common command examples:
+
+```powershell
+python main.py --help
+```
+
 Run the default analysis from the repository root. This reads the root
 `input_position.json` quick-start fixture:
 
@@ -146,10 +152,22 @@ Run a multi-step analysis:
 python main.py --input examples/grand_second_position.json --multi-step 2
 ```
 
+Compare all multi-step local card-selection policies:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
+```
+
+Print only the policy-comparison summary, without individual multi-step details:
+
+```powershell
+python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies --comparison-only
+```
+
 Run a multi-step analysis with separate left/right opponent policies:
 
 ```powershell
-python main.py --input examples/grand_second_position.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
+python main.py --input examples/grand_left_right_opponent_policies.json --multi-step 2 --left-opponent-lead-policy highest_point --right-opponent-response-policy basic_defender_response
 ```
 
 Global policy presets and policies cascade to both opponents. Side-specific input fields or CLI overrides win for their side.
