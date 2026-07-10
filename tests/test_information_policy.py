@@ -1,6 +1,8 @@
 from skat_ai.information_policy import (
     build_information_policy_summary,
     is_live_information_enforced,
+    validate_information_policy_from_input,
+    validate_live_completed_trick_metadata,
 )
 
 
@@ -61,3 +63,58 @@ def test_build_information_policy_summary_allows_live_declarer_private_skat() ->
         "ended_game_allowed": False,
         "unverifiable_completed_trick_winner_metadata_allowed": False,
     }
+
+
+def test_validate_live_completed_trick_metadata_rejects_side_only_winner_role() -> None:
+    try:
+        validate_live_completed_trick_metadata(
+            analysis_mode="live_decision",
+            completed_tricks=[
+                {
+                    "cards": ["SA", "S7", "S8"],
+                    "winner_role": "defenders",
+                }
+            ],
+        )
+    except ValueError as error:
+        assert "winner_role" in str(error)
+        assert "players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_live_completed_trick_metadata_allows_post_game_side_only_history() -> None:
+    validate_live_completed_trick_metadata(
+        analysis_mode="post_game_review",
+        completed_tricks=[
+            {
+                "cards": ["SA", "S7", "S8"],
+                "winner_role": "defenders",
+            }
+        ],
+    )
+
+
+def test_validate_information_policy_rejects_live_unverifiable_winner_role() -> None:
+    try:
+        validate_information_policy_from_input(
+            {
+                "analysis_mode": "live_decision",
+                "game_type": "grand",
+                "player_role": "unknown",
+                "declarer_player": "unknown",
+                "skat_visibility": "unknown",
+                "completed_tricks": [
+                    {
+                        "cards": ["SA", "S7", "S8"],
+                        "players": ["left", "right", "me"],
+                        "winner_role": "declarer",
+                    }
+                ],
+            }
+        )
+    except ValueError as error:
+        assert "winner_role cannot be verified" in str(error)
+        assert "concrete declarer_player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")

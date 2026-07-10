@@ -391,7 +391,9 @@ Important validation rules:
 * `game_end_reason` values other than `not_ended` require `analysis_mode = "post_game_review"`.
 * `analysis_mode = "live_decision"` cannot describe a completed game with all 120 card points assigned.
 * In `live_decision`, completed-trick winner metadata such as `winner_player` or `winner_role` must be verifiable.
-* If winner metadata is provided in `live_decision`, `players` should also be provided.
+* In `live_decision`, `winner_role` is accepted only when the winning side can be derived from `cards`, `players`, `game_type`, and concrete `declarer_player`.
+* In `live_decision`, completed tricks with `winner_role` but without `players` are rejected.
+* In `live_decision`, completed tricks with `players` are rejected if `winner_role` contradicts the rule-derived winner side or if the winner side cannot be derived.
 
 Examples:
 
@@ -775,6 +777,7 @@ Validation rules:
 * When `cards` and `players` are provided, the engine derives the actual trick winner according to the implemented Skat rules.
 * When `winner_player` is provided with `cards` and `players`, it must match the derived trick winner.
 * When `winner_role` is provided with `cards`, `players`, and concrete declarer identity, it must match the derived winner side even if `winner_player` is omitted.
+* In `live_decision`, `winner_role` must be verifiable from `cards`, `players`, `game_type`, and concrete `declarer_player`; unverifiable or contradictory live `winner_role` values are rejected.
 
 Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly. Existing explicit `winner_role` values remain accepted as side-level facts unless concrete `players` plus declarer identity, or concrete `winner_player` plus declarer identity, prove a conflict.
 

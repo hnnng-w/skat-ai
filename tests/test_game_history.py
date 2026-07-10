@@ -888,6 +888,45 @@ def test_validate_completed_trick_rule_winner_is_tolerant_for_unknown_side() -> 
     )
 
 
+def test_validate_completed_trick_rule_winner_rejects_strict_unknown_side() -> None:
+    try:
+        validate_completed_trick_rule_winner(
+            completed_trick={
+                "cards": ["SA", "S7", "S8"],
+                "players": ["left", "right", "me"],
+                "winner_role": "declarer",
+            },
+            game_type="grand",
+            player_role="unknown",
+            declarer_player="unknown",
+            require_verifiable_winner_role=True,
+        )
+    except ValueError as error:
+        assert "winner_role cannot be verified" in str(error)
+        assert "concrete declarer_player" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_completed_trick_rule_winner_rejects_strict_side_only_history() -> None:
+    try:
+        validate_completed_trick_rule_winner(
+            completed_trick={
+                "cards": ["SA", "S7", "S8"],
+                "winner_role": "defenders",
+            },
+            game_type="grand",
+            player_role="declarer",
+            declarer_player="me",
+            require_verifiable_winner_role=True,
+        )
+    except ValueError as error:
+        assert "winner_role cannot be verified" in str(error)
+        assert "players" in str(error)
+    else:
+        raise AssertionError("Expected ValueError was not raised.")
+
+
 def test_validate_completed_trick_rule_winner_keeps_legacy_side_only_history() -> None:
     validate_completed_trick_rule_winner(
         completed_trick={

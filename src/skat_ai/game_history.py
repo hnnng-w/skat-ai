@@ -357,6 +357,7 @@ def validate_completed_trick_sequence(
     player_role: str = "unknown",
     declarer_player: str | None = None,
     game_type: str = "grand",
+    require_verifiable_winner_role: bool = False,
 ) -> None:
     """
     Validates completed trick sequence consistency.
@@ -382,6 +383,7 @@ def validate_completed_trick_sequence(
             player_role=player_role,
             declarer_player=declarer_player,
             trick_index=trick_index,
+            require_verifiable_winner_role=require_verifiable_winner_role,
         )
 
         players = completed_trick.get("players")
@@ -521,6 +523,7 @@ def validate_completed_trick_rule_winner(
     player_role: str = "unknown",
     declarer_player: str | None = None,
     trick_index: int | None = None,
+    require_verifiable_winner_role: bool = False,
 ) -> None:
     """
     Validates that winner metadata matches the actual trick winner by rules.
@@ -535,7 +538,24 @@ def validate_completed_trick_rule_winner(
     winner_player = completed_trick.get("winner_player")
     winner_role = completed_trick.get("winner_role")
 
+    winner_player_field = "completed_trick winner_player"
+    winner_role_field = "completed_trick winner_role"
+
+    if trick_index is not None:
+        winner_player_field = f"completed_tricks[{trick_index}].winner_player"
+        winner_role_field = f"completed_tricks[{trick_index}].winner_role"
+
     if players is None:
+        if require_verifiable_winner_role and winner_role is not None:
+            metadata_fields = winner_role_field
+            if winner_player is not None:
+                metadata_fields = f"{winner_role_field} and {winner_player_field}"
+
+            raise ValueError(
+                f"{metadata_fields} cannot be verified without "
+                "completed_trick.players."
+            )
+
         return
 
     winner_index = get_trick_winner(
@@ -543,13 +563,6 @@ def validate_completed_trick_rule_winner(
         game_type=game_type,
     )
     expected_winner_player = players[winner_index]
-
-    winner_player_field = "completed_trick winner_player"
-    winner_role_field = "completed_trick winner_role"
-
-    if trick_index is not None:
-        winner_player_field = f"completed_tricks[{trick_index}].winner_player"
-        winner_role_field = f"completed_tricks[{trick_index}].winner_role"
 
     if winner_player is not None and winner_player != expected_winner_player:
         raise ValueError(
@@ -567,6 +580,12 @@ def validate_completed_trick_rule_winner(
     )
 
     if expected_winner_role is None:
+        if require_verifiable_winner_role:
+            raise ValueError(
+                f"{winner_role_field} cannot be verified from cards, players, "
+                "game_type, and concrete declarer_player."
+            )
+
         return
 
     if winner_role != expected_winner_role:

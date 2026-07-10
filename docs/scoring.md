@@ -104,7 +104,10 @@ point-based `effective_schwarz_status` field. When concrete `players` and
 declarer identity are known, validation derives the rule winner from `cards`
 and checks that `winner_role` matches the canonical side ownership. The same
 side-ownership check applies when concrete `winner_player` and declarer identity
-are both known.
+are both known. In live-decision input, supplied `winner_role` must be
+verifiable from `cards`, `players`, `game_type`, and concrete
+`declarer_player`; unverifiable live side ownership is rejected instead of being
+trusted by scoring or settlement summaries.
 
 ## Score summary
 

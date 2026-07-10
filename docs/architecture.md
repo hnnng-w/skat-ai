@@ -57,7 +57,7 @@ Validation is split between JSON Schema and Python validation:
 | ----------------------------- | ---------------------------------------------------------------------- |
 | `src/skat_ai/game_history.py` | Completed-trick structure, sequence, role, and rule-winner validation. |
 
-Completed-trick validation is used to prevent inconsistent historical game states, duplicate cards, impossible sequences, and mismatched trick winners where enough information is available. When `cards` and ordered `players` are present, validation derives the rule winner and checks both `winner_player` and concrete `winner_role` metadata against that derived result.
+Completed-trick validation is used to prevent inconsistent historical game states, duplicate cards, impossible sequences, and mismatched trick winners where enough information is available. When `cards` and ordered `players` are present, validation derives the rule winner and checks both `winner_player` and concrete `winner_role` metadata against that derived result. In live-decision input, supplied `winner_role` must be verifiable from `cards`, `players`, `game_type`, and concrete `declarer_player`; post-game legacy side-only histories remain supported when that evidence is absent.
 
 ## Game value and result
 

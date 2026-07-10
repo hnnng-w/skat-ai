@@ -3065,6 +3065,90 @@ def test_position_input_accepts_live_trick_with_players_and_winner() -> None:
     validate_position_input(data)
 
 
+def build_live_completed_trick_input(
+    completed_trick: dict[str, object],
+) -> dict[str, object]:
+    data = build_valid_input()
+    data["analysis_mode"] = "live_decision"
+    data["skat_visibility"] = "unknown"
+    data["game_type"] = "grand"
+    data["player_role"] = "declarer"
+    data["declarer_player"] = "me"
+    data["trick_leader"] = "unknown"
+    data["current_trick"] = []
+    data["next_player"] = "unknown"
+    data["hand"] = ["C7", "C8", "C9"]
+    data["completed_tricks"] = [completed_trick]
+
+    return data
+
+
+def test_validate_position_input_rejects_live_side_only_winner_role() -> None:
+    data = build_live_completed_trick_input(
+        {
+            "cards": ["SA", "S7", "S8"],
+            "winner_role": "defenders",
+        }
+    )
+
+    with pytest.raises(ValueError, match="winner_role cannot be verified"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_live_unverifiable_winner_role() -> None:
+    data = build_live_completed_trick_input(
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+        }
+    )
+    data["player_role"] = "unknown"
+    data["declarer_player"] = "unknown"
+
+    with pytest.raises(ValueError, match="concrete declarer_player"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_accepts_live_verifiable_winner_role() -> None:
+    data = build_live_completed_trick_input(
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "defenders",
+        }
+    )
+
+    validate_position_input(data)
+
+
+def test_validate_position_input_rejects_live_contradictory_winner_role() -> None:
+    data = build_live_completed_trick_input(
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+        }
+    )
+
+    with pytest.raises(ValueError, match="expected defenders, got declarer"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_live_wrong_winner_player() -> None:
+    data = build_live_completed_trick_input(
+        {
+            "cards": ["SA", "S7", "S8"],
+            "players": ["left", "right", "me"],
+            "winner_role": "declarer",
+            "winner_player": "me",
+        }
+    )
+
+    with pytest.raises(ValueError, match="winner_player is inconsistent"):
+        validate_position_input(data)
+
+
 def test_validate_position_input_rejects_live_normal_completion() -> None:
     data = {
         "game_type": "grand",

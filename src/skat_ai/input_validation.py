@@ -368,6 +368,9 @@ def validate_position_input(data: dict[str, Any]) -> None:
         player_role=data.get("player_role", "unknown"),
         declarer_player=data.get("declarer_player", "unknown"),
         game_type=data.get("game_type", "grand"),
+        require_verifiable_winner_role=(
+            data.get("analysis_mode", "live_decision") == "live_decision"
+        ),
     )
     validate_analysis_mode_skat_visibility_combination(
         analysis_mode=data.get("analysis_mode", "live_decision"),

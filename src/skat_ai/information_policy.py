@@ -1,5 +1,6 @@
 from typing import Any
 
+from skat_ai.game_history import validate_completed_trick_rule_winner
 from skat_ai.rules import get_trick_points
 
 
@@ -125,6 +126,26 @@ def validate_live_completed_trick_metadata(
             )
 
 
+def validate_live_completed_trick_winner_role_verifiability(
+    data: dict[str, Any],
+) -> None:
+    """
+    Validates that live completed-trick winner_role values are derivable.
+    """
+    if data.get("analysis_mode", "live_decision") != "live_decision":
+        return
+
+    for trick_index, completed_trick in enumerate(data.get("completed_tricks", [])):
+        validate_completed_trick_rule_winner(
+            completed_trick=completed_trick,
+            game_type=data.get("game_type", "grand"),
+            player_role=data.get("player_role", "unknown"),
+            declarer_player=data.get("declarer_player", "unknown"),
+            trick_index=trick_index,
+            require_verifiable_winner_role=True,
+        )
+
+
 def validate_ended_game_requires_post_game_review(
     analysis_mode: str,
     game_end_reason: str,
@@ -175,6 +196,7 @@ def validate_information_policy_from_input(
         analysis_mode=analysis_mode,
         completed_tricks=data.get("completed_tricks", []),
     )
+    validate_live_completed_trick_winner_role_verifiability(data)
     validate_ended_game_requires_post_game_review(
         analysis_mode=analysis_mode,
         game_end_reason=game_end_reason,
