@@ -470,6 +470,33 @@ def test_spades_midgame_defender_live_example_invariants() -> None:
     assert result["game_result_summary"]["is_complete"] is False
     assert result["final_settlement_summary"]["is_complete"] is False
 
+
+def test_late_game_history_heavy_live_example_invariants() -> None:
+    result = build_example_analysis_result("grand_late_game_history_heavy_live.json")
+
+    assert result["position"]["player_role"] == "defender"
+    assert result["position"]["declarer_player"] == "left"
+    assert result["position"]["current_trick"] == ["D8", "D9"]
+    assert result["position"]["hand"] == ["D7"]
+    assert len(result["position"]["completed_tricks"]) == 9
+    assert result["settings"]["left_hand_size"] == 0
+    assert result["settings"]["right_hand_size"] == 0
+
+    assert result["legal_cards"] == ["D7"]
+    assert result["recommendation"]["card"] == "D7"
+
+    assert result["game_declaration"]["matadors"] == 2
+    assert result["game_value_summary"]["game_value"] == 72
+    assert result["game_value_summary"]["details"]["matadors"] == 2
+
+    assert result["score_summary"]["completed_trick_declarer_points"] == 106
+    assert result["score_summary"]["completed_trick_defender_points"] == 6
+    assert result["information_policy_summary"]["live_information_enforced"] is True
+    assert result["information_policy_summary"][
+        "unverifiable_completed_trick_winner_metadata_allowed"
+    ] is False
+
+
 def test_post_game_known_skat_example_metadata_invariants() -> None:
     result = build_example_analysis_result("grand_post_game_known_skat.json")
 

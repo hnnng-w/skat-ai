@@ -613,6 +613,48 @@ def check_list_performance(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_late_game_history_heavy_live(data: dict[str, Any]) -> list[str]:
+    """
+    Checks a late-game live input with zero opponent hand sizes and rich history.
+    """
+    errors = []
+
+    if data["settings"]["left_hand_size"] != 0:
+        errors.append("expected left_hand_size to be zero")
+
+    if data["settings"]["right_hand_size"] != 0:
+        errors.append("expected right_hand_size to be zero")
+
+    if data["position"]["current_trick"] != ["D8", "D9"]:
+        errors.append("expected preserved two-card late-game current_trick")
+
+    if len(data["position"]["completed_tricks"]) != 9:
+        errors.append("expected nine completed history tricks")
+
+    if data["legal_cards"] != ["D7"]:
+        errors.append("expected final local card to be the only legal card")
+
+    if data["recommendation"]["card"] != "D7":
+        errors.append("expected final local card recommendation")
+
+    if data["game_declaration"]["matadors"] != 2:
+        errors.append("expected matadors inferred from completed-trick ownership")
+
+    if data["game_value_summary"]["game_value"] != 72:
+        errors.append("expected inferred grand game value 72")
+
+    information_policy = data["information_policy_summary"]
+    if information_policy["live_information_enforced"] is not True:
+        errors.append("expected live information policy enforcement")
+
+    if (
+        information_policy["unverifiable_completed_trick_winner_metadata_allowed"]
+        is not False
+    ):
+        errors.append("expected strict live completed-trick winner metadata")
+
+    return errors
+
 
 def check_defender_known_to_declarer_local_view(data: dict[str, Any]) -> list[str]:
     """
@@ -825,6 +867,16 @@ SCENARIOS = (
         input_path=PROJECT_ROOT / "examples" / "grand_list_performance_input.json",
         branch="optional list performance summary",
         check_output=check_list_performance,
+    ),
+    Scenario(
+        name="late_game_history_heavy_live",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "grand_late_game_history_heavy_live.json"
+        ),
+        branch="late-game live public input with zero hand sizes and rich history",
+        check_output=check_late_game_history_heavy_live,
     ),
     Scenario(
         name="defender_known_to_declarer_local_view",

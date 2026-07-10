@@ -130,8 +130,8 @@ user-facing CLI workflows, including explicit-input live recommendation, JSON
 output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
 simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
-claim/overbid/list-performance summaries, and local defender redaction for
-`known_to_declarer` Skat visibility.
+claim/overbid/list-performance summaries, late-game history-heavy live input,
+and local defender redaction for `known_to_declarer` Skat visibility.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

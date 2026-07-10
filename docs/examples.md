@@ -144,6 +144,7 @@ Live decision examples must not include post-game-only information such as `know
 | `grand_declarer_known_to_declarer_live.json` | Grand live declarer position where the local declarer has declarer-private Skat visibility.                                 |
 | `grand_third_position.json`                | Grand game, local player acts third.                                                                                         |
 | `grand_leading.json`                       | Grand game where local player leads the trick.                                                                               |
+| `grand_late_game_history_heavy_live.json`  | Late-game live defender position with zero opponent hand sizes, nine ordered completed tricks, and completed-trick matador inference. |
 | `grand_left_right_opponent_policies.json`  | Grand game with distinct global, left-opponent, and right-opponent policy settings.                                           |
 | `hearts_leading.json`                      | Suit game example.                                                                                                           |
 | `null_second_position.json`                | Null game example.                                                                                                           |
@@ -342,6 +343,8 @@ The engine currently infers matadors from known declarer-card context in:
 * `completed_tricks`, but only from conservative local-declarer ownership facts with both `cards` and ordered `players`
 
 If an explicit `matadors` value is provided, the explicit value is preserved.
+
+`grand_late_game_history_heavy_live.json` omits explicit `matadors` and uses ordered completed-trick ownership from a concrete defender perspective to infer the Grand game value late in the game.
 
 Null games do not use matadors.
 
