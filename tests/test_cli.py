@@ -4177,17 +4177,17 @@ def test_run_json_position_analysis_prints_available_post_game_review_summary(
     assert "Recommended card: C7" in captured.out
     assert "Actual expected point swing:" in captured.out
     assert "Recommended expected point swing:" in captured.out
-    assert "Expected point swing difference:" in captured.out
+    assert "Missed expected point swing: 0.00" in captured.out
     assert "Decision quality: optimal" in captured.out
     assert "Decision factors: no_missed_expected_point_swing" in captured.out
     assert (
         "Decision explanation: The actual card matches the recommended card "
         "or has no missed expected point swing."
     ) in captured.out
-    assert "Actual card rank: 1" in captured.out
-    assert "Recommended card rank: 1" in captured.out
-    assert "Candidate count: 1" in captured.out
-    assert "Better card count: 0" in captured.out
+    assert (
+        "Review ranks: actual 1 of 1; recommended 1 of 1; better alternatives 0."
+    ) in captured.out
+    assert "Actual card is best-ranked by the review objective." in captured.out
 
 
 def test_run_json_position_analysis_prints_unavailable_post_game_review_summary(
@@ -4210,16 +4210,80 @@ def test_run_json_position_analysis_prints_unavailable_post_game_review_summary(
     captured = capsys.readouterr()
 
     assert "Post-game review summary" in captured.out
-    assert "Not available: actual_card_played_not_provided" in captured.out
+    assert "Review status: not available" in captured.out
+    assert "Actual card played: not available" in captured.out
+    assert "Recommended card:" in captured.out
+    assert "Unavailable reason: the actual card was not provided." in captured.out
+    assert "Reason code: actual_card_played_not_provided" in captured.out
     assert "Decision factors: actual_card_played_not_provided" in captured.out
     assert (
         "Decision explanation: No post-game review decision quality is available "
         "because actual_card_played was not provided."
     ) in captured.out
-    assert "Actual card rank: not available" in captured.out
-    assert "Recommended card rank: 1" in captured.out
-    assert "Candidate count:" in captured.out
-    assert "Better card count: not available" in captured.out
+    assert "Review ranks: actual not available; recommended" in captured.out
+    assert "better alternatives not available." in captured.out
+    assert "Better alternatives: not available." in captured.out
+
+
+def test_run_json_position_analysis_prints_null_objective_aware_review_wording(
+    tmp_path,
+    capsys,
+) -> None:
+    data = {
+        "game_type": "null",
+        "player_role": "declarer",
+        "declarer_player": "me",
+        "player_position": "rearhand",
+        "trick_leader": "left",
+        "hand": ["CA", "C7"],
+        "current_trick": ["C10", "C9"],
+        "played_cards": [],
+        "completed_tricks": [],
+        "declarer_points": 0,
+        "defender_points": 0,
+        "next_player": "me",
+        "skat": [],
+        "left_hand_size": 1,
+        "right_hand_size": 1,
+        "sample_count": 1,
+        "random_seed": 42,
+        "use_basic_opponent_strategy": True,
+        "analysis_mode": "post_game_review",
+        "skat_visibility": "unknown",
+        "actual_card_played": "CA",
+    }
+    input_path = write_position_file(tmp_path, data)
+
+    run_json_position_analysis(
+        file_path=input_path,
+        sample_count_override=1,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+        output_path=None,
+        multi_step_count=None,
+        card_selection_policy="highest_expected_value",
+        expected_value_sample_count=1,
+        strict_context=False,
+        compare_policies=False,
+        comparison_only=False,
+    )
+
+    captured = capsys.readouterr()
+
+    assert "Post-game review summary" in captured.out
+    assert "Actual card played: CA" in captured.out
+    assert "Recommended card: C7" in captured.out
+    assert "Objective basis: Null contract objective, not raw card points." in captured.out
+    assert "Actual card-point swing (informational): 21.00" in captured.out
+    assert "Recommended card-point swing (informational): -10.00" in captured.out
+    assert "Missed Null objective gap: 23.00" in captured.out
+    assert "Decision quality: mistake" in captured.out
+    assert "Null contract objective" in captured.out
+    assert (
+        "Review ranks: actual 2 of 2; recommended 1 of 2; better alternatives 1."
+    ) in captured.out
+    assert "Actual card has 1 better alternative by the review objective." in captured.out
+    assert "Expected point swing difference:" not in captured.out
 
 
 def test_build_analysis_result_infers_missing_matadors_from_known_declarer_cards(

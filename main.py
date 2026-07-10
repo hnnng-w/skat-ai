@@ -37,6 +37,7 @@ from skat_ai.input_loader import (
 )
 from skat_ai.input_validation import MAX_SAMPLE_COUNT
 from skat_ai.multi_step_simulation import simulate_multiple_steps
+from skat_ai.objective_utility import calculate_expected_objective_utility
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
@@ -64,6 +65,13 @@ IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
 IMMEDIATE_UNAVAILABLE_GAME_COMPLETE_REASON = (
     "Immediate analysis is unavailable because the game is complete."
 )
+POST_GAME_REVIEW_UNAVAILABLE_REASON_TEXT = {
+    "actual_card_played_not_provided": "the actual card was not provided.",
+    "immediate_analysis_unavailable": "immediate analysis is unavailable for this position.",
+    "expected_point_swing_difference_not_available": (
+        "the expected point swing difference is not available."
+    ),
+}
 
 
 class CliUsageError(ValueError):
@@ -424,6 +432,175 @@ def format_optional_cli_value(value: object) -> str:
     return str(value)
 
 
+def format_post_game_review_unavailable_reason(reason: object) -> str:
+    """Formats stable post-game review reason codes for human-readable CLI output."""
+    reason_text = str(reason)
+
+    return POST_GAME_REVIEW_UNAVAILABLE_REASON_TEXT.get(
+        reason_text,
+        reason_text.replace("_", " "),
+    )
+
+
+def is_null_review_result(result: dict[str, object]) -> bool:
+    """Returns whether the CLI review output should use Null objective wording."""
+    position = result.get("position")
+
+    return isinstance(position, dict) and position.get("game_type") == "null"
+
+
+def get_analysis_report_row_for_cli(
+    result: dict[str, object],
+    card: object,
+) -> dict[str, object] | None:
+    """Returns an analysis-report row for CLI-only presentation calculations."""
+    analysis_report = result.get("analysis_report")
+
+    if not isinstance(card, str) or not isinstance(analysis_report, list):
+        return None
+
+    for row in analysis_report:
+        if isinstance(row, dict) and row.get("card") == card:
+            return row
+
+    return None
+
+
+def calculate_missed_null_objective_gap_for_cli(
+    result: dict[str, object],
+    summary: dict[str, object],
+) -> float | None:
+    """Calculates the displayed Null objective gap without changing JSON output."""
+    position = result.get("position")
+    game_value_summary = result.get("game_value_summary")
+
+    if not isinstance(position, dict) or not isinstance(game_value_summary, dict):
+        return None
+
+    actual_row = get_analysis_report_row_for_cli(
+        result=result,
+        card=summary.get("actual_card_played"),
+    )
+    recommended_row = get_analysis_report_row_for_cli(
+        result=result,
+        card=summary.get("recommended_card"),
+    )
+
+    if actual_row is None or recommended_row is None:
+        return None
+
+    try:
+        actual_objective_utility = calculate_expected_objective_utility(
+            game_type="null",
+            player_role=str(position["player_role"]),
+            value=actual_row,
+        )
+        recommended_objective_utility = calculate_expected_objective_utility(
+            game_type="null",
+            player_role=str(position["player_role"]),
+            value=recommended_row,
+        )
+        game_value = float(game_value_summary["game_value"])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+    return max(
+        0.0,
+        (recommended_objective_utility - actual_objective_utility) * game_value,
+    )
+
+
+def print_post_game_review_rank_summary(summary: dict[str, object]) -> None:
+    """Prints concise rank and better-alternative wording for review output."""
+    candidate_count = format_optional_cli_value(summary.get("candidate_count"))
+    actual_rank = format_optional_cli_value(summary.get("actual_card_rank"))
+    recommended_rank = format_optional_cli_value(summary.get("recommended_card_rank"))
+    actual_rank_text = actual_rank
+    recommended_rank_text = recommended_rank
+
+    if summary.get("actual_card_rank") is not None:
+        actual_rank_text = f"{actual_rank} of {candidate_count}"
+
+    if summary.get("recommended_card_rank") is not None:
+        recommended_rank_text = f"{recommended_rank} of {candidate_count}"
+
+    print(
+        "Review ranks: "
+        f"actual {actual_rank_text}; "
+        f"recommended {recommended_rank_text}; "
+        f"better alternatives {format_optional_cli_value(summary.get('better_card_count'))}."
+    )
+
+    better_card_count = summary.get("better_card_count")
+
+    if better_card_count is None:
+        print("Better alternatives: not available.")
+        return
+
+    if better_card_count == 0:
+        print("Actual card is best-ranked by the review objective.")
+        return
+
+    suffix = "" if better_card_count == 1 else "s"
+    print(
+        f"Actual card has {better_card_count} better alternative{suffix} "
+        "by the review objective."
+    )
+
+
+def print_post_game_review_value_summary(
+    result: dict[str, object],
+    summary: dict[str, object],
+) -> None:
+    """Prints point or objective-gap wording for post-game review output."""
+    actual_expected_point_swing = float(summary["actual_expected_point_swing"])
+    recommended_expected_point_swing = float(
+        summary["recommended_expected_point_swing"]
+    )
+    expected_point_swing_difference = float(
+        summary["expected_point_swing_difference"]
+    )
+
+    if is_null_review_result(result):
+        missed_objective_gap = calculate_missed_null_objective_gap_for_cli(
+            result=result,
+            summary=summary,
+        )
+        missed_objective_gap_text = (
+            format(missed_objective_gap, ".2f")
+            if missed_objective_gap is not None
+            else None
+        )
+        print("Objective basis: Null contract objective, not raw card points.")
+        print(
+            "Actual card-point swing (informational): "
+            f"{actual_expected_point_swing:.2f}"
+        )
+        print(
+            "Recommended card-point swing (informational): "
+            f"{recommended_expected_point_swing:.2f}"
+        )
+        print(
+            "Card-point swing difference (informational): "
+            f"{expected_point_swing_difference:.2f}"
+        )
+        print(
+            "Missed Null objective gap: "
+            f"{format_optional_cli_value(missed_objective_gap_text)}"
+        )
+        return
+
+    print(f"Actual expected point swing: {actual_expected_point_swing:.2f}")
+    print(
+        "Recommended expected point swing: "
+        f"{recommended_expected_point_swing:.2f}"
+    )
+    print(
+        "Missed expected point swing: "
+        f"{max(0.0, expected_point_swing_difference):.2f}"
+    )
+
+
 def print_post_game_review_summary(result: dict[str, object]) -> None:
     """Prints the post-game review summary for human-readable CLI output."""
     summary = result.get("post_game_review_summary")
@@ -439,52 +616,32 @@ def print_post_game_review_summary(result: dict[str, object]) -> None:
 
     if summary.get("is_available") is not True:
         reason = summary.get("reason", "not_available")
-        print(f"Not available: {reason}")
+        print("Review status: not available")
+        print(
+            "Actual card played: "
+            f"{format_optional_cli_value(summary.get('actual_card_played'))}"
+        )
+        print(
+            "Recommended card: "
+            f"{format_optional_cli_value(summary.get('recommended_card'))}"
+        )
+        print(
+            "Unavailable reason: "
+            f"{format_post_game_review_unavailable_reason(reason)}"
+        )
+        print(f"Reason code: {reason}")
         print(f"Decision factors: {decision_factors}")
         print(f"Decision explanation: {decision_explanation}")
-        print(
-            "Actual card rank: "
-            f"{format_optional_cli_value(summary.get('actual_card_rank'))}"
-        )
-        print(
-            "Recommended card rank: "
-            f"{format_optional_cli_value(summary.get('recommended_card_rank'))}"
-        )
-        print(
-            f"Candidate count: {format_optional_cli_value(summary.get('candidate_count'))}"
-        )
-        print(
-            "Better card count: "
-            f"{format_optional_cli_value(summary.get('better_card_count'))}"
-        )
+        print_post_game_review_rank_summary(summary)
         return
-
-    actual_expected_point_swing = float(summary["actual_expected_point_swing"])
-    recommended_expected_point_swing = float(
-        summary["recommended_expected_point_swing"]
-    )
-    expected_point_swing_difference = float(
-        summary["expected_point_swing_difference"]
-    )
 
     print(f"Actual card played: {summary['actual_card_played']}")
     print(f"Recommended card: {summary['recommended_card']}")
-    print(f"Actual expected point swing: {actual_expected_point_swing:.2f}")
-    print(
-        "Recommended expected point swing: "
-        f"{recommended_expected_point_swing:.2f}"
-    )
-    print(
-        "Expected point swing difference: "
-        f"{expected_point_swing_difference:.2f}"
-    )
+    print_post_game_review_value_summary(result=result, summary=summary)
     print(f"Decision quality: {summary['decision_quality']}")
     print(f"Decision factors: {decision_factors}")
     print(f"Decision explanation: {decision_explanation}")
-    print(f"Actual card rank: {summary['actual_card_rank']}")
-    print(f"Recommended card rank: {summary['recommended_card_rank']}")
-    print(f"Candidate count: {summary['candidate_count']}")
-    print(f"Better card count: {summary['better_card_count']}")
+    print_post_game_review_rank_summary(summary)
 
 
 def print_analysis_result(result: dict[str, Any]) -> None:
