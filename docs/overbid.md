@@ -162,7 +162,7 @@ Overbid handling depends on `game_value_summary`.
 
 If the game value is incomplete, overbid status may be unknown.
 
-Automatic matador inference can make some Suit/Grand game values complete even when `matadors` was not explicitly provided, as long as the currently known declarer-card context or safe local-declarer completed-trick ownership facts are sufficient.
+Automatic matador inference can make some Suit/Grand game values complete even when `matadors` was not explicitly provided, as long as the currently known declarer-card context or safe concrete-declarer completed-trick ownership facts are sufficient.
 
 ## Null-game safeguard
 

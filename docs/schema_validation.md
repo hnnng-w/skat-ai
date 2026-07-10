@@ -214,7 +214,7 @@ Examples:
 * how profile-derived opponent policy presets are selected from validated profile fields
 * overbid settlement support for Null games
 * strategic live-vs-post-game information rules
-* whether matadors can be inferred from the currently known declarer-card context and conservative local-declarer completed-trick ownership facts
+* whether matadors can be inferred from the currently known declarer-card context and conservative concrete-declarer completed-trick ownership facts
 * whether per-game list entries consistently describe one supplied `rated_player_id`
 * whether supplied per-game list `game_id` values are unique
 

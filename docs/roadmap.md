@@ -47,7 +47,7 @@ Implemented:
 
 * Game declaration metadata
 * Game value summaries for suit, grand, and null games
-* Automatic matador inference from known declarer-card context and safe local-declarer completed-trick ownership facts where possible
+* Automatic matador inference from known declarer-card context and safe concrete-declarer completed-trick ownership facts where possible
 * Final single-game settlement summary
 * Supported Suit/Grand overbid detection
 * Supported Suit/Grand overbid settlement loss handling
@@ -140,7 +140,7 @@ Implemented:
   * `recommended_card_rank`
   * `candidate_count`
   * `better_card_count`
-* Human-readable CLI output for post-game review summaries
+* Human-readable CLI output for post-game review summaries, including objective-aware Null review wording
 * Unavailable post-game review shape when Immediate Analysis is unavailable
 
 ### Validation and documentation
@@ -162,7 +162,7 @@ Implemented:
 * Improved CLI help text and command discoverability
 * Optional `--quiet` mode for automation-friendly JSON-output runs
 * Curated workflow walkthroughs for common user-facing CLI commands
-* Generated-output validation for representative user-facing workflows
+* Generated-output validation for representative user-facing workflows, including late-game history-heavy live input
 * Policy-comparison-only CLI output handling
 * CLI sample-bound validation fixes
 
@@ -179,7 +179,7 @@ Implemented:
 * The engine does not yet model player agreement or disputes around claim/concession.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Null-game overbid detection is supported, but settlement scoring remains conservative when no `required_game_value` is available.
-* Matador inference uses currently known declarer-card context and safe local-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
+* Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 
 ### Performance rating
 
@@ -212,34 +212,30 @@ Implemented:
 
 ## Current completed release scope
 
-### v0.4.0: CLI and user-facing usability
+### v0.5.0: Trustworthy late-game and history-heavy public inputs
 
-`v0.4.0` is the current completed release scope. It focused on user-facing CLI
-usability, documentation, and validation coverage rather than broad gameplay
-expansion.
+`v0.5.0` is the current completed release scope. It focused on trustworthy
+late-game and history-heavy public inputs rather than broad gameplay expansion.
 
-Completed `v0.4.0` release scope:
+Completed `v0.5.0` release scope:
 
-* #47 refreshed the post-`v0.3.0` roadmap and project handoff direction.
-* #48 improved CLI help text and command discoverability.
-* #49 added optional `--quiet` mode for JSON-output CLI runs.
-* #50 expanded generated-output validation for user-facing CLI workflows.
-* #51 fixed remaining CLI usability validation bugs, including comparison-only and sample-bound handling.
-* #52 refreshed documentation and curated workflow walkthroughs.
-* #53 removed stale tracked generated output artifacts before release preparation.
+* #55 allowed zero opponent hand sizes for late-game public inputs.
+* #56 enforced live completed-trick `winner_role` verifiability.
+* #57 expanded safe matador inference from completed-trick ownership.
+* #58 added focused late-game and history-heavy workflow coverage.
+* #59 improved objective-aware post-game review CLI wording.
 
 Deferred deeper investigations:
 
 * Broader simulation-quality improvements.
 * Expanded scoring or settlement scope outside focused bug fixes.
-* Null objective, hidden-information sampling, or validation behavior changes that would alter stable behavior.
+* Hidden-information sampling or validation behavior changes that would alter stable behavior.
 * Large `main.py` refactors or CLI redesigns.
 
-Possible future work beyond `v0.4.0`:
+Possible future work beyond `v0.5.0`:
 
-* Improve human-readable post-game review CLI wording if a focused usability gap remains.
 * Add small workflow examples only when they cover a real user-facing gap not already represented by existing fixtures.
-* Keep README, walkthroughs, schema-validation docs, and handoff notes aligned with completed CLI usability behavior.
+* Keep README, walkthroughs, schema-validation docs, and handoff notes aligned with completed public-input behavior.
 
 ## Open gameplay improvements
 
@@ -251,7 +247,7 @@ Potential future gameplay improvements:
 * Explore deeper PlayerProfile confidence usage beyond preset selection.
 * Explore broader defender strategy beyond issue #22's implemented heuristic scope.
 * Add stronger tests for left/right opponent policy effects with controlled opponent hands.
-* Improve matador inference from historical completed-trick context where safe and verifiable.
+* Explore broader matador inference beyond the current conservative concrete ownership facts.
 * Add richer explanation details for why a recommended card is preferred.
 
 ## Open performance-rating improvements
@@ -278,5 +274,5 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish completed `v0.4.0` usability work from deferred gameplay,
+should distinguish completed `v0.5.0` public-input work from deferred gameplay,
 scoring, settlement, validation, or hidden-information investigations.

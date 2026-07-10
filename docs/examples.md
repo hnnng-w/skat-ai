@@ -340,7 +340,7 @@ The engine currently infers matadors from known declarer-card context in:
 
 * `hand`
 * `skat`, when available and allowed by the analysis mode
-* `completed_tricks`, but only from conservative local-declarer ownership facts with both `cards` and ordered `players`
+* `completed_tricks`, but only from conservative concrete-declarer ownership facts with both `cards`, ordered `players`, and concrete `declarer_player`
 
 If an explicit `matadors` value is provided, the explicit value is preserved.
 

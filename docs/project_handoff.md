@@ -16,7 +16,7 @@ The project focuses on:
 * multi-step simulation
 * opponent policy modeling
 * game result and settlement summaries
-* automatic matador inference where supported by known declarer-card context and safe local-declarer completed-trick ownership
+* automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
 * post-game review support
 * JSON input/output for regression-friendly testing
 
@@ -119,7 +119,7 @@ Implemented:
 
 * game declaration metadata
 * game value summaries for suit, grand, and null games
-* automatic matador inference from known declarer cards and safe local-declarer completed-trick ownership where possible
+* automatic matador inference from known declarer cards and safe concrete-declarer completed-trick ownership where possible
 * final single-game settlement summary
 * supported Suit/Grand overbid detection
 * supported Suit/Grand overbid settlement loss handling
@@ -128,7 +128,7 @@ Known remaining areas:
 
 * full official settlement nuance coverage is not complete
 * Null-game overbid settlement remains conservative when no required game value is available
-* matador inference does not yet reconstruct completed-trick ownership beyond safe local-declarer `cards` and `players` facts
+* matador inference does not yet reconstruct completed-trick ownership beyond safe concrete `cards` and `players` facts
 
 ### Game-end handling
 
@@ -270,6 +270,10 @@ Current output fields include:
 * `candidate_count`
 * `better_card_count`
 
+Current CLI wording uses review-objective language for rank and better-card
+summaries. For Null games, the CLI distinguishes Null contract-objective gaps
+from informational card-point swing fields.
+
 ### CLI and workflow usability
 
 Implemented:
@@ -379,11 +383,11 @@ Main documentation files:
 
 ## Release status
 
-Current version: `0.4.0`.
+Current version: `0.5.0`.
 
-Latest release target: `v0.4.0`.
+Latest release target: `v0.5.0`.
 
-`v0.4.0` is the prepared release baseline. Tagging and GitHub Release creation
+`v0.5.0` is the prepared release baseline. Tagging and GitHub Release creation
 are expected to happen manually after the release-preparation branch is merged.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -408,28 +412,36 @@ The `v0.4.0` CLI and user-facing usability issue range #47 through #53 is comple
 * #52 refreshed documentation and curated workflow walkthroughs
 * #53 removed stale tracked generated output artifacts before release preparation
 
-At release-preparation time, GitHub reported only #54 open for final `v0.4.0`
+The `v0.5.0` trustworthy late-game and history-heavy public input issue range
+#55 through #59 is complete:
+
+* #55 allowed zero opponent hand sizes for late-game public inputs
+* #56 enforced live completed-trick `winner_role` verifiability
+* #57 expanded safe matador inference from completed-trick ownership
+* #58 added focused late-game and history-heavy workflow coverage
+* #59 improved objective-aware post-game review CLI wording
+
+At release-preparation time, GitHub reported only #60 open for final `v0.5.0`
 release preparation. No other open issues were reported.
 
 ## Current baseline
 
-**v0.4.0: CLI and user-facing usability**
+**v0.5.0: Trustworthy late-game and history-heavy public inputs**
 
 Completed baseline scope:
 
-* CLI help text and command discoverability improvements
-* optional `--quiet` mode for JSON-output CLI runs
-* generated-output validation for representative user-facing CLI workflows
-* comparison-only policy-comparison CLI output handling
-* CLI sample-bound validation fixes
-* curated documentation walkthroughs for common workflows
-* release-state documentation and stale generated artifact cleanup
+* zero opponent hand sizes for late-game public inputs
+* strict live completed-trick `winner_role` verifiability
+* conservative matador inference from concrete completed-trick ownership
+* focused late-game and history-heavy workflow coverage
+* objective-aware post-game review CLI wording
+* validation and regression coverage for the completed scope
 
 Deferred deeper investigations:
 
 * broad simulation-quality improvements
 * expanded scoring or settlement scope outside focused bug fixes
-* Null objective, hidden-information sampling, or validation behavior changes that would alter stable behavior
+* hidden-information sampling or validation behavior changes that would alter stable behavior
 * broad `main.py` refactors or CLI redesigns
 
 ## Open future topics
@@ -441,11 +453,11 @@ Recommended future topics:
 * deeper PlayerProfile confidence usage beyond preset selection
 * richer realistic example positions
 * richer post-game review examples
-* broader matador inference from completed-trick history beyond safe local-declarer ownership facts
+* broader matador inference from completed-trick history beyond safe concrete ownership facts
 * richer explanation details for recommended-card reasoning
 
-These are future candidates, not part of the completed `v0.4.0` usability scope.
-They remain outside the `v0.4.0` release baseline and should avoid broad
+These are future candidates, not part of the completed `v0.5.0` release scope.
+They remain outside the `v0.5.0` release baseline and should avoid broad
 simulation, scoring, settlement, validation, or hidden-information changes unless
 a focused bug is discovered.
 

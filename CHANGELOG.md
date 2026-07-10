@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.5.0
+
+### Late-game and history-heavy inputs
+
+* Allow zero opponent hand sizes for late-game public inputs.
+* Enforce stricter live completed-trick `winner_role` verifiability from concrete trick facts.
+* Expand conservative matador inference from completed-trick ownership when `cards`, ordered `players`, and concrete declarer identity make ownership safe.
+
+### Review wording and validation
+
+* Add focused late-game and history-heavy workflow coverage, including generated-output validation.
+* Improve objective-aware post-game review CLI wording, especially for Null contract-objective reviews.
+* Expand regression coverage around late-game inputs, live winner metadata, matador inference, examples, CLI output, and post-game review behavior.
+
 ## v0.4.0
 
 ### Documentation and release-state updates

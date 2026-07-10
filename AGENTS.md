@@ -16,7 +16,7 @@ The project focuses on:
 * multi-step simulation
 * opponent policy modeling
 * game result and settlement summaries
-* automatic matador inference where supported by known declarer-card context
+* automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
 * post-game review support
 * JSON input/output for regression-friendly testing
 
@@ -126,7 +126,7 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current stable baseline
 
-The current stable baseline is `v0.4.0`.
+The current stable baseline is `v0.5.0`.
 
 Major completed areas include:
 
@@ -141,6 +141,10 @@ Major completed areas include:
 * partial fixed-three-player ISkO-style rating
 * CLI usability improvements including discoverable help text and optional quiet JSON-output runs
 * generated-output validation for representative user-facing workflows
+* late-game public input support including zero opponent hand sizes
+* strict live completed-trick `winner_role` verifiability
+* conservative matador inference from concrete completed-trick ownership
+* objective-aware post-game review CLI wording
 * updated README, docs, roadmap, and project handoff
 
 ## Important design principles
@@ -165,7 +169,7 @@ Likely future work includes:
 * using PlayerProfile confidence in opponent modeling
 * improving advanced defender partnership decisions
 * extending official settlement nuance coverage
-* inferring matadors from completed-trick ownership where safe
+* broadening matador inference beyond the current conservative concrete ownership facts where safe
 * implementing full list, series, and tournament performance rating
 
 ## Safety rules for agent behavior

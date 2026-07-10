@@ -273,7 +273,7 @@ Completed-trick ownership inference is intentionally conservative:
 * It does not infer ownership from `winner_role`, `winner_player`, or trick winner alone.
 * It does not infer completed-trick ownership when `declarer_player` is missing or `unknown`.
 * It does not guess hidden cards.
-* If completed-trick ownership is incomplete or inconclusive, inference falls back only to deterministic local-declarer known-card behavior.
+* If completed-trick ownership is incomplete or inconclusive, inference falls back only to deterministic known-card behavior.
 
 If matadors still cannot be inferred for a suit or grand game, the game value may remain incomplete.
 
