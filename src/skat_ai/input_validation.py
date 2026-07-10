@@ -84,6 +84,18 @@ def validate_positive_integer_maximum(
         raise ValueError(f"{field_name} must be at most {maximum}.")
 
 
+def validate_non_negative_integer_maximum(
+    value: Any,
+    field_name: str,
+    maximum: int,
+) -> None:
+    """Validates a non-negative integer with a schema-level maximum."""
+    validate_non_negative_integer(value, field_name)
+
+    if value > maximum:
+        raise ValueError(f"{field_name} must be at most {maximum}.")
+
+
 def validate_required_keys(data: dict[str, Any]) -> None:
     """
     Validates that all required input keys exist.
@@ -316,12 +328,12 @@ def validate_position_input(data: dict[str, Any]) -> None:
     )
     validate_actual_card_played(data)
 
-    validate_positive_integer_maximum(
+    validate_non_negative_integer_maximum(
         data["left_hand_size"],
         "left_hand_size",
         MAX_OPPONENT_HAND_SIZE,
     )
-    validate_positive_integer_maximum(
+    validate_non_negative_integer_maximum(
         data["right_hand_size"],
         "right_hand_size",
         MAX_OPPONENT_HAND_SIZE,

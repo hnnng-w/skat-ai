@@ -60,8 +60,8 @@ def build_six_point_completed_trick() -> dict[str, object]:
 @pytest.mark.parametrize(
     ("field_name", "valid_value"),
     [
-        ("left_hand_size", 1),
-        ("right_hand_size", 1),
+        ("left_hand_size", 0),
+        ("right_hand_size", 0),
         ("sample_count", 1),
         ("random_seed", -42),
         ("declarer_points", 120),
@@ -128,6 +128,14 @@ def test_validate_position_input_accepts_null_random_seed() -> None:
     validate_position_input(data)
 
 
+def test_validate_position_input_accepts_zero_for_both_opponent_hand_sizes() -> None:
+    data = build_valid_input()
+    data["left_hand_size"] = 0
+    data["right_hand_size"] = 0
+
+    validate_position_input(data)
+
+
 @pytest.mark.parametrize("field_name", ["random_seed", "declarer_points", "defender_points"])
 def test_validate_position_input_accepts_omitted_optional_numeric_fields(
     field_name: str,
@@ -141,8 +149,8 @@ def test_validate_position_input_accepts_omitted_optional_numeric_fields(
 @pytest.mark.parametrize(
     ("field_name", "invalid_value"),
     [
-        ("left_hand_size", 0),
-        ("right_hand_size", 0),
+        ("left_hand_size", -1),
+        ("right_hand_size", -1),
         ("sample_count", 0),
         ("declarer_points", -1),
         ("defender_points", -1),

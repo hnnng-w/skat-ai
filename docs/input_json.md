@@ -97,8 +97,8 @@ A basic input position requires:
 | `defender_points`             | Explicit defender points already known outside completed tricks.                               |
 | `next_player`                 | Player whose turn it is.                                                                       |
 | `skat`                        | Known skat cards, if visible.                                                                  |
-| `left_hand_size`              | Number of unknown cards held by the left opponent.                                             |
-| `right_hand_size`             | Number of unknown cards held by the right opponent.                                            |
+| `left_hand_size`              | Number of unknown cards held by the left opponent. Late-game positions may use `0`.             |
+| `right_hand_size`             | Number of unknown cards held by the right opponent. Late-game positions may use `0`.            |
 | `sample_count`                | Number of Monte Carlo samples.                                                                 |
 | `random_seed`                 | Random seed for reproducibility.                                                               |
 | `use_basic_opponent_strategy` | Whether to use basic opponent strategy.                                                        |
@@ -790,6 +790,7 @@ Input validation rejects:
 * invalid card notation
 * explicit `null` or non-array values for card-array fields
 * hands with more than 10 cards
+* negative opponent hand sizes
 * opponent hand sizes above 10
 * sample counts above 100000
 * duplicate known cards

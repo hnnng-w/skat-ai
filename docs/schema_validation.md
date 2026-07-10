@@ -69,7 +69,8 @@ The input schema checks things such as:
 Runtime input validation mirrors selected public schema bounds and shapes so
 direct Python callers receive stable `ValueError` failures for malformed public
 input. This includes non-null array checks for card-array fields, max hand and
-Skat lengths, max opponent hand sizes, max `sample_count`, player-profile object
+Skat lengths, non-negative opponent hand sizes, max opponent hand sizes,
+max `sample_count`, player-profile object
 shapes, and unsupported keys in `completed_tricks` entries. The runtime still
 does not execute the full JSON Schema during loading.
 

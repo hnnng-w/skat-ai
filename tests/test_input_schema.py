@@ -69,6 +69,66 @@ def assert_schema_invalid(data: dict[str, object]) -> None:
     assert errors
 
 
+def assert_schema_and_runtime_valid(data: dict[str, object]) -> None:
+    assert_schema_valid(data)
+    validate_position_input(copy.deepcopy(data))
+
+
+def assert_schema_and_runtime_invalid(data: dict[str, object]) -> None:
+    assert_schema_invalid(data)
+
+    with pytest.raises(ValueError):
+        validate_position_input(copy.deepcopy(data))
+
+
+@pytest.mark.parametrize("field_name", ["left_hand_size", "right_hand_size"])
+def test_schema_and_runtime_accept_zero_opponent_hand_size(field_name: str) -> None:
+    data = build_valid_input()
+    data[field_name] = 0
+
+    assert_schema_and_runtime_valid(data)
+
+
+def test_schema_and_runtime_accept_zero_for_both_opponent_hand_sizes() -> None:
+    data = build_valid_input()
+    data["left_hand_size"] = 0
+    data["right_hand_size"] = 0
+
+    assert_schema_and_runtime_valid(data)
+
+
+@pytest.mark.parametrize("field_name", ["left_hand_size", "right_hand_size"])
+def test_schema_and_runtime_reject_negative_opponent_hand_size(
+    field_name: str,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = -1
+
+    assert_schema_and_runtime_invalid(data)
+
+
+@pytest.mark.parametrize("field_name", ["left_hand_size", "right_hand_size"])
+@pytest.mark.parametrize("invalid_value", [True, False, 1.5, "0"])
+def test_schema_and_runtime_reject_non_integer_opponent_hand_size(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    assert_schema_and_runtime_invalid(data)
+
+
+@pytest.mark.parametrize("field_name", ["left_hand_size", "right_hand_size"])
+def test_schema_and_runtime_reject_opponent_hand_size_above_maximum(
+    field_name: str,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = 11
+
+    assert_schema_and_runtime_invalid(data)
+
+
 @pytest.mark.parametrize(
     "field_name",
     [
