@@ -1,4 +1,5 @@
 from skat_ai.rules import get_trump_suit
+from skat_ai.side_ownership import VALID_CONCRETE_PLAYERS
 
 SUIT_GAME_RANK_ORDER = ["A", "10", "K", "Q", "9", "8", "7"]
 JACK_ORDER = ["CJ", "SJ", "HJ", "DJ"]
@@ -134,12 +135,16 @@ def infer_matadors_from_known_ownership(
     return matadors
 
 
-def get_completed_trick_ownership_cards_for_local_declarer(
+def get_completed_trick_ownership_cards_for_declarer(
     completed_tricks: list[dict],
+    declarer_player: str | None,
 ) -> tuple[list[str], list[str]]:
-    """Returns completed-trick cards with deterministic local-declarer ownership."""
+    """Returns completed-trick cards with deterministic declarer ownership."""
     declarer_owned_cards = []
     non_declarer_owned_cards = []
+
+    if declarer_player not in VALID_CONCRETE_PLAYERS:
+        return declarer_owned_cards, non_declarer_owned_cards
 
     for completed_trick in completed_tricks:
         cards = completed_trick.get("cards")
@@ -155,12 +160,47 @@ def get_completed_trick_ownership_cards_for_local_declarer(
             continue
 
         for card, player in zip(cards, players, strict=True):
-            if player == "me":
+            if player == declarer_player:
                 declarer_owned_cards.append(card)
             else:
                 non_declarer_owned_cards.append(card)
 
     return declarer_owned_cards, non_declarer_owned_cards
+
+
+def get_completed_trick_ownership_cards_for_local_declarer(
+    completed_tricks: list[dict],
+) -> tuple[list[str], list[str]]:
+    """Returns completed-trick cards with deterministic local-declarer ownership."""
+    return get_completed_trick_ownership_cards_for_declarer(
+        completed_tricks=completed_tricks,
+        declarer_player="me",
+    )
+
+
+def infer_matadors_from_concrete_declarer_known_ownership(
+    game_type: str,
+    declarer_player: str | None,
+    declarer_cards: list[str],
+    completed_tricks: list[dict],
+) -> int | None:
+    """Infers matadors from known cards and concrete completed-trick ownership."""
+    if declarer_player not in VALID_CONCRETE_PLAYERS:
+        return None
+
+    (
+        completed_trick_declarer_cards,
+        completed_trick_non_declarer_cards,
+    ) = get_completed_trick_ownership_cards_for_declarer(
+        completed_tricks=completed_tricks,
+        declarer_player=declarer_player,
+    )
+
+    return infer_matadors_from_known_ownership(
+        game_type=game_type,
+        declarer_owned_cards=[*declarer_cards, *completed_trick_declarer_cards],
+        non_declarer_owned_cards=completed_trick_non_declarer_cards,
+    )
 
 
 def infer_matadors_from_local_declarer_known_ownership(
@@ -173,13 +213,9 @@ def infer_matadors_from_local_declarer_known_ownership(
     if player_role != "declarer":
         return None
 
-    (
-        completed_trick_declarer_cards,
-        completed_trick_non_declarer_cards,
-    ) = get_completed_trick_ownership_cards_for_local_declarer(completed_tricks)
-
-    return infer_matadors_from_known_ownership(
+    return infer_matadors_from_concrete_declarer_known_ownership(
         game_type=game_type,
-        declarer_owned_cards=[*declarer_cards, *completed_trick_declarer_cards],
-        non_declarer_owned_cards=completed_trick_non_declarer_cards,
+        declarer_player="me",
+        declarer_cards=declarer_cards,
+        completed_tricks=completed_tricks,
     )

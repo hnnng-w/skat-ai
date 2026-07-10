@@ -62,9 +62,9 @@ Automatic inference can use known declarer-card context from:
 
 * the local declarer `hand`
 * `skat`, when available and allowed by the analysis mode
-* completed-trick ownership facts, but only when `player_role == "declarer"` and the trick provides both `cards` and ordered `players`
+* completed-trick ownership facts, but only when `declarer_player` is concrete and the trick provides both `cards` and ordered `players`
 
-Completed-trick inference does not use `winner_role` or `winner_player` alone, does not infer from defender or unknown perspective, and does not guess hidden cards. If ownership is incomplete or inconclusive, inference falls back to the existing known-card behavior.
+Completed-trick inference can use declarer or defender perspective histories when the concrete declarer seat is known. It does not use `winner_role`, `winner_player`, or trick winner alone; it does not infer completed-trick ownership when `declarer_player` is missing or `unknown`; and it does not guess hidden cards. If ownership is incomplete or inconclusive, inference falls back to the existing known-card behavior.
 
 If matadors still cannot be inferred for a suit or grand game, the game value remains incomplete.
 
@@ -325,4 +325,4 @@ Current partial ISkO-style rating is documented in:
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * Null-game overbid settlement remains conservative when no `required_game_value` is available.
 * List, series, and tournament performance rating are handled separately and are not fully implemented yet.
-* Automatic matador inference is conservative and currently uses known declarer-card context from hand, skat context, and safe local-declarer completed-trick ownership facts where possible.
+* Automatic matador inference is conservative and currently uses known declarer-card context from hand, skat context, and safe concrete-declarer completed-trick ownership facts where possible.

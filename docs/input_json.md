@@ -264,14 +264,14 @@ Automatic matador inference can use known declarer-card context from:
 
 * the local declarer `hand`
 * `skat`, when available and allowed by the analysis mode
-* `completed_tricks`, but only from tricks that provide both `cards` and ordered `players`
+* `completed_tricks`, but only from tricks that provide both `cards` and ordered `players`, and only when `declarer_player` is concrete
 
 Completed-trick ownership inference is intentionally conservative:
 
-* It currently applies only when `player_role == "declarer"`.
-* It maps each completed-trick card to declarer or non-declarer ownership from the paired `cards` and ordered `players` entries.
-* It does not infer ownership from `winner_role` or `winner_player` alone.
-* It does not infer matadors from defender or unknown perspective.
+* It maps each completed-trick card to declarer or non-declarer ownership from the paired `cards`, ordered `players`, and concrete `declarer_player` entries.
+* It can use completed-trick ownership from declarer or defender perspective when the concrete declarer seat is known.
+* It does not infer ownership from `winner_role`, `winner_player`, or trick winner alone.
+* It does not infer completed-trick ownership when `declarer_player` is missing or `unknown`.
 * It does not guess hidden cards.
 * If completed-trick ownership is incomplete or inconclusive, inference falls back only to deterministic local-declarer known-card behavior.
 
@@ -781,7 +781,7 @@ Validation rules:
 
 Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly. Existing explicit `winner_role` values remain accepted as side-level facts unless concrete `players` plus declarer identity, or concrete `winner_player` plus declarer identity, prove a conflict.
 
-For matador inference, completed tricks contribute ownership facts only when both `cards` and ordered `players` are present. `winner_role` and `winner_player` alone are not used to infer matador ownership.
+For matador inference, completed tricks contribute ownership facts only when `cards`, ordered `players`, and concrete `declarer_player` are present. `winner_role`, `winner_player`, and trick winner alone are not used to infer matador ownership.
 
 Basic structural schema acceptance does not require ten completed tricks. Ten reliable trick owners are required only for particular final-result features, such as completed Null contract derivation and Schwarz settlement reliability.
 

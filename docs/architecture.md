@@ -69,7 +69,7 @@ Completed-trick validation is used to prevent inconsistent historical game state
 | `src/skat_ai/game_result.py`       | Raw card-point result, winner, remaining points, Schneider/Schwarz status, and adjusted result summaries. |
 | `src/skat_ai/game_history.py`      | Known point summary from explicit points and completed tricks.                                            |
 
-Matador inference is intentionally conservative. It uses currently known declarer-card context and safe local-declarer completed-trick ownership facts where possible, but it does not reconstruct every possible matador state from historical trick ownership.
+Matador inference is intentionally conservative. It uses currently known declarer-card context and safe completed-trick ownership facts where `cards`, ordered `players`, and concrete `declarer_player` identify who played each card. It does not infer ownership from `winner_role`, `winner_player`, trick winner, hidden cards, or sampled worlds, and it does not reconstruct every possible matador state from historical trick ownership.
 
 ## Game end and settlement
 

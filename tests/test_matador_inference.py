@@ -1,5 +1,6 @@
 from skat_ai.matador_inference import (
     get_trump_order_for_matadors,
+    infer_matadors_from_concrete_declarer_known_ownership,
     infer_matadors_from_declarer_cards,
     infer_matadors_from_local_declarer_known_ownership,
 )
@@ -144,6 +145,98 @@ def test_infer_matadors_from_completed_tricks_requires_local_declarer() -> None:
     assert infer_matadors_from_local_declarer_known_ownership(
         game_type="grand",
         player_role="defender",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "HJ"],
+                "players": ["left", "right", "me"],
+            }
+        ],
+    ) is None
+
+
+def test_infer_matadors_from_completed_tricks_with_concrete_declarer() -> None:
+    assert infer_matadors_from_concrete_declarer_known_ownership(
+        game_type="grand",
+        declarer_player="left",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["CJ", "H7", "D7"],
+                "players": ["left", "right", "me"],
+            },
+            {
+                "cards": ["SJ", "HJ", "D8"],
+                "players": ["left", "right", "me"],
+            },
+        ],
+    ) == 2
+
+
+def test_infer_without_matadors_from_defender_played_top_trumps() -> None:
+    assert infer_matadors_from_concrete_declarer_known_ownership(
+        game_type="grand",
+        declarer_player="left",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["HJ", "CJ", "D7"],
+                "players": ["left", "right", "me"],
+            },
+            {
+                "cards": ["D8", "SJ", "D9"],
+                "players": ["left", "right", "me"],
+            },
+        ],
+    ) == 2
+
+
+def test_infer_matadors_combines_declarer_cards_with_completed_tricks() -> None:
+    assert infer_matadors_from_concrete_declarer_known_ownership(
+        game_type="grand",
+        declarer_player="me",
+        declarer_cards=["CJ", "SJ"],
+        completed_tricks=[
+            {
+                "cards": ["D7", "HJ", "D8"],
+                "players": ["me", "left", "right"],
+            }
+        ],
+    ) == 2
+
+
+def test_infer_matadors_ignores_completed_tricks_without_concrete_declarer() -> None:
+    assert infer_matadors_from_concrete_declarer_known_ownership(
+        game_type="grand",
+        declarer_player="unknown",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "HJ"],
+                "players": ["left", "right", "me"],
+            }
+        ],
+    ) is None
+
+
+def test_infer_matadors_does_not_use_winner_role_alone() -> None:
+    assert infer_matadors_from_concrete_declarer_known_ownership(
+        game_type="grand",
+        declarer_player="left",
+        declarer_cards=[],
+        completed_tricks=[
+            {
+                "cards": ["CJ", "SJ", "HJ"],
+                "winner_role": "declarer",
+            }
+        ],
+    ) is None
+
+
+def test_infer_matadors_from_completed_tricks_returns_none_for_null() -> None:
+    assert infer_matadors_from_concrete_declarer_known_ownership(
+        game_type="null",
+        declarer_player="left",
         declarer_cards=[],
         completed_tricks=[
             {

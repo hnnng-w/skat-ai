@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from skat_ai.matador_inference import (
+    infer_matadors_from_concrete_declarer_known_ownership,
     infer_matadors_from_declarer_cards,
-    infer_matadors_from_local_declarer_known_ownership,
 )
 
 VALID_DECLARATION_GAME_TYPES = [
@@ -107,11 +107,8 @@ def validate_game_declaration(declaration: GameDeclaration) -> None:
 
 
 def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
-    """Infers missing matadors from currently known declarer cards."""
+    """Infers missing matadors from deterministic declarer ownership facts."""
     player_role = data.get("player_role", "unknown")
-
-    if player_role != "declarer":
-        return None
 
     hand = data.get("hand", [])
     skat = data.get("skat", [])
@@ -122,21 +119,24 @@ def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
     if not isinstance(skat, list):
         skat = []
 
-    declarer_cards = [*hand, *skat]
+    declarer_cards = [*hand, *skat] if player_role == "declarer" else []
     completed_tricks = data.get("completed_tricks", [])
 
     if not isinstance(completed_tricks, list):
         completed_tricks = []
 
-    inferred_from_ownership = infer_matadors_from_local_declarer_known_ownership(
+    inferred_from_ownership = infer_matadors_from_concrete_declarer_known_ownership(
         game_type=data["game_type"],
-        player_role=player_role,
+        declarer_player=data.get("declarer_player"),
         declarer_cards=declarer_cards,
         completed_tricks=completed_tricks,
     )
 
     if inferred_from_ownership is not None:
         return inferred_from_ownership
+
+    if player_role != "declarer":
+        return None
 
     return infer_matadors_from_declarer_cards(
         game_type=data["game_type"],

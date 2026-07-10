@@ -9,6 +9,7 @@ from skat_ai.game_declaration import (
     validate_game_declaration,
     validate_matadors,
 )
+from skat_ai.game_value import build_game_value_summary
 from skat_ai.information_view import build_local_analysis_input
 
 BOOLEAN_DECLARATION_FIELDS = [
@@ -332,6 +333,7 @@ def test_build_game_declaration_infers_matadors_from_completed_trick_ownership()
         {
             "game_type": "grand",
             "player_role": "declarer",
+            "declarer_player": "me",
             "hand": ["CJ"],
             "skat": [],
             "completed_tricks": [
@@ -346,6 +348,58 @@ def test_build_game_declaration_infers_matadors_from_completed_trick_ownership()
     assert declaration.matadors == 2
 
 
+def test_build_game_declaration_infers_matadors_from_concrete_defender_history() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "declarer_player": "left",
+            "hand": [],
+            "skat": [],
+            "completed_tricks": [
+                {
+                    "cards": ["HJ", "CJ", "D7"],
+                    "players": ["left", "right", "me"],
+                },
+                {
+                    "cards": ["D8", "SJ", "D9"],
+                    "players": ["left", "right", "me"],
+                },
+            ],
+        }
+    )
+
+    assert declaration.matadors == 2
+
+
+def test_build_game_declaration_uses_completed_trick_inference_for_game_value() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "declarer_player": "left",
+            "hand": [],
+            "skat": [],
+            "completed_tricks": [
+                {
+                    "cards": ["HJ", "CJ", "D7"],
+                    "players": ["left", "right", "me"],
+                },
+                {
+                    "cards": ["D8", "SJ", "D9"],
+                    "players": ["left", "right", "me"],
+                },
+            ],
+        }
+    )
+
+    summary = build_game_value_summary(declaration)
+
+    assert summary["details"]["matadors"] == 2
+    assert summary["details"]["matador_multiplier"] == 3
+    assert summary["game_value"] == 72
+
+
 def test_build_game_declaration_ignores_ambiguous_completed_trick_ownership() -> None:
     declaration = build_game_declaration_from_input(
         {
@@ -356,6 +410,69 @@ def test_build_game_declaration_ignores_ambiguous_completed_trick_ownership() ->
             "completed_tricks": [
                 {
                     "cards": ["CJ", "SJ", "HJ"],
+                }
+            ],
+        }
+    )
+
+    assert declaration.matadors is None
+
+
+def test_build_game_declaration_does_not_infer_from_winner_role_alone() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "defender",
+            "declarer_player": "left",
+            "hand": [],
+            "skat": [],
+            "completed_tricks": [
+                {
+                    "cards": ["CJ", "SJ", "HJ"],
+                    "winner_role": "declarer",
+                }
+            ],
+        }
+    )
+
+    assert declaration.matadors is None
+
+
+def test_build_game_declaration_does_not_use_completed_tricks_without_declarer_player() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "grand",
+            "player_role": "unknown",
+            "hand": [],
+            "skat": [],
+            "completed_tricks": [
+                {
+                    "cards": ["HJ", "CJ", "D7"],
+                    "players": ["left", "right", "me"],
+                },
+                {
+                    "cards": ["D8", "SJ", "D9"],
+                    "players": ["left", "right", "me"],
+                },
+            ],
+        }
+    )
+
+    assert declaration.matadors is None
+
+
+def test_build_game_declaration_does_not_infer_completed_trick_matadors_for_null() -> None:
+    declaration = build_game_declaration_from_input(
+        {
+            "game_type": "null",
+            "player_role": "defender",
+            "declarer_player": "left",
+            "hand": [],
+            "skat": [],
+            "completed_tricks": [
+                {
+                    "cards": ["CJ", "SJ", "HJ"],
+                    "players": ["left", "right", "me"],
                 }
             ],
         }
