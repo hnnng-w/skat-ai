@@ -126,7 +126,7 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current stable baseline
 
-The current stable baseline is `v0.3.0`.
+The current stable baseline is `v0.4.0`.
 
 Major completed areas include:
 
@@ -139,6 +139,8 @@ Major completed areas include:
 * basic defender cooperation improvements
 * final settlement and overbid handling
 * partial fixed-three-player ISkO-style rating
+* CLI usability improvements including discoverable help text and optional quiet JSON-output runs
+* generated-output validation for representative user-facing workflows
 * updated README, docs, roadmap, and project handoff
 
 ## Important design principles

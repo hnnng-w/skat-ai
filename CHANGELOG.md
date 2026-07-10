@@ -1,19 +1,20 @@
 # Changelog
 
-## v0.4.0 (unreleased)
+## v0.4.0
 
 ### Documentation and release-state updates
 
-* Refresh roadmap and project handoff direction for the post-`v0.3.0` `v0.4.0` usability milestone.
+* Refresh roadmap and project handoff direction for the completed `v0.4.0` usability milestone.
 * Add curated workflow walkthroughs for common CLI usage, JSON output, quiet automation, Multi-Step, policy comparison, side-specific opponent policies, post-game review, and schema validation.
-* Clean stale metadata and player-profile wording so documentation matches current profile-derived policy and information-policy behavior.
+* Clean stale metadata, player-profile, matador, and input/output documentation wording so docs match current behavior.
+* Remove stale tracked generated output artifacts before release preparation.
 
 ### CLI usability and validation
 
 * Improve CLI help text and command discoverability.
 * Add optional `--quiet` mode for automation-friendly JSON-output runs.
 * Expand generated-output validation for representative user-facing CLI workflows.
-* Fix CLI `--comparison-only` handling and sample-bound usability validation issues.
+* Fix CLI `--comparison-only` behavior and sample-count maximum validation issues.
 
 ## v0.3.0
 

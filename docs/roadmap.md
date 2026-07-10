@@ -210,28 +210,23 @@ Implemented:
 * Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
 * Live decision examples should not contain post-game-only information.
 
-## Current milestone
+## Current completed release scope
 
 ### v0.4.0: CLI and user-facing usability
 
-`v0.3.0` is released and remains the current stable baseline. `v0.4.0` is in
-progress and should stay focused on user-facing CLI usability, documentation,
-and validation coverage rather than broad gameplay expansion.
+`v0.4.0` is the current completed release scope. It focused on user-facing CLI
+usability, documentation, and validation coverage rather than broad gameplay
+expansion.
 
-Completed early `v0.4.0` work:
+Completed `v0.4.0` release scope:
 
 * #47 refreshed the post-`v0.3.0` roadmap and project handoff direction.
 * #48 improved CLI help text and command discoverability.
 * #49 added optional `--quiet` mode for JSON-output CLI runs.
 * #50 expanded generated-output validation for user-facing CLI workflows.
 * #51 fixed remaining CLI usability validation bugs, including comparison-only and sample-bound handling.
-* #52 refreshes documentation and curated workflow walkthroughs.
-
-Remaining possible `v0.4.0` scope:
-
-* Improve human-readable post-game review CLI wording if a focused usability gap remains.
-* Add small workflow examples only when they cover a real user-facing gap not already represented by existing fixtures.
-* Keep README, walkthroughs, schema-validation docs, and handoff notes aligned with completed CLI usability behavior.
+* #52 refreshed documentation and curated workflow walkthroughs.
+* #53 removed stale tracked generated output artifacts before release preparation.
 
 Deferred deeper investigations:
 
@@ -240,12 +235,11 @@ Deferred deeper investigations:
 * Null objective, hidden-information sampling, or validation behavior changes that would alter stable behavior.
 * Large `main.py` refactors or CLI redesigns.
 
-Non-goals for `v0.4.0`:
+Possible future work beyond `v0.4.0`:
 
-* Do not turn this into a broad simulation-quality milestone.
-* Do not expand scoring or settlement scope unless a focused bug is found.
-* Do not change Null objective logic, hidden-information sampling, or validation behavior as part of usability work.
-* Do not broadly refactor `main.py`; keep CLI changes small and test-driven.
+* Improve human-readable post-game review CLI wording if a focused usability gap remains.
+* Add small workflow examples only when they cover a real user-facing gap not already represented by existing fixtures.
+* Keep README, walkthroughs, schema-validation docs, and handoff notes aligned with completed CLI usability behavior.
 
 ## Open gameplay improvements
 
@@ -283,7 +277,6 @@ Recommended cleanup areas:
 
 ## GitHub issue status
 
-Issue tracking now includes focused `v0.4.0` CLI/usability and documentation work.
-New issues should remain small and should distinguish completed early `v0.4.0`
-usability work from deferred gameplay, scoring, settlement, validation, or
-hidden-information investigations.
+Issue tracking should continue to use small, focused follow-ups. New issues
+should distinguish completed `v0.4.0` usability work from deferred gameplay,
+scoring, settlement, validation, or hidden-information investigations.

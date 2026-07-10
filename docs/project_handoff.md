@@ -379,7 +379,12 @@ Main documentation files:
 
 ## Release status
 
-`v0.3.0` is released and is the current stable baseline.
+Current version: `0.4.0`.
+
+Latest release target: `v0.4.0`.
+
+`v0.4.0` is the prepared release baseline. Tagging and GitHub Release creation
+are expected to happen manually after the release-preparation branch is merged.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -393,25 +398,32 @@ The `v0.3.0` stabilization issues #40 through #46 are complete:
 
 See [`CHANGELOG.md`](../CHANGELOG.md) for the release-note summary.
 
-`v0.4.0` is in progress as a CLI and user-facing usability milestone. Completed
-early `v0.4.0` work includes:
+The `v0.4.0` CLI and user-facing usability issue range #47 through #53 is complete:
 
 * #47 updated the post-`v0.3.0` roadmap and handoff direction
 * #48 improved CLI help text and command discoverability
 * #49 added optional `--quiet` mode for JSON-output CLI runs
 * #50 expanded generated-output validation for user-facing CLI workflows
 * #51 fixed remaining CLI usability validation bugs, including comparison-only and sample-bound handling
-* #52 refreshes documentation and curated workflow walkthroughs
+* #52 refreshed documentation and curated workflow walkthroughs
+* #53 removed stale tracked generated output artifacts before release preparation
 
-## Current milestone
+At release-preparation time, GitHub reported only #54 open for final `v0.4.0`
+release preparation. No other open issues were reported.
+
+## Current baseline
 
 **v0.4.0: CLI and user-facing usability**
 
-Remaining possible scope:
+Completed baseline scope:
 
-* improve human-readable post-game review CLI wording
-* add small workflow examples only when existing fixtures do not already cover the user-facing path
-* keep README, examples, schema-validation docs, roadmap, and handoff notes aligned with completed CLI usability behavior
+* CLI help text and command discoverability improvements
+* optional `--quiet` mode for JSON-output CLI runs
+* generated-output validation for representative user-facing CLI workflows
+* comparison-only policy-comparison CLI output handling
+* CLI sample-bound validation fixes
+* curated documentation walkthroughs for common workflows
+* release-state documentation and stale generated artifact cleanup
 
 Deferred deeper investigations:
 
@@ -432,9 +444,10 @@ Recommended future topics:
 * broader matador inference from completed-trick history beyond safe local-declarer ownership facts
 * richer explanation details for recommended-card reasoning
 
-These are future candidates, not the remaining focused `v0.4.0` usability scope.
-The current milestone should avoid broad simulation, scoring, settlement,
-validation, or hidden-information changes unless a focused bug is discovered.
+These are future candidates, not part of the completed `v0.4.0` usability scope.
+They remain outside the `v0.4.0` release baseline and should avoid broad
+simulation, scoring, settlement, validation, or hidden-information changes unless
+a focused bug is discovered.
 
 ## New-thread starter instruction
 
