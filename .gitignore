@@ -21,8 +21,10 @@ dist/
 *.egg-info/
 
 # Local output files
+output/
 outputs/
 analysis_result.json
+temp_output.json
 
 # Editor / OS files
 .vscode/*
