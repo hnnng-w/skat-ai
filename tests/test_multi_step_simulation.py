@@ -1007,6 +1007,76 @@ def test_multi_step_opponent_turn_preparation_executes_effective_right_response_
     assert opponent_lead_result["response_card"] == "SA"
 
 
+def test_multi_step_observes_side_specific_left_lead_policy_in_score_swing(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["DA", "D7"], ["D10", "D9"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    monkeypatch.setattr(
+        simulation_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["DK"],
+        current_trick=[],
+        trick_leader="left",
+        next_player="left",
+    )
+
+    default_result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+    )
+    left_highest_result = simulate_multiple_steps(
+        state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        step_count=1,
+        random_seed=42,
+        card_selection_policy="highest_point",
+        left_opponent_policy_settings={
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+        right_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+    )
+
+    default_step = default_result["steps"][0]
+    left_highest_step = left_highest_result["steps"][0]
+
+    assert default_step["opponent_lead_result"]["lead_card"] == "D7"
+    assert default_step["opponent_lead_result"]["response_card"] == "D9"
+    assert default_step["detailed_result"]["trick"] == ["D7", "D9", "DK"]
+    assert default_result["summary"]["score_summary"]["final_point_swing"] == 4
+
+    assert left_highest_step["opponent_lead_result"]["lead_card"] == "DA"
+    assert left_highest_step["opponent_lead_result"]["response_card"] == "D9"
+    assert left_highest_step["detailed_result"]["trick"] == ["DA", "D9", "DK"]
+    assert left_highest_result["summary"]["score_summary"]["final_point_swing"] == -15
+
+
 def test_prepare_state_for_player_action_simulates_left_lead_and_right_response() -> None:
     state = GameState(
         game_type="grand",

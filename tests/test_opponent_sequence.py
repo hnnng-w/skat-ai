@@ -1,5 +1,6 @@
 import random
 
+import skat_ai.opponent_lead as opponent_lead_module
 from skat_ai.game_state import GameState
 from skat_ai.opponent_sequence import (
     build_serializable_opponent_sequence_result,
@@ -407,3 +408,177 @@ def test_prepare_player_action_state_uses_right_response_policy() -> None:
     assert opponent_sequence_result["leader"] == "left"
     assert opponent_sequence_result["responder"] == "right"
     assert opponent_sequence_result["response_card"] is not None
+
+
+def test_prepare_player_action_state_default_policies_choose_lowest_cards(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["DA", "D7"], ["D10", "D9"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["DK"],
+        current_trick=[],
+        trick_leader="left",
+        next_player="left",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        random_generator=random.Random(42),
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["lead_card"] == "D7"
+    assert opponent_sequence_result["response_card"] == "D9"
+    assert prepared_state.current_trick == ["D7", "D9"]
+
+
+def test_prepare_player_action_state_uses_left_lead_and_right_response_settings_independently(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["DA", "D7"], ["D10", "D9"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["DK"],
+        current_trick=[],
+        trick_leader="left",
+        next_player="left",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=2,
+        right_hand_size=2,
+        random_generator=random.Random(42),
+        opponent_lead_policy="lowest_point",
+        opponent_response_policy="highest_point",
+        left_opponent_policy_settings={
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "highest_point",
+        },
+        right_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["lead_card"] == "DA"
+    assert opponent_sequence_result["response_card"] == "D9"
+    assert prepared_state.current_trick == ["DA", "D9"]
+
+
+def test_prepare_player_action_state_uses_observable_right_lead_policy(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["D7"], ["CA", "C7"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["DK"],
+        current_trick=[],
+        trick_leader="right",
+        next_player="right",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=1,
+        right_hand_size=2,
+        random_generator=random.Random(42),
+        right_opponent_policy_settings={
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "lowest_point",
+        },
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["leader"] == "right"
+    assert opponent_sequence_result["lead_card"] == "CA"
+    assert prepared_state.current_trick == ["CA"]
+
+
+def test_prepare_player_action_state_uses_observable_right_response_policy(
+    monkeypatch,
+) -> None:
+    def fake_generate_random_opponent_hands(
+        state: GameState,
+        left_hand_size: int,
+        right_hand_size: int,
+        random_generator: object | None = None,
+    ) -> tuple[list[str], list[str]]:
+        _ = (state, left_hand_size, right_hand_size, random_generator)
+        return ["C7"], ["DA", "D9"]
+
+    monkeypatch.setattr(
+        opponent_lead_module,
+        "generate_random_opponent_hands",
+        fake_generate_random_opponent_hands,
+    )
+    state = GameState(
+        game_type="grand",
+        player_role="declarer",
+        hand=["DK"],
+        current_trick=["D7"],
+        trick_leader="left",
+        next_player="right",
+    )
+
+    prepared_state, opponent_sequence_result = prepare_player_action_state(
+        current_state=state,
+        left_hand_size=1,
+        right_hand_size=2,
+        random_generator=random.Random(42),
+        right_opponent_policy_settings={
+            "opponent_lead_policy": "lowest_point",
+            "opponent_response_policy": "highest_point",
+        },
+    )
+
+    assert opponent_sequence_result is not None
+    assert opponent_sequence_result["responder"] == "right"
+    assert opponent_sequence_result["response_card"] == "DA"
+    assert prepared_state.current_trick == ["D7", "DA"]
