@@ -667,6 +667,13 @@ include `no_missed_null_objective`,
 `lower_null_objective_than_recommendation`, `small_null_objective_gap`,
 `medium_null_objective_gap`, and `large_null_objective_gap`.
 
+Representative examples:
+
+* `examples/grand_post_game_mistake_actual_card.json` shows a clear missed recommendation with a large expected-point-swing gap.
+* `examples/grand_post_game_acceptable_actual_card.json` shows a small missed expected-point-swing gap classified as `acceptable`.
+* `examples/null_post_game_objective_actual_card.json` shows a Null review where the actual card differs from the recommendation but has no missed Null contract-objective utility.
+* `examples/spades_post_game_defender_actual_card.json` shows local defender-perspective review with a concrete declarer seat.
+
 ## Multi-step result
 
 When a multi-step simulation is requested, the output can include `multi_step_result`.

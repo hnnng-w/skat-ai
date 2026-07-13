@@ -214,7 +214,10 @@ Post-game review examples may include known skat cards and completed game inform
 | `grand_second_position_with_metadata.json` | Post-game metadata example with known post-game skat visibility, profile presets, and player profiles.                       |
 | `grand_post_game_known_skat.json`          | Post-game review with known skat and completed tricks.                                                                       |
 | `grand_post_game_mistake_actual_card.json` | Post-game review where the actual card is ranked below the recommendation and gap details are populated.                     |
+| `grand_post_game_acceptable_actual_card.json` | Post-game review where the actual card is a stable acceptable alternative with only a small recommendation gap.            |
 | `spades_post_game_actual_card_played.json` | Post-game review with `actual_card_played`, decision quality, decision factors, explanation, and recommendation gap details. |
+| `null_post_game_objective_actual_card.json` | Null post-game review where the actual card differs from the recommendation but has no missed Null contract-objective utility. |
+| `spades_post_game_defender_actual_card.json` | Defender-perspective post-game review with a concrete declarer seat and a suboptimal actual card.                          |
 | `grand_complete_declarer_win.json`         | Complete game where declarer wins. Also demonstrates `bid_value` and partial ISkO performance-rating metadata.               |
 | `grand_complete_declarer_loss.json`        | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points.                           |
 | `grand_list_performance_input.json`        | Complete game with partial ISkO single-game rating plus already aggregated list performance input and output.                 |
@@ -233,6 +236,33 @@ Run a post-game review example with a missed recommendation:
 ```powershell
 python main.py --input examples/grand_post_game_mistake_actual_card.json
 ```
+
+Run a post-game review example with an acceptable alternative:
+
+```powershell
+python main.py --input examples/grand_post_game_acceptable_actual_card.json
+```
+
+Run a Null post-game review example where the objective, not raw card points,
+determines decision quality:
+
+```powershell
+python main.py --input examples/null_post_game_objective_actual_card.json
+```
+
+Run a defender-perspective post-game review example:
+
+```powershell
+python main.py --input examples/spades_post_game_defender_actual_card.json
+```
+
+Representative review outcomes covered by examples:
+
+* `grand_post_game_mistake_actual_card.json` demonstrates `decision_quality: "mistake"`, two better alternatives, and a large expected-point-swing gap.
+* `grand_post_game_acceptable_actual_card.json` demonstrates `decision_quality: "acceptable"` with a small expected-point-swing gap.
+* `null_post_game_objective_actual_card.json` demonstrates `decision_quality: "optimal"` by Null contract objective even though the actual and recommended card-point swings differ.
+* `spades_post_game_defender_actual_card.json` demonstrates local defender review with a concrete `declarer_player` and a suboptimal actual card.
+* Opponent-turn and completed-game examples demonstrate unavailable Immediate Analysis output; selected unavailable branches are covered by generated-output validation.
 
 The output includes:
 

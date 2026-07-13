@@ -641,6 +641,69 @@ def test_post_game_mistake_actual_card_example_has_gap_details() -> None:
     assert summary["candidate_count"] == 3
     assert summary["better_card_count"] == 2
 
+
+def test_post_game_acceptable_actual_card_example_has_small_gap() -> None:
+    result = build_example_analysis_result("grand_post_game_acceptable_actual_card.json")
+
+    summary = result["post_game_review_summary"]
+
+    assert summary["is_available"] is True
+    assert summary["actual_card_played"] == "S10"
+    assert summary["recommended_card"] == "SA"
+    assert summary["expected_point_swing_difference"] == 1.0
+    assert summary["decision_quality"] == "acceptable"
+    assert summary["decision_factors"] == [
+        "lower_expected_point_swing_than_recommendation",
+        "small_expected_point_swing_gap",
+    ]
+    assert summary["actual_card_rank"] == 2
+    assert summary["recommended_card_rank"] == 1
+    assert summary["candidate_count"] == 3
+    assert summary["better_card_count"] == 1
+
+
+def test_null_post_game_objective_example_uses_null_objective() -> None:
+    result = build_example_analysis_result("null_post_game_objective_actual_card.json")
+
+    summary = result["post_game_review_summary"]
+
+    assert result["position"]["game_type"] == "null"
+    assert summary["is_available"] is True
+    assert summary["actual_card_played"] == "C8"
+    assert summary["recommended_card"] == "C7"
+    assert summary["actual_expected_point_swing"] != (
+        summary["recommended_expected_point_swing"]
+    )
+    assert summary["decision_quality"] == "optimal"
+    assert summary["decision_factors"] == ["no_missed_null_objective"]
+    assert "Null contract-objective utility" in summary["decision_explanation"]
+    assert summary["actual_card_rank"] == 2
+    assert summary["recommended_card_rank"] == 1
+    assert summary["candidate_count"] == 2
+    assert summary["better_card_count"] == 0
+
+
+def test_post_game_defender_actual_card_example_uses_defender_perspective() -> None:
+    result = build_example_analysis_result("spades_post_game_defender_actual_card.json")
+
+    summary = result["post_game_review_summary"]
+
+    assert result["position"]["player_role"] == "defender"
+    assert result["position"]["declarer_player"] == "left"
+    assert summary["is_available"] is True
+    assert summary["actual_card_played"] == "CK"
+    assert summary["recommended_card"] == "C7"
+    assert summary["expected_point_swing_difference"] == 4.0
+    assert summary["decision_quality"] == "suboptimal"
+    assert summary["decision_factors"] == [
+        "lower_expected_point_swing_than_recommendation",
+        "medium_expected_point_swing_gap",
+    ]
+    assert summary["actual_card_rank"] == 2
+    assert summary["recommended_card_rank"] == 1
+    assert summary["candidate_count"] == 2
+    assert summary["better_card_count"] == 1
+
 def test_default_grand_second_position_infers_game_value() -> None:
     result = build_example_analysis_result("grand_second_position.json")
 

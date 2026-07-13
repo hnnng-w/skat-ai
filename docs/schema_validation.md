@@ -133,6 +133,7 @@ user-facing CLI workflows, including explicit-input live recommendation, JSON
 output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
 simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
+Null-objective post-game review, defender-perspective post-game review,
 claim/overbid/list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
@@ -167,6 +168,11 @@ Important fields include:
 * `recommended_card_rank`
 * `candidate_count`
 * `better_card_count`
+
+Generated-output validation includes representative available review scenarios
+for normal Suit/Grand review, Null contract-objective review, and local
+defender-perspective review. Focused pytest example invariants cover the clear
+mistake and acceptable-alternative example outcomes.
 
 ## Why additionalProperties may still be allowed
 

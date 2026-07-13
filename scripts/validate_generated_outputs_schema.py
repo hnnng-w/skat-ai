@@ -376,6 +376,73 @@ def check_post_game_available_nested_suit(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_post_game_null_objective_review(data: dict[str, Any]) -> list[str]:
+    """Checks actual-card post-game review using the Null objective."""
+    errors = []
+    summary = data["post_game_review_summary"]
+
+    if data["position"]["game_type"] != "null":
+        errors.append("expected Null post-game review")
+
+    if summary["is_available"] is not True:
+        errors.append("expected available Null post-game review")
+
+    if summary["actual_card_played"] != "C8":
+        errors.append("expected actual Null card C8")
+
+    if summary["recommended_card"] != "C7":
+        errors.append("expected recommended Null card C7")
+
+    if summary["decision_quality"] != "optimal":
+        errors.append("expected Null objective tie to be optimal")
+
+    if summary["decision_factors"] != ["no_missed_null_objective"]:
+        errors.append("expected no_missed_null_objective factor")
+
+    if summary["better_card_count"] != 0:
+        errors.append("expected no better Null-objective alternatives")
+
+    if "Null contract-objective utility" not in summary["decision_explanation"]:
+        errors.append("expected Null objective explanation")
+
+    return errors
+
+
+def check_post_game_defender_perspective_review(data: dict[str, Any]) -> list[str]:
+    """Checks actual-card post-game review from a local defender perspective."""
+    errors = []
+    summary = data["post_game_review_summary"]
+
+    if data["position"]["player_role"] != "defender":
+        errors.append("expected local defender position")
+
+    if data["position"]["declarer_player"] != "left":
+        errors.append("expected concrete left declarer")
+
+    if summary["is_available"] is not True:
+        errors.append("expected available defender post-game review")
+
+    if summary["actual_card_played"] != "CK":
+        errors.append("expected actual defender card CK")
+
+    if summary["recommended_card"] != "C7":
+        errors.append("expected recommended defender card C7")
+
+    if summary["decision_quality"] != "suboptimal":
+        errors.append("expected suboptimal defender decision quality")
+
+    if summary["decision_factors"] != [
+        "lower_expected_point_swing_than_recommendation",
+        "medium_expected_point_swing_gap",
+    ]:
+        errors.append("expected medium point-swing gap factors")
+
+    if summary["better_card_count"] != 1:
+        errors.append("expected one better defender alternative")
+
+    return errors
+
+
 def check_multi_step_partial_trick(data: dict[str, Any]) -> list[str]:
     """
     Checks right-response preparation after an existing left lead.
@@ -847,6 +914,22 @@ SCENARIOS = (
         ),
         branch="actual-card post-game review and nested Suit declaration output",
         check_output=check_post_game_available_nested_suit,
+    ),
+    Scenario(
+        name="post_game_null_objective_review",
+        input_path=(
+            PROJECT_ROOT / "examples" / "null_post_game_objective_actual_card.json"
+        ),
+        branch="actual-card post-game review using the Null contract objective",
+        check_output=check_post_game_null_objective_review,
+    ),
+    Scenario(
+        name="post_game_defender_perspective_review",
+        input_path=(
+            PROJECT_ROOT / "examples" / "spades_post_game_defender_actual_card.json"
+        ),
+        branch="actual-card post-game review from a local defender perspective",
+        check_output=check_post_game_defender_perspective_review,
     ),
     Scenario(
         name="multi_step_partial_trick_right_response",
