@@ -382,6 +382,75 @@ def test_non_applicable_profile_result_does_not_create_immediate_entry() -> None
     assert_effective_settings(settings)
 
 
+def test_low_confidence_left_profile_does_not_activate_side_policy() -> None:
+    settings = build_effective_opponent_policy_settings(
+        {"use_profile_presets": True},
+        left_player_profile=build_aggressive_profile(games_played=20),
+        right_player_profile=PlayerProfile(),
+    )
+
+    assert_effective_settings(settings)
+
+
+def test_high_confidence_right_profile_alters_only_right_side_policy() -> None:
+    settings = build_effective_opponent_policy_settings(
+        {"use_profile_presets": True},
+        left_player_profile=PlayerProfile(),
+        right_player_profile=build_cautious_profile(games_played=500),
+    )
+
+    assert_effective_settings(
+        settings,
+        right_lead_policy="basic_defender_lead",
+        right_response_policy="basic_defender_response",
+        immediate_response_policy_by_player={"right": "basic_defender_response"},
+    )
+
+
+def test_explicit_side_input_still_overrides_profile_derived_policy() -> None:
+    settings = build_effective_opponent_policy_settings(
+        {
+            "use_profile_presets": True,
+            "left_opponent_lead_policy": "lowest_point",
+            "left_opponent_response_policy": "lowest_point",
+        },
+        left_player_profile=build_cautious_profile(),
+        right_player_profile=PlayerProfile(),
+    )
+
+    assert_effective_settings(
+        settings,
+        left_lead_policy="lowest_point",
+        left_response_policy="lowest_point",
+        immediate_response_policy_by_player={"left": "lowest_point"},
+    )
+
+
+def test_explicit_global_cli_policies_still_override_cli_profile_activation() -> None:
+    settings = build_effective_opponent_policy_settings(
+        {},
+        left_player_profile=build_cautious_profile(),
+        right_player_profile=build_aggressive_profile(),
+        use_profile_presets_override=True,
+        opponent_lead_policy_override="highest_point",
+        opponent_response_policy_override="lowest_point",
+    )
+
+    assert_effective_settings(
+        settings,
+        global_lead_policy="highest_point",
+        global_response_policy="lowest_point",
+        left_lead_policy="highest_point",
+        left_response_policy="lowest_point",
+        right_lead_policy="highest_point",
+        right_response_policy="lowest_point",
+        immediate_response_policy_by_player={
+            "left": "lowest_point",
+            "right": "lowest_point",
+        },
+    )
+
+
 def test_profile_confidence_logic_is_reused_for_side_policies() -> None:
     settings = build_effective_opponent_policy_settings(
         {"use_profile_presets": True},

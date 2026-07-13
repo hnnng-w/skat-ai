@@ -87,7 +87,7 @@ def choose_opponent_policy_preset_for_profile(
     """
     Chooses a rough opponent policy preset for a player profile.
 
-    This does not yet affect the simulation automatically.
+    The returned preset can be used as metadata even when it is not actionable.
     """
     confidence = get_profile_data_confidence(profile)
 
@@ -104,26 +104,44 @@ def choose_opponent_policy_preset_for_profile(
 
     return preset
 
-def choose_combined_profile_policy_preset(
+
+def choose_actionable_profile_policy_preset(
+    profile: PlayerProfile,
+) -> str | None:
+    """
+    Chooses a profile-derived preset that is safe to apply to strategy.
+
+    simple_lowest is a neutral informational recommendation here; it must not
+    overwrite existing explicit or default policy settings.
+    """
+    preset = choose_opponent_policy_preset_for_profile(profile)
+
+    if preset not in NON_SIMPLE_PROFILE_POLICY_PRESETS:
+        return None
+
+    return preset
+
+
+def choose_combined_actionable_profile_policy_preset(
     left_profile: PlayerProfile,
     right_profile: PlayerProfile,
-) -> str:
+) -> str | None:
     """
-    Chooses one combined opponent policy preset from both opponent profiles.
-
-    Current simple rule:
-    - If either opponent looks aggressive, use aggressive_points.
-    - Else if either opponent looks like a cautious defender, use cautious_defender.
-    - Else use simple_lowest.
+    Chooses one actionable combined preset from both opponent profiles.
     """
-    left_preset = choose_opponent_policy_preset_for_profile(left_profile)
-    right_preset = choose_opponent_policy_preset_for_profile(right_profile)
+    left_preset = choose_actionable_profile_policy_preset(left_profile)
+    right_preset = choose_actionable_profile_policy_preset(right_profile)
 
-    if (
-        left_preset != right_preset
-        and left_preset != "simple_lowest"
-        and right_preset != "simple_lowest"
-    ):
+    if left_preset is None and right_preset is None:
+        return None
+
+    if left_preset is None:
+        return right_preset
+
+    if right_preset is None:
+        return left_preset
+
+    if left_preset != right_preset:
         left_confidence_rank = PROFILE_DATA_CONFIDENCE_RANKS[
             get_profile_data_confidence(left_profile)
         ]
@@ -140,10 +158,27 @@ def choose_combined_profile_policy_preset(
     if "aggressive_points" in [left_preset, right_preset]:
         return "aggressive_points"
 
-    if "cautious_defender" in [left_preset, right_preset]:
-        return "cautious_defender"
+    return left_preset
 
-    return "simple_lowest"
+
+def choose_combined_profile_policy_preset(
+    left_profile: PlayerProfile,
+    right_profile: PlayerProfile,
+) -> str:
+    """
+    Chooses one combined opponent policy preset from both opponent profiles.
+
+    Current simple rule:
+    - If either opponent looks aggressive, use aggressive_points.
+    - Else if either opponent looks like a cautious defender, use cautious_defender.
+    - Else use simple_lowest.
+    """
+    preset = choose_combined_actionable_profile_policy_preset(
+        left_profile=left_profile,
+        right_profile=right_profile,
+    )
+
+    return preset or "simple_lowest"
 
 
 def apply_profile_based_policy_preset(
@@ -155,12 +190,13 @@ def apply_profile_based_policy_preset(
     """
     Applies a profile-derived opponent policy preset if enabled.
 
-    If disabled, settings are returned unchanged.
+    If disabled or no actionable profile preset exists, settings are returned
+    unchanged.
     """
     if not use_profile_presets:
         return opponent_policy_settings.copy()
 
-    preset = choose_combined_profile_policy_preset(
+    preset = choose_combined_actionable_profile_policy_preset(
         left_profile=left_profile,
         right_profile=right_profile,
     )
@@ -179,15 +215,15 @@ def apply_profile_based_side_policy_preset(
     """
     Applies a non-simple profile-derived policy preset for one opponent side.
 
-    If disabled or the profile produces simple_lowest, settings are returned
-    unchanged.
+    If disabled or the profile produces no actionable preset, settings are
+    returned unchanged.
     """
     if not use_profile_presets:
         return opponent_policy_settings.copy()
 
-    preset = choose_opponent_policy_preset_for_profile(profile)
+    preset = choose_actionable_profile_policy_preset(profile)
 
-    if preset not in NON_SIMPLE_PROFILE_POLICY_PRESETS:
+    if preset is None:
         return opponent_policy_settings.copy()
 
     return apply_opponent_policy_preset(

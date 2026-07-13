@@ -1,6 +1,7 @@
 from skat_ai.opponent_profile_policy import (
     apply_profile_based_policy_preset,
     apply_profile_based_side_policy_preset,
+    choose_actionable_profile_policy_preset,
     choose_combined_profile_policy_preset,
     choose_opponent_policy_preset_for_profile,
     get_profile_data_confidence,
@@ -162,6 +163,68 @@ def test_choose_opponent_policy_preset_for_neutral_profile() -> None:
     assert choose_opponent_policy_preset_for_profile(profile) == "simple_lowest"
 
 
+def test_unknown_profile_has_no_actionable_preset() -> None:
+    profile = PlayerProfile()
+
+    assert choose_actionable_profile_policy_preset(profile) is None
+
+
+def test_low_confidence_aggressive_profile_has_no_actionable_preset() -> None:
+    profile = PlayerProfile(
+        games_played=20,
+        solo_rate=0.40,
+        grand_rate=0.30,
+    )
+
+    assert choose_actionable_profile_policy_preset(profile) is None
+
+
+def test_low_confidence_cautious_profile_has_no_actionable_preset() -> None:
+    profile = PlayerProfile(
+        games_played=20,
+        solo_rate=0.25,
+        grand_rate=0.15,
+        hand_game_rate=0.03,
+        defender_win_rate=0.60,
+    )
+
+    assert choose_actionable_profile_policy_preset(profile) is None
+
+
+def test_medium_confidence_aggressive_profile_is_actionable() -> None:
+    profile = PlayerProfile(
+        games_played=250,
+        solo_rate=0.38,
+        grand_rate=0.27,
+    )
+
+    assert choose_actionable_profile_policy_preset(profile) == "aggressive_points"
+
+
+def test_high_confidence_cautious_profile_is_actionable() -> None:
+    profile = PlayerProfile(
+        games_played=1000,
+        solo_rate=0.25,
+        grand_rate=0.15,
+        hand_game_rate=0.03,
+        defender_win_rate=0.55,
+    )
+
+    assert choose_actionable_profile_policy_preset(profile) == "cautious_defender"
+
+
+def test_neutral_medium_high_profile_has_no_actionable_preset() -> None:
+    profile = PlayerProfile(
+        games_played=1000,
+        solo_rate=0.25,
+        grand_rate=0.15,
+        hand_game_rate=0.03,
+        defender_win_rate=0.50,
+    )
+
+    assert choose_actionable_profile_policy_preset(profile) is None
+
+
 def test_choose_combined_profile_policy_preset_prefers_aggressive() -> None:
     left_profile = PlayerProfile(
         games_played=1000,
@@ -271,6 +334,29 @@ def test_apply_profile_based_policy_preset_returns_copy_when_disabled() -> None:
     assert updated_settings is not settings
 
 
+def test_apply_profile_based_policy_preset_preserves_non_actionable_profiles() -> None:
+    settings = {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+    updated_settings = apply_profile_based_policy_preset(
+        opponent_policy_settings=settings,
+        left_profile=PlayerProfile(games_played=20, solo_rate=0.40),
+        right_profile=PlayerProfile(
+            games_played=1000,
+            solo_rate=0.25,
+            grand_rate=0.15,
+            hand_game_rate=0.03,
+            defender_win_rate=0.50,
+        ),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == settings
+    assert updated_settings is not settings
+
+
 def test_apply_profile_based_policy_preset_applies_aggressive_profile() -> None:
     settings = {
         "opponent_lead_policy": "lowest_point",
@@ -281,6 +367,25 @@ def test_apply_profile_based_policy_preset_applies_aggressive_profile() -> None:
         opponent_policy_settings=settings,
         left_profile=PlayerProfile(games_played=1000, solo_rate=0.38),
         right_profile=PlayerProfile(),
+        use_profile_presets=True,
+    )
+
+    assert updated_settings == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
+def test_apply_profile_based_policy_preset_applies_actionable_profile() -> None:
+    settings = {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+
+    updated_settings = apply_profile_based_policy_preset(
+        opponent_policy_settings=settings,
+        left_profile=PlayerProfile(),
+        right_profile=PlayerProfile(games_played=250, solo_rate=0.38),
         use_profile_presets=True,
     )
 

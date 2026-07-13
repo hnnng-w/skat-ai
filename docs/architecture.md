@@ -118,9 +118,9 @@ local player has already acted and only opponents remain stop with
 
 Opponent policy handling supports both global and separate left/right opponent policy settings.
 
-Profile-based policy presets use rough, rule-based `PlayerProfile` heuristics. Profile confidence is derived from `games_played` only: missing data is `unknown`, fewer than 100 games is `low`, fewer than 500 games is `medium`, and 500 or more games is `high`. When cautious and aggressive profile-derived presets conflict, the higher-confidence side wins; equal confidence preserves the existing `aggressive_points` over `cautious_defender` fallback.
+Profile-based policy presets use rough, rule-based `PlayerProfile` heuristics. Profile confidence is derived from `games_played` only: missing data is `unknown`, fewer than 100 games is `low`, fewer than 500 games is `medium`, and 500 or more games is `high`. Confidence gates whether a profile-derived preset is actionable: unknown confidence, low confidence, and neutral `simple_lowest` profile results preserve existing explicit or default policies. Medium- or high-confidence profiles that map to existing non-simple presets such as `aggressive_points` or `cautious_defender` can be applied. When cautious and aggressive actionable profile-derived presets conflict, the higher-confidence side wins; equal confidence preserves the existing `aggressive_points` over `cautious_defender` fallback.
 
-When profile presets are enabled, the left and right player profiles can affect their respective effective left/right opponent response policies in immediate analysis and their effective left/right opponent policy settings in multi-step simulation. Explicit side-specific CLI overrides are applied last and remain authoritative.
+When profile presets are enabled, actionable left and right player profiles can affect their respective effective left/right opponent response policies in immediate analysis and their effective left/right opponent policy settings in multi-step simulation. Explicit side-specific input and CLI overrides remain authoritative.
 
 Some profile fields are currently informational only: `solo_games_played`, `defender_games_played`, `solo_win_rate`, `suit_game_rate`, and `null_game_rate`.
 
@@ -165,7 +165,7 @@ Shared precedence, from lowest to highest, is:
 9. explicit side-specific CLI lead and response policies
 
 Global presets and global lead/response policies cascade to both `left` and `right`.
-Profile-derived policies and side-specific overrides affect only their side.
+Actionable profile-derived policies and side-specific overrides affect only their side.
 
 Response-policy activation is tracked separately from complete effective side settings.
 Presets, response policies, and enabled profile presets activate the sparse response map;

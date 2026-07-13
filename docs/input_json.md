@@ -363,14 +363,14 @@ Profile confidence is derived from `games_played` only:
 | `100` to `499`       | `medium`   |
 | `500` or more        | `high`     |
 
-When `use_profile_presets` is enabled, profile-derived presets can affect multi-step opponent policy settings. If cautious and aggressive profile-derived presets conflict, the higher-confidence side wins. If both conflicting sides have equal confidence, `aggressive_points` remains the fallback over `cautious_defender` for backward-compatible behavior.
+When `use_profile_presets` is enabled, profile-derived presets can affect opponent policy settings only when the derived profile confidence makes the preset actionable. Unknown confidence, low confidence, and neutral profiles that map to `simple_lowest` do not overwrite existing explicit or default policies. Medium- or high-confidence profiles that map to existing non-simple presets such as `aggressive_points` or `cautious_defender` can be applied. If cautious and aggressive actionable profile-derived presets conflict, the higher-confidence side wins. If both conflicting sides have equal confidence, `aggressive_points` remains the fallback over `cautious_defender` for backward-compatible behavior.
 
 When a player profile is supplied, it must be a JSON object. Explicit `null` is
 not accepted for `left_player_profile`, `right_player_profile`, or known profile
 fields such as `games_played`. Unknown extra profile fields remain accepted as
 metadata.
 
-Left and right profile presets affect their respective effective left/right policies in multi-step simulation. Explicit side-specific CLI overrides are applied last and remain authoritative.
+Left and right actionable profile presets affect their respective effective left/right policies in immediate analysis and multi-step simulation. `simple_lowest` remains an informational profile recommendation, not an active profile-derived override. Explicit side-specific input and CLI overrides remain authoritative.
 
 ## Live vs post-game information rules
 
@@ -741,7 +741,7 @@ Effective policy behavior:
 
 * Global presets and global lead/response policies cascade to both `left` and `right`.
 * Left/right fields override only their side.
-* Profile-derived policies affect only their side when `use_profile_presets` is enabled.
+* Actionable profile-derived policies affect only their side when `use_profile_presets` is enabled.
 * CLI policy overrides use the same resolver as input fields, and side-specific CLI overrides win last.
 
 Multi-step behavior:
@@ -764,7 +764,7 @@ Immediate response-policy behavior is activated only by explicit policy sources:
 * `use_profile_presets: true`
 * relevant CLI overrides
 
-Absent fields normalized to defaults, `use_profile_presets: false`, lead-only policy sources, and player profiles without enabled profile presets do not activate policy-driven immediate analysis or multi-step candidate completion. In those cases, those paths keep the legacy basic or random opponent response behavior from `use_basic_opponent_strategy`.
+Absent fields normalized to defaults, `use_profile_presets: false`, lead-only policy sources, and player profiles without enabled actionable profile presets do not activate policy-driven immediate analysis or multi-step candidate completion. In those cases, those paths keep the legacy basic or random opponent response behavior from `use_basic_opponent_strategy`.
 
 Shared policy precedence, from lowest to highest, is:
 

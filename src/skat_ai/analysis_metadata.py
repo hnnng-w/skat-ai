@@ -19,8 +19,8 @@ class AnalysisMetadata:
     """
     Bundles optional metadata for an analysis.
 
-    This metadata is prepared for future use and does not currently change
-    simulation decisions.
+    Player profiles can affect opponent policy presets only when profile
+    preset usage is explicitly enabled by input or CLI settings.
     """
     strategic_metadata: StrategicMetadata = field(
         default_factory=build_default_strategic_metadata
@@ -124,7 +124,8 @@ def build_recommended_opponent_policy_presets_from_metadata(
     """
     Builds recommended opponent policy presets from player profiles.
 
-    This is currently informational and does not automatically affect simulation.
+    This output is informational; effective policy application is handled by
+    the shared opponent-policy resolver when profile presets are enabled.
     """
     return {
         "left_player_recommended_preset": choose_opponent_policy_preset_for_profile(
