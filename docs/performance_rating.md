@@ -132,6 +132,8 @@ When `list_performance_input` is present, `performance_rating_system` must be `i
 
 The input totals are already aggregated. The engine does not aggregate raw individual games in this mode.
 
+See `examples/grand_list_performance_input.json` for a complete input example.
+
 As an alternative, input files may include normalized per-game contributions:
 
 ```json
@@ -152,6 +154,8 @@ As an alternative, input files may include normalized per-game contributions:
 }
 ```
 
+See `examples/grand_list_game_contributions.json` for a complete input example.
+
 As a third alternative, input files may include local analysis results:
 
 ```json
@@ -171,6 +175,8 @@ As a third alternative, input files may include local analysis results:
   ]
 }
 ```
+
+See `examples/grand_list_analysis_results.json` for a complete input example.
 
 Each `list_analysis_results` entry is assumed to represent the same rated
 player as local `me`. The minimal required subset is `position.player_role`,
@@ -303,6 +309,8 @@ Validation rules:
 * `game_id` is optional, but supplied IDs must be unique
 
 The output is `list_standings_summary`, not `list_performance_summary`.
+
+See `examples/grand_list_standings_input.json` for a complete input example.
 
 For each player:
 

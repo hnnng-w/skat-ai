@@ -110,6 +110,7 @@ The output schema checks the main output structure, including:
 * `adjusted_game_result_summary`
 * `final_settlement_summary`
 * `performance_rating_summary`
+* `list_performance_summary`, when a single-rated-player list performance input mode is supplied
 * `list_standings_summary`, when fixed three-player standings input is supplied
 * `recommendation`
 * `post_game_review_summary`
@@ -132,8 +133,9 @@ user-facing CLI workflows, including explicit-input live recommendation, JSON
 output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
 simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
-claim/overbid/list-performance summaries, fixed three-player standings summaries,
-late-game history-heavy live input, and local defender redaction for
+claim/overbid/list-performance summaries from aggregated totals, normalized
+game contributions, and local analysis results, fixed three-player standings
+summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility.
 
 The output schema is intentionally not a fully strict representation of every

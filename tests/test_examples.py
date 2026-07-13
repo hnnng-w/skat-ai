@@ -364,6 +364,28 @@ def test_list_performance_input_example_adds_aggregated_summary() -> None:
     }
 
 
+def test_list_game_contributions_example_adds_aggregated_summary() -> None:
+    baseline_result = build_example_analysis_result("grand_complete_declarer_win.json")
+    result = build_example_analysis_result("grand_list_game_contributions.json")
+
+    assert "performance_rating_summary" in result
+    assert result["performance_rating_summary"] == baseline_result[
+        "performance_rating_summary"
+    ]
+    assert result["list_performance_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "normalized_game_contributions",
+        "table_size": 3,
+        "player_game_points": 24,
+        "own_games_won": 1,
+        "own_games_lost": 1,
+        "other_players_lost_games": 1,
+        "own_game_bonus_points": 0,
+        "opponent_loss_bonus_points": 40,
+        "total_performance_points": 64,
+    }
+
+
 def test_list_analysis_results_example_adds_aggregated_summary() -> None:
     baseline_result = build_example_analysis_result("grand_complete_declarer_win.json")
     result = build_example_analysis_result("grand_list_analysis_results.json")

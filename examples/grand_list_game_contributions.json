@@ -1,0 +1,52 @@
+{
+  "game_type": "grand",
+  "player_role": "declarer",
+  "player_position": "forehand",
+  "trick_leader": "me",
+  "hand": ["SA", "S10", "S9"],
+  "current_trick": [],
+  "played_cards": [],
+  "completed_tricks": [],
+  "declarer_points": 90,
+  "defender_points": 30,
+  "next_player": "me",
+  "game_end_reason": "normal_completion",
+  "skat": [],
+  "left_hand_size": 3,
+  "right_hand_size": 3,
+  "sample_count": 100,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true,
+  "hand_game": false,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": 2,
+  "bid_value": 72,
+  "performance_rating_system": "isko_list",
+  "list_game_contributions": [
+    {
+      "rated_player_id": "local-player",
+      "game_id": "list-game-1",
+      "player_role": "declarer",
+      "game_outcome": "declarer_win",
+      "settlement_score": 96
+    },
+    {
+      "rated_player_id": "local-player",
+      "game_id": "list-game-2",
+      "player_role": "declarer",
+      "game_outcome": "declarer_loss",
+      "settlement_score": -72
+    },
+    {
+      "rated_player_id": "local-player",
+      "game_id": "list-game-3",
+      "player_role": "defender",
+      "game_outcome": "declarer_loss",
+      "settlement_score": -120
+    }
+  ],
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "unknown"
+}

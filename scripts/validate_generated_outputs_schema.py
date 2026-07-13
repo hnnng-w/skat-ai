@@ -593,7 +593,10 @@ def check_overbid_settlement(data: dict[str, Any]) -> list[str]:
     return errors
 
 
-def check_list_performance(data: dict[str, Any]) -> list[str]:
+def check_list_performance_summary(
+    data: dict[str, Any],
+    expected_summary: dict[str, Any],
+) -> list[str]:
     """
     Checks optional list performance summary output.
     """
@@ -604,13 +607,70 @@ def check_list_performance(data: dict[str, Any]) -> list[str]:
         errors.append("expected populated list_performance_summary")
         return errors
 
-    if list_summary["basis"] != "aggregated_list_or_series_totals":
-        errors.append("expected aggregated list performance basis")
+    if list_summary != expected_summary:
+        errors.append(f"unexpected list_performance_summary: {list_summary}")
 
-    if list_summary["table_size"] != 3:
-        errors.append("expected fixed three-player table size")
+    if "list_standings_summary" in data:
+        errors.append("expected single-player list mode not to emit standings")
 
     return errors
+
+
+def check_list_performance(data: dict[str, Any]) -> list[str]:
+    """Checks already aggregated list performance summary output."""
+    return check_list_performance_summary(
+        data=data,
+        expected_summary={
+            "rating_system": "isko_list",
+            "basis": "aggregated_list_or_series_totals",
+            "table_size": 3,
+            "player_game_points": 120,
+            "own_games_won": 3,
+            "own_games_lost": 1,
+            "other_players_lost_games": 2,
+            "own_game_bonus_points": 100,
+            "opponent_loss_bonus_points": 80,
+            "total_performance_points": 300,
+        },
+    )
+
+
+def check_list_game_contributions(data: dict[str, Any]) -> list[str]:
+    """Checks normalized game-contribution list performance output."""
+    return check_list_performance_summary(
+        data=data,
+        expected_summary={
+            "rating_system": "isko_list",
+            "basis": "normalized_game_contributions",
+            "table_size": 3,
+            "player_game_points": 24,
+            "own_games_won": 1,
+            "own_games_lost": 1,
+            "other_players_lost_games": 1,
+            "own_game_bonus_points": 0,
+            "opponent_loss_bonus_points": 40,
+            "total_performance_points": 64,
+        },
+    )
+
+
+def check_list_analysis_results(data: dict[str, Any]) -> list[str]:
+    """Checks local analysis-result list performance output."""
+    return check_list_performance_summary(
+        data=data,
+        expected_summary={
+            "rating_system": "isko_list",
+            "basis": "local_analysis_results",
+            "table_size": 3,
+            "player_game_points": 24,
+            "own_games_won": 1,
+            "own_games_lost": 1,
+            "other_players_lost_games": 1,
+            "own_game_bonus_points": 0,
+            "opponent_loss_bonus_points": 40,
+            "total_performance_points": 64,
+        },
+    )
 
 
 def check_list_standings(data: dict[str, Any]) -> list[str]:
@@ -906,6 +966,20 @@ SCENARIOS = (
         input_path=PROJECT_ROOT / "examples" / "grand_list_performance_input.json",
         branch="optional list performance summary",
         check_output=check_list_performance,
+    ),
+    Scenario(
+        name="list_game_contributions_summary",
+        input_path=(
+            PROJECT_ROOT / "examples" / "grand_list_game_contributions.json"
+        ),
+        branch="optional normalized game-contribution list performance summary",
+        check_output=check_list_game_contributions,
+    ),
+    Scenario(
+        name="list_analysis_results_summary",
+        input_path=PROJECT_ROOT / "examples" / "grand_list_analysis_results.json",
+        branch="optional local analysis-result list performance summary",
+        check_output=check_list_analysis_results,
     ),
     Scenario(
         name="list_standings_summary",

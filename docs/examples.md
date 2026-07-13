@@ -218,6 +218,7 @@ Post-game review examples may include known skat cards and completed game inform
 | `grand_complete_declarer_win.json`         | Complete game where declarer wins. Also demonstrates `bid_value` and partial ISkO performance-rating metadata.               |
 | `grand_complete_declarer_loss.json`        | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points.                           |
 | `grand_list_performance_input.json`        | Complete game with partial ISkO single-game rating plus already aggregated list performance input and output.                 |
+| `grand_list_game_contributions.json`       | Complete game with partial ISkO single-game rating plus list performance aggregated from normalized per-game contributions.   |
 | `grand_list_analysis_results.json`         | Complete game with partial ISkO single-game rating plus list performance aggregated from local analysis-result objects.       |
 | `grand_list_standings_input.json`          | Complete game with partial ISkO single-game rating plus explicit fixed three-player list standings output.                   |
 
@@ -302,6 +303,29 @@ Expected list performance calculation for the fixed three-player table:
 * `table_size`: `3` in the emitted `list_performance_summary`
 
 The example still emits the normal single-game `performance_rating_summary`; `list_performance_summary` is additional and does not change it.
+
+`grand_list_game_contributions.json` demonstrates `performance_rating_system: "isko_list"` with normalized per-game contributions:
+
+```json
+"list_game_contributions": [
+  {
+    "player_role": "declarer",
+    "game_outcome": "declarer_win",
+    "settlement_score": 96
+  }
+]
+```
+
+The example file includes one local declarer win with score `96`, one local declarer loss with score `-72`, and one local defender game where the declarer loses with score `-120`. It also includes stable `rated_player_id` and `game_id` metadata to demonstrate duplicate and same-player validation without changing output fields.
+
+Expected normalized contribution list calculation for the example:
+
+* `player_game_points`: `96 + (-72) = 24`
+* `own_game_bonus_points`: `1 * 50 + 1 * (-50) = 0`
+* `opponent_loss_bonus_points`: `1 * 40 = 40`
+* `total_performance_points`: `24 + 0 + 40 = 64`
+* `basis`: `normalized_game_contributions`
+* `table_size`: `3` in the emitted `list_performance_summary`
 
 `grand_list_analysis_results.json` demonstrates `performance_rating_system: "isko_list"` with local analysis-result objects for one consistently represented local player:
 
