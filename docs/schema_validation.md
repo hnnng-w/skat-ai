@@ -62,6 +62,7 @@ The input schema checks things such as:
 * supported `left_player_profile` and `right_player_profile` field types and numeric ranges
 * supported `performance_rating_system` values
 * optional `rated_player_id` and `game_id` primitive shapes for per-game list inputs
+* fixed three-player `list_standings_input` structure
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
@@ -109,6 +110,7 @@ The output schema checks the main output structure, including:
 * `adjusted_game_result_summary`
 * `final_settlement_summary`
 * `performance_rating_summary`
+* `list_standings_summary`, when fixed three-player standings input is supplied
 * `recommendation`
 * `post_game_review_summary`
 * `information_policy_summary`
@@ -130,8 +132,9 @@ user-facing CLI workflows, including explicit-input live recommendation, JSON
 output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
 simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
-claim/overbid/list-performance summaries, late-game history-heavy live input,
-and local defender redaction for `known_to_declarer` Skat visibility.
+claim/overbid/list-performance summaries, fixed three-player standings summaries,
+late-game history-heavy live input, and local defender redaction for
+`known_to_declarer` Skat visibility.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -217,6 +220,8 @@ Examples:
 * whether matadors can be inferred from the currently known declarer-card context and conservative concrete-declarer completed-trick ownership facts
 * whether per-game list entries consistently describe one supplied `rated_player_id`
 * whether supplied per-game list `game_id` values are unique
+* whether fixed three-player standings player IDs are unique
+* whether standings declarer player IDs reference declared standings players
 
 These checks require cross-field or Skat-specific logic and are easier to test and maintain in Python.
 
@@ -226,6 +231,12 @@ Python validation rejects whitespace-only identifiers, leading or trailing
 whitespace, partial `rated_player_id` presence, conflicting `rated_player_id`
 values, and duplicate supplied `game_id` values. Passing schema validation does
 not prove list-level identity consistency.
+
+For `list_standings_input`, JSON Schema validates the stable object structure,
+exact three-player array size, required game fields, supported outcomes, and
+settlement-score sign bounds. Python validation rejects duplicate player IDs,
+unknown declarer player IDs, whitespace-padded identifiers and labels, and
+duplicate supplied `game_id` values.
 
 ## Adding new examples
 

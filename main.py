@@ -30,6 +30,7 @@ from skat_ai.input_loader import (
     get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
     get_list_performance_input_from_input,
+    get_list_standings_input_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
@@ -45,6 +46,7 @@ from skat_ai.performance_rating import (
     build_list_performance_summary,
     build_list_performance_summary_from_analysis_results,
     build_list_performance_summary_from_game_contributions,
+    build_list_standings_summary,
     build_performance_rating_summary,
 )
 from skat_ai.policy_comparison import (
@@ -242,6 +244,7 @@ def build_analysis_result(
     list_performance_input = get_list_performance_input_from_input(data)
     list_game_contributions = get_list_game_contributions_from_input(data)
     list_analysis_results = get_list_analysis_results_from_input(data)
+    list_standings_input = get_list_standings_input_from_input(data)
     game_value_summary = build_game_value_summary(game_declaration)
     overbid_summary = build_overbid_summary(
         game_value_summary=game_value_summary,
@@ -345,6 +348,7 @@ def build_analysis_result(
         rating_system=performance_rating_system,
     )
     list_performance_summary = None
+    list_standings_summary = None
     if list_performance_input is not None:
         list_performance_summary = build_list_performance_summary(
             list_performance_input=list_performance_input,
@@ -358,6 +362,11 @@ def build_analysis_result(
     elif list_analysis_results is not None:
         list_performance_summary = build_list_performance_summary_from_analysis_results(
             analysis_results=list_analysis_results,
+            rating_system=performance_rating_system,
+        )
+    elif list_standings_input is not None:
+        list_standings_summary = build_list_standings_summary(
+            list_standings_input=list_standings_input,
             rating_system=performance_rating_system,
         )
     information_policy_summary = build_information_policy_summary(
@@ -410,6 +419,9 @@ def build_analysis_result(
 
     if list_performance_summary is not None:
         result["list_performance_summary"] = list_performance_summary
+
+    if list_standings_summary is not None:
+        result["list_standings_summary"] = list_standings_summary
 
     return result
 

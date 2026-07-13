@@ -219,6 +219,7 @@ Post-game review examples may include known skat cards and completed game inform
 | `grand_complete_declarer_loss.json`        | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points.                           |
 | `grand_list_performance_input.json`        | Complete game with partial ISkO single-game rating plus already aggregated list performance input and output.                 |
 | `grand_list_analysis_results.json`         | Complete game with partial ISkO single-game rating plus list performance aggregated from local analysis-result objects.       |
+| `grand_list_standings_input.json`          | Complete game with partial ISkO single-game rating plus explicit fixed three-player list standings output.                   |
 
 Run a post-game review example with actual-card comparison:
 
@@ -332,6 +333,32 @@ Expected local analysis-result list calculation for the example:
 
 The top-level completed game still emits its normal single-game `performance_rating_summary`; the local analysis-result aggregation only adds `list_performance_summary`.
 
+`grand_list_standings_input.json` demonstrates `performance_rating_system:
+"isko_list"` with explicit fixed three-player standings input:
+
+```json
+"list_standings_input": {
+  "players": [
+    {"player_id": "alice", "player_label": "Alice"},
+    {"player_id": "bob", "player_label": "Bob"},
+    {"player_id": "carol", "player_label": "Carol"}
+  ],
+  "games": [
+    {
+      "game_id": "game-1",
+      "declarer_player_id": "alice",
+      "game_outcome": "declarer_win",
+      "settlement_score": 96
+    }
+  ]
+}
+```
+
+The example emits `list_standings_summary` with exactly three rows. Expected
+standing totals are Alice `186`, Carol `138`, and Bob `-122`, ranked in that
+order. Existing single-rated-player list examples continue to emit only
+`list_performance_summary`.
+
 ## Matador inference examples
 
 Automatic matador inference is demonstrated by examples where `matadors` is missing or `null`, but known declarer-card context is sufficient.
@@ -428,6 +455,7 @@ Generated outputs may include:
 * `final_settlement_summary`
 * `performance_rating_summary`
 * `list_performance_summary`, if a list performance input mode is provided
+* `list_standings_summary`, if fixed three-player standings input is provided
 * `recommendation`
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested

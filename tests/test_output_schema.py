@@ -166,6 +166,71 @@ def build_policy_comparison_result() -> dict[str, object]:
     }
 
 
+def build_list_standings_summary() -> dict[str, object]:
+    return {
+        "rating_system": "isko_list",
+        "basis": "fixed_three_player_game_results",
+        "table_size": 3,
+        "player_count": 3,
+        "game_count": 1,
+        "standings": [
+            {
+                "rank": 1,
+                "input_order": 1,
+                "player_id": "alice",
+                "player_label": "Alice",
+                "games_played": 1,
+                "declarer_games": 1,
+                "defender_games": 0,
+                "own_games_won": 1,
+                "own_games_lost": 0,
+                "defender_games_won": 0,
+                "defender_games_lost": 0,
+                "other_players_lost_games": 0,
+                "player_game_points": 96,
+                "own_game_bonus_points": 50,
+                "opponent_loss_bonus_points": 0,
+                "total_performance_points": 146,
+            },
+            {
+                "rank": 2,
+                "input_order": 2,
+                "player_id": "bob",
+                "player_label": "Bob",
+                "games_played": 1,
+                "declarer_games": 0,
+                "defender_games": 1,
+                "own_games_won": 0,
+                "own_games_lost": 0,
+                "defender_games_won": 0,
+                "defender_games_lost": 1,
+                "other_players_lost_games": 0,
+                "player_game_points": 0,
+                "own_game_bonus_points": 0,
+                "opponent_loss_bonus_points": 0,
+                "total_performance_points": 0,
+            },
+            {
+                "rank": 3,
+                "input_order": 3,
+                "player_id": "carol",
+                "player_label": None,
+                "games_played": 1,
+                "declarer_games": 0,
+                "defender_games": 1,
+                "own_games_won": 0,
+                "own_games_lost": 0,
+                "defender_games_won": 0,
+                "defender_games_lost": 1,
+                "other_players_lost_games": 0,
+                "player_game_points": 0,
+                "own_game_bonus_points": 0,
+                "opponent_loss_bonus_points": 0,
+                "total_performance_points": 0,
+            },
+        ],
+    }
+
 def build_valid_output() -> dict[str, object]:
     return {
         "input_file": "tests/fixtures/generated_output_schema/position.json",
@@ -329,6 +394,47 @@ def test_schema_accepts_base_output_without_optional_results() -> None:
 
 def test_schema_accepts_structured_multi_step_and_policy_results() -> None:
     assert_schema_valid(build_valid_output_with_optional_results())
+
+
+def test_schema_accepts_list_standings_summary() -> None:
+    data = build_valid_output()
+    data["list_standings_summary"] = build_list_standings_summary()
+
+    assert_schema_valid(data)
+
+
+def test_schema_rejects_malformed_list_standings_row() -> None:
+    data = build_valid_output()
+    data["list_standings_summary"] = build_list_standings_summary()
+    summary = data["list_standings_summary"]
+    assert isinstance(summary, dict)
+    standings = summary["standings"]
+    assert isinstance(standings, list)
+    del standings[0]["total_performance_points"]
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_wrong_list_standings_table_size() -> None:
+    data = build_valid_output()
+    data["list_standings_summary"] = build_list_standings_summary()
+    summary = data["list_standings_summary"]
+    assert isinstance(summary, dict)
+    summary["table_size"] = 4
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_non_three_player_list_standings_output() -> None:
+    data = build_valid_output()
+    data["list_standings_summary"] = build_list_standings_summary()
+    summary = data["list_standings_summary"]
+    assert isinstance(summary, dict)
+    standings = summary["standings"]
+    assert isinstance(standings, list)
+    standings.pop()
+
+    assert_schema_invalid(data)
 
 
 def test_schema_rejects_malformed_multi_step_steps_type() -> None:

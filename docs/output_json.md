@@ -54,6 +54,7 @@ Typical top-level fields include:
 | `adjusted_game_result_summary`   | Game result after game-end adjustment.                      |
 | `final_settlement_summary`       | Single-game settlement summary.                             |
 | `performance_rating_summary`     | Performance-rating layer.                                   |
+| `list_standings_summary`         | Optional fixed three-player list standings.                 |
 | `recommendation`                 | Recommended card and reason.                                |
 | `post_game_review_summary`       | Actual-card comparison and post-game review result.         |
 | `multi_step_result`              | Optional multi-step simulation result.                      |
@@ -439,6 +440,86 @@ rows are echoed in the output.
 When the summary is derived from `list_analysis_results`, it keeps the same
 field set and uses `basis: "local_analysis_results"`. Analysis-result rows are
 not echoed in the output.
+
+Existing single-rated-player list modes do not emit `list_standings_summary`.
+
+## Fixed three-player list standings summary
+
+`list_standings_summary` is emitted only when the input contains
+`list_standings_input`.
+
+Example:
+
+```json
+"list_standings_summary": {
+  "rating_system": "isko_list",
+  "basis": "fixed_three_player_game_results",
+  "table_size": 3,
+  "player_count": 3,
+  "game_count": 1,
+  "standings": [
+    {
+      "rank": 1,
+      "input_order": 1,
+      "player_id": "alice",
+      "player_label": "Alice",
+      "games_played": 1,
+      "declarer_games": 1,
+      "defender_games": 0,
+      "own_games_won": 1,
+      "own_games_lost": 0,
+      "defender_games_won": 0,
+      "defender_games_lost": 0,
+      "other_players_lost_games": 0,
+      "player_game_points": 96,
+      "own_game_bonus_points": 50,
+      "opponent_loss_bonus_points": 0,
+      "total_performance_points": 146
+    }
+  ]
+}
+```
+
+Summary fields:
+
+| Field          | Meaning                                      |
+| -------------- | -------------------------------------------- |
+| `rating_system` | Always `isko_list`.                        |
+| `basis`        | Always `fixed_three_player_game_results`.    |
+| `table_size`   | Fixed table size, always `3`.                |
+| `player_count` | Number of standings players, always `3`.     |
+| `game_count`   | Number of supplied list games.               |
+| `standings`    | Exactly three ranked player rows.            |
+
+Standing row fields:
+
+| Field                         | Meaning                                                    |
+| ----------------------------- | ---------------------------------------------------------- |
+| `rank`                        | Unique rank after deterministic ordering.                  |
+| `input_order`                 | One-based order from `list_standings_input.players`.       |
+| `player_id`                   | Stable player identifier.                                  |
+| `player_label`                | Optional display label, or `null`.                         |
+| `games_played`                | Total number of supplied games.                            |
+| `declarer_games`              | Games where this player was declarer.                      |
+| `defender_games`              | `game_count - declarer_games`.                             |
+| `own_games_won`               | Own declarer games won.                                    |
+| `own_games_lost`              | Own declarer games lost.                                   |
+| `defender_games_won`          | Defender games where the declarer lost.                    |
+| `defender_games_lost`         | Defender games where the declarer won.                     |
+| `other_players_lost_games`    | Same value as `defender_games_won`.                        |
+| `player_game_points`          | Sum of settlement scores for own declarer games.           |
+| `own_game_bonus_points`       | `own_games_won * 50 + own_games_lost * -50`.               |
+| `opponent_loss_bonus_points`  | `other_players_lost_games * 40`.                           |
+| `total_performance_points`    | Sum of game points and performance bonuses.                |
+
+Rows are ordered by `total_performance_points` descending,
+`player_game_points` descending, `own_games_won` descending, `own_games_lost`
+ascending, `opponent_loss_bonus_points` descending, `player_id` ascending, then
+`input_order` ascending. Ranks are unique row positions and are not shared for
+ties.
+
+This standings output is fixed to three players. It is not four-player support,
+full tournament reporting, or an official federation report format.
 
 ## Analysis report
 

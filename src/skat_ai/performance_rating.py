@@ -12,6 +12,25 @@ LIST_ENTRY_METADATA_FIELDS = [
     "rated_player_id",
     "game_id",
 ]
+LIST_STANDINGS_INPUT_REQUIRED_FIELDS = [
+    "players",
+    "games",
+]
+LIST_STANDINGS_PLAYER_REQUIRED_FIELDS = [
+    "player_id",
+]
+LIST_STANDINGS_PLAYER_OPTIONAL_FIELDS = [
+    "player_label",
+]
+LIST_STANDINGS_GAME_REQUIRED_FIELDS = [
+    "declarer_player_id",
+    "game_outcome",
+    "settlement_score",
+]
+LIST_STANDINGS_GAME_OPTIONAL_FIELDS = [
+    "game_id",
+]
+LIST_STANDINGS_BASIS = "fixed_three_player_game_results"
 
 
 def validate_stable_list_entry_identifier(
@@ -112,6 +131,279 @@ def validate_list_entry_metadata(
             )
 
         game_id_first_index[game_id] = index
+
+
+def validate_stable_list_player_label(value: Any, field_path: str) -> None:
+    """Validates an optional human-readable player label."""
+    if not isinstance(value, str):
+        raise ValueError(
+            f"{field_path} must be a non-empty string without leading or "
+            "trailing whitespace."
+        )
+
+    if value == "" or value.strip() == "":
+        raise ValueError(
+            f"{field_path} must be a non-empty string without leading or "
+            "trailing whitespace."
+        )
+
+    if value != value.strip():
+        raise ValueError(
+            f"{field_path} must be a non-empty string without leading or "
+            "trailing whitespace."
+        )
+
+
+def validate_list_standings_input(
+    list_standings_input: Any,
+    rating_system: str | None,
+) -> None:
+    """Validates fixed three-player list standings input."""
+    validate_performance_rating_system(rating_system)
+
+    if rating_system != "isko_list":
+        raise ValueError(
+            "list_standings_input requires performance_rating_system to be "
+            "isko_list."
+        )
+
+    if not isinstance(list_standings_input, dict):
+        raise ValueError("list_standings_input must be an object.")
+
+    supported_fields = set(LIST_STANDINGS_INPUT_REQUIRED_FIELDS)
+    additional_fields = sorted(set(list_standings_input) - supported_fields)
+    if additional_fields:
+        raise ValueError(
+            "list_standings_input has unsupported keys: "
+            f"{additional_fields}."
+        )
+
+    missing_fields = [
+        field_name
+        for field_name in LIST_STANDINGS_INPUT_REQUIRED_FIELDS
+        if field_name not in list_standings_input
+    ]
+    if missing_fields:
+        raise ValueError(
+            "list_standings_input is missing required keys: "
+            f"{missing_fields}."
+        )
+
+    players = list_standings_input["players"]
+    if not isinstance(players, list):
+        raise ValueError("list_standings_input.players must be a list.")
+
+    if len(players) != ISKO_FIXED_TABLE_PLAYER_COUNT:
+        raise ValueError(
+            "list_standings_input.players must contain exactly three players."
+        )
+
+    player_ids = []
+    for index, player in enumerate(players):
+        field_prefix = f"list_standings_input.players[{index}]"
+        if not isinstance(player, dict):
+            raise ValueError(f"{field_prefix} must be an object.")
+
+        supported_player_fields = set(LIST_STANDINGS_PLAYER_REQUIRED_FIELDS) | set(
+            LIST_STANDINGS_PLAYER_OPTIONAL_FIELDS
+        )
+        additional_player_fields = sorted(set(player) - supported_player_fields)
+        if additional_player_fields:
+            raise ValueError(
+                f"{field_prefix} has unsupported keys: "
+                f"{additional_player_fields}."
+            )
+
+        if "player_id" not in player:
+            raise ValueError(f"{field_prefix} is missing required key: player_id.")
+
+        validate_stable_list_entry_identifier(
+            player["player_id"],
+            f"{field_prefix}.player_id",
+        )
+        if "player_label" in player:
+            validate_stable_list_player_label(
+                player["player_label"],
+                f"{field_prefix}.player_label",
+            )
+
+        player_ids.append(player["player_id"])
+
+    duplicate_player_ids = sorted({
+        player_id for player_id in player_ids if player_ids.count(player_id) > 1
+    })
+    if duplicate_player_ids:
+        raise ValueError(
+            "list_standings_input.players contains duplicate player_id values: "
+            f"{duplicate_player_ids}."
+        )
+
+    games = list_standings_input["games"]
+    if not isinstance(games, list):
+        raise ValueError("list_standings_input.games must be a list.")
+
+    known_player_ids = set(player_ids)
+    game_id_first_index: dict[str, int] = {}
+    for index, game in enumerate(games):
+        field_prefix = f"list_standings_input.games[{index}]"
+        if not isinstance(game, dict):
+            raise ValueError(f"{field_prefix} must be an object.")
+
+        supported_game_fields = set(LIST_STANDINGS_GAME_REQUIRED_FIELDS) | set(
+            LIST_STANDINGS_GAME_OPTIONAL_FIELDS
+        )
+        additional_game_fields = sorted(set(game) - supported_game_fields)
+        if additional_game_fields:
+            raise ValueError(
+                f"{field_prefix} has unsupported keys: {additional_game_fields}."
+            )
+
+        missing_game_fields = [
+            field_name
+            for field_name in LIST_STANDINGS_GAME_REQUIRED_FIELDS
+            if field_name not in game
+        ]
+        if missing_game_fields:
+            raise ValueError(
+                f"{field_prefix} is missing required keys: {missing_game_fields}."
+            )
+
+        if "game_id" in game:
+            validate_stable_list_entry_identifier(
+                game["game_id"],
+                f"{field_prefix}.game_id",
+            )
+            game_id = game["game_id"]
+            if game_id in game_id_first_index:
+                raise ValueError(
+                    "Duplicate list_standings_input.games.game_id "
+                    f"{game_id!r} at indexes {game_id_first_index[game_id]} "
+                    f"and {index}."
+                )
+            game_id_first_index[game_id] = index
+
+        declarer_player_id = game["declarer_player_id"]
+        validate_stable_list_entry_identifier(
+            declarer_player_id,
+            f"{field_prefix}.declarer_player_id",
+        )
+        if declarer_player_id not in known_player_ids:
+            raise ValueError(
+                f"{field_prefix}.declarer_player_id must reference one of "
+                "list_standings_input.players."
+            )
+
+        game_outcome = game["game_outcome"]
+        if game_outcome not in ["declarer_win", "declarer_loss"]:
+            raise ValueError(f"Unsupported {field_prefix}.game_outcome: {game_outcome}.")
+
+        settlement_score = game["settlement_score"]
+        if isinstance(settlement_score, bool) or not isinstance(settlement_score, int):
+            raise ValueError(f"{field_prefix}.settlement_score must be an integer.")
+
+        if game_outcome == "declarer_win" and settlement_score <= 0:
+            raise ValueError(
+                f"{field_prefix} declarer_win requires a positive "
+                "settlement_score."
+            )
+
+        if game_outcome == "declarer_loss" and settlement_score >= 0:
+            raise ValueError(
+                f"{field_prefix} declarer_loss requires a negative "
+                "settlement_score."
+            )
+
+
+def calculate_isko_fixed_three_player_standings(
+    list_standings_input: dict[str, Any],
+    table_size: int = ISKO_FIXED_TABLE_PLAYER_COUNT,
+) -> list[dict[str, Any]]:
+    """Aggregates fixed three-player ISkO-style list standings."""
+    if table_size != ISKO_FIXED_TABLE_PLAYER_COUNT:
+        raise ValueError(
+            f"Unsupported ISkO list table size: {table_size}. "
+            "Only three-player tables are supported."
+        )
+
+    players = list_standings_input["players"]
+    games = list_standings_input["games"]
+    game_count = len(games)
+    rows_by_player_id = {}
+
+    for index, player in enumerate(players):
+        player_id = player["player_id"]
+        rows_by_player_id[player_id] = {
+            "rank": 0,
+            "input_order": index + 1,
+            "player_id": player_id,
+            "player_label": player.get("player_label"),
+            "games_played": game_count,
+            "declarer_games": 0,
+            "defender_games": 0,
+            "own_games_won": 0,
+            "own_games_lost": 0,
+            "defender_games_won": 0,
+            "defender_games_lost": 0,
+            "other_players_lost_games": 0,
+            "player_game_points": 0,
+            "own_game_bonus_points": 0,
+            "opponent_loss_bonus_points": 0,
+            "total_performance_points": 0,
+        }
+
+    for game in games:
+        declarer_player_id = game["declarer_player_id"]
+        game_outcome = game["game_outcome"]
+        settlement_score = game["settlement_score"]
+
+        for player_id, row in rows_by_player_id.items():
+            if player_id == declarer_player_id:
+                row["declarer_games"] += 1
+                row["player_game_points"] += settlement_score
+                if game_outcome == "declarer_win":
+                    row["own_games_won"] += 1
+                else:
+                    row["own_games_lost"] += 1
+            elif game_outcome == "declarer_loss":
+                row["defender_games_won"] += 1
+                row["other_players_lost_games"] += 1
+            else:
+                row["defender_games_lost"] += 1
+
+    for row in rows_by_player_id.values():
+        row["defender_games"] = game_count - row["declarer_games"]
+        performance_points = calculate_isko_list_performance_points(
+            player_game_points=row["player_game_points"],
+            own_games_won=row["own_games_won"],
+            own_games_lost=row["own_games_lost"],
+            other_players_lost_games=row["other_players_lost_games"],
+            table_size=table_size,
+        )
+        row["own_game_bonus_points"] = performance_points["own_game_bonus_points"]
+        row["opponent_loss_bonus_points"] = performance_points[
+            "opponent_loss_bonus_points"
+        ]
+        row["total_performance_points"] = performance_points[
+            "total_performance_points"
+        ]
+
+    standings = sorted(
+        rows_by_player_id.values(),
+        key=lambda row: (
+            -row["total_performance_points"],
+            -row["player_game_points"],
+            -row["own_games_won"],
+            row["own_games_lost"],
+            -row["opponent_loss_bonus_points"],
+            row["player_id"],
+            row["input_order"],
+        ),
+    )
+
+    for rank, row in enumerate(standings, start=1):
+        row["rank"] = rank
+
+    return standings
 
 
 def calculate_isko_list_performance_points(
@@ -516,6 +808,29 @@ def build_list_performance_summary_from_analysis_results(
         "total_performance_points": performance_points[
             "total_performance_points"
         ],
+    }
+
+
+def build_list_standings_summary(
+    list_standings_input: dict[str, Any],
+    rating_system: str | None,
+) -> dict[str, Any]:
+    """Builds fixed three-player list standings from explicit game results."""
+    validate_list_standings_input(
+        list_standings_input=list_standings_input,
+        rating_system=rating_system,
+    )
+    standings = calculate_isko_fixed_three_player_standings(
+        list_standings_input=list_standings_input,
+    )
+
+    return {
+        "rating_system": rating_system,
+        "basis": LIST_STANDINGS_BASIS,
+        "table_size": ISKO_FIXED_TABLE_PLAYER_COUNT,
+        "player_count": ISKO_FIXED_TABLE_PLAYER_COUNT,
+        "game_count": len(list_standings_input["games"]),
+        "standings": standings,
     }
 
 

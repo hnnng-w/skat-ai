@@ -613,6 +613,45 @@ def check_list_performance(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_list_standings(data: dict[str, Any]) -> list[str]:
+    """Checks optional fixed three-player list standings output."""
+    errors = []
+    standings_summary = data.get("list_standings_summary")
+
+    if not isinstance(standings_summary, dict):
+        errors.append("expected populated list_standings_summary")
+        return errors
+
+    if standings_summary["basis"] != "fixed_three_player_game_results":
+        errors.append("expected fixed three-player standings basis")
+
+    standings = standings_summary["standings"]
+    if len(standings) != 3:
+        errors.append("expected exactly three standings rows")
+        return errors
+
+    expected_rows = [
+        ("alice", 1, 186),
+        ("carol", 2, 138),
+        ("bob", 3, -122),
+    ]
+    actual_rows = [
+        (
+            row["player_id"],
+            row["rank"],
+            row["total_performance_points"],
+        )
+        for row in standings
+    ]
+    if actual_rows != expected_rows:
+        errors.append(f"unexpected standings rows: {actual_rows}")
+
+    if "list_performance_summary" in data:
+        errors.append("expected standings mode not to emit list_performance_summary")
+
+    return errors
+
+
 def check_late_game_history_heavy_live(data: dict[str, Any]) -> list[str]:
     """
     Checks a late-game live input with zero opponent hand sizes and rich history.
@@ -867,6 +906,12 @@ SCENARIOS = (
         input_path=PROJECT_ROOT / "examples" / "grand_list_performance_input.json",
         branch="optional list performance summary",
         check_output=check_list_performance,
+    ),
+    Scenario(
+        name="list_standings_summary",
+        input_path=PROJECT_ROOT / "examples" / "grand_list_standings_input.json",
+        branch="optional fixed three-player list standings summary",
+        check_output=check_list_standings,
     ),
     Scenario(
         name="late_game_history_heavy_live",

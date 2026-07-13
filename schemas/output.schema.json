@@ -104,6 +104,9 @@
     "list_performance_summary": {
       "$ref": "#/$defs/list_performance_summary"
     },
+    "list_standings_summary": {
+      "$ref": "#/$defs/list_standings_summary"
+    },
     "recommendation": {
       "$ref": "#/$defs/recommendation"
     },
@@ -657,6 +660,126 @@
         "other_players_lost_games": {
           "type": "integer",
           "minimum": 0
+        },
+        "own_game_bonus_points": {
+          "type": "integer"
+        },
+        "opponent_loss_bonus_points": {
+          "type": "integer"
+        },
+        "total_performance_points": {
+          "type": "integer"
+        }
+      }
+    },
+    "list_standings_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rating_system",
+        "basis",
+        "table_size",
+        "player_count",
+        "game_count",
+        "standings"
+      ],
+      "properties": {
+        "rating_system": {
+          "type": "string",
+          "enum": ["isko_list"]
+        },
+        "basis": {
+          "type": "string",
+          "const": "fixed_three_player_game_results"
+        },
+        "table_size": {
+          "type": "integer",
+          "const": 3
+        },
+        "player_count": {
+          "type": "integer",
+          "const": 3
+        },
+        "game_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "standings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/list_standings_row"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "list_standings_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rank",
+        "input_order",
+        "player_id",
+        "player_label",
+        "games_played",
+        "declarer_games",
+        "defender_games",
+        "own_games_won",
+        "own_games_lost",
+        "defender_games_won",
+        "defender_games_lost",
+        "other_players_lost_games",
+        "player_game_points",
+        "own_game_bonus_points",
+        "opponent_loss_bonus_points",
+        "total_performance_points"
+      ],
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "input_order": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "player_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "player_label": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "games_played": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "declarer_games": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "defender_games": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "own_games_won": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "own_games_lost": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "defender_games_won": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "defender_games_lost": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "other_players_lost_games": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "player_game_points": {
+          "type": "integer"
         },
         "own_game_bonus_points": {
           "type": "integer"

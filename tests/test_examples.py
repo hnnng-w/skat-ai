@@ -386,6 +386,75 @@ def test_list_analysis_results_example_adds_aggregated_summary() -> None:
     }
 
 
+def test_list_standings_input_example_adds_three_player_standings() -> None:
+    result = build_example_analysis_result("grand_list_standings_input.json")
+
+    assert "list_performance_summary" not in result
+    assert result["list_standings_summary"] == {
+        "rating_system": "isko_list",
+        "basis": "fixed_three_player_game_results",
+        "table_size": 3,
+        "player_count": 3,
+        "game_count": 3,
+        "standings": [
+            {
+                "rank": 1,
+                "input_order": 1,
+                "player_id": "alice",
+                "player_label": "Alice",
+                "games_played": 3,
+                "declarer_games": 1,
+                "defender_games": 2,
+                "own_games_won": 1,
+                "own_games_lost": 0,
+                "defender_games_won": 1,
+                "defender_games_lost": 1,
+                "other_players_lost_games": 1,
+                "player_game_points": 96,
+                "own_game_bonus_points": 50,
+                "opponent_loss_bonus_points": 40,
+                "total_performance_points": 186,
+            },
+            {
+                "rank": 2,
+                "input_order": 3,
+                "player_id": "carol",
+                "player_label": "Carol",
+                "games_played": 3,
+                "declarer_games": 1,
+                "defender_games": 2,
+                "own_games_won": 1,
+                "own_games_lost": 0,
+                "defender_games_won": 1,
+                "defender_games_lost": 1,
+                "other_players_lost_games": 1,
+                "player_game_points": 48,
+                "own_game_bonus_points": 50,
+                "opponent_loss_bonus_points": 40,
+                "total_performance_points": 138,
+            },
+            {
+                "rank": 3,
+                "input_order": 2,
+                "player_id": "bob",
+                "player_label": "Bob",
+                "games_played": 3,
+                "declarer_games": 1,
+                "defender_games": 2,
+                "own_games_won": 0,
+                "own_games_lost": 1,
+                "defender_games_won": 0,
+                "defender_games_lost": 2,
+                "other_players_lost_games": 0,
+                "player_game_points": -72,
+                "own_game_bonus_points": -50,
+                "opponent_loss_bonus_points": 0,
+                "total_performance_points": -122,
+            },
+        ],
+    }
+
+
 def test_midgame_declarer_ahead_example_score_invariants() -> None:
     result = build_example_analysis_result("grand_midgame_declarer_ahead.json")
 

@@ -1,0 +1,56 @@
+{
+  "game_type": "grand",
+  "player_role": "declarer",
+  "player_position": "forehand",
+  "trick_leader": "me",
+  "hand": ["SA", "S10", "S9"],
+  "current_trick": [],
+  "played_cards": [],
+  "completed_tricks": [],
+  "declarer_points": 90,
+  "defender_points": 30,
+  "next_player": "me",
+  "game_end_reason": "normal_completion",
+  "skat": [],
+  "left_hand_size": 3,
+  "right_hand_size": 3,
+  "sample_count": 100,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true,
+  "hand_game": false,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": 2,
+  "bid_value": 72,
+  "performance_rating_system": "isko_list",
+  "list_standings_input": {
+    "players": [
+      {"player_id": "alice", "player_label": "Alice"},
+      {"player_id": "bob", "player_label": "Bob"},
+      {"player_id": "carol", "player_label": "Carol"}
+    ],
+    "games": [
+      {
+        "game_id": "game-1",
+        "declarer_player_id": "alice",
+        "game_outcome": "declarer_win",
+        "settlement_score": 96
+      },
+      {
+        "game_id": "game-2",
+        "declarer_player_id": "bob",
+        "game_outcome": "declarer_loss",
+        "settlement_score": -72
+      },
+      {
+        "game_id": "game-3",
+        "declarer_player_id": "carol",
+        "game_outcome": "declarer_win",
+        "settlement_score": 48
+      }
+    ]
+  },
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "unknown"
+}

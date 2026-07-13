@@ -10,6 +10,7 @@ from skat_ai.performance_rating import (
     LIST_ENTRY_METADATA_FIELDS,
     build_list_game_contribution_from_analysis_result,
     validate_list_entry_metadata,
+    validate_list_standings_input,
     validate_performance_rating_system,
 )
 from skat_ai.rules import GAME_TYPES, get_card_points, get_legal_cards
@@ -361,6 +362,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_list_performance_input(data)
     validate_optional_list_game_contributions(data)
     validate_optional_list_analysis_results(data)
+    validate_optional_list_standings_input(data)
     validate_completed_trick_sequence(
         completed_tricks=data.get("completed_tricks", []),
         current_trick=data.get("current_trick", []),
@@ -420,14 +422,16 @@ def validate_list_performance_input_modes(data: dict[str, Any]) -> None:
             "list_performance_input",
             "list_game_contributions",
             "list_analysis_results",
+            "list_standings_input",
         ]
         if field_name in data
     ]
 
     if len(supplied_modes) > 1:
         raise ValueError(
-            "list_performance_input, list_game_contributions, and "
-            "list_analysis_results are alternative input modes. Provide only one."
+            "list_performance_input, list_game_contributions, "
+            "list_analysis_results, and list_standings_input are alternative "
+            "input modes. Provide only one."
         )
 
 
@@ -588,6 +592,17 @@ def validate_optional_list_analysis_results(data: dict[str, Any]) -> None:
             build_list_game_contribution_from_analysis_result(analysis_result)
         except ValueError as error:
             raise ValueError(f"list_analysis_results[{index}]: {error}") from error
+
+
+def validate_optional_list_standings_input(data: dict[str, Any]) -> None:
+    """Validates optional fixed three-player list standings input."""
+    if "list_standings_input" not in data:
+        return
+
+    validate_list_standings_input(
+        list_standings_input=data["list_standings_input"],
+        rating_system=data.get("performance_rating_system"),
+    )
 
 
 def get_cards_from_completed_tricks_input(completed_tricks: list[dict[str, Any]]) -> list[str]:

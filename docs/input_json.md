@@ -556,7 +556,57 @@ Validation rules:
 * `game_id` may be supplied for all, some, or no contributions.
 * Duplicate supplied `game_id` values are rejected. Duplicate detection applies only to supplied IDs.
 * Identifiers are input validation metadata only and are not echoed in output summaries.
-* `list_performance_input`, `list_game_contributions`, and `list_analysis_results` are alternative input modes and cannot be combined.
+As a fourth alternative, input files may include explicit fixed three-player list
+standings input:
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_standings_input": {
+    "players": [
+      {"player_id": "alice", "player_label": "Alice"},
+      {"player_id": "bob", "player_label": "Bob"},
+      {"player_id": "carol", "player_label": "Carol"}
+    ],
+    "games": [
+      {
+        "game_id": "game-1",
+        "declarer_player_id": "alice",
+        "game_outcome": "declarer_win",
+        "settlement_score": 96
+      }
+    ]
+  }
+}
+```
+
+Standings input fields:
+
+| Field                         | Meaning                                                    |
+| ----------------------------- | ---------------------------------------------------------- |
+| `players[].player_id`         | Required stable player identifier.                         |
+| `players[].player_label`      | Optional display label.                                    |
+| `games[].game_id`             | Optional stable game identifier.                           |
+| `games[].declarer_player_id`  | Declarer player identifier for the game.                   |
+| `games[].game_outcome`        | `declarer_win` or `declarer_loss`.                         |
+| `games[].settlement_score`    | Declarer's settlement score before performance bonuses.    |
+
+Validation rules:
+
+* exactly three players are required
+* player IDs must be unique non-empty strings without leading or trailing whitespace
+* player labels are optional non-empty strings without leading or trailing whitespace
+* `games` may be empty
+* every `declarer_player_id` must reference one of the declared players
+* `declarer_win` requires a positive `settlement_score`
+* `declarer_loss` requires a negative `settlement_score`
+* supplied `game_id` values must be unique
+* `list_standings_input` emits `list_standings_summary`, not `list_performance_summary`
+
+Existing single-rated-player modes do not emit standings because they do not
+safely describe all three player identities and totals.
+
+* `list_performance_input`, `list_game_contributions`, `list_analysis_results`, and `list_standings_input` are alternative input modes and cannot be combined.
 * `table_size` is fixed at `3`. There is no supported `table_size` input for this mode; a top-level `table_size`, if supplied as extra metadata, is ignored.
 
 As a third alternative, input files may include already-built local analysis
@@ -808,6 +858,7 @@ Input validation rejects:
 * invalid `bid_value`
 * unknown `performance_rating_system`
 * invalid `list_performance_input`
+* invalid `list_standings_input`
 * invalid opponent policy values
 * invalid live-vs-post-game information combinations
 * known Skat cards in live decision mode unless `skat_visibility = "known_to_declarer"`

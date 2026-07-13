@@ -217,6 +217,13 @@ def get_list_analysis_results_from_input(
     return data.get("list_analysis_results")
 
 
+def get_list_standings_input_from_input(
+    data: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Extracts optional fixed three-player list standings input."""
+    return data.get("list_standings_input")
+
+
 def get_actual_card_played_from_input(data: dict[str, Any]) -> str | None:
     """Extracts the optional actual card played from parsed input data."""
     return data.get("actual_card_played")

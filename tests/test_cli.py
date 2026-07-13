@@ -942,6 +942,7 @@ def test_build_analysis_result_includes_list_performance_summary(tmp_path) -> No
     assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
     assert result["performance_rating_summary"]["settlement_score"] is None
     assert result["performance_rating_summary"]["rating_score"] is None
+    assert "list_standings_summary" not in result
 
 
 def test_build_analysis_result_includes_contribution_list_performance_summary(
@@ -988,6 +989,7 @@ def test_build_analysis_result_includes_contribution_list_performance_summary(
     assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
     assert result["performance_rating_summary"]["settlement_score"] is None
     assert result["performance_rating_summary"]["rating_score"] is None
+    assert "list_standings_summary" not in result
 
 
 def test_build_analysis_result_includes_empty_contribution_list_performance_summary(
@@ -1115,6 +1117,52 @@ def test_build_analysis_result_includes_analysis_result_list_performance_summary
         "individual_game_settlement"
     )
     assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
+    assert "list_standings_summary" not in result
+
+
+def test_build_analysis_result_includes_list_standings_summary(
+    tmp_path,
+) -> None:
+    input_path = tmp_path / "list_standings_input.json"
+    data = build_list_performance_cli_input()
+    data["list_standings_input"] = {
+        "players": [
+            {"player_id": "alice", "player_label": "Alice"},
+            {"player_id": "bob", "player_label": "Bob"},
+            {"player_id": "carol", "player_label": "Carol"},
+        ],
+        "games": [
+            {
+                "game_id": "game-1",
+                "declarer_player_id": "alice",
+                "game_outcome": "declarer_win",
+                "settlement_score": 96,
+            },
+            {
+                "game_id": "game-2",
+                "declarer_player_id": "bob",
+                "game_outcome": "declarer_loss",
+                "settlement_score": -72,
+            },
+        ],
+    }
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(
+        file_path=str(input_path),
+        sample_count_override=20,
+        random_seed_override=42,
+        opponent_strategy_override="basic",
+    )
+
+    assert "list_performance_summary" not in result
+    assert result["list_standings_summary"]["basis"] == (
+        "fixed_three_player_game_results"
+    )
+    assert result["list_standings_summary"]["standings"][0]["player_id"] == "alice"
+    assert result["list_standings_summary"]["standings"][0][
+        "total_performance_points"
+    ] == 186
 
 
 def test_build_analysis_result_accepts_analysis_result_metadata(

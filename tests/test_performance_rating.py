@@ -9,10 +9,12 @@ from skat_ai.performance_rating import (
     build_list_performance_summary,
     build_list_performance_summary_from_analysis_results,
     build_list_performance_summary_from_game_contributions,
+    build_list_standings_summary,
     build_performance_rating_summary,
     calculate_isko_counterparty_rating_points,
     calculate_isko_declarer_rating_points,
     calculate_isko_declarer_rating_score,
+    calculate_isko_fixed_three_player_standings,
     calculate_isko_list_performance_points,
     calculate_isko_list_performance_points_from_analysis_results,
     calculate_isko_list_performance_points_from_game_contributions,
@@ -128,6 +130,257 @@ def with_list_metadata(
         updated_entry["game_id"] = game_id
 
     return updated_entry
+
+
+def build_list_standings_input(
+    games: list[dict[str, object]] | None = None,
+    players: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
+    return {
+        "players": players
+        if players is not None
+        else [
+            {"player_id": "alice", "player_label": "Alice"},
+            {"player_id": "bob", "player_label": "Bob"},
+            {"player_id": "carol", "player_label": "Carol"},
+        ],
+        "games": games if games is not None else [],
+    }
+
+
+def build_standings_game(
+    declarer_player_id="alice",
+    game_outcome="declarer_win",
+    settlement_score=96,
+    game_id="game-1",
+) -> dict[str, object]:
+    game = {
+        "declarer_player_id": declarer_player_id,
+        "game_outcome": game_outcome,
+        "settlement_score": settlement_score,
+    }
+
+    if game_id is not None:
+        game["game_id"] = game_id
+
+    return game
+
+
+def test_build_list_standings_summary_aggregates_three_players() -> None:
+    summary = build_list_standings_summary(
+        list_standings_input=build_list_standings_input(
+            games=[
+                build_standings_game(
+                    declarer_player_id="alice",
+                    game_outcome="declarer_win",
+                    settlement_score=96,
+                    game_id="game-1",
+                ),
+                build_standings_game(
+                    declarer_player_id="bob",
+                    game_outcome="declarer_loss",
+                    settlement_score=-72,
+                    game_id="game-2",
+                ),
+            ]
+        ),
+        rating_system="isko_list",
+    )
+
+    assert summary["rating_system"] == "isko_list"
+    assert summary["basis"] == "fixed_three_player_game_results"
+    assert summary["table_size"] == 3
+    assert summary["player_count"] == 3
+    assert summary["game_count"] == 2
+    assert [row["player_id"] for row in summary["standings"]] == [
+        "alice",
+        "carol",
+        "bob",
+    ]
+    assert summary["standings"] == [
+        {
+            "rank": 1,
+            "input_order": 1,
+            "player_id": "alice",
+            "player_label": "Alice",
+            "games_played": 2,
+            "declarer_games": 1,
+            "defender_games": 1,
+            "own_games_won": 1,
+            "own_games_lost": 0,
+            "defender_games_won": 1,
+            "defender_games_lost": 0,
+            "other_players_lost_games": 1,
+            "player_game_points": 96,
+            "own_game_bonus_points": 50,
+            "opponent_loss_bonus_points": 40,
+            "total_performance_points": 186,
+        },
+        {
+            "rank": 2,
+            "input_order": 3,
+            "player_id": "carol",
+            "player_label": "Carol",
+            "games_played": 2,
+            "declarer_games": 0,
+            "defender_games": 2,
+            "own_games_won": 0,
+            "own_games_lost": 0,
+            "defender_games_won": 1,
+            "defender_games_lost": 1,
+            "other_players_lost_games": 1,
+            "player_game_points": 0,
+            "own_game_bonus_points": 0,
+            "opponent_loss_bonus_points": 40,
+            "total_performance_points": 40,
+        },
+        {
+            "rank": 3,
+            "input_order": 2,
+            "player_id": "bob",
+            "player_label": "Bob",
+            "games_played": 2,
+            "declarer_games": 1,
+            "defender_games": 1,
+            "own_games_won": 0,
+            "own_games_lost": 1,
+            "defender_games_won": 0,
+            "defender_games_lost": 1,
+            "other_players_lost_games": 0,
+            "player_game_points": -72,
+            "own_game_bonus_points": -50,
+            "opponent_loss_bonus_points": 0,
+            "total_performance_points": -122,
+        },
+    ]
+
+
+def test_build_list_standings_summary_from_empty_games_returns_zero_rows() -> None:
+    summary = build_list_standings_summary(
+        list_standings_input=build_list_standings_input(),
+        rating_system="isko_list",
+    )
+
+    assert summary["game_count"] == 0
+    assert len(summary["standings"]) == 3
+    assert [row["rank"] for row in summary["standings"]] == [1, 2, 3]
+    for row in summary["standings"]:
+        assert row["games_played"] == 0
+        assert row["total_performance_points"] == 0
+
+
+def test_list_standings_declarer_win_keeps_defender_points_at_zero() -> None:
+    standings = calculate_isko_fixed_three_player_standings(
+        build_list_standings_input(games=[build_standings_game()])
+    )
+    rows_by_player_id = {row["player_id"]: row for row in standings}
+
+    assert rows_by_player_id["alice"]["total_performance_points"] == 146
+    assert rows_by_player_id["bob"]["total_performance_points"] == 0
+    assert rows_by_player_id["carol"]["total_performance_points"] == 0
+    assert rows_by_player_id["bob"]["defender_games_lost"] == 1
+    assert rows_by_player_id["carol"]["defender_games_lost"] == 1
+
+
+def test_list_standings_declarer_loss_awards_both_defenders_bonus() -> None:
+    standings = calculate_isko_fixed_three_player_standings(
+        build_list_standings_input(
+            games=[
+                build_standings_game(
+                    declarer_player_id="alice",
+                    game_outcome="declarer_loss",
+                    settlement_score=-144,
+                )
+            ]
+        )
+    )
+    rows_by_player_id = {row["player_id"]: row for row in standings}
+
+    assert rows_by_player_id["alice"]["total_performance_points"] == -194
+    assert rows_by_player_id["bob"]["opponent_loss_bonus_points"] == 40
+    assert rows_by_player_id["carol"]["opponent_loss_bonus_points"] == 40
+    assert rows_by_player_id["bob"]["defender_games_won"] == 1
+    assert rows_by_player_id["carol"]["defender_games_won"] == 1
+
+
+def test_list_standings_uses_deterministic_tie_breakers() -> None:
+    summary = build_list_standings_summary(
+        list_standings_input=build_list_standings_input(
+            players=[
+                {"player_id": "carol"},
+                {"player_id": "bob"},
+                {"player_id": "alice"},
+            ],
+            games=[],
+        ),
+        rating_system="isko_list",
+    )
+
+    assert [row["player_id"] for row in summary["standings"]] == [
+        "alice",
+        "bob",
+        "carol",
+    ]
+    assert [row["rank"] for row in summary["standings"]] == [1, 2, 3]
+
+
+def test_list_standings_rejects_duplicate_player_ids() -> None:
+    with pytest.raises(ValueError, match="duplicate player_id"):
+        build_list_standings_summary(
+            list_standings_input=build_list_standings_input(
+                players=[
+                    {"player_id": "alice"},
+                    {"player_id": "alice"},
+                    {"player_id": "carol"},
+                ]
+            ),
+            rating_system="isko_list",
+        )
+
+
+def test_list_standings_rejects_unknown_declarer_player_id() -> None:
+    with pytest.raises(ValueError, match="declarer_player_id must reference"):
+        build_list_standings_summary(
+            list_standings_input=build_list_standings_input(
+                games=[build_standings_game(declarer_player_id="nobody")]
+            ),
+            rating_system="isko_list",
+        )
+
+
+def test_list_standings_rejects_invalid_settlement_score_signs() -> None:
+    with pytest.raises(ValueError, match="positive settlement_score"):
+        build_list_standings_summary(
+            list_standings_input=build_list_standings_input(
+                games=[build_standings_game(settlement_score=-96)]
+            ),
+            rating_system="isko_list",
+        )
+
+    with pytest.raises(ValueError, match="negative settlement_score"):
+        build_list_standings_summary(
+            list_standings_input=build_list_standings_input(
+                games=[
+                    build_standings_game(
+                        game_outcome="declarer_loss",
+                        settlement_score=96,
+                    )
+                ]
+            ),
+            rating_system="isko_list",
+        )
+
+
+def test_build_list_standings_summary_rejects_rating_system() -> None:
+    for rating_system in [None, "placeholder"]:
+        with pytest.raises(
+            ValueError,
+            match="requires performance_rating_system to be isko_list",
+        ):
+            build_list_standings_summary(
+                list_standings_input=build_list_standings_input(),
+                rating_system=rating_system,
+            )
 
 
 @pytest.mark.parametrize(

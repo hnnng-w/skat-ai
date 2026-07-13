@@ -421,6 +421,30 @@ def build_list_analysis_result_input(
     return data
 
 
+def build_list_standings_input(
+    list_standings_input: dict[str, object] | None = None,
+) -> dict[str, object]:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_standings_input"] = list_standings_input or {
+        "players": [
+            {"player_id": "alice", "player_label": "Alice"},
+            {"player_id": "bob", "player_label": "Bob"},
+            {"player_id": "carol", "player_label": "Carol"},
+        ],
+        "games": [
+            {
+                "game_id": "game-1",
+                "declarer_player_id": "alice",
+                "game_outcome": "declarer_win",
+                "settlement_score": 96,
+            }
+        ],
+    }
+
+    return data
+
+
 def build_schema_game_contribution() -> dict[str, object]:
     return {
         "player_role": "declarer",
@@ -748,4 +772,56 @@ def test_list_entry_schema_allows_cross_entry_conflicts_for_python_validation() 
     assert_schema_valid(data)
 
     with pytest.raises(ValueError, match="rated_player_id values conflict"):
+        validate_position_input(data)
+
+
+def test_schema_accepts_valid_list_standings_input() -> None:
+    assert_schema_valid(build_list_standings_input())
+
+
+def test_schema_rejects_list_standings_missing_required_game_field() -> None:
+    data = build_list_standings_input()
+    games = data["list_standings_input"]["games"]
+    assert isinstance(games, list)
+    del games[0]["declarer_player_id"]
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_list_standings_invalid_outcome() -> None:
+    data = build_list_standings_input()
+    games = data["list_standings_input"]["games"]
+    assert isinstance(games, list)
+    games[0]["game_outcome"] = "defender_win"
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_list_standings_combined_with_existing_list_mode() -> None:
+    data = build_list_standings_input()
+    data["list_game_contributions"] = [build_schema_game_contribution()]
+
+    assert_schema_invalid(data)
+
+
+def test_schema_allows_list_standings_cross_entry_checks_for_python_validation() -> None:
+    data = build_list_standings_input(
+        {
+            "players": [
+                {"player_id": "alice"},
+                {"player_id": "alice"},
+                {"player_id": "carol"},
+            ],
+            "games": [
+                {
+                    "declarer_player_id": "nobody",
+                    "game_outcome": "declarer_win",
+                    "settlement_score": 96,
+                }
+            ],
+        }
+    )
+
+    assert_schema_valid(data)
+    with pytest.raises(ValueError, match="duplicate player_id"):
         validate_position_input(data)

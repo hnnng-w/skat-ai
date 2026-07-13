@@ -33,6 +33,15 @@
       },
       {
         "required": ["list_game_contributions", "list_analysis_results"]
+      },
+      {
+        "required": ["list_performance_input", "list_standings_input"]
+      },
+      {
+        "required": ["list_game_contributions", "list_standings_input"]
+      },
+      {
+        "required": ["list_analysis_results", "list_standings_input"]
       }
     ]
   },
@@ -66,6 +75,19 @@
     {
       "if": {
         "required": ["list_analysis_results"]
+      },
+      "then": {
+        "required": ["performance_rating_system"],
+        "properties": {
+          "performance_rating_system": {
+            "const": "isko_list"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["list_standings_input"]
       },
       "then": {
         "required": ["performance_rating_system"],
@@ -288,6 +310,9 @@
     },
     "list_analysis_results": {
       "$ref": "#/$defs/list_analysis_results"
+    },
+    "list_standings_input": {
+      "$ref": "#/$defs/list_standings_input"
     }
   },
   "$defs": {
@@ -608,6 +633,97 @@
               },
               "is_loss": {
                 "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "settlement_score": {
+                "maximum": -1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "list_standings_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["players", "games"],
+      "properties": {
+        "players": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/list_standings_player"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "games": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/list_standings_game"
+          }
+        }
+      }
+    },
+    "list_standings_player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "player_label": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "list_standings_game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declarer_player_id", "game_outcome", "settlement_score"],
+      "properties": {
+        "game_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "declarer_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "game_outcome": {
+          "type": "string",
+          "enum": ["declarer_win", "declarer_loss"]
+        },
+        "settlement_score": {
+          "type": "integer"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["game_outcome"],
+            "properties": {
+              "game_outcome": {
+                "const": "declarer_win"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "settlement_score": {
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["game_outcome"],
+            "properties": {
+              "game_outcome": {
+                "const": "declarer_loss"
               }
             }
           },

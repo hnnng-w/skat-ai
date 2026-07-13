@@ -68,6 +68,7 @@ Current assumptions:
 * The implementation currently covers the declarer's single-game rating perspective.
 * Already aggregated list or series totals can be supplied directly.
 * Normalized per-game list or series contributions can be supplied directly.
+* Explicit fixed three-player standings game results can be supplied directly.
 * Raw full-game aggregation, player-by-player list models, and tournament aggregation are not implemented yet.
 
 Implemented rating points:
@@ -212,8 +213,13 @@ support game-level duplicate detection because the per-game records are no
 longer available after aggregation.
 
 `list_performance_input`, `list_game_contributions`, and
-`list_analysis_results` are alternative input modes. Supplying more than one is
-rejected.
+`list_analysis_results` are single-rated-player input modes. They do not emit
+three-player standings because they do not safely describe all three player
+identities and totals.
+
+`list_performance_input`, `list_game_contributions`, `list_analysis_results`,
+and `list_standings_input` are alternative input modes. Supplying more than one
+is rejected.
 
 An empty `list_game_contributions` array is valid and emits a zeroed
 `list_performance_summary`.
@@ -258,6 +264,71 @@ Analysis-result-derived summaries use the same field set with
 `"basis": "local_analysis_results"`.
 
 `list_performance_summary` is independent from `final_settlement_summary` and does not change `performance_rating_summary`.
+
+## Fixed three-player standings input
+
+`list_standings_input` provides an explicit fixed three-player list model:
+
+```json
+{
+  "performance_rating_system": "isko_list",
+  "list_standings_input": {
+    "players": [
+      {"player_id": "alice", "player_label": "Alice"},
+      {"player_id": "bob", "player_label": "Bob"},
+      {"player_id": "carol", "player_label": "Carol"}
+    ],
+    "games": [
+      {
+        "game_id": "game-1",
+        "declarer_player_id": "alice",
+        "game_outcome": "declarer_win",
+        "settlement_score": 96
+      }
+    ]
+  }
+}
+```
+
+Validation rules:
+
+* exactly three players are required
+* `player_id` values must be unique non-empty strings
+* `player_label` is optional and is echoed as `null` when omitted
+* `games` may be empty
+* each `declarer_player_id` must reference one declared player
+* `game_outcome` is `declarer_win` or `declarer_loss`
+* `declarer_win` requires a positive `settlement_score`
+* `declarer_loss` requires a negative `settlement_score`
+* `game_id` is optional, but supplied IDs must be unique
+
+The output is `list_standings_summary`, not `list_performance_summary`.
+
+For each player:
+
+```text
+games_played = total number of games
+declarer_games = games where declarer_player_id equals player_id
+defender_games = game_count - declarer_games
+own_games_won = declarer wins by that player
+own_games_lost = declarer losses by that player
+defender_games_won = defender games where the declarer lost
+defender_games_lost = defender games where the declarer won
+other_players_lost_games = defender_games_won
+player_game_points = sum of settlement_score for own declarer games
+own_game_bonus_points = own_games_won * 50 + own_games_lost * -50
+opponent_loss_bonus_points = other_players_lost_games * 40
+total_performance_points = player_game_points + own_game_bonus_points + opponent_loss_bonus_points
+```
+
+Standings are ordered by `total_performance_points` descending,
+`player_game_points` descending, `own_games_won` descending, `own_games_lost`
+ascending, `opponent_loss_bonus_points` descending, `player_id` ascending, then
+`input_order` ascending. Ranks are unique row positions `1`, `2`, and `3`.
+
+This is a fixed three-player list-aware review output contract. It is not a
+four-player model, official federation report format, or full tournament/series
+report.
 
 ## Implemented and unsupported scope
 
@@ -345,7 +416,8 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
 * Already aggregated list or series totals can be calculated when supplied via `list_performance_input`.
 * Normalized per-game contributions can be calculated when supplied via `list_game_contributions`.
+* Fixed three-player standings can be calculated when supplied via `list_standings_input`.
 * Optional `rated_player_id` and `game_id` metadata can validate per-game list inputs, but does not affect scoring.
 * Duplicate-game detection only uses supplied `game_id` values; content-based duplicate detection is not implemented.
-* Raw full-game aggregation, player-by-player list models, multi-list rollups, and tournament aggregation are not implemented yet.
+* Raw full-game aggregation, multi-list rollups, full tournament aggregation, and official federation report formats are not implemented yet.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.
