@@ -161,16 +161,29 @@ Major completed areas include:
 
 ## Current useful future issues
 
-Likely future work includes:
+Selected `v0.6.0` direction:
+
+* from single-position analysis to credible list-aware review workflows
+
+Likely near-term work includes:
 
 * adding dedicated left/right opponent policy examples
 * adding richer post-game review examples
 * improving realistic example positions
-* using PlayerProfile confidence in opponent modeling
-* improving advanced defender partnership decisions
-* extending official settlement nuance coverage
-* broadening matador inference beyond the current conservative concrete ownership facts where safe
-* implementing full list, series, and tournament performance rating
+* adding fixed three-player list standings output
+* adding list-performance examples and generated-output validation
+* using PlayerProfile confidence in opponent modeling in bounded ways
+* auditing settlement and overbid edge-case coverage
+
+Deferred outside the selected `v0.6.0` direction unless explicitly scoped:
+
+* four-player support
+* full official tournament or series formats
+* machine learning or learned opponent models
+* perfect-information solving
+* broad hidden-card inference
+* broad `main.py` or CLI refactors
+* full claim/concession legal-dispute modeling
 
 ## Safety rules for agent behavior
 

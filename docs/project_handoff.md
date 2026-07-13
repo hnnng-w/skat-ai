@@ -62,9 +62,9 @@ Four-player table support is not a priority unless explicitly requested.
 
 ### Performance rating
 
-ISkO-style performance rating is partially implemented for fixed three-player single-game declarer perspective.
+ISkO-style performance rating is partially implemented for fixed three-player single-game and local list-input perspectives.
 
-Full list, series, and tournament aggregation is not implemented yet.
+Full player-by-player list standings, series aggregation, and tournament aggregation are not implemented yet.
 
 ### Live vs post-game mode
 
@@ -383,12 +383,14 @@ Main documentation files:
 
 ## Release status
 
+Current stable baseline: `v0.5.0`.
+
 Current version: `0.5.0`.
 
-Latest release target: `v0.5.0`.
+Latest tagged release: `v0.5.0`.
 
-`v0.5.0` is the prepared release baseline. Tagging and GitHub Release creation
-are expected to happen manually after the release-preparation branch is merged.
+`v0.5.0` has been tagged and released. The release-preparation branch work is
+complete; no `v0.5.0` tagging or GitHub Release creation step remains pending.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -413,22 +415,23 @@ The `v0.4.0` CLI and user-facing usability issue range #47 through #53 is comple
 * #53 removed stale tracked generated output artifacts before release preparation
 
 The `v0.5.0` trustworthy late-game and history-heavy public input issue range
-#55 through #59 is complete:
+#55 through #60 is complete:
 
 * #55 allowed zero opponent hand sizes for late-game public inputs
 * #56 enforced live completed-trick `winner_role` verifiability
 * #57 expanded safe matador inference from completed-trick ownership
 * #58 added focused late-game and history-heavy workflow coverage
 * #59 improved objective-aware post-game review CLI wording
+* #60 prepared the `v0.5.0` release
 
-At release-preparation time, GitHub reported only #60 open for final `v0.5.0`
-release preparation. No other open issues were reported.
+After the `v0.5.0` release, the post-release issue check reported no open
+issues except #61, which tracks planning for the selected `v0.6.0` direction.
 
 ## Current baseline
 
 **v0.5.0: Trustworthy late-game and history-heavy public inputs**
 
-Completed baseline scope:
+Completed and released baseline scope:
 
 * zero opponent hand sizes for late-game public inputs
 * strict live completed-trick `winner_role` verifiability
@@ -436,6 +439,7 @@ Completed baseline scope:
 * focused late-game and history-heavy workflow coverage
 * objective-aware post-game review CLI wording
 * validation and regression coverage for the completed scope
+* release preparation, tagging, and GitHub Release publication
 
 Deferred deeper investigations:
 
@@ -444,22 +448,47 @@ Deferred deeper investigations:
 * hidden-information sampling or validation behavior changes that would alter stable behavior
 * broad `main.py` refactors or CLI redesigns
 
+## Selected next milestone
+
+**v0.6.0: From single-position analysis to credible list-aware review workflows**
+
+The practical next implementation direction is to make the existing local
+analysis, list-performance input modes, and post-game review outputs work better
+together as a credible review workflow. The milestone should stay fixed to the
+three-player table assumption and should avoid broad tournament, solver,
+hidden-card inference, or CLI-orchestration rewrites.
+
+Selected `v0.6.0` backlog and planning record:
+
+* fixed three-player list standings output
+* list-performance examples and generated-output validation
+* post-game review example quality and explanation coverage
+* bounded profile-confidence usage in opponent strategy
+* controlled left/right opponent policy effect coverage
+* settlement and overbid edge-case coverage audit
+* post-release roadmap and handoff refresh
+
+The product-facing directions above are not yet implemented as part of this
+handoff. The roadmap and handoff refresh is the documentation planning item
+that records the selected milestone direction.
+
 ## Open future topics
 
-Recommended future topics:
+Deferred topics outside the selected `v0.6.0` milestone:
 
-* full ISkO list/series/tournament aggregation
-* improved defender cooperation logic
-* deeper PlayerProfile confidence usage beyond preset selection
-* richer realistic example positions
-* richer post-game review examples
-* broader matador inference from completed-trick history beyond safe concrete ownership facts
-* richer explanation details for recommended-card reasoning
+* four-player table support
+* full official tournament or series formats
+* machine learning or learned opponent models
+* perfect-information solving
+* broad hidden-card inference
+* broad `main.py` or CLI orchestration refactors
+* full claim/concession legal-dispute modeling
+* broad matador inference from completed-trick history beyond safe concrete ownership facts
+* broad defender-partnership strategy beyond focused heuristic improvements
 
-These are future candidates, not part of the completed `v0.5.0` release scope.
-They remain outside the `v0.5.0` release baseline and should avoid broad
-simulation, scoring, settlement, validation, or hidden-information changes unless
-a focused bug is discovered.
+These remain outside both the completed `v0.5.0` release baseline and the
+selected `v0.6.0` list-aware review workflow milestone unless a focused bug or
+separate milestone explicitly scopes them in.
 
 ## New-thread starter instruction
 

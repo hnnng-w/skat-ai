@@ -186,7 +186,7 @@ Implemented:
 * Performance rating is partially implemented for fixed three-player single-game declarer rating.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
-* Full list, series, and tournament aggregation is not implemented yet.
+* Full player-by-player list standings, series aggregation, and tournament aggregation are not implemented yet.
 * Four-player table performance rating is not modeled because the project assumes a fixed three-player table.
 
 ### Opponent modeling
@@ -210,12 +210,13 @@ Implemented:
 * Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
 * Live decision examples should not contain post-game-only information.
 
-## Current completed release scope
+## Completed release status
 
 ### v0.5.0: Trustworthy late-game and history-heavy public inputs
 
-`v0.5.0` is the current completed release scope. It focused on trustworthy
-late-game and history-heavy public inputs rather than broad gameplay expansion.
+`v0.5.0` is the current stable baseline and latest tagged release. It focused
+on trustworthy late-game and history-heavy public inputs rather than broad
+gameplay expansion.
 
 Completed `v0.5.0` release scope:
 
@@ -224,6 +225,7 @@ Completed `v0.5.0` release scope:
 * #57 expanded safe matador inference from completed-trick ownership.
 * #58 added focused late-game and history-heavy workflow coverage.
 * #59 improved objective-aware post-game review CLI wording.
+* #60 prepared the `v0.5.0` release.
 
 Deferred deeper investigations:
 
@@ -232,14 +234,34 @@ Deferred deeper investigations:
 * Hidden-information sampling or validation behavior changes that would alter stable behavior.
 * Large `main.py` refactors or CLI redesigns.
 
-Possible future work beyond `v0.5.0`:
+## Selected v0.6.0 direction
 
-* Add small workflow examples only when they cover a real user-facing gap not already represented by existing fixtures.
-* Keep README, walkthroughs, schema-validation docs, and handoff notes aligned with completed public-input behavior.
+### v0.6.0: From single-position analysis to credible list-aware review workflows
+
+`v0.6.0` should build on the existing fixed-three-player analysis,
+post-game-review, opponent-policy, settlement, overbid, and list-performance
+input layers. The goal is to make review workflows more credible across a small
+list context without turning the project into a full tournament system.
+
+Selected `v0.6.0` backlog and planning item:
+
+* Fixed three-player list standings output.
+* List-performance examples and generated-output validation.
+* Post-game review example quality and explanation coverage.
+* Bounded profile-confidence usage in opponent strategy.
+* Controlled left/right opponent policy effect coverage.
+* Settlement and overbid edge-case coverage audit.
+* Post-release roadmap and handoff refresh.
+
+The product-facing directions are planned, not completed product behavior. Each
+product item should be implemented through focused follow-up issues with tests
+and schema updates only when the actual output contract changes. The
+post-release roadmap and handoff refresh is the documentation planning item that
+records this selected milestone direction.
 
 ## Open gameplay improvements
 
-Potential future gameplay improvements:
+Potential gameplay improvements outside already completed release scope:
 
 * Add richer post-game review examples.
 * Add more realistic profile-preset example variants.
@@ -254,11 +276,23 @@ Potential future gameplay improvements:
 
 Potential future rating improvements:
 
-* Aggregate multiple games into a full list result.
-* Track scores per real player across a list.
+* Add fixed three-player list standings output for the selected `v0.6.0` workflow direction.
+* Track scores per real player across a fixed three-player list.
 * Separate declarer and counterparty perspectives explicitly for multi-game output.
-* Add series/tournament aggregation.
-* Add official list-report output formats if needed.
+* Keep full series and tournament aggregation deferred beyond `v0.6.0` unless separately scoped.
+* Add official list-report output formats only if a focused follow-up defines them.
+
+## Deferred outside v0.6.0
+
+The following topics remain outside the selected `v0.6.0` milestone:
+
+* Four-player support.
+* Full official tournament or series formats.
+* Machine learning or learned opponent models.
+* Perfect-information solving.
+* Broad hidden-card inference.
+* Broad CLI or `main.py` refactors.
+* Full claim/concession legal-dispute modeling.
 
 ## Open technical cleanup
 
@@ -274,5 +308,6 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish completed `v0.5.0` public-input work from deferred gameplay,
-scoring, settlement, validation, or hidden-information investigations.
+should distinguish completed `v0.5.0` public-input work, selected `v0.6.0`
+list-aware review workflow work, and deferred gameplay, scoring, settlement,
+validation, or hidden-information investigations.
