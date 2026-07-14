@@ -131,15 +131,40 @@ def test_suit_and_grand_game_values_use_base_value_multipliers(
 ) -> None:
     declaration = GameDeclaration(
         game_type=game_type,
-        matadors=0,
+        matadors=1,
     )
 
     summary = build_game_value_summary(declaration)
 
-    assert calculate_game_value(declaration) == expected_base_value
+    assert calculate_game_value(declaration) == expected_base_value * 2
     assert summary["base_value"] == expected_base_value
-    assert summary["game_level"] == 1
-    assert summary["game_value"] == expected_base_value
+    assert summary["game_level"] == 2
+    assert summary["game_value"] == expected_base_value * 2
+
+
+@pytest.mark.parametrize(
+    ("declaration_values", "expected_modifier_multiplier"),
+    [
+        ({"hand_game": True}, 1),
+        ({"schneider_announced": True}, 2),
+        ({"schwarz_announced": True}, 3),
+        ({"ouvert": True}, 4),
+    ],
+)
+def test_canonical_declarations_produce_cumulative_levels(
+    declaration_values: dict[str, bool],
+    expected_modifier_multiplier: int,
+) -> None:
+    declaration = GameDeclaration(
+        game_type="grand",
+        matadors=1,
+        **declaration_values,
+    )
+
+    assert get_modifier_multiplier(declaration) == expected_modifier_multiplier
+    assert calculate_suit_or_grand_game_level(declaration) == (
+        2 + expected_modifier_multiplier
+    )
 
 
 def test_calculate_game_value_for_null() -> None:

@@ -47,16 +47,23 @@ The game level is based on:
 * Schwarz announced
 * ouvert
 
+Suit and Grand declarations are canonical and cumulative. Schneider announced
+includes Hand; Schwarz announced includes Schneider announced and Hand; ouvert
+includes Schwarz announced, Schneider announced, and Hand. Omitted implied
+prerequisites are normalized to `true`, while explicitly false prerequisites
+are rejected before game-value calculation.
+
 ## Matadors
 
 Suit and grand games use matadors.
 
 If `matadors` is explicitly provided in the input, the explicit value is
 authoritative and is used as provided. Non-null top-level `matadors` overrides
-nested `game_declaration.matadors`. Explicit `0` is preserved as a valid value.
+nested `game_declaration.matadors`. Suit games accept `1..11`; Grand games
+accept `1..4`; and explicit `0` is invalid.
 
-If top-level and nested `matadors` are missing or `null`, the engine may infer
-the matador count when known ownership is deterministic.
+If top-level and nested `matadors` are missing or `null`, the count is unknown
+and the engine may infer it when known ownership is deterministic.
 
 Automatic inference can use known declarer-card context from:
 
@@ -73,6 +80,10 @@ Null games do not use matadors.
 ## Null games
 
 Null games use fixed game values.
+
+Null Hand and Null ouvert are independent flags. In particular, Null ouvert
+does not imply Null Hand. Schneider announced, Schwarz announced, and matador
+values are invalid for Null declarations.
 
 Typical supported Null values:
 

@@ -149,6 +149,80 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "game_type": {
+            "enum": ["clubs", "spades", "hearts", "diamonds", "grand"]
+          }
+        },
+        "required": ["game_type"]
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": ["schneider_announced", "hand_game"],
+              "properties": {
+                "schneider_announced": {"const": true},
+                "hand_game": {"const": false}
+              }
+            },
+            {
+              "required": ["schwarz_announced", "schneider_announced"],
+              "properties": {
+                "schwarz_announced": {"const": true},
+                "schneider_announced": {"const": false}
+              }
+            },
+            {
+              "required": ["schwarz_announced", "hand_game"],
+              "properties": {
+                "schwarz_announced": {"const": true},
+                "hand_game": {"const": false}
+              }
+            },
+            {
+              "required": ["ouvert", "schwarz_announced"],
+              "properties": {
+                "ouvert": {"const": true},
+                "schwarz_announced": {"const": false}
+              }
+            },
+            {
+              "required": ["ouvert", "schneider_announced"],
+              "properties": {
+                "ouvert": {"const": true},
+                "schneider_announced": {"const": false}
+              }
+            },
+            {
+              "required": ["ouvert", "hand_game"],
+              "properties": {
+                "ouvert": {"const": true},
+                "hand_game": {"const": false}
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "game_type": {"const": "grand"}
+        },
+        "required": ["game_type"]
+      },
+      "then": {
+        "properties": {
+          "matadors": {
+            "type": ["integer", "null"],
+            "maximum": 4
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -251,7 +325,8 @@
     },
     "matadors": {
       "type": ["integer", "null"],
-      "minimum": 0
+      "minimum": 1,
+      "maximum": 11
     },
     "bid_value": {
       "type": ["integer", "null"],
@@ -390,7 +465,8 @@
         },
         "matadors": {
           "type": ["integer", "null"],
-          "minimum": 0
+          "minimum": 1,
+          "maximum": 11
         },
         "bid_value": {
           "type": ["integer", "null"],

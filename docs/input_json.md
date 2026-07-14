@@ -37,6 +37,8 @@ The schema checks stable structural constraints such as:
 * supported player profile field types and numeric ranges
 * supported opponent policy values
 * supported performance rating values
+* matador values from 1 through 11 and direct top-level Grand values through 4
+* direct top-level Suit/Grand declaration contradictions
 
 More advanced cross-field validation is handled by the Python validation layer.
 
@@ -251,10 +253,25 @@ clearer.
 Boolean declaration fields must be JSON booleans. Explicit `false` values are
 preserved and override nested `true` values. Boolean `null` is invalid.
 
+Suit and Grand declaration levels are hierarchical. The effective declaration
+is normalized after top-level-over-nested precedence is applied:
+
+* `schneider_announced: true` implies `hand_game: true`.
+* `schwarz_announced: true` implies `schneider_announced: true` and
+  `hand_game: true`.
+* `ouvert: true` implies `schwarz_announced: true`,
+  `schneider_announced: true`, and `hand_game: true`.
+
+An omitted prerequisite is added as `true` to the canonical declaration. An
+explicit `false` prerequisite is a contradiction and is rejected instead of
+being overwritten. This applies equally to nested, top-level, and mixed inputs
+after the documented precedence rules are resolved.
+
 `matadors` uses this resolution order: non-null top-level `matadors`, non-null
 nested `game_declaration.matadors`, safe deterministic inference, then `null`.
-Explicit `0` is preserved as a valid matador count. `matadors: null` means the
-field is missing for precedence and inference purposes.
+Explicit Suit values must be from `1` through `11`; explicit Grand values must
+be from `1` through `4`. Zero is invalid. `matadors: null` means the count is
+unknown and the field is missing for precedence and inference purposes.
 
 `bid_value` uses this resolution order: non-null top-level `bid_value`, non-null
 nested `game_declaration.bid_value`, then `null`. It must be a positive integer
@@ -263,7 +280,8 @@ when provided. `bid_value: null` means the bid value is unknown.
 Null declarations use `game_type: "null"` plus `hand_game` and `ouvert` to
 represent Null, Null Hand, Null Ouvert, and Null Ouvert Hand. Null games do not
 use `matadors`, `schneider_announced`, or `schwarz_announced`; those combinations
-are rejected by runtime validation.
+are rejected by runtime validation. Null `ouvert` and Null Hand are independent:
+`ouvert: true` does not imply `hand_game: true` for a Null game.
 
 Automatic matador inference can use known declarer-card context from:
 
@@ -282,8 +300,10 @@ Completed-trick ownership inference is intentionally conservative:
 
 If matadors still cannot be inferred for a suit or grand game, the game value may remain incomplete.
 
-For suit and grand games, `hand_game`, `ouvert`, `schneider_announced`, and
-`schwarz_announced` contribute declaration levels to the calculated game value.
+For Suit and Grand games, the canonical hierarchy makes declaration levels
+cumulative: Hand adds one level; Schneider announced includes Hand and adds two
+levels; Schwarz announced includes Schneider announced and Hand and adds three
+levels; ouvert includes all three prerequisites and adds four levels.
 
 ## Analysis metadata fields
 
@@ -862,6 +882,9 @@ Input validation rejects:
 * unknown `game_end_reason`
 * inconsistent `game_end_reason` and remaining card points
 * invalid `bid_value`
+* contradictory Suit or Grand declaration prerequisites
+* zero or out-of-range explicit matador values
+* Null declarations with Schneider, Schwarz, or matador values
 * unknown `performance_rating_system`
 * invalid `list_performance_input`
 * invalid `list_standings_input`

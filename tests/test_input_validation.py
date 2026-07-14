@@ -1301,6 +1301,34 @@ def test_validate_optional_game_declaration_accepts_nested_numeric_nulls() -> No
     )
 
 
+def test_validate_optional_game_declaration_accepts_implied_prerequisites() -> None:
+    validate_optional_game_declaration(
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                "ouvert": True,
+                "matadors": None,
+            },
+        }
+    )
+
+
+def test_validate_optional_game_declaration_rejects_top_level_override_contradiction() -> None:
+    with pytest.raises(
+        ValueError,
+        match="ouvert=true requires hand_game=true; hand_game was explicitly false",
+    ):
+        validate_optional_game_declaration(
+            {
+                "game_type": "grand",
+                "hand_game": False,
+                "game_declaration": {
+                    "ouvert": True,
+                },
+            }
+        )
+
+
 @pytest.mark.parametrize(
     "data",
     [
@@ -1381,7 +1409,7 @@ def test_validate_optional_game_declaration_rejects_invalid_null_declaration() -
             }
         )
     except ValueError as error:
-        assert "Null games cannot have schneider announced" in str(error)
+        assert "Null games cannot have schneider_announced=true" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
@@ -1392,11 +1420,11 @@ def test_validate_optional_game_declaration_rejects_invalid_null_declaration() -
         (
             "schwarz_announced",
             True,
-            "Null games cannot have schwarz announced",
+            "Null games cannot have schwarz_announced=true",
         ),
         (
             "matadors",
-            0,
+            1,
             "Null games cannot have matadors",
         ),
     ],

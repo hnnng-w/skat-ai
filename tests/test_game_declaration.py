@@ -37,7 +37,7 @@ def test_validate_matadors_accepts_none() -> None:
     validate_matadors(None)
 
 
-def test_validate_matadors_accepts_non_negative_integer() -> None:
+def test_validate_matadors_accepts_positive_integer() -> None:
     validate_matadors(3)
 
 
@@ -48,6 +48,11 @@ def test_validate_matadors_rejects_negative_integer() -> None:
         assert "matadors" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+def test_validate_matadors_rejects_zero() -> None:
+    with pytest.raises(ValueError, match="positive integer"):
+        validate_matadors(0)
 
 
 def test_validate_matadors_rejects_boolean() -> None:
@@ -70,45 +75,127 @@ def test_validate_game_declaration_accepts_grand() -> None:
 
 
 def test_validate_game_declaration_rejects_null_with_schneider_announced() -> None:
-    declaration = GameDeclaration(
-        game_type="null",
-        schneider_announced=True,
-    )
-
-    try:
-        validate_game_declaration(declaration)
-    except ValueError as error:
-        assert "Null games cannot have schneider announced" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
+    with pytest.raises(ValueError, match="Null games cannot have schneider_announced=true"):
+        GameDeclaration(
+            game_type="null",
+            schneider_announced=True,
+        )
 
 
 def test_validate_game_declaration_rejects_null_with_schwarz_announced() -> None:
-    declaration = GameDeclaration(
-        game_type="null",
-        schwarz_announced=True,
-    )
-
-    try:
-        validate_game_declaration(declaration)
-    except ValueError as error:
-        assert "Null games cannot have schwarz announced" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
+    with pytest.raises(ValueError, match="Null games cannot have schwarz_announced=true"):
+        GameDeclaration(
+            game_type="null",
+            schwarz_announced=True,
+        )
 
 
 def test_validate_game_declaration_rejects_null_with_matadors() -> None:
+    with pytest.raises(ValueError, match="Null games cannot have matadors"):
+        GameDeclaration(
+            game_type="null",
+            matadors=1,
+        )
+
+
+@pytest.mark.parametrize("game_type", ["clubs", "grand"])
+@pytest.mark.parametrize(
+    ("input_values", "expected_values"),
+    [
+        ({}, (False, False, False, False)),
+        ({"hand_game": True}, (True, False, False, False)),
+        ({"schneider_announced": True}, (True, False, True, False)),
+        ({"schwarz_announced": True}, (True, False, True, True)),
+        ({"ouvert": True}, (True, True, True, True)),
+    ],
+)
+def test_game_declaration_normalizes_suit_and_grand_hierarchy(
+    game_type: str,
+    input_values: dict[str, bool],
+    expected_values: tuple[bool, bool, bool, bool],
+) -> None:
+    declaration = GameDeclaration(game_type=game_type, **input_values)
+
+    assert (
+        declaration.hand_game,
+        declaration.ouvert,
+        declaration.schneider_announced,
+        declaration.schwarz_announced,
+    ) == expected_values
+
+
+@pytest.mark.parametrize(
+    "input_values",
+    [
+        {"schneider_announced": True, "hand_game": False},
+        {"schwarz_announced": True, "schneider_announced": False},
+        {"schwarz_announced": True, "hand_game": False},
+        {"ouvert": True, "schwarz_announced": False},
+        {"ouvert": True, "schneider_announced": False},
+        {"ouvert": True, "hand_game": False},
+    ],
+)
+def test_game_declaration_rejects_explicitly_disabled_prerequisite(
+    input_values: dict[str, bool],
+) -> None:
+    with pytest.raises(ValueError, match=r"=true requires .*=true; .* explicitly false"):
+        GameDeclaration(game_type="grand", **input_values)
+
+
+@pytest.mark.parametrize(
+    ("hand_game", "ouvert"),
+    [(False, False), (True, False), (False, True), (True, True)],
+)
+def test_game_declaration_preserves_all_null_variants(
+    hand_game: bool,
+    ouvert: bool,
+) -> None:
     declaration = GameDeclaration(
         game_type="null",
-        matadors=1,
+        hand_game=hand_game,
+        ouvert=ouvert,
     )
 
-    try:
-        validate_game_declaration(declaration)
-    except ValueError as error:
-        assert "Null games cannot have matadors" in str(error)
-    else:
-        raise AssertionError("Expected ValueError was not raised.")
+    assert declaration.hand_game is hand_game
+    assert declaration.ouvert is ouvert
+
+
+@pytest.mark.parametrize(
+    ("game_type", "matadors"),
+    [
+        ("clubs", 1),
+        ("clubs", 11),
+        ("grand", 1),
+        ("grand", 4),
+        ("clubs", None),
+        ("grand", None),
+    ],
+)
+def test_game_declaration_accepts_legal_or_unknown_matadors(
+    game_type: str,
+    matadors: int | None,
+) -> None:
+    declaration = GameDeclaration(game_type=game_type, matadors=matadors)
+
+    assert declaration.matadors == matadors
+
+
+@pytest.mark.parametrize(
+    ("game_type", "matadors", "expected_range"),
+    [
+        ("clubs", 0, "1 and 11 for Suit games"),
+        ("clubs", 12, "1 and 11 for Suit games"),
+        ("grand", 0, "1 and 4 for Grand games"),
+        ("grand", 5, "1 and 4 for Grand games"),
+    ],
+)
+def test_game_declaration_rejects_out_of_range_matadors(
+    game_type: str,
+    matadors: int,
+    expected_range: str,
+) -> None:
+    with pytest.raises(ValueError, match=expected_range):
+        GameDeclaration(game_type=game_type, matadors=matadors)
 
 
 def test_build_game_declaration_from_input_defaults() -> None:
@@ -181,29 +268,29 @@ def test_build_game_declaration_top_level_booleans_override_nested_booleans() ->
         {
             "game_type": "grand",
             "hand_game": False,
-            "ouvert": True,
+            "ouvert": False,
             "schneider_announced": False,
-            "schwarz_announced": True,
+            "schwarz_announced": False,
             "game_declaration": {
                 "hand_game": True,
-                "ouvert": False,
+                "ouvert": True,
                 "schneider_announced": True,
-                "schwarz_announced": False,
+                "schwarz_announced": True,
             },
         }
     )
 
     assert declaration.hand_game is False
-    assert declaration.ouvert is True
+    assert declaration.ouvert is False
     assert declaration.schneider_announced is False
-    assert declaration.schwarz_announced is True
+    assert declaration.schwarz_announced is False
 
 
 def test_build_game_declaration_top_level_numbers_override_nested_numbers() -> None:
     declaration = build_game_declaration_from_input(
         {
             "game_type": "grand",
-            "matadors": 0,
+            "matadors": 4,
             "bid_value": 72,
             "game_declaration": {
                 "matadors": 3,
@@ -212,8 +299,66 @@ def test_build_game_declaration_top_level_numbers_override_nested_numbers() -> N
         }
     )
 
-    assert declaration.matadors == 0
+    assert declaration.matadors == 4
     assert declaration.bid_value == 72
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        {
+            "game_type": "grand",
+            "schneider_announced": True,
+        },
+        {
+            "game_type": "grand",
+            "game_declaration": {"schwarz_announced": True},
+        },
+        {
+            "game_type": "clubs",
+            "ouvert": True,
+            "game_declaration": {"schwarz_announced": True},
+        },
+    ],
+)
+def test_build_game_declaration_canonicalizes_all_input_paths(
+    data: dict[str, object],
+) -> None:
+    declaration = build_game_declaration_from_input(data)
+
+    if declaration.ouvert:
+        assert declaration.schwarz_announced is True
+    if declaration.schwarz_announced:
+        assert declaration.schneider_announced is True
+    if declaration.schneider_announced:
+        assert declaration.hand_game is True
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        {
+            "game_type": "grand",
+            "hand_game": False,
+            "game_declaration": {"schneider_announced": True},
+        },
+        {
+            "game_type": "grand",
+            "schneider_announced": False,
+            "game_declaration": {"schwarz_announced": True},
+        },
+        {
+            "game_type": "clubs",
+            "ouvert": True,
+            "game_declaration": {"hand_game": False},
+        },
+    ],
+)
+def test_build_game_declaration_rejects_mixed_input_contradictions(
+    data: dict[str, object],
+) -> None:
+    with pytest.raises(ValueError, match=r"=true requires .*=true"):
+        build_game_declaration_from_input(data)
 
 
 def test_build_game_declaration_top_level_numeric_null_allows_nested_value() -> None:
@@ -642,7 +787,7 @@ def test_build_game_declaration_rejects_invalid_boolean_fields(
             build_game_declaration_from_input(data)
 
 
-@pytest.mark.parametrize("value", [True, -1, 1.5, "1"])
+@pytest.mark.parametrize("value", [True, -1, 0, 5, 1.5, "1"])
 def test_build_game_declaration_rejects_invalid_matadors(value: object) -> None:
     for data in [
         {

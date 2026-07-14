@@ -279,7 +279,7 @@ def test_schema_rejects_invalid_nested_declaration_booleans(
     assert_schema_invalid(data)
 
 
-@pytest.mark.parametrize("invalid_value", [True, -1, 1.5, "1"])
+@pytest.mark.parametrize("invalid_value", [True, -1, 0, 12, 1.5, "1"])
 def test_schema_rejects_invalid_nested_matadors(invalid_value: object) -> None:
     data = build_valid_input()
     data["game_declaration"] = {
@@ -287,6 +287,64 @@ def test_schema_rejects_invalid_nested_matadors(invalid_value: object) -> None:
     }
 
     assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize("field_name", ["matadors"])
+@pytest.mark.parametrize("invalid_value", [0, 12])
+def test_schema_rejects_invalid_top_level_matador_bounds(
+    field_name: str,
+    invalid_value: int,
+) -> None:
+    data = build_valid_input()
+    data[field_name] = invalid_value
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_grand_matadors_above_grand_maximum() -> None:
+    data = build_valid_input()
+    data["matadors"] = 5
+
+    assert_schema_invalid(data)
+
+
+def test_schema_defers_nested_grand_matador_maximum_to_runtime() -> None:
+    data = build_valid_input()
+    data["game_declaration"] = {"matadors": 5}
+
+    assert_schema_valid(data)
+    with pytest.raises(ValueError, match="1 and 4 for Grand games"):
+        validate_position_input(copy.deepcopy(data))
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"schneider_announced": True, "hand_game": False},
+        {"schwarz_announced": True, "schneider_announced": False},
+        {"schwarz_announced": True, "hand_game": False},
+        {"ouvert": True, "schwarz_announced": False},
+        {"ouvert": True, "schneider_announced": False},
+        {"ouvert": True, "hand_game": False},
+    ],
+)
+def test_schema_rejects_explicit_top_level_declaration_contradictions(
+    fields: dict[str, bool],
+) -> None:
+    data = build_valid_input()
+    data.update(fields)
+
+    assert_schema_invalid(data)
+
+
+def test_schema_defers_mixed_declaration_contradiction_to_runtime() -> None:
+    data = build_valid_input()
+    data["hand_game"] = False
+    data["game_declaration"] = {"ouvert": True}
+
+    assert_schema_valid(data)
+    with pytest.raises(ValueError, match="ouvert=true requires hand_game=true"):
+        validate_position_input(copy.deepcopy(data))
 
 
 @pytest.mark.parametrize("invalid_value", [True, 0, -1, 1.5, "18"])

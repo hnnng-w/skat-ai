@@ -3829,9 +3829,9 @@ def build_completed_grand_schwarz_input(
         "analysis_mode": "post_game_review",
         "skat_visibility": "unknown",
         "game_end_reason": "normal_completion",
-        "hand_game": False,
+        "hand_game": schwarz_announced,
         "ouvert": False,
-        "schneider_announced": False,
+        "schneider_announced": schwarz_announced,
         "schwarz_announced": schwarz_announced,
         "matadors": 2,
         "bid_value": 72,
@@ -3911,9 +3911,7 @@ def test_build_analysis_result_uses_nested_announcement_for_settlement(
     ]:
         data.pop(field_name, None)
     data["game_declaration"] = {
-        "hand_game": False,
         "ouvert": False,
-        "schneider_announced": False,
         "schwarz_announced": True,
         "matadors": 2,
         "bid_value": 72,
@@ -3924,9 +3922,11 @@ def test_build_analysis_result_uses_nested_announcement_for_settlement(
 
     assert result["game_declaration"]["schwarz_announced"] is True
     assert result["game_value_summary"]["details"]["schwarz_announced"] is True
-    assert result["game_value_summary"]["game_value"] == 96
+    assert result["game_declaration"]["hand_game"] is True
+    assert result["game_declaration"]["schneider_announced"] is True
+    assert result["game_value_summary"]["game_value"] == 144
     assert result["final_settlement_summary"]["is_loss"] is True
-    assert result["final_settlement_summary"]["settlement_score"] == -240
+    assert result["final_settlement_summary"]["settlement_score"] == -336
 
 
 def test_build_analysis_result_serializes_top_level_declaration_overrides(
@@ -3946,7 +3946,7 @@ def test_build_analysis_result_serializes_top_level_declaration_overrides(
             "ouvert": False,
             "schneider_announced": False,
             "schwarz_announced": False,
-            "matadors": 0,
+            "matadors": 1,
             "bid_value": 72,
         },
     )
@@ -3960,10 +3960,10 @@ def test_build_analysis_result_serializes_top_level_declaration_overrides(
         "ouvert": False,
         "schneider_announced": False,
         "schwarz_announced": False,
-        "matadors": 0,
+        "matadors": 1,
         "bid_value": 72,
     }
-    assert result["game_value_summary"]["game_value"] == 24
+    assert result["game_value_summary"]["game_value"] == 48
     assert result["overbid_summary"]["bid_value"] == 72
 
 
@@ -4118,14 +4118,14 @@ def test_build_analysis_result_uses_completed_trick_schwarz_settlement(
     failed_announcement_result = build_analysis_result(failed_announcement_path)
 
     assert failed_announcement_result["game_result_summary"]["winner"] == "declarer"
-    assert failed_announcement_result["game_value_summary"]["game_value"] == 96
+    assert failed_announcement_result["game_value_summary"]["game_value"] == 144
     assert failed_announcement_result["final_settlement_summary"]["is_loss"] is True
-    assert failed_announcement_result["final_settlement_summary"]["settlement_score"] == -240
+    assert failed_announcement_result["final_settlement_summary"]["settlement_score"] == -336
     assert failed_announcement_result["performance_rating_summary"]["game_outcome"] == (
         "declarer_loss"
     )
     assert failed_announcement_result["performance_rating_summary"]["settlement_score"] == (
-        -240
+        -336
     )
 
 

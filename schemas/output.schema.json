@@ -254,7 +254,8 @@
         },
         "matadors": {
           "type": ["integer", "null"],
-          "minimum": 0
+          "minimum": 1,
+          "maximum": 11
         },
         "bid_value": {
           "type": ["integer", "null"],
