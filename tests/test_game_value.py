@@ -1,3 +1,5 @@
+import pytest
+
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_value import (
     build_game_value_summary,
@@ -111,6 +113,33 @@ def test_calculate_game_value_for_suit_game() -> None:
     )
 
     assert calculate_game_value(declaration) == 30
+
+
+@pytest.mark.parametrize(
+    ("game_type", "expected_base_value"),
+    [
+        ("clubs", 12),
+        ("spades", 11),
+        ("hearts", 10),
+        ("diamonds", 9),
+        ("grand", 24),
+    ],
+)
+def test_suit_and_grand_game_values_use_base_value_multipliers(
+    game_type: str,
+    expected_base_value: int,
+) -> None:
+    declaration = GameDeclaration(
+        game_type=game_type,
+        matadors=0,
+    )
+
+    summary = build_game_value_summary(declaration)
+
+    assert calculate_game_value(declaration) == expected_base_value
+    assert summary["base_value"] == expected_base_value
+    assert summary["game_level"] == 1
+    assert summary["game_value"] == expected_base_value
 
 
 def test_calculate_game_value_for_null() -> None:

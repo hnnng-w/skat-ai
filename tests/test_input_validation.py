@@ -1302,6 +1302,27 @@ def test_validate_optional_game_declaration_accepts_nested_numeric_nulls() -> No
 
 
 @pytest.mark.parametrize(
+    "data",
+    [
+        {
+            "game_type": "grand",
+            "bid_value": 1,
+        },
+        {
+            "game_type": "grand",
+            "game_declaration": {
+                "bid_value": 1,
+            },
+        },
+    ],
+)
+def test_validate_optional_game_declaration_accepts_bid_value_lower_boundary(
+    data: dict[str, object],
+) -> None:
+    validate_optional_game_declaration(data)
+
+
+@pytest.mark.parametrize(
     ("field_name", "invalid_value", "expected_error"),
     [
         ("hand_game", "true", "must be a boolean"),
@@ -1363,6 +1384,35 @@ def test_validate_optional_game_declaration_rejects_invalid_null_declaration() -
         assert "Null games cannot have schneider announced" in str(error)
     else:
         raise AssertionError("Expected ValueError was not raised.")
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value", "expected_error"),
+    [
+        (
+            "schwarz_announced",
+            True,
+            "Null games cannot have schwarz announced",
+        ),
+        (
+            "matadors",
+            0,
+            "Null games cannot have matadors",
+        ),
+    ],
+)
+def test_validate_optional_game_declaration_rejects_other_invalid_null_fields(
+    field_name: str,
+    invalid_value: object,
+    expected_error: str,
+) -> None:
+    with pytest.raises(ValueError, match=expected_error):
+        validate_optional_game_declaration(
+            {
+                "game_type": "null",
+                field_name: invalid_value,
+            }
+        )
 
 def test_validate_position_input_rejects_inconsistent_completed_trick_sequence() -> None:
     data = {

@@ -260,6 +260,11 @@ field is missing for precedence and inference purposes.
 nested `game_declaration.bid_value`, then `null`. It must be a positive integer
 when provided. `bid_value: null` means the bid value is unknown.
 
+Null declarations use `game_type: "null"` plus `hand_game` and `ouvert` to
+represent Null, Null Hand, Null Ouvert, and Null Ouvert Hand. Null games do not
+use `matadors`, `schneider_announced`, or `schwarz_announced`; those combinations
+are rejected by runtime validation.
+
 Automatic matador inference can use known declarer-card context from:
 
 * the local declarer `hand`
@@ -277,7 +282,8 @@ Completed-trick ownership inference is intentionally conservative:
 
 If matadors still cannot be inferred for a suit or grand game, the game value may remain incomplete.
 
-Null games do not use matadors.
+For suit and grand games, `hand_game`, `ouvert`, `schneider_announced`, and
+`schwarz_announced` contribute declaration levels to the calculated game value.
 
 ## Analysis metadata fields
 

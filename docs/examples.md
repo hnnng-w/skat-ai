@@ -486,7 +486,7 @@ When adding new examples:
 * use `performance_rating_system: "isko_list"` only when partial ISkO rating output should be demonstrated
 * omit `matadors` only when automatic inference from known declarer-card context is intended
 * prefer either top-level declaration fields or nested `game_declaration`; mixing is supported, with top-level fields taking precedence
-* use only documented declaration fields inside nested `game_declaration`; unrelated nested metadata is not part of the supported public input contract
+* use documented declaration fields inside nested `game_declaration`; unknown nested metadata may be accepted for compatibility but is ignored by declaration, settlement, and overbid logic
 * run `.\scripts\check.ps1` before committing
 
 ## Expected output behavior

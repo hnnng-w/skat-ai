@@ -221,6 +221,8 @@ Examples:
 * claim and concession semantics
 * game-type-specific declaration rules
 * top-level-versus-nested declaration precedence
+* Null declaration restrictions such as rejecting `matadors`, Schneider
+  announced, or Schwarz announced on Null games
 * completed Null and Schwarz settlement reliability requirements
 * how profile-derived opponent policy presets are selected from validated profile fields
 * overbid settlement support for Null games

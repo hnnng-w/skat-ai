@@ -168,6 +168,13 @@ Example:
 
 If required inputs are missing and matadors cannot be inferred, `game_value` may be `null`.
 
+Suit and Grand game values are `base_value * game_level`. The supported base
+values are Clubs `12`, Spades `11`, Hearts `10`, Diamonds `9`, and Grand `24`.
+The game level combines the matador multiplier with supported declaration
+modifiers such as Hand, Schneider announced, Schwarz announced, and Ouvert.
+Null variants use fixed values: Null `23`, Null Hand `35`, Null Ouvert `46`, and
+Null Ouvert Hand `59`.
+
 ## Overbid summary
 
 Example:
@@ -308,6 +315,11 @@ fields: `effective_game_value`, `settlement_score`, `is_loss`, and the derived
 `performance_rating_summary.game_outcome`.
 
 For supported Suit/Grand overbid cases, `effective_game_value` equals `required_game_value`.
+
+For completed Null settlements, the fixed Null variant value is used directly.
+A won Null settlement scores `+game_value`; a lost Null settlement scores
+`-2 * game_value`. Normally completed Null results are based on reliable
+ten-trick ownership, not card-point winner thresholds.
 
 ## Information policy summary
 

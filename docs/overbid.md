@@ -14,6 +14,10 @@ For supported Suit and Grand games, the engine can calculate the required game v
 
 Input files can optionally include `bid_value`.
 
+When provided, `bid_value` must be a positive integer. `0`, negative values,
+booleans, strings, and other non-integer values are rejected by runtime
+validation.
+
 Top-level example:
 
 ```json
@@ -82,6 +86,9 @@ Fields:
 ## required_game_value
 
 For Suit and Grand games, game values are multiples of the base value.
+
+Supported base values are Clubs `12`, Spades `11`, Hearts `10`, Diamonds `9`,
+and Grand `24`.
 
 If a game is overbid, the engine calculates the smallest reachable value that covers the bid.
 

@@ -1,3 +1,5 @@
+import pytest
+
 from skat_ai.final_settlement import (
     build_final_settlement_summary,
     calculate_basic_settlement_score,
@@ -107,6 +109,19 @@ def build_completed_null_result_summary(
 
 def build_null_game_value_summary() -> dict:
     return build_game_value_summary(GameDeclaration(game_type="null"))
+
+
+def build_null_variant_game_value_summary(
+    hand_game: bool,
+    ouvert: bool,
+) -> dict:
+    return build_game_value_summary(
+        GameDeclaration(
+            game_type="null",
+            hand_game=hand_game,
+            ouvert=ouvert,
+        )
+    )
 
 
 def test_get_missing_final_settlement_inputs_returns_none_when_complete() -> None:
@@ -420,6 +435,74 @@ def test_completed_null_losses_ignore_declarer_trick_card_points() -> None:
     assert point_bearing_loss["is_loss"] is True
     assert zero_point_loss["settlement_score"] == -46
     assert point_bearing_loss["settlement_score"] == -46
+
+
+@pytest.mark.parametrize(
+    ("hand_game", "ouvert", "expected_game_value"),
+    [
+        (False, False, 23),
+        (True, False, 35),
+        (False, True, 46),
+        (True, True, 59),
+    ],
+)
+def test_completed_null_variant_win_settlement_uses_fixed_game_value(
+    hand_game: bool,
+    ouvert: bool,
+    expected_game_value: int,
+) -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_null_variant_game_value_summary(
+            hand_game=hand_game,
+            ouvert=ouvert,
+        ),
+        game_result_summary=build_completed_null_result_summary(
+            winner_roles=["defenders"] * 10,
+            declarer_points=0,
+            defender_points=120,
+        ),
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["winner"] == "declarer"
+    assert summary["game_value"] == expected_game_value
+    assert summary["effective_game_value"] == expected_game_value
+    assert summary["settlement_score"] == expected_game_value
+    assert summary["is_loss"] is False
+
+
+@pytest.mark.parametrize(
+    ("hand_game", "ouvert", "expected_game_value"),
+    [
+        (False, False, 23),
+        (True, False, 35),
+        (False, True, 46),
+        (True, True, 59),
+    ],
+)
+def test_completed_null_variant_loss_settlement_uses_fixed_game_value(
+    hand_game: bool,
+    ouvert: bool,
+    expected_game_value: int,
+) -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary=build_null_variant_game_value_summary(
+            hand_game=hand_game,
+            ouvert=ouvert,
+        ),
+        game_result_summary=build_completed_null_result_summary(
+            winner_roles=["declarer", *["defenders"] * 9],
+            declarer_points=0,
+            defender_points=120,
+        ),
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["winner"] == "defenders"
+    assert summary["game_value"] == expected_game_value
+    assert summary["effective_game_value"] == expected_game_value
+    assert summary["settlement_score"] == -2 * expected_game_value
+    assert summary["is_loss"] is True
 
 
 def test_build_final_settlement_summary_applies_declarer_schneider_level() -> None:
