@@ -19,6 +19,10 @@ from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.historical_decision_snapshot import (
+    build_historical_decision_snapshots,
+    build_serializable_historical_decision_snapshot_summary,
+)
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_summary,
@@ -760,6 +764,9 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
     print("Game value:", summary["game_value_summary"]["game_value"])
     print("Overbid status:", summary["overbid_summary"]["status"])
     print("Settlement score:", settlement["settlement_score"])
+    decision_snapshot_summary = summary.get("decision_snapshot_summary")
+    if decision_snapshot_summary is not None:
+        print("Decision snapshots generated:", decision_snapshot_summary["snapshot_count"])
 
 
 def print_multi_step_result(result: dict[str, Any]) -> None:
@@ -1101,12 +1108,20 @@ def run_json_historical_game_analysis(
     file_path: str,
     output_path: str | None = None,
     quiet: bool = False,
+    historical_decision_snapshots: bool = False,
 ) -> None:
     """Runs the complete historical-game workflow."""
     record = load_historical_game_from_json(file_path)
+    historical_game_summary = build_historical_game_summary(record)
+    if historical_decision_snapshots:
+        historical_game_summary["decision_snapshot_summary"] = (
+            build_serializable_historical_decision_snapshot_summary(
+                build_historical_decision_snapshots(historical_game_summary)
+            )
+        )
     result = {
         "input_file": str(file_path),
-        "historical_game_summary": build_historical_game_summary(record),
+        "historical_game_summary": historical_game_summary,
     }
 
     if output_path is not None:
@@ -1179,6 +1194,14 @@ def parse_arguments() -> argparse.Namespace:
         "--quiet",
         action="store_true",
         help="Suppress successful human-readable stdout output.",
+    )
+
+    parser.add_argument(
+        "--historical-decision-snapshots",
+        action="store_true",
+        help=(
+            "Add 30 information-safe pre-play snapshots to historical-game output."
+        ),
     )
 
     parser.add_argument(
@@ -1372,8 +1395,13 @@ def main() -> int:
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
+                historical_decision_snapshots=args.historical_decision_snapshots,
             )
         else:
+            if args.historical_decision_snapshots:
+                raise CliUsageError(
+                    "--historical-decision-snapshots requires historical-game input."
+                )
             run_json_position_analysis(
                 file_path=args.input,
                 sample_count_override=args.samples,

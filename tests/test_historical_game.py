@@ -4,6 +4,10 @@ import random
 import pytest
 
 from skat_ai.deck import get_full_deck
+from skat_ai.historical_decision_snapshot import (
+    build_historical_decision_snapshots,
+    build_serializable_historical_decision_snapshot_summary,
+)
 from skat_ai.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
@@ -97,6 +101,67 @@ def build_historical_input(
     }
 
 
+def build_decision_snapshot_summary(data: dict) -> dict:
+    historical_summary = build_historical_game_summary_from_input(data)
+    return build_serializable_historical_decision_snapshot_summary(
+        build_historical_decision_snapshots(historical_summary)
+    )
+
+
+def rebuild_historical_suffix(data: dict, completed_prefix_tricks: int) -> dict:
+    """Builds a coherent alternative suffix after complete unchanged tricks."""
+    alternative = copy.deepcopy(data)
+    record = build_historical_game_record(alternative)
+    hands = {player.player_id: list(player.initial_hand) for player in record.players}
+    if not record.declaration.hand_game:
+        hands[record.declarer_player_id].extend(record.skat)
+        for card in record.discarded_cards:
+            hands[record.declarer_player_id].remove(card)
+
+    for trick in record.tricks[:completed_prefix_tricks]:
+        for play in trick.plays:
+            hands[play.player_id].remove(play.card)
+
+    previous_trick = alternative["tricks"][completed_prefix_tricks - 1]
+    previous_cards = [play["card"] for play in previous_trick["plays"]]
+    winner_index = get_trick_winner(previous_cards, record.declaration.game_type)
+    leader_player_id = previous_trick["plays"][winner_index]["player_id"]
+    suffix = []
+    changed_play_selected = False
+    for trick_number in range(completed_prefix_tricks + 1, 11):
+        leader_index = PLAYER_IDS_BY_SEAT.index(leader_player_id)
+        player_order = [
+            PLAYER_IDS_BY_SEAT[(leader_index + offset) % 3] for offset in range(3)
+        ]
+        trick_cards = []
+        plays = []
+        for player_id in player_order:
+            legal_cards = get_legal_cards(
+                hands[player_id], trick_cards, record.declaration.game_type
+            )
+            if not changed_play_selected and len(legal_cards) > 1:
+                card = legal_cards[-1]
+                changed_play_selected = True
+            else:
+                card = legal_cards[0]
+            hands[player_id].remove(card)
+            trick_cards.append(card)
+            plays.append({"player_id": player_id, "card": card})
+        winner_index = get_trick_winner(trick_cards, record.declaration.game_type)
+        leader_player_id = plays[winner_index]["player_id"]
+        suffix.append(
+            {
+                "trick_number": trick_number,
+                "leader_player_id": plays[0]["player_id"],
+                "plays": plays,
+            }
+        )
+
+    assert changed_play_selected
+    alternative["tricks"][completed_prefix_tricks:] = suffix
+    return alternative
+
+
 @pytest.mark.parametrize(
     ("game_type", "hand_game"),
     [("clubs", True), ("grand", False), ("null", False)],
@@ -118,6 +183,211 @@ def test_complete_suit_grand_and_null_games_are_derived(
     assert summary["winner"] in {"declarer", "defenders"}
     assert summary["game_result_summary"]["is_complete"] is True
     assert summary["final_settlement_summary"]["is_complete"] is True
+
+
+@pytest.mark.parametrize(
+    ("game_type", "hand_game"),
+    [("clubs", True), ("grand", False), ("null", False)],
+)
+def test_decision_snapshots_have_legal_pre_play_hands_for_all_contract_families(
+    game_type: str,
+    hand_game: bool,
+) -> None:
+    snapshots = build_decision_snapshot_summary(
+        build_historical_input(game_type=game_type, hand_game=hand_game)
+    )["snapshots"]
+    played_by_player = {player_id: set() for player_id in PLAYER_IDS_BY_SEAT}
+
+    for snapshot in snapshots:
+        visible_state = snapshot["visible_state"]
+        actual_card = snapshot["actual_card_played"]
+        acting_player = snapshot["acting_player_id"]
+        assert actual_card in visible_state["own_hand"]
+        assert actual_card in visible_state["legal_cards"]
+        assert set(visible_state["legal_cards"]) <= set(visible_state["own_hand"])
+        assert not played_by_player[acting_player].intersection(
+            visible_state["own_hand"]
+        )
+        played_by_player[acting_player].add(actual_card)
+
+
+def test_decision_snapshot_sequence_mapping_and_temporal_state_are_deterministic() -> None:
+    data = build_historical_input()
+    first_result = build_decision_snapshot_summary(data)
+    second_result = build_decision_snapshot_summary(data)
+    snapshots = first_result["snapshots"]
+
+    assert first_result == second_result
+    assert first_result["schema_version"] == 1
+    assert first_result["information_policy"] == "decision_time"
+    assert first_result["snapshot_count"] == 30
+    assert [snapshot["decision_index"] for snapshot in snapshots] == list(
+        range(1, 31)
+    )
+    assert [snapshot["trick_number"] for snapshot in snapshots] == [
+        trick_number for trick_number in range(1, 11) for _ in range(3)
+    ]
+    assert [snapshot["play_index"] for snapshot in snapshots] == [1, 2, 3] * 10
+    assert {snapshot["source_game_id"] for snapshot in snapshots} == {
+        "test-grand-game"
+    }
+    assert [len(snapshot["visible_state"]["current_trick"]) for snapshot in snapshots] == (
+        [0, 1, 2] * 10
+    )
+
+    expected_maps = {
+        "player-a": {"me": "player-a", "left": "player-b", "right": "player-c"},
+        "player-b": {"me": "player-b", "left": "player-c", "right": "player-a"},
+        "player-c": {"me": "player-c", "left": "player-a", "right": "player-b"},
+    }
+    for snapshot in snapshots:
+        expected_map = expected_maps[snapshot["acting_player_id"]]
+        visible_state = snapshot["visible_state"]
+        assert snapshot["relative_player_map"] == expected_map
+        assert [
+            opponent["player_id"]
+            for opponent in visible_state["opponent_hand_sizes"]
+        ] == [expected_map["left"], expected_map["right"]]
+        assert len(set(expected_map.values())) == 3
+        prior_plays = snapshots[: snapshot["decision_index"] - 1]
+        for opponent in visible_state["opponent_hand_sizes"]:
+            expected_size = 10 - sum(
+                prior_snapshot["acting_player_id"] == opponent["player_id"]
+                for prior_snapshot in prior_plays
+            )
+            assert opponent["remaining_card_count"] == expected_size
+        assert visible_state["declarer_trick_points"] == sum(
+            trick["trick_points"]
+            for trick in visible_state["completed_tricks"]
+            if trick["winner_side"] == "declarer"
+        )
+        assert visible_state["defender_trick_points"] == sum(
+            trick["trick_points"]
+            for trick in visible_state["completed_tricks"]
+            if trick["winner_side"] == "defenders"
+        )
+
+    assert snapshots[2]["visible_state"]["completed_tricks"] == []
+    first_completed = snapshots[3]["visible_state"]["completed_tricks"]
+    assert len(first_completed) == 1
+    assert first_completed[0]["trick_number"] == 1
+    assert snapshots[3]["visible_state"]["declarer_trick_points"] == 15
+    assert snapshots[3]["visible_state"]["defender_trick_points"] == 0
+
+
+def test_decision_snapshots_apply_skat_matador_and_ouvert_visibility() -> None:
+    non_hand_data = build_historical_input()
+    non_hand_snapshots = build_decision_snapshot_summary(non_hand_data)["snapshots"]
+    final_matadors = build_historical_game_summary_from_input(non_hand_data)["record"][
+        "declaration"
+    ]["matadors"]
+    assert all(
+        snapshot["visible_state"]["public_exposed_cards"] == []
+        for snapshot in non_hand_snapshots
+    )
+
+    for snapshot in non_hand_snapshots:
+        visible_state = snapshot["visible_state"]
+        if snapshot["acting_side"] == "declarer":
+            assert visible_state["skat_visibility"] == "known_to_declarer"
+            assert visible_state["known_skat_cards"] == non_hand_data["discarded_cards"]
+            assert visible_state["declaration"]["matadors"] == final_matadors
+        else:
+            assert visible_state["skat_visibility"] == "unknown"
+            assert visible_state["known_skat_cards"] == []
+    assert non_hand_snapshots[0]["visible_state"]["declaration"]["matadors"] is None
+    assert any(
+        snapshot["visible_state"]["declaration"]["matadors"] is not None
+        for snapshot in non_hand_snapshots
+        if snapshot["acting_side"] == "defenders"
+    )
+
+    hand_data = build_historical_input(game_type="clubs", hand_game=True)
+    hand_snapshots = build_decision_snapshot_summary(hand_data)["snapshots"]
+    assert all(
+        snapshot["visible_state"]["skat_visibility"] == "unknown"
+        and snapshot["visible_state"]["known_skat_cards"] == []
+        for snapshot in hand_snapshots
+    )
+    assert all(
+        not set(hand_data["skat"]).intersection(snapshot["visible_state"]["own_hand"])
+        for snapshot in hand_snapshots
+    )
+
+    ouvert_data = build_historical_input(game_type="null", hand_game=True)
+    ouvert_data["declaration"]["ouvert"] = True
+    ouvert_snapshots = build_decision_snapshot_summary(ouvert_data)["snapshots"]
+    declarer_id = ouvert_data["declarer_player_id"]
+    declarer_cards_played = set()
+    for snapshot in ouvert_snapshots:
+        exposure = snapshot["visible_state"]["public_exposed_cards"]
+        assert len(exposure) == 1
+        assert exposure[0]["player_id"] == declarer_id
+        assert not declarer_cards_played.intersection(exposure[0]["cards"])
+        if snapshot["acting_player_id"] == declarer_id:
+            assert exposure[0]["cards"] == snapshot["visible_state"]["own_hand"]
+            declarer_cards_played.add(snapshot["actual_card_played"])
+
+
+def test_decision_snapshots_exclude_future_and_final_information() -> None:
+    data = build_historical_input()
+    snapshots = build_decision_snapshot_summary(data)["snapshots"]
+    first_visible_state = snapshots[0]["visible_state"]
+    first_player_cards = set(data["players"][0]["initial_hand"])
+    hidden_opponent_cards = {
+        card for player in data["players"][1:] for card in player["initial_hand"]
+    }
+
+    def collect_visible_cards(value: object) -> set[str]:
+        if isinstance(value, str):
+            return {value} if value in get_full_deck() else set()
+        if isinstance(value, list):
+            return set().union(*(collect_visible_cards(item) for item in value))
+        if isinstance(value, dict):
+            return set().union(
+                *(collect_visible_cards(item) for item in value.values())
+            )
+        return set()
+
+    assert not hidden_opponent_cards.intersection(first_visible_state["own_hand"])
+    assert not hidden_opponent_cards.intersection(
+        collect_visible_cards(first_visible_state)
+    )
+    assert first_visible_state["completed_tricks"] == []
+    assert first_visible_state["current_trick"] == []
+    assert set(first_visible_state["own_hand"]) == first_player_cards
+    forbidden_fields = {
+        "winner",
+        "game_result_summary",
+        "game_value_summary",
+        "overbid_summary",
+        "final_settlement_summary",
+        "declarer_points",
+        "defender_points",
+        "skat_points",
+        "schneider_status",
+        "schwarz_status",
+        "recommendation",
+        "decision_quality",
+    }
+    for snapshot in snapshots:
+        assert forbidden_fields.isdisjoint(snapshot)
+        assert forbidden_fields.isdisjoint(snapshot["visible_state"])
+        assert snapshot["actual_card_played"] not in {
+            play["card"] for play in snapshot["visible_state"]["current_trick"]
+        }
+
+
+def test_unchanged_prefix_snapshots_are_stable_when_future_suffix_changes() -> None:
+    data = build_historical_input()
+    alternative_data = rebuild_historical_suffix(data, completed_prefix_tricks=5)
+
+    original_snapshots = build_decision_snapshot_summary(data)["snapshots"]
+    alternative_snapshots = build_decision_snapshot_summary(alternative_data)["snapshots"]
+
+    assert alternative_data["tricks"][:5] == data["tricks"][:5]
+    assert alternative_data["tricks"][5:] != data["tricks"][5:]
+    assert alternative_snapshots[:15] == original_snapshots[:15]
 
 
 def test_derived_trick_winner_and_points_are_rule_based() -> None:

@@ -2,13 +2,15 @@
 
 `skat-ai` supports a separate versioned workflow for complete three-player games
 that ended through normal play. It validates the initial 32-card deal, final
-declaration, skat handling, all 30 plays, result, and settlement without mapping
-stable player IDs to the position workflow's local `me`/`left`/`right` model.
+declaration, skat handling, all 30 plays, result, and settlement. On request, it
+also reconstructs a local `me`/`left`/`right` information view immediately
+before every actual play while preserving stable player IDs.
 
 Historical-game representation remains `partially_supported`. This workflow
 does not provide complete-game decision review, replay recommendations, training
 dataset metadata, claims, concessions, full auction events, player statistics,
-or list/tournament aggregation.
+or list/tournament aggregation. Decision snapshots are state reconstruction,
+not recommendation or training records.
 
 ## Public input
 
@@ -118,6 +120,14 @@ settlement workflow and are rejected by this normal-play branch.
 No recommendation, simulation, local position, opponent policy, profile, list,
 or training-data output is emitted for a historical game.
 
+With `--historical-decision-snapshots`, the summary additionally contains an
+optional `decision_snapshot_summary` with exactly 30 chronological pre-play
+states. The actual card is a retrospective label outside the visible state.
+Snapshot hands, legal cards, prior tricks, point state, hand sizes, skat
+knowledge, matadors, and ouvert exposure follow the acting player's decision-time
+information boundary. See
+[Historical decision snapshots](historical_decision_snapshots.md).
+
 ## CLI
 
 Print a concise summary:
@@ -132,7 +142,14 @@ Write structured output without successful stdout:
 python main.py --input examples/historical_grand_normal_completion.json --output outputs/historical.json --quiet
 ```
 
-Historical games accept `--input`, `--output`, and `--quiet`. Analysis,
+Generate decision snapshots:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
+```
+
+Historical games accept `--input`, `--output`, `--quiet`, and the optional
+`--historical-decision-snapshots` flag. Analysis,
 recommendation, policy, comparison, profile, seed/sample, and simulation options
 are rejected instead of being ignored.
 
@@ -144,7 +161,7 @@ Later work is still required for:
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication
-* decision-by-decision replay and complete-game coaching
+* recommendation-based evaluation of reconstructed decisions and complete-game coaching
 * training/evaluation dataset wrappers and provenance
 * historical player statistics and learned models
 * list, series, and tournament aggregation from historical records

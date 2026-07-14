@@ -52,6 +52,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Versioned complete historical-game records for normal play
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
 * Derived historical trick winners, points, game value, overbid, and settlement
+* Optional information-safe pre-play snapshots for all 30 historical decisions
 
 ### Information policy
 
@@ -208,6 +209,12 @@ Validate and summarize a complete normally played historical game:
 python main.py --input examples/historical_grand_normal_completion.json
 ```
 
+Add one information-safe snapshot immediately before each actual play:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
+```
+
 Historical-game inputs form a separate workflow. Position-analysis, policy,
 comparison, recommendation, and simulation overrides are rejected for them.
 
@@ -228,7 +235,9 @@ Detailed documentation is split into topic-specific files:
 * [Input JSON](docs/input_json.md)
 * [Input JSON schema](schemas/input.schema.json)
 * [Historical games](docs/historical_games.md)
+* [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
+* [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Output JSON](docs/output_json.md)
 * [Output JSON schema](schemas/output.schema.json)
 * [Schema validation](docs/schema_validation.md)
@@ -274,7 +283,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 ## Project status
 
 `v0.6.0` is tagged and published, is the current stable baseline, and remains
-the package version. Current generated-output validation covers 24 deterministic
+the package version. Current generated-output validation covers 25 deterministic
 scenarios, and the documented `v0.6.0` issue scope is complete.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
@@ -283,9 +292,9 @@ summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
-Complete normal-play historical records are partially supported. Later end
-reasons, complete-game decision replay, and training-dataset wrapping remain
-future work.
+Complete normal-play historical records and information-safe pre-play snapshots
+are partially supported. Snapshot recommendation evaluation, later end reasons,
+complete-game coaching, and training-dataset wrapping remain future work.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

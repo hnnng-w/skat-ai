@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_decision_snapshot.schema.json",
+  "title": "skat-ai historical decision snapshot summary version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "information_policy",
+    "snapshot_count",
+    "snapshots"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "information_policy": {
+      "const": "decision_time"
+    },
+    "snapshot_count": {
+      "const": 30
+    },
+    "snapshots": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/snapshot"
+      },
+      "minItems": 30,
+      "maxItems": 30
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "card_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/card"
+      },
+      "uniqueItems": true
+    },
+    "play": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "card"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "card": {
+          "$ref": "#/$defs/card"
+        }
+      }
+    },
+    "relative_player_map": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["me", "left", "right"],
+      "properties": {
+        "me": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "left": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "right": {
+          "$ref": "#/$defs/stable_identifier"
+        }
+      }
+    },
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hand_game",
+        "ouvert",
+        "schneider_announced",
+        "schwarz_announced",
+        "matadors",
+        "bid_value"
+      ],
+      "properties": {
+        "hand_game": {
+          "type": "boolean"
+        },
+        "ouvert": {
+          "type": "boolean"
+        },
+        "schneider_announced": {
+          "type": "boolean"
+        },
+        "schwarz_announced": {
+          "type": "boolean"
+        },
+        "matadors": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 11
+        },
+        "bid_value": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "public_exposed_cards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "cards"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "cards": {
+          "$ref": "#/$defs/card_array",
+          "maxItems": 10
+        }
+      }
+    },
+    "completed_trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trick_number",
+        "plays",
+        "winner_player_id",
+        "winner_side",
+        "trick_points"
+      ],
+      "properties": {
+        "trick_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "plays": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/play"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "winner_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "winner_side": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "trick_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 33
+        }
+      }
+    },
+    "opponent_hand_size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relative_player",
+        "player_id",
+        "remaining_card_count"
+      ],
+      "properties": {
+        "relative_player": {
+          "type": "string",
+          "enum": ["left", "right"]
+        },
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "remaining_card_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        }
+      }
+    },
+    "visible_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_type",
+        "declaration",
+        "own_hand",
+        "legal_cards",
+        "skat_visibility",
+        "known_skat_cards",
+        "public_exposed_cards",
+        "completed_tricks",
+        "current_trick",
+        "declarer_trick_points",
+        "defender_trick_points",
+        "opponent_hand_sizes"
+      ],
+      "properties": {
+        "game_type": {
+          "type": "string",
+          "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+        },
+        "declaration": {
+          "$ref": "#/$defs/declaration"
+        },
+        "own_hand": {
+          "$ref": "#/$defs/card_array",
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "legal_cards": {
+          "$ref": "#/$defs/card_array",
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "skat_visibility": {
+          "type": "string",
+          "enum": ["unknown", "known_to_declarer"]
+        },
+        "known_skat_cards": {
+          "$ref": "#/$defs/card_array",
+          "maxItems": 2
+        },
+        "public_exposed_cards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/public_exposed_cards"
+          },
+          "maxItems": 1
+        },
+        "completed_tricks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/completed_trick"
+          },
+          "maxItems": 9
+        },
+        "current_trick": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/play"
+          },
+          "maxItems": 2
+        },
+        "declarer_trick_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "defender_trick_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "opponent_hand_sizes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/opponent_hand_size"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_game_id",
+        "decision_index",
+        "trick_number",
+        "play_index",
+        "acting_player_id",
+        "acting_seat",
+        "acting_side",
+        "actual_card_played",
+        "information_cutoff",
+        "relative_player_map",
+        "visible_state"
+      ],
+      "properties": {
+        "source_game_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "decision_index": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "trick_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "play_index": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "acting_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "acting_seat": {
+          "type": "string",
+          "enum": ["forehand", "middlehand", "rearhand"]
+        },
+        "acting_side": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "actual_card_played": {
+          "$ref": "#/$defs/card"
+        },
+        "information_cutoff": {
+          "const": "before_actual_play"
+        },
+        "relative_player_map": {
+          "$ref": "#/$defs/relative_player_map"
+        },
+        "visible_state": {
+          "$ref": "#/$defs/visible_state"
+        }
+      }
+    }
+  }
+}

@@ -4,12 +4,20 @@ from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
+from skat_ai.historical_decision_snapshot import (
+    build_historical_decision_snapshots,
+    build_serializable_historical_decision_snapshot_summary,
+)
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.input_loader import load_historical_game_from_json
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
+HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_decision_snapshot.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -17,7 +25,16 @@ def load_output_schema() -> dict:
         return json.load(file)
 
 
-OUTPUT_VALIDATOR = Draft202012Validator(load_output_schema())
+with HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_DECISION_SNAPSHOT_SCHEMA = json.load(file)
+
+OUTPUT_SCHEMA_REGISTRY = Registry().with_resource(
+    HISTORICAL_DECISION_SNAPSHOT_SCHEMA["$id"],
+    Resource.from_contents(HISTORICAL_DECISION_SNAPSHOT_SCHEMA),
+)
+OUTPUT_VALIDATOR = Draft202012Validator(
+    load_output_schema(), registry=OUTPUT_SCHEMA_REGISTRY
+)
 
 
 def build_policy_settings() -> dict[str, str]:
@@ -385,6 +402,18 @@ def build_valid_historical_output() -> dict[str, object]:
     }
 
 
+def build_valid_historical_output_with_decision_snapshots() -> dict[str, object]:
+    data = build_valid_historical_output()
+    historical_summary = data["historical_game_summary"]
+    assert isinstance(historical_summary, dict)
+    historical_summary["decision_snapshot_summary"] = (
+        build_serializable_historical_decision_snapshot_summary(
+            build_historical_decision_snapshots(historical_summary)
+        )
+    )
+    return data
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -409,6 +438,21 @@ def test_schema_accepts_base_output_without_optional_results() -> None:
 
 def test_schema_accepts_historical_game_output_branch() -> None:
     assert_schema_valid(build_valid_historical_output())
+
+
+def test_schema_accepts_historical_decision_snapshot_output_branch() -> None:
+    assert_schema_valid(build_valid_historical_output_with_decision_snapshots())
+
+
+def test_schema_rejects_malformed_historical_decision_snapshot_summary() -> None:
+    data = build_valid_historical_output_with_decision_snapshots()
+    historical_summary = data["historical_game_summary"]
+    assert isinstance(historical_summary, dict)
+    snapshot_summary = historical_summary["decision_snapshot_summary"]
+    assert isinstance(snapshot_summary, dict)
+    snapshot_summary["snapshot_count"] = 29
+
+    assert_schema_invalid(data)
 
 
 def test_schema_rejects_combined_position_and_historical_output_branches() -> None:

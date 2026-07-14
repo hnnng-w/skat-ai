@@ -80,6 +80,7 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
         "--right-opponent-lead-policy",
         "--right-opponent-response-policy",
         "--use-profile-presets",
+        "--historical-decision-snapshots",
     ]:
         assert option in completed_process.stdout
 
@@ -178,6 +179,7 @@ def test_cli_historical_game_prints_concise_summary() -> None:
     assert "Game type: grand" in completed_process.stdout
     assert "Settlement score:" in completed_process.stdout
     assert "Recommended card:" not in completed_process.stdout
+    assert "Decision snapshots generated:" not in completed_process.stdout
 
 
 def test_cli_historical_game_quiet_output_is_separate_branch(tmp_path) -> None:
@@ -199,8 +201,56 @@ def test_cli_historical_game_quiet_output_is_separate_branch(tmp_path) -> None:
 
     assert set(result) == {"input_file", "historical_game_summary"}
     assert result["historical_game_summary"]["status"] == "complete"
+    assert "decision_snapshot_summary" not in result["historical_game_summary"]
     assert "position" not in result
     assert "recommendation" not in result
+
+
+def test_cli_historical_decision_snapshots_prints_count() -> None:
+    completed_process = run_cli(
+        "--input", HISTORICAL_INPUT_PATH, "--historical-decision-snapshots"
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Decision snapshots generated: 30" in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+
+
+def test_cli_historical_decision_snapshots_quiet_output(tmp_path) -> None:
+    output_path = tmp_path / "historical-snapshots.json"
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--historical-decision-snapshots",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    snapshot_summary = result["historical_game_summary"][
+        "decision_snapshot_summary"
+    ]
+    assert snapshot_summary["snapshot_count"] == 30
+    assert len(snapshot_summary["snapshots"]) == 30
+
+
+def test_cli_rejects_historical_decision_snapshots_for_position_input() -> None:
+    completed_process = run_cli(
+        "--input", VALID_INPUT_PATH, "--historical-decision-snapshots"
+    )
+
+    assert completed_process.returncode == 2
+    assert (
+        "--historical-decision-snapshots requires historical-game input"
+        in completed_process.stderr
+    )
+    assert_no_success_output(completed_process)
 
 
 @pytest.mark.parametrize(

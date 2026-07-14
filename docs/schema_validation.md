@@ -127,8 +127,9 @@ The output schema checks the main output structure, including:
 * `multi_step_result`, when Multi-Step simulation is requested
 * `policy_comparison_result`, when policy comparison is requested
 * the separate `historical_game_summary` branch
+* optional versioned historical decision snapshots through the focused referenced schema
 
-Generated-output validation covers 24 deterministic scenarios. Position
+Generated-output validation covers 25 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -145,12 +146,15 @@ claim/overbid/list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
-validation and settlement.
+validation, settlement, and information-safe decision snapshots.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
 `post_game_review_summary`, `multi_step_result`, and
-`policy_comparison_result` are explicitly structured.
+`policy_comparison_result` are explicitly structured. Historical decision
+snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
+the public output schema; runtime validation and tests enforce temporal and
+information-leakage semantics that JSON Schema cannot express.
 
 ## Post-game review schema coverage
 

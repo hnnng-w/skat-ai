@@ -10,9 +10,13 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
+HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_decision_snapshot.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -921,6 +925,26 @@ def check_historical_game_normal_completion(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
+    """Checks deterministic information-safe historical snapshot output."""
+    errors = check_historical_game_normal_completion(data)
+    snapshot_summary = data["historical_game_summary"].get(
+        "decision_snapshot_summary"
+    )
+    if not isinstance(snapshot_summary, dict):
+        errors.append("expected historical decision snapshot summary")
+        return errors
+    if snapshot_summary["information_policy"] != "decision_time":
+        errors.append("expected decision-time information policy")
+    if snapshot_summary["snapshot_count"] != 30:
+        errors.append("expected exactly 30 historical decision snapshots")
+    if [
+        snapshot["decision_index"] for snapshot in snapshot_summary["snapshots"]
+    ] != list(range(1, 31)):
+        errors.append("expected ordered decision indices 1 through 30")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -1185,6 +1209,17 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="historical_grand_decision_snapshots",
+        input_path=(
+            PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+        ),
+        branch="information-safe snapshots for all 30 historical decisions",
+        cli_args=("--historical-decision-snapshots", "--quiet"),
+        check_output=check_historical_decision_snapshots,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -1193,7 +1228,14 @@ def validate_generated_outputs() -> list[str]:
     Generates selected example outputs and validates them against the output schema.
     """
     schema = load_json_file(SCHEMA_PATH)
-    validator = Draft202012Validator(schema)
+    historical_decision_snapshot_schema = load_json_file(
+        HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH
+    )
+    registry = Registry().with_resource(
+        historical_decision_snapshot_schema["$id"],
+        Resource.from_contents(historical_decision_snapshot_schema),
+    )
+    validator = Draft202012Validator(schema, registry=registry)
     errors = []
 
     with tempfile.TemporaryDirectory() as temporary_directory:

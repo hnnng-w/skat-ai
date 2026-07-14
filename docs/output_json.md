@@ -24,7 +24,7 @@ The project check script also runs generated-output schema validation:
 
 Generated-output schema validation uses the real CLI and output writer. Position
 scenarios use deterministic settings such as `--samples 20` and `--seed 42`;
-the historical-game scenario uses no position-only overrides. The
+the historical-game scenarios use no position-only overrides. The
 validator writes temporary output files, parses the generated JSON, validates it
 against `schemas/output.schema.json`.
 
@@ -49,6 +49,15 @@ tricks, trick and skat points, final 120-point allocation, winner, game result,
 game value, overbid, and final settlement. It contains no position,
 recommendation, simulation, profile, policy, or list result. See
 [Historical games](historical_games.md).
+
+When `--historical-decision-snapshots` is requested, the summary also contains
+`decision_snapshot_summary`. Its version-1 `decision_time` policy provides 30
+chronological snapshots immediately before the actual plays. Each snapshot keeps
+the actual card as a retrospective label and limits `visible_state` to the
+acting player's remaining hand, legal cards, prior public play, public point and
+hand-size state, legitimate skat knowledge, conservative visible matadors, and
+ouvert exposure. It excludes final result, overbid, and settlement facts. See
+[Historical decision snapshots](historical_decision_snapshots.md).
 
 ## Position top-level fields
 

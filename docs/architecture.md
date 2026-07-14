@@ -22,6 +22,8 @@ The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, strictly replays ten tricks from complete playable hands,
 derives points and ownership, reuses the declaration/value/overbid/settlement
 helpers, and emits only `historical_game_summary`.
+When requested, the flow then derives 30 pre-play decision snapshots from that
+validated replay result without invoking recommendation or simulation code.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
@@ -50,6 +52,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/information_policy.py` | Centralizes live-vs-post-game information rules and builds `information_policy_summary`.                            |
 | `src/skat_ai/turn_phase.py`         | Normalizes and validates canonical `trick_leader` and `next_player` from the current trick length.                  |
 | `src/skat_ai/historical_game.py`    | Typed stable-ID historical records, complete-deal validation, strict play replay, and historical result serialization. |
+| `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
 
 Validation is split between JSON Schema and Python validation:
 
@@ -84,6 +87,10 @@ Matador inference is intentionally conservative. It uses currently known declare
 
 The historical-game branch is stricter: its validated complete deal provides
 deterministic declarer and non-declarer ownership for complete matador inference.
+Historical decision snapshots do not reuse that final count. They infer only
+from the acting player's own cards, legitimate non-Hand declarer skat knowledge,
+prior public plays, and ouvert exposure, returning `null` when evidence is
+insufficient.
 
 ## Game end and settlement
 
@@ -254,6 +261,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | ---------------------------------------------- | ------------------------------------------------------------------------ |
 | `schemas/input.schema.json`                    | Stable input JSON structure.                                             |
 | `schemas/historical_game.schema.json`          | Versioned complete historical-game input structure.                      |
+| `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |

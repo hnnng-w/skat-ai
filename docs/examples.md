@@ -91,6 +91,12 @@ Write its separate structured result without successful stdout:
 python main.py --input examples/historical_grand_normal_completion.json --output outputs/historical.json --quiet
 ```
 
+Generate its 30 pre-play decision snapshots:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
+```
+
 Prepare an opponent-turn position with Multi-Step until the local player acts:
 
 ```powershell
@@ -212,9 +218,10 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_normal_completion.json`         | Complete 32-card Grand deal with stable player IDs, non-Hand pickup/discards, ten legal tricks, inferred matadors, final points, and settlement. |
 
 This is a separate historical-game workflow, not a reconstructed local
-post-game position. It is the dedicated generated-output scenario for
-`historical_game_summary`. It does not run recommendation, replay, simulation,
-profile, policy, list, or training-data logic.
+post-game position. Dedicated generated-output scenarios cover both the base
+`historical_game_summary` and its optional 30 decision-time snapshots. Snapshot
+generation does not run recommendation, review, simulation, profile, policy,
+list, or training-data logic.
 
 ## Post-game review examples
 

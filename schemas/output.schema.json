@@ -577,6 +577,9 @@
         },
         "final_settlement_summary": {
           "$ref": "#/$defs/final_settlement_summary"
+        },
+        "decision_snapshot_summary": {
+          "$ref": "https://example.local/skat-ai/historical_decision_snapshot.schema.json"
         }
       }
     },
