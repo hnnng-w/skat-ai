@@ -35,7 +35,7 @@ Supported values:
 | Value         | Meaning                                                                               |
 | ------------- | ------------------------------------------------------------------------------------- |
 | `placeholder` | Generic placeholder rating system.                                                    |
-| `isko_list`   | Partially implemented ISkO-style rating for the fixed three-player table.             |
+| `isko_list`   | Partially implemented SkWO-style performance scoring for the fixed three-player table. |
 
 If omitted, `performance_rating_summary.rating_system` is `null`.
 
@@ -57,9 +57,9 @@ The fixed assumption is exposed in the output:
 
 Four-player table performance rating is not modeled.
 
-## Partial ISkO list rating
+## Partial SkWO list performance
 
-The project includes a partial ISkO-style performance rating implementation for a single game.
+The project includes a partial SkWO-style performance implementation for a single game.
 
 Current assumptions:
 
@@ -80,7 +80,7 @@ Implemented rating points:
 
 ## Declarer rating score
 
-`declarer_rating_score` is the current implemented ISkO-style score from the declarer's perspective.
+`declarer_rating_score` is the current implemented SkWO-style score from the declarer's perspective.
 
 ```text
 declarer_rating_score = settlement_score + declarer_rating_points
@@ -210,7 +210,7 @@ only: the engine does not hash entry content or compare entries structurally for
 duplicates.
 
 Identifiers do not appear in `list_performance_summary` and have no effect on
-ISkO formulas, contribution counts, settlement scores, or summary basis values.
+SkWO formulas, contribution counts, settlement scores, or summary basis values.
 They do not introduce player-by-player standings, a tournament identity model,
 or an opponent identity model.
 
@@ -418,8 +418,8 @@ This can happen when required settlement inputs are missing, such as incomplete 
 
 ## Current limitations
 
-* ISkO-style performance rating is partially implemented for a fixed three-player table.
-* The current ISkO rating implementation covers single-game declarer perspective only.
+* SkWO-style performance scoring is partially implemented for a fixed three-player table.
+* The current SkWO performance implementation covers single-game declarer perspective only.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
 * Already aggregated list or series totals can be calculated when supplied via `list_performance_input`.

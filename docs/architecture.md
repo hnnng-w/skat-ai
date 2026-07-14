@@ -78,7 +78,7 @@ Matador inference is intentionally conservative. It uses currently known declare
 | `src/skat_ai/game_end.py`           | Game-end reason handling and remaining-point assignment for claim/concession scenarios.                       |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
 | `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
-| `src/skat_ai/performance_rating.py` | Performance-rating layer, partial fixed-three-player ISkO single-game rating, and separation from settlement. |
+| `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
 
 Claim and concession handling assigns remaining card points according to `game_end_reason`. It does not simulate the actual remaining tricks or verify whether a claim was strategically justified.
 
@@ -285,4 +285,8 @@ Current design principles:
 * Keep CLI output human-readable but secondary to structured JSON.
 * Keep live-decision mode separate from post-game-review mode.
 * Keep code and program output in English.
-* Preserve the fixed three-player table assumption unless explicitly expanded later.
+* Preserve the fixed three-player table; four-player support is unconditionally out of scope.
+
+Requirements and rule-source ownership are mapped in
+[Requirements traceability](requirements_traceability.md). The target product
+boundary is defined in [v1.0 scope](v1_scope.md).

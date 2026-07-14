@@ -67,7 +67,7 @@ Implemented:
 
 Implemented:
 
-* Partial fixed-three-player ISkO-style single-game rating
+* Partial fixed-three-player SkWO-style single-game performance rating
 * Declarer rating score
 * Declarer rating points
 * Counterparty/defender rating points
@@ -212,43 +212,17 @@ Implemented:
 * Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
 * Live decision examples should not contain post-game-only information.
 
-## Completed release status
-
-### v0.5.0: Trustworthy late-game and history-heavy public inputs
-
-`v0.5.0` is the current stable baseline and latest tagged release. It focused
-on trustworthy late-game and history-heavy public inputs rather than broad
-gameplay expansion.
-
-Completed `v0.5.0` release scope:
-
-* #55 allowed zero opponent hand sizes for late-game public inputs.
-* #56 enforced live completed-trick `winner_role` verifiability.
-* #57 expanded safe matador inference from completed-trick ownership.
-* #58 added focused late-game and history-heavy workflow coverage.
-* #59 improved objective-aware post-game review CLI wording.
-* #60 prepared the `v0.5.0` release.
-
-Deferred deeper investigations:
-
-* Broader simulation-quality improvements.
-* Expanded scoring or settlement scope outside focused bug fixes.
-* Hidden-information sampling or validation behavior changes that would alter stable behavior.
-* Large `main.py` refactors or CLI redesigns.
-
-## Prepared v0.6.0 release
+## Current stable baseline
 
 ### v0.6.0: From single-position analysis to credible list-aware review workflows
 
-`v0.6.0` is prepared for release but has not yet been tagged or published as a
-GitHub Release. It builds on the existing fixed-three-player analysis,
-post-game-review, opponent-policy, settlement, overbid, and list-performance
-input layers to make review workflows more credible across a small list context
-without turning the project into a full tournament system.
+`v0.6.0` is tagged and published and is the current stable baseline. The
+package version remains `0.6.0`, and generated-output validation covers 22
+deterministic scenarios.
 
-Completed `v0.6.0` release-prep scope:
+The documented `v0.6.0` issue scope is complete:
 
-* #62 fixed three-player list standings output.
+* #62 added fixed three-player list standings output.
 * #63 expanded list-performance examples and generated-output validation.
 * #64 improved post-game review example quality and explanation coverage.
 * #65 added controlled left/right opponent policy effect coverage.
@@ -256,39 +230,21 @@ Completed `v0.6.0` release-prep scope:
 * #67 audited settlement and overbid edge-case coverage.
 * #68 prepared release metadata, changelog, roadmap, and handoff documentation.
 
-Next recommended release action: commit, merge, tag, and publish the prepared
-`v0.6.0` release unless a blocker is discovered.
+No `v0.6.0` commit, merge, tag, publication, release, or issue-closeout action
+remains pending.
 
-## Post-v0.6.0 gameplay possibilities
+## v1.0 direction
 
-Potential gameplay improvements outside the prepared `v0.6.0` release scope:
+The [requirements traceability matrix](requirements_traceability.md) is the
+authoritative audit of current ISkO, SkWO, and skat-ai product support. The
+[v1.0 scope](v1_scope.md) defines required product directions, unresolved
+decisions, and testable completion gates.
 
-* Add more realistic profile-preset example variants.
-* Explore deeper PlayerProfile confidence usage beyond preset selection.
-* Explore broader defender strategy beyond issue #22's implemented heuristic scope.
-* Explore broader matador inference beyond the current conservative concrete ownership facts.
-* Add richer explanation details for why a recommended card is preferred.
-
-## Post-v0.6.0 performance-rating possibilities
-
-Potential rating improvements outside the prepared `v0.6.0` release scope:
-
-* Track scores per real player across a fixed three-player list.
-* Separate declarer and counterparty perspectives explicitly for multi-game output.
-* Keep full series and tournament aggregation deferred unless separately scoped.
-* Add official list-report output formats only if a focused follow-up defines them.
-
-## Deferred outside the prepared v0.6.0 release
-
-The following topics remain outside the prepared `v0.6.0` release:
-
-* Four-player support.
-* Full official tournament or series formats.
-* Machine learning or learned opponent models.
-* Perfect-information solving.
-* Broad hidden-card inference.
-* Broad CLI or `main.py` refactors.
-* Full claim/concession legal-dispute modeling.
+Four-player tables are the only area unconditionally out of scope. Series,
+tournament, official reporting, historical statistics, learned behavior,
+machine-learning training, stronger solving, broader hidden-card inference,
+claim verification, and complete-game coaching must retain the classifications
+in `docs/v1_scope.md` until explicit product decisions change them.
 
 ## Open technical cleanup
 
@@ -304,6 +260,6 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish completed `v0.5.0` public-input work, prepared `v0.6.0`
-list-aware review workflow release work, and deferred gameplay, scoring,
-settlement, validation, or hidden-information investigations.
+should distinguish the published `v0.6.0` baseline, requirements explicitly
+required for `v1.0.0`, planned post-v1.0 work, and topics that still require a
+product decision.

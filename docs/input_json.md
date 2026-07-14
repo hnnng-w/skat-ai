@@ -472,7 +472,7 @@ Supported values:
 | Value         | Meaning                                                                               |
 | ------------- | ------------------------------------------------------------------------------------- |
 | `placeholder` | Generic placeholder rating system.                                                    |
-| `isko_list`   | Partially implemented ISkO-style rating for the fixed three-player table.             |
+| `isko_list`   | Partially implemented SkWO-style performance scoring for the fixed three-player table. |
 
 If omitted, `performance_rating_summary.rating_system` is `null`.
 

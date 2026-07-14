@@ -313,7 +313,7 @@ Single-game settlement and performance rating are intentionally separate.
 * What single-game declarer rating score is calculated?
 * Which counterparty/defender points are exposed?
 
-Current partial ISkO-style rating is documented in:
+Current partial SkWO-style performance scoring is documented in:
 
 [Performance rating documentation](performance_rating.md)
 

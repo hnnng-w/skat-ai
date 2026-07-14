@@ -436,7 +436,7 @@ Meaning:
 | Field                        | Meaning                                                       |
 | ---------------------------- | ------------------------------------------------------------- |
 | `basis`                      | `aggregated_list_or_series_totals`, `normalized_game_contributions`, or `local_analysis_results`. |
-| `table_size`                 | Fixed three-player table size used for ISkO-style points.     |
+| `table_size`                 | Fixed three-player table size used for SkWO-style points.     |
 | `player_game_points`         | Already aggregated game points for the rated player.          |
 | `own_games_won`              | Count of the rated player's won own games.                    |
 | `own_games_lost`             | Count of the rated player's lost own games.                   |

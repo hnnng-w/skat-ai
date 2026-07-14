@@ -48,7 +48,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Adjusted game-result summaries
 * Final single-game settlement summaries
 * Supported Suit/Grand overbid settlement
-* Partial fixed-three-player ISkO-style performance rating
+* Partial fixed-three-player SkWO-style performance rating
 
 ### Information policy
 
@@ -90,7 +90,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 
 ## Requirements
 
-* Python 3.11 or newer
+* Python 3.13 or newer
 * PowerShell for helper scripts on Windows
 * Development dependencies from `.[dev]`, including:
 
@@ -224,6 +224,8 @@ Detailed documentation is split into topic-specific files:
 * [Performance rating](docs/performance_rating.md)
 * [Examples](docs/examples.md)
 * [Architecture](docs/architecture.md)
+* [Requirements traceability](docs/requirements_traceability.md)
+* [v1.0 scope](docs/v1_scope.md)
 * [Roadmap](docs/roadmap.md)
 * [Project handoff](docs/project_handoff.md)
 
@@ -257,9 +259,19 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-Skat AI already supports a broad set of single-position analysis, multi-step simulation, opponent-policy modeling, game-result summaries, game-value summaries, settlement summaries, overbid handling, live-vs-post-game information enforcement, post-game review output, and partial fixed-three-player ISkO-style rating features.
+`v0.6.0` is tagged and published, is the current stable baseline, and remains
+the package version. Generated-output validation covers 22 deterministic
+scenarios, and the documented `v0.6.0` issue scope is complete.
 
-Known limitations and planned improvements are tracked in [Roadmap documentation](docs/roadmap.md).
+Skat AI already supports a broad set of single-position analysis, multi-step
+simulation, opponent-policy modeling, game-result summaries, game-value
+summaries, settlement summaries, overbid handling, live-vs-post-game information
+enforcement, post-game review output, and partial fixed-three-player SkWO-style
+performance features.
+
+Current support and known limitations are tracked in the
+[requirements traceability matrix](docs/requirements_traceability.md). Product
+scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
 
 ## Disclaimer
 

@@ -31,7 +31,7 @@ Each part should:
 * add one focused behavior or cleanup
 * include tests
 * keep existing behavior backward-compatible where possible
-* run the full check script before committing
+* run the full check script before manual review
 
 The standard check command is:
 
@@ -58,11 +58,11 @@ Discussion and planning can be in German.
 
 The project assumes a fixed three-player Skat table.
 
-Four-player table support is not a priority unless explicitly requested.
+Four-player table support is unconditionally out of scope.
 
 ### Performance rating
 
-ISkO-style performance rating is partially implemented for fixed three-player single-game, local list-input, and explicit fixed three-player standings perspectives.
+SkWO-style performance rating is partially implemented for fixed three-player single-game, local list-input, and explicit fixed three-player standings perspectives.
 
 Series aggregation, tournament aggregation, and official report formats are not implemented yet.
 
@@ -382,24 +382,20 @@ Main documentation files:
 * `docs/overbid.md`
 * `docs/performance_rating.md`
 * `docs/examples.md`
+* `docs/requirements_traceability.md`
+* `docs/v1_scope.md`
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
 
 ## Release status
 
-Current stable baseline: `v0.5.0`.
+Current stable baseline and latest tagged release: `v0.6.0`.
 
-Current version: `0.6.0`.
+Current package version: `0.6.0`.
 
-Latest tagged release: `v0.5.0`.
-
-`v0.5.0` has been tagged and released. The release-preparation branch work is
-complete; no `v0.5.0` tagging or GitHub Release creation step remains pending.
-
-`v0.6.0` is prepared for release but has not yet been tagged, published as a
-GitHub Release, or closed out in GitHub issue tracking. The next recommended
-action after merge is to tag and publish the `v0.6.0` release, unless a release
-blocker is discovered.
+`v0.6.0` has been tagged and published. Its documented issue scope is complete,
+and no commit, merge, tag, publication, release, or issue-closeout action for
+`v0.6.0` remains pending.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -436,7 +432,7 @@ The `v0.5.0` trustworthy late-game and history-heavy public input issue range
 After the `v0.5.0` release, #61 selected the `v0.6.0` list-aware review
 workflow direction.
 
-The `v0.6.0` list-aware review workflow issue range #62 through #67 is complete:
+The `v0.6.0` list-aware review workflow issue range #62 through #68 is complete:
 
 * #62 added fixed three-player list standings output
 * #63 expanded list-performance examples and generated-output validation
@@ -444,12 +440,13 @@ The `v0.6.0` list-aware review workflow issue range #62 through #67 is complete:
 * #65 added controlled left/right opponent policy effect coverage
 * #66 used profile confidence in bounded opponent-strategy decisions
 * #67 audited settlement and overbid edge-case coverage
+* #68 prepared the `v0.6.0` release
 
-## Current release-prep baseline
+## Current stable baseline
 
 **v0.6.0: From single-position analysis to credible list-aware review workflows**
 
-Prepared release scope:
+Published release scope:
 
 * fixed three-player list standings output
 * expanded list-performance examples and generated-output validation
@@ -457,41 +454,19 @@ Prepared release scope:
 * controlled left/right opponent policy effect coverage
 * bounded profile-confidence opponent policy behavior
 * settlement and overbid edge-case coverage audit
-* release-prep documentation and version update
-
-The latest tagged and published stable release remains `v0.5.0` until the
-prepared `v0.6.0` release is tagged and published.
-
-Deferred deeper investigations:
-
-* broad simulation-quality improvements
-* expanded scoring or settlement scope outside focused bug fixes
-* hidden-information sampling or validation behavior changes that would alter stable behavior
-* broad `main.py` refactors or CLI redesigns
+* release documentation and version update
 
 ## Next recommended action
 
-The next recommended action is commit, merge, tag, and publish the prepared
-`v0.6.0` release. Do not add more feature work to the release-prep branch unless
-a release blocker is discovered.
+Use the [requirements traceability matrix](requirements_traceability.md) and
+[v1.0 scope](v1_scope.md) to create small implementation or product-decision
+follow-ups. Do not treat undecided areas as permanently excluded.
 
 ## Open future topics
 
-Deferred topics outside the prepared `v0.6.0` release:
-
-* four-player table support
-* full official tournament or series formats
-* machine learning or learned opponent models
-* perfect-information solving
-* broad hidden-card inference
-* broad `main.py` or CLI orchestration refactors
-* full claim/concession legal-dispute modeling
-* broad matador inference from completed-trick history beyond safe concrete ownership facts
-* broad defender-partnership strategy beyond focused heuristic improvements
-
-These remain outside both the completed `v0.5.0` release baseline and the
-prepared `v0.6.0` list-aware review workflow release unless a focused bug or
-separate milestone explicitly scopes them in.
+Four-player tables are the only unconditional out-of-scope area. All other
+candidate future areas retain the classifications in `docs/v1_scope.md` until
+an explicit product decision changes them.
 
 ## New-thread starter instruction
 

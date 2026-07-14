@@ -218,12 +218,12 @@ Post-game review examples may include known skat cards and completed game inform
 | `spades_post_game_actual_card_played.json` | Post-game review with `actual_card_played`, decision quality, decision factors, explanation, and recommendation gap details. |
 | `null_post_game_objective_actual_card.json` | Null post-game review where the actual card differs from the recommendation but has no missed Null contract-objective utility. |
 | `spades_post_game_defender_actual_card.json` | Defender-perspective post-game review with a concrete declarer seat and a suboptimal actual card.                          |
-| `grand_complete_declarer_win.json`         | Complete game where declarer wins. Also demonstrates `bid_value` and partial ISkO performance-rating metadata.               |
-| `grand_complete_declarer_loss.json`        | Complete game where declarer loses. Also demonstrates fixed three-player ISkO counterparty points.                           |
-| `grand_list_performance_input.json`        | Complete game with partial ISkO single-game rating plus already aggregated list performance input and output.                 |
-| `grand_list_game_contributions.json`       | Complete game with partial ISkO single-game rating plus list performance aggregated from normalized per-game contributions.   |
-| `grand_list_analysis_results.json`         | Complete game with partial ISkO single-game rating plus list performance aggregated from local analysis-result objects.       |
-| `grand_list_standings_input.json`          | Complete game with partial ISkO single-game rating plus explicit fixed three-player list standings output.                   |
+| `grand_complete_declarer_win.json`         | Completed-result position where declarer wins; also demonstrates `bid_value` and partial SkWO performance metadata.          |
+| `grand_complete_declarer_loss.json`        | Completed-result position where declarer loses; also demonstrates fixed three-player SkWO counterparty points.               |
+| `grand_list_performance_input.json`        | Completed-result position plus already aggregated list performance input and output.                                         |
+| `grand_list_game_contributions.json`       | Completed-result position plus list performance aggregated from normalized per-game contributions.                          |
+| `grand_list_analysis_results.json`         | Completed-result position plus list performance aggregated from local analysis-result objects.                              |
+| `grand_list_standings_input.json`          | Completed-result position plus explicit fixed three-player list standings output.                                            |
 
 Run a post-game review example with actual-card comparison:
 
@@ -483,11 +483,11 @@ When adding new examples:
 * set `game_end_reason` consistently with known card points
 * add explicit `players` to completed tricks when winner metadata must be verifiable
 * prefer `completed_tricks` over `played_cards`
-* use `performance_rating_system: "isko_list"` only when partial ISkO rating output should be demonstrated
+* use `performance_rating_system: "isko_list"` only when partial SkWO performance output should be demonstrated
 * omit `matadors` only when automatic inference from known declarer-card context is intended
 * prefer either top-level declaration fields or nested `game_declaration`; mixing is supported, with top-level fields taking precedence
 * use documented declaration fields inside nested `game_declaration`; unknown nested metadata may be accepted for compatibility but is ignored by declaration, settlement, and overbid logic
-* run `.\scripts\check.ps1` before committing
+* run `.\scripts\check.ps1` before manual review
 
 ## Expected output behavior
 

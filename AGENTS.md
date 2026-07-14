@@ -20,7 +20,9 @@ The project focuses on:
 * post-game review support
 * JSON input/output for regression-friendly testing
 
-The project is not a machine-learning model, not a full official tournament system, and not a perfect-information Skat solver.
+The current implementation is not a machine-learning model, a full official
+tournament system, or a perfect-information Skat solver. Future product scope is
+defined in [`docs/v1_scope.md`](docs/v1_scope.md).
 
 ## Language rules
 
@@ -30,9 +32,8 @@ Planning conversation may be in German, but all repository changes must be writt
 
 ## Table assumption
 
-The project assumes a fixed three-player Skat table.
-
-Do not prioritize four-player table support unless explicitly requested.
+The project assumes a fixed three-player Skat table. Four-player table support
+is unconditionally out of scope.
 
 ## Development workflow
 
@@ -77,37 +78,27 @@ python scripts/validate_examples_schema.py
 python scripts/validate_generated_outputs_schema.py
 ```
 
-## Git workflow
+## Agent governance
 
-Use feature branches for new work.
+OpenCode and all other coding agents must not:
 
-Do not commit directly to `main`.
+* commit or amend commits
+* push changes
+* create, switch, rename, or delete branches
+* create, move, or delete tags
+* create or modify GitHub Releases
+* create, update, comment on, close, reopen, or otherwise modify GitHub issues
 
-Recommended workflow:
+Agents may:
 
-```powershell
-git checkout main
-git pull
-git checkout -b feature/<issue-number>-short-description
-```
+* inspect the repository and Git history
+* edit files for an explicitly assigned task
+* run focused checks and the full project check
+* inspect `git status` and `git diff`
+* provide a ready-to-paste concise English commit message
+* provide a ready-to-paste English GitHub issue update comment
 
-Before committing:
-
-```powershell
-git status
-.\scripts\check.ps1
-git diff
-```
-
-Commit messages must be concise and in English.
-
-Examples:
-
-```powershell
-git commit -m "Add left right opponent policy example"
-git commit -m "Improve post-game review examples"
-git commit -m "Use profile confidence in opponent policy presets"
-```
+Git and GitHub publication actions are performed manually by a human maintainer.
 
 ## Documentation sources
 
@@ -121,21 +112,20 @@ Before larger changes, read the relevant documentation:
 * `docs/output_json.md`
 * `docs/examples.md`
 * `docs/schema_validation.md`
+* `docs/requirements_traceability.md`
+* `docs/v1_scope.md`
 
 Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current stable baseline is `v0.5.0`.
+`v0.6.0` is tagged and published and is the current stable baseline.
 
-`v0.5.0` has been tagged and released.
-
-`v0.6.0` is prepared for release but has not yet been tagged, published as a
-GitHub Release, or closed out in GitHub issue tracking.
-
-Current package version in release-prep work: `0.6.0`.
+The package version is `0.6.0`.
 
 Generated-output validation currently covers 22 deterministic scenarios.
+
+The documented `v0.6.0` issue scope, issues #62 through #68, is complete.
 
 Major completed areas include:
 
@@ -147,7 +137,7 @@ Major completed areas include:
 * left/right opponent policy support
 * basic defender cooperation improvements
 * final settlement and overbid handling
-* partial fixed-three-player ISkO-style rating
+* partial fixed-three-player SkWO-style performance rating
 * fixed three-player list standings output
 * list-performance examples and generated-output validation
 * CLI usability improvements including discoverable help text and optional quiet JSON-output runs
@@ -174,39 +164,20 @@ Major completed areas include:
 * Keep CLI output human-readable but secondary to structured JSON.
 * Do not remove existing examples unless they are explicitly obsolete and covered by replacement examples.
 
-## Current useful next action
+## Current product baseline
 
-Selected `v0.6.0` release theme:
+The authoritative rules and product audit is in
+[`docs/requirements_traceability.md`](docs/requirements_traceability.md). The
+requirements and completion gates for `v1.0.0` are in
+[`docs/v1_scope.md`](docs/v1_scope.md).
 
-* from single-position analysis to credible list-aware review workflows
-
-The `v0.6.0` release-preparation work documents completed issues #62 through
-#67:
-
-* #62 fixed three-player list standings output
-* #63 expanded list-performance examples and generated-output validation
-* #64 improved post-game review example quality and explanation coverage
-* #65 added controlled left/right opponent policy effect coverage
-* #66 used profile confidence in bounded opponent-strategy decisions
-* #67 audited settlement and overbid edge-case coverage
-
-Recommended next action after a clean release-prep check is commit, merge, tag,
-and publish the `v0.6.0` release. Do not add more feature work unless a blocker
-is discovered.
-
-Deferred outside the prepared `v0.6.0` release unless explicitly scoped:
-
-* four-player support
-* full official tournament or series formats
-* machine learning or learned opponent models
-* perfect-information solving
-* broad hidden-card inference
-* broad `main.py` or CLI refactors
-* full claim/concession legal-dispute modeling
+Do not describe undecided future areas as permanently out of scope. Four-player
+tables are the only unconditional exclusion; other candidate areas use the
+classifications in `docs/v1_scope.md`.
 
 ## Safety rules for agent behavior
 
-Do not run destructive Git commands unless explicitly requested.
+Do not run destructive Git commands.
 
 Avoid commands such as:
 
@@ -224,7 +195,8 @@ Do not introduce new dependencies unless clearly justified and approved.
 
 ## GitHub issue update comments
 
-At the end of issue-related work, always provide a ready-to-paste GitHub issue update comment.
+At the end of issue-related work, always provide a ready-to-paste GitHub issue
+update comment. Do not post it.
 
 The issue update comment should include:
 
