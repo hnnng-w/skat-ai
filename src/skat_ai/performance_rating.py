@@ -16,6 +16,9 @@ LIST_STANDINGS_INPUT_REQUIRED_FIELDS = [
     "players",
     "games",
 ]
+LIST_STANDINGS_INPUT_OPTIONAL_FIELDS = [
+    "lot_order",
+]
 LIST_STANDINGS_PLAYER_REQUIRED_FIELDS = [
     "player_id",
 ]
@@ -170,7 +173,9 @@ def validate_list_standings_input(
     if not isinstance(list_standings_input, dict):
         raise ValueError("list_standings_input must be an object.")
 
-    supported_fields = set(LIST_STANDINGS_INPUT_REQUIRED_FIELDS)
+    supported_fields = set(LIST_STANDINGS_INPUT_REQUIRED_FIELDS) | set(
+        LIST_STANDINGS_INPUT_OPTIONAL_FIELDS
+    )
     additional_fields = sorted(set(list_standings_input) - supported_fields)
     if additional_fields:
         raise ValueError(
@@ -237,6 +242,39 @@ def validate_list_standings_input(
             "list_standings_input.players contains duplicate player_id values: "
             f"{duplicate_player_ids}."
         )
+
+    if "lot_order" in list_standings_input:
+        lot_order = list_standings_input["lot_order"]
+        if not isinstance(lot_order, list):
+            raise ValueError("list_standings_input.lot_order must be a list.")
+
+        if len(lot_order) < 2 or len(lot_order) > 3:
+            raise ValueError(
+                "list_standings_input.lot_order must contain two or three "
+                "player IDs."
+            )
+
+        for index, player_id in enumerate(lot_order):
+            validate_stable_list_entry_identifier(
+                player_id,
+                f"list_standings_input.lot_order[{index}]",
+            )
+
+        duplicate_lot_player_ids = sorted({
+            player_id for player_id in lot_order if lot_order.count(player_id) > 1
+        })
+        if duplicate_lot_player_ids:
+            raise ValueError(
+                "list_standings_input.lot_order contains duplicate player IDs: "
+                f"{duplicate_lot_player_ids}."
+            )
+
+        unknown_lot_player_ids = sorted(set(lot_order) - set(player_ids))
+        if unknown_lot_player_ids:
+            raise ValueError(
+                "list_standings_input.lot_order contains unknown player IDs: "
+                f"{unknown_lot_player_ids}."
+            )
 
     games = list_standings_input["games"]
     if not isinstance(games, list):
@@ -313,12 +351,121 @@ def validate_list_standings_input(
                 "settlement_score."
             )
 
+    # Cross-check the external lot result against the calculated official tie.
+    calculate_isko_fixed_three_player_standings(list_standings_input)
+
+
+def get_list_standings_ranking_key(row: dict[str, Any]) -> tuple[int, int, int]:
+    """Returns the complete SkWO 6.3.1 standings comparison key."""
+    return (
+        -row["total_performance_points"],
+        -row["own_games_won"],
+        row["own_games_lost"],
+    )
+
+
+def get_list_standings_tie_group(
+    standings: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Returns the one unresolved official tie group, if present."""
+    for index, row in enumerate(standings):
+        ranking_key = get_list_standings_ranking_key(row)
+        tie_group = [
+            tied_row
+            for tied_row in standings[index:]
+            if get_list_standings_ranking_key(tied_row) == ranking_key
+        ]
+        if len(tie_group) > 1:
+            return tie_group
+
+    return []
+
+
+def apply_list_standings_ranks_and_lot(
+    standings: list[dict[str, Any]],
+    lot_order: Any = None,
+    lot_order_supplied: bool = False,
+) -> None:
+    """Assigns competition ranks and applies one validated external lot result."""
+    for index, row in enumerate(standings):
+        if (
+            index > 0
+            and get_list_standings_ranking_key(row)
+            == get_list_standings_ranking_key(standings[index - 1])
+        ):
+            row["rank"] = standings[index - 1]["rank"]
+        else:
+            row["rank"] = index + 1
+
+    tie_group = get_list_standings_tie_group(standings)
+    if not lot_order_supplied:
+        return
+
+    if not isinstance(lot_order, list):
+        raise ValueError("list_standings_input.lot_order must be a list.")
+
+    if len(lot_order) < 2 or len(lot_order) > 3:
+        raise ValueError(
+            "list_standings_input.lot_order must contain two or three player IDs."
+        )
+
+    for index, player_id in enumerate(lot_order):
+        validate_stable_list_entry_identifier(
+            player_id,
+            f"list_standings_input.lot_order[{index}]",
+        )
+
+    duplicate_player_ids = sorted({
+        player_id for player_id in lot_order if lot_order.count(player_id) > 1
+    })
+    if duplicate_player_ids:
+        raise ValueError(
+            "list_standings_input.lot_order contains duplicate player IDs: "
+            f"{duplicate_player_ids}."
+        )
+
+    standings_player_ids = {row["player_id"] for row in standings}
+    unknown_player_ids = sorted(set(lot_order) - standings_player_ids)
+    if unknown_player_ids:
+        raise ValueError(
+            "list_standings_input.lot_order contains unknown player IDs: "
+            f"{unknown_player_ids}."
+        )
+
+    if not tie_group:
+        raise ValueError(
+            "list_standings_input.lot_order cannot be supplied when no "
+            "unresolved tie exists."
+        )
+
+    tied_player_ids = {row["player_id"] for row in tie_group}
+    supplied_player_ids = set(lot_order)
+    missing_player_ids = sorted(tied_player_ids - supplied_player_ids)
+    extra_player_ids = sorted(supplied_player_ids - tied_player_ids)
+    if missing_player_ids or extra_player_ids:
+        raise ValueError(
+            "list_standings_input.lot_order must contain exactly the unresolved "
+            f"tied players; missing: {missing_player_ids}; extra non-tied: "
+            f"{extra_player_ids}."
+        )
+
+    tie_start = standings.index(tie_group[0])
+    rows_by_player_id = {row["player_id"]: row for row in tie_group}
+    standings[tie_start : tie_start + len(tie_group)] = [
+        rows_by_player_id[player_id] for player_id in lot_order
+    ]
+    for offset, row in enumerate(
+        standings[tie_start : tie_start + len(tie_group)],
+        start=tie_start + 1,
+    ):
+        row["rank"] = offset
+
 
 def calculate_isko_fixed_three_player_standings(
     list_standings_input: dict[str, Any],
     table_size: int = ISKO_FIXED_TABLE_PLAYER_COUNT,
 ) -> list[dict[str, Any]]:
-    """Aggregates fixed three-player ISkO-style list standings."""
+    """Aggregates SkWO-governed standings for the fixed three-player model."""
     if table_size != ISKO_FIXED_TABLE_PLAYER_COUNT:
         raise ValueError(
             f"Unsupported ISkO list table size: {table_size}. "
@@ -390,18 +537,15 @@ def calculate_isko_fixed_three_player_standings(
     standings = sorted(
         rows_by_player_id.values(),
         key=lambda row: (
-            -row["total_performance_points"],
-            -row["player_game_points"],
-            -row["own_games_won"],
-            row["own_games_lost"],
-            -row["opponent_loss_bonus_points"],
-            row["player_id"],
+            *get_list_standings_ranking_key(row),
             row["input_order"],
         ),
     )
-
-    for rank, row in enumerate(standings, start=1):
-        row["rank"] = rank
+    apply_list_standings_ranks_and_lot(
+        standings,
+        lot_order=list_standings_input.get("lot_order"),
+        lot_order_supplied="lot_order" in list_standings_input,
+    )
 
     return standings
 
@@ -823,6 +967,13 @@ def build_list_standings_summary(
     standings = calculate_isko_fixed_three_player_standings(
         list_standings_input=list_standings_input,
     )
+    tie_group = get_list_standings_tie_group(standings)
+    applied_lot_order = list_standings_input.get("lot_order")
+    ranking_status = "final"
+    lot_required_player_ids = []
+    if tie_group and applied_lot_order is None:
+        ranking_status = "lot_required"
+        lot_required_player_ids = [row["player_id"] for row in tie_group]
 
     return {
         "rating_system": rating_system,
@@ -830,6 +981,9 @@ def build_list_standings_summary(
         "table_size": ISKO_FIXED_TABLE_PLAYER_COUNT,
         "player_count": ISKO_FIXED_TABLE_PLAYER_COUNT,
         "game_count": len(list_standings_input["games"]),
+        "ranking_status": ranking_status,
+        "lot_required_player_ids": lot_required_player_ids,
+        "applied_lot_order": applied_lot_order,
         "standings": standings,
     }
 

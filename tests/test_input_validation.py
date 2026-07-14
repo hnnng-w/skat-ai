@@ -2906,6 +2906,52 @@ def test_validate_position_input_reports_rated_player_conflict_before_duplicate_
     assert "Duplicate" not in error_message
 
 
+def build_valid_list_standings_validation_input() -> dict[str, object]:
+    data = build_valid_input()
+    data["performance_rating_system"] = "isko_list"
+    data["list_standings_input"] = {
+        "players": [
+            {"player_id": "alice"},
+            {"player_id": "bob"},
+            {"player_id": "carol"},
+        ],
+        "games": [
+            {
+                "declarer_player_id": "alice",
+                "game_outcome": "declarer_win",
+                "settlement_score": 96,
+            }
+        ],
+    }
+    return data
+
+
+def test_validate_position_input_accepts_external_lot_for_exact_tie_group() -> None:
+    data = build_valid_list_standings_validation_input()
+    data["list_standings_input"]["lot_order"] = ["carol", "bob"]
+
+    validate_position_input(data)
+
+
+@pytest.mark.parametrize("lot_order", [None, "bob,carol", 1, {}])
+def test_validate_position_input_rejects_non_list_standings_lot_order(
+    lot_order,
+) -> None:
+    data = build_valid_list_standings_validation_input()
+    data["list_standings_input"]["lot_order"] = lot_order
+
+    with pytest.raises(ValueError, match="lot_order must be a list"):
+        validate_position_input(data)
+
+
+def test_validate_position_input_rejects_lot_outside_exact_tie_group() -> None:
+    data = build_valid_list_standings_validation_input()
+    data["list_standings_input"]["lot_order"] = ["alice", "bob", "carol"]
+
+    with pytest.raises(ValueError, match="extra non-tied: \\['alice'\\]"):
+        validate_position_input(data)
+
+
 def test_validate_position_input_rejects_live_known_post_game_skat() -> None:
     data = {
         "game_type": "grand",

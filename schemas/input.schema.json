@@ -740,6 +740,15 @@
           "items": {
             "$ref": "#/$defs/list_standings_game"
           }
+        },
+        "lot_order": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stable_identifier"
+          },
+          "minItems": 2,
+          "maxItems": 3,
+          "uniqueItems": true
         }
       }
     },

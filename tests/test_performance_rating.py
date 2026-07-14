@@ -19,6 +19,7 @@ from skat_ai.performance_rating import (
     calculate_isko_list_performance_points_from_analysis_results,
     calculate_isko_list_performance_points_from_game_contributions,
     get_game_outcome_for_rating,
+    get_list_standings_ranking_key,
     get_performance_rating_implemented_scope,
     get_performance_rating_unsupported_reason,
     get_performance_rating_unsupported_scope,
@@ -135,8 +136,9 @@ def with_list_metadata(
 def build_list_standings_input(
     games: list[dict[str, object]] | None = None,
     players: list[dict[str, object]] | None = None,
+    lot_order: object = None,
 ) -> dict[str, object]:
-    return {
+    standings_input = {
         "players": players
         if players is not None
         else [
@@ -146,6 +148,11 @@ def build_list_standings_input(
         ],
         "games": games if games is not None else [],
     }
+
+    if lot_order is not None:
+        standings_input["lot_order"] = lot_order
+
+    return standings_input
 
 
 def build_standings_game(
@@ -192,6 +199,9 @@ def test_build_list_standings_summary_aggregates_three_players() -> None:
     assert summary["table_size"] == 3
     assert summary["player_count"] == 3
     assert summary["game_count"] == 2
+    assert summary["ranking_status"] == "final"
+    assert summary["lot_required_player_ids"] == []
+    assert summary["applied_lot_order"] is None
     assert [row["player_id"] for row in summary["standings"]] == [
         "alice",
         "carol",
@@ -263,7 +273,10 @@ def test_build_list_standings_summary_from_empty_games_returns_zero_rows() -> No
 
     assert summary["game_count"] == 0
     assert len(summary["standings"]) == 3
-    assert [row["rank"] for row in summary["standings"]] == [1, 2, 3]
+    assert [row["rank"] for row in summary["standings"]] == [1, 1, 1]
+    assert summary["ranking_status"] == "lot_required"
+    assert summary["lot_required_player_ids"] == ["alice", "bob", "carol"]
+    assert summary["applied_lot_order"] is None
     for row in summary["standings"]:
         assert row["games_played"] == 0
         assert row["total_performance_points"] == 0
@@ -303,7 +316,7 @@ def test_list_standings_declarer_loss_awards_both_defenders_bonus() -> None:
     assert rows_by_player_id["carol"]["defender_games_won"] == 1
 
 
-def test_list_standings_uses_deterministic_tie_breakers() -> None:
+def test_list_standings_input_order_only_serializes_unresolved_tie() -> None:
     summary = build_list_standings_summary(
         list_standings_input=build_list_standings_input(
             players=[
@@ -317,11 +330,210 @@ def test_list_standings_uses_deterministic_tie_breakers() -> None:
     )
 
     assert [row["player_id"] for row in summary["standings"]] == [
+        "carol",
+        "bob",
+        "alice",
+    ]
+    assert [row["rank"] for row in summary["standings"]] == [1, 1, 1]
+    assert summary["ranking_status"] == "lot_required"
+    assert summary["lot_required_player_ids"] == ["carol", "bob", "alice"]
+
+
+@pytest.mark.parametrize(
+    ("field_name", "first_value", "second_value"),
+    [
+        ("player_game_points", -500, 500),
+        ("opponent_loss_bonus_points", 0, 400),
+        ("player_id", "z-player", "a-player"),
+        ("player_label", "Zulu", "Alpha"),
+        ("input_order", 3, 1),
+    ],
+)
+def test_list_standings_official_ranking_key_ignores_unofficial_criteria(
+    field_name,
+    first_value,
+    second_value,
+) -> None:
+    first_row = {
+        "total_performance_points": 100,
+        "own_games_won": 2,
+        "own_games_lost": 1,
+        field_name: first_value,
+    }
+    second_row = {
+        "total_performance_points": 100,
+        "own_games_won": 2,
+        "own_games_lost": 1,
+        field_name: second_value,
+    }
+
+    assert get_list_standings_ranking_key(first_row) == (
+        get_list_standings_ranking_key(second_row)
+    )
+
+
+@pytest.mark.parametrize(
+    ("first_row", "second_row"),
+    [
+        (
+            {"total_performance_points": 101, "own_games_won": 0, "own_games_lost": 9},
+            {"total_performance_points": 100, "own_games_won": 9, "own_games_lost": 0},
+        ),
+        (
+            {"total_performance_points": 100, "own_games_won": 2, "own_games_lost": 9},
+            {"total_performance_points": 100, "own_games_won": 1, "own_games_lost": 0},
+        ),
+        (
+            {"total_performance_points": 100, "own_games_won": 2, "own_games_lost": 1},
+            {"total_performance_points": 100, "own_games_won": 2, "own_games_lost": 2},
+        ),
+    ],
+)
+def test_list_standings_official_ranking_key_orders_required_criteria(
+    first_row,
+    second_row,
+) -> None:
+    assert get_list_standings_ranking_key(first_row) < (
+        get_list_standings_ranking_key(second_row)
+    )
+
+
+def test_list_standings_assigns_shared_ranks_for_first_place_tie() -> None:
+    summary = build_list_standings_summary(
+        list_standings_input=build_list_standings_input(
+            games=[
+                build_standings_game(
+                    declarer_player_id="carol",
+                    game_outcome="declarer_loss",
+                    settlement_score=-72,
+                )
+            ]
+        ),
+        rating_system="isko_list",
+    )
+
+    assert [row["player_id"] for row in summary["standings"]] == [
         "alice",
         "bob",
         "carol",
     ]
+    assert [row["rank"] for row in summary["standings"]] == [1, 1, 3]
+    assert summary["ranking_status"] == "lot_required"
+    assert summary["lot_required_player_ids"] == ["alice", "bob"]
+    assert summary["applied_lot_order"] is None
+
+
+def test_list_standings_assigns_shared_ranks_for_second_place_tie() -> None:
+    summary = build_list_standings_summary(
+        list_standings_input=build_list_standings_input(
+            games=[build_standings_game(declarer_player_id="alice")]
+        ),
+        rating_system="isko_list",
+    )
+
+    assert [row["rank"] for row in summary["standings"]] == [1, 2, 2]
+    assert summary["ranking_status"] == "lot_required"
+    assert summary["lot_required_player_ids"] == ["bob", "carol"]
+    assert summary["applied_lot_order"] is None
+
+
+def test_list_standings_two_player_lot_resolves_only_tied_players() -> None:
+    summary = build_list_standings_summary(
+        list_standings_input=build_list_standings_input(
+            games=[build_standings_game(declarer_player_id="alice")],
+            lot_order=["carol", "bob"],
+        ),
+        rating_system="isko_list",
+    )
+
+    assert [row["player_id"] for row in summary["standings"]] == [
+        "alice",
+        "carol",
+        "bob",
+    ]
     assert [row["rank"] for row in summary["standings"]] == [1, 2, 3]
+    assert summary["ranking_status"] == "final"
+    assert summary["lot_required_player_ids"] == []
+    assert summary["applied_lot_order"] == ["carol", "bob"]
+
+
+def test_list_standings_three_player_lot_resolves_full_tie() -> None:
+    summary = build_list_standings_summary(
+        list_standings_input=build_list_standings_input(
+            lot_order=["carol", "alice", "bob"]
+        ),
+        rating_system="isko_list",
+    )
+
+    assert [row["player_id"] for row in summary["standings"]] == [
+        "carol",
+        "alice",
+        "bob",
+    ]
+    assert [row["rank"] for row in summary["standings"]] == [1, 2, 3]
+    assert summary["ranking_status"] == "final"
+    assert summary["lot_required_player_ids"] == []
+    assert summary["applied_lot_order"] == ["carol", "alice", "bob"]
+
+
+@pytest.mark.parametrize(
+    ("lot_order", "expected_error"),
+    [
+        ("alice,bob,carol", "must be a list"),
+        (["alice"], "two or three player IDs"),
+        (["alice", "bob", "carol", "dave"], "two or three player IDs"),
+        (["alice", "alice"], "duplicate player IDs"),
+        (["alice", "nobody"], "unknown player IDs"),
+        (["alice", "bob"], "missing: \\['carol'\\]"),
+    ],
+)
+def test_list_standings_rejects_invalid_lot_order_for_three_player_tie(
+    lot_order,
+    expected_error,
+) -> None:
+    standings_input = build_list_standings_input()
+    standings_input["lot_order"] = lot_order
+
+    with pytest.raises(ValueError, match=expected_error):
+        build_list_standings_summary(
+            list_standings_input=standings_input,
+            rating_system="isko_list",
+        )
+
+
+def test_list_standings_rejects_extra_non_tied_lot_player() -> None:
+    with pytest.raises(ValueError, match="extra non-tied: \\['alice'\\]"):
+        build_list_standings_summary(
+            list_standings_input=build_list_standings_input(
+                games=[build_standings_game(declarer_player_id="alice")],
+                lot_order=["bob", "carol", "alice"],
+            ),
+            rating_system="isko_list",
+        )
+
+
+def test_list_standings_rejects_lot_when_no_unresolved_tie_exists() -> None:
+    with pytest.raises(ValueError, match="when no unresolved tie exists"):
+        build_list_standings_summary(
+            list_standings_input=build_list_standings_input(
+                games=[
+                    build_standings_game(
+                        declarer_player_id="alice",
+                        game_outcome="declarer_win",
+                        settlement_score=96,
+                        game_id="game-1",
+                    ),
+                    build_standings_game(
+                        declarer_player_id="bob",
+                        game_outcome="declarer_loss",
+                        settlement_score=-72,
+                        game_id="game-2",
+                    ),
+                ],
+                lot_order=["alice", "bob"],
+            ),
+            rating_system="isko_list",
+        )
 
 
 def test_list_standings_rejects_duplicate_player_ids() -> None:

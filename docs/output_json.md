@@ -469,6 +469,9 @@ Example:
   "table_size": 3,
   "player_count": 3,
   "game_count": 1,
+  "ranking_status": "lot_required",
+  "lot_required_player_ids": ["bob", "carol"],
+  "applied_lot_order": null,
   "standings": [
     {
       "rank": 1,
@@ -501,14 +504,17 @@ Summary fields:
 | `table_size`   | Fixed table size, always `3`.                |
 | `player_count` | Number of standings players, always `3`.     |
 | `game_count`   | Number of supplied list games.               |
+| `ranking_status` | `final` or `lot_required`.                 |
+| `lot_required_player_ids` | IDs in the unresolved tie group, or an empty array. |
+| `applied_lot_order` | Applied external lot order, or `null`.  |
 | `standings`    | Exactly three ranked player rows.            |
 
 Standing row fields:
 
 | Field                         | Meaning                                                    |
 | ----------------------------- | ---------------------------------------------------------- |
-| `rank`                        | Unique rank after deterministic ordering.                  |
-| `input_order`                 | One-based order from `list_standings_input.players`.       |
+| `rank`                        | Final rank or shared competition rank for an unresolved tie. |
+| `input_order`                 | One-based input position used only for deterministic serialization. |
 | `player_id`                   | Stable player identifier.                                  |
 | `player_label`                | Optional display label, or `null`.                         |
 | `games_played`                | Total number of supplied games.                            |
@@ -524,11 +530,23 @@ Standing row fields:
 | `opponent_loss_bonus_points`  | `other_players_lost_games * 40`.                           |
 | `total_performance_points`    | Sum of game points and performance bonuses.                |
 
-Rows are ordered by `total_performance_points` descending,
-`player_game_points` descending, `own_games_won` descending, `own_games_lost`
-ascending, `opponent_loss_bonus_points` descending, `player_id` ascending, then
-`input_order` ascending. Ranks are unique row positions and are not shared for
-ties.
+SkWO 6.3.1 orders standings by `total_performance_points` descending,
+`own_games_won` descending, and `own_games_lost` ascending. A remaining tie is
+resolved only by an externally supplied `lot_order`. `player_game_points`,
+`opponent_loss_bonus_points`, player IDs, labels, and input order do not decide
+rank. The `isko_list` rating-system identifier remains for compatibility.
+
+Without a supplied lot result, tied rows receive standard competition ranks:
+`1, 1, 3`, `1, 2, 2`, or `1, 1, 1`. The summary then uses
+`ranking_status: "lot_required"`, lists the tied IDs in deterministic input
+order, and leaves `applied_lot_order` as `null`. Input order determines only
+serialization and does not imply an order within the tie, so these standings
+are not final.
+
+When no tie remains, the status is `final`, both lot fields are empty or
+`null`, respectively. A valid external lot result also produces `final` status,
+unique ranks for only the tied players, and echoes the supplied order in
+`applied_lot_order`. The engine never executes a random lot.
 
 This standings output is fixed to three players. It is not four-player support,
 full tournament reporting, or an official federation report format.

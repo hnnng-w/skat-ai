@@ -601,7 +601,8 @@ standings input:
         "game_outcome": "declarer_win",
         "settlement_score": 96
       }
-    ]
+    ],
+    "lot_order": ["carol", "bob"]
   }
 }
 ```
@@ -616,6 +617,7 @@ Standings input fields:
 | `games[].declarer_player_id`  | Declarer player identifier for the game.                   |
 | `games[].game_outcome`        | `declarer_win` or `declarer_loss`.                         |
 | `games[].settlement_score`    | Declarer's settlement score before performance bonuses.    |
+| `lot_order`                   | Optional externally determined best-to-worst lot order.    |
 
 Validation rules:
 
@@ -627,10 +629,19 @@ Validation rules:
 * `declarer_win` requires a positive `settlement_score`
 * `declarer_loss` requires a negative `settlement_score`
 * supplied `game_id` values must be unique
+* `lot_order`, when supplied, must be an array of two or three unique declared player IDs
+* `lot_order` must contain exactly every player in the one tie group remaining after total performance points, own wins, and own losses are compared
+* omitted tied players, unknown players, players outside the tie, and a lot result supplied without an unresolved tie are rejected
+* the engine does not execute a random lot; `lot_order` only records an externally executed decision
 * `list_standings_input` emits `list_standings_summary`, not `list_performance_summary`
 
 Existing single-rated-player modes do not emit standings because they do not
 safely describe all three player identities and totals.
+
+The standings formula and tie handling follow SkWO 6.3.1. The public
+`performance_rating_system: "isko_list"` identifier remains unchanged for
+compatibility. Without a valid external `lot_order`, an official tie remains
+unresolved and the resulting standings are not final.
 
 * `list_performance_input`, `list_game_contributions`, `list_analysis_results`, and `list_standings_input` are alternative input modes and cannot be combined.
 * `table_size` is fixed at `3`. There is no supported `table_size` input for this mode; a top-level `table_size`, if supplied as extra metadata, is ignored.

@@ -682,6 +682,9 @@
         "table_size",
         "player_count",
         "game_count",
+        "ranking_status",
+        "lot_required_player_ids",
+        "applied_lot_order",
         "standings"
       ],
       "properties": {
@@ -705,6 +708,36 @@
           "type": "integer",
           "minimum": 0
         },
+        "ranking_status": {
+          "type": "string",
+          "enum": ["final", "lot_required"]
+        },
+        "lot_required_player_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "applied_lot_order": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 2,
+              "maxItems": 3,
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "standings": {
           "type": "array",
           "items": {
@@ -713,7 +746,36 @@
           "minItems": 3,
           "maxItems": 3
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ranking_status": {
+                "const": "lot_required"
+              }
+            },
+            "required": ["ranking_status"]
+          },
+          "then": {
+            "properties": {
+              "lot_required_player_ids": {
+                "minItems": 2
+              },
+              "applied_lot_order": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "lot_required_player_ids": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
     },
     "list_standings_row": {
       "type": "object",

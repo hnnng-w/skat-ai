@@ -752,6 +752,15 @@ def check_list_standings(data: dict[str, Any]) -> list[str]:
     if standings_summary["basis"] != "fixed_three_player_game_results":
         errors.append("expected fixed three-player standings basis")
 
+    if standings_summary["ranking_status"] != "final":
+        errors.append("expected final fixed three-player standings")
+
+    if standings_summary["lot_required_player_ids"] != []:
+        errors.append("expected no unresolved standings lot")
+
+    if standings_summary["applied_lot_order"] is not None:
+        errors.append("expected no applied standings lot")
+
     standings = standings_summary["standings"]
     if len(standings) != 3:
         errors.append("expected exactly three standings rows")

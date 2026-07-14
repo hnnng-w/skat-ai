@@ -418,6 +418,9 @@ def test_list_standings_input_example_adds_three_player_standings() -> None:
         "table_size": 3,
         "player_count": 3,
         "game_count": 3,
+        "ranking_status": "final",
+        "lot_required_player_ids": [],
+        "applied_lot_order": None,
         "standings": [
             {
                 "rank": 1,

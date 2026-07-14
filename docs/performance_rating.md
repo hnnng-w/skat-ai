@@ -291,7 +291,8 @@ Analysis-result-derived summaries use the same field set with
         "game_outcome": "declarer_win",
         "settlement_score": 96
       }
-    ]
+    ],
+    "lot_order": ["carol", "bob"]
   }
 }
 ```
@@ -307,6 +308,11 @@ Validation rules:
 * `declarer_win` requires a positive `settlement_score`
 * `declarer_loss` requires a negative `settlement_score`
 * `game_id` is optional, but supplied IDs must be unique
+* `lot_order` is optional and records an externally executed lot from best to worst
+* a supplied `lot_order` must contain exactly the two or three players in the one remaining official tie group
+* duplicate, unknown, omitted, and extra non-tied player IDs are rejected
+* `lot_order` is rejected when no unresolved tie exists
+* the engine does not generate or execute a random lot
 
 The output is `list_standings_summary`, not `list_performance_summary`.
 
@@ -329,10 +335,20 @@ opponent_loss_bonus_points = other_players_lost_games * 40
 total_performance_points = player_game_points + own_game_bonus_points + opponent_loss_bonus_points
 ```
 
-Standings are ordered by `total_performance_points` descending,
-`player_game_points` descending, `own_games_won` descending, `own_games_lost`
-ascending, `opponent_loss_bonus_points` descending, `player_id` ascending, then
-`input_order` ascending. Ranks are unique row positions `1`, `2`, and `3`.
+The formula and standings tie handling follow SkWO 6.3.1. The public
+`isko_list` identifier remains for compatibility. Standings are ordered only by
+`total_performance_points` descending, `own_games_won` descending, and
+`own_games_lost` ascending, followed by a supplied external lot result.
+`player_game_points`, `opponent_loss_bonus_points`, player IDs, labels, and input
+order are not tie-breakers.
+
+Without `lot_order`, a remaining tie receives shared competition ranks
+`1, 1, 3`, `1, 2, 2`, or `1, 1, 1`. The output reports
+`ranking_status: "lot_required"`, exposes the tied player IDs in deterministic
+input order, and is not a final ranking. Input order is only the stable
+serialization order for unresolved tied rows. A valid external `lot_order`
+creates unique ranks only within that tie and is exposed as
+`applied_lot_order`; otherwise `applied_lot_order` is `null`.
 
 This is a fixed three-player list-aware review output contract. It is not a
 four-player model, official federation report format, or full tournament/series
@@ -424,7 +440,7 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
 * Already aggregated list or series totals can be calculated when supplied via `list_performance_input`.
 * Normalized per-game contributions can be calculated when supplied via `list_game_contributions`.
-* Fixed three-player standings can be calculated when supplied via `list_standings_input`.
+* Fixed three-player standings can be calculated when supplied via `list_standings_input`, with unresolved lots represented explicitly.
 * Optional `rated_player_id` and `game_id` metadata can validate per-game list inputs, but does not affect scoring.
 * Duplicate-game detection only uses supplied `game_id` values; content-based duplicate detection is not implemented.
 * Raw full-game aggregation, multi-list rollups, full tournament aggregation, and official federation report formats are not implemented yet.

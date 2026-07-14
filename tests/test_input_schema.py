@@ -837,6 +837,30 @@ def test_schema_accepts_valid_list_standings_input() -> None:
     assert_schema_valid(build_list_standings_input())
 
 
+def test_schema_accepts_list_standings_lot_order() -> None:
+    data = build_list_standings_input()
+    standings_input = data["list_standings_input"]
+    assert isinstance(standings_input, dict)
+    standings_input["lot_order"] = ["bob", "carol"]
+
+    assert_schema_valid(data)
+
+
+@pytest.mark.parametrize(
+    "lot_order",
+    ["bob,carol", [], ["bob"], ["alice", "bob", "carol", "dave"], ["bob", "bob"]],
+)
+def test_schema_rejects_structurally_invalid_list_standings_lot_order(
+    lot_order,
+) -> None:
+    data = build_list_standings_input()
+    standings_input = data["list_standings_input"]
+    assert isinstance(standings_input, dict)
+    standings_input["lot_order"] = lot_order
+
+    assert_schema_invalid(data)
+
+
 def test_schema_rejects_list_standings_missing_required_game_field() -> None:
     data = build_list_standings_input()
     games = data["list_standings_input"]["games"]

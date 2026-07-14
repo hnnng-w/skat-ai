@@ -73,7 +73,7 @@ performance scoring.
 | Requirement | Source | Rule section | Current status | Current implementation | Required input or information | Known limitation | Required validation or tests | Target milestone | Required before v1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Fixed three-player list performance | SkWO | 6.1.1-6.1.5; 6.3.1 | `partially_supported` | Implements game points plus 50 per own win, minus 50 per own loss, and 40 per other declarer loss from totals, contributions, local results, or explicit standings games. | One player's totals/contributions or three identified players and declarer results. | Most modes trust normalized results; full list procedure and aggregation from complete historical records are not represented. | Verify every supported input mode against SkWO 6.3.1, reconcile explicit game contributions, and keep unsupported procedures explicit. | v1.0 | Yes |
-| Standings | SkWO | 6.3.1 | `partially_supported` | Produces exactly three deterministic standings rows with totals. | Three player identities and supplied game outcomes/scores. | Current extra tie-breaks include game points and identifiers before/after wins and losses; SkWO specifies more wins, fewer losses, then lot. | Align tested ties with SkWO or represent an unresolved lot explicitly. | v1.0 | Yes |
+| Standings | SkWO | 6.3.1 | `partially_supported` | Produces exactly three standings rows ordered by total performance points, own wins, own losses, then an optional externally executed lot; unresolved ties use shared ranks and explicit `lot_required` status. | Three player identities and supplied game outcomes/scores; optional exact tied-player `lot_order`. | Input order is presentation-only, and the engine does not execute the lot; complete historical aggregation and official reporting remain unsupported. | Retain ordering, shared-rank, exact lot-group validation, schema, CLI, and generated-output tests. | v1.0 | Yes |
 | Series aggregation | SkWO | 4.2(c); 5.4; 6.1.3-6.1.4; 6.2.4 | `partially_supported` | Already aggregated values may be labeled list or series totals. | Pre-aggregated totals. | No series identity, list membership, multi-list rollup, seating, corrections, or series-level standings. | Define product scope before adding entities, validation, aggregation, and tests. | Product decision | Decision required |
 | Tournament aggregation | SkWO | 1.1-1.6; 2.3-2.4; 3.1-3.4; 4.1-4.5; 5.1-5.5 | `not_supported` | No tournament model exists. | Event plan, participants, series, tables, officials, results, and accounting data. | Governance and procedural requirements are broader than score aggregation. | Product decision followed by event-plan, seating, adjudication, aggregation, and retention tests if approved. | Product decision | Decision required |
 | Official reporting | SkWO | 4.5; 6.2.1-6.2.7; 6.4.1-6.4.3 | `not_supported` | General JSON and CLI reports exist, but no official list or federation report format. | List entries, running totals, signatures/approvals, corrections, submission, and retention metadata. | SkWO prescribes duties but no official digital interchange or layout in this PDF. | Define the target authority and format before schema and conformance tests. | Product decision | Decision required |
@@ -113,8 +113,9 @@ performance scoring.
   ISkO 4.4.1 says games are generally played to the end. The numbered rules do
   not provide one standalone `normal_completion` data definition; the v1.0
   complete-history contract must state its software evidence explicitly.
-* SkWO 6.3.1 requires standings ties to use more own wins, fewer own losses,
-  then lot. Current deterministic extra tie-breaks are not full SkWO behavior.
+* SkWO 6.3.1 standings use total performance points, more own wins, fewer own
+  losses, then lot. The engine represents an unresolved lot explicitly or
+  records an externally executed result; it does not perform a random lot.
 * SkWO defines list, event, signature, correction, submission, and retention
   duties, but the November 2022 PDF does not prescribe an official digital file
   format. Any such format needs a named external authority and conformance

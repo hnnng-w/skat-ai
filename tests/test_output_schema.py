@@ -173,6 +173,9 @@ def build_list_standings_summary() -> dict[str, object]:
         "table_size": 3,
         "player_count": 3,
         "game_count": 1,
+        "ranking_status": "lot_required",
+        "lot_required_player_ids": ["bob", "carol"],
+        "applied_lot_order": None,
         "standings": [
             {
                 "rank": 1,
@@ -211,7 +214,7 @@ def build_list_standings_summary() -> dict[str, object]:
                 "total_performance_points": 0,
             },
             {
-                "rank": 3,
+                "rank": 2,
                 "input_order": 3,
                 "player_id": "carol",
                 "player_label": None,
@@ -401,6 +404,26 @@ def test_schema_accepts_list_standings_summary() -> None:
     data["list_standings_summary"] = build_list_standings_summary()
 
     assert_schema_valid(data)
+
+
+def test_schema_accepts_final_list_standings_with_applied_lot_order() -> None:
+    data = build_valid_output()
+    summary = build_list_standings_summary()
+    summary["ranking_status"] = "final"
+    summary["lot_required_player_ids"] = []
+    summary["applied_lot_order"] = ["carol", "bob"]
+    data["list_standings_summary"] = summary
+
+    assert_schema_valid(data)
+
+
+def test_schema_rejects_inconsistent_list_standings_ranking_status() -> None:
+    data = build_valid_output()
+    summary = build_list_standings_summary()
+    summary["ranking_status"] = "final"
+    data["list_standings_summary"] = summary
+
+    assert_schema_invalid(data)
 
 
 def test_schema_rejects_malformed_list_standings_row() -> None:

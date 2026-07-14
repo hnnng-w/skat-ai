@@ -1159,6 +1159,9 @@ def test_build_analysis_result_includes_list_standings_summary(
     assert result["list_standings_summary"]["basis"] == (
         "fixed_three_player_game_results"
     )
+    assert result["list_standings_summary"]["ranking_status"] == "final"
+    assert result["list_standings_summary"]["lot_required_player_ids"] == []
+    assert result["list_standings_summary"]["applied_lot_order"] is None
     assert result["list_standings_summary"]["standings"][0]["player_id"] == "alice"
     assert result["list_standings_summary"]["standings"][0][
         "total_performance_points"
