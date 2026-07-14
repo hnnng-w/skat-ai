@@ -26,6 +26,10 @@ The input schema is located at:
 schemas/input.schema.json
 ```
 
+Its alternative `historical_game_input` branch references the focused versioned
+schema at `schemas/historical_game.schema.json`. The validation script registers
+that schema locally; it does not fetch schema definitions over the network.
+
 It validates example input files in `examples/`.
 
 Run:
@@ -66,6 +70,7 @@ The input schema checks things such as:
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
+* complete historical-game player, deal, declaration, discard, and ten-trick shapes
 
 Runtime input validation mirrors selected public schema bounds and shapes so
 direct Python callers receive stable `ValueError` failures for malformed public
@@ -121,10 +126,12 @@ The output schema checks the main output structure, including:
 * `profile_preset_settings`
 * `multi_step_result`, when Multi-Step simulation is requested
 * `policy_comparison_result`, when policy comparison is requested
+* the separate `historical_game_summary` branch
 
-Generated-output validation uses deterministic CLI settings such as
-`--samples 20` and `--seed 42`, plus scenario-specific mode arguments where
-needed. It is separate from input-example schema validation: input validation
+Generated-output validation covers 24 deterministic scenarios. Position
+scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
+scenario-specific mode arguments where needed. The historical-game scenario
+omits position-only overrides. It is separate from input-example schema validation: input validation
 checks the example JSON files, while generated-output validation checks the
 production JSON output emitted from those inputs.
 
@@ -137,7 +144,8 @@ Null-objective post-game review, defender-perspective post-game review,
 claim/overbid/list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
-`known_to_declarer` Skat visibility.
+`known_to_declarer` Skat visibility, plus complete normal-play historical-game
+validation and settlement.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

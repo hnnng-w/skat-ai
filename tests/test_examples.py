@@ -3,12 +3,14 @@ from pathlib import Path
 
 from main import build_analysis_result
 from skat_ai.analysis_report import build_card_analysis_report
+from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
     get_left_opponent_policy_settings_from_input,
     get_opponent_policy_settings_from_input,
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
+    load_historical_game_from_json,
     load_position_from_json,
 )
 from skat_ai.multi_step_simulation import (
@@ -27,6 +29,14 @@ def get_example_json_files() -> list[Path]:
     return sorted(examples_dir.glob("*.json"))
 
 
+def get_position_example_json_files() -> list[Path]:
+    return [
+        path
+        for path in get_example_json_files()
+        if path.name != "historical_grand_normal_completion.json"
+    ]
+
+
 def test_examples_folder_contains_json_files() -> None:
     example_files = get_example_json_files()
 
@@ -37,13 +47,18 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
     example_files = get_example_json_files()
 
     for example_file in example_files:
+        if example_file.name == "historical_grand_normal_completion.json":
+            record = load_historical_game_from_json(str(example_file))
+            assert record.game_id == "historical-grand-001"
+            continue
+
         data = load_position_from_json(str(example_file))
 
         assert isinstance(data, dict)
 
 
 def test_all_example_json_files_can_build_game_state_and_settings() -> None:
-    example_files = get_example_json_files()
+    example_files = get_position_example_json_files()
 
     for example_file in example_files:
         data = load_position_from_json(str(example_file))
@@ -64,7 +79,7 @@ def test_all_example_json_files_can_build_game_state_and_settings() -> None:
 
 
 def test_all_example_json_files_have_legal_cards() -> None:
-    example_files = get_example_json_files()
+    example_files = get_position_example_json_files()
 
     for example_file in example_files:
         data = load_position_from_json(str(example_file))
@@ -80,7 +95,7 @@ def test_all_example_json_files_have_legal_cards() -> None:
 
 
 def test_all_example_json_files_can_build_analysis_report() -> None:
-    example_files = get_example_json_files()
+    example_files = get_position_example_json_files()
 
     for example_file in example_files:
         data = load_position_from_json(str(example_file))
@@ -98,6 +113,16 @@ def test_all_example_json_files_can_build_analysis_report() -> None:
 
         assert len(report) > 0
         assert report[0]["is_recommended"] is True
+
+
+def test_historical_game_example_builds_complete_summary() -> None:
+    path = Path("examples/historical_grand_normal_completion.json")
+    summary = build_historical_game_summary(load_historical_game_from_json(str(path)))
+
+    assert summary["game_id"] == "historical-grand-001"
+    assert summary["status"] == "complete"
+    assert len(summary["derived_tricks"]) == 10
+    assert summary["declarer_points"] + summary["defender_points"] == 120
 
 
 def test_default_input_position_is_runtime_valid_local_action() -> None:

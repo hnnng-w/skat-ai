@@ -4,13 +4,16 @@ from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
+from skat_ai.historical_game import build_historical_game_record
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.opponent_policy_preset import VALID_OPPONENT_POLICY_PRESETS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
+HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 POLICY_FIELDS = [
     "opponent_lead_policy",
     "opponent_response_policy",
@@ -26,7 +29,15 @@ def load_input_schema() -> dict:
         return json.load(file)
 
 
-INPUT_VALIDATOR = Draft202012Validator(load_input_schema())
+with HISTORICAL_SCHEMA_PATH.open("r", encoding="utf-8") as historical_schema_file:
+    HISTORICAL_SCHEMA = json.load(historical_schema_file)
+
+INPUT_SCHEMA_REGISTRY = Registry().with_resource(
+    HISTORICAL_SCHEMA["$id"], Resource.from_contents(HISTORICAL_SCHEMA)
+)
+INPUT_VALIDATOR = Draft202012Validator(
+    load_input_schema(), registry=INPUT_SCHEMA_REGISTRY
+)
 
 
 def build_valid_input() -> dict[str, object]:
@@ -99,6 +110,59 @@ def assert_schema_and_runtime_invalid(data: dict[str, object]) -> None:
 
     with pytest.raises(ValueError):
         validate_position_input(copy.deepcopy(data))
+
+
+def build_valid_historical_input() -> dict[str, object]:
+    example_path = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        return json.load(example_file)
+
+
+def test_schema_and_runtime_accept_historical_game_branch() -> None:
+    data = build_valid_historical_input()
+
+    assert_schema_valid(data)
+    record = build_historical_game_record(copy.deepcopy(data["historical_game_input"]))
+
+    assert record.game_id == "historical-grand-001"
+
+
+def test_schema_rejects_combined_position_and_historical_branches() -> None:
+    data = build_valid_input()
+    data.update(build_valid_historical_input())
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_historical_game_with_position_only_field() -> None:
+    data = build_valid_historical_input()
+    data["sample_count"] = 100
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("schema_version",), 2),
+        (("players",), []),
+        (("skat",), ["D8"]),
+        (("game_end_reason",), "declarer_claimed_remaining_tricks"),
+        (("tricks",), []),
+        (("declaration", "bid_value"), 0),
+    ],
+)
+def test_schema_rejects_structurally_invalid_historical_game(
+    path: tuple[str, ...], value: object
+) -> None:
+    data = build_valid_historical_input()
+    historical_data = data["historical_game_input"]
+    target = historical_data
+    for path_part in path[:-1]:
+        target = target[path_part]
+    target[path[-1]] = value
+
+    assert_schema_invalid(data)
 
 
 @pytest.mark.parametrize("field_name", ["left_hand_size", "right_hand_size"])

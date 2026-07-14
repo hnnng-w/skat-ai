@@ -1,9 +1,12 @@
+import pytest
+
 from skat_ai.input_loader import (
     build_game_state_from_input,
     build_local_game_state_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_impossible_null_settlement_from_input,
+    get_input_workflow,
     get_left_opponent_policy_settings_from_input,
     get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
@@ -13,7 +16,29 @@ from skat_ai.input_loader import (
     get_profile_preset_settings_from_input,
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
+    load_historical_game_from_json,
 )
+
+
+def test_load_historical_game_from_json() -> None:
+    record = load_historical_game_from_json(
+        "examples/historical_grand_normal_completion.json"
+    )
+
+    assert record.schema_version == 1
+    assert record.game_id == "historical-grand-001"
+    assert len(record.players) == 3
+    assert len(record.tricks) == 10
+
+
+def test_historical_input_cannot_be_combined_with_other_workflows() -> None:
+    with pytest.raises(ValueError, match="cannot be combined"):
+        get_input_workflow(
+            {
+                "historical_game_input": {},
+                "actual_card_played": "CA",
+            }
+        )
 
 
 def test_build_game_state_from_input() -> None:

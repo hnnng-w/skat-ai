@@ -8,6 +8,10 @@ The input JSON schema is available at:
 
 [`schemas/input.schema.json`](../schemas/input.schema.json)
 
+Complete historical records use the focused referenced schema:
+
+[`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json)
+
 The schema is intended as a documentation and validation aid.
 
 Example files can be validated against the schema with:
@@ -51,12 +55,44 @@ Python validation covers Skat-specific rules such as:
 * game-end consistency
 * legality of `actual_card_played`
 * point consistency
+* stable historical player/seat references and complete 32-card deals
+* historical pickup/discard ownership, final playable hands, all 30 plays, follow obligations, winners, points, matadors, and settlement
 
 For the validation-layer overview and schema limitations, see:
 
 [Schema validation documentation](schema_validation.md)
 
-## Minimal input
+## Input workflows
+
+The public schema has two mutually exclusive branches:
+
+* the existing flat position-analysis input described below
+* a complete historical game under `historical_game_input`
+
+A historical-game file contains no position fields, simulation settings,
+`actual_card_played`, profiles, policies, list inputs, or impossible-Null
+settlement selection:
+
+```json
+{
+  "historical_game_input": {
+    "schema_version": 1,
+    "game_id": "game-001",
+    "players": [],
+    "skat": [],
+    "declarer_player_id": "player-a",
+    "declaration": {},
+    "discarded_cards": [],
+    "game_end_reason": "normal_completion",
+    "tricks": []
+  }
+}
+```
+
+See [Historical games](historical_games.md) for the complete identity, deal,
+declaration, skat, play, and runtime-validation contract.
+
+## Minimal position input
 
 A basic input position requires:
 

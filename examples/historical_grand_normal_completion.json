@@ -1,0 +1,126 @@
+{
+  "historical_game_input": {
+    "schema_version": 1,
+    "game_id": "historical-grand-001",
+    "players": [
+      {
+        "player_id": "player-a",
+        "player_label": "Alice",
+        "seat": "forehand",
+        "initial_hand": ["CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"]
+      },
+      {
+        "player_id": "player-b",
+        "seat": "middlehand",
+        "initial_hand": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"]
+      },
+      {
+        "player_id": "player-c",
+        "player_label": "Carol",
+        "seat": "rearhand",
+        "initial_hand": ["HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"]
+      }
+    ],
+    "skat": ["D8", "D7"],
+    "declarer_player_id": "player-b",
+    "declaration": {
+      "game_type": "grand",
+      "hand_game": false,
+      "bid_value": 18
+    },
+    "discarded_cards": ["SK", "SQ"],
+    "game_end_reason": "normal_completion",
+    "tricks": [
+      {
+        "trick_number": 1,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "CA"},
+          {"player_id": "player-b", "card": "SJ"},
+          {"player_id": "player-c", "card": "HJ"}
+        ]
+      },
+      {
+        "trick_number": 2,
+        "leader_player_id": "player-b",
+        "plays": [
+          {"player_id": "player-b", "card": "S9"},
+          {"player_id": "player-c", "card": "H9"},
+          {"player_id": "player-a", "card": "SA"}
+        ]
+      },
+      {
+        "trick_number": 3,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "C10"},
+          {"player_id": "player-b", "card": "S8"},
+          {"player_id": "player-c", "card": "H8"}
+        ]
+      },
+      {
+        "trick_number": 4,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "CK"},
+          {"player_id": "player-b", "card": "S7"},
+          {"player_id": "player-c", "card": "H7"}
+        ]
+      },
+      {
+        "trick_number": 5,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "CQ"},
+          {"player_id": "player-b", "card": "HA"},
+          {"player_id": "player-c", "card": "DA"}
+        ]
+      },
+      {
+        "trick_number": 6,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "CJ"},
+          {"player_id": "player-b", "card": "H10"},
+          {"player_id": "player-c", "card": "DJ"}
+        ]
+      },
+      {
+        "trick_number": 7,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "C9"},
+          {"player_id": "player-b", "card": "HK"},
+          {"player_id": "player-c", "card": "D10"}
+        ]
+      },
+      {
+        "trick_number": 8,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "C8"},
+          {"player_id": "player-b", "card": "HQ"},
+          {"player_id": "player-c", "card": "DK"}
+        ]
+      },
+      {
+        "trick_number": 9,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "C7"},
+          {"player_id": "player-b", "card": "D8"},
+          {"player_id": "player-c", "card": "DQ"}
+        ]
+      },
+      {
+        "trick_number": 10,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "S10"},
+          {"player_id": "player-b", "card": "D7"},
+          {"player_id": "player-c", "card": "D9"}
+        ]
+      }
+    ]
+  }
+}

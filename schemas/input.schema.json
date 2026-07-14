@@ -1,27 +1,43 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.local/skat-ai/input.schema.json",
-  "title": "skat-ai input position",
+  "title": "skat-ai public input",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "game_type",
-    "player_role",
-    "player_position",
-    "trick_leader",
-    "hand",
-    "current_trick",
-    "played_cards",
-    "completed_tricks",
-    "declarer_points",
-    "defender_points",
-    "next_player",
-    "skat",
-    "left_hand_size",
-    "right_hand_size",
-    "sample_count",
-    "random_seed",
-    "use_basic_opponent_strategy"
+  "oneOf": [
+    {
+      "required": [
+        "game_type",
+        "player_role",
+        "player_position",
+        "trick_leader",
+        "hand",
+        "current_trick",
+        "played_cards",
+        "completed_tricks",
+        "declarer_points",
+        "defender_points",
+        "next_player",
+        "skat",
+        "left_hand_size",
+        "right_hand_size",
+        "sample_count",
+        "random_seed",
+        "use_basic_opponent_strategy"
+      ],
+      "not": {
+        "required": ["historical_game_input"]
+      }
+    },
+    {
+      "required": ["historical_game_input"],
+      "properties": {
+        "historical_game_input": {
+          "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+        }
+      },
+      "additionalProperties": false
+    }
   ],
   "not": {
     "anyOf": [
@@ -278,6 +294,9 @@
     }
   ],
   "properties": {
+    "historical_game_input": {
+      "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+    },
     "game_type": {
       "type": "string",
       "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]

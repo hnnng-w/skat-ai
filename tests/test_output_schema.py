@@ -5,6 +5,9 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+from skat_ai.historical_game import build_historical_game_summary
+from skat_ai.input_loader import load_historical_game_from_json
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
 
@@ -373,6 +376,15 @@ def build_valid_output_with_optional_results() -> dict[str, object]:
     return data
 
 
+def build_valid_historical_output() -> dict[str, object]:
+    input_path = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+    record = load_historical_game_from_json(str(input_path))
+    return {
+        "input_file": "examples/historical_grand_normal_completion.json",
+        "historical_game_summary": build_historical_game_summary(record),
+    }
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -393,6 +405,40 @@ def assert_schema_invalid(data: dict[str, object]) -> None:
 
 def test_schema_accepts_base_output_without_optional_results() -> None:
     assert_schema_valid(build_valid_output())
+
+
+def test_schema_accepts_historical_game_output_branch() -> None:
+    assert_schema_valid(build_valid_historical_output())
+
+
+def test_schema_rejects_combined_position_and_historical_output_branches() -> None:
+    data = build_valid_output()
+    data["historical_game_summary"] = build_valid_historical_output()[
+        "historical_game_summary"
+    ]
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize(
+    "missing_field",
+    [
+        "schema_version",
+        "record",
+        "derived_tricks",
+        "winner",
+        "game_value_summary",
+        "overbid_summary",
+        "final_settlement_summary",
+    ],
+)
+def test_schema_rejects_incomplete_historical_game_summary(
+    missing_field: str,
+) -> None:
+    data = build_valid_historical_output()
+    del data["historical_game_summary"][missing_field]
+
+    assert_schema_invalid(data)
 
 
 def test_schema_accepts_structured_multi_step_and_policy_results() -> None:

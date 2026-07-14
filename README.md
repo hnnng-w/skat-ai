@@ -2,7 +2,7 @@
 
 ![Check](https://github.com/hnnng-w/skat-ai/actions/workflows/check.yml/badge.svg)
 
-Skat AI is a local Python-based analysis and simulation engine for Skat positions.
+Skat AI is a local Python-based analysis and simulation engine for Skat positions and complete normal-play historical games.
 
 It evaluates legal card choices, estimates expected point swings, recommends cards, tracks game state, simulates multi-step play, and supports post-game review workflows. The project focuses on rule-based and probability-based analysis rather than machine learning.
 
@@ -49,6 +49,9 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Final single-game settlement summaries
 * Supported Suit/Grand overbid settlement
 * Partial fixed-three-player SkWO-style performance rating
+* Versioned complete historical-game records for normal play
+* Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
+* Derived historical trick winners, points, game value, overbid, and settlement
 
 ### Information policy
 
@@ -199,6 +202,15 @@ Run a post-game review example with an actual played card:
 python main.py --input examples/spades_post_game_actual_card_played.json
 ```
 
+Validate and summarize a complete normally played historical game:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json
+```
+
+Historical-game inputs form a separate workflow. Position-analysis, policy,
+comparison, recommendation, and simulation overrides are rejected for them.
+
 CLI exit codes:
 
 * `0` = success
@@ -215,6 +227,8 @@ Detailed documentation is split into topic-specific files:
 
 * [Input JSON](docs/input_json.md)
 * [Input JSON schema](schemas/input.schema.json)
+* [Historical games](docs/historical_games.md)
+* [Historical-game schema](schemas/historical_game.schema.json)
 * [Output JSON](docs/output_json.md)
 * [Output JSON schema](schemas/output.schema.json)
 * [Schema validation](docs/schema_validation.md)
@@ -260,7 +274,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 ## Project status
 
 `v0.6.0` is tagged and published, is the current stable baseline, and remains
-the package version. Generated-output validation covers 22 deterministic
+the package version. Current generated-output validation covers 24 deterministic
 scenarios, and the documented `v0.6.0` issue scope is complete.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
@@ -268,6 +282,10 @@ simulation, opponent-policy modeling, game-result summaries, game-value
 summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
+
+Complete normal-play historical records are partially supported. Later end
+reasons, complete-game decision replay, and training-dataset wrapping remain
+future work.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

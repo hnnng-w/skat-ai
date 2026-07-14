@@ -22,16 +22,35 @@ The project check script also runs generated-output schema validation:
 .\scripts\check.ps1
 ```
 
-Generated-output schema validation uses the real CLI and output writer. The
+Generated-output schema validation uses the real CLI and output writer. Position
+scenarios use deterministic settings such as `--samples 20` and `--seed 42`;
+the historical-game scenario uses no position-only overrides. The
 validator writes temporary output files, parses the generated JSON, validates it
-against `schemas/output.schema.json`, and uses deterministic settings such as
-`--samples 20` and `--seed 42`.
+against `schemas/output.schema.json`.
 
 For the validation-layer overview and schema limitations, see:
 
 [Schema validation documentation](schema_validation.md)
 
-## Top-level fields
+## Output workflows
+
+Position analysis retains the existing top-level result. Complete historical
+games instead produce exactly:
+
+```json
+{
+  "input_file": "examples/historical_grand_normal_completion.json",
+  "historical_game_summary": {}
+}
+```
+
+`historical_game_summary` contains the canonical versioned record, ten derived
+tricks, trick and skat points, final 120-point allocation, winner, game result,
+game value, overbid, and final settlement. It contains no position,
+recommendation, simulation, profile, policy, or list result. See
+[Historical games](historical_games.md).
+
+## Position top-level fields
 
 Typical top-level fields include:
 

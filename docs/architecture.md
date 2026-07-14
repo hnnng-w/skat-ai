@@ -6,7 +6,7 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
-The main flow is:
+The position-analysis flow is:
 
 1. Load and validate JSON input.
 2. Build an internal game state.
@@ -17,6 +17,11 @@ The main flow is:
 7. Optionally run phase-aware multi-step simulation or policy comparison.
 8. Build game-result, settlement, performance-rating, and post-game review summaries.
 9. Serialize output for CLI and JSON use.
+
+The alternative historical-game flow loads `historical_game_input`, builds a
+stable-ID record, strictly replays ten tricks from complete playable hands,
+derives points and ownership, reuses the declaration/value/overbid/settlement
+helpers, and emits only `historical_game_summary`.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
@@ -44,6 +49,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/known_cards.py`        | Tracks and validates known cards.                                                                                   |
 | `src/skat_ai/information_policy.py` | Centralizes live-vs-post-game information rules and builds `information_policy_summary`.                            |
 | `src/skat_ai/turn_phase.py`         | Normalizes and validates canonical `trick_leader` and `next_player` from the current trick length.                  |
+| `src/skat_ai/historical_game.py`    | Typed stable-ID historical records, complete-deal validation, strict play replay, and historical result serialization. |
 
 Validation is split between JSON Schema and Python validation:
 
@@ -59,6 +65,11 @@ Validation is split between JSON Schema and Python validation:
 
 Completed-trick validation is used to prevent inconsistent historical game states, duplicate cards, impossible sequences, and mismatched trick winners where enough information is available. When `cards` and ordered `players` are present, validation derives the rule winner and checks both `winner_player` and concrete `winner_role` metadata against that derived result. In live-decision input, supplied `winner_role` must be verifiable from `cards`, `players`, `game_type`, and concrete `declarer_player`; post-game legacy side-only histories remain supported when that evidence is absent.
 
+Complete historical games do not use this local-perspective compatibility model.
+`historical_game.py` preserves stable player IDs and fixed seats, validates all
+three remaining hands at each play, and only projects derived
+`declarer`/`defenders` ownership into the established scoring helpers.
+
 ## Game value and result
 
 | File                               | Purpose                                                                                                   |
@@ -70,6 +81,9 @@ Completed-trick validation is used to prevent inconsistent historical game state
 | `src/skat_ai/game_history.py`      | Known point summary from explicit points and completed tricks.                                            |
 
 Matador inference is intentionally conservative. It uses currently known declarer-card context and safe completed-trick ownership facts where `cards`, ordered `players`, and concrete `declarer_player` identify who played each card. It does not infer ownership from `winner_role`, `winner_player`, trick winner, hidden cards, or sampled worlds, and it does not reconstruct every possible matador state from historical trick ownership.
+
+The historical-game branch is stricter: its validated complete deal provides
+deterministic declarer and non-declarer ownership for complete matador inference.
 
 ## Game end and settlement
 
@@ -239,6 +253,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | File                                           | Purpose                                                                  |
 | ---------------------------------------------- | ------------------------------------------------------------------------ |
 | `schemas/input.schema.json`                    | Stable input JSON structure.                                             |
+| `schemas/historical_game.schema.json`          | Versioned complete historical-game input structure.                      |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |

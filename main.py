@@ -19,6 +19,7 @@ from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_summary,
     build_serializable_impossible_null_settlement_summary,
@@ -32,6 +33,7 @@ from skat_ai.input_loader import (
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
     get_impossible_null_settlement_from_input,
+    get_input_workflow,
     get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
     get_list_performance_input_from_input,
@@ -39,6 +41,8 @@ from skat_ai.input_loader import (
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
     get_simulation_settings_from_input,
+    load_historical_game_from_json,
+    load_json_object,
     load_position_from_json,
 )
 from skat_ai.input_validation import MAX_SAMPLE_COUNT
@@ -739,6 +743,25 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print_post_game_review_summary(result)
 
 
+def print_historical_game_result(result: dict[str, Any]) -> None:
+    """Prints a concise complete historical-game summary."""
+    summary = result["historical_game_summary"]
+    declaration = summary["record"]["declaration"]
+    settlement = summary["final_settlement_summary"]
+
+    print("Historical game summary")
+    print("Input file:", result["input_file"])
+    print("Game ID:", summary["game_id"])
+    print("Game type:", declaration["game_type"])
+    print("Declarer:", summary["record"]["declarer_player_id"])
+    print("Result winner:", summary["winner"])
+    print("Declarer points:", summary["declarer_points"])
+    print("Defender points:", summary["defender_points"])
+    print("Game value:", summary["game_value_summary"]["game_value"])
+    print("Overbid status:", summary["overbid_summary"]["status"])
+    print("Settlement score:", settlement["settlement_score"])
+
+
 def print_multi_step_result(result: dict[str, Any]) -> None:
     """
     Prints a multi-step simulation result in a readable text format.
@@ -1074,9 +1097,33 @@ def run_json_position_analysis(
         print("Output file written:", output_path)
 
 
+def run_json_historical_game_analysis(
+    file_path: str,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Runs the complete historical-game workflow."""
+    record = load_historical_game_from_json(file_path)
+    result = {
+        "input_file": str(file_path),
+        "historical_game_summary": build_historical_game_summary(record),
+    }
+
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+
+    if quiet:
+        return
+
+    print_historical_game_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Analyze a Skat position from a JSON input file.",
+        description="Analyze a Skat position or complete historical game from JSON.",
         epilog=(
             "Examples:\n"
             "  python main.py\n"
@@ -1086,7 +1133,8 @@ def parse_arguments() -> argparse.Namespace:
             "  python main.py --input examples/grand_second_position.json "
             "--multi-step 1 --compare-policies\n"
             "  python main.py --input examples/grand_second_position.json "
-            "--multi-step 1 --compare-policies --comparison-only"
+            "--multi-step 1 --compare-policies --comparison-only\n"
+            "  python main.py --input examples/historical_grand_normal_completion.json"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -1095,7 +1143,7 @@ def parse_arguments() -> argparse.Namespace:
         "--input",
         default="input_position.json",
         help=(
-            "Read position analysis input from this JSON file. "
+            "Read position-analysis or historical-game input from this JSON file. "
             "Default: input_position.json."
         ),
     )
@@ -1143,14 +1191,14 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--card-policy",
         choices=VALID_CARD_SELECTION_POLICIES,
-        default="first_legal",
+        default=None,
         help="Choose local cards during multi-step simulation. Default: first_legal.",
     )
 
     parser.add_argument(
         "--expected-value-samples",
         type=int,
-        default=100,
+        default=None,
         help=(
             "Samples per candidate for the highest_expected_value card policy. "
             "Default: 100."
@@ -1258,10 +1306,13 @@ def validate_cli_arguments(args: argparse.Namespace) -> None:
     if args.samples is not None and args.samples > MAX_SAMPLE_COUNT:
         raise CliUsageError(f"--samples must be at most {MAX_SAMPLE_COUNT}.")
 
-    if args.expected_value_samples <= 0:
+    if args.expected_value_samples is not None and args.expected_value_samples <= 0:
         raise CliUsageError("--expected-value-samples must be a positive integer.")
 
-    if args.expected_value_samples > MAX_SAMPLE_COUNT:
+    if (
+        args.expected_value_samples is not None
+        and args.expected_value_samples > MAX_SAMPLE_COUNT
+    ):
         raise CliUsageError(
             f"--expected-value-samples must be at most {MAX_SAMPLE_COUNT}."
         )
@@ -1276,33 +1327,75 @@ def validate_cli_arguments(args: argparse.Namespace) -> None:
         raise CliUsageError("--compare-policies requires --multi-step.")
 
 
+def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
+    """Rejects position-analysis and simulation overrides for historical games."""
+    incompatible_options = {
+        "--samples": args.samples is not None,
+        "--seed": args.seed is not None,
+        "--opponent-strategy": args.opponent_strategy is not None,
+        "--multi-step": args.multi_step is not None,
+        "--card-policy": args.card_policy is not None,
+        "--expected-value-samples": args.expected_value_samples is not None,
+        "--strict-context": args.strict_context,
+        "--compare-policies": args.compare_policies,
+        "--comparison-only": args.comparison_only,
+        "--opponent-policy-preset": args.opponent_policy_preset is not None,
+        "--opponent-lead-policy": args.opponent_lead_policy is not None,
+        "--opponent-response-policy": args.opponent_response_policy is not None,
+        "--use-profile-presets": args.use_profile_presets,
+        "--left-opponent-lead-policy": args.left_opponent_lead_policy is not None,
+        "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
+        "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
+        "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
+    }
+    supplied_options = [
+        option for option, was_supplied in incompatible_options.items() if was_supplied
+    ]
+    if supplied_options:
+        raise CliUsageError(
+            "Historical-game inputs do not accept position-analysis, recommendation, "
+            "policy, comparison, or simulation options: "
+            f"{', '.join(supplied_options)}."
+        )
+
+
 def main() -> int:
     args = parse_arguments()
 
     try:
         validate_cli_arguments(args)
-        run_json_position_analysis(
-            file_path=args.input,
-            sample_count_override=args.samples,
-            random_seed_override=args.seed,
-            opponent_strategy_override=args.opponent_strategy,
-            left_opponent_lead_policy_override=args.left_opponent_lead_policy,
-            left_opponent_response_policy_override=args.left_opponent_response_policy,
-            right_opponent_lead_policy_override=args.right_opponent_lead_policy,
-            right_opponent_response_policy_override=args.right_opponent_response_policy,
-            output_path=args.output,
-            multi_step_count=args.multi_step,
-            card_selection_policy=args.card_policy,
-            expected_value_sample_count=args.expected_value_samples,
-            strict_context=args.strict_context,
-            compare_policies=args.compare_policies,
-            comparison_only=args.comparison_only,
-            opponent_policy_preset_override=args.opponent_policy_preset,
-            opponent_lead_policy_override=args.opponent_lead_policy,
-            opponent_response_policy_override=args.opponent_response_policy,
-            use_profile_presets_override=args.use_profile_presets,
-            quiet=args.quiet,
-        )
+        input_data = load_json_object(args.input)
+        workflow = get_input_workflow(input_data)
+        if workflow == "historical_game":
+            validate_historical_game_cli_arguments(args)
+            run_json_historical_game_analysis(
+                file_path=args.input,
+                output_path=args.output,
+                quiet=args.quiet,
+            )
+        else:
+            run_json_position_analysis(
+                file_path=args.input,
+                sample_count_override=args.samples,
+                random_seed_override=args.seed,
+                opponent_strategy_override=args.opponent_strategy,
+                left_opponent_lead_policy_override=args.left_opponent_lead_policy,
+                left_opponent_response_policy_override=args.left_opponent_response_policy,
+                right_opponent_lead_policy_override=args.right_opponent_lead_policy,
+                right_opponent_response_policy_override=args.right_opponent_response_policy,
+                output_path=args.output,
+                multi_step_count=args.multi_step,
+                card_selection_policy=args.card_policy or "first_legal",
+                expected_value_sample_count=args.expected_value_samples or 100,
+                strict_context=args.strict_context,
+                compare_policies=args.compare_policies,
+                comparison_only=args.comparison_only,
+                opponent_policy_preset_override=args.opponent_policy_preset,
+                opponent_lead_policy_override=args.opponent_lead_policy,
+                opponent_response_policy_override=args.opponent_response_policy,
+                use_profile_presets_override=args.use_profile_presets,
+                quiet=args.quiet,
+            )
     except CliUsageError as error:
         print(f"CLI error: {error}", file=sys.stderr)
         return 2

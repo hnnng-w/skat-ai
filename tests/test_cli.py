@@ -21,6 +21,9 @@ from skat_ai.player_profile import PlayerProfile
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = PROJECT_ROOT / "main.py"
 VALID_INPUT_PATH = PROJECT_ROOT / "examples" / "grand_second_position.json"
+HISTORICAL_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+)
 UNSUPPORTED_PHASE_INPUT_PATH = (
     PROJECT_ROOT
     / "tests"
@@ -163,6 +166,63 @@ def test_cli_quiet_without_output_suppresses_success_stdout() -> None:
     assert completed_process.returncode == 0
     assert completed_process.stdout == ""
     assert completed_process.stderr == ""
+
+
+def test_cli_historical_game_prints_concise_summary() -> None:
+    completed_process = run_cli("--input", HISTORICAL_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical game summary" in completed_process.stdout
+    assert "Game ID: historical-grand-001" in completed_process.stdout
+    assert "Game type: grand" in completed_process.stdout
+    assert "Settlement score:" in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+
+
+def test_cli_historical_game_quiet_output_is_separate_branch(tmp_path) -> None:
+    output_path = tmp_path / "historical-result.json"
+
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+
+    assert set(result) == {"input_file", "historical_game_summary"}
+    assert result["historical_game_summary"]["status"] == "complete"
+    assert "position" not in result
+    assert "recommendation" not in result
+
+
+@pytest.mark.parametrize(
+    "override_args",
+    [
+        ("--samples", "1"),
+        ("--card-policy", "highest_point"),
+        ("--opponent-policy-preset", "simple_lowest"),
+        ("--multi-step", "1"),
+        ("--multi-step", "1", "--compare-policies"),
+    ],
+)
+def test_cli_historical_game_rejects_position_specific_overrides(
+    override_args: tuple[str, ...],
+) -> None:
+    completed_process = run_cli(
+        "--input", HISTORICAL_INPUT_PATH, *override_args
+    )
+
+    assert completed_process.returncode == 2
+    assert "Historical-game inputs do not accept" in completed_process.stderr
+    assert "Historical game summary" not in completed_process.stdout
 
 
 @pytest.mark.parametrize("sample_count", ["0", "-1"])

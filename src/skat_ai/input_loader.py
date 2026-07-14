@@ -11,6 +11,7 @@ from skat_ai.game_declaration import (
     build_game_declaration_from_input,
 )
 from skat_ai.game_state import GameState
+from skat_ai.historical_game import HistoricalGameRecord, build_historical_game_record
 from skat_ai.impossible_null_settlement import (
     ImpossibleNullSettlementSelection,
     build_impossible_null_settlement_selection_from_input,
@@ -22,10 +23,8 @@ from skat_ai.side_ownership import normalize_declarer_player
 from skat_ai.turn_phase import normalize_turn_phase_for_position
 
 
-def load_position_from_json(file_path: str) -> dict[str, Any]:
-    """
-    Loads and validates a position configuration from a JSON file.
-    """
+def load_json_object(file_path: str) -> dict[str, Any]:
+    """Loads one JSON input file and requires an object at the root."""
     path = Path(file_path)
 
     if not path.exists():
@@ -34,9 +33,46 @@ def load_position_from_json(file_path: str) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as file:
         data = json.load(file)
 
+    if not isinstance(data, dict):
+        raise ValueError("Input JSON root must be an object.")
+
+    return data
+
+
+def get_input_workflow(data: dict[str, Any]) -> str:
+    """Returns the public workflow selected by one top-level input object."""
+    if "historical_game_input" in data:
+        if set(data) != {"historical_game_input"}:
+            raise ValueError(
+                "historical_game_input cannot be combined with position-analysis, "
+                "list-performance, profile, policy, or settlement fields."
+            )
+        return "historical_game"
+
+    return "position_analysis"
+
+
+def load_position_from_json(file_path: str) -> dict[str, Any]:
+    """
+    Loads and validates a position configuration from a JSON file.
+    """
+    data = load_json_object(file_path)
+
     validate_position_input(data)
 
     return data
+
+
+def load_historical_game_from_json(file_path: str) -> HistoricalGameRecord:
+    """Loads and validates a complete historical-game input file."""
+    data = load_json_object(file_path)
+    if get_input_workflow(data) != "historical_game":
+        raise ValueError("Input file does not contain historical_game_input.")
+
+    historical_data = data["historical_game_input"]
+    if not isinstance(historical_data, dict):
+        raise ValueError("historical_game_input must be an object.")
+    return build_historical_game_record(historical_data)
 
 
 def build_game_state_from_input(data: dict[str, Any]) -> GameState:

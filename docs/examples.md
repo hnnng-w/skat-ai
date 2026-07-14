@@ -79,6 +79,18 @@ python main.py --input examples/grand_second_position.json --output outputs/resu
 
 The `--quiet` flag suppresses successful human-readable stdout output, including the output-file confirmation. Expected errors still go to `stderr`.
 
+Validate and summarize a complete normally played historical game:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json
+```
+
+Write its separate structured result without successful stdout:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --output outputs/historical.json --quiet
+```
+
 Prepare an opponent-turn position with Multi-Step until the local player acts:
 
 ```powershell
@@ -192,6 +204,17 @@ validation.
 Multi-step also supports a one-card partial trick where `left` has already led
 and `right` is next. In that phase the existing lead card is preserved and only
 right's response is simulated before the local third-hand decision.
+
+## Historical-game example
+
+| File                                              | Purpose |
+| ------------------------------------------------- | ------- |
+| `historical_grand_normal_completion.json`         | Complete 32-card Grand deal with stable player IDs, non-Hand pickup/discards, ten legal tricks, inferred matadors, final points, and settlement. |
+
+This is a separate historical-game workflow, not a reconstructed local
+post-game position. It is the dedicated generated-output scenario for
+`historical_game_summary`. It does not run recommendation, replay, simulation,
+profile, policy, list, or training-data logic.
 
 ## Post-game review examples
 
@@ -315,7 +338,7 @@ because ended game reasons are post-game review information.
 
 The impossible Null example preserves the original Null declaration, transfers
 only Hand status to the replacement, and demonstrates the doubled loss without
-card play. It is also the dedicated 23rd generated-output validation scenario.
+card play. It also has a dedicated generated-output validation scenario.
 
 ## Performance rating examples
 

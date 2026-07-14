@@ -108,6 +108,11 @@ validation, and tests does not satisfy a gate.
 | Documentation | README, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 
+The normal-play historical-game workflow satisfies the deal-through-settlement
+portion of complete-game representation for `normal_completion`. The v1 gate
+remains open for approved later end reasons, complete auction representation,
+decision replay, and training/evaluation wrapping.
+
 ## Release decision rule
 
 `v1.0.0` is not ready while any required gate lacks evidence, any validation or

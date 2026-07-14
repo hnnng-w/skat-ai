@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_game.schema.json",
+  "title": "skat-ai complete historical game input version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "game_id",
+    "players",
+    "skat",
+    "declarer_player_id",
+    "declaration",
+    "discarded_cards",
+    "game_end_reason",
+    "tricks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "game_id": {
+      "$ref": "#/$defs/stable_identifier"
+    },
+    "players": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/player"
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "skat": {
+      "$ref": "#/$defs/two_cards"
+    },
+    "declarer_player_id": {
+      "$ref": "#/$defs/stable_identifier"
+    },
+    "declaration": {
+      "$ref": "#/$defs/declaration"
+    },
+    "discarded_cards": {
+      "$ref": "#/$defs/card_array",
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "game_end_reason": {
+      "const": "normal_completion"
+    },
+    "tricks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/trick"
+      },
+      "minItems": 10,
+      "maxItems": 10
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "card_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/card"
+      }
+    },
+    "ten_cards": {
+      "$ref": "#/$defs/card_array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "two_cards": {
+      "$ref": "#/$defs/card_array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "seat", "initial_hand"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "player_label": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "seat": {
+          "type": "string",
+          "enum": ["forehand", "middlehand", "rearhand"]
+        },
+        "initial_hand": {
+          "$ref": "#/$defs/ten_cards"
+        }
+      }
+    },
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_type", "bid_value"],
+      "properties": {
+        "game_type": {
+          "type": "string",
+          "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+        },
+        "hand_game": {
+          "type": "boolean"
+        },
+        "ouvert": {
+          "type": "boolean"
+        },
+        "schneider_announced": {
+          "type": "boolean"
+        },
+        "schwarz_announced": {
+          "type": "boolean"
+        },
+        "matadors": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 11
+        },
+        "bid_value": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {
+                "const": "grand"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "matadors": {
+                "maximum": 4
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {
+                "const": "null"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {"required": ["matadors"]},
+                {"required": ["schneider_announced"]},
+                {"required": ["schwarz_announced"]}
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {
+                "enum": ["clubs", "spades", "hearts", "diamonds", "grand"]
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["schneider_announced", "hand_game"],
+                  "properties": {
+                    "schneider_announced": {"const": true},
+                    "hand_game": {"const": false}
+                  }
+                },
+                {
+                  "required": ["schwarz_announced", "schneider_announced"],
+                  "properties": {
+                    "schwarz_announced": {"const": true},
+                    "schneider_announced": {"const": false}
+                  }
+                },
+                {
+                  "required": ["schwarz_announced", "hand_game"],
+                  "properties": {
+                    "schwarz_announced": {"const": true},
+                    "hand_game": {"const": false}
+                  }
+                },
+                {
+                  "required": ["ouvert", "schwarz_announced"],
+                  "properties": {
+                    "ouvert": {"const": true},
+                    "schwarz_announced": {"const": false}
+                  }
+                },
+                {
+                  "required": ["ouvert", "schneider_announced"],
+                  "properties": {
+                    "ouvert": {"const": true},
+                    "schneider_announced": {"const": false}
+                  }
+                },
+                {
+                  "required": ["ouvert", "hand_game"],
+                  "properties": {
+                    "ouvert": {"const": true},
+                    "hand_game": {"const": false}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trick_number", "leader_player_id", "plays"],
+      "properties": {
+        "trick_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "leader_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "plays": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/play"
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true
+        }
+      }
+    },
+    "play": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "card"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "card": {
+          "$ref": "#/$defs/card"
+        }
+      }
+    }
+  }
+}

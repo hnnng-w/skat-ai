@@ -4,9 +4,11 @@ import json
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
+HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 ROOT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
 EXAMPLES_DIR = PROJECT_ROOT / "examples"
 
@@ -50,7 +52,11 @@ def validate_example_files() -> list[str]:
     Validates all example JSON files against the input JSON schema.
     """
     schema = load_json_file(SCHEMA_PATH)
-    validator = Draft202012Validator(schema)
+    historical_schema = load_json_file(HISTORICAL_SCHEMA_PATH)
+    registry = Registry().with_resource(
+        historical_schema["$id"], Resource.from_contents(historical_schema)
+    )
+    validator = Draft202012Validator(schema, registry=registry)
 
     errors = []
 

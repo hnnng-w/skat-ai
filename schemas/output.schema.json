@@ -4,32 +4,54 @@
   "title": "skat-ai output result",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "input_file",
-    "position",
-    "settings",
-    "analysis_metadata",
-    "game_declaration",
-    "game_value_summary",
-    "overbid_summary",
-    "legal_cards",
-    "analysis_report",
-    "score_summary",
-    "game_result_summary",
-    "adjusted_game_result_summary",
-    "final_settlement_summary",
-    "performance_rating_summary",
-    "recommendation",
-    "information_policy_summary",
-    "post_game_review_summary",
-    "opponent_policy_settings",
-    "left_opponent_policy_settings",
-    "right_opponent_policy_settings",
-    "profile_preset_settings"
+  "oneOf": [
+    {
+      "required": [
+        "input_file",
+        "position",
+        "settings",
+        "analysis_metadata",
+        "game_declaration",
+        "game_value_summary",
+        "overbid_summary",
+        "legal_cards",
+        "analysis_report",
+        "score_summary",
+        "game_result_summary",
+        "adjusted_game_result_summary",
+        "final_settlement_summary",
+        "performance_rating_summary",
+        "recommendation",
+        "information_policy_summary",
+        "post_game_review_summary",
+        "opponent_policy_settings",
+        "left_opponent_policy_settings",
+        "right_opponent_policy_settings",
+        "profile_preset_settings"
+      ],
+      "not": {
+        "required": ["historical_game_summary"]
+      }
+    },
+    {
+      "required": ["input_file", "historical_game_summary"],
+      "properties": {
+        "input_file": {
+          "type": "string"
+        },
+        "historical_game_summary": {
+          "$ref": "#/$defs/historical_game_summary"
+        }
+      },
+      "additionalProperties": false
+    }
   ],
   "properties": {
     "input_file": {
       "type": "string"
+    },
+    "historical_game_summary": {
+      "$ref": "#/$defs/historical_game_summary"
     },
     "position": {
       "type": "object",
@@ -222,6 +244,339 @@
       "properties": {
         "use_profile_presets": {
           "type": "boolean"
+        }
+      }
+    },
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "historical_player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "seat", "initial_hand"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "player_label": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "seat": {
+          "type": "string",
+          "enum": ["forehand", "middlehand", "rearhand"]
+        },
+        "initial_hand": {
+          "$ref": "#/$defs/card_array",
+          "minItems": 10,
+          "maxItems": 10,
+          "uniqueItems": true
+        }
+      }
+    },
+    "historical_play": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "card"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "card": {
+          "$ref": "#/$defs/card"
+        }
+      }
+    },
+    "historical_record_trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trick_number", "leader_player_id", "plays"],
+      "properties": {
+        "trick_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "leader_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "plays": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/historical_play"
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true
+        }
+      }
+    },
+    "historical_derived_trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trick_number",
+        "leader_player_id",
+        "plays",
+        "winner_player_id",
+        "winner_side",
+        "trick_points"
+      ],
+      "properties": {
+        "trick_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "leader_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "plays": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/historical_play"
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "winner_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "winner_side": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "trick_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 33
+        }
+      }
+    },
+    "historical_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "game_id",
+        "players",
+        "skat",
+        "declarer_player_id",
+        "declaration",
+        "discarded_cards",
+        "game_end_reason",
+        "tricks"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "game_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "players": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/historical_player"
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "skat": {
+          "$ref": "#/$defs/card_array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "declarer_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "declaration": {
+          "$ref": "#/$defs/historical_declaration"
+        },
+        "discarded_cards": {
+          "$ref": "#/$defs/card_array",
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "game_end_reason": {
+          "const": "normal_completion"
+        },
+        "tricks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/historical_record_trick"
+          },
+          "minItems": 10,
+          "maxItems": 10
+        }
+      }
+    },
+    "historical_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_type", "hand_game", "ouvert", "bid_value"],
+      "properties": {
+        "game_type": {
+          "$ref": "#/$defs/game_type"
+        },
+        "hand_game": {
+          "type": "boolean"
+        },
+        "ouvert": {
+          "type": "boolean"
+        },
+        "schneider_announced": {
+          "type": "boolean"
+        },
+        "schwarz_announced": {
+          "type": "boolean"
+        },
+        "matadors": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 11
+        },
+        "bid_value": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {"const": "null"}
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {"required": ["matadors"]},
+                {"required": ["schneider_announced"]},
+                {"required": ["schwarz_announced"]}
+              ]
+            }
+          },
+          "else": {
+            "required": ["matadors", "schneider_announced", "schwarz_announced"]
+          }
+        },
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {"const": "grand"}
+            }
+          },
+          "then": {
+            "properties": {
+              "matadors": {"maximum": 4}
+            }
+          }
+        }
+      ]
+    },
+    "historical_game_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "game_id",
+        "status",
+        "record",
+        "derived_tricks",
+        "declarer_trick_points",
+        "defender_trick_points",
+        "skat_points",
+        "declarer_points",
+        "defender_points",
+        "winner",
+        "schneider_status",
+        "schwarz_status",
+        "game_result_summary",
+        "game_value_summary",
+        "overbid_summary",
+        "final_settlement_summary"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "game_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "status": {
+          "const": "complete"
+        },
+        "record": {
+          "$ref": "#/$defs/historical_record"
+        },
+        "derived_tricks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/historical_derived_trick"
+          },
+          "minItems": 10,
+          "maxItems": 10
+        },
+        "declarer_trick_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "defender_trick_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "skat_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 22
+        },
+        "declarer_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "defender_points": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "winner": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "schneider_status": {
+          "type": "string",
+          "enum": [
+            "declarer_made_schneider",
+            "defenders_made_schneider",
+            "none",
+            "not_applicable"
+          ]
+        },
+        "schwarz_status": {
+          "type": "string",
+          "enum": ["declarer", "defenders", "none", "not_applicable"]
+        },
+        "game_result_summary": {
+          "$ref": "#/$defs/adjusted_game_result_summary"
+        },
+        "game_value_summary": {
+          "$ref": "#/$defs/game_value_summary"
+        },
+        "overbid_summary": {
+          "$ref": "#/$defs/overbid_summary"
+        },
+        "final_settlement_summary": {
+          "$ref": "#/$defs/final_settlement_summary"
         }
       }
     },

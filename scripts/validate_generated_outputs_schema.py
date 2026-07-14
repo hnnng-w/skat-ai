@@ -32,6 +32,7 @@ class Scenario:
     cli_args: tuple[str, ...] = ()
     check_output: CheckFunction | None = None
     expect_quiet_stdout: bool = False
+    include_position_overrides: bool = True
 
 
 def load_json_file(file_path: Path) -> dict[str, Any]:
@@ -111,12 +112,12 @@ def run_analysis(
         str(scenario.input_path),
         "--output",
         str(output_path),
-        "--samples",
-        DEFAULT_SAMPLE_COUNT,
-        "--seed",
-        DEFAULT_RANDOM_SEED,
-        *scenario.cli_args,
     ]
+    if scenario.include_position_overrides:
+        command.extend(
+            ["--samples", DEFAULT_SAMPLE_COUNT, "--seed", DEFAULT_RANDOM_SEED]
+        )
+    command.extend(scenario.cli_args)
 
     completed_process = subprocess.run(
         command,
@@ -897,6 +898,29 @@ def check_defender_known_to_declarer_local_view(data: dict[str, Any]) -> list[st
     return errors
 
 
+def check_historical_game_normal_completion(data: dict[str, Any]) -> list[str]:
+    """Checks the complete normal-play historical-game output branch."""
+    errors = []
+    if set(data) != {"input_file", "historical_game_summary"}:
+        errors.append("expected only the historical-game top-level output branch")
+        return errors
+
+    summary = data["historical_game_summary"]
+    if summary["game_id"] != "historical-grand-001":
+        errors.append("expected preserved historical game ID")
+    if summary["status"] != "complete":
+        errors.append("expected complete historical game status")
+    if len(summary["derived_tricks"]) != 10:
+        errors.append("expected ten derived historical tricks")
+    if summary["declarer_points"] + summary["defender_points"] != 120:
+        errors.append("expected final historical card points to total 120")
+    if summary["record"]["declaration"]["matadors"] is None:
+        errors.append("expected deterministic historical matador inference")
+    if summary["final_settlement_summary"]["is_complete"] is not True:
+        errors.append("expected complete historical final settlement")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -1149,6 +1173,17 @@ SCENARIOS = (
             "20",
         ),
         check_output=check_defender_known_to_declarer_local_view,
+    ),
+    Scenario(
+        name="historical_grand_normal_completion",
+        input_path=(
+            PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+        ),
+        branch="complete normal-play historical game with derived settlement",
+        cli_args=("--quiet",),
+        check_output=check_historical_game_normal_completion,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
     ),
 )
 
