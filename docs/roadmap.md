@@ -72,6 +72,8 @@ Implemented:
 * Declarer rating points
 * Counterparty/defender rating points
 * Explicit separation between settlement score and rating score
+* Single-rated-player list performance summaries from already aggregated totals, normalized contributions, and local analysis results
+* Explicit fixed three-player list standings output
 
 ### Metadata and information control
 
@@ -183,10 +185,10 @@ Implemented:
 
 ### Performance rating
 
-* Performance rating is partially implemented for fixed three-player single-game declarer rating.
+* Performance rating is partially implemented for fixed three-player single-game declarer rating and bounded list-aware summaries.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
-* Full player-by-player list standings, series aggregation, and tournament aggregation are not implemented yet.
+* Series aggregation, tournament aggregation, and official report formats are not implemented yet.
 * Four-player table performance rating is not modeled because the project assumes a fixed three-player table.
 
 ### Opponent modeling
@@ -234,57 +236,51 @@ Deferred deeper investigations:
 * Hidden-information sampling or validation behavior changes that would alter stable behavior.
 * Large `main.py` refactors or CLI redesigns.
 
-## Selected v0.6.0 direction
+## Prepared v0.6.0 release
 
 ### v0.6.0: From single-position analysis to credible list-aware review workflows
 
-`v0.6.0` should build on the existing fixed-three-player analysis,
+`v0.6.0` is prepared for release but has not yet been tagged or published as a
+GitHub Release. It builds on the existing fixed-three-player analysis,
 post-game-review, opponent-policy, settlement, overbid, and list-performance
-input layers. The goal is to make review workflows more credible across a small
-list context without turning the project into a full tournament system.
+input layers to make review workflows more credible across a small list context
+without turning the project into a full tournament system.
 
-Selected `v0.6.0` backlog and planning item:
+Completed `v0.6.0` release-prep scope:
 
-* Fixed three-player list standings output.
-* List-performance examples and generated-output validation.
-* Post-game review example quality and explanation coverage.
-* Bounded profile-confidence usage in opponent strategy.
-* Controlled left/right opponent policy effect coverage.
-* Settlement and overbid edge-case coverage audit.
-* Post-release roadmap and handoff refresh.
+* #62 fixed three-player list standings output.
+* #63 expanded list-performance examples and generated-output validation.
+* #64 improved post-game review example quality and explanation coverage.
+* #65 added controlled left/right opponent policy effect coverage.
+* #66 used profile confidence in bounded opponent-strategy decisions.
+* #67 audited settlement and overbid edge-case coverage.
+* #68 prepared release metadata, changelog, roadmap, and handoff documentation.
 
-The product-facing directions are planned, not completed product behavior. Each
-product item should be implemented through focused follow-up issues with tests
-and schema updates only when the actual output contract changes. The
-post-release roadmap and handoff refresh is the documentation planning item that
-records this selected milestone direction.
+Next recommended release action: commit, merge, tag, and publish the prepared
+`v0.6.0` release unless a blocker is discovered.
 
-## Open gameplay improvements
+## Post-v0.6.0 gameplay possibilities
 
-Potential gameplay improvements outside already completed release scope:
+Potential gameplay improvements outside the prepared `v0.6.0` release scope:
 
-* Add richer post-game review examples.
 * Add more realistic profile-preset example variants.
-* Add dedicated examples for separate left/right opponent policies.
 * Explore deeper PlayerProfile confidence usage beyond preset selection.
 * Explore broader defender strategy beyond issue #22's implemented heuristic scope.
-* Add stronger tests for left/right opponent policy effects with controlled opponent hands.
 * Explore broader matador inference beyond the current conservative concrete ownership facts.
 * Add richer explanation details for why a recommended card is preferred.
 
-## Open performance-rating improvements
+## Post-v0.6.0 performance-rating possibilities
 
-Potential future rating improvements:
+Potential rating improvements outside the prepared `v0.6.0` release scope:
 
-* Add fixed three-player list standings output for the selected `v0.6.0` workflow direction.
 * Track scores per real player across a fixed three-player list.
 * Separate declarer and counterparty perspectives explicitly for multi-game output.
-* Keep full series and tournament aggregation deferred beyond `v0.6.0` unless separately scoped.
+* Keep full series and tournament aggregation deferred unless separately scoped.
 * Add official list-report output formats only if a focused follow-up defines them.
 
-## Deferred outside v0.6.0
+## Deferred outside the prepared v0.6.0 release
 
-The following topics remain outside the selected `v0.6.0` milestone:
+The following topics remain outside the prepared `v0.6.0` release:
 
 * Four-player support.
 * Full official tournament or series formats.
@@ -308,6 +304,6 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish completed `v0.5.0` public-input work, selected `v0.6.0`
-list-aware review workflow work, and deferred gameplay, scoring, settlement,
-validation, or hidden-information investigations.
+should distinguish completed `v0.5.0` public-input work, prepared `v0.6.0`
+list-aware review workflow release work, and deferred gameplay, scoring,
+settlement, validation, or hidden-information investigations.

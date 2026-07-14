@@ -124,9 +124,18 @@ Before larger changes, read the relevant documentation:
 
 Do not assume old behavior if documentation or tests say otherwise.
 
-## Current stable baseline
+## Current release state
 
 The current stable baseline is `v0.5.0`.
+
+`v0.5.0` has been tagged and released.
+
+`v0.6.0` is prepared for release but has not yet been tagged, published as a
+GitHub Release, or closed out in GitHub issue tracking.
+
+Current package version in release-prep work: `0.6.0`.
+
+Generated-output validation currently covers 22 deterministic scenarios.
 
 Major completed areas include:
 
@@ -139,12 +148,18 @@ Major completed areas include:
 * basic defender cooperation improvements
 * final settlement and overbid handling
 * partial fixed-three-player ISkO-style rating
+* fixed three-player list standings output
+* list-performance examples and generated-output validation
 * CLI usability improvements including discoverable help text and optional quiet JSON-output runs
 * generated-output validation for representative user-facing workflows
 * late-game public input support including zero opponent hand sizes
 * strict live completed-trick `winner_role` verifiability
 * conservative matador inference from concrete completed-trick ownership
 * objective-aware post-game review CLI wording
+* richer post-game review examples and explanation coverage
+* controlled left/right opponent policy effect coverage
+* bounded profile-confidence opponent policy behavior
+* settlement and overbid edge-case coverage audit
 * updated README, docs, roadmap, and project handoff
 
 ## Important design principles
@@ -159,23 +174,27 @@ Major completed areas include:
 * Keep CLI output human-readable but secondary to structured JSON.
 * Do not remove existing examples unless they are explicitly obsolete and covered by replacement examples.
 
-## Current useful future issues
+## Current useful next action
 
-Selected `v0.6.0` direction:
+Selected `v0.6.0` release theme:
 
 * from single-position analysis to credible list-aware review workflows
 
-Likely near-term work includes:
+The `v0.6.0` release-preparation work documents completed issues #62 through
+#67:
 
-* adding dedicated left/right opponent policy examples
-* adding richer post-game review examples
-* improving realistic example positions
-* adding fixed three-player list standings output
-* adding list-performance examples and generated-output validation
-* using PlayerProfile confidence in opponent modeling in bounded ways
-* auditing settlement and overbid edge-case coverage
+* #62 fixed three-player list standings output
+* #63 expanded list-performance examples and generated-output validation
+* #64 improved post-game review example quality and explanation coverage
+* #65 added controlled left/right opponent policy effect coverage
+* #66 used profile confidence in bounded opponent-strategy decisions
+* #67 audited settlement and overbid edge-case coverage
 
-Deferred outside the selected `v0.6.0` direction unless explicitly scoped:
+Recommended next action after a clean release-prep check is commit, merge, tag,
+and publish the `v0.6.0` release. Do not add more feature work unless a blocker
+is discovered.
+
+Deferred outside the prepared `v0.6.0` release unless explicitly scoped:
 
 * four-player support
 * full official tournament or series formats

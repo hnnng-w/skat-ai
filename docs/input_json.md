@@ -562,7 +562,7 @@ Validation rules:
 * `game_id` may be supplied for all, some, or no contributions.
 * Duplicate supplied `game_id` values are rejected. Duplicate detection applies only to supplied IDs.
 * Identifiers are input validation metadata only and are not echoed in output summaries.
-As a fourth alternative, input files may include explicit fixed three-player list
+As another alternative, input files may include explicit fixed three-player list
 standings input:
 
 ```json
@@ -615,7 +615,7 @@ safely describe all three player identities and totals.
 * `list_performance_input`, `list_game_contributions`, `list_analysis_results`, and `list_standings_input` are alternative input modes and cannot be combined.
 * `table_size` is fixed at `3`. There is no supported `table_size` input for this mode; a top-level `table_size`, if supplied as extra metadata, is ignored.
 
-As a third alternative, input files may include already-built local analysis
+As another alternative, input files may include already-built local analysis
 results. Each entry is assumed to represent the same rated player as local
 `me`; the project does not validate stable player identities across entries.
 
@@ -683,7 +683,7 @@ Validation rules:
 * Duplicate supplied `game_id` values are rejected. Duplicate detection applies only to supplied IDs.
 * Identical content without `game_id` is not treated as a duplicate. Identical content with different `game_id` values is valid. Different content with the same `game_id` is rejected.
 * Identifiers are input validation metadata only and are not echoed in output summaries.
-* `list_performance_input`, `list_game_contributions`, and `list_analysis_results` are mutually exclusive.
+* `list_performance_input`, `list_game_contributions`, `list_analysis_results`, and `list_standings_input` are mutually exclusive.
 
 Already aggregated `list_performance_input` cannot support game-level duplicate detection because per-game records are no longer present. A future player label could be added for aggregated totals, but issue #29 duplicate protection applies only to per-game input modes.
 

@@ -69,7 +69,7 @@ Current assumptions:
 * Already aggregated list or series totals can be supplied directly.
 * Normalized per-game list or series contributions can be supplied directly.
 * Explicit fixed three-player standings game results can be supplied directly.
-* Raw full-game aggregation, player-by-player list models, and tournament aggregation are not implemented yet.
+* Raw full-game aggregation beyond explicit standings input, multi-list rollups, full tournament aggregation, and official report formats are not implemented yet.
 
 Implemented rating points:
 

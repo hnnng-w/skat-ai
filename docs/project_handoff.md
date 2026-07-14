@@ -62,9 +62,9 @@ Four-player table support is not a priority unless explicitly requested.
 
 ### Performance rating
 
-ISkO-style performance rating is partially implemented for fixed three-player single-game and local list-input perspectives.
+ISkO-style performance rating is partially implemented for fixed three-player single-game, local list-input, and explicit fixed three-player standings perspectives.
 
-Full player-by-player list standings, series aggregation, and tournament aggregation are not implemented yet.
+Series aggregation, tournament aggregation, and official report formats are not implemented yet.
 
 ### Live vs post-game mode
 
@@ -154,13 +154,15 @@ Implemented:
 * clear distinction between settlement score and rating score
 * already aggregated list or series totals via `list_performance_input`
 * normalized per-game list or series contributions via `list_game_contributions`
+* local generated-output-style list inputs via `list_analysis_results`
+* explicit fixed three-player list standings via `list_standings_input`
 
 Not implemented:
 
-* raw full-game list aggregation
+* raw full-game list aggregation without explicit standings input
 * series aggregation
 * tournament aggregation
-* full player-by-player list output
+* official federation report formats
 
 ### JSON schema validation
 
@@ -171,6 +173,8 @@ Implemented:
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
+
+Generated-output validation currently covers 22 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -385,12 +389,17 @@ Main documentation files:
 
 Current stable baseline: `v0.5.0`.
 
-Current version: `0.5.0`.
+Current version: `0.6.0`.
 
 Latest tagged release: `v0.5.0`.
 
 `v0.5.0` has been tagged and released. The release-preparation branch work is
 complete; no `v0.5.0` tagging or GitHub Release creation step remains pending.
+
+`v0.6.0` is prepared for release but has not yet been tagged, published as a
+GitHub Release, or closed out in GitHub issue tracking. The next recommended
+action after merge is to tag and publish the `v0.6.0` release, unless a release
+blocker is discovered.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -424,22 +433,34 @@ The `v0.5.0` trustworthy late-game and history-heavy public input issue range
 * #59 improved objective-aware post-game review CLI wording
 * #60 prepared the `v0.5.0` release
 
-After the `v0.5.0` release, the post-release issue check reported no open
-issues except #61, which tracks planning for the selected `v0.6.0` direction.
+After the `v0.5.0` release, #61 selected the `v0.6.0` list-aware review
+workflow direction.
 
-## Current baseline
+The `v0.6.0` list-aware review workflow issue range #62 through #67 is complete:
 
-**v0.5.0: Trustworthy late-game and history-heavy public inputs**
+* #62 added fixed three-player list standings output
+* #63 expanded list-performance examples and generated-output validation
+* #64 improved post-game review example quality and explanation coverage
+* #65 added controlled left/right opponent policy effect coverage
+* #66 used profile confidence in bounded opponent-strategy decisions
+* #67 audited settlement and overbid edge-case coverage
 
-Completed and released baseline scope:
+## Current release-prep baseline
 
-* zero opponent hand sizes for late-game public inputs
-* strict live completed-trick `winner_role` verifiability
-* conservative matador inference from concrete completed-trick ownership
-* focused late-game and history-heavy workflow coverage
-* objective-aware post-game review CLI wording
-* validation and regression coverage for the completed scope
-* release preparation, tagging, and GitHub Release publication
+**v0.6.0: From single-position analysis to credible list-aware review workflows**
+
+Prepared release scope:
+
+* fixed three-player list standings output
+* expanded list-performance examples and generated-output validation
+* improved post-game review examples and explanation coverage
+* controlled left/right opponent policy effect coverage
+* bounded profile-confidence opponent policy behavior
+* settlement and overbid edge-case coverage audit
+* release-prep documentation and version update
+
+The latest tagged and published stable release remains `v0.5.0` until the
+prepared `v0.6.0` release is tagged and published.
 
 Deferred deeper investigations:
 
@@ -448,33 +469,15 @@ Deferred deeper investigations:
 * hidden-information sampling or validation behavior changes that would alter stable behavior
 * broad `main.py` refactors or CLI redesigns
 
-## Selected next milestone
+## Next recommended action
 
-**v0.6.0: From single-position analysis to credible list-aware review workflows**
-
-The practical next implementation direction is to make the existing local
-analysis, list-performance input modes, and post-game review outputs work better
-together as a credible review workflow. The milestone should stay fixed to the
-three-player table assumption and should avoid broad tournament, solver,
-hidden-card inference, or CLI-orchestration rewrites.
-
-Selected `v0.6.0` backlog and planning record:
-
-* fixed three-player list standings output
-* list-performance examples and generated-output validation
-* post-game review example quality and explanation coverage
-* bounded profile-confidence usage in opponent strategy
-* controlled left/right opponent policy effect coverage
-* settlement and overbid edge-case coverage audit
-* post-release roadmap and handoff refresh
-
-The product-facing directions above are not yet implemented as part of this
-handoff. The roadmap and handoff refresh is the documentation planning item
-that records the selected milestone direction.
+The next recommended action is commit, merge, tag, and publish the prepared
+`v0.6.0` release. Do not add more feature work to the release-prep branch unless
+a release blocker is discovered.
 
 ## Open future topics
 
-Deferred topics outside the selected `v0.6.0` milestone:
+Deferred topics outside the prepared `v0.6.0` release:
 
 * four-player table support
 * full official tournament or series formats
@@ -487,7 +490,7 @@ Deferred topics outside the selected `v0.6.0` milestone:
 * broad defender-partnership strategy beyond focused heuristic improvements
 
 These remain outside both the completed `v0.5.0` release baseline and the
-selected `v0.6.0` list-aware review workflow milestone unless a focused bug or
+prepared `v0.6.0` list-aware review workflow release unless a focused bug or
 separate milestone explicitly scopes them in.
 
 ## New-thread starter instruction

@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.6.0
+
+### List-aware review workflows
+
+* Add fixed three-player list standings output for explicit list standings input.
+* Expand list-performance examples and generated-output validation across aggregated totals, normalized contributions, local analysis results, and standings workflows.
+* Improve post-game review examples and explanation coverage for mistakes, acceptable alternatives, Null objective reviews, and defender-perspective reviews.
+
+### Opponent policy and settlement coverage
+
+* Add controlled coverage for left/right opponent policy effects in immediate and multi-step paths.
+* Use profile confidence in bounded opponent-policy behavior while preserving explicit policy override precedence.
+* Audit settlement and overbid edge-case coverage, including supported Suit/Grand overbid settlement behavior.
+
 ## v0.5.0
 
 ### Late-game and history-heavy inputs
