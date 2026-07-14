@@ -6,11 +6,11 @@ declaration, skat handling, all 30 plays, result, and settlement. On request, it
 also reconstructs a local `me`/`left`/`right` information view immediately
 before every actual play while preserving stable player IDs.
 
-Historical-game representation remains `partially_supported`. This workflow
-does not provide complete-game decision review, replay recommendations, training
-dataset metadata, claims, concessions, full auction events, player statistics,
-or list/tournament aggregation. Decision snapshots are state reconstruction,
-not recommendation or training records.
+Historical-game representation remains `partially_supported`. The bounded
+normal-play workflow can review all 30 decisions, but it does not provide
+ouvert-aware simulation, training dataset metadata, claims, concessions, full
+auction events, player statistics, or list/tournament aggregation. Decision
+snapshots remain state-reconstruction records rather than training records.
 
 ## Public input
 
@@ -117,8 +117,8 @@ Suit/Grand overbids use the existing required-game-value and doubled-loss
 settlement behavior. Overbid Null records require the separate impossible-Null
 settlement workflow and are rejected by this normal-play branch.
 
-No recommendation, simulation, local position, opponent policy, profile, list,
-or training-data output is emitted for a historical game.
+Base historical output emits no recommendation, simulation, local position,
+opponent policy, profile, list, or training-data output.
 
 With `--historical-decision-snapshots`, the summary additionally contains an
 optional `decision_snapshot_summary` with exactly 30 chronological pre-play
@@ -127,6 +127,12 @@ Snapshot hands, legal cards, prior tricks, point state, hand sizes, skat
 knowledge, matadors, and ouvert exposure follow the acting player's decision-time
 information boundary. See
 [Historical decision snapshots](historical_decision_snapshots.md).
+
+With `--historical-game-review`, the summary additionally contains
+`historical_game_review_summary`. All 30 snapshots are evaluated through the
+existing immediate recommendation and post-game review logic. Final result and
+settlement fields remain beside the review but do not influence it. See
+[Historical game review](historical_game_review.md).
 
 ## CLI
 
@@ -148,10 +154,16 @@ Generate decision snapshots:
 python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
 ```
 
+Review every historical decision:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
+```
+
 Historical games accept `--input`, `--output`, `--quiet`, and the optional
-`--historical-decision-snapshots` flag. Analysis,
-recommendation, policy, comparison, profile, seed/sample, and simulation options
-are rejected instead of being ignored.
+snapshot and review flags. `--samples` and `--seed` are accepted only with
+historical review. Recommendation-policy, opponent-policy, profile, comparison,
+and multi-step options are rejected instead of being ignored.
 
 ## Remaining scope
 
@@ -161,7 +173,7 @@ Later work is still required for:
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication
-* recommendation-based evaluation of reconstructed decisions and complete-game coaching
+* exposed-card-aware ouvert simulation and complete-game coaching
 * training/evaluation dataset wrappers and provenance
 * historical player statistics and learned models
 * list, series, and tournament aggregation from historical records

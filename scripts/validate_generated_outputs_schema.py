@@ -17,6 +17,9 @@ SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
 HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_decision_snapshot.schema.json"
 )
+HISTORICAL_GAME_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -945,6 +948,57 @@ def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_historical_game_review(data: dict[str, Any]) -> list[str]:
+    """Checks the deterministic complete historical decision review."""
+    errors = check_historical_game_normal_completion(data)
+    review = data["historical_game_summary"].get(
+        "historical_game_review_summary"
+    )
+    if not isinstance(review, dict):
+        errors.append("expected historical game review summary")
+        return errors
+    if review["decision_count"] != 30 or len(review["decisions"]) != 30:
+        errors.append("expected exactly 30 historical review decisions")
+    if review["reviewed_decision_count"] != 30:
+        errors.append("expected all non-ouvert historical decisions to be reviewed")
+    if review["unavailable_decision_count"] != 0:
+        errors.append("expected no unavailable non-ouvert historical decisions")
+    if review["settings"] != {
+        "sample_count": 20,
+        "base_random_seed": 42,
+        "opponent_policy_mode": "default",
+    }:
+        errors.append("expected deterministic historical review settings")
+    if [
+        decision["effective_random_seed"] for decision in review["decisions"]
+    ] != list(range(42, 72)):
+        errors.append("expected historical decision seeds 42 through 71")
+    if len(review["player_summaries"]) != 3 or any(
+        player["decision_count"] != 10
+        for player in review["player_summaries"]
+    ):
+        errors.append("expected three ten-decision player summaries")
+    if any(
+        decision["actual_card_played"] not in decision["legal_cards"]
+        or decision["recommendation"]["card"] is None
+        or sum(
+            row["card"] == decision["actual_card_played"]
+            for row in decision["analysis_report"]
+        )
+        != 1
+        for decision in review["decisions"]
+    ):
+        errors.append("expected legal actual cards and complete candidate reviews")
+    if sum(review["quality_counts"].values()) != 30:
+        errors.append("expected historical review quality counts to reconcile")
+    if any(
+        len(decision["legal_cards"]) != 1
+        for decision in review["decisions"][-3:]
+    ):
+        errors.append("expected final one-card decisions to remain reviewable")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -1220,6 +1274,24 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="historical_grand_game_review",
+        input_path=(
+            PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+        ),
+        branch="seeded complete review of all 30 historical decisions",
+        cli_args=(
+            "--historical-game-review",
+            "--samples",
+            "20",
+            "--seed",
+            "42",
+            "--quiet",
+        ),
+        check_output=check_historical_game_review,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -1231,9 +1303,20 @@ def validate_generated_outputs() -> list[str]:
     historical_decision_snapshot_schema = load_json_file(
         HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH
     )
-    registry = Registry().with_resource(
-        historical_decision_snapshot_schema["$id"],
-        Resource.from_contents(historical_decision_snapshot_schema),
+    historical_game_review_schema = load_json_file(
+        HISTORICAL_GAME_REVIEW_SCHEMA_PATH
+    )
+    registry = Registry().with_resources(
+        [
+            (
+                historical_decision_snapshot_schema["$id"],
+                Resource.from_contents(historical_decision_snapshot_schema),
+            ),
+            (
+                historical_game_review_schema["$id"],
+                Resource.from_contents(historical_game_review_schema),
+            ),
+        ]
     )
     validator = Draft202012Validator(schema, registry=registry)
     errors = []

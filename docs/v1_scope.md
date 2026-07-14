@@ -15,6 +15,7 @@ must not be presented as official-rule requirements.
 | --- | --- | --- |
 | Live position | A position analyzed using only facts legitimately available to the selected player at that decision time. | Post-game skat, future plays, later outcomes, and retrospective labels must be rejected or redacted. |
 | Retrospective single-decision review | One historical decision reconstructed with the actual card and facts available at that point, then compared with the engine recommendation. | It is not a complete-game replay. Retrospective facts may explain the result but must not leak into the reconstructed decision analysis. |
+| Complete historical game review | All eligible decisions from one complete historical game, independently reconstructed from decision-time snapshots and compared with the existing immediate recommendation. | It is not a perfect-information solver, complete-contract optimization, player rating, or training/evaluation record. |
 | Complete historical game | One coherent record of the deal, players/seats, bidding and declaration facts, skat handling, ordered play events, end reason, result, and settlement. | A position plus selected completed tricks is not a complete historical game. |
 | Historical game used as training or evaluation data | A complete historical game wrapped in a validated record with provenance, stable identity, intended labels/targets, and explicit dataset partition metadata. | Representation and evaluation use do not imply that a machine-learning model is trained. |
 | Statistics derived from historical player data | Reproducible aggregates computed from linked historical games for a stable player identity. | These differ from manually supplied profile values and from learned model parameters. |
@@ -111,9 +112,10 @@ validation, and tests does not satisfy a gate.
 The normal-play historical-game workflow satisfies the deal-through-settlement
 portion of complete-game representation for `normal_completion` and can
 reconstruct information-safe pre-play states for all 30 actual cards. The v1
-gate remains open for approved later end reasons, complete auction
-representation, recommendation-based snapshot evaluation, and
-training/evaluation wrapping.
+workflow now also evaluates non-ouvert normal-play snapshots through the bounded
+immediate recommendation and post-game review logic. The v1 gate remains open
+for exposed-card-aware ouvert analysis, approved later end reasons, complete
+auction representation, and training/evaluation wrapping.
 
 ## Release decision rule
 

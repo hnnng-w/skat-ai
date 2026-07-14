@@ -23,8 +23,9 @@ The project check script also runs generated-output schema validation:
 ```
 
 Generated-output schema validation uses the real CLI and output writer. Position
-scenarios use deterministic settings such as `--samples 20` and `--seed 42`;
-the historical-game scenarios use no position-only overrides. The
+scenarios use deterministic settings such as `--samples 20` and `--seed 42`.
+The historical review scenario uses those two approved review settings; other
+historical scenarios use no position-only overrides. The
 validator writes temporary output files, parses the generated JSON, validates it
 against `schemas/output.schema.json`.
 
@@ -46,7 +47,7 @@ games instead produce exactly:
 
 `historical_game_summary` contains the canonical versioned record, ten derived
 tricks, trick and skat points, final 120-point allocation, winner, game result,
-game value, overbid, and final settlement. It contains no position,
+game value, overbid, and final settlement. Base output contains no position,
 recommendation, simulation, profile, policy, or list result. See
 [Historical games](historical_games.md).
 
@@ -58,6 +59,21 @@ acting player's remaining hand, legal cards, prior public play, public point and
 hand-size state, legitimate skat knowledge, conservative visible matadors, and
 ouvert exposure. It excludes final result, overbid, and settlement facts. See
 [Historical decision snapshots](historical_decision_snapshots.md).
+
+When `--historical-game-review` is requested, the summary also contains
+`historical_game_review_summary`. The version-1 object exposes fixed
+`immediate_expected_value` and `decision_time` policies, sample/base-seed
+settings, 30 decision rows, quality counts, and exactly three player summaries.
+Each reviewed row contains all legal candidates, one recommendation, the
+existing analysis report, and the existing post-game review shape. Ouvert rows
+are explicitly unavailable with `public_exposed_cards_not_supported` and do not
+run simulation. See [Historical game review](historical_game_review.md) and
+[`historical_game_review.schema.json`](../schemas/historical_game_review.schema.json).
+
+Historical review quality counts summarize decisions; they are not player
+grades, percentages, skill ratings, winners, or rankings. The review evaluates
+the immediate heuristic, not perfect-information or complete-contract optimal
+play, and is not a training/evaluation dataset record.
 
 ## Position top-level fields
 

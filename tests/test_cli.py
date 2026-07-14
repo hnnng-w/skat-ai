@@ -6,12 +6,14 @@ from pathlib import Path
 
 import pytest
 
+import main as main_module
 from main import (
     apply_cli_overrides,
     apply_profile_preset_cli_overrides,
     build_analysis_result,
     print_multi_step_result,
     print_policy_comparison_result,
+    run_json_historical_game_analysis,
     run_json_position_analysis,
     validate_cli_arguments,
 )
@@ -81,6 +83,7 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
         "--right-opponent-response-policy",
         "--use-profile-presets",
         "--historical-decision-snapshots",
+        "--historical-game-review",
     ]:
         assert option in completed_process.stdout
 
@@ -240,6 +243,104 @@ def test_cli_historical_decision_snapshots_quiet_output(tmp_path) -> None:
     assert len(snapshot_summary["snapshots"]) == 30
 
 
+def test_cli_historical_game_review_prints_aggregate_summary() -> None:
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--historical-game-review",
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical game review" in completed_process.stdout
+    assert "Total decisions: 30" in completed_process.stdout
+    assert "Reviewed decisions: 30" in completed_process.stdout
+    assert "Unavailable decisions: 0" in completed_process.stdout
+    for quality in ["Optimal", "Acceptable", "Suboptimal", "Mistake", "Not Available"]:
+        assert f"{quality} decisions:" in completed_process.stdout
+
+
+def test_cli_historical_game_review_quiet_output_and_both_flags(tmp_path) -> None:
+    output_path = tmp_path / "historical-review.json"
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--historical-game-review",
+        "--historical-decision-snapshots",
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    summary = result["historical_game_summary"]
+    assert summary["decision_snapshot_summary"]["snapshot_count"] == 30
+    assert summary["historical_game_review_summary"]["decision_count"] == 30
+    assert summary["historical_game_review_summary"]["settings"] == {
+        "sample_count": 1,
+        "base_random_seed": 42,
+        "opponent_policy_mode": "default",
+    }
+
+
+def test_historical_review_and_snapshot_flags_generate_snapshots_once(
+    monkeypatch,
+) -> None:
+    call_count = 0
+    original_builder = main_module.build_historical_decision_snapshots
+
+    def count_snapshot_builds(historical_summary):
+        nonlocal call_count
+        call_count += 1
+        return original_builder(historical_summary)
+
+    monkeypatch.setattr(
+        main_module,
+        "build_historical_decision_snapshots",
+        count_snapshot_builds,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "build_historical_game_review_summary",
+        lambda **kwargs: {"decision_count": 30},
+    )
+
+    run_json_historical_game_analysis(
+        file_path=str(HISTORICAL_INPUT_PATH),
+        quiet=True,
+        historical_decision_snapshots=True,
+        historical_game_review=True,
+        sample_count=1,
+        base_random_seed=42,
+    )
+
+    assert call_count == 1
+
+
+def test_cli_rejects_historical_game_review_for_position_input() -> None:
+    completed_process = run_cli(
+        "--input", VALID_INPUT_PATH, "--historical-game-review"
+    )
+
+    assert completed_process.returncode == 2
+    assert "--historical-game-review requires historical-game input" in (
+        completed_process.stderr
+    )
+    assert_no_success_output(completed_process)
+
+
 def test_cli_rejects_historical_decision_snapshots_for_position_input() -> None:
     completed_process = run_cli(
         "--input", VALID_INPUT_PATH, "--historical-decision-snapshots"
@@ -257,10 +358,14 @@ def test_cli_rejects_historical_decision_snapshots_for_position_input() -> None:
     "override_args",
     [
         ("--samples", "1"),
+        ("--seed", "42"),
         ("--card-policy", "highest_point"),
         ("--opponent-policy-preset", "simple_lowest"),
         ("--multi-step", "1"),
         ("--multi-step", "1", "--compare-policies"),
+        ("--historical-game-review", "--opponent-strategy", "random"),
+        ("--historical-game-review", "--expected-value-samples", "1"),
+        ("--historical-game-review", "--use-profile-presets"),
     ],
 )
 def test_cli_historical_game_rejects_position_specific_overrides(

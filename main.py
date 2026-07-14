@@ -24,6 +24,7 @@ from skat_ai.historical_decision_snapshot import (
     build_serializable_historical_decision_snapshot_summary,
 )
 from skat_ai.historical_game import build_historical_game_summary
+from skat_ai.historical_game_review import build_historical_game_review_summary
 from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_summary,
     build_serializable_impossible_null_settlement_summary,
@@ -73,6 +74,7 @@ from skat_ai.result_serialization import (
     build_serializable_policy_comparison_result,
 )
 from skat_ai.rules import get_legal_cards
+from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 
 IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
     "Immediate analysis is unavailable because the local player is not next."
@@ -767,6 +769,26 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
     decision_snapshot_summary = summary.get("decision_snapshot_summary")
     if decision_snapshot_summary is not None:
         print("Decision snapshots generated:", decision_snapshot_summary["snapshot_count"])
+    review_summary = summary.get("historical_game_review_summary")
+    if review_summary is not None:
+        print()
+        print("Historical game review")
+        print("Total decisions:", review_summary["decision_count"])
+        print("Reviewed decisions:", review_summary["reviewed_decision_count"])
+        print("Unavailable decisions:", review_summary["unavailable_decision_count"])
+        for quality, count in review_summary["quality_counts"].items():
+            print(f"{quality.replace('_', ' ').title()} decisions:", count)
+        for decision in review_summary["decisions"]:
+            decision_quality = decision["post_game_review_summary"][
+                "decision_quality"
+            ]
+            if decision_quality not in {"suboptimal", "mistake"}:
+                continue
+            print(
+                f"Decision {decision['decision_index']} ({decision['acting_player_id']}): "
+                f"{decision_quality}; actual {decision['actual_card_played']}, "
+                f"recommended {decision['recommendation']['card']}."
+            )
 
 
 def print_multi_step_result(result: dict[str, Any]) -> None:
@@ -947,7 +969,7 @@ def run_json_position_analysis(
     output_path: str | None = None,
     multi_step_count: int | None = None,
     card_selection_policy: str = "first_legal",
-    expected_value_sample_count: int = 100,
+    expected_value_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     strict_context: bool = False,
     compare_policies: bool = False,
     comparison_only: bool = False,
@@ -1109,14 +1131,39 @@ def run_json_historical_game_analysis(
     output_path: str | None = None,
     quiet: bool = False,
     historical_decision_snapshots: bool = False,
+    historical_game_review: bool = False,
+    sample_count: int | None = None,
+    base_random_seed: int | None = None,
 ) -> None:
     """Runs the complete historical-game workflow."""
     record = load_historical_game_from_json(file_path)
     historical_game_summary = build_historical_game_summary(record)
+    snapshot_summary = None
+    if historical_decision_snapshots or historical_game_review:
+        snapshot_summary = build_historical_decision_snapshots(
+            historical_game_summary
+        )
     if historical_decision_snapshots:
+        if snapshot_summary is None:
+            raise ValueError("Historical decision snapshots were not generated.")
         historical_game_summary["decision_snapshot_summary"] = (
             build_serializable_historical_decision_snapshot_summary(
-                build_historical_decision_snapshots(historical_game_summary)
+                snapshot_summary
+            )
+        )
+    if historical_game_review:
+        if snapshot_summary is None:
+            raise ValueError("Historical decision snapshots were not generated.")
+        historical_game_summary["historical_game_review_summary"] = (
+            build_historical_game_review_summary(
+                snapshot_summary=snapshot_summary,
+                historical_record=record,
+                sample_count=(
+                    sample_count
+                    if sample_count is not None
+                    else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+                ),
+                base_random_seed=base_random_seed,
             )
         )
     result = {
@@ -1201,6 +1248,14 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help=(
             "Add 30 information-safe pre-play snapshots to historical-game output."
+        ),
+    )
+
+    parser.add_argument(
+        "--historical-game-review",
+        action="store_true",
+        help=(
+            "Evaluate all 30 historical decisions with decision-time information."
         ),
     )
 
@@ -1353,8 +1408,8 @@ def validate_cli_arguments(args: argparse.Namespace) -> None:
 def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
     """Rejects position-analysis and simulation overrides for historical games."""
     incompatible_options = {
-        "--samples": args.samples is not None,
-        "--seed": args.seed is not None,
+        "--samples": args.samples is not None and not args.historical_game_review,
+        "--seed": args.seed is not None and not args.historical_game_review,
         "--opponent-strategy": args.opponent_strategy is not None,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
@@ -1396,11 +1451,18 @@ def main() -> int:
                 output_path=args.output,
                 quiet=args.quiet,
                 historical_decision_snapshots=args.historical_decision_snapshots,
+                historical_game_review=args.historical_game_review,
+                sample_count=args.samples,
+                base_random_seed=args.seed,
             )
         else:
             if args.historical_decision_snapshots:
                 raise CliUsageError(
                     "--historical-decision-snapshots requires historical-game input."
+                )
+            if args.historical_game_review:
+                raise CliUsageError(
+                    "--historical-game-review requires historical-game input."
                 )
             run_json_position_analysis(
                 file_path=args.input,
@@ -1414,7 +1476,10 @@ def main() -> int:
                 output_path=args.output,
                 multi_step_count=args.multi_step,
                 card_selection_policy=args.card_policy or "first_legal",
-                expected_value_sample_count=args.expected_value_samples or 100,
+                expected_value_sample_count=(
+                    args.expected_value_samples
+                    or DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+                ),
                 strict_context=args.strict_context,
                 compare_policies=args.compare_policies,
                 comparison_only=args.comparison_only,

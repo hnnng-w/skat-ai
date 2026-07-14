@@ -44,6 +44,15 @@ def build_card_analysis_report(
         opponent_response_policy_by_player=opponent_response_policy_by_player,
     )
 
+    return build_card_analysis_report_from_values(state=state, values=values)
+
+
+def build_card_analysis_report_from_values(
+    state: GameState,
+    values: dict[str, dict[str, float]],
+) -> list[dict[str, float | str | bool]]:
+    """Builds the stable candidate report from existing simulation values."""
+
     report = []
 
     for card, value in values.items():

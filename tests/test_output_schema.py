@@ -1,5 +1,6 @@
 import copy
 import json
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -11,12 +12,17 @@ from skat_ai.historical_decision_snapshot import (
     build_serializable_historical_decision_snapshot_summary,
 )
 from skat_ai.historical_game import build_historical_game_summary
+from skat_ai.historical_game_review import build_historical_game_review_summary
 from skat_ai.input_loader import load_historical_game_from_json
+from skat_ai.post_game_review import build_unavailable_post_game_review_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
 HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_decision_snapshot.schema.json"
+)
+HISTORICAL_GAME_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
 )
 
 
@@ -27,10 +33,20 @@ def load_output_schema() -> dict:
 
 with HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_DECISION_SNAPSHOT_SCHEMA = json.load(file)
+with HISTORICAL_GAME_REVIEW_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_GAME_REVIEW_SCHEMA = json.load(file)
 
-OUTPUT_SCHEMA_REGISTRY = Registry().with_resource(
-    HISTORICAL_DECISION_SNAPSHOT_SCHEMA["$id"],
-    Resource.from_contents(HISTORICAL_DECISION_SNAPSHOT_SCHEMA),
+OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
+    [
+        (
+            HISTORICAL_DECISION_SNAPSHOT_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_DECISION_SNAPSHOT_SCHEMA),
+        ),
+        (
+            HISTORICAL_GAME_REVIEW_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_GAME_REVIEW_SCHEMA),
+        ),
+    ]
 )
 OUTPUT_VALIDATOR = Draft202012Validator(
     load_output_schema(), registry=OUTPUT_SCHEMA_REGISTRY
@@ -414,6 +430,29 @@ def build_valid_historical_output_with_decision_snapshots() -> dict[str, object]
     return data
 
 
+@lru_cache(maxsize=1)
+def build_cached_valid_historical_output_with_game_review() -> dict[str, object]:
+    data = build_valid_historical_output()
+    historical_summary = data["historical_game_summary"]
+    assert isinstance(historical_summary, dict)
+    input_path = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+    record = load_historical_game_from_json(str(input_path))
+    snapshots = build_historical_decision_snapshots(historical_summary)
+    historical_summary["historical_game_review_summary"] = (
+        build_historical_game_review_summary(
+            snapshots,
+            record,
+            sample_count=1,
+            base_random_seed=42,
+        )
+    )
+    return data
+
+
+def build_valid_historical_output_with_game_review() -> dict[str, object]:
+    return copy.deepcopy(build_cached_valid_historical_output_with_game_review())
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -442,6 +481,52 @@ def test_schema_accepts_historical_game_output_branch() -> None:
 
 def test_schema_accepts_historical_decision_snapshot_output_branch() -> None:
     assert_schema_valid(build_valid_historical_output_with_decision_snapshots())
+
+
+def test_schema_accepts_historical_game_review_output_branch() -> None:
+    assert_schema_valid(build_valid_historical_output_with_game_review())
+
+
+def test_schema_accepts_nullable_seeds_and_ouvert_unavailable_review_branch() -> None:
+    data = build_valid_historical_output_with_game_review()
+    review = data["historical_game_summary"]["historical_game_review_summary"]
+    review["settings"]["base_random_seed"] = None
+    decision = review["decisions"][0]
+    decision["status"] = "unavailable"
+    decision["unavailable_reason"] = "public_exposed_cards_not_supported"
+    decision["effective_random_seed"] = None
+    decision["legal_cards"] = []
+    decision["recommendation"] = {
+        "card": None,
+        "reason": "Public exposed cards are not supported.",
+    }
+    decision["analysis_report"] = []
+    decision["post_game_review_summary"] = (
+        build_unavailable_post_game_review_summary(
+            reason="public_exposed_cards_not_supported",
+            actual_card_played=decision["actual_card_played"],
+        )
+    )
+
+    assert_schema_valid(data)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda review: review.update(decision_count=29),
+        lambda review: review["player_summaries"].pop(),
+        lambda review: review["decisions"][0]["recommendation"].update(card=None),
+        lambda review: review["decisions"][0].update(analysis_report=[]),
+        lambda review: review["quality_counts"].update(extra=0),
+    ],
+)
+def test_schema_rejects_malformed_historical_game_review(mutation) -> None:
+    data = build_valid_historical_output_with_game_review()
+    review = data["historical_game_summary"]["historical_game_review_summary"]
+    mutation(review)
+
+    assert_schema_invalid(data)
 
 
 def test_schema_rejects_malformed_historical_decision_snapshot_summary() -> None:

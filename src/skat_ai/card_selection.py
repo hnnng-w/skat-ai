@@ -6,7 +6,10 @@ from skat_ai.objective_utility import (
     choose_best_card_by_expected_objective,
 )
 from skat_ai.rules import get_card_points, get_legal_cards
-from skat_ai.simulation import estimate_immediate_trick_values_for_legal_cards
+from skat_ai.simulation import (
+    DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
+    estimate_immediate_trick_values_for_legal_cards,
+)
 
 VALID_CARD_SELECTION_POLICIES = [
     "first_legal",
@@ -107,7 +110,7 @@ def choose_card_by_policy(
     policy: str,
     left_hand_size: int | None = None,
     right_hand_size: int | None = None,
-    expected_value_sample_count: int = 100,
+    expected_value_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,

@@ -21,9 +21,11 @@ The position-analysis flow is:
 The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, strictly replays ten tricks from complete playable hands,
 derives points and ownership, reuses the declaration/value/overbid/settlement
-helpers, and emits only `historical_game_summary`.
+helpers, and emits `historical_game_summary`.
 When requested, the flow then derives 30 pre-play decision snapshots from that
-validated replay result without invoking recommendation or simulation code.
+validated replay result. Historical review adapts each snapshot independently
+to the existing local state, runs the existing immediate recommendation once,
+builds the candidate report from those values, and reuses post-game review.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
@@ -53,6 +55,8 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/turn_phase.py`         | Normalizes and validates canonical `trick_leader` and `next_player` from the current trick length.                  |
 | `src/skat_ai/historical_game.py`    | Typed stable-ID historical records, complete-deal validation, strict play replay, and historical result serialization. |
 | `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
+| `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
+| `src/skat_ai/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |
 
 Validation is split between JSON Schema and Python validation:
 
@@ -216,6 +220,10 @@ receive the same activated response map as immediate analysis.
 
 The analysis report is the basis for recommendations, post-game comparison, and several CLI/JSON summaries when a local decision is available. Opponent-turn and ended-game positions intentionally use an empty report.
 
+Historical review calls the same immediate recommender and builds the report
+from its returned candidate values, avoiding a second simulation pass or a
+second recommendation algorithm.
+
 Suit and Grand candidate ranking uses expected local card-point swing. Null
 candidate ranking uses an internal contract-objective utility: local declarers
 prefer avoiding declarer-won evaluated tricks, while local defenders prefer
@@ -229,6 +237,13 @@ card-point metrics.
 | `src/skat_ai/post_game_review.py` | Actual-card comparison, decision quality classification, decision factors, explanation text, and recommendation gap details. |
 
 Post-game review uses the regular analysis report and optionally compares it with `actual_card_played`. If Immediate Analysis is unavailable because there is no current local decision, post-game review returns an unavailable summary instead of comparing against an empty report.
+
+Complete historical review applies this same comparison independently to every
+snapshot. Only stable player/declarer identity is read outside the snapshot for
+relative mapping and player summaries. Prior review rows and final historical
+result or settlement fields are never inputs to later or earlier decisions.
+Ouvert snapshots bypass simulation because exposed opponent-card identities are
+not supported by the current sampler.
 
 Current post-game review output includes:
 
@@ -262,6 +277,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/input.schema.json`                    | Stable input JSON structure.                                             |
 | `schemas/historical_game.schema.json`          | Versioned complete historical-game input structure.                      |
 | `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
+| `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |
@@ -282,6 +298,7 @@ Important regression areas:
 * performance rating
 * information policy
 * post-game review
+* historical snapshot adaptation, complete review, seeds, aggregation, and leakage control
 * example files
 * CLI result structure
 * multi-step simulation

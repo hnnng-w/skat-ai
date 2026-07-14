@@ -1,5 +1,6 @@
 import copy
 import random
+from dataclasses import replace
 
 import pytest
 
@@ -12,6 +13,13 @@ from skat_ai.historical_game import (
     build_historical_game_record,
     build_historical_game_summary,
     build_historical_game_summary_from_input,
+)
+from skat_ai.historical_game_review import (
+    HistoricalGameReviewSettings,
+    build_historical_game_review_summary,
+)
+from skat_ai.historical_snapshot_adapter import (
+    build_position_from_historical_snapshot,
 )
 from skat_ai.rules import get_legal_cards, get_trick_winner
 
@@ -106,6 +114,47 @@ def build_decision_snapshot_summary(data: dict) -> dict:
     return build_serializable_historical_decision_snapshot_summary(
         build_historical_decision_snapshots(historical_summary)
     )
+
+
+def build_typed_historical_review_inputs(data: dict):
+    record = build_historical_game_record(data)
+    historical_summary = build_historical_game_summary(record)
+    snapshot_summary = build_historical_decision_snapshots(historical_summary)
+    return record, snapshot_summary
+
+
+def build_stub_expected_value_recommendation(
+    state,
+    left_hand_size,
+    right_hand_size,
+    sample_count,
+    random_seed=None,
+    use_basic_opponent_strategy=True,
+    opponent_response_policy_by_player=None,
+):
+    del (
+        left_hand_size,
+        right_hand_size,
+        sample_count,
+        random_seed,
+        use_basic_opponent_strategy,
+        opponent_response_policy_by_player,
+    )
+    legal_cards = get_legal_cards(
+        state.hand,
+        state.current_trick,
+        state.game_type,
+    )
+    values = {
+        card: {
+            "win_rate": 0.5,
+            "average_trick_points": 5.0,
+            "average_points_won": 5.0,
+            "average_points_lost": 5.0,
+        }
+        for card in legal_cards
+    }
+    return legal_cards[0], "Stub immediate recommendation.", values
 
 
 def rebuild_historical_suffix(data: dict, completed_prefix_tricks: int) -> dict:
@@ -388,6 +437,387 @@ def test_unchanged_prefix_snapshots_are_stable_when_future_suffix_changes() -> N
     assert alternative_data["tricks"][:5] == data["tricks"][:5]
     assert alternative_data["tricks"][5:] != data["tricks"][5:]
     assert alternative_snapshots[:15] == original_snapshots[:15]
+
+
+@pytest.mark.parametrize("acting_player_id", PLAYER_IDS_BY_SEAT)
+def test_historical_snapshot_adapter_maps_each_acting_seat_to_local_position(
+    acting_player_id: str,
+) -> None:
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input()
+    )
+    snapshot = next(
+        snapshot
+        for snapshot in snapshot_summary.snapshots
+        if snapshot.acting_player_id == acting_player_id
+        and snapshot.decision_index > 3
+        and snapshot.play_index > 1
+    )
+
+    position = build_position_from_historical_snapshot(snapshot, record)
+    state = position.state
+    stable_to_local = {
+        player_id: relative_player
+        for relative_player, player_id in snapshot.relative_player_map.items()
+    }
+
+    assert snapshot.relative_player_map["me"] == acting_player_id
+    assert state.next_player == "me"
+    assert state.player_position == snapshot.acting_seat
+    assert state.player_role == (
+        "declarer" if snapshot.acting_side == "declarer" else "defender"
+    )
+    assert state.declarer_player == stable_to_local[record.declarer_player_id]
+    assert state.hand == list(snapshot.visible_state.own_hand)
+    assert state.current_trick == [
+        play.card for play in snapshot.visible_state.current_trick
+    ]
+    assert state.trick_leader == stable_to_local[
+        snapshot.visible_state.current_trick[0].player_id
+    ]
+    assert state.completed_tricks == [
+        {
+            "cards": [play.card for play in trick.plays],
+            "players": [stable_to_local[play.player_id] for play in trick.plays],
+            "winner_player": stable_to_local[trick.winner_player_id],
+            "winner_role": trick.winner_side,
+        }
+        for trick in snapshot.visible_state.completed_tricks
+    ]
+    assert state.declarer_points == snapshot.visible_state.declarer_trick_points
+    assert state.defender_points == snapshot.visible_state.defender_trick_points
+    assert position.left_hand_size == (
+        snapshot.visible_state.opponent_hand_sizes[0].remaining_card_count
+    )
+    assert position.right_hand_size == (
+        snapshot.visible_state.opponent_hand_sizes[1].remaining_card_count
+    )
+    assert state.skat == list(snapshot.visible_state.known_skat_cards)
+    assert position.game_declaration.matadors == snapshot.visible_state.declaration.matadors
+    assert position.game_end_reason == "not_ended"
+    assert position.legal_cards == snapshot.visible_state.legal_cards
+
+
+@pytest.mark.parametrize("game_type", ["clubs", "grand", "null"])
+@pytest.mark.parametrize("acting_side", ["declarer", "defenders"])
+@pytest.mark.parametrize("play_index", [1, 2, 3])
+def test_historical_snapshot_adapter_covers_contract_perspective_and_trick_position(
+    game_type: str,
+    acting_side: str,
+    play_index: int,
+) -> None:
+    template = build_historical_input(game_type=game_type, hand_game=True)
+    acting_player_id = template["tricks"][0]["plays"][play_index - 1]["player_id"]
+    declarer_player_id = (
+        acting_player_id
+        if acting_side == "declarer"
+        else next(
+            player_id
+            for player_id in PLAYER_IDS_BY_SEAT
+            if player_id != acting_player_id
+        )
+    )
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input(
+            game_type=game_type,
+            hand_game=True,
+            declarer_player_id=declarer_player_id,
+        )
+    )
+    snapshot = next(
+        snapshot
+        for snapshot in snapshot_summary.snapshots
+        if snapshot.acting_side == acting_side and snapshot.play_index == play_index
+    )
+
+    position = build_position_from_historical_snapshot(snapshot, record)
+
+    assert position.state.game_type == game_type
+    assert position.state.player_role == (
+        "declarer" if acting_side == "declarer" else "defender"
+    )
+    assert len(position.state.current_trick) == play_index - 1
+    assert position.state.skat == []
+
+
+def test_complete_historical_review_reconciles_rows_players_and_quality_counts(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        build_stub_expected_value_recommendation,
+    )
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input()
+    )
+
+    review = build_historical_game_review_summary(
+        snapshot_summary,
+        record,
+        sample_count=1,
+        base_random_seed=42,
+    )
+
+    assert review["decision_count"] == 30
+    assert review["reviewed_decision_count"] == 30
+    assert review["unavailable_decision_count"] == 0
+    assert [player["player_id"] for player in review["player_summaries"]] == [
+        player.player_id for player in record.players
+    ]
+    assert [player["player_label"] for player in review["player_summaries"]] == [
+        player.player_label for player in record.players
+    ]
+    assert all(
+        player["decision_count"] == 10
+        and player["reviewed_decision_count"] == 10
+        for player in review["player_summaries"]
+    )
+    assert sum(review["quality_counts"].values()) == 30
+    for decision in review["decisions"]:
+        assert decision["actual_card_played"] in decision["legal_cards"]
+        assert decision["recommendation"]["card"] is not None
+        assert sum(
+            row["is_recommended"] for row in decision["analysis_report"]
+        ) == 1
+        assert sum(
+            row["card"] == decision["actual_card_played"]
+            for row in decision["analysis_report"]
+        ) == 1
+    assert all(
+        len(decision["legal_cards"]) == 1
+        for decision in review["decisions"][-3:]
+    )
+    for quality, count in review["quality_counts"].items():
+        assert count == sum(
+            player["quality_counts"][quality]
+            for player in review["player_summaries"]
+        )
+
+
+def test_historical_review_derives_decision_seeds_and_preserves_unseeded_nulls(
+    monkeypatch,
+) -> None:
+    observed_seeds = []
+
+    def capture_seed(*args, random_seed=None, **kwargs):
+        observed_seeds.append(random_seed)
+        return build_stub_expected_value_recommendation(
+            *args,
+            random_seed=random_seed,
+            **kwargs,
+        )
+
+    monkeypatch.setattr(
+        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        capture_seed,
+    )
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input()
+    )
+
+    seeded_review = build_historical_game_review_summary(
+        snapshot_summary,
+        record,
+        sample_count=1,
+        base_random_seed=42,
+    )
+    assert observed_seeds == list(range(42, 72))
+    assert seeded_review["decisions"][0]["effective_random_seed"] == 42
+    assert seeded_review["decisions"][-1]["effective_random_seed"] == 71
+
+    observed_seeds.clear()
+    unseeded_review = build_historical_game_review_summary(
+        snapshot_summary,
+        record,
+        sample_count=1,
+    )
+    assert observed_seeds == [None] * 30
+    assert all(
+        decision["effective_random_seed"] is None
+        for decision in unseeded_review["decisions"]
+    )
+    assert HistoricalGameReviewSettings().sample_count == 100
+
+
+def test_historical_review_does_not_convert_unexpected_simulation_errors(
+    monkeypatch,
+) -> None:
+    def fail_simulation(*args, **kwargs):
+        raise RuntimeError("unexpected simulation failure")
+
+    monkeypatch.setattr(
+        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        fail_simulation,
+    )
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input()
+    )
+
+    with pytest.raises(RuntimeError, match="unexpected simulation failure"):
+        build_historical_game_review_summary(
+            snapshot_summary,
+            record,
+            sample_count=1,
+            base_random_seed=42,
+        )
+
+
+def test_historical_review_uses_only_snapshot_state_for_unchanged_prefix(
+    monkeypatch,
+) -> None:
+    captured_first_states = []
+
+    def capture_state(*args, state, **kwargs):
+        if not captured_first_states:
+            captured_first_states.append(copy.deepcopy(state))
+        return build_stub_expected_value_recommendation(
+            *args,
+            state=state,
+            **kwargs,
+        )
+
+    monkeypatch.setattr(
+        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        capture_state,
+    )
+    data = build_historical_input()
+    alternative_data = rebuild_historical_suffix(data, completed_prefix_tricks=5)
+    record, snapshots = build_typed_historical_review_inputs(data)
+    alternative_record, alternative_snapshots = build_typed_historical_review_inputs(
+        alternative_data
+    )
+
+    original_review = build_historical_game_review_summary(
+        snapshots, record, sample_count=1, base_random_seed=42
+    )
+    alternative_review = build_historical_game_review_summary(
+        alternative_snapshots,
+        alternative_record,
+        sample_count=1,
+        base_random_seed=42,
+    )
+
+    assert original_review["decisions"][:15] == alternative_review["decisions"][:15]
+    first_state = captured_first_states[0]
+    assert first_state.hand == list(snapshots.snapshots[0].visible_state.own_hand)
+    assert first_state.current_trick == []
+    assert first_state.completed_tricks == []
+    hidden_initial_cards = {
+        card
+        for player in record.players[1:]
+        for card in player.initial_hand
+    }
+    assert hidden_initial_cards.isdisjoint(first_state.hand)
+
+
+def test_historical_review_actual_card_is_only_a_decision_label(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        build_stub_expected_value_recommendation,
+    )
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input()
+    )
+    snapshot = next(
+        snapshot
+        for snapshot in snapshot_summary.snapshots
+        if len(snapshot.visible_state.legal_cards) > 1
+    )
+    changed_snapshot = replace(
+        snapshot,
+        actual_card_played=snapshot.visible_state.legal_cards[-1],
+    )
+    changed_summary = replace(
+        snapshot_summary,
+        snapshots=tuple(
+            changed_snapshot if item is snapshot else item
+            for item in snapshot_summary.snapshots
+        ),
+    )
+
+    original = build_historical_game_review_summary(
+        snapshot_summary, record, sample_count=1, base_random_seed=42
+    )["decisions"][snapshot.decision_index - 1]
+    changed = build_historical_game_review_summary(
+        changed_summary, record, sample_count=1, base_random_seed=42
+    )["decisions"][snapshot.decision_index - 1]
+
+    assert changed["actual_card_played"] != original["actual_card_played"]
+    assert changed["legal_cards"] == original["legal_cards"]
+    assert changed["recommendation"] == original["recommendation"]
+    assert changed["analysis_report"] == original["analysis_report"]
+
+
+def test_ouvert_historical_review_is_unavailable_without_simulation(monkeypatch) -> None:
+    def fail_simulation(*args, **kwargs):
+        raise AssertionError("Ouvert historical review must not run simulation.")
+
+    monkeypatch.setattr(
+        "skat_ai.historical_game_review.recommend_card_by_expected_value",
+        fail_simulation,
+    )
+    data = build_historical_input(game_type="null", hand_game=True)
+    data["declaration"]["ouvert"] = True
+    record, snapshot_summary = build_typed_historical_review_inputs(data)
+
+    review = build_historical_game_review_summary(
+        snapshot_summary,
+        record,
+        sample_count=1,
+        base_random_seed=42,
+    )
+
+    assert review["reviewed_decision_count"] == 0
+    assert review["unavailable_decision_count"] == 30
+    assert review["quality_counts"] == {
+        "optimal": 0,
+        "acceptable": 0,
+        "suboptimal": 0,
+        "mistake": 0,
+        "not_available": 30,
+    }
+    assert all(
+        decision["status"] == "unavailable"
+        and decision["unavailable_reason"]
+        == "public_exposed_cards_not_supported"
+        and decision["legal_cards"] == []
+        and decision["analysis_report"] == []
+        and decision["recommendation"]["card"] is None
+        and decision["post_game_review_summary"]["decision_quality"]
+        == "not_available"
+        for decision in review["decisions"]
+    )
+    assert all(
+        player["unavailable_decision_count"] == 10
+        and player["quality_counts"]["not_available"] == 10
+        for player in review["player_summaries"]
+    )
+
+
+def test_seeded_complete_historical_review_is_end_to_end_deterministic() -> None:
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input()
+    )
+
+    first = build_historical_game_review_summary(
+        snapshot_summary,
+        record,
+        sample_count=1,
+        base_random_seed=42,
+    )
+    second = build_historical_game_review_summary(
+        snapshot_summary,
+        record,
+        sample_count=1,
+        base_random_seed=42,
+    )
+
+    assert first == second
+    assert first["reviewed_decision_count"] == 30
+    assert all(
+        decision["recommendation"]["card"] in decision["legal_cards"]
+        for decision in first["decisions"]
+    )
 
 
 def test_derived_trick_winner_and_points_are_rule_based() -> None:

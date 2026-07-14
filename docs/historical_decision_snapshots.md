@@ -2,8 +2,9 @@
 
 Historical decision snapshots reconstruct the information available immediately
 before each actual card in an already validated normal-play historical game.
-They provide a deterministic, information-safe foundation for later replay
-analysis without running recommendations or creating training-dataset records.
+Snapshot-only output does not run recommendations or create training-dataset
+records. The optional historical game review uses these same snapshots as its
+only decision-state input.
 
 ## Requesting snapshots
 
@@ -99,7 +100,9 @@ matador value is never copied into snapshots.
 For Suit, Grand, and Null ouvert games, `public_exposed_cards` contains only the
 declarer's currently remaining playable cards. Non-ouvert games use an empty
 array. Hidden skat and discarded cards are never exposed. Ouvert visibility is
-represented here but is not yet consumed by current opponent-hand simulation.
+represented here but is not consumed by current opponent-hand simulation.
+Historical review returns `public_exposed_cards_not_supported` without running
+simulation for such snapshots.
 
 ## Leakage boundary
 
@@ -110,8 +113,10 @@ ratings. The builder consumes the validated historical replay result and does
 not perform a second competing complete-game validation.
 
 Snapshots are not complete-game review results and are not training/evaluation
-dataset records. Complete-game retrospective analysis remains partially
-supported until these states are evaluated through the recommendation workflow.
+dataset records. The separate [historical game review](historical_game_review.md)
+evaluates them through the existing immediate recommendation workflow while
+preserving this boundary. Complete-game retrospective analysis remains partial
+because ouvert simulation, later end reasons, and other approved gaps remain.
 
 The stable structure is defined by
 [`schemas/historical_decision_snapshot.schema.json`](../schemas/historical_decision_snapshot.schema.json)

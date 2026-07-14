@@ -1,0 +1,393 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_game_review.schema.json",
+  "title": "skat-ai historical game review summary version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "analysis_method",
+    "information_policy",
+    "decision_count",
+    "reviewed_decision_count",
+    "unavailable_decision_count",
+    "settings",
+    "quality_counts",
+    "player_summaries",
+    "decisions"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "analysis_method": {"const": "immediate_expected_value"},
+    "information_policy": {"const": "decision_time"},
+    "decision_count": {"const": 30},
+    "reviewed_decision_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 30
+    },
+    "unavailable_decision_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 30
+    },
+    "settings": {"$ref": "#/$defs/settings"},
+    "quality_counts": {"$ref": "#/$defs/quality_counts"},
+    "player_summaries": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/player_summary"},
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "decisions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision"},
+      "minItems": 30,
+      "maxItems": 30
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "nullable_number": {"type": ["number", "null"]},
+    "nullable_rank": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "maximum": 10
+    },
+    "quality": {
+      "type": "string",
+      "enum": [
+        "optimal",
+        "acceptable",
+        "suboptimal",
+        "mistake",
+        "not_available"
+      ]
+    },
+    "reviewed_quality": {
+      "type": "string",
+      "enum": ["optimal", "acceptable", "suboptimal", "mistake"]
+    },
+    "decision_factor": {
+      "type": "string",
+      "enum": [
+        "no_missed_expected_point_swing",
+        "lower_expected_point_swing_than_recommendation",
+        "small_expected_point_swing_gap",
+        "medium_expected_point_swing_gap",
+        "large_expected_point_swing_gap",
+        "no_missed_null_objective",
+        "lower_null_objective_than_recommendation",
+        "small_null_objective_gap",
+        "medium_null_objective_gap",
+        "large_null_objective_gap",
+        "public_exposed_cards_not_supported"
+      ]
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sample_count",
+        "base_random_seed",
+        "opponent_policy_mode"
+      ],
+      "properties": {
+        "sample_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "base_random_seed": {"type": ["integer", "null"]},
+        "opponent_policy_mode": {"const": "default"}
+      }
+    },
+    "quality_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "optimal",
+        "acceptable",
+        "suboptimal",
+        "mistake",
+        "not_available"
+      ],
+      "properties": {
+        "optimal": {"type": "integer", "minimum": 0, "maximum": 30},
+        "acceptable": {"type": "integer", "minimum": 0, "maximum": 30},
+        "suboptimal": {"type": "integer", "minimum": 0, "maximum": 30},
+        "mistake": {"type": "integer", "minimum": 0, "maximum": 30},
+        "not_available": {"type": "integer", "minimum": 0, "maximum": 30}
+      }
+    },
+    "player_quality_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "optimal",
+        "acceptable",
+        "suboptimal",
+        "mistake",
+        "not_available"
+      ],
+      "properties": {
+        "optimal": {"type": "integer", "minimum": 0, "maximum": 10},
+        "acceptable": {"type": "integer", "minimum": 0, "maximum": 10},
+        "suboptimal": {"type": "integer", "minimum": 0, "maximum": 10},
+        "mistake": {"type": "integer", "minimum": 0, "maximum": 10},
+        "not_available": {"type": "integer", "minimum": 0, "maximum": 10}
+      }
+    },
+    "player_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "player_id",
+        "player_label",
+        "seat",
+        "side",
+        "decision_count",
+        "reviewed_decision_count",
+        "unavailable_decision_count",
+        "quality_counts"
+      ],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/stable_identifier"},
+        "player_label": {
+          "oneOf": [
+            {"$ref": "#/$defs/stable_identifier"},
+            {"type": "null"}
+          ]
+        },
+        "seat": {
+          "type": "string",
+          "enum": ["forehand", "middlehand", "rearhand"]
+        },
+        "side": {"type": "string", "enum": ["declarer", "defenders"]},
+        "decision_count": {"const": 10},
+        "reviewed_decision_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "unavailable_decision_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "quality_counts": {"$ref": "#/$defs/player_quality_counts"}
+      }
+    },
+    "analysis_report_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card",
+        "win_rate",
+        "average_trick_points",
+        "average_points_won",
+        "average_points_lost",
+        "expected_point_swing",
+        "is_recommended"
+      ],
+      "properties": {
+        "card": {"$ref": "#/$defs/card"},
+        "win_rate": {"type": "number"},
+        "average_trick_points": {"type": "number"},
+        "average_points_won": {"type": "number"},
+        "average_points_lost": {"type": "number"},
+        "expected_point_swing": {"type": "number"},
+        "is_recommended": {"type": "boolean"}
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["card", "reason"],
+      "properties": {
+        "card": {
+          "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+        },
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "post_game_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_available",
+        "reason",
+        "actual_card_played",
+        "recommended_card",
+        "actual_expected_point_swing",
+        "recommended_expected_point_swing",
+        "expected_point_swing_difference",
+        "decision_quality",
+        "decision_factors",
+        "decision_explanation",
+        "actual_card_rank",
+        "recommended_card_rank",
+        "candidate_count",
+        "better_card_count"
+      ],
+      "properties": {
+        "is_available": {"type": "boolean"},
+        "reason": {
+          "type": "string",
+          "enum": [
+            "actual_card_played_provided",
+            "public_exposed_cards_not_supported"
+          ]
+        },
+        "actual_card_played": {"$ref": "#/$defs/card"},
+        "recommended_card": {
+          "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+        },
+        "actual_expected_point_swing": {"$ref": "#/$defs/nullable_number"},
+        "recommended_expected_point_swing": {"$ref": "#/$defs/nullable_number"},
+        "expected_point_swing_difference": {"$ref": "#/$defs/nullable_number"},
+        "decision_quality": {"$ref": "#/$defs/quality"},
+        "decision_factors": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/decision_factor"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "decision_explanation": {"type": "string", "minLength": 1},
+        "actual_card_rank": {"$ref": "#/$defs/nullable_rank"},
+        "recommended_card_rank": {"$ref": "#/$defs/nullable_rank"},
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "better_card_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 9
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_game_id",
+        "decision_index",
+        "trick_number",
+        "play_index",
+        "acting_player_id",
+        "acting_seat",
+        "acting_side",
+        "actual_card_played",
+        "status",
+        "unavailable_reason",
+        "effective_random_seed",
+        "legal_cards",
+        "recommendation",
+        "analysis_report",
+        "post_game_review_summary"
+      ],
+      "properties": {
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
+        "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
+        "play_index": {"type": "integer", "minimum": 1, "maximum": 3},
+        "acting_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "acting_seat": {
+          "type": "string",
+          "enum": ["forehand", "middlehand", "rearhand"]
+        },
+        "acting_side": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "actual_card_played": {"$ref": "#/$defs/card"},
+        "status": {"type": "string", "enum": ["reviewed", "unavailable"]},
+        "unavailable_reason": {
+          "type": ["string", "null"],
+          "enum": [null, "public_exposed_cards_not_supported"]
+        },
+        "effective_random_seed": {"type": ["integer", "null"]},
+        "legal_cards": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/card"},
+          "uniqueItems": true,
+          "maxItems": 10
+        },
+        "recommendation": {"$ref": "#/$defs/recommendation"},
+        "analysis_report": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/analysis_report_item"},
+          "maxItems": 10
+        },
+        "post_game_review_summary": {"$ref": "#/$defs/post_game_review"}
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": {"const": "reviewed"},
+            "unavailable_reason": {"type": "null"},
+            "legal_cards": {"minItems": 1},
+            "recommendation": {
+              "properties": {"card": {"$ref": "#/$defs/card"}}
+            },
+            "analysis_report": {"minItems": 1},
+            "post_game_review_summary": {
+              "properties": {
+                "is_available": {"const": true},
+                "reason": {"const": "actual_card_played_provided"},
+                "recommended_card": {"$ref": "#/$defs/card"},
+                "actual_expected_point_swing": {"type": "number"},
+                "recommended_expected_point_swing": {"type": "number"},
+                "expected_point_swing_difference": {"type": "number"},
+                "decision_quality": {"$ref": "#/$defs/reviewed_quality"},
+                "actual_card_rank": {"type": "integer"},
+                "recommended_card_rank": {"type": "integer"},
+                "candidate_count": {"minimum": 1},
+                "better_card_count": {"type": "integer"}
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": "unavailable"},
+            "unavailable_reason": {"const": "public_exposed_cards_not_supported"},
+            "legal_cards": {"maxItems": 0},
+            "recommendation": {
+              "properties": {"card": {"type": "null"}}
+            },
+            "analysis_report": {"maxItems": 0},
+            "post_game_review_summary": {
+              "properties": {
+                "is_available": {"const": false},
+                "reason": {"const": "public_exposed_cards_not_supported"},
+                "recommended_card": {"type": "null"},
+                "actual_expected_point_swing": {"type": "null"},
+                "recommended_expected_point_swing": {"type": "null"},
+                "expected_point_swing_difference": {"type": "null"},
+                "decision_quality": {"const": "not_available"},
+                "decision_factors": {
+                  "const": ["public_exposed_cards_not_supported"]
+                },
+                "actual_card_rank": {"type": "null"},
+                "recommended_card_rank": {"type": "null"},
+                "candidate_count": {"const": 0},
+                "better_card_count": {"type": "null"}
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

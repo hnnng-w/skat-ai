@@ -26,6 +26,8 @@ from skat_ai.side_ownership import (
     normalize_declarer_player,
 )
 
+DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT = 100
+
 
 @dataclass(frozen=True)
 class SampledHiddenState:

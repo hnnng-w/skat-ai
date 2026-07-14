@@ -580,6 +580,9 @@
         },
         "decision_snapshot_summary": {
           "$ref": "https://example.local/skat-ai/historical_decision_snapshot.schema.json"
+        },
+        "historical_game_review_summary": {
+          "$ref": "https://example.local/skat-ai/historical_game_review.schema.json"
         }
       }
     },

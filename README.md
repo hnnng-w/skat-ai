@@ -53,6 +53,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
 * Derived historical trick winners, points, game value, overbid, and settlement
 * Optional information-safe pre-play snapshots for all 30 historical decisions
+* Optional decision-time review of all 30 historical plays through the existing immediate recommendation logic
 
 ### Information policy
 
@@ -82,6 +83,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
   * `candidate_count`
   * `better_card_count`
 * Human-readable CLI output for post-game review summaries
+* Complete historical-game quality counts and three reconciled player summaries
 
 ### Validation
 
@@ -215,8 +217,15 @@ Add one information-safe snapshot immediately before each actual play:
 python main.py --input examples/historical_grand_normal_completion.json --historical-decision-snapshots
 ```
 
+Review all 30 historical decisions with deterministic immediate analysis:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
+```
+
 Historical-game inputs form a separate workflow. Position-analysis, policy,
-comparison, recommendation, and simulation overrides are rejected for them.
+comparison, profile, and multi-step overrides are rejected for them. `--samples`
+and `--seed` are accepted only with `--historical-game-review`.
 
 CLI exit codes:
 
@@ -236,8 +245,10 @@ Detailed documentation is split into topic-specific files:
 * [Input JSON schema](schemas/input.schema.json)
 * [Historical games](docs/historical_games.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
+* [Historical game review](docs/historical_game_review.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
+* [Historical game review schema](schemas/historical_game_review.schema.json)
 * [Output JSON](docs/output_json.md)
 * [Output JSON schema](schemas/output.schema.json)
 * [Schema validation](docs/schema_validation.md)
@@ -283,7 +294,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 ## Project status
 
 `v0.6.0` is tagged and published, is the current stable baseline, and remains
-the package version. Current generated-output validation covers 25 deterministic
+the package version. Current generated-output validation covers 26 deterministic
 scenarios, and the documented `v0.6.0` issue scope is complete.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
@@ -292,9 +303,10 @@ summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
-Complete normal-play historical records and information-safe pre-play snapshots
-are partially supported. Snapshot recommendation evaluation, later end reasons,
-complete-game coaching, and training-dataset wrapping remain future work.
+Complete normal-play historical records, information-safe pre-play snapshots,
+and bounded 30-decision immediate review are partially supported. Ouvert
+simulation, later end reasons, complete-game coaching, and training-dataset
+wrapping remain future work.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
