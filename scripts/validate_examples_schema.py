@@ -3,12 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
+TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 ROOT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
 EXAMPLES_DIR = PROJECT_ROOT / "examples"
 
@@ -53,10 +54,21 @@ def validate_example_files() -> list[str]:
     """
     schema = load_json_file(SCHEMA_PATH)
     historical_schema = load_json_file(HISTORICAL_SCHEMA_PATH)
-    registry = Registry().with_resource(
-        historical_schema["$id"], Resource.from_contents(historical_schema)
+    training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
+    registry = Registry().with_resources(
+        [
+            (historical_schema["$id"], Resource.from_contents(historical_schema)),
+            (
+                training_dataset_schema["$id"],
+                Resource.from_contents(training_dataset_schema),
+            ),
+        ]
     )
-    validator = Draft202012Validator(schema, registry=registry)
+    validator = Draft202012Validator(
+        schema,
+        registry=registry,
+        format_checker=FormatChecker(),
+    )
 
     errors = []
 

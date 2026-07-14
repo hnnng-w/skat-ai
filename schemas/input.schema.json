@@ -26,7 +26,10 @@
         "use_basic_opponent_strategy"
       ],
       "not": {
-        "required": ["historical_game_input"]
+        "anyOf": [
+          {"required": ["historical_game_input"]},
+          {"required": ["training_dataset_input"]}
+        ]
       }
     },
     {
@@ -34,6 +37,15 @@
       "properties": {
         "historical_game_input": {
           "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": ["training_dataset_input"],
+      "properties": {
+        "training_dataset_input": {
+          "$ref": "https://example.local/skat-ai/training_dataset.schema.json"
         }
       },
       "additionalProperties": false
@@ -296,6 +308,9 @@
   "properties": {
     "historical_game_input": {
       "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+    },
+    "training_dataset_input": {
+      "$ref": "https://example.local/skat-ai/training_dataset.schema.json"
     },
     "game_type": {
       "type": "string",

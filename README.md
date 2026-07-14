@@ -2,7 +2,7 @@
 
 ![Check](https://github.com/hnnng-w/skat-ai/actions/workflows/check.yml/badge.svg)
 
-Skat AI is a local Python-based analysis and simulation engine for Skat positions and complete normal-play historical games.
+Skat AI is a local Python-based analysis, simulation, and historical-data engine for Skat positions and complete normal-play historical games.
 
 It evaluates legal card choices, estimates expected point swings, recommends cards, tracks game state, simulates multi-step play, and supports post-game review workflows. The project focuses on rule-based and probability-based analysis rather than machine learning.
 
@@ -54,6 +54,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Derived historical trick winners, points, game value, overbid, and settlement
 * Optional information-safe pre-play snapshots for all 30 historical decisions
 * Optional decision-time review of all 30 historical plays through the existing immediate recommendation logic
+* Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
+* Deterministic information-safe samples using the legal historical actual card as the version-1 target
 
 ### Information policy
 
@@ -227,6 +229,16 @@ Historical-game inputs form a separate workflow. Position-analysis, policy,
 comparison, profile, and multi-step overrides are rejected for them. `--samples`
 and `--seed` are accepted only with `--historical-game-review`.
 
+Convert a versioned normal-play training/evaluation dataset without running
+recommendations or simulation:
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json
+```
+
+Training-dataset inputs form a third separate workflow. Only `--input`,
+`--output`, and `--quiet` are accepted.
+
 CLI exit codes:
 
 * `0` = success
@@ -246,9 +258,12 @@ Detailed documentation is split into topic-specific files:
 * [Historical games](docs/historical_games.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
+* [Training data](docs/training_data.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Historical game review schema](schemas/historical_game_review.schema.json)
+* [Training dataset input schema](schemas/training_dataset.schema.json)
+* [Training dataset output schema](schemas/training_dataset_output.schema.json)
 * [Output JSON](docs/output_json.md)
 * [Output JSON schema](schemas/output.schema.json)
 * [Schema validation](docs/schema_validation.md)
@@ -294,7 +309,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 ## Project status
 
 `v0.6.0` is tagged and published, is the current stable baseline, and remains
-the package version. Current generated-output validation covers 26 deterministic
+the package version. Current generated-output validation covers 27 deterministic
 scenarios, and the documented `v0.6.0` issue scope is complete.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
@@ -304,9 +319,10 @@ enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
 Complete normal-play historical records, information-safe pre-play snapshots,
-and bounded 30-decision immediate review are partially supported. Ouvert
-simulation, later end reasons, complete-game coaching, and training-dataset
-wrapping remain future work.
+bounded 30-decision immediate review, and versioned training/evaluation dataset
+wrapping are partially supported. Ouvert recommendation simulation, later
+historical end reasons, player-disjoint partitioning, complete-game coaching, and
+machine-learning model training remain future work.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

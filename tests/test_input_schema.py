@@ -3,17 +3,19 @@ import json
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
 from skat_ai.historical_game import build_historical_game_record
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.opponent_policy_preset import VALID_OPPONENT_POLICY_PRESETS
+from skat_ai.training_dataset import build_training_dataset_input
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
+TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 POLICY_FIELDS = [
     "opponent_lead_policy",
     "opponent_response_policy",
@@ -31,12 +33,22 @@ def load_input_schema() -> dict:
 
 with HISTORICAL_SCHEMA_PATH.open("r", encoding="utf-8") as historical_schema_file:
     HISTORICAL_SCHEMA = json.load(historical_schema_file)
+with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
+    TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
 
-INPUT_SCHEMA_REGISTRY = Registry().with_resource(
-    HISTORICAL_SCHEMA["$id"], Resource.from_contents(HISTORICAL_SCHEMA)
+INPUT_SCHEMA_REGISTRY = Registry().with_resources(
+    [
+        (HISTORICAL_SCHEMA["$id"], Resource.from_contents(HISTORICAL_SCHEMA)),
+        (
+            TRAINING_DATASET_SCHEMA["$id"],
+            Resource.from_contents(TRAINING_DATASET_SCHEMA),
+        ),
+    ]
 )
 INPUT_VALIDATOR = Draft202012Validator(
-    load_input_schema(), registry=INPUT_SCHEMA_REGISTRY
+    load_input_schema(),
+    registry=INPUT_SCHEMA_REGISTRY,
+    format_checker=FormatChecker(),
 )
 
 
@@ -118,6 +130,12 @@ def build_valid_historical_input() -> dict[str, object]:
         return json.load(example_file)
 
 
+def build_valid_training_dataset_input() -> dict[str, object]:
+    example_path = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        return json.load(example_file)
+
+
 def test_schema_and_runtime_accept_historical_game_branch() -> None:
     data = build_valid_historical_input()
 
@@ -137,6 +155,64 @@ def test_schema_rejects_combined_position_and_historical_branches() -> None:
 def test_schema_rejects_historical_game_with_position_only_field() -> None:
     data = build_valid_historical_input()
     data["sample_count"] = 100
+
+    assert_schema_invalid(data)
+
+
+def test_schema_and_runtime_accept_training_dataset_branch() -> None:
+    data = build_valid_training_dataset_input()
+
+    assert_schema_valid(data)
+    dataset = build_training_dataset_input(
+        copy.deepcopy(data["training_dataset_input"])
+    )
+
+    assert dataset.dataset_id == "online-games-2026"
+    assert len(dataset.records) == 1
+
+
+@pytest.mark.parametrize(
+    "combined_data",
+    [build_valid_input(), build_valid_historical_input()],
+)
+def test_schema_rejects_combined_training_dataset_workflows(
+    combined_data: dict[str, object],
+) -> None:
+    data = build_valid_training_dataset_input()
+    data.update(copy.deepcopy(combined_data))
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("schema_version",), 2),
+        (("feature_generation_version",), 2),
+        (("target",), "decision_quality"),
+        (("dataset_id",), " padded"),
+        (("records", 0, "partition"), "holdout"),
+        (("records", 0, "provenance", "source_type"), "website"),
+    ],
+)
+def test_schema_rejects_structurally_invalid_training_dataset(
+    path: tuple[object, ...],
+    value: object,
+) -> None:
+    data = build_valid_training_dataset_input()
+    target = data["training_dataset_input"]
+    for path_part in path[:-1]:
+        target = target[path_part]
+    target[path[-1]] = value
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_unknown_training_provenance_field() -> None:
+    data = build_valid_training_dataset_input()
+    data["training_dataset_input"]["records"][0]["provenance"]["url"] = (
+        "https://example.test"
+    )
 
     assert_schema_invalid(data)
 

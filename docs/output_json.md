@@ -75,6 +75,35 @@ grades, percentages, skill ratings, winners, or rankings. The review evaluates
 the immediate heuristic, not perfect-information or complete-contract optimal
 play, and is not a training/evaluation dataset record.
 
+Training-dataset input produces a separate stable branch:
+
+```json
+{
+  "input_file": "examples/training_dataset_normal_play.json",
+  "training_dataset_summary": {
+    "schema_version": 1,
+    "dataset_id": "online-games-2026",
+    "dataset_version": "1",
+    "feature_generation_version": 1,
+    "target": "actual_card_played",
+    "record_count": 1,
+    "sample_count": 30,
+    "partition_counts": {},
+    "records": []
+  }
+}
+```
+
+Every output record preserves provenance and the canonical validated historical
+game and contains exactly 30 ordered samples. Sample metadata contains stable
+traceability identities. Features contain only decision-time state and use
+`me`, `left`, and `right` for player references. The separate label contains the
+legal historical actual card. Final results, settlement, recommendations, and
+review quality do not appear in features or labels. All three partition counts
+are always present and reconcile with total and per-record counts. See
+[Training data](training_data.md) and
+[`training_dataset_output.schema.json`](../schemas/training_dataset_output.schema.json).
+
 ## Position top-level fields
 
 Typical top-level fields include:

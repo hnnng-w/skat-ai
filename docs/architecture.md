@@ -27,6 +27,13 @@ validated replay result. Historical review adapts each snapshot independently
 to the existing local state, runs the existing immediate recommendation once,
 builds the candidate report from those values, and reuses post-game review.
 
+The training-dataset flow validates dataset identity, provenance, partitions,
+and duplicate protection, then reuses the historical validator/replay and
+decision snapshot generator. It converts stable player references to the local
+`me`/`left`/`right` model in features, keeps traceability identities in metadata,
+and emits exactly 30 legal actual-card samples per record. It does not call the
+recommender or simulation.
+
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
 ## Main entry point
@@ -57,6 +64,8 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
 | `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
 | `src/skat_ai/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |
+| `src/skat_ai/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
+| `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
 
 Validation is split between JSON Schema and Python validation:
 
@@ -278,6 +287,8 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/historical_game.schema.json`          | Versioned complete historical-game input structure.                      |
 | `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
 | `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |
+| `schemas/training_dataset.schema.json`       | Versioned training dataset input, records, provenance, and partitions.      |
+| `schemas/training_dataset_output.schema.json` | Strict training dataset output, metadata, features, labels, and counts.     |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |
@@ -299,6 +310,7 @@ Important regression areas:
 * information policy
 * post-game review
 * historical snapshot adaptation, complete review, seeds, aggregation, and leakage control
+* training dataset identities, provenance, partitions, duplicate leakage, deterministic samples, and feature safety
 * example files
 * CLI result structure
 * multi-step simulation

@@ -111,11 +111,13 @@ validation, and tests does not satisfy a gate.
 
 The normal-play historical-game workflow satisfies the deal-through-settlement
 portion of complete-game representation for `normal_completion` and can
-reconstruct information-safe pre-play states for all 30 actual cards. The v1
-workflow now also evaluates non-ouvert normal-play snapshots through the bounded
-immediate recommendation and post-game review logic. The v1 gate remains open
-for exposed-card-aware ouvert analysis, approved later end reasons, complete
-auction representation, and training/evaluation wrapping.
+reconstruct information-safe pre-play states for all 30 actual cards. It also
+evaluates non-ouvert normal-play snapshots through bounded review and wraps all
+normal-play snapshots in versioned provenance-aware training/evaluation records.
+Training-data representation remains partial because later historical end
+reasons and player-disjoint partition policy are not supported. The v1 gate also
+remains open for exposed-card-aware recommendation analysis, approved later end
+reasons, and complete auction representation.
 
 ## Release decision rule
 

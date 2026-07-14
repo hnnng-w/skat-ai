@@ -4,7 +4,9 @@ Historical decision snapshots reconstruct the information available immediately
 before each actual card in an already validated normal-play historical game.
 Snapshot-only output does not run recommendations or create training-dataset
 records. The optional historical game review uses these same snapshots as its
-only decision-state input.
+only decision-state input. The separate training-dataset workflow also reuses
+them, converting stable player IDs to relative feature references without
+changing snapshot-only output.
 
 ## Requesting snapshots
 
@@ -112,11 +114,14 @@ game value, overbid outcome, settlement, recommendations, or decision-quality
 ratings. The builder consumes the validated historical replay result and does
 not perform a second competing complete-game validation.
 
-Snapshots are not complete-game review results and are not training/evaluation
-dataset records. The separate [historical game review](historical_game_review.md)
-evaluates them through the existing immediate recommendation workflow while
-preserving this boundary. Complete-game retrospective analysis remains partial
-because ouvert simulation, later end reasons, and other approved gaps remain.
+Snapshots are not complete-game review results and are not themselves
+training/evaluation dataset records. The separate
+[historical game review](historical_game_review.md) evaluates them through the
+existing immediate recommendation workflow. The separate
+[training data](training_data.md) workflow derives identity-free features and an
+actual-card label without running that workflow. Complete-game retrospective
+analysis remains partial because ouvert recommendation simulation, later end
+reasons, and other approved gaps remain.
 
 The stable structure is defined by
 [`schemas/historical_decision_snapshot.schema.json`](../schemas/historical_decision_snapshot.schema.json)

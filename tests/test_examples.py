@@ -12,12 +12,14 @@ from skat_ai.input_loader import (
     get_simulation_settings_from_input,
     load_historical_game_from_json,
     load_position_from_json,
+    load_training_dataset_from_json,
 )
 from skat_ai.multi_step_simulation import (
     prepare_state_for_player_action,
     simulate_multiple_steps,
 )
 from skat_ai.rules import get_legal_cards
+from skat_ai.training_dataset import build_training_dataset_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
@@ -33,7 +35,11 @@ def get_position_example_json_files() -> list[Path]:
     return [
         path
         for path in get_example_json_files()
-        if path.name != "historical_grand_normal_completion.json"
+        if path.name
+        not in {
+            "historical_grand_normal_completion.json",
+            "training_dataset_normal_play.json",
+        }
     ]
 
 
@@ -50,6 +56,10 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
         if example_file.name == "historical_grand_normal_completion.json":
             record = load_historical_game_from_json(str(example_file))
             assert record.game_id == "historical-grand-001"
+            continue
+        if example_file.name == "training_dataset_normal_play.json":
+            dataset = load_training_dataset_from_json(str(example_file))
+            assert dataset.dataset_id == "online-games-2026"
             continue
 
         data = load_position_from_json(str(example_file))
@@ -123,6 +133,18 @@ def test_historical_game_example_builds_complete_summary() -> None:
     assert summary["status"] == "complete"
     assert len(summary["derived_tricks"]) == 10
     assert summary["declarer_points"] + summary["defender_points"] == 120
+
+
+def test_training_dataset_example_builds_thirty_samples() -> None:
+    path = Path("examples/training_dataset_normal_play.json")
+    summary = build_training_dataset_summary(load_training_dataset_from_json(str(path)))
+
+    assert summary["record_count"] == 1
+    assert summary["sample_count"] == 30
+    assert summary["partition_counts"]["train"] == {
+        "record_count": 1,
+        "sample_count": 30,
+    }
 
 
 def test_default_input_position_is_runtime_valid_local_action() -> None:

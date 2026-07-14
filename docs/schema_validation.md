@@ -26,9 +26,10 @@ The input schema is located at:
 schemas/input.schema.json
 ```
 
-Its alternative `historical_game_input` branch references the focused versioned
-schema at `schemas/historical_game.schema.json`. The validation script registers
-that schema locally; it does not fetch schema definitions over the network.
+Its alternative `historical_game_input` and `training_dataset_input` branches
+reference the focused versioned schemas at `schemas/historical_game.schema.json`
+and `schemas/training_dataset.schema.json`. The validation script registers them
+locally; it does not fetch schema definitions over the network.
 
 It validates example input files in `examples/`.
 
@@ -71,6 +72,7 @@ The input schema checks things such as:
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
 * complete historical-game player, deal, declaration, discard, and ten-trick shapes
+* training dataset versions, record/provenance shapes, partition values, and target
 
 Runtime input validation mirrors selected public schema bounds and shapes so
 direct Python callers receive stable `ValueError` failures for malformed public
@@ -129,8 +131,9 @@ The output schema checks the main output structure, including:
 * the separate `historical_game_summary` branch
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
+* the separate versioned `training_dataset_summary` branch through its strict focused schema
 
-Generated-output validation covers 26 deterministic scenarios. Position
+Generated-output validation covers 27 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -147,8 +150,8 @@ claim/overbid/list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
-validation, settlement, information-safe decision snapshots, and one seeded
-30-decision historical game review.
+validation, settlement, information-safe decision snapshots, one seeded
+30-decision historical game review, and one versioned 30-sample training dataset.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -156,8 +159,9 @@ nested analysis detail, but stable branch contracts such as
 `policy_comparison_result` are explicitly structured. Historical decision
 snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses
-`schemas/historical_game_review.schema.json`. The local validator registry loads
-both focused output schemas; runtime validation and tests enforce temporal,
+`schemas/historical_game_review.schema.json`. Training dataset output uses
+`schemas/training_dataset_output.schema.json`. The local validator registry loads
+the focused schemas; runtime validation and tests enforce temporal,
 reconciliation, recommendation-consistency, and information-leakage semantics
 that JSON Schema cannot express.
 
@@ -253,6 +257,12 @@ Examples:
 * whether each reviewed actual card and recommendation is legal and represented exactly once
 * whether decision seeds follow the base-seed derivation rule
 * whether hidden hands, future plays, final results, overbid, or settlement influence an earlier historical review
+* duplicate training record, game, and complete source identities
+* cross-partition game and source leakage
+* exact sample-ID derivation and record/partition/total count reconciliation
+* relative-only feature player references and absence of stable identities
+* whether each training label is the legal pre-play historical actual card
+* whether future plays, final outcomes, settlement, recommendations, or review quality leak into training features or labels
 
 These checks require cross-field or Skat-specific logic and are easier to test and maintain in Python.
 

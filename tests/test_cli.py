@@ -26,6 +26,9 @@ VALID_INPUT_PATH = PROJECT_ROOT / "examples" / "grand_second_position.json"
 HISTORICAL_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
 )
+TRAINING_DATASET_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
+)
 UNSUPPORTED_PHASE_INPUT_PATH = (
     PROJECT_ROOT
     / "tests"
@@ -209,6 +212,45 @@ def test_cli_historical_game_quiet_output_is_separate_branch(tmp_path) -> None:
     assert "recommendation" not in result
 
 
+def test_cli_training_dataset_prints_identity_totals_and_partitions() -> None:
+    completed_process = run_cli("--input", TRAINING_DATASET_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Training dataset summary" in completed_process.stdout
+    assert "Dataset ID: online-games-2026" in completed_process.stdout
+    assert "Dataset version: 1" in completed_process.stdout
+    assert "Records: 1" in completed_process.stdout
+    assert "Samples: 30" in completed_process.stdout
+    assert "Train partition: 1 records, 30 samples" in completed_process.stdout
+    assert "Validation partition: 0 records, 0 samples" in completed_process.stdout
+    assert "Test partition: 0 records, 0 samples" in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+
+
+def test_cli_training_dataset_quiet_output_is_separate_branch(tmp_path) -> None:
+    output_path = tmp_path / "training-dataset-result.json"
+    completed_process = run_cli(
+        "--input",
+        TRAINING_DATASET_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+
+    assert set(result) == {"input_file", "training_dataset_summary"}
+    assert result["training_dataset_summary"]["sample_count"] == 30
+    assert "position" not in result
+    assert "historical_game_summary" not in result
+    assert "recommendation" not in result
+
+
 def test_cli_historical_decision_snapshots_prints_count() -> None:
     completed_process = run_cli(
         "--input", HISTORICAL_INPUT_PATH, "--historical-decision-snapshots"
@@ -378,6 +420,36 @@ def test_cli_historical_game_rejects_position_specific_overrides(
     assert completed_process.returncode == 2
     assert "Historical-game inputs do not accept" in completed_process.stderr
     assert "Historical game summary" not in completed_process.stdout
+
+
+@pytest.mark.parametrize(
+    "override_args",
+    [
+        ("--samples", "1"),
+        ("--seed", "42"),
+        ("--opponent-strategy", "random"),
+        ("--historical-decision-snapshots",),
+        ("--historical-game-review",),
+        ("--multi-step", "1"),
+        ("--card-policy", "highest_point"),
+        ("--expected-value-samples", "1"),
+        ("--strict-context",),
+        ("--opponent-policy-preset", "simple_lowest"),
+        ("--use-profile-presets",),
+        ("--left-opponent-response-policy", "highest_point"),
+        ("--right-opponent-lead-policy", "highest_point"),
+    ],
+)
+def test_cli_training_dataset_rejects_analysis_and_review_options(
+    override_args: tuple[str, ...],
+) -> None:
+    completed_process = run_cli(
+        "--input", TRAINING_DATASET_INPUT_PATH, *override_args
+    )
+
+    assert completed_process.returncode == 2
+    assert "Training-dataset inputs do not accept" in completed_process.stderr
+    assert "Training dataset summary" not in completed_process.stdout
 
 
 @pytest.mark.parametrize("sample_count", ["0", "-1"])

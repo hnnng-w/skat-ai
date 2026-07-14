@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/training_dataset.schema.json",
+  "title": "skat-ai training dataset input version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dataset_id",
+    "dataset_version",
+    "feature_generation_version",
+    "target",
+    "records"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "dataset_id": {"$ref": "#/$defs/stable_identifier"},
+    "dataset_version": {"$ref": "#/$defs/stable_identifier"},
+    "feature_generation_version": {"const": 1},
+    "target": {"const": "actual_card_played"},
+    "records": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/record"},
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_name"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "online_platform",
+            "manual_entry",
+            "imported_file",
+            "synthetic",
+            "other"
+          ]
+        },
+        "source_name": {"$ref": "#/$defs/stable_identifier"},
+        "source_record_id": {"$ref": "#/$defs/stable_identifier"},
+        "collected_at": {
+          "allOf": [
+            {"$ref": "#/$defs/stable_identifier"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "notes": {"$ref": "#/$defs/stable_identifier"}
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "partition", "provenance", "historical_game"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/stable_identifier"},
+        "partition": {
+          "type": "string",
+          "enum": ["train", "validation", "test"]
+        },
+        "provenance": {"$ref": "#/$defs/provenance"},
+        "historical_game": {
+          "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+        }
+      }
+    }
+  }
+}

@@ -17,6 +17,7 @@ from skat_ai.input_loader import (
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_historical_game_from_json,
+    load_training_dataset_from_json,
 )
 
 
@@ -37,6 +38,26 @@ def test_historical_input_cannot_be_combined_with_other_workflows() -> None:
             {
                 "historical_game_input": {},
                 "actual_card_played": "CA",
+            }
+        )
+
+
+def test_load_training_dataset_from_json() -> None:
+    dataset = load_training_dataset_from_json(
+        "examples/training_dataset_normal_play.json"
+    )
+
+    assert dataset.schema_version == 1
+    assert dataset.dataset_id == "online-games-2026"
+    assert len(dataset.records) == 1
+
+
+def test_training_dataset_input_cannot_be_combined_with_other_workflows() -> None:
+    with pytest.raises(ValueError, match="cannot be combined"):
+        get_input_workflow(
+            {
+                "training_dataset_input": {},
+                "historical_game_input": {},
             }
         )
 

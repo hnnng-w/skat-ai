@@ -20,6 +20,10 @@ HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
 HISTORICAL_GAME_REVIEW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
 )
+HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
+TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -999,6 +1003,63 @@ def check_historical_game_review(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_training_dataset_normal_play(data: dict[str, Any]) -> list[str]:
+    """Checks deterministic training dataset conversion and reconciliation."""
+    errors = []
+    if set(data) != {"input_file", "training_dataset_summary"}:
+        errors.append("expected only the training-dataset top-level output branch")
+        return errors
+    summary = data["training_dataset_summary"]
+    if summary["dataset_id"] != "online-games-2026" or summary["dataset_version"] != "1":
+        errors.append("expected preserved training dataset identity and version")
+    if summary["record_count"] != 1 or summary["sample_count"] != 30:
+        errors.append("expected one training record and exactly 30 samples")
+    if summary["partition_counts"] != {
+        "train": {"record_count": 1, "sample_count": 30},
+        "validation": {"record_count": 0, "sample_count": 0},
+        "test": {"record_count": 0, "sample_count": 0},
+    }:
+        errors.append("expected reconciled train, validation, and test counts")
+    record = summary["records"][0]
+    if record["record_id"] != "record-001" or record["sample_count"] != 30:
+        errors.append("expected preserved record identity and sample count")
+    if record["source_game_id"] != "historical-grand-001":
+        errors.append("expected preserved source game identity")
+    samples = record["samples"]
+    if [sample["sample_id"] for sample in samples] != [
+        f"record-001:{index}" for index in range(1, 31)
+    ]:
+        errors.append("expected stable ordered training sample IDs")
+    if any(
+        sample["label"]["target"] != "actual_card_played"
+        or sample["label"]["card"] not in sample["features"]["own_hand"]
+        or sample["label"]["card"] not in sample["features"]["legal_cards"]
+        for sample in samples
+    ):
+        errors.append("expected legal actual-card labels for every sample")
+    forbidden_features = {
+        "dataset_id",
+        "record_id",
+        "source_game_id",
+        "player_id",
+        "acting_player_id",
+        "recommendation",
+        "decision_quality",
+        "final_settlement_summary",
+    }
+
+    def collect_keys(value: object) -> set[str]:
+        if isinstance(value, dict):
+            return set(value).union(*(collect_keys(item) for item in value.values()))
+        if isinstance(value, list):
+            return set().union(*(collect_keys(item) for item in value), set())
+        return set()
+
+    if any(forbidden_features.intersection(collect_keys(sample["features"])) for sample in samples):
+        errors.append("expected identity-free, review-free training features")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -1292,6 +1353,15 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="training_dataset_normal_play",
+        input_path=PROJECT_ROOT / "examples" / "training_dataset_normal_play.json",
+        branch="versioned normal-play training dataset with 30 decision samples",
+        cli_args=("--quiet",),
+        check_output=check_training_dataset_normal_play,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -1306,6 +1376,10 @@ def validate_generated_outputs() -> list[str]:
     historical_game_review_schema = load_json_file(
         HISTORICAL_GAME_REVIEW_SCHEMA_PATH
     )
+    historical_game_schema = load_json_file(HISTORICAL_GAME_SCHEMA_PATH)
+    training_dataset_output_schema = load_json_file(
+        TRAINING_DATASET_OUTPUT_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1315,6 +1389,14 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_game_review_schema["$id"],
                 Resource.from_contents(historical_game_review_schema),
+            ),
+            (
+                historical_game_schema["$id"],
+                Resource.from_contents(historical_game_schema),
+            ),
+            (
+                training_dataset_output_schema["$id"],
+                Resource.from_contents(training_dataset_output_schema),
             ),
         ]
     )

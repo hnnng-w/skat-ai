@@ -91,7 +91,9 @@ This review evaluates the current immediate expected-value or Null-objective
 heuristic at each historical decision. It is not a perfect-information solver
 and does not optimize complete-contract expected value or complete-game play.
 Historical opponent policies and profiles are not configurable. The output is
-not yet a training or evaluation dataset record.
+not a training or evaluation dataset record. The separate training-data workflow
+uses decision snapshots directly; recommendation cards, candidate reports, and
+decision-quality values are never training features or labels.
 
 Complete-game retrospective analysis remains `partially_supported` because
 ouvert simulation, additional approved historical end reasons, complete auction

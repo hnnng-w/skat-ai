@@ -103,6 +103,12 @@ Review all 30 decisions with deterministic settings:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 20 --seed 42
 ```
 
+Convert the versioned training/evaluation dataset example:
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json
+```
+
 Prepare an opponent-turn position with Multi-Step until the local player acts:
 
 ```powershell
@@ -229,6 +235,17 @@ post-game position. Dedicated generated-output scenarios cover the base
 seeded complete historical review. Snapshot-only generation does not run
 recommendation or simulation. Review uses the same example with 20 samples and
 base seed 42; no additional public historical example is required.
+
+## Training-dataset example
+
+| File | Purpose |
+| ---- | ------- |
+| `training_dataset_normal_play.json` | One versioned train record wrapping the historical Grand fixture with provenance and producing 30 information-safe actual-card samples. |
+
+This separate workflow runs historical validation and snapshot generation but
+does not run recommendations, review, or simulation. Its generated-output
+scenario verifies the dedicated branch, all three partition-count entries,
+stable sample IDs, legal labels, and identity-free features.
 
 ## Post-game review examples
 
@@ -530,6 +547,8 @@ When adding new examples:
 * prefer either top-level declaration fields or nested `game_declaration`; mixing is supported, with top-level fields taking precedence
 * use documented declaration fields inside nested `game_declaration`; unknown nested metadata may be accepted for compatibility but is ignored by declaration, settlement, and overbid logic
 * run `.\scripts\check.ps1` before manual review
+* keep historical and training-dataset examples separate from flat position fields
+* give every training record provenance and an explicit partition
 
 ## Expected output behavior
 
@@ -556,6 +575,9 @@ Generated outputs may include:
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested
 * `policy_comparison_result`, if policy comparison is requested
+
+Complete historical and training-dataset inputs instead use the mutually
+exclusive `historical_game_summary` and `training_dataset_summary` branches.
 
 For detailed output field descriptions, see:
 

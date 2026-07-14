@@ -30,7 +30,10 @@
         "profile_preset_settings"
       ],
       "not": {
-        "required": ["historical_game_summary"]
+        "anyOf": [
+          {"required": ["historical_game_summary"]},
+          {"required": ["training_dataset_summary"]}
+        ]
       }
     },
     {
@@ -44,6 +47,18 @@
         }
       },
       "additionalProperties": false
+    },
+    {
+      "required": ["input_file", "training_dataset_summary"],
+      "properties": {
+        "input_file": {
+          "type": "string"
+        },
+        "training_dataset_summary": {
+          "$ref": "https://example.local/skat-ai/training_dataset_output.schema.json"
+        }
+      },
+      "additionalProperties": false
     }
   ],
   "properties": {
@@ -52,6 +67,9 @@
     },
     "historical_game_summary": {
       "$ref": "#/$defs/historical_game_summary"
+    },
+    "training_dataset_summary": {
+      "$ref": "https://example.local/skat-ai/training_dataset_output.schema.json"
     },
     "position": {
       "type": "object",

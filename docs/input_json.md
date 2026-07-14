@@ -12,6 +12,10 @@ Complete historical records use the focused referenced schema:
 
 [`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json)
 
+Training/evaluation datasets use:
+
+[`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
+
 The schema is intended as a documentation and validation aid.
 
 Example files can be validated against the schema with:
@@ -57,6 +61,7 @@ Python validation covers Skat-specific rules such as:
 * point consistency
 * stable historical player/seat references and complete 32-card deals
 * historical pickup/discard ownership, final playable hands, all 30 plays, follow obligations, winners, points, matadors, and settlement
+* training dataset versions, unpadded identities, RFC 3339 provenance, duplicate game/source detection, and partition leakage
 
 For the validation-layer overview and schema limitations, see:
 
@@ -64,10 +69,11 @@ For the validation-layer overview and schema limitations, see:
 
 ## Input workflows
 
-The public schema has two mutually exclusive branches:
+The public schema has three mutually exclusive branches:
 
 * the existing flat position-analysis input described below
 * a complete historical game under `historical_game_input`
+* a versioned training/evaluation dataset under `training_dataset_input`
 
 A historical-game file contains no position fields, simulation settings,
 `actual_card_played`, profiles, policies, list inputs, or impossible-Null
@@ -91,6 +97,26 @@ settlement selection:
 
 See [Historical games](historical_games.md) for the complete identity, deal,
 declaration, skat, play, and runtime-validation contract.
+
+A training-dataset file contains only its dataset branch:
+
+```json
+{
+  "training_dataset_input": {
+    "schema_version": 1,
+    "dataset_id": "online-games-2026",
+    "dataset_version": "1",
+    "feature_generation_version": 1,
+    "target": "actual_card_played",
+    "records": []
+  }
+}
+```
+
+Each record supplies a unique `record_id`, a `train`, `validation`, or `test`
+partition, required provenance, and one complete historical game. See
+[Training data](training_data.md) for identity, duplicate, provenance, sample,
+and information-safety rules.
 
 ## Minimal position input
 

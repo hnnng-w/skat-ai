@@ -13,8 +13,9 @@ from skat_ai.historical_decision_snapshot import (
 )
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.input_loader import load_historical_game_from_json
+from skat_ai.input_loader import load_historical_game_from_json, load_training_dataset_from_json
 from skat_ai.post_game_review import build_unavailable_post_game_review_summary
+from skat_ai.training_dataset import build_training_dataset_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
@@ -23,6 +24,10 @@ HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
 )
 HISTORICAL_GAME_REVIEW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
+)
+HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
+TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
 
 
@@ -35,6 +40,10 @@ with HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH.open("r", encoding="utf-8") as fil
     HISTORICAL_DECISION_SNAPSHOT_SCHEMA = json.load(file)
 with HISTORICAL_GAME_REVIEW_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_GAME_REVIEW_SCHEMA = json.load(file)
+with HISTORICAL_GAME_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_GAME_SCHEMA = json.load(file)
+with TRAINING_DATASET_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    TRAINING_DATASET_OUTPUT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -45,6 +54,11 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             HISTORICAL_GAME_REVIEW_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_GAME_REVIEW_SCHEMA),
+        ),
+        (HISTORICAL_GAME_SCHEMA["$id"], Resource.from_contents(HISTORICAL_GAME_SCHEMA)),
+        (
+            TRAINING_DATASET_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(TRAINING_DATASET_OUTPUT_SCHEMA),
         ),
     ]
 )
@@ -453,6 +467,15 @@ def build_valid_historical_output_with_game_review() -> dict[str, object]:
     return copy.deepcopy(build_cached_valid_historical_output_with_game_review())
 
 
+def build_valid_training_dataset_output() -> dict[str, object]:
+    input_path = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
+    dataset = load_training_dataset_from_json(str(input_path))
+    return {
+        "input_file": "examples/training_dataset_normal_play.json",
+        "training_dataset_summary": build_training_dataset_summary(dataset),
+    }
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -485,6 +508,32 @@ def test_schema_accepts_historical_decision_snapshot_output_branch() -> None:
 
 def test_schema_accepts_historical_game_review_output_branch() -> None:
     assert_schema_valid(build_valid_historical_output_with_game_review())
+
+
+def test_schema_accepts_training_dataset_output_branch() -> None:
+    assert_schema_valid(build_valid_training_dataset_output())
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda summary: summary.update(target="decision_quality"),
+        lambda summary: summary["partition_counts"].pop("test"),
+        lambda summary: summary["records"][0].update(sample_count=29),
+        lambda summary: summary["records"][0]["samples"].pop(),
+        lambda summary: summary["records"][0]["samples"][0]["features"].update(
+            source_game_id="leaked-id"
+        ),
+        lambda summary: summary["records"][0]["samples"][0]["label"].update(
+            target="recommendation"
+        ),
+    ],
+)
+def test_schema_rejects_malformed_training_dataset_output(mutation) -> None:
+    data = build_valid_training_dataset_output()
+    mutation(data["training_dataset_summary"])
+
+    assert_schema_invalid(data)
 
 
 def test_schema_accepts_nullable_seeds_and_ouvert_unavailable_review_branch() -> None:
@@ -544,6 +593,15 @@ def test_schema_rejects_combined_position_and_historical_output_branches() -> No
     data = build_valid_output()
     data["historical_game_summary"] = build_valid_historical_output()[
         "historical_game_summary"
+    ]
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_combined_position_and_training_output_branches() -> None:
+    data = build_valid_output()
+    data["training_dataset_summary"] = build_valid_training_dataset_output()[
+        "training_dataset_summary"
     ]
 
     assert_schema_invalid(data)

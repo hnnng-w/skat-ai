@@ -7,10 +7,11 @@ also reconstructs a local `me`/`left`/`right` information view immediately
 before every actual play while preserving stable player IDs.
 
 Historical-game representation remains `partially_supported`. The bounded
-normal-play workflow can review all 30 decisions, but it does not provide
-ouvert-aware simulation, training dataset metadata, claims, concessions, full
-auction events, player statistics, or list/tournament aggregation. Decision
-snapshots remain state-reconstruction records rather than training records.
+normal-play workflow can review all 30 decisions and can be wrapped by the
+separate training-dataset workflow, but it does not provide ouvert-aware
+recommendation simulation, claims, concessions, full auction events, player
+statistics, or list/tournament aggregation. Direct snapshot output remains a
+state-reconstruction record rather than a training record.
 
 ## Public input
 
@@ -174,8 +175,12 @@ Later work is still required for:
 * impossible Null historical play records
 * rule-violation adjudication
 * exposed-card-aware ouvert simulation and complete-game coaching
-* training/evaluation dataset wrappers and provenance
 * historical player statistics and learned models
 * list, series, and tournament aggregation from historical records
 
 Four-player tables remain out of scope.
+
+Complete normal-play records can be wrapped with provenance and explicit
+partitions by the separate [training data](training_data.md) workflow. That
+workflow uses snapshots rather than historical review, so ouvert records remain
+valid and no recommendation simulation is invoked.
