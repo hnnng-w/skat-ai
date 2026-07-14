@@ -311,6 +311,11 @@ because ended game reasons are post-game review information.
 | File                                          | Purpose                                                                        |
 | --------------------------------------------- | ------------------------------------------------------------------------------ |
 | `grand_overbid_declarer_card_points_win.json` | Declarer wins by card points but loses settlement because the game is overbid. |
+| `null_impossible_declaration_settlement.json`  | Null ouvert Hand ends immediately and is settled from a separate Clubs Hand replacement selection. |
+
+The impossible Null example preserves the original Null declaration, transfers
+only Hand status to the replacement, and demonstrates the doubled loss without
+card play. It is also the dedicated 23rd generated-output validation scenario.
 
 ## Performance rating examples
 

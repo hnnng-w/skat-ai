@@ -3,6 +3,10 @@ from typing import Any
 from skat_ai.deck import get_full_deck
 from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.game_history import validate_completed_trick_sequence
+from skat_ai.game_value import get_null_game_value
+from skat_ai.impossible_null_settlement import (
+    build_impossible_null_settlement_selection_from_input,
+)
 from skat_ai.information_policy import validate_information_policy_from_input
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
@@ -357,6 +361,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_opponent_policies(data)
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
+    validate_impossible_null_settlement(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
     validate_list_performance_input_modes(data)
     validate_optional_list_performance_input(data)
@@ -790,6 +795,63 @@ def validate_optional_game_declaration(data: dict[str, Any]) -> None:
     Validates optional game declaration scoring fields.
     """
     build_game_declaration_from_input(data)
+
+
+def validate_impossible_null_settlement(data: dict[str, Any]) -> None:
+    """Validates the post-game-only impossible Null settlement input branch."""
+    reason = data.get("game_end_reason", "not_ended")
+    has_selection = "impossible_null_settlement" in data
+
+    if reason != "impossible_null_declaration":
+        if has_selection:
+            raise ValueError(
+                "impossible_null_settlement requires "
+                "game_end_reason='impossible_null_declaration'."
+            )
+        return
+
+    if data.get("analysis_mode", "live_decision") != "post_game_review":
+        raise ValueError(
+            "game_end_reason='impossible_null_declaration' requires "
+            "analysis_mode='post_game_review'."
+        )
+
+    declaration = build_game_declaration_from_input(data)
+    if declaration.game_type != "null":
+        raise ValueError(
+            "game_end_reason='impossible_null_declaration' requires game_type='null'."
+        )
+
+    if declaration.bid_value is None:
+        raise ValueError(
+            "game_end_reason='impossible_null_declaration' requires bid_value."
+        )
+
+    null_game_value = get_null_game_value(declaration)
+    if declaration.bid_value <= null_game_value:
+        raise ValueError(
+            "bid_value must exceed the declared Null game value "
+            f"{null_game_value} for impossible_null_declaration."
+        )
+
+    for field_name in ["played_cards", "current_trick", "completed_tricks"]:
+        if data.get(field_name, []):
+            raise ValueError(
+                f"{field_name} must be empty for impossible_null_declaration."
+            )
+
+    if "actual_card_played" in data:
+        raise ValueError(
+            "actual_card_played is not allowed for impossible_null_declaration."
+        )
+
+    for field_name in ["declarer_points", "defender_points"]:
+        if data.get(field_name, 0) != 0:
+            raise ValueError(
+                f"{field_name} must be zero for impossible_null_declaration."
+            )
+
+    build_impossible_null_settlement_selection_from_input(data)
 
 def validate_total_known_card_points(data: dict[str, Any]) -> None:
     explicit_declarer_points = data.get("declarer_points", 0)

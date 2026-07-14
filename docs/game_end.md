@@ -1,6 +1,7 @@
 # Game-end handling
 
-This document explains how `skat-ai` handles normal completion, claim, and concession.
+This document explains how `skat-ai` handles normal completion, claim,
+concession, and impossible Null declarations.
 
 ## Purpose
 
@@ -29,6 +30,7 @@ adjusted_game_result_summary
 | `declarer_claimed_remaining_tricks`   | The declarer claimed the remaining tricks.                    |
 | `declarer_conceded_remaining_tricks`  | The declarer conceded the remaining tricks.                   |
 | `defenders_conceded_remaining_tricks` | The defenders conceded the remaining tricks.                  |
+| `impossible_null_declaration`          | An impossible Null declaration ended the game immediately.     |
 
 ## Analysis mode
 
@@ -48,6 +50,7 @@ This applies to:
 * `declarer_claimed_remaining_tricks`
 * `declarer_conceded_remaining_tricks`
 * `defenders_conceded_remaining_tricks`
+* `impossible_null_declaration`
 
 Live decision analysis should use:
 
@@ -69,6 +72,7 @@ When a game ends early, remaining card points are assigned according to `game_en
 | `declarer_conceded_remaining_tricks`  | defenders              |
 | `not_ended`                           | no assignment          |
 | `normal_completion`                   | no assignment          |
+| `impossible_null_declaration`          | no assignment          |
 
 Example:
 
@@ -133,6 +137,20 @@ Because claim and concession handling assigns remaining card points without
 recording the actual remaining trick ownership, claims and concessions do not
 establish Schwarz for settlement in the current implementation slice.
 
+## Impossible Null declaration
+
+ISkO 3.6.2 and the International Skat Court decision collection section 3.6.2,
+inquiries 1-3, establish an immediate lost Suit or Grand game when the announced
+Null value cannot cover the final bid. The declarer may select an eligible
+favorable Suit or Grand replacement for valuation. `skat-ai` records that
+external selection and does not optimize across unknown alternatives.
+
+The reason requires a post-game Null input, a bid above the original fixed Null
+variant value, and no card play or assigned points. The adjusted result is final
+with `winner: "defenders"`, zero assigned remaining points, and Schneider and
+Schwarz statuses marked `not_applicable`. Replacement metadata is optional;
+omitting it leaves only final settlement incomplete.
+
 ## Validation rules
 
 The engine validates `game_end_reason` against the known card-point state.
@@ -145,6 +163,8 @@ Rules:
 * unknown `game_end_reason` values are rejected.
 * remaining card points cannot be negative.
 * ended game reasons are rejected in `live_decision`.
+* `impossible_null_declaration` requires an overbid Null declaration before any
+  card play and rejects assigned card points.
 
 This prevents inconsistent inputs such as:
 

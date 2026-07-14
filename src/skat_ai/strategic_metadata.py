@@ -17,6 +17,7 @@ VALID_GAME_END_REASONS = [
     "declarer_claimed_remaining_tricks",
     "declarer_conceded_remaining_tricks",
     "defenders_conceded_remaining_tricks",
+    "impossible_null_declaration",
 ]
 
 

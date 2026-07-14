@@ -192,7 +192,8 @@
         "normal_completion",
         "declarer_claimed_remaining_tricks",
         "declarer_conceded_remaining_tricks",
-        "defenders_conceded_remaining_tricks"
+        "defenders_conceded_remaining_tricks",
+        "impossible_null_declaration"
       ]
     },
     "overbid_status": {
@@ -311,6 +312,63 @@
         }
       }
     },
+    "impossible_null_settlement_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "replacement_game_type",
+        "matadors",
+        "hand_game",
+        "base_value",
+        "minimum_game_value",
+        "required_game_value"
+      ],
+      "properties": {
+        "replacement_game_type": {
+          "type": "string",
+          "enum": ["clubs", "spades", "hearts", "diamonds", "grand"]
+        },
+        "matadors": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 11
+        },
+        "hand_game": {
+          "type": "boolean"
+        },
+        "base_value": {
+          "type": "integer",
+          "enum": [9, 10, 11, 12, 24]
+        },
+        "minimum_game_value": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "required_game_value": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "replacement_game_type": {
+                "const": "grand"
+              }
+            },
+            "required": ["replacement_game_type"]
+          },
+          "then": {
+            "properties": {
+              "matadors": {
+                "maximum": 4
+              }
+            }
+          }
+        }
+      ]
+    },
     "overbid_summary": {
       "type": "object",
       "additionalProperties": true,
@@ -340,6 +398,12 @@
         },
         "status": {
           "$ref": "#/$defs/overbid_status"
+        },
+        "impossible_null_settlement": {
+          "oneOf": [
+            {"$ref": "#/$defs/impossible_null_settlement_summary"},
+            {"type": "null"}
+          ]
         }
       }
     },
@@ -543,6 +607,12 @@
         },
         "overbid_required_game_value": {
           "$ref": "#/$defs/nullable_integer"
+        },
+        "impossible_null_settlement": {
+          "oneOf": [
+            {"$ref": "#/$defs/impossible_null_settlement_summary"},
+            {"type": "null"}
+          ]
         }
       }
     },

@@ -28,6 +28,9 @@ UNSUPPORTED_PHASE_INPUT_PATH = (
     / "generated_output_schema"
     / "grand_unsupported_multi_step_phase.json"
 )
+IMPOSSIBLE_NULL_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "null_impossible_declaration_settlement.json"
+)
 
 
 def run_cli(*args: object) -> subprocess.CompletedProcess[str]:
@@ -849,6 +852,41 @@ def test_build_analysis_result_includes_overbid_summary() -> None:
         "status": "unknown_bid_value",
         "required_game_value": None,
     }
+
+
+def test_build_analysis_result_serializes_impossible_null_settlement() -> None:
+    result = build_analysis_result(file_path=str(IMPOSSIBLE_NULL_INPUT_PATH))
+
+    assert result["position"]["game_type"] == "null"
+    assert result["game_declaration"]["ouvert"] is True
+    assert result["game_declaration"]["matadors"] is None
+    assert result["game_value_summary"]["game_value"] == 59
+    assert result["overbid_summary"]["required_game_value"] == 60
+    assert result["overbid_summary"]["impossible_null_settlement"][
+        "hand_game"
+    ] is True
+    assert result["final_settlement_summary"]["winner"] == "defenders"
+    assert result["final_settlement_summary"]["declarer_won_by_card_points"] is None
+    assert result["final_settlement_summary"]["settlement_score"] == -120
+
+
+def test_build_analysis_result_keeps_impossible_null_settlement_incomplete(
+    tmp_path,
+) -> None:
+    data = json.loads(IMPOSSIBLE_NULL_INPUT_PATH.read_text(encoding="utf-8"))
+    data.pop("impossible_null_settlement")
+    input_path = tmp_path / "impossible_null_without_replacement.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    result = build_analysis_result(file_path=str(input_path))
+
+    assert result["adjusted_game_result_summary"]["winner"] == "defenders"
+    assert result["overbid_summary"]["impossible_null_settlement"] is None
+    assert result["final_settlement_summary"]["is_complete"] is False
+    assert result["final_settlement_summary"]["missing_inputs"] == [
+        "impossible_null_settlement"
+    ]
+    assert result["final_settlement_summary"]["settlement_score"] is None
 
 def test_build_analysis_result_includes_performance_rating_summary() -> None:
     result = build_analysis_result(

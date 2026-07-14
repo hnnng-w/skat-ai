@@ -1175,3 +1175,66 @@ def test_build_final_settlement_summary_for_unsupported_null_overbid() -> None:
     assert summary["is_loss"] is True
     assert summary["is_overbid"] is True
     assert summary["overbid_required_game_value"] is None
+
+
+def test_impossible_null_settlement_is_incomplete_without_replacement() -> None:
+    summary = build_final_settlement_summary(
+        game_value_summary={"game_value": 23},
+        game_result_summary={
+            "is_complete": True,
+            "winner": "defenders",
+            "game_end_reason": "impossible_null_declaration",
+        },
+        overbid_summary={
+            "bid_value": 24,
+            "game_value": 23,
+            "is_overbid": True,
+            "margin": -1,
+            "required_game_value": None,
+            "status": "overbid",
+        },
+    )
+
+    assert summary["is_complete"] is False
+    assert summary["missing_inputs"] == ["impossible_null_settlement"]
+    assert summary["winner"] == "defenders"
+    assert summary["is_loss"] is True
+    assert summary["settlement_score"] is None
+    assert summary["declarer_won_by_card_points"] is None
+
+
+def test_impossible_null_settlement_scores_doubled_immediate_loss() -> None:
+    replacement_summary = {
+        "replacement_game_type": "clubs",
+        "matadors": 1,
+        "hand_game": False,
+        "base_value": 12,
+        "minimum_game_value": 24,
+        "required_game_value": 36,
+    }
+    summary = build_final_settlement_summary(
+        game_value_summary={"game_value": 23},
+        game_result_summary={
+            "is_complete": True,
+            "winner": "defenders",
+            "game_end_reason": "impossible_null_declaration",
+        },
+        overbid_summary={
+            "bid_value": 25,
+            "game_value": 23,
+            "is_overbid": True,
+            "margin": -2,
+            "required_game_value": 36,
+            "status": "overbid",
+        },
+        completed_tricks=[],
+        impossible_null_settlement=replacement_summary,
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["missing_inputs"] == []
+    assert summary["effective_game_value"] == 36
+    assert summary["settlement_score"] == -72
+    assert summary["winner"] == "defenders"
+    assert summary["declarer_won_by_card_points"] is None
+    assert summary["impossible_null_settlement"] == replacement_summary

@@ -57,6 +57,28 @@ def build_six_point_completed_trick() -> dict[str, object]:
     }
 
 
+def build_impossible_null_input(
+    include_replacement: bool = True,
+) -> dict[str, object]:
+    data = build_valid_input()
+    data.update(
+        {
+            "game_type": "null",
+            "trick_leader": "unknown",
+            "current_trick": [],
+            "next_player": "unknown",
+            "game_end_reason": "impossible_null_declaration",
+            "game_declaration": {"bid_value": 24},
+        }
+    )
+    if include_replacement:
+        data["impossible_null_settlement"] = {
+            "replacement_game_type": "clubs",
+            "matadors": 1,
+        }
+    return data
+
+
 @pytest.mark.parametrize(
     ("field_name", "valid_value"),
     [
@@ -3433,4 +3455,90 @@ def test_validate_position_input_rejects_illegal_actual_card() -> None:
         ValueError,
         match="actual_card_played must be legal in the current position",
     ):
+        validate_position_input(data)
+
+
+def test_impossible_null_input_accepts_complete_or_missing_replacement() -> None:
+    validate_position_input(build_impossible_null_input())
+    validate_position_input(build_impossible_null_input(include_replacement=False))
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value", "error_field"),
+    [
+        ("analysis_mode", "live_decision", "analysis_mode"),
+        ("game_type", "clubs", "game_type"),
+        ("played_cards", ["D7"], "played_cards"),
+        ("current_trick", ["D7"], "current_trick"),
+        (
+            "completed_tricks",
+            [{"cards": ["D7", "D8", "D9"], "winner_role": "defenders"}],
+            "completed_tricks",
+        ),
+        ("declarer_points", 1, "declarer_points"),
+        ("defender_points", 1, "defender_points"),
+    ],
+)
+def test_impossible_null_input_rejects_invalid_context(
+    field_name: str,
+    invalid_value: object,
+    error_field: str,
+) -> None:
+    data = build_impossible_null_input()
+    data[field_name] = invalid_value
+
+    with pytest.raises(ValueError, match=error_field):
+        validate_position_input(data)
+
+
+def test_impossible_null_input_rejects_missing_or_insufficient_bid() -> None:
+    missing_bid = build_impossible_null_input()
+    missing_bid["game_declaration"] = {}
+    with pytest.raises(ValueError, match="bid_value"):
+        validate_position_input(missing_bid)
+
+    insufficient_bid = build_impossible_null_input()
+    insufficient_bid["game_declaration"] = {"bid_value": 23}
+    with pytest.raises(ValueError, match="bid_value"):
+        validate_position_input(insufficient_bid)
+
+
+def test_impossible_null_input_rejects_actual_card_played() -> None:
+    data = build_impossible_null_input()
+    data["actual_card_played"] = "C7"
+
+    with pytest.raises(ValueError, match="actual_card_played"):
+        validate_position_input(data)
+
+
+def test_replacement_metadata_requires_impossible_null_reason() -> None:
+    data = build_valid_input()
+    data["impossible_null_settlement"] = {
+        "replacement_game_type": "clubs",
+        "matadors": 1,
+    }
+
+    with pytest.raises(ValueError, match="impossible_null_settlement"):
+        validate_position_input(data)
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        {"replacement_game_type": "null", "matadors": 1},
+        {"replacement_game_type": "clubs", "matadors": 0},
+        {"replacement_game_type": "clubs", "matadors": 12},
+        {"replacement_game_type": "grand", "matadors": 5},
+        {"replacement_game_type": "clubs", "matadors": True},
+        {"replacement_game_type": "clubs"},
+        {"replacement_game_type": "clubs", "matadors": 1, "ouvert": True},
+    ],
+)
+def test_impossible_null_input_rejects_invalid_replacement_metadata(
+    replacement: dict[str, object],
+) -> None:
+    data = build_impossible_null_input()
+    data["impossible_null_settlement"] = replacement
+
+    with pytest.raises(ValueError, match="impossible_null_settlement"):
         validate_position_input(data)

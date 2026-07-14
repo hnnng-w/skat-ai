@@ -200,6 +200,24 @@ Fields:
 | `margin`              | `game_value - bid_value`. Negative means overbid.                       |
 | `required_game_value` | Smallest reachable Suit/Grand game value that covers the bid.           |
 | `status`              | `not_overbid`, `overbid`, `unknown_bid_value`, or `unknown_game_value`. |
+| `impossible_null_settlement` | Calculated replacement summary for the impossible Null branch, otherwise absent; `null` when its selection is missing. |
+
+For a complete impossible Null selection, the dedicated summary is:
+
+```json
+"impossible_null_settlement": {
+  "replacement_game_type": "clubs",
+  "matadors": 1,
+  "hand_game": false,
+  "base_value": 12,
+  "minimum_game_value": 24,
+  "required_game_value": 24
+}
+```
+
+The original Null `game_value`, bid, margin, and overbid status remain visible.
+The replacement is not serialized as a changed declaration. Its Hand status
+follows the original skat-pickup status; Null ouvert is not transferred.
 
 ## Score summary
 
@@ -250,6 +268,11 @@ Example:
 `adjusted_game_result_summary` applies `game_end_reason`.
 
 For example, if the declarer claims remaining tricks, remaining card points are assigned to the declarer.
+
+For `impossible_null_declaration`, it instead records a final defenders' win
+without assigning card points. Raw zero-point values remain visible, while raw
+and effective Schneider/Schwarz statuses are `not_applicable` because no card
+play occurred.
 
 Example:
 
@@ -315,6 +338,14 @@ fields: `effective_game_value`, `settlement_score`, `is_loss`, and the derived
 `performance_rating_summary.game_outcome`.
 
 For supported Suit/Grand overbid cases, `effective_game_value` equals `required_game_value`.
+
+For an impossible Null declaration, `declarer_won_by_card_points` is `null`,
+`winner` is `defenders`, and `is_loss` is `true`. Complete replacement metadata
+sets `effective_game_value` to its `required_game_value` and scores
+`-2 * required_game_value` without requiring points or tricks. Missing metadata
+leaves `settlement_score` `null`, sets
+`missing_inputs` to `["impossible_null_settlement"]`, and exposes the dedicated
+summary as `null`.
 
 For completed Null settlements, the fixed Null variant value is used directly.
 A won Null settlement scores `+game_value`; a lost Null settlement scores

@@ -74,6 +74,7 @@ def test_validate_skat_visibility_rejects_invalid_value() -> None:
 
 def test_validate_game_end_reason_accepts_valid_value() -> None:
     validate_game_end_reason("defenders_conceded_remaining_tricks")
+    validate_game_end_reason("impossible_null_declaration")
 
 
 def test_validate_game_end_reason_rejects_invalid_value() -> None:

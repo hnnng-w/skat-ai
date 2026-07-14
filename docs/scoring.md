@@ -252,6 +252,19 @@ In supported Suit/Grand overbid cases:
 effective_game_value = required_game_value
 ```
 
+For `impossible_null_declaration`, the separately selected Suit or Grand
+replacement uses:
+
+```text
+minimum_multiplier = matadors + 1 + Hand
+required_multiplier = max(minimum_multiplier, ceil(bid_value / base_value))
+effective_game_value = base_value * required_multiplier
+```
+
+Here `Hand` is `1` only when the original Null was Hand. Null ouvert and all
+Schneider/Schwarz levels are excluded. The original fixed Null `game_value`
+remains unchanged.
+
 ## Settlement score
 
 Current settlement scoring:
@@ -284,6 +297,11 @@ the announced-Schwarz settlement remains incomplete with missing
 loss.
 
 Supported Suit/Grand overbid cases force the declarer into a settlement loss and use the required game value. Overbid takes precedence over announcement failures and achieved levels: `effective_game_value` is `overbid_required_game_value`, and achieved Schneider or Schwarz levels are not added to that overbid-required value.
+
+An impossible Null declaration is also an immediate doubled loss, but it has no
+card-point winner and requires no points or completed tricks. Zero assigned
+points are not interpreted as Schneider or Schwarz. Missing replacement
+metadata keeps settlement incomplete instead of inventing a contract.
 
 Claims and concessions assign remaining card points, but they do not prove the
 remaining trick ownership for Schwarz settlement in this slice.
@@ -334,6 +352,6 @@ Current partial SkWO-style performance scoring is documented in:
 * Claim and concession handling assigns remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
 * Claims and concessions do not establish Schwarz trick ownership in settlement.
 * The engine does not yet verify whether a claim was strategically or legally justified.
-* Null-game overbid settlement remains conservative when no `required_game_value` is available.
+* Impossible Null settlement remains incomplete when its external replacement selection is unavailable.
 * List, series, and tournament performance rating are handled separately and are not fully implemented yet.
 * Automatic matador inference is conservative and currently uses known declarer-card context from hand, skat context, and safe concrete-declarer completed-trick ownership facts where possible.

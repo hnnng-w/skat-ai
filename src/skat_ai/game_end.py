@@ -14,6 +14,7 @@ REMAINING_POINTS_TO_DEFENDERS_REASONS = [
 NO_REMAINING_POINTS_ASSIGNMENT_REASONS = [
     "not_ended",
     "normal_completion",
+    "impossible_null_declaration",
 ]
 
 VALID_GAME_END_REASONS = (
@@ -65,6 +66,25 @@ def apply_remaining_points_assignment(
         game_result_summary=game_result_summary,
         game_end_reason=game_end_reason,
     )
+
+    if game_end_reason == "impossible_null_declaration":
+        updated_summary = game_result_summary.copy()
+        updated_summary.update(
+            {
+                "is_complete": True,
+                "winner": "defenders",
+                "status": "final_decided",
+                "raw_schneider_status": "not_applicable",
+                "raw_schwarz_status": "not_applicable",
+                "effective_schneider_status": "not_applicable",
+                "effective_schwarz_status": "not_applicable",
+                "game_end_reason": game_end_reason,
+                "remaining_points_recipient": None,
+                "remaining_points_assigned": 0,
+            }
+        )
+        return updated_summary
+
     recipient = get_remaining_points_recipient(game_end_reason)
 
     if recipient is None:

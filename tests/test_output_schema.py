@@ -553,6 +553,7 @@ def test_schema_rejects_missing_required_profile_preset_settings() -> None:
         "declarer_claimed_remaining_tricks",
         "declarer_conceded_remaining_tricks",
         "defenders_conceded_remaining_tricks",
+        "impossible_null_declaration",
     ],
 )
 def test_schema_accepts_supported_game_end_reasons(game_end_reason: str) -> None:
@@ -587,6 +588,38 @@ def test_schema_accepts_supported_overbid_statuses(overbid_status: str) -> None:
     assert isinstance(final_settlement_summary, dict)
     overbid_summary["status"] = overbid_status
     final_settlement_summary["overbid_status"] = overbid_status
+
+    assert_schema_valid(data)
+
+
+def test_schema_accepts_impossible_null_settlement_summary() -> None:
+    data = build_valid_output()
+    replacement_summary = {
+        "replacement_game_type": "clubs",
+        "matadors": 1,
+        "hand_game": True,
+        "base_value": 12,
+        "minimum_game_value": 36,
+        "required_game_value": 60,
+    }
+    overbid_summary = data["overbid_summary"]
+    final_settlement_summary = data["final_settlement_summary"]
+    assert isinstance(overbid_summary, dict)
+    assert isinstance(final_settlement_summary, dict)
+    overbid_summary["impossible_null_settlement"] = replacement_summary
+    final_settlement_summary["impossible_null_settlement"] = replacement_summary
+
+    assert_schema_valid(data)
+
+
+def test_schema_accepts_null_impossible_null_settlement_summary() -> None:
+    data = build_valid_output()
+    overbid_summary = data["overbid_summary"]
+    final_settlement_summary = data["final_settlement_summary"]
+    assert isinstance(overbid_summary, dict)
+    assert isinstance(final_settlement_summary, dict)
+    overbid_summary["impossible_null_settlement"] = None
+    final_settlement_summary["impossible_null_settlement"] = None
 
     assert_schema_valid(data)
 

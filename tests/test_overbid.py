@@ -184,3 +184,44 @@ def test_build_overbid_summary_for_null_not_overbid() -> None:
         "required_game_value": 23,
         "status": "not_overbid",
     }
+
+
+def test_impossible_null_overbid_uses_separate_replacement_value() -> None:
+    replacement_summary = {
+        "replacement_game_type": "clubs",
+        "matadors": 1,
+        "hand_game": False,
+        "base_value": 12,
+        "minimum_game_value": 24,
+        "required_game_value": 36,
+    }
+
+    summary = build_overbid_summary(
+        game_value_summary={
+            "game_value": 23,
+            "base_value": None,
+            "is_null_game": True,
+        },
+        bid_value=25,
+        game_end_reason="impossible_null_declaration",
+        impossible_null_settlement=replacement_summary,
+    )
+
+    assert summary["game_value"] == 23
+    assert summary["required_game_value"] == 36
+    assert summary["impossible_null_settlement"] == replacement_summary
+
+
+def test_impossible_null_overbid_keeps_missing_replacement_explicit() -> None:
+    summary = build_overbid_summary(
+        game_value_summary={
+            "game_value": 23,
+            "base_value": None,
+            "is_null_game": True,
+        },
+        bid_value=24,
+        game_end_reason="impossible_null_declaration",
+    )
+
+    assert summary["required_game_value"] is None
+    assert summary["impossible_null_settlement"] is None

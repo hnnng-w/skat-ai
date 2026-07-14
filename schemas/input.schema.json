@@ -223,6 +223,58 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "required": ["impossible_null_settlement"]
+      },
+      "then": {
+        "required": ["game_end_reason"],
+        "properties": {
+          "game_end_reason": {
+            "const": "impossible_null_declaration"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "game_end_reason": {
+            "const": "impossible_null_declaration"
+          }
+        },
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "required": ["analysis_mode", "game_type"],
+        "properties": {
+          "analysis_mode": {
+            "const": "post_game_review"
+          },
+          "game_type": {
+            "const": "null"
+          },
+          "current_trick": {
+            "maxItems": 0
+          },
+          "played_cards": {
+            "maxItems": 0
+          },
+          "completed_tricks": {
+            "maxItems": 0
+          },
+          "declarer_points": {
+            "const": 0
+          },
+          "defender_points": {
+            "const": 0
+          }
+        },
+        "not": {
+          "required": ["actual_card_played"]
+        }
+      }
     }
   ],
   "properties": {
@@ -335,6 +387,9 @@
     "game_declaration": {
       "$ref": "#/$defs/game_declaration_input"
     },
+    "impossible_null_settlement": {
+      "$ref": "#/$defs/impossible_null_settlement_input"
+    },
 
     "analysis_mode": {
       "type": "string",
@@ -351,7 +406,8 @@
         "normal_completion",
         "declarer_claimed_remaining_tricks",
         "declarer_conceded_remaining_tricks",
-        "defenders_conceded_remaining_tricks"
+        "defenders_conceded_remaining_tricks",
+        "impossible_null_declaration"
       ]
     },
     "left_player_profile": {
@@ -473,6 +529,41 @@
           "minimum": 1
         }
       }
+    },
+    "impossible_null_settlement_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["replacement_game_type", "matadors"],
+      "properties": {
+        "replacement_game_type": {
+          "type": "string",
+          "enum": ["clubs", "spades", "hearts", "diamonds", "grand"]
+        },
+        "matadors": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 11
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "replacement_game_type": {
+                "const": "grand"
+              }
+            },
+            "required": ["replacement_game_type"]
+          },
+          "then": {
+            "properties": {
+              "matadors": {
+                "maximum": 4
+              }
+            }
+          }
+        }
+      ]
     },
     "stable_identifier": {
       "type": "string",

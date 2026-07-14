@@ -949,3 +949,36 @@ def test_overbid_example_declarer_wins_card_points_but_loses_settlement() -> Non
     assert result["final_settlement_summary"]["effective_game_value"] == 72
     assert result["final_settlement_summary"]["bid_value"] == 60
     assert result["final_settlement_summary"]["settlement_score"] == -144
+
+
+def test_impossible_null_settlement_example() -> None:
+    result = build_example_analysis_result(
+        "null_impossible_declaration_settlement.json"
+    )
+
+    assert result["game_declaration"] == {
+        "game_type": "null",
+        "hand_game": True,
+        "ouvert": True,
+        "schneider_announced": False,
+        "schwarz_announced": False,
+        "matadors": None,
+        "bid_value": 60,
+    }
+    assert result["game_value_summary"]["game_value"] == 59
+    replacement = result["overbid_summary"]["impossible_null_settlement"]
+    assert replacement == {
+        "replacement_game_type": "clubs",
+        "matadors": 1,
+        "hand_game": True,
+        "base_value": 12,
+        "minimum_game_value": 36,
+        "required_game_value": 60,
+    }
+    assert "ouvert" not in replacement
+    assert result["adjusted_game_result_summary"]["winner"] == "defenders"
+    assert result["adjusted_game_result_summary"][
+        "effective_schwarz_status"
+    ] == "not_applicable"
+    assert result["final_settlement_summary"]["is_complete"] is True
+    assert result["final_settlement_summary"]["settlement_score"] == -120

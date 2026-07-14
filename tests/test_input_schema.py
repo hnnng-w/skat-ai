@@ -51,6 +51,26 @@ def build_valid_input() -> dict[str, object]:
     }
 
 
+def build_impossible_null_input() -> dict[str, object]:
+    data = build_valid_input()
+    data.update(
+        {
+            "game_type": "null",
+            "trick_leader": "unknown",
+            "current_trick": [],
+            "next_player": "unknown",
+            "analysis_mode": "post_game_review",
+            "game_end_reason": "impossible_null_declaration",
+            "game_declaration": {"bid_value": 24},
+            "impossible_null_settlement": {
+                "replacement_game_type": "clubs",
+                "matadors": 1,
+            },
+        }
+    )
+    return data
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         INPUT_VALIDATOR.iter_errors(data),
@@ -906,4 +926,76 @@ def test_schema_allows_list_standings_cross_entry_checks_for_python_validation()
 
     assert_schema_valid(data)
     with pytest.raises(ValueError, match="duplicate player_id"):
+        validate_position_input(data)
+
+
+def test_schema_and_runtime_accept_impossible_null_settlement() -> None:
+    assert_schema_and_runtime_valid(build_impossible_null_input())
+
+
+def test_schema_accepts_missing_impossible_null_replacement_metadata() -> None:
+    data = build_impossible_null_input()
+    data.pop("impossible_null_settlement")
+
+    assert_schema_and_runtime_valid(data)
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        {"replacement_game_type": "null", "matadors": 1},
+        {"replacement_game_type": "clubs", "matadors": 0},
+        {"replacement_game_type": "clubs", "matadors": 12},
+        {"replacement_game_type": "grand", "matadors": 5},
+        {"replacement_game_type": "clubs", "matadors": True},
+        {"replacement_game_type": "clubs"},
+        {"replacement_game_type": "clubs", "matadors": 1, "ouvert": True},
+    ],
+)
+def test_schema_and_runtime_reject_invalid_impossible_null_replacement(
+    replacement: dict[str, object],
+) -> None:
+    data = build_impossible_null_input()
+    data["impossible_null_settlement"] = replacement
+
+    assert_schema_and_runtime_invalid(data)
+
+
+def test_schema_and_runtime_reject_replacement_without_matching_reason() -> None:
+    data = build_valid_input()
+    data["impossible_null_settlement"] = {
+        "replacement_game_type": "clubs",
+        "matadors": 1,
+    }
+
+    assert_schema_and_runtime_invalid(data)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value"),
+    [
+        ("analysis_mode", "live_decision"),
+        ("game_type", "clubs"),
+        ("current_trick", ["D7"]),
+        ("played_cards", ["D7"]),
+        ("declarer_points", 1),
+        ("defender_points", 1),
+    ],
+)
+def test_schema_and_runtime_reject_invalid_impossible_null_context(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_impossible_null_input()
+    data[field_name] = invalid_value
+
+    assert_schema_and_runtime_invalid(data)
+
+
+def test_runtime_rejects_bid_that_does_not_exceed_null_value() -> None:
+    data = build_impossible_null_input()
+    data["game_declaration"] = {"bid_value": 23}
+
+    assert_schema_valid(data)
+    with pytest.raises(ValueError, match="bid_value"):
         validate_position_input(data)

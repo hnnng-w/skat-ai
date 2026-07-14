@@ -1,0 +1,31 @@
+{
+  "game_type": "null",
+  "player_role": "declarer",
+  "player_position": "forehand",
+  "trick_leader": "unknown",
+  "hand": ["CJ", "SJ", "HJ", "DJ", "CA", "SA", "HA", "DA", "C10", "S10"],
+  "current_trick": [],
+  "played_cards": [],
+  "completed_tricks": [],
+  "declarer_points": 0,
+  "defender_points": 0,
+  "next_player": "unknown",
+  "skat": [],
+  "left_hand_size": 10,
+  "right_hand_size": 10,
+  "sample_count": 100,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true,
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "unknown",
+  "game_end_reason": "impossible_null_declaration",
+  "game_declaration": {
+    "hand_game": true,
+    "ouvert": true,
+    "bid_value": 60
+  },
+  "impossible_null_settlement": {
+    "replacement_game_type": "clubs",
+    "matadors": 1
+  }
+}

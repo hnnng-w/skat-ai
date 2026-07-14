@@ -8,11 +8,20 @@ def get_missing_final_settlement_inputs(
     game_result_summary: dict[str, Any],
     overbid_summary: dict[str, Any] | None = None,
     completed_tricks: list[dict[str, Any]] | None = None,
+    impossible_null_settlement: dict[str, Any] | None = None,
 ) -> list[str]:
     """
     Returns missing inputs that prevent final settlement calculation.
     """
     missing_inputs = []
+
+    if (
+        game_result_summary.get("game_end_reason")
+        == "impossible_null_declaration"
+    ):
+        if impossible_null_settlement is None:
+            return ["impossible_null_settlement"]
+        return []
 
     if not game_result_summary["is_complete"]:
         missing_inputs.append("complete_card_points")
@@ -95,6 +104,7 @@ def build_final_settlement_summary(
     game_result_summary: dict[str, Any],
     overbid_summary: dict[str, Any] | None = None,
     completed_tricks: list[dict[str, Any]] | None = None,
+    impossible_null_settlement: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Builds the final single-game settlement summary.
@@ -112,8 +122,47 @@ def build_final_settlement_summary(
         game_result_summary=game_result_summary,
         overbid_summary=overbid_summary,
         completed_tricks=completed_tricks,
+        impossible_null_settlement=impossible_null_settlement,
     )
     is_complete = len(missing_inputs) == 0
+    is_impossible_null = (
+        game_result_summary.get("game_end_reason")
+        == "impossible_null_declaration"
+    )
+
+    if is_impossible_null:
+        effective_game_value = (
+            impossible_null_settlement["required_game_value"]
+            if impossible_null_settlement is not None
+            else None
+        )
+        summary = {
+            "is_complete": is_complete,
+            "missing_inputs": missing_inputs,
+            "declarer_won_by_card_points": None,
+            "winner": "defenders",
+            "game_value": game_value_summary["game_value"],
+            "effective_game_value": effective_game_value,
+            "bid_value": overbid_summary["bid_value"],
+            "settlement_score": (
+                -2 * effective_game_value
+                if effective_game_value is not None
+                else None
+            ),
+            "is_loss": True,
+            "is_overbid": overbid_summary["is_overbid"],
+            "overbid_margin": overbid_summary["margin"],
+            "overbid_status": overbid_summary["status"],
+            "overbid_required_game_value": overbid_summary["required_game_value"],
+            "impossible_null_settlement": impossible_null_settlement,
+            "notes": [
+                "The impossible Null declaration is an immediate declarer loss.",
+                "The original Null declaration remains unchanged.",
+                "No played-game Schneider, Schwarz, announcement, or ouvert level is added.",
+            ],
+        }
+        return summary
+
     declarer_won_by_card_points = is_declarer_base_contract_winner(
         game_result_summary
     )

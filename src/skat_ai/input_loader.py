@@ -11,6 +11,10 @@ from skat_ai.game_declaration import (
     build_game_declaration_from_input,
 )
 from skat_ai.game_state import GameState
+from skat_ai.impossible_null_settlement import (
+    ImpossibleNullSettlementSelection,
+    build_impossible_null_settlement_selection_from_input,
+)
 from skat_ai.information_view import build_local_analysis_input
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
@@ -180,6 +184,13 @@ def get_game_declaration_from_input(
     Extracts game declaration metadata from input data.
     """
     return build_game_declaration_from_input(data)
+
+
+def get_impossible_null_settlement_from_input(
+    data: dict[str, Any],
+) -> ImpossibleNullSettlementSelection | None:
+    """Extracts the optional external impossible Null replacement selection."""
+    return build_impossible_null_settlement_selection_from_input(data)
 
 def get_performance_rating_system_from_input(
     data: dict[str, Any],

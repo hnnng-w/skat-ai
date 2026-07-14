@@ -283,6 +283,34 @@ use `matadors`, `schneider_announced`, or `schwarz_announced`; those combination
 are rejected by runtime validation. Null `ouvert` and Null Hand are independent:
 `ouvert: true` does not imply `hand_game: true` for a Null game.
 
+### Impossible Null settlement selection
+
+An impossible Null declaration can optionally record the externally selected
+Suit or Grand game used only for settlement:
+
+```json
+{
+  "game_end_reason": "impossible_null_declaration",
+  "impossible_null_settlement": {
+    "replacement_game_type": "clubs",
+    "matadors": 1
+  }
+}
+```
+
+`replacement_game_type` accepts `clubs`, `spades`, `hearts`, `diamonds`, or
+`grand`. Both fields are required when the object is present. Suit matadors must
+be `1..11`; Grand matadors must be `1..4`; zero, booleans, Null, missing fields,
+and unknown fields are rejected.
+
+This object is separate from `game_declaration`. The original declaration stays
+Null and does not receive matadors. The replacement inherits `hand_game` from
+the original Null skat-pickup status, but Null `ouvert`, Schneider announced,
+and Schwarz announced are not transferred. The selection is supplied by an
+online result, historical import, manual record, or adjudication; `skat-ai` does
+not optimize across alternatives whose contract-specific matador counts are
+unknown.
+
 Automatic matador inference can use known declarer-card context from:
 
 * the local declarer `hand`
@@ -341,6 +369,13 @@ Supported `game_end_reason` values:
 | `declarer_claimed_remaining_tricks`   | Declarer claimed the remaining tricks.                 |
 | `declarer_conceded_remaining_tricks`  | Declarer conceded the remaining tricks.                |
 | `defenders_conceded_remaining_tricks` | Defenders conceded the remaining tricks.               |
+| `impossible_null_declaration`          | Impossible Null declaration; immediate declarer loss.   |
+
+`impossible_null_declaration` is post-game only. It requires a Null contract,
+a bid above the fixed value of the declared Null variant, no played cards,
+empty current and completed tricks, and zero assigned card points. The
+replacement object may be omitted; the loss is then known but settlement stays
+incomplete.
 
 ## Player profile fields
 
@@ -905,3 +940,7 @@ Input validation rejects:
 * ended game reasons outside post-game review mode
 * complete 120-point game states in live decision mode
 * invalid or illegal `actual_card_played`
+* impossible Null metadata outside `impossible_null_declaration`
+* impossible Null reasons with live mode, a non-Null contract, an absent or
+  insufficient bid, played cards/tricks, or assigned card points
+* incomplete, unknown, or out-of-range impossible Null replacement fields

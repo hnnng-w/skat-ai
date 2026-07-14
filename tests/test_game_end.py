@@ -167,12 +167,37 @@ def test_apply_remaining_points_assignment_accepts_complete_normal_result() -> N
     assert summary["remaining_points_recipient"] is None
     assert summary["remaining_points_assigned"] == 0
 
+
+def test_impossible_null_is_immediate_loss_without_point_assignment() -> None:
+    original_summary = build_incomplete_game_result_summary()
+    original_summary.update(
+        {
+            "declarer_points": 0,
+            "defender_points": 0,
+            "points_remaining": 120,
+            "winner": "undecided",
+        }
+    )
+
+    summary = apply_remaining_points_assignment(
+        game_result_summary=original_summary,
+        game_end_reason="impossible_null_declaration",
+    )
+
+    assert summary["is_complete"] is True
+    assert summary["winner"] == "defenders"
+    assert summary["points_remaining"] == 120
+    assert summary["remaining_points_assigned"] == 0
+    assert summary["effective_schneider_status"] == "not_applicable"
+    assert summary["effective_schwarz_status"] == "not_applicable"
+
 def test_validate_game_end_reason_accepts_valid_reason() -> None:
     validate_game_end_reason("not_ended")
     validate_game_end_reason("normal_completion")
     validate_game_end_reason("declarer_claimed_remaining_tricks")
     validate_game_end_reason("declarer_conceded_remaining_tricks")
     validate_game_end_reason("defenders_conceded_remaining_tricks")
+    validate_game_end_reason("impossible_null_declaration")
 
 
 def test_validate_game_end_reason_rejects_unknown_reason() -> None:

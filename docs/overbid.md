@@ -171,21 +171,44 @@ If the game value is incomplete, overbid status may be unknown.
 
 Automatic matador inference can make some Suit/Grand game values complete even when `matadors` was not explicitly provided, as long as the currently known declarer-card context or safe concrete-declarer completed-trick ownership facts are sufficient.
 
-## Null-game safeguard
+## Impossible Null settlement
 
 Null games use fixed game values rather than base-value multipliers.
 
-For this reason, overbid settlement scoring is currently supported for Suit and Grand games when `required_game_value` is available.
+Under ISkO 3.6.2 and the International Skat Court decision collection section
+3.6.2, inquiries 1-3, an impossible Null declaration immediately loses an
+eligible Suit or Grand game. The declarer may select a favorable replacement.
+`skat-ai` records an externally supplied selection; it does not claim the
+selection is cheapest or optimize across alternatives with unknown matadors.
 
-If a Null game is detected as overbid and no `required_game_value` is available, `final_settlement_summary` remains incomplete instead of guessing a settlement score.
+The original Null declaration and fixed value remain unchanged. The replacement
+inherits only Hand status from whether the original Null was Hand. Null ouvert,
+Schneider announced, and Schwarz announced do not transfer.
+
+For replacement base value `base_value`:
+
+```text
+minimum_multiplier = matadors + 1 + (1 when the original Null was Hand)
+minimum_game_value = base_value * minimum_multiplier
+required_multiplier = max(minimum_multiplier, ceil(bid_value / base_value))
+required_game_value = base_value * required_multiplier
+settlement_score = -2 * required_game_value
+```
+
+No achieved or announced Schneider, Schwarz, or ouvert level is added. The game
+is lost before card play, so settlement requires neither 120 assigned points nor
+ten completed tricks.
+
+Without `impossible_null_settlement`, the engine does not invent a replacement:
 
 Example:
 
 ```json
 {
   "is_complete": false,
-  "missing_inputs": ["overbid_required_game_value"],
+  "missing_inputs": ["impossible_null_settlement"],
   "is_overbid": true,
+  "impossible_null_settlement": null,
   "settlement_score": null
 }
 ```
@@ -193,5 +216,6 @@ Example:
 ## Current limitations
 
 * Suit/Grand overbid settlement is supported when `required_game_value` can be calculated.
-* Null-game overbid settlement remains conservative when no `required_game_value` is available.
+* Impossible Null settlement requires the externally supplied replacement to be complete; otherwise settlement remains explicitly incomplete.
+* Other Null overbid inputs without the dedicated game-end reason remain conservative.
 * The engine does not yet model all official settlement nuances.

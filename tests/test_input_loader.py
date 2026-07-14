@@ -3,6 +3,7 @@ from skat_ai.input_loader import (
     build_local_game_state_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
+    get_impossible_null_settlement_from_input,
     get_left_opponent_policy_settings_from_input,
     get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
@@ -433,6 +434,25 @@ def test_get_game_declaration_from_input_reads_nested_values() -> None:
     assert declaration.schwarz_announced is False
     assert declaration.matadors == 2
     assert declaration.bid_value == 48
+
+
+def test_get_impossible_null_settlement_from_input() -> None:
+    selection = get_impossible_null_settlement_from_input(
+        {
+            "impossible_null_settlement": {
+                "replacement_game_type": "hearts",
+                "matadors": 3,
+            }
+        }
+    )
+
+    assert selection is not None
+    assert selection.replacement_game_type == "hearts"
+    assert selection.matadors == 3
+
+
+def test_get_impossible_null_settlement_from_input_defaults_to_none() -> None:
+    assert get_impossible_null_settlement_from_input({}) is None
 
 
 def test_get_performance_rating_system_from_input_defaults_to_none() -> None:

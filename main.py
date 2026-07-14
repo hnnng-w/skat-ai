@@ -19,6 +19,10 @@ from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.impossible_null_settlement import (
+    build_impossible_null_settlement_summary,
+    build_serializable_impossible_null_settlement_summary,
+)
 from skat_ai.information_policy import build_information_policy_summary
 from skat_ai.information_view import build_local_analysis_input
 from skat_ai.input_loader import (
@@ -27,6 +31,7 @@ from skat_ai.input_loader import (
     get_actual_card_played_from_input,
     get_analysis_metadata_from_input,
     get_game_declaration_from_input,
+    get_impossible_null_settlement_from_input,
     get_list_analysis_results_from_input,
     get_list_game_contributions_from_input,
     get_list_performance_input_from_input,
@@ -240,15 +245,31 @@ def build_analysis_result(
     )
     actual_card_played = get_actual_card_played_from_input(data)
     game_declaration = get_game_declaration_from_input(local_data)
+    impossible_null_selection = get_impossible_null_settlement_from_input(data)
     performance_rating_system = get_performance_rating_system_from_input(data)
     list_performance_input = get_list_performance_input_from_input(data)
     list_game_contributions = get_list_game_contributions_from_input(data)
     list_analysis_results = get_list_analysis_results_from_input(data)
     list_standings_input = get_list_standings_input_from_input(data)
     game_value_summary = build_game_value_summary(game_declaration)
+    impossible_null_summary = (
+        build_impossible_null_settlement_summary(
+            selection=impossible_null_selection,
+            original_declaration=game_declaration,
+        )
+        if impossible_null_selection is not None
+        else None
+    )
+    serializable_impossible_null_summary = (
+        build_serializable_impossible_null_settlement_summary(
+            impossible_null_summary
+        )
+    )
     overbid_summary = build_overbid_summary(
         game_value_summary=game_value_summary,
         bid_value=game_declaration.bid_value,
+        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
+        impossible_null_settlement=serializable_impossible_null_summary,
     )
     opponent_policy_settings = build_global_opponent_policy_settings(
         effective_opponent_policy_settings
@@ -342,6 +363,7 @@ def build_analysis_result(
         game_result_summary=adjusted_game_result_summary,
         overbid_summary=overbid_summary,
         completed_tricks=state.completed_tricks,
+        impossible_null_settlement=serializable_impossible_null_summary,
     )
     performance_rating_summary = build_performance_rating_summary(
         final_settlement_summary=final_settlement_summary,

@@ -660,6 +660,37 @@ def check_overbid_settlement(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_impossible_null_settlement(data: dict[str, Any]) -> list[str]:
+    """Checks the complete impossible Null replacement settlement branch."""
+    errors = []
+    replacement = data["overbid_summary"].get("impossible_null_settlement")
+
+    if data["game_declaration"]["game_type"] != "null":
+        errors.append("expected original Null declaration")
+
+    if data["game_value_summary"]["game_value"] != 59:
+        errors.append("expected original Null ouvert Hand value 59")
+
+    if not isinstance(replacement, dict):
+        errors.append("expected impossible Null replacement summary")
+        return errors
+
+    if replacement.get("hand_game") is not True:
+        errors.append("expected replacement Hand status")
+
+    if "ouvert" in replacement:
+        errors.append("expected Null ouvert not to transfer")
+
+    settlement = data["final_settlement_summary"]
+    if settlement["settlement_score"] != -120:
+        errors.append("expected doubled impossible Null loss score -120")
+
+    if settlement["declarer_won_by_card_points"] is not None:
+        errors.append("expected no card-point winner for immediate loss")
+
+    return errors
+
+
 def check_list_performance_summary(
     data: dict[str, Any],
     expected_summary: dict[str, Any],
@@ -1052,6 +1083,16 @@ SCENARIOS = (
         ),
         branch="supported Suit/Grand overbid settlement",
         check_output=check_overbid_settlement,
+    ),
+    Scenario(
+        name="impossible_null_settlement",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "null_impossible_declaration_settlement.json"
+        ),
+        branch="complete impossible Null replacement settlement",
+        check_output=check_impossible_null_settlement,
     ),
     Scenario(
         name="list_performance_summary",

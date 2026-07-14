@@ -40,8 +40,9 @@ The following directions are required for `v1.0.0`:
 * Support all declared Suit, Grand, and Null variants in the approved v1.0
   contract, including valid declaration dependencies, matadors, Hand,
   Schneider, Schwarz, ouvert, normal completion, and final settlement.
-* Resolve and implement impossible Null settlement using authoritative guidance
-  or an explicitly approved and documented convention.
+* Preserve the bounded impossible Null settlement interpretation from the
+  International Skat Court decision collection: external favorable Suit/Grand
+  selection, original Null declaration retained, and immediate doubled loss.
 * Represent claims and concessions sufficiently to apply the approved ISkO
   outcome and settlement rules. General solver-backed verification is a
   separate decision.
