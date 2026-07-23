@@ -20,6 +20,9 @@ from skat_ai.multi_step_simulation import (
     simulate_multiple_steps,
 )
 from skat_ai.opponent_statistics import build_opponent_statistics_summary
+from skat_ai.rolling_opponent_policy_evaluation import (
+    evaluate_rolling_opponent_policy_predictions,
+)
 from skat_ai.rules import get_legal_cards
 from skat_ai.training_dataset import build_training_dataset_summary
 
@@ -40,6 +43,7 @@ def get_position_example_json_files() -> list[Path]:
         if path.name
         not in {
             "historical_grand_normal_completion.json",
+            "historical_opponent_policy_evaluation_dataset.json",
             "historical_opponent_statistics.json",
             "opponent_statistics.json",
             "training_dataset_normal_play.json",
@@ -61,9 +65,15 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             record = load_historical_game_from_json(str(example_file))
             assert record.game_id == "historical-grand-001"
             continue
-        if example_file.name == "training_dataset_normal_play.json":
+        if example_file.name in {
+            "historical_opponent_policy_evaluation_dataset.json",
+            "training_dataset_normal_play.json",
+        }:
             dataset = load_training_dataset_from_json(str(example_file))
-            assert dataset.dataset_id == "online-games-2026"
+            assert dataset.dataset_id in {
+                "online-games-2026",
+                "opponent-policy-evaluation-example",
+            }
             continue
         if example_file.name in {
             "historical_opponent_statistics.json",
@@ -161,6 +171,17 @@ def test_training_dataset_example_builds_sixty_samples() -> None:
         "record_count": 1,
         "sample_count": 30,
     }
+
+
+def test_rolling_opponent_policy_evaluation_example_builds_target_results() -> None:
+    path = Path("examples/historical_opponent_policy_evaluation_dataset.json")
+    evaluation = evaluate_rolling_opponent_policy_predictions(
+        load_training_dataset_from_json(str(path))
+    )
+
+    assert evaluation.selection["target_game_count"] == 1
+    assert evaluation.coverage["target_decisions"] == 30
+    assert evaluation.coverage["decisions_with_insufficient_confidence"] == 30
 
 
 def test_opponent_statistics_example_preserves_two_ordered_players() -> None:

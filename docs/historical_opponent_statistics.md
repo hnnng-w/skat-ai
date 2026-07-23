@@ -222,6 +222,11 @@ existing training-dataset conversion remains unchanged.
 This bounded workflow does not provide player-disjoint partition enforcement,
 recency weighting, count-based rolling windows, merging with platform/manual
 statistics, multiple captures per player, capture selection or persistence,
-automatic policy use, recommendation-quality or policy-effect evaluation,
-profile accuracy claims, learned behavior, machine-learning training, or
+automatic policy use, recommendation-quality evaluation, strategic policy-
+quality claims, learned behavior, machine-learning training, or
 claims/concessions and other historical end reasons.
+
+The separate [rolling opponent-policy evaluation](opponent_policy_evaluation.md)
+reuses this exact aggregation with one strict target-start cutoff per game. It
+measures observed-card imitation only and does not alter or automatically apply
+the aggregated profiles.

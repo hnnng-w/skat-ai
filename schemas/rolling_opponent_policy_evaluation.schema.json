@@ -1,0 +1,540 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/rolling_opponent_policy_evaluation.schema.json",
+  "title": "skat-ai rolling opponent policy evaluation version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evaluation_version",
+    "source_dataset",
+    "selection",
+    "coverage",
+    "baseline_results",
+    "actionable_profile_paired_results",
+    "breakdowns",
+    "target_games"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "evaluation_version": {"const": 1},
+    "source_dataset": {"$ref": "#/$defs/source_dataset"},
+    "selection": {"$ref": "#/$defs/selection"},
+    "coverage": {"$ref": "#/$defs/coverage"},
+    "baseline_results": {"$ref": "#/$defs/baseline_results"},
+    "actionable_profile_paired_results": {"$ref": "#/$defs/paired_results"},
+    "breakdowns": {"$ref": "#/$defs/breakdowns"},
+    "target_games": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/target_game"}
+    }
+  },
+  "$defs": {
+    "non_padded_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {"type": "string", "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"},
+    "card_array": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/card"}
+    },
+    "count": {"type": "integer", "minimum": 0},
+    "rate": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "partition": {"enum": ["train", "validation", "test"]},
+    "partitions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/partition"}
+    },
+    "source_dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_id",
+        "dataset_version",
+        "training_dataset_schema_version",
+        "feature_generation_version",
+        "target"
+      ],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/non_padded_string"},
+        "dataset_version": {"$ref": "#/$defs/non_padded_string"},
+        "training_dataset_schema_version": {"const": 1},
+        "feature_generation_version": {"const": 1},
+        "target": {"const": "actual_card_played"}
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_partitions",
+        "evaluation_partitions",
+        "temporal_rule",
+        "source_record_count",
+        "target_record_count",
+        "target_game_count",
+        "target_decision_count"
+      ],
+      "properties": {
+        "source_partitions": {"$ref": "#/$defs/partitions"},
+        "evaluation_partitions": {"$ref": "#/$defs/partitions"},
+        "temporal_rule": {"const": "source_played_at_strictly_before_target_played_at"},
+        "source_record_count": {"type": "integer", "minimum": 1},
+        "target_record_count": {"type": "integer", "minimum": 1},
+        "target_game_count": {"type": "integer", "minimum": 1},
+        "target_decision_count": {"type": "integer", "minimum": 30, "multipleOf": 30}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_game_count",
+        "target_player_game_count",
+        "distinct_target_player_count",
+        "target_decisions",
+        "decisions_with_prior_player_history",
+        "decisions_with_explainable_derived_profile",
+        "decisions_with_actionable_profile",
+        "decisions_without_prior_source_games",
+        "decisions_without_player_history",
+        "decisions_with_insufficient_confidence",
+        "decisions_with_neutral_profiles",
+        "decisions_with_insufficient_data"
+      ],
+      "properties": {
+        "target_game_count": {"type": "integer", "minimum": 1},
+        "target_player_game_count": {"type": "integer", "minimum": 3, "multipleOf": 3},
+        "distinct_target_player_count": {"type": "integer", "minimum": 1},
+        "target_decisions": {"type": "integer", "minimum": 30, "multipleOf": 30},
+        "decisions_with_prior_player_history": {"$ref": "#/$defs/count"},
+        "decisions_with_explainable_derived_profile": {"$ref": "#/$defs/count"},
+        "decisions_with_actionable_profile": {"$ref": "#/$defs/count"},
+        "decisions_without_prior_source_games": {"$ref": "#/$defs/count"},
+        "decisions_without_player_history": {"$ref": "#/$defs/count"},
+        "decisions_with_insufficient_confidence": {"$ref": "#/$defs/count"},
+        "decisions_with_neutral_profiles": {"$ref": "#/$defs/count"},
+        "decisions_with_insufficient_data": {"$ref": "#/$defs/count"}
+      }
+    },
+    "match_results": {
+      "type": "object",
+      "required": [
+        "decision_count",
+        "exact_card_match_count",
+        "exact_card_match_rate",
+        "preferred_card_match_count",
+        "preferred_card_match_rate"
+      ],
+      "properties": {
+        "decision_count": {"$ref": "#/$defs/count"},
+        "exact_card_match_count": {"$ref": "#/$defs/count"},
+        "exact_card_match_rate": {"$ref": "#/$defs/rate"},
+        "preferred_card_match_count": {"$ref": "#/$defs/count"},
+        "preferred_card_match_rate": {"$ref": "#/$defs/rate"}
+      }
+    },
+    "target_match_results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_count",
+        "exact_card_match_count",
+        "exact_card_match_rate",
+        "preferred_card_match_count",
+        "preferred_card_match_rate"
+      ],
+      "properties": {
+        "decision_count": {"const": 30},
+        "exact_card_match_count": {"$ref": "#/$defs/count"},
+        "exact_card_match_rate": {"$ref": "#/$defs/rate"},
+        "preferred_card_match_count": {"$ref": "#/$defs/count"},
+        "preferred_card_match_rate": {"$ref": "#/$defs/rate"}
+      }
+    },
+    "baseline_results": {
+      "allOf": [
+        {"$ref": "#/$defs/match_results"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "decision_count",
+            "exact_card_match_count",
+            "exact_card_match_rate",
+            "preferred_card_match_count",
+            "preferred_card_match_rate",
+            "baseline_policy_preset",
+            "opponent_lead_policy",
+            "opponent_response_policy"
+          ],
+          "properties": {
+            "decision_count": {"$ref": "#/$defs/count"},
+            "exact_card_match_count": {"$ref": "#/$defs/count"},
+            "exact_card_match_rate": {"$ref": "#/$defs/rate"},
+            "preferred_card_match_count": {"$ref": "#/$defs/count"},
+            "preferred_card_match_rate": {"$ref": "#/$defs/rate"},
+            "baseline_policy_preset": {"const": "simple_lowest"},
+            "opponent_lead_policy": {"const": "lowest_point"},
+            "opponent_response_policy": {"const": "lowest_point"}
+          }
+        }
+      ]
+    },
+    "outcome_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["both_match", "profile_only", "baseline_only", "neither_match"],
+      "properties": {
+        "both_match": {"$ref": "#/$defs/count"},
+        "profile_only": {"$ref": "#/$defs/count"},
+        "baseline_only": {"$ref": "#/$defs/count"},
+        "neither_match": {"$ref": "#/$defs/count"}
+      }
+    },
+    "paired_results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paired_decision_count",
+        "profile_exact_card_match_count",
+        "profile_exact_card_match_rate",
+        "baseline_exact_card_match_count",
+        "baseline_exact_card_match_rate",
+        "exact_card_rate_delta_percentage_points",
+        "profile_preferred_card_match_count",
+        "profile_preferred_card_match_rate",
+        "baseline_preferred_card_match_count",
+        "baseline_preferred_card_match_rate",
+        "preferred_card_rate_delta_percentage_points",
+        "exact_comparison_outcome_counts",
+        "preferred_comparison_outcome_counts"
+      ],
+      "properties": {
+        "paired_decision_count": {"$ref": "#/$defs/count"},
+        "profile_exact_card_match_count": {"$ref": "#/$defs/count"},
+        "profile_exact_card_match_rate": {"$ref": "#/$defs/rate"},
+        "baseline_exact_card_match_count": {"$ref": "#/$defs/count"},
+        "baseline_exact_card_match_rate": {"$ref": "#/$defs/rate"},
+        "exact_card_rate_delta_percentage_points": {"type": ["number", "null"], "minimum": -100, "maximum": 100},
+        "profile_preferred_card_match_count": {"$ref": "#/$defs/count"},
+        "profile_preferred_card_match_rate": {"$ref": "#/$defs/rate"},
+        "baseline_preferred_card_match_count": {"$ref": "#/$defs/count"},
+        "baseline_preferred_card_match_rate": {"$ref": "#/$defs/rate"},
+        "preferred_card_rate_delta_percentage_points": {"type": ["number", "null"], "minimum": -100, "maximum": 100},
+        "exact_comparison_outcome_counts": {"$ref": "#/$defs/outcome_counts"},
+        "preferred_comparison_outcome_counts": {"$ref": "#/$defs/outcome_counts"}
+      }
+    },
+    "breakdown_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage_count",
+        "actionable_paired_count",
+        "profile_preferred_card_match_count",
+        "profile_preferred_card_match_rate",
+        "paired_baseline_preferred_card_match_count",
+        "paired_baseline_preferred_card_match_rate",
+        "preferred_card_rate_delta_percentage_points"
+      ],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/non_padded_string"},
+        "acting_side": {"enum": ["declarer", "defenders"]},
+        "game_type": {"enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]},
+        "decision_phase": {"enum": ["lead", "response"]},
+        "actionable_profile_preset": {"enum": ["aggressive_points", "cautious_defender"]},
+        "overall_profile_confidence": {"enum": ["unknown", "low", "medium", "high"]},
+        "relevant_role_confidence": {"enum": ["unknown", "low", "medium", "high"]},
+        "coverage_count": {"type": "integer", "minimum": 1},
+        "actionable_paired_count": {"$ref": "#/$defs/count"},
+        "profile_preferred_card_match_count": {"$ref": "#/$defs/count"},
+        "profile_preferred_card_match_rate": {"$ref": "#/$defs/rate"},
+        "paired_baseline_preferred_card_match_count": {"$ref": "#/$defs/count"},
+        "paired_baseline_preferred_card_match_rate": {"$ref": "#/$defs/rate"},
+        "preferred_card_rate_delta_percentage_points": {"type": ["number", "null"], "minimum": -100, "maximum": 100}
+      },
+      "oneOf": [
+        {"required": ["player_id"]},
+        {"required": ["acting_side"]},
+        {"required": ["game_type"]},
+        {"required": ["decision_phase"]},
+        {"required": ["actionable_profile_preset"]},
+        {"required": ["overall_profile_confidence"]},
+        {"required": ["relevant_role_confidence"]}
+      ]
+    },
+    "breakdown_array": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/breakdown_row"}
+    },
+    "breakdowns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "by_player",
+        "by_acting_side",
+        "by_game_type",
+        "by_decision_phase",
+        "by_actionable_profile_preset",
+        "by_overall_profile_confidence",
+        "by_relevant_role_confidence"
+      ],
+      "properties": {
+        "by_player": {"$ref": "#/$defs/breakdown_array"},
+        "by_acting_side": {"$ref": "#/$defs/breakdown_array"},
+        "by_game_type": {"$ref": "#/$defs/breakdown_array"},
+        "by_decision_phase": {"$ref": "#/$defs/breakdown_array"},
+        "by_actionable_profile_preset": {"$ref": "#/$defs/breakdown_array"},
+        "by_overall_profile_confidence": {"$ref": "#/$defs/breakdown_array"},
+        "by_relevant_role_confidence": {"$ref": "#/$defs/breakdown_array"}
+      }
+    },
+    "profile_status": {
+      "enum": [
+        "actionable",
+        "no_prior_source_games",
+        "no_player_history",
+        "insufficient_confidence",
+        "neutral_profile",
+        "insufficient_data"
+      ]
+    },
+    "prediction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_preset",
+        "concrete_policy",
+        "decision_phase",
+        "predicted_card",
+        "preferred_cards",
+        "actual_card",
+        "exact_card_match",
+        "preferred_card_match"
+      ],
+      "properties": {
+        "policy_preset": {"enum": ["simple_lowest", "aggressive_points", "cautious_defender"]},
+        "concrete_policy": {"enum": ["lowest_point", "highest_point", "basic_defender_response", "basic_defender_lead"]},
+        "decision_phase": {"enum": ["lead", "response"]},
+        "predicted_card": {"$ref": "#/$defs/card"},
+        "preferred_cards": {"$ref": "#/$defs/card_array"},
+        "actual_card": {"$ref": "#/$defs/card"},
+        "exact_card_match": {"type": "boolean"},
+        "preferred_card_match": {"type": "boolean"}
+      }
+    },
+    "comparison_outcome": {
+      "enum": ["both_match", "profile_only", "baseline_only", "neither_match", "not_available"]
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_id",
+        "decision_index",
+        "trick_number",
+        "play_index",
+        "acting_player_id",
+        "acting_side",
+        "game_type",
+        "decision_phase",
+        "actual_card",
+        "legal_cards",
+        "profile_history_status",
+        "profile_prediction_status",
+        "profile_derivation_status",
+        "overall_profile_confidence",
+        "relevant_role_confidence",
+        "actionable_profile_preset",
+        "baseline_prediction",
+        "profile_prediction",
+        "profile_prediction_unavailable_reason",
+        "preferred_comparison_outcome",
+        "exact_comparison_outcome"
+      ],
+      "properties": {
+        "game_id": {"$ref": "#/$defs/non_padded_string"},
+        "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
+        "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
+        "play_index": {"type": "integer", "minimum": 1, "maximum": 3},
+        "acting_player_id": {"$ref": "#/$defs/non_padded_string"},
+        "acting_side": {"enum": ["declarer", "defenders"]},
+        "game_type": {"enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]},
+        "decision_phase": {"enum": ["lead", "response"]},
+        "actual_card": {"$ref": "#/$defs/card"},
+        "legal_cards": {"$ref": "#/$defs/card_array"},
+        "profile_history_status": {"enum": ["prior_player_history", "no_prior_source_games", "no_player_history"]},
+        "profile_prediction_status": {"$ref": "#/$defs/profile_status"},
+        "profile_derivation_status": {"type": ["string", "null"], "enum": ["actionable", "insufficient_confidence", "neutral", "insufficient_data", null]},
+        "overall_profile_confidence": {"type": ["string", "null"], "enum": ["unknown", "low", "medium", "high", null]},
+        "relevant_role_confidence": {"type": ["string", "null"], "enum": ["unknown", "low", "medium", "high", null]},
+        "actionable_profile_preset": {"type": ["string", "null"], "enum": ["aggressive_points", "cautious_defender", null]},
+        "baseline_prediction": {"$ref": "#/$defs/prediction"},
+        "profile_prediction": {"oneOf": [{"$ref": "#/$defs/prediction"}, {"type": "null"}]},
+        "profile_prediction_unavailable_reason": {"oneOf": [{"$ref": "#/$defs/profile_status"}, {"type": "null"}]},
+        "preferred_comparison_outcome": {"$ref": "#/$defs/comparison_outcome"},
+        "exact_comparison_outcome": {"$ref": "#/$defs/comparison_outcome"}
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "profile_prediction_status": {"const": "actionable"},
+            "profile_prediction": {"$ref": "#/$defs/prediction"},
+            "profile_prediction_unavailable_reason": {"type": "null"},
+            "preferred_comparison_outcome": {"enum": ["both_match", "profile_only", "baseline_only", "neither_match"]},
+            "exact_comparison_outcome": {"enum": ["both_match", "profile_only", "baseline_only", "neither_match"]}
+          }
+        },
+        {
+          "properties": {
+            "profile_prediction_status": {"const": "no_prior_source_games"},
+            "profile_prediction": {"type": "null"},
+            "profile_prediction_unavailable_reason": {"const": "no_prior_source_games"},
+            "preferred_comparison_outcome": {"const": "not_available"},
+            "exact_comparison_outcome": {"const": "not_available"}
+          }
+        },
+        {
+          "properties": {
+            "profile_prediction_status": {"const": "no_player_history"},
+            "profile_prediction": {"type": "null"},
+            "profile_prediction_unavailable_reason": {"const": "no_player_history"},
+            "preferred_comparison_outcome": {"const": "not_available"},
+            "exact_comparison_outcome": {"const": "not_available"}
+          }
+        },
+        {
+          "properties": {
+            "profile_prediction_status": {"const": "insufficient_confidence"},
+            "profile_prediction": {"type": "null"},
+            "profile_prediction_unavailable_reason": {"const": "insufficient_confidence"},
+            "preferred_comparison_outcome": {"const": "not_available"},
+            "exact_comparison_outcome": {"const": "not_available"}
+          }
+        },
+        {
+          "properties": {
+            "profile_prediction_status": {"const": "neutral_profile"},
+            "profile_prediction": {"type": "null"},
+            "profile_prediction_unavailable_reason": {"const": "neutral_profile"},
+            "preferred_comparison_outcome": {"const": "not_available"},
+            "exact_comparison_outcome": {"const": "not_available"}
+          }
+        },
+        {
+          "properties": {
+            "profile_prediction_status": {"const": "insufficient_data"},
+            "profile_prediction": {"type": "null"},
+            "profile_prediction_unavailable_reason": {"const": "insufficient_data"},
+            "preferred_comparison_outcome": {"const": "not_available"},
+            "exact_comparison_outcome": {"const": "not_available"}
+          }
+        }
+      ]
+    },
+    "player_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "player_id",
+        "player_label",
+        "history_status",
+        "profile_prediction_status",
+        "source_game_count",
+        "source_record_ids",
+        "source_game_ids",
+        "first_source_played_at",
+        "last_source_played_at",
+        "normalized_profile_statistics",
+        "exact_counts",
+        "profile_derivation"
+      ],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/non_padded_string"},
+        "player_label": {"oneOf": [{"$ref": "#/$defs/non_padded_string"}, {"type": "null"}]},
+        "history_status": {"enum": ["prior_player_history", "no_prior_source_games", "no_player_history"]},
+        "profile_prediction_status": {"$ref": "#/$defs/profile_status"},
+        "source_game_count": {"$ref": "#/$defs/count"},
+        "source_record_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/non_padded_string"}},
+        "source_game_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/non_padded_string"}},
+        "first_source_played_at": {"type": ["string", "null"], "format": "date-time"},
+        "last_source_played_at": {"type": ["string", "null"], "format": "date-time"},
+        "normalized_profile_statistics": {
+          "oneOf": [
+            {"$ref": "https://example.local/skat-ai/opponent_statistics_output.schema.json#/$defs/normalized_profile_statistics"},
+            {"type": "null"}
+          ]
+        },
+        "exact_counts": {
+          "oneOf": [
+            {"$ref": "https://example.local/skat-ai/opponent_statistics_output.schema.json#/$defs/exact_counts"},
+            {"type": "null"}
+          ]
+        },
+        "profile_derivation": {
+          "oneOf": [
+            {"$ref": "https://example.local/skat-ai/opponent_profile_derivation.schema.json"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_type", "hand_game", "ouvert", "schneider_announced", "schwarz_announced", "matadors", "bid_value"],
+      "properties": {
+        "game_type": {"enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]},
+        "hand_game": {"type": "boolean"},
+        "ouvert": {"type": "boolean"},
+        "schneider_announced": {"type": "boolean"},
+        "schwarz_announced": {"type": "boolean"},
+        "matadors": {"type": ["integer", "null"]},
+        "bid_value": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "target_game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_record_id",
+        "partition",
+        "game_id",
+        "played_at",
+        "contract",
+        "participant_ids",
+        "as_of_source_game_count",
+        "latest_eligible_source_played_at",
+        "player_as_of_profiles",
+        "decision_count",
+        "baseline_results",
+        "actionable_profile_paired_results",
+        "decisions"
+      ],
+      "properties": {
+        "target_record_id": {"$ref": "#/$defs/non_padded_string"},
+        "partition": {"$ref": "#/$defs/partition"},
+        "game_id": {"$ref": "#/$defs/non_padded_string"},
+        "played_at": {"type": "string", "format": "date-time"},
+        "contract": {"$ref": "#/$defs/contract"},
+        "participant_ids": {"type": "array", "minItems": 3, "maxItems": 3, "uniqueItems": true, "items": {"$ref": "#/$defs/non_padded_string"}},
+        "as_of_source_game_count": {"$ref": "#/$defs/count"},
+        "latest_eligible_source_played_at": {"type": ["string", "null"], "format": "date-time"},
+        "player_as_of_profiles": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/player_profile"}},
+        "decision_count": {"const": 30},
+        "baseline_results": {"$ref": "#/$defs/target_match_results"},
+        "actionable_profile_paired_results": {"$ref": "#/$defs/paired_results"},
+        "decisions": {"type": "array", "minItems": 30, "maxItems": 30, "items": {"$ref": "#/$defs/decision"}}
+      }
+    }
+  }
+}

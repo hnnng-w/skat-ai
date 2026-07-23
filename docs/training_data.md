@@ -186,3 +186,9 @@ aggregation branch. Its only additional options are repeatable
 meanings. Samples, seeds, review, simulation, comparison, policy, profile, and
 binding options are rejected. Without the aggregation flag, sample conversion is
 unchanged.
+
+With `--evaluate-opponent-policy-profiles`, the dataset instead feeds the
+separate rolling behavioral evaluation. Source partitions default to `train`;
+evaluation partitions default to `validation` and `test`; the roles must be
+disjoint. This mode emits no samples and leaves normal conversion unchanged.
+See [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).

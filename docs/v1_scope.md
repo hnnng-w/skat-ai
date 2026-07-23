@@ -123,6 +123,10 @@ reasons, and complete auction representation.
 Bounded historical player-statistics aggregation is supported from the same
 dataset container, but it does not make partitions player-disjoint and is not a
 training, quality-evaluation, or automatic policy-application gate.
+Rolling known-opponent policy imitation is also supported with disjoint
+partitions and strict as-of profiles. Its preferred-card match delta is not a
+strategic recommendation-quality, optimality, significance, or unseen-player
+generalization claim and does not close those broader gates.
 
 ## Release decision rule
 

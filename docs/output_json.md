@@ -172,6 +172,34 @@ application, or quality result. See
 [Historical opponent statistics](historical_opponent_statistics.md) and
 [`historical_opponent_statistics_aggregation.schema.json`](../schemas/historical_opponent_statistics_aggregation.schema.json).
 
+Rolling opponent-policy evaluation produces a dedicated branch:
+
+```json
+{
+  "input_file": "examples/historical_opponent_policy_evaluation_dataset.json",
+  "rolling_opponent_policy_evaluation_summary": {
+    "schema_version": 1,
+    "evaluation_version": 1,
+    "source_dataset": {},
+    "selection": {},
+    "coverage": {},
+    "baseline_results": {},
+    "actionable_profile_paired_results": {},
+    "breakdowns": {},
+    "target_games": []
+  }
+}
+```
+
+The baseline covers every target decision. Profile and paired-baseline metrics
+cover only actionable profile predictions. Preferred-card matching is primary;
+exact-card matching is the stricter tie-break-sensitive metric. Target games
+contain compact as-of player provenance and profiles plus 30 ordered decisions,
+without hidden hands, expected-value recommendations, settlement inputs, or
+decision-quality review. See
+[Rolling opponent-policy evaluation](opponent_policy_evaluation.md) and
+[`rolling_opponent_policy_evaluation.schema.json`](../schemas/rolling_opponent_policy_evaluation.schema.json).
+
 ## Position top-level fields
 
 Typical top-level fields include:

@@ -14,6 +14,7 @@ from skat_ai.opponent_policy import (
     get_non_trump_cards,
     get_opponent_policy_settings_for_player,
     get_partner_safe_legal_cards,
+    get_preferred_opponent_cards_by_policy,
     get_winning_legal_cards,
     validate_opponent_card_policy,
 )
@@ -645,3 +646,64 @@ def test_choose_basic_defender_lead_card_falls_back_to_lowest_point_when_only_tr
     )
 
     assert selected_card == "S9"
+
+
+def test_preferred_lowest_and_highest_cards_preserve_legal_hand_order() -> None:
+    hand = ["S8", "S7", "SA", "HA"]
+
+    assert get_preferred_opponent_cards_by_policy(
+        hand, [], "grand", 0, "lowest_point"
+    ) == ["S8", "S7"]
+    assert get_preferred_opponent_cards_by_policy(
+        hand, [], "grand", 0, "highest_point"
+    ) == ["SA", "HA"]
+
+
+def test_preferred_basic_trick_cards_cover_winning_ties_and_losing_fallback() -> None:
+    assert get_preferred_opponent_cards_by_policy(
+        ["S9", "S8", "SA"], ["S7"], "grand", 1, "basic_trick_play"
+    ) == ["S9", "S8"]
+    assert get_preferred_opponent_cards_by_policy(
+        ["S9", "S8", "HA"], ["SA"], "grand", 1, "basic_trick_play"
+    ) == ["S9", "S8"]
+
+
+def test_preferred_defender_response_preserves_cooperative_policy_ties() -> None:
+    preferred = get_preferred_opponent_cards_by_policy(
+        ["D10", "DK", "DQ"],
+        ["DA"],
+        "grand",
+        1,
+        "basic_defender_response",
+        partner_currently_winning=True,
+    )
+
+    assert preferred == ["D10"]
+    assert choose_basic_defender_response_card(
+        ["D10", "DK", "DQ"], ["DA"], "grand", 1, True
+    ) in preferred
+
+
+def test_preferred_defender_response_without_partner_reuses_tactical_choice() -> None:
+    preferred = get_preferred_opponent_cards_by_policy(
+        ["CJ", "D7", "H9"],
+        ["S7"],
+        "grand",
+        1,
+        "basic_defender_response",
+        partner_currently_winning=False,
+    )
+
+    assert preferred == ["D7", "H9"]
+    assert choose_basic_defender_response_card(
+        ["CJ", "D7", "H9"], ["S7"], "grand", 1, False
+    ) in preferred
+
+
+def test_preferred_cautious_lead_handles_non_trump_and_all_trump_hands() -> None:
+    assert get_preferred_opponent_cards_by_policy(
+        ["CJ", "S9", "D7", "H7"], [], "grand", 0, "basic_defender_lead"
+    ) == ["S9", "D7", "H7"]
+    assert get_preferred_opponent_cards_by_policy(
+        ["CJ", "SJ", "HJ"], [], "grand", 0, "basic_defender_lead"
+    ) == ["CJ", "SJ", "HJ"]

@@ -52,7 +52,7 @@ def choose_lowest_point_card(cards: list[str]) -> str:
     if not cards:
         raise ValueError("Cannot choose from an empty card list.")
 
-    return min(cards, key=get_card_points)
+    return _cards_with_extreme_points(cards, highest=False)[0]
 
 
 def choose_highest_point_card(cards: list[str]) -> str:
@@ -62,7 +62,14 @@ def choose_highest_point_card(cards: list[str]) -> str:
     if not cards:
         raise ValueError("Cannot choose from an empty card list.")
 
-    return max(cards, key=get_card_points)
+    return _cards_with_extreme_points(cards, highest=True)[0]
+
+
+def _cards_with_extreme_points(cards: list[str], *, highest: bool) -> list[str]:
+    if not cards:
+        raise ValueError("Cannot choose from an empty card list.")
+    point_value = (max if highest else min)(get_card_points(card) for card in cards)
+    return [card for card in cards if get_card_points(card) == point_value]
 
 
 def choose_random_card(
@@ -141,10 +148,21 @@ def choose_basic_trick_play_card(
         player_index=player_index,
     )
 
-    if winning_cards:
-        return choose_lowest_point_card(winning_cards)
+    return _get_basic_trick_play_preferred_cards(
+        legal_cards=legal_cards,
+        winning_cards=winning_cards,
+    )[0]
 
-    return choose_lowest_point_card(legal_cards)
+
+def _get_basic_trick_play_preferred_cards(
+    *,
+    legal_cards: list[str],
+    winning_cards: list[str],
+) -> list[str]:
+    return _cards_with_extreme_points(
+        winning_cards if winning_cards else legal_cards,
+        highest=False,
+    )
 
 
 def choose_basic_defender_response_card(
@@ -161,6 +179,41 @@ def choose_basic_defender_response_card(
         game_type=game_type,
     )
 
+    return _get_basic_defender_response_preferred_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+        player_index=player_index,
+        partner_currently_winning=partner_currently_winning,
+        legal_cards=legal_cards,
+    )[0]
+
+
+def _cards_with_weakest_trick_strength(
+    cards: list[str],
+    current_trick: list[str],
+    game_type: str,
+) -> list[str]:
+    lead_effective_suit = get_effective_suit(current_trick[0], game_type)
+    weakest_strength = min(
+        get_card_strength(card, game_type, lead_effective_suit) for card in cards
+    )
+    return [
+        card
+        for card in cards
+        if get_card_strength(card, game_type, lead_effective_suit) == weakest_strength
+    ]
+
+
+def _get_basic_defender_response_preferred_cards(
+    *,
+    hand: list[str],
+    current_trick: list[str],
+    game_type: str,
+    player_index: int,
+    partner_currently_winning: bool,
+    legal_cards: list[str],
+) -> list[str]:
     if partner_currently_winning:
         partner_safe_cards = get_partner_safe_legal_cards(
             hand=hand,
@@ -170,25 +223,16 @@ def choose_basic_defender_response_card(
         )
 
         if partner_safe_cards:
-            highest_point_value = max(get_card_points(card) for card in partner_safe_cards)
-            highest_point_safe_cards = [
-                card
-                for card in partner_safe_cards
-                if get_card_points(card) == highest_point_value
-            ]
-            lead_effective_suit = get_effective_suit(current_trick[0], game_type)
-            return min(
-                highest_point_safe_cards,
-                key=lambda card: get_card_strength(card, game_type, lead_effective_suit),
+            return _cards_with_weakest_trick_strength(
+                _cards_with_extreme_points(partner_safe_cards, highest=True),
+                current_trick,
+                game_type,
             )
 
-        lead_effective_suit = get_effective_suit(current_trick[0], game_type)
-        return min(
-            legal_cards,
-            key=lambda card: (
-                get_card_points(card),
-                get_card_strength(card, game_type, lead_effective_suit),
-            ),
+        return _cards_with_weakest_trick_strength(
+            _cards_with_extreme_points(legal_cards, highest=False),
+            current_trick,
+            game_type,
         )
 
     winning_cards = get_winning_legal_cards(
@@ -213,16 +257,12 @@ def choose_basic_defender_response_card(
             and all(is_trump(card, game_type) for card in winning_cards)
             and losing_cards
         ):
-            return choose_lowest_point_card(losing_cards)
+            return _cards_with_extreme_points(losing_cards, highest=False)
 
-        lowest_point_value = min(get_card_points(card) for card in winning_cards)
-        lowest_point_winning_cards = [
-            card for card in winning_cards if get_card_points(card) == lowest_point_value
-        ]
-        lead_effective_suit = get_effective_suit(current_trick[0], game_type)
-        return min(
-            lowest_point_winning_cards,
-            key=lambda card: get_card_strength(card, game_type, lead_effective_suit),
+        return _cards_with_weakest_trick_strength(
+            _cards_with_extreme_points(winning_cards, highest=False),
+            current_trick,
+            game_type,
         )
 
     losing_cards = get_losing_legal_cards(
@@ -233,13 +273,11 @@ def choose_basic_defender_response_card(
     )
 
     if losing_cards:
-        return choose_lowest_point_card(losing_cards)
+        return _cards_with_extreme_points(losing_cards, highest=False)
 
-    return choose_basic_trick_play_card(
-        hand=hand,
-        current_trick=current_trick,
-        game_type=game_type,
-        player_index=player_index,
+    return _get_basic_trick_play_preferred_cards(
+        legal_cards=legal_cards,
+        winning_cards=winning_cards,
     )
 
 
@@ -248,15 +286,72 @@ def choose_basic_defender_lead_card(
     game_type: str,
 ) -> str:
     """Chooses a basic defender lead card."""
-    non_trump_cards = get_non_trump_cards(
-        cards=hand,
-        game_type=game_type,
+    return _get_basic_defender_lead_preferred_cards(hand, game_type)[0]
+
+
+def _get_basic_defender_lead_preferred_cards(
+    hand: list[str],
+    game_type: str,
+) -> list[str]:
+    non_trump_cards = get_non_trump_cards(cards=hand, game_type=game_type)
+    return _cards_with_extreme_points(
+        non_trump_cards if non_trump_cards else hand,
+        highest=False,
     )
 
-    if non_trump_cards:
-        return choose_lowest_point_card(non_trump_cards)
 
-    return choose_lowest_point_card(hand)
+def get_preferred_opponent_cards_by_policy(
+    hand: list[str],
+    current_trick: list[str],
+    game_type: str,
+    player_index: int,
+    policy: str,
+    partner_currently_winning: bool = False,
+) -> list[str]:
+    """Returns equally preferred deterministic policy cards in legal-hand order."""
+    validate_opponent_card_policy(policy)
+    if policy == "random_legal":
+        raise ValueError("random_legal has no deterministic preferred-card set.")
+
+    legal_cards = get_legal_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+    )
+    if not legal_cards:
+        raise ValueError("Opponent has no legal cards.")
+
+    if not current_trick:
+        if policy == "highest_point":
+            return _cards_with_extreme_points(legal_cards, highest=True)
+        if policy == "basic_defender_lead":
+            return _get_basic_defender_lead_preferred_cards(legal_cards, game_type)
+        return _cards_with_extreme_points(legal_cards, highest=False)
+
+    if policy == "lowest_point":
+        return _cards_with_extreme_points(legal_cards, highest=False)
+    if policy == "highest_point":
+        return _cards_with_extreme_points(legal_cards, highest=True)
+
+    winning_cards = get_winning_legal_cards(
+        hand=hand,
+        current_trick=current_trick,
+        game_type=game_type,
+        player_index=player_index,
+    )
+    if policy == "basic_defender_response":
+        return _get_basic_defender_response_preferred_cards(
+            hand=hand,
+            current_trick=current_trick,
+            game_type=game_type,
+            player_index=player_index,
+            partner_currently_winning=partner_currently_winning,
+            legal_cards=legal_cards,
+        )
+    return _get_basic_trick_play_preferred_cards(
+        legal_cards=legal_cards,
+        winning_cards=winning_cards,
+    )
 
 
 def choose_opponent_lead_card_by_policy(

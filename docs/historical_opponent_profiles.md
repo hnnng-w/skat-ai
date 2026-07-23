@@ -120,8 +120,11 @@ Profiles remain explainable rule-based policy inputs, not learned models.
 Bounded statistics aggregation is a separate invocation and never derives a
 profile from the reviewed game automatically. Multiple captures per player,
 automatic newest-capture selection, profile history, weighting or merging,
-policy-effect evaluation, accuracy measurement, and machine-learning training
-are not implemented.
+recommendation-policy quality evaluation and machine-learning training are not
+implemented. The separate rolling behavioral evaluation derives profiles from
+earlier source-partition games and evaluates the acting player's own observed
+cards; it does not use this review path's relative opponent slots or apply a
+profile to recommendations.
 
 The focused schema is
 [`schemas/historical_opponent_profile_application.schema.json`](../schemas/historical_opponent_profile_application.schema.json).

@@ -93,6 +93,11 @@ impossible-Null settlement, and every other non-live workflow. Historical review
 has a separate automatic stable-participant matching path and does not weaken
 these live validation rules.
 
+Rolling opponent-policy evaluation is neither live binding nor policy
+application. It evaluates the acting historical player's own as-of profile and
+does not attach that profile to relative left or right slots. Live behavior and
+precedence remain unchanged.
+
 The preserved `captured_at` value is provenance only. For an aggregated record
 it is that player's latest included source-game instant. Live analysis has no
 analysis timestamp to compare with it. Historical application separately uses a

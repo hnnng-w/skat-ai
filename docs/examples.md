@@ -254,6 +254,7 @@ base seed 42; no additional public historical example is required.
 | File | Purpose |
 | ---- | ------- |
 | `training_dataset_normal_play.json` | Two versioned Grand records in train and validation, with timestamps, repeated players in changed seats, opposite settlement outcomes, and 60 information-safe actual-card samples. It is also the historical-statistics aggregation source. |
+| `historical_opponent_policy_evaluation_dataset.json` | One earlier train source and one later validation target with repeated stable players in changed seats for rolling behavioral evaluation. |
 
 This separate workflow runs historical validation and snapshot generation but
 does not run recommendations, review, or simulation. Its generated-output
@@ -288,8 +289,13 @@ side remapping, and aggregate application counts. A separate deterministic
 scenario aggregates both timestamped training-dataset games with canonical
 train/validation selection and a strict cutoff, checks exact counts and both
 defender wins for the settlement loss, and validates the reusable export.
-Generated-output validation therefore covers 31 scenarios. Profile policy-effect
-evaluation remains unsupported.
+The focused rolling example demonstrates strict temporal selection, stable
+identity, complete `simple_lowest` baseline evaluation, and low-confidence
+coverage without upgrading profiles. Its generated-output scenario has no
+actionable paired predictions; focused programmatic tests use 100 repeated
+source records for medium-confidence actionable coverage.
+Generated-output validation therefore covers 32 scenarios. The behavioral match
+comparison does not evaluate recommendation quality or strategic strength.
 
 The two aggregation games keep the same three case-sensitive players while
 changing seats. `player-b` declares both Grand games, loses the first by final

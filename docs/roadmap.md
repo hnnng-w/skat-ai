@@ -256,8 +256,8 @@ Implemented:
 ### v0.7.0: Rules confidence and information-safe historical workflows
 
 The current code and package version is `0.7.0`. Generated-output validation
-covers 31 deterministic scenarios. Issues #69 through #76 are complete, and
-Issues #80 through #82 add bounded reusable opponent-profile data workflows:
+covers 32 deterministic scenarios. Issues #69 through #76 are complete, and
+Issues #80 through #83 add bounded reusable opponent-profile data workflows:
 
 * #69 defined the v1.0 scope, requirements traceability, and project baseline.
 * #70 enforced canonical Suit/Grand declaration dependencies and matador bounds.
@@ -274,6 +274,9 @@ Issues #80 through #82 add bounded reusable opponent-profile data workflows:
 * #82 aggregates exact settlement-based statistics from selected timestamped
   historical dataset games and exports them for existing live and historical
   profile loaders without training, automatic application, or quality claims.
+* #83 evaluates acting-player card imitation with strict rolling source history,
+  the fixed `simple_lowest` baseline, preferred-card equivalence, and actionable
+  paired results without expected-value or strategic-quality claims.
 
 `v0.6.0` remains the latest human-published release until a maintainer tags and
 publishes `v0.7.0`.

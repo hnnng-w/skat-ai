@@ -35,6 +35,9 @@ OPPONENT_STATISTICS_INPUT_PATH = (
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_opponent_statistics.json"
 )
+ROLLING_EVALUATION_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_opponent_policy_evaluation_dataset.json"
+)
 UNSUPPORTED_PHASE_INPUT_PATH = (
     PROJECT_ROOT
     / "tests"
@@ -96,6 +99,9 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
         "--right-opponent-player-id",
         "--historical-decision-snapshots",
         "--historical-game-review",
+        "--evaluate-opponent-policy-profiles",
+        "--profile-source-partition",
+        "--profile-evaluation-partition",
     ]:
         assert option in completed_process.stdout
 
@@ -258,6 +264,113 @@ def test_cli_training_dataset_quiet_output_is_separate_branch(tmp_path) -> None:
     assert "position" not in result
     assert "historical_game_summary" not in result
     assert "recommendation" not in result
+
+
+def test_cli_rolling_opponent_policy_evaluation_prints_concise_summary() -> None:
+    completed_process = run_cli(
+        "--input",
+        ROLLING_EVALUATION_INPUT_PATH,
+        "--evaluate-opponent-policy-profiles",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Rolling opponent-policy evaluation: 1 target games, 30 decisions." in (
+        completed_process.stdout
+    )
+    assert "Prior player history: 30 of 30 decisions." in completed_process.stdout
+    assert "Actionable profile coverage: 0 of 30 decisions." in completed_process.stdout
+    assert "No actionable profile predictions were available" in completed_process.stdout
+    assert "Training dataset summary" not in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+
+
+def test_cli_rolling_opponent_policy_evaluation_writes_quiet_separate_branch(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "rolling-evaluation.json"
+    completed_process = run_cli(
+        "--input",
+        ROLLING_EVALUATION_INPUT_PATH,
+        "--evaluate-opponent-policy-profiles",
+        "--profile-source-partition",
+        "train",
+        "--profile-source-partition",
+        "train",
+        "--profile-evaluation-partition",
+        "validation",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    assert set(result) == {
+        "input_file",
+        "rolling_opponent_policy_evaluation_summary",
+    }
+    summary = result["rolling_opponent_policy_evaluation_summary"]
+    assert summary["selection"]["source_partitions"] == ["train"]
+    assert summary["selection"]["evaluation_partitions"] == ["validation"]
+    assert "training_dataset_summary" not in result
+    assert "recommendation" not in str(result)
+
+
+@pytest.mark.parametrize(
+    ("input_path", "extra_args", "error_match"),
+    [
+        (
+            ROLLING_EVALUATION_INPUT_PATH,
+            ("--profile-source-partition", "train"),
+            "require --evaluate-opponent-policy-profiles",
+        ),
+        (
+            VALID_INPUT_PATH,
+            ("--evaluate-opponent-policy-profiles",),
+            "supported only for training_dataset_input",
+        ),
+        (
+            ROLLING_EVALUATION_INPUT_PATH,
+            (
+                "--evaluate-opponent-policy-profiles",
+                "--profile-source-partition",
+                "train",
+                "--profile-evaluation-partition",
+                "train",
+            ),
+            "must be disjoint",
+        ),
+        (
+            ROLLING_EVALUATION_INPUT_PATH,
+            ("--evaluate-opponent-policy-profiles", "--samples", "5"),
+            "do not accept position-analysis",
+        ),
+        (
+            ROLLING_EVALUATION_INPUT_PATH,
+            ("--evaluate-opponent-policy-profiles", "--aggregate-opponent-statistics"),
+            "do not accept position-analysis",
+        ),
+        (
+            ROLLING_EVALUATION_INPUT_PATH,
+            ("--evaluate-opponent-policy-profiles", "--opponent-policy-preset", "random"),
+            "do not accept position-analysis",
+        ),
+    ],
+)
+def test_cli_rejects_invalid_rolling_evaluation_modes(
+    input_path: Path,
+    extra_args: tuple[str, ...],
+    error_match: str,
+) -> None:
+    completed_process = run_cli("--input", input_path, *extra_args)
+
+    assert completed_process.returncode == 2
+    assert error_match in completed_process.stderr
+    assert_no_success_output(completed_process)
 
 
 def test_cli_historical_opponent_statistics_prints_concise_summary() -> None:

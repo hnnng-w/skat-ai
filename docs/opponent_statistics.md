@@ -215,8 +215,12 @@ review. Historical matches require every matched `captured_at` instant to be
 strictly before the target game's `played_at`; only actionable presets enter the
 existing policy resolver. Aggregation itself does not apply a policy. The
 workflow does not persist or automatically select among multiple captures,
-weight or merge sources, predict behavior, evaluate policy effects, assess
-quality, or train a model. The deterministic classification is a bounded
+weight or merge sources, assess strategic quality, or train a model. A separate
+rolling evaluation can compare existing profile policies with a fixed baseline
+on observed known-player cards, but it does not change this conversion or apply
+profiles to recommendations. The deterministic classification is a bounded
 rule-based description, not a learned profile. See
 [Live opponent profiles](live_opponent_profiles.md) and
 [Historical opponent profiles](historical_opponent_profiles.md).
+Behavioral evaluation is documented in
+[Rolling opponent-policy evaluation](opponent_policy_evaluation.md).

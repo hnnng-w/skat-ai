@@ -98,6 +98,12 @@ from skat_ai.result_serialization import (
     build_serializable_multi_step_result,
     build_serializable_policy_comparison_result,
 )
+from skat_ai.rolling_opponent_policy_evaluation import (
+    DEFAULT_EVALUATION_PARTITIONS,
+    DEFAULT_SOURCE_PARTITIONS,
+    build_serializable_rolling_opponent_policy_evaluation,
+    evaluate_rolling_opponent_policy_predictions,
+)
 from skat_ai.rules import get_legal_cards
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 from skat_ai.training_dataset import build_training_dataset_summary
@@ -903,6 +909,40 @@ def print_training_dataset_result(result: dict[str, Any]) -> None:
         )
 
 
+def print_rolling_opponent_policy_evaluation_result(result: dict[str, Any]) -> None:
+    """Prints a concise behavioral policy-evaluation summary."""
+    summary = result["rolling_opponent_policy_evaluation_summary"]
+    coverage = summary["coverage"]
+    paired = summary["actionable_profile_paired_results"]
+    print(
+        "Rolling opponent-policy evaluation: "
+        f"{coverage['target_game_count']} target games, "
+        f"{coverage['target_decisions']} decisions."
+    )
+    print(
+        "Prior player history: "
+        f"{coverage['decisions_with_prior_player_history']} of "
+        f"{coverage['target_decisions']} decisions."
+    )
+    print(
+        "Actionable profile coverage: "
+        f"{coverage['decisions_with_actionable_profile']} of "
+        f"{coverage['target_decisions']} decisions."
+    )
+    if paired["paired_decision_count"] == 0:
+        print(
+            "No actionable profile predictions were available; baseline and coverage "
+            "results were still recorded."
+        )
+        return
+    print(
+        "Paired preferred-card match: profile "
+        f"{paired['profile_preferred_card_match_rate']:.2f}%, baseline "
+        f"{paired['baseline_preferred_card_match_rate']:.2f}%, delta "
+        f"{paired['preferred_card_rate_delta_percentage_points']:+.2f} pp."
+    )
+
+
 def print_opponent_statistics_result(result: dict[str, Any]) -> None:
     """Prints one concise summary per external opponent-statistics record."""
     summary = result["opponent_statistics_summary"]
@@ -1447,6 +1487,36 @@ def run_json_training_dataset_conversion(
         print("Output file written:", output_path)
 
 
+def run_json_rolling_opponent_policy_evaluation(
+    file_path: str,
+    source_partitions: tuple[str, ...] = DEFAULT_SOURCE_PARTITIONS,
+    evaluation_partitions: tuple[str, ...] = DEFAULT_EVALUATION_PARTITIONS,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Runs rolling profile-derived behavioral policy evaluation."""
+    dataset = load_training_dataset_from_json(file_path)
+    evaluation = evaluate_rolling_opponent_policy_predictions(
+        dataset,
+        source_partitions=source_partitions,
+        evaluation_partitions=evaluation_partitions,
+    )
+    result = {
+        "input_file": str(file_path),
+        "rolling_opponent_policy_evaluation_summary": (
+            build_serializable_rolling_opponent_policy_evaluation(evaluation)
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if quiet:
+        return
+    print_rolling_opponent_policy_evaluation_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
 def run_json_historical_opponent_statistics_aggregation(
     file_path: str,
     included_partitions: tuple[str, ...] | None = None,
@@ -1596,6 +1666,25 @@ def parse_arguments() -> argparse.Namespace:
         "--export-opponent-statistics",
         default=None,
         help="Write a standalone reusable opponent_statistics_input JSON file.",
+    )
+    parser.add_argument(
+        "--evaluate-opponent-policy-profiles",
+        action="store_true",
+        help="Evaluate rolling as-of profile policies against simple_lowest.",
+    )
+    parser.add_argument(
+        "--profile-source-partition",
+        action="append",
+        choices=("train", "validation", "test"),
+        default=None,
+        help="Select a profile-history source partition; may be repeated.",
+    )
+    parser.add_argument(
+        "--profile-evaluation-partition",
+        action="append",
+        choices=("train", "validation", "test"),
+        default=None,
+        help="Select a policy-evaluation target partition; may be repeated.",
     )
 
     parser.add_argument(
@@ -1776,6 +1865,42 @@ def validate_cli_arguments(
         raise CliUsageError("--multi-step must be a positive integer.")
 
     aggregate_statistics = getattr(args, "aggregate_opponent_statistics", False)
+    evaluate_profiles = getattr(args, "evaluate_opponent_policy_profiles", False)
+    evaluation_only_options = {
+        "--profile-source-partition": getattr(args, "profile_source_partition", None)
+        is not None,
+        "--profile-evaluation-partition": getattr(
+            args, "profile_evaluation_partition", None
+        )
+        is not None,
+    }
+    supplied_evaluation_options = [
+        option for option, supplied in evaluation_only_options.items() if supplied
+    ]
+    if supplied_evaluation_options and not evaluate_profiles:
+        raise CliUsageError(
+            "Opponent-policy profile evaluation partition options require "
+            "--evaluate-opponent-policy-profiles: "
+            f"{', '.join(supplied_evaluation_options)}."
+        )
+    if evaluate_profiles and workflow != "training_dataset":
+        raise CliUsageError(
+            "--evaluate-opponent-policy-profiles is supported only for "
+            "training_dataset_input."
+        )
+    source_partitions = tuple(
+        getattr(args, "profile_source_partition", None) or DEFAULT_SOURCE_PARTITIONS
+    )
+    evaluation_partitions = tuple(
+        getattr(args, "profile_evaluation_partition", None)
+        or DEFAULT_EVALUATION_PARTITIONS
+    )
+    overlap = sorted(set(source_partitions).intersection(evaluation_partitions))
+    if evaluate_profiles and overlap:
+        raise CliUsageError(
+            "Profile source and evaluation partitions must be disjoint; overlap: "
+            f"{overlap}."
+        )
     aggregation_only_options = {
         "--opponent-statistics-partition": getattr(
             args, "opponent_statistics_partition", None
@@ -2006,6 +2131,27 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--left-opponent-player-id": args.left_opponent_player_id is not None,
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
     }
+    evaluation_mode = getattr(args, "evaluate_opponent_policy_profiles", False)
+    if evaluation_mode:
+        incompatible_options.update(
+            {
+                "--aggregate-opponent-statistics": getattr(
+                    args, "aggregate_opponent_statistics", False
+                ),
+                "--opponent-statistics-partition": getattr(
+                    args, "opponent_statistics_partition", None
+                )
+                is not None,
+                "--opponent-statistics-before": getattr(
+                    args, "opponent_statistics_before", None
+                )
+                is not None,
+                "--export-opponent-statistics": getattr(
+                    args, "export_opponent_statistics", None
+                )
+                is not None,
+            }
+        )
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
     ]
@@ -2073,7 +2219,20 @@ def main() -> int:
             )
         elif workflow == "training_dataset":
             validate_training_dataset_cli_arguments(args)
-            if args.aggregate_opponent_statistics:
+            if args.evaluate_opponent_policy_profiles:
+                run_json_rolling_opponent_policy_evaluation(
+                    file_path=args.input,
+                    source_partitions=tuple(
+                        args.profile_source_partition or DEFAULT_SOURCE_PARTITIONS
+                    ),
+                    evaluation_partitions=tuple(
+                        args.profile_evaluation_partition
+                        or DEFAULT_EVALUATION_PARTITIONS
+                    ),
+                    output_path=args.output,
+                    quiet=args.quiet,
+                )
+            elif args.aggregate_opponent_statistics:
                 run_json_historical_opponent_statistics_aggregation(
                     file_path=args.input,
                     included_partitions=(

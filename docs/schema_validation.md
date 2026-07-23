@@ -139,8 +139,9 @@ The output schema checks the main output structure, including:
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
 * the separate versioned `historical_opponent_statistics_aggregation_summary` branch through its strict focused schema
+* the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 
-Generated-output validation covers 31 deterministic scenarios. Position
+Generated-output validation covers 32 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -162,7 +163,9 @@ validation, settlement, information-safe decision snapshots, one seeded
 one versioned external opponent-statistics conversion, and one seeded live
 external-profile binding with distinct left/right presets, plus one seeded
 time-safe historical external-profile review, and one exact historical
-opponent-statistics aggregation with strict selection and standalone export.
+opponent-statistics aggregation with strict selection and standalone export,
+and one rolling as-of opponent-policy evaluation with baseline-only low-
+confidence coverage.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -175,6 +178,8 @@ the public output schema. Complete historical review uses
 `schemas/opponent_statistics_output.schema.json`, which references
 `schemas/opponent_profile_derivation.schema.json`. Historical aggregation uses
 `schemas/historical_opponent_statistics_aggregation.schema.json`. The local
+rolling evaluation uses
+`schemas/rolling_opponent_policy_evaluation.schema.json`. The local
 validator registry also loads the live and historical profile-application
 schemas. Runtime validation and tests enforce identity lookup, strict instant
 ordering, source/policy precedence, temporal reconciliation,

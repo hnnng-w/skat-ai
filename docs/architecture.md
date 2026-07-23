@@ -53,6 +53,14 @@ reuses opponent-statistics normalization and profile derivation and can serializ
 a standalone `opponent_statistics_input`. It does not generate samples or run
 recommendation, review, policy application, quality evaluation, or training.
 
+The rolling opponent-policy evaluation flow selects disjoint source and target
+partitions, invokes the same strict historical aggregation at each target start,
+matches the acting player's own stable identity, and predicts each snapshot's
+actual card with the fixed `simple_lowest` baseline and any existing actionable
+profile preset. It evaluates deterministic preferred-card and exact-card
+matches without calling recommendation, expected-value simulation, historical
+decision-quality review, policy application, or model training.
+
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
 ## Main entry point
@@ -88,6 +96,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
 | `src/skat_ai/historical_opponent_statistics.py` | Canonical partition/time selection, exact historical aggregation, provenance, summary, and reusable export construction. |
 | `src/skat_ai/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
+| `src/skat_ai/rolling_opponent_policy_evaluation.py` | Strict rolling as-of profile construction, snapshot policy prediction, metrics, breakdowns, and reconciliation. |
 | `src/skat_ai/rfc3339.py` | Shared offset-aware RFC 3339 parsing for preserved timestamp text and instant comparison. |
 
 Validation is split between JSON Schema and Python validation:

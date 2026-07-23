@@ -117,6 +117,9 @@ External workflow details are documented in
 [Opponent statistics](opponent_statistics.md). The same normalized profile and
 derivation are reused for live bindings and time-safe historical participant
 matching; no second percentage or classification implementation exists.
+Rolling opponent-policy evaluation also reuses this exact derivation unchanged;
+it never upgrades low confidence and only its existing non-null actionable
+preset can produce a paired profile prediction.
 
 ## Compatibility and limits
 

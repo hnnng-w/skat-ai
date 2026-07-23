@@ -5,6 +5,12 @@ historical game through the existing immediate recommendation and post-game
 review logic. It does not introduce a separate historical recommendation
 algorithm.
 
+Rolling opponent-policy evaluation is a separate workflow. It predicts the
+acting player's observed card with their own game-start profile and the fixed
+baseline, and it does not call this expected-value recommendation or decision-
+quality review path. See
+[Rolling opponent-policy evaluation](opponent_policy_evaluation.md).
+
 ## CLI
 
 Use the historical-only flag with an optional sample count and base seed:

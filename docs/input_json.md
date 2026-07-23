@@ -132,6 +132,14 @@ versioned multi-game container. Every partition-selected game then requires
 JSON input branch and emits no training samples. See
 [Historical opponent statistics](historical_opponent_statistics.md).
 
+With `--evaluate-opponent-policy-profiles`, the same dataset branch supplies
+disjoint rolling profile-source and policy-evaluation partitions. Source
+defaults to `train`; evaluation defaults to `validation` and `test`. Every
+selected source and target game requires `played_at`, and only source instants
+strictly earlier than each target are eligible. Repeated stable players across
+partitions are expected. See
+[Rolling opponent-policy evaluation](opponent_policy_evaluation.md).
+
 An opponent-statistics file contains only its statistics branch:
 
 ```json

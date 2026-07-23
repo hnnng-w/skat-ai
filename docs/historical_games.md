@@ -14,6 +14,9 @@ statistics directly from one historical-game invocation, or list/tournament
 aggregation. A timestamped collection wrapped by the training-dataset workflow
 can separately produce bounded historical player statistics. Direct snapshot
 output remains a state-reconstruction record rather than a training record.
+The same timestamped dataset container can also evaluate rolling profile-policy
+behavior, but only in its separate sample-free mode; it does not turn one
+historical-game invocation into a recommendation or policy evaluation.
 
 ## Public input
 

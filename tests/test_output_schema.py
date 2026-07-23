@@ -27,6 +27,10 @@ from skat_ai.input_loader import (
 )
 from skat_ai.opponent_statistics import build_opponent_statistics_summary
 from skat_ai.post_game_review import build_unavailable_post_game_review_summary
+from skat_ai.rolling_opponent_policy_evaluation import (
+    build_serializable_rolling_opponent_policy_evaluation,
+    evaluate_rolling_opponent_policy_predictions,
+)
 from skat_ai.training_dataset import build_training_dataset_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -58,6 +62,9 @@ HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH = (
     / "schemas"
     / "historical_opponent_statistics_aggregation.schema.json"
 )
+ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "rolling_opponent_policy_evaluation.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -85,6 +92,8 @@ with HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH.open(
     "r", encoding="utf-8"
 ) as file:
     HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA = json.load(file)
+with ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -120,6 +129,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA),
+        ),
+        (
+            ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA["$id"],
+            Resource.from_contents(ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA),
         ),
     ]
 )
@@ -593,6 +606,20 @@ def build_valid_historical_opponent_statistics_output() -> dict[str, object]:
     }
 
 
+def build_valid_rolling_opponent_policy_evaluation_output() -> dict[str, object]:
+    input_path = (
+        PROJECT_ROOT / "examples" / "historical_opponent_policy_evaluation_dataset.json"
+    )
+    dataset = load_training_dataset_from_json(str(input_path))
+    evaluation = evaluate_rolling_opponent_policy_predictions(dataset)
+    return {
+        "input_file": str(input_path),
+        "rolling_opponent_policy_evaluation_summary": (
+            build_serializable_rolling_opponent_policy_evaluation(evaluation)
+        ),
+    }
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -650,6 +677,62 @@ def test_schema_accepts_opponent_statistics_output_branch() -> None:
 
 def test_schema_accepts_historical_opponent_statistics_output_branch() -> None:
     assert_schema_valid(build_valid_historical_opponent_statistics_output())
+
+
+def test_schema_accepts_rolling_opponent_policy_evaluation_output_branch() -> None:
+    assert_schema_valid(build_valid_rolling_opponent_policy_evaluation_output())
+
+
+def test_schema_accepts_actionable_rolling_prediction_shape() -> None:
+    data = build_valid_rolling_opponent_policy_evaluation_output()
+    decision = data["rolling_opponent_policy_evaluation_summary"]["target_games"][0][
+        "decisions"
+    ][0]
+    profile_prediction = copy.deepcopy(decision["baseline_prediction"])
+    profile_prediction.update(
+        {
+            "policy_preset": "aggressive_points",
+            "concrete_policy": "highest_point",
+        }
+    )
+    decision.update(
+        {
+            "profile_prediction_status": "actionable",
+            "profile_derivation_status": "actionable",
+            "actionable_profile_preset": "aggressive_points",
+            "profile_prediction": profile_prediction,
+            "profile_prediction_unavailable_reason": None,
+            "preferred_comparison_outcome": "both_match",
+            "exact_comparison_outcome": "both_match",
+        }
+    )
+
+    assert_schema_valid(data)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda summary: summary["selection"].__setitem__("temporal_rule", "inclusive"),
+        lambda summary: summary["coverage"].__setitem__(
+            "decisions_with_actionable_profile", -1
+        ),
+        lambda summary: summary["actionable_profile_paired_results"].__setitem__(
+            "profile_preferred_card_match_rate", "unavailable"
+        ),
+        lambda summary: summary["target_games"][0]["decisions"][0][
+            "baseline_prediction"
+        ].__setitem__("preferred_cards", []),
+        lambda summary: summary["target_games"][0]["baseline_results"].__setitem__(
+            "unexpected", True
+        ),
+    ],
+)
+def test_schema_rejects_invalid_rolling_evaluation_fields(mutation) -> None:
+    data = build_valid_rolling_opponent_policy_evaluation_output()
+    mutation(data["rolling_opponent_policy_evaluation_summary"])
+
+    assert_schema_invalid(data)
 
 
 def test_schema_accepts_live_opponent_profile_application_summary() -> None:

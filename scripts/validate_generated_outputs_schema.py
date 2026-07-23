@@ -44,6 +44,9 @@ OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
 HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_opponent_profile_application.schema.json"
 )
+ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "rolling_opponent_policy_evaluation.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -1187,6 +1190,54 @@ def check_historical_opponent_statistics(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_rolling_opponent_policy_evaluation(data: dict[str, Any]) -> list[str]:
+    """Checks rolling selection, baseline coverage, and low-confidence behavior."""
+    if set(data) != {"input_file", "rolling_opponent_policy_evaluation_summary"}:
+        return ["expected only the rolling opponent-policy evaluation branch"]
+    summary = data["rolling_opponent_policy_evaluation_summary"]
+    errors = []
+    if summary["selection"] != {
+        "source_partitions": ["train"],
+        "evaluation_partitions": ["validation", "test"],
+        "temporal_rule": "source_played_at_strictly_before_target_played_at",
+        "source_record_count": 1,
+        "target_record_count": 1,
+        "target_game_count": 1,
+        "target_decision_count": 30,
+    }:
+        errors.append("expected default disjoint partitions and strict rolling selection")
+    coverage = summary["coverage"]
+    if coverage["target_decisions"] != 30 or coverage[
+        "decisions_with_insufficient_confidence"
+    ] != 30:
+        errors.append("expected 30 low-confidence target decisions")
+    baseline = summary["baseline_results"]
+    if baseline["baseline_policy_preset"] != "simple_lowest" or baseline[
+        "decision_count"
+    ] != 30:
+        errors.append("expected immutable simple_lowest baseline on all decisions")
+    paired = summary["actionable_profile_paired_results"]
+    if paired["paired_decision_count"] != 0 or paired[
+        "profile_preferred_card_match_rate"
+    ] is not None:
+        errors.append("expected valid null paired rates without actionable profiles")
+    target = summary["target_games"][0]
+    if target["as_of_source_game_count"] != 1:
+        errors.append("expected exactly one strictly earlier source game")
+    if target["participant_ids"] != ["player-b", "player-c", "player-a"]:
+        errors.append("expected stable identities in changed target seats")
+    if len(target["decisions"]) != 30 or any(
+        decision["profile_prediction"] is not None
+        or decision["baseline_prediction"]["predicted_card"]
+        not in decision["baseline_prediction"]["preferred_cards"]
+        for decision in target["decisions"]
+    ):
+        errors.append("expected 30 baseline-only policy-equivalent predictions")
+    if "recommendation" in str(summary) or "expected_point" in str(summary):
+        errors.append("expected behavioral evaluation without recommendation or simulation")
+    return errors
+
+
 def check_opponent_statistics(data: dict[str, Any]) -> list[str]:
     """Checks deterministic external-statistics normalization and derivation."""
     errors = []
@@ -1614,6 +1665,19 @@ SCENARIOS = (
         export_opponent_statistics=True,
     ),
     Scenario(
+        name="rolling_opponent_policy_evaluation",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "historical_opponent_policy_evaluation_dataset.json"
+        ),
+        branch="rolling as-of profile-derived behavioral policy evaluation",
+        cli_args=("--evaluate-opponent-policy-profiles", "--quiet"),
+        check_output=check_rolling_opponent_policy_evaluation,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="opponent_statistics",
         input_path=PROJECT_ROOT / "examples" / "opponent_statistics.json",
         branch="versioned external statistics with explainable profile derivation",
@@ -1675,6 +1739,9 @@ def validate_generated_outputs() -> list[str]:
     historical_opponent_profile_application_schema = load_json_file(
         HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH
     )
+    rolling_opponent_policy_evaluation_schema = load_json_file(
+        ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1714,6 +1781,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_opponent_profile_application_schema["$id"],
                 Resource.from_contents(historical_opponent_profile_application_schema),
+            ),
+            (
+                rolling_opponent_policy_evaluation_schema["$id"],
+                Resource.from_contents(rolling_opponent_policy_evaluation_schema),
             ),
         ]
     )
