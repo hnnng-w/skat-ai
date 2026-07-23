@@ -86,6 +86,7 @@ def build_serializable_player_profile(
         "solo_games_played": profile.solo_games_played,
         "defender_games_played": profile.defender_games_played,
         "solo_rate": profile.solo_rate,
+        "defender_rate": profile.defender_rate,
         "solo_win_rate": profile.solo_win_rate,
         "hand_game_rate": profile.hand_game_rate,
         "suit_game_rate": profile.suit_game_rate,

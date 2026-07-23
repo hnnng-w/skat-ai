@@ -121,9 +121,14 @@ Records preserve player identity, optional labels, provenance, total games, and
 the original `0..100` percentage-point `statistics`. Separate
 `normalized_profile_statistics` values divide each percentage by `100`, copy
 `games_played`, and keep `solo_games_played` and `defender_games_played` as
-`null`. `validation_metadata.percentage_sum_tolerance_points` is always `2.0`.
-No confidence, policy, recommendation, simulation, or historical result is
-included. See [Opponent statistics](opponent_statistics.md) and
+`null`. This includes additive `defender_rate`. `profile_derivation` contains
+versioned scoped heuristic confidence, exact or estimated evidence provenance,
+all signals and reasons, classification, recommended and nullable actionable
+preset, decisive signals, and explanations.
+`validation_metadata.percentage_sum_tolerance_points` is always `2.0`. The
+derived preset is not applied; no recommendation, simulation, or historical
+result is included. See [Opponent statistics](opponent_statistics.md),
+[Opponent profile derivation](opponent_profile_derivation.md), and
 [`opponent_statistics_output.schema.json`](../schemas/opponent_statistics_output.schema.json).
 
 ## Position top-level fields

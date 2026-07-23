@@ -179,6 +179,32 @@ def test_low_confidence_aggressive_profile_has_no_actionable_preset() -> None:
     assert choose_actionable_profile_policy_preset(profile) is None
 
 
+def test_grand_signal_uses_declarer_confidence_in_legacy_helpers() -> None:
+    profile = PlayerProfile(
+        games_played=1000,
+        solo_rate=0.05,
+        grand_rate=0.30,
+    )
+
+    assert get_profile_data_confidence(profile) == "high"
+    assert is_aggressive_profile(profile) is True
+    assert choose_opponent_policy_preset_for_profile(profile) == "simple_lowest"
+    assert choose_actionable_profile_policy_preset(profile) is None
+
+
+def test_defender_signal_uses_defender_confidence_in_legacy_helpers() -> None:
+    profile = PlayerProfile(
+        games_played=1000,
+        defender_rate=0.05,
+        defender_win_rate=0.60,
+    )
+
+    assert get_profile_data_confidence(profile) == "high"
+    assert is_cautious_defender_profile(profile) is False
+    assert choose_opponent_policy_preset_for_profile(profile) == "simple_lowest"
+    assert choose_actionable_profile_policy_preset(profile) is None
+
+
 def test_low_confidence_cautious_profile_has_no_actionable_preset() -> None:
     profile = PlayerProfile(
         games_played=20,

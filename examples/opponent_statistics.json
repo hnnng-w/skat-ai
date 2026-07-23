@@ -11,13 +11,13 @@
           "source_player_id": "platform-user-456",
           "captured_at": "2026-07-23T12:00:00+02:00"
         },
-        "games_played": 127,
+        "games_played": 600,
         "statistics": {
           "solo_games_played_percent": 31,
           "solo_games_won_percent": 58,
-          "solo_hand_percent": 12,
-          "suit_games_percent": 61,
-          "grand_games_percent": 29,
+          "solo_hand_percent": 8,
+          "suit_games_percent": 75,
+          "grand_games_percent": 15,
           "null_games_percent": 10,
           "defender_games_played_percent": 69,
           "defender_games_won_percent": 64

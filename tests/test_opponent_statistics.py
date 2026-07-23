@@ -141,6 +141,7 @@ def test_normalizes_to_player_profile_semantics_without_inventing_counts() -> No
     assert profile.solo_games_played is None
     assert profile.defender_games_played is None
     assert profile.solo_rate == 0.31
+    assert profile.defender_rate == 0.69
     assert profile.solo_win_rate == 0.58
     assert profile.hand_game_rate == 0.12
     assert profile.suit_game_rate == 0.61
@@ -169,11 +170,28 @@ def test_summary_is_deterministic_preserves_order_values_identity_and_provenance
     assert output_record["statistics"] == second["statistics"]
     assert output_record["normalized_profile_statistics"]["solo_games_played"] is None
     assert output_record["normalized_profile_statistics"]["defender_games_played"] is None
+    assert output_record["normalized_profile_statistics"]["defender_rate"] == 0.69
     assert output_record["validation_metadata"] == {
         "percentage_sum_tolerance_points": PERCENTAGE_SUM_TOLERANCE_POINTS,
     }
-    assert "confidence" not in output_record
-    assert "policy" not in output_record
+    derivation = output_record["profile_derivation"]
+    assert derivation["profile_derivation_version"] == 1
+    assert derivation["confidence"]["declarer"] == {
+        "level": "low",
+        "evidence_count": pytest.approx(39.37),
+        "evidence_kind": "estimated_from_rate",
+    }
+    assert derivation["confidence"]["defender"] == {
+        "level": "low",
+        "evidence_count": pytest.approx(87.63),
+        "evidence_kind": "estimated_from_rate",
+    }
+    assert derivation["classification"] == "aggressive"
+    assert derivation["recommended_policy_preset"] == "aggressive_points"
+    assert derivation["actionable_policy_preset"] is None
+    assert derivation["derivation_status"] == "insufficient_confidence"
+    assert len(derivation["signals"]) == 4
+    assert derivation["explanations"]
 
 
 @pytest.mark.parametrize(

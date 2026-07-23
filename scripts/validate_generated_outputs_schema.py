@@ -27,6 +27,9 @@ TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
 OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
 )
+OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_profile_derivation.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -1064,7 +1067,7 @@ def check_training_dataset_normal_play(data: dict[str, Any]) -> list[str]:
 
 
 def check_opponent_statistics(data: dict[str, Any]) -> list[str]:
-    """Checks deterministic external-statistics normalization and provenance."""
+    """Checks deterministic external-statistics normalization and derivation."""
     errors = []
     if set(data) != {"input_file", "opponent_statistics_summary"}:
         errors.append("expected only the opponent-statistics top-level output branch")
@@ -1088,7 +1091,11 @@ def check_opponent_statistics(data: dict[str, Any]) -> list[str]:
     if first_record["statistics"]["solo_games_played_percent"] != 31:
         errors.append("expected unchanged percentage-point statistics")
     profile = first_record["normalized_profile_statistics"]
-    if profile["solo_rate"] != 0.31 or profile["defender_win_rate"] != 0.64:
+    if (
+        profile["solo_rate"] != 0.31
+        or profile["defender_rate"] != 0.69
+        or profile["defender_win_rate"] != 0.64
+    ):
         errors.append("expected normalized PlayerProfile rates")
     if profile["solo_games_played"] is not None:
         errors.append("expected no invented declarer game count")
@@ -1098,9 +1105,21 @@ def check_opponent_statistics(data: dict[str, Any]) -> list[str]:
         "percentage_sum_tolerance_points": 2.0
     }:
         errors.append("expected fixed percentage-sum tolerance metadata")
-    forbidden_keys = {"confidence", "policy", "recommendation", "simulation"}
+    derivation = first_record["profile_derivation"]
+    if derivation["profile_derivation_version"] != 1:
+        errors.append("expected profile derivation version 1")
+    if derivation["classification"] != "cautious_defender":
+        errors.append("expected a distinct actionable cautious-defender profile")
+    if derivation["actionable_policy_preset"] != "cautious_defender":
+        errors.append("expected an actionable cautious_defender preset")
+    second_derivation = summary["records"][1]["profile_derivation"]
+    if second_derivation["classification"] != "aggressive":
+        errors.append("expected a distinct actionable aggressive profile")
+    if second_derivation["actionable_policy_preset"] != "aggressive_points":
+        errors.append("expected an actionable aggressive_points preset")
+    forbidden_keys = {"recommendation", "simulation"}
     if forbidden_keys.intersection(first_record):
-        errors.append("expected no confidence, policy, recommendation, or simulation output")
+        errors.append("expected no recommendation or simulation output")
     return errors
 
 
@@ -1409,7 +1428,7 @@ SCENARIOS = (
     Scenario(
         name="opponent_statistics",
         input_path=PROJECT_ROOT / "examples" / "opponent_statistics.json",
-        branch="versioned external opponent statistics with normalized profile rates",
+        branch="versioned external statistics with explainable profile derivation",
         cli_args=("--quiet",),
         check_output=check_opponent_statistics,
         expect_quiet_stdout=True,
@@ -1436,6 +1455,9 @@ def validate_generated_outputs() -> list[str]:
     opponent_statistics_output_schema = load_json_file(
         OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH
     )
+    opponent_profile_derivation_schema = load_json_file(
+        OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1457,6 +1479,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 opponent_statistics_output_schema["$id"],
                 Resource.from_contents(opponent_statistics_output_schema),
+            ),
+            (
+                opponent_profile_derivation_schema["$id"],
+                Resource.from_contents(opponent_profile_derivation_schema),
             ),
         ]
     )

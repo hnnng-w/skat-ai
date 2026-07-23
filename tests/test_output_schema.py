@@ -37,6 +37,9 @@ TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
 OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
 )
+OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_profile_derivation.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -54,6 +57,8 @@ with TRAINING_DATASET_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     TRAINING_DATASET_OUTPUT_SCHEMA = json.load(file)
 with OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     OPPONENT_STATISTICS_OUTPUT_SCHEMA = json.load(file)
+with OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    OPPONENT_PROFILE_DERIVATION_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -73,6 +78,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             OPPONENT_STATISTICS_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(OPPONENT_STATISTICS_OUTPUT_SCHEMA),
+        ),
+        (
+            OPPONENT_PROFILE_DERIVATION_SCHEMA["$id"],
+            Resource.from_contents(OPPONENT_PROFILE_DERIVATION_SCHEMA),
         ),
     ]
 )
@@ -553,7 +562,12 @@ def test_schema_accepts_opponent_statistics_output_branch() -> None:
         lambda summary: summary["records"][0]["validation_metadata"].update(
             percentage_sum_tolerance_points=3.0
         ),
-        lambda summary: summary["records"][0].update(confidence="high"),
+        lambda summary: summary["records"][0]["profile_derivation"].update(
+            profile_derivation_version=2
+        ),
+        lambda summary: summary["records"][0]["profile_derivation"]["signals"][0].update(
+            reason_code="certain_prediction"
+        ),
     ],
 )
 def test_schema_rejects_malformed_opponent_statistics_output(mutation) -> None:

@@ -138,9 +138,11 @@ An opponent-statistics file contains only its statistics branch:
 Public statistics use percentage points from `0` through `100`; canonical
 normalized profile rates use `0..1`. Provenance and capture time are required,
 rounded role and contract sums use a fixed `2.0` percentage-point tolerance,
-and exact role-specific counts are not inferred. See
+and exact role-specific counts are not inferred. The output includes a
+deterministic explainable profile derivation with unrounded role-evidence
+estimates and scoped heuristic confidence. See
 [Opponent statistics](opponent_statistics.md) for all denominator and
-consistency definitions. This branch does not derive confidence or policies and
+consistency definitions. The derived preset is not applied, and this branch
 cannot be combined with existing manually supplied position profiles.
 
 ## Minimal position input
@@ -473,6 +475,7 @@ Input files may include optional left/right player profiles:
   "left_player_profile": {
     "games_played": 860,
     "solo_rate": 0.2,
+    "defender_rate": 0.8,
     "grand_rate": 0.13,
     "hand_game_rate": 0.03,
     "defender_win_rate": 0.56
@@ -480,6 +483,7 @@ Input files may include optional left/right player profiles:
   "right_player_profile": {
     "games_played": 720,
     "solo_rate": 0.42,
+    "defender_rate": 0.58,
     "grand_rate": 0.28,
     "hand_game_rate": 0.11,
     "defender_win_rate": 0.48
@@ -491,34 +495,51 @@ Supported profile fields:
 
 | Field                   | Validation                      | Current policy use                                      |
 | ----------------------- | ------------------------------- | ------------------------------------------------------- |
-| `games_played`          | Non-negative integer.           | Derives rough profile confidence.                       |
-| `solo_games_played`     | Non-negative integer.           | Informational only.                                     |
-| `defender_games_played` | Non-negative integer.           | Informational only.                                     |
+| `games_played`          | Non-negative integer.           | Exact overall evidence and rate-estimate denominator.   |
+| `solo_games_played`     | Non-negative integer.           | Preferred exact declarer evidence.                      |
+| `defender_games_played` | Non-negative integer.           | Preferred exact defender evidence.                      |
 | `solo_rate`             | Number between `0` and `1`.     | Aggressive-profile signal at `0.35` or higher.          |
+| `defender_rate`         | Number between `0` and `1`.     | Defender evidence estimate when exact count is absent.  |
 | `solo_win_rate`         | Number between `0` and `1`.     | Informational only.                                     |
 | `hand_game_rate`        | Number between `0` and `1`.     | Aggressive-profile signal at `0.10` or higher.          |
 | `suit_game_rate`        | Number between `0` and `1`.     | Informational only.                                     |
 | `grand_rate`            | Number between `0` and `1`.     | Aggressive-profile signal at `0.25` or higher.          |
 | `null_game_rate`        | Number between `0` and `1`.     | Informational only.                                     |
-| `defender_win_rate`     | Number between `0` and `1`.     | Cautious-defender signal at `0.52` or higher with enough confidence and no aggressive signal. |
+| `defender_win_rate`     | Number between `0` and `1`.     | Cautious-defender signal at `0.52` or higher with enough defender evidence. |
 
-Profile confidence is derived from `games_played` only:
+Profile derivation uses separate overall, declarer, and defender evidence.
+Exact role counts take precedence; otherwise role evidence is estimated from
+the matching rate, with `1 - solo_rate` as the final defender fallback. Decimal
+estimates remain estimates. Every scope uses these heuristic bands:
 
-| `games_played` value | Confidence |
-| -------------------- | ---------- |
+| Evidence count | Confidence |
+| -------------- | ---------- |
 | Missing              | `unknown`  |
 | `0` to `99`          | `low`      |
 | `100` to `499`       | `medium`   |
 | `500` or more        | `high`     |
 
-When `use_profile_presets` is enabled, profile-derived presets can affect opponent policy settings only when the derived profile confidence makes the preset actionable. Unknown confidence, low confidence, and neutral profiles that map to `simple_lowest` do not overwrite existing explicit or default policies. Medium- or high-confidence profiles that map to existing non-simple presets such as `aggressive_points` or `cautious_defender` can be applied. If cautious and aggressive actionable profile-derived presets conflict, the higher-confidence side wins. If both conflicting sides have equal confidence, `aggressive_points` remains the fallback over `cautious_defender` for backward-compatible behavior.
+These bands are not confidence intervals or probabilities. `solo_rate` uses
+overall confidence, Grand and Hand signals use declarer confidence, and defender
+win rate uses defender confidence. Within one profile, actionable aggressive
+signals take precedence over defender evidence. Low-confidence matches remain
+explanatory but are not actionable. See
+[Opponent profile derivation](opponent_profile_derivation.md).
+
+When `use_profile_presets` is enabled for manual position profiles, only an
+actionable non-simple preset can affect opponent policy settings. Neutral
+`simple_lowest` never overwrites existing explicit or default policies. The
+existing combined left/right helper retains its established conflict behavior,
+and explicit side-specific input and CLI overrides remain authoritative.
 
 When a player profile is supplied, it must be a JSON object. Explicit `null` is
 not accepted for `left_player_profile`, `right_player_profile`, or known profile
 fields such as `games_played`. Unknown extra profile fields remain accepted as
 metadata.
 
-Left and right actionable profile presets affect their respective effective left/right policies in immediate analysis and multi-step simulation. `simple_lowest` remains an informational profile recommendation, not an active profile-derived override. Explicit side-specific input and CLI overrides remain authoritative.
+Left and right actionable manual profile presets affect their respective
+effective policies in immediate analysis and multi-step simulation. External
+opponent-statistics derivations are not connected to this application path.
 
 ## Live vs post-game information rules
 

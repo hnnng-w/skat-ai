@@ -820,6 +820,7 @@ def print_opponent_statistics_result(result: dict[str, Any]) -> None:
     print("Records:", summary["record_count"])
     for record in summary["records"]:
         statistics = record["statistics"]
+        derivation = record["profile_derivation"]
         label = record.get("player_label")
         identity = (
             record["player_id"]
@@ -833,6 +834,18 @@ def print_opponent_statistics_result(result: dict[str, Any]) -> None:
             f"defender {statistics['defender_games_played_percent']:g}%; "
             f"defender wins {statistics['defender_games_won_percent']:g}%."
         )
+        confidence = derivation["confidence"]
+        actionable = derivation["actionable_policy_preset"] is not None
+        print(
+            "  Profile derivation: "
+            f"overall {confidence['overall']['level']}, "
+            f"declarer {confidence['declarer']['level']}, "
+            f"defender {confidence['defender']['level']}; "
+            f"classification {derivation['classification']}; "
+            f"recommended preset {derivation['recommended_policy_preset']}; "
+            f"actionable {'yes' if actionable else 'no'}."
+        )
+        print(f"  Explanation: {derivation['explanations'][-1]}")
 
 
 def print_multi_step_result(result: dict[str, Any]) -> None:

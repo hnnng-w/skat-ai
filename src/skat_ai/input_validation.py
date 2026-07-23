@@ -10,6 +10,7 @@ from skat_ai.impossible_null_settlement import (
 from skat_ai.information_policy import validate_information_policy_from_input
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
+from skat_ai.opponent_profile_derivation import validate_player_profile_evidence
 from skat_ai.performance_rating import (
     LIST_ENTRY_METADATA_FIELDS,
     build_list_game_contribution_from_analysis_result,
@@ -17,6 +18,7 @@ from skat_ai.performance_rating import (
     validate_list_standings_input,
     validate_performance_rating_system,
 )
+from skat_ai.player_profile import build_player_profile_from_dict
 from skat_ai.rules import GAME_TYPES, get_card_points, get_legal_cards
 from skat_ai.side_ownership import normalize_declarer_player
 from skat_ai.strategic_metadata import (
@@ -705,6 +707,7 @@ def validate_optional_player_profile(
     ]
     rate_fields = [
         "solo_rate",
+        "defender_rate",
         "solo_win_rate",
         "hand_game_rate",
         "suit_game_rate",
@@ -731,6 +734,11 @@ def validate_optional_player_profile(
                 or value > 1
             ):
                 raise ValueError(f"{field_name}.{key} must be a number between 0 and 1.")
+
+    try:
+        validate_player_profile_evidence(build_player_profile_from_dict(profile))
+    except ValueError as error:
+        raise ValueError(f"{field_name}: {error}") from error
 
 
 def validate_optional_analysis_metadata(data: dict[str, Any]) -> None:

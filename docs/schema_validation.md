@@ -135,7 +135,7 @@ The output schema checks the main output structure, including:
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
-* the separate versioned `opponent_statistics_summary` branch through its strict focused schema
+* the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
 
 Generated-output validation covers 28 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
@@ -166,8 +166,9 @@ snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses
 `schemas/historical_game_review.schema.json`. Training dataset output uses
 `schemas/training_dataset_output.schema.json`. Opponent statistics use
-`schemas/opponent_statistics_output.schema.json`. The local validator registry
-loads the focused schemas; runtime validation and tests enforce temporal,
+`schemas/opponent_statistics_output.schema.json`, which references
+`schemas/opponent_profile_derivation.schema.json`. The local validator registry
+loads both focused schemas; runtime validation and tests enforce temporal,
 reconciliation, recommendation-consistency, and information-leakage semantics
 that JSON Schema cannot express.
 
@@ -252,6 +253,9 @@ Examples:
   announced, or Schwarz announced on Null games
 * completed Null and Schwarz settlement reliability requirements
 * how profile-derived opponent policy presets are selected from validated profile fields
+* exact and estimated profile-evidence precedence and count/rate consistency
+* scoped heuristic confidence boundaries and signal actionability
+* aggressive-over-defender conflict precedence and output reconciliation
 * overbid settlement support for Null games
 * strategic live-vs-post-game information rules
 * whether matadors can be inferred from the currently known declarer-card context and conservative concrete-declarer completed-trick ownership facts
@@ -274,7 +278,7 @@ Examples:
 * inclusive `98..102` role and contract-distribution sums
 * zero-role dependent-percentage rules
 * deterministic percentage-point normalization and null role-specific counts
-* opponent-statistics output reconciliation and absence of confidence or policy derivation
+* opponent-statistics derivation reconciliation and absence of policy application, recommendations, or simulation
 
 These checks require cross-field or Skat-specific logic and are easier to test and maintain in Python.
 

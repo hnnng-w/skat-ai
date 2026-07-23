@@ -109,7 +109,7 @@ Convert the versioned training/evaluation dataset example:
 python main.py --input examples/training_dataset_normal_play.json
 ```
 
-Validate and normalize the external opponent-statistics example:
+Validate, normalize, and explain the external opponent-statistics example:
 
 ```powershell
 python main.py --input examples/opponent_statistics.json
@@ -257,14 +257,17 @@ stable sample IDs, legal labels, and identity-free features.
 
 | File | Purpose |
 | ---- | ------- |
-| `opponent_statistics.json` | Two ordered online-platform captures with distinct integer and decimal percentage-point statistics and required provenance. |
+| `opponent_statistics.json` | Two ordered online-platform captures with required provenance and distinct actionable cautious-defender and aggressive derivations. |
 
 This separate workflow validates the documented denominators and bounded source
 rounding, preserves source values, and emits normalized `0..1` profile rates.
 Its deterministic generated-output scenario verifies identity/order,
-provenance, source percentages, null role-specific counts, fixed `2.0` tolerance
-metadata, and the absence of confidence, policy, recommendation, or simulation
-output. Historical-game aggregation remains unsupported.
+provenance, source percentages, additive `defender_rate`, null exact role counts,
+unrounded role-evidence estimates, scoped confidence, signal explanations,
+distinct classifications and presets, and fixed `2.0` tolerance metadata. It
+also verifies that no recommendation or simulation output is produced. The
+scenario count remains 28. Historical-game aggregation and automatic preset
+application remain unsupported.
 
 ## Post-game review examples
 

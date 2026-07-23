@@ -450,6 +450,13 @@ def test_schema_rejects_null_known_player_profile_field() -> None:
     assert_schema_invalid(data)
 
 
+def test_schema_accepts_optional_defender_rate() -> None:
+    data = build_valid_input()
+    data["left_player_profile"] = {"defender_rate": 0.69}
+
+    assert_schema_valid(data)
+
+
 def test_schema_accepts_nested_game_declaration() -> None:
     data = build_valid_input()
     data["game_declaration"] = {

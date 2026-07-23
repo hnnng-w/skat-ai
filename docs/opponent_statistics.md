@@ -5,9 +5,9 @@ opponent statistics. It validates stable player identity, required source
 provenance, rounded percentages, and deterministic conversion to existing
 `PlayerProfile` rate semantics.
 
-This workflow only validates and normalizes supplied statistics. It does not
-derive confidence, select policy presets, predict behavior, or apply the values
-to live recommendations, historical review, or simulation.
+This workflow validates and normalizes supplied statistics, then derives a
+versioned explainable rule-based profile. It does not predict behavior or apply
+the derived preset to live recommendations, historical review, or simulation.
 
 ## Input workflow
 
@@ -101,6 +101,7 @@ Every percentage is divided by `100` and mapped as follows:
 | Source percentage | Normalized `PlayerProfile` field |
 | --- | --- |
 | `solo_games_played_percent` | `solo_rate` |
+| `defender_games_played_percent` | `defender_rate` |
 | `solo_games_won_percent` | `solo_win_rate` |
 | `solo_hand_percent` | `hand_game_rate` |
 | `suit_games_percent` | `suit_game_rate` |
@@ -110,8 +111,10 @@ Every percentage is divided by `100` and mapped as follows:
 
 `games_played` is copied exactly. `solo_games_played` and
 `defender_games_played` remain `null`: rounded percentages are not converted
-into allegedly exact role-specific counts. No declarer wins, defender wins, or
-contract counts are inferred.
+into allegedly exact role-specific counts. The derivation may expose decimal
+role-evidence estimates from `games_played` and the normalized rates. Those
+estimates remain distinguishable from exact counts and are not historical count
+claims. No declarer wins, defender wins, or contract counts are inferred.
 
 The structured output keeps the original percentage-point `statistics`
 separate from `normalized_profile_statistics`. Each record also contains:
@@ -123,6 +126,14 @@ separate from `normalized_profile_statistics`. Each record also contains:
   }
 }
 ```
+
+Each record also includes `profile_derivation` version `1`. It contains overall,
+declarer, and defender confidence with evidence count and kind; all supported
+signals and reason codes; classification; recommended and nullable actionable
+preset; status; decisive signal codes; and explanations. Confidence bands are
+heuristic evidence bands, not probabilities or confidence intervals. Every
+signal uses the confidence of its own denominator. See
+[Opponent profile derivation](opponent_profile_derivation.md).
 
 ## CLI and schemas
 
@@ -138,22 +149,27 @@ Write only structured successful output:
 python main.py --input examples/opponent_statistics.json --output outputs/opponent-statistics.json --quiet
 ```
 
-Normal output prints the record count and one percentage-based summary per
-player. Only `--input`, `--output`, and `--quiet` are accepted for this workflow.
+Normal output prints percentages, three scoped confidence levels,
+classification, recommended preset, actionability, and one explanation per
+player. Quiet output writes the full derivation without successful stdout. Only
+`--input`, `--output`, and `--quiet` are accepted for this workflow.
 
 The focused schemas are:
 
 * [`schemas/opponent_statistics.schema.json`](../schemas/opponent_statistics.schema.json)
 * [`schemas/opponent_statistics_output.schema.json`](../schemas/opponent_statistics_output.schema.json)
+* [`schemas/opponent_profile_derivation.schema.json`](../schemas/opponent_profile_derivation.schema.json)
 
 JSON Schema enforces structure, required fields, enums, and simple ranges.
 Runtime validation remains authoritative for duplicate identity, RFC 3339
 time-zone requirements, finite numbers, sum consistency, zero-role rules,
-deterministic normalization, and output reconciliation.
+evidence precedence and consistency, confidence boundaries, signal actionability,
+conflict precedence, deterministic normalization, and output reconciliation.
 
 ## Current limitations
 
 Historical-game-derived player-statistics aggregation remains unsupported. This
-workflow does not aggregate historical games, infer confidence, derive or apply
-policy presets, classify behavior, train a model, or consume statistics in live
-or historical recommendations.
+workflow does not aggregate historical games, apply policy presets, predict
+behavior, train a model, or consume statistics in live or historical
+recommendations. The deterministic classification is a bounded rule-based
+description of matched supplied statistics, not a learned profile.

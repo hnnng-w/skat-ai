@@ -76,6 +76,7 @@
         "solo_games_played",
         "defender_games_played",
         "solo_rate",
+        "defender_rate",
         "solo_win_rate",
         "hand_game_rate",
         "suit_game_rate",
@@ -88,6 +89,7 @@
         "solo_games_played": {"type": "null"},
         "defender_games_played": {"type": "null"},
         "solo_rate": {"$ref": "#/$defs/normalized_rate"},
+        "defender_rate": {"$ref": "#/$defs/normalized_rate"},
         "solo_win_rate": {"$ref": "#/$defs/normalized_rate"},
         "hand_game_rate": {"$ref": "#/$defs/normalized_rate"},
         "suit_game_rate": {"$ref": "#/$defs/normalized_rate"},
@@ -113,6 +115,7 @@
         "games_played",
         "statistics",
         "normalized_profile_statistics",
+        "profile_derivation",
         "validation_metadata"
       ],
       "properties": {
@@ -123,6 +126,9 @@
         "statistics": {"$ref": "#/$defs/statistics"},
         "normalized_profile_statistics": {
           "$ref": "#/$defs/normalized_profile_statistics"
+        },
+        "profile_derivation": {
+          "$ref": "https://example.local/skat-ai/opponent_profile_derivation.schema.json"
         },
         "validation_metadata": {"$ref": "#/$defs/validation_metadata"}
       }

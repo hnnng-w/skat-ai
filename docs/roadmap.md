@@ -89,7 +89,8 @@ Implemented:
 * Strategic metadata
 * Player profiles
 * Profile-based policy recommendations
-* Profile confidence derived from `games_played`
+* Versioned overall, declarer, and defender profile evidence and heuristic confidence
+* Explainable confidence-gated signals, classifications, and preset metadata
 * Live-vs-post-game information enforcement
 * `information_policy_summary` output
 * Rejection of post-game-only information in `live_decision`
@@ -102,6 +103,8 @@ Implemented:
 * Opponent policy presets
 * Optional profile-based policy presets
 * Profile-confidence conflict resolution for cautious/aggressive preset evidence
+* Deterministic aggressive-over-defender conflict precedence within one profile
+* External opponent-statistics derivation without automatic policy application
 * Separate left/right opponent policy settings
 * Left/right profile-derived presets applied to effective left/right multi-step policies
 * Left/right opponent policy input fields
@@ -230,10 +233,10 @@ Implemented:
 * There is no dedicated null-game defender-partnership strategy.
 * There is no stable declarer/partner identity when the local player itself is only known generically as `defender`.
 * Defender cooperation does not use perfect-information solving, search, machine learning, or hidden-card inference.
-* Player profiles influence recommendations and policy presets, but the model does not learn from historical player data.
-* Profile-based presets use rough heuristics and are not learned from data.
-* PlayerProfile confidence is currently used for profile-derived preset selection and conflict resolution, not deeper tactical simulation decisions.
-* Historical opponent statistics and learned-model work remain undecided product areas.
+* Opt-in manual player profiles can influence policy presets, but profiles are not learned from historical player data.
+* Profile derivation uses documented deterministic thresholds and heuristic evidence bands, not calibrated uncertainty.
+* External-statistics derivations are explanatory and are not automatically consumed by live analysis, historical review, or simulation.
+* Historical opponent-statistics aggregation and learned-model work remain undecided product areas.
 
 ### Information modeling
 

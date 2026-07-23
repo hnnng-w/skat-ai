@@ -13,6 +13,7 @@ class PlayerProfile:
     solo_games_played: int | None = None
     defender_games_played: int | None = None
     solo_rate: float | None = None
+    defender_rate: float | None = None
     solo_win_rate: float | None = None
     hand_game_rate: float | None = None
     suit_game_rate: float | None = None
@@ -41,6 +42,7 @@ def build_player_profile_from_dict(
         solo_games_played=data.get("solo_games_played"),
         defender_games_played=data.get("defender_games_played"),
         solo_rate=data.get("solo_rate"),
+        defender_rate=data.get("defender_rate"),
         solo_win_rate=data.get("solo_win_rate"),
         hand_game_rate=data.get("hand_game_rate"),
         suit_game_rate=data.get("suit_game_rate"),

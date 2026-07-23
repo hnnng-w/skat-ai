@@ -32,6 +32,7 @@ def test_build_analysis_metadata_from_input() -> None:
             "left_player_profile": {
                 "games_played": 1240,
                 "solo_rate": 0.31,
+                "defender_rate": 0.69,
             },
             "right_player_profile": {
                 "games_played": 520,
@@ -45,6 +46,7 @@ def test_build_analysis_metadata_from_input() -> None:
     assert metadata.strategic_metadata.game_end_reason == "normal_completion"
     assert metadata.left_player_profile.games_played == 1240
     assert metadata.left_player_profile.solo_rate == 0.31
+    assert metadata.left_player_profile.defender_rate == 0.69
     assert metadata.right_player_profile.games_played == 520
     assert metadata.right_player_profile.defender_win_rate == 0.49
 
@@ -59,6 +61,7 @@ def test_build_serializable_analysis_metadata() -> None:
         left_player_profile=PlayerProfile(
             games_played=1240,
             solo_rate=0.31,
+            defender_rate=0.69,
         ),
         right_player_profile=PlayerProfile(
             games_played=520,
@@ -75,7 +78,9 @@ def test_build_serializable_analysis_metadata() -> None:
     }
     assert result["left_player_profile"]["games_played"] == 1240
     assert result["left_player_profile"]["solo_rate"] == 0.31
+    assert result["left_player_profile"]["defender_rate"] == 0.69
     assert result["right_player_profile"]["games_played"] == 520
+    assert result["right_player_profile"]["defender_rate"] is None
     assert result["right_player_profile"]["defender_win_rate"] == 0.49
     assert result["recommended_opponent_policy_presets"] == {
         "left_player_recommended_preset": "simple_lowest",

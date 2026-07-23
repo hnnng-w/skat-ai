@@ -38,8 +38,10 @@ The opponent-statistics flow validates a versioned collection of external
 percentage-point records, stable player identity, and required capture
 provenance. It checks rounded source consistency and deterministically converts
 percentages to `PlayerProfile` rate semantics while preserving source values and
-leaving role-specific counts unknown. It does not call confidence, policy,
-recommendation, historical, or simulation code.
+leaving exact role-specific counts unknown. It calls the isolated profile
+derivation module to expose unrounded role-evidence estimates, scoped heuristic
+confidence, signals, classification, and preset metadata. It does not apply a
+policy or call recommendation, historical, or simulation code.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
@@ -74,6 +76,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
 | `src/skat_ai/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
+| `src/skat_ai/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
 
 Validation is split between JSON Schema and Python validation:
 
@@ -157,19 +160,28 @@ local player has already acted and only opponents remain stop with
 | `src/skat_ai/opponent_policy_preset.py`  | Named policy presets.                            |
 | `src/skat_ai/opponent_profile_policy.py` | Profile-based policy recommendation.             |
 | `src/skat_ai/player_profile.py`          | Player profile modeling.                         |
-| `src/skat_ai/opponent_statistics.py`     | External percentage-point statistics normalization without policy derivation. |
+| `src/skat_ai/opponent_statistics.py`     | External statistics normalization and derivation serialization without policy application. |
+| `src/skat_ai/opponent_profile_derivation.py` | Deterministic explainable profile derivation. |
 
 Opponent policy handling supports both global and separate left/right opponent policy settings.
 
-Profile-based policy presets use rough, rule-based `PlayerProfile` heuristics. Profile confidence is derived from `games_played` only: missing data is `unknown`, fewer than 100 games is `low`, fewer than 500 games is `medium`, and 500 or more games is `high`. Confidence gates whether a profile-derived preset is actionable: unknown confidence, low confidence, and neutral `simple_lowest` profile results preserve existing explicit or default policies. Medium- or high-confidence profiles that map to existing non-simple presets such as `aggressive_points` or `cautious_defender` can be applied. When cautious and aggressive actionable profile-derived presets conflict, the higher-confidence side wins; equal confidence preserves the existing `aggressive_points` over `cautious_defender` fallback.
+Profile derivation is deterministic and rule-based. Overall, declarer, and
+defender evidence use the same unknown/low/medium/high heuristic bands at the
+unavailable, `100`, and `500` boundaries, but every signal uses the confidence
+of its own denominator. Exact role counts take precedence over unrounded rate
+estimates. Actionable aggressive evidence precedes actionable defender evidence;
+`simple_lowest` is never an actionable profile override. The combined legacy
+left/right helper retains its established higher-overall-confidence and
+aggressive tie fallback after each side has produced an actionable result.
 
 When profile presets are enabled, actionable left and right player profiles can affect their respective effective left/right opponent response policies in immediate analysis and their effective left/right opponent policy settings in multi-step simulation. Explicit side-specific input and CLI overrides remain authoritative.
 
-Some profile fields are currently informational only: `solo_games_played`, `defender_games_played`, `solo_win_rate`, `suit_game_rate`, and `null_game_rate`.
+Some profile fields are currently behavioral-signal neutral even when they
+provide evidence: `solo_win_rate`, `suit_game_rate`, and `null_game_rate`.
 
-External opponent-statistics output is not fed into this policy flow. Its
-normalized rates are semantically compatible with `PlayerProfile`, but confidence
-and policy derivation from those records are outside the current workflow.
+External opponent-statistics output includes the derivation but is not fed into
+the policy-application flow. It does not change live, historical, or simulation
+settings.
 
 The current defender cooperation model is heuristic, explainable, and implemented for the fixed three-player table. It includes:
 
@@ -304,6 +316,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/training_dataset_output.schema.json` | Strict training dataset output, metadata, features, labels, and counts.     |
 | `schemas/opponent_statistics.schema.json` | Versioned external opponent-statistics input and provenance. |
 | `schemas/opponent_statistics_output.schema.json` | Strict preserved-source and normalized-profile output. |
+| `schemas/opponent_profile_derivation.schema.json` | Strict versioned confidence, signal, classification, preset, and explanation output. |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |
@@ -326,7 +339,7 @@ Important regression areas:
 * post-game review
 * historical snapshot adaptation, complete review, seeds, aggregation, and leakage control
 * training dataset identities, provenance, partitions, duplicate leakage, deterministic samples, and feature safety
-* opponent-statistics identity, provenance, percentages, consistency, normalization, and workflow isolation
+* opponent-statistics identity, provenance, percentages, normalization, explainable derivation, and workflow isolation
 * example files
 * CLI result structure
 * multi-step simulation

@@ -1012,6 +1012,7 @@ def test_validate_optional_player_profile_accepts_valid_profile() -> None:
         {
             "games_played": 1240,
             "solo_rate": 0.31,
+            "defender_rate": 0.69,
             "solo_win_rate": 0.66,
         },
         "left_player_profile",
@@ -1112,6 +1113,7 @@ def test_validate_optional_player_profile_rejects_invalid_rate() -> None:
     "field_name",
     [
         "solo_rate",
+        "defender_rate",
         "solo_win_rate",
         "hand_game_rate",
         "suit_game_rate",
@@ -1138,7 +1140,13 @@ def test_validate_optional_player_profile_accepts_zero_and_rate_boundaries() -> 
             "games_played": 0,
             "solo_games_played": 0,
             "defender_games_played": 0,
+        },
+        "left_player_profile",
+    )
+    validate_optional_player_profile(
+        {
             "solo_rate": 0,
+            "defender_rate": 1,
             "solo_win_rate": 1,
             "hand_game_rate": 0.0,
             "suit_game_rate": 1.0,
@@ -1148,6 +1156,29 @@ def test_validate_optional_player_profile_accepts_zero_and_rate_boundaries() -> 
         },
         "left_player_profile",
     )
+
+
+@pytest.mark.parametrize(
+    "profile",
+    [
+        {"games_played": 100, "solo_games_played": 101},
+        {
+            "games_played": 100,
+            "solo_games_played": 30,
+            "defender_games_played": 60,
+        },
+        {
+            "games_played": 1000,
+            "solo_games_played": 300,
+            "solo_rate": 0.4,
+        },
+    ],
+)
+def test_validate_optional_player_profile_rejects_inconsistent_evidence(
+    profile: dict[str, int | float],
+) -> None:
+    with pytest.raises(ValueError, match="left_player_profile"):
+        validate_optional_player_profile(profile, "left_player_profile")
 
 
 def test_validate_optional_analysis_metadata_accepts_valid_metadata() -> None:
@@ -1183,7 +1214,7 @@ def test_validate_optional_analysis_metadata_accepts_valid_left_and_right_profil
                 "games_played": 520,
                 "solo_games_played": 160,
                 "defender_games_played": 360,
-                "solo_rate": 0.28,
+                "solo_rate": 0.31,
                 "solo_win_rate": 0.59,
                 "hand_game_rate": 0.05,
                 "suit_game_rate": 0.51,

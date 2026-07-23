@@ -261,11 +261,17 @@ def test_cli_opponent_statistics_prints_percentage_summaries() -> None:
     assert completed_process.stderr == ""
     assert "Opponent statistics summary" in completed_process.stdout
     assert "Records: 2" in completed_process.stdout
-    assert "opponent-123 (Example Player): 127 games" in completed_process.stdout
+    assert "opponent-123 (Example Player): 600 games" in completed_process.stdout
     assert "declarer 31%" in completed_process.stdout
     assert "defender wins 64%" in completed_process.stdout
     assert "opponent-789 (Second Player): 842 games" in completed_process.stdout
     assert "declarer 42.5%" in completed_process.stdout
+    assert "overall high, declarer medium, defender medium" in completed_process.stdout
+    assert "classification cautious_defender" in completed_process.stdout
+    assert "recommended preset cautious_defender; actionable yes" in completed_process.stdout
+    assert "classification aggressive" in completed_process.stdout
+    assert "recommended preset aggressive_points; actionable yes" in completed_process.stdout
+    assert "Explanation:" in completed_process.stdout
     assert "Recommended card:" not in completed_process.stdout
 
 
@@ -289,8 +295,10 @@ def test_cli_opponent_statistics_quiet_output_is_separate_branch(tmp_path) -> No
     assert result["opponent_statistics_summary"]["record_count"] == 2
     assert "position" not in result
     assert "recommendation" not in result
-    assert "confidence" not in str(result)
-    assert "policy" not in str(result)
+    records = result["opponent_statistics_summary"]["records"]
+    assert records[0]["normalized_profile_statistics"]["defender_rate"] == 0.69
+    assert records[0]["profile_derivation"]["classification"] == "cautious_defender"
+    assert records[1]["profile_derivation"]["classification"] == "aggressive"
 
 
 def test_cli_historical_decision_snapshots_prints_count() -> None:

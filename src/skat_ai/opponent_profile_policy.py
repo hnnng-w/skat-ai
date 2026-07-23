@@ -2,6 +2,7 @@ from skat_ai.opponent_policy_preset import (
     apply_opponent_policy_preset,
     validate_opponent_policy_preset,
 )
+from skat_ai.opponent_profile_derivation import derive_opponent_profile
 from skat_ai.player_profile import PlayerProfile
 
 PROFILE_DATA_CONFIDENCE_RANKS = {
@@ -21,20 +22,9 @@ def get_profile_data_confidence(
     profile: PlayerProfile,
 ) -> str:
     """
-    Returns a rough confidence level for a player profile.
-
-    This is based on games_played only for now.
+    Returns the backward-compatible overall profile confidence level.
     """
-    if profile.games_played is None:
-        return "unknown"
-
-    if profile.games_played < 100:
-        return "low"
-
-    if profile.games_played < 500:
-        return "medium"
-
-    return "high"
+    return derive_opponent_profile(profile).confidence["overall"].level
 
 
 def is_aggressive_profile(
@@ -43,20 +33,15 @@ def is_aggressive_profile(
     """
     Returns whether a player profile looks aggressive.
 
-    Current rough indicators:
+    Version-1 indicators:
     - high solo rate
     - high grand rate
     - high hand-game rate
     """
-    return (
-        profile.solo_rate is not None
-        and profile.solo_rate >= 0.35
-    ) or (
-        profile.grand_rate is not None
-        and profile.grand_rate >= 0.25
-    ) or (
-        profile.hand_game_rate is not None
-        and profile.hand_game_rate >= 0.10
+    derivation = derive_opponent_profile(profile)
+    return any(
+        signal.code != "reliable_defender" and signal.value_threshold_matched
+        for signal in derivation.signals
     )
 
 
@@ -66,18 +51,15 @@ def is_cautious_defender_profile(
     """
     Returns whether a player profile looks like a reliable defender.
 
-    Current rough indicators:
-    - enough data confidence
+    Version-1 indicators:
+    - enough defender evidence confidence
     - good defender win rate
-    - not overly aggressive
+    - no actionable aggressive signal
     """
-    confidence = get_profile_data_confidence(profile)
-
+    derivation = derive_opponent_profile(profile)
     return (
-        confidence in ["medium", "high"]
-        and profile.defender_win_rate is not None
-        and profile.defender_win_rate >= 0.52
-        and not is_aggressive_profile(profile)
+        derivation.classification == "cautious_defender"
+        and derivation.actionable_policy_preset == "cautious_defender"
     )
 
 
@@ -85,20 +67,12 @@ def choose_opponent_policy_preset_for_profile(
     profile: PlayerProfile,
 ) -> str:
     """
-    Chooses a rough opponent policy preset for a player profile.
+    Chooses a backward-compatible opponent policy preset for a player profile.
 
-    The returned preset can be used as metadata even when it is not actionable.
+    Non-actionable derivation candidates retain the legacy simple_lowest return.
     """
-    confidence = get_profile_data_confidence(profile)
-
-    if confidence == "unknown" or confidence == "low":
-        preset = "simple_lowest"
-    elif is_aggressive_profile(profile):
-        preset = "aggressive_points"
-    elif is_cautious_defender_profile(profile):
-        preset = "cautious_defender"
-    else:
-        preset = "simple_lowest"
+    derivation = derive_opponent_profile(profile)
+    preset = derivation.actionable_policy_preset or "simple_lowest"
 
     validate_opponent_policy_preset(preset)
 

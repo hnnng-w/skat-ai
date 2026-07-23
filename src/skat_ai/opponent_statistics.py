@@ -4,6 +4,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Literal
 
+from skat_ai.opponent_profile_derivation import (
+    OpponentProfileDerivation,
+    derive_opponent_profile,
+)
 from skat_ai.player_profile import PlayerProfile
 
 OPPONENT_STATISTICS_SCHEMA_VERSION = 1
@@ -289,6 +293,7 @@ def build_player_profile_from_opponent_statistics(
         solo_games_played=None,
         defender_games_played=None,
         solo_rate=statistics.solo_games_played_percent / 100,
+        defender_rate=statistics.defender_games_played_percent / 100,
         solo_win_rate=statistics.solo_games_won_percent / 100,
         hand_game_rate=statistics.solo_hand_percent / 100,
         suit_game_rate=statistics.suit_games_percent / 100,
@@ -325,6 +330,7 @@ def _build_serializable_profile(profile: PlayerProfile) -> dict[str, int | float
         "solo_games_played": profile.solo_games_played,
         "defender_games_played": profile.defender_games_played,
         "solo_rate": profile.solo_rate,
+        "defender_rate": profile.defender_rate,
         "solo_win_rate": profile.solo_win_rate,
         "hand_game_rate": profile.hand_game_rate,
         "suit_game_rate": profile.suit_game_rate,
@@ -334,12 +340,50 @@ def _build_serializable_profile(profile: PlayerProfile) -> dict[str, int | float
     }
 
 
+def _build_serializable_derivation(
+    derivation: OpponentProfileDerivation,
+) -> dict[str, Any]:
+    return {
+        "profile_derivation_version": derivation.profile_derivation_version,
+        "confidence": {
+            scope: {
+                "level": result.level,
+                "evidence_count": result.evidence_count,
+                "evidence_kind": result.evidence_kind,
+            }
+            for scope, result in derivation.confidence.items()
+        },
+        "signals": [
+            {
+                "code": signal.code,
+                "source_field": signal.source_field,
+                "observed_value": signal.observed_value,
+                "comparison_operator": signal.comparison_operator,
+                "threshold": signal.threshold,
+                "confidence_scope": signal.confidence_scope,
+                "confidence_level": signal.confidence_level,
+                "value_threshold_matched": signal.value_threshold_matched,
+                "actionable": signal.actionable,
+                "reason_code": signal.reason_code,
+            }
+            for signal in derivation.signals
+        ],
+        "classification": derivation.classification,
+        "recommended_policy_preset": derivation.recommended_policy_preset,
+        "actionable_policy_preset": derivation.actionable_policy_preset,
+        "derivation_status": derivation.derivation_status,
+        "decisive_signal_codes": list(derivation.decisive_signal_codes),
+        "explanations": list(derivation.explanations),
+    }
+
+
 def build_opponent_statistics_summary(
     statistics_input: OpponentStatisticsInput,
 ) -> dict[str, Any]:
     """Builds deterministic canonical output while preserving input record order."""
     records = []
     for record in statistics_input.records:
+        profile = build_player_profile_from_opponent_statistics(record)
         serialized_record = {
             "player_id": record.player_id,
         }
@@ -350,8 +394,9 @@ def build_opponent_statistics_summary(
                 "source": _build_serializable_source(record.source),
                 "games_played": record.games_played,
                 "statistics": _build_serializable_statistics(record.statistics),
-                "normalized_profile_statistics": _build_serializable_profile(
-                    build_player_profile_from_opponent_statistics(record)
+                "normalized_profile_statistics": _build_serializable_profile(profile),
+                "profile_derivation": _build_serializable_derivation(
+                    derive_opponent_profile(profile)
                 ),
                 "validation_metadata": {
                     "percentage_sum_tolerance_points": PERCENTAGE_SUM_TOLERANCE_POINTS,

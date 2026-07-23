@@ -166,6 +166,10 @@ def test_opponent_statistics_example_preserves_two_ordered_players() -> None:
         "opponent-789",
     ]
     assert summary["records"][1]["statistics"]["solo_games_played_percent"] == 42.5
+    assert summary["records"][0]["profile_derivation"]["classification"] == (
+        "cautious_defender"
+    )
+    assert summary["records"][1]["profile_derivation"]["classification"] == "aggressive"
 
 
 def test_default_input_position_is_runtime_valid_local_action() -> None:

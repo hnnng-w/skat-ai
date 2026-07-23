@@ -637,6 +637,9 @@
         "solo_rate": {
           "$ref": "#/$defs/profile_rate"
         },
+        "defender_rate": {
+          "$ref": "#/$defs/profile_rate"
+        },
         "solo_win_rate": {
           "$ref": "#/$defs/profile_rate"
         },

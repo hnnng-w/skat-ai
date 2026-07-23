@@ -60,6 +60,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Deterministic information-safe samples using the legal historical actual card as the version-1 target
 * Versioned external opponent-statistics records with required provenance
 * Percentage-point validation and deterministic normalization to existing profile-rate semantics
+* Versioned explainable rule-based profile derivation with scoped heuristic confidence
 
 ### Information policy
 
@@ -243,8 +244,8 @@ python main.py --input examples/training_dataset_normal_play.json
 Training-dataset inputs form a third separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted.
 
-Validate and normalize externally supplied opponent statistics without deriving
-confidence or policies:
+Validate, normalize, and derive an explainable profile from externally supplied
+opponent statistics:
 
 ```powershell
 python main.py --input examples/opponent_statistics.json
@@ -253,6 +254,8 @@ python main.py --input examples/opponent_statistics.json
 Opponent-statistics inputs form a fourth separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted. Public values use percentage points;
 canonical profile rates use `0..1`. Exact role-specific counts are not inferred.
+Role evidence may instead be exposed as an unrounded estimate. The derived
+preset is explanatory output only and is not applied to analysis.
 
 CLI exit codes:
 
@@ -275,6 +278,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical game review](docs/historical_game_review.md)
 * [Training data](docs/training_data.md)
 * [Opponent statistics](docs/opponent_statistics.md)
+* [Opponent profile derivation](docs/opponent_profile_derivation.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Historical game review schema](schemas/historical_game_review.schema.json)
@@ -282,6 +286,7 @@ Detailed documentation is split into topic-specific files:
 * [Training dataset output schema](schemas/training_dataset_output.schema.json)
 * [Opponent statistics input schema](schemas/opponent_statistics.schema.json)
 * [Opponent statistics output schema](schemas/opponent_statistics_output.schema.json)
+* [Opponent profile derivation schema](schemas/opponent_profile_derivation.schema.json)
 * [Output JSON](docs/output_json.md)
 * [Output JSON schema](schemas/output.schema.json)
 * [Schema validation](docs/schema_validation.md)
