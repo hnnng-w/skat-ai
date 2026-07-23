@@ -18,6 +18,9 @@ The project focuses on:
 * game result and settlement summaries
 * automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
 * post-game review support
+* complete normal-play historical-game records
+* information-safe historical decision snapshots and complete-game review
+* versioned training and evaluation dataset records
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model, a full official
@@ -119,13 +122,15 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-`v0.6.0` is tagged and published and is the current stable baseline.
+The current code and release-preparation baseline is `v0.7.0`.
 
-The package version is `0.6.0`.
+The package version is `0.7.0`.
 
-Generated-output validation currently covers 22 deterministic scenarios.
+Generated-output validation currently covers 27 deterministic scenarios.
 
-The documented `v0.6.0` issue scope, issues #62 through #68, is complete.
+The documented `v0.7.0` issue scope, issues #69 through #76, is complete.
+`v0.6.0` remains the latest human-published release until `v0.7.0` is tagged
+and published by a maintainer.
 
 Major completed areas include:
 
@@ -150,6 +155,13 @@ Major completed areas include:
 * controlled left/right opponent policy effect coverage
 * bounded profile-confidence opponent policy behavior
 * settlement and overbid edge-case coverage audit
+* canonical Suit and Grand declaration dependencies and official matador bounds
+* SkWO 6.3.1 unresolved standings ties and external lot order
+* bounded impossible Null settlement
+* complete normal-play historical-game records
+* information-safe snapshots for all 30 historical decisions
+* bounded complete historical-game decision review
+* versioned provenance-aware training and evaluation dataset records
 * updated README, docs, roadmap, and project handoff
 
 ## Important design principles

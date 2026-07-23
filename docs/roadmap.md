@@ -40,17 +40,22 @@ Implemented:
 * Explicit and completed-trick point summaries
 * Game result summaries
 * Schneider/Schwarz status summaries
+* Versioned complete normal-play historical-game records
+* Full-deal, ownership, play-order, follow-rule, winner, point, and settlement replay validation
 
 ### Game declaration and settlement
 
 Implemented:
 
 * Game declaration metadata
+* Canonical Suit and Grand declaration dependencies
+* Official Suit `1..11` and Grand `1..4` matador bounds
 * Game value summaries for suit, grand, and null games
 * Automatic matador inference from known declarer-card context and safe concrete-declarer completed-trick ownership facts where possible
 * Final single-game settlement summary
 * Supported Suit/Grand overbid detection
 * Supported Suit/Grand overbid settlement loss handling
+* Bounded impossible Null settlement from an externally supplied Suit or Grand replacement
 
 ### Game-end handling
 
@@ -60,6 +65,7 @@ Implemented:
 * Declarer claims remaining tricks
 * Declarer concedes remaining tricks
 * Defenders concede remaining tricks
+* Immediate impossible Null declaration end handling
 * Remaining-point assignment for claim/concession scenarios
 * Adjusted game-result summaries
 
@@ -74,6 +80,7 @@ Implemented:
 * Explicit separation between settlement score and rating score
 * Single-rated-player list performance summaries from already aggregated totals, normalized contributions, and local analysis results
 * Explicit fixed three-player list standings output
+* SkWO 6.3.1 shared ranks for unresolved ties and optional external lot order
 
 ### Metadata and information control
 
@@ -144,6 +151,18 @@ Implemented:
   * `better_card_count`
 * Human-readable CLI output for post-game review summaries, including objective-aware Null review wording
 * Unavailable post-game review shape when Immediate Analysis is unavailable
+* Information-safe pre-play snapshots for all 30 decisions in a normal-play historical game
+* Bounded 30-decision historical review with deterministic seeds and reconciled player summaries
+
+### Training and evaluation data
+
+Implemented:
+
+* Versioned normal-play training and evaluation dataset records
+* Required source provenance and explicit `train`, `validation`, and `test` partitions
+* Deterministic 30-sample conversion from each historical game
+* Relative model-facing features and `actual_card_played` version-1 labels
+* Duplicate identity and cross-partition game/source leakage rejection
 
 ### Validation and documentation
 
@@ -151,11 +170,13 @@ Implemented:
 
 * Input JSON schema
 * Output JSON schema
+* Focused historical-game, decision-snapshot, historical-review, and training-dataset schemas
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, input schema validation, generated-output validation, and pytest
 * Topic-specific documentation split into `docs/`
 * Project handoff documentation
+* Authoritative requirements traceability and testable `v1.0.0` scope
 
 ### CLI and workflow usability
 
@@ -167,6 +188,8 @@ Implemented:
 * Generated-output validation for representative user-facing workflows, including late-game history-heavy live input
 * Policy-comparison-only CLI output handling
 * CLI sample-bound validation fixes
+* Complete historical-game validation, optional snapshot output, and optional historical review
+* Separate training-dataset conversion with strict rejection of unrelated analysis options
 
 ## Current known limitations
 
@@ -180,8 +203,14 @@ Implemented:
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * The engine does not yet model player agreement or disputes around claim/concession.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
-* Null-game overbid detection is supported, but settlement scoring remains conservative when no `required_game_value` is available.
+* Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
+* Complete historical-game records currently support normal completion only; claims, concessions, and other later end reasons are not represented there.
+* Claims and concessions remain simplified, and general settlement coverage is incomplete.
+* Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
+* General live position inputs do not provide complete field-level provenance.
+* Multi-Step does not preserve one coherent hidden-world assignment across every simulated path.
+* Training-dataset partitions are not player-disjoint.
 
 ### Performance rating
 
@@ -204,6 +233,7 @@ Implemented:
 * Player profiles influence recommendations and policy presets, but the model does not learn from historical player data.
 * Profile-based presets use rough heuristics and are not learned from data.
 * PlayerProfile confidence is currently used for profile-derived preset selection and conflict resolution, not deeper tactical simulation decisions.
+* Historical opponent statistics and learned-model work remain undecided product areas.
 
 ### Information modeling
 
@@ -212,13 +242,27 @@ Implemented:
 * Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
 * Live decision examples should not contain post-game-only information.
 
-## Current stable baseline
+## Release baselines
+
+### v0.7.0: Rules confidence and information-safe historical workflows
+
+The current code and package version is `0.7.0`. Generated-output validation
+covers 27 deterministic scenarios, and the complete check passes 2,302 pytest
+tests. Issues #69 through #76 are complete:
+
+* #69 defined the v1.0 scope, requirements traceability, and project baseline.
+* #70 enforced canonical Suit/Grand declaration dependencies and matador bounds.
+* #71 aligned fixed three-player standings ties with SkWO 6.3.1.
+* #72 added bounded settlement for impossible Null declarations.
+* #73 added complete normal-play historical-game records.
+* #74 added information-safe snapshots for all 30 historical decisions.
+* #75 added bounded complete historical-game decision review.
+* #76 added versioned historical training and evaluation dataset records.
+
+`v0.6.0` remains the latest human-published release until a maintainer tags and
+publishes `v0.7.0`.
 
 ### v0.6.0: From single-position analysis to credible list-aware review workflows
-
-`v0.6.0` is tagged and published and is the current stable baseline. The
-package version remains `0.6.0`, and generated-output validation covers 22
-deterministic scenarios.
 
 The documented `v0.6.0` issue scope is complete:
 
@@ -260,6 +304,6 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the published `v0.6.0` baseline, requirements explicitly
-required for `v1.0.0`, planned post-v1.0 work, and topics that still require a
-product decision.
+should distinguish the `v0.7.0` implementation baseline, the latest published
+release, requirements explicitly required for `v1.0.0`, planned post-v1.0 work,
+and topics that still require a product decision.

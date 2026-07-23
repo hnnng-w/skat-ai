@@ -48,7 +48,9 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Adjusted game-result summaries
 * Final single-game settlement summaries
 * Supported Suit/Grand overbid settlement
+* Bounded impossible Null settlement with an externally supplied Suit or Grand replacement
 * Partial fixed-three-player SkWO-style performance rating
+* SkWO 6.3.1 shared ranks for unresolved standings ties and optional external lot order
 * Versioned complete historical-game records for normal play
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
 * Derived historical trick winners, points, game value, overbid, and settlement
@@ -308,9 +310,11 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-`v0.6.0` is tagged and published, is the current stable baseline, and remains
-the package version. Current generated-output validation covers 27 deterministic
-scenarios, and the documented `v0.6.0` issue scope is complete.
+The current code and package baseline is `v0.7.0`, prepared around the theme
+"Rules confidence and information-safe historical workflows." Issues #69
+through #76 are complete. Generated-output validation covers 27 deterministic
+scenarios. `v0.6.0` remains the latest human-published release until a maintainer
+tags and publishes `v0.7.0`.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
 simulation, opponent-policy modeling, game-result summaries, game-value
@@ -320,9 +324,13 @@ performance features.
 
 Complete normal-play historical records, information-safe pre-play snapshots,
 bounded 30-decision immediate review, and versioned training/evaluation dataset
-wrapping are partially supported. Ouvert recommendation simulation, later
-historical end reasons, player-disjoint partitioning, complete-game coaching, and
-machine-learning model training remain future work.
+wrapping are partially supported. Remaining gaps include historical end reasons
+beyond normal completion, complete claim and concession handling, general
+settlement completeness, exposed-card-aware ouvert recommendation simulation,
+complete live-input provenance, coherent hidden-world continuity across all
+Multi-Step paths, and player-disjoint dataset partitioning. Historical opponent
+statistics and learned-model work remain undecided; the product supports fixed
+three-player tables only.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.7.0
+
+**Release theme: Rules confidence and information-safe historical workflows**
+
+### Rules and settlement
+
+* Canonicalize Suit and Grand declaration dependencies and reject explicit contradictions while preserving the independent Null variants.
+* Enforce official matador bounds of `1..11` for Suit and `1..4` for Grand.
+* Align fixed three-player standings ties with SkWO 6.3.1 by using shared ranks for unresolved ties and optional externally executed lot order.
+* Add bounded post-game settlement for impossible Null declarations while preserving the original Null contract and requiring an external Suit or Grand replacement selection.
+
+### Historical-game workflows
+
+* Add versioned complete normal-play historical-game records with full-deal, pickup or Hand, discard, ownership, play-order, follow-rule, winner, point, game-value, overbid, and settlement validation.
+* Add 30 chronological information-safe pre-play snapshots without future-play, hidden-hand, or final-result leakage.
+* Add bounded review of all 30 historical decisions through the existing immediate recommendation and post-game review logic, including deterministic seeds and reconciled game and player summaries.
+
+### Training and evaluation data
+
+* Add versioned training and evaluation dataset records with explicit provenance and `train`, `validation`, and `test` partitions.
+* Deterministically derive 30 identity-safe decision samples per normal-play historical game using `actual_card_played` as the version-1 target.
+* Reject duplicate record, game, and source identities and cross-partition game or source leakage.
+
+### Project scope and documentation
+
+* Establish the official November 2022 ISkO/SkWO publication as the normative rules source.
+* Add an authoritative requirements traceability matrix and testable `v1.0.0` scope and completion gates.
+* Synchronize release-state, roadmap, handoff, schema-validation, and user documentation for the `v0.7.0` baseline.
+
+### Validation
+
+* Validate 27 deterministic generated-output scenarios.
+* Pass 2,302 pytest tests together with Ruff, input/example schema validation, and generated-output schema validation.
+
 ## v0.6.0
 
 ### List-aware review workflows
