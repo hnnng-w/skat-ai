@@ -1020,6 +1020,21 @@ For matador inference, completed tricks contribute ownership facts only when `ca
 
 Basic structural schema acceptance does not require ten completed tricks. Ten reliable trick owners are required only for particular final-result features, such as completed Null contract derivation and Schwarz settlement reliability.
 
+## Historical game timestamps
+
+Version-1 `historical_game_input` optionally accepts `played_at`, the RFC 3339
+instant when the game began. It must contain an explicit UTC offset and is
+preserved exactly. It is required only when `--opponent-statistics-file` is used
+with `--historical-game-review`. Existing historical, snapshot, and training
+inputs remain valid without it when no external historical profile application
+is requested.
+
+Historical profile application automatically matches exact case-sensitive
+participant `player_id` values. It does not accept live-only left/right binding
+IDs. Every matched statistics `source.captured_at` instant must be strictly
+earlier than `played_at`; equality and later captures reject the invocation.
+See [Historical opponent profiles](historical_opponent_profiles.md).
+
 ## Validation rules
 
 Input validation rejects:

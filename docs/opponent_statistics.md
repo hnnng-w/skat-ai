@@ -161,6 +161,7 @@ The focused schemas are:
 * [`schemas/opponent_statistics_output.schema.json`](../schemas/opponent_statistics_output.schema.json)
 * [`schemas/opponent_profile_derivation.schema.json`](../schemas/opponent_profile_derivation.schema.json)
 * [`schemas/opponent_profile_application.schema.json`](../schemas/opponent_profile_application.schema.json)
+* [`schemas/historical_opponent_profile_application.schema.json`](../schemas/historical_opponent_profile_application.schema.json)
 
 JSON Schema enforces structure, required fields, enums, and simple ranges.
 Runtime validation remains authoritative for duplicate identity, RFC 3339
@@ -171,10 +172,12 @@ conflict precedence, deterministic normalization, and output reconciliation.
 ## Current limitations
 
 Historical-game-derived player-statistics aggregation remains unsupported. A
-validated file can be explicitly bound by exact stable ID to live left/right
-opponents with profile-preset opt-in; only actionable presets enter the existing
-policy resolver. The workflow does not apply profiles historically, compare
-capture time with analysis time, persist captures, predict behavior, or train a
-model. The deterministic classification is a bounded rule-based description of
-matched supplied statistics, not a learned profile. See
-[Live opponent profiles](live_opponent_profiles.md).
+validated file can be explicitly bound to live sides or automatically matched to
+historical participants for review. Historical matches require every matched
+`captured_at` instant to be strictly before the game's `played_at`; only
+actionable presets enter the existing policy resolver. The workflow does not
+persist or automatically select among multiple captures, predict behavior,
+evaluate policy effects, or train a model. The deterministic classification is
+a bounded rule-based description, not a learned profile. See
+[Live opponent profiles](live_opponent_profiles.md) and
+[Historical opponent profiles](historical_opponent_profiles.md).

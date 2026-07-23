@@ -1,6 +1,4 @@
-import re
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Literal
 
 from skat_ai.historical_decision_snapshot import (
@@ -13,6 +11,7 @@ from skat_ai.historical_game import (
     build_historical_game_summary,
     build_serializable_historical_record,
 )
+from skat_ai.rfc3339 import parse_rfc3339_datetime
 from skat_ai.training_feature_view import build_training_feature_view
 
 TRAINING_DATASET_SCHEMA_VERSION = 1
@@ -36,10 +35,6 @@ TrainingSourceType = Literal[
     "synthetic",
     "other",
 ]
-
-_RFC_3339_DATE_TIME = re.compile(
-    r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]|[+-]\d{2}:\d{2})$"
-)
 
 
 @dataclass(frozen=True)
@@ -107,22 +102,6 @@ def _require_version(value: Any, expected: int, field_name: str) -> int:
     return expected
 
 
-def _validate_rfc3339_date_time(value: str, field_name: str) -> None:
-    if not _RFC_3339_DATE_TIME.fullmatch(value):
-        raise ValueError(f"{field_name} must be a valid RFC 3339 date-time.")
-    try:
-        normalized_value = value.replace("t", "T").replace("z", "+00:00").replace(
-            "Z", "+00:00"
-        )
-        if normalized_value[17:19] == "60":
-            normalized_value = f"{normalized_value[:17]}59{normalized_value[19:]}"
-        datetime.fromisoformat(normalized_value)
-    except ValueError as error:
-        raise ValueError(
-            f"{field_name} must be a valid RFC 3339 date-time."
-        ) from error
-
-
 def _build_provenance(value: Any, record_name: str) -> TrainingProvenance:
     field_name = f"{record_name}.provenance"
     data = _require_object(value, field_name)
@@ -146,7 +125,7 @@ def _build_provenance(value: Any, record_name: str) -> TrainingProvenance:
     collected_at = data.get("collected_at")
     if collected_at is not None:
         collected_at = _require_identifier(collected_at, f"{field_name}.collected_at")
-        _validate_rfc3339_date_time(collected_at, f"{field_name}.collected_at")
+        parse_rfc3339_datetime(collected_at, f"{field_name}.collected_at")
     notes = data.get("notes")
     if notes is not None:
         notes = _require_identifier(notes, f"{field_name}.notes")
@@ -320,7 +299,7 @@ def _build_sample(
             f"Training sample '{record.record_id}:{snapshot.decision_index}' label "
             "card already appears in the current trick."
         )
-    return {
+    result = {
         "sample_id": f"{record.record_id}:{snapshot.decision_index}",
         "metadata": {
             "dataset_id": dataset.dataset_id,
@@ -342,6 +321,9 @@ def _build_sample(
             "card": actual_card,
         },
     }
+    if snapshot.source_played_at is not None:
+        result["metadata"]["source_played_at"] = snapshot.source_played_at
+    return result
 
 
 def build_training_dataset_summary(
@@ -387,6 +369,8 @@ def build_training_dataset_summary(
                 "samples": samples,
             }
         )
+        if record.historical_game.played_at is not None:
+            serialized_records[-1]["source_played_at"] = record.historical_game.played_at
         partition_counts[record.partition]["record_count"] += 1
         partition_counts[record.partition]["sample_count"] += len(samples)
 

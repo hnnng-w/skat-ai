@@ -59,6 +59,11 @@ is preserved. Each `historical_game` uses the existing version-1 historical
 structure and the existing validator and replay; the dataset workflow does not
 define a second game validator.
 
+If the historical game supplies `played_at`, canonical record output preserves
+it. Record and sample source provenance also exposes `source_played_at`. The
+timestamp remains metadata and is never a model-facing feature. Existing dataset
+records without a historical timestamp remain valid and behaviorally unchanged.
+
 Every provenance object requires `source_type` and `source_name`. Supported
 source types are `online_platform`, `manual_entry`, `imported_file`, `synthetic`,
 and `other`. Optional fields are `source_record_id`, RFC 3339 `collected_at`, and

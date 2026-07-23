@@ -22,6 +22,10 @@
     "game_id": {
       "$ref": "#/$defs/stable_identifier"
     },
+    "played_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "players": {
       "type": "array",
       "items": {

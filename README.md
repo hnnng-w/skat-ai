@@ -230,9 +230,16 @@ Review all 30 historical decisions with deterministic immediate analysis:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
-Historical-game inputs form a separate workflow. Position-analysis, policy,
-comparison, profile, and multi-step overrides are rejected for them. `--samples`
-and `--seed` are accepted only with `--historical-game-review`.
+Apply exact stable-ID external profiles captured strictly before the game:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --opponent-statistics-file examples/historical_opponent_statistics.json --use-profile-presets --samples 20 --seed 42
+```
+
+Historical-game inputs form a separate workflow. External profile application
+requires `played_at`, historical review, profile-preset opt-in, at least one exact
+participant match, and captures strictly older than the game. Live-only relative
+binding IDs are rejected. `--samples` and `--seed` are accepted only with review.
 
 Convert a versioned normal-play training/evaluation dataset without running
 recommendations or simulation:
@@ -266,8 +273,9 @@ python main.py --input examples/grand_second_position.json --opponent-statistics
 
 Either side may be bound. Only confidence-gated actionable presets affect the
 existing side-specific live policy path. Manual side profiles and existing
-explicit policy settings retain precedence. Historical application is not
-supported. See [Live opponent profiles](docs/live_opponent_profiles.md).
+explicit policy settings retain precedence. See
+[Live opponent profiles](docs/live_opponent_profiles.md) and
+[Historical opponent profiles](docs/historical_opponent_profiles.md).
 
 CLI exit codes:
 
@@ -288,6 +296,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical games](docs/historical_games.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
+* [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
 * [Opponent statistics](docs/opponent_statistics.md)
 * [Opponent profile derivation](docs/opponent_profile_derivation.md)
@@ -295,6 +304,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Historical game review schema](schemas/historical_game_review.schema.json)
+* [Historical opponent profile application schema](schemas/historical_opponent_profile_application.schema.json)
 * [Training dataset input schema](schemas/training_dataset.schema.json)
 * [Training dataset output schema](schemas/training_dataset_output.schema.json)
 * [Opponent statistics input schema](schemas/opponent_statistics.schema.json)
@@ -347,7 +357,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.7.0`, prepared around the theme
 "Rules confidence and information-safe historical workflows." Issues #69
-through #76 are complete. Generated-output validation covers 29 deterministic
+through #76 are complete. Generated-output validation covers 30 deterministic
 scenarios. `v0.6.0` remains the latest human-published release until a maintainer
 tags and publishes `v0.7.0`.
 

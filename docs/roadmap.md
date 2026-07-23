@@ -106,6 +106,7 @@ Implemented:
 * Deterministic aggressive-over-defender conflict precedence within one profile
 * External opponent-statistics derivation and explicit stable-ID live application
 * Independent left/right external bindings with actionable-only gating and manual/policy precedence
+* Strict pre-game external-profile application to historical review through exact participant IDs and per-decision relative remapping
 * Separate left/right opponent policy settings
 * Left/right profile-derived presets applied to effective left/right multi-step policies
 * Left/right opponent policy input fields
@@ -236,7 +237,7 @@ Implemented:
 * Defender cooperation does not use perfect-information solving, search, machine learning, or hidden-card inference.
 * Opt-in manual player profiles can influence policy presets, but profiles are not learned from historical player data.
 * Profile derivation uses documented deterministic thresholds and heuristic evidence bands, not calibrated uncertainty.
-* External-statistics derivations require explicit stable-ID live bindings and profile-preset opt-in; they are not applied to historical review.
+* External-statistics derivations require profile-preset opt-in plus either explicit live side bindings or exact time-safe historical participant matching.
 * Historical opponent-statistics aggregation and learned-model work remain undecided product areas.
 
 ### Information modeling
@@ -251,8 +252,8 @@ Implemented:
 ### v0.7.0: Rules confidence and information-safe historical workflows
 
 The current code and package version is `0.7.0`. Generated-output validation
-covers 29 deterministic scenarios. Issues #69 through #76 are complete, and
-Issue #80 adds bounded live external-profile application:
+covers 30 deterministic scenarios. Issues #69 through #76 are complete, and
+Issues #80 and #81 add bounded external-profile application:
 
 * #69 defined the v1.0 scope, requirements traceability, and project baseline.
 * #70 enforced canonical Suit/Grand declaration dependencies and matador bounds.
@@ -264,6 +265,8 @@ Issue #80 adds bounded live external-profile application:
 * #76 added versioned historical training and evaluation dataset records.
 * #80 attached reusable external statistics to live analysis through exact,
   independent left/right player bindings and existing actionable profile presets.
+* #81 applies captures strictly older than `played_at` to historical review by
+  exact participant ID while preserving per-decision side mapping and precedence.
 
 `v0.6.0` remains the latest human-published release until a maintainer tags and
 publishes `v0.7.0`.

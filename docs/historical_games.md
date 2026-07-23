@@ -22,6 +22,7 @@ The top-level input contains only `historical_game_input`:
   "historical_game_input": {
     "schema_version": 1,
     "game_id": "game-001",
+    "played_at": "2026-07-24T18:30:00+02:00",
     "players": [],
     "skat": [],
     "declarer_player_id": "player-a",
@@ -36,6 +37,11 @@ The top-level input contains only `historical_game_input`:
 `schema_version` currently accepts only `1`. Game IDs, player IDs, and optional
 player labels are opaque, case-sensitive, non-empty strings. They are preserved
 without trimming or normalization. Leading or trailing whitespace is invalid.
+
+`played_at` is optional and means the instant when the game began. When present,
+it must be RFC 3339 with an explicit offset and is preserved without rewriting.
+It becomes required only when external profiles are applied to historical
+review; existing timestamp-free version-1 games remain valid otherwise.
 
 Exactly three players are required, with unique IDs and exactly one each of
 `forehand`, `middlehand`, and `rearhand`. Every player supplies ten unique cards;
@@ -104,6 +110,7 @@ Historical input produces only `input_file` and `historical_game_summary`. The
 summary contains:
 
 * the canonical versioned `record`, including normalized declaration metadata
+* optional preserved game-start `played_at`
 * ten `derived_tricks` with winner player, winner side, and trick points
 * declarer and defender trick points
 * applicable skat points
@@ -161,10 +168,18 @@ Review every historical decision:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
+Apply pre-game external profiles by stable participant ID:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --opponent-statistics-file examples/historical_opponent_statistics.json --use-profile-presets --samples 20 --seed 42
+```
+
 Historical games accept `--input`, `--output`, `--quiet`, and the optional
 snapshot and review flags. `--samples` and `--seed` are accepted only with
-historical review. Recommendation-policy, opponent-policy, profile, comparison,
-and multi-step options are rejected instead of being ignored.
+historical review. External statistics, profile-preset opt-in, and existing
+global or side policy precedence are accepted only for profile-enabled review.
+Live left/right binding IDs, comparison, and multi-step options are rejected.
+See [Historical opponent profiles](historical_opponent_profiles.md).
 
 ## Remaining scope
 
@@ -175,7 +190,7 @@ Later work is still required for:
 * impossible Null historical play records
 * rule-violation adjudication
 * exposed-card-aware ouvert simulation and complete-game coaching
-* historical player statistics and learned models
+* historical player-statistics aggregation and learned models
 * list, series, and tournament aggregation from historical records
 
 Four-player tables remain out of scope.

@@ -2,6 +2,7 @@
   "historical_game_input": {
     "schema_version": 1,
     "game_id": "historical-grand-001",
+    "played_at": "2026-07-24T18:30:00+02:00",
     "players": [
       {
         "player_id": "player-a",

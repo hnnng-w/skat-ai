@@ -25,6 +25,10 @@ from skat_ai.historical_decision_snapshot import (
 )
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.historical_game_review import build_historical_game_review_summary
+from skat_ai.historical_opponent_profile_binding import (
+    HistoricalOpponentProfileBindings,
+    resolve_historical_opponent_profile_bindings,
+)
 from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_summary,
     build_serializable_impossible_null_settlement_summary,
@@ -829,6 +833,30 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         print("Decision snapshots generated:", decision_snapshot_summary["snapshot_count"])
     review_summary = summary.get("historical_game_review_summary")
     if review_summary is not None:
+        profile_summary = result.get("historical_opponent_profile_application_summary")
+        if profile_summary is not None:
+            participant_count = len(profile_summary["participant_matches"])
+            matched_count = profile_summary["matched_player_count"]
+            print(
+                f"Historical profile application: {matched_count} of "
+                f"{participant_count} participants matched."
+            )
+            print("Temporal eligibility: all matched captures predate the game.")
+            application_counts = review_summary["opponent_profile_application_counts"]
+            applied_decisions = sum(
+                any(
+                    application[side]["application_status"] == "applied"
+                    for side in ("left", "right")
+                )
+                for application in (
+                    decision["opponent_profile_application"]
+                    for decision in review_summary["decisions"]
+                )
+            )
+            print(
+                "Reviewed decisions with an applied external profile: "
+                f"{applied_decisions} of {application_counts['total_decisions']}."
+            )
         print()
         print("Historical game review")
         print("Total decisions:", review_summary["decision_count"])
@@ -1290,10 +1318,26 @@ def run_json_historical_game_analysis(
     historical_game_review: bool = False,
     sample_count: int | None = None,
     base_random_seed: int | None = None,
+    opponent_statistics_file: str | None = None,
+    opponent_policy_preset_override: str | None = None,
+    opponent_lead_policy_override: str | None = None,
+    opponent_response_policy_override: str | None = None,
+    left_opponent_lead_policy_override: str | None = None,
+    left_opponent_response_policy_override: str | None = None,
+    right_opponent_lead_policy_override: str | None = None,
+    right_opponent_response_policy_override: str | None = None,
 ) -> None:
     """Runs the complete historical-game workflow."""
     record = load_historical_game_from_json(file_path)
     historical_game_summary = build_historical_game_summary(record)
+    opponent_profile_bindings: HistoricalOpponentProfileBindings | None = None
+    if opponent_statistics_file is not None:
+        statistics_input = load_opponent_statistics_from_json(opponent_statistics_file)
+        opponent_profile_bindings = resolve_historical_opponent_profile_bindings(
+            record,
+            statistics_input,
+            statistics_input_file=opponent_statistics_file,
+        )
     snapshot_summary = None
     if historical_decision_snapshots or historical_game_review:
         snapshot_summary = build_historical_decision_snapshots(
@@ -1320,12 +1364,24 @@ def run_json_historical_game_analysis(
                     else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
                 ),
                 base_random_seed=base_random_seed,
+                opponent_profile_bindings=opponent_profile_bindings,
+                opponent_policy_preset_override=opponent_policy_preset_override,
+                opponent_lead_policy_override=opponent_lead_policy_override,
+                opponent_response_policy_override=opponent_response_policy_override,
+                left_opponent_lead_policy_override=(left_opponent_lead_policy_override),
+                left_opponent_response_policy_override=(left_opponent_response_policy_override),
+                right_opponent_lead_policy_override=(right_opponent_lead_policy_override),
+                right_opponent_response_policy_override=(right_opponent_response_policy_override),
             )
         )
     result = {
         "input_file": str(file_path),
         "historical_game_summary": historical_game_summary,
     }
+    if opponent_profile_bindings is not None:
+        result["historical_opponent_profile_application_summary"] = (
+            opponent_profile_bindings.application_summary
+        )
 
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -1552,7 +1608,8 @@ def parse_arguments() -> argparse.Namespace:
         "--opponent-statistics-file",
         default=None,
         help=(
-            "Attach validated external opponent statistics to a live position."
+            "Attach validated external opponent statistics to a live position or "
+            "time-safe historical game review."
         ),
     )
     parser.add_argument(
@@ -1600,7 +1657,10 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def validate_cli_arguments(args: argparse.Namespace) -> None:
+def validate_cli_arguments(
+    args: argparse.Namespace,
+    workflow: str | None = None,
+) -> None:
     """Validates semantic CLI-only argument combinations."""
     if args.samples is not None and args.samples <= 0:
         raise CliUsageError("--samples must be a positive integer.")
@@ -1638,8 +1698,11 @@ def validate_cli_arguments(args: argparse.Namespace) -> None:
             "--left-opponent-player-id and --right-opponent-player-id require "
             "--opponent-statistics-file."
         )
-    if opponent_statistics_file is not None and (
-        left_player_id is None and right_player_id is None
+    if (
+        opponent_statistics_file is not None
+        and not getattr(args, "historical_game_review", False)
+        and workflow != "historical_game"
+        and (left_player_id is None and right_player_id is None)
     ):
         raise CliUsageError(
             "--opponent-statistics-file requires --left-opponent-player-id, "
@@ -1705,6 +1768,25 @@ def validate_live_opponent_profile_options(
 
 def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
     """Rejects position-analysis and simulation overrides for historical games."""
+    historical_profile_review = (
+        args.historical_game_review and args.opponent_statistics_file is not None
+    )
+    if args.opponent_statistics_file is not None and not args.historical_game_review:
+        raise CliUsageError(
+            "--opponent-statistics-file requires --historical-game-review for "
+            "historical-game input."
+        )
+    if historical_profile_review and (
+        args.left_opponent_player_id is not None or args.right_opponent_player_id is not None
+    ):
+        raise CliUsageError(
+            "--left-opponent-player-id and --right-opponent-player-id are live-only "
+            "and are not accepted for historical review."
+        )
+    if historical_profile_review and not args.use_profile_presets:
+        raise CliUsageError(
+            "--opponent-statistics-file requires effective --use-profile-presets opt-in."
+        )
     incompatible_options = {
         "--samples": args.samples is not None and not args.historical_game_review,
         "--seed": args.seed is not None and not args.historical_game_review,
@@ -1715,15 +1797,29 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         "--strict-context": args.strict_context,
         "--compare-policies": args.compare_policies,
         "--comparison-only": args.comparison_only,
-        "--opponent-policy-preset": args.opponent_policy_preset is not None,
-        "--opponent-lead-policy": args.opponent_lead_policy is not None,
-        "--opponent-response-policy": args.opponent_response_policy is not None,
-        "--use-profile-presets": args.use_profile_presets,
-        "--left-opponent-lead-policy": args.left_opponent_lead_policy is not None,
-        "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
-        "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
-        "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
-        "--opponent-statistics-file": args.opponent_statistics_file is not None,
+        "--opponent-policy-preset": (
+            args.opponent_policy_preset is not None and not historical_profile_review
+        ),
+        "--opponent-lead-policy": (
+            args.opponent_lead_policy is not None and not historical_profile_review
+        ),
+        "--opponent-response-policy": (
+            args.opponent_response_policy is not None and not historical_profile_review
+        ),
+        "--use-profile-presets": args.use_profile_presets and not historical_profile_review,
+        "--left-opponent-lead-policy": (
+            args.left_opponent_lead_policy is not None and not historical_profile_review
+        ),
+        "--left-opponent-response-policy": (
+            args.left_opponent_response_policy is not None and not historical_profile_review
+        ),
+        "--right-opponent-lead-policy": (
+            args.right_opponent_lead_policy is not None and not historical_profile_review
+        ),
+        "--right-opponent-response-policy": (
+            args.right_opponent_response_policy is not None and not historical_profile_review
+        ),
+        "--opponent-statistics-file": False,
         "--left-opponent-player-id": args.left_opponent_player_id is not None,
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
     }
@@ -1816,9 +1912,9 @@ def main() -> int:
     args = parse_arguments()
 
     try:
-        validate_cli_arguments(args)
         input_data = load_json_object(args.input)
         workflow = get_input_workflow(input_data)
+        validate_cli_arguments(args, workflow=workflow)
         if workflow == "opponent_statistics":
             validate_opponent_statistics_cli_arguments(args)
             run_json_opponent_statistics_conversion(
@@ -1843,6 +1939,14 @@ def main() -> int:
                 historical_game_review=args.historical_game_review,
                 sample_count=args.samples,
                 base_random_seed=args.seed,
+                opponent_statistics_file=args.opponent_statistics_file,
+                opponent_policy_preset_override=args.opponent_policy_preset,
+                opponent_lead_policy_override=args.opponent_lead_policy,
+                opponent_response_policy_override=args.opponent_response_policy,
+                left_opponent_lead_policy_override=args.left_opponent_lead_policy,
+                left_opponent_response_policy_override=(args.left_opponent_response_policy),
+                right_opponent_lead_policy_override=args.right_opponent_lead_policy,
+                right_opponent_response_policy_override=(args.right_opponent_response_policy),
             )
         else:
             if args.historical_decision_snapshots:

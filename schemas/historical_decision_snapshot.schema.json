@@ -289,6 +289,10 @@
         "source_game_id": {
           "$ref": "#/$defs/stable_identifier"
         },
+        "source_played_at": {
+          "type": "string",
+          "format": "date-time"
+        },
         "decision_index": {
           "type": "integer",
           "minimum": 1,

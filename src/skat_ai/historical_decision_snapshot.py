@@ -85,6 +85,7 @@ class HistoricalDecisionSnapshot:
     """The information-safe state immediately before one historical play."""
 
     source_game_id: str
+    source_played_at: str | None
     decision_index: int
     trick_number: int
     play_index: int
@@ -184,6 +185,8 @@ def build_serializable_historical_decision_snapshot_summary(
                 },
             }
         )
+        if snapshot.source_played_at is not None:
+            snapshots[-1]["source_played_at"] = snapshot.source_played_at
 
     return {
         "schema_version": summary.schema_version,
@@ -364,6 +367,7 @@ def build_historical_decision_snapshots(
             snapshots.append(
                 HistoricalDecisionSnapshot(
                     source_game_id=record["game_id"],
+                    source_played_at=record.get("played_at"),
                     decision_index=decision_index,
                     trick_number=trick["trick_number"],
                     play_index=play_index,

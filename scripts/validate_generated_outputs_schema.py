@@ -33,6 +33,9 @@ OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
 OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_profile_application.schema.json"
 )
+HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_opponent_profile_application.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -1004,11 +1007,52 @@ def check_historical_game_review(data: dict[str, Any]) -> list[str]:
         errors.append("expected legal actual cards and complete candidate reviews")
     if sum(review["quality_counts"].values()) != 30:
         errors.append("expected historical review quality counts to reconcile")
-    if any(
-        len(decision["legal_cards"]) != 1
-        for decision in review["decisions"][-3:]
-    ):
+    if any(len(decision["legal_cards"]) != 1 for decision in review["decisions"][-3:]):
         errors.append("expected final one-card decisions to remain reviewable")
+    return errors
+
+
+def check_historical_opponent_profile_review(data: dict[str, Any]) -> list[str]:
+    """Checks time-safe stable-ID profile application across historical decisions."""
+    base_output = {
+        key: value
+        for key, value in data.items()
+        if key != "historical_opponent_profile_application_summary"
+    }
+    errors = check_historical_game_normal_completion(base_output)
+    application = data.get("historical_opponent_profile_application_summary")
+    if not isinstance(application, dict):
+        errors.append("expected historical opponent profile application summary")
+        return errors
+    if application["temporal_rule"] != "captured_at_strictly_before_played_at":
+        errors.append("expected strict historical profile temporal rule")
+    if application["matched_player_count"] != 2:
+        errors.append("expected two exact historical participant matches")
+    if application["unmatched_player_ids"] != ["player-b"]:
+        errors.append("expected unmatched player-b coverage")
+
+    review = data["historical_game_summary"]["historical_game_review_summary"]
+    if review["settings"]["opponent_policy_mode"] != "external_profiles":
+        errors.append("expected external historical opponent policy mode")
+    counts = review.get("opponent_profile_application_counts")
+    if not isinstance(counts, dict):
+        errors.append("expected historical profile application counts")
+        return errors
+    if counts["application_counts_by_player_id"] != {
+        "player-a": 20,
+        "player-c": 20,
+    }:
+        errors.append("expected stable-player historical application counts")
+    if any(
+        decision["opponent_profile_application"]["acting_player_id"] != decision["acting_player_id"]
+        or decision["acting_player_id"]
+        in {
+            decision["opponent_profile_application"]["left_opponent_player_id"],
+            decision["opponent_profile_application"]["right_opponent_player_id"],
+        }
+        for decision in review["decisions"]
+    ):
+        errors.append("expected safe per-decision relative opponent identities")
     return errors
 
 
@@ -1449,6 +1493,25 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="historical_grand_opponent_profile_review",
+        input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
+        branch="time-safe external profiles applied by stable historical identity",
+        cli_args=(
+            "--historical-game-review",
+            "--opponent-statistics-file",
+            str(PROJECT_ROOT / "examples" / "historical_opponent_statistics.json"),
+            "--use-profile-presets",
+            "--samples",
+            "20",
+            "--seed",
+            "42",
+            "--quiet",
+        ),
+        check_output=check_historical_opponent_profile_review,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="training_dataset_normal_play",
         input_path=PROJECT_ROOT / "examples" / "training_dataset_normal_play.json",
         branch="versioned normal-play training dataset with 30 decision samples",
@@ -1510,6 +1573,9 @@ def validate_generated_outputs() -> list[str]:
     opponent_profile_application_schema = load_json_file(
         OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH
     )
+    historical_opponent_profile_application_schema = load_json_file(
+        HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1539,6 +1605,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 opponent_profile_application_schema["$id"],
                 Resource.from_contents(opponent_profile_application_schema),
+            ),
+            (
+                historical_opponent_profile_application_schema["$id"],
+                Resource.from_contents(historical_opponent_profile_application_schema),
             ),
         ]
     )

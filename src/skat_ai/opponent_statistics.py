@@ -1,7 +1,5 @@
 import math
-import re
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Literal
 
 from skat_ai.opponent_profile_derivation import (
@@ -9,6 +7,7 @@ from skat_ai.opponent_profile_derivation import (
     derive_opponent_profile,
 )
 from skat_ai.player_profile import PlayerProfile
+from skat_ai.rfc3339 import parse_rfc3339_datetime
 
 OPPONENT_STATISTICS_SCHEMA_VERSION = 1
 PERCENTAGE_SUM_TOLERANCE_POINTS = 2.0
@@ -16,9 +15,6 @@ OPPONENT_STATISTICS_SOURCE_TYPES = ("online_platform", "manual_entry")
 
 OpponentStatisticsSourceType = Literal["online_platform", "manual_entry"]
 
-_RFC_3339_DATE_TIME = re.compile(
-    r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]|[+-]\d{2}:\d{2})$"
-)
 _STATISTIC_FIELDS = (
     "solo_games_played_percent",
     "solo_games_won_percent",
@@ -108,22 +104,6 @@ def _require_non_padded_string(value: Any, field_name: str) -> str:
     return value
 
 
-def _validate_rfc3339_date_time(value: str, field_name: str) -> None:
-    if not _RFC_3339_DATE_TIME.fullmatch(value):
-        raise ValueError(
-            f"{field_name} must be a valid RFC 3339 date-time with a time-zone offset."
-        )
-    try:
-        normalized_value = value.replace("t", "T").replace("z", "+00:00").replace("Z", "+00:00")
-        if normalized_value[17:19] == "60":
-            normalized_value = f"{normalized_value[:17]}59{normalized_value[19:]}"
-        datetime.fromisoformat(normalized_value)
-    except ValueError as error:
-        raise ValueError(
-            f"{field_name} must be a valid RFC 3339 date-time with a time-zone offset."
-        ) from error
-
-
 def _require_percentage(value: Any, field_name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{field_name} must be a number from 0 through 100.")
@@ -163,7 +143,7 @@ def _build_source(value: Any, record_name: str) -> OpponentStatisticsSource:
             data["source_player_id"], f"{field_name}.source_player_id"
         )
     captured_at = _require_non_padded_string(data["captured_at"], f"{field_name}.captured_at")
-    _validate_rfc3339_date_time(captured_at, f"{field_name}.captured_at")
+    parse_rfc3339_datetime(captured_at, f"{field_name}.captured_at")
     notes = None
     if "notes" in data:
         notes = _require_non_padded_string(data["notes"], f"{field_name}.notes")

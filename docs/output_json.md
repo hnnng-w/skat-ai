@@ -913,3 +913,23 @@ tie-breakers.
 The output schema defines the stable `policy_comparison_result` structure,
 including requested settings, compared policies, per-policy result rows,
 context summaries, and `recommended_policy`.
+
+## Historical opponent profile application
+
+Profile-enabled historical review adds the root
+`historical_opponent_profile_application_summary`. It preserves the statistics
+file, game ID, original `played_at`, strict temporal rule, three participant
+match rows, matched count, and unmatched IDs. Matched rows contain compact source
+provenance and existing derivation metadata but not source percentage values.
+
+Each historical review decision adds `opponent_profile_application` with the
+acting, left, and right stable IDs plus independent side match, actionability,
+precedence, applied preset, and effective lead/response policies. The review
+summary adds bounded `opponent_profile_application_counts` by decision, side,
+stable player ID, and actionable preset. These are application counts, not
+policy-quality or improvement measurements.
+
+Optional `played_at` is preserved in the historical record and summary;
+`source_played_at` is preserved in decision and training provenance where the
+source game is referenced. The focused contract is
+[`schemas/historical_opponent_profile_application.schema.json`](../schemas/historical_opponent_profile_application.schema.json).

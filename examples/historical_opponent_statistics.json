@@ -1,0 +1,49 @@
+{
+  "opponent_statistics_input": {
+    "schema_version": 1,
+    "records": [
+      {
+        "player_id": "player-a",
+        "player_label": "Alice",
+        "source": {
+          "source_type": "online_platform",
+          "source_name": "Example platform",
+          "source_player_id": "platform-player-a",
+          "captured_at": "2026-07-22T12:00:00+02:00"
+        },
+        "games_played": 600,
+        "statistics": {
+          "solo_games_played_percent": 31,
+          "solo_games_won_percent": 58,
+          "solo_hand_percent": 8,
+          "suit_games_percent": 75,
+          "grand_games_percent": 15,
+          "null_games_percent": 10,
+          "defender_games_played_percent": 69,
+          "defender_games_won_percent": 64
+        }
+      },
+      {
+        "player_id": "player-c",
+        "player_label": "Carol",
+        "source": {
+          "source_type": "manual_entry",
+          "source_name": "Example pre-game capture",
+          "captured_at": "2026-07-23T08:15:00Z",
+          "notes": "Captured before the reviewed game began."
+        },
+        "games_played": 842,
+        "statistics": {
+          "solo_games_played_percent": 42.5,
+          "solo_games_won_percent": 61.5,
+          "solo_hand_percent": 8.5,
+          "suit_games_percent": 55.5,
+          "grand_games_percent": 34,
+          "null_games_percent": 9,
+          "defender_games_played_percent": 58,
+          "defender_games_won_percent": 67.5
+        }
+      }
+    ]
+  }
+}

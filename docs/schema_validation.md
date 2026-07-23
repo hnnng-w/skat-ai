@@ -135,10 +135,11 @@ The output schema checks the main output structure, including:
 * the separate `historical_game_summary` branch
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
+* optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
 
-Generated-output validation covers 29 deterministic scenarios. Position
+Generated-output validation covers 30 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -158,7 +159,8 @@ summaries, late-game history-heavy live input, and local defender redaction for
 validation, settlement, information-safe decision snapshots, one seeded
 30-decision historical game review, one versioned 30-sample training dataset,
 one versioned external opponent-statistics conversion, and one seeded live
-external-profile binding with distinct left/right presets.
+external-profile binding with distinct left/right presets, plus one seeded
+time-safe historical external-profile review.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -171,7 +173,9 @@ the public output schema. Complete historical review uses
 `schemas/opponent_statistics_output.schema.json`, which references
 `schemas/opponent_profile_derivation.schema.json`. The local validator registry
 also loads `schemas/opponent_profile_application.schema.json`; runtime validation
-and tests enforce identity lookup, source/policy precedence, temporal,
+and `schemas/historical_opponent_profile_application.schema.json`; runtime
+validation and tests enforce identity lookup, strict instant ordering,
+source/policy precedence, temporal,
 reconciliation, recommendation-consistency, and information-leakage semantics
 that JSON Schema cannot express.
 

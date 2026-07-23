@@ -16,6 +16,7 @@ from skat_ai.game_result import (
 from skat_ai.game_value import build_game_value_summary
 from skat_ai.matador_inference import infer_matadors_from_known_ownership
 from skat_ai.overbid import build_overbid_summary
+from skat_ai.rfc3339 import parse_rfc3339_datetime
 from skat_ai.rules import get_card_points, get_legal_cards, get_trick_points, get_trick_winner
 
 HISTORICAL_GAME_SCHEMA_VERSION = 1
@@ -56,6 +57,7 @@ class HistoricalGameRecord:
 
     schema_version: int
     game_id: str
+    played_at: str | None
     players: tuple[HistoricalPlayer, ...]
     skat: tuple[str, ...]
     declarer_player_id: str
@@ -337,7 +339,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
             "game_end_reason",
             "tricks",
         },
-        optional_fields=set(),
+        optional_fields={"played_at"},
         field_name="historical_game_input",
     )
     if (
@@ -350,6 +352,10 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
             f"{HISTORICAL_GAME_SCHEMA_VERSION}."
         )
     game_id = _require_identifier(data["game_id"], "historical_game_input.game_id")
+    played_at = data.get("played_at")
+    if played_at is not None:
+        played_at = _require_identifier(played_at, f"Historical game '{game_id}' played_at")
+        parse_rfc3339_datetime(played_at, f"Historical game '{game_id}' played_at")
     players = _build_players(data["players"], game_id)
     skat = _require_card_array(
         data["skat"], f"Historical game '{game_id}' skat", expected_count=2
@@ -402,6 +408,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
     return HistoricalGameRecord(
         schema_version=HISTORICAL_GAME_SCHEMA_VERSION,
         game_id=game_id,
+        played_at=played_at,
         players=players,
         skat=skat,
         declarer_player_id=declarer_player_id,
@@ -436,7 +443,7 @@ def build_serializable_historical_record(
         ):
             serialized_declaration.pop(excluded_field)
 
-    return {
+    result = {
         "schema_version": record.schema_version,
         "game_id": record.game_id,
         "players": players,
@@ -457,6 +464,9 @@ def build_serializable_historical_record(
             for trick in record.tricks
         ],
     }
+    if record.played_at is not None:
+        result["played_at"] = record.played_at
+    return result
 
 
 def _build_playable_hands(record: HistoricalGameRecord) -> dict[str, list[str]]:
@@ -659,7 +669,7 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         else get_completed_trick_schwarz_status(scoring_tricks)
     )
 
-    return {
+    result = {
         "schema_version": record.schema_version,
         "game_id": record.game_id,
         "status": "complete",
@@ -678,6 +688,9 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         "overbid_summary": overbid_summary,
         "final_settlement_summary": final_settlement_summary,
     }
+    if record.played_at is not None:
+        result["played_at"] = record.played_at
+    return result
 
 
 def build_historical_game_summary_from_input(data: dict[str, Any]) -> dict[str, Any]:

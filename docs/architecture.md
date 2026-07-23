@@ -77,6 +77,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
 | `src/skat_ai/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
 | `src/skat_ai/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
+| `src/skat_ai/rfc3339.py` | Shared offset-aware RFC 3339 parsing for preserved timestamp text and instant comparison. |
 
 Validation is split between JSON Schema and Python validation:
 
@@ -164,6 +165,8 @@ local player has already acted and only opponents remain stop with
 | `src/skat_ai/opponent_profile_derivation.py` | Deterministic explainable profile derivation. |
 | `src/skat_ai/live_opponent_profile_binding.py` | Exact left/right lookup in a validated external statistics summary. |
 | `src/skat_ai/opponent_profile_application.py` | Manual/external source precedence and stable live application summary. |
+| `src/skat_ai/historical_opponent_profile_binding.py` | Exact participant matching, strict pre-game temporal validation, and compact top-level provenance. |
+| `src/skat_ai/historical_opponent_profile_application.py` | Per-snapshot stable-ID left/right profile resolution and effective-policy reconciliation. |
 
 Opponent policy handling supports both global and separate left/right opponent policy settings.
 
@@ -185,7 +188,9 @@ Standalone opponent-statistics output remains a conversion-only workflow. For
 live positions, explicit case-sensitive CLI bindings can select normalized
 records for left and right. Manual side profiles win over external profiles;
 otherwise the external profile enters the same effective policy flow. Only its
-actionable preset can apply. Historical application is not supported.
+actionable preset can apply. Historical review matches participant IDs once,
+rejects matched captures at or after `played_at`, and uses each snapshot's
+existing relative mapping to feed the same resolver per decision.
 
 The current defender cooperation model is heuristic, explainable, and implemented for the fixed three-player table. It includes:
 

@@ -45,6 +45,9 @@
         },
         "historical_game_summary": {
           "$ref": "#/$defs/historical_game_summary"
+        },
+        "historical_opponent_profile_application_summary": {
+          "$ref": "https://example.local/skat-ai/historical_opponent_profile_application.schema.json"
         }
       },
       "additionalProperties": false
@@ -113,6 +116,9 @@
     },
     "opponent_profile_application_summary": {
       "$ref": "https://example.local/skat-ai/opponent_profile_application.schema.json"
+    },
+    "historical_opponent_profile_application_summary": {
+      "$ref": "https://example.local/skat-ai/historical_opponent_profile_application.schema.json"
     },
     "analysis_metadata": {
       "type": "object",
@@ -413,6 +419,10 @@
         "game_id": {
           "$ref": "#/$defs/stable_identifier"
         },
+        "played_at": {
+          "type": "string",
+          "format": "date-time"
+        },
         "players": {
           "type": "array",
           "items": {
@@ -546,6 +556,10 @@
         },
         "game_id": {
           "$ref": "#/$defs/stable_identifier"
+        },
+        "played_at": {
+          "type": "string",
+          "format": "date-time"
         },
         "status": {
           "const": "complete"

@@ -45,6 +45,10 @@ ordered chronologically with `decision_index` values `1..30`, trick numbers
 `1..10`, and play indices `1..3`. `source_game_id` preserves the historical game
 ID. The pair of `source_game_id` and `decision_index` is the snapshot identity.
 
+Optional `source_played_at` preserves the original historical game-start
+timestamp when supplied. It is provenance and does not add future game facts to
+the visible decision state.
+
 `actual_card_played` is a retrospective label outside `visible_state`. It is in
 the pre-play `own_hand` and `legal_cards`, but it is not inserted into
 `current_trick` before the decision.
@@ -113,6 +117,10 @@ opponent hands, final points, final winner, achieved Schneider or Schwarz, final
 game value, overbid outcome, settlement, recommendations, or decision-quality
 ratings. The builder consumes the validated historical replay result and does
 not perform a second competing complete-game validation.
+
+External profile application does not add source statistics or hidden cards to
+`visible_state`. Historical review uses the existing `relative_player_map` only
+to select time-safe stable-ID profiles for the two opponent policy slots.
 
 Snapshots are not complete-game review results and are not themselves
 training/evaluation dataset records. The separate

@@ -9,7 +9,8 @@ Profiles are not learned, confidence is not a calibrated probability or
 confidence interval, and a recommended preset is not claimed to be optimal.
 External opponent-statistics output exposes the derivation. An explicit live
 stable-ID binding may apply only its `actionable_policy_preset` through the
-existing side-specific resolver. Historical application remains unsupported.
+existing side-specific resolver. Historical review applies the same actionable
+result after strict timestamp and stable-participant matching.
 
 ## Evidence and confidence
 
@@ -106,7 +107,9 @@ English explanations.
 The stable schema is
 [`schemas/opponent_profile_derivation.schema.json`](../schemas/opponent_profile_derivation.schema.json).
 External workflow details are documented in
-[Opponent statistics](opponent_statistics.md).
+[Opponent statistics](opponent_statistics.md). The same normalized profile and
+derivation are reused for live bindings and time-safe historical participant
+matching; no second percentage or classification implementation exists.
 
 ## Compatibility and limits
 
@@ -120,5 +123,7 @@ derivation semantics.
 
 Derivation does not aggregate historical games, infer table seats, store
 captures, predict behavior, evaluate policy effects, or train a model. Live
-bindings map an explicit ID to a relative side and never activate a merely
-recommended or `simple_lowest` preset.
+bindings map an explicit ID to a relative side. Historical review instead uses
+the existing decision snapshot mapping to move exact stable-ID profiles between
+relative sides. Neither path activates a merely recommended or `simple_lowest`
+preset.

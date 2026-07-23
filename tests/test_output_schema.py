@@ -13,6 +13,9 @@ from skat_ai.historical_decision_snapshot import (
 )
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.historical_game_review import build_historical_game_review_summary
+from skat_ai.historical_opponent_profile_binding import (
+    resolve_historical_opponent_profile_bindings,
+)
 from skat_ai.input_loader import (
     load_historical_game_from_json,
     load_opponent_statistics_from_json,
@@ -43,6 +46,9 @@ OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
 OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_profile_application.schema.json"
 )
+HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_opponent_profile_application.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -64,6 +70,8 @@ with OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH.open("r", encoding="utf-8") as file
     OPPONENT_PROFILE_DERIVATION_SCHEMA = json.load(file)
 with OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     OPPONENT_PROFILE_APPLICATION_SCHEMA = json.load(file)
+with HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -91,6 +99,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             OPPONENT_PROFILE_APPLICATION_SCHEMA["$id"],
             Resource.from_contents(OPPONENT_PROFILE_APPLICATION_SCHEMA),
+        ),
+        (
+            HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA),
         ),
     ]
 )
@@ -499,6 +511,35 @@ def build_valid_historical_output_with_game_review() -> dict[str, object]:
     return copy.deepcopy(build_cached_valid_historical_output_with_game_review())
 
 
+@lru_cache(maxsize=1)
+def build_cached_valid_historical_output_with_profiles() -> dict[str, object]:
+    data = build_valid_historical_output()
+    historical_summary = data["historical_game_summary"]
+    assert isinstance(historical_summary, dict)
+    record = load_historical_game_from_json(
+        str(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json")
+    )
+    statistics_path = PROJECT_ROOT / "examples" / "historical_opponent_statistics.json"
+    bindings = resolve_historical_opponent_profile_bindings(
+        record,
+        load_opponent_statistics_from_json(str(statistics_path)),
+        statistics_input_file="examples/historical_opponent_statistics.json",
+    )
+    historical_summary["historical_game_review_summary"] = build_historical_game_review_summary(
+        build_historical_decision_snapshots(historical_summary),
+        record,
+        sample_count=1,
+        base_random_seed=42,
+        opponent_profile_bindings=bindings,
+    )
+    data["historical_opponent_profile_application_summary"] = bindings.application_summary
+    return data
+
+
+def build_valid_historical_output_with_profiles() -> dict[str, object]:
+    return copy.deepcopy(build_cached_valid_historical_output_with_profiles())
+
+
 def build_valid_training_dataset_output() -> dict[str, object]:
     input_path = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
     dataset = load_training_dataset_from_json(str(input_path))
@@ -551,6 +592,19 @@ def test_schema_accepts_historical_decision_snapshot_output_branch() -> None:
 
 def test_schema_accepts_historical_game_review_output_branch() -> None:
     assert_schema_valid(build_valid_historical_output_with_game_review())
+
+
+def test_schema_accepts_historical_profile_application_output_branch() -> None:
+    assert_schema_valid(build_valid_historical_output_with_profiles())
+
+
+def test_schema_rejects_simple_lowest_as_applied_historical_preset() -> None:
+    data = build_valid_historical_output_with_profiles()
+    review = data["historical_game_summary"]["historical_game_review_summary"]
+    side = review["decisions"][0]["opponent_profile_application"]["right"]
+    side["applied_policy_preset"] = "simple_lowest"
+
+    assert_schema_invalid(data)
 
 
 def test_schema_accepts_training_dataset_output_branch() -> None:

@@ -40,6 +40,7 @@ def get_position_example_json_files() -> list[Path]:
         if path.name
         not in {
             "historical_grand_normal_completion.json",
+            "historical_opponent_statistics.json",
             "opponent_statistics.json",
             "training_dataset_normal_play.json",
         }
@@ -64,7 +65,10 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             dataset = load_training_dataset_from_json(str(example_file))
             assert dataset.dataset_id == "online-games-2026"
             continue
-        if example_file.name == "opponent_statistics.json":
+        if example_file.name in {
+            "historical_opponent_statistics.json",
+            "opponent_statistics.json",
+        }:
             statistics_input = load_opponent_statistics_from_json(str(example_file))
             assert len(statistics_input.records) == 2
             continue
@@ -138,6 +142,7 @@ def test_historical_game_example_builds_complete_summary() -> None:
 
     assert summary["game_id"] == "historical-grand-001"
     assert summary["status"] == "complete"
+    assert summary["played_at"] == "2026-07-24T18:30:00+02:00"
     assert len(summary["derived_tricks"]) == 10
     assert summary["declarer_points"] + summary["defender_points"] == 120
 
@@ -170,6 +175,19 @@ def test_opponent_statistics_example_preserves_two_ordered_players() -> None:
         "cautious_defender"
     )
     assert summary["records"][1]["profile_derivation"]["classification"] == "aggressive"
+
+
+def test_historical_opponent_statistics_example_matches_stable_player_ids() -> None:
+    path = Path("examples/historical_opponent_statistics.json")
+    summary = build_opponent_statistics_summary(load_opponent_statistics_from_json(str(path)))
+
+    assert [record["player_id"] for record in summary["records"]] == [
+        "player-a",
+        "player-c",
+    ]
+    assert [
+        record["profile_derivation"]["actionable_policy_preset"] for record in summary["records"]
+    ] == ["cautious_defender", "aggressive_points"]
 
 
 def test_default_input_position_is_runtime_valid_local_action() -> None:

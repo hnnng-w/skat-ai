@@ -16,8 +16,9 @@ python main.py --input examples/historical_grand_normal_completion.json --histor
 `--historical-game-review` automatically generates the decision snapshots used
 internally. Adding `--historical-decision-snapshots` also emits those snapshots;
 it does not generate them a second time. `--samples` and `--seed` are accepted
-for historical input only with review. Other recommendation, policy, profile,
-comparison, and multi-step overrides remain unsupported.
+for historical input only with review. A time-safe external profile file may be
+added with `--opponent-statistics-file` and `--use-profile-presets`; comparison
+and multi-step overrides remain unsupported.
 
 When `--samples` is omitted, review uses the existing immediate-analysis default
 of 100 samples. A supplied base seed is converted to a per-decision seed with:
@@ -29,7 +30,8 @@ effective_random_seed = base_random_seed + decision_index - 1
 Decision 1 therefore uses the base seed and decision 30 uses the base seed plus
 29. Without a base seed, every row exposes `effective_random_seed: null` and
 keeps the existing unseeded simulation behavior. The opponent policy mode is
-fixed to `default` in this workflow.
+`default` without external profiles and `external_profiles` when the validated
+historical binding is active.
 
 ## Information boundary
 
@@ -59,6 +61,12 @@ contains:
 * counts for `optimal`, `acceptable`, `suboptimal`, `mistake`, and
   `not_available`
 * exactly three player summaries in input order, with ten decisions each
+
+With external profiles, each row additionally reconciles acting, left, and right
+stable identities, match/actionability status, precedence, and effective side
+policies. The review also exposes bounded profile-application counts; the root
+output exposes participant matching and strict temporal eligibility. See
+[Historical opponent profiles](historical_opponent_profiles.md).
 
 Every reviewed row contains the full legal-card list, one recommendation, the
 existing candidate analysis report for all legal alternatives, and the existing
@@ -90,8 +98,9 @@ aware simulation is not implemented by this workflow.
 This review evaluates the current immediate expected-value or Null-objective
 heuristic at each historical decision. It is not a perfect-information solver
 and does not optimize complete-contract expected value or complete-game play.
-Historical opponent policies and profiles are not configurable. The output is
-not a training or evaluation dataset record. The separate training-data workflow
+Historical review can consume time-safe actionable external profiles and existing
+explicit policy precedence, but it does not evaluate policy effects. The output
+is not a training or evaluation dataset record. The separate training-data workflow
 uses decision snapshots directly; recommendation cards, candidate reports, and
 decision-quality values are never training features or labels.
 

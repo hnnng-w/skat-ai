@@ -258,6 +258,7 @@ stable sample IDs, legal labels, and identity-free features.
 | File | Purpose |
 | ---- | ------- |
 | `opponent_statistics.json` | Two ordered online-platform captures with required provenance and distinct actionable cautious-defender and aggressive derivations. |
+| `historical_opponent_statistics.json` | Two pre-game captures matching `player-a` and `player-c` in the historical Grand example with distinct actionable presets. |
 
 This separate workflow validates the documented denominators and bounded source
 rounding, preserves source values, and emits normalized `0..1` profile rates.
@@ -271,8 +272,11 @@ The same file is reused with `grand_second_position.json` in a separate seeded
 live generated-output scenario. Exact bindings map `opponent-123` to left and
 `opponent-789` to right with `--use-profile-presets`; the output verifies
 distinct cautious-defender/aggressive side policies and summary reconciliation.
-Generated-output validation therefore covers 29 scenarios. Historical-game
-aggregation and historical profile application remain unsupported.
+The historical companion file drives one fixed-seed, bounded-sample review that
+checks strict temporal eligibility, partial participant coverage, per-decision
+side remapping, and aggregate application counts. Generated-output validation
+therefore covers 30 scenarios. Historical statistics aggregation and profile
+policy-effect evaluation remain unsupported.
 
 ## Post-game review examples
 

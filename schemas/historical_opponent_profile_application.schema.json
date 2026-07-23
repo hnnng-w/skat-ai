@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_opponent_profile_application.schema.json",
+  "title": "skat-ai time-safe historical opponent profile application",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enabled",
+    "statistics_input_file",
+    "game_id",
+    "played_at",
+    "temporal_rule",
+    "participant_matches",
+    "matched_player_count",
+    "unmatched_player_ids"
+  ],
+  "properties": {
+    "enabled": {"const": true},
+    "statistics_input_file": {"type": "string", "minLength": 1},
+    "game_id": {"$ref": "#/$defs/stable_identifier"},
+    "played_at": {"type": "string", "format": "date-time"},
+    "temporal_rule": {"const": "captured_at_strictly_before_played_at"},
+    "participant_matches": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/participant_match"},
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "matched_player_count": {"type": "integer", "minimum": 1, "maximum": 3},
+    "unmatched_player_ids": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/stable_identifier"},
+      "uniqueItems": true,
+      "maxItems": 2
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "classification": {
+      "type": ["string", "null"],
+      "enum": ["aggressive", "cautious_defender", "neutral", null]
+    },
+    "derivation_status": {
+      "type": ["string", "null"],
+      "enum": ["actionable", "insufficient_confidence", "neutral", "insufficient_data", null]
+    },
+    "recommended_preset": {
+      "type": ["string", "null"],
+      "enum": ["aggressive_points", "cautious_defender", "simple_lowest", null]
+    },
+    "actionable_preset": {
+      "type": ["string", "null"],
+      "enum": ["aggressive_points", "cautious_defender", null]
+    },
+    "policy": {
+      "type": "string",
+      "enum": [
+        "lowest_point",
+        "highest_point",
+        "random_legal",
+        "basic_trick_play",
+        "basic_defender_lead",
+        "basic_defender_response"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_name", "captured_at"],
+      "properties": {
+        "source_type": {"type": "string", "enum": ["online_platform", "manual_entry"]},
+        "source_name": {"$ref": "#/$defs/stable_identifier"},
+        "source_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "captured_at": {"type": "string", "format": "date-time"},
+        "notes": {"$ref": "#/$defs/stable_identifier"}
+      }
+    },
+    "participant_match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "player_id",
+        "player_label",
+        "match_status",
+        "captured_at",
+        "temporal_status",
+        "source",
+        "profile_derivation_version",
+        "classification",
+        "derivation_status",
+        "recommended_policy_preset",
+        "actionable_policy_preset"
+      ],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/stable_identifier"},
+        "player_label": {
+          "oneOf": [{"$ref": "#/$defs/stable_identifier"}, {"type": "null"}]
+        },
+        "match_status": {"type": "string", "enum": ["matched", "unmatched"]},
+        "captured_at": {"type": ["string", "null"], "format": "date-time"},
+        "temporal_status": {"type": "string", "enum": ["eligible", "not_applicable"]},
+        "source": {
+          "oneOf": [{"$ref": "#/$defs/source"}, {"type": "null"}]
+        },
+        "profile_derivation_version": {"type": ["integer", "null"], "enum": [1, null]},
+        "classification": {"$ref": "#/$defs/classification"},
+        "derivation_status": {"$ref": "#/$defs/derivation_status"},
+        "recommended_policy_preset": {"$ref": "#/$defs/recommended_preset"},
+        "actionable_policy_preset": {"$ref": "#/$defs/actionable_preset"}
+      }
+    },
+    "side_application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relative_player",
+        "opponent_player_id",
+        "profile_match_status",
+        "classification",
+        "derivation_status",
+        "actionable_policy_preset",
+        "application_status",
+        "not_applied_reason",
+        "applied_policy_preset",
+        "effective_lead_policy",
+        "effective_response_policy"
+      ],
+      "properties": {
+        "relative_player": {"type": "string", "enum": ["left", "right"]},
+        "opponent_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "profile_match_status": {"type": "string", "enum": ["matched", "unmatched"]},
+        "classification": {"$ref": "#/$defs/classification"},
+        "derivation_status": {"$ref": "#/$defs/derivation_status"},
+        "actionable_policy_preset": {"$ref": "#/$defs/actionable_preset"},
+        "application_status": {
+          "type": "string",
+          "enum": ["applied", "not_actionable", "explicit_policy_precedence", "unmatched"]
+        },
+        "not_applied_reason": {
+          "type": ["string", "null"],
+          "enum": [
+            "insufficient_confidence",
+            "neutral_profile",
+            "insufficient_data",
+            "explicit_policy_precedence",
+            "unmatched_player",
+            null
+          ]
+        },
+        "applied_policy_preset": {"$ref": "#/$defs/actionable_preset"},
+        "effective_lead_policy": {"$ref": "#/$defs/policy"},
+        "effective_response_policy": {"$ref": "#/$defs/policy"}
+      }
+    },
+    "decision_application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acting_player_id",
+        "left_opponent_player_id",
+        "right_opponent_player_id",
+        "left",
+        "right"
+      ],
+      "properties": {
+        "acting_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "left_opponent_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "right_opponent_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "left": {"$ref": "#/$defs/side_application"},
+        "right": {"$ref": "#/$defs/side_application"}
+      }
+    },
+    "application_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_decisions",
+        "decisions_with_matched_opponent_profile",
+        "decisions_with_applied_left_profile",
+        "decisions_with_applied_right_profile",
+        "decisions_with_no_actionable_external_profile",
+        "application_counts_by_player_id",
+        "application_counts_by_preset"
+      ],
+      "properties": {
+        "total_decisions": {"const": 30},
+        "decisions_with_matched_opponent_profile": {"type": "integer", "minimum": 0, "maximum": 30},
+        "decisions_with_applied_left_profile": {"type": "integer", "minimum": 0, "maximum": 30},
+        "decisions_with_applied_right_profile": {"type": "integer", "minimum": 0, "maximum": 30},
+        "decisions_with_no_actionable_external_profile": {"type": "integer", "minimum": 0, "maximum": 30},
+        "application_counts_by_player_id": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 1, "maximum": 20},
+          "maxProperties": 3
+        },
+        "application_counts_by_preset": {
+          "type": "object",
+          "propertyNames": {"enum": ["aggressive_points", "cautious_defender"]},
+          "additionalProperties": {"type": "integer", "minimum": 1, "maximum": 40},
+          "maxProperties": 2
+        }
+      }
+    }
+  }
+}

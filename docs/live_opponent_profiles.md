@@ -80,13 +80,16 @@ summary. See
 
 ## Restrictions
 
-External profile options are rejected for post-game position review, complete
-historical games, historical decision review, training datasets, standalone
-opponent-statistics conversion, list-performance workflows, impossible-Null
-settlement, and every other non-live workflow.
+Live-only left/right binding IDs are rejected for post-game position review,
+complete historical games, historical decision review, training datasets,
+standalone opponent-statistics conversion, list-performance workflows,
+impossible-Null settlement, and every other non-live workflow. Historical review
+has a separate automatic stable-participant matching path and does not weaken
+these live validation rules.
 
 The preserved `captured_at` value is provenance only. Live analysis has no
-analysis timestamp to compare with it. This feature does not add historical
-application, historical aggregation, multiple captures, profile persistence,
+analysis timestamp to compare with it. Historical application separately uses a
+required game-start time and strict older-than comparison. Neither feature adds
+historical aggregation, multiple captures, profile persistence,
 newest-capture selection, website integration, scraping, learned models,
 machine-learning training, or new tactical policies.

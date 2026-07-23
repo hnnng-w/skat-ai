@@ -32,6 +32,9 @@ TRAINING_DATASET_INPUT_PATH = (
 OPPONENT_STATISTICS_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "opponent_statistics.json"
 )
+HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_opponent_statistics.json"
+)
 UNSUPPORTED_PHASE_INPUT_PATH = (
     PROJECT_ROOT
     / "tests"
@@ -388,6 +391,124 @@ def test_cli_historical_game_review_quiet_output_and_both_flags(tmp_path) -> Non
         "base_random_seed": 42,
         "opponent_policy_mode": "default",
     }
+
+
+def test_cli_historical_profile_review_prints_setup_summary_and_writes_output(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "historical-profile-review.json"
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--historical-game-review",
+        "--opponent-statistics-file",
+        HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH,
+        "--use-profile-presets",
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical profile application: 2 of 3 participants matched." in (
+        completed_process.stdout
+    )
+    assert "Temporal eligibility: all matched captures predate the game." in (
+        completed_process.stdout
+    )
+    assert "Reviewed decisions with an applied external profile: 30 of 30." in (
+        completed_process.stdout
+    )
+    with output_path.open("r", encoding="utf-8") as file:
+        result = json.load(file)
+    application = result["historical_opponent_profile_application_summary"]
+    review = result["historical_game_summary"]["historical_game_review_summary"]
+    assert application["temporal_rule"] == ("captured_at_strictly_before_played_at")
+    assert application["matched_player_count"] == 2
+    assert review["opponent_profile_application_counts"]["application_counts_by_player_id"] == {
+        "player-a": 20,
+        "player-c": 20,
+    }
+
+
+def test_cli_historical_profile_review_quiet_output_is_silent(tmp_path) -> None:
+    output_path = tmp_path / "historical-profile-review.json"
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--historical-game-review",
+        "--opponent-statistics-file",
+        HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH,
+        "--use-profile-presets",
+        "--samples",
+        "1",
+        "--seed",
+        "42",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+
+
+@pytest.mark.parametrize(
+    ("extra_args", "expected_error"),
+    [
+        ((), "requires --historical-game-review"),
+        (("--historical-game-review",), "requires effective --use-profile-presets"),
+        (
+            (
+                "--historical-game-review",
+                "--use-profile-presets",
+                "--left-opponent-player-id",
+                "player-a",
+            ),
+            "live-only",
+        ),
+    ],
+)
+def test_cli_rejects_invalid_historical_profile_mode_options(
+    extra_args: tuple[str, ...],
+    expected_error: str,
+) -> None:
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--opponent-statistics-file",
+        HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH,
+        *extra_args,
+    )
+
+    assert completed_process.returncode == 2
+    assert expected_error in completed_process.stderr
+    assert_no_success_output(completed_process)
+
+
+def test_cli_rejects_historical_profiles_without_played_at(tmp_path) -> None:
+    with HISTORICAL_INPUT_PATH.open("r", encoding="utf-8") as file:
+        data = json.load(file)
+    data["historical_game_input"].pop("played_at")
+    input_path = tmp_path / "historical-without-played-at.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    completed_process = run_cli(
+        "--input",
+        input_path,
+        "--historical-game-review",
+        "--opponent-statistics-file",
+        HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH,
+        "--use-profile-presets",
+    )
+
+    assert completed_process.returncode == 1
+    assert "played_at is required" in completed_process.stderr
 
 
 def test_historical_review_and_snapshot_flags_generate_snapshots_once(

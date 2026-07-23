@@ -44,6 +44,9 @@
       "items": {"$ref": "#/$defs/decision"},
       "minItems": 30,
       "maxItems": 30
+    },
+    "opponent_profile_application_counts": {
+      "$ref": "https://example.local/skat-ai/historical_opponent_profile_application.schema.json#/$defs/application_counts"
     }
   },
   "$defs": {
@@ -107,7 +110,10 @@
           "maximum": 100000
         },
         "base_random_seed": {"type": ["integer", "null"]},
-        "opponent_policy_mode": {"const": "default"}
+        "opponent_policy_mode": {
+          "type": "string",
+          "enum": ["default", "external_profiles"]
+        }
       }
     },
     "quality_counts": {
@@ -298,6 +304,7 @@
       ],
       "properties": {
         "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "source_played_at": {"type": "string", "format": "date-time"},
         "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
         "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
         "play_index": {"type": "integer", "minimum": 1, "maximum": 3},
@@ -329,7 +336,10 @@
           "items": {"$ref": "#/$defs/analysis_report_item"},
           "maxItems": 10
         },
-        "post_game_review_summary": {"$ref": "#/$defs/post_game_review"}
+        "post_game_review_summary": {"$ref": "#/$defs/post_game_review"},
+        "opponent_profile_application": {
+          "$ref": "https://example.local/skat-ai/historical_opponent_profile_application.schema.json#/$defs/decision_application"
+        }
       },
       "oneOf": [
         {
