@@ -162,6 +162,8 @@ local player has already acted and only opponents remain stop with
 | `src/skat_ai/player_profile.py`          | Player profile modeling.                         |
 | `src/skat_ai/opponent_statistics.py`     | External statistics normalization and derivation serialization without policy application. |
 | `src/skat_ai/opponent_profile_derivation.py` | Deterministic explainable profile derivation. |
+| `src/skat_ai/live_opponent_profile_binding.py` | Exact left/right lookup in a validated external statistics summary. |
+| `src/skat_ai/opponent_profile_application.py` | Manual/external source precedence and stable live application summary. |
 
 Opponent policy handling supports both global and separate left/right opponent policy settings.
 
@@ -179,9 +181,11 @@ When profile presets are enabled, actionable left and right player profiles can 
 Some profile fields are currently behavioral-signal neutral even when they
 provide evidence: `solo_win_rate`, `suit_game_rate`, and `null_game_rate`.
 
-External opponent-statistics output includes the derivation but is not fed into
-the policy-application flow. It does not change live, historical, or simulation
-settings.
+Standalone opponent-statistics output remains a conversion-only workflow. For
+live positions, explicit case-sensitive CLI bindings can select normalized
+records for left and right. Manual side profiles win over external profiles;
+otherwise the external profile enters the same effective policy flow. Only its
+actionable preset can apply. Historical application is not supported.
 
 The current defender cooperation model is heuristic, explainable, and implemented for the fixed three-player table. It includes:
 
@@ -225,6 +229,10 @@ Shared precedence, from lowest to highest, is:
 
 Global presets and global lead/response policies cascade to both `left` and `right`.
 Actionable profile-derived policies and side-specific overrides affect only their side.
+External bindings do not add a combined classification rule and do not change
+this precedence. The application summary uses internal policy-source labels to
+explain whether the profile or a later explicit source produced each effective
+side policy.
 
 Response-policy activation is tracked separately from complete effective side settings.
 Presets, response policies, and enabled profile presets activate the sparse response map;

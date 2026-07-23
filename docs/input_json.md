@@ -526,7 +526,7 @@ signals take precedence over defender evidence. Low-confidence matches remain
 explanatory but are not actionable. See
 [Opponent profile derivation](opponent_profile_derivation.md).
 
-When `use_profile_presets` is enabled for manual position profiles, only an
+When `use_profile_presets` is enabled for position profiles, only an
 actionable non-simple preset can affect opponent policy settings. Neutral
 `simple_lowest` never overwrites existing explicit or default policies. The
 existing combined left/right helper retains its established conflict behavior,
@@ -537,9 +537,14 @@ not accepted for `left_player_profile`, `right_player_profile`, or known profile
 fields such as `games_played`. Unknown extra profile fields remain accepted as
 metadata.
 
-Left and right actionable manual profile presets affect their respective
-effective policies in immediate analysis and multi-step simulation. External
-opponent-statistics derivations are not connected to this application path.
+Left and right actionable profiles affect their respective effective policies
+in immediate analysis and multi-step simulation. A reusable external statistics
+file may be attached through `--opponent-statistics-file` and bound through
+exact, case-sensitive `--left-opponent-player-id` and
+`--right-opponent-player-id` values. These are CLI bindings, so no new position
+input field is added. Manual side profiles take precedence, profiles are not
+merged, and effective profile-preset opt-in is required. See
+[Live opponent profiles](live_opponent_profiles.md).
 
 ## Live vs post-game information rules
 

@@ -265,9 +265,14 @@ Its deterministic generated-output scenario verifies identity/order,
 provenance, source percentages, additive `defender_rate`, null exact role counts,
 unrounded role-evidence estimates, scoped confidence, signal explanations,
 distinct classifications and presets, and fixed `2.0` tolerance metadata. It
-also verifies that no recommendation or simulation output is produced. The
-scenario count remains 28. Historical-game aggregation and automatic preset
-application remain unsupported.
+also verifies that no recommendation or simulation output is produced.
+
+The same file is reused with `grand_second_position.json` in a separate seeded
+live generated-output scenario. Exact bindings map `opponent-123` to left and
+`opponent-789` to right with `--use-profile-presets`; the output verifies
+distinct cautious-defender/aggressive side policies and summary reconciliation.
+Generated-output validation therefore covers 29 scenarios. Historical-game
+aggregation and historical profile application remain unsupported.
 
 ## Post-game review examples
 

@@ -6,8 +6,9 @@ provenance, rounded percentages, and deterministic conversion to existing
 `PlayerProfile` rate semantics.
 
 This workflow validates and normalizes supplied statistics, then derives a
-versioned explainable rule-based profile. It does not predict behavior or apply
-the derived preset to live recommendations, historical review, or simulation.
+versioned explainable rule-based profile. Standalone conversion does not run
+analysis. A separate explicit live binding can reuse its records; historical
+application remains unsupported.
 
 ## Input workflow
 
@@ -159,6 +160,7 @@ The focused schemas are:
 * [`schemas/opponent_statistics.schema.json`](../schemas/opponent_statistics.schema.json)
 * [`schemas/opponent_statistics_output.schema.json`](../schemas/opponent_statistics_output.schema.json)
 * [`schemas/opponent_profile_derivation.schema.json`](../schemas/opponent_profile_derivation.schema.json)
+* [`schemas/opponent_profile_application.schema.json`](../schemas/opponent_profile_application.schema.json)
 
 JSON Schema enforces structure, required fields, enums, and simple ranges.
 Runtime validation remains authoritative for duplicate identity, RFC 3339
@@ -168,8 +170,11 @@ conflict precedence, deterministic normalization, and output reconciliation.
 
 ## Current limitations
 
-Historical-game-derived player-statistics aggregation remains unsupported. This
-workflow does not aggregate historical games, apply policy presets, predict
-behavior, train a model, or consume statistics in live or historical
-recommendations. The deterministic classification is a bounded rule-based
-description of matched supplied statistics, not a learned profile.
+Historical-game-derived player-statistics aggregation remains unsupported. A
+validated file can be explicitly bound by exact stable ID to live left/right
+opponents with profile-preset opt-in; only actionable presets enter the existing
+policy resolver. The workflow does not apply profiles historically, compare
+capture time with analysis time, persist captures, predict behavior, or train a
+model. The deterministic classification is a bounded rule-based description of
+matched supplied statistics, not a learned profile. See
+[Live opponent profiles](live_opponent_profiles.md).

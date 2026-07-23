@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/opponent_profile_application.schema.json",
+  "title": "skat-ai live opponent profile application summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enabled",
+    "statistics_input_file",
+    "use_profile_presets",
+    "left",
+    "right"
+  ],
+  "properties": {
+    "enabled": {"const": true},
+    "statistics_input_file": {"type": "string", "minLength": 1},
+    "use_profile_presets": {"const": true},
+    "left": {"$ref": "#/$defs/side_application"},
+    "right": {"$ref": "#/$defs/side_application"}
+  },
+  "$defs": {
+    "policy_preset": {
+      "type": "string",
+      "enum": ["aggressive_points", "cautious_defender", "simple_lowest"]
+    },
+    "actionable_policy_preset": {
+      "type": "string",
+      "enum": ["aggressive_points", "cautious_defender"]
+    },
+    "opponent_card_policy": {
+      "type": "string",
+      "enum": [
+        "lowest_point",
+        "highest_point",
+        "random_legal",
+        "basic_trick_play",
+        "basic_defender_response",
+        "basic_defender_lead"
+      ]
+    },
+    "external_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "source_name",
+        "source_player_id",
+        "captured_at",
+        "profile_derivation_version",
+        "classification",
+        "derivation_status",
+        "confidence_level",
+        "recommended_policy_preset",
+        "actionable_policy_preset"
+      ],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["online_platform", "manual_entry"]
+        },
+        "source_name": {"type": "string", "minLength": 1},
+        "source_player_id": {"type": ["string", "null"], "minLength": 1},
+        "captured_at": {"type": "string", "format": "date-time"},
+        "notes": {"type": "string", "minLength": 1},
+        "profile_derivation_version": {"const": 1},
+        "classification": {
+          "type": "string",
+          "enum": ["aggressive", "cautious_defender", "neutral"]
+        },
+        "derivation_status": {
+          "type": "string",
+          "enum": ["actionable", "insufficient_confidence", "neutral", "insufficient_data"]
+        },
+        "confidence_level": {
+          "type": "string",
+          "enum": ["unknown", "low", "medium", "high"]
+        },
+        "recommended_policy_preset": {"$ref": "#/$defs/policy_preset"},
+        "actionable_policy_preset": {
+          "oneOf": [
+            {"$ref": "#/$defs/actionable_policy_preset"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "side_application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relative_player",
+        "bound_player_id",
+        "binding_status",
+        "effective_profile_source",
+        "external_profile",
+        "application_status",
+        "not_applied_reason",
+        "applied_policy_preset",
+        "effective_lead_policy",
+        "effective_response_policy"
+      ],
+      "properties": {
+        "relative_player": {"type": "string", "enum": ["left", "right"]},
+        "bound_player_id": {"type": ["string", "null"], "minLength": 1},
+        "binding_status": {"type": "string", "enum": ["matched", "not_requested"]},
+        "effective_profile_source": {
+          "type": "string",
+          "enum": ["external_statistics", "manual_profile", "none"]
+        },
+        "external_profile": {
+          "oneOf": [
+            {"$ref": "#/$defs/external_profile"},
+            {"type": "null"}
+          ]
+        },
+        "application_status": {
+          "type": "string",
+          "enum": [
+            "applied",
+            "not_actionable",
+            "manual_profile_precedence",
+            "explicit_policy_precedence",
+            "not_requested"
+          ]
+        },
+        "not_applied_reason": {
+          "type": ["string", "null"],
+          "enum": [
+            "insufficient_confidence",
+            "neutral_profile",
+            "insufficient_data",
+            "manual_profile_precedence",
+            "explicit_policy_precedence",
+            "profile_presets_disabled",
+            "not_requested",
+            null
+          ]
+        },
+        "applied_policy_preset": {
+          "oneOf": [
+            {"$ref": "#/$defs/actionable_policy_preset"},
+            {"type": "null"}
+          ]
+        },
+        "effective_lead_policy": {"$ref": "#/$defs/opponent_card_policy"},
+        "effective_response_policy": {"$ref": "#/$defs/opponent_card_policy"}
+      }
+    }
+  }
+}

@@ -162,9 +162,20 @@ Typical top-level fields include:
 | `information_policy_summary`     | Summary of the active live-vs-post-game information policy. |
 | `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.           |
 | `right_opponent_policy_settings` | Normalized policy settings for the right opponent.          |
+| `opponent_profile_application_summary` | Optional live external-profile binding, precedence, and effective-policy summary. |
 
 `profile_preset_settings` is emitted in production output and is required by
 the output schema.
+
+`opponent_profile_application_summary` is emitted only when
+`--opponent-statistics-file` is supplied for a live analysis. It records each
+side's exact binding, effective manual/external/none profile source, compact
+source provenance and derivation, application status, reason, actionable preset,
+and effective lead/response policies. Those policies must match the existing
+`left_opponent_policy_settings` and `right_opponent_policy_settings`. Source
+percentage statistics are not duplicated. See
+[Live opponent profiles](live_opponent_profiles.md) and
+[`opponent_profile_application.schema.json`](../schemas/opponent_profile_application.schema.json).
 
 ## Position
 

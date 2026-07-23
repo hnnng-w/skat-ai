@@ -129,6 +129,7 @@ The output schema checks the main output structure, including:
 * `left_opponent_policy_settings`
 * `right_opponent_policy_settings`
 * `profile_preset_settings`
+* optional live `opponent_profile_application_summary` through its focused schema
 * `multi_step_result`, when Multi-Step simulation is requested
 * `policy_comparison_result`, when policy comparison is requested
 * the separate `historical_game_summary` branch
@@ -137,7 +138,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
 
-Generated-output validation covers 28 deterministic scenarios. Position
+Generated-output validation covers 29 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -156,7 +157,8 @@ summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
 validation, settlement, information-safe decision snapshots, one seeded
 30-decision historical game review, one versioned 30-sample training dataset,
-and one versioned external opponent-statistics conversion.
+one versioned external opponent-statistics conversion, and one seeded live
+external-profile binding with distinct left/right presets.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -168,7 +170,8 @@ the public output schema. Complete historical review uses
 `schemas/training_dataset_output.schema.json`. Opponent statistics use
 `schemas/opponent_statistics_output.schema.json`, which references
 `schemas/opponent_profile_derivation.schema.json`. The local validator registry
-loads both focused schemas; runtime validation and tests enforce temporal,
+also loads `schemas/opponent_profile_application.schema.json`; runtime validation
+and tests enforce identity lookup, source/policy precedence, temporal,
 reconciliation, recommendation-consistency, and information-leakage semantics
 that JSON Schema cannot express.
 

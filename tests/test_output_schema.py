@@ -40,6 +40,9 @@ OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
 OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_profile_derivation.schema.json"
 )
+OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_profile_application.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -59,6 +62,8 @@ with OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     OPPONENT_STATISTICS_OUTPUT_SCHEMA = json.load(file)
 with OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     OPPONENT_PROFILE_DERIVATION_SCHEMA = json.load(file)
+with OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    OPPONENT_PROFILE_APPLICATION_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -82,6 +87,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             OPPONENT_PROFILE_DERIVATION_SCHEMA["$id"],
             Resource.from_contents(OPPONENT_PROFILE_DERIVATION_SCHEMA),
+        ),
+        (
+            OPPONENT_PROFILE_APPLICATION_SCHEMA["$id"],
+            Resource.from_contents(OPPONENT_PROFILE_APPLICATION_SCHEMA),
         ),
     ]
 )
@@ -550,6 +559,87 @@ def test_schema_accepts_training_dataset_output_branch() -> None:
 
 def test_schema_accepts_opponent_statistics_output_branch() -> None:
     assert_schema_valid(build_valid_opponent_statistics_output())
+
+
+def test_schema_accepts_live_opponent_profile_application_summary() -> None:
+    data = build_valid_output()
+    data["opponent_profile_application_summary"] = {
+        "enabled": True,
+        "statistics_input_file": "examples/opponent_statistics.json",
+        "use_profile_presets": True,
+        "left": {
+            "relative_player": "left",
+            "bound_player_id": "opponent-123",
+            "binding_status": "matched",
+            "effective_profile_source": "external_statistics",
+            "external_profile": {
+                "source_type": "online_platform",
+                "source_name": "Example platform",
+                "source_player_id": "platform-user-456",
+                "captured_at": "2026-07-23T12:00:00+02:00",
+                "profile_derivation_version": 1,
+                "classification": "cautious_defender",
+                "derivation_status": "actionable",
+                "confidence_level": "medium",
+                "recommended_policy_preset": "cautious_defender",
+                "actionable_policy_preset": "cautious_defender",
+            },
+            "application_status": "applied",
+            "not_applied_reason": None,
+            "applied_policy_preset": "cautious_defender",
+            "effective_lead_policy": "basic_defender_lead",
+            "effective_response_policy": "basic_defender_response",
+        },
+        "right": {
+            "relative_player": "right",
+            "bound_player_id": None,
+            "binding_status": "not_requested",
+            "effective_profile_source": "none",
+            "external_profile": None,
+            "application_status": "not_requested",
+            "not_applied_reason": "not_requested",
+            "applied_policy_preset": None,
+            "effective_lead_policy": "lowest_point",
+            "effective_response_policy": "lowest_point",
+        },
+    }
+
+    assert_schema_valid(data)
+
+
+def test_schema_rejects_simple_lowest_as_applied_external_preset() -> None:
+    data = build_valid_output()
+    data["opponent_profile_application_summary"] = {
+        "enabled": True,
+        "statistics_input_file": "examples/opponent_statistics.json",
+        "use_profile_presets": True,
+        "left": {
+            "relative_player": "left",
+            "bound_player_id": "opponent-123",
+            "binding_status": "matched",
+            "effective_profile_source": "external_statistics",
+            "external_profile": None,
+            "application_status": "applied",
+            "not_applied_reason": None,
+            "applied_policy_preset": "simple_lowest",
+            "effective_lead_policy": "lowest_point",
+            "effective_response_policy": "lowest_point",
+        },
+        "right": {
+            "relative_player": "right",
+            "bound_player_id": None,
+            "binding_status": "not_requested",
+            "effective_profile_source": "none",
+            "external_profile": None,
+            "application_status": "not_requested",
+            "not_applied_reason": "not_requested",
+            "applied_policy_preset": None,
+            "effective_lead_policy": "lowest_point",
+            "effective_response_policy": "lowest_point",
+        },
+    }
+
+    assert_schema_invalid(data)
 
 
 @pytest.mark.parametrize(

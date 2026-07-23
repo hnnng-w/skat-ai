@@ -7,8 +7,9 @@ independent of package version `0.7.0`.
 
 Profiles are not learned, confidence is not a calibrated probability or
 confidence interval, and a recommended preset is not claimed to be optimal.
-External opponent-statistics output exposes the derivation for explanation only;
-it does not apply a policy to live analysis, historical review, or simulation.
+External opponent-statistics output exposes the derivation. An explicit live
+stable-ID binding may apply only its `actionable_policy_preset` through the
+existing side-specific resolver. Historical application remains unsupported.
 
 ## Evidence and confidence
 
@@ -113,8 +114,11 @@ External workflow details are documented in
 omit it remain valid. Existing profile-policy helpers delegate threshold and
 actionability decisions to the derivation while retaining their established
 neutral fallback and explicit/default policy precedence. Existing opt-in manual
-profile policy application remains separate from external-statistics output.
+profile policy application and external-statistics conversion remain separate;
+the live binding layer connects a validated normalized record without changing
+derivation semantics.
 
-Derivation does not aggregate historical games, map external player IDs to table
-seats, store captures, predict behavior, evaluate policy effects, train a model,
-or automatically consume the recommended preset in any analysis workflow.
+Derivation does not aggregate historical games, infer table seats, store
+captures, predict behavior, evaluate policy effects, or train a model. Live
+bindings map an explicit ID to a relative side and never activate a merely
+recommended or `simple_lowest` preset.

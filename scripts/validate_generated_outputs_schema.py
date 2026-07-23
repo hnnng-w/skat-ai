@@ -30,6 +30,9 @@ OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
 OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_profile_derivation.schema.json"
 )
+OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_profile_application.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -1123,6 +1126,35 @@ def check_opponent_statistics(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_live_external_opponent_profiles(data: dict[str, Any]) -> list[str]:
+    """Checks exact two-sided live external-profile application."""
+    errors = []
+    summary = data.get("opponent_profile_application_summary")
+    if not isinstance(summary, dict):
+        return ["expected opponent_profile_application_summary"]
+    if summary["left"]["bound_player_id"] != "opponent-123":
+        errors.append("expected exact left external player binding")
+    if summary["right"]["bound_player_id"] != "opponent-789":
+        errors.append("expected exact right external player binding")
+    if summary["left"]["applied_policy_preset"] != "cautious_defender":
+        errors.append("expected applied left cautious_defender preset")
+    if summary["right"]["applied_policy_preset"] != "aggressive_points":
+        errors.append("expected applied right aggressive_points preset")
+    if data["left_opponent_policy_settings"] != {
+        "opponent_lead_policy": summary["left"]["effective_lead_policy"],
+        "opponent_response_policy": summary["left"]["effective_response_policy"],
+    }:
+        errors.append("expected reconciled left effective policies")
+    if data["right_opponent_policy_settings"] != {
+        "opponent_lead_policy": summary["right"]["effective_lead_policy"],
+        "opponent_response_policy": summary["right"]["effective_response_policy"],
+    }:
+        errors.append("expected reconciled right effective policies")
+    if "statistics" in summary["left"]["external_profile"]:
+        errors.append("expected no copied source statistics")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -1434,6 +1466,23 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="live_external_opponent_profiles",
+        input_path=PROJECT_ROOT / "examples" / "grand_second_position.json",
+        branch="two exact external player bindings applied to live side policies",
+        cli_args=(
+            "--opponent-statistics-file",
+            str(PROJECT_ROOT / "examples" / "opponent_statistics.json"),
+            "--left-opponent-player-id",
+            "opponent-123",
+            "--right-opponent-player-id",
+            "opponent-789",
+            "--use-profile-presets",
+            "--quiet",
+        ),
+        check_output=check_live_external_opponent_profiles,
+        expect_quiet_stdout=True,
+    ),
 )
 
 
@@ -1457,6 +1506,9 @@ def validate_generated_outputs() -> list[str]:
     )
     opponent_profile_derivation_schema = load_json_file(
         OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH
+    )
+    opponent_profile_application_schema = load_json_file(
+        OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH
     )
     registry = Registry().with_resources(
         [
@@ -1483,6 +1535,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 opponent_profile_derivation_schema["$id"],
                 Resource.from_contents(opponent_profile_derivation_schema),
+            ),
+            (
+                opponent_profile_application_schema["$id"],
+                Resource.from_contents(opponent_profile_application_schema),
             ),
         ]
     )

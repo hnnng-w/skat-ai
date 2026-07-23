@@ -88,6 +88,9 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
         "--right-opponent-lead-policy",
         "--right-opponent-response-policy",
         "--use-profile-presets",
+        "--opponent-statistics-file",
+        "--left-opponent-player-id",
+        "--right-opponent-player-id",
         "--historical-decision-snapshots",
         "--historical-game-review",
     ]:
@@ -3458,6 +3461,7 @@ def test_run_json_position_analysis_applies_profile_presets_to_left_right_output
         "opponent_lead_policy": "highest_point",
         "opponent_response_policy": "highest_point",
     }
+    assert "opponent_profile_application_summary" not in result
 
 
 def test_run_json_position_analysis_keeps_left_right_cli_overrides_final(
@@ -4940,3 +4944,558 @@ def test_build_analysis_result_uses_inferred_matadors_for_final_settlement(
     assert result["final_settlement_summary"]["winner"] == "declarer"
     assert result["final_settlement_summary"]["game_value"] == 96
     assert result["final_settlement_summary"]["settlement_score"] == 96
+
+
+def test_cli_applies_two_external_profiles_and_prints_concise_side_lines(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "external-profiles.json"
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--opponent-statistics-file",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--right-opponent-player-id",
+        "opponent-789",
+        "--use-profile-presets",
+        "--samples",
+        "5",
+        "--seed",
+        "42",
+        "--output",
+        output_path,
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert (
+        "Left opponent opponent-123: cautious_defender, medium confidence, "
+        "applied cautious_defender."
+    ) in completed_process.stdout
+    assert (
+        "Right opponent opponent-789: aggressive, medium confidence, "
+        "applied aggressive_points."
+    ) in completed_process.stdout
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    summary = result["opponent_profile_application_summary"]
+    assert summary["left"]["effective_lead_policy"] == (
+        result["left_opponent_policy_settings"]["opponent_lead_policy"]
+    )
+    assert summary["left"]["effective_response_policy"] == (
+        result["left_opponent_policy_settings"]["opponent_response_policy"]
+    )
+    assert summary["right"]["effective_lead_policy"] == (
+        result["right_opponent_policy_settings"]["opponent_lead_policy"]
+    )
+    assert summary["right"]["effective_response_policy"] == (
+        result["right_opponent_policy_settings"]["opponent_response_policy"]
+    )
+    assert "statistics" not in summary["left"]["external_profile"]
+    assert summary["right"]["external_profile"]["notes"] == (
+        "Percentages were copied from the public profile."
+    )
+
+
+def test_cli_external_profile_quiet_output_is_silent_and_preserves_side_isolation(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "quiet-external-profiles.json"
+    repeated_output_path = tmp_path / "quiet-external-profiles-repeated.json"
+    args = (
+        "--input",
+        VALID_INPUT_PATH,
+        "--opponent-statistics-file",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--right-opponent-player-id",
+        "opponent-789",
+        "--use-profile-presets",
+        "--samples",
+        "5",
+        "--seed",
+        "42",
+        "--output",
+    )
+    completed_process = run_cli(
+        *args,
+        output_path,
+        "--quiet",
+    )
+    repeated_process = run_cli(
+        *args,
+        repeated_output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert repeated_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert repeated_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    with repeated_output_path.open("r", encoding="utf-8") as output_file:
+        repeated_result = json.load(output_file)
+    assert repeated_result == result
+    assert result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "basic_defender_response",
+    }
+    assert result["right_opponent_policy_settings"] == {
+        "opponent_lead_policy": "highest_point",
+        "opponent_response_policy": "highest_point",
+    }
+
+
+def test_external_profiles_match_equivalent_manual_immediate_and_multi_step_paths(
+    tmp_path,
+) -> None:
+    statistics_input = main_module.load_opponent_statistics_from_json(
+        str(OPPONENT_STATISTICS_INPUT_PATH)
+    )
+    statistics_summary = main_module.build_opponent_statistics_summary(statistics_input)
+    with VALID_INPUT_PATH.open("r", encoding="utf-8") as file:
+        manual_data = json.load(file)
+    manual_data["analysis_mode"] = "live_decision"
+    manual_data["use_profile_presets"] = True
+    manual_data["left_player_profile"] = {
+        key: value
+        for key, value in statistics_summary["records"][0][
+            "normalized_profile_statistics"
+        ].items()
+        if value is not None
+    }
+    manual_data["right_player_profile"] = {
+        key: value
+        for key, value in statistics_summary["records"][1][
+            "normalized_profile_statistics"
+        ].items()
+        if value is not None
+    }
+    manual_path = tmp_path / "manual-profiles.json"
+    manual_path.write_text(json.dumps(manual_data), encoding="utf-8")
+    manual_output = tmp_path / "manual-output.json"
+    external_output = tmp_path / "external-output.json"
+    common_args = (
+        "--samples",
+        "5",
+        "--seed",
+        "42",
+        "--multi-step",
+        "1",
+        "--compare-policies",
+        "--expected-value-samples",
+        "5",
+        "--output",
+    )
+
+    manual_process = run_cli(
+        "--input", manual_path, *common_args, manual_output, "--quiet"
+    )
+    external_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        *common_args,
+        external_output,
+        "--opponent-statistics-file",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--right-opponent-player-id",
+        "opponent-789",
+        "--use-profile-presets",
+        "--quiet",
+    )
+
+    assert manual_process.returncode == 0
+    assert external_process.returncode == 0
+    with manual_output.open("r", encoding="utf-8") as file:
+        manual_result = json.load(file)
+    with external_output.open("r", encoding="utf-8") as file:
+        external_result = json.load(file)
+    for field_name in (
+        "legal_cards",
+        "analysis_report",
+        "recommendation",
+        "left_opponent_policy_settings",
+        "right_opponent_policy_settings",
+        "multi_step_result",
+        "policy_comparison_result",
+    ):
+        assert external_result[field_name] == manual_result[field_name]
+
+
+@pytest.mark.parametrize("derivation_kind", ["low_confidence", "neutral"])
+def test_non_actionable_external_profiles_do_not_change_live_analysis(
+    tmp_path,
+    derivation_kind: str,
+) -> None:
+    with OPPONENT_STATISTICS_INPUT_PATH.open("r", encoding="utf-8") as file:
+        statistics_data = json.load(file)
+    record = statistics_data["opponent_statistics_input"]["records"][1]
+    if derivation_kind == "low_confidence":
+        record["games_played"] = 20
+        expected_reason = "insufficient_confidence"
+    else:
+        record["statistics"].update(
+            solo_games_played_percent=30,
+            solo_hand_percent=0,
+            suit_games_percent=100,
+            grand_games_percent=0,
+            null_games_percent=0,
+            defender_games_played_percent=70,
+            defender_games_won_percent=50,
+        )
+        expected_reason = "neutral_profile"
+    statistics_path = tmp_path / f"{derivation_kind}.json"
+    statistics_path.write_text(json.dumps(statistics_data), encoding="utf-8")
+    baseline_output = tmp_path / f"{derivation_kind}-baseline.json"
+    external_output = tmp_path / f"{derivation_kind}-external.json"
+    baseline_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--use-profile-presets",
+        "--samples",
+        "5",
+        "--seed",
+        "42",
+        "--multi-step",
+        "1",
+        "--expected-value-samples",
+        "5",
+        "--output",
+        baseline_output,
+        "--quiet",
+    )
+    external_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--opponent-statistics-file",
+        statistics_path,
+        "--right-opponent-player-id",
+        "opponent-789",
+        "--use-profile-presets",
+        "--samples",
+        "5",
+        "--seed",
+        "42",
+        "--multi-step",
+        "1",
+        "--expected-value-samples",
+        "5",
+        "--output",
+        external_output,
+        "--quiet",
+    )
+
+    assert baseline_process.returncode == 0
+    assert external_process.returncode == 0
+    with baseline_output.open("r", encoding="utf-8") as file:
+        baseline_result = json.load(file)
+    with external_output.open("r", encoding="utf-8") as file:
+        external_result = json.load(file)
+    assert external_result["analysis_report"] == baseline_result["analysis_report"]
+    assert external_result["recommendation"] == baseline_result["recommendation"]
+    assert external_result["legal_cards"] == baseline_result["legal_cards"]
+    assert external_result["multi_step_result"] == baseline_result["multi_step_result"]
+    side = external_result["opponent_profile_application_summary"]["right"]
+    assert side["application_status"] == "not_actionable"
+    assert side["not_applied_reason"] == expected_reason
+    assert side["applied_policy_preset"] is None
+
+
+@pytest.mark.parametrize("manual_side", ["left", "right"])
+def test_manual_profile_precedes_bound_external_profile_on_one_side(
+    tmp_path,
+    manual_side: str,
+) -> None:
+    with VALID_INPUT_PATH.open("r", encoding="utf-8") as file:
+        position_data = json.load(file)
+    position_data[f"{manual_side}_player_profile"] = (
+        {
+            "games_played": 600,
+            "solo_rate": 0.42,
+            "grand_rate": 0.34,
+        }
+        if manual_side == "left"
+        else {
+            "games_played": 600,
+            "solo_rate": 0.2,
+            "defender_rate": 0.8,
+            "grand_rate": 0.1,
+            "hand_game_rate": 0.03,
+            "defender_win_rate": 0.56,
+        }
+    )
+    position_path = tmp_path / f"manual-{manual_side}.json"
+    position_path.write_text(json.dumps(position_data), encoding="utf-8")
+    output_path = tmp_path / "manual-precedence.json"
+    completed_process = run_cli(
+        "--input",
+        position_path,
+        "--opponent-statistics-file",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--right-opponent-player-id",
+        "opponent-789",
+        "--use-profile-presets",
+        "--samples",
+        "2",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    summary = result["opponent_profile_application_summary"]
+    external_side = "right" if manual_side == "left" else "left"
+    assert summary[manual_side]["binding_status"] == "matched"
+    assert summary[manual_side]["effective_profile_source"] == "manual_profile"
+    assert summary[manual_side]["application_status"] == "manual_profile_precedence"
+    assert summary[external_side]["effective_profile_source"] == "external_statistics"
+    assert summary[external_side]["application_status"] == "applied"
+    expected_manual_policy = (
+        {
+            "opponent_lead_policy": "highest_point",
+            "opponent_response_policy": "highest_point",
+        }
+        if manual_side == "left"
+        else {
+            "opponent_lead_policy": "basic_defender_lead",
+            "opponent_response_policy": "basic_defender_response",
+        }
+    )
+    assert result[f"{manual_side}_opponent_policy_settings"] == expected_manual_policy
+
+
+def test_explicit_input_and_cli_policies_retain_existing_external_profile_precedence(
+    tmp_path,
+) -> None:
+    with VALID_INPUT_PATH.open("r", encoding="utf-8") as file:
+        position_data = json.load(file)
+    position_data.update(
+        use_profile_presets=True,
+        left_opponent_lead_policy="lowest_point",
+        left_opponent_response_policy="lowest_point",
+    )
+    position_path = tmp_path / "explicit-input.json"
+    position_path.write_text(json.dumps(position_data), encoding="utf-8")
+    input_output = tmp_path / "explicit-input-output.json"
+    cli_output = tmp_path / "explicit-cli-output.json"
+    input_process = run_cli(
+        "--input",
+        position_path,
+        "--opponent-statistics-file",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--samples",
+        "2",
+        "--output",
+        input_output,
+        "--quiet",
+    )
+    cli_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--opponent-statistics-file",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--use-profile-presets",
+        "--opponent-response-policy",
+        "lowest_point",
+        "--samples",
+        "2",
+        "--output",
+        cli_output,
+        "--quiet",
+    )
+
+    assert input_process.returncode == 0
+    assert cli_process.returncode == 0
+    with input_output.open("r", encoding="utf-8") as file:
+        input_result = json.load(file)
+    with cli_output.open("r", encoding="utf-8") as file:
+        cli_result = json.load(file)
+    assert input_result["opponent_profile_application_summary"]["left"][
+        "application_status"
+    ] == "explicit_policy_precedence"
+    assert cli_result["opponent_profile_application_summary"]["left"][
+        "application_status"
+    ] == "explicit_policy_precedence"
+    assert input_result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "lowest_point",
+        "opponent_response_policy": "lowest_point",
+    }
+    assert cli_result["left_opponent_policy_settings"] == {
+        "opponent_lead_policy": "basic_defender_lead",
+        "opponent_response_policy": "lowest_point",
+    }
+
+
+def test_no_external_file_preserves_output_without_application_summary() -> None:
+    result = build_analysis_result(
+        file_path=str(VALID_INPUT_PATH),
+        sample_count_override=2,
+        random_seed_override=42,
+    )
+
+    assert "opponent_profile_application_summary" not in result
+
+
+@pytest.mark.parametrize(
+    ("args", "expected_error", "expected_returncode"),
+    [
+        (
+            ("--opponent-statistics-file", OPPONENT_STATISTICS_INPUT_PATH),
+            "requires --left-opponent-player-id",
+            2,
+        ),
+        (
+            ("--left-opponent-player-id", "opponent-123"),
+            "require --opponent-statistics-file",
+            2,
+        ),
+        (
+            (
+                "--opponent-statistics-file",
+                OPPONENT_STATISTICS_INPUT_PATH,
+                "--left-opponent-player-id",
+                " opponent-123",
+                "--use-profile-presets",
+            ),
+            "non-empty, non-padded",
+            2,
+        ),
+        (
+            (
+                "--opponent-statistics-file",
+                OPPONENT_STATISTICS_INPUT_PATH,
+                "--left-opponent-player-id",
+                "opponent-123",
+                "--right-opponent-player-id",
+                "opponent-123",
+                "--use-profile-presets",
+            ),
+            "must be different",
+            2,
+        ),
+        (
+            (
+                "--opponent-statistics-file",
+                OPPONENT_STATISTICS_INPUT_PATH,
+                "--left-opponent-player-id",
+                "Opponent-123",
+                "--use-profile-presets",
+            ),
+            "must match exactly one",
+            1,
+        ),
+        (
+            (
+                "--opponent-statistics-file",
+                OPPONENT_STATISTICS_INPUT_PATH,
+                "--left-opponent-player-id",
+                "opponent-123",
+            ),
+            "requires effective --use-profile-presets",
+            2,
+        ),
+    ],
+)
+def test_cli_rejects_invalid_external_profile_option_combinations(
+    args: tuple[object, ...],
+    expected_error: str,
+    expected_returncode: int,
+) -> None:
+    completed_process = run_cli("--input", VALID_INPUT_PATH, *args)
+
+    assert completed_process.returncode == expected_returncode
+    assert expected_error in completed_process.stderr
+    assert_no_success_output(completed_process)
+
+
+def test_cli_rejects_missing_wrong_workflow_and_invalid_statistics_companion(
+    tmp_path,
+) -> None:
+    missing_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--opponent-statistics-file",
+        tmp_path / "missing.json",
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--use-profile-presets",
+    )
+    wrong_workflow_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--opponent-statistics-file",
+        VALID_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--use-profile-presets",
+    )
+    with OPPONENT_STATISTICS_INPUT_PATH.open("r", encoding="utf-8") as file:
+        invalid_data = json.load(file)
+    invalid_data["opponent_statistics_input"]["records"][0]["source"][
+        "source_type"
+    ] = "website"
+    invalid_path = tmp_path / "invalid-statistics.json"
+    invalid_path.write_text(json.dumps(invalid_data), encoding="utf-8")
+    invalid_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--opponent-statistics-file",
+        invalid_path,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--use-profile-presets",
+    )
+
+    assert missing_process.returncode == 1
+    assert "Input file not found" in missing_process.stderr
+    assert wrong_workflow_process.returncode == 1
+    assert "does not contain opponent_statistics_input" in wrong_workflow_process.stderr
+    assert invalid_process.returncode == 1
+    assert "source_type" in invalid_process.stderr
+
+
+@pytest.mark.parametrize(
+    "input_path",
+    [
+        HISTORICAL_INPUT_PATH,
+        TRAINING_DATASET_INPUT_PATH,
+        OPPONENT_STATISTICS_INPUT_PATH,
+        PROJECT_ROOT / "examples" / "grand_second_position_with_metadata.json",
+        PROJECT_ROOT / "examples" / "grand_list_performance_input.json",
+        PROJECT_ROOT / "examples" / "grand_list_game_contributions.json",
+        PROJECT_ROOT / "examples" / "grand_list_analysis_results.json",
+        PROJECT_ROOT / "examples" / "grand_list_standings_input.json",
+        IMPOSSIBLE_NULL_INPUT_PATH,
+    ],
+)
+def test_cli_rejects_external_profiles_for_every_non_live_workflow(
+    input_path: Path,
+) -> None:
+    completed_process = run_cli(
+        "--input",
+        input_path,
+        "--opponent-statistics-file",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--left-opponent-player-id",
+        "opponent-123",
+        "--use-profile-presets",
+    )
+
+    assert completed_process.returncode == 2
+    assert "opponent-statistics-file" in completed_process.stderr
+    assert_no_success_output(completed_process)

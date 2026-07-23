@@ -111,6 +111,9 @@
     "profile_preset_settings": {
       "$ref": "#/$defs/profile_preset_settings"
     },
+    "opponent_profile_application_summary": {
+      "$ref": "https://example.local/skat-ai/opponent_profile_application.schema.json"
+    },
     "analysis_metadata": {
       "type": "object",
       "additionalProperties": true

@@ -21,6 +21,10 @@ class EffectiveOpponentPolicySettings:
     right_lead_policy: str
     right_response_policy: str
     immediate_response_policy_by_player: dict[str, str] | None
+    left_lead_source: str
+    left_response_source: str
+    right_lead_source: str
+    right_response_source: str
 
 
 def build_effective_opponent_policy_settings(
@@ -52,44 +56,60 @@ def build_effective_opponent_policy_settings(
     left_response_policy = DEFAULT_OPPONENT_RESPONSE_POLICY
     right_lead_policy = DEFAULT_OPPONENT_LEAD_POLICY
     right_response_policy = DEFAULT_OPPONENT_RESPONSE_POLICY
+    left_lead_source = "default"
+    left_response_source = "default"
+    right_lead_source = "default"
+    right_response_source = "default"
     immediate_response_policy_by_player: dict[str, str] = {}
 
-    def apply_global_lead_policy(policy: str) -> None:
+    def apply_global_lead_policy(policy: str, source: str) -> None:
         nonlocal global_lead_policy, left_lead_policy, right_lead_policy
+        nonlocal left_lead_source, right_lead_source
         validate_opponent_card_policy(policy)
         global_lead_policy = policy
         left_lead_policy = policy
         right_lead_policy = policy
+        left_lead_source = source
+        right_lead_source = source
 
-    def apply_global_response_policy(policy: str, activate_immediate: bool) -> None:
+    def apply_global_response_policy(
+        policy: str, activate_immediate: bool, source: str
+    ) -> None:
         nonlocal global_response_policy, left_response_policy, right_response_policy
+        nonlocal left_response_source, right_response_source
         validate_opponent_card_policy(policy)
         global_response_policy = policy
         left_response_policy = policy
         right_response_policy = policy
+        left_response_source = source
+        right_response_source = source
 
         if activate_immediate:
             immediate_response_policy_by_player["left"] = policy
             immediate_response_policy_by_player["right"] = policy
 
-    def apply_global_preset(preset: str) -> None:
+    def apply_global_preset(preset: str, source: str) -> None:
         preset_settings = get_opponent_policy_settings_for_preset(preset)
-        apply_global_lead_policy(preset_settings["opponent_lead_policy"])
+        apply_global_lead_policy(preset_settings["opponent_lead_policy"], source)
         apply_global_response_policy(
             policy=preset_settings["opponent_response_policy"],
             activate_immediate=True,
+            source=source,
         )
 
-    def apply_side_lead_policy(player: str, policy: str) -> None:
+    def apply_side_lead_policy(player: str, policy: str, source: str) -> None:
         nonlocal left_lead_policy, right_lead_policy
+        nonlocal left_lead_source, right_lead_source
         validate_opponent_card_policy(policy)
 
         if player == "left":
             left_lead_policy = policy
+            left_lead_source = source
             return
 
         if player == "right":
             right_lead_policy = policy
+            right_lead_source = source
             return
 
         raise ValueError(f"Invalid opponent player: {player}")
@@ -98,14 +118,18 @@ def build_effective_opponent_policy_settings(
         player: str,
         policy: str,
         activate_immediate: bool,
+        source: str,
     ) -> None:
         nonlocal left_response_policy, right_response_policy
+        nonlocal left_response_source, right_response_source
         validate_opponent_card_policy(policy)
 
         if player == "left":
             left_response_policy = policy
+            left_response_source = source
         elif player == "right":
             right_response_policy = policy
+            right_response_source = source
         else:
             raise ValueError(f"Invalid opponent player: {player}")
 
@@ -121,7 +145,7 @@ def build_effective_opponent_policy_settings(
 
         lead_policy = side_settings.get("opponent_lead_policy")
         if lead_policy is not None:
-            apply_side_lead_policy(player, lead_policy)
+            apply_side_lead_policy(player, lead_policy, "profile")
 
         response_policy = side_settings.get("opponent_response_policy")
         if response_policy is not None:
@@ -129,18 +153,20 @@ def build_effective_opponent_policy_settings(
                 player=player,
                 policy=response_policy,
                 activate_immediate=True,
+                source="profile",
             )
 
     if "opponent_policy_preset" in data:
-        apply_global_preset(data["opponent_policy_preset"])
+        apply_global_preset(data["opponent_policy_preset"], "input_explicit")
 
     if "opponent_lead_policy" in data:
-        apply_global_lead_policy(data["opponent_lead_policy"])
+        apply_global_lead_policy(data["opponent_lead_policy"], "input_explicit")
 
     if "opponent_response_policy" in data:
         apply_global_response_policy(
             policy=data["opponent_response_policy"],
             activate_immediate=True,
+            source="input_explicit",
         )
 
     if data.get("use_profile_presets") is True:
@@ -148,59 +174,72 @@ def build_effective_opponent_policy_settings(
         apply_profile_side_policy("right", right_profile)
 
     if "left_opponent_lead_policy" in data:
-        apply_side_lead_policy("left", data["left_opponent_lead_policy"])
+        apply_side_lead_policy(
+            "left", data["left_opponent_lead_policy"], "input_explicit"
+        )
 
     if "left_opponent_response_policy" in data:
         apply_side_response_policy(
             player="left",
             policy=data["left_opponent_response_policy"],
             activate_immediate=True,
+            source="input_explicit",
         )
 
     if "right_opponent_lead_policy" in data:
-        apply_side_lead_policy("right", data["right_opponent_lead_policy"])
+        apply_side_lead_policy(
+            "right", data["right_opponent_lead_policy"], "input_explicit"
+        )
 
     if "right_opponent_response_policy" in data:
         apply_side_response_policy(
             player="right",
             policy=data["right_opponent_response_policy"],
             activate_immediate=True,
+            source="input_explicit",
         )
 
     if opponent_policy_preset_override is not None:
-        apply_global_preset(opponent_policy_preset_override)
+        apply_global_preset(opponent_policy_preset_override, "cli_explicit")
 
     if use_profile_presets_override:
         apply_profile_side_policy("left", left_profile)
         apply_profile_side_policy("right", right_profile)
 
     if opponent_lead_policy_override is not None:
-        apply_global_lead_policy(opponent_lead_policy_override)
+        apply_global_lead_policy(opponent_lead_policy_override, "cli_explicit")
 
     if opponent_response_policy_override is not None:
         apply_global_response_policy(
             policy=opponent_response_policy_override,
             activate_immediate=True,
+            source="cli_explicit",
         )
 
     if left_opponent_lead_policy_override is not None:
-        apply_side_lead_policy("left", left_opponent_lead_policy_override)
+        apply_side_lead_policy(
+            "left", left_opponent_lead_policy_override, "cli_explicit"
+        )
 
     if left_opponent_response_policy_override is not None:
         apply_side_response_policy(
             player="left",
             policy=left_opponent_response_policy_override,
             activate_immediate=True,
+            source="cli_explicit",
         )
 
     if right_opponent_lead_policy_override is not None:
-        apply_side_lead_policy("right", right_opponent_lead_policy_override)
+        apply_side_lead_policy(
+            "right", right_opponent_lead_policy_override, "cli_explicit"
+        )
 
     if right_opponent_response_policy_override is not None:
         apply_side_response_policy(
             player="right",
             policy=right_opponent_response_policy_override,
             activate_immediate=True,
+            source="cli_explicit",
         )
 
     return EffectiveOpponentPolicySettings(
@@ -215,4 +254,8 @@ def build_effective_opponent_policy_settings(
             if immediate_response_policy_by_player
             else None
         ),
+        left_lead_source=left_lead_source,
+        left_response_source=left_response_source,
+        right_lead_source=right_lead_source,
+        right_response_source=right_response_source,
     )

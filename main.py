@@ -53,9 +53,18 @@ from skat_ai.input_loader import (
     load_training_dataset_from_json,
 )
 from skat_ai.input_validation import MAX_SAMPLE_COUNT
+from skat_ai.live_opponent_profile_binding import (
+    LiveOpponentProfileBindings,
+    resolve_live_opponent_profile_bindings,
+)
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_expected_objective_utility
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
+from skat_ai.opponent_profile_application import (
+    EffectiveLiveOpponentProfiles,
+    build_opponent_profile_application_summary,
+    select_effective_live_opponent_profiles,
+)
 from skat_ai.opponent_statistics import build_opponent_statistics_summary
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
@@ -169,14 +178,23 @@ def build_effective_opponent_policy_settings_for_analysis(
     left_opponent_response_policy_override: str | None = None,
     right_opponent_lead_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
+    effective_live_profiles: EffectiveLiveOpponentProfiles | None = None,
 ) -> EffectiveOpponentPolicySettings:
     """
     Builds shared effective opponent policy settings for one analysis invocation.
     """
     return build_effective_opponent_policy_settings(
         data=data,
-        left_player_profile=analysis_metadata.left_player_profile,
-        right_player_profile=analysis_metadata.right_player_profile,
+        left_player_profile=(
+            effective_live_profiles.left
+            if effective_live_profiles is not None
+            else analysis_metadata.left_player_profile
+        ),
+        right_player_profile=(
+            effective_live_profiles.right
+            if effective_live_profiles is not None
+            else analysis_metadata.right_player_profile
+        ),
         opponent_policy_preset_override=opponent_policy_preset_override,
         opponent_lead_policy_override=opponent_lead_policy_override,
         opponent_response_policy_override=opponent_response_policy_override,
@@ -232,6 +250,7 @@ def build_analysis_result(
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
     effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
+    opponent_profile_application_summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Builds the full analysis result as a structured dictionary.
@@ -458,6 +477,11 @@ def build_analysis_result(
 
     if list_standings_summary is not None:
         result["list_standings_summary"] = list_standings_summary
+
+    if opponent_profile_application_summary is not None:
+        result["opponent_profile_application_summary"] = (
+            opponent_profile_application_summary
+        )
 
     return result
 
@@ -722,6 +746,8 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print("Random seed:", settings["random_seed"])
     print("Use basic opponent strategy:", settings["use_basic_opponent_strategy"])
 
+    print_opponent_profile_application_summary(result)
+
     print()
     print("Score summary")
     print("Explicit declarer points:", score_summary["explicit_declarer_points"])
@@ -751,6 +777,34 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print("Reason:", result["recommendation"]["reason"])
 
     print_post_game_review_summary(result)
+
+
+def print_opponent_profile_application_summary(result: dict[str, Any]) -> None:
+    """Prints one concise line per requested external opponent binding."""
+    summary = result.get("opponent_profile_application_summary")
+    if not isinstance(summary, dict):
+        return
+
+    for relative_player in ("left", "right"):
+        side = summary[relative_player]
+        if side["binding_status"] != "matched":
+            continue
+        external_profile = side["external_profile"]
+        classification = external_profile["classification"]
+        confidence = external_profile["confidence_level"]
+        status = side["application_status"]
+        if status == "applied":
+            decision = f"applied {side['applied_policy_preset']}"
+        elif status == "manual_profile_precedence":
+            decision = "not applied; manual profile takes precedence"
+        elif status == "explicit_policy_precedence":
+            decision = "not applied; explicit policy takes precedence"
+        else:
+            decision = "not applied"
+        print(
+            f"{relative_player.title()} opponent {side['bound_player_id']}: "
+            f"{classification}, {confidence} confidence, {decision}."
+        )
 
 
 def print_historical_game_result(result: dict[str, Any]) -> None:
@@ -1034,6 +1088,9 @@ def run_json_position_analysis(
     opponent_lead_policy_override: str | None = None,
     opponent_response_policy_override: str | None = None,
     use_profile_presets_override: bool = False,
+    opponent_statistics_file: str | None = None,
+    left_opponent_player_id: str | None = None,
+    right_opponent_player_id: str | None = None,
     quiet: bool = False,
 ) -> None:
     if comparison_only and not compare_policies:
@@ -1044,6 +1101,29 @@ def run_json_position_analysis(
 
     position_data = load_position_from_json(file_path)
     analysis_metadata = get_analysis_metadata_from_input(position_data)
+    validate_live_opponent_profile_options(
+        position_data=position_data,
+        opponent_statistics_file=opponent_statistics_file,
+        left_opponent_player_id=left_opponent_player_id,
+        right_opponent_player_id=right_opponent_player_id,
+        use_profile_presets_override=use_profile_presets_override,
+    )
+    bindings: LiveOpponentProfileBindings | None = None
+    effective_live_profiles: EffectiveLiveOpponentProfiles | None = None
+    if opponent_statistics_file is not None:
+        statistics_input = load_opponent_statistics_from_json(opponent_statistics_file)
+        statistics_summary = build_opponent_statistics_summary(statistics_input)
+        bindings = resolve_live_opponent_profile_bindings(
+            statistics_summary,
+            left_player_id=left_opponent_player_id,
+            right_player_id=right_opponent_player_id,
+        )
+        effective_live_profiles = select_effective_live_opponent_profiles(
+            data=position_data,
+            manual_left_profile=analysis_metadata.left_player_profile,
+            manual_right_profile=analysis_metadata.right_player_profile,
+            bindings=bindings,
+        )
     effective_opponent_policy_settings = build_effective_opponent_policy_settings_for_analysis(
         data=position_data,
         analysis_metadata=analysis_metadata,
@@ -1055,7 +1135,23 @@ def run_json_position_analysis(
         left_opponent_response_policy_override=left_opponent_response_policy_override,
         right_opponent_lead_policy_override=right_opponent_lead_policy_override,
         right_opponent_response_policy_override=right_opponent_response_policy_override,
+        effective_live_profiles=effective_live_profiles,
     )
+    opponent_profile_application_summary = None
+    if (
+        opponent_statistics_file is not None
+        and bindings is not None
+        and effective_live_profiles is not None
+    ):
+        opponent_profile_application_summary = (
+            build_opponent_profile_application_summary(
+                statistics_input_file=opponent_statistics_file,
+                use_profile_presets=True,
+                bindings=bindings,
+                effective_profiles=effective_live_profiles,
+                effective_settings=effective_opponent_policy_settings,
+            )
+        )
 
     result = build_analysis_result(
         file_path=file_path,
@@ -1071,6 +1167,9 @@ def run_json_position_analysis(
         opponent_response_policy_override=opponent_response_policy_override,
         use_profile_presets_override=use_profile_presets_override,
         effective_opponent_policy_settings=effective_opponent_policy_settings,
+        opponent_profile_application_summary=(
+            opponent_profile_application_summary
+        ),
     )
 
     multi_step_result_to_print = None
@@ -1450,6 +1549,24 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--opponent-statistics-file",
+        default=None,
+        help=(
+            "Attach validated external opponent statistics to a live position."
+        ),
+    )
+    parser.add_argument(
+        "--left-opponent-player-id",
+        default=None,
+        help="Bind this exact external player ID to the left opponent.",
+    )
+    parser.add_argument(
+        "--right-opponent-player-id",
+        default=None,
+        help="Bind this exact external player ID to the right opponent.",
+    )
+
+    parser.add_argument(
         "--left-opponent-lead-policy",
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
@@ -1511,6 +1628,80 @@ def validate_cli_arguments(args: argparse.Namespace) -> None:
     if args.compare_policies and args.multi_step is None:
         raise CliUsageError("--compare-policies requires --multi-step.")
 
+    opponent_statistics_file = getattr(args, "opponent_statistics_file", None)
+    left_player_id = getattr(args, "left_opponent_player_id", None)
+    right_player_id = getattr(args, "right_opponent_player_id", None)
+    if opponent_statistics_file is None and (
+        left_player_id is not None or right_player_id is not None
+    ):
+        raise CliUsageError(
+            "--left-opponent-player-id and --right-opponent-player-id require "
+            "--opponent-statistics-file."
+        )
+    if opponent_statistics_file is not None and (
+        left_player_id is None and right_player_id is None
+    ):
+        raise CliUsageError(
+            "--opponent-statistics-file requires --left-opponent-player-id, "
+            "--right-opponent-player-id, or both."
+        )
+    for option_name, player_id in (
+        ("--left-opponent-player-id", left_player_id),
+        ("--right-opponent-player-id", right_player_id),
+    ):
+        if player_id is not None and (not player_id or player_id != player_id.strip()):
+            raise CliUsageError(
+                f"{option_name} must be a non-empty, non-padded string."
+            )
+    if left_player_id is not None and left_player_id == right_player_id:
+        raise CliUsageError(
+            "--left-opponent-player-id and --right-opponent-player-id must be different."
+        )
+
+
+def validate_live_opponent_profile_options(
+    position_data: dict[str, Any],
+    opponent_statistics_file: str | None,
+    left_opponent_player_id: str | None,
+    right_opponent_player_id: str | None,
+    use_profile_presets_override: bool,
+) -> None:
+    """Validates external-profile options for one live position invocation."""
+    if opponent_statistics_file is None:
+        if left_opponent_player_id is not None or right_opponent_player_id is not None:
+            raise CliUsageError(
+                "Opponent player IDs require --opponent-statistics-file."
+            )
+        return
+    if left_opponent_player_id is None and right_opponent_player_id is None:
+        raise CliUsageError(
+            "--opponent-statistics-file requires at least one opponent player ID."
+        )
+    if position_data.get("analysis_mode", "live_decision") != "live_decision":
+        raise CliUsageError(
+            "--opponent-statistics-file is supported only for "
+            "analysis_mode='live_decision'."
+        )
+    unsupported_fields = {
+        "list_performance_input",
+        "list_game_contributions",
+        "list_analysis_results",
+        "list_standings_input",
+        "impossible_null_settlement",
+    }.intersection(position_data)
+    if unsupported_fields:
+        raise CliUsageError(
+            "--opponent-statistics-file is not supported for this non-live analysis "
+            f"workflow: {', '.join(sorted(unsupported_fields))}."
+        )
+    if not (
+        position_data.get("use_profile_presets") is True
+        or use_profile_presets_override
+    ):
+        raise CliUsageError(
+            "--opponent-statistics-file requires effective --use-profile-presets opt-in."
+        )
+
 
 def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
     """Rejects position-analysis and simulation overrides for historical games."""
@@ -1532,6 +1723,9 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
         "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
         "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
+        "--opponent-statistics-file": args.opponent_statistics_file is not None,
+        "--left-opponent-player-id": args.left_opponent_player_id is not None,
+        "--right-opponent-player-id": args.right_opponent_player_id is not None,
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -1566,6 +1760,9 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
         "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
         "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
+        "--opponent-statistics-file": args.opponent_statistics_file is not None,
+        "--left-opponent-player-id": args.left_opponent_player_id is not None,
+        "--right-opponent-player-id": args.right_opponent_player_id is not None,
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -1600,6 +1797,9 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
         "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
         "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
+        "--opponent-statistics-file": args.opponent_statistics_file is not None,
+        "--left-opponent-player-id": args.left_opponent_player_id is not None,
+        "--right-opponent-player-id": args.right_opponent_player_id is not None,
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -1676,6 +1876,9 @@ def main() -> int:
                 opponent_lead_policy_override=args.opponent_lead_policy,
                 opponent_response_policy_override=args.opponent_response_policy,
                 use_profile_presets_override=args.use_profile_presets,
+                opponent_statistics_file=args.opponent_statistics_file,
+                left_opponent_player_id=args.left_opponent_player_id,
+                right_opponent_player_id=args.right_opponent_player_id,
                 quiet=args.quiet,
             )
     except CliUsageError as error:

@@ -254,8 +254,20 @@ python main.py --input examples/opponent_statistics.json
 Opponent-statistics inputs form a fourth separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted. Public values use percentage points;
 canonical profile rates use `0..1`. Exact role-specific counts are not inferred.
-Role evidence may instead be exposed as an unrounded estimate. The derived
-preset is explanatory output only and is not applied to analysis.
+Role evidence may instead be exposed as an unrounded estimate. The standalone
+conversion does not run analysis.
+
+Attach the same validated statistics file to a live position with exact,
+case-sensitive left/right player IDs:
+
+```powershell
+python main.py --input examples/grand_second_position.json --opponent-statistics-file examples/opponent_statistics.json --left-opponent-player-id opponent-123 --right-opponent-player-id opponent-789 --use-profile-presets --samples 20 --seed 42
+```
+
+Either side may be bound. Only confidence-gated actionable presets affect the
+existing side-specific live policy path. Manual side profiles and existing
+explicit policy settings retain precedence. Historical application is not
+supported. See [Live opponent profiles](docs/live_opponent_profiles.md).
 
 CLI exit codes:
 
@@ -279,6 +291,7 @@ Detailed documentation is split into topic-specific files:
 * [Training data](docs/training_data.md)
 * [Opponent statistics](docs/opponent_statistics.md)
 * [Opponent profile derivation](docs/opponent_profile_derivation.md)
+* [Live opponent profiles](docs/live_opponent_profiles.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Historical game review schema](schemas/historical_game_review.schema.json)
@@ -287,6 +300,7 @@ Detailed documentation is split into topic-specific files:
 * [Opponent statistics input schema](schemas/opponent_statistics.schema.json)
 * [Opponent statistics output schema](schemas/opponent_statistics_output.schema.json)
 * [Opponent profile derivation schema](schemas/opponent_profile_derivation.schema.json)
+* [Live opponent profile application schema](schemas/opponent_profile_application.schema.json)
 * [Output JSON](docs/output_json.md)
 * [Output JSON schema](schemas/output.schema.json)
 * [Schema validation](docs/schema_validation.md)
@@ -333,7 +347,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.7.0`, prepared around the theme
 "Rules confidence and information-safe historical workflows." Issues #69
-through #76 are complete. Generated-output validation covers 28 deterministic
+through #76 are complete. Generated-output validation covers 29 deterministic
 scenarios. `v0.6.0` remains the latest human-published release until a maintainer
 tags and publishes `v0.7.0`.
 
@@ -350,8 +364,9 @@ beyond normal completion, complete claim and concession handling, general
 settlement completeness, exposed-card-aware ouvert recommendation simulation,
 complete live-input provenance, coherent hidden-world continuity across all
 Multi-Step paths, and player-disjoint dataset partitioning. External opponent
-statistics can be validated and normalized but are not consumed by analysis;
-historical statistics aggregation and learned-model work remain undecided. The
+statistics can be validated, normalized, and explicitly bound by stable ID to
+live left/right opponents; historical profile application, historical
+statistics aggregation, and learned-model work remain undecided. The
 product supports fixed three-player tables only.
 
 Current support and known limitations are tracked in the
