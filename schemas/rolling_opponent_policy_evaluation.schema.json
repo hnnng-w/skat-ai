@@ -68,29 +68,62 @@
         "dataset_version": {"$ref": "#/$defs/non_padded_string"},
         "training_dataset_schema_version": {"const": 1},
         "feature_generation_version": {"const": 1},
-        "target": {"const": "actual_card_played"}
+        "target": {"const": "actual_card_played"},
+        "partition_policy": {
+          "$ref": "https://example.local/skat-ai/dataset_partition_policy.schema.json"
+        }
       }
     },
     "selection": {
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "evaluation_mode",
         "source_partitions",
         "evaluation_partitions",
         "temporal_rule",
+        "selected_partition_player_overlap",
         "source_record_count",
         "target_record_count",
         "target_game_count",
         "target_decision_count"
       ],
       "properties": {
+        "evaluation_mode": {"const": "known_opponent"},
         "source_partitions": {"$ref": "#/$defs/partitions"},
         "evaluation_partitions": {"$ref": "#/$defs/partitions"},
         "temporal_rule": {"const": "source_played_at_strictly_before_target_played_at"},
+        "selected_partition_player_overlap": {
+          "$ref": "#/$defs/selected_partition_player_overlap"
+        },
         "source_record_count": {"type": "integer", "minimum": 1},
         "target_record_count": {"type": "integer", "minimum": 1},
         "target_game_count": {"type": "integer", "minimum": 1},
         "target_decision_count": {"type": "integer", "minimum": 30, "multipleOf": 30}
+      }
+    },
+    "selected_partition_player_overlap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_distinct_player_count",
+        "evaluation_distinct_player_count",
+        "shared_player_count",
+        "shared_player_ids",
+        "eligibility_basis"
+      ],
+      "properties": {
+        "source_distinct_player_count": {"$ref": "#/$defs/count"},
+        "evaluation_distinct_player_count": {"$ref": "#/$defs/count"},
+        "shared_player_count": {"$ref": "#/$defs/count"},
+        "shared_player_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/non_padded_string"}
+        },
+        "eligibility_basis": {
+          "const": "partition_membership_only_not_temporal_eligibility"
+        }
       }
     },
     "coverage": {

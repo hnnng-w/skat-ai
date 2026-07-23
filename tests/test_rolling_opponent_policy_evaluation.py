@@ -51,9 +51,17 @@ def test_default_selection_is_canonical_deterministic_and_reconciled() -> None:
 
     assert first == second
     assert first["selection"] == {
+        "evaluation_mode": "known_opponent",
         "source_partitions": ["train"],
         "evaluation_partitions": ["validation", "test"],
         "temporal_rule": "source_played_at_strictly_before_target_played_at",
+        "selected_partition_player_overlap": {
+            "source_distinct_player_count": 3,
+            "evaluation_distinct_player_count": 3,
+            "shared_player_count": 3,
+            "shared_player_ids": ["player-a", "player-b", "player-c"],
+            "eligibility_basis": "partition_membership_only_not_temporal_eligibility",
+        },
         "source_record_count": 1,
         "target_record_count": 1,
         "target_game_count": 1,
@@ -70,6 +78,51 @@ def test_default_selection_is_canonical_deterministic_and_reconciled() -> None:
     ) == 30
     assert "recommendation" not in str(first)
     assert "expected_point" not in str(first)
+
+
+def test_known_opponent_policy_is_accepted_and_preserved() -> None:
+    data = build_training_input(
+        [build_historical_input(), build_historical_input()],
+        ["train", "validation"],
+    )
+    data["records"][0]["historical_game"]["played_at"] = "2026-07-10T16:00:00Z"
+    data["records"][1]["historical_game"]["played_at"] = "2026-07-11T16:00:00Z"
+    data["partition_policy"] = {
+        "policy_version": 1,
+        "mode": "known_opponent",
+    }
+
+    result = serialize(build_training_dataset_input(data))
+
+    assert result["source_dataset"]["partition_policy"] == data["partition_policy"]
+    assert result["selection"]["evaluation_mode"] == "known_opponent"
+
+
+def test_unseen_player_policy_is_semantically_incompatible() -> None:
+    source = build_historical_input()
+    target = build_historical_input()
+    mapping = {
+        "player-a": "target-a",
+        "player-b": "target-b",
+        "player-c": "target-c",
+    }
+    for player in target["players"]:
+        player["player_id"] = mapping[player["player_id"]]
+    target["declarer_player_id"] = mapping[target["declarer_player_id"]]
+    for trick in target["tricks"]:
+        trick["leader_player_id"] = mapping[trick["leader_player_id"]]
+        for play in trick["plays"]:
+            play["player_id"] = mapping[play["player_id"]]
+    data = build_training_input([source, target], ["train", "validation"])
+    data["records"][0]["historical_game"]["played_at"] = "2026-07-10T16:00:00Z"
+    data["records"][1]["historical_game"]["played_at"] = "2026-07-11T16:00:00Z"
+    data["partition_policy"] = {
+        "policy_version": 1,
+        "mode": "unseen_player",
+    }
+
+    with pytest.raises(ValueError, match="known_opponent workflow.*unseen_player"):
+        serialize(build_training_dataset_input(data))
 
 
 def test_explicit_partitions_are_deduplicated_canonical_and_disjoint() -> None:

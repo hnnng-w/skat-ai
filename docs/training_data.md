@@ -23,12 +23,17 @@ The top-level input contains only `training_dataset_input`:
     "dataset_version": "1",
     "feature_generation_version": 1,
     "target": "actual_card_played",
+    "partition_policy": {
+      "policy_version": 1,
+      "mode": "known_opponent"
+    },
     "records": []
   }
 }
 ```
 
-`schema_version` and `feature_generation_version` currently accept only `1`.
+`schema_version`, `feature_generation_version`, and supplied policy version
+currently accept only `1`.
 The only version-1 target is `actual_card_played`. Dataset IDs and versions are
 opaque, case-sensitive, non-empty, and may not have leading or trailing
 whitespace. They are not package versions.
@@ -74,7 +79,11 @@ The runtime rejects duplicate `record_id` values, historical `game_id` values,
 and complete source identities formed from `source_type`, `source_name`, and
 `source_record_id`. A duplicate is invalid within one partition and across
 partitions. Cross-partition game or source duplication is reported as partition
-leakage. Player-disjoint partitioning is not yet defined or enforced.
+leakage. This is separate from stable-player overlap. Optional `known_opponent`
+policy permits player overlap; `unseen_player` requires every exact stable
+`player_id` to occur in one partition only. Repetition within one partition is
+valid. Existing datasets without policy metadata retain unspecified intent.
+See [Dataset partition policies](dataset_partition_policies.md).
 
 The same validated dataset can be reused as the multi-game source for
 [historical opponent statistics](historical_opponent_statistics.md). In that
@@ -143,7 +152,8 @@ recommendation, review quality, or final result is never a version-1 target.
 ## Output and counts
 
 The dedicated output branch contains only `input_file` and
-`training_dataset_summary`. The summary preserves dataset versions and target,
+`training_dataset_summary`. The summary preserves dataset versions, target, and
+supplied partition policy,
 contains canonical historical records and all samples, and reports reconciled
 record and sample totals. `partition_counts` always includes `train`,
 `validation`, and `test`, including zero-count partitions. Every record has 30
@@ -174,6 +184,12 @@ Write only structured output:
 python main.py --input examples/training_dataset_normal_play.json --output outputs/training-dataset.json --quiet
 ```
 
+Audit partition membership without generating samples:
+
+```powershell
+python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
+```
+
 Normal output prints dataset ID and version, total record and sample counts, and
 all three partition counts. Historical snapshot/review flags and all position,
 recommendation, simulation, comparison, policy, profile, sample-count, and seed
@@ -188,7 +204,8 @@ binding options are rejected. Without the aggregation flag, sample conversion is
 unchanged.
 
 With `--evaluate-opponent-policy-profiles`, the dataset instead feeds the
-separate rolling behavioral evaluation. Source partitions default to `train`;
+separate known-opponent rolling behavioral evaluation. It accepts unspecified
+or `known_opponent` intent and rejects `unseen_player`. Source partitions default to `train`;
 evaluation partitions default to `validation` and `test`; the roles must be
 disjoint. This mode emits no samples and leaves normal conversion unchanged.
 See [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).

@@ -35,7 +35,8 @@
           {"required": ["training_dataset_summary"]},
           {"required": ["opponent_statistics_summary"]},
           {"required": ["historical_opponent_statistics_aggregation_summary"]},
-          {"required": ["rolling_opponent_policy_evaluation_summary"]}
+          {"required": ["rolling_opponent_policy_evaluation_summary"]},
+          {"required": ["dataset_partition_audit_summary"]}
         ]
       }
     },
@@ -104,6 +105,18 @@
         }
       },
       "additionalProperties": false
+    },
+    {
+      "required": ["input_file", "dataset_partition_audit_summary"],
+      "properties": {
+        "input_file": {
+          "type": "string"
+        },
+        "dataset_partition_audit_summary": {
+          "$ref": "https://example.local/skat-ai/dataset_partition_audit.schema.json"
+        }
+      },
+      "additionalProperties": false
     }
   ],
   "properties": {
@@ -124,6 +137,9 @@
     },
     "rolling_opponent_policy_evaluation_summary": {
       "$ref": "https://example.local/skat-ai/rolling_opponent_policy_evaluation.schema.json"
+    },
+    "dataset_partition_audit_summary": {
+      "$ref": "https://example.local/skat-ai/dataset_partition_audit.schema.json"
     },
     "position": {
       "type": "object",

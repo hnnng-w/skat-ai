@@ -28,6 +28,10 @@ evaluation partitions must contain at least one target. Repeated stable player
 IDs across the two roles are expected; this is not player-disjoint or unseen-
 player evaluation.
 
+The evaluator accepts datasets with unspecified intent or declared
+`known_opponent` policy and rejects declared `unseen_player` policy as
+semantically incompatible.
+
 The mode rejects training-sample overrides, historical review and aggregation,
 statistics export or binding, explicit policies or presets, recommendation,
 Multi-Step, comparison, list, and unrelated workflow options. It emits no
@@ -124,11 +128,16 @@ calculated.
 ## Output and reconciliation
 
 The dedicated `rolling_opponent_policy_evaluation_summary` includes source
-dataset identity, partition and temporal selection, coverage, all-decision
+dataset identity, `evaluation_mode: "known_opponent"`, selected-partition stable
+player overlap, partition and temporal selection, coverage, all-decision
 baseline results, actionable paired results, bounded breakdowns, and ordered
 target games. Breakdowns cover stable player, acting side, game type, lead or
 response phase, actionable preset, overall confidence, and role-relevant
 confidence.
+
+Selected-partition overlap is membership-only metadata. It does not claim that
+an individual target has eligible history; strict timestamp filtering remains
+authoritative for every target game.
 
 Each target game includes record and game identity, preserved timestamp,
 contract, participants, as-of source count and latest timestamp, compact player
@@ -155,7 +164,7 @@ impractically large.
 A higher preferred-card match rate means only that the selected deterministic
 profile policy imitated the observed cards more often on the paired known-
 opponent decisions. It does not prove stronger or optimal Skat play. Version 1
-does not support source/evaluation overlap, target-partition rolling updates,
+does not support overlapping partition names, target-partition rolling updates,
 player-disjoint evaluation, unseen-player generalization, threshold tuning,
 policy optimization, expected-value or game-outcome comparison, statistical
 significance, learned profiles, or machine-learning models.

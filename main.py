@@ -10,6 +10,11 @@ from skat_ai.analysis_report import (
     format_card_analysis_report,
 )
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
+from skat_ai.dataset_partition_audit import (
+    audit_training_dataset_partitions,
+    build_serializable_dataset_partition_audit,
+    resolve_dataset_partition_audit_mode,
+)
 from skat_ai.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
@@ -909,6 +914,34 @@ def print_training_dataset_result(result: dict[str, Any]) -> None:
         )
 
 
+def print_dataset_partition_audit_result(result: dict[str, Any]) -> None:
+    """Prints a concise stable-player partition-audit summary."""
+    summary = result["dataset_partition_audit_summary"]
+    source = summary["source_dataset"]
+    players = summary["player_summary"]
+    unseen = summary["unseen_player_compliance"]
+    coverage = summary["known_opponent_coverage"]["train_to_validation"]
+    print(
+        "Dataset partition audit: "
+        f"{source['total_historical_game_count']} games, "
+        f"{players['total_distinct_player_count']} distinct players."
+    )
+    print("Partition mode:", f"{summary['effective_audit_mode']}.")
+    print("Cross-partition players:", f"{unseen['violating_player_count']}.")
+    print(
+        "Train -> validation shared players: "
+        f"{coverage['shared_player_count']} of "
+        f"{coverage['target_distinct_player_count']} validation players."
+    )
+    if unseen["player_disjoint"]:
+        print("Unseen-player compliance: passed.")
+    else:
+        print(
+            "Unseen-player compliance: failed with "
+            f"{unseen['violating_player_count']} overlapping players."
+        )
+
+
 def print_rolling_opponent_policy_evaluation_result(result: dict[str, Any]) -> None:
     """Prints a concise behavioral policy-evaluation summary."""
     summary = result["rolling_opponent_policy_evaluation_summary"]
@@ -1487,6 +1520,35 @@ def run_json_training_dataset_conversion(
         print("Output file written:", output_path)
 
 
+def run_json_dataset_partition_audit(
+    file_path: str,
+    requested_mode: str | None = None,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Audits training-dataset player overlap without generating samples."""
+    dataset = load_training_dataset_from_json(file_path)
+    try:
+        effective_mode = resolve_dataset_partition_audit_mode(dataset, requested_mode)
+    except ValueError as error:
+        raise CliUsageError(str(error)) from error
+    audit = audit_training_dataset_partitions(dataset, effective_mode)
+    result = {
+        "input_file": str(file_path),
+        "dataset_partition_audit_summary": (
+            build_serializable_dataset_partition_audit(audit)
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if quiet:
+        return
+    print_dataset_partition_audit_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
 def run_json_rolling_opponent_policy_evaluation(
     file_path: str,
     source_partitions: tuple[str, ...] = DEFAULT_SOURCE_PARTITIONS,
@@ -1645,6 +1707,17 @@ def parse_arguments() -> argparse.Namespace:
         help="Suppress successful human-readable stdout output.",
     )
 
+    parser.add_argument(
+        "--audit-dataset-partitions",
+        action="store_true",
+        help="Audit exact stable-player membership and overlap across dataset partitions.",
+    )
+    parser.add_argument(
+        "--dataset-partition-mode",
+        choices=("report_only", "known_opponent", "unseen_player"),
+        default=None,
+        help="Evaluate the partition audit under this explicit policy mode.",
+    )
     parser.add_argument(
         "--aggregate-opponent-statistics",
         action="store_true",
@@ -1866,6 +1939,16 @@ def validate_cli_arguments(
 
     aggregate_statistics = getattr(args, "aggregate_opponent_statistics", False)
     evaluate_profiles = getattr(args, "evaluate_opponent_policy_profiles", False)
+    audit_partitions = getattr(args, "audit_dataset_partitions", False)
+    dataset_partition_mode = getattr(args, "dataset_partition_mode", None)
+    if dataset_partition_mode is not None and not audit_partitions:
+        raise CliUsageError(
+            "--dataset-partition-mode requires --audit-dataset-partitions."
+        )
+    if audit_partitions and workflow != "training_dataset":
+        raise CliUsageError(
+            "--audit-dataset-partitions is supported only for training_dataset_input."
+        )
     evaluation_only_options = {
         "--profile-source-partition": getattr(args, "profile_source_partition", None)
         is not None,
@@ -2132,6 +2215,28 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
     }
     evaluation_mode = getattr(args, "evaluate_opponent_policy_profiles", False)
+    audit_mode = getattr(args, "audit_dataset_partitions", False)
+    if audit_mode:
+        incompatible_options.update(
+            {
+                "--aggregate-opponent-statistics": getattr(
+                    args, "aggregate_opponent_statistics", False
+                ),
+                "--opponent-statistics-partition": getattr(
+                    args, "opponent_statistics_partition", None
+                )
+                is not None,
+                "--opponent-statistics-before": getattr(
+                    args, "opponent_statistics_before", None
+                )
+                is not None,
+                "--export-opponent-statistics": getattr(
+                    args, "export_opponent_statistics", None
+                )
+                is not None,
+                "--evaluate-opponent-policy-profiles": evaluation_mode,
+            }
+        )
     if evaluation_mode:
         incompatible_options.update(
             {
@@ -2219,7 +2324,14 @@ def main() -> int:
             )
         elif workflow == "training_dataset":
             validate_training_dataset_cli_arguments(args)
-            if args.evaluate_opponent_policy_profiles:
+            if args.audit_dataset_partitions:
+                run_json_dataset_partition_audit(
+                    file_path=args.input,
+                    requested_mode=args.dataset_partition_mode,
+                    output_path=args.output,
+                    quiet=args.quiet,
+                )
+            elif args.evaluate_opponent_policy_profiles:
                 run_json_rolling_opponent_policy_evaluation(
                     file_path=args.input,
                     source_partitions=tuple(

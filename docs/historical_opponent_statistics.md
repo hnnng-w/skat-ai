@@ -44,8 +44,9 @@ Without the option, all three partitions are eligible. Repeated values are
 deterministically de-duplicated, and output always uses canonical `train`,
 `validation`, `test` order regardless of argument order. An explicitly selected
 partition with no source records is rejected. Partition filtering is applied
-before temporal filtering. Partition selection records dataset membership; it
-does not enforce or claim player-disjoint partitions.
+before temporal filtering. Aggregation accepts unspecified, known-opponent, and
+compliant unseen-player datasets. The loader enforces a declared unseen-player
+policy before aggregation, while policy intent does not change exact statistics.
 
 ### Strict cutoff
 
@@ -136,6 +137,7 @@ dataset ID as `source_name`, and the player ID as `source_player_id`. Its
 version, that player's canonical included partitions, ordered source record and
 game IDs, and original `first_played_at` and `last_played_at` timestamp text.
 
+Top-level `source_dataset` provenance preserves any declared partition policy.
 `source.captured_at` is the original `played_at` text of that player's latest
 included game and represents the same instant as `last_played_at`. It is a
 per-player value, not necessarily the aggregation's top-level latest timestamp.
@@ -219,8 +221,8 @@ samples, seeds, recommendation, simulation, comparison, policy, profile,
 external binding, and live binding options. Without the aggregation flag, the
 existing training-dataset conversion remains unchanged.
 
-This bounded workflow does not provide player-disjoint partition enforcement,
-recency weighting, count-based rolling windows, merging with platform/manual
+This bounded workflow does not infer partition intent, automatically split data,
+recency-weight, use count-based rolling windows, or merge platform/manual
 statistics, multiple captures per player, capture selection or persistence,
 automatic policy use, recommendation-quality evaluation, strategic policy-
 quality claims, learned behavior, machine-learning training, or

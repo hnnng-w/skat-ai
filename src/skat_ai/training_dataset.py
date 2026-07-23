@@ -1,6 +1,13 @@
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from skat_ai.dataset_partition_policy import (
+    DatasetPartitionPolicy,
+    build_dataset_partition_policy,
+    build_serializable_dataset_partition_policy,
+    format_unseen_player_policy_violation,
+    get_cross_partition_player_memberships,
+)
 from skat_ai.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
     build_historical_decision_snapshots,
@@ -67,6 +74,7 @@ class TrainingDatasetInput:
     dataset_version: str
     feature_generation_version: int
     target: Literal["actual_card_played"]
+    partition_policy: DatasetPartitionPolicy | None
     records: tuple[TrainingDatasetRecord, ...]
 
 
@@ -220,7 +228,7 @@ def build_training_dataset_input(data: dict[str, Any]) -> TrainingDatasetInput:
             "target",
             "records",
         },
-        optional_fields=set(),
+        optional_fields={"partition_policy"},
         field_name="training_dataset_input",
     )
     schema_version = _require_version(
@@ -251,12 +259,22 @@ def build_training_dataset_input(data: dict[str, Any]) -> TrainingDatasetInput:
         for record_index, raw_record in enumerate(raw_records)
     )
     _validate_unique_record_identities(records)
+    partition_policy = (
+        build_dataset_partition_policy(data["partition_policy"])
+        if "partition_policy" in data
+        else None
+    )
+    if partition_policy is not None and partition_policy.mode == "unseen_player":
+        violations = get_cross_partition_player_memberships(records)
+        if violations:
+            raise ValueError(format_unseen_player_policy_violation(violations))
     return TrainingDatasetInput(
         schema_version=schema_version,
         dataset_id=dataset_id,
         dataset_version=dataset_version,
         feature_generation_version=feature_generation_version,
         target=TRAINING_TARGET,
+        partition_policy=partition_policy,
         records=records,
     )
 
@@ -275,6 +293,35 @@ def build_serializable_training_provenance(
         result["collected_at"] = provenance.collected_at
     if provenance.notes is not None:
         result["notes"] = provenance.notes
+    return result
+
+
+def build_serializable_training_dataset_input(
+    dataset: TrainingDatasetInput,
+) -> dict[str, Any]:
+    """Builds the canonical training-dataset input representation."""
+    result = {
+        "schema_version": dataset.schema_version,
+        "dataset_id": dataset.dataset_id,
+        "dataset_version": dataset.dataset_version,
+        "feature_generation_version": dataset.feature_generation_version,
+        "target": dataset.target,
+    }
+    if dataset.partition_policy is not None:
+        result["partition_policy"] = build_serializable_dataset_partition_policy(
+            dataset.partition_policy
+        )
+    result["records"] = [
+        {
+            "record_id": record.record_id,
+            "partition": record.partition,
+            "provenance": build_serializable_training_provenance(record.provenance),
+            "historical_game": build_serializable_historical_record(
+                record.historical_game
+            ),
+        }
+        for record in dataset.records
+    ]
     return result
 
 
@@ -387,7 +434,7 @@ def build_training_dataset_summary(
     if sample_count != record_count * SAMPLES_PER_TRAINING_RECORD:
         raise ValueError("Training dataset total sample count does not reconcile.")
 
-    return {
+    result = {
         "schema_version": dataset.schema_version,
         "dataset_id": dataset.dataset_id,
         "dataset_version": dataset.dataset_version,
@@ -398,3 +445,8 @@ def build_training_dataset_summary(
         "partition_counts": partition_counts,
         "records": serialized_records,
     }
+    if dataset.partition_policy is not None:
+        result["partition_policy"] = build_serializable_dataset_partition_policy(
+            dataset.partition_policy
+        )
+    return result

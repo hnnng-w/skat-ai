@@ -11,6 +11,9 @@ SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
+DATASET_PARTITION_POLICY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
+)
 ROOT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
 EXAMPLES_DIR = PROJECT_ROOT / "examples"
 
@@ -57,6 +60,9 @@ def validate_example_files() -> list[str]:
     historical_schema = load_json_file(HISTORICAL_SCHEMA_PATH)
     training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
     opponent_statistics_schema = load_json_file(OPPONENT_STATISTICS_SCHEMA_PATH)
+    dataset_partition_policy_schema = load_json_file(
+        DATASET_PARTITION_POLICY_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (historical_schema["$id"], Resource.from_contents(historical_schema)),
@@ -67,6 +73,10 @@ def validate_example_files() -> list[str]:
             (
                 opponent_statistics_schema["$id"],
                 Resource.from_contents(opponent_statistics_schema),
+            ),
+            (
+                dataset_partition_policy_schema["$id"],
+                Resource.from_contents(dataset_partition_policy_schema),
             ),
         ]
     )

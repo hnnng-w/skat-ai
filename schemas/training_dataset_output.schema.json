@@ -21,6 +21,9 @@
     "dataset_version": {"$ref": "#/$defs/stable_identifier"},
     "feature_generation_version": {"const": 1},
     "target": {"const": "actual_card_played"},
+    "partition_policy": {
+      "$ref": "https://example.local/skat-ai/dataset_partition_policy.schema.json"
+    },
     "record_count": {"type": "integer", "minimum": 1},
     "sample_count": {"type": "integer", "minimum": 30},
     "partition_counts": {"$ref": "#/$defs/partition_counts"},

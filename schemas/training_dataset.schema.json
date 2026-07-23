@@ -18,6 +18,9 @@
     "dataset_version": {"$ref": "#/$defs/stable_identifier"},
     "feature_generation_version": {"const": 1},
     "target": {"const": "actual_card_played"},
+    "partition_policy": {
+      "$ref": "https://example.local/skat-ai/dataset_partition_policy.schema.json"
+    },
     "records": {
       "type": "array",
       "items": {"$ref": "#/$defs/record"},

@@ -57,6 +57,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Optional information-safe pre-play snapshots for all 30 historical decisions
 * Optional decision-time review of all 30 historical plays through the existing immediate recommendation logic
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
+* Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
 * Deterministic information-safe samples using the legal historical actual card as the version-1 target
 * Versioned external opponent-statistics records with required provenance
 * Percentage-point validation and deterministic normalization to existing profile-rate semantics
@@ -250,6 +251,17 @@ recommendations or simulation:
 python main.py --input examples/training_dataset_normal_play.json
 ```
 
+Audit exact stable-player membership without generating samples:
+
+```powershell
+python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
+```
+
+Known-opponent policy permits cross-partition player overlap. Unseen-player
+policy enforces player-disjoint partitions. Datasets without policy metadata
+remain valid with unspecified intent. See
+[Dataset partition policies](docs/dataset_partition_policies.md).
+
 Training-dataset inputs form a third separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted for normal sample conversion. The same
 input can instead act as the versioned multi-game container for exact historical
@@ -311,6 +323,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical game review](docs/historical_game_review.md)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
+* [Dataset partition policies](docs/dataset_partition_policies.md)
 * [Opponent statistics](docs/opponent_statistics.md)
 * [Historical opponent statistics](docs/historical_opponent_statistics.md)
 * [Rolling opponent-policy evaluation](docs/opponent_policy_evaluation.md)
@@ -322,6 +335,8 @@ Detailed documentation is split into topic-specific files:
 * [Historical opponent profile application schema](schemas/historical_opponent_profile_application.schema.json)
 * [Training dataset input schema](schemas/training_dataset.schema.json)
 * [Training dataset output schema](schemas/training_dataset_output.schema.json)
+* [Dataset partition policy schema](schemas/dataset_partition_policy.schema.json)
+* [Dataset partition audit schema](schemas/dataset_partition_audit.schema.json)
 * [Opponent statistics input schema](schemas/opponent_statistics.schema.json)
 * [Opponent statistics output schema](schemas/opponent_statistics_output.schema.json)
 * [Historical opponent statistics aggregation schema](schemas/historical_opponent_statistics_aggregation.schema.json)
@@ -374,7 +389,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.7.0`, prepared around the theme
 "Rules confidence and information-safe historical workflows." Issues #69
-through #76 are complete. Generated-output validation covers 32 deterministic
+through #76 are complete. Generated-output validation covers 33 deterministic
 scenarios. `v0.6.0` remains the latest human-published release until a maintainer
 tags and publishes `v0.7.0`.
 
@@ -390,14 +405,14 @@ wrapping are partially supported. Remaining gaps include historical end reasons
 beyond normal completion, complete claim and concession handling, general
 settlement completeness, exposed-card-aware ouvert recommendation simulation,
 complete live-input provenance, coherent hidden-world continuity across all
-Multi-Step paths, and player-disjoint dataset partitioning. External opponent
+Multi-Step paths, and automatic dataset splitting or generalization evaluation. External opponent
 statistics and exact historically aggregated statistics can be validated,
 normalized, and reused by stable ID in live or strict time-safe historical
 profile workflows. A separate rolling as-of workflow evaluates whether existing
 actionable profile policies imitate observed known-player cards better than the
 fixed `simple_lowest` baseline, using preferred-card matching as its primary
 metric. It does not run recommendations or expected-value simulation, claim
-strategic quality, enforce player-disjoint partitions, merge captures, or learn
+strategic quality, evaluate unseen players, merge captures, or learn
 behavior. The product supports fixed three-player tables only.
 
 Current support and known limitations are tracked in the

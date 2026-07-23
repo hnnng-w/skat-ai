@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/dataset_partition_policy.schema.json",
+  "title": "skat-ai dataset partition policy version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_version", "mode"],
+  "properties": {
+    "policy_version": {"const": 1},
+    "mode": {"enum": ["known_opponent", "unseen_player"]}
+  }
+}

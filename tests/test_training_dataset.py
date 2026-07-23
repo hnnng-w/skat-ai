@@ -7,6 +7,7 @@ from skat_ai.historical_decision_snapshot import build_historical_decision_snaps
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.training_dataset import (
+    build_serializable_training_dataset_input,
     build_training_dataset_input,
     build_training_dataset_summary,
 )
@@ -345,3 +346,67 @@ def test_empty_records_and_unknown_dataset_fields_are_rejected() -> None:
     unknown["shuffle"] = True
     with pytest.raises(ValueError, match="unsupported fields.*shuffle"):
         build_training_dataset_input(unknown)
+
+
+def test_optional_partition_policy_is_strict_and_round_trips_canonically() -> None:
+    without_policy = build_training_dataset_input(build_training_input())
+    assert without_policy.partition_policy is None
+
+    data = build_training_input()
+    data["partition_policy"] = {
+        "policy_version": 1,
+        "mode": "known_opponent",
+    }
+    dataset = build_training_dataset_input(data)
+    serialized = build_serializable_training_dataset_input(dataset)
+
+    assert serialized["partition_policy"] == data["partition_policy"]
+    assert build_serializable_training_dataset_input(
+        build_training_dataset_input(serialized)
+    ) == serialized
+    assert build_training_dataset_summary(dataset)["partition_policy"] == data[
+        "partition_policy"
+    ]
+
+
+@pytest.mark.parametrize(
+    ("policy", "error_match"),
+    [
+        ({"policy_version": 2, "mode": "known_opponent"}, "policy_version"),
+        ({"policy_version": 1, "mode": "report_only"}, "partition_policy.mode"),
+        ({"policy_version": 1}, "missing required fields.*mode"),
+        (
+            {"policy_version": 1, "mode": "known_opponent", "shuffle": True},
+            "unsupported fields.*shuffle",
+        ),
+    ],
+)
+def test_invalid_partition_policy_metadata_is_rejected(
+    policy: dict,
+    error_match: str,
+) -> None:
+    data = build_training_input()
+    data["partition_policy"] = policy
+
+    with pytest.raises(ValueError, match=error_match):
+        build_training_dataset_input(data)
+
+
+def test_declared_unseen_player_policy_rejects_all_overlaps_deterministically() -> None:
+    data = build_training_input(
+        [build_historical_input(), build_historical_input()],
+        ["train", "validation"],
+    )
+    data["partition_policy"] = {
+        "policy_version": 1,
+        "mode": "unseen_player",
+    }
+
+    with pytest.raises(ValueError) as error:
+        build_training_dataset_input(data)
+
+    assert str(error.value).endswith(
+        "Conflicting players: 'player-a' in ['train', 'validation']; "
+        "'player-b' in ['train', 'validation']; "
+        "'player-c' in ['train', 'validation']."
+    )

@@ -16,6 +16,9 @@ Training/evaluation datasets use:
 
 [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
 
+Optional partition policy uses
+[`schemas/dataset_partition_policy.schema.json`](../schemas/dataset_partition_policy.schema.json).
+
 External opponent-statistics records use:
 
 [`schemas/opponent_statistics.schema.json`](../schemas/opponent_statistics.schema.json)
@@ -65,7 +68,7 @@ Python validation covers Skat-specific rules such as:
 * point consistency
 * stable historical player/seat references and complete 32-card deals
 * historical pickup/discard ownership, final playable hands, all 30 plays, follow obligations, winners, points, matadors, and settlement
-* training dataset versions, unpadded identities, RFC 3339 provenance, duplicate game/source detection, and partition leakage
+* training dataset versions, optional partition policy, unpadded identities, RFC 3339 provenance, duplicate game/source detection, partition leakage, and declared unseen-player disjointness
 * opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, optional exact-count reconciliation, historical aggregation provenance, and duplicate player IDs
 * historical opponent-statistics canonical partition selection, required source timestamps, strict cutoff, stable identity/label aggregation, and settlement-based exact counts
 
@@ -115,6 +118,10 @@ A training-dataset file contains only its dataset branch:
     "dataset_version": "1",
     "feature_generation_version": 1,
     "target": "actual_card_played",
+    "partition_policy": {
+      "policy_version": 1,
+      "mode": "known_opponent"
+    },
     "records": []
   }
 }
@@ -125,6 +132,14 @@ partition, required provenance, and one complete historical game. See
 [Training data](training_data.md) for identity, duplicate, provenance, sample,
 and information-safety rules.
 
+`partition_policy` is optional. `known_opponent` permits exact stable players in
+multiple partitions; `unseen_player` rejects cross-partition player overlap.
+Without metadata, intent is unspecified. `--audit-dataset-partitions` reports
+complete ordered membership and overlap without producing samples. Its optional
+`--dataset-partition-mode` accepts `report_only`, `known_opponent`, or
+`unseen_player`; a requested policy cannot contradict declared metadata. See
+[Dataset partition policies](dataset_partition_policies.md).
+
 With `--aggregate-opponent-statistics`, this same branch is reused only as the
 versioned multi-game container. Every partition-selected game then requires
 `played_at`; repeatable partition selection is canonicalized and the optional
@@ -133,7 +148,8 @@ JSON input branch and emits no training samples. See
 [Historical opponent statistics](historical_opponent_statistics.md).
 
 With `--evaluate-opponent-policy-profiles`, the same dataset branch supplies
-disjoint rolling profile-source and policy-evaluation partitions. Source
+disjoint rolling profile-source and policy-evaluation partitions under an
+explicit known-opponent workflow. Declared unseen-player data is rejected. Source
 defaults to `train`; evaluation defaults to `validation` and `test`. Every
 selected source and target game requires `played_at`, and only source instants
 strictly earlier than each target are eligible. Repeated stable players across

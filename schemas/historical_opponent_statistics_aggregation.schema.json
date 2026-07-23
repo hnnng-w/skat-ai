@@ -34,7 +34,10 @@
         "dataset_version": {"$ref": "#/$defs/non_padded_string"},
         "training_dataset_schema_version": {"const": 1},
         "feature_generation_version": {"const": 1},
-        "target": {"const": "actual_card_played"}
+        "target": {"const": "actual_card_played"},
+        "partition_policy": {
+          "$ref": "https://example.local/skat-ai/dataset_partition_policy.schema.json"
+        }
       }
     },
     "selection": {

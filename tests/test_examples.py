@@ -3,6 +3,7 @@ from pathlib import Path
 
 from main import build_analysis_result
 from skat_ai.analysis_report import build_card_analysis_report
+from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.input_loader import (
     build_game_state_from_input,
@@ -47,6 +48,7 @@ def get_position_example_json_files() -> list[Path]:
             "historical_opponent_statistics.json",
             "opponent_statistics.json",
             "training_dataset_normal_play.json",
+            "training_dataset_partition_audit.json",
         }
     ]
 
@@ -68,11 +70,13 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
         if example_file.name in {
             "historical_opponent_policy_evaluation_dataset.json",
             "training_dataset_normal_play.json",
+            "training_dataset_partition_audit.json",
         }:
             dataset = load_training_dataset_from_json(str(example_file))
             assert dataset.dataset_id in {
                 "online-games-2026",
                 "opponent-policy-evaluation-example",
+                "dataset-partition-audit-example",
             }
             continue
         if example_file.name in {
@@ -182,6 +186,20 @@ def test_rolling_opponent_policy_evaluation_example_builds_target_results() -> N
     assert evaluation.selection["target_game_count"] == 1
     assert evaluation.coverage["target_decisions"] == 30
     assert evaluation.coverage["decisions_with_insufficient_confidence"] == 30
+
+
+def test_dataset_partition_audit_example_has_three_way_overlap() -> None:
+    path = Path("examples/training_dataset_partition_audit.json")
+    dataset = load_training_dataset_from_json(str(path))
+    audit = audit_training_dataset_partitions(dataset, "known_opponent")
+
+    assert len(dataset.records) == 3
+    assert audit.compliance_status == "compliant"
+    assert audit.overlap_summary["train_validation_test"]["player_ids"] == [
+        "player-a",
+        "player-b",
+        "player-c",
+    ]
 
 
 def test_opponent_statistics_example_preserves_two_ordered_players() -> None:

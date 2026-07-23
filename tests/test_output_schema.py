@@ -7,6 +7,10 @@ import pytest
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
+from skat_ai.dataset_partition_audit import (
+    audit_training_dataset_partitions,
+    build_serializable_dataset_partition_audit,
+)
 from skat_ai.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot_summary,
@@ -65,6 +69,12 @@ HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH = (
 ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "rolling_opponent_policy_evaluation.schema.json"
 )
+DATASET_PARTITION_POLICY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
+)
+DATASET_PARTITION_AUDIT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_audit.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -94,6 +104,10 @@ with HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH.open(
     HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA = json.load(file)
 with ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA = json.load(file)
+with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    DATASET_PARTITION_POLICY_SCHEMA = json.load(file)
+with DATASET_PARTITION_AUDIT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    DATASET_PARTITION_AUDIT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -133,6 +147,14 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA["$id"],
             Resource.from_contents(ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA),
+        ),
+        (
+            DATASET_PARTITION_POLICY_SCHEMA["$id"],
+            Resource.from_contents(DATASET_PARTITION_POLICY_SCHEMA),
+        ),
+        (
+            DATASET_PARTITION_AUDIT_SCHEMA["$id"],
+            Resource.from_contents(DATASET_PARTITION_AUDIT_SCHEMA),
         ),
     ]
 )
@@ -620,6 +642,18 @@ def build_valid_rolling_opponent_policy_evaluation_output() -> dict[str, object]
     }
 
 
+def build_valid_dataset_partition_audit_output() -> dict[str, object]:
+    input_path = PROJECT_ROOT / "examples" / "training_dataset_partition_audit.json"
+    dataset = load_training_dataset_from_json(str(input_path))
+    audit = audit_training_dataset_partitions(dataset, "known_opponent")
+    return {
+        "input_file": str(input_path),
+        "dataset_partition_audit_summary": build_serializable_dataset_partition_audit(
+            audit
+        ),
+    }
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -681,6 +715,37 @@ def test_schema_accepts_historical_opponent_statistics_output_branch() -> None:
 
 def test_schema_accepts_rolling_opponent_policy_evaluation_output_branch() -> None:
     assert_schema_valid(build_valid_rolling_opponent_policy_evaluation_output())
+
+
+def test_schema_accepts_dataset_partition_audit_output_branch() -> None:
+    assert_schema_valid(build_valid_dataset_partition_audit_output())
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda summary: summary.update(effective_audit_mode="automatic"),
+        lambda summary: summary.update(compliance_status="unknown"),
+        lambda summary: summary["partition_summary"]["train"].pop("game_count"),
+        lambda summary: summary["players"][0].update(
+            classification="behavioral_style"
+        ),
+        lambda summary: summary["overlap_summary"]["train_validation"].update(
+            player_count=-1
+        ),
+        lambda summary: summary["known_opponent_coverage"][
+            "train_to_validation"
+        ].update(eligibility_basis="temporally_eligible"),
+        lambda summary: summary["unseen_player_compliance"].update(
+            player_disjoint="yes"
+        ),
+    ],
+)
+def test_schema_rejects_invalid_dataset_partition_audit_fields(mutation) -> None:
+    data = build_valid_dataset_partition_audit_output()
+    mutation(data["dataset_partition_audit_summary"])
+
+    assert_schema_invalid(data)
 
 
 def test_schema_accepts_actionable_rolling_prediction_shape() -> None:

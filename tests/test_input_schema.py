@@ -17,6 +17,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
+DATASET_PARTITION_POLICY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
+)
 OPPONENT_STATISTICS_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
 )
@@ -39,6 +42,8 @@ with HISTORICAL_SCHEMA_PATH.open("r", encoding="utf-8") as historical_schema_fil
     HISTORICAL_SCHEMA = json.load(historical_schema_file)
 with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
     TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
+with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as policy_file:
+    DATASET_PARTITION_POLICY_SCHEMA = json.load(policy_file)
 with OPPONENT_STATISTICS_SCHEMA_PATH.open("r", encoding="utf-8") as statistics_schema_file:
     OPPONENT_STATISTICS_SCHEMA = json.load(statistics_schema_file)
 
@@ -48,6 +53,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             TRAINING_DATASET_SCHEMA["$id"],
             Resource.from_contents(TRAINING_DATASET_SCHEMA),
+        ),
+        (
+            DATASET_PARTITION_POLICY_SCHEMA["$id"],
+            Resource.from_contents(DATASET_PARTITION_POLICY_SCHEMA),
         ),
         (
             OPPONENT_STATISTICS_SCHEMA["$id"],
@@ -185,6 +194,42 @@ def test_schema_and_runtime_accept_training_dataset_branch() -> None:
 
     assert dataset.dataset_id == "online-games-2026"
     assert len(dataset.records) == 2
+
+
+@pytest.mark.parametrize("mode", ["known_opponent", "unseen_player"])
+def test_schema_accepts_versioned_dataset_partition_policy(mode: str) -> None:
+    data = build_valid_training_dataset_input()
+    if mode == "unseen_player":
+        data["training_dataset_input"]["records"] = data[
+            "training_dataset_input"
+        ]["records"][:1]
+    data["training_dataset_input"]["partition_policy"] = {
+        "policy_version": 1,
+        "mode": mode,
+    }
+
+    assert_schema_valid(data)
+    dataset = build_training_dataset_input(
+        copy.deepcopy(data["training_dataset_input"])
+    )
+    assert dataset.partition_policy is not None
+    assert dataset.partition_policy.mode == mode
+
+
+@pytest.mark.parametrize(
+    "policy",
+    [
+        {"policy_version": 2, "mode": "known_opponent"},
+        {"policy_version": 1, "mode": "report_only"},
+        {"policy_version": 1},
+        {"policy_version": 1, "mode": "known_opponent", "extra": True},
+    ],
+)
+def test_schema_rejects_invalid_dataset_partition_policy(policy: dict) -> None:
+    data = build_valid_training_dataset_input()
+    data["training_dataset_input"]["partition_policy"] = policy
+
+    assert_schema_invalid(data)
 
 
 @pytest.mark.parametrize(

@@ -47,6 +47,12 @@ HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
 ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "rolling_opponent_policy_evaluation.schema.json"
 )
+DATASET_PARTITION_POLICY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
+)
+DATASET_PARTITION_AUDIT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_audit.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -1197,9 +1203,17 @@ def check_rolling_opponent_policy_evaluation(data: dict[str, Any]) -> list[str]:
     summary = data["rolling_opponent_policy_evaluation_summary"]
     errors = []
     if summary["selection"] != {
+        "evaluation_mode": "known_opponent",
         "source_partitions": ["train"],
         "evaluation_partitions": ["validation", "test"],
         "temporal_rule": "source_played_at_strictly_before_target_played_at",
+        "selected_partition_player_overlap": {
+            "source_distinct_player_count": 3,
+            "evaluation_distinct_player_count": 3,
+            "shared_player_count": 3,
+            "shared_player_ids": ["player-a", "player-b", "player-c"],
+            "eligibility_basis": "partition_membership_only_not_temporal_eligibility",
+        },
         "source_record_count": 1,
         "target_record_count": 1,
         "target_game_count": 1,
@@ -1235,6 +1249,50 @@ def check_rolling_opponent_policy_evaluation(data: dict[str, Any]) -> list[str]:
         errors.append("expected 30 baseline-only policy-equivalent predictions")
     if "recommendation" in str(summary) or "expected_point" in str(summary):
         errors.append("expected behavioral evaluation without recommendation or simulation")
+    return errors
+
+
+def check_dataset_partition_audit(data: dict[str, Any]) -> list[str]:
+    """Checks deterministic membership, overlap, coverage, and output isolation."""
+    if set(data) != {"input_file", "dataset_partition_audit_summary"}:
+        return ["expected only the dataset partition audit output branch"]
+    summary = data["dataset_partition_audit_summary"]
+    errors = []
+    if summary["declared_partition_policy"] is not None:
+        errors.append("expected the audit example to leave partition intent unspecified")
+    if summary["effective_audit_mode"] != "known_opponent":
+        errors.append("expected explicit known_opponent audit mode")
+    if summary["compliance_status"] != "compliant":
+        errors.append("expected structurally valid known-opponent compliance")
+    if summary["source_dataset"]["total_historical_game_count"] != 3:
+        errors.append("expected exactly three historical games")
+    if summary["partition_summary"]["train"]["record_count"] != 1:
+        errors.append("expected one train record")
+    if summary["partition_summary"]["validation"]["record_count"] != 1:
+        errors.append("expected one validation record")
+    if summary["partition_summary"]["test"]["record_count"] != 1:
+        errors.append("expected one test record")
+    if summary["overlap_summary"]["train_validation_test"]["player_ids"] != [
+        "player-a",
+        "player-b",
+        "player-c",
+    ]:
+        errors.append("expected all three stable players in the three-way overlap")
+    if summary["known_opponent_coverage"]["train_to_validation"][
+        "shared_player_count"
+    ] != 3:
+        errors.append("expected complete train-to-validation player coverage")
+    if summary["known_opponent_coverage"]["train_to_validation"][
+        "target_game_count_with_all_three_participants_previously_seen"
+    ] != 1:
+        errors.append("expected one target game with all participants in train")
+    if summary["unseen_player_compliance"]["violating_player_count"] != 3:
+        errors.append("expected three deterministic unseen-player violations")
+    if len(summary["players"]) != 3:
+        errors.append("expected complete three-player membership output")
+    forbidden = ("samples", "recommendation", "simulation", "model")
+    if any(value in str(summary) for value in forbidden):
+        errors.append("expected audit output without samples or analysis products")
     return errors
 
 
@@ -1678,6 +1736,22 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="dataset_partition_audit",
+        input_path=(
+            PROJECT_ROOT / "examples" / "training_dataset_partition_audit.json"
+        ),
+        branch="exact stable-player dataset partition overlap audit",
+        cli_args=(
+            "--audit-dataset-partitions",
+            "--dataset-partition-mode",
+            "known_opponent",
+            "--quiet",
+        ),
+        check_output=check_dataset_partition_audit,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="opponent_statistics",
         input_path=PROJECT_ROOT / "examples" / "opponent_statistics.json",
         branch="versioned external statistics with explainable profile derivation",
@@ -1742,6 +1816,12 @@ def validate_generated_outputs() -> list[str]:
     rolling_opponent_policy_evaluation_schema = load_json_file(
         ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH
     )
+    dataset_partition_policy_schema = load_json_file(
+        DATASET_PARTITION_POLICY_SCHEMA_PATH
+    )
+    dataset_partition_audit_schema = load_json_file(
+        DATASET_PARTITION_AUDIT_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1785,6 +1865,14 @@ def validate_generated_outputs() -> list[str]:
             (
                 rolling_opponent_policy_evaluation_schema["$id"],
                 Resource.from_contents(rolling_opponent_policy_evaluation_schema),
+            ),
+            (
+                dataset_partition_policy_schema["$id"],
+                Resource.from_contents(dataset_partition_policy_schema),
+            ),
+            (
+                dataset_partition_audit_schema["$id"],
+                Resource.from_contents(dataset_partition_audit_schema),
             ),
         ]
     )

@@ -104,6 +104,34 @@ are always present and reconcile with total and per-record counts. See
 [Training data](training_data.md) and
 [`training_dataset_output.schema.json`](../schemas/training_dataset_output.schema.json).
 
+Dataset partition audit produces a separate sample-free branch:
+
+```json
+{
+  "input_file": "examples/training_dataset_partition_audit.json",
+  "dataset_partition_audit_summary": {
+    "schema_version": 1,
+    "audit_version": 1,
+    "source_dataset": {},
+    "declared_partition_policy": null,
+    "effective_audit_mode": "report_only",
+    "compliance_status": "not_evaluated",
+    "partition_summary": {},
+    "player_summary": {},
+    "overlap_summary": {},
+    "known_opponent_coverage": {},
+    "unseen_player_compliance": {},
+    "players": []
+  }
+}
+```
+
+The branch contains complete deterministic exact-ID membership, pairwise and
+three-way overlap, directed membership coverage, and unseen-player compliance.
+It contains no samples, recommendations, simulations, profiles, or models. See
+[Dataset partition policies](dataset_partition_policies.md) and
+[`dataset_partition_audit.schema.json`](../schemas/dataset_partition_audit.schema.json).
+
 Opponent-statistics input produces a separate stable branch:
 
 ```json
@@ -162,7 +190,7 @@ Historical opponent-statistics aggregation produces another separate branch:
 }
 ```
 
-Selected partitions and the nullable strict cutoff are preserved. Exclusion
+Selected partitions, declared partition policy provenance, and the nullable strict cutoff are preserved. Exclusion
 counts distinguish partition filtering from temporal filtering. Every player
 record contains `historical_games` provenance, exact counts, exact-count-derived
 percentages, normalized statistics, and the unchanged profile derivation.
@@ -191,7 +219,8 @@ Rolling opponent-policy evaluation produces a dedicated branch:
 }
 ```
 
-The baseline covers every target decision. Profile and paired-baseline metrics
+Selection metadata identifies `known_opponent` mode and bounded source/target
+player overlap without claiming temporal eligibility. The baseline covers every target decision. Profile and paired-baseline metrics
 cover only actionable profile predictions. Preferred-card matching is primary;
 exact-card matching is the stricter tie-break-sensitive metric. Target games
 contain compact as-of player provenance and profiles plus 30 ordered decisions,

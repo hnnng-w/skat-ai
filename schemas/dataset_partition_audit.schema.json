@@ -1,0 +1,308 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/dataset_partition_audit.schema.json",
+  "title": "skat-ai dataset partition audit version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_version",
+    "source_dataset",
+    "declared_partition_policy",
+    "effective_audit_mode",
+    "compliance_status",
+    "partition_summary",
+    "player_summary",
+    "overlap_summary",
+    "known_opponent_coverage",
+    "unseen_player_compliance",
+    "players"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "audit_version": {"const": 1},
+    "source_dataset": {"$ref": "#/$defs/source_dataset"},
+    "declared_partition_policy": {
+      "oneOf": [
+        {"$ref": "https://example.local/skat-ai/dataset_partition_policy.schema.json"},
+        {"type": "null"}
+      ]
+    },
+    "effective_audit_mode": {
+      "enum": ["report_only", "known_opponent", "unseen_player"]
+    },
+    "compliance_status": {
+      "enum": ["compliant", "non_compliant", "not_evaluated"]
+    },
+    "partition_summary": {"$ref": "#/$defs/partition_summary"},
+    "player_summary": {"$ref": "#/$defs/player_summary"},
+    "overlap_summary": {"$ref": "#/$defs/overlap_summary"},
+    "known_opponent_coverage": {"$ref": "#/$defs/known_opponent_coverage"},
+    "unseen_player_compliance": {"$ref": "#/$defs/unseen_player_compliance"},
+    "players": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/player_membership"}
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "count": {"type": "integer", "minimum": 0},
+    "partition": {"enum": ["train", "validation", "test"]},
+    "partitions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/partition"}
+    },
+    "identifier_array": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "source_dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_id",
+        "dataset_version",
+        "training_dataset_schema_version",
+        "feature_generation_version",
+        "target",
+        "total_record_count",
+        "total_historical_game_count"
+      ],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/identifier"},
+        "dataset_version": {"$ref": "#/$defs/identifier"},
+        "training_dataset_schema_version": {"const": 1},
+        "feature_generation_version": {"const": 1},
+        "target": {"const": "actual_card_played"},
+        "total_record_count": {"type": "integer", "minimum": 1},
+        "total_historical_game_count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "partition_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_count",
+        "game_count",
+        "distinct_player_count",
+        "total_player_game_appearances",
+        "player_ids"
+      ],
+      "properties": {
+        "record_count": {"$ref": "#/$defs/count"},
+        "game_count": {"$ref": "#/$defs/count"},
+        "distinct_player_count": {"$ref": "#/$defs/count"},
+        "total_player_game_appearances": {"$ref": "#/$defs/count"},
+        "player_ids": {"$ref": "#/$defs/identifier_array"}
+      }
+    },
+    "partition_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train", "validation", "test"],
+      "properties": {
+        "train": {"$ref": "#/$defs/partition_row"},
+        "validation": {"$ref": "#/$defs/partition_row"},
+        "test": {"$ref": "#/$defs/partition_row"}
+      }
+    },
+    "player_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_distinct_player_count",
+        "single_partition_player_count",
+        "pairwise_overlap_player_count",
+        "three_partition_overlap_player_count",
+        "train_player_count",
+        "validation_player_count",
+        "test_player_count"
+      ],
+      "properties": {
+        "total_distinct_player_count": {"type": "integer", "minimum": 1},
+        "single_partition_player_count": {"$ref": "#/$defs/count"},
+        "pairwise_overlap_player_count": {"$ref": "#/$defs/count"},
+        "three_partition_overlap_player_count": {"$ref": "#/$defs/count"},
+        "train_player_count": {"$ref": "#/$defs/count"},
+        "validation_player_count": {"$ref": "#/$defs/count"},
+        "test_player_count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "bounded_membership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "partitions"],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/identifier"},
+        "partitions": {"$ref": "#/$defs/partitions"}
+      }
+    },
+    "overlap_group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_count", "player_ids", "player_memberships"],
+      "properties": {
+        "player_count": {"$ref": "#/$defs/count"},
+        "player_ids": {"$ref": "#/$defs/identifier_array"},
+        "player_memberships": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/bounded_membership"}
+        }
+      }
+    },
+    "overlap_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "train_validation",
+        "train_test",
+        "validation_test",
+        "train_validation_test"
+      ],
+      "properties": {
+        "train_validation": {"$ref": "#/$defs/overlap_group"},
+        "train_test": {"$ref": "#/$defs/overlap_group"},
+        "validation_test": {"$ref": "#/$defs/overlap_group"},
+        "train_validation_test": {"$ref": "#/$defs/overlap_group"}
+      }
+    },
+    "coverage_relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_partition",
+        "target_partition",
+        "source_distinct_player_count",
+        "target_distinct_player_count",
+        "shared_player_count",
+        "shared_player_ids",
+        "target_player_count_with_source_history",
+        "target_player_count_without_source_history",
+        "target_game_count_with_at_least_one_previously_seen_participant",
+        "target_game_count_with_all_three_participants_previously_seen",
+        "target_player_game_appearances_with_source_history",
+        "target_player_game_appearances_without_source_history",
+        "eligibility_basis"
+      ],
+      "properties": {
+        "source_partition": {"$ref": "#/$defs/partition"},
+        "target_partition": {"$ref": "#/$defs/partition"},
+        "source_distinct_player_count": {"$ref": "#/$defs/count"},
+        "target_distinct_player_count": {"$ref": "#/$defs/count"},
+        "shared_player_count": {"$ref": "#/$defs/count"},
+        "shared_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "target_player_count_with_source_history": {"$ref": "#/$defs/count"},
+        "target_player_count_without_source_history": {"$ref": "#/$defs/count"},
+        "target_game_count_with_at_least_one_previously_seen_participant": {"$ref": "#/$defs/count"},
+        "target_game_count_with_all_three_participants_previously_seen": {"$ref": "#/$defs/count"},
+        "target_player_game_appearances_with_source_history": {"$ref": "#/$defs/count"},
+        "target_player_game_appearances_without_source_history": {"$ref": "#/$defs/count"},
+        "eligibility_basis": {"const": "partition_membership_only_not_temporal_eligibility"}
+      }
+    },
+    "known_opponent_coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train_to_validation", "train_to_test", "validation_to_test"],
+      "properties": {
+        "train_to_validation": {"$ref": "#/$defs/coverage_relationship"},
+        "train_to_test": {"$ref": "#/$defs/coverage_relationship"},
+        "validation_to_test": {"$ref": "#/$defs/coverage_relationship"}
+      }
+    },
+    "violation_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train_validation", "train_test", "validation_test"],
+      "properties": {
+        "train_validation": {"$ref": "#/$defs/count"},
+        "train_test": {"$ref": "#/$defs/count"},
+        "validation_test": {"$ref": "#/$defs/count"}
+      }
+    },
+    "unseen_player_compliance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "player_disjoint",
+        "violating_player_count",
+        "violating_player_ids",
+        "violations",
+        "pairwise_violation_counts",
+        "three_way_violation_count"
+      ],
+      "properties": {
+        "player_disjoint": {"type": "boolean"},
+        "violating_player_count": {"$ref": "#/$defs/count"},
+        "violating_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "violations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/bounded_membership"}
+        },
+        "pairwise_violation_counts": {"$ref": "#/$defs/violation_counts"},
+        "three_way_violation_count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "partition_identifier_arrays": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train", "validation", "test"],
+      "properties": {
+        "train": {"$ref": "#/$defs/identifier_array"},
+        "validation": {"$ref": "#/$defs/identifier_array"},
+        "test": {"$ref": "#/$defs/identifier_array"}
+      }
+    },
+    "partition_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train", "validation", "test"],
+      "properties": {
+        "train": {"$ref": "#/$defs/count"},
+        "validation": {"$ref": "#/$defs/count"},
+        "test": {"$ref": "#/$defs/count"}
+      }
+    },
+    "player_membership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "player_id",
+        "player_label",
+        "partitions",
+        "record_ids_by_partition",
+        "historical_game_ids_by_partition",
+        "game_count_by_partition",
+        "first_appearance_index",
+        "classification"
+      ],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/identifier"},
+        "player_label": {
+          "oneOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        },
+        "partitions": {"$ref": "#/$defs/partitions"},
+        "record_ids_by_partition": {"$ref": "#/$defs/partition_identifier_arrays"},
+        "historical_game_ids_by_partition": {"$ref": "#/$defs/partition_identifier_arrays"},
+        "game_count_by_partition": {"$ref": "#/$defs/partition_counts"},
+        "first_appearance_index": {"$ref": "#/$defs/count"},
+        "classification": {
+          "enum": [
+            "single_partition",
+            "pairwise_overlap",
+            "three_partition_overlap"
+          ]
+        }
+      }
+    }
+  }
+}

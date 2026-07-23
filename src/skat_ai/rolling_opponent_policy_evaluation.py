@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from skat_ai.dataset_partition_policy import (
+    build_serializable_dataset_partition_policy,
+    collect_player_partition_memberships,
+)
 from skat_ai.game_declaration import build_serializable_game_declaration
 from skat_ai.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
@@ -661,6 +665,14 @@ def evaluate_rolling_opponent_policy_predictions(
     evaluation_partitions: tuple[str, ...] = DEFAULT_EVALUATION_PARTITIONS,
 ) -> RollingOpponentPolicyEvaluation:
     """Evaluates time-safe profile policy imitation against a fixed baseline."""
+    if (
+        dataset.partition_policy is not None
+        and dataset.partition_policy.mode == "unseen_player"
+    ):
+        raise ValueError(
+            "Rolling opponent-policy evaluation is a known_opponent workflow and is "
+            "incompatible with a declared unseen_player partition policy."
+        )
     source, evaluation, targets = _validate_selection(
         dataset,
         source_partitions,
@@ -772,20 +784,52 @@ def evaluate_rolling_opponent_policy_predictions(
         breakdowns=breakdowns,
         coverage=coverage,
     )
+    memberships = collect_player_partition_memberships(dataset.records)
+    source_player_ids = [
+        membership.player_id
+        for membership in memberships
+        if any(partition in source for partition in membership.partitions)
+    ]
+    evaluation_player_ids = [
+        membership.player_id
+        for membership in memberships
+        if any(partition in evaluation for partition in membership.partitions)
+    ]
+    source_player_lookup = set(source_player_ids)
+    shared_player_ids = [
+        player_id
+        for player_id in evaluation_player_ids
+        if player_id in source_player_lookup
+    ]
+    source_dataset = {
+        "dataset_id": dataset.dataset_id,
+        "dataset_version": dataset.dataset_version,
+        "training_dataset_schema_version": dataset.schema_version,
+        "feature_generation_version": dataset.feature_generation_version,
+        "target": dataset.target,
+    }
+    if dataset.partition_policy is not None:
+        source_dataset["partition_policy"] = (
+            build_serializable_dataset_partition_policy(dataset.partition_policy)
+        )
     return RollingOpponentPolicyEvaluation(
         schema_version=1,
         evaluation_version=ROLLING_OPPONENT_POLICY_EVALUATION_VERSION,
-        source_dataset={
-            "dataset_id": dataset.dataset_id,
-            "dataset_version": dataset.dataset_version,
-            "training_dataset_schema_version": dataset.schema_version,
-            "feature_generation_version": dataset.feature_generation_version,
-            "target": dataset.target,
-        },
+        source_dataset=source_dataset,
         selection={
+            "evaluation_mode": "known_opponent",
             "source_partitions": list(source),
             "evaluation_partitions": list(evaluation),
             "temporal_rule": ROLLING_TEMPORAL_RULE,
+            "selected_partition_player_overlap": {
+                "source_distinct_player_count": len(source_player_ids),
+                "evaluation_distinct_player_count": len(evaluation_player_ids),
+                "shared_player_count": len(shared_player_ids),
+                "shared_player_ids": shared_player_ids,
+                "eligibility_basis": (
+                    "partition_membership_only_not_temporal_eligibility"
+                ),
+            },
             "source_record_count": len(source_records),
             "target_record_count": len(targets),
             "target_game_count": len(targets),

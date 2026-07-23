@@ -326,3 +326,20 @@ def test_summary_has_no_training_samples_or_policy_application() -> None:
     assert "samples" not in str(summary)
     assert "recommendation" not in str(summary)
     assert "policy_application" not in str(summary)
+
+
+@pytest.mark.parametrize("mode", ["known_opponent", "unseen_player"])
+def test_aggregation_accepts_compliant_partition_policies_and_preserves_provenance(
+    mode: str,
+) -> None:
+    game = build_historical_input()
+    game["played_at"] = "2026-07-10T16:00:00Z"
+    data = build_training_input([game], ["train"])
+    data["partition_policy"] = {"policy_version": 1, "mode": mode}
+    dataset = build_training_dataset_input(data)
+    summary = build_historical_opponent_statistics_aggregation_summary(
+        aggregate(dataset)
+    )
+
+    assert summary["source_dataset"]["partition_policy"] == data["partition_policy"]
+    assert summary["source_game_count"] == 1

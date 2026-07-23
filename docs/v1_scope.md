@@ -95,7 +95,7 @@ validation, and tests does not satisfy a gate.
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries are produced, and end-to-end tests detect future-information leakage and event-order corruption. |
 | Complete-game historical representation | A versioned schema and runtime model represent stable game/player IDs, fixed seats, initial deal, bidding/declaration facts, skat pickup/discards or Hand state, every play, claims/concessions, final result, and settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. |
-| Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, and explicit training/evaluation partition; conversion is deterministic and tests reject duplicates, missing provenance, invalid labels, and partition leakage. |
+| Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. |
@@ -116,15 +116,15 @@ reconstruct information-safe pre-play states for all 30 actual cards. It also
 evaluates non-ouvert normal-play snapshots through bounded review and wraps all
 normal-play snapshots in versioned provenance-aware training/evaluation records.
 Training-data representation remains partial because later historical end
-reasons and player-disjoint partition policy are not supported. The v1 gate also
+reasons, automatic partitioning, and model generalization evaluation are not supported. The v1 gate also
 remains open for exposed-card-aware recommendation analysis, approved later end
 reasons, and complete auction representation.
 
 Bounded historical player-statistics aggregation is supported from the same
-dataset container, but it does not make partitions player-disjoint and is not a
+dataset container under either compliant policy, but it does not infer or change policy and is not a
 training, quality-evaluation, or automatic policy-application gate.
 Rolling known-opponent policy imitation is also supported with disjoint
-partitions and strict as-of profiles. Its preferred-card match delta is not a
+partition names, intentional stable-player overlap, and strict as-of profiles. Its preferred-card match delta is not a
 strategic recommendation-quality, optimality, significance, or unseen-player
 generalization claim and does not close those broader gates.
 

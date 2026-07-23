@@ -27,12 +27,18 @@ validated replay result. Historical review adapts each snapshot independently
 to the existing local state, runs the existing immediate recommendation once,
 builds the candidate report from those values, and reuses post-game review.
 
-The training-dataset flow validates dataset identity, provenance, partitions,
-and duplicate protection, then reuses the historical validator/replay and
+The training-dataset flow validates dataset identity, provenance, optional
+known-opponent or unseen-player partition policy, and duplicate protection, then reuses the historical validator/replay and
 decision snapshot generator. It converts stable player references to the local
 `me`/`left`/`right` model in features, keeps traceability identities in metadata,
 and emits exactly 30 legal actual-card samples per record. It does not call the
 recommender or simulation.
+
+The dataset-partition audit flow scans exact stable participant IDs without
+replaying games. It emits deterministic membership, overlap, directed coverage,
+and unseen-player compliance. Declared unseen-player overlap is rejected during
+normal loading; an undeclared dataset requested as unseen-player remains
+inspectable as a complete non-compliant audit.
 
 The opponent-statistics flow validates a versioned collection of external
 percentage-point records, stable player identity, and required capture
@@ -53,8 +59,9 @@ reuses opponent-statistics normalization and profile derivation and can serializ
 a standalone `opponent_statistics_input`. It does not generate samples or run
 recommendation, review, policy application, quality evaluation, or training.
 
-The rolling opponent-policy evaluation flow selects disjoint source and target
-partitions, invokes the same strict historical aggregation at each target start,
+The rolling opponent-policy evaluation is explicitly a known-opponent flow. It
+selects disjoint source and target partitions, reports membership overlap,
+invokes the same strict historical aggregation at each target start,
 matches the acting player's own stable identity, and predicts each snapshot's
 actual card with the fixed `simple_lowest` baseline and any existing actionable
 profile preset. It evaluates deterministic preferred-card and exact-card
@@ -92,6 +99,8 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
 | `src/skat_ai/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |
 | `src/skat_ai/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
+| `src/skat_ai/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
+| `src/skat_ai/dataset_partition_audit.py` | Deterministic partition, membership, overlap, known-opponent coverage, and unseen-player compliance auditing. |
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
 | `src/skat_ai/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
 | `src/skat_ai/historical_opponent_statistics.py` | Canonical partition/time selection, exact historical aggregation, provenance, summary, and reusable export construction. |
@@ -351,6 +360,8 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |
 | `schemas/training_dataset.schema.json`       | Versioned training dataset input, records, provenance, and partitions.      |
 | `schemas/training_dataset_output.schema.json` | Strict training dataset output, metadata, features, labels, and counts.     |
+| `schemas/dataset_partition_policy.schema.json` | Optional version-1 known-opponent or unseen-player dataset policy. |
+| `schemas/dataset_partition_audit.schema.json` | Strict partition-audit output, membership, overlap, coverage, and compliance. |
 | `schemas/opponent_statistics.schema.json` | Versioned external opponent-statistics input and provenance. |
 | `schemas/opponent_statistics_output.schema.json` | Strict preserved-source and normalized-profile output. |
 | `schemas/historical_opponent_statistics_aggregation.schema.json` | Strict selected-game aggregation, exact records, and provenance output. |
@@ -377,6 +388,7 @@ Important regression areas:
 * post-game review
 * historical snapshot adaptation, complete review, seeds, aggregation, and leakage control
 * training dataset identities, provenance, partitions, duplicate leakage, deterministic samples, and feature safety
+* exact stable-player membership, policy enforcement, overlap groups, directed coverage, and audit isolation
 * opponent-statistics identity, provenance, optional exact counts, percentages, normalization, explainable derivation, and workflow isolation
 * historical aggregation partition/time selection, settlement outcomes, identity/label reconciliation, exact counts, provenance, and reusable export
 * example files

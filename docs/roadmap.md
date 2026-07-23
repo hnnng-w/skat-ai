@@ -170,6 +170,9 @@ Implemented:
 * Deterministic 30-sample conversion from each historical game
 * Relative model-facing features and `actual_card_played` version-1 labels
 * Duplicate identity and cross-partition game/source leakage rejection
+* Optional version-1 known-opponent and unseen-player partition policy metadata
+* Deterministic exact-player membership, pairwise/three-way overlap, directed known-opponent coverage, and unseen-player compliance audits
+* Strict declared unseen-player disjointness with backward-compatible unspecified policy intent
 * Reuse of the dataset as the multi-game source for sample-free historical opponent-statistics aggregation
 
 ### Validation and documentation
@@ -199,6 +202,7 @@ Implemented:
 * Complete historical-game validation, optional snapshot output, and optional historical review
 * Separate training-dataset conversion with strict rejection of unrelated analysis options
 * Historical opponent-statistics aggregation with partition/cutoff selection, separate normal output and export paths, and quiet output
+* Isolated `--audit-dataset-partitions` workflow with optional policy-mode resolution
 
 ## Current known limitations
 
@@ -219,7 +223,7 @@ Implemented:
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
 * Multi-Step does not preserve one coherent hidden-world assignment across every simulated path.
-* Training-dataset partitions are not player-disjoint.
+* Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
 
@@ -242,7 +246,7 @@ Implemented:
 * Opt-in profiles can influence policy presets, and exact statistics can be aggregated from historical games, but profile behavior is not learned.
 * Profile derivation uses documented deterministic thresholds and heuristic evidence bands, not calibrated uncertainty.
 * External-statistics derivations require profile-preset opt-in plus either explicit live side bindings or exact time-safe historical participant matching.
-* Historical aggregation does not enforce player-disjoint partitions, weight or merge sources, manage multiple captures, apply policies automatically, evaluate policy effects or profile quality, or learn behavior.
+* Historical aggregation accepts compliant known-opponent and unseen-player datasets but does not infer policy, weight or merge sources, manage multiple captures, apply policies automatically, evaluate policy effects or profile quality, or learn behavior.
 
 ### Information modeling
 
@@ -256,8 +260,8 @@ Implemented:
 ### v0.7.0: Rules confidence and information-safe historical workflows
 
 The current code and package version is `0.7.0`. Generated-output validation
-covers 32 deterministic scenarios. Issues #69 through #76 are complete, and
-Issues #80 through #83 add bounded reusable opponent-profile data workflows:
+covers 33 deterministic scenarios. Issues #69 through #76 are complete, and
+Issues #80 through #84 add bounded reusable opponent-profile and dataset-policy workflows:
 
 * #69 defined the v1.0 scope, requirements traceability, and project baseline.
 * #70 enforced canonical Suit/Grand declaration dependencies and matador bounds.
@@ -267,6 +271,7 @@ Issues #80 through #83 add bounded reusable opponent-profile data workflows:
 * #74 added information-safe snapshots for all 30 historical decisions.
 * #75 added bounded complete historical-game decision review.
 * #76 added versioned historical training and evaluation dataset records.
+* #84 added explicit dataset partition policies and deterministic stable-player overlap auditing.
 * #80 attached reusable external statistics to live analysis through exact,
   independent left/right player bindings and existing actionable profile presets.
 * #81 applies captures strictly older than `played_at` to historical review by

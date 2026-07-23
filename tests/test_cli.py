@@ -13,6 +13,7 @@ from main import (
     build_analysis_result,
     print_multi_step_result,
     print_policy_comparison_result,
+    run_json_dataset_partition_audit,
     run_json_historical_game_analysis,
     run_json_position_analysis,
     validate_cli_arguments,
@@ -37,6 +38,9 @@ HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
 )
 ROLLING_EVALUATION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_opponent_policy_evaluation_dataset.json"
+)
+DATASET_PARTITION_AUDIT_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "training_dataset_partition_audit.json"
 )
 UNSUPPORTED_PHASE_INPUT_PATH = (
     PROJECT_ROOT
@@ -100,6 +104,8 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
         "--historical-decision-snapshots",
         "--historical-game-review",
         "--evaluate-opponent-policy-profiles",
+        "--audit-dataset-partitions",
+        "--dataset-partition-mode",
         "--profile-source-partition",
         "--profile-evaluation-partition",
     ]:
@@ -264,6 +270,176 @@ def test_cli_training_dataset_quiet_output_is_separate_branch(tmp_path) -> None:
     assert "position" not in result
     assert "historical_game_summary" not in result
     assert "recommendation" not in result
+
+
+def test_cli_dataset_partition_audit_defaults_to_report_only_summary() -> None:
+    completed_process = run_cli(
+        "--input",
+        DATASET_PARTITION_AUDIT_INPUT_PATH,
+        "--audit-dataset-partitions",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Dataset partition audit: 3 games, 3 distinct players." in (
+        completed_process.stdout
+    )
+    assert "Partition mode: report_only." in completed_process.stdout
+    assert "Cross-partition players: 3." in completed_process.stdout
+    assert "Train -> validation shared players: 3 of 3 validation players." in (
+        completed_process.stdout
+    )
+    assert "Unseen-player compliance: failed with 3 overlapping players." in (
+        completed_process.stdout
+    )
+    assert "Training dataset summary" not in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+
+
+def test_cli_dataset_partition_audit_quiet_output_is_isolated(tmp_path) -> None:
+    output_path = tmp_path / "partition-audit.json"
+    completed_process = run_cli(
+        "--input",
+        DATASET_PARTITION_AUDIT_INPUT_PATH,
+        "--audit-dataset-partitions",
+        "--dataset-partition-mode",
+        "unseen_player",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    assert set(result) == {"input_file", "dataset_partition_audit_summary"}
+    summary = result["dataset_partition_audit_summary"]
+    assert summary["effective_audit_mode"] == "unseen_player"
+    assert summary["compliance_status"] == "non_compliant"
+    assert summary["unseen_player_compliance"]["violating_player_ids"] == [
+        "player-a",
+        "player-b",
+        "player-c",
+    ]
+    for forbidden in ("samples", "recommendation", "simulation", "model"):
+        assert forbidden not in str(result)
+
+
+def test_cli_dataset_partition_audit_uses_declaration_and_rejects_conflict(
+    tmp_path,
+) -> None:
+    with DATASET_PARTITION_AUDIT_INPUT_PATH.open("r", encoding="utf-8") as file:
+        data = json.load(file)
+    data["training_dataset_input"]["partition_policy"] = {
+        "policy_version": 1,
+        "mode": "known_opponent",
+    }
+    input_path = tmp_path / "declared-known-opponent.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+    output_path = tmp_path / "declared-audit.json"
+
+    declared = run_cli(
+        "--input",
+        input_path,
+        "--audit-dataset-partitions",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+    assert declared.returncode == 0
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    assert result["dataset_partition_audit_summary"]["effective_audit_mode"] == (
+        "known_opponent"
+    )
+
+    matching = run_cli(
+        "--input",
+        input_path,
+        "--audit-dataset-partitions",
+        "--dataset-partition-mode",
+        "known_opponent",
+        "--quiet",
+    )
+    assert matching.returncode == 0
+
+    conflicting = run_cli(
+        "--input",
+        input_path,
+        "--audit-dataset-partitions",
+        "--dataset-partition-mode",
+        "unseen_player",
+    )
+    assert conflicting.returncode == 2
+    assert "contradicts declared partition policy" in conflicting.stderr
+    assert_no_success_output(conflicting)
+
+
+def test_dataset_partition_audit_runner_does_not_invoke_other_workflows(
+    monkeypatch,
+) -> None:
+    def unexpected_call(*args, **kwargs):
+        raise AssertionError("Audit invoked an unrelated workflow.")
+
+    for name in (
+        "build_training_dataset_summary",
+        "aggregate_historical_opponent_statistics",
+        "evaluate_rolling_opponent_policy_predictions",
+        "build_historical_game_review_summary",
+        "recommend_card_by_expected_value",
+        "simulate_multiple_steps",
+    ):
+        monkeypatch.setattr(main_module, name, unexpected_call)
+
+    run_json_dataset_partition_audit(
+        file_path=str(DATASET_PARTITION_AUDIT_INPUT_PATH),
+        requested_mode="known_opponent",
+        quiet=True,
+    )
+
+
+@pytest.mark.parametrize(
+    ("input_path", "extra_args", "error_match"),
+    [
+        (
+            DATASET_PARTITION_AUDIT_INPUT_PATH,
+            ("--dataset-partition-mode", "known_opponent"),
+            "requires --audit-dataset-partitions",
+        ),
+        (
+            VALID_INPUT_PATH,
+            ("--audit-dataset-partitions",),
+            "supported only for training_dataset_input",
+        ),
+        (
+            DATASET_PARTITION_AUDIT_INPUT_PATH,
+            ("--audit-dataset-partitions", "--samples", "5"),
+            "do not accept position-analysis",
+        ),
+        (
+            DATASET_PARTITION_AUDIT_INPUT_PATH,
+            ("--audit-dataset-partitions", "--aggregate-opponent-statistics"),
+            "do not accept position-analysis",
+        ),
+        (
+            DATASET_PARTITION_AUDIT_INPUT_PATH,
+            ("--audit-dataset-partitions", "--evaluate-opponent-policy-profiles"),
+            "do not accept position-analysis",
+        ),
+    ],
+)
+def test_cli_rejects_invalid_dataset_partition_audit_modes(
+    input_path: Path,
+    extra_args: tuple[str, ...],
+    error_match: str,
+) -> None:
+    completed_process = run_cli("--input", input_path, *extra_args)
+
+    assert completed_process.returncode == 2
+    assert error_match in completed_process.stderr
+    assert_no_success_output(completed_process)
 
 
 def test_cli_rolling_opponent_policy_evaluation_prints_concise_summary() -> None:

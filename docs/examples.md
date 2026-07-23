@@ -109,6 +109,12 @@ Convert the versioned training/evaluation dataset example:
 python main.py --input examples/training_dataset_normal_play.json
 ```
 
+Audit exact stable-player overlap without generating samples:
+
+```powershell
+python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
+```
+
 Aggregate exact reusable player statistics from the same two-game container and
 export a standalone statistics input:
 
@@ -255,6 +261,7 @@ base seed 42; no additional public historical example is required.
 | ---- | ------- |
 | `training_dataset_normal_play.json` | Two versioned Grand records in train and validation, with timestamps, repeated players in changed seats, opposite settlement outcomes, and 60 information-safe actual-card samples. It is also the historical-statistics aggregation source. |
 | `historical_opponent_policy_evaluation_dataset.json` | One earlier train source and one later validation target with repeated stable players in changed seats for rolling behavioral evaluation. |
+| `training_dataset_partition_audit.json` | One timestamped normal-completion record in each partition, with the same exact stable players changing seats and no declared policy, for report-only or requested policy auditing. |
 
 This separate workflow runs historical validation and snapshot generation but
 does not run recommendations, review, or simulation. Its generated-output
@@ -294,7 +301,10 @@ identity, complete `simple_lowest` baseline evaluation, and low-confidence
 coverage without upgrading profiles. Its generated-output scenario has no
 actionable paired predictions; focused programmatic tests use 100 repeated
 source records for medium-confidence actionable coverage.
-Generated-output validation therefore covers 32 scenarios. The behavioral match
+The focused audit scenario uses `known_opponent`, verifies complete deterministic
+membership, three-way overlap, directed coverage, unseen-player violations, and
+the absence of samples or analysis products. Generated-output validation
+therefore covers 33 scenarios. The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
 The two aggregation games keep the same three case-sensitive players while

@@ -29,7 +29,8 @@ schemas/input.schema.json
 Its alternative `historical_game_input`, `training_dataset_input`, and
 `opponent_statistics_input` branches reference focused versioned schemas. The
 validation script registers `schemas/historical_game.schema.json`,
-`schemas/training_dataset.schema.json`, and
+`schemas/training_dataset.schema.json`,
+`schemas/dataset_partition_policy.schema.json`, and
 `schemas/opponent_statistics.schema.json` locally; it does not fetch schema
 definitions over the network.
 
@@ -74,7 +75,7 @@ The input schema checks things such as:
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
 * complete historical-game player, deal, declaration, discard, and ten-trick shapes
-* training dataset versions, record/provenance shapes, partition values, and target
+* training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
 * opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
 
 Runtime input validation mirrors selected public schema bounds and shapes so
@@ -140,8 +141,9 @@ The output schema checks the main output structure, including:
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
 * the separate versioned `historical_opponent_statistics_aggregation_summary` branch through its strict focused schema
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
+* the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 32 deterministic scenarios. Position
+Generated-output validation covers 33 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -165,7 +167,7 @@ external-profile binding with distinct left/right presets, plus one seeded
 time-safe historical external-profile review, and one exact historical
 opponent-statistics aggregation with strict selection and standalone export,
 and one rolling as-of opponent-policy evaluation with baseline-only low-
-confidence coverage.
+confidence coverage, plus one exact stable-player dataset-partition audit.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -179,7 +181,9 @@ the public output schema. Complete historical review uses
 `schemas/opponent_profile_derivation.schema.json`. Historical aggregation uses
 `schemas/historical_opponent_statistics_aggregation.schema.json`. The local
 rolling evaluation uses
-`schemas/rolling_opponent_policy_evaluation.schema.json`. The local
+`schemas/rolling_opponent_policy_evaluation.schema.json`. Partition audit uses
+`schemas/dataset_partition_audit.schema.json`, which references
+`schemas/dataset_partition_policy.schema.json`. The local
 validator registry also loads the live and historical profile-application
 schemas. Runtime validation and tests enforce identity lookup, strict instant
 ordering, source/policy precedence, temporal reconciliation,

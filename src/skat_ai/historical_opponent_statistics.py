@@ -2,6 +2,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from skat_ai.dataset_partition_policy import (
+    build_serializable_dataset_partition_policy,
+)
 from skat_ai.game_declaration import SUIT_GAME_TYPES
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.opponent_statistics import (
@@ -333,15 +336,20 @@ def aggregate_historical_opponent_statistics(
         )
         for partition in TRAINING_PARTITIONS
     }
+    source_dataset = {
+        "dataset_id": dataset.dataset_id,
+        "dataset_version": dataset.dataset_version,
+        "training_dataset_schema_version": dataset.schema_version,
+        "feature_generation_version": dataset.feature_generation_version,
+        "target": dataset.target,
+    }
+    if dataset.partition_policy is not None:
+        source_dataset["partition_policy"] = (
+            build_serializable_dataset_partition_policy(dataset.partition_policy)
+        )
     return HistoricalOpponentStatisticsAggregation(
         aggregation_version=HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_VERSION,
-        source_dataset={
-            "dataset_id": dataset.dataset_id,
-            "dataset_version": dataset.dataset_version,
-            "training_dataset_schema_version": dataset.schema_version,
-            "feature_generation_version": dataset.feature_generation_version,
-            "target": dataset.target,
-        },
+        source_dataset=source_dataset,
         included_partitions=selected_partitions,
         before=before,
         excluded_record_counts_by_partition=excluded_by_partition,
