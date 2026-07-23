@@ -21,6 +21,11 @@ The project focuses on:
 * complete normal-play historical-game records
 * information-safe historical decision snapshots and complete-game review
 * versioned training and evaluation dataset records
+* external and historically aggregated opponent statistics
+* explainable confidence-gated opponent profiles
+* live and time-safe historical profile application
+* rolling opponent-policy evaluation
+* dataset partition policies and stable-player overlap audits
 * JSON input/output for regression-friendly testing
 
 The project is not a machine-learning model, not a full official tournament system, and not a perfect-information Skat solver.
@@ -67,7 +72,8 @@ Four-player table support is unconditionally out of scope.
 
 SkWO-style performance rating is partially implemented for fixed three-player single-game, local list-input, and explicit fixed three-player standings perspectives.
 
-Series aggregation, tournament aggregation, and official report formats are not implemented yet.
+Formal series aggregation, tournament management, and official federation report
+formats are not required product workflows.
 
 ### Live vs post-game mode
 
@@ -185,7 +191,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 27 deterministic scenarios.
+Generated-output validation currently covers 33 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -367,6 +373,11 @@ Implemented:
 * `historical_game_review.py`
 * `training_dataset.py`
 * `training_feature_view.py`
+* `dataset_partition_policy.py`
+* `dataset_partition_audit.py`
+* `historical_opponent_statistics.py`
+* `historical_opponent_profile_binding.py`
+* `historical_opponent_profile_application.py`
 
 ### Simulation
 
@@ -384,6 +395,11 @@ Implemented:
 * `opponent_sequence.py`
 * `opponent_policy_preset.py`
 * `opponent_profile_policy.py`
+* `opponent_statistics.py`
+* `opponent_profile_derivation.py`
+* `opponent_profile_application.py`
+* `live_opponent_profile_binding.py`
+* `rolling_opponent_policy_evaluation.py`
 * `player_profile.py`
 
 ### Post-game review
@@ -412,7 +428,14 @@ Main documentation files:
 * `docs/historical_games.md`
 * `docs/historical_decision_snapshots.md`
 * `docs/historical_game_review.md`
+* `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
+* `docs/dataset_partition_policies.md`
+* `docs/opponent_statistics.md`
+* `docs/opponent_profile_derivation.md`
+* `docs/live_opponent_profiles.md`
+* `docs/historical_opponent_statistics.md`
+* `docs/opponent_policy_evaluation.md`
 * `docs/requirements_traceability.md`
 * `docs/v1_scope.md`
 * `docs/roadmap.md`
@@ -420,15 +443,16 @@ Main documentation files:
 
 ## Release status
 
-Current code and release-preparation baseline: `v0.7.0`.
+Current code and release-preparation baseline: `v0.8.0`.
 
-Current package version: `0.7.0`.
+Current package version: `0.8.0`.
 
-Latest tagged and human-published release: `v0.6.0`. It remains the published
-release until a maintainer tags and publishes `v0.7.0`.
+`v0.7.0` is the preceding published release. Tag and GitHub Release publication
+remain manual maintainer actions; GitHub Releases is authoritative for current
+publication state.
 
-The `v0.7.0` release-preparation baseline validates 27 deterministic
-generated-output scenarios and 2,302 pytest tests.
+The `v0.8.0` release-preparation baseline validates 33 deterministic
+generated-output scenarios and 2,640 pytest tests.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -487,44 +511,58 @@ range #69 through #76 is complete:
 * #75 added bounded complete historical-game decision review
 * #76 added versioned historical training and evaluation dataset records
 
+The `v0.8.0` explainable and time-safe opponent-intelligence issue range #78
+through #84 is complete:
+
+* #78 added versioned external opponent-statistics records with exact and estimated evidence
+* #79 added scoped, explainable, confidence-gated rule-based profile derivation
+* #80 applied actionable external profiles to live analysis through stable-ID side bindings
+* #81 applied profiles to historical review with strict pre-game temporal safety
+* #82 aggregated and exported exact reusable statistics from timestamped historical games
+* #83 evaluated rolling as-of known-opponent policy behavior against `simple_lowest`
+* #84 added dataset partition policies and deterministic stable-player overlap audits
+
 ## Current implementation baseline
 
-**v0.7.0: Rules confidence and information-safe historical workflows**
+**v0.8.0: Explainable and time-safe opponent intelligence**
 
 Completed implementation scope:
 
-* authoritative ISkO/SkWO requirements traceability and v1.0 completion gates
-* canonical declaration dependencies and official matador bounds
-* SkWO-compliant unresolved standings ties and external lot order
-* bounded impossible Null settlement
-* complete normal-play historical-game validation and replay
-* 30 information-safe historical decision snapshots
-* bounded 30-decision historical review
-* versioned provenance-aware training and evaluation datasets
+* versioned external statistics with stable identity, provenance, and optional exact counts
+* deterministic normalization and scoped heuristic-confidence profile derivation
+* explainable actionable and informational profile results
+* exact live left/right bindings and strict time-safe historical participant matching
+* exact historical aggregation with reusable export
+* rolling game-start known-opponent behavioral policy evaluation
+* known-opponent and unseen-player dataset policies with exact overlap auditing
 
 ## Current high-priority limitations
 
-* Complete historical-game records do not yet cover claims, concessions, or other end reasons beyond normal completion.
-* Claims, concessions, and general settlement behavior remain incomplete.
+* Complete historical-game records support normal completion only; structured claims, concessions, and additional end reasons are required.
+* Claims, concessions, and approved settlement completeness remain incomplete.
 * Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.
 * General live position input lacks complete field-level provenance.
 * Multi-Step simulation does not preserve one hidden-world assignment across every step.
-* Training-dataset partitions are not player-disjoint.
-* Historical opponent statistics and learned-model work remain undecided.
+* Broader information-safe hidden-card inference and stronger search or solver functionality are not implemented.
+* Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
+* Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
+* Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
+* No learned model or model-training workflow exists.
+* No website or browser integration exists.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-After human review and merge, create the `v0.7.0` tag and GitHub Release
-manually, then use the [requirements traceability matrix](requirements_traceability.md)
-and [v1.0 scope](v1_scope.md) for focused follow-up work. Do not treat undecided
-areas as permanently excluded.
+After human review, tag and publish `v0.8.0` manually. The next recommended
+milestone should focus on official game-end and settlement completeness:
+structured historical claims and concessions, additional historical end reasons,
+normative settlement coverage, and remaining claim/concession validation.
 
 ## Open future topics
 
-Four-player tables are the only unconditional out-of-scope area. All other
-candidate future areas retain the classifications in `docs/v1_scope.md` until
-an explicit product decision changes them.
+The approved pre-`v1.0.0`, post-`v1.0.0`, not-required, and excluded product
+areas are recorded in [v1.0 scope](v1_scope.md). Four-player tables remain the
+only unconditional exclusion.
 
 ## New-thread starter instruction
 

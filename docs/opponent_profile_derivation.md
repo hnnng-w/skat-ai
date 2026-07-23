@@ -3,7 +3,7 @@
 `skat-ai` provides a deterministic, rule-based opponent-profile derivation for
 `PlayerProfile` values. Derivation version `1` identifies the evidence bands,
 signal thresholds, classification precedence, and output semantics. It is
-independent of package version `0.7.0`.
+independent of the package release version.
 
 Profiles are not learned, confidence is not a calibrated probability or
 confidence interval, and a recommended preset is not claimed to be optimal.

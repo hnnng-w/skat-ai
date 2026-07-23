@@ -109,6 +109,9 @@ Implemented:
 * Strict pre-game external-profile application to historical review through exact participant IDs and per-decision relative remapping
 * Exact opponent-statistics aggregation from canonical timestamped training-dataset partitions with a strict optional cutoff
 * Settlement-based role, win, Hand, and contract counts with per-player historical provenance and reusable export
+* Rolling game-start as-of known-opponent profiles with strict temporal source selection
+* Acting-player preferred-card and exact-card behavioral matching against the fixed `simple_lowest` baseline
+* Actionable-only paired comparisons, coverage, and bounded evaluation breakdowns
 * Separate left/right opponent policy settings
 * Left/right profile-derived presets applied to effective left/right multi-step policies
 * Left/right opponent policy input fields
@@ -230,7 +233,7 @@ Implemented:
 * Performance rating is partially implemented for fixed three-player single-game declarer rating and bounded list-aware summaries.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
-* Series aggregation, tournament aggregation, and official report formats are not implemented yet.
+* Formal series aggregation, tournament management, and official federation report formats are not required product workflows.
 * Four-player table performance rating is not modeled because the project assumes a fixed three-player table.
 
 ### Opponent modeling
@@ -246,7 +249,7 @@ Implemented:
 * Opt-in profiles can influence policy presets, and exact statistics can be aggregated from historical games, but profile behavior is not learned.
 * Profile derivation uses documented deterministic thresholds and heuristic evidence bands, not calibrated uncertainty.
 * External-statistics derivations require profile-preset opt-in plus either explicit live side bindings or exact time-safe historical participant matching.
-* Historical aggregation accepts compliant known-opponent and unseen-player datasets but does not infer policy, weight or merge sources, manage multiple captures, apply policies automatically, evaluate policy effects or profile quality, or learn behavior.
+* Historical aggregation accepts compliant known-opponent and unseen-player datasets but does not infer policy, weight or merge sources, manage multiple captures, apply policies automatically, or learn behavior. The separate rolling evaluation measures observed behavioral matching only, not profile quality or strategic strength.
 
 ### Information modeling
 
@@ -257,11 +260,27 @@ Implemented:
 
 ## Release baselines
 
+### v0.8.0: Explainable and time-safe opponent intelligence
+
+The current code and package version is `0.8.0`. Generated-output validation
+covers 33 deterministic scenarios, and the complete check passes 2,640 pytest
+tests. Issues #78 through #84 are complete:
+
+* #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.
+* #79 added deterministic explainable profile derivation with scoped heuristic confidence and actionable gating.
+* #80 applied actionable profiles to independent live left/right sides through exact stable-ID bindings while preserving manual and explicit policy precedence.
+* #81 applied profiles to historical review through exact participant matching, strict `captured_at < played_at` safety, and per-decision side remapping.
+* #82 aggregated exact settlement-based statistics from timestamped historical dataset games and exported records for existing live and historical loaders.
+* #83 evaluated rolling acting-player card imitation with strict as-of history, the fixed `simple_lowest` baseline, policy-equivalent preferred cards, and actionable paired metrics.
+* #84 added known-opponent and unseen-player dataset policies, exact membership and overlap audits, directed coverage, and strict declared unseen-player disjointness.
+
+`v0.7.0` is the preceding published release. Tag and GitHub Release publication
+remain manual maintainer actions; GitHub Releases is authoritative for current
+publication state.
+
 ### v0.7.0: Rules confidence and information-safe historical workflows
 
-The current code and package version is `0.7.0`. Generated-output validation
-covers 33 deterministic scenarios. Issues #69 through #76 are complete, and
-Issues #80 through #84 add bounded reusable opponent-profile and dataset-policy workflows:
+The documented `v0.7.0` issue scope is complete:
 
 * #69 defined the v1.0 scope, requirements traceability, and project baseline.
 * #70 enforced canonical Suit/Grand declaration dependencies and matador bounds.
@@ -271,20 +290,6 @@ Issues #80 through #84 add bounded reusable opponent-profile and dataset-policy 
 * #74 added information-safe snapshots for all 30 historical decisions.
 * #75 added bounded complete historical-game decision review.
 * #76 added versioned historical training and evaluation dataset records.
-* #84 added explicit dataset partition policies and deterministic stable-player overlap auditing.
-* #80 attached reusable external statistics to live analysis through exact,
-  independent left/right player bindings and existing actionable profile presets.
-* #81 applies captures strictly older than `played_at` to historical review by
-  exact participant ID while preserving per-decision side mapping and precedence.
-* #82 aggregates exact settlement-based statistics from selected timestamped
-  historical dataset games and exports them for existing live and historical
-  profile loaders without training, automatic application, or quality claims.
-* #83 evaluates acting-player card imitation with strict rolling source history,
-  the fixed `simple_lowest` baseline, preferred-card equivalence, and actionable
-  paired results without expected-value or strategic-quality claims.
-
-`v0.6.0` remains the latest human-published release until a maintainer tags and
-publishes `v0.7.0`.
 
 ### v0.6.0: From single-position analysis to credible list-aware review workflows
 
@@ -306,14 +311,29 @@ remains pending.
 The [requirements traceability matrix](requirements_traceability.md) is the
 authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
-decisions, and testable completion gates.
+implementation details, and testable completion gates.
 
-Four-player tables are the only area unconditionally out of scope. Series,
-tournament, official reporting, historical-statistics extensions, learned
-behavior, machine-learning training, stronger solving, broader hidden-card
-inference, claim verification, and complete-game coaching must retain the
-classifications in `docs/v1_scope.md` until explicit product decisions change
-them.
+Before `v1.0.0`, the project requires structured claims and concessions,
+approved settlement completeness, additional historical end reasons,
+complete-game coaching, stronger solving, coherent hidden-world simulation,
+broader information-safe hidden-card inference, Ouvert-aware simulation, full
+fixed-three-player 36-game list aggregation, field-level live provenance,
+interactive input, and a stable library and installed CLI/package interface.
+Bounded opponent statistics, explainable profiles, live and time-safe historical
+application, rolling behavioral evaluation, and dataset partition policies are
+already implemented.
+
+Full auction modeling, learned opponent profiles, machine-learning card-decision
+models, and platform or browser adapters are planned after `v1.0.0`. Formal
+series aggregation, tournament management, and official federation report
+formats are not required. Four-player tables are the only unconditional
+exclusion.
+
+The next recommended milestone focuses on official game-end and settlement
+completeness: structured historical claims and concessions, additional end
+reasons, normative settlement coverage, and remaining claim/concession
+validation. Later milestones are not implied to have complete implementation
+designs.
 
 ## Open technical cleanup
 
@@ -329,6 +349,6 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the `v0.7.0` implementation baseline, the latest published
+should distinguish the `v0.8.0` implementation baseline, the latest published
 release, requirements explicitly required for `v1.0.0`, planned post-v1.0 work,
-and topics that still require a product decision.
+not-required workflows, and unconditional exclusions.

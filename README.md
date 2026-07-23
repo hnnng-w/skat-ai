@@ -64,6 +64,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Versioned explainable rule-based profile derivation with scoped heuristic confidence
 * Exact reusable opponent-statistics aggregation from selected timestamped historical games
 * Standalone historical-statistics export compatible with existing live and historical profile loaders
+* Strict time-safe historical profile application by stable participant identity
+* Rolling known-opponent policy evaluation against the fixed `simple_lowest` baseline
 
 ### Information policy
 
@@ -276,6 +278,17 @@ exclusive cutoff, derives wins from final settlement, emits no decision samples,
 and does not apply a policy. See
 [Historical opponent statistics](docs/historical_opponent_statistics.md).
 
+Evaluate rolling game-start profiles against observed known-opponent card choices:
+
+```powershell
+python main.py --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --output outputs/opponent-policy-evaluation.json
+```
+
+This workflow uses disjoint source and evaluation partition names, strict as-of
+history, and preferred-card matching. It measures behavioral imitation only, not
+strategic quality or optimal play. See
+[Rolling opponent-policy evaluation](docs/opponent_policy_evaluation.md).
+
 Validate, normalize, and derive an explainable profile from externally supplied
 opponent statistics:
 
@@ -387,11 +400,12 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current code and package baseline is `v0.7.0`, prepared around the theme
-"Rules confidence and information-safe historical workflows." Issues #69
-through #76 are complete. Generated-output validation covers 33 deterministic
-scenarios. `v0.6.0` remains the latest human-published release until a maintainer
-tags and publishes `v0.7.0`.
+The current code and package baseline is `v0.8.0`, prepared around the theme
+"Explainable and time-safe opponent intelligence." Issues #78 through #84 are
+complete. Generated-output validation covers 33 deterministic scenarios.
+`v0.7.0` is the preceding published release. Tag and GitHub Release publication
+remain manual maintainer actions; GitHub Releases is authoritative for current
+publication state.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
 simulation, opponent-policy modeling, game-result summaries, game-value
@@ -401,19 +415,21 @@ performance features.
 
 Complete normal-play historical records, information-safe pre-play snapshots,
 bounded 30-decision immediate review, and versioned training/evaluation dataset
-wrapping are partially supported. Remaining gaps include historical end reasons
-beyond normal completion, complete claim and concession handling, general
-settlement completeness, exposed-card-aware ouvert recommendation simulation,
-complete live-input provenance, coherent hidden-world continuity across all
-Multi-Step paths, and automatic dataset splitting or generalization evaluation. External opponent
-statistics and exact historically aggregated statistics can be validated,
-normalized, and reused by stable ID in live or strict time-safe historical
-profile workflows. A separate rolling as-of workflow evaluates whether existing
-actionable profile policies imitate observed known-player cards better than the
-fixed `simple_lowest` baseline, using preferred-card matching as its primary
-metric. It does not run recommendations or expected-value simulation, claim
-strategic quality, evaluate unseen players, merge captures, or learn
-behavior. The product supports fixed three-player tables only.
+wrapping are partially supported. Remaining gaps include structured historical
+claims and concessions, additional historical end reasons, approved settlement
+completeness, complete-game coaching, stronger solving, exposed-card-aware
+Ouvert simulation, complete field-level live provenance, coherent hidden-world
+continuity across Multi-Step paths, broader information-safe hidden-card
+inference, full 36-game list aggregation, interactive input, and a stable
+installed interface. No website or browser integration exists. External and
+exact historically aggregated statistics can
+be validated, normalized, and reused by stable ID in live or strict time-safe
+historical profile workflows. A separate rolling as-of workflow evaluates
+whether existing actionable profile policies imitate observed known-player cards
+better than the fixed `simple_lowest` baseline, using preferred-card matching as
+its primary metric. It does not run recommendations or expected-value
+simulation, claim strategic quality, evaluate unseen players, merge captures,
+or learn behavior. The product supports fixed three-player tables only.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

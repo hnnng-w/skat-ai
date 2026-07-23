@@ -1,5 +1,52 @@
 # Changelog
 
+## v0.8.0
+
+**Release theme: Explainable and time-safe opponent intelligence**
+
+### Opponent statistics and profiles
+
+* Add versioned external opponent-statistics records with stable player identity, required source provenance, all eight supported percentage statistics, and deterministic normalization to existing profile-rate semantics.
+* Preserve optional exact historical role, win, Hand, and contract counts while keeping rounded external percentages distinguishable from exact evidence.
+* Derive overall, declarer, and defender evidence scopes with heuristic confidence bands and explainable signals, classifications, reason codes, and preset recommendations.
+* Distinguish actionable profile results from informational low-confidence, neutral, or insufficient-data results; profiles remain deterministic and rule-based rather than learned.
+
+### Live and historical application
+
+* Add explicit live left/right bindings by stable player ID, with independent relative-side behavior and actionable-only profile application.
+* Preserve manual profile and explicit policy precedence over external profile presets.
+* Add automatic historical participant matching with strict `captured_at < played_at` temporal safety and per-decision relative-side remapping.
+* Preserve historical replay, settlement, deterministic seeds, and decision-time information boundaries when profiles are applied.
+
+### Historical aggregation and export
+
+* Aggregate exact opponent statistics from timestamped `training_dataset_input` games using canonical partition selection and an optional strict cutoff.
+* Derive declarer and defender wins from final settlement and preserve exact role, win, Hand, and contract counts; both defenders receive a defender win when their side wins.
+* Add versioned `historical_games` provenance and reusable standalone opponent-statistics export compatible with live bindings and time-safe historical matching.
+
+### Behavioral evaluation
+
+* Add rolling game-start as-of profiles using disjoint source and evaluation partition names and the fixed `simple_lowest` baseline.
+* Evaluate the acting player's own observed card choice against ordered policy-equivalent preferred-card candidates.
+* Report preferred-card and exact-card match metrics, actionable-only paired comparisons, coverage, and bounded breakdowns.
+* Keep behavioral matching explicitly separate from strategic-quality, recommendation-quality, or optimal-play evaluation.
+
+### Dataset partition policies
+
+* Add optional `known_opponent` and `unseen_player` metadata while preserving backward compatibility for datasets without declared partition intent.
+* Audit exact stable-player membership, pairwise and three-way overlap, and directed known-opponent coverage deterministically.
+* Enforce strict player-disjoint partitions for declared unseen-player datasets while retaining rolling policy evaluation as a known-opponent workflow.
+
+### Project scope and documentation
+
+* Synchronize release-state documentation and record the approved pre-`v1.0.0`, post-`v1.0.0`, not-required, and unconditionally excluded product areas.
+* Preserve the limitations of normal-play-only historical records, simplified claims and concessions, incomplete settlement nuance, heuristic opponent behavior, and bounded simulation and input interfaces.
+
+### Validation
+
+* Validate 33 deterministic generated-output scenarios.
+* Pass 2,640 pytest tests together with Ruff, input/example schema validation, and generated-output schema validation.
+
 ## v0.7.0
 
 **Release theme: Rules confidence and information-safe historical workflows**

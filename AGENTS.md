@@ -21,6 +21,11 @@ The project focuses on:
 * complete normal-play historical-game records
 * information-safe historical decision snapshots and complete-game review
 * versioned training and evaluation dataset records
+* external and historically aggregated opponent statistics
+* explainable confidence-gated opponent profiles
+* live and time-safe historical profile application
+* rolling opponent-policy evaluation
+* dataset partition policies and stable-player overlap audits
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model, a full official
@@ -122,15 +127,17 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current code and release-preparation baseline is `v0.7.0`.
+The current code and release-preparation baseline is `v0.8.0`, with the theme
+"Explainable and time-safe opponent intelligence."
 
-The package version is `0.7.0`.
+The package version is `0.8.0`.
 
-Generated-output validation currently covers 27 deterministic scenarios.
+Generated-output validation currently covers 33 deterministic scenarios.
 
-The documented `v0.7.0` issue scope, issues #69 through #76, is complete.
-`v0.6.0` remains the latest human-published release until `v0.7.0` is tagged
-and published by a maintainer.
+The documented `v0.8.0` issue scope, issues #78 through #84, is complete.
+`v0.7.0` is the preceding published release. Tag and GitHub Release publication
+remain manual maintainer actions; GitHub Releases is authoritative for current
+publication state.
 
 Major completed areas include:
 
@@ -162,7 +169,21 @@ Major completed areas include:
 * information-safe snapshots for all 30 historical decisions
 * bounded complete historical-game decision review
 * versioned provenance-aware training and evaluation dataset records
+* versioned external opponent statistics with exact or estimated scoped evidence
+* deterministic explainable confidence-gated opponent profiles
+* stable-ID live profile bindings and strict time-safe historical application
+* exact historical opponent-statistics aggregation and reusable export
+* rolling known-opponent behavioral policy evaluation
+* known-opponent and unseen-player dataset policies with overlap audits
 * updated README, docs, roadmap, and project handoff
+
+Current limitations include normal-play-only complete historical records,
+simplified claims and concessions, incomplete settlement nuance, no coherent
+hidden-world assignment across a complete Multi-Step path, no exposed-card-aware
+Ouvert simulation, incomplete field-level live provenance, heuristic rule-based
+opponent behavior, no complete-game coaching or 36-game list aggregation, no
+interactive or stable installed application interface, and no learned model or
+model-training workflow. No website or browser integration exists.
 
 ## Important design principles
 
