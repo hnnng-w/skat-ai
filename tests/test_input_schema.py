@@ -184,7 +184,7 @@ def test_schema_and_runtime_accept_training_dataset_branch() -> None:
     )
 
     assert dataset.dataset_id == "online-games-2026"
-    assert len(dataset.records) == 1
+    assert len(dataset.records) == 2
 
 
 @pytest.mark.parametrize(

@@ -10,8 +10,10 @@ Historical-game representation remains `partially_supported`. The bounded
 normal-play workflow can review all 30 decisions and can be wrapped by the
 separate training-dataset workflow, but it does not provide ouvert-aware
 recommendation simulation, claims, concessions, full auction events, player
-statistics, or list/tournament aggregation. Direct snapshot output remains a
-state-reconstruction record rather than a training record.
+statistics directly from one historical-game invocation, or list/tournament
+aggregation. A timestamped collection wrapped by the training-dataset workflow
+can separately produce bounded historical player statistics. Direct snapshot
+output remains a state-reconstruction record rather than a training record.
 
 ## Public input
 
@@ -41,7 +43,9 @@ without trimming or normalization. Leading or trailing whitespace is invalid.
 `played_at` is optional and means the instant when the game began. When present,
 it must be RFC 3339 with an explicit offset and is preserved without rewriting.
 It becomes required only when external profiles are applied to historical
-review; existing timestamp-free version-1 games remain valid otherwise.
+review or when the game is partition-selected for reusable historical opponent-
+statistics aggregation; existing timestamp-free version-1 games remain valid
+otherwise.
 
 Exactly three players are required, with unique IDs and exactly one each of
 `forehand`, `middlehand`, and `rearhand`. Every player supplies ten unique cards;
@@ -190,7 +194,7 @@ Later work is still required for:
 * impossible Null historical play records
 * rule-violation adjudication
 * exposed-card-aware ouvert simulation and complete-game coaching
-* historical player-statistics aggregation and learned models
+* unbounded player-statistics history, weighting, merging, multiple captures, policy-effect evaluation, and learned models
 * list, series, and tournament aggregation from historical records
 
 Four-player tables remain out of scope.
@@ -199,3 +203,6 @@ Complete normal-play records can be wrapped with provenance and explicit
 partitions by the separate [training data](training_data.md) workflow. That
 workflow uses snapshots rather than historical review, so ouvert records remain
 valid and no recommendation simulation is invoked.
+The same dataset wrapper can instead aggregate exact per-player statistics from
+selected timestamped games without generating samples. See
+[Historical opponent statistics](historical_opponent_statistics.md).

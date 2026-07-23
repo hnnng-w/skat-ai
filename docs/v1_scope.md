@@ -18,8 +18,8 @@ must not be presented as official-rule requirements.
 | Complete historical game review | All eligible decisions from one complete historical game, independently reconstructed from decision-time snapshots and compared with the existing immediate recommendation. | It is not a perfect-information solver, complete-contract optimization, player rating, or training/evaluation record. |
 | Complete historical game | One coherent record of the deal, players/seats, bidding and declaration facts, skat handling, ordered play events, end reason, result, and settlement. | A position plus selected completed tricks is not a complete historical game. |
 | Historical game used as training or evaluation data | A complete historical game wrapped in a validated record with provenance, stable identity, intended labels/targets, and explicit dataset partition metadata. | Representation and evaluation use do not imply that a machine-learning model is trained. |
-| Externally captured opponent statistics | A versioned record of supplied total games and percentage-point statistics with stable player identity, source provenance, capture time, and deterministic explainable profile derivation. | Explicit live side bindings or strict pre-game historical participant matching may apply confidence-gated actionable presets; this does not derive historical aggregates or exact role counts, predict behavior, learn a profile, or evaluate policy effects. |
-| Statistics derived from historical player data | Reproducible aggregates computed from linked historical games for a stable player identity. | These differ from manually supplied profile values and from learned model parameters. |
+| Externally captured opponent statistics | A versioned record of supplied total games and percentage-point statistics with stable player identity, source provenance, capture time, and deterministic explainable profile derivation. | Explicit live side bindings or strict pre-game historical participant matching may apply confidence-gated actionable presets; external values do not imply exact counts, predict behavior, learn a profile, or evaluate policy effects. |
+| Statistics derived from historical player data | Reproducible exact aggregates computed from selected timestamped normal-play dataset games for a stable case-sensitive player identity, with per-player source provenance and reusable export. | Bounded aggregation differs from manually supplied values and learned parameters; it does not weight or merge sources, manage multiple captures, apply a policy automatically, or evaluate policy effects. |
 | Rule-based player or opponent profile | Explicit fields and deterministic rules that select or parameterize explainable behavior. | It is not learned from data, even when its input statistics were historically derived. |
 | Learned opponent model | A versioned artifact whose behavior or parameters were fit from data and are used during inference. | It requires separate training, evaluation, deployment, fallback, and explainability decisions. |
 | Training a machine-learning model | Running a reproducible process that fits model parameters from an approved training dataset and evaluates them on separated data. | It is distinct from storing historical games, generating labels, calculating statistics, or running rule-based simulation. |
@@ -67,7 +67,7 @@ areas.
 | Series aggregation | `decision required` | Series identity, list membership, rollup, seating, correction, and standings semantics are not approved. |
 | Tournament management | `decision required` | Event plans, registration, officials, tables, schedules, adjudication, accounting, and retention are not product-defined. |
 | Official list and report formats | `decision required` | SkWO defines duties but not a digital format; the target authority and conformance artifact must be named. |
-| Historical opponent statistics | `decision required` | External captures can be time-safely applied to historical review by exact participant ID, but deriving aggregates from games, aggregation windows, privacy, update behavior, multiple captures, and capture selection are not defined. |
+| Historical opponent-statistics extensions | `decision required` | Exact selected-partition aggregation with an optional strict cutoff is supported. Rolling/count-based windows, privacy and update policy, weighting, merging, multiple captures, capture persistence/selection, and policy-effect evaluation are not defined. |
 | Learned opponent profiles | `decision required` | Model type, features, evaluation, versioning, explainability, and fallback behavior are not defined. |
 | Machine-learning model training | `decision required` | Training-data representation is required, but no model objective, training protocol, or quality gate is approved. |
 | Stronger search or solver functionality | `decision required` | Search depth, information assumptions, latency, determinism, and quality measurement are not defined. |
@@ -119,6 +119,10 @@ Training-data representation remains partial because later historical end
 reasons and player-disjoint partition policy are not supported. The v1 gate also
 remains open for exposed-card-aware recommendation analysis, approved later end
 reasons, and complete auction representation.
+
+Bounded historical player-statistics aggregation is supported from the same
+dataset container, but it does not make partitions player-disjoint and is not a
+training, quality-evaluation, or automatic policy-application gate.
 
 ## Release decision rule
 

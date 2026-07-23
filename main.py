@@ -1,5 +1,6 @@
 import argparse
 import sys
+from pathlib import Path
 from typing import Any
 
 from skat_ai.analysis_metadata import build_serializable_analysis_metadata
@@ -28,6 +29,11 @@ from skat_ai.historical_game_review import build_historical_game_review_summary
 from skat_ai.historical_opponent_profile_binding import (
     HistoricalOpponentProfileBindings,
     resolve_historical_opponent_profile_bindings,
+)
+from skat_ai.historical_opponent_statistics import (
+    aggregate_historical_opponent_statistics,
+    build_exportable_opponent_statistics_input,
+    build_historical_opponent_statistics_aggregation_summary,
 )
 from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_summary,
@@ -69,7 +75,10 @@ from skat_ai.opponent_profile_application import (
     build_opponent_profile_application_summary,
     select_effective_live_opponent_profiles,
 )
-from skat_ai.opponent_statistics import build_opponent_statistics_summary
+from skat_ai.opponent_statistics import (
+    build_opponent_statistics_summary,
+    build_serializable_opponent_statistics_input,
+)
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.performance_rating import (
@@ -930,6 +939,28 @@ def print_opponent_statistics_result(result: dict[str, Any]) -> None:
         print(f"  Explanation: {derivation['explanations'][-1]}")
 
 
+def print_historical_opponent_statistics_result(result: dict[str, Any]) -> None:
+    """Prints a concise historical aggregation summary."""
+    summary = result["historical_opponent_statistics_aggregation_summary"]
+    print(
+        "Historical opponent statistics: "
+        f"{summary['source_game_count']} games, {summary['player_count']} players."
+    )
+    print(
+        "Included partitions:",
+        ", ".join(summary["selection"]["included_partitions"]),
+    )
+    for record in summary["records"]:
+        statistics = record["statistics"]
+        confidence = record["profile_derivation"]["confidence"]["overall"]["level"]
+        print(
+            f"{record['player_id']}: {record['games_played']} games, "
+            f"{statistics['solo_games_played_percent']:.2f}% declarer, "
+            f"{statistics['defender_games_played_percent']:.2f}% defender, "
+            f"{confidence} confidence."
+        )
+
+
 def print_multi_step_result(result: dict[str, Any]) -> None:
     """
     Prints a multi-step simulation result in a readable text format.
@@ -1416,6 +1447,45 @@ def run_json_training_dataset_conversion(
         print("Output file written:", output_path)
 
 
+def run_json_historical_opponent_statistics_aggregation(
+    file_path: str,
+    included_partitions: tuple[str, ...] | None = None,
+    before: str | None = None,
+    output_path: str | None = None,
+    export_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Aggregates historical statistics without generating training samples."""
+    dataset = load_training_dataset_from_json(file_path)
+    aggregation = aggregate_historical_opponent_statistics(
+        dataset,
+        included_partitions=included_partitions,
+        before=before,
+    )
+    result = {
+        "input_file": str(file_path),
+        "historical_opponent_statistics_aggregation_summary": (
+            build_historical_opponent_statistics_aggregation_summary(aggregation)
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if export_path is not None:
+        export_input = build_exportable_opponent_statistics_input(aggregation)
+        write_analysis_result_to_json(
+            output_path=export_path,
+            result=build_serializable_opponent_statistics_input(export_input),
+        )
+    if quiet:
+        return
+    print_historical_opponent_statistics_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+    if export_path is not None:
+        print("Exported opponent statistics to", f"{export_path}.")
+
+
 def run_json_opponent_statistics_conversion(
     file_path: str,
     output_path: str | None = None,
@@ -1503,6 +1573,29 @@ def parse_arguments() -> argparse.Namespace:
         "--quiet",
         action="store_true",
         help="Suppress successful human-readable stdout output.",
+    )
+
+    parser.add_argument(
+        "--aggregate-opponent-statistics",
+        action="store_true",
+        help="Aggregate exact reusable opponent statistics from a training dataset.",
+    )
+    parser.add_argument(
+        "--opponent-statistics-partition",
+        action="append",
+        choices=("train", "validation", "test"),
+        default=None,
+        help="Include this training-dataset partition; may be repeated.",
+    )
+    parser.add_argument(
+        "--opponent-statistics-before",
+        default=None,
+        help="Include only games with played_at strictly before this RFC 3339 instant.",
+    )
+    parser.add_argument(
+        "--export-opponent-statistics",
+        default=None,
+        help="Write a standalone reusable opponent_statistics_input JSON file.",
     )
 
     parser.add_argument(
@@ -1682,6 +1775,56 @@ def validate_cli_arguments(
     if args.multi_step is not None and args.multi_step <= 0:
         raise CliUsageError("--multi-step must be a positive integer.")
 
+    aggregate_statistics = getattr(args, "aggregate_opponent_statistics", False)
+    aggregation_only_options = {
+        "--opponent-statistics-partition": getattr(
+            args, "opponent_statistics_partition", None
+        )
+        is not None,
+        "--opponent-statistics-before": getattr(
+            args, "opponent_statistics_before", None
+        )
+        is not None,
+        "--export-opponent-statistics": getattr(
+            args, "export_opponent_statistics", None
+        )
+        is not None,
+    }
+    supplied_aggregation_options = [
+        option for option, supplied in aggregation_only_options.items() if supplied
+    ]
+    if supplied_aggregation_options and not aggregate_statistics:
+        raise CliUsageError(
+            "Historical opponent-statistics options require "
+            "--aggregate-opponent-statistics: "
+            f"{', '.join(supplied_aggregation_options)}."
+        )
+    if aggregate_statistics and workflow != "training_dataset":
+        raise CliUsageError(
+            "--aggregate-opponent-statistics is supported only for "
+            "training_dataset_input."
+        )
+    if aggregate_statistics:
+        paths = [
+            ("--input", args.input),
+            ("--output", args.output),
+            (
+                "--export-opponent-statistics",
+                getattr(args, "export_opponent_statistics", None),
+            ),
+        ]
+        resolved_paths = [
+            (option, Path(path).resolve())
+            for option, path in paths
+            if path is not None
+        ]
+        for index, (first_option, first_path) in enumerate(resolved_paths):
+            for second_option, second_path in resolved_paths[index + 1 :]:
+                if first_path == second_path:
+                    raise CliUsageError(
+                        f"{first_option} and {second_option} must use different paths."
+                    )
+
     if args.comparison_only and not args.compare_policies:
         raise CliUsageError("--comparison-only requires --compare-policies.")
 
@@ -1822,6 +1965,9 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         "--opponent-statistics-file": False,
         "--left-opponent-player-id": args.left_opponent_player_id is not None,
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
+        "--aggregate-opponent-statistics": getattr(
+            args, "aggregate_opponent_statistics", False
+        ),
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -1896,6 +2042,9 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         "--opponent-statistics-file": args.opponent_statistics_file is not None,
         "--left-opponent-player-id": args.left_opponent_player_id is not None,
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
+        "--aggregate-opponent-statistics": getattr(
+            args, "aggregate_opponent_statistics", False
+        ),
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -1924,11 +2073,25 @@ def main() -> int:
             )
         elif workflow == "training_dataset":
             validate_training_dataset_cli_arguments(args)
-            run_json_training_dataset_conversion(
-                file_path=args.input,
-                output_path=args.output,
-                quiet=args.quiet,
-            )
+            if args.aggregate_opponent_statistics:
+                run_json_historical_opponent_statistics_aggregation(
+                    file_path=args.input,
+                    included_partitions=(
+                        tuple(args.opponent_statistics_partition)
+                        if args.opponent_statistics_partition is not None
+                        else None
+                    ),
+                    before=args.opponent_statistics_before,
+                    output_path=args.output,
+                    export_path=args.export_opponent_statistics,
+                    quiet=args.quiet,
+                )
+            else:
+                run_json_training_dataset_conversion(
+                    file_path=args.input,
+                    output_path=args.output,
+                    quiet=args.quiet,
+                )
         elif workflow == "historical_game":
             validate_historical_game_cli_arguments(args)
             run_json_historical_game_analysis(

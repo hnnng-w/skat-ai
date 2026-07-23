@@ -43,6 +43,19 @@ def build_valid_input(*records: dict[str, object]) -> dict[str, object]:
     }
 
 
+def add_valid_exact_counts(record: dict[str, object]) -> None:
+    record["exact_counts"] = {
+        "solo_games_played": 40,
+        "solo_games_won": 23,
+        "solo_hand_games": 5,
+        "suit_games": 24,
+        "grand_games": 12,
+        "null_games": 4,
+        "defender_games_played": 87,
+        "defender_games_won": 56,
+    }
+
+
 def build_summary(data: dict[str, object]) -> dict[str, object]:
     return build_opponent_statistics_summary(build_opponent_statistics_input(data))
 
@@ -148,6 +161,144 @@ def test_normalizes_to_player_profile_semantics_without_inventing_counts() -> No
     assert profile.grand_rate == 0.29
     assert profile.null_game_rate == 0.1
     assert profile.defender_win_rate == 0.64
+
+
+def test_exact_counts_populate_exact_profile_evidence_and_round_trip() -> None:
+    record = build_valid_record()
+    add_valid_exact_counts(record)
+
+    typed_record = build_opponent_statistics_input(build_valid_input(record)).records[0]
+    profile = build_player_profile_from_opponent_statistics(typed_record)
+    summary = build_summary(build_valid_input(record))["records"][0]
+
+    assert profile.solo_games_played == 40
+    assert profile.defender_games_played == 87
+    assert profile.solo_rate == 40 / 127
+    assert profile.solo_win_rate == 23 / 40
+    assert profile.defender_win_rate == 56 / 87
+    assert summary["exact_counts"] == record["exact_counts"]
+    assert summary["profile_derivation"]["confidence"]["declarer"] == {
+        "level": "low",
+        "evidence_count": 40.0,
+        "evidence_kind": "exact",
+    }
+    assert summary["profile_derivation"]["confidence"]["defender"] == {
+        "level": "low",
+        "evidence_count": 87.0,
+        "evidence_kind": "exact",
+    }
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error_match"),
+    [
+        (lambda counts: counts.pop("null_games"), "missing required fields"),
+        (lambda counts: counts.update(solo_games_won=-1), "non-negative integer"),
+        (lambda counts: counts.update(solo_games_won=True), "non-negative integer"),
+        (lambda counts: counts.update(solo_games_won=41), "must not exceed"),
+        (lambda counts: counts.update(defender_games_played=86), "sum to games_played"),
+        (lambda counts: counts.update(null_games=5), "sum to solo_games_played"),
+    ],
+)
+def test_rejects_invalid_exact_counts(mutation, error_match: str) -> None:
+    record = build_valid_record()
+    add_valid_exact_counts(record)
+    mutation(record["exact_counts"])
+
+    with pytest.raises(ValueError, match=error_match):
+        build_opponent_statistics_input(build_valid_input(record))
+
+
+def test_rejects_exact_counts_that_contradict_percentages_beyond_tolerance() -> None:
+    record = build_valid_record()
+    add_valid_exact_counts(record)
+    record["statistics"]["solo_games_won_percent"] = 80
+
+    with pytest.raises(ValueError, match="contradicts.*solo_games_won_percent"):
+        build_opponent_statistics_input(build_valid_input(record))
+
+
+def build_historical_source() -> dict[str, object]:
+    return {
+        "source_type": "historical_games",
+        "source_name": "fixture-dataset",
+        "source_player_id": "opponent-123",
+        "captured_at": "2026-07-20T17:00:00Z",
+        "historical_aggregation": {
+            "aggregation_version": 1,
+            "dataset_id": "fixture-dataset",
+            "dataset_version": "1",
+            "included_partitions": ["train", "validation"],
+            "source_record_ids": ["record-1", "record-2"],
+            "source_game_ids": ["game-1", "game-2"],
+            "first_played_at": "2026-07-10T18:00:00+02:00",
+            "last_played_at": "2026-07-20T19:00:00+02:00",
+        },
+    }
+
+
+def test_accepts_time_bounded_historical_source_provenance() -> None:
+    record = build_valid_record()
+    record["source"] = build_historical_source()
+    add_valid_exact_counts(record)
+
+    summary = build_summary(build_valid_input(record))["records"][0]
+
+    assert summary["source"] == record["source"]
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error_match"),
+    [
+        (
+            lambda source: source.pop("historical_aggregation"),
+            "required for historical_games",
+        ),
+        (
+            lambda source: source.update(source_player_id="other"),
+            "must equal player_id",
+        ),
+        (
+            lambda source: source["historical_aggregation"].update(
+                source_game_ids=["game-1"]
+            ),
+            "equal lengths",
+        ),
+        (
+            lambda source: source["historical_aggregation"].update(
+                source_game_ids=["game-1", "game-1"]
+            ),
+            "must not contain duplicates",
+        ),
+        (
+            lambda source: source["historical_aggregation"].update(
+                first_played_at="2026-07-21T00:00:00Z"
+            ),
+            "must not be after",
+        ),
+        (
+            lambda source: source.update(captured_at="2026-07-20T17:00:01Z"),
+            "same instant",
+        ),
+    ],
+)
+def test_rejects_invalid_historical_source_provenance(mutation, error_match: str) -> None:
+    record = build_valid_record()
+    record["source"] = build_historical_source()
+    mutation(record["source"])
+
+    with pytest.raises(ValueError, match=error_match):
+        build_opponent_statistics_input(build_valid_input(record))
+
+
+def test_rejects_historical_provenance_for_external_source() -> None:
+    record = build_valid_record()
+    record["source"]["historical_aggregation"] = build_historical_source()[
+        "historical_aggregation"
+    ]
+
+    with pytest.raises(ValueError, match="only for historical_games"):
+        build_opponent_statistics_input(build_valid_input(record))
 
 
 def test_summary_is_deterministic_preserves_order_values_identity_and_provenance() -> None:

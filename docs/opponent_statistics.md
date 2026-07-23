@@ -7,8 +7,8 @@ provenance, rounded percentages, and deterministic conversion to existing
 
 This workflow validates and normalizes supplied statistics, then derives a
 versioned explainable rule-based profile. Standalone conversion does not run
-analysis. A separate explicit live binding can reuse its records; historical
-application remains unsupported.
+analysis. Separate live and strict time-safe historical bindings can reuse its
+records. Exact historical aggregation can produce the same input contract.
 
 ## Input workflow
 
@@ -38,7 +38,7 @@ is preserved.
 
 Every record requires:
 
-* `source_type`: `online_platform` or `manual_entry`
+* `source_type`: `online_platform`, `manual_entry`, or `historical_games`
 * `source_name`
 * `captured_at`: valid RFC 3339 date-time with an explicit time-zone offset
 
@@ -49,6 +49,15 @@ preserves every supplied provenance value unchanged.
 The workflow does not scrape platforms, merge captures, or maintain statistics
 history. Multiple captures for one player require future versioning or history
 functionality and cannot appear as duplicate IDs in one input.
+
+`historical_games` requires `source_player_id` equal to the record's
+`player_id` and a version-1 `historical_aggregation` object. That object contains
+dataset ID/version, canonical non-empty partitions, equally sized non-empty
+unique source record/game ID arrays, and valid first/last source timestamps.
+`first_played_at` must not be after `last_played_at`, and `captured_at` must
+represent the same instant as `last_played_at`. `historical_aggregation` is
+rejected for the other source types. See
+[Historical opponent statistics](historical_opponent_statistics.md).
 
 ## Percentage definitions
 
@@ -110,12 +119,38 @@ Every percentage is divided by `100` and mapped as follows:
 | `null_games_percent` | `null_game_rate` |
 | `defender_games_won_percent` | `defender_win_rate` |
 
-`games_played` is copied exactly. `solo_games_played` and
-`defender_games_played` remain `null`: rounded percentages are not converted
-into allegedly exact role-specific counts. The derivation may expose decimal
-role-evidence estimates from `games_played` and the normalized rates. Those
-estimates remain distinguishable from exact counts and are not historical count
-claims. No declarer wins, defender wins, or contract counts are inferred.
+`games_played` is copied exactly. Without `exact_counts`,
+`solo_games_played` and `defender_games_played` remain `null`: rounded
+percentages are not converted into allegedly exact role-specific counts. The
+derivation may expose decimal role-evidence estimates from `games_played` and
+the normalized rates. Those estimates remain distinguishable from exact counts
+and are not historical count claims. No declarer wins, defender wins, or
+contract counts are inferred from percentages.
+
+## Optional exact counts
+
+Version 1 also accepts an optional complete `exact_counts` object with all eight
+non-negative integer fields: `solo_games_played`, `solo_games_won`,
+`solo_hand_games`, `suit_games`, `grand_games`, `null_games`,
+`defender_games_played`, and `defender_games_won`. Booleans are not integers.
+The invariants are:
+
+```text
+solo_games_played + defender_games_played == games_played
+solo_games_won <= solo_games_played
+solo_hand_games <= solo_games_played
+suit_games + grand_games + null_games == solo_games_played
+defender_games_won <= defender_games_played
+```
+
+When present, each exact ratio must agree with its supplied percentage within
+the existing inclusive `2.0` percentage-point tolerance. Exact declarer and
+defender counts populate `PlayerProfile.solo_games_played` and
+`PlayerProfile.defender_games_played` and take precedence over rate estimates in
+profile derivation. Exact win, Hand, and contract counts remain preserved source
+evidence even where current derivation signals do not consume them. Existing
+external records without `exact_counts` remain valid and keep estimated role
+evidence.
 
 The structured output keeps the original percentage-point `statistics`
 separate from `normalized_profile_statistics`. Each record also contains:
@@ -159,25 +194,29 @@ The focused schemas are:
 
 * [`schemas/opponent_statistics.schema.json`](../schemas/opponent_statistics.schema.json)
 * [`schemas/opponent_statistics_output.schema.json`](../schemas/opponent_statistics_output.schema.json)
+* [`schemas/historical_opponent_statistics_aggregation.schema.json`](../schemas/historical_opponent_statistics_aggregation.schema.json)
 * [`schemas/opponent_profile_derivation.schema.json`](../schemas/opponent_profile_derivation.schema.json)
 * [`schemas/opponent_profile_application.schema.json`](../schemas/opponent_profile_application.schema.json)
 * [`schemas/historical_opponent_profile_application.schema.json`](../schemas/historical_opponent_profile_application.schema.json)
 
 JSON Schema enforces structure, required fields, enums, and simple ranges.
 Runtime validation remains authoritative for duplicate identity, RFC 3339
-time-zone requirements, finite numbers, sum consistency, zero-role rules,
+time-zone requirements, finite numbers, sum consistency, zero-role rules, exact
+count invariants and percentage reconciliation, historical provenance,
 evidence precedence and consistency, confidence boundaries, signal actionability,
 conflict precedence, deterministic normalization, and output reconciliation.
 
 ## Current limitations
 
-Historical-game-derived player-statistics aggregation remains unsupported. A
-validated file can be explicitly bound to live sides or automatically matched to
-historical participants for review. Historical matches require every matched
-`captured_at` instant to be strictly before the game's `played_at`; only
-actionable presets enter the existing policy resolver. The workflow does not
-persist or automatically select among multiple captures, predict behavior,
-evaluate policy effects, or train a model. The deterministic classification is
-a bounded rule-based description, not a learned profile. See
+Exact historical-game-derived statistics are supported through the bounded
+training-dataset aggregation workflow. Its standalone export can be explicitly
+bound to live sides or automatically matched to historical participants for
+review. Historical matches require every matched `captured_at` instant to be
+strictly before the target game's `played_at`; only actionable presets enter the
+existing policy resolver. Aggregation itself does not apply a policy. The
+workflow does not persist or automatically select among multiple captures,
+weight or merge sources, predict behavior, evaluate policy effects, assess
+quality, or train a model. The deterministic classification is a bounded
+rule-based description, not a learned profile. See
 [Live opponent profiles](live_opponent_profiles.md) and
 [Historical opponent profiles](historical_opponent_profiles.md).

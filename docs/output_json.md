@@ -86,8 +86,8 @@ Training-dataset input produces a separate stable branch:
     "dataset_version": "1",
     "feature_generation_version": 1,
     "target": "actual_card_played",
-    "record_count": 1,
-    "sample_count": 30,
+    "record_count": 2,
+    "sample_count": 60,
     "partition_counts": {},
     "records": []
   }
@@ -119,9 +119,11 @@ Opponent-statistics input produces a separate stable branch:
 
 Records preserve player identity, optional labels, provenance, total games, and
 the original `0..100` percentage-point `statistics`. Separate
-`normalized_profile_statistics` values divide each percentage by `100`, copy
-`games_played`, and keep `solo_games_played` and `defender_games_played` as
-`null`. This includes additive `defender_rate`. `profile_derivation` contains
+`normalized_profile_statistics` values divide each percentage by `100` and copy
+`games_played`. When optional `exact_counts` is absent,
+`solo_games_played` and `defender_games_played` remain `null`; when present,
+their exact values are copied and used as exact derivation evidence. This
+includes additive `defender_rate`. `profile_derivation` contains
 versioned scoped heuristic confidence, exact or estimated evidence provenance,
 all signals and reasons, classification, recommended and nullable actionable
 preset, decisive signals, and explanations.
@@ -130,6 +132,45 @@ derived preset is not applied; no recommendation, simulation, or historical
 result is included. See [Opponent statistics](opponent_statistics.md),
 [Opponent profile derivation](opponent_profile_derivation.md), and
 [`opponent_statistics_output.schema.json`](../schemas/opponent_statistics_output.schema.json).
+
+Historical opponent-statistics aggregation produces another separate branch:
+
+```json
+{
+  "input_file": "examples/training_dataset_normal_play.json",
+  "historical_opponent_statistics_aggregation_summary": {
+    "schema_version": 1,
+    "aggregation_version": 1,
+    "source_dataset": {},
+    "selection": {
+      "included_partitions": ["train", "validation"],
+      "before": "2026-07-21T00:00:00Z",
+      "excluded_record_counts_by_partition": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "excluded_record_count_by_temporal_cutoff": 0
+    },
+    "source_record_count": 2,
+    "source_game_count": 2,
+    "player_count": 3,
+    "first_played_at": "2026-07-10T18:00:00+02:00",
+    "last_played_at": "2026-07-20T19:00:00+02:00",
+    "records": []
+  }
+}
+```
+
+Selected partitions and the nullable strict cutoff are preserved. Exclusion
+counts distinguish partition filtering from temporal filtering. Every player
+record contains `historical_games` provenance, exact counts, exact-count-derived
+percentages, normalized statistics, and the unchanged profile derivation.
+`source.captured_at` equals that player's latest included source-game instant.
+The branch contains no training samples, recommendation, review, policy
+application, or quality result. See
+[Historical opponent statistics](historical_opponent_statistics.md) and
+[`historical_opponent_statistics_aggregation.schema.json`](../schemas/historical_opponent_statistics_aggregation.schema.json).
 
 ## Position top-level fields
 

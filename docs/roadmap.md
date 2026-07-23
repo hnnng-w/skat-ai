@@ -107,6 +107,8 @@ Implemented:
 * External opponent-statistics derivation and explicit stable-ID live application
 * Independent left/right external bindings with actionable-only gating and manual/policy precedence
 * Strict pre-game external-profile application to historical review through exact participant IDs and per-decision relative remapping
+* Exact opponent-statistics aggregation from canonical timestamped training-dataset partitions with a strict optional cutoff
+* Settlement-based role, win, Hand, and contract counts with per-player historical provenance and reusable export
 * Separate left/right opponent policy settings
 * Left/right profile-derived presets applied to effective left/right multi-step policies
 * Left/right opponent policy input fields
@@ -168,6 +170,7 @@ Implemented:
 * Deterministic 30-sample conversion from each historical game
 * Relative model-facing features and `actual_card_played` version-1 labels
 * Duplicate identity and cross-partition game/source leakage rejection
+* Reuse of the dataset as the multi-game source for sample-free historical opponent-statistics aggregation
 
 ### Validation and documentation
 
@@ -175,7 +178,7 @@ Implemented:
 
 * Input JSON schema
 * Output JSON schema
-* Focused historical-game, decision-snapshot, historical-review, and training-dataset schemas
+* Focused historical-game, decision-snapshot, historical-review, training-dataset, and historical opponent-statistics aggregation schemas
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, input schema validation, generated-output validation, and pytest
@@ -195,6 +198,7 @@ Implemented:
 * CLI sample-bound validation fixes
 * Complete historical-game validation, optional snapshot output, and optional historical review
 * Separate training-dataset conversion with strict rejection of unrelated analysis options
+* Historical opponent-statistics aggregation with partition/cutoff selection, separate normal output and export paths, and quiet output
 
 ## Current known limitations
 
@@ -235,10 +239,10 @@ Implemented:
 * There is no dedicated null-game defender-partnership strategy.
 * There is no stable declarer/partner identity when the local player itself is only known generically as `defender`.
 * Defender cooperation does not use perfect-information solving, search, machine learning, or hidden-card inference.
-* Opt-in manual player profiles can influence policy presets, but profiles are not learned from historical player data.
+* Opt-in profiles can influence policy presets, and exact statistics can be aggregated from historical games, but profile behavior is not learned.
 * Profile derivation uses documented deterministic thresholds and heuristic evidence bands, not calibrated uncertainty.
 * External-statistics derivations require profile-preset opt-in plus either explicit live side bindings or exact time-safe historical participant matching.
-* Historical opponent-statistics aggregation and learned-model work remain undecided product areas.
+* Historical aggregation does not enforce player-disjoint partitions, weight or merge sources, manage multiple captures, apply policies automatically, evaluate policy effects or profile quality, or learn behavior.
 
 ### Information modeling
 
@@ -252,8 +256,8 @@ Implemented:
 ### v0.7.0: Rules confidence and information-safe historical workflows
 
 The current code and package version is `0.7.0`. Generated-output validation
-covers 30 deterministic scenarios. Issues #69 through #76 are complete, and
-Issues #80 and #81 add bounded external-profile application:
+covers 31 deterministic scenarios. Issues #69 through #76 are complete, and
+Issues #80 through #82 add bounded reusable opponent-profile data workflows:
 
 * #69 defined the v1.0 scope, requirements traceability, and project baseline.
 * #70 enforced canonical Suit/Grand declaration dependencies and matador bounds.
@@ -267,6 +271,9 @@ Issues #80 and #81 add bounded external-profile application:
   independent left/right player bindings and existing actionable profile presets.
 * #81 applies captures strictly older than `played_at` to historical review by
   exact participant ID while preserving per-decision side mapping and precedence.
+* #82 aggregates exact settlement-based statistics from selected timestamped
+  historical dataset games and exports them for existing live and historical
+  profile loaders without training, automatic application, or quality claims.
 
 `v0.6.0` remains the latest human-published release until a maintainer tags and
 publishes `v0.7.0`.
@@ -294,10 +301,11 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 decisions, and testable completion gates.
 
 Four-player tables are the only area unconditionally out of scope. Series,
-tournament, official reporting, historical statistics, learned behavior,
-machine-learning training, stronger solving, broader hidden-card inference,
-claim verification, and complete-game coaching must retain the classifications
-in `docs/v1_scope.md` until explicit product decisions change them.
+tournament, official reporting, historical-statistics extensions, learned
+behavior, machine-learning training, stronger solving, broader hidden-card
+inference, claim verification, and complete-game coaching must retain the
+classifications in `docs/v1_scope.md` until explicit product decisions change
+them.
 
 ## Open technical cleanup
 

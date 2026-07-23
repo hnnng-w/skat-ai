@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_opponent_statistics_aggregation.schema.json",
+  "title": "skat-ai historical opponent statistics aggregation version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "aggregation_version",
+    "source_dataset",
+    "selection",
+    "source_record_count",
+    "source_game_count",
+    "player_count",
+    "first_played_at",
+    "last_played_at",
+    "records"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "aggregation_version": {"const": 1},
+    "source_dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_id",
+        "dataset_version",
+        "training_dataset_schema_version",
+        "feature_generation_version",
+        "target"
+      ],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/non_padded_string"},
+        "dataset_version": {"$ref": "#/$defs/non_padded_string"},
+        "training_dataset_schema_version": {"const": 1},
+        "feature_generation_version": {"const": 1},
+        "target": {"const": "actual_card_played"}
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included_partitions",
+        "before",
+        "excluded_record_counts_by_partition",
+        "excluded_record_count_by_temporal_cutoff"
+      ],
+      "properties": {
+        "included_partitions": {"$ref": "#/$defs/partitions"},
+        "before": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "excluded_record_counts_by_partition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["train", "validation", "test"],
+          "properties": {
+            "train": {"type": "integer", "minimum": 0},
+            "validation": {"type": "integer", "minimum": 0},
+            "test": {"type": "integer", "minimum": 0}
+          }
+        },
+        "excluded_record_count_by_temporal_cutoff": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "source_record_count": {"type": "integer", "minimum": 1},
+    "source_game_count": {"type": "integer", "minimum": 1},
+    "player_count": {"type": "integer", "minimum": 1},
+    "first_played_at": {"type": "string", "format": "date-time"},
+    "last_played_at": {"type": "string", "format": "date-time"},
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/record"}
+    }
+  },
+  "$defs": {
+    "non_padded_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "partitions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"enum": ["train", "validation", "test"]}
+    },
+    "identifier_array": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/non_padded_string"}
+    },
+    "record": {
+      "allOf": [
+        {"$ref": "https://example.local/skat-ai/opponent_statistics_output.schema.json#/$defs/record"},
+        {
+          "type": "object",
+          "required": ["exact_counts"]
+        }
+      ]
+    }
+  }
+}

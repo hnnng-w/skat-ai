@@ -229,10 +229,10 @@ def test_cli_training_dataset_prints_identity_totals_and_partitions() -> None:
     assert "Training dataset summary" in completed_process.stdout
     assert "Dataset ID: online-games-2026" in completed_process.stdout
     assert "Dataset version: 1" in completed_process.stdout
-    assert "Records: 1" in completed_process.stdout
-    assert "Samples: 30" in completed_process.stdout
+    assert "Records: 2" in completed_process.stdout
+    assert "Samples: 60" in completed_process.stdout
     assert "Train partition: 1 records, 30 samples" in completed_process.stdout
-    assert "Validation partition: 0 records, 0 samples" in completed_process.stdout
+    assert "Validation partition: 1 records, 30 samples" in completed_process.stdout
     assert "Test partition: 0 records, 0 samples" in completed_process.stdout
     assert "Recommended card:" not in completed_process.stdout
 
@@ -254,10 +254,145 @@ def test_cli_training_dataset_quiet_output_is_separate_branch(tmp_path) -> None:
         result = json.load(output_file)
 
     assert set(result) == {"input_file", "training_dataset_summary"}
-    assert result["training_dataset_summary"]["sample_count"] == 30
+    assert result["training_dataset_summary"]["sample_count"] == 60
     assert "position" not in result
     assert "historical_game_summary" not in result
     assert "recommendation" not in result
+
+
+def test_cli_historical_opponent_statistics_prints_concise_summary() -> None:
+    completed_process = run_cli(
+        "--input",
+        TRAINING_DATASET_INPUT_PATH,
+        "--aggregate-opponent-statistics",
+        "--opponent-statistics-partition",
+        "validation",
+        "--opponent-statistics-partition",
+        "train",
+        "--opponent-statistics-before",
+        "2026-07-21T00:00:00Z",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical opponent statistics: 2 games, 3 players." in (
+        completed_process.stdout
+    )
+    assert "Included partitions: train, validation" in completed_process.stdout
+    assert "player-b: 2 games, 100.00% declarer" in completed_process.stdout
+    assert "Training dataset summary" not in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+
+
+def test_cli_historical_opponent_statistics_quiet_output_and_export(tmp_path) -> None:
+    output_path = tmp_path / "aggregation.json"
+    export_path = tmp_path / "opponent-statistics.json"
+
+    completed_process = run_cli(
+        "--input",
+        TRAINING_DATASET_INPUT_PATH,
+        "--aggregate-opponent-statistics",
+        "--opponent-statistics-partition",
+        "train",
+        "--opponent-statistics-partition",
+        "validation",
+        "--output",
+        output_path,
+        "--export-opponent-statistics",
+        export_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    with export_path.open("r", encoding="utf-8") as export_file:
+        exported = json.load(export_file)
+    assert set(result) == {
+        "input_file",
+        "historical_opponent_statistics_aggregation_summary",
+    }
+    assert "training_dataset_summary" not in result
+    assert "samples" not in str(result)
+    assert set(exported) == {"opponent_statistics_input"}
+    assert [
+        record["player_id"]
+        for record in exported["opponent_statistics_input"]["records"]
+    ] == ["player-a", "player-b", "player-c"]
+
+
+def test_cli_historical_opponent_statistics_prints_export_confirmation(tmp_path) -> None:
+    export_path = tmp_path / "opponent-statistics.json"
+
+    completed_process = run_cli(
+        "--input",
+        TRAINING_DATASET_INPUT_PATH,
+        "--aggregate-opponent-statistics",
+        "--export-opponent-statistics",
+        export_path,
+    )
+
+    assert completed_process.returncode == 0
+    assert f"Exported opponent statistics to {export_path}." in (
+        completed_process.stdout
+    )
+    assert export_path.exists()
+
+
+@pytest.mark.parametrize(
+    ("input_path", "extra_args", "error_match"),
+    [
+        (
+            VALID_INPUT_PATH,
+            ("--aggregate-opponent-statistics",),
+            "supported only for training_dataset_input",
+        ),
+        (
+            TRAINING_DATASET_INPUT_PATH,
+            ("--opponent-statistics-partition", "train"),
+            "require --aggregate-opponent-statistics",
+        ),
+        (
+            TRAINING_DATASET_INPUT_PATH,
+            ("--export-opponent-statistics", "export.json"),
+            "require --aggregate-opponent-statistics",
+        ),
+        (
+            TRAINING_DATASET_INPUT_PATH,
+            ("--aggregate-opponent-statistics", "--samples", "5"),
+            "do not accept position-analysis",
+        ),
+    ],
+)
+def test_cli_rejects_invalid_historical_aggregation_modes(
+    input_path: Path,
+    extra_args: tuple[str, ...],
+    error_match: str,
+) -> None:
+    completed_process = run_cli("--input", input_path, *extra_args)
+
+    assert completed_process.returncode == 2
+    assert error_match in completed_process.stderr
+    assert_no_success_output(completed_process)
+
+
+def test_cli_rejects_aggregation_output_export_path_collision(tmp_path) -> None:
+    shared_path = tmp_path / "shared.json"
+
+    completed_process = run_cli(
+        "--input",
+        TRAINING_DATASET_INPUT_PATH,
+        "--aggregate-opponent-statistics",
+        "--output",
+        shared_path,
+        "--export-opponent-statistics",
+        shared_path,
+    )
+
+    assert completed_process.returncode == 2
+    assert "must use different paths" in completed_process.stderr
 
 
 def test_cli_opponent_statistics_prints_percentage_summaries() -> None:

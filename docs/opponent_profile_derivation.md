@@ -28,6 +28,13 @@ decimal values and are never rounded into purported exact historical counts.
 External percentages may themselves be rounded, so their estimates must not be
 interpreted as exact observations.
 
+Historically aggregated records instead supply exact
+`solo_games_played` and `defender_games_played`. Those values take precedence
+over rate estimates, so overall, declarer, and defender evidence kinds are
+`exact`; confidence still uses the same unchanged boundaries. Exact win, Hand,
+and contract counts are preserved in the statistics record but do not add new
+version-1 signals.
+
 Exact role counts cannot exceed total games. When both exact role counts are
 present, they must sum to total games. Exact counts and matching rates must agree
 within the existing `2.0` percentage-point rounding tolerance.
@@ -121,8 +128,10 @@ profile policy application and external-statistics conversion remain separate;
 the live binding layer connects a validated normalized record without changing
 derivation semantics.
 
-Derivation does not aggregate historical games, infer table seats, store
-captures, predict behavior, evaluate policy effects, or train a model. Live
+The derivation function does not itself aggregate historical games. The separate
+historical aggregation workflow feeds its exact normalized profile into this
+unchanged function. Derivation does not infer table seats, store captures,
+predict behavior, evaluate policy effects, or train a model. Live
 bindings map an explicit ID to a relative side. Historical review instead uses
 the existing decision snapshot mapping to move exact stable-ID profiles between
 relative sides. Neither path activates a merely recommended or `simple_lowest`

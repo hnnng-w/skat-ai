@@ -76,6 +76,12 @@ and complete source identities formed from `source_type`, `source_name`, and
 partitions. Cross-partition game or source duplication is reported as partition
 leakage. Player-disjoint partitioning is not yet defined or enforced.
 
+The same validated dataset can be reused as the multi-game source for
+[historical opponent statistics](historical_opponent_statistics.md). In that
+mode, partition selection remains canonical but does not imply player-disjoint
+partitions. Every partition-selected historical game must have `played_at`, even
+if no cutoff is supplied.
+
 ## Sample generation
 
 Each accepted record is replayed once through the existing historical-game
@@ -143,6 +149,12 @@ record and sample totals. `partition_counts` always includes `train`,
 `validation`, and `test`, including zero-count partitions. Every record has 30
 samples, so total `sample_count` is `record_count * 30`.
 
+The public example currently has two games in `train` and `validation`, repeated
+stable players in changed seats, explicit timestamps, and opposite final
+settlement outcomes. Normal conversion therefore emits `record_count: 2`, 30
+samples per record, and `sample_count: 60`. The same file is the aggregation
+source, but aggregation emits exact player records rather than these samples.
+
 The stable structures are defined by:
 
 * [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
@@ -166,3 +178,11 @@ Normal output prints dataset ID and version, total record and sample counts, and
 all three partition counts. Historical snapshot/review flags and all position,
 recommendation, simulation, comparison, policy, profile, sample-count, and seed
 options are rejected instead of ignored.
+
+With `--aggregate-opponent-statistics`, this input takes the separate
+aggregation branch. Its only additional options are repeatable
+`--opponent-statistics-partition`, strict `--opponent-statistics-before`, and
+`--export-opponent-statistics`; `--output` and `--quiet` retain their normal
+meanings. Samples, seeds, review, simulation, comparison, policy, profile, and
+binding options are rejected. Without the aggregation flag, sample conversion is
+unchanged.

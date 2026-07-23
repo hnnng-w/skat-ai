@@ -61,6 +61,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Versioned external opponent-statistics records with required provenance
 * Percentage-point validation and deterministic normalization to existing profile-rate semantics
 * Versioned explainable rule-based profile derivation with scoped heuristic confidence
+* Exact reusable opponent-statistics aggregation from selected timestamped historical games
+* Standalone historical-statistics export compatible with existing live and historical profile loaders
 
 ### Information policy
 
@@ -249,7 +251,18 @@ python main.py --input examples/training_dataset_normal_play.json
 ```
 
 Training-dataset inputs form a third separate workflow. Only `--input`,
-`--output`, and `--quiet` are accepted.
+`--output`, and `--quiet` are accepted for normal sample conversion. The same
+input can instead act as the versioned multi-game container for exact historical
+opponent-statistics aggregation:
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json --aggregate-opponent-statistics --opponent-statistics-partition train --opponent-statistics-partition validation --opponent-statistics-before 2026-07-21T00:00:00Z --output outputs/historical-statistics.json --export-opponent-statistics outputs/opponent-statistics.json
+```
+
+Aggregation requires `played_at` on every partition-selected game, uses a strict
+exclusive cutoff, derives wins from final settlement, emits no decision samples,
+and does not apply a policy. See
+[Historical opponent statistics](docs/historical_opponent_statistics.md).
 
 Validate, normalize, and derive an explainable profile from externally supplied
 opponent statistics:
@@ -260,9 +273,9 @@ python main.py --input examples/opponent_statistics.json
 
 Opponent-statistics inputs form a fourth separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted. Public values use percentage points;
-canonical profile rates use `0..1`. Exact role-specific counts are not inferred.
-Role evidence may instead be exposed as an unrounded estimate. The standalone
-conversion does not run analysis.
+canonical profile rates use `0..1`. When optional exact counts are absent, they
+are not inferred; role evidence may instead be exposed as an unrounded estimate.
+The standalone conversion does not run analysis.
 
 Attach the same validated statistics file to a live position with exact,
 case-sensitive left/right player IDs:
@@ -299,6 +312,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
 * [Opponent statistics](docs/opponent_statistics.md)
+* [Historical opponent statistics](docs/historical_opponent_statistics.md)
 * [Opponent profile derivation](docs/opponent_profile_derivation.md)
 * [Live opponent profiles](docs/live_opponent_profiles.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
@@ -309,6 +323,7 @@ Detailed documentation is split into topic-specific files:
 * [Training dataset output schema](schemas/training_dataset_output.schema.json)
 * [Opponent statistics input schema](schemas/opponent_statistics.schema.json)
 * [Opponent statistics output schema](schemas/opponent_statistics_output.schema.json)
+* [Historical opponent statistics aggregation schema](schemas/historical_opponent_statistics_aggregation.schema.json)
 * [Opponent profile derivation schema](schemas/opponent_profile_derivation.schema.json)
 * [Live opponent profile application schema](schemas/opponent_profile_application.schema.json)
 * [Output JSON](docs/output_json.md)
@@ -357,7 +372,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.7.0`, prepared around the theme
 "Rules confidence and information-safe historical workflows." Issues #69
-through #76 are complete. Generated-output validation covers 30 deterministic
+through #76 are complete. Generated-output validation covers 31 deterministic
 scenarios. `v0.6.0` remains the latest human-published release until a maintainer
 tags and publishes `v0.7.0`.
 
@@ -374,10 +389,11 @@ beyond normal completion, complete claim and concession handling, general
 settlement completeness, exposed-card-aware ouvert recommendation simulation,
 complete live-input provenance, coherent hidden-world continuity across all
 Multi-Step paths, and player-disjoint dataset partitioning. External opponent
-statistics can be validated, normalized, and explicitly bound by stable ID to
-live left/right opponents; historical profile application, historical
-statistics aggregation, and learned-model work remain undecided. The
-product supports fixed three-player tables only.
+statistics and exact historically aggregated statistics can be validated,
+normalized, and reused by stable ID in live or strict time-safe historical
+profile workflows. Aggregation is bounded to selected timestamped normal-play
+dataset games and does not evaluate policy effects, merge captures, or learn
+behavior. The product supports fixed three-player tables only.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

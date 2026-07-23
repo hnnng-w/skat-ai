@@ -75,7 +75,7 @@ The input schema checks things such as:
 * top-level and optional nested `game_declaration` declaration field types
 * complete historical-game player, deal, declaration, discard, and ten-trick shapes
 * training dataset versions, record/provenance shapes, partition values, and target
-* external opponent-statistics versions, identity, provenance, complete percentage fields, and `0..100` bounds
+* opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
 
 Runtime input validation mirrors selected public schema bounds and shapes so
 direct Python callers receive stable `ValueError` failures for malformed public
@@ -138,8 +138,9 @@ The output schema checks the main output structure, including:
 * optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
+* the separate versioned `historical_opponent_statistics_aggregation_summary` branch through its strict focused schema
 
-Generated-output validation covers 30 deterministic scenarios. Position
+Generated-output validation covers 31 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -157,10 +158,11 @@ game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
 validation, settlement, information-safe decision snapshots, one seeded
-30-decision historical game review, one versioned 30-sample training dataset,
+30-decision historical game review, one versioned two-record/60-sample training dataset,
 one versioned external opponent-statistics conversion, and one seeded live
 external-profile binding with distinct left/right presets, plus one seeded
-time-safe historical external-profile review.
+time-safe historical external-profile review, and one exact historical
+opponent-statistics aggregation with strict selection and standalone export.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -171,12 +173,12 @@ the public output schema. Complete historical review uses
 `schemas/historical_game_review.schema.json`. Training dataset output uses
 `schemas/training_dataset_output.schema.json`. Opponent statistics use
 `schemas/opponent_statistics_output.schema.json`, which references
-`schemas/opponent_profile_derivation.schema.json`. The local validator registry
-also loads `schemas/opponent_profile_application.schema.json`; runtime validation
-and `schemas/historical_opponent_profile_application.schema.json`; runtime
-validation and tests enforce identity lookup, strict instant ordering,
-source/policy precedence, temporal,
-reconciliation, recommendation-consistency, and information-leakage semantics
+`schemas/opponent_profile_derivation.schema.json`. Historical aggregation uses
+`schemas/historical_opponent_statistics_aggregation.schema.json`. The local
+validator registry also loads the live and historical profile-application
+schemas. Runtime validation and tests enforce identity lookup, strict instant
+ordering, source/policy precedence, temporal reconciliation,
+recommendation-consistency, and information-leakage semantics
 that JSON Schema cannot express.
 
 ## Post-game review schema coverage
@@ -284,8 +286,15 @@ Examples:
 * RFC 3339 capture-time time-zone requirements and finite percentage values
 * inclusive `98..102` role and contract-distribution sums
 * zero-role dependent-percentage rules
-* deterministic percentage-point normalization and null role-specific counts
+* deterministic percentage-point normalization and null or exact role-specific counts
+* exact-count integer invariants and percentage reconciliation
+* historical source-player, identifier-array, timestamp, and `captured_at` reconciliation
 * opponent-statistics derivation reconciliation and absence of policy application, recommendations, or simulation
+* canonical historical aggregation partition selection and strict temporal cutoff
+* `played_at` presence on every partition-selected aggregation source game
+* stable case-sensitive player aggregation, first-appearance order, and label conflict handling
+* settlement-based declarer/defender wins, including overbid loss and wins for both defenders
+* aggregation/source count reconciliation and absence of training samples
 
 These checks require cross-field or Skat-specific logic and are easier to test and maintain in Python.
 

@@ -27,6 +27,14 @@ TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
 OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
 )
+OPPONENT_STATISTICS_INPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
+)
+HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_opponent_statistics_aggregation.schema.json"
+)
 OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_profile_derivation.schema.json"
 )
@@ -56,6 +64,7 @@ class Scenario:
     check_output: CheckFunction | None = None
     expect_quiet_stdout: bool = False
     include_position_overrides: bool = True
+    export_opponent_statistics: bool = False
 
 
 def load_json_file(file_path: Path) -> dict[str, Any]:
@@ -139,6 +148,13 @@ def run_analysis(
     if scenario.include_position_overrides:
         command.extend(
             ["--samples", DEFAULT_SAMPLE_COUNT, "--seed", DEFAULT_RANDOM_SEED]
+        )
+    if scenario.export_opponent_statistics:
+        command.extend(
+            [
+                "--export-opponent-statistics",
+                str(output_path.with_suffix(".export.json")),
+            ]
         )
     command.extend(scenario.cli_args)
 
@@ -1065,11 +1081,11 @@ def check_training_dataset_normal_play(data: dict[str, Any]) -> list[str]:
     summary = data["training_dataset_summary"]
     if summary["dataset_id"] != "online-games-2026" or summary["dataset_version"] != "1":
         errors.append("expected preserved training dataset identity and version")
-    if summary["record_count"] != 1 or summary["sample_count"] != 30:
-        errors.append("expected one training record and exactly 30 samples")
+    if summary["record_count"] != 2 or summary["sample_count"] != 60:
+        errors.append("expected two training records and exactly 60 samples")
     if summary["partition_counts"] != {
         "train": {"record_count": 1, "sample_count": 30},
-        "validation": {"record_count": 0, "sample_count": 0},
+        "validation": {"record_count": 1, "sample_count": 30},
         "test": {"record_count": 0, "sample_count": 0},
     }:
         errors.append("expected reconciled train, validation, and test counts")
@@ -1110,6 +1126,64 @@ def check_training_dataset_normal_play(data: dict[str, Any]) -> list[str]:
 
     if any(forbidden_features.intersection(collect_keys(sample["features"])) for sample in samples):
         errors.append("expected identity-free, review-free training features")
+    return errors
+
+
+def check_historical_opponent_statistics(data: dict[str, Any]) -> list[str]:
+    """Checks exact aggregation without training samples or policy application."""
+    errors = []
+    if set(data) != {
+        "input_file",
+        "historical_opponent_statistics_aggregation_summary",
+    }:
+        return ["expected only the historical aggregation output branch"]
+    summary = data["historical_opponent_statistics_aggregation_summary"]
+    if summary["source_record_count"] != 2 or summary["source_game_count"] != 2:
+        errors.append("expected exactly two included historical games")
+    if summary["player_count"] != 3:
+        errors.append("expected exactly three aggregated stable players")
+    if summary["selection"] != {
+        "included_partitions": ["train", "validation"],
+        "before": "2026-07-21T00:00:00Z",
+        "excluded_record_counts_by_partition": {
+            "train": 0,
+            "validation": 0,
+            "test": 0,
+        },
+        "excluded_record_count_by_temporal_cutoff": 0,
+    }:
+        errors.append("expected canonical explicit partition and strict-cutoff selection")
+    if [record["player_id"] for record in summary["records"]] != [
+        "player-a",
+        "player-b",
+        "player-c",
+    ]:
+        errors.append("expected first-appearance stable player order")
+    declarer = summary["records"][1]
+    if declarer["exact_counts"] != {
+        "solo_games_played": 2,
+        "solo_games_won": 1,
+        "solo_hand_games": 0,
+        "suit_games": 0,
+        "grand_games": 2,
+        "null_games": 0,
+        "defender_games_played": 0,
+        "defender_games_won": 0,
+    }:
+        errors.append("expected exact declarer role, result, and contract counts")
+    if declarer["profile_derivation"]["confidence"]["declarer"][
+        "evidence_kind"
+    ] != "exact":
+        errors.append("expected exact declarer profile evidence")
+    first_defender = summary["records"][0]
+    if first_defender["exact_counts"]["defender_games_won"] != 1:
+        errors.append("expected both defenders to receive the defender-side win")
+    if first_defender["source"]["captured_at"] != "2026-07-20T19:00:00+02:00":
+        errors.append("expected captured_at to equal the latest included player game")
+    if "samples" in str(summary):
+        errors.append("expected aggregation output without training samples")
+    if "recommendation" in str(summary) or "policy_application" in str(summary):
+        errors.append("expected aggregation without policy application or recommendations")
     return errors
 
 
@@ -1521,6 +1595,25 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="historical_opponent_statistics_aggregation",
+        input_path=PROJECT_ROOT / "examples" / "training_dataset_normal_play.json",
+        branch="exact reusable historical aggregation and standalone export",
+        cli_args=(
+            "--aggregate-opponent-statistics",
+            "--opponent-statistics-partition",
+            "validation",
+            "--opponent-statistics-partition",
+            "train",
+            "--opponent-statistics-before",
+            "2026-07-21T00:00:00Z",
+            "--quiet",
+        ),
+        check_output=check_historical_opponent_statistics,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        export_opponent_statistics=True,
+    ),
+    Scenario(
         name="opponent_statistics",
         input_path=PROJECT_ROOT / "examples" / "opponent_statistics.json",
         branch="versioned external statistics with explainable profile derivation",
@@ -1567,6 +1660,12 @@ def validate_generated_outputs() -> list[str]:
     opponent_statistics_output_schema = load_json_file(
         OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH
     )
+    opponent_statistics_input_schema = load_json_file(
+        OPPONENT_STATISTICS_INPUT_SCHEMA_PATH
+    )
+    historical_opponent_statistics_aggregation_schema = load_json_file(
+        HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH
+    )
     opponent_profile_derivation_schema = load_json_file(
         OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH
     )
@@ -1599,6 +1698,12 @@ def validate_generated_outputs() -> list[str]:
                 Resource.from_contents(opponent_statistics_output_schema),
             ),
             (
+                historical_opponent_statistics_aggregation_schema["$id"],
+                Resource.from_contents(
+                    historical_opponent_statistics_aggregation_schema
+                ),
+            ),
+            (
                 opponent_profile_derivation_schema["$id"],
                 Resource.from_contents(opponent_profile_derivation_schema),
             ),
@@ -1613,6 +1718,9 @@ def validate_generated_outputs() -> list[str]:
         ]
     )
     validator = Draft202012Validator(schema, registry=registry)
+    opponent_statistics_input_validator = Draft202012Validator(
+        opponent_statistics_input_schema
+    )
     errors = []
 
     with tempfile.TemporaryDirectory() as temporary_directory:
@@ -1651,6 +1759,36 @@ def validate_generated_outputs() -> list[str]:
                 ]
                 if branch_errors:
                     return branch_errors
+            if scenario.export_opponent_statistics:
+                export_path = output_path.with_suffix(".export.json")
+                if not export_path.exists():
+                    return [
+                        format_scenario_error(
+                            scenario,
+                            "standalone opponent-statistics export was not created",
+                        )
+                    ]
+                export_data = load_json_file(export_path)
+                if set(export_data) != {"opponent_statistics_input"}:
+                    return [
+                        format_scenario_error(
+                            scenario,
+                            "export is not a standalone opponent_statistics_input",
+                        )
+                    ]
+                export_errors = list(
+                    opponent_statistics_input_validator.iter_errors(
+                        export_data["opponent_statistics_input"]
+                    )
+                )
+                if export_errors:
+                    return [
+                        format_validation_error(
+                            scenario,
+                            export_path,
+                            export_errors[0],
+                        )
+                    ]
 
     return errors
 

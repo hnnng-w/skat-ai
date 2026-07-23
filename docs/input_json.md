@@ -66,7 +66,8 @@ Python validation covers Skat-specific rules such as:
 * stable historical player/seat references and complete 32-card deals
 * historical pickup/discard ownership, final playable hands, all 30 plays, follow obligations, winners, points, matadors, and settlement
 * training dataset versions, unpadded identities, RFC 3339 provenance, duplicate game/source detection, and partition leakage
-* opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, and duplicate player IDs
+* opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, optional exact-count reconciliation, historical aggregation provenance, and duplicate player IDs
+* historical opponent-statistics canonical partition selection, required source timestamps, strict cutoff, stable identity/label aggregation, and settlement-based exact counts
 
 For the validation-layer overview and schema limitations, see:
 
@@ -124,6 +125,13 @@ partition, required provenance, and one complete historical game. See
 [Training data](training_data.md) for identity, duplicate, provenance, sample,
 and information-safety rules.
 
+With `--aggregate-opponent-statistics`, this same branch is reused only as the
+versioned multi-game container. Every partition-selected game then requires
+`played_at`; repeatable partition selection is canonicalized and the optional
+`--opponent-statistics-before` comparison is strict. Aggregation creates no new
+JSON input branch and emits no training samples. See
+[Historical opponent statistics](historical_opponent_statistics.md).
+
 An opponent-statistics file contains only its statistics branch:
 
 ```json
@@ -138,7 +146,11 @@ An opponent-statistics file contains only its statistics branch:
 Public statistics use percentage points from `0` through `100`; canonical
 normalized profile rates use `0..1`. Provenance and capture time are required,
 rounded role and contract sums use a fixed `2.0` percentage-point tolerance,
-and exact role-specific counts are not inferred. The output includes a
+and exact role-specific counts are not inferred when omitted. A complete
+optional `exact_counts` object supplies exact role, result, Hand, and contract
+counts and must reconcile with total games and percentages. The
+`historical_games` source type additionally requires versioned dataset,
+partition, source-game, and timestamp provenance. The output includes a
 deterministic explainable profile derivation with unrounded role-evidence
 estimates and scoped heuristic confidence. See
 [Opponent statistics](opponent_statistics.md) for all denominator and
@@ -1025,9 +1037,10 @@ Basic structural schema acceptance does not require ten completed tricks. Ten re
 Version-1 `historical_game_input` optionally accepts `played_at`, the RFC 3339
 instant when the game began. It must contain an explicit UTC offset and is
 preserved exactly. It is required only when `--opponent-statistics-file` is used
-with `--historical-game-review`. Existing historical, snapshot, and training
-inputs remain valid without it when no external historical profile application
-is requested.
+with `--historical-game-review`, or when its dataset record is selected for
+`--aggregate-opponent-statistics`. Existing historical, snapshot, and normal
+training conversion inputs remain valid without it when neither feature is
+requested.
 
 Historical profile application automatically matches exact case-sensitive
 participant `player_id` values. It does not accept live-only left/right binding

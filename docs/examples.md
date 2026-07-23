@@ -109,6 +109,13 @@ Convert the versioned training/evaluation dataset example:
 python main.py --input examples/training_dataset_normal_play.json
 ```
 
+Aggregate exact reusable player statistics from the same two-game container and
+export a standalone statistics input:
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json --aggregate-opponent-statistics --opponent-statistics-partition train --opponent-statistics-partition validation --opponent-statistics-before 2026-07-21T00:00:00Z --output outputs/historical-statistics.json --export-opponent-statistics outputs/opponent-statistics.json
+```
+
 Validate, normalize, and explain the external opponent-statistics example:
 
 ```powershell
@@ -246,12 +253,15 @@ base seed 42; no additional public historical example is required.
 
 | File | Purpose |
 | ---- | ------- |
-| `training_dataset_normal_play.json` | One versioned train record wrapping the historical Grand fixture with provenance and producing 30 information-safe actual-card samples. |
+| `training_dataset_normal_play.json` | Two versioned Grand records in train and validation, with timestamps, repeated players in changed seats, opposite settlement outcomes, and 60 information-safe actual-card samples. It is also the historical-statistics aggregation source. |
 
 This separate workflow runs historical validation and snapshot generation but
 does not run recommendations, review, or simulation. Its generated-output
 scenario verifies the dedicated branch, all three partition-count entries,
 stable sample IDs, legal labels, and identity-free features.
+Each game contributes 30 samples in normal conversion. Aggregation reuses the
+dataset container but emits no samples, recommendations, review, or policy
+application.
 
 ## Opponent-statistics example
 
@@ -274,9 +284,19 @@ live generated-output scenario. Exact bindings map `opponent-123` to left and
 distinct cautious-defender/aggressive side policies and summary reconciliation.
 The historical companion file drives one fixed-seed, bounded-sample review that
 checks strict temporal eligibility, partial participant coverage, per-decision
-side remapping, and aggregate application counts. Generated-output validation
-therefore covers 30 scenarios. Historical statistics aggregation and profile
-policy-effect evaluation remain unsupported.
+side remapping, and aggregate application counts. A separate deterministic
+scenario aggregates both timestamped training-dataset games with canonical
+train/validation selection and a strict cutoff, checks exact counts and both
+defender wins for the settlement loss, and validates the reusable export.
+Generated-output validation therefore covers 31 scenarios. Profile policy-effect
+evaluation remains unsupported.
+
+The two aggregation games keep the same three case-sensitive players while
+changing seats. `player-b` declares both Grand games, loses the first by final
+settlement, and wins the second. This yields exact opposite settlement outcomes
+without treating raw card points as the aggregation winner. The export retains
+per-player latest-game `captured_at` provenance and can be loaded by standalone,
+live, and strict time-safe historical profile workflows.
 
 ## Post-game review examples
 
@@ -609,6 +629,8 @@ Generated outputs may include:
 
 Complete historical and training-dataset inputs instead use the mutually
 exclusive `historical_game_summary` and `training_dataset_summary` branches.
+Training-dataset aggregation instead uses
+`historical_opponent_statistics_aggregation_summary`.
 
 For detailed output field descriptions, see:
 

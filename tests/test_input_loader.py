@@ -50,7 +50,7 @@ def test_load_training_dataset_from_json() -> None:
 
     assert dataset.schema_version == 1
     assert dataset.dataset_id == "online-games-2026"
-    assert len(dataset.records) == 1
+    assert len(dataset.records) == 2
 
 
 def test_training_dataset_input_cannot_be_combined_with_other_workflows() -> None:

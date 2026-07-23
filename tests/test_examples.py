@@ -147,13 +147,17 @@ def test_historical_game_example_builds_complete_summary() -> None:
     assert summary["declarer_points"] + summary["defender_points"] == 120
 
 
-def test_training_dataset_example_builds_thirty_samples() -> None:
+def test_training_dataset_example_builds_sixty_samples() -> None:
     path = Path("examples/training_dataset_normal_play.json")
     summary = build_training_dataset_summary(load_training_dataset_from_json(str(path)))
 
-    assert summary["record_count"] == 1
-    assert summary["sample_count"] == 30
+    assert summary["record_count"] == 2
+    assert summary["sample_count"] == 60
     assert summary["partition_counts"]["train"] == {
+        "record_count": 1,
+        "sample_count": 30,
+    }
+    assert summary["partition_counts"]["validation"] == {
         "record_count": 1,
         "sample_count": 30,
     }

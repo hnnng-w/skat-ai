@@ -30,7 +30,7 @@
       "properties": {
         "source_type": {
           "type": "string",
-          "enum": ["online_platform", "manual_entry"]
+          "enum": ["online_platform", "manual_entry", "historical_games"]
         },
         "source_name": {"$ref": "#/$defs/non_padded_string"},
         "source_player_id": {"$ref": "#/$defs/non_padded_string"},
@@ -40,7 +40,71 @@
             {"type": "string", "format": "date-time"}
           ]
         },
-        "notes": {"$ref": "#/$defs/non_padded_string"}
+        "notes": {"$ref": "#/$defs/non_padded_string"},
+        "historical_aggregation": {"$ref": "#/$defs/historical_aggregation"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"source_type": {"const": "historical_games"}}
+          },
+          "then": {
+            "required": ["source_player_id", "historical_aggregation"]
+          },
+          "else": {
+            "not": {"required": ["historical_aggregation"]}
+          }
+        }
+      ]
+    },
+    "historical_aggregation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "aggregation_version",
+        "dataset_id",
+        "dataset_version",
+        "included_partitions",
+        "source_record_ids",
+        "source_game_ids",
+        "first_played_at",
+        "last_played_at"
+      ],
+      "properties": {
+        "aggregation_version": {"const": 1},
+        "dataset_id": {"$ref": "#/$defs/non_padded_string"},
+        "dataset_version": {"$ref": "#/$defs/non_padded_string"},
+        "included_partitions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"enum": ["train", "validation", "test"]}
+        },
+        "source_record_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/non_padded_string"}
+        },
+        "source_game_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/non_padded_string"}
+        },
+        "first_played_at": {
+          "allOf": [
+            {"$ref": "#/$defs/non_padded_string"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "last_played_at": {
+          "allOf": [
+            {"$ref": "#/$defs/non_padded_string"},
+            {"type": "string", "format": "date-time"}
+          ]
+        }
       }
     },
     "statistics": {
@@ -67,6 +131,30 @@
         "defender_games_won_percent": {"$ref": "#/$defs/percentage_points"}
       }
     },
+    "exact_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "solo_games_played",
+        "solo_games_won",
+        "solo_hand_games",
+        "suit_games",
+        "grand_games",
+        "null_games",
+        "defender_games_played",
+        "defender_games_won"
+      ],
+      "properties": {
+        "solo_games_played": {"type": "integer", "minimum": 0},
+        "solo_games_won": {"type": "integer", "minimum": 0},
+        "solo_hand_games": {"type": "integer", "minimum": 0},
+        "suit_games": {"type": "integer", "minimum": 0},
+        "grand_games": {"type": "integer", "minimum": 0},
+        "null_games": {"type": "integer", "minimum": 0},
+        "defender_games_played": {"type": "integer", "minimum": 0},
+        "defender_games_won": {"type": "integer", "minimum": 0}
+      }
+    },
     "record": {
       "type": "object",
       "additionalProperties": false,
@@ -76,7 +164,8 @@
         "player_label": {"$ref": "#/$defs/non_padded_string"},
         "source": {"$ref": "#/$defs/source"},
         "games_played": {"type": "integer", "minimum": 1},
-        "statistics": {"$ref": "#/$defs/statistics"}
+        "statistics": {"$ref": "#/$defs/statistics"},
+        "exact_counts": {"$ref": "#/$defs/exact_counts"}
       }
     }
   }

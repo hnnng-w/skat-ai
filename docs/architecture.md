@@ -38,10 +38,20 @@ The opponent-statistics flow validates a versioned collection of external
 percentage-point records, stable player identity, and required capture
 provenance. It checks rounded source consistency and deterministically converts
 percentages to `PlayerProfile` rate semantics while preserving source values and
-leaving exact role-specific counts unknown. It calls the isolated profile
+leaving exact role-specific counts unknown unless optional exact counts are
+supplied. It calls the isolated profile
 derivation module to expose unrounded role-evidence estimates, scoped heuristic
 confidence, signals, classification, and preset metadata. It does not apply a
 policy or call recommendation, historical, or simulation code.
+
+The historical opponent-statistics flow reuses `TrainingDatasetInput` only as a
+validated multi-game, provenance, and partition container. It selects canonical
+partitions, requires `played_at` on every partition-selected game, applies an
+optional strict instant cutoff, and reuses historical replay and final settlement
+to aggregate exact per-player role, result, Hand, and contract counts. It then
+reuses opponent-statistics normalization and profile derivation and can serialize
+a standalone `opponent_statistics_input`. It does not generate samples or run
+recommendation, review, policy application, quality evaluation, or training.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
@@ -76,6 +86,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
 | `src/skat_ai/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
+| `src/skat_ai/historical_opponent_statistics.py` | Canonical partition/time selection, exact historical aggregation, provenance, summary, and reusable export construction. |
 | `src/skat_ai/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
 | `src/skat_ai/rfc3339.py` | Shared offset-aware RFC 3339 parsing for preserved timestamp text and instant comparison. |
 
@@ -162,6 +173,7 @@ local player has already acted and only opponents remain stop with
 | `src/skat_ai/opponent_profile_policy.py` | Profile-based policy recommendation.             |
 | `src/skat_ai/player_profile.py`          | Player profile modeling.                         |
 | `src/skat_ai/opponent_statistics.py`     | External statistics normalization and derivation serialization without policy application. |
+| `src/skat_ai/historical_opponent_statistics.py` | Exact settlement-based aggregation and reusable statistics export without policy application. |
 | `src/skat_ai/opponent_profile_derivation.py` | Deterministic explainable profile derivation. |
 | `src/skat_ai/live_opponent_profile_binding.py` | Exact left/right lookup in a validated external statistics summary. |
 | `src/skat_ai/opponent_profile_application.py` | Manual/external source precedence and stable live application summary. |
@@ -191,6 +203,9 @@ otherwise the external profile enters the same effective policy flow. Only its
 actionable preset can apply. Historical review matches participant IDs once,
 rejects matched captures at or after `played_at`, and uses each snapshot's
 existing relative mapping to feed the same resolver per decision.
+Historically aggregated exports enter these unchanged loaders as ordinary
+version-1 statistics inputs. Their exact role counts replace estimated role
+evidence, while derivation and policy precedence remain unchanged.
 
 The current defender cooperation model is heuristic, explainable, and implemented for the fixed three-player table. It includes:
 
@@ -329,6 +344,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/training_dataset_output.schema.json` | Strict training dataset output, metadata, features, labels, and counts.     |
 | `schemas/opponent_statistics.schema.json` | Versioned external opponent-statistics input and provenance. |
 | `schemas/opponent_statistics_output.schema.json` | Strict preserved-source and normalized-profile output. |
+| `schemas/historical_opponent_statistics_aggregation.schema.json` | Strict selected-game aggregation, exact records, and provenance output. |
 | `schemas/opponent_profile_derivation.schema.json` | Strict versioned confidence, signal, classification, preset, and explanation output. |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
@@ -352,7 +368,8 @@ Important regression areas:
 * post-game review
 * historical snapshot adaptation, complete review, seeds, aggregation, and leakage control
 * training dataset identities, provenance, partitions, duplicate leakage, deterministic samples, and feature safety
-* opponent-statistics identity, provenance, percentages, normalization, explainable derivation, and workflow isolation
+* opponent-statistics identity, provenance, optional exact counts, percentages, normalization, explainable derivation, and workflow isolation
+* historical aggregation partition/time selection, settlement outcomes, identity/label reconciliation, exact counts, provenance, and reusable export
 * example files
 * CLI result structure
 * multi-step simulation

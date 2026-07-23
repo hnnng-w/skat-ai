@@ -4,7 +4,9 @@ Historical game review can apply validated external opponent profiles without
 using statistics captured during or after the reviewed game. The feature reuses
 the existing opponent-statistics loader, normalized `PlayerProfile`, scoped
 confidence, classification, and actionable preset derivation. It does not derive
-statistics from the historical game.
+statistics from the reviewed game. Its companion may be a separate historical
+aggregation export only when that export's per-player latest included game is
+strictly older than the reviewed game.
 
 ## CLI
 
@@ -47,6 +49,11 @@ Both values are parsed as aware date-time instants before comparison. Equality,
 including equivalent instants written with different offsets, is rejected.
 Later captures are rejected. There is no tolerance or bypass. Unmatched records
 are ignored and are not temporally compared.
+
+For `source_type: "historical_games"`, `captured_at` is the matched player's
+latest included source-game `played_at`, not the aggregation's global latest
+game. The same strict comparison therefore rejects an export containing the
+target game or any later game for that player.
 
 ## Participant matching
 
@@ -110,10 +117,11 @@ generation retain their existing behavior. Live profile binding semantics are
 unchanged.
 
 Profiles remain explainable rule-based policy inputs, not learned models.
-Historical statistics aggregation, deriving a profile from the reviewed game,
-multiple captures per player, automatic newest-capture selection, profile
-history, policy-effect evaluation, accuracy measurement, and machine-learning
-training are not implemented.
+Bounded statistics aggregation is a separate invocation and never derives a
+profile from the reviewed game automatically. Multiple captures per player,
+automatic newest-capture selection, profile history, weighting or merging,
+policy-effect evaluation, accuracy measurement, and machine-learning training
+are not implemented.
 
 The focused schema is
 [`schemas/historical_opponent_profile_application.schema.json`](../schemas/historical_opponent_profile_application.schema.json).

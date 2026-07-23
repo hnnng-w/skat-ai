@@ -29,6 +29,12 @@ scoped evidence and confidence, classification, recommended and actionable
 presets, explanations, and capture provenance. No second parser or derivation is
 used.
 
+The companion may be a standalone export from historical aggregation. Such
+records retain exact role counts and `historical_games` provenance, so profile
+evidence is exact rather than estimated. Live binding remains explicit and
+case-sensitive; the aggregation invocation never binds or applies its own
+export automatically.
+
 ## Activation and precedence
 
 External bindings are accepted only for a position whose effective
@@ -87,9 +93,10 @@ impossible-Null settlement, and every other non-live workflow. Historical review
 has a separate automatic stable-participant matching path and does not weaken
 these live validation rules.
 
-The preserved `captured_at` value is provenance only. Live analysis has no
+The preserved `captured_at` value is provenance only. For an aggregated record
+it is that player's latest included source-game instant. Live analysis has no
 analysis timestamp to compare with it. Historical application separately uses a
 required game-start time and strict older-than comparison. Neither feature adds
-historical aggregation, multiple captures, profile persistence,
-newest-capture selection, website integration, scraping, learned models,
-machine-learning training, or new tactical policies.
+multiple captures, profile persistence, newest-capture selection, source
+weighting or merging, website integration, scraping, learned models,
+machine-learning training, quality evaluation, or new tactical policies.

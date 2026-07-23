@@ -16,6 +16,10 @@ from skat_ai.historical_game_review import build_historical_game_review_summary
 from skat_ai.historical_opponent_profile_binding import (
     resolve_historical_opponent_profile_bindings,
 )
+from skat_ai.historical_opponent_statistics import (
+    aggregate_historical_opponent_statistics,
+    build_historical_opponent_statistics_aggregation_summary,
+)
 from skat_ai.input_loader import (
     load_historical_game_from_json,
     load_opponent_statistics_from_json,
@@ -49,6 +53,11 @@ OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
 HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_opponent_profile_application.schema.json"
 )
+HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_opponent_statistics_aggregation.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -72,6 +81,10 @@ with OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH.open("r", encoding="utf-8") as fil
     OPPONENT_PROFILE_APPLICATION_SCHEMA = json.load(file)
 with HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA = json.load(file)
+with HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -91,6 +104,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             OPPONENT_STATISTICS_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(OPPONENT_STATISTICS_OUTPUT_SCHEMA),
+        ),
+        (
+            HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA),
         ),
         (
             OPPONENT_PROFILE_DERIVATION_SCHEMA["$id"],
@@ -560,6 +577,22 @@ def build_valid_opponent_statistics_output() -> dict[str, object]:
     }
 
 
+def build_valid_historical_opponent_statistics_output() -> dict[str, object]:
+    input_path = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
+    dataset = load_training_dataset_from_json(str(input_path))
+    aggregation = aggregate_historical_opponent_statistics(
+        dataset,
+        included_partitions=("validation", "train"),
+        before="2026-07-21T00:00:00Z",
+    )
+    return {
+        "input_file": "examples/training_dataset_normal_play.json",
+        "historical_opponent_statistics_aggregation_summary": (
+            build_historical_opponent_statistics_aggregation_summary(aggregation)
+        ),
+    }
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -613,6 +646,10 @@ def test_schema_accepts_training_dataset_output_branch() -> None:
 
 def test_schema_accepts_opponent_statistics_output_branch() -> None:
     assert_schema_valid(build_valid_opponent_statistics_output())
+
+
+def test_schema_accepts_historical_opponent_statistics_output_branch() -> None:
+    assert_schema_valid(build_valid_historical_opponent_statistics_output())
 
 
 def test_schema_accepts_live_opponent_profile_application_summary() -> None:
