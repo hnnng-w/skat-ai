@@ -29,6 +29,9 @@ HISTORICAL_INPUT_PATH = (
 TRAINING_DATASET_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 )
+OPPONENT_STATISTICS_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "opponent_statistics.json"
+)
 UNSUPPORTED_PHASE_INPUT_PATH = (
     PROJECT_ROOT
     / "tests"
@@ -251,6 +254,45 @@ def test_cli_training_dataset_quiet_output_is_separate_branch(tmp_path) -> None:
     assert "recommendation" not in result
 
 
+def test_cli_opponent_statistics_prints_percentage_summaries() -> None:
+    completed_process = run_cli("--input", OPPONENT_STATISTICS_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Opponent statistics summary" in completed_process.stdout
+    assert "Records: 2" in completed_process.stdout
+    assert "opponent-123 (Example Player): 127 games" in completed_process.stdout
+    assert "declarer 31%" in completed_process.stdout
+    assert "defender wins 64%" in completed_process.stdout
+    assert "opponent-789 (Second Player): 842 games" in completed_process.stdout
+    assert "declarer 42.5%" in completed_process.stdout
+    assert "Recommended card:" not in completed_process.stdout
+
+
+def test_cli_opponent_statistics_quiet_output_is_separate_branch(tmp_path) -> None:
+    output_path = tmp_path / "opponent-statistics-result.json"
+    completed_process = run_cli(
+        "--input",
+        OPPONENT_STATISTICS_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+
+    assert set(result) == {"input_file", "opponent_statistics_summary"}
+    assert result["opponent_statistics_summary"]["record_count"] == 2
+    assert "position" not in result
+    assert "recommendation" not in result
+    assert "confidence" not in str(result)
+    assert "policy" not in str(result)
+
+
 def test_cli_historical_decision_snapshots_prints_count() -> None:
     completed_process = run_cli(
         "--input", HISTORICAL_INPUT_PATH, "--historical-decision-snapshots"
@@ -450,6 +492,40 @@ def test_cli_training_dataset_rejects_analysis_and_review_options(
     assert completed_process.returncode == 2
     assert "Training-dataset inputs do not accept" in completed_process.stderr
     assert "Training dataset summary" not in completed_process.stdout
+
+
+@pytest.mark.parametrize(
+    "override_args",
+    [
+        ("--samples", "1"),
+        ("--seed", "42"),
+        ("--opponent-strategy", "random"),
+        ("--historical-decision-snapshots",),
+        ("--historical-game-review",),
+        ("--multi-step", "1"),
+        ("--card-policy", "highest_point"),
+        ("--expected-value-samples", "1"),
+        ("--strict-context",),
+        ("--multi-step", "1", "--compare-policies"),
+        ("--multi-step", "1", "--compare-policies", "--comparison-only"),
+        ("--opponent-policy-preset", "simple_lowest"),
+        ("--opponent-lead-policy", "highest_point"),
+        ("--opponent-response-policy", "highest_point"),
+        ("--use-profile-presets",),
+        ("--left-opponent-lead-policy", "highest_point"),
+        ("--right-opponent-response-policy", "highest_point"),
+    ],
+)
+def test_cli_opponent_statistics_rejects_all_workflow_options(
+    override_args: tuple[str, ...],
+) -> None:
+    completed_process = run_cli(
+        "--input", OPPONENT_STATISTICS_INPUT_PATH, *override_args
+    )
+
+    assert completed_process.returncode == 2
+    assert "Opponent-statistics inputs do not accept" in completed_process.stderr
+    assert "Opponent statistics summary" not in completed_process.stdout
 
 
 @pytest.mark.parametrize("sample_count", ["0", "-1"])

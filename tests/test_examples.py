@@ -11,6 +11,7 @@ from skat_ai.input_loader import (
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_historical_game_from_json,
+    load_opponent_statistics_from_json,
     load_position_from_json,
     load_training_dataset_from_json,
 )
@@ -18,6 +19,7 @@ from skat_ai.multi_step_simulation import (
     prepare_state_for_player_action,
     simulate_multiple_steps,
 )
+from skat_ai.opponent_statistics import build_opponent_statistics_summary
 from skat_ai.rules import get_legal_cards
 from skat_ai.training_dataset import build_training_dataset_summary
 
@@ -38,6 +40,7 @@ def get_position_example_json_files() -> list[Path]:
         if path.name
         not in {
             "historical_grand_normal_completion.json",
+            "opponent_statistics.json",
             "training_dataset_normal_play.json",
         }
     ]
@@ -60,6 +63,10 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
         if example_file.name == "training_dataset_normal_play.json":
             dataset = load_training_dataset_from_json(str(example_file))
             assert dataset.dataset_id == "online-games-2026"
+            continue
+        if example_file.name == "opponent_statistics.json":
+            statistics_input = load_opponent_statistics_from_json(str(example_file))
+            assert len(statistics_input.records) == 2
             continue
 
         data = load_position_from_json(str(example_file))
@@ -145,6 +152,20 @@ def test_training_dataset_example_builds_thirty_samples() -> None:
         "record_count": 1,
         "sample_count": 30,
     }
+
+
+def test_opponent_statistics_example_preserves_two_ordered_players() -> None:
+    path = Path("examples/opponent_statistics.json")
+    summary = build_opponent_statistics_summary(
+        load_opponent_statistics_from_json(str(path))
+    )
+
+    assert summary["record_count"] == 2
+    assert [record["player_id"] for record in summary["records"]] == [
+        "opponent-123",
+        "opponent-789",
+    ]
+    assert summary["records"][1]["statistics"]["solo_games_played_percent"] == 42.5
 
 
 def test_default_input_position_is_runtime_valid_local_action() -> None:

@@ -48,6 +48,7 @@ from skat_ai.input_loader import (
     get_simulation_settings_from_input,
     load_historical_game_from_json,
     load_json_object,
+    load_opponent_statistics_from_json,
     load_position_from_json,
     load_training_dataset_from_json,
 )
@@ -55,6 +56,7 @@ from skat_ai.input_validation import MAX_SAMPLE_COUNT
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_expected_objective_utility
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
+from skat_ai.opponent_statistics import build_opponent_statistics_summary
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.performance_rating import (
@@ -810,6 +812,29 @@ def print_training_dataset_result(result: dict[str, Any]) -> None:
         )
 
 
+def print_opponent_statistics_result(result: dict[str, Any]) -> None:
+    """Prints one concise summary per external opponent-statistics record."""
+    summary = result["opponent_statistics_summary"]
+    print("Opponent statistics summary")
+    print("Input file:", result["input_file"])
+    print("Records:", summary["record_count"])
+    for record in summary["records"]:
+        statistics = record["statistics"]
+        label = record.get("player_label")
+        identity = (
+            record["player_id"]
+            if label is None
+            else f"{record['player_id']} ({label})"
+        )
+        print(
+            f"{identity}: {record['games_played']} games; "
+            f"declarer {statistics['solo_games_played_percent']:g}%; "
+            f"declarer wins {statistics['solo_games_won_percent']:g}%; "
+            f"defender {statistics['defender_games_played_percent']:g}%; "
+            f"defender wins {statistics['defender_games_won_percent']:g}%."
+        )
+
+
 def print_multi_step_result(result: dict[str, Any]) -> None:
     """
     Prints a multi-step simulation result in a readable text format.
@@ -1223,11 +1248,34 @@ def run_json_training_dataset_conversion(
         print("Output file written:", output_path)
 
 
+def run_json_opponent_statistics_conversion(
+    file_path: str,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Runs deterministic external opponent-statistics validation and normalization."""
+    statistics_input = load_opponent_statistics_from_json(file_path)
+    result = {
+        "input_file": str(file_path),
+        "opponent_statistics_summary": build_opponent_statistics_summary(
+            statistics_input
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if quiet:
+        return
+    print_opponent_statistics_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Analyze a Skat position, replay a historical game, or convert a training "
-            "dataset from JSON."
+            "Analyze a Skat position, replay a historical game, convert a training "
+            "dataset, or normalize opponent statistics from JSON."
         ),
         epilog=(
             "Examples:\n"
@@ -1240,7 +1288,8 @@ def parse_arguments() -> argparse.Namespace:
             "  python main.py --input examples/grand_second_position.json "
             "--multi-step 1 --compare-policies --comparison-only\n"
             "  python main.py --input examples/historical_grand_normal_completion.json\n"
-            "  python main.py --input examples/training_dataset_normal_play.json"
+            "  python main.py --input examples/training_dataset_normal_play.json\n"
+            "  python main.py --input examples/opponent_statistics.json"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -1249,8 +1298,8 @@ def parse_arguments() -> argparse.Namespace:
         "--input",
         default="input_position.json",
         help=(
-            "Read position-analysis, historical-game, or training-dataset input from "
-            "this JSON file. "
+            "Read position-analysis, historical-game, training-dataset, or "
+            "opponent-statistics input from this JSON file. "
             "Default: input_position.json."
         ),
     )
@@ -1516,6 +1565,40 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         )
 
 
+def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None:
+    """Rejects every option except input, output, and quiet output."""
+    incompatible_options = {
+        "--samples": args.samples is not None,
+        "--seed": args.seed is not None,
+        "--opponent-strategy": args.opponent_strategy is not None,
+        "--historical-decision-snapshots": args.historical_decision_snapshots,
+        "--historical-game-review": args.historical_game_review,
+        "--multi-step": args.multi_step is not None,
+        "--card-policy": args.card_policy is not None,
+        "--expected-value-samples": args.expected_value_samples is not None,
+        "--strict-context": args.strict_context,
+        "--compare-policies": args.compare_policies,
+        "--comparison-only": args.comparison_only,
+        "--opponent-policy-preset": args.opponent_policy_preset is not None,
+        "--opponent-lead-policy": args.opponent_lead_policy is not None,
+        "--opponent-response-policy": args.opponent_response_policy is not None,
+        "--use-profile-presets": args.use_profile_presets,
+        "--left-opponent-lead-policy": args.left_opponent_lead_policy is not None,
+        "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
+        "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
+        "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
+    }
+    supplied_options = [
+        option for option, was_supplied in incompatible_options.items() if was_supplied
+    ]
+    if supplied_options:
+        raise CliUsageError(
+            "Opponent-statistics inputs do not accept analysis, historical, training-"
+            "dataset, list, recommendation, policy, profile, review, sample, seed, or "
+            f"simulation options: {', '.join(supplied_options)}."
+        )
+
+
 def main() -> int:
     args = parse_arguments()
 
@@ -1523,7 +1606,14 @@ def main() -> int:
         validate_cli_arguments(args)
         input_data = load_json_object(args.input)
         workflow = get_input_workflow(input_data)
-        if workflow == "training_dataset":
+        if workflow == "opponent_statistics":
+            validate_opponent_statistics_cli_arguments(args)
+            run_json_opponent_statistics_conversion(
+                file_path=args.input,
+                output_path=args.output,
+                quiet=args.quiet,
+            )
+        elif workflow == "training_dataset":
             validate_training_dataset_cli_arguments(args)
             run_json_training_dataset_conversion(
                 file_path=args.input,

@@ -58,6 +58,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Optional decision-time review of all 30 historical plays through the existing immediate recommendation logic
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
 * Deterministic information-safe samples using the legal historical actual card as the version-1 target
+* Versioned external opponent-statistics records with required provenance
+* Percentage-point validation and deterministic normalization to existing profile-rate semantics
 
 ### Information policy
 
@@ -241,6 +243,17 @@ python main.py --input examples/training_dataset_normal_play.json
 Training-dataset inputs form a third separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted.
 
+Validate and normalize externally supplied opponent statistics without deriving
+confidence or policies:
+
+```powershell
+python main.py --input examples/opponent_statistics.json
+```
+
+Opponent-statistics inputs form a fourth separate workflow. Only `--input`,
+`--output`, and `--quiet` are accepted. Public values use percentage points;
+canonical profile rates use `0..1`. Exact role-specific counts are not inferred.
+
 CLI exit codes:
 
 * `0` = success
@@ -261,11 +274,14 @@ Detailed documentation is split into topic-specific files:
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
 * [Training data](docs/training_data.md)
+* [Opponent statistics](docs/opponent_statistics.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Historical game review schema](schemas/historical_game_review.schema.json)
 * [Training dataset input schema](schemas/training_dataset.schema.json)
 * [Training dataset output schema](schemas/training_dataset_output.schema.json)
+* [Opponent statistics input schema](schemas/opponent_statistics.schema.json)
+* [Opponent statistics output schema](schemas/opponent_statistics_output.schema.json)
 * [Output JSON](docs/output_json.md)
 * [Output JSON schema](schemas/output.schema.json)
 * [Schema validation](docs/schema_validation.md)
@@ -312,7 +328,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.7.0`, prepared around the theme
 "Rules confidence and information-safe historical workflows." Issues #69
-through #76 are complete. Generated-output validation covers 27 deterministic
+through #76 are complete. Generated-output validation covers 28 deterministic
 scenarios. `v0.6.0` remains the latest human-published release until a maintainer
 tags and publishes `v0.7.0`.
 
@@ -328,9 +344,10 @@ wrapping are partially supported. Remaining gaps include historical end reasons
 beyond normal completion, complete claim and concession handling, general
 settlement completeness, exposed-card-aware ouvert recommendation simulation,
 complete live-input provenance, coherent hidden-world continuity across all
-Multi-Step paths, and player-disjoint dataset partitioning. Historical opponent
-statistics and learned-model work remain undecided; the product supports fixed
-three-player tables only.
+Multi-Step paths, and player-disjoint dataset partitioning. External opponent
+statistics can be validated and normalized but are not consumed by analysis;
+historical statistics aggregation and learned-model work remain undecided. The
+product supports fixed three-player tables only.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

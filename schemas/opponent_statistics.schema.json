@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/opponent_statistics.schema.json",
+  "title": "skat-ai opponent statistics input version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "records": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/record"}
+    }
+  },
+  "$defs": {
+    "non_padded_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "percentage_points": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_name", "captured_at"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["online_platform", "manual_entry"]
+        },
+        "source_name": {"$ref": "#/$defs/non_padded_string"},
+        "source_player_id": {"$ref": "#/$defs/non_padded_string"},
+        "captured_at": {
+          "allOf": [
+            {"$ref": "#/$defs/non_padded_string"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "notes": {"$ref": "#/$defs/non_padded_string"}
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "solo_games_played_percent",
+        "solo_games_won_percent",
+        "solo_hand_percent",
+        "suit_games_percent",
+        "grand_games_percent",
+        "null_games_percent",
+        "defender_games_played_percent",
+        "defender_games_won_percent"
+      ],
+      "properties": {
+        "solo_games_played_percent": {"$ref": "#/$defs/percentage_points"},
+        "solo_games_won_percent": {"$ref": "#/$defs/percentage_points"},
+        "solo_hand_percent": {"$ref": "#/$defs/percentage_points"},
+        "suit_games_percent": {"$ref": "#/$defs/percentage_points"},
+        "grand_games_percent": {"$ref": "#/$defs/percentage_points"},
+        "null_games_percent": {"$ref": "#/$defs/percentage_points"},
+        "defender_games_played_percent": {"$ref": "#/$defs/percentage_points"},
+        "defender_games_won_percent": {"$ref": "#/$defs/percentage_points"}
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "source", "games_played", "statistics"],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/non_padded_string"},
+        "player_label": {"$ref": "#/$defs/non_padded_string"},
+        "source": {"$ref": "#/$defs/source"},
+        "games_played": {"type": "integer", "minimum": 1},
+        "statistics": {"$ref": "#/$defs/statistics"}
+      }
+    }
+  }
+}

@@ -13,7 +13,12 @@ from skat_ai.historical_decision_snapshot import (
 )
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.input_loader import load_historical_game_from_json, load_training_dataset_from_json
+from skat_ai.input_loader import (
+    load_historical_game_from_json,
+    load_opponent_statistics_from_json,
+    load_training_dataset_from_json,
+)
+from skat_ai.opponent_statistics import build_opponent_statistics_summary
 from skat_ai.post_game_review import build_unavailable_post_game_review_summary
 from skat_ai.training_dataset import build_training_dataset_summary
 
@@ -28,6 +33,9 @@ HISTORICAL_GAME_REVIEW_SCHEMA_PATH = (
 HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
+)
+OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
 )
 
 
@@ -44,6 +52,8 @@ with HISTORICAL_GAME_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_GAME_SCHEMA = json.load(file)
 with TRAINING_DATASET_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     TRAINING_DATASET_OUTPUT_SCHEMA = json.load(file)
+with OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    OPPONENT_STATISTICS_OUTPUT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -59,6 +69,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             TRAINING_DATASET_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(TRAINING_DATASET_OUTPUT_SCHEMA),
+        ),
+        (
+            OPPONENT_STATISTICS_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(OPPONENT_STATISTICS_OUTPUT_SCHEMA),
         ),
     ]
 )
@@ -476,6 +490,17 @@ def build_valid_training_dataset_output() -> dict[str, object]:
     }
 
 
+def build_valid_opponent_statistics_output() -> dict[str, object]:
+    input_path = PROJECT_ROOT / "examples" / "opponent_statistics.json"
+    statistics_input = load_opponent_statistics_from_json(str(input_path))
+    return {
+        "input_file": "examples/opponent_statistics.json",
+        "opponent_statistics_summary": build_opponent_statistics_summary(
+            statistics_input
+        ),
+    }
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         OUTPUT_VALIDATOR.iter_errors(data),
@@ -512,6 +537,30 @@ def test_schema_accepts_historical_game_review_output_branch() -> None:
 
 def test_schema_accepts_training_dataset_output_branch() -> None:
     assert_schema_valid(build_valid_training_dataset_output())
+
+
+def test_schema_accepts_opponent_statistics_output_branch() -> None:
+    assert_schema_valid(build_valid_opponent_statistics_output())
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda summary: summary.update(schema_version=2),
+        lambda summary: summary["records"][0]["normalized_profile_statistics"].update(
+            solo_games_played=39
+        ),
+        lambda summary: summary["records"][0]["validation_metadata"].update(
+            percentage_sum_tolerance_points=3.0
+        ),
+        lambda summary: summary["records"][0].update(confidence="high"),
+    ],
+)
+def test_schema_rejects_malformed_opponent_statistics_output(mutation) -> None:
+    data = build_valid_opponent_statistics_output()
+    mutation(data["opponent_statistics_summary"])
+
+    assert_schema_invalid(data)
 
 
 @pytest.mark.parametrize(
@@ -602,6 +651,15 @@ def test_schema_rejects_combined_position_and_training_output_branches() -> None
     data = build_valid_output()
     data["training_dataset_summary"] = build_valid_training_dataset_output()[
         "training_dataset_summary"
+    ]
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_combined_position_and_opponent_statistics_output_branches() -> None:
+    data = build_valid_output()
+    data["opponent_statistics_summary"] = build_valid_opponent_statistics_output()[
+        "opponent_statistics_summary"
     ]
 
     assert_schema_invalid(data)

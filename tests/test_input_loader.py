@@ -17,6 +17,7 @@ from skat_ai.input_loader import (
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_historical_game_from_json,
+    load_opponent_statistics_from_json,
     load_training_dataset_from_json,
 )
 
@@ -58,6 +59,28 @@ def test_training_dataset_input_cannot_be_combined_with_other_workflows() -> Non
             {
                 "training_dataset_input": {},
                 "historical_game_input": {},
+            }
+        )
+
+
+def test_load_opponent_statistics_from_json() -> None:
+    statistics_input = load_opponent_statistics_from_json(
+        "examples/opponent_statistics.json"
+    )
+
+    assert statistics_input.schema_version == 1
+    assert [record.player_id for record in statistics_input.records] == [
+        "opponent-123",
+        "opponent-789",
+    ]
+
+
+def test_opponent_statistics_input_cannot_be_combined_with_other_workflows() -> None:
+    with pytest.raises(ValueError, match="cannot be combined"):
+        get_input_workflow(
+            {
+                "opponent_statistics_input": {},
+                "training_dataset_input": {},
             }
         )
 

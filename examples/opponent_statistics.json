@@ -1,0 +1,50 @@
+{
+  "opponent_statistics_input": {
+    "schema_version": 1,
+    "records": [
+      {
+        "player_id": "opponent-123",
+        "player_label": "Example Player",
+        "source": {
+          "source_type": "online_platform",
+          "source_name": "Example platform",
+          "source_player_id": "platform-user-456",
+          "captured_at": "2026-07-23T12:00:00+02:00"
+        },
+        "games_played": 127,
+        "statistics": {
+          "solo_games_played_percent": 31,
+          "solo_games_won_percent": 58,
+          "solo_hand_percent": 12,
+          "suit_games_percent": 61,
+          "grand_games_percent": 29,
+          "null_games_percent": 10,
+          "defender_games_played_percent": 69,
+          "defender_games_won_percent": 64
+        }
+      },
+      {
+        "player_id": "opponent-789",
+        "player_label": "Second Player",
+        "source": {
+          "source_type": "online_platform",
+          "source_name": "Example platform",
+          "source_player_id": "platform-user-987",
+          "captured_at": "2026-07-23T12:05:00+02:00",
+          "notes": "Percentages were copied from the public profile."
+        },
+        "games_played": 842,
+        "statistics": {
+          "solo_games_played_percent": 42.5,
+          "solo_games_won_percent": 61.5,
+          "solo_hand_percent": 8.5,
+          "suit_games_percent": 55.5,
+          "grand_games_percent": 34,
+          "null_games_percent": 9,
+          "defender_games_played_percent": 58,
+          "defender_games_won_percent": 67.5
+        }
+      }
+    ]
+  }
+}

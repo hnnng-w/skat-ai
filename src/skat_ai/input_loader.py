@@ -19,6 +19,10 @@ from skat_ai.impossible_null_settlement import (
 from skat_ai.information_view import build_local_analysis_input
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy_preset import apply_opponent_policy_preset
+from skat_ai.opponent_statistics import (
+    OpponentStatisticsInput,
+    build_opponent_statistics_input,
+)
 from skat_ai.side_ownership import normalize_declarer_player
 from skat_ai.training_dataset import TrainingDatasetInput, build_training_dataset_input
 from skat_ai.turn_phase import normalize_turn_phase_for_position
@@ -42,6 +46,15 @@ def load_json_object(file_path: str) -> dict[str, Any]:
 
 def get_input_workflow(data: dict[str, Any]) -> str:
     """Returns the public workflow selected by one top-level input object."""
+    if "opponent_statistics_input" in data:
+        if set(data) != {"opponent_statistics_input"}:
+            raise ValueError(
+                "opponent_statistics_input cannot be combined with historical-game, "
+                "training-dataset, position-analysis, list-performance, profile, policy, "
+                "simulation, recommendation, or settlement fields."
+            )
+        return "opponent_statistics"
+
     if "training_dataset_input" in data:
         if set(data) != {"training_dataset_input"}:
             raise ValueError(
@@ -93,6 +106,17 @@ def load_training_dataset_from_json(file_path: str) -> TrainingDatasetInput:
     if not isinstance(training_data, dict):
         raise ValueError("training_dataset_input must be an object.")
     return build_training_dataset_input(training_data)
+
+
+def load_opponent_statistics_from_json(file_path: str) -> OpponentStatisticsInput:
+    """Loads and validates a versioned opponent-statistics input file."""
+    data = load_json_object(file_path)
+    if get_input_workflow(data) != "opponent_statistics":
+        raise ValueError("Input file does not contain opponent_statistics_input.")
+    statistics_data = data["opponent_statistics_input"]
+    if not isinstance(statistics_data, dict):
+        raise ValueError("opponent_statistics_input must be an object.")
+    return build_opponent_statistics_input(statistics_data)
 
 
 def build_game_state_from_input(data: dict[str, Any]) -> GameState:

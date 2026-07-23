@@ -24,6 +24,9 @@ HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
+OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -1060,6 +1063,47 @@ def check_training_dataset_normal_play(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_opponent_statistics(data: dict[str, Any]) -> list[str]:
+    """Checks deterministic external-statistics normalization and provenance."""
+    errors = []
+    if set(data) != {"input_file", "opponent_statistics_summary"}:
+        errors.append("expected only the opponent-statistics top-level output branch")
+        return errors
+    summary = data["opponent_statistics_summary"]
+    if summary["schema_version"] != 1 or summary["record_count"] != 2:
+        errors.append("expected version 1 output with two records")
+    if [record["player_id"] for record in summary["records"]] != [
+        "opponent-123",
+        "opponent-789",
+    ]:
+        errors.append("expected preserved opponent input order and identity")
+    first_record = summary["records"][0]
+    if first_record["source"] != {
+        "source_type": "online_platform",
+        "source_name": "Example platform",
+        "source_player_id": "platform-user-456",
+        "captured_at": "2026-07-23T12:00:00+02:00",
+    }:
+        errors.append("expected unchanged source provenance")
+    if first_record["statistics"]["solo_games_played_percent"] != 31:
+        errors.append("expected unchanged percentage-point statistics")
+    profile = first_record["normalized_profile_statistics"]
+    if profile["solo_rate"] != 0.31 or profile["defender_win_rate"] != 0.64:
+        errors.append("expected normalized PlayerProfile rates")
+    if profile["solo_games_played"] is not None:
+        errors.append("expected no invented declarer game count")
+    if profile["defender_games_played"] is not None:
+        errors.append("expected no invented defender game count")
+    if first_record["validation_metadata"] != {
+        "percentage_sum_tolerance_points": 2.0
+    }:
+        errors.append("expected fixed percentage-sum tolerance metadata")
+    forbidden_keys = {"confidence", "policy", "recommendation", "simulation"}
+    if forbidden_keys.intersection(first_record):
+        errors.append("expected no confidence, policy, recommendation, or simulation output")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -1362,6 +1406,15 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="opponent_statistics",
+        input_path=PROJECT_ROOT / "examples" / "opponent_statistics.json",
+        branch="versioned external opponent statistics with normalized profile rates",
+        cli_args=("--quiet",),
+        check_output=check_opponent_statistics,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -1380,6 +1433,9 @@ def validate_generated_outputs() -> list[str]:
     training_dataset_output_schema = load_json_file(
         TRAINING_DATASET_OUTPUT_SCHEMA_PATH
     )
+    opponent_statistics_output_schema = load_json_file(
+        OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1397,6 +1453,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 training_dataset_output_schema["$id"],
                 Resource.from_contents(training_dataset_output_schema),
+            ),
+            (
+                opponent_statistics_output_schema["$id"],
+                Resource.from_contents(opponent_statistics_output_schema),
             ),
         ]
     )

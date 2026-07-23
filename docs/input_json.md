@@ -16,6 +16,10 @@ Training/evaluation datasets use:
 
 [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
 
+External opponent-statistics records use:
+
+[`schemas/opponent_statistics.schema.json`](../schemas/opponent_statistics.schema.json)
+
 The schema is intended as a documentation and validation aid.
 
 Example files can be validated against the schema with:
@@ -62,6 +66,7 @@ Python validation covers Skat-specific rules such as:
 * stable historical player/seat references and complete 32-card deals
 * historical pickup/discard ownership, final playable hands, all 30 plays, follow obligations, winners, points, matadors, and settlement
 * training dataset versions, unpadded identities, RFC 3339 provenance, duplicate game/source detection, and partition leakage
+* opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, and duplicate player IDs
 
 For the validation-layer overview and schema limitations, see:
 
@@ -69,11 +74,12 @@ For the validation-layer overview and schema limitations, see:
 
 ## Input workflows
 
-The public schema has three mutually exclusive branches:
+The public schema has four mutually exclusive branches:
 
 * the existing flat position-analysis input described below
 * a complete historical game under `historical_game_input`
 * a versioned training/evaluation dataset under `training_dataset_input`
+* versioned external opponent statistics under `opponent_statistics_input`
 
 A historical-game file contains no position fields, simulation settings,
 `actual_card_played`, profiles, policies, list inputs, or impossible-Null
@@ -117,6 +123,25 @@ Each record supplies a unique `record_id`, a `train`, `validation`, or `test`
 partition, required provenance, and one complete historical game. See
 [Training data](training_data.md) for identity, duplicate, provenance, sample,
 and information-safety rules.
+
+An opponent-statistics file contains only its statistics branch:
+
+```json
+{
+  "opponent_statistics_input": {
+    "schema_version": 1,
+    "records": []
+  }
+}
+```
+
+Public statistics use percentage points from `0` through `100`; canonical
+normalized profile rates use `0..1`. Provenance and capture time are required,
+rounded role and contract sums use a fixed `2.0` percentage-point tolerance,
+and exact role-specific counts are not inferred. See
+[Opponent statistics](opponent_statistics.md) for all denominator and
+consistency definitions. This branch does not derive confidence or policies and
+cannot be combined with existing manually supplied position profiles.
 
 ## Minimal position input
 

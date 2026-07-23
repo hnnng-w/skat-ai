@@ -109,6 +109,12 @@ Convert the versioned training/evaluation dataset example:
 python main.py --input examples/training_dataset_normal_play.json
 ```
 
+Validate and normalize the external opponent-statistics example:
+
+```powershell
+python main.py --input examples/opponent_statistics.json
+```
+
 Prepare an opponent-turn position with Multi-Step until the local player acts:
 
 ```powershell
@@ -246,6 +252,19 @@ This separate workflow runs historical validation and snapshot generation but
 does not run recommendations, review, or simulation. Its generated-output
 scenario verifies the dedicated branch, all three partition-count entries,
 stable sample IDs, legal labels, and identity-free features.
+
+## Opponent-statistics example
+
+| File | Purpose |
+| ---- | ------- |
+| `opponent_statistics.json` | Two ordered online-platform captures with distinct integer and decimal percentage-point statistics and required provenance. |
+
+This separate workflow validates the documented denominators and bounded source
+rounding, preserves source values, and emits normalized `0..1` profile rates.
+Its deterministic generated-output scenario verifies identity/order,
+provenance, source percentages, null role-specific counts, fixed `2.0` tolerance
+metadata, and the absence of confidence, policy, recommendation, or simulation
+output. Historical-game aggregation remains unsupported.
 
 ## Post-game review examples
 

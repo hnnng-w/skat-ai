@@ -104,6 +104,28 @@ are always present and reconcile with total and per-record counts. See
 [Training data](training_data.md) and
 [`training_dataset_output.schema.json`](../schemas/training_dataset_output.schema.json).
 
+Opponent-statistics input produces a separate stable branch:
+
+```json
+{
+  "input_file": "examples/opponent_statistics.json",
+  "opponent_statistics_summary": {
+    "schema_version": 1,
+    "record_count": 2,
+    "records": []
+  }
+}
+```
+
+Records preserve player identity, optional labels, provenance, total games, and
+the original `0..100` percentage-point `statistics`. Separate
+`normalized_profile_statistics` values divide each percentage by `100`, copy
+`games_played`, and keep `solo_games_played` and `defender_games_played` as
+`null`. `validation_metadata.percentage_sum_tolerance_points` is always `2.0`.
+No confidence, policy, recommendation, simulation, or historical result is
+included. See [Opponent statistics](opponent_statistics.md) and
+[`opponent_statistics_output.schema.json`](../schemas/opponent_statistics_output.schema.json).
+
 ## Position top-level fields
 
 Typical top-level fields include:

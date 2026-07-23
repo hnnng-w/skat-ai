@@ -10,12 +10,16 @@ from skat_ai.historical_game import build_historical_game_record
 from skat_ai.input_validation import validate_position_input
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.opponent_policy_preset import VALID_OPPONENT_POLICY_PRESETS
+from skat_ai.opponent_statistics import build_opponent_statistics_input
 from skat_ai.training_dataset import build_training_dataset_input
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
+OPPONENT_STATISTICS_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
+)
 POLICY_FIELDS = [
     "opponent_lead_policy",
     "opponent_response_policy",
@@ -35,6 +39,8 @@ with HISTORICAL_SCHEMA_PATH.open("r", encoding="utf-8") as historical_schema_fil
     HISTORICAL_SCHEMA = json.load(historical_schema_file)
 with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
     TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
+with OPPONENT_STATISTICS_SCHEMA_PATH.open("r", encoding="utf-8") as statistics_schema_file:
+    OPPONENT_STATISTICS_SCHEMA = json.load(statistics_schema_file)
 
 INPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -42,6 +48,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             TRAINING_DATASET_SCHEMA["$id"],
             Resource.from_contents(TRAINING_DATASET_SCHEMA),
+        ),
+        (
+            OPPONENT_STATISTICS_SCHEMA["$id"],
+            Resource.from_contents(OPPONENT_STATISTICS_SCHEMA),
         ),
     ]
 )
@@ -136,6 +146,12 @@ def build_valid_training_dataset_input() -> dict[str, object]:
         return json.load(example_file)
 
 
+def build_valid_opponent_statistics_input() -> dict[str, object]:
+    example_path = PROJECT_ROOT / "examples" / "opponent_statistics.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        return json.load(example_file)
+
+
 def test_schema_and_runtime_accept_historical_game_branch() -> None:
     data = build_valid_historical_input()
 
@@ -213,6 +229,57 @@ def test_schema_rejects_unknown_training_provenance_field() -> None:
     data["training_dataset_input"]["records"][0]["provenance"]["url"] = (
         "https://example.test"
     )
+
+    assert_schema_invalid(data)
+
+
+def test_schema_and_runtime_accept_opponent_statistics_branch() -> None:
+    data = build_valid_opponent_statistics_input()
+
+    assert_schema_valid(data)
+    statistics_input = build_opponent_statistics_input(
+        copy.deepcopy(data["opponent_statistics_input"])
+    )
+
+    assert len(statistics_input.records) == 2
+
+
+@pytest.mark.parametrize(
+    "combined_data",
+    [
+        build_valid_input(),
+        build_valid_historical_input(),
+        build_valid_training_dataset_input(),
+    ],
+)
+def test_schema_rejects_combined_opponent_statistics_workflows(
+    combined_data: dict[str, object],
+) -> None:
+    data = build_valid_opponent_statistics_input()
+    data.update(copy.deepcopy(combined_data))
+
+    assert_schema_invalid(data)
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("schema_version",), 2),
+        (("records", 0, "player_id"), " padded"),
+        (("records", 0, "games_played"), 0),
+        (("records", 0, "source", "source_type"), "website"),
+        (("records", 0, "statistics", "solo_games_played_percent"), 101),
+    ],
+)
+def test_schema_rejects_structurally_invalid_opponent_statistics(
+    path: tuple[object, ...],
+    value: object,
+) -> None:
+    data = build_valid_opponent_statistics_input()
+    target = data["opponent_statistics_input"]
+    for path_part in path[:-1]:
+        target = target[path_part]
+    target[path[-1]] = value
 
     assert_schema_invalid(data)
 

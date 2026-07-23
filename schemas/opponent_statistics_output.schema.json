@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/opponent_statistics_output.schema.json",
+  "title": "skat-ai opponent statistics output version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "record_count", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "record_count": {"type": "integer", "minimum": 0},
+    "records": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/record"}
+    }
+  },
+  "$defs": {
+    "non_padded_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "percentage_points": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "normalized_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_name", "captured_at"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["online_platform", "manual_entry"]
+        },
+        "source_name": {"$ref": "#/$defs/non_padded_string"},
+        "source_player_id": {"$ref": "#/$defs/non_padded_string"},
+        "captured_at": {"$ref": "#/$defs/non_padded_string"},
+        "notes": {"$ref": "#/$defs/non_padded_string"}
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "solo_games_played_percent",
+        "solo_games_won_percent",
+        "solo_hand_percent",
+        "suit_games_percent",
+        "grand_games_percent",
+        "null_games_percent",
+        "defender_games_played_percent",
+        "defender_games_won_percent"
+      ],
+      "properties": {
+        "solo_games_played_percent": {"$ref": "#/$defs/percentage_points"},
+        "solo_games_won_percent": {"$ref": "#/$defs/percentage_points"},
+        "solo_hand_percent": {"$ref": "#/$defs/percentage_points"},
+        "suit_games_percent": {"$ref": "#/$defs/percentage_points"},
+        "grand_games_percent": {"$ref": "#/$defs/percentage_points"},
+        "null_games_percent": {"$ref": "#/$defs/percentage_points"},
+        "defender_games_played_percent": {"$ref": "#/$defs/percentage_points"},
+        "defender_games_won_percent": {"$ref": "#/$defs/percentage_points"}
+      }
+    },
+    "normalized_profile_statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "games_played",
+        "solo_games_played",
+        "defender_games_played",
+        "solo_rate",
+        "solo_win_rate",
+        "hand_game_rate",
+        "suit_game_rate",
+        "grand_rate",
+        "null_game_rate",
+        "defender_win_rate"
+      ],
+      "properties": {
+        "games_played": {"type": "integer", "minimum": 1},
+        "solo_games_played": {"type": "null"},
+        "defender_games_played": {"type": "null"},
+        "solo_rate": {"$ref": "#/$defs/normalized_rate"},
+        "solo_win_rate": {"$ref": "#/$defs/normalized_rate"},
+        "hand_game_rate": {"$ref": "#/$defs/normalized_rate"},
+        "suit_game_rate": {"$ref": "#/$defs/normalized_rate"},
+        "grand_rate": {"$ref": "#/$defs/normalized_rate"},
+        "null_game_rate": {"$ref": "#/$defs/normalized_rate"},
+        "defender_win_rate": {"$ref": "#/$defs/normalized_rate"}
+      }
+    },
+    "validation_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["percentage_sum_tolerance_points"],
+      "properties": {
+        "percentage_sum_tolerance_points": {"const": 2.0}
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "player_id",
+        "source",
+        "games_played",
+        "statistics",
+        "normalized_profile_statistics",
+        "validation_metadata"
+      ],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/non_padded_string"},
+        "player_label": {"$ref": "#/$defs/non_padded_string"},
+        "source": {"$ref": "#/$defs/source"},
+        "games_played": {"type": "integer", "minimum": 1},
+        "statistics": {"$ref": "#/$defs/statistics"},
+        "normalized_profile_statistics": {
+          "$ref": "#/$defs/normalized_profile_statistics"
+        },
+        "validation_metadata": {"$ref": "#/$defs/validation_metadata"}
+      }
+    }
+  }
+}
