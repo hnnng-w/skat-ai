@@ -109,3 +109,33 @@ def calculate_required_overbid_game_value(
     multiplier = math.ceil(bid_value / base_value)
 
     return multiplier * base_value
+
+
+def get_overbid_required_level(
+    game_value_summary: dict[str, Any],
+    overbid_summary: dict[str, Any],
+) -> str | None:
+    """Returns a supported additional Schneider or Schwarz overbid requirement."""
+    if overbid_summary.get("is_overbid") is not True:
+        return None
+    if game_value_summary.get("is_null_game") is not False:
+        raise ValueError("Null overbid-required levels are not supported.")
+
+    base_value = game_value_summary.get("base_value")
+    game_level = game_value_summary.get("game_level")
+    required_game_value = overbid_summary.get("required_game_value")
+    if not all(isinstance(value, int) for value in [base_value, game_level, required_game_value]):
+        raise ValueError("Overbid-required level needs complete Suit or Grand values.")
+    if required_game_value % base_value != 0:
+        raise ValueError("Overbid required_game_value must be a base-value multiple.")
+
+    additional_levels = required_game_value // base_value - game_level
+    if additional_levels <= 0:
+        return None
+    if additional_levels == 1:
+        return "schneider"
+    if additional_levels == 2:
+        return "schwarz"
+    raise ValueError(
+        "Defender concession cannot adjudicate an overbid requirement beyond Schwarz."
+    )

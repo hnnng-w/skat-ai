@@ -139,6 +139,26 @@ an achieved Schneider or Schwarz level.
 
 See [Declarer concessions](declarer_concessions.md) for the full contract.
 
+## Structured defender concession
+
+The second version-1 `game_shortening` variant records one concrete defender's
+accepted concession under ISkO 4.4.3. The conceding player must differ from the
+concrete declarer. Joint liability binds the complete defending party, so the
+other defender does not need to consent and has no veto.
+
+Before ending play, the adjudicator derives `undecided`,
+`declarer_already_won`, or `defenders_already_won`. Suit and Grand use observed
+61/60 point decisions plus failed announced and supported overbid-required
+Schneider/Schwarz conditions. Null uses reliable completed declarer-trick
+ownership. An undecided contract is granted to the declarer; an existing winner
+is preserved, including a declarer loss.
+
+Observed and unplayed points remain separate. No current trick is completed, no
+remaining points are assigned, and no artificial 120-point result is created.
+Settlement retains declared and still-possible mandatory values without adding
+optional levels from hypothetical future play. See
+[Defender concessions](defender_concessions.md).
+
 ## Legacy claims and concessions
 
 The three legacy reasons are modeled by assigning all remaining card points to
@@ -181,9 +201,10 @@ Rules:
 * `not_ended` requires remaining card points.
 * `normal_completion` requires zero remaining card points.
 * legacy claim/concession reasons require remaining card points.
-* structured concession requires `1..10` hand cards and the exact consent matrix.
-* structured concession requires incomplete play and a calculable declaration.
-* structured concession cannot coexist with an active legacy end reason,
+* structured declarer concession requires `1..10` hand cards and the exact consent matrix.
+* either structured concession requires incomplete play and a calculable declaration.
+* structured defender concession requires distinct concrete declarer and conceding defender identities.
+* structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
 * unknown `game_end_reason` values are rejected.
 * remaining card points cannot be negative.
@@ -215,7 +236,7 @@ For example:
 ## Current limitations
 
 * Legacy claims and concessions still assign remaining points.
-* Structured support covers only a concealed or verbal declarer concession.
-* Defender concession, exposed cards, defender open play, and open throwing are unsupported.
+* Structured support covers bounded declarer and defender concessions.
+* Continued play, exposed cards, defender open play, and open throwing are unsupported.
 * Historical-game shortening and solver-backed claim proof are unsupported.
 * No game-shortening path simulates hypothetical continuation.

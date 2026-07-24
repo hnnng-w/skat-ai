@@ -64,11 +64,13 @@ Implemented:
 * Normal completion
 * Declarer claims remaining tricks
 * Structured concealed or verbal declarer concession with exact hand-card and defender-consent rules
+* Structured defender concession with concrete party validation, joint liability, and preexisting-result preservation
 * Legacy declarer concession remaining-point assignment
 * Defenders concede remaining tricks
 * Immediate impossible Null declaration end handling
 * Remaining-point assignment for legacy claim/concession scenarios
 * No-assignment adjudicated defender win and declared/overbid settlement for structured declarer concession
+* No-assignment defender-concession adjudication for Suit, Grand, and all Null variants
 * Adjusted game-result summaries
 
 ### Performance rating
@@ -217,14 +219,14 @@ Implemented:
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
 * Full official settlement nuance coverage is not complete.
-* Legacy claim and concession reasons assign remaining points; the structured declarer concession preserves them as unplayed.
+* Legacy claim and concession reasons assign remaining points; both structured concession kinds preserve them as unplayed.
 * The engine does not yet verify whether a claim was strategically or legally justified.
-* The engine models accepted defender-side consent only for structured declarer concession; disputes are not modeled.
+* Structured declarer concession models accepted defender consent; structured defender concession applies joint liability without partner consent. Disputes are not modeled.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Complete historical-game records currently support normal completion only; claims, concessions, and other later end reasons are not represented there.
-* Claims, defender concessions, open-card shortening, and historical game shortening remain incomplete; general settlement coverage is incomplete.
+* Claims, continued play, open-card shortening, and historical game shortening remain incomplete; general settlement coverage is incomplete.
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
 * Multi-Step does not preserve one coherent hidden-world assignment across every simulated path.
@@ -265,8 +267,9 @@ Implemented:
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-covers 34 deterministic scenarios. Issue #86 adds bounded structured declarer
-concession adjudication while the package remains `0.8.0`. Issues #78 through #84 are complete:
+covers 35 deterministic scenarios. Issues #86 and #87 add bounded structured
+declarer- and defender-concession adjudication while the package remains
+`0.8.0`. Issues #78 through #84 are complete:
 
 * #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.
 * #79 added deterministic explainable profile derivation with scoped heuristic confidence and actionable gating.

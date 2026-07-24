@@ -75,7 +75,7 @@ The input schema checks things such as:
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
-* strict structured declarer-concession version, kind, hand-count, and consent shapes
+* strict version-1 declarer- and defender-concession union shapes
 * complete historical-game player, deal, declaration, discard, and ten-trick shapes
 * training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
 * opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
@@ -146,7 +146,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 34 deterministic scenarios. Position
+Generated-output validation covers 35 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -159,7 +159,7 @@ output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
 simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
 Null-objective post-game review, defender-perspective post-game review,
-legacy claim, structured declarer concession, overbid, and list-performance summaries from aggregated totals, normalized
+legacy claim, structured declarer and defender concessions, overbid, and list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
@@ -177,7 +177,8 @@ nested analysis detail, but stable branch contracts such as
 `post_game_review_summary`, `multi_step_result`, and
 `policy_comparison_result` are explicitly structured. Structured game shortening
 uses `schemas/game_shortening.schema.json`; its summary and settlement basis use
-`schemas/declarer_concession_output.schema.json`. Historical decision
+`schemas/declarer_concession_output.schema.json` or
+`schemas/defender_concession_output.schema.json`. Historical decision
 snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses
 `schemas/historical_game_review.schema.json`. Training dataset output uses
@@ -270,8 +271,10 @@ Examples:
 * whether known skat cards are allowed in the selected `analysis_mode`
 * whether ended game states are allowed in `live_decision`
 * legacy claim/concession assignment and structured declarer-concession consent
-* reliable declarer hand-count reconciliation and incomplete-play exclusivity
-* prevention of remaining-point assignment and achieved-level inference for structured concession
+* defender-concession concrete party membership and joint liability
+* reliable declarer hand-count reconciliation and structured incomplete-play exclusivity
+* defender pre-concession decision, mandatory-level feasibility, and Null trick ownership
+* prevention of remaining-point assignment and unsupported achieved-level inference for structured concessions
 * game-type-specific declaration rules
 * top-level-versus-nested declaration precedence
 * Null declaration restrictions such as rejecting `matadors`, Schneider

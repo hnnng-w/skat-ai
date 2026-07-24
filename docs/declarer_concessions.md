@@ -12,12 +12,15 @@ tricks, or assign unplayed card points.
 
 The following remain separate and unsupported by this contract:
 
-* defender concession under ISkO 4.4.3
 * declarer card exposure under ISkO 4.4.4
 * defender open play under ISkO 4.4.5
 * open card throwing under ISkO 4.4.6
 * solver-backed claims or hypothetical continuation
 * historical-game shortening, snapshots after concession, and training samples
+
+Defender concession under ISkO 4.4.3 is the separate version-1 union member
+documented in [Defender concessions](defender_concessions.md). Its joint
+liability and decision-state rules do not change this declarer-concession kind.
 
 ## Input contract
 

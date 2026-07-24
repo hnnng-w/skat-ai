@@ -277,6 +277,36 @@
     },
     {
       "if": {
+        "required": ["game_shortening"],
+        "properties": {
+          "game_shortening": {
+            "required": ["kind"],
+            "properties": {
+              "kind": {"const": "defender_concession"}
+            }
+          }
+        }
+      },
+      "then": {
+        "required": ["analysis_mode", "declarer_player"],
+        "properties": {
+          "analysis_mode": {"const": "post_game_review"},
+          "declarer_player": {"enum": ["me", "left", "right"]},
+          "game_end_reason": {"const": "not_ended"}
+        },
+        "not": {
+          "anyOf": [
+            {"required": ["impossible_null_settlement"]},
+            {"required": ["list_performance_input"]},
+            {"required": ["list_game_contributions"]},
+            {"required": ["list_analysis_results"]},
+            {"required": ["list_standings_input"]}
+          ]
+        }
+      }
+    },
+    {
+      "if": {
         "properties": {
           "game_end_reason": {
             "const": "impossible_null_declaration"

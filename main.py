@@ -19,6 +19,10 @@ from skat_ai.declarer_concession import (
     adjudicate_declarer_concession,
     build_declarer_card_count_evidence,
 )
+from skat_ai.defender_concession import (
+    DefenderConcession,
+    adjudicate_defender_concession,
+)
 from skat_ai.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
@@ -55,8 +59,8 @@ from skat_ai.input_loader import (
     build_local_game_state_from_input,
     get_actual_card_played_from_input,
     get_analysis_metadata_from_input,
-    get_declarer_concession_from_input,
     get_game_declaration_from_input,
+    get_game_shortening_from_input,
     get_impossible_null_settlement_from_input,
     get_input_workflow,
     get_list_analysis_results_from_input,
@@ -307,9 +311,9 @@ def build_analysis_result(
         effective_opponent_policy_settings.immediate_response_policy_by_player
     )
     actual_card_played = get_actual_card_played_from_input(data)
-    declarer_concession = get_declarer_concession_from_input(data)
+    game_shortening = get_game_shortening_from_input(data)
     game_declaration = get_game_declaration_from_input(
-        data if declarer_concession is not None else local_data
+        data if game_shortening is not None else local_data
     )
     impossible_null_selection = get_impossible_null_settlement_from_input(data)
     performance_rating_system = get_performance_rating_system_from_input(data)
@@ -363,7 +367,7 @@ def build_analysis_result(
     immediate_unavailable_reason = get_immediate_unavailable_reason(
         state_next_player=state.next_player,
         game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
-        has_game_shortening=declarer_concession is not None,
+        has_game_shortening=game_shortening is not None,
     )
 
     if immediate_unavailable_reason is None:
@@ -422,9 +426,19 @@ def build_analysis_result(
         game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
     )
     game_shortening_summary = None
-    if declarer_concession is not None:
+    if isinstance(game_shortening, DefenderConcession):
+        adjudication = adjudicate_defender_concession(
+            game_shortening=game_shortening,
+            game_result_summary=game_result_summary,
+            game_value_summary=game_value_summary,
+            overbid_summary=overbid_summary,
+            completed_tricks=state.completed_tricks,
+        )
+        adjusted_game_result_summary = adjudication.game_result_summary
+        game_shortening_summary = adjudication.game_shortening_summary
+    elif game_shortening is not None:
         adjudication = adjudicate_declarer_concession(
-            game_shortening=declarer_concession,
+            game_shortening=game_shortening,
             game_result_summary=game_result_summary,
             game_value_summary=game_value_summary,
             overbid_summary=overbid_summary,
@@ -825,15 +839,26 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     )
     print("Reason:", result["recommendation"]["reason"])
 
-    print_declarer_concession_summary(result)
+    print_game_shortening_summary(result)
 
     print_post_game_review_summary(result)
+
+
+def print_game_shortening_summary(result: dict[str, Any]) -> None:
+    """Prints the supported structured game-shortening outcome."""
+    summary = result.get("game_shortening_summary")
+    if not isinstance(summary, dict):
+        return
+    if summary.get("kind") == "defender_concession":
+        print_defender_concession_summary(result)
+    else:
+        print_declarer_concession_summary(result)
 
 
 def print_declarer_concession_summary(result: dict[str, Any]) -> None:
     """Prints the bounded structured declarer-concession outcome."""
     summary = result.get("game_shortening_summary")
-    if not isinstance(summary, dict):
+    if not isinstance(summary, dict) or summary.get("kind") != "declarer_concession":
         return
 
     hand_count = summary["declarer_hand_cards_remaining"]
@@ -854,6 +879,40 @@ def print_declarer_concession_summary(result: dict[str, Any]) -> None:
         f"Settlement: {settlement['settlement_score']} using effective game value "
         f"{settlement['effective_game_value']}; no achieved Schneider or Schwarz "
         "level was added."
+    )
+
+
+def print_defender_concession_summary(result: dict[str, Any]) -> None:
+    """Prints the bounded structured defender-concession outcome."""
+    summary = result.get("game_shortening_summary")
+    if not isinstance(summary, dict) or summary.get("kind") != "defender_concession":
+        return
+
+    settlement = result["final_settlement_summary"]
+    decision_state = summary["decision_state_before_concession"]
+    print()
+    if decision_state == "defenders_already_won":
+        print(
+            f"Defender concession: {summary['conceding_player']} conceded after the "
+            "game was already lost by the declarer."
+        )
+        print(
+            "Result preserved: defenders won; the concession did not reverse the "
+            "existing decision."
+        )
+    else:
+        print(
+            f"Defender concession: {summary['conceding_player']} conceded for the "
+            "defending party."
+        )
+        print(f"Decision before concession: {decision_state}.")
+        print(
+            f"Result: {summary['adjudicated_winner']} won; no remaining card points "
+            "were assigned."
+        )
+    print(
+        f"Settlement: {settlement['settlement_score']} using effective game value "
+        f"{settlement['effective_game_value']}."
     )
 
 
@@ -1286,9 +1345,12 @@ def run_json_position_analysis(
         raise ValueError("multi_step_count must be a positive integer.")
 
     position_data = load_position_from_json(file_path)
-    if "game_shortening" in position_data and multi_step_count is not None:
+    if "game_shortening" in position_data and (
+        multi_step_count is not None or compare_policies
+    ):
         raise ValueError(
-            "Structured game_shortening cannot be combined with multi-step simulation."
+            "Structured game_shortening cannot be combined with multi-step simulation "
+            "or policy comparison."
         )
     analysis_metadata = get_analysis_metadata_from_input(position_data)
     validate_live_opponent_profile_options(

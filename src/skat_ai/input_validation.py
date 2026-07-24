@@ -1,12 +1,14 @@
 from typing import Any
 
 from skat_ai.deck import get_full_deck
-from skat_ai.declarer_concession import (
-    get_declarer_concession_from_input,
-    validate_declarer_concession_context,
+from skat_ai.declarer_concession import validate_declarer_concession_context
+from skat_ai.defender_concession import (
+    DefenderConcession,
+    validate_defender_concession_context,
 )
 from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.game_history import validate_completed_trick_sequence
+from skat_ai.game_shortening import get_game_shortening_from_input
 from skat_ai.game_value import get_null_game_value
 from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_selection_from_input,
@@ -367,7 +369,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_opponent_policies(data)
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
-    validate_optional_declarer_concession(data)
+    validate_optional_game_shortening(data)
     validate_impossible_null_settlement(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
     validate_list_performance_input_modes(data)
@@ -811,12 +813,20 @@ def validate_optional_game_declaration(data: dict[str, Any]) -> None:
 
 
 def validate_optional_declarer_concession(data: dict[str, Any]) -> None:
-    """Validates the optional structured declarer concession."""
-    concession = get_declarer_concession_from_input(data)
-    if concession is None:
+    """Compatibility wrapper for optional structured game shortening."""
+    validate_optional_game_shortening(data)
+
+
+def validate_optional_game_shortening(data: dict[str, Any]) -> None:
+    """Validates the optional structured game-shortening union."""
+    game_shortening = get_game_shortening_from_input(data)
+    if game_shortening is None:
         return
 
-    validate_declarer_concession_context(data, concession)
+    if isinstance(game_shortening, DefenderConcession):
+        validate_defender_concession_context(data, game_shortening)
+    else:
+        validate_declarer_concession_context(data, game_shortening)
 
 
 def validate_impossible_null_settlement(data: dict[str, Any]) -> None:

@@ -56,6 +56,9 @@ DATASET_PARTITION_AUDIT_SCHEMA_PATH = (
 DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_concession_output.schema.json"
 )
+DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "defender_concession_output.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -726,6 +729,52 @@ def check_structured_declarer_concession(data: dict[str, Any]) -> list[str]:
         "overbid_required_value_applied": False,
     }:
         errors.append("expected bounded declarer-concession settlement basis")
+
+    return errors
+
+
+def check_structured_defender_concession(data: dict[str, Any]) -> list[str]:
+    """Checks joint-liability adjudication without remaining-point assignment."""
+    errors = []
+    raw_result = data["game_result_summary"]
+    adjusted_result = data["adjusted_game_result_summary"]
+    summary = data.get("game_shortening_summary")
+    settlement = data["final_settlement_summary"]
+
+    if not isinstance(summary, dict):
+        return ["expected game_shortening_summary"]
+    if adjusted_result["declarer_points"] != raw_result["declarer_points"]:
+        errors.append("expected observed declarer points to remain unchanged")
+    if adjusted_result["defender_points"] != raw_result["defender_points"]:
+        errors.append("expected observed defender points to remain unchanged")
+    if adjusted_result["points_remaining"] != raw_result["points_remaining"]:
+        errors.append("expected unplayed points to remain unassigned")
+    if adjusted_result["winner"] != "declarer":
+        errors.append("expected undecided game adjudicated for declarer")
+    if adjusted_result["remaining_points_recipient"] is not None:
+        errors.append("expected no remaining points recipient")
+    if adjusted_result["remaining_points_assigned"] != 0:
+        errors.append("expected zero assigned remaining points")
+    if summary.get("rule_sections") != ["4.4.3", "4.1.4"]:
+        errors.append("expected deterministic ISkO 4.4.3 and 4.1.4 sections")
+    if summary.get("conceding_player") != "left":
+        errors.append("expected concrete left conceding player")
+    if summary.get("joint_liability") is not True:
+        errors.append("expected joint defender liability")
+    if settlement.get("settlement_score") != 72:
+        errors.append("expected simple Grand win of 72")
+    if settlement.get("settlement_basis") != {
+        "game_end_kind": "defender_concession",
+        "outcome_source": "adjudicated",
+        "winner_basis": "defender_concession",
+        "decision_state_before_game_end": "undecided",
+        "mandatory_level_awarded": False,
+        "mandatory_level_source": None,
+        "achieved_schneider_applied": False,
+        "achieved_schwarz_applied": False,
+        "overbid_required_value_applied": False,
+    }:
+        errors.append("expected bounded defender-concession settlement basis")
 
     return errors
 
@@ -1610,6 +1659,14 @@ SCENARIOS = (
         expect_quiet_stdout=True,
     ),
     Scenario(
+        name="structured_defender_concession",
+        input_path=PROJECT_ROOT / "examples" / "defender_concession.json",
+        branch="structured defender-concession adjudication",
+        cli_args=("--quiet",),
+        check_output=check_structured_defender_concession,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
         name="overbid_settlement",
         input_path=(
             PROJECT_ROOT
@@ -1875,6 +1932,9 @@ def validate_generated_outputs() -> list[str]:
     declarer_concession_output_schema = load_json_file(
         DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH
     )
+    defender_concession_output_schema = load_json_file(
+        DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1930,6 +1990,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 declarer_concession_output_schema["$id"],
                 Resource.from_contents(declarer_concession_output_schema),
+            ),
+            (
+                defender_concession_output_schema["$id"],
+                Resource.from_contents(defender_concession_output_schema),
             ),
         ]
     )

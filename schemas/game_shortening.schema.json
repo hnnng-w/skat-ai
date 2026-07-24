@@ -5,6 +5,9 @@
   "oneOf": [
     {
       "$ref": "#/$defs/declarer_concession"
+    },
+    {
+      "$ref": "#/$defs/defender_concession"
     }
   ],
   "$defs": {
@@ -47,6 +50,35 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 2
+        }
+      }
+    },
+    "defender_concession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "conceding_player",
+        "concession_form"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "defender_concession"
+        },
+        "conceding_player": {
+          "type": "string",
+          "enum": ["me", "left", "right"]
+        },
+        "concession_form": {
+          "type": "string",
+          "enum": [
+            "explicit_verbal",
+            "adjudicated_unambiguous_conduct"
+          ]
         }
       }
     }

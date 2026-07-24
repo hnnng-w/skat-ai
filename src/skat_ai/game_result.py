@@ -9,6 +9,24 @@ COMPLETED_TRICK_COUNT = 10
 VALID_COMPLETED_TRICK_WINNER_ROLES = ["declarer", "defenders"]
 
 
+def get_completed_trick_winner_roles(
+    completed_tricks: list[dict[str, Any]],
+) -> set[str]:
+    """Returns reliable winner roles present in a partial or complete history."""
+    winner_roles = set()
+    for trick_index, completed_trick in enumerate(completed_tricks):
+        if not isinstance(completed_trick, dict):
+            raise ValueError(f"completed_tricks[{trick_index}] must be an object.")
+        winner_role = completed_trick.get("winner_role")
+        if winner_role not in VALID_COMPLETED_TRICK_WINNER_ROLES:
+            raise ValueError(
+                "Invalid completed trick winner_role at index "
+                f"{trick_index}: {winner_role}"
+            )
+        winner_roles.add(winner_role)
+    return winner_roles
+
+
 def get_points_remaining(
     declarer_points: int,
     defender_points: int,

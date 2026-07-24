@@ -58,7 +58,7 @@ The schema checks stable structural constraints such as:
 * supported performance rating values
 * matador values from 1 through 11 and direct top-level Grand values through 4
 * direct top-level Suit/Grand declaration contradictions
-* strict version-1 declarer-concession and defender-consent shapes
+* strict version-1 declarer- and defender-concession union shapes
 
 More advanced cross-field validation is handled by the Python validation layer.
 
@@ -69,7 +69,9 @@ Python validation covers Skat-specific rules such as:
 * completed-trick winner validation where enough metadata is available
 * live-vs-post-game information rules
 * game-end consistency
-* declarer-concession consent, hand-count reconciliation, exclusivity, incomplete-play, and settlement prerequisites
+* declarer-concession consent and hand-count reconciliation
+* defender-concession concrete party membership, joint liability, decision state, and mandatory-level feasibility
+* structured game-shortening exclusivity, incomplete-play, and settlement prerequisites
 * legality of `actual_card_played`
 * point consistency
 * stable historical player/seat references and complete 32-card deals
@@ -492,8 +494,37 @@ count; insufficient evidence is allowed and reported as `not_verifiable`.
 The object requires incomplete play and a calculable final declaration. It is
 exclusive with active legacy `game_end_reason` values, impossible Null,
 list-performance modes, Multi-Step simulation, and every non-position workflow.
-It does not represent open throwing, exposed-card claims, defender concession,
-or historical game shortening. See [Declarer concessions](declarer_concessions.md).
+It does not represent open throwing, exposed-card claims, or historical game
+shortening. See [Declarer concessions](declarer_concessions.md).
+
+## Structured defender concession
+
+The second version-1 `game_shortening` variant records one accepted defender
+concession under ISkO 4.4.3:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "declarer_player": "me",
+  "game_shortening": {
+    "schema_version": 1,
+    "kind": "defender_concession",
+    "conceding_player": "left",
+    "concession_form": "explicit_verbal"
+  }
+}
+```
+
+`conceding_player` must identify one concrete defender and cannot equal the
+concrete `declarer_player`. Supported forms are `explicit_verbal` and
+`adjudicated_unambiguous_conduct`. The latter records an external adjudication;
+the engine does not parse language or decide whether conduct was unambiguous.
+
+One defender binds the complete defending party. No partner consent is required
+and the other defender has no veto. The object is post-game, flat-position-only,
+requires incomplete play and a calculable declaration, and is exclusive with
+legacy endings, impossible Null, simulation, policy comparison, list, and
+historical/data workflows. See [Defender concessions](defender_concessions.md).
 
 ## Analysis metadata fields
 
@@ -530,7 +561,7 @@ Supported legacy `game_end_reason` values:
 | `normal_completion`                   | Game ended normally with all 120 card points assigned. |
 | `declarer_claimed_remaining_tricks`   | Declarer claimed the remaining tricks.                 |
 | `declarer_conceded_remaining_tricks`  | Simplified legacy assignment of remaining points to defenders. |
-| `defenders_conceded_remaining_tricks` | Defenders conceded the remaining tricks.               |
+| `defenders_conceded_remaining_tricks` | Simplified legacy assignment of remaining points to declarer. |
 | `impossible_null_declaration`          | Impossible Null declaration; immediate declarer loss.   |
 
 `impossible_null_declaration` is post-game only. It requires a Null contract,

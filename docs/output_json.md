@@ -12,6 +12,10 @@ Structured declarer-concession output uses the focused schema:
 
 [`schemas/declarer_concession_output.schema.json`](../schemas/declarer_concession_output.schema.json)
 
+Structured defender-concession output uses:
+
+[`schemas/defender_concession_output.schema.json`](../schemas/defender_concession_output.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -493,6 +497,12 @@ preserved. The result is final and adjudicated with defenders as winner,
 `remaining_points_recipient: null`, and `remaining_points_assigned: 0`. It does
 not manufacture totals summing to 120.
 
+Structured defender concession also preserves both observed totals and
+`points_remaining`, with no recipient and zero assigned points. It records the
+pre-concession decision, preserves an already-decided winner, and grants only an
+undecided game to the declarer. The final winner therefore does not require a
+fictitious 120-point total.
+
 Example:
 
 ```json
@@ -510,11 +520,11 @@ Example:
 
 ## Game-shortening summary
 
-`game_shortening_summary` is present only for the structured contract. It
-records schema version, kind, deterministic ISkO section, supplied hand count,
-`confirmed` or `not_verifiable` reconciliation, the exact consent facts,
-defender adjudication, no point assignment, and the policy
-`declared_or_overbid_value_without_achieved_levels`.
+`game_shortening_summary` is present only for a structured union member.
+Declarer concession records hand-count reconciliation and consent. Defender
+concession records the concrete conceding player, concession form, complete
+defender joint liability, pre-concession decision, winner basis, deterministic
+ISkO sections, no point assignment, and `continued_play_requested: false`.
 
 It contains no solver result or hypothetical future-play claim.
 
@@ -575,6 +585,14 @@ Declared Hand, Schneider, Schwarz, and ouvert levels remain in `game_value`.
 Schwarz addition, and whether overbid-required valuation changed the effective
 value. An overbid-required level is valuation and is never labeled as achieved.
 All four Null variants use their fixed declared values.
+
+For structured defender concession, `settlement_basis` distinguishes an
+adjudicated undecided game from a preexisting decision. It separately reports a
+mandatory announced or overbid-required level, levels secured during observed
+play, and overbid-required valuation. An undecided game does not gain optional
+unannounced Schneider or Schwarz. A preexisting loss remains a doubled loss.
+All four Null variants use reliable completed declarer-trick ownership rather
+than card points and retain their fixed values.
 
 For an impossible Null declaration, `declarer_won_by_card_points` is `null`,
 `winner` is `defenders`, and `is_loss` is `true`. Complete replacement metadata

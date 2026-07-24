@@ -212,7 +212,14 @@
       "$ref": "#/$defs/adjusted_game_result_summary"
     },
     "game_shortening_summary": {
-      "$ref": "https://example.local/skat-ai/declarer_concession_output.schema.json"
+      "oneOf": [
+        {
+          "$ref": "https://example.local/skat-ai/declarer_concession_output.schema.json"
+        },
+        {
+          "$ref": "https://example.local/skat-ai/defender_concession_output.schema.json"
+        }
+      ]
     },
     "final_settlement_summary": {
       "$ref": "#/$defs/final_settlement_summary"
@@ -313,7 +320,8 @@
         "declarer_conceded_remaining_tricks",
         "defenders_conceded_remaining_tricks",
         "impossible_null_declaration",
-        "declarer_concession"
+        "declarer_concession",
+        "defender_concession"
       ]
     },
     "overbid_status": {
@@ -1013,11 +1021,40 @@
         },
         "game_end_kind": {
           "type": "string",
-          "const": "declarer_concession"
+          "enum": ["declarer_concession", "defender_concession"]
         },
         "outcome_source": {
           "type": "string",
-          "const": "adjudicated"
+          "enum": ["adjudicated", "preexisting_game_decision"]
+        },
+        "winner_basis": {
+          "type": "string",
+          "enum": ["defender_concession", "preexisting_game_decision"]
+        },
+        "decision_state_before_game_end": {
+          "type": "string",
+          "enum": ["undecided", "declarer_already_won", "defenders_already_won"]
+        },
+        "mandatory_level_awarded": {
+          "type": "boolean"
+        },
+        "mandatory_level_source": {
+          "type": ["string", "null"],
+          "enum": [
+            "declared_announcement",
+            "overbid_requirement",
+            "declared_announcement_and_overbid_requirement",
+            null
+          ]
+        },
+        "achieved_schneider_applied": {
+          "type": "boolean"
+        },
+        "achieved_schwarz_applied": {
+          "type": "boolean"
+        },
+        "overbid_required_value_applied": {
+          "type": "boolean"
         }
       }
     },
@@ -1090,7 +1127,14 @@
           ]
         },
         "settlement_basis": {
-          "$ref": "https://example.local/skat-ai/declarer_concession_output.schema.json#/$defs/settlement_basis"
+          "oneOf": [
+            {
+              "$ref": "https://example.local/skat-ai/declarer_concession_output.schema.json#/$defs/settlement_basis"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/defender_concession_output.schema.json#/$defs/settlement_basis"
+            }
+          ]
         }
       }
     },

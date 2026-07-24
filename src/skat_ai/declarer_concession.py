@@ -157,7 +157,11 @@ def get_declarer_concession_from_input(
     if "game_shortening" not in data:
         return None
 
-    return build_declarer_concession(data["game_shortening"])
+    value = data["game_shortening"]
+    if isinstance(value, dict) and value.get("kind") != DECLARER_CONCESSION_KIND:
+        return None
+
+    return build_declarer_concession(value)
 
 
 def build_declarer_card_count_evidence(

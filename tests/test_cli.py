@@ -55,6 +55,9 @@ IMPOSSIBLE_NULL_INPUT_PATH = (
 DECLARER_CONCESSION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "declarer_concession.json"
 )
+DEFENDER_CONCESSION_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "defender_concession.json"
+)
 
 
 def run_cli(*args: object) -> subprocess.CompletedProcess[str]:
@@ -1764,6 +1767,56 @@ def test_cli_rejects_multi_step_for_structured_declarer_concession() -> None:
     completed_process = run_cli(
         "--input",
         DECLARER_CONCESSION_INPUT_PATH,
+        "--multi-step",
+        1,
+    )
+
+    assert completed_process.returncode == 1
+    assert "cannot be combined with multi-step simulation" in completed_process.stderr
+
+
+def test_cli_prints_structured_defender_concession_summary() -> None:
+    completed_process = run_cli("--input", DEFENDER_CONCESSION_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert (
+        "Defender concession: left conceded for the defending party."
+        in completed_process.stdout
+    )
+    assert "Decision before concession: undecided." in completed_process.stdout
+    assert (
+        "Result: declarer won; no remaining card points were assigned."
+        in completed_process.stdout
+    )
+    assert "Settlement: 72 using effective game value 72." in completed_process.stdout
+
+
+def test_cli_structured_defender_concession_quiet_output_is_schema_ready(
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "defender_concession_output.json"
+    completed_process = run_cli(
+        "--input",
+        DEFENDER_CONCESSION_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as file:
+        output = json.load(file)
+    assert output["game_shortening_summary"]["kind"] == "defender_concession"
+    assert output["adjusted_game_result_summary"]["remaining_points_assigned"] == 0
+
+
+def test_cli_rejects_multi_step_for_structured_defender_concession() -> None:
+    completed_process = run_cli(
+        "--input",
+        DEFENDER_CONCESSION_INPUT_PATH,
         "--multi-step",
         1,
     )

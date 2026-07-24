@@ -38,7 +38,8 @@ def get_missing_final_settlement_inputs(
         overbid_summary = build_default_overbid_summary()
 
     if (
-        game_result_summary.get("game_end_kind") != "declarer_concession"
+        game_result_summary.get("game_end_kind")
+        not in {"declarer_concession", "defender_concession"}
         and is_completed_trick_ownership_required_for_schwarz_announcement(
             game_value_summary=game_value_summary,
             game_result_summary=game_result_summary,
@@ -212,6 +213,15 @@ def build_final_settlement_summary(
             ],
         }
 
+    if game_result_summary.get("game_end_kind") == "defender_concession":
+        return build_defender_concession_settlement_summary(
+            game_value_summary=game_value_summary,
+            game_result_summary=game_result_summary,
+            overbid_summary=overbid_summary,
+            is_complete=is_complete,
+            missing_inputs=missing_inputs,
+        )
+
     declarer_won_by_card_points = is_declarer_base_contract_winner(
         game_result_summary
     )
@@ -298,6 +308,85 @@ def build_final_settlement_summary(
             "Lost declarer games are counted as -2 * effective_game_value.",
             "Overbid settlement is supported for suit and grand games when "
             "required_game_value is available.",
+        ],
+    }
+
+
+def build_defender_concession_settlement_summary(
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any],
+    is_complete: bool,
+    missing_inputs: list[str],
+) -> dict[str, Any]:
+    """Builds settlement from adjudicated or preserved defender-concession facts."""
+    effective_game_value = None
+    if (
+        is_complete
+        and game_value_summary["game_value"] is not None
+        and is_overbid_settlement_supported(overbid_summary)
+    ):
+        effective_game_value = get_effective_settlement_game_value(
+            game_value=game_value_summary["game_value"],
+            overbid_summary=overbid_summary,
+        )
+        base_value = game_value_summary.get("base_value")
+        if (
+            game_result_summary.get("achieved_schneider_applied") is True
+            and isinstance(base_value, int)
+        ):
+            effective_game_value += base_value
+        if (
+            game_result_summary.get("achieved_schwarz_applied") is True
+            and isinstance(base_value, int)
+        ):
+            effective_game_value += base_value
+
+    winner = game_result_summary["winner"]
+    declarer_won = winner == "declarer"
+    settlement_score = (
+        calculate_basic_settlement_score(effective_game_value, declarer_won)
+        if effective_game_value is not None and is_complete
+        else None
+    )
+    settlement_basis = {
+        "game_end_kind": "defender_concession",
+        "outcome_source": game_result_summary["outcome_source"],
+        "winner_basis": game_result_summary["winner_basis"],
+        "decision_state_before_game_end": game_result_summary[
+            "decision_state_before_game_end"
+        ],
+        "mandatory_level_awarded": game_result_summary["mandatory_level_awarded"],
+        "mandatory_level_source": game_result_summary["mandatory_level_source"],
+        "achieved_schneider_applied": game_result_summary[
+            "achieved_schneider_applied"
+        ],
+        "achieved_schwarz_applied": game_result_summary[
+            "achieved_schwarz_applied"
+        ],
+        "overbid_required_value_applied": game_result_summary[
+            "overbid_required_value_applied"
+        ],
+    }
+    return {
+        "is_complete": is_complete,
+        "missing_inputs": missing_inputs,
+        "declarer_won_by_card_points": None,
+        "winner": winner if is_complete else None,
+        "game_value": game_value_summary["game_value"],
+        "effective_game_value": effective_game_value,
+        "bid_value": overbid_summary["bid_value"],
+        "settlement_score": settlement_score,
+        "is_loss": not declarer_won if is_complete else None,
+        "is_overbid": overbid_summary["is_overbid"],
+        "overbid_margin": overbid_summary["margin"],
+        "overbid_status": overbid_summary["status"],
+        "overbid_required_game_value": overbid_summary["required_game_value"],
+        "settlement_basis": settlement_basis,
+        "notes": [
+            "The defender concession ends play without assigning remaining card points.",
+            "An undecided contract is granted without optional achieved levels.",
+            "Preexisting decisions and only secured observed achieved levels are preserved.",
         ],
     }
 

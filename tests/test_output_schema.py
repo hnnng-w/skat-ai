@@ -78,6 +78,9 @@ DATASET_PARTITION_AUDIT_SCHEMA_PATH = (
 DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_concession_output.schema.json"
 )
+DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "defender_concession_output.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -113,6 +116,8 @@ with DATASET_PARTITION_AUDIT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DATASET_PARTITION_AUDIT_SCHEMA = json.load(file)
 with DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DECLARER_CONCESSION_OUTPUT_SCHEMA = json.load(file)
+with DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    DEFENDER_CONCESSION_OUTPUT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -164,6 +169,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             DECLARER_CONCESSION_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(DECLARER_CONCESSION_OUTPUT_SCHEMA),
+        ),
+        (
+            DEFENDER_CONCESSION_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(DEFENDER_CONCESSION_OUTPUT_SCHEMA),
         ),
     ]
 )
@@ -1307,6 +1316,60 @@ def test_schema_rejects_malformed_structured_concession_output() -> None:
     }
 
     assert_schema_invalid(data)
+
+
+def test_schema_accepts_structured_defender_concession_output() -> None:
+    data = build_valid_output()
+    adjusted = data["adjusted_game_result_summary"]
+    settlement = data["final_settlement_summary"]
+    assert isinstance(adjusted, dict)
+    assert isinstance(settlement, dict)
+    adjusted.update(
+        {
+            "is_complete": True,
+            "winner": "declarer",
+            "game_end_reason": "defender_concession",
+            "game_end_kind": "defender_concession",
+            "outcome_source": "adjudicated",
+            "winner_basis": "defender_concession",
+            "decision_state_before_game_end": "undecided",
+            "mandatory_level_awarded": False,
+            "mandatory_level_source": None,
+            "achieved_schneider_applied": False,
+            "achieved_schwarz_applied": False,
+            "overbid_required_value_applied": False,
+        }
+    )
+    data["game_shortening_summary"] = {
+        "schema_version": 1,
+        "kind": "defender_concession",
+        "rule_sections": ["4.4.3", "4.1.4"],
+        "conceding_player": "left",
+        "concession_form": "explicit_verbal",
+        "liable_party": "defenders",
+        "joint_liability": True,
+        "decision_state_before_concession": "undecided",
+        "adjudicated_winner": "declarer",
+        "winner_basis": "defender_concession",
+        "remaining_points_assigned": False,
+        "continued_play_requested": False,
+        "settlement_level_policy": (
+            "declared_or_mandatory_value_without_optional_achieved_levels"
+        ),
+    }
+    settlement["settlement_basis"] = {
+        "game_end_kind": "defender_concession",
+        "outcome_source": "adjudicated",
+        "winner_basis": "defender_concession",
+        "decision_state_before_game_end": "undecided",
+        "mandatory_level_awarded": False,
+        "mandatory_level_source": None,
+        "achieved_schneider_applied": False,
+        "achieved_schwarz_applied": False,
+        "overbid_required_value_applied": False,
+    }
+
+    assert_schema_valid(data)
 
 
 def test_schema_accepts_null_impossible_null_settlement_summary() -> None:

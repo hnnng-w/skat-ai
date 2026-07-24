@@ -1,0 +1,39 @@
+{
+  "game_type": "grand",
+  "player_role": "declarer",
+  "player_position": "middlehand",
+  "declarer_player": "me",
+  "trick_leader": "left",
+  "hand": ["CJ", "SJ", "CA", "C10", "CK", "CQ", "C9", "C8", "C7"],
+  "current_trick": [],
+  "played_cards": [],
+  "completed_tricks": [
+    {
+      "cards": ["D7", "D9", "D8"],
+      "players": ["me", "left", "right"],
+      "winner_role": "defenders",
+      "winner_player": "left"
+    }
+  ],
+  "declarer_points": 0,
+  "defender_points": 0,
+  "next_player": "left",
+  "skat": [],
+  "left_hand_size": 9,
+  "right_hand_size": 9,
+  "sample_count": 100,
+  "random_seed": 42,
+  "use_basic_opponent_strategy": true,
+  "analysis_mode": "post_game_review",
+  "skat_visibility": "unknown",
+  "game_declaration": {
+    "matadors": 2,
+    "bid_value": 72
+  },
+  "game_shortening": {
+    "schema_version": 1,
+    "kind": "defender_concession",
+    "conceding_player": "left",
+    "concession_form": "explicit_verbal"
+  }
+}

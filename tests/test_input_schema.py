@@ -159,6 +159,18 @@ def build_structured_concession_input() -> dict[str, object]:
     return data
 
 
+def build_structured_defender_concession_input() -> dict[str, object]:
+    data = build_structured_concession_input()
+    data["declarer_player"] = "me"
+    data["game_shortening"] = {
+        "schema_version": 1,
+        "kind": "defender_concession",
+        "conceding_player": "left",
+        "concession_form": "explicit_verbal",
+    }
+    return data
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         INPUT_VALIDATOR.iter_errors(data),
@@ -218,6 +230,42 @@ def test_schema_and_runtime_accept_historical_game_branch() -> None:
 
 def test_schema_and_runtime_accept_structured_declarer_concession() -> None:
     assert_schema_and_runtime_valid(build_structured_concession_input())
+
+
+def test_schema_and_runtime_accept_structured_defender_concession() -> None:
+    assert_schema_and_runtime_valid(build_structured_defender_concession_input())
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value"),
+    [
+        ("schema_version", 2),
+        ("kind", "claim"),
+        ("conceding_player", "unknown"),
+        ("conceding_player", " left"),
+        ("concession_form", "ambiguous"),
+    ],
+)
+def test_schema_rejects_invalid_structured_defender_concession_fields(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_structured_defender_concession_input()
+    game_shortening = data["game_shortening"]
+    assert isinstance(game_shortening, dict)
+    game_shortening[field_name] = invalid_value
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_missing_or_unknown_defender_concession_fields() -> None:
+    missing = build_structured_defender_concession_input()
+    del missing["game_shortening"]["conceding_player"]
+    assert_schema_invalid(missing)
+
+    unknown = build_structured_defender_concession_input()
+    unknown["game_shortening"]["partner_consent"] = True
+    assert_schema_invalid(unknown)
 
 
 @pytest.mark.parametrize(

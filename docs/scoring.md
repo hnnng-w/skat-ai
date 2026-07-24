@@ -186,13 +186,17 @@ Important fields include:
 ## Adjusted game result summary
 
 `adjusted_game_result_summary` applies legacy `game_end_reason` assignment or a
-structured declarer-concession adjudication.
+structured concession adjudication.
 
 For claim and concession scenarios, remaining card points are assigned according to the declared game-end reason.
 
 For structured declarer concession, observed points and unplayed points are
 preserved. The winner is adjudicated as defenders, and zero remaining points are
 assigned.
+
+For structured defender concession, the same points remain preserved. The
+engine derives whether the contract was undecided or already decided, grants
+only an undecided game to the declarer, and never reverses a preexisting loss.
 
 Examples:
 
@@ -309,13 +313,22 @@ valuation remains applicable. Null uses the fixed declared variant value. In all
 cases the score is `-2 * effective_game_value`, no unplayed points are assigned,
 and no achieved Schneider or Schwarz level is inferred from unfinished play.
 
+Structured defender concession first derives the contract decision at the game
+end. An undecided game is a positive declarer settlement using the declared or
+supported mandatory overbid value without optional unannounced achieved levels.
+An already-decided winner is preserved. Only Schneider secured by observed
+points or Schwarz secured by reliable completed-trick ownership can be applied
+as achieved; mandatory awarded levels remain separately identified in
+`settlement_basis`. Null uses prior completed declarer-trick ownership and the
+fixed variant value rather than card points.
+
 An impossible Null declaration is also an immediate doubled loss, but it has no
 card-point winner and requires no points or completed tricks. Zero assigned
 points are not interpreted as Schneider or Schwarz. Missing replacement
 metadata keeps settlement incomplete instead of inventing a contract.
 
-Legacy claims and concessions assign remaining points. The structured declarer
-concession deliberately does not assign them and does not claim future Schwarz.
+Legacy claims and concessions assign remaining points. Neither structured
+concession kind assigns them or claims future Schwarz.
 
 Example:
 
@@ -360,7 +373,7 @@ Current partial SkWO-style performance scoring is documented in:
 ## Current limitations
 
 * Full official settlement nuances are not completely modeled yet.
-* Legacy claim/concession handling assigns remaining points; structured declarer concession does not.
+* Legacy claim/concession handling assigns remaining points; structured concessions do not.
 * Neither path simulates remaining tricks or establishes future Schwarz ownership.
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * Impossible Null settlement remains incomplete when its external replacement selection is unavailable.

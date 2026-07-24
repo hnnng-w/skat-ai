@@ -218,6 +218,13 @@ Run a structured declarer concession that preserves all unplayed points:
 python main.py --input examples/declarer_concession.json
 ```
 
+Run a structured defender concession with joint defender liability and no
+remaining-point assignment:
+
+```powershell
+python main.py --input examples/defender_concession.json
+```
+
 Run a post-game review example with an actual played card:
 
 ```powershell
@@ -339,8 +346,10 @@ Detailed documentation is split into topic-specific files:
 * [Input JSON](docs/input_json.md)
 * [Input JSON schema](schemas/input.schema.json)
 * [Declarer concessions](docs/declarer_concessions.md)
+* [Defender concessions](docs/defender_concessions.md)
 * [Game-shortening input schema](schemas/game_shortening.schema.json)
 * [Declarer-concession output schema](schemas/declarer_concession_output.schema.json)
+* [Defender-concession output schema](schemas/defender_concession_output.schema.json)
 * [Historical games](docs/historical_games.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
@@ -412,7 +421,8 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 34 deterministic scenarios.
+complete. Generated-output validation covers 35 deterministic scenarios,
+including structured defender-concession adjudication from Issue #87.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.

@@ -9,12 +9,15 @@ from skat_ai.analysis_metadata import (
 from skat_ai.declarer_concession import (
     DeclarerConcession,
 )
-from skat_ai.declarer_concession import (
-    get_declarer_concession_from_input as build_declarer_concession_from_input,
-)
 from skat_ai.game_declaration import (
     GameDeclaration,
     build_game_declaration_from_input,
+)
+from skat_ai.game_shortening import (
+    GameShortening,
+)
+from skat_ai.game_shortening import (
+    get_game_shortening_from_input as build_game_shortening_from_input,
 )
 from skat_ai.game_state import GameState
 from skat_ai.historical_game import HistoricalGameRecord, build_historical_game_record
@@ -276,7 +279,17 @@ def get_declarer_concession_from_input(
     data: dict[str, Any],
 ) -> DeclarerConcession | None:
     """Extracts the optional structured declarer concession."""
-    return build_declarer_concession_from_input(data)
+    game_shortening = build_game_shortening_from_input(data)
+    if isinstance(game_shortening, DeclarerConcession):
+        return game_shortening
+    return None
+
+
+def get_game_shortening_from_input(
+    data: dict[str, Any],
+) -> GameShortening | None:
+    """Extracts the optional supported structured game shortening."""
+    return build_game_shortening_from_input(data)
 
 
 def get_impossible_null_settlement_from_input(
