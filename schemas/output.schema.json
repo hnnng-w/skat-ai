@@ -218,6 +218,9 @@
         },
         {
           "$ref": "https://example.local/skat-ai/defender_concession_output.schema.json"
+        },
+        {
+          "$ref": "https://example.local/skat-ai/declarer_card_exposure_output.schema.json"
         }
       ]
     },
@@ -321,7 +324,8 @@
         "defenders_conceded_remaining_tricks",
         "impossible_null_declaration",
         "declarer_concession",
-        "defender_concession"
+        "defender_concession",
+        "declarer_card_exposure"
       ]
     },
     "overbid_status": {
@@ -1021,7 +1025,11 @@
         },
         "game_end_kind": {
           "type": "string",
-          "enum": ["declarer_concession", "defender_concession"]
+          "enum": [
+            "declarer_concession",
+            "defender_concession",
+            "declarer_card_exposure"
+          ]
         },
         "outcome_source": {
           "type": "string",
@@ -1029,7 +1037,12 @@
         },
         "winner_basis": {
           "type": "string",
-          "enum": ["defender_concession", "preexisting_game_decision"]
+          "enum": [
+            "defender_concession",
+            "accepted_declarer_card_exposure",
+            "preexisting_game_decision",
+            "uncovered_overbid_requirement"
+          ]
         },
         "decision_state_before_game_end": {
           "type": "string",
@@ -1055,6 +1068,30 @@
         },
         "overbid_required_value_applied": {
           "type": "boolean"
+        },
+        "claimed_play_level": {
+          "type": "string",
+          "enum": ["simple", "schneider", "schwarz"]
+        },
+        "declared_mandatory_schneider_applied": {
+          "type": "boolean"
+        },
+        "declared_mandatory_schwarz_applied": {
+          "type": "boolean"
+        },
+        "accepted_claimed_schneider_applied": {
+          "type": "boolean"
+        },
+        "accepted_claimed_schwarz_applied": {
+          "type": "boolean"
+        },
+        "overbid_requirement_covered": {
+          "type": "boolean"
+        },
+        "settlement_play_level_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
         }
       }
     },
@@ -1133,6 +1170,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/defender_concession_output.schema.json#/$defs/settlement_basis"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/declarer_card_exposure_output.schema.json#/$defs/settlement_basis"
             }
           ]
         }

@@ -137,5 +137,5 @@ def get_overbid_required_level(
     if additional_levels == 2:
         return "schwarz"
     raise ValueError(
-        "Defender concession cannot adjudicate an overbid requirement beyond Schwarz."
+        "Structured game shortening cannot adjudicate an overbid requirement beyond Schwarz."
     )

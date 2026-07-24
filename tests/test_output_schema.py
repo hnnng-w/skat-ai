@@ -81,6 +81,9 @@ DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH = (
 DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_concession_output.schema.json"
 )
+DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "declarer_card_exposure_output.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -118,6 +121,8 @@ with DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DECLARER_CONCESSION_OUTPUT_SCHEMA = json.load(file)
 with DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DEFENDER_CONCESSION_OUTPUT_SCHEMA = json.load(file)
+with DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -173,6 +178,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             DEFENDER_CONCESSION_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(DEFENDER_CONCESSION_OUTPUT_SCHEMA),
+        ),
+        (
+            DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA),
         ),
     ]
 )
@@ -1370,6 +1379,89 @@ def test_schema_accepts_structured_defender_concession_output() -> None:
     }
 
     assert_schema_valid(data)
+
+
+def test_schema_accepts_declarer_card_exposure_output() -> None:
+    data = build_valid_output()
+    adjusted = data["adjusted_game_result_summary"]
+    settlement = data["final_settlement_summary"]
+    assert isinstance(adjusted, dict)
+    assert isinstance(settlement, dict)
+    adjusted.update(
+        {
+            "is_complete": True,
+            "winner": "declarer",
+            "game_end_reason": "declarer_card_exposure",
+            "game_end_kind": "declarer_card_exposure",
+            "outcome_source": "adjudicated",
+            "winner_basis": "accepted_declarer_card_exposure",
+            "decision_state_before_game_end": "undecided",
+            "claimed_play_level": "schneider",
+            "declared_mandatory_schneider_applied": False,
+            "declared_mandatory_schwarz_applied": False,
+            "accepted_claimed_schneider_applied": True,
+            "accepted_claimed_schwarz_applied": False,
+            "achieved_schneider_applied": False,
+            "achieved_schwarz_applied": False,
+            "overbid_required_value_applied": False,
+            "overbid_requirement_covered": True,
+            "settlement_play_level_count": 1,
+        }
+    )
+    data["game_shortening_summary"] = {
+        "schema_version": 1,
+        "kind": "declarer_card_exposure",
+        "rule_sections": ["4.4.4"],
+        "exposure_form": "laid_open",
+        "shown_to_player": None,
+        "exposed_cards": ["CA", "C7"],
+        "exposed_card_count": 2,
+        "card_reconciliation": "confirmed",
+        "unanimous_defender_acceptance": True,
+        "accepting_defenders": ["left", "right"],
+        "acceptance_forms": {
+            "left": "explicit",
+            "right": "unambiguous_conduct",
+        },
+        "claimed_play_level": "schneider",
+        "decision_state_before_shortening": "undecided",
+        "adjudicated_winner": "declarer",
+        "winner_basis": "accepted_declarer_card_exposure",
+        "continued_play_required": False,
+        "remaining_points_assigned": False,
+        "settlement_level_policy": (
+            "declared_and_unanimously_accepted_claimed_levels"
+        ),
+    }
+    settlement["settlement_basis"] = {
+        "game_end_kind": "declarer_card_exposure",
+        "outcome_source": "adjudicated",
+        "winner_basis": "accepted_declarer_card_exposure",
+        "decision_state_before_game_end": "undecided",
+        "claimed_play_level": "schneider",
+        "claimed_level_source": "unanimous_defender_acceptance",
+        "declared_mandatory_schneider_applied": False,
+        "declared_mandatory_schwarz_applied": False,
+        "accepted_claimed_schneider_applied": True,
+        "accepted_claimed_schwarz_applied": False,
+        "achieved_schneider_applied": False,
+        "achieved_schwarz_applied": False,
+        "overbid_required_value_applied": False,
+        "overbid_requirement_covered": True,
+    }
+
+    assert_schema_valid(data)
+
+
+def test_schema_rejects_malformed_declarer_card_exposure_output() -> None:
+    data = build_valid_output()
+    data["game_shortening_summary"] = {
+        "schema_version": 1,
+        "kind": "declarer_card_exposure",
+        "rule_sections": ["4.4.5"],
+    }
+
+    assert_schema_invalid(data)
 
 
 def test_schema_accepts_null_impossible_null_settlement_summary() -> None:

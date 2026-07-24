@@ -171,6 +171,29 @@ def build_structured_defender_concession_input() -> dict[str, object]:
     return data
 
 
+def build_declarer_card_exposure_input() -> dict[str, object]:
+    data = build_structured_concession_input()
+    data["declarer_player"] = "me"
+    data["game_shortening"] = {
+        "schema_version": 1,
+        "kind": "declarer_card_exposure",
+        "exposure": {
+            "form": "laid_open",
+            "exposed_cards": list(data["hand"]),
+        },
+        "claimed_play_level": "schneider",
+        "defender_responses": [
+            {"player": "left", "response": "accept", "form": "explicit"},
+            {
+                "player": "right",
+                "response": "accept",
+                "form": "unambiguous_conduct",
+            },
+        ],
+    }
+    return data
+
+
 def assert_schema_valid(data: dict[str, object]) -> None:
     errors = sorted(
         INPUT_VALIDATOR.iter_errors(data),
@@ -234,6 +257,55 @@ def test_schema_and_runtime_accept_structured_declarer_concession() -> None:
 
 def test_schema_and_runtime_accept_structured_defender_concession() -> None:
     assert_schema_and_runtime_valid(build_structured_defender_concession_input())
+
+
+def test_schema_and_runtime_accept_declarer_card_exposure() -> None:
+    assert_schema_and_runtime_valid(build_declarer_card_exposure_input())
+
+
+@pytest.mark.parametrize(
+    ("path", "invalid_value"),
+    [
+        (("claimed_play_level",), "ouvert"),
+        (("exposure", "form"), "open_throw"),
+        (("exposure", "exposed_cards"), []),
+        (("exposure", "exposed_cards"), ["C7", "C7"]),
+        (("defender_responses", 0, "response"), "continue_play"),
+        (("defender_responses", 0, "form"), "ambiguous"),
+    ],
+)
+def test_schema_rejects_invalid_declarer_card_exposure_fields(
+    path: tuple[object, ...],
+    invalid_value: object,
+) -> None:
+    data = build_declarer_card_exposure_input()
+    target: object = data["game_shortening"]
+    for part in path[:-1]:
+        assert isinstance(target, dict | list)
+        target = target[part]
+    assert isinstance(target, dict | list)
+    target[path[-1]] = invalid_value
+
+    assert_schema_invalid(data)
+
+
+def test_schema_enforces_exposure_form_specific_shown_player() -> None:
+    laid_open = build_declarer_card_exposure_input()
+    exposure = laid_open["game_shortening"]["exposure"]
+    exposure["shown_to_player"] = "left"
+    assert_schema_invalid(laid_open)
+
+    shown = build_declarer_card_exposure_input()
+    exposure = shown["game_shortening"]["exposure"]
+    exposure["form"] = "shown_to_defender"
+    assert_schema_invalid(shown)
+
+
+def test_schema_rejects_unknown_declarer_card_exposure_properties() -> None:
+    data = build_declarer_card_exposure_input()
+    data["game_shortening"]["continued_play"] = False
+
+    assert_schema_invalid(data)
 
 
 @pytest.mark.parametrize(

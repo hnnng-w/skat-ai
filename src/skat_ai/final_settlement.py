@@ -39,7 +39,11 @@ def get_missing_final_settlement_inputs(
 
     if (
         game_result_summary.get("game_end_kind")
-        not in {"declarer_concession", "defender_concession"}
+        not in {
+            "declarer_concession",
+            "defender_concession",
+            "declarer_card_exposure",
+        }
         and is_completed_trick_ownership_required_for_schwarz_announcement(
             game_value_summary=game_value_summary,
             game_result_summary=game_result_summary,
@@ -222,6 +226,15 @@ def build_final_settlement_summary(
             missing_inputs=missing_inputs,
         )
 
+    if game_result_summary.get("game_end_kind") == "declarer_card_exposure":
+        return build_declarer_card_exposure_settlement_summary(
+            game_value_summary=game_value_summary,
+            game_result_summary=game_result_summary,
+            overbid_summary=overbid_summary,
+            is_complete=is_complete,
+            missing_inputs=missing_inputs,
+        )
+
     declarer_won_by_card_points = is_declarer_base_contract_winner(
         game_result_summary
     )
@@ -391,6 +404,102 @@ def build_defender_concession_settlement_summary(
     }
 
 
+def build_declarer_card_exposure_settlement_summary(
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any],
+    is_complete: bool,
+    missing_inputs: list[str],
+) -> dict[str, Any]:
+    """Builds settlement from accepted exposure without assigning card points."""
+    effective_game_value = None
+    game_value = game_value_summary["game_value"]
+    if is_complete and game_value is not None:
+        if game_value_summary.get("is_null_game") is True:
+            effective_game_value = game_value
+        elif game_result_summary["winner_basis"] == "uncovered_overbid_requirement":
+            effective_game_value = overbid_summary["required_game_value"]
+        elif game_result_summary["decision_state_before_game_end"] == "undecided":
+            base_value = game_value_summary.get("base_value")
+            play_level_count = game_result_summary["settlement_play_level_count"]
+            if isinstance(base_value, int):
+                effective_game_value = game_value + base_value * play_level_count
+        else:
+            effective_game_value = get_effective_settlement_game_value(
+                game_value=game_value,
+                overbid_summary=overbid_summary,
+            )
+            base_value = game_value_summary.get("base_value")
+            if (
+                overbid_summary.get("is_overbid") is not True
+                and game_result_summary["achieved_schneider_applied"] is True
+                and isinstance(base_value, int)
+            ):
+                effective_game_value += base_value
+
+    winner = game_result_summary["winner"]
+    declarer_won = winner == "declarer"
+    settlement_score = (
+        calculate_basic_settlement_score(effective_game_value, declarer_won)
+        if effective_game_value is not None and is_complete
+        else None
+    )
+    settlement_basis = {
+        "game_end_kind": "declarer_card_exposure",
+        "outcome_source": game_result_summary["outcome_source"],
+        "winner_basis": game_result_summary["winner_basis"],
+        "decision_state_before_game_end": game_result_summary[
+            "decision_state_before_game_end"
+        ],
+        "claimed_play_level": game_result_summary["claimed_play_level"],
+        "claimed_level_source": "unanimous_defender_acceptance",
+        "declared_mandatory_schneider_applied": game_result_summary[
+            "declared_mandatory_schneider_applied"
+        ],
+        "declared_mandatory_schwarz_applied": game_result_summary[
+            "declared_mandatory_schwarz_applied"
+        ],
+        "accepted_claimed_schneider_applied": game_result_summary[
+            "accepted_claimed_schneider_applied"
+        ],
+        "accepted_claimed_schwarz_applied": game_result_summary[
+            "accepted_claimed_schwarz_applied"
+        ],
+        "achieved_schneider_applied": game_result_summary[
+            "achieved_schneider_applied"
+        ],
+        "achieved_schwarz_applied": game_result_summary[
+            "achieved_schwarz_applied"
+        ],
+        "overbid_required_value_applied": game_result_summary[
+            "overbid_required_value_applied"
+        ],
+        "overbid_requirement_covered": game_result_summary[
+            "overbid_requirement_covered"
+        ],
+    }
+    return {
+        "is_complete": is_complete,
+        "missing_inputs": missing_inputs,
+        "declarer_won_by_card_points": None,
+        "winner": winner if is_complete else None,
+        "game_value": game_value,
+        "effective_game_value": effective_game_value,
+        "bid_value": overbid_summary["bid_value"],
+        "settlement_score": settlement_score,
+        "is_loss": not declarer_won if is_complete else None,
+        "is_overbid": overbid_summary["is_overbid"],
+        "overbid_margin": overbid_summary["margin"],
+        "overbid_status": overbid_summary["status"],
+        "overbid_required_game_value": overbid_summary["required_game_value"],
+        "settlement_basis": settlement_basis,
+        "notes": [
+            "Accepted declarer card exposure ends play without assigning remaining card points.",
+            "Declared mandatory and unanimously accepted claimed levels remain "
+            "distinct from achieved play levels.",
+            "A preexisting declarer loss is not reversed by defender acceptance.",
+        ],
+    }
 def apply_achieved_schneider_settlement_level(
     settlement_game_value: int,
     game_value_summary: dict[str, Any],

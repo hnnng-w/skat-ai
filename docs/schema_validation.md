@@ -146,7 +146,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 35 deterministic scenarios. Position
+Generated-output validation covers 36 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -159,7 +159,8 @@ output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
 simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
 Null-objective post-game review, defender-perspective post-game review,
-legacy claim, structured declarer and defender concessions, overbid, and list-performance summaries from aggregated totals, normalized
+legacy claim, all three structured shortening kinds including accepted declarer
+card exposure, overbid, and list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
@@ -178,7 +179,8 @@ nested analysis detail, but stable branch contracts such as
 `policy_comparison_result` are explicitly structured. Structured game shortening
 uses `schemas/game_shortening.schema.json`; its summary and settlement basis use
 `schemas/declarer_concession_output.schema.json` or
-`schemas/defender_concession_output.schema.json`. Historical decision
+`schemas/defender_concession_output.schema.json`, or
+`schemas/declarer_card_exposure_output.schema.json`. Historical decision
 snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses
 `schemas/historical_game_review.schema.json`. Training dataset output uses
@@ -272,9 +274,11 @@ Examples:
 * whether ended game states are allowed in `live_decision`
 * legacy claim/concession assignment and structured declarer-concession consent
 * defender-concession concrete party membership and joint liability
+* declarer-card-exposure form, exact defender unanimity, and shown-player membership
+* exposed-card notation, uniqueness, count, ownership, and exact-hand reconciliation
 * reliable declarer hand-count reconciliation and structured incomplete-play exclusivity
 * defender pre-concession decision, mandatory-level feasibility, and Null trick ownership
-* prevention of remaining-point assignment and unsupported achieved-level inference for structured concessions
+* prevention of remaining-point assignment and separation of accepted claimed from achieved levels
 * game-type-specific declaration rules
 * top-level-versus-nested declaration precedence
 * Null declaration restrictions such as rejecting `matadors`, Schneider

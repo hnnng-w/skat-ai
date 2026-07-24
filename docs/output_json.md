@@ -16,6 +16,10 @@ Structured defender-concession output uses:
 
 [`schemas/defender_concession_output.schema.json`](../schemas/defender_concession_output.schema.json)
 
+Accepted declarer-card-exposure output uses:
+
+[`schemas/declarer_card_exposure_output.schema.json`](../schemas/declarer_card_exposure_output.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -503,6 +507,11 @@ pre-concession decision, preserves an already-decided winner, and grants only an
 undecided game to the declarer. The final winner therefore does not require a
 fictitious 120-point total.
 
+Accepted declarer card exposure has the same no-assignment policy. It records a
+final adjudicated result for an undecided game, preserves a preexisting winner,
+and cannot reverse a preexisting declarer loss. Accepted Schneider or Schwarz
+claims do not set achieved-play statuses.
+
 Example:
 
 ```json
@@ -525,6 +534,11 @@ Declarer concession records hand-count reconciliation and consent. Defender
 concession records the concrete conceding player, concession form, complete
 defender joint liability, pre-concession decision, winner basis, deterministic
 ISkO sections, no point assignment, and `continued_play_requested: false`.
+
+Declarer card exposure records the exposure form, optional shown defender,
+canonical exposed cards, `confirmed` or `not_verifiable` reconciliation, both
+accepting defenders and acceptance forms, claimed level, prior decision state,
+winner basis, `continued_play_required: false`, and no point assignment.
 
 It contains no solver result or hypothetical future-play claim.
 
@@ -593,6 +607,13 @@ play, and overbid-required valuation. An undecided game does not gain optional
 unannounced Schneider or Schwarz. A preexisting loss remains a doubled loss.
 All four Null variants use reliable completed declarer-trick ownership rather
 than card points and retain their fixed values.
+
+For accepted declarer card exposure, `settlement_basis` separately identifies
+declared mandatory, accepted claimed, achieved-during-play, and overbid-required
+levels. An undecided Suit or Grand game uses the highest declared mandatory or
+accepted claimed play level. Supported overbid requirements must be covered by
+that declaration or claim. Null permits only `simple` and uses its fixed value.
+No remaining card points are assigned.
 
 For an impossible Null declaration, `declarer_won_by_card_points` is `null`,
 `winner` is `defenders`, and `is_loss` is `true`. Complete replacement metadata

@@ -186,7 +186,7 @@ Important fields include:
 ## Adjusted game result summary
 
 `adjusted_game_result_summary` applies legacy `game_end_reason` assignment or a
-structured concession adjudication.
+structured game-shortening adjudication.
 
 For claim and concession scenarios, remaining card points are assigned according to the declared game-end reason.
 
@@ -197,6 +197,10 @@ assigned.
 For structured defender concession, the same points remain preserved. The
 engine derives whether the contract was undecided or already decided, grants
 only an undecided game to the declarer, and never reverses a preexisting loss.
+
+Accepted declarer card exposure also preserves observed and unplayed points.
+Both defenders must accept; an undecided game is adjudicated, while an already
+decided winner is preserved. No remaining points are assigned.
 
 Examples:
 
@@ -322,13 +326,23 @@ as achieved; mandatory awarded levels remain separately identified in
 `settlement_basis`. Null uses prior completed declarer-trick ownership and the
 fixed variant value rather than card points.
 
+Accepted declarer card exposure uses declared mandatory and unanimously accepted
+claimed levels for an undecided Suit or Grand win. A Schneider claim adds the
+Schneider play level; Schwarz adds Schneider and Schwarz. These are identified as
+accepted claims, not achieved play. A simple claim preserves mandatory declared
+levels but adds no optional level. Supported overbid-required levels must be
+covered by the declaration or accepted claim; uncovered requirements settle as
+an overbid loss. Already-decided games retain only secured observed levels. Null
+requires simple and uses the fixed contract value.
+
 An impossible Null declaration is also an immediate doubled loss, but it has no
 card-point winner and requires no points or completed tricks. Zero assigned
 points are not interpreted as Schneider or Schwarz. Missing replacement
 metadata keeps settlement incomplete instead of inventing a contract.
 
-Legacy claims and concessions assign remaining points. Neither structured
-concession kind assigns them or claims future Schwarz.
+Legacy claims and concessions assign remaining points. No structured shortening
+kind assigns them. Declarer card exposure can settle an explicitly requested and
+accepted Schwarz level without claiming that unfinished play achieved Schwarz.
 
 Example:
 

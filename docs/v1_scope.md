@@ -149,9 +149,11 @@ later end reasons. Full auction representation is planned after v1.0.
 
 The generic position workflow now has bounded version-1 declarer-concession
 adjudication under ISkO 4.4.1 and 4.4.2 plus defender-concession adjudication
-under ISkO 4.4.3 with bounded 4.1.3 through 4.1.5 effects. This does not close
-the broader v1 gates for continued play, structured historical
-claims/concessions, exposed/open-card consequences, complete settlement
+under ISkO 4.4.3 with bounded 4.1.3 through 4.1.5 effects, plus unanimously
+accepted final declarer-card-exposure adjudication under ISkO 4.4.4. This does
+not close the broader v1 gates for continued exposed-card play after an
+objection, structured historical claims/concessions, 4.4.5 or 4.4.6 open-card
+consequences, complete settlement
 coverage, or historical training and review after game shortening.
 
 Bounded historical player-statistics aggregation is supported from the same

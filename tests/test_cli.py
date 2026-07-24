@@ -58,6 +58,9 @@ DECLARER_CONCESSION_INPUT_PATH = (
 DEFENDER_CONCESSION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "defender_concession.json"
 )
+DECLARER_CARD_EXPOSURE_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "declarer_card_exposure.json"
+)
 
 
 def run_cli(*args: object) -> subprocess.CompletedProcess[str]:
@@ -1817,6 +1820,58 @@ def test_cli_rejects_multi_step_for_structured_defender_concession() -> None:
     completed_process = run_cli(
         "--input",
         DEFENDER_CONCESSION_INPUT_PATH,
+        "--multi-step",
+        1,
+    )
+
+    assert completed_process.returncode == 1
+    assert "cannot be combined with multi-step simulation" in completed_process.stderr
+
+
+def test_cli_prints_accepted_declarer_card_exposure_summary() -> None:
+    completed_process = run_cli("--input", DECLARER_CARD_EXPOSURE_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Declarer card exposure: 9 cards laid open." in completed_process.stdout
+    assert "Both defenders accepted the shortening." in completed_process.stdout
+    assert "Claimed level: Schneider." in completed_process.stdout
+    assert (
+        "Result: declarer won; no remaining card points were assigned."
+        in completed_process.stdout
+    )
+    assert (
+        "Settlement: 96 using a unanimously accepted Schneider claim."
+        in completed_process.stdout
+    )
+
+
+def test_cli_declarer_card_exposure_quiet_output_is_schema_ready(
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "declarer_card_exposure_output.json"
+    completed_process = run_cli(
+        "--input",
+        DECLARER_CARD_EXPOSURE_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as file:
+        output = json.load(file)
+    assert output["game_shortening_summary"]["kind"] == "declarer_card_exposure"
+    assert output["adjusted_game_result_summary"]["remaining_points_assigned"] == 0
+    assert output["final_settlement_summary"]["settlement_score"] == 96
+
+
+def test_cli_rejects_multi_step_for_declarer_card_exposure() -> None:
+    completed_process = run_cli(
+        "--input",
+        DECLARER_CARD_EXPOSURE_INPUT_PATH,
         "--multi-step",
         1,
     )

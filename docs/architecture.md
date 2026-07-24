@@ -153,17 +153,21 @@ insufficient.
 | `src/skat_ai/game_end.py`           | Legacy game-end reason handling and remaining-point assignment.                                               |
 | `src/skat_ai/declarer_concession.py` | Typed version-1 validation, hand-count reconciliation, and no-assignment declarer-concession adjudication.    |
 | `src/skat_ai/defender_concession.py` | Typed party validation, pre-concession decision derivation, and no-assignment defender-concession adjudication. |
+| `src/skat_ai/declarer_card_exposure.py` | Typed 4.4.4 exposure, exact defender unanimity, card reconciliation, and accepted-claim adjudication. |
+| `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
 | `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
 | `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
 | `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
 
-Both structured concession paths bypass legacy point assignment and preserve
+All structured shortening paths bypass legacy point assignment and preserve
 observed and unplayed points. Declarer concession forces a defender win.
 Defender concession derives the preexisting decision, grants only an undecided
 game to the declarer, and separates mandatory awarded levels from levels secured
-during play. Legacy claim and concession reasons retain their existing
-simplified assignment behavior. No path simulates future play.
+during play. Accepted declarer card exposure requires both concrete defenders,
+preserves a preexisting loss, and separates declared, accepted claimed, achieved,
+and overbid-required levels. Legacy reasons retain their existing simplified
+assignment behavior. No structured path simulates future play.
 
 ## Simulation
 
@@ -366,6 +370,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/game_shortening.schema.json`          | Strict version-1 structured game-shortening input union.                  |
 | `schemas/declarer_concession_output.schema.json` | Strict adjudication summary and settlement-basis output.                |
 | `schemas/defender_concession_output.schema.json` | Strict joint-liability, decision-state, adjudication, and settlement-basis output. |
+| `schemas/declarer_card_exposure_output.schema.json` | Strict exposure, unanimity, reconciliation, decision-state, and settlement-basis output. |
 | `schemas/historical_game.schema.json`          | Versioned complete historical-game input structure.                      |
 | `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
 | `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |

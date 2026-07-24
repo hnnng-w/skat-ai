@@ -282,7 +282,9 @@
           "game_shortening": {
             "required": ["kind"],
             "properties": {
-              "kind": {"const": "defender_concession"}
+              "kind": {
+                "enum": ["defender_concession", "declarer_card_exposure"]
+              }
             }
           }
         }

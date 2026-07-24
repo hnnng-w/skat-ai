@@ -10,6 +10,11 @@ If the bid value is higher than the game value, the declarer is overbid.
 
 For supported Suit and Grand games, the engine can calculate the required game value needed to cover the bid and use it for settlement loss calculation.
 
+For unanimously accepted declarer card exposure, a supported required Schneider
+or Schwarz level can instead be covered by a mandatory declared level or the
+accepted `claimed_play_level`. An uncovered level remains an overbid loss.
+Accepted and overbid-required levels are not labeled as achieved during play.
+
 ## bid_value input
 
 Input files can optionally include `bid_value`.

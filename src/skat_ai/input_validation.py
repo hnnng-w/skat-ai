@@ -1,6 +1,10 @@
 from typing import Any
 
 from skat_ai.deck import get_full_deck
+from skat_ai.declarer_card_exposure import (
+    DeclarerCardExposure,
+    validate_declarer_card_exposure_context,
+)
 from skat_ai.declarer_concession import validate_declarer_concession_context
 from skat_ai.defender_concession import (
     DefenderConcession,
@@ -825,6 +829,8 @@ def validate_optional_game_shortening(data: dict[str, Any]) -> None:
 
     if isinstance(game_shortening, DefenderConcession):
         validate_defender_concession_context(data, game_shortening)
+    elif isinstance(game_shortening, DeclarerCardExposure):
+        validate_declarer_card_exposure_context(data, game_shortening)
     else:
         validate_declarer_concession_context(data, game_shortening)
 

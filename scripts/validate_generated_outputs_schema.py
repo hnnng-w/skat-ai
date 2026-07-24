@@ -59,6 +59,9 @@ DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH = (
 DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_concession_output.schema.json"
 )
+DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "declarer_card_exposure_output.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -776,6 +779,46 @@ def check_structured_defender_concession(data: dict[str, Any]) -> list[str]:
     }:
         errors.append("expected bounded defender-concession settlement basis")
 
+    return errors
+
+
+def check_declarer_card_exposure(data: dict[str, Any]) -> list[str]:
+    """Checks accepted exposure, claimed-level settlement, and no assignment."""
+    errors = []
+    raw_result = data["game_result_summary"]
+    adjusted_result = data["adjusted_game_result_summary"]
+    summary = data.get("game_shortening_summary")
+    settlement = data["final_settlement_summary"]
+
+    if not isinstance(summary, dict):
+        return ["expected game_shortening_summary"]
+    for field_name in ("declarer_points", "defender_points", "points_remaining"):
+        if adjusted_result[field_name] != raw_result[field_name]:
+            errors.append(f"expected preserved {field_name}")
+    if adjusted_result["winner"] != "declarer":
+        errors.append("expected accepted exposure to adjudicate the declarer win")
+    if adjusted_result["remaining_points_recipient"] is not None:
+        errors.append("expected no remaining points recipient")
+    if adjusted_result["remaining_points_assigned"] != 0:
+        errors.append("expected zero assigned remaining points")
+    if summary.get("rule_sections") != ["4.4.4"]:
+        errors.append("expected deterministic ISkO 4.4.4 section")
+    if summary.get("card_reconciliation") != "confirmed":
+        errors.append("expected confirmed complete exposed-card reconciliation")
+    if summary.get("accepting_defenders") != ["left", "right"]:
+        errors.append("expected deterministic concrete defender order")
+    if settlement.get("settlement_score") != 96:
+        errors.append("expected accepted Schneider Grand settlement of 96")
+    basis = settlement.get("settlement_basis")
+    if not isinstance(basis, dict):
+        errors.append("expected declarer-card-exposure settlement basis")
+    else:
+        if basis.get("accepted_claimed_schneider_applied") is not True:
+            errors.append("expected accepted Schneider claim to be applied")
+        if basis.get("achieved_schneider_applied") is not False:
+            errors.append("expected accepted Schneider not labeled as achieved")
+        if basis.get("overbid_required_value_applied") is not False:
+            errors.append("expected no overbid-required value")
     return errors
 
 
@@ -1667,6 +1710,14 @@ SCENARIOS = (
         expect_quiet_stdout=True,
     ),
     Scenario(
+        name="accepted_declarer_card_exposure",
+        input_path=PROJECT_ROOT / "examples" / "declarer_card_exposure.json",
+        branch="unanimously accepted declarer-card-exposure adjudication",
+        cli_args=("--quiet",),
+        check_output=check_declarer_card_exposure,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
         name="overbid_settlement",
         input_path=(
             PROJECT_ROOT
@@ -1935,6 +1986,9 @@ def validate_generated_outputs() -> list[str]:
     defender_concession_output_schema = load_json_file(
         DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH
     )
+    declarer_card_exposure_output_schema = load_json_file(
+        DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1994,6 +2048,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 defender_concession_output_schema["$id"],
                 Resource.from_contents(defender_concession_output_schema),
+            ),
+            (
+                declarer_card_exposure_output_schema["$id"],
+                Resource.from_contents(declarer_card_exposure_output_schema),
             ),
         ]
     )

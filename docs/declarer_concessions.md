@@ -10,9 +10,9 @@ It represents an accepted declarer concession and immediately settles the game
 as a declarer loss. It does not reveal cards, simulate future play, prove future
 tricks, or assign unplayed card points.
 
-The following remain separate and unsupported by this contract:
+The following remain separate from this contract:
 
-* declarer card exposure under ISkO 4.4.4
+* unanimously accepted declarer card exposure under ISkO 4.4.4, documented in [Accepted declarer card exposure](declarer_card_exposure.md)
 * defender open play under ISkO 4.4.5
 * open card throwing under ISkO 4.4.6
 * solver-backed claims or hypothetical continuation

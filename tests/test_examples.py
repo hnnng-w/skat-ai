@@ -1068,6 +1068,30 @@ def test_structured_defender_concession_example_adjudicates_without_points() -> 
     assert settlement["settlement_basis"]["achieved_schneider_applied"] is False
     assert settlement["settlement_basis"]["achieved_schwarz_applied"] is False
 
+
+def test_declarer_card_exposure_example_adjudicates_without_points() -> None:
+    result = build_example_analysis_result("declarer_card_exposure.json")
+    raw = result["game_result_summary"]
+    adjusted = result["adjusted_game_result_summary"]
+    settlement = result["final_settlement_summary"]
+    summary = result["game_shortening_summary"]
+
+    assert adjusted["declarer_points"] == raw["declarer_points"] == 0
+    assert adjusted["defender_points"] == raw["defender_points"] == 0
+    assert adjusted["points_remaining"] == raw["points_remaining"] == 120
+    assert adjusted["winner"] == "declarer"
+    assert adjusted["remaining_points_recipient"] is None
+    assert adjusted["remaining_points_assigned"] == 0
+    assert summary["rule_sections"] == ["4.4.4"]
+    assert summary["card_reconciliation"] == "confirmed"
+    assert summary["accepting_defenders"] == ["left", "right"]
+    assert settlement["effective_game_value"] == 96
+    assert settlement["settlement_score"] == 96
+    assert settlement["settlement_basis"][
+        "accepted_claimed_schneider_applied"
+    ] is True
+    assert settlement["settlement_basis"]["achieved_schneider_applied"] is False
+
 def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result(
         "grand_defenders_conceded_remaining_tricks.json"

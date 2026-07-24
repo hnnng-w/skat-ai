@@ -8,6 +8,9 @@
     },
     {
       "$ref": "#/$defs/defender_concession"
+    },
+    {
+      "$ref": "#/$defs/declarer_card_exposure"
     }
   ],
   "$defs": {
@@ -79,6 +82,84 @@
             "explicit_verbal",
             "adjudicated_unambiguous_conduct"
           ]
+        }
+      }
+    },
+    "declarer_card_exposure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "exposure",
+        "claimed_play_level",
+        "defender_responses"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "declarer_card_exposure"},
+        "exposure": {"$ref": "#/$defs/declarer_card_exposure_details"},
+        "claimed_play_level": {
+          "type": "string",
+          "enum": ["simple", "schneider", "schwarz"]
+        },
+        "defender_responses": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {"$ref": "#/$defs/defender_exposure_response"}
+        }
+      }
+    },
+    "declarer_card_exposure_details": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["form", "exposed_cards"],
+          "properties": {
+            "form": {"const": "laid_open"},
+            "exposed_cards": {"$ref": "#/$defs/exposed_cards"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["form", "shown_to_player", "exposed_cards"],
+          "properties": {
+            "form": {"const": "shown_to_defender"},
+            "shown_to_player": {
+              "type": "string",
+              "enum": ["me", "left", "right"]
+            },
+            "exposed_cards": {"$ref": "#/$defs/exposed_cards"}
+          }
+        }
+      ]
+    },
+    "exposed_cards": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+      }
+    },
+    "defender_exposure_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player", "response", "form"],
+      "properties": {
+        "player": {
+          "type": "string",
+          "enum": ["me", "left", "right"]
+        },
+        "response": {"const": "accept"},
+        "form": {
+          "type": "string",
+          "enum": ["explicit", "unambiguous_conduct"]
         }
       }
     }

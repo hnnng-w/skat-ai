@@ -15,6 +15,11 @@ from skat_ai.dataset_partition_audit import (
     build_serializable_dataset_partition_audit,
     resolve_dataset_partition_audit_mode,
 )
+from skat_ai.declarer_card_exposure import (
+    DeclarerCardExposure,
+    adjudicate_accepted_declarer_card_exposure,
+    build_declarer_exposed_card_evidence,
+)
 from skat_ai.declarer_concession import (
     adjudicate_declarer_concession,
     build_declarer_card_count_evidence,
@@ -436,6 +441,17 @@ def build_analysis_result(
         )
         adjusted_game_result_summary = adjudication.game_result_summary
         game_shortening_summary = adjudication.game_shortening_summary
+    elif isinstance(game_shortening, DeclarerCardExposure):
+        adjudication = adjudicate_accepted_declarer_card_exposure(
+            game_shortening=game_shortening,
+            game_result_summary=game_result_summary,
+            game_value_summary=game_value_summary,
+            overbid_summary=overbid_summary,
+            completed_tricks=state.completed_tricks,
+            card_evidence=build_declarer_exposed_card_evidence(data),
+        )
+        adjusted_game_result_summary = adjudication.game_result_summary
+        game_shortening_summary = adjudication.game_shortening_summary
     elif game_shortening is not None:
         adjudication = adjudicate_declarer_concession(
             game_shortening=game_shortening,
@@ -851,6 +867,8 @@ def print_game_shortening_summary(result: dict[str, Any]) -> None:
         return
     if summary.get("kind") == "defender_concession":
         print_defender_concession_summary(result)
+    elif summary.get("kind") == "declarer_card_exposure":
+        print_declarer_card_exposure_summary(result)
     else:
         print_declarer_concession_summary(result)
 
@@ -914,6 +932,44 @@ def print_defender_concession_summary(result: dict[str, Any]) -> None:
         f"Settlement: {settlement['settlement_score']} using effective game value "
         f"{settlement['effective_game_value']}."
     )
+
+
+def print_declarer_card_exposure_summary(result: dict[str, Any]) -> None:
+    """Prints the bounded accepted declarer-card-exposure outcome."""
+    summary = result.get("game_shortening_summary")
+    if not isinstance(summary, dict) or summary.get("kind") != (
+        "declarer_card_exposure"
+    ):
+        return
+
+    settlement = result["final_settlement_summary"]
+    print()
+    if summary["exposure_form"] == "laid_open":
+        print(
+            f"Declarer card exposure: {summary['exposed_card_count']} cards laid open."
+        )
+    else:
+        print(
+            "Declarer showed all remaining cards to "
+            f"{summary['shown_to_player']}."
+        )
+    print("Both defenders accepted the shortening.")
+    print(f"Claimed level: {summary['claimed_play_level'].title()}.")
+    if summary["decision_state_before_shortening"] == "defenders_already_won":
+        print("The game was already lost before the card exposure.")
+        print("Defender acceptance did not reverse the existing result.")
+    else:
+        print(
+            f"Result: {summary['adjudicated_winner']} won; no remaining card points "
+            "were assigned."
+        )
+    claim_text = ""
+    basis = settlement["settlement_basis"]
+    if basis["accepted_claimed_schwarz_applied"]:
+        claim_text = " using a unanimously accepted Schwarz claim"
+    elif basis["accepted_claimed_schneider_applied"]:
+        claim_text = " using a unanimously accepted Schneider claim"
+    print(f"Settlement: {settlement['settlement_score']}{claim_text}.")
 
 
 def print_opponent_profile_application_summary(result: dict[str, Any]) -> None:

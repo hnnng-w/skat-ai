@@ -165,7 +165,8 @@ assigns all remaining card points to the declarer. It is a simplified
 compatibility workflow, cannot coexist with `game_shortening`, and is not
 silently reinterpreted as structured adjudication.
 
-Version 1 does not support continued play under ISkO 4.1.6, declarer card
-exposure, defender open play, open card throwing, natural-language detection,
-solver-backed proof, or historical defender-concession records. These remain
-separate future workflows.
+Version 1 does not support continued play under ISkO 4.1.6, defender open play,
+open card throwing, natural-language detection, solver-backed proof, or
+historical defender-concession records. Unanimously accepted declarer card
+exposure is the separate union member documented in
+[Accepted declarer card exposure](declarer_card_exposure.md).

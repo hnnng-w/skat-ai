@@ -159,6 +159,26 @@ Settlement retains declared and still-possible mandatory values without adding
 optional levels from hypothetical future play. See
 [Defender concessions](defender_concessions.md).
 
+## Accepted declarer card exposure
+
+The third version-1 union member records all remaining declarer cards laid open
+or shown to one defender under ISkO 4.4.4. Showing one defender triggers the
+event, but both concrete defenders must independently accept for this final
+workflow. One defender cannot bind the other.
+
+Reliable exposed-card contradictions are rejected. Exact remaining-hand evidence
+produces `confirmed`; incomplete evidence produces `not_verifiable` without card
+inference. The adjudicator shares the bounded preexisting decision logic used by
+defender concession. It grants an undecided announced contract, preserves an
+existing winner, and never reverses a preexisting declarer loss.
+
+Suit and Grand may request simple, Schneider, or Schwarz settlement. Declared
+mandatory levels remain effective, and supported overbid-required levels must be
+covered by the declaration or accepted claim. Null requires simple and uses its
+fixed value. Accepted levels are not labeled as achieved during play. Observed
+and unplayed points remain separate, with no recipient or artificial 120-point
+total. See [Accepted declarer card exposure](declarer_card_exposure.md).
+
 ## Legacy claims and concessions
 
 The three legacy reasons are modeled by assigning all remaining card points to
@@ -202,8 +222,9 @@ Rules:
 * `normal_completion` requires zero remaining card points.
 * legacy claim/concession reasons require remaining card points.
 * structured declarer concession requires `1..10` hand cards and the exact consent matrix.
-* either structured concession requires incomplete play and a calculable declaration.
+* every structured shortening requires incomplete play and a calculable declaration.
 * structured defender concession requires distinct concrete declarer and conceding defender identities.
+* declarer card exposure requires all remaining cards and exactly both concrete defender acceptances.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
 * unknown `game_end_reason` values are rejected.
@@ -236,7 +257,7 @@ For example:
 ## Current limitations
 
 * Legacy claims and concessions still assign remaining points.
-* Structured support covers bounded declarer and defender concessions.
-* Continued play, exposed cards, defender open play, and open throwing are unsupported.
+* Structured support covers bounded declarer and defender concessions plus unanimously accepted declarer card exposure.
+* Continued exposed-card play after an objection, defender open play, and open throwing are unsupported.
 * Historical-game shortening and solver-backed claim proof are unsupported.
 * No game-shortening path simulates hypothetical continuation.

@@ -494,8 +494,9 @@ count; insufficient evidence is allowed and reported as `not_verifiable`.
 The object requires incomplete play and a calculable final declaration. It is
 exclusive with active legacy `game_end_reason` values, impossible Null,
 list-performance modes, Multi-Step simulation, and every non-position workflow.
-It does not represent open throwing, exposed-card claims, or historical game
-shortening. See [Declarer concessions](declarer_concessions.md).
+It does not represent open throwing or historical game shortening. Accepted
+declarer card exposure uses the separate union member below. See
+[Declarer concessions](declarer_concessions.md).
 
 ## Structured defender concession
 
@@ -525,6 +526,47 @@ and the other defender has no veto. The object is post-game, flat-position-only,
 requires incomplete play and a calculable declaration, and is exclusive with
 legacy endings, impossible Null, simulation, policy comparison, list, and
 historical/data workflows. See [Defender concessions](defender_concessions.md).
+
+## Accepted declarer card exposure
+
+The third version-1 `game_shortening` variant records ISkO 4.4.4 exposure that
+both concrete defenders accepted:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "declarer_player": "me",
+  "game_shortening": {
+    "schema_version": 1,
+    "kind": "declarer_card_exposure",
+    "exposure": {
+      "form": "shown_to_defender",
+      "shown_to_player": "left",
+      "exposed_cards": ["CA", "C10", "CJ"]
+    },
+    "claimed_play_level": "schneider",
+    "defender_responses": [
+      {"player": "left", "response": "accept", "form": "explicit"},
+      {"player": "right", "response": "accept", "form": "explicit"}
+    ]
+  }
+}
+```
+
+`laid_open` forbids `shown_to_player`; `shown_to_defender` requires one concrete
+defender. The card list must contain every remaining declarer card. Reliable
+hand, played-card, current-trick, skat, and ownership contradictions are rejected;
+incomplete evidence reports `not_verifiable` without inventing cards.
+
+Both defenders must occur exactly once and accept explicitly or through conduct
+already externally classified as unambiguous acceptance. One defender cannot
+bind the other. A rejection or continuation response is rejected because Issue
+#88 does not implement play with exposed cards.
+
+Suit and Grand support `simple`, `schneider`, and `schwarz`; Null requires
+`simple`. The object is exclusive with every other game ending and every live,
+simulation, policy-comparison, list, historical, training, statistics, or audit
+workflow. See [Accepted declarer card exposure](declarer_card_exposure.md).
 
 ## Analysis metadata fields
 

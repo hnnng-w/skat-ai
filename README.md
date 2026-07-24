@@ -45,6 +45,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Game declaration and game-value summaries
 * Automatic matador inference from known declarer-card context where possible
 * Structured concealed or verbal declarer-concession adjudication under ISkO 4.4.1 and 4.4.2
+* Structured defender-concession adjudication under ISkO 4.4.3
+* Unanimously accepted declarer-card-exposure adjudication under ISkO 4.4.4
 * Legacy claim/concession remaining-point assignment
 * Adjusted game-result summaries
 * Final single-game settlement summaries
@@ -347,9 +349,11 @@ Detailed documentation is split into topic-specific files:
 * [Input JSON schema](schemas/input.schema.json)
 * [Declarer concessions](docs/declarer_concessions.md)
 * [Defender concessions](docs/defender_concessions.md)
+* [Accepted declarer card exposure](docs/declarer_card_exposure.md)
 * [Game-shortening input schema](schemas/game_shortening.schema.json)
 * [Declarer-concession output schema](schemas/declarer_concession_output.schema.json)
 * [Defender-concession output schema](schemas/defender_concession_output.schema.json)
+* [Declarer-card-exposure output schema](schemas/declarer_card_exposure_output.schema.json)
 * [Historical games](docs/historical_games.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
@@ -421,8 +425,8 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 35 deterministic scenarios,
-including structured defender-concession adjudication from Issue #87.
+complete. Generated-output validation covers 36 deterministic scenarios,
+including accepted declarer-card-exposure adjudication from Issue #88.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
@@ -435,10 +439,11 @@ performance features.
 
 Complete normal-play historical records, information-safe pre-play snapshots,
 bounded 30-decision immediate review, and versioned training/evaluation dataset
-wrapping are partially supported. A structured generic-position declarer
-concession is supported without assigning unplayed points. Remaining gaps include
-structured historical claims and concessions, defender concessions, open-card
-game shortening, additional historical end reasons, approved settlement
+wrapping are partially supported. Three structured generic-position shortening
+variants are supported without assigning unplayed points: declarer concession,
+defender concession, and unanimously accepted declarer card exposure. Remaining
+gaps include structured historical shortening, continued exposed-card play after
+an objection, defender open play, open throwing, additional historical end reasons, approved settlement
 completeness, complete-game coaching, stronger solving, exposed-card-aware
 Ouvert simulation, complete field-level live provenance, coherent hidden-world
 continuity across Multi-Step paths, broader information-safe hidden-card
