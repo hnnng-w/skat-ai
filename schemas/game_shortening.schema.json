@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/game_shortening.schema.json",
+  "title": "skat-ai game shortening input",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/declarer_concession"
+    }
+  ],
+  "$defs": {
+    "declarer_concession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "declarer_hand_cards_remaining",
+        "defender_consent"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "declarer_concession"
+        },
+        "declarer_hand_cards_remaining": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "defender_consent": {
+          "$ref": "#/$defs/defender_consent"
+        }
+      }
+    },
+    "defender_consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "consenting_defender_count"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["not_required", "granted"]
+        },
+        "consenting_defender_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      }
+    }
+  }
+}

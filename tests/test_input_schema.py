@@ -23,6 +23,9 @@ DATASET_PARTITION_POLICY_SCHEMA_PATH = (
 OPPONENT_STATISTICS_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
 )
+GAME_SHORTENING_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
+)
 POLICY_FIELDS = [
     "opponent_lead_policy",
     "opponent_response_policy",
@@ -46,6 +49,8 @@ with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as policy_
     DATASET_PARTITION_POLICY_SCHEMA = json.load(policy_file)
 with OPPONENT_STATISTICS_SCHEMA_PATH.open("r", encoding="utf-8") as statistics_schema_file:
     OPPONENT_STATISTICS_SCHEMA = json.load(statistics_schema_file)
+with GAME_SHORTENING_SCHEMA_PATH.open("r", encoding="utf-8") as game_shortening_file:
+    GAME_SHORTENING_SCHEMA = json.load(game_shortening_file)
 
 INPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -61,6 +66,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             OPPONENT_STATISTICS_SCHEMA["$id"],
             Resource.from_contents(OPPONENT_STATISTICS_SCHEMA),
+        ),
+        (
+            GAME_SHORTENING_SCHEMA["$id"],
+            Resource.from_contents(GAME_SHORTENING_SCHEMA),
         ),
     ]
 )
@@ -107,6 +116,43 @@ def build_impossible_null_input() -> dict[str, object]:
             "impossible_null_settlement": {
                 "replacement_game_type": "clubs",
                 "matadors": 1,
+            },
+        }
+    )
+    return data
+
+
+def build_structured_concession_input() -> dict[str, object]:
+    data = build_valid_input()
+    data.update(
+        {
+            "hand": [
+                "CJ",
+                "SJ",
+                "CA",
+                "C10",
+                "CK",
+                "CQ",
+                "C9",
+                "C8",
+                "C7",
+                "HA",
+            ],
+            "current_trick": [],
+            "trick_leader": "unknown",
+            "next_player": "unknown",
+            "left_hand_size": 10,
+            "right_hand_size": 10,
+            "analysis_mode": "post_game_review",
+            "game_declaration": {"matadors": 2, "bid_value": 72},
+            "game_shortening": {
+                "schema_version": 1,
+                "kind": "declarer_concession",
+                "declarer_hand_cards_remaining": 10,
+                "defender_consent": {
+                    "status": "not_required",
+                    "consenting_defender_count": 0,
+                },
             },
         }
     )
@@ -168,6 +214,42 @@ def test_schema_and_runtime_accept_historical_game_branch() -> None:
     record = build_historical_game_record(copy.deepcopy(data["historical_game_input"]))
 
     assert record.game_id == "historical-grand-001"
+
+
+def test_schema_and_runtime_accept_structured_declarer_concession() -> None:
+    assert_schema_and_runtime_valid(build_structured_concession_input())
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value"),
+    [
+        ("schema_version", 2),
+        ("kind", "defender_concession"),
+        ("declarer_hand_cards_remaining", 0),
+        ("declarer_hand_cards_remaining", 11),
+        ("declarer_hand_cards_remaining", True),
+        ("declarer_hand_cards_remaining", 1.5),
+    ],
+)
+def test_schema_rejects_invalid_structured_concession_fields(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    data = build_structured_concession_input()
+    game_shortening = data["game_shortening"]
+    assert isinstance(game_shortening, dict)
+    game_shortening[field_name] = invalid_value
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_structured_concession_unknown_properties() -> None:
+    data = build_structured_concession_input()
+    game_shortening = data["game_shortening"]
+    assert isinstance(game_shortening, dict)
+    game_shortening["open_cards"] = True
+
+    assert_schema_invalid(data)
 
 
 def test_schema_rejects_combined_position_and_historical_branches() -> None:

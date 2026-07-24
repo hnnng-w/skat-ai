@@ -147,6 +147,12 @@ splitting and unseen-player model evaluation are not v1 requirements. The v1
 gate remains open for exposed-card-aware recommendation analysis and approved
 later end reasons. Full auction representation is planned after v1.0.
 
+The generic position workflow now has a bounded version-1 concealed or verbal
+declarer-concession adjudication under ISkO 4.4.1 and 4.4.2. This does not close
+the broader v1 gates for structured historical claims/concessions, defender
+concession, exposed/open-card consequences, complete settlement coverage, or
+historical training and review after game shortening.
+
 Bounded historical player-statistics aggregation is supported from the same
 dataset container under either compliant policy, but it does not infer or change policy and is not a
 training, quality-evaluation, or automatic policy-application gate.

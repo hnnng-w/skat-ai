@@ -37,11 +37,14 @@ def get_missing_final_settlement_inputs(
     if overbid_summary is None:
         overbid_summary = build_default_overbid_summary()
 
-    if is_completed_trick_ownership_required_for_schwarz_announcement(
-        game_value_summary=game_value_summary,
-        game_result_summary=game_result_summary,
-        overbid_summary=overbid_summary,
-        completed_tricks=completed_tricks,
+    if (
+        game_result_summary.get("game_end_kind") != "declarer_concession"
+        and is_completed_trick_ownership_required_for_schwarz_announcement(
+            game_value_summary=game_value_summary,
+            game_result_summary=game_result_summary,
+            overbid_summary=overbid_summary,
+            completed_tricks=completed_tricks,
+        )
     ):
         missing_inputs.append("complete_trick_ownership")
 
@@ -162,6 +165,52 @@ def build_final_settlement_summary(
             ],
         }
         return summary
+
+    if game_result_summary.get("game_end_kind") == "declarer_concession":
+        effective_game_value = None
+        if (
+            is_complete
+            and game_value_summary["game_value"] is not None
+            and is_overbid_settlement_supported(overbid_summary)
+        ):
+            effective_game_value = get_effective_settlement_game_value(
+                game_value=game_value_summary["game_value"],
+                overbid_summary=overbid_summary,
+            )
+
+        overbid_required_value_applied = overbid_summary["is_overbid"] is True
+        return {
+            "is_complete": is_complete,
+            "missing_inputs": missing_inputs,
+            "declarer_won_by_card_points": None,
+            "winner": "defenders",
+            "game_value": game_value_summary["game_value"],
+            "effective_game_value": effective_game_value,
+            "bid_value": overbid_summary["bid_value"],
+            "settlement_score": (
+                -2 * effective_game_value
+                if is_complete and effective_game_value is not None
+                else None
+            ),
+            "is_loss": True,
+            "is_overbid": overbid_summary["is_overbid"],
+            "overbid_margin": overbid_summary["margin"],
+            "overbid_status": overbid_summary["status"],
+            "overbid_required_game_value": overbid_summary["required_game_value"],
+            "settlement_basis": {
+                "game_end_kind": "declarer_concession",
+                "outcome_source": "adjudicated",
+                "forced_winner": "defenders",
+                "achieved_schneider_applied": False,
+                "achieved_schwarz_applied": False,
+                "overbid_required_value_applied": overbid_required_value_applied,
+            },
+            "notes": [
+                "The accepted declarer concession is an adjudicated declarer loss.",
+                "No unplayed card points or achieved Schneider or Schwarz level is applied.",
+                "Declared levels and supported overbid-required valuation remain effective.",
+            ],
+        }
 
     declarer_won_by_card_points = is_declarer_base_contract_winner(
         game_result_summary

@@ -14,6 +14,9 @@ OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistic
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
 )
+GAME_SHORTENING_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
+)
 ROOT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
 EXAMPLES_DIR = PROJECT_ROOT / "examples"
 
@@ -63,6 +66,7 @@ def validate_example_files() -> list[str]:
     dataset_partition_policy_schema = load_json_file(
         DATASET_PARTITION_POLICY_SCHEMA_PATH
     )
+    game_shortening_schema = load_json_file(GAME_SHORTENING_SCHEMA_PATH)
     registry = Registry().with_resources(
         [
             (historical_schema["$id"], Resource.from_contents(historical_schema)),
@@ -77,6 +81,10 @@ def validate_example_files() -> list[str]:
             (
                 dataset_partition_policy_schema["$id"],
                 Resource.from_contents(dataset_partition_policy_schema),
+            ),
+            (
+                game_shortening_schema["$id"],
+                Resource.from_contents(game_shortening_schema),
             ),
         ]
     )

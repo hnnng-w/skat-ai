@@ -1,6 +1,10 @@
 from typing import Any
 
 from skat_ai.deck import get_full_deck
+from skat_ai.declarer_concession import (
+    get_declarer_concession_from_input,
+    validate_declarer_concession_context,
+)
 from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.game_history import validate_completed_trick_sequence
 from skat_ai.game_value import get_null_game_value
@@ -363,6 +367,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_opponent_policies(data)
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
+    validate_optional_declarer_concession(data)
     validate_impossible_null_settlement(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
     validate_list_performance_input_modes(data)
@@ -803,6 +808,15 @@ def validate_optional_game_declaration(data: dict[str, Any]) -> None:
     Validates optional game declaration scoring fields.
     """
     build_game_declaration_from_input(data)
+
+
+def validate_optional_declarer_concession(data: dict[str, Any]) -> None:
+    """Validates the optional structured declarer concession."""
+    concession = get_declarer_concession_from_input(data)
+    if concession is None:
+        return
+
+    validate_declarer_concession_context(data, concession)
 
 
 def validate_impossible_null_settlement(data: dict[str, Any]) -> None:

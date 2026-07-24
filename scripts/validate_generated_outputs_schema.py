@@ -53,6 +53,9 @@ DATASET_PARTITION_POLICY_SCHEMA_PATH = (
 DATASET_PARTITION_AUDIT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_audit.schema.json"
 )
+DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "declarer_concession_output.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -684,6 +687,45 @@ def check_claim_remaining_tricks(data: dict[str, Any]) -> list[str]:
 
     if data["final_settlement_summary"]["is_complete"] is not True:
         errors.append("expected complete claim settlement")
+
+    return errors
+
+
+def check_structured_declarer_concession(data: dict[str, Any]) -> list[str]:
+    """Checks adjudication without assignment or achieved-level inference."""
+    errors = []
+    raw_result = data["game_result_summary"]
+    adjusted_result = data["adjusted_game_result_summary"]
+    summary = data.get("game_shortening_summary")
+    settlement = data["final_settlement_summary"]
+
+    if not isinstance(summary, dict):
+        return ["expected game_shortening_summary"]
+    if raw_result["points_remaining"] != 120:
+        errors.append("expected all 120 zero-point-trick points to remain unplayed")
+    if adjusted_result["points_remaining"] != raw_result["points_remaining"]:
+        errors.append("expected adjusted result to preserve unplayed points")
+    if adjusted_result["winner"] != "defenders":
+        errors.append("expected adjudicated defender winner")
+    if adjusted_result["remaining_points_recipient"] is not None:
+        errors.append("expected no remaining points recipient")
+    if adjusted_result["remaining_points_assigned"] != 0:
+        errors.append("expected zero assigned remaining points")
+    if summary.get("rule_sections") != ["4.4.1"]:
+        errors.append("expected deterministic ISkO 4.4.1 rule section")
+    if summary.get("hand_card_count_reconciliation") != "confirmed":
+        errors.append("expected confirmed declarer hand-card count")
+    if settlement.get("settlement_score") != -144:
+        errors.append("expected simple doubled Grand loss of -144")
+    if settlement.get("settlement_basis") != {
+        "game_end_kind": "declarer_concession",
+        "outcome_source": "adjudicated",
+        "forced_winner": "defenders",
+        "achieved_schneider_applied": False,
+        "achieved_schwarz_applied": False,
+        "overbid_required_value_applied": False,
+    }:
+        errors.append("expected bounded declarer-concession settlement basis")
 
     return errors
 
@@ -1560,6 +1602,14 @@ SCENARIOS = (
         check_output=check_claim_remaining_tricks,
     ),
     Scenario(
+        name="structured_declarer_concession",
+        input_path=PROJECT_ROOT / "examples" / "declarer_concession.json",
+        branch="structured declarer-concession adjudication",
+        cli_args=("--quiet",),
+        check_output=check_structured_declarer_concession,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
         name="overbid_settlement",
         input_path=(
             PROJECT_ROOT
@@ -1822,6 +1872,9 @@ def validate_generated_outputs() -> list[str]:
     dataset_partition_audit_schema = load_json_file(
         DATASET_PARTITION_AUDIT_SCHEMA_PATH
     )
+    declarer_concession_output_schema = load_json_file(
+        DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -1873,6 +1926,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 dataset_partition_audit_schema["$id"],
                 Resource.from_contents(dataset_partition_audit_schema),
+            ),
+            (
+                declarer_concession_output_schema["$id"],
+                Resource.from_contents(declarer_concession_output_schema),
             ),
         ]
     )

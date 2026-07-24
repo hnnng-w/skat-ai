@@ -8,6 +8,10 @@ The input JSON schema is available at:
 
 [`schemas/input.schema.json`](../schemas/input.schema.json)
 
+Structured game shortening uses:
+
+[`schemas/game_shortening.schema.json`](../schemas/game_shortening.schema.json)
+
 Complete historical records use the focused referenced schema:
 
 [`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json)
@@ -54,6 +58,7 @@ The schema checks stable structural constraints such as:
 * supported performance rating values
 * matador values from 1 through 11 and direct top-level Grand values through 4
 * direct top-level Suit/Grand declaration contradictions
+* strict version-1 declarer-concession and defender-consent shapes
 
 More advanced cross-field validation is handled by the Python validation layer.
 
@@ -64,6 +69,7 @@ Python validation covers Skat-specific rules such as:
 * completed-trick winner validation where enough metadata is available
 * live-vs-post-game information rules
 * game-end consistency
+* declarer-concession consent, hand-count reconciliation, exclusivity, incomplete-play, and settlement prerequisites
 * legality of `actual_card_played`
 * point consistency
 * stable historical player/seat references and complete 32-card deals
@@ -458,6 +464,37 @@ cumulative: Hand adds one level; Schneider announced includes Hand and adds two
 levels; Schwarz announced includes Schneider announced and Hand and adds three
 levels; ouvert includes all three prerequisites and adds four levels.
 
+## Structured declarer concession
+
+The flat position workflow can end an announced game through a concealed or
+verbal declarer concession:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "game_shortening": {
+    "schema_version": 1,
+    "kind": "declarer_concession",
+    "declarer_hand_cards_remaining": 6,
+    "defender_consent": {
+      "status": "granted",
+      "consenting_defender_count": 1
+    }
+  }
+}
+```
+
+At least nine cards require `not_required` and zero consenting defenders. One
+through eight cards require `granted` and one or two consenting defenders.
+Reliable current-hand and play-history timing evidence must match the supplied
+count; insufficient evidence is allowed and reported as `not_verifiable`.
+
+The object requires incomplete play and a calculable final declaration. It is
+exclusive with active legacy `game_end_reason` values, impossible Null,
+list-performance modes, Multi-Step simulation, and every non-position workflow.
+It does not represent open throwing, exposed-card claims, defender concession,
+or historical game shortening. See [Declarer concessions](declarer_concessions.md).
+
 ## Analysis metadata fields
 
 Input files may include optional analysis metadata:
@@ -485,14 +522,14 @@ Supported `skat_visibility` values:
 | `known_to_declarer`   | Skat is known only to the declarer during play.   |
 | `known_post_game`     | Skat is known for post-game review.               |
 
-Supported `game_end_reason` values:
+Supported legacy `game_end_reason` values:
 
 | Value                                 | Meaning                                                |
 | ------------------------------------- | ------------------------------------------------------ |
 | `not_ended`                           | Game is still in progress.                             |
 | `normal_completion`                   | Game ended normally with all 120 card points assigned. |
 | `declarer_claimed_remaining_tricks`   | Declarer claimed the remaining tricks.                 |
-| `declarer_conceded_remaining_tricks`  | Declarer conceded the remaining tricks.                |
+| `declarer_conceded_remaining_tricks`  | Simplified legacy assignment of remaining points to defenders. |
 | `defenders_conceded_remaining_tricks` | Defenders conceded the remaining tricks.               |
 | `impossible_null_declaration`          | Impossible Null declaration; immediate declarer loss.   |
 
@@ -501,6 +538,10 @@ a bid above the fixed value of the declared Null variant, no played cards,
 empty current and completed tricks, and zero assigned card points. The
 replacement object may be omitted; the loss is then known but settlement stays
 incomplete.
+
+The structured `game_shortening` contract is not silently mapped to any legacy
+reason. An absent reason or neutral `not_ended` can accompany it; active legacy
+claim, concession, completion, and impossible-Null reasons cannot.
 
 ## Player profile fields
 

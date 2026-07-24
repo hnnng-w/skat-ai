@@ -185,9 +185,14 @@ Important fields include:
 
 ## Adjusted game result summary
 
-`adjusted_game_result_summary` applies `game_end_reason`.
+`adjusted_game_result_summary` applies legacy `game_end_reason` assignment or a
+structured declarer-concession adjudication.
 
 For claim and concession scenarios, remaining card points are assigned according to the declared game-end reason.
+
+For structured declarer concession, observed points and unplayed points are
+preserved. The winner is adjudicated as defenders, and zero remaining points are
+assigned.
 
 Examples:
 
@@ -298,13 +303,19 @@ loss.
 
 Supported Suit/Grand overbid cases force the declarer into a settlement loss and use the required game value. Overbid takes precedence over announcement failures and achieved levels: `effective_game_value` is `overbid_required_game_value`, and achieved Schneider or Schwarz levels are not added to that overbid-required value.
 
+Structured declarer concession also forces a loss. Suit and Grand retain the
+declared value, matadors, Hand, and announced levels. Supported overbid-required
+valuation remains applicable. Null uses the fixed declared variant value. In all
+cases the score is `-2 * effective_game_value`, no unplayed points are assigned,
+and no achieved Schneider or Schwarz level is inferred from unfinished play.
+
 An impossible Null declaration is also an immediate doubled loss, but it has no
 card-point winner and requires no points or completed tricks. Zero assigned
 points are not interpreted as Schneider or Schwarz. Missing replacement
 metadata keeps settlement incomplete instead of inventing a contract.
 
-Claims and concessions assign remaining card points, but they do not prove the
-remaining trick ownership for Schwarz settlement in this slice.
+Legacy claims and concessions assign remaining points. The structured declarer
+concession deliberately does not assign them and does not claim future Schwarz.
 
 Example:
 
@@ -349,8 +360,8 @@ Current partial SkWO-style performance scoring is documented in:
 ## Current limitations
 
 * Full official settlement nuances are not completely modeled yet.
-* Claim and concession handling assigns remaining card points according to `game_end_reason`; it does not simulate the actual remaining tricks.
-* Claims and concessions do not establish Schwarz trick ownership in settlement.
+* Legacy claim/concession handling assigns remaining points; structured declarer concession does not.
+* Neither path simulates remaining tricks or establishes future Schwarz ownership.
 * The engine does not yet verify whether a claim was strategically or legally justified.
 * Impossible Null settlement remains incomplete when its external replacement selection is unavailable.
 * List, series, and tournament performance rating are handled separately and are not fully implemented yet.

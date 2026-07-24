@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/declarer_concession_output.schema.json",
+  "title": "skat-ai declarer concession output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "rule_sections",
+    "declarer_hand_cards_remaining",
+    "hand_card_count_reconciliation",
+    "consent_required",
+    "defender_consent",
+    "adjudicated_winner",
+    "remaining_points_assigned",
+    "settlement_level_policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "declarer_concession"
+    },
+    "rule_sections": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["4.4.1", "4.4.2"]
+      }
+    },
+    "declarer_hand_cards_remaining": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "hand_card_count_reconciliation": {
+      "type": "string",
+      "enum": ["confirmed", "not_verifiable"]
+    },
+    "consent_required": {
+      "type": "boolean"
+    },
+    "defender_consent": {
+      "$ref": "#/$defs/defender_consent"
+    },
+    "adjudicated_winner": {
+      "const": "defenders"
+    },
+    "remaining_points_assigned": {
+      "const": false
+    },
+    "settlement_level_policy": {
+      "const": "declared_or_overbid_value_without_achieved_levels"
+    }
+  },
+  "$defs": {
+    "defender_consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "consenting_defender_count"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["not_required", "granted"]
+        },
+        "consenting_defender_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      }
+    },
+    "settlement_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_end_kind",
+        "outcome_source",
+        "forced_winner",
+        "achieved_schneider_applied",
+        "achieved_schwarz_applied",
+        "overbid_required_value_applied"
+      ],
+      "properties": {
+        "game_end_kind": {
+          "const": "declarer_concession"
+        },
+        "outcome_source": {
+          "const": "adjudicated"
+        },
+        "forced_winner": {
+          "const": "defenders"
+        },
+        "achieved_schneider_applied": {
+          "const": false
+        },
+        "achieved_schwarz_applied": {
+          "const": false
+        },
+        "overbid_required_value_applied": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

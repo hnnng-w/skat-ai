@@ -75,6 +75,9 @@ DATASET_PARTITION_POLICY_SCHEMA_PATH = (
 DATASET_PARTITION_AUDIT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_audit.schema.json"
 )
+DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "declarer_concession_output.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -108,6 +111,8 @@ with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DATASET_PARTITION_POLICY_SCHEMA = json.load(file)
 with DATASET_PARTITION_AUDIT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DATASET_PARTITION_AUDIT_SCHEMA = json.load(file)
+with DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    DECLARER_CONCESSION_OUTPUT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -155,6 +160,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             DATASET_PARTITION_AUDIT_SCHEMA["$id"],
             Resource.from_contents(DATASET_PARTITION_AUDIT_SCHEMA),
+        ),
+        (
+            DECLARER_CONCESSION_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(DECLARER_CONCESSION_OUTPUT_SCHEMA),
         ),
     ]
 )
@@ -1244,6 +1253,60 @@ def test_schema_accepts_impossible_null_settlement_summary() -> None:
     final_settlement_summary["impossible_null_settlement"] = replacement_summary
 
     assert_schema_valid(data)
+
+
+def test_schema_accepts_structured_declarer_concession_output() -> None:
+    data = build_valid_output()
+    adjusted = data["adjusted_game_result_summary"]
+    settlement = data["final_settlement_summary"]
+    assert isinstance(adjusted, dict)
+    assert isinstance(settlement, dict)
+    adjusted.update(
+        {
+            "is_complete": True,
+            "winner": "defenders",
+            "game_end_reason": "declarer_concession",
+            "game_end_kind": "declarer_concession",
+            "outcome_source": "adjudicated",
+        }
+    )
+    data["game_shortening_summary"] = {
+        "schema_version": 1,
+        "kind": "declarer_concession",
+        "rule_sections": ["4.4.1"],
+        "declarer_hand_cards_remaining": 9,
+        "hand_card_count_reconciliation": "confirmed",
+        "consent_required": False,
+        "defender_consent": {
+            "status": "not_required",
+            "consenting_defender_count": 0,
+        },
+        "adjudicated_winner": "defenders",
+        "remaining_points_assigned": False,
+        "settlement_level_policy": (
+            "declared_or_overbid_value_without_achieved_levels"
+        ),
+    }
+    settlement["settlement_basis"] = {
+        "game_end_kind": "declarer_concession",
+        "outcome_source": "adjudicated",
+        "forced_winner": "defenders",
+        "achieved_schneider_applied": False,
+        "achieved_schwarz_applied": False,
+        "overbid_required_value_applied": False,
+    }
+
+    assert_schema_valid(data)
+
+
+def test_schema_rejects_malformed_structured_concession_output() -> None:
+    data = build_valid_output()
+    data["game_shortening_summary"] = {
+        "schema_version": 2,
+        "kind": "declarer_concession",
+    }
+
+    assert_schema_invalid(data)
 
 
 def test_schema_accepts_null_impossible_null_settlement_summary() -> None:

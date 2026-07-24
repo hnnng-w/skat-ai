@@ -304,7 +304,7 @@ source records for medium-confidence actionable coverage.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 33 scenarios. The behavioral match
+therefore covers 34 scenarios. The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
 The two aggregation games keep the same three case-sensitive players while
@@ -403,9 +403,11 @@ The output includes:
 
 ## Claim and concession examples
 
-These examples test game-end handling where remaining card points are assigned without normal trick completion.
+The preferred `declarer_concession.json` example demonstrates a structured Grand
+concession with nine hand cards, no required defender consent, preserved
+unplayed points, a final adjudicated loss, and no achieved-level addition.
 
-Supported game-end reasons include:
+The older examples retain simplified legacy game-end reasons:
 
 * `declarer_claimed_remaining_tricks`
 * `declarer_conceded_remaining_tricks`
@@ -423,9 +425,13 @@ because ended game reasons are post-game review information.
 
 | File                                             | Purpose                             |
 | ------------------------------------------------ | ----------------------------------- |
+| `declarer_concession.json`                       | Structured no-assignment declarer concession under ISkO 4.4.1. |
 | `grand_claimed_remaining_tricks.json`            | Declarer claims remaining tricks.   |
-| `grand_declarer_conceded_remaining_tricks.json`  | Declarer concedes remaining tricks. |
+| `grand_declarer_conceded_remaining_tricks.json`  | Legacy simplified declarer concession assignment. |
 | `grand_defenders_conceded_remaining_tricks.json` | Defenders concede remaining tricks. |
+
+The structured example has its own deterministic generated-output scenario and
+quiet JSON coverage. Historical concession examples are intentionally absent.
 
 ## Overbid examples
 

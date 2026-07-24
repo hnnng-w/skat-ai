@@ -1,7 +1,7 @@
 # Game-end handling
 
-This document explains how `skat-ai` handles normal completion, claim,
-concession, and impossible Null declarations.
+This document explains normal completion, the structured concealed or verbal
+declarer concession, legacy claim/concession assignment, and impossible Null.
 
 ## Purpose
 
@@ -21,14 +21,14 @@ adjusted_game_result_summary
 
 `final_settlement_summary` uses `adjusted_game_result_summary`, not the raw `game_result_summary`.
 
-## Supported game_end_reason values
+## Legacy game_end_reason values
 
 | Value                                 | Meaning                                                       |
 | ------------------------------------- | ------------------------------------------------------------- |
 | `not_ended`                           | The game is still in progress.                                |
 | `normal_completion`                   | The game ended normally and all 120 card points are assigned. |
 | `declarer_claimed_remaining_tricks`   | The declarer claimed the remaining tricks.                    |
-| `declarer_conceded_remaining_tricks`  | The declarer conceded the remaining tricks.                   |
+| `declarer_conceded_remaining_tricks`  | Simplified legacy assignment after declarer concession.       |
 | `defenders_conceded_remaining_tricks` | The defenders conceded the remaining tricks.                  |
 | `impossible_null_declaration`          | An impossible Null declaration ended the game immediately.     |
 
@@ -61,9 +61,10 @@ Live decision analysis should use:
 }
 ```
 
-## Remaining-point assignment
+## Legacy remaining-point assignment
 
-When a game ends early, remaining card points are assigned according to `game_end_reason`.
+Legacy early-end reasons assign remaining card points according to
+`game_end_reason`. This behavior remains backward compatible.
 
 | game_end_reason                       | Remaining points go to |
 | ------------------------------------- | ---------------------- |
@@ -119,9 +120,29 @@ points_remaining = 0
 
 If a Suit or Grand game has fewer than 120 assigned card points, it should not use `normal_completion`.
 
-## Claim and concession
+## Structured declarer concession
 
-Claim and concession scenarios are modeled by assigning all remaining card points to the appropriate side.
+`game_shortening` schema version 1 represents an accepted concealed or verbal
+declarer concession under ISkO 4.4.1 or 4.4.2. Nine or ten declarer hand cards
+require no defender consent and record count zero. One through eight cards
+require consent from one or two defenders.
+
+Reliable local hand or opponent hand-size evidence must match the supplied
+count. The output reports `confirmed` when it can reconcile that evidence and
+`not_verifiable` when the generic position lacks a concrete declarer.
+
+The adjusted result is a final adjudicated defender win. Observed point totals
+and unplayed points remain unchanged; no side receives remaining points. Final
+settlement doubles the declared or supported overbid-required value as a loss.
+Declared levels and matadors remain effective, but unfinished play never creates
+an achieved Schneider or Schwarz level.
+
+See [Declarer concessions](declarer_concessions.md) for the full contract.
+
+## Legacy claims and concessions
+
+The three legacy reasons are modeled by assigning all remaining card points to
+the appropriate side. They are not reinterpreted as structured adjudication.
 
 Examples:
 
@@ -159,7 +180,11 @@ Rules:
 
 * `not_ended` requires remaining card points.
 * `normal_completion` requires zero remaining card points.
-* claim/concession reasons require remaining card points.
+* legacy claim/concession reasons require remaining card points.
+* structured concession requires `1..10` hand cards and the exact consent matrix.
+* structured concession requires incomplete play and a calculable declaration.
+* structured concession cannot coexist with an active legacy end reason,
+  impossible Null, list workflows, or historical workflows.
 * unknown `game_end_reason` values are rejected.
 * remaining card points cannot be negative.
 * ended game reasons are rejected in `live_decision`.
@@ -177,7 +202,8 @@ This prevents inconsistent inputs such as:
 
 `final_settlement_summary` uses the adjusted result.
 
-This means claim/concession handling can decide the final winner before settlement is calculated.
+Both structured adjudication and legacy assignment can decide the final winner
+before settlement is calculated, but only the legacy path changes card points.
 
 For example:
 
@@ -188,8 +214,8 @@ For example:
 
 ## Current limitations
 
-* Claim and concession handling currently assigns all remaining card points according to `game_end_reason`.
-* It does not simulate the actual remaining tricks.
-* It does not prove Schwarz trick ownership for settlement.
-* The engine does not yet verify whether a claim was strategically or legally justified.
-* The engine does not yet model player agreement or disputes around claim/concession.
+* Legacy claims and concessions still assign remaining points.
+* Structured support covers only a concealed or verbal declarer concession.
+* Defender concession, exposed cards, defender open play, and open throwing are unsupported.
+* Historical-game shortening and solver-backed claim proof are unsupported.
+* No game-shortening path simulates hypothetical continuation.

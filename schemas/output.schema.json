@@ -211,6 +211,9 @@
     "adjusted_game_result_summary": {
       "$ref": "#/$defs/adjusted_game_result_summary"
     },
+    "game_shortening_summary": {
+      "$ref": "https://example.local/skat-ai/declarer_concession_output.schema.json"
+    },
     "final_settlement_summary": {
       "$ref": "#/$defs/final_settlement_summary"
     },
@@ -309,7 +312,8 @@
         "declarer_claimed_remaining_tricks",
         "declarer_conceded_remaining_tricks",
         "defenders_conceded_remaining_tricks",
-        "impossible_null_declaration"
+        "impossible_null_declaration",
+        "declarer_concession"
       ]
     },
     "overbid_status": {
@@ -1006,6 +1010,14 @@
         },
         "remaining_points_assigned": {
           "type": "integer"
+        },
+        "game_end_kind": {
+          "type": "string",
+          "const": "declarer_concession"
+        },
+        "outcome_source": {
+          "type": "string",
+          "const": "adjudicated"
         }
       }
     },
@@ -1076,6 +1088,9 @@
             {"$ref": "#/$defs/impossible_null_settlement_summary"},
             {"type": "null"}
           ]
+        },
+        "settlement_basis": {
+          "$ref": "https://example.local/skat-ai/declarer_concession_output.schema.json#/$defs/settlement_basis"
         }
       }
     },

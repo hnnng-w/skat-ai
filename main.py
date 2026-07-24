@@ -15,6 +15,10 @@ from skat_ai.dataset_partition_audit import (
     build_serializable_dataset_partition_audit,
     resolve_dataset_partition_audit_mode,
 )
+from skat_ai.declarer_concession import (
+    adjudicate_declarer_concession,
+    build_declarer_card_count_evidence,
+)
 from skat_ai.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
@@ -51,6 +55,7 @@ from skat_ai.input_loader import (
     build_local_game_state_from_input,
     get_actual_card_played_from_input,
     get_analysis_metadata_from_input,
+    get_declarer_concession_from_input,
     get_game_declaration_from_input,
     get_impossible_null_settlement_from_input,
     get_input_workflow,
@@ -135,9 +140,10 @@ class CliUsageError(ValueError):
 def get_immediate_unavailable_reason(
     state_next_player: str,
     game_end_reason: str,
+    has_game_shortening: bool = False,
 ) -> str | None:
     """Returns why Immediate Analysis is unavailable, if it is unavailable."""
-    if game_end_reason != "not_ended":
+    if game_end_reason != "not_ended" or has_game_shortening:
         return IMMEDIATE_UNAVAILABLE_GAME_COMPLETE_REASON
 
     if state_next_player != "me":
@@ -301,7 +307,10 @@ def build_analysis_result(
         effective_opponent_policy_settings.immediate_response_policy_by_player
     )
     actual_card_played = get_actual_card_played_from_input(data)
-    game_declaration = get_game_declaration_from_input(local_data)
+    declarer_concession = get_declarer_concession_from_input(data)
+    game_declaration = get_game_declaration_from_input(
+        data if declarer_concession is not None else local_data
+    )
     impossible_null_selection = get_impossible_null_settlement_from_input(data)
     performance_rating_system = get_performance_rating_system_from_input(data)
     list_performance_input = get_list_performance_input_from_input(data)
@@ -354,6 +363,7 @@ def build_analysis_result(
     immediate_unavailable_reason = get_immediate_unavailable_reason(
         state_next_player=state.next_player,
         game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
+        has_game_shortening=declarer_concession is not None,
     )
 
     if immediate_unavailable_reason is None:
@@ -411,10 +421,22 @@ def build_analysis_result(
         completed_tricks=state.completed_tricks,
         game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
     )
-    adjusted_game_result_summary = apply_remaining_points_assignment(
-        game_result_summary=game_result_summary,
-        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
-    )
+    game_shortening_summary = None
+    if declarer_concession is not None:
+        adjudication = adjudicate_declarer_concession(
+            game_shortening=declarer_concession,
+            game_result_summary=game_result_summary,
+            game_value_summary=game_value_summary,
+            overbid_summary=overbid_summary,
+            evidence=build_declarer_card_count_evidence(data),
+        )
+        adjusted_game_result_summary = adjudication.game_result_summary
+        game_shortening_summary = adjudication.game_shortening_summary
+    else:
+        adjusted_game_result_summary = apply_remaining_points_assignment(
+            game_result_summary=game_result_summary,
+            game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
+        )
     final_settlement_summary = build_final_settlement_summary(
         game_value_summary=game_value_summary,
         game_result_summary=adjusted_game_result_summary,
@@ -501,6 +523,9 @@ def build_analysis_result(
 
     if list_standings_summary is not None:
         result["list_standings_summary"] = list_standings_summary
+
+    if game_shortening_summary is not None:
+        result["game_shortening_summary"] = game_shortening_summary
 
     if opponent_profile_application_summary is not None:
         result["opponent_profile_application_summary"] = (
@@ -800,7 +825,36 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     )
     print("Reason:", result["recommendation"]["reason"])
 
+    print_declarer_concession_summary(result)
+
     print_post_game_review_summary(result)
+
+
+def print_declarer_concession_summary(result: dict[str, Any]) -> None:
+    """Prints the bounded structured declarer-concession outcome."""
+    summary = result.get("game_shortening_summary")
+    if not isinstance(summary, dict):
+        return
+
+    hand_count = summary["declarer_hand_cards_remaining"]
+    consent = summary["defender_consent"]
+    if summary["consent_required"]:
+        consent_text = (
+            f"accepted by {consent['consenting_defender_count']} defender"
+            + ("s" if consent["consenting_defender_count"] != 1 else "")
+        )
+    else:
+        consent_text = "defender consent not required"
+
+    settlement = result["final_settlement_summary"]
+    print()
+    print(f"Declarer concession: {hand_count} hand cards, {consent_text}.")
+    print("Result: declarer lost; no remaining card points were assigned.")
+    print(
+        f"Settlement: {settlement['settlement_score']} using effective game value "
+        f"{settlement['effective_game_value']}; no achieved Schneider or Schwarz "
+        "level was added."
+    )
 
 
 def print_opponent_profile_application_summary(result: dict[str, Any]) -> None:
@@ -1232,6 +1286,10 @@ def run_json_position_analysis(
         raise ValueError("multi_step_count must be a positive integer.")
 
     position_data = load_position_from_json(file_path)
+    if "game_shortening" in position_data and multi_step_count is not None:
+        raise ValueError(
+            "Structured game_shortening cannot be combined with multi-step simulation."
+        )
     analysis_metadata = get_analysis_metadata_from_input(position_data)
     validate_live_opponent_profile_options(
         position_data=position_data,

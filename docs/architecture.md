@@ -150,12 +150,16 @@ insufficient.
 
 | File                                | Purpose                                                                                                       |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `src/skat_ai/game_end.py`           | Game-end reason handling and remaining-point assignment for claim/concession scenarios.                       |
+| `src/skat_ai/game_end.py`           | Legacy game-end reason handling and remaining-point assignment.                                               |
+| `src/skat_ai/declarer_concession.py` | Typed version-1 validation, hand-count reconciliation, and no-assignment declarer-concession adjudication.    |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
 | `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
 | `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
 
-Claim and concession handling assigns remaining card points according to `game_end_reason`. It does not simulate the actual remaining tricks or verify whether a claim was strategically justified.
+The structured declarer-concession path bypasses legacy point assignment, forces
+a defender win, preserves observed and unplayed points, and suppresses achieved
+Schneider/Schwarz inference. Legacy claim and concession reasons retain their
+existing simplified assignment behavior. Neither path simulates future play.
 
 ## Simulation
 
@@ -355,6 +359,8 @@ Output is designed to be regression-friendly and schema-validatable.
 | File                                           | Purpose                                                                  |
 | ---------------------------------------------- | ------------------------------------------------------------------------ |
 | `schemas/input.schema.json`                    | Stable input JSON structure.                                             |
+| `schemas/game_shortening.schema.json`          | Strict version-1 structured game-shortening input union.                  |
+| `schemas/declarer_concession_output.schema.json` | Strict adjudication summary and settlement-basis output.                |
 | `schemas/historical_game.schema.json`          | Versioned complete historical-game input structure.                      |
 | `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
 | `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |

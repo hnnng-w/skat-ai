@@ -6,6 +6,12 @@ from skat_ai.analysis_metadata import (
     AnalysisMetadata,
     build_analysis_metadata_from_input,
 )
+from skat_ai.declarer_concession import (
+    DeclarerConcession,
+)
+from skat_ai.declarer_concession import (
+    get_declarer_concession_from_input as build_declarer_concession_from_input,
+)
 from skat_ai.game_declaration import (
     GameDeclaration,
     build_game_declaration_from_input,
@@ -264,6 +270,13 @@ def get_game_declaration_from_input(
     Extracts game declaration metadata from input data.
     """
     return build_game_declaration_from_input(data)
+
+
+def get_declarer_concession_from_input(
+    data: dict[str, Any],
+) -> DeclarerConcession | None:
+    """Extracts the optional structured declarer concession."""
+    return build_declarer_concession_from_input(data)
 
 
 def get_impossible_null_settlement_from_input(

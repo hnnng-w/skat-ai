@@ -8,6 +8,10 @@ The output JSON schema is available at:
 
 [`schemas/output.schema.json`](../schemas/output.schema.json)
 
+Structured declarer-concession output uses the focused schema:
+
+[`schemas/declarer_concession_output.schema.json`](../schemas/declarer_concession_output.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -474,7 +478,8 @@ Example:
 
 ## Adjusted game result summary
 
-`adjusted_game_result_summary` applies `game_end_reason`.
+`adjusted_game_result_summary` applies a legacy `game_end_reason` or structured
+game-shortening adjudication.
 
 For example, if the declarer claims remaining tricks, remaining card points are assigned to the declarer.
 
@@ -482,6 +487,11 @@ For `impossible_null_declaration`, it instead records a final defenders' win
 without assigning card points. Raw zero-point values remain visible, while raw
 and effective Schneider/Schwarz statuses are `not_applicable` because no card
 play occurred.
+
+For structured declarer concession, observed points and `points_remaining` are
+preserved. The result is final and adjudicated with defenders as winner,
+`remaining_points_recipient: null`, and `remaining_points_assigned: 0`. It does
+not manufacture totals summing to 120.
 
 Example:
 
@@ -497,6 +507,16 @@ Example:
   "remaining_points_assigned": 29
 }
 ```
+
+## Game-shortening summary
+
+`game_shortening_summary` is present only for the structured contract. It
+records schema version, kind, deterministic ISkO section, supplied hand count,
+`confirmed` or `not_verifiable` reconciliation, the exact consent facts,
+defender adjudication, no point assignment, and the policy
+`declared_or_overbid_value_without_achieved_levels`.
+
+It contains no solver result or hypothetical future-play claim.
 
 ## Final settlement summary
 
@@ -547,6 +567,14 @@ fields: `effective_game_value`, `settlement_score`, `is_loss`, and the derived
 `performance_rating_summary.game_outcome`.
 
 For supported Suit/Grand overbid cases, `effective_game_value` equals `required_game_value`.
+
+For structured declarer concession, `declarer_won_by_card_points` is `null`,
+`winner` is `defenders`, and the score is twice the effective value as a loss.
+Declared Hand, Schneider, Schwarz, and ouvert levels remain in `game_value`.
+`settlement_basis` reports an adjudicated outcome, no achieved Schneider or
+Schwarz addition, and whether overbid-required valuation changed the effective
+value. An overbid-required level is valuation and is never labeled as achieved.
+All four Null variants use their fixed declared values.
 
 For an impossible Null declaration, `declarer_won_by_card_points` is `null`,
 `winner` is `defenders`, and `is_loss` is `true`. Complete replacement metadata

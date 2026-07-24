@@ -434,6 +434,9 @@
     "game_declaration": {
       "$ref": "#/$defs/game_declaration_input"
     },
+    "game_shortening": {
+      "$ref": "https://example.local/skat-ai/game_shortening.schema.json"
+    },
     "impossible_null_settlement": {
       "$ref": "#/$defs/impossible_null_settlement_input"
     },
