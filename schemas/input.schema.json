@@ -303,7 +303,11 @@
             "required": ["kind"],
             "properties": {
               "kind": {
-                "enum": ["defender_concession", "declarer_card_exposure"]
+                "enum": [
+                  "defender_concession",
+                  "declarer_card_exposure",
+                  "defender_open_play"
+                ]
               }
             }
           }

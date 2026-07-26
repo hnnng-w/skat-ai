@@ -221,14 +221,14 @@ Implemented:
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
 * Full official settlement nuance coverage is not complete.
-* Legacy claim and concession reasons assign remaining points; all three structured shortening kinds preserve them as unplayed.
-* The engine does not yet verify whether a claim was strategically or legally justified.
+* Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, while bounded defender open play records exact rule assignment.
+* The engine verifies only bounded ISkO 4.4.5 defender rest-trick claims; no general claim-verification protocol exists.
 * Structured declarer concession models accepted defender consent; structured defender concession applies joint liability without partner consent. Disputes are not modeled.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Complete historical-game records currently support normal completion only; claims, concessions, and other later end reasons are not represented there.
-* Continued exposed-card play after an objection, defender open play, open throwing, and historical game shortening remain incomplete; general settlement coverage is incomplete.
+* Continued exposed-defender play under 4.1.6, unlimited exact solving, isolated-card claims, open throwing, and historical game shortening remain incomplete; general settlement coverage is incomplete.
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
 * Multi-Step does not preserve one coherent hidden-world assignment across every simulated path; a validated exposed declarer hand is the bounded exception and remains coherent along each path.
@@ -270,9 +270,10 @@ Implemented:
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 37 deterministic scenarios. Issues #86 through #89 add
+coverage now includes 38 deterministic scenarios. Issues #86 through #90 add
 bounded structured concessions, accepted declarer-card-exposure adjudication,
-and ongoing exposed-hand continuation while the package remains `0.8.0`.
+ongoing exposed-hand continuation, and bounded exact defender open-play
+adjudication while the package remains `0.8.0`.
 Issues #78 through #84 are complete:
 
 * #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.

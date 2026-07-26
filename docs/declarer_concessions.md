@@ -14,9 +14,9 @@ The following remain separate from this contract:
 
 * unanimously accepted declarer card exposure under ISkO 4.4.4, documented in [Accepted declarer card exposure](declarer_card_exposure.md)
 * rejected exposure with ongoing public-hand play, documented in [Declarer card exposure continuation](declarer_card_exposure_continuation.md)
-* defender open play under ISkO 4.4.5
+* bounded exact defender open play under ISkO 4.4.5, documented in [Defender open play](defender_open_play.md)
 * open card throwing under ISkO 4.4.6
-* solver-backed claims or hypothetical continuation
+* general solver-backed claims or hypothetical continuation
 * historical-game shortening, snapshots after concession, and training samples
 
 Defender concession under ISkO 4.4.3 is the separate version-1 union member

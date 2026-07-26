@@ -24,15 +24,9 @@ from skat_ai.player_profile import PlayerProfile
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = PROJECT_ROOT / "main.py"
 VALID_INPUT_PATH = PROJECT_ROOT / "examples" / "grand_second_position.json"
-HISTORICAL_INPUT_PATH = (
-    PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
-)
-TRAINING_DATASET_INPUT_PATH = (
-    PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
-)
-OPPONENT_STATISTICS_INPUT_PATH = (
-    PROJECT_ROOT / "examples" / "opponent_statistics.json"
-)
+HISTORICAL_INPUT_PATH = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+TRAINING_DATASET_INPUT_PATH = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
+OPPONENT_STATISTICS_INPUT_PATH = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_opponent_statistics.json"
 )
@@ -52,18 +46,13 @@ UNSUPPORTED_PHASE_INPUT_PATH = (
 IMPOSSIBLE_NULL_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "null_impossible_declaration_settlement.json"
 )
-DECLARER_CONCESSION_INPUT_PATH = (
-    PROJECT_ROOT / "examples" / "declarer_concession.json"
-)
-DEFENDER_CONCESSION_INPUT_PATH = (
-    PROJECT_ROOT / "examples" / "defender_concession.json"
-)
-DECLARER_CARD_EXPOSURE_INPUT_PATH = (
-    PROJECT_ROOT / "examples" / "declarer_card_exposure.json"
-)
+DECLARER_CONCESSION_INPUT_PATH = PROJECT_ROOT / "examples" / "declarer_concession.json"
+DEFENDER_CONCESSION_INPUT_PATH = PROJECT_ROOT / "examples" / "defender_concession.json"
+DECLARER_CARD_EXPOSURE_INPUT_PATH = PROJECT_ROOT / "examples" / "declarer_card_exposure.json"
 DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
 )
+DEFENDER_OPEN_PLAY_INPUT_PATH = PROJECT_ROOT / "examples" / "defender_open_play.json"
 
 
 def run_cli(*args: object) -> subprocess.CompletedProcess[str]:
@@ -293,9 +282,7 @@ def test_cli_dataset_partition_audit_defaults_to_report_only_summary() -> None:
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
-    assert "Dataset partition audit: 3 games, 3 distinct players." in (
-        completed_process.stdout
-    )
+    assert "Dataset partition audit: 3 games, 3 distinct players." in (completed_process.stdout)
     assert "Partition mode: report_only." in completed_process.stdout
     assert "Cross-partition players: 3." in completed_process.stdout
     assert "Train -> validation shared players: 3 of 3 validation players." in (
@@ -363,9 +350,7 @@ def test_cli_dataset_partition_audit_uses_declaration_and_rejects_conflict(
     assert declared.returncode == 0
     with output_path.open("r", encoding="utf-8") as output_file:
         result = json.load(output_file)
-    assert result["dataset_partition_audit_summary"]["effective_audit_mode"] == (
-        "known_opponent"
-    )
+    assert result["dataset_partition_audit_summary"]["effective_audit_mode"] == ("known_opponent")
 
     matching = run_cli(
         "--input",
@@ -576,9 +561,7 @@ def test_cli_historical_opponent_statistics_prints_concise_summary() -> None:
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
-    assert "Historical opponent statistics: 2 games, 3 players." in (
-        completed_process.stdout
-    )
+    assert "Historical opponent statistics: 2 games, 3 players." in (completed_process.stdout)
     assert "Included partitions: train, validation" in completed_process.stdout
     assert "player-b: 2 games, 100.00% declarer" in completed_process.stdout
     assert "Training dataset summary" not in completed_process.stdout
@@ -618,10 +601,11 @@ def test_cli_historical_opponent_statistics_quiet_output_and_export(tmp_path) ->
     assert "training_dataset_summary" not in result
     assert "samples" not in str(result)
     assert set(exported) == {"opponent_statistics_input"}
-    assert [
-        record["player_id"]
-        for record in exported["opponent_statistics_input"]["records"]
-    ] == ["player-a", "player-b", "player-c"]
+    assert [record["player_id"] for record in exported["opponent_statistics_input"]["records"]] == [
+        "player-a",
+        "player-b",
+        "player-c",
+    ]
 
 
 def test_cli_historical_opponent_statistics_prints_export_confirmation(tmp_path) -> None:
@@ -636,9 +620,7 @@ def test_cli_historical_opponent_statistics_prints_export_confirmation(tmp_path)
     )
 
     assert completed_process.returncode == 0
-    assert f"Exported opponent statistics to {export_path}." in (
-        completed_process.stdout
-    )
+    assert f"Exported opponent statistics to {export_path}." in (completed_process.stdout)
     assert export_path.exists()
 
 
@@ -744,9 +726,7 @@ def test_cli_opponent_statistics_quiet_output_is_separate_branch(tmp_path) -> No
 
 
 def test_cli_historical_decision_snapshots_prints_count() -> None:
-    completed_process = run_cli(
-        "--input", HISTORICAL_INPUT_PATH, "--historical-decision-snapshots"
-    )
+    completed_process = run_cli("--input", HISTORICAL_INPUT_PATH, "--historical-decision-snapshots")
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
@@ -770,9 +750,7 @@ def test_cli_historical_decision_snapshots_quiet_output(tmp_path) -> None:
     assert completed_process.stderr == ""
     with output_path.open("r", encoding="utf-8") as output_file:
         result = json.load(output_file)
-    snapshot_summary = result["historical_game_summary"][
-        "decision_snapshot_summary"
-    ]
+    snapshot_summary = result["historical_game_summary"]["decision_snapshot_summary"]
     assert snapshot_summary["snapshot_count"] == 30
     assert len(snapshot_summary["snapshots"]) == 30
 
@@ -982,26 +960,19 @@ def test_historical_review_and_snapshot_flags_generate_snapshots_once(
 
 
 def test_cli_rejects_historical_game_review_for_position_input() -> None:
-    completed_process = run_cli(
-        "--input", VALID_INPUT_PATH, "--historical-game-review"
-    )
+    completed_process = run_cli("--input", VALID_INPUT_PATH, "--historical-game-review")
 
     assert completed_process.returncode == 2
-    assert "--historical-game-review requires historical-game input" in (
-        completed_process.stderr
-    )
+    assert "--historical-game-review requires historical-game input" in (completed_process.stderr)
     assert_no_success_output(completed_process)
 
 
 def test_cli_rejects_historical_decision_snapshots_for_position_input() -> None:
-    completed_process = run_cli(
-        "--input", VALID_INPUT_PATH, "--historical-decision-snapshots"
-    )
+    completed_process = run_cli("--input", VALID_INPUT_PATH, "--historical-decision-snapshots")
 
     assert completed_process.returncode == 2
     assert (
-        "--historical-decision-snapshots requires historical-game input"
-        in completed_process.stderr
+        "--historical-decision-snapshots requires historical-game input" in completed_process.stderr
     )
     assert_no_success_output(completed_process)
 
@@ -1023,9 +994,7 @@ def test_cli_rejects_historical_decision_snapshots_for_position_input() -> None:
 def test_cli_historical_game_rejects_position_specific_overrides(
     override_args: tuple[str, ...],
 ) -> None:
-    completed_process = run_cli(
-        "--input", HISTORICAL_INPUT_PATH, *override_args
-    )
+    completed_process = run_cli("--input", HISTORICAL_INPUT_PATH, *override_args)
 
     assert completed_process.returncode == 2
     assert "Historical-game inputs do not accept" in completed_process.stderr
@@ -1053,9 +1022,7 @@ def test_cli_historical_game_rejects_position_specific_overrides(
 def test_cli_training_dataset_rejects_analysis_and_review_options(
     override_args: tuple[str, ...],
 ) -> None:
-    completed_process = run_cli(
-        "--input", TRAINING_DATASET_INPUT_PATH, *override_args
-    )
+    completed_process = run_cli("--input", TRAINING_DATASET_INPUT_PATH, *override_args)
 
     assert completed_process.returncode == 2
     assert "Training-dataset inputs do not accept" in completed_process.stderr
@@ -1087,9 +1054,7 @@ def test_cli_training_dataset_rejects_analysis_and_review_options(
 def test_cli_opponent_statistics_rejects_all_workflow_options(
     override_args: tuple[str, ...],
 ) -> None:
-    completed_process = run_cli(
-        "--input", OPPONENT_STATISTICS_INPUT_PATH, *override_args
-    )
+    completed_process = run_cli("--input", OPPONENT_STATISTICS_INPUT_PATH, *override_args)
 
     assert completed_process.returncode == 2
     assert "Opponent-statistics inputs do not accept" in completed_process.stderr
@@ -1174,10 +1139,7 @@ def test_cli_rejects_expected_value_sample_count_above_maximum_before_analysis(
     )
 
     assert completed_process.returncode == 2
-    assert (
-        "CLI error: --expected-value-samples must be at most 100000."
-        in completed_process.stderr
-    )
+    assert "CLI error: --expected-value-samples must be at most 100000." in completed_process.stderr
     assert_no_success_output(completed_process)
     assert not output_path.exists()
 
@@ -1226,9 +1188,7 @@ def test_cli_rejects_comparison_only_without_compare_policies_before_analysis(
     )
 
     assert completed_process.returncode == 2
-    assert "CLI error: --comparison-only requires --compare-policies." in (
-        completed_process.stderr
-    )
+    assert "CLI error: --comparison-only requires --compare-policies." in (completed_process.stderr)
     assert_no_success_output(completed_process)
     assert not output_path.exists()
 
@@ -1637,6 +1597,7 @@ def test_apply_cli_overrides_does_not_mutate_original_settings() -> None:
     assert updated_settings["sample_count"] == 500
     assert updated_settings["random_seed"] == 123
 
+
 def test_apply_cli_overrides_sets_basic_opponent_strategy() -> None:
     settings = {
         "left_hand_size": 5,
@@ -1695,6 +1656,7 @@ def test_apply_cli_overrides_updates_all_cli_options() -> None:
     assert updated_settings["random_seed"] == 123
     assert updated_settings["use_basic_opponent_strategy"] is False
 
+
 def test_build_analysis_result_returns_expected_top_level_keys() -> None:
     result = build_analysis_result(
         file_path="examples/grand_leading.json",
@@ -1742,8 +1704,7 @@ def test_cli_prints_structured_declarer_concession_summary() -> None:
         in completed_process.stdout
     )
     assert (
-        "Result: declarer lost; no remaining card points were assigned."
-        in completed_process.stdout
+        "Result: declarer lost; no remaining card points were assigned." in completed_process.stdout
     )
     assert "Settlement: -144 using effective game value 72" in completed_process.stdout
 
@@ -1786,14 +1747,10 @@ def test_cli_prints_structured_defender_concession_summary() -> None:
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
-    assert (
-        "Defender concession: left conceded for the defending party."
-        in completed_process.stdout
-    )
+    assert "Defender concession: left conceded for the defending party." in completed_process.stdout
     assert "Decision before concession: undecided." in completed_process.stdout
     assert (
-        "Result: declarer won; no remaining card points were assigned."
-        in completed_process.stdout
+        "Result: declarer won; no remaining card points were assigned." in completed_process.stdout
     )
     assert "Settlement: 72 using effective game value 72." in completed_process.stdout
 
@@ -1840,12 +1797,10 @@ def test_cli_prints_accepted_declarer_card_exposure_summary() -> None:
     assert "Both defenders accepted the shortening." in completed_process.stdout
     assert "Claimed level: Schneider." in completed_process.stdout
     assert (
-        "Result: declarer won; no remaining card points were assigned."
-        in completed_process.stdout
+        "Result: declarer won; no remaining card points were assigned." in completed_process.stdout
     )
     assert (
-        "Settlement: 96 using a unanimously accepted Schneider claim."
-        in completed_process.stdout
+        "Settlement: 96 using a unanimously accepted Schneider claim." in completed_process.stdout
     )
 
 
@@ -1883,26 +1838,52 @@ def test_cli_rejects_multi_step_for_declarer_card_exposure() -> None:
     assert "cannot be combined with multi-step simulation" in completed_process.stderr
 
 
-def test_cli_prints_declarer_card_exposure_continuation_summary() -> None:
-    completed_process = run_cli(
-        "--input", DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH
-    )
+def test_cli_prints_defender_open_play_summary_without_hidden_hands() -> None:
+    completed_process = run_cli("--input", DEFENDER_OPEN_PLAY_INPUT_PATH)
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
+    assert "Defender open play: me exposed 2 remaining cards." in completed_process.stdout
     assert (
-        "Declarer card exposure was not accepted unanimously."
+        "Exact proof: valid across every legal declarer and partner response."
         in completed_process.stdout
     )
+    assert "Rest tricks: defending party." in completed_process.stdout
+    assert "Result: declarer lost." in completed_process.stdout
+    assert "Settlement: -144." in completed_process.stdout
+    for hidden_card in ("D7", "D8", "D9", "H8"):
+        assert hidden_card not in completed_process.stdout
+
+
+def test_cli_defender_open_play_quiet_output_is_privacy_safe(tmp_path: Path) -> None:
+    output_path = tmp_path / "defender_open_play_output.json"
+    completed_process = run_cli(
+        "--input",
+        DEFENDER_OPEN_PLAY_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as file:
+        output = json.load(file)
+    serialized = json.dumps(output)
+    assert "remaining_hands" not in serialized
+    assert output["game_shortening_summary"]["exact_proof"]["status"] == "valid"
+
+
+def test_cli_prints_declarer_card_exposure_continuation_summary() -> None:
+    completed_process = run_cli("--input", DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Declarer card exposure was not accepted unanimously." in completed_process.stdout
     assert "Me requested continued play." in completed_process.stdout
-    assert (
-        "The declarer's 6 remaining cards are public to all players."
-        in completed_process.stdout
-    )
-    assert (
-        "Claimed level Schneider has no immediate settlement effect."
-        in completed_process.stdout
-    )
+    assert "The declarer's 6 remaining cards are public to all players." in completed_process.stdout
+    assert "Claimed level Schneider has no immediate settlement effect." in completed_process.stdout
     assert "Analysis continues using the exposed declarer hand." in completed_process.stdout
     assert "Settlement:" not in completed_process.stdout
 
@@ -1929,9 +1910,7 @@ def test_cli_continuation_quiet_multi_step_and_policy_comparison(
         output = json.load(file)
     assert output["game_continuation_summary"]["game_end_applied"] is False
     assert output["final_settlement_summary"]["settlement_score"] is None
-    assert output["multi_step_result"]["context_summary"][
-        "public_hand_constraints"
-    ]
+    assert output["multi_step_result"]["context_summary"]["public_hand_constraints"]
     for policy_result in output["policy_comparison_result"]["policy_results"]:
         assert policy_result["context_summary"]["public_hand_constraints"]
 
@@ -1972,6 +1951,7 @@ def test_build_analysis_result_applies_cli_overrides() -> None:
     assert result["settings"]["random_seed"] == 123
     assert result["settings"]["use_basic_opponent_strategy"] is False
 
+
 def test_build_analysis_result_includes_overbid_summary() -> None:
     result = build_analysis_result(
         file_path="examples/grand_second_position.json",
@@ -1998,9 +1978,7 @@ def test_build_analysis_result_serializes_impossible_null_settlement() -> None:
     assert result["game_declaration"]["matadors"] is None
     assert result["game_value_summary"]["game_value"] == 59
     assert result["overbid_summary"]["required_game_value"] == 60
-    assert result["overbid_summary"]["impossible_null_settlement"][
-        "hand_game"
-    ] is True
+    assert result["overbid_summary"]["impossible_null_settlement"]["hand_game"] is True
     assert result["final_settlement_summary"]["winner"] == "defenders"
     assert result["final_settlement_summary"]["declarer_won_by_card_points"] is None
     assert result["final_settlement_summary"]["settlement_score"] == -120
@@ -2019,10 +1997,9 @@ def test_build_analysis_result_keeps_impossible_null_settlement_incomplete(
     assert result["adjusted_game_result_summary"]["winner"] == "defenders"
     assert result["overbid_summary"]["impossible_null_settlement"] is None
     assert result["final_settlement_summary"]["is_complete"] is False
-    assert result["final_settlement_summary"]["missing_inputs"] == [
-        "impossible_null_settlement"
-    ]
+    assert result["final_settlement_summary"]["missing_inputs"] == ["impossible_null_settlement"]
     assert result["final_settlement_summary"]["settlement_score"] is None
+
 
 def test_build_analysis_result_includes_performance_rating_summary() -> None:
     result = build_analysis_result(
@@ -2110,9 +2087,7 @@ def test_build_analysis_result_includes_list_performance_summary(tmp_path) -> No
         "opponent_loss_bonus_points": 80,
         "total_performance_points": 300,
     }
-    assert result["performance_rating_summary"]["basis"] == (
-        "individual_game_settlement"
-    )
+    assert result["performance_rating_summary"]["basis"] == ("individual_game_settlement")
     assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
     assert result["performance_rating_summary"]["settlement_score"] is None
     assert result["performance_rating_summary"]["rating_score"] is None
@@ -2157,9 +2132,7 @@ def test_build_analysis_result_includes_contribution_list_performance_summary(
         "opponent_loss_bonus_points": 40,
         "total_performance_points": 186,
     }
-    assert result["performance_rating_summary"]["basis"] == (
-        "individual_game_settlement"
-    )
+    assert result["performance_rating_summary"]["basis"] == ("individual_game_settlement")
     assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
     assert result["performance_rating_summary"]["settlement_score"] is None
     assert result["performance_rating_summary"]["rating_score"] is None
@@ -2287,9 +2260,7 @@ def test_build_analysis_result_includes_analysis_result_list_performance_summary
         "opponent_loss_bonus_points": 40,
         "total_performance_points": 186,
     }
-    assert result["performance_rating_summary"]["basis"] == (
-        "individual_game_settlement"
-    )
+    assert result["performance_rating_summary"]["basis"] == ("individual_game_settlement")
     assert result["performance_rating_summary"]["game_outcome"] == "incomplete"
     assert "list_standings_summary" not in result
 
@@ -2330,16 +2301,12 @@ def test_build_analysis_result_includes_list_standings_summary(
     )
 
     assert "list_performance_summary" not in result
-    assert result["list_standings_summary"]["basis"] == (
-        "fixed_three_player_game_results"
-    )
+    assert result["list_standings_summary"]["basis"] == ("fixed_three_player_game_results")
     assert result["list_standings_summary"]["ranking_status"] == "final"
     assert result["list_standings_summary"]["lot_required_player_ids"] == []
     assert result["list_standings_summary"]["applied_lot_order"] is None
     assert result["list_standings_summary"]["standings"][0]["player_id"] == "alice"
-    assert result["list_standings_summary"]["standings"][0][
-        "total_performance_points"
-    ] == 186
+    assert result["list_standings_summary"]["standings"][0]["total_performance_points"] == 186
 
 
 def test_build_analysis_result_accepts_analysis_result_metadata(
@@ -2834,6 +2801,7 @@ def test_print_multi_step_result_outputs_opponent_response(capsys) -> None:
     assert "Opponent response card: D9" in captured.out
     assert "Candidate card: DA" in captured.out
 
+
 def test_print_multi_step_result_outputs_duplicate_context_warning(capsys) -> None:
     from skat_ai.game_state import GameState
 
@@ -2911,6 +2879,7 @@ def test_print_multi_step_result_outputs_duplicate_context_warning(capsys) -> No
     assert "Context warning: duplicate simulated opponent cards detected:" in captured.out
     assert "['S7']" in captured.out
 
+
 def test_run_json_position_analysis_supports_strict_context() -> None:
     run_json_position_analysis(
         file_path="examples/grand_second_position.json",
@@ -2923,6 +2892,7 @@ def test_run_json_position_analysis_supports_strict_context() -> None:
         expected_value_sample_count=20,
         strict_context=True,
     )
+
 
 def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
     result = {
@@ -2981,6 +2951,7 @@ def test_print_policy_comparison_result_outputs_summary(capsys) -> None:
     assert "Recommendation reason: Best final point swing after tie-breakers." in captured.out
     assert "Recommended final point swing: 12" in captured.out
     assert "Recommended local point swing: 12" in captured.out
+
 
 def test_run_json_position_analysis_supports_policy_comparison() -> None:
     run_json_position_analysis(
@@ -3048,6 +3019,7 @@ def test_run_json_position_analysis_supports_comparison_only(capsys) -> None:
     assert "Multi-step simulation" not in captured.out
     assert "Multi-step score summary" not in captured.out
 
+
 def test_run_json_position_analysis_rejects_comparison_only_without_compare_policies() -> None:
     try:
         run_json_position_analysis(
@@ -3068,6 +3040,7 @@ def test_run_json_position_analysis_rejects_comparison_only_without_compare_poli
     else:
         raise AssertionError("Expected ValueError was not raised.")
 
+
 def test_build_analysis_result_includes_default_analysis_metadata() -> None:
     result = build_analysis_result(
         file_path="examples/grand_second_position.json",
@@ -3081,6 +3054,7 @@ def test_build_analysis_result_includes_default_analysis_metadata() -> None:
         "skat_visibility": "unknown",
         "game_end_reason": "not_ended",
     }
+
 
 def test_build_analysis_result_includes_information_policy_summary() -> None:
     result = build_analysis_result(
@@ -3100,7 +3074,7 @@ def test_build_analysis_result_includes_information_policy_summary() -> None:
         "ended_game_allowed": False,
         "unverifiable_completed_trick_winner_metadata_allowed": False,
     }
-    
+
 
 def test_build_analysis_result_reads_analysis_metadata() -> None:
     result = build_analysis_result(
@@ -3117,6 +3091,7 @@ def test_build_analysis_result_reads_analysis_metadata() -> None:
     }
     assert result["analysis_metadata"]["left_player_profile"]["games_played"] == 1240
     assert result["analysis_metadata"]["right_player_profile"]["games_played"] == 520
+
 
 def test_build_analysis_result_includes_opponent_policy_settings() -> None:
     result = build_analysis_result(
@@ -3175,6 +3150,7 @@ def test_build_analysis_result_includes_profile_preset_settings() -> None:
         "use_profile_presets": False,
     }
 
+
 def test_build_analysis_result_applies_profile_presets_from_input() -> None:
     result = build_analysis_result(
         file_path="examples/grand_second_position_with_metadata.json",
@@ -3189,6 +3165,7 @@ def test_build_analysis_result_applies_profile_presets_from_input() -> None:
             "basic_defender_lead",
             "highest_point",
         ]
+
 
 def test_build_analysis_result_includes_game_declaration() -> None:
     result = build_analysis_result(
@@ -3207,6 +3184,7 @@ def test_build_analysis_result_includes_game_declaration() -> None:
         "matadors": 4,
         "bid_value": None,
     }
+
 
 def test_build_analysis_result_includes_game_value_summary() -> None:
     result = build_analysis_result(
@@ -3233,6 +3211,7 @@ def test_build_analysis_result_includes_game_value_summary() -> None:
             "is_complete": True,
         },
     }
+
 
 def test_build_analysis_result_includes_game_result_summary() -> None:
     result = build_analysis_result(
@@ -3262,6 +3241,7 @@ def test_build_analysis_result_includes_game_result_summary() -> None:
         },
     }
 
+
 def test_build_analysis_result_includes_final_settlement_summary() -> None:
     result = build_analysis_result(
         file_path="examples/grand_second_position.json",
@@ -3288,9 +3268,10 @@ def test_build_analysis_result_includes_final_settlement_summary() -> None:
             "Settlement score uses simplified Skat logic.",
             "Lost declarer games are counted as -2 * effective_game_value.",
             "Overbid settlement is supported for suit and grand games when "
-            "required_game_value is available."
+            "required_game_value is available.",
         ],
     }
+
 
 def test_build_analysis_result_includes_adjusted_game_result_summary() -> None:
     result = build_analysis_result(
@@ -3322,6 +3303,7 @@ def test_build_analysis_result_includes_adjusted_game_result_summary() -> None:
         "remaining_points_recipient": None,
         "remaining_points_assigned": 0,
     }
+
 
 def test_build_analysis_result_includes_left_right_opponent_policy_settings() -> None:
     result = build_analysis_result(
@@ -4908,9 +4890,7 @@ def test_run_json_position_analysis_keeps_input_position_separate_from_prepared_
     assert result["recommendation"]["card"] is None
     assert result["multi_step_result"]["steps_simulated"] == 1
     assert result["multi_step_result"]["steps"][0]["prepared_state"]["next_player"] == "me"
-    assert len(
-        result["multi_step_result"]["steps"][0]["prepared_state"]["current_trick"]
-    ) == 2
+    assert len(result["multi_step_result"]["steps"][0]["prepared_state"]["current_trick"]) == 2
 
 
 def build_simple_nested_declaration_input(
@@ -5075,9 +5055,7 @@ def test_build_analysis_result_uses_nested_announcement_for_settlement(
         lambda **_kwargs: build_stub_analysis_report(),
     )
     data = build_completed_grand_schwarz_input(
-        completed_tricks=build_completed_grand_tricks(
-            [*["declarer"] * 9, "defenders"]
-        ),
+        completed_tricks=build_completed_grand_tricks([*["declarer"] * 9, "defenders"]),
     )
     for field_name in [
         "hand_game",
@@ -5179,15 +5157,9 @@ def test_build_analysis_result_includes_unavailable_post_game_review_summary(
 
     assert "post_game_review_summary" in result
     assert result["post_game_review_summary"]["is_available"] is False
-    assert (
-        result["post_game_review_summary"]["reason"]
-        == "actual_card_played_not_provided"
-    )
+    assert result["post_game_review_summary"]["reason"] == "actual_card_played_not_provided"
     assert result["post_game_review_summary"]["actual_card_played"] is None
-    assert (
-        result["post_game_review_summary"]["decision_quality"]
-        == "not_available"
-    )
+    assert result["post_game_review_summary"]["decision_quality"] == "not_available"
 
 
 def test_build_analysis_result_uses_completed_null_ownership(
@@ -5239,9 +5211,7 @@ def test_build_analysis_result_uses_completed_null_ownership(
     assert result["game_result_summary"]["winner"] == "declarer"
     assert result["adjusted_game_result_summary"]["is_complete"] is True
     assert result["adjusted_game_result_summary"]["winner"] == "declarer"
-    assert result["adjusted_game_result_summary"]["game_end_reason"] == (
-        "normal_completion"
-    )
+    assert result["adjusted_game_result_summary"]["game_end_reason"] == ("normal_completion")
 
     assert result["final_settlement_summary"]["is_complete"] is True
     assert result["final_settlement_summary"]["winner"] == "declarer"
@@ -5280,15 +5250,11 @@ def test_build_analysis_result_uses_completed_trick_schwarz_settlement(
     assert declarer_schwarz_result["final_settlement_summary"]["effective_game_value"] == 120
     assert declarer_schwarz_result["final_settlement_summary"]["settlement_score"] == 120
     assert declarer_schwarz_result["final_settlement_summary"]["is_loss"] is False
-    assert declarer_schwarz_result["performance_rating_summary"]["game_outcome"] == (
-        "declarer_win"
-    )
+    assert declarer_schwarz_result["performance_rating_summary"]["game_outcome"] == ("declarer_win")
     assert declarer_schwarz_result["performance_rating_summary"]["settlement_score"] == 120
 
     failed_announcement_input = build_completed_grand_schwarz_input(
-        completed_tricks=build_completed_grand_tricks(
-            [*["declarer"] * 9, "defenders"]
-        ),
+        completed_tricks=build_completed_grand_tricks([*["declarer"] * 9, "defenders"]),
         schwarz_announced=True,
     )
     failed_announcement_path = write_position_file(tmp_path, failed_announcement_input)
@@ -5302,9 +5268,7 @@ def test_build_analysis_result_uses_completed_trick_schwarz_settlement(
     assert failed_announcement_result["performance_rating_summary"]["game_outcome"] == (
         "declarer_loss"
     )
-    assert failed_announcement_result["performance_rating_summary"]["settlement_score"] == (
-        -336
-    )
+    assert failed_announcement_result["performance_rating_summary"]["settlement_score"] == (-336)
 
 
 def test_build_analysis_result_includes_available_post_game_review_summary(
@@ -5539,7 +5503,7 @@ def test_build_analysis_result_infers_missing_matadors_from_known_declarer_cards
             "hand_game": False,
             "ouvert": False,
             "schneider_announced": False,
-            "schwarz_announced": False
+            "schwarz_announced": False,
         },
     }
     input_path = write_position_file(tmp_path, data)
@@ -5629,7 +5593,7 @@ def test_build_analysis_result_keeps_explicit_matadors_over_inference(
             "ouvert": False,
             "schneider_announced": False,
             "schwarz_announced": False,
-            "matadors": 1
+            "matadors": 1,
         },
     }
     input_path = write_position_file(tmp_path, data)
@@ -5737,23 +5701,26 @@ def test_cli_applies_two_external_profiles_and_prints_concise_side_lines(
         "applied cautious_defender."
     ) in completed_process.stdout
     assert (
-        "Right opponent opponent-789: aggressive, medium confidence, "
-        "applied aggressive_points."
+        "Right opponent opponent-789: aggressive, medium confidence, applied aggressive_points."
     ) in completed_process.stdout
     with output_path.open("r", encoding="utf-8") as output_file:
         result = json.load(output_file)
     summary = result["opponent_profile_application_summary"]
-    assert summary["left"]["effective_lead_policy"] == (
-        result["left_opponent_policy_settings"]["opponent_lead_policy"]
+    assert (
+        summary["left"]["effective_lead_policy"]
+        == (result["left_opponent_policy_settings"]["opponent_lead_policy"])
     )
-    assert summary["left"]["effective_response_policy"] == (
-        result["left_opponent_policy_settings"]["opponent_response_policy"]
+    assert (
+        summary["left"]["effective_response_policy"]
+        == (result["left_opponent_policy_settings"]["opponent_response_policy"])
     )
-    assert summary["right"]["effective_lead_policy"] == (
-        result["right_opponent_policy_settings"]["opponent_lead_policy"]
+    assert (
+        summary["right"]["effective_lead_policy"]
+        == (result["right_opponent_policy_settings"]["opponent_lead_policy"])
     )
-    assert summary["right"]["effective_response_policy"] == (
-        result["right_opponent_policy_settings"]["opponent_response_policy"]
+    assert (
+        summary["right"]["effective_response_policy"]
+        == (result["right_opponent_policy_settings"]["opponent_response_policy"])
     )
     assert "statistics" not in summary["left"]["external_profile"]
     assert summary["right"]["external_profile"]["notes"] == (
@@ -5826,16 +5793,12 @@ def test_external_profiles_match_equivalent_manual_immediate_and_multi_step_path
     manual_data["use_profile_presets"] = True
     manual_data["left_player_profile"] = {
         key: value
-        for key, value in statistics_summary["records"][0][
-            "normalized_profile_statistics"
-        ].items()
+        for key, value in statistics_summary["records"][0]["normalized_profile_statistics"].items()
         if value is not None
     }
     manual_data["right_player_profile"] = {
         key: value
-        for key, value in statistics_summary["records"][1][
-            "normalized_profile_statistics"
-        ].items()
+        for key, value in statistics_summary["records"][1]["normalized_profile_statistics"].items()
         if value is not None
     }
     manual_path = tmp_path / "manual-profiles.json"
@@ -5855,9 +5818,7 @@ def test_external_profiles_match_equivalent_manual_immediate_and_multi_step_path
         "--output",
     )
 
-    manual_process = run_cli(
-        "--input", manual_path, *common_args, manual_output, "--quiet"
-    )
+    manual_process = run_cli("--input", manual_path, *common_args, manual_output, "--quiet")
     external_process = run_cli(
         "--input",
         VALID_INPUT_PATH,
@@ -6087,12 +6048,14 @@ def test_explicit_input_and_cli_policies_retain_existing_external_profile_preced
         input_result = json.load(file)
     with cli_output.open("r", encoding="utf-8") as file:
         cli_result = json.load(file)
-    assert input_result["opponent_profile_application_summary"]["left"][
-        "application_status"
-    ] == "explicit_policy_precedence"
-    assert cli_result["opponent_profile_application_summary"]["left"][
-        "application_status"
-    ] == "explicit_policy_precedence"
+    assert (
+        input_result["opponent_profile_application_summary"]["left"]["application_status"]
+        == "explicit_policy_precedence"
+    )
+    assert (
+        cli_result["opponent_profile_application_summary"]["left"]["application_status"]
+        == "explicit_policy_precedence"
+    )
     assert input_result["left_opponent_policy_settings"] == {
         "opponent_lead_policy": "lowest_point",
         "opponent_response_policy": "lowest_point",
@@ -6208,9 +6171,7 @@ def test_cli_rejects_missing_wrong_workflow_and_invalid_statistics_companion(
     )
     with OPPONENT_STATISTICS_INPUT_PATH.open("r", encoding="utf-8") as file:
         invalid_data = json.load(file)
-    invalid_data["opponent_statistics_input"]["records"][0]["source"][
-        "source_type"
-    ] = "website"
+    invalid_data["opponent_statistics_input"]["records"][0]["source"]["source_type"] = "website"
     invalid_path = tmp_path / "invalid-statistics.json"
     invalid_path.write_text(json.dumps(invalid_data), encoding="utf-8")
     invalid_process = run_cli(

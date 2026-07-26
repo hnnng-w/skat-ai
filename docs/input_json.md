@@ -12,6 +12,10 @@ Structured game shortening uses:
 
 [`schemas/game_shortening.schema.json`](../schemas/game_shortening.schema.json)
 
+Defender open play additionally uses:
+
+[`schemas/defender_open_play.schema.json`](../schemas/defender_open_play.schema.json)
+
 Complete historical records use the focused referenced schema:
 
 [`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json)
@@ -567,6 +571,41 @@ Suit and Grand support `simple`, `schneider`, and `schwarz`; Null requires
 `simple`. The object is exclusive with every other game ending and every live,
 simulation, policy-comparison, list, historical, training, statistics, or audit
 workflow. See [Accepted declarer card exposure](declarer_card_exposure.md).
+
+## Defender open play
+
+The fourth version-1 `game_shortening` variant adjudicates ISkO 4.4.5:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "declarer_player": "left",
+  "game_shortening": {
+    "schema_version": 1,
+    "kind": "defender_open_play",
+    "exposing_defender": "me",
+    "remaining_hands": {
+      "me": ["CK", "S9"],
+      "left": ["D7", "D8"],
+      "right": ["D9", "H8"]
+    },
+    "declarer_response": "accept_adjudication"
+  }
+}
+```
+
+All three exact hands are required as private post-game proof evidence. Runtime
+validation reconciles them with completed and current tricks, local ownership,
+hand sizes, turn order, and supplied skat or discard evidence. Exactly 30
+in-play cards must be accounted for, leaving two inferred out-of-play cards.
+The current trick may contain zero, one, or two cards. One through five tricks
+may remain unresolved.
+
+Only `accept_adjudication` is supported. `request_continued_play` is rejected
+because exposed-defender continuation under ISkO 4.1.6 is not implemented. The
+branch is exclusive with every other ending or continuation and all historical,
+dataset, statistics, audit, list, and simulation workflows. See
+[Defender open play](defender_open_play.md).
 
 ## Declarer card exposure continuation
 

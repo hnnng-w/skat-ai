@@ -48,6 +48,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Structured defender-concession adjudication under ISkO 4.4.3
 * Unanimously accepted declarer-card-exposure adjudication under ISkO 4.4.4
 * Continued play with the exact public declarer hand after rejected shortening under ISkO 4.4.4
+* Bounded exact defender open-play adjudication under ISkO 4.4.5 for up to five unresolved tricks
 * Legacy claim/concession remaining-point assignment
 * Adjusted game-result summaries
 * Final single-game settlement summaries
@@ -77,6 +78,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Rejection of post-game-only information in live-decision mode
 * Information policy summary output
 * Rule-authorized all-player declarer-hand constraints without defender-hand leakage
+* Private exact defender-open-play proof evidence with only the exposing defender's cards emitted
 
 ### Post-game review
 
@@ -353,12 +355,16 @@ Detailed documentation is split into topic-specific files:
 * [Defender concessions](docs/defender_concessions.md)
 * [Accepted declarer card exposure](docs/declarer_card_exposure.md)
 * [Declarer card exposure continuation](docs/declarer_card_exposure_continuation.md)
+* [Defender open play](docs/defender_open_play.md)
 * [Game-shortening input schema](schemas/game_shortening.schema.json)
 * [Game-continuation input schema](schemas/game_continuation.schema.json)
 * [Declarer-concession output schema](schemas/declarer_concession_output.schema.json)
 * [Defender-concession output schema](schemas/defender_concession_output.schema.json)
 * [Declarer-card-exposure output schema](schemas/declarer_card_exposure_output.schema.json)
 * [Declarer-card-exposure continuation output schema](schemas/declarer_card_exposure_continuation_output.schema.json)
+* [Defender-open-play input schema](schemas/defender_open_play.schema.json)
+* [Defender-open-play output schema](schemas/defender_open_play_output.schema.json)
+* [Exact rest-trick proof schema](schemas/exact_rest_trick_proof.schema.json)
 * [Public-hand constraint schema](schemas/public_hand_constraint.schema.json)
 * [Historical games](docs/historical_games.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
@@ -431,8 +437,9 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 37 deterministic scenarios,
-including accepted exposure adjudication and rejected-shortening continuation.
+complete. Generated-output validation covers 38 deterministic scenarios,
+including accepted exposure, rejected-shortening continuation, and bounded exact
+defender open-play adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
@@ -445,12 +452,16 @@ performance features.
 
 Complete normal-play historical records, information-safe pre-play snapshots,
 bounded 30-decision immediate review, and versioned training/evaluation dataset
-wrapping are partially supported. Three structured generic-position shortening
-variants are supported without assigning unplayed points: declarer concession,
-defender concession, and unanimously accepted declarer card exposure. A separate
+wrapping are partially supported. Four structured generic-position shortening
+variants are supported: declarer concession, defender concession, unanimously
+accepted declarer card exposure, and bounded exact defender open play. The first
+three preserve unplayed points; defender open play records the rule-assigned
+rest tricks and points. A separate
 flat-position continuation keeps the exact current declarer hand public after an
 objection without ending or settling the game. Remaining gaps include structured
-historical shortening or continuation, defender open play, open throwing, additional historical end reasons, approved settlement
+historical shortening or continuation, defender open-play continuation under
+ISkO 4.1.6, unlimited exact solving, isolated-card claims, open throwing,
+additional historical end reasons, approved settlement
 completeness, complete-game coaching, stronger solving, exposed-card-aware
 Ouvert simulation, complete field-level live provenance, coherent hidden-world
 continuity across Multi-Step paths, broader information-safe hidden-card

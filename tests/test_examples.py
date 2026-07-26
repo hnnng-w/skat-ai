@@ -204,9 +204,7 @@ def test_dataset_partition_audit_example_has_three_way_overlap() -> None:
 
 def test_opponent_statistics_example_preserves_two_ordered_players() -> None:
     path = Path("examples/opponent_statistics.json")
-    summary = build_opponent_statistics_summary(
-        load_opponent_statistics_from_json(str(path))
-    )
+    summary = build_opponent_statistics_summary(load_opponent_statistics_from_json(str(path)))
 
     assert summary["record_count"] == 2
     assert [record["player_id"] for record in summary["records"]] == [
@@ -214,9 +212,7 @@ def test_opponent_statistics_example_preserves_two_ordered_players() -> None:
         "opponent-789",
     ]
     assert summary["records"][1]["statistics"]["solo_games_played_percent"] == 42.5
-    assert summary["records"][0]["profile_derivation"]["classification"] == (
-        "cautious_defender"
-    )
+    assert summary["records"][0]["profile_derivation"]["classification"] == ("cautious_defender")
     assert summary["records"][1]["profile_derivation"]["classification"] == "aggressive"
 
 
@@ -302,6 +298,7 @@ def build_example_opponent_turn_context(file_name: str) -> dict:
         "multi_step_result": multi_step_result,
     }
 
+
 def assert_adjusted_result_metadata(
     result: dict,
     game_end_reason: str,
@@ -329,20 +326,24 @@ def assert_final_settlement_uses_adjusted_result(
         adjusted_result["winner"] == "declarer"
     )
 
+
 def test_not_ended_example_adjusted_result_invariants() -> None:
     result = build_example_analysis_result("grand_second_position.json")
 
     assert result["game_result_summary"]["is_complete"] is False
     assert result["adjusted_game_result_summary"]["is_complete"] is False
 
-    assert result["adjusted_game_result_summary"]["declarer_points"] == (
-        result["game_result_summary"]["declarer_points"]
+    assert (
+        result["adjusted_game_result_summary"]["declarer_points"]
+        == (result["game_result_summary"]["declarer_points"])
     )
-    assert result["adjusted_game_result_summary"]["defender_points"] == (
-        result["game_result_summary"]["defender_points"]
+    assert (
+        result["adjusted_game_result_summary"]["defender_points"]
+        == (result["game_result_summary"]["defender_points"])
     )
-    assert result["adjusted_game_result_summary"]["points_remaining"] == (
-        result["game_result_summary"]["points_remaining"]
+    assert (
+        result["adjusted_game_result_summary"]["points_remaining"]
+        == (result["game_result_summary"]["points_remaining"])
     )
 
     assert_adjusted_result_metadata(
@@ -356,17 +357,20 @@ def test_not_ended_example_adjusted_result_invariants() -> None:
     assert result["information_policy_summary"]["known_skat_cards_allowed"] is False
     assert result["information_policy_summary"]["ended_game_allowed"] is False
 
+
 def test_normal_completion_example_adjusted_result_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_win.json")
 
     assert result["game_result_summary"]["is_complete"] is True
     assert result["adjusted_game_result_summary"]["is_complete"] is True
 
-    assert result["adjusted_game_result_summary"]["declarer_points"] == (
-        result["game_result_summary"]["declarer_points"]
+    assert (
+        result["adjusted_game_result_summary"]["declarer_points"]
+        == (result["game_result_summary"]["declarer_points"])
     )
-    assert result["adjusted_game_result_summary"]["defender_points"] == (
-        result["game_result_summary"]["defender_points"]
+    assert (
+        result["adjusted_game_result_summary"]["defender_points"]
+        == (result["game_result_summary"]["defender_points"])
     )
     assert result["adjusted_game_result_summary"]["points_remaining"] == 0
 
@@ -382,6 +386,7 @@ def test_normal_completion_example_adjusted_result_invariants() -> None:
     assert result["information_policy_summary"]["live_information_enforced"] is False
     assert result["information_policy_summary"]["known_skat_cards_allowed"] is True
     assert result["information_policy_summary"]["ended_game_allowed"] is True
+
 
 def test_complete_declarer_win_example_settlement_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_win.json")
@@ -437,7 +442,8 @@ def test_complete_declarer_win_example_settlement_invariants() -> None:
     assert result["performance_rating_summary"]["unsupported_reason"] == (
         "full_list_series_tournament_rating_not_implemented"
     )
-    
+
+
 def test_complete_declarer_loss_example_settlement_invariants() -> None:
     result = build_example_analysis_result("grand_complete_declarer_loss.json")
 
@@ -480,9 +486,7 @@ def test_list_performance_input_example_adds_aggregated_summary() -> None:
     baseline_result = build_example_analysis_result("grand_complete_declarer_win.json")
     result = build_example_analysis_result("grand_list_performance_input.json")
 
-    assert result["performance_rating_summary"] == baseline_result[
-        "performance_rating_summary"
-    ]
+    assert result["performance_rating_summary"] == baseline_result["performance_rating_summary"]
     assert result["list_performance_summary"] == {
         "rating_system": "isko_list",
         "basis": "aggregated_list_or_series_totals",
@@ -502,9 +506,7 @@ def test_list_game_contributions_example_adds_aggregated_summary() -> None:
     result = build_example_analysis_result("grand_list_game_contributions.json")
 
     assert "performance_rating_summary" in result
-    assert result["performance_rating_summary"] == baseline_result[
-        "performance_rating_summary"
-    ]
+    assert result["performance_rating_summary"] == baseline_result["performance_rating_summary"]
     assert result["list_performance_summary"] == {
         "rating_system": "isko_list",
         "basis": "normalized_game_contributions",
@@ -524,9 +526,7 @@ def test_list_analysis_results_example_adds_aggregated_summary() -> None:
     result = build_example_analysis_result("grand_list_analysis_results.json")
 
     assert "performance_rating_summary" in result
-    assert result["performance_rating_summary"] == baseline_result[
-        "performance_rating_summary"
-    ]
+    assert result["performance_rating_summary"] == baseline_result["performance_rating_summary"]
     assert result["list_performance_summary"] == {
         "rating_system": "isko_list",
         "basis": "local_analysis_results",
@@ -625,9 +625,8 @@ def test_midgame_declarer_ahead_example_score_invariants() -> None:
     assert result["game_result_summary"]["is_complete"] is False
     assert result["game_result_summary"]["winner"] == "undecided"
     assert result["final_settlement_summary"]["is_complete"] is False
-    assert result["final_settlement_summary"]["missing_inputs"] == [
-        "complete_card_points"
-    ]
+    assert result["final_settlement_summary"]["missing_inputs"] == ["complete_card_points"]
+
 
 def test_midgame_defenders_ahead_example_score_invariants() -> None:
     result = build_example_analysis_result("grand_midgame_defenders_ahead.json")
@@ -641,9 +640,7 @@ def test_midgame_defenders_ahead_example_score_invariants() -> None:
     assert result["game_result_summary"]["is_complete"] is False
     assert result["game_result_summary"]["winner"] == "undecided"
     assert result["final_settlement_summary"]["is_complete"] is False
-    assert result["final_settlement_summary"]["missing_inputs"] == [
-        "complete_card_points"
-    ]
+    assert result["final_settlement_summary"]["missing_inputs"] == ["complete_card_points"]
 
 
 def test_midgame_profile_preset_example_metadata_invariants() -> None:
@@ -668,10 +665,9 @@ def test_midgame_profile_preset_example_metadata_invariants() -> None:
         "right_player_recommended_preset": "aggressive_points",
     }
 
+
 def test_spades_midgame_defender_live_example_invariants() -> None:
-    result = build_example_analysis_result(
-        "spades_midgame_defender_rearhand_live.json"
-    )
+    result = build_example_analysis_result("spades_midgame_defender_rearhand_live.json")
 
     assert result["position"]["player_role"] == "defender"
     assert result["position"]["declarer_player"] == "left"
@@ -719,9 +715,10 @@ def test_late_game_history_heavy_live_example_invariants() -> None:
     assert result["score_summary"]["completed_trick_declarer_points"] == 106
     assert result["score_summary"]["completed_trick_defender_points"] == 6
     assert result["information_policy_summary"]["live_information_enforced"] is True
-    assert result["information_policy_summary"][
-        "unverifiable_completed_trick_winner_metadata_allowed"
-    ] is False
+    assert (
+        result["information_policy_summary"]["unverifiable_completed_trick_winner_metadata_allowed"]
+        is False
+    )
 
 
 def test_post_game_known_skat_example_metadata_invariants() -> None:
@@ -807,9 +804,7 @@ def test_null_post_game_objective_example_uses_null_objective() -> None:
     assert summary["is_available"] is True
     assert summary["actual_card_played"] == "C8"
     assert summary["recommended_card"] == "C7"
-    assert summary["actual_expected_point_swing"] != (
-        summary["recommended_expected_point_swing"]
-    )
+    assert summary["actual_expected_point_swing"] != (summary["recommended_expected_point_swing"])
     assert summary["decision_quality"] == "optimal"
     assert summary["decision_factors"] == ["no_missed_null_objective"]
     assert "Null contract-objective utility" in summary["decision_explanation"]
@@ -839,6 +834,7 @@ def test_post_game_defender_actual_card_example_uses_defender_perspective() -> N
     assert summary["recommended_card_rank"] == 1
     assert summary["candidate_count"] == 2
     assert summary["better_card_count"] == 1
+
 
 def test_default_grand_second_position_infers_game_value() -> None:
     result = build_example_analysis_result("grand_second_position.json")
@@ -943,6 +939,7 @@ def test_right_to_act_live_example_prepares_local_second_hand_decision() -> None
         "left",
     ]
 
+
 def test_claimed_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result("grand_claimed_remaining_tricks.json")
 
@@ -976,10 +973,9 @@ def test_claimed_remaining_tricks_example_adjusts_result() -> None:
 
     assert_final_settlement_uses_adjusted_result(result)
 
+
 def test_declarer_conceded_remaining_tricks_example_adjusts_result() -> None:
-    result = build_example_analysis_result(
-        "grand_declarer_conceded_remaining_tricks.json"
-    )
+    result = build_example_analysis_result("grand_declarer_conceded_remaining_tricks.json")
 
     assert result["game_result_summary"]["declarer_points"] == 36
     assert result["game_result_summary"]["defender_points"] == 55
@@ -995,9 +991,7 @@ def test_declarer_conceded_remaining_tricks_example_adjusts_result() -> None:
         result["adjusted_game_result_summary"]["game_end_reason"]
         == "declarer_conceded_remaining_tricks"
     )
-    assert result["adjusted_game_result_summary"]["remaining_points_recipient"] == (
-        "defenders"
-    )
+    assert result["adjusted_game_result_summary"]["remaining_points_recipient"] == ("defenders")
     assert result["adjusted_game_result_summary"]["remaining_points_assigned"] == 29
 
     assert result["final_settlement_summary"]["is_complete"] is True
@@ -1035,9 +1029,7 @@ def test_structured_declarer_concession_example_adjudicates_without_points() -> 
     assert adjusted["remaining_points_recipient"] is None
     assert adjusted["remaining_points_assigned"] == 0
     assert result["game_shortening_summary"]["rule_sections"] == ["4.4.1"]
-    assert result["game_shortening_summary"]["hand_card_count_reconciliation"] == (
-        "confirmed"
-    )
+    assert result["game_shortening_summary"]["hand_card_count_reconciliation"] == ("confirmed")
     assert settlement["game_value"] == 72
     assert settlement["effective_game_value"] == 72
     assert settlement["settlement_score"] == -144
@@ -1087,16 +1079,36 @@ def test_declarer_card_exposure_example_adjudicates_without_points() -> None:
     assert summary["accepting_defenders"] == ["left", "right"]
     assert settlement["effective_game_value"] == 96
     assert settlement["settlement_score"] == 96
-    assert settlement["settlement_basis"][
-        "accepted_claimed_schneider_applied"
-    ] is True
+    assert settlement["settlement_basis"]["accepted_claimed_schneider_applied"] is True
     assert settlement["settlement_basis"]["achieved_schneider_applied"] is False
 
 
+def test_defender_open_play_example_uses_complete_exact_adjudication() -> None:
+    result = build_example_analysis_result("defender_open_play.json")
+    adjusted = result["adjusted_game_result_summary"]
+    settlement = result["final_settlement_summary"]
+    summary = result["game_shortening_summary"]
+
+    assert summary["rule_sections"] == ["4.4.5"]
+    assert summary["exact_proof"]["status"] == "valid"
+    assert summary["exact_proof"]["proof_complete"] is True
+    assert summary["exact_proof"]["evaluated_state_count"] == 18
+    assert summary["exact_proof"]["memoized_state_count"] == 18
+    assert summary["rest_trick_assignment"] == {
+        "source": "defender_open_play_adjudication",
+        "recipient": "defenders",
+        "remaining_trick_count": 2,
+        "assigned_card_count": 6,
+        "assigned_card_points": 12,
+    }
+    assert adjusted["declarer_points"] == 55
+    assert adjusted["defender_points"] == 65
+    assert adjusted["winner"] == "defenders"
+    assert settlement["settlement_score"] == -144
+
+
 def test_declarer_card_exposure_continuation_example_remains_ongoing() -> None:
-    result = build_example_analysis_result(
-        "declarer_card_exposure_continuation.json"
-    )
+    result = build_example_analysis_result("declarer_card_exposure_continuation.json")
     summary = result["game_continuation_summary"]
     constraint = result["information_policy_summary"]["public_hand_constraints"][0]
 
@@ -1115,10 +1127,9 @@ def test_declarer_card_exposure_continuation_example_remains_ongoing() -> None:
     assert result["final_settlement_summary"]["settlement_score"] is None
     assert "game_shortening_summary" not in result
 
+
 def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
-    result = build_example_analysis_result(
-        "grand_defenders_conceded_remaining_tricks.json"
-    )
+    result = build_example_analysis_result("grand_defenders_conceded_remaining_tricks.json")
 
     assert result["game_result_summary"]["declarer_points"] == 44
     assert result["game_result_summary"]["defender_points"] == 47
@@ -1134,9 +1145,7 @@ def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
         result["adjusted_game_result_summary"]["game_end_reason"]
         == "defenders_conceded_remaining_tricks"
     )
-    assert result["adjusted_game_result_summary"]["remaining_points_recipient"] == (
-        "declarer"
-    )
+    assert result["adjusted_game_result_summary"]["remaining_points_recipient"] == ("declarer")
     assert result["adjusted_game_result_summary"]["remaining_points_assigned"] == 29
 
     assert result["final_settlement_summary"]["is_complete"] is True
@@ -1152,10 +1161,9 @@ def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
 
     assert_final_settlement_uses_adjusted_result(result)
 
+
 def test_overbid_example_declarer_wins_card_points_but_loses_settlement() -> None:
-    result = build_example_analysis_result(
-        "grand_overbid_declarer_card_points_win.json"
-    )
+    result = build_example_analysis_result("grand_overbid_declarer_card_points_win.json")
 
     assert result["game_result_summary"]["is_complete"] is True
     assert result["game_result_summary"]["winner"] == "declarer"
@@ -1185,9 +1193,7 @@ def test_overbid_example_declarer_wins_card_points_but_loses_settlement() -> Non
 
 
 def test_impossible_null_settlement_example() -> None:
-    result = build_example_analysis_result(
-        "null_impossible_declaration_settlement.json"
-    )
+    result = build_example_analysis_result("null_impossible_declaration_settlement.json")
 
     assert result["game_declaration"] == {
         "game_type": "null",
@@ -1210,8 +1216,6 @@ def test_impossible_null_settlement_example() -> None:
     }
     assert "ouvert" not in replacement
     assert result["adjusted_game_result_summary"]["winner"] == "defenders"
-    assert result["adjusted_game_result_summary"][
-        "effective_schwarz_status"
-    ] == "not_applicable"
+    assert result["adjusted_game_result_summary"]["effective_schwarz_status"] == "not_applicable"
     assert result["final_settlement_summary"]["is_complete"] is True
     assert result["final_settlement_summary"]["settlement_score"] == -120

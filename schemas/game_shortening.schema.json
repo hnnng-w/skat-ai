@@ -11,6 +11,9 @@
     },
     {
       "$ref": "#/$defs/declarer_card_exposure"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/defender_open_play.schema.json"
     }
   ],
   "$defs": {

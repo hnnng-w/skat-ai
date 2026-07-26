@@ -343,8 +343,10 @@ card-point winner and requires no points or completed tricks. Zero assigned
 points are not interpreted as Schneider or Schwarz. Missing replacement
 metadata keeps settlement incomplete instead of inventing a contract.
 
-Legacy claims and concessions assign remaining points. No structured shortening
-kind assigns them. Declarer card exposure can settle an explicitly requested and
+Legacy claims and concessions assign remaining points. Exact defender open play
+also assigns outstanding points, but records those points and rest tricks as a
+separate rule consequence. Other structured shortening kinds do not assign
+them. Declarer card exposure can settle an explicitly requested and
 accepted Schwarz level without claiming that unfinished play achieved Schwarz.
 
 Example:
@@ -391,8 +393,8 @@ Current partial SkWO-style performance scoring is documented in:
 
 * Full official settlement nuances are not completely modeled yet.
 * Legacy claim/concession handling assigns remaining points; structured concessions do not.
-* Neither path simulates remaining tricks or establishes future Schwarz ownership.
-* The engine does not yet verify whether a claim was strategically or legally justified.
+* Bounded valid defender open play can establish guaranteed future defender-side Schwarz ownership; rule-assigned invalid rest tricks do not establish achieved Schwarz.
+* Only ISkO 4.4.5 defender open play is verified exactly, with at most five unresolved tricks; no general claim protocol exists.
 * Impossible Null settlement remains incomplete when its external replacement selection is unavailable.
 * List, series, and tournament performance rating are handled separately and are not fully implemented yet.
 * Automatic matador inference is conservative and currently uses known declarer-card context from hand, skat context, and safe concrete-declarer completed-trick ownership facts where possible.

@@ -221,6 +221,9 @@
         },
         {
           "$ref": "https://example.local/skat-ai/declarer_card_exposure_output.schema.json"
+        },
+        {
+          "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json"
         }
       ]
     },
@@ -328,7 +331,8 @@
         "impossible_null_declaration",
         "declarer_concession",
         "defender_concession",
-        "declarer_card_exposure"
+        "declarer_card_exposure",
+        "defender_open_play"
       ]
     },
     "overbid_status": {
@@ -1031,12 +1035,17 @@
           "enum": [
             "declarer_concession",
             "defender_concession",
-            "declarer_card_exposure"
+            "declarer_card_exposure",
+            "defender_open_play"
           ]
         },
         "outcome_source": {
           "type": "string",
-          "enum": ["adjudicated", "preexisting_game_decision"]
+          "enum": [
+            "adjudicated",
+            "exact_adjudication",
+            "preexisting_game_decision"
+          ]
         },
         "winner_basis": {
           "type": "string",
@@ -1044,7 +1053,9 @@
             "defender_concession",
             "accepted_declarer_card_exposure",
             "preexisting_game_decision",
-            "uncovered_overbid_requirement"
+            "uncovered_overbid_requirement",
+            "valid_defender_open_play",
+            "invalid_defender_open_play"
           ]
         },
         "decision_state_before_game_end": {
@@ -1095,6 +1106,21 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 2
+        },
+        "rest_trick_proof_status": {
+          "type": "string",
+          "enum": ["valid", "invalid"]
+        },
+        "rest_tricks_recipient": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "mandatory_play_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
+        },
+        "rest_trick_assignment": {
+          "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json#/$defs/rest_trick_assignment"
         }
       }
     },
@@ -1176,6 +1202,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/declarer_card_exposure_output.schema.json#/$defs/settlement_basis"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json#/$defs/settlement_basis"
             }
           ]
         }

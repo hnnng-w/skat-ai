@@ -155,6 +155,8 @@ insufficient.
 | `src/skat_ai/defender_concession.py` | Typed party validation, pre-concession decision derivation, and no-assignment defender-concession adjudication. |
 | `src/skat_ai/declarer_card_exposure.py` | Typed 4.4.4 exposure, exact defender unanimity, card reconciliation, and accepted-claim adjudication. |
 | `src/skat_ai/declarer_card_exposure_continuation.py` | Separate typed 4.4.4 ongoing continuation, response validation, reconciliation, and summary. |
+| `src/skat_ai/defender_open_play.py` | Typed 4.4.5 exact-state validation, adjudication, rule assignment, and privacy-safe summary. |
+| `src/skat_ai/exact_rest_trick_proof.py` | Immutable, canonical, memoized exact game tree with existential exposing-defender and universal other-player nodes. |
 | `src/skat_ai/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
 | `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
 | `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
@@ -162,8 +164,9 @@ insufficient.
 | `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
 | `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
 
-All structured shortening paths bypass legacy point assignment and preserve
-observed and unplayed points. Declarer concession forces a defender win.
+The first three structured shortening paths bypass legacy point assignment and
+preserve observed and unplayed points. Defender open play instead records an
+explicit party-level assignment after complete exact proof. Declarer concession forces a defender win.
 Defender concession derives the preexisting decision, grants only an undecided
 game to the declarer, and separates mandatory awarded levels from levels secured
 during play. Accepted declarer card exposure requires both concrete defenders,
@@ -171,8 +174,10 @@ preserves a preexisting loss, and separates declared, accepted claimed, achieved
 and overbid-required levels. Legacy reasons retain their existing simplified
 assignment behavior. The separate `game_continuation` path does not adjudicate
 a game end: it supplies the exact current declarer hand to analysis while
-ordinary play and eventual actual settlement remain authoritative. No
-`game_shortening` path simulates future play.
+ordinary play and eventual actual settlement remain authoritative. Defender
+open play is the bounded exception: it proves at most five unresolved tricks
+exactly, without Monte Carlo, policies, or assumed play, and adjudicates rather
+than continuing play.
 
 ## Simulation
 
@@ -186,6 +191,11 @@ ordinary play and eventual actual settlement remain authoritative. No
 | `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
 
 The simulation layer is probabilistic and heuristic. It is designed for analysis support, not for perfect-information solving.
+
+The exact defender-open-play engine is intentionally outside this simulation
+layer. It receives complete private post-game hands, reuses legal-card and
+trick-winner rules, and exhaustively evaluates the bounded game tree. Its proof
+hands never become simulation information.
 
 An exposed-declarer continuation adds one exact public-hand constraint. Hidden
 worlds fix those cards to the concrete declarer and sample only genuinely

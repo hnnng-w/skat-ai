@@ -32,6 +32,11 @@ from skat_ai.defender_concession import (
     DefenderConcession,
     adjudicate_defender_concession,
 )
+from skat_ai.defender_open_play import (
+    DefenderOpenPlay,
+    adjudicate_defender_open_play,
+    validate_defender_open_play_context,
+)
 from skat_ai.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
@@ -196,6 +201,7 @@ def apply_cli_overrides(
 
     return updated_settings
 
+
 def apply_profile_preset_cli_overrides(
     profile_preset_settings: dict[str, bool],
     use_profile_presets: bool = False,
@@ -329,9 +335,7 @@ def build_analysis_result(
         else None
     )
     public_hand_constraints = (
-        (continuation_context.public_hand_constraint,)
-        if continuation_context is not None
-        else ()
+        (continuation_context.public_hand_constraint,) if continuation_context is not None else ()
     )
     game_declaration = get_game_declaration_from_input(
         data if game_shortening is not None else local_data
@@ -351,10 +355,8 @@ def build_analysis_result(
         if impossible_null_selection is not None
         else None
     )
-    serializable_impossible_null_summary = (
-        build_serializable_impossible_null_settlement_summary(
-            impossible_null_summary
-        )
+    serializable_impossible_null_summary = build_serializable_impossible_null_settlement_summary(
+        impossible_null_summary
     )
     overbid_summary = build_overbid_summary(
         game_value_summary=game_value_summary,
@@ -429,9 +431,7 @@ def build_analysis_result(
         recommended_card = None
         reason = immediate_unavailable_reason
         report = []
-        strategic_summary = build_unavailable_strategic_summary(
-            immediate_unavailable_reason
-        )
+        strategic_summary = build_unavailable_strategic_summary(immediate_unavailable_reason)
 
     post_game_review_summary = build_post_game_review_summary(
         actual_card_played=actual_card_played,
@@ -452,6 +452,17 @@ def build_analysis_result(
     if isinstance(game_shortening, DefenderConcession):
         adjudication = adjudicate_defender_concession(
             game_shortening=game_shortening,
+            game_result_summary=game_result_summary,
+            game_value_summary=game_value_summary,
+            overbid_summary=overbid_summary,
+            completed_tricks=state.completed_tricks,
+        )
+        adjusted_game_result_summary = adjudication.game_result_summary
+        game_shortening_summary = adjudication.game_shortening_summary
+    elif isinstance(game_shortening, DefenderOpenPlay):
+        adjudication = adjudicate_defender_open_play(
+            game_shortening=game_shortening,
+            context=validate_defender_open_play_context(data, game_shortening),
             game_result_summary=game_result_summary,
             game_value_summary=game_value_summary,
             overbid_summary=overbid_summary,
@@ -533,7 +544,12 @@ def build_analysis_result(
             "player_position": state.player_position,
             "declarer_player": state.declarer_player,
             "trick_leader": state.trick_leader,
-            "hand": state.hand,
+            "hand": (
+                state.hand
+                if not isinstance(game_shortening, DefenderOpenPlay)
+                or game_shortening.exposing_defender == "me"
+                else []
+            ),
             "current_trick": state.current_trick,
             "played_cards": state.played_cards,
             "completed_tricks": state.completed_tricks,
@@ -577,14 +593,10 @@ def build_analysis_result(
         result["game_shortening_summary"] = game_shortening_summary
 
     if continuation_context is not None:
-        result["game_continuation_summary"] = build_game_continuation_summary(
-            continuation_context
-        )
+        result["game_continuation_summary"] = build_game_continuation_summary(continuation_context)
 
     if opponent_profile_application_summary is not None:
-        result["opponent_profile_application_summary"] = (
-            opponent_profile_application_summary
-        )
+        result["opponent_profile_application_summary"] = opponent_profile_application_summary
 
     return result
 
@@ -718,8 +730,7 @@ def print_post_game_review_rank_summary(summary: dict[str, object]) -> None:
 
     suffix = "" if better_card_count == 1 else "s"
     print(
-        f"Actual card has {better_card_count} better alternative{suffix} "
-        "by the review objective."
+        f"Actual card has {better_card_count} better alternative{suffix} by the review objective."
     )
 
 
@@ -729,12 +740,8 @@ def print_post_game_review_value_summary(
 ) -> None:
     """Prints point or objective-gap wording for post-game review output."""
     actual_expected_point_swing = float(summary["actual_expected_point_swing"])
-    recommended_expected_point_swing = float(
-        summary["recommended_expected_point_swing"]
-    )
-    expected_point_swing_difference = float(
-        summary["expected_point_swing_difference"]
-    )
+    recommended_expected_point_swing = float(summary["recommended_expected_point_swing"])
+    expected_point_swing_difference = float(summary["expected_point_swing_difference"])
 
     if is_null_review_result(result):
         missed_objective_gap = calculate_missed_null_objective_gap_for_cli(
@@ -742,38 +749,20 @@ def print_post_game_review_value_summary(
             summary=summary,
         )
         missed_objective_gap_text = (
-            format(missed_objective_gap, ".2f")
-            if missed_objective_gap is not None
-            else None
+            format(missed_objective_gap, ".2f") if missed_objective_gap is not None else None
         )
         print("Objective basis: Null contract objective, not raw card points.")
+        print(f"Actual card-point swing (informational): {actual_expected_point_swing:.2f}")
         print(
-            "Actual card-point swing (informational): "
-            f"{actual_expected_point_swing:.2f}"
+            f"Recommended card-point swing (informational): {recommended_expected_point_swing:.2f}"
         )
-        print(
-            "Recommended card-point swing (informational): "
-            f"{recommended_expected_point_swing:.2f}"
-        )
-        print(
-            "Card-point swing difference (informational): "
-            f"{expected_point_swing_difference:.2f}"
-        )
-        print(
-            "Missed Null objective gap: "
-            f"{format_optional_cli_value(missed_objective_gap_text)}"
-        )
+        print(f"Card-point swing difference (informational): {expected_point_swing_difference:.2f}")
+        print(f"Missed Null objective gap: {format_optional_cli_value(missed_objective_gap_text)}")
         return
 
     print(f"Actual expected point swing: {actual_expected_point_swing:.2f}")
-    print(
-        "Recommended expected point swing: "
-        f"{recommended_expected_point_swing:.2f}"
-    )
-    print(
-        "Missed expected point swing: "
-        f"{max(0.0, expected_point_swing_difference):.2f}"
-    )
+    print(f"Recommended expected point swing: {recommended_expected_point_swing:.2f}")
+    print(f"Missed expected point swing: {max(0.0, expected_point_swing_difference):.2f}")
 
 
 def print_post_game_review_summary(result: dict[str, object]) -> None:
@@ -792,18 +781,9 @@ def print_post_game_review_summary(result: dict[str, object]) -> None:
     if summary.get("is_available") is not True:
         reason = summary.get("reason", "not_available")
         print("Review status: not available")
-        print(
-            "Actual card played: "
-            f"{format_optional_cli_value(summary.get('actual_card_played'))}"
-        )
-        print(
-            "Recommended card: "
-            f"{format_optional_cli_value(summary.get('recommended_card'))}"
-        )
-        print(
-            "Unavailable reason: "
-            f"{format_post_game_review_unavailable_reason(reason)}"
-        )
+        print(f"Actual card played: {format_optional_cli_value(summary.get('actual_card_played'))}")
+        print(f"Recommended card: {format_optional_cli_value(summary.get('recommended_card'))}")
+        print(f"Unavailable reason: {format_post_game_review_unavailable_reason(reason)}")
         print(f"Reason code: {reason}")
         print(f"Decision factors: {decision_factors}")
         print(f"Decision explanation: {decision_explanation}")
@@ -895,6 +875,8 @@ def print_game_shortening_summary(result: dict[str, Any]) -> None:
         print_defender_concession_summary(result)
     elif summary.get("kind") == "declarer_card_exposure":
         print_declarer_card_exposure_summary(result)
+    elif summary.get("kind") == "defender_open_play":
+        print_defender_open_play_summary(result)
     else:
         print_declarer_concession_summary(result)
 
@@ -916,8 +898,7 @@ def print_game_continuation_summary(result: dict[str, Any]) -> None:
         "are public to all players."
     )
     print(
-        f"Claimed level {summary['claimed_play_level'].title()} has no immediate "
-        "settlement effect."
+        f"Claimed level {summary['claimed_play_level'].title()} has no immediate settlement effect."
     )
     print("Analysis continues using the exposed declarer hand.")
 
@@ -931,9 +912,8 @@ def print_declarer_concession_summary(result: dict[str, Any]) -> None:
     hand_count = summary["declarer_hand_cards_remaining"]
     consent = summary["defender_consent"]
     if summary["consent_required"]:
-        consent_text = (
-            f"accepted by {consent['consenting_defender_count']} defender"
-            + ("s" if consent["consenting_defender_count"] != 1 else "")
+        consent_text = f"accepted by {consent['consenting_defender_count']} defender" + (
+            "s" if consent["consenting_defender_count"] != 1 else ""
         )
     else:
         consent_text = "defender consent not required"
@@ -964,18 +944,15 @@ def print_defender_concession_summary(result: dict[str, Any]) -> None:
             "game was already lost by the declarer."
         )
         print(
-            "Result preserved: defenders won; the concession did not reverse the "
-            "existing decision."
+            "Result preserved: defenders won; the concession did not reverse the existing decision."
         )
     else:
         print(
-            f"Defender concession: {summary['conceding_player']} conceded for the "
-            "defending party."
+            f"Defender concession: {summary['conceding_player']} conceded for the defending party."
         )
         print(f"Decision before concession: {decision_state}.")
         print(
-            f"Result: {summary['adjudicated_winner']} won; no remaining card points "
-            "were assigned."
+            f"Result: {summary['adjudicated_winner']} won; no remaining card points were assigned."
         )
     print(
         f"Settlement: {settlement['settlement_score']} using effective game value "
@@ -986,22 +963,15 @@ def print_defender_concession_summary(result: dict[str, Any]) -> None:
 def print_declarer_card_exposure_summary(result: dict[str, Any]) -> None:
     """Prints the bounded accepted declarer-card-exposure outcome."""
     summary = result.get("game_shortening_summary")
-    if not isinstance(summary, dict) or summary.get("kind") != (
-        "declarer_card_exposure"
-    ):
+    if not isinstance(summary, dict) or summary.get("kind") != ("declarer_card_exposure"):
         return
 
     settlement = result["final_settlement_summary"]
     print()
     if summary["exposure_form"] == "laid_open":
-        print(
-            f"Declarer card exposure: {summary['exposed_card_count']} cards laid open."
-        )
+        print(f"Declarer card exposure: {summary['exposed_card_count']} cards laid open.")
     else:
-        print(
-            "Declarer showed all remaining cards to "
-            f"{summary['shown_to_player']}."
-        )
+        print(f"Declarer showed all remaining cards to {summary['shown_to_player']}.")
     print("Both defenders accepted the shortening.")
     print(f"Claimed level: {summary['claimed_play_level'].title()}.")
     if summary["decision_state_before_shortening"] == "defenders_already_won":
@@ -1009,8 +979,7 @@ def print_declarer_card_exposure_summary(result: dict[str, Any]) -> None:
         print("Defender acceptance did not reverse the existing result.")
     else:
         print(
-            f"Result: {summary['adjudicated_winner']} won; no remaining card points "
-            "were assigned."
+            f"Result: {summary['adjudicated_winner']} won; no remaining card points were assigned."
         )
     claim_text = ""
     basis = settlement["settlement_basis"]
@@ -1019,6 +988,38 @@ def print_declarer_card_exposure_summary(result: dict[str, Any]) -> None:
     elif basis["accepted_claimed_schneider_applied"]:
         claim_text = " using a unanimously accepted Schneider claim"
     print(f"Settlement: {settlement['settlement_score']}{claim_text}.")
+
+
+def print_defender_open_play_summary(result: dict[str, Any]) -> None:
+    """Prints one privacy-safe exact defender-open-play adjudication."""
+    summary = result.get("game_shortening_summary")
+    if not isinstance(summary, dict) or summary.get("kind") != "defender_open_play":
+        return
+
+    proof = summary["exact_proof"]
+    settlement = result["final_settlement_summary"]
+    print()
+    print(
+        f"Defender open play: {summary['exposing_defender']} exposed "
+        f"{summary['exposed_card_count']} remaining cards."
+    )
+    if proof["status"] == "valid":
+        print("Exact proof: valid across every legal declarer and partner response.")
+        print("Rest tricks: defending party.")
+    else:
+        print("Exact proof: invalid; a legal counterplay can give the declarer a trick.")
+        print("Rest tricks: declarer by rule.")
+    decision_state = summary["decision_state_before_shortening"]
+    if decision_state == "defenders_already_won":
+        print("The declarer had already lost before the open play.")
+        print("The later rest-trick adjudication did not reverse the existing result.")
+    elif decision_state == "declarer_already_won":
+        print("The declarer had already won before the open play.")
+        print("The later rest-trick adjudication did not reverse the existing result.")
+    else:
+        result_text = "won" if summary["adjudicated_winner"] == "declarer" else "lost"
+        print(f"Result: declarer {result_text}.")
+    print(f"Settlement: {settlement['settlement_score']}.")
 
 
 def print_opponent_profile_application_summary(result: dict[str, Any]) -> None:
@@ -1103,9 +1104,7 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         for quality, count in review_summary["quality_counts"].items():
             print(f"{quality.replace('_', ' ').title()} decisions:", count)
         for decision in review_summary["decisions"]:
-            decision_quality = decision["post_game_review_summary"][
-                "decision_quality"
-            ]
+            decision_quality = decision["post_game_review_summary"]["decision_quality"]
             if decision_quality not in {"suboptimal", "mistake"}:
                 continue
             print(
@@ -1204,11 +1203,7 @@ def print_opponent_statistics_result(result: dict[str, Any]) -> None:
         statistics = record["statistics"]
         derivation = record["profile_derivation"]
         label = record.get("player_label")
-        identity = (
-            record["player_id"]
-            if label is None
-            else f"{record['player_id']} ({label})"
-        )
+        identity = record["player_id"] if label is None else f"{record['player_id']} ({label})"
         print(
             f"{identity}: {record['games_played']} games; "
             f"declarer {statistics['solo_games_played_percent']:g}%; "
@@ -1346,14 +1341,7 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
     )
 
     print()
-    print(
-        f"{'Policy':<24}"
-        f"{'Steps':>7}"
-        f"{'Decl. +':>10}"
-        f"{'Def. +':>10}"
-        f"{'Swing':>10}"
-        f"{'Local':>10}"
-    )
+    print(f"{'Policy':<24}{'Steps':>7}{'Decl. +':>10}{'Def. +':>10}{'Swing':>10}{'Local':>10}")
     print("-" * 71)
 
     for policy_result in result["policy_results"]:
@@ -1450,9 +1438,7 @@ def run_json_position_analysis(
         raise ValueError("multi_step_count must be a positive integer.")
 
     position_data = load_position_from_json(file_path)
-    if "game_shortening" in position_data and (
-        multi_step_count is not None or compare_policies
-    ):
+    if "game_shortening" in position_data and (multi_step_count is not None or compare_policies):
         raise ValueError(
             "Structured game_shortening cannot be combined with multi-step simulation "
             "or policy comparison."
@@ -1468,9 +1454,7 @@ def run_json_position_analysis(
         else None
     )
     public_hand_constraints = (
-        (continuation_context.public_hand_constraint,)
-        if continuation_context is not None
-        else ()
+        (continuation_context.public_hand_constraint,) if continuation_context is not None else ()
     )
     validate_live_opponent_profile_options(
         position_data=position_data,
@@ -1514,14 +1498,12 @@ def run_json_position_analysis(
         and bindings is not None
         and effective_live_profiles is not None
     ):
-        opponent_profile_application_summary = (
-            build_opponent_profile_application_summary(
-                statistics_input_file=opponent_statistics_file,
-                use_profile_presets=True,
-                bindings=bindings,
-                effective_profiles=effective_live_profiles,
-                effective_settings=effective_opponent_policy_settings,
-            )
+        opponent_profile_application_summary = build_opponent_profile_application_summary(
+            statistics_input_file=opponent_statistics_file,
+            use_profile_presets=True,
+            bindings=bindings,
+            effective_profiles=effective_live_profiles,
+            effective_settings=effective_opponent_policy_settings,
         )
 
     result = build_analysis_result(
@@ -1538,9 +1520,7 @@ def run_json_position_analysis(
         opponent_response_policy_override=opponent_response_policy_override,
         use_profile_presets_override=use_profile_presets_override,
         effective_opponent_policy_settings=effective_opponent_policy_settings,
-        opponent_profile_application_summary=(
-            opponent_profile_application_summary
-        ),
+        opponent_profile_application_summary=(opponent_profile_application_summary),
     )
 
     multi_step_result_to_print = None
@@ -1597,9 +1577,7 @@ def run_json_position_analysis(
             public_hand_constraints=public_hand_constraints,
         )
 
-        result["multi_step_result"] = build_serializable_multi_step_result(
-            multi_step_result
-        )
+        result["multi_step_result"] = build_serializable_multi_step_result(multi_step_result)
         result["profile_preset_settings"] = profile_preset_settings
 
         if not comparison_only:
@@ -1685,16 +1663,12 @@ def run_json_historical_game_analysis(
         )
     snapshot_summary = None
     if historical_decision_snapshots or historical_game_review:
-        snapshot_summary = build_historical_decision_snapshots(
-            historical_game_summary
-        )
+        snapshot_summary = build_historical_decision_snapshots(historical_game_summary)
     if historical_decision_snapshots:
         if snapshot_summary is None:
             raise ValueError("Historical decision snapshots were not generated.")
         historical_game_summary["decision_snapshot_summary"] = (
-            build_serializable_historical_decision_snapshot_summary(
-                snapshot_summary
-            )
+            build_serializable_historical_decision_snapshot_summary(snapshot_summary)
         )
     if historical_game_review:
         if snapshot_summary is None:
@@ -1776,9 +1750,7 @@ def run_json_dataset_partition_audit(
     audit = audit_training_dataset_partitions(dataset, effective_mode)
     result = {
         "input_file": str(file_path),
-        "dataset_partition_audit_summary": (
-            build_serializable_dataset_partition_audit(audit)
-        ),
+        "dataset_partition_audit_summary": (build_serializable_dataset_partition_audit(audit)),
     }
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -1868,9 +1840,7 @@ def run_json_opponent_statistics_conversion(
     statistics_input = load_opponent_statistics_from_json(file_path)
     result = {
         "input_file": str(file_path),
-        "opponent_statistics_summary": build_opponent_statistics_summary(
-            statistics_input
-        ),
+        "opponent_statistics_summary": build_opponent_statistics_summary(statistics_input),
     }
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2004,17 +1974,13 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--historical-decision-snapshots",
         action="store_true",
-        help=(
-            "Add 30 information-safe pre-play snapshots to historical-game output."
-        ),
+        help=("Add 30 information-safe pre-play snapshots to historical-game output."),
     )
 
     parser.add_argument(
         "--historical-game-review",
         action="store_true",
-        help=(
-            "Evaluate all 30 historical decisions with decision-time information."
-        ),
+        help=("Evaluate all 30 historical decisions with decision-time information."),
     )
 
     parser.add_argument(
@@ -2035,10 +2001,7 @@ def parse_arguments() -> argparse.Namespace:
         "--expected-value-samples",
         type=int,
         default=None,
-        help=(
-            "Samples per candidate for the highest_expected_value card policy. "
-            "Default: 100."
-        ),
+        help=("Samples per candidate for the highest_expected_value card policy. Default: 100."),
     )
 
     parser.add_argument(
@@ -2071,8 +2034,7 @@ def parse_arguments() -> argparse.Namespace:
         choices=VALID_OPPONENT_CARD_POLICIES,
         default=None,
         help=(
-            "Set both opponents' response policy for immediate analysis "
-            "and multi-step simulation."
+            "Set both opponents' response policy for immediate analysis and multi-step simulation."
         ),
     )
 
@@ -2085,10 +2047,7 @@ def parse_arguments() -> argparse.Namespace:
             "random",
         ],
         default=None,
-        help=(
-            "Apply an opponent policy preset to immediate analysis "
-            "and multi-step simulation."
-        ),
+        help=("Apply an opponent policy preset to immediate analysis and multi-step simulation."),
     )
 
     parser.add_argument(
@@ -2167,13 +2126,8 @@ def validate_cli_arguments(
     if args.expected_value_samples is not None and args.expected_value_samples <= 0:
         raise CliUsageError("--expected-value-samples must be a positive integer.")
 
-    if (
-        args.expected_value_samples is not None
-        and args.expected_value_samples > MAX_SAMPLE_COUNT
-    ):
-        raise CliUsageError(
-            f"--expected-value-samples must be at most {MAX_SAMPLE_COUNT}."
-        )
+    if args.expected_value_samples is not None and args.expected_value_samples > MAX_SAMPLE_COUNT:
+        raise CliUsageError(f"--expected-value-samples must be at most {MAX_SAMPLE_COUNT}.")
 
     if args.multi_step is not None and args.multi_step <= 0:
         raise CliUsageError("--multi-step must be a positive integer.")
@@ -2183,19 +2137,14 @@ def validate_cli_arguments(
     audit_partitions = getattr(args, "audit_dataset_partitions", False)
     dataset_partition_mode = getattr(args, "dataset_partition_mode", None)
     if dataset_partition_mode is not None and not audit_partitions:
-        raise CliUsageError(
-            "--dataset-partition-mode requires --audit-dataset-partitions."
-        )
+        raise CliUsageError("--dataset-partition-mode requires --audit-dataset-partitions.")
     if audit_partitions and workflow != "training_dataset":
         raise CliUsageError(
             "--audit-dataset-partitions is supported only for training_dataset_input."
         )
     evaluation_only_options = {
-        "--profile-source-partition": getattr(args, "profile_source_partition", None)
-        is not None,
-        "--profile-evaluation-partition": getattr(
-            args, "profile_evaluation_partition", None
-        )
+        "--profile-source-partition": getattr(args, "profile_source_partition", None) is not None,
+        "--profile-evaluation-partition": getattr(args, "profile_evaluation_partition", None)
         is not None,
     }
     supplied_evaluation_options = [
@@ -2209,34 +2158,25 @@ def validate_cli_arguments(
         )
     if evaluate_profiles and workflow != "training_dataset":
         raise CliUsageError(
-            "--evaluate-opponent-policy-profiles is supported only for "
-            "training_dataset_input."
+            "--evaluate-opponent-policy-profiles is supported only for training_dataset_input."
         )
     source_partitions = tuple(
         getattr(args, "profile_source_partition", None) or DEFAULT_SOURCE_PARTITIONS
     )
     evaluation_partitions = tuple(
-        getattr(args, "profile_evaluation_partition", None)
-        or DEFAULT_EVALUATION_PARTITIONS
+        getattr(args, "profile_evaluation_partition", None) or DEFAULT_EVALUATION_PARTITIONS
     )
     overlap = sorted(set(source_partitions).intersection(evaluation_partitions))
     if evaluate_profiles and overlap:
         raise CliUsageError(
-            "Profile source and evaluation partitions must be disjoint; overlap: "
-            f"{overlap}."
+            f"Profile source and evaluation partitions must be disjoint; overlap: {overlap}."
         )
     aggregation_only_options = {
-        "--opponent-statistics-partition": getattr(
-            args, "opponent_statistics_partition", None
-        )
+        "--opponent-statistics-partition": getattr(args, "opponent_statistics_partition", None)
         is not None,
-        "--opponent-statistics-before": getattr(
-            args, "opponent_statistics_before", None
-        )
+        "--opponent-statistics-before": getattr(args, "opponent_statistics_before", None)
         is not None,
-        "--export-opponent-statistics": getattr(
-            args, "export_opponent_statistics", None
-        )
+        "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
         is not None,
     }
     supplied_aggregation_options = [
@@ -2250,8 +2190,7 @@ def validate_cli_arguments(
         )
     if aggregate_statistics and workflow != "training_dataset":
         raise CliUsageError(
-            "--aggregate-opponent-statistics is supported only for "
-            "training_dataset_input."
+            "--aggregate-opponent-statistics is supported only for training_dataset_input."
         )
     if aggregate_statistics:
         paths = [
@@ -2263,9 +2202,7 @@ def validate_cli_arguments(
             ),
         ]
         resolved_paths = [
-            (option, Path(path).resolve())
-            for option, path in paths
-            if path is not None
+            (option, Path(path).resolve()) for option, path in paths if path is not None
         ]
         for index, (first_option, first_path) in enumerate(resolved_paths):
             for second_option, second_path in resolved_paths[index + 1 :]:
@@ -2305,9 +2242,7 @@ def validate_cli_arguments(
         ("--right-opponent-player-id", right_player_id),
     ):
         if player_id is not None and (not player_id or player_id != player_id.strip()):
-            raise CliUsageError(
-                f"{option_name} must be a non-empty, non-padded string."
-            )
+            raise CliUsageError(f"{option_name} must be a non-empty, non-padded string.")
     if left_player_id is not None and left_player_id == right_player_id:
         raise CliUsageError(
             "--left-opponent-player-id and --right-opponent-player-id must be different."
@@ -2324,18 +2259,13 @@ def validate_live_opponent_profile_options(
     """Validates external-profile options for one live position invocation."""
     if opponent_statistics_file is None:
         if left_opponent_player_id is not None or right_opponent_player_id is not None:
-            raise CliUsageError(
-                "Opponent player IDs require --opponent-statistics-file."
-            )
+            raise CliUsageError("Opponent player IDs require --opponent-statistics-file.")
         return
     if left_opponent_player_id is None and right_opponent_player_id is None:
-        raise CliUsageError(
-            "--opponent-statistics-file requires at least one opponent player ID."
-        )
+        raise CliUsageError("--opponent-statistics-file requires at least one opponent player ID.")
     if position_data.get("analysis_mode", "live_decision") != "live_decision":
         raise CliUsageError(
-            "--opponent-statistics-file is supported only for "
-            "analysis_mode='live_decision'."
+            "--opponent-statistics-file is supported only for analysis_mode='live_decision'."
         )
     unsupported_fields = {
         "list_performance_input",
@@ -2349,10 +2279,7 @@ def validate_live_opponent_profile_options(
             "--opponent-statistics-file is not supported for this non-live analysis "
             f"workflow: {', '.join(sorted(unsupported_fields))}."
         )
-    if not (
-        position_data.get("use_profile_presets") is True
-        or use_profile_presets_override
-    ):
+    if not (position_data.get("use_profile_presets") is True or use_profile_presets_override):
         raise CliUsageError(
             "--opponent-statistics-file requires effective --use-profile-presets opt-in."
         )
@@ -2414,9 +2341,7 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         "--opponent-statistics-file": False,
         "--left-opponent-player-id": args.left_opponent_player_id is not None,
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
-        "--aggregate-opponent-statistics": getattr(
-            args, "aggregate_opponent_statistics", False
-        ),
+        "--aggregate-opponent-statistics": getattr(args, "aggregate_opponent_statistics", False),
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -2467,13 +2392,9 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
                     args, "opponent_statistics_partition", None
                 )
                 is not None,
-                "--opponent-statistics-before": getattr(
-                    args, "opponent_statistics_before", None
-                )
+                "--opponent-statistics-before": getattr(args, "opponent_statistics_before", None)
                 is not None,
-                "--export-opponent-statistics": getattr(
-                    args, "export_opponent_statistics", None
-                )
+                "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
                 is not None,
                 "--evaluate-opponent-policy-profiles": evaluation_mode,
             }
@@ -2488,13 +2409,9 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
                     args, "opponent_statistics_partition", None
                 )
                 is not None,
-                "--opponent-statistics-before": getattr(
-                    args, "opponent_statistics_before", None
-                )
+                "--opponent-statistics-before": getattr(args, "opponent_statistics_before", None)
                 is not None,
-                "--export-opponent-statistics": getattr(
-                    args, "export_opponent_statistics", None
-                )
+                "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
                 is not None,
             }
         )
@@ -2534,9 +2451,7 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         "--opponent-statistics-file": args.opponent_statistics_file is not None,
         "--left-opponent-player-id": args.left_opponent_player_id is not None,
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
-        "--aggregate-opponent-statistics": getattr(
-            args, "aggregate_opponent_statistics", False
-        ),
+        "--aggregate-opponent-statistics": getattr(args, "aggregate_opponent_statistics", False),
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -2579,8 +2494,7 @@ def main() -> int:
                         args.profile_source_partition or DEFAULT_SOURCE_PARTITIONS
                     ),
                     evaluation_partitions=tuple(
-                        args.profile_evaluation_partition
-                        or DEFAULT_EVALUATION_PARTITIONS
+                        args.profile_evaluation_partition or DEFAULT_EVALUATION_PARTITIONS
                     ),
                     output_path=args.output,
                     quiet=args.quiet,
@@ -2629,9 +2543,7 @@ def main() -> int:
                     "--historical-decision-snapshots requires historical-game input."
                 )
             if args.historical_game_review:
-                raise CliUsageError(
-                    "--historical-game-review requires historical-game input."
-                )
+                raise CliUsageError("--historical-game-review requires historical-game input.")
             run_json_position_analysis(
                 file_path=args.input,
                 sample_count_override=args.samples,
@@ -2645,8 +2557,7 @@ def main() -> int:
                 multi_step_count=args.multi_step,
                 card_selection_policy=args.card_policy or "first_legal",
                 expected_value_sample_count=(
-                    args.expected_value_samples
-                    or DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+                    args.expected_value_samples or DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
                 ),
                 strict_context=args.strict_context,
                 compare_policies=args.compare_policies,

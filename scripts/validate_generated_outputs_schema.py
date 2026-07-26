@@ -17,9 +17,7 @@ SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
 HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_decision_snapshot.schema.json"
 )
-HISTORICAL_GAME_REVIEW_SCHEMA_PATH = (
-    PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
-)
+HISTORICAL_GAME_REVIEW_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
 HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
@@ -27,13 +25,9 @@ TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
 OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
 )
-OPPONENT_STATISTICS_INPUT_SCHEMA_PATH = (
-    PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
-)
+OPPONENT_STATISTICS_INPUT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
 HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH = (
-    PROJECT_ROOT
-    / "schemas"
-    / "historical_opponent_statistics_aggregation.schema.json"
+    PROJECT_ROOT / "schemas" / "historical_opponent_statistics_aggregation.schema.json"
 )
 OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_profile_derivation.schema.json"
@@ -62,14 +56,14 @@ DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
 DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_card_exposure_output.schema.json"
 )
+DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "defender_open_play_output.schema.json"
+)
+EXACT_REST_TRICK_PROOF_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "exact_rest_trick_proof.schema.json"
 DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH = (
-    PROJECT_ROOT
-    / "schemas"
-    / "declarer_card_exposure_continuation_output.schema.json"
+    PROJECT_ROOT / "schemas" / "declarer_card_exposure_continuation_output.schema.json"
 )
-PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = (
-    PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
-)
+PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -105,10 +99,7 @@ def format_scenario_error(scenario: Scenario, message: str) -> str:
     """
     Formats a scenario-specific validation or generation error.
     """
-    return (
-        f"{scenario.name} ({scenario.branch}; input: {scenario.input_path}): "
-        f"{message}"
-    )
+    return f"{scenario.name} ({scenario.branch}; input: {scenario.input_path}): {message}"
 
 
 def format_validation_error(
@@ -172,9 +163,7 @@ def run_analysis(
         str(output_path),
     ]
     if scenario.include_position_overrides:
-        command.extend(
-            ["--samples", DEFAULT_SAMPLE_COUNT, "--seed", DEFAULT_RANDOM_SEED]
-        )
+        command.extend(["--samples", DEFAULT_SAMPLE_COUNT, "--seed", DEFAULT_RANDOM_SEED])
     if scenario.export_opponent_statistics:
         command.extend(
             [
@@ -673,13 +662,15 @@ def check_side_specific_opponent_policy_multi_step(
     if multi_step_result["requested_step_count"] != 2:
         errors.append("expected requested two-step simulation")
 
-    if multi_step_result["left_opponent_policy_settings"] != (
-        data["left_opponent_policy_settings"]
+    if (
+        multi_step_result["left_opponent_policy_settings"]
+        != (data["left_opponent_policy_settings"])
     ):
         errors.append("expected multi-step left opponent settings to match top level")
 
-    if multi_step_result["right_opponent_policy_settings"] != (
-        data["right_opponent_policy_settings"]
+    if (
+        multi_step_result["right_opponent_policy_settings"]
+        != (data["right_opponent_policy_settings"])
     ):
         errors.append("expected multi-step right opponent settings to match top level")
 
@@ -827,6 +818,57 @@ def check_declarer_card_exposure(data: dict[str, Any]) -> list[str]:
             errors.append("expected accepted Schneider not labeled as achieved")
         if basis.get("overbid_required_value_applied") is not False:
             errors.append("expected no overbid-required value")
+    return errors
+
+
+def check_defender_open_play(data: dict[str, Any]) -> list[str]:
+    """Checks exact proof, rule assignment, privacy, and settlement."""
+    errors = []
+    adjusted_result = data["adjusted_game_result_summary"]
+    summary = data.get("game_shortening_summary")
+    settlement = data["final_settlement_summary"]
+    if not isinstance(summary, dict):
+        return ["expected defender-open-play game_shortening_summary"]
+    proof = summary.get("exact_proof", {})
+    if summary.get("rule_sections") != ["4.4.5"]:
+        errors.append("expected deterministic ISkO 4.4.5 rule section")
+    if summary.get("exposing_defender") != "me":
+        errors.append("expected concrete exposing defender")
+    if summary.get("non_exposing_defender") != "right":
+        errors.append("expected deterministic non-exposing defender")
+    if proof.get("status") != "valid" or proof.get("proof_complete") is not True:
+        errors.append("expected complete valid exact proof")
+    if proof.get("quantifier_policy") != {
+        "exposing_defender": "exists_legal_strategy",
+        "declarer": "all_legal_plays",
+        "non_exposing_defender": "all_legal_plays",
+    }:
+        errors.append("expected exact defender-open-play quantifier policy")
+    if proof.get("evaluated_state_count") != 18:
+        errors.append("expected deterministic evaluated-state count")
+    if proof.get("memoized_state_count") != 18:
+        errors.append("expected deterministic memoized-state count")
+    assignment = summary.get("rest_trick_assignment")
+    if assignment != {
+        "source": "defender_open_play_adjudication",
+        "recipient": "defenders",
+        "remaining_trick_count": 2,
+        "assigned_card_count": 6,
+        "assigned_card_points": 12,
+    }:
+        errors.append("expected exact defender-side rest-trick assignment")
+    if adjusted_result.get("defender_points") != 65:
+        errors.append("expected assigned final defender points")
+    if adjusted_result.get("declarer_points") != 55:
+        errors.append("expected preserved observed declarer points")
+    if settlement.get("settlement_score") != -144:
+        errors.append("expected simple doubled Grand loss")
+    serialized = json.dumps(data)
+    if "remaining_hands" in serialized:
+        errors.append("private exact remaining hands must not be emitted")
+    for hidden_card in ("D7", "D8", "D9", "H8"):
+        if f'"{hidden_card}"' in serialized:
+            errors.append(f"hidden proof card {hidden_card} must not be emitted")
     return errors
 
 
@@ -1081,10 +1123,7 @@ def check_late_game_history_heavy_live(data: dict[str, Any]) -> list[str]:
     if information_policy["live_information_enforced"] is not True:
         errors.append("expected live information policy enforcement")
 
-    if (
-        information_policy["unverifiable_completed_trick_winner_metadata_allowed"]
-        is not False
-    ):
+    if information_policy["unverifiable_completed_trick_winner_metadata_allowed"] is not False:
         errors.append("expected strict live completed-trick winner metadata")
 
     return errors
@@ -1151,9 +1190,7 @@ def check_historical_game_normal_completion(data: dict[str, Any]) -> list[str]:
 def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
     """Checks deterministic information-safe historical snapshot output."""
     errors = check_historical_game_normal_completion(data)
-    snapshot_summary = data["historical_game_summary"].get(
-        "decision_snapshot_summary"
-    )
+    snapshot_summary = data["historical_game_summary"].get("decision_snapshot_summary")
     if not isinstance(snapshot_summary, dict):
         errors.append("expected historical decision snapshot summary")
         return errors
@@ -1161,9 +1198,9 @@ def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
         errors.append("expected decision-time information policy")
     if snapshot_summary["snapshot_count"] != 30:
         errors.append("expected exactly 30 historical decision snapshots")
-    if [
-        snapshot["decision_index"] for snapshot in snapshot_summary["snapshots"]
-    ] != list(range(1, 31)):
+    if [snapshot["decision_index"] for snapshot in snapshot_summary["snapshots"]] != list(
+        range(1, 31)
+    ):
         errors.append("expected ordered decision indices 1 through 30")
     return errors
 
@@ -1171,9 +1208,7 @@ def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
 def check_historical_game_review(data: dict[str, Any]) -> list[str]:
     """Checks the deterministic complete historical decision review."""
     errors = check_historical_game_normal_completion(data)
-    review = data["historical_game_summary"].get(
-        "historical_game_review_summary"
-    )
+    review = data["historical_game_summary"].get("historical_game_review_summary")
     if not isinstance(review, dict):
         errors.append("expected historical game review summary")
         return errors
@@ -1189,22 +1224,18 @@ def check_historical_game_review(data: dict[str, Any]) -> list[str]:
         "opponent_policy_mode": "default",
     }:
         errors.append("expected deterministic historical review settings")
-    if [
-        decision["effective_random_seed"] for decision in review["decisions"]
-    ] != list(range(42, 72)):
+    if [decision["effective_random_seed"] for decision in review["decisions"]] != list(
+        range(42, 72)
+    ):
         errors.append("expected historical decision seeds 42 through 71")
     if len(review["player_summaries"]) != 3 or any(
-        player["decision_count"] != 10
-        for player in review["player_summaries"]
+        player["decision_count"] != 10 for player in review["player_summaries"]
     ):
         errors.append("expected three ten-decision player summaries")
     if any(
         decision["actual_card_played"] not in decision["legal_cards"]
         or decision["recommendation"]["card"] is None
-        or sum(
-            row["card"] == decision["actual_card_played"]
-            for row in decision["analysis_report"]
-        )
+        or sum(row["card"] == decision["actual_card_played"] for row in decision["analysis_report"])
         != 1
         for decision in review["decisions"]
     ):
@@ -1359,9 +1390,7 @@ def check_historical_opponent_statistics(data: dict[str, Any]) -> list[str]:
         "defender_games_won": 0,
     }:
         errors.append("expected exact declarer role, result, and contract counts")
-    if declarer["profile_derivation"]["confidence"]["declarer"][
-        "evidence_kind"
-    ] != "exact":
+    if declarer["profile_derivation"]["confidence"]["declarer"]["evidence_kind"] != "exact":
         errors.append("expected exact declarer profile evidence")
     first_defender = summary["records"][0]
     if first_defender["exact_counts"]["defender_games_won"] != 1:
@@ -1400,19 +1429,19 @@ def check_rolling_opponent_policy_evaluation(data: dict[str, Any]) -> list[str]:
     }:
         errors.append("expected default disjoint partitions and strict rolling selection")
     coverage = summary["coverage"]
-    if coverage["target_decisions"] != 30 or coverage[
-        "decisions_with_insufficient_confidence"
-    ] != 30:
+    if (
+        coverage["target_decisions"] != 30
+        or coverage["decisions_with_insufficient_confidence"] != 30
+    ):
         errors.append("expected 30 low-confidence target decisions")
     baseline = summary["baseline_results"]
-    if baseline["baseline_policy_preset"] != "simple_lowest" or baseline[
-        "decision_count"
-    ] != 30:
+    if baseline["baseline_policy_preset"] != "simple_lowest" or baseline["decision_count"] != 30:
         errors.append("expected immutable simple_lowest baseline on all decisions")
     paired = summary["actionable_profile_paired_results"]
-    if paired["paired_decision_count"] != 0 or paired[
-        "profile_preferred_card_match_rate"
-    ] is not None:
+    if (
+        paired["paired_decision_count"] != 0
+        or paired["profile_preferred_card_match_rate"] is not None
+    ):
         errors.append("expected valid null paired rates without actionable profiles")
     target = summary["target_games"][0]
     if target["as_of_source_game_count"] != 1:
@@ -1457,13 +1486,14 @@ def check_dataset_partition_audit(data: dict[str, Any]) -> list[str]:
         "player-c",
     ]:
         errors.append("expected all three stable players in the three-way overlap")
-    if summary["known_opponent_coverage"]["train_to_validation"][
-        "shared_player_count"
-    ] != 3:
+    if summary["known_opponent_coverage"]["train_to_validation"]["shared_player_count"] != 3:
         errors.append("expected complete train-to-validation player coverage")
-    if summary["known_opponent_coverage"]["train_to_validation"][
-        "target_game_count_with_all_three_participants_previously_seen"
-    ] != 1:
+    if (
+        summary["known_opponent_coverage"]["train_to_validation"][
+            "target_game_count_with_all_three_participants_previously_seen"
+        ]
+        != 1
+    ):
         errors.append("expected one target game with all participants in train")
     if summary["unseen_player_compliance"]["violating_player_count"] != 3:
         errors.append("expected three deterministic unseen-player violations")
@@ -1510,9 +1540,7 @@ def check_opponent_statistics(data: dict[str, Any]) -> list[str]:
         errors.append("expected no invented declarer game count")
     if profile["defender_games_played"] is not None:
         errors.append("expected no invented defender game count")
-    if first_record["validation_metadata"] != {
-        "percentage_sum_tolerance_points": 2.0
-    }:
+    if first_record["validation_metadata"] != {"percentage_sum_tolerance_points": 2.0}:
         errors.append("expected fixed percentage-sum tolerance metadata")
     derivation = first_record["profile_derivation"]
     if derivation["profile_derivation_version"] != 1:
@@ -1613,25 +1641,19 @@ SCENARIOS = (
     ),
     Scenario(
         name="post_game_available_nested_suit_declaration",
-        input_path=(
-            PROJECT_ROOT / "examples" / "spades_post_game_actual_card_played.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "spades_post_game_actual_card_played.json"),
         branch="actual-card post-game review and nested Suit declaration output",
         check_output=check_post_game_available_nested_suit,
     ),
     Scenario(
         name="post_game_null_objective_review",
-        input_path=(
-            PROJECT_ROOT / "examples" / "null_post_game_objective_actual_card.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "null_post_game_objective_actual_card.json"),
         branch="actual-card post-game review using the Null contract objective",
         check_output=check_post_game_null_objective_review,
     ),
     Scenario(
         name="post_game_defender_perspective_review",
-        input_path=(
-            PROJECT_ROOT / "examples" / "spades_post_game_defender_actual_card.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "spades_post_game_defender_actual_card.json"),
         branch="actual-card post-game review from a local defender perspective",
         check_output=check_post_game_defender_perspective_review,
     ),
@@ -1708,17 +1730,13 @@ SCENARIOS = (
     ),
     Scenario(
         name="side_specific_opponent_policies",
-        input_path=(
-            PROJECT_ROOT / "examples" / "grand_left_right_opponent_policies.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "grand_left_right_opponent_policies.json"),
         branch="distinct left/right opponent policy settings",
         check_output=check_side_specific_opponent_policies,
     ),
     Scenario(
         name="side_specific_opponent_policy_multi_step",
-        input_path=(
-            PROJECT_ROOT / "examples" / "grand_left_right_opponent_policies.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "grand_left_right_opponent_policies.json"),
         branch="side-specific opponent lead policies in Multi-Step output",
         cli_args=(
             "--multi-step",
@@ -1763,10 +1781,16 @@ SCENARIOS = (
         expect_quiet_stdout=True,
     ),
     Scenario(
+        name="defender_open_play",
+        input_path=PROJECT_ROOT / "examples" / "defender_open_play.json",
+        branch="bounded exact defender open-play adjudication",
+        cli_args=("--quiet",),
+        check_output=check_defender_open_play,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
         name="declarer_card_exposure_continuation",
-        input_path=(
-            PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"),
         branch="continued play with exposed declarer cards",
         cli_args=("--quiet",),
         check_output=check_declarer_card_exposure_continuation,
@@ -1774,21 +1798,13 @@ SCENARIOS = (
     ),
     Scenario(
         name="overbid_settlement",
-        input_path=(
-            PROJECT_ROOT
-            / "examples"
-            / "grand_overbid_declarer_card_points_win.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "grand_overbid_declarer_card_points_win.json"),
         branch="supported Suit/Grand overbid settlement",
         check_output=check_overbid_settlement,
     ),
     Scenario(
         name="impossible_null_settlement",
-        input_path=(
-            PROJECT_ROOT
-            / "examples"
-            / "null_impossible_declaration_settlement.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "null_impossible_declaration_settlement.json"),
         branch="complete impossible Null replacement settlement",
         check_output=check_impossible_null_settlement,
     ),
@@ -1800,9 +1816,7 @@ SCENARIOS = (
     ),
     Scenario(
         name="list_game_contributions_summary",
-        input_path=(
-            PROJECT_ROOT / "examples" / "grand_list_game_contributions.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "grand_list_game_contributions.json"),
         branch="optional normalized game-contribution list performance summary",
         check_output=check_list_game_contributions,
     ),
@@ -1820,11 +1834,7 @@ SCENARIOS = (
     ),
     Scenario(
         name="late_game_history_heavy_live",
-        input_path=(
-            PROJECT_ROOT
-            / "examples"
-            / "grand_late_game_history_heavy_live.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "grand_late_game_history_heavy_live.json"),
         branch="late-game live public input with zero hand sizes and rich history",
         check_output=check_late_game_history_heavy_live,
     ),
@@ -1850,9 +1860,7 @@ SCENARIOS = (
     ),
     Scenario(
         name="historical_grand_normal_completion",
-        input_path=(
-            PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
         branch="complete normal-play historical game with derived settlement",
         cli_args=("--quiet",),
         check_output=check_historical_game_normal_completion,
@@ -1861,9 +1869,7 @@ SCENARIOS = (
     ),
     Scenario(
         name="historical_grand_decision_snapshots",
-        input_path=(
-            PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
         branch="information-safe snapshots for all 30 historical decisions",
         cli_args=("--historical-decision-snapshots", "--quiet"),
         check_output=check_historical_decision_snapshots,
@@ -1872,9 +1878,7 @@ SCENARIOS = (
     ),
     Scenario(
         name="historical_grand_game_review",
-        input_path=(
-            PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
         branch="seeded complete review of all 30 historical decisions",
         cli_args=(
             "--historical-game-review",
@@ -1938,9 +1942,7 @@ SCENARIOS = (
     Scenario(
         name="rolling_opponent_policy_evaluation",
         input_path=(
-            PROJECT_ROOT
-            / "examples"
-            / "historical_opponent_policy_evaluation_dataset.json"
+            PROJECT_ROOT / "examples" / "historical_opponent_policy_evaluation_dataset.json"
         ),
         branch="rolling as-of profile-derived behavioral policy evaluation",
         cli_args=("--evaluate-opponent-policy-profiles", "--quiet"),
@@ -1950,9 +1952,7 @@ SCENARIOS = (
     ),
     Scenario(
         name="dataset_partition_audit",
-        input_path=(
-            PROJECT_ROOT / "examples" / "training_dataset_partition_audit.json"
-        ),
+        input_path=(PROJECT_ROOT / "examples" / "training_dataset_partition_audit.json"),
         branch="exact stable-player dataset partition overlap audit",
         cli_args=(
             "--audit-dataset-partitions",
@@ -1998,58 +1998,34 @@ def validate_generated_outputs() -> list[str]:
     Generates selected example outputs and validates them against the output schema.
     """
     schema = load_json_file(SCHEMA_PATH)
-    historical_decision_snapshot_schema = load_json_file(
-        HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH
-    )
-    historical_game_review_schema = load_json_file(
-        HISTORICAL_GAME_REVIEW_SCHEMA_PATH
-    )
+    historical_decision_snapshot_schema = load_json_file(HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH)
+    historical_game_review_schema = load_json_file(HISTORICAL_GAME_REVIEW_SCHEMA_PATH)
     historical_game_schema = load_json_file(HISTORICAL_GAME_SCHEMA_PATH)
-    training_dataset_output_schema = load_json_file(
-        TRAINING_DATASET_OUTPUT_SCHEMA_PATH
-    )
-    opponent_statistics_output_schema = load_json_file(
-        OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH
-    )
-    opponent_statistics_input_schema = load_json_file(
-        OPPONENT_STATISTICS_INPUT_SCHEMA_PATH
-    )
+    training_dataset_output_schema = load_json_file(TRAINING_DATASET_OUTPUT_SCHEMA_PATH)
+    opponent_statistics_output_schema = load_json_file(OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH)
+    opponent_statistics_input_schema = load_json_file(OPPONENT_STATISTICS_INPUT_SCHEMA_PATH)
     historical_opponent_statistics_aggregation_schema = load_json_file(
         HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_SCHEMA_PATH
     )
-    opponent_profile_derivation_schema = load_json_file(
-        OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH
-    )
-    opponent_profile_application_schema = load_json_file(
-        OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH
-    )
+    opponent_profile_derivation_schema = load_json_file(OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH)
+    opponent_profile_application_schema = load_json_file(OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH)
     historical_opponent_profile_application_schema = load_json_file(
         HISTORICAL_OPPONENT_PROFILE_APPLICATION_SCHEMA_PATH
     )
     rolling_opponent_policy_evaluation_schema = load_json_file(
         ROLLING_OPPONENT_POLICY_EVALUATION_SCHEMA_PATH
     )
-    dataset_partition_policy_schema = load_json_file(
-        DATASET_PARTITION_POLICY_SCHEMA_PATH
-    )
-    dataset_partition_audit_schema = load_json_file(
-        DATASET_PARTITION_AUDIT_SCHEMA_PATH
-    )
-    declarer_concession_output_schema = load_json_file(
-        DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH
-    )
-    defender_concession_output_schema = load_json_file(
-        DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH
-    )
-    declarer_card_exposure_output_schema = load_json_file(
-        DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH
-    )
+    dataset_partition_policy_schema = load_json_file(DATASET_PARTITION_POLICY_SCHEMA_PATH)
+    dataset_partition_audit_schema = load_json_file(DATASET_PARTITION_AUDIT_SCHEMA_PATH)
+    declarer_concession_output_schema = load_json_file(DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH)
+    defender_concession_output_schema = load_json_file(DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH)
+    declarer_card_exposure_output_schema = load_json_file(DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH)
+    defender_open_play_output_schema = load_json_file(DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH)
+    exact_rest_trick_proof_schema = load_json_file(EXACT_REST_TRICK_PROOF_SCHEMA_PATH)
     declarer_card_exposure_continuation_output_schema = load_json_file(
         DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH
     )
-    public_hand_constraint_schema = load_json_file(
-        PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH
-    )
+    public_hand_constraint_schema = load_json_file(PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH)
     registry = Registry().with_resources(
         [
             (
@@ -2074,9 +2050,7 @@ def validate_generated_outputs() -> list[str]:
             ),
             (
                 historical_opponent_statistics_aggregation_schema["$id"],
-                Resource.from_contents(
-                    historical_opponent_statistics_aggregation_schema
-                ),
+                Resource.from_contents(historical_opponent_statistics_aggregation_schema),
             ),
             (
                 opponent_profile_derivation_schema["$id"],
@@ -2115,10 +2089,16 @@ def validate_generated_outputs() -> list[str]:
                 Resource.from_contents(declarer_card_exposure_output_schema),
             ),
             (
+                defender_open_play_output_schema["$id"],
+                Resource.from_contents(defender_open_play_output_schema),
+            ),
+            (
+                exact_rest_trick_proof_schema["$id"],
+                Resource.from_contents(exact_rest_trick_proof_schema),
+            ),
+            (
                 declarer_card_exposure_continuation_output_schema["$id"],
-                Resource.from_contents(
-                    declarer_card_exposure_continuation_output_schema
-                ),
+                Resource.from_contents(declarer_card_exposure_continuation_output_schema),
             ),
             (
                 public_hand_constraint_schema["$id"],
@@ -2127,9 +2107,7 @@ def validate_generated_outputs() -> list[str]:
         ]
     )
     validator = Draft202012Validator(schema, registry=registry)
-    opponent_statistics_input_validator = Draft202012Validator(
-        opponent_statistics_input_schema
-    )
+    opponent_statistics_input_validator = Draft202012Validator(opponent_statistics_input_schema)
     errors = []
 
     with tempfile.TemporaryDirectory() as temporary_directory:
@@ -2214,9 +2192,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print(
-        f"Generated {len(SCENARIOS)} outputs match schemas/output.schema.json."
-    )
+    print(f"Generated {len(SCENARIOS)} outputs match schemas/output.schema.json.")
     return 0
 
 

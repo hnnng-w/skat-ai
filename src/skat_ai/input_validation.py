@@ -14,6 +14,10 @@ from skat_ai.defender_concession import (
     DefenderConcession,
     validate_defender_concession_context,
 )
+from skat_ai.defender_open_play import (
+    DefenderOpenPlay,
+    validate_defender_open_play_context,
+)
 from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.game_history import validate_completed_trick_sequence
 from skat_ai.game_shortening import get_game_shortening_from_input
@@ -211,10 +215,7 @@ def validate_no_duplicate_cards(data: dict[str, Any]) -> None:
         )
     )
 
-    duplicates = sorted({
-        card for card in all_cards
-        if all_cards.count(card) > 1
-    })
+    duplicates = sorted({card for card in all_cards if all_cards.count(card) > 1})
 
     if duplicates:
         raise ValueError(f"Duplicate known cards found: {duplicates}")
@@ -261,9 +262,7 @@ def validate_actual_card_played(data: dict[str, Any]) -> None:
 
     analysis_mode = data.get("analysis_mode", "live_decision")
     if analysis_mode != "post_game_review":
-        raise ValueError(
-            "actual_card_played requires analysis_mode to be post_game_review."
-        )
+        raise ValueError("actual_card_played requires analysis_mode to be post_game_review.")
 
     hand = data["hand"]
     if actual_card_played not in hand:
@@ -470,14 +469,9 @@ def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
     if not isinstance(list_performance_input, dict):
         raise ValueError("list_performance_input must be an object.")
 
-    additional_fields = sorted(
-        set(list_performance_input) - set(LIST_PERFORMANCE_REQUIRED_FIELDS)
-    )
+    additional_fields = sorted(set(list_performance_input) - set(LIST_PERFORMANCE_REQUIRED_FIELDS))
     if additional_fields:
-        raise ValueError(
-            "list_performance_input has unsupported keys: "
-            f"{additional_fields}"
-        )
+        raise ValueError(f"list_performance_input has unsupported keys: {additional_fields}")
 
     if data.get("performance_rating_system") != "isko_list":
         raise ValueError(
@@ -490,10 +484,7 @@ def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
         if field_name not in list_performance_input
     ]
     if missing_fields:
-        raise ValueError(
-            "list_performance_input is missing required keys: "
-            f"{missing_fields}"
-        )
+        raise ValueError(f"list_performance_input is missing required keys: {missing_fields}")
 
     for field_name in LIST_PERFORMANCE_REQUIRED_FIELDS:
         validate_strict_integer(
@@ -503,9 +494,7 @@ def validate_optional_list_performance_input(data: dict[str, Any]) -> None:
 
     for field_name in LIST_PERFORMANCE_COUNTER_FIELDS:
         if list_performance_input[field_name] < 0:
-            raise ValueError(
-                f"list_performance_input.{field_name} must be non-negative."
-            )
+            raise ValueError(f"list_performance_input.{field_name} must be non-negative.")
 
 
 def validate_optional_list_game_contributions(data: dict[str, Any]) -> None:
@@ -522,8 +511,7 @@ def validate_optional_list_game_contributions(data: dict[str, Any]) -> None:
 
     if data.get("performance_rating_system") != "isko_list":
         raise ValueError(
-            "list_game_contributions requires performance_rating_system to be "
-            "isko_list."
+            "list_game_contributions requires performance_rating_system to be isko_list."
         )
 
     validate_list_entry_metadata(
@@ -550,18 +538,12 @@ def validate_list_game_contribution(contribution: Any, index: int) -> None:
         if field_name not in contribution
     ]
     if missing_fields:
-        raise ValueError(
-            f"{field_prefix} is missing required keys: {missing_fields}"
-        )
+        raise ValueError(f"{field_prefix} is missing required keys: {missing_fields}")
 
-    supported_fields = set(LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS) | set(
-        LIST_ENTRY_METADATA_FIELDS
-    )
+    supported_fields = set(LIST_GAME_CONTRIBUTION_REQUIRED_FIELDS) | set(LIST_ENTRY_METADATA_FIELDS)
     additional_fields = sorted(set(contribution) - supported_fields)
     if additional_fields:
-        raise ValueError(
-            f"{field_prefix} has unsupported keys: {additional_fields}"
-        )
+        raise ValueError(f"{field_prefix} has unsupported keys: {additional_fields}")
 
     player_role = contribution["player_role"]
     if player_role not in VALID_LIST_GAME_CONTRIBUTION_PLAYER_ROLES:
@@ -569,22 +551,16 @@ def validate_list_game_contribution(contribution: Any, index: int) -> None:
 
     game_outcome = contribution["game_outcome"]
     if game_outcome not in VALID_LIST_GAME_CONTRIBUTION_OUTCOMES:
-        raise ValueError(
-            f"Unsupported {field_prefix}.game_outcome: {game_outcome}."
-        )
+        raise ValueError(f"Unsupported {field_prefix}.game_outcome: {game_outcome}.")
 
     settlement_score = contribution["settlement_score"]
     validate_strict_integer(settlement_score, f"{field_prefix}.settlement_score")
 
     if game_outcome == "declarer_win" and settlement_score <= 0:
-        raise ValueError(
-            f"{field_prefix} declarer_win requires a positive settlement_score."
-        )
+        raise ValueError(f"{field_prefix} declarer_win requires a positive settlement_score.")
 
     if game_outcome == "declarer_loss" and settlement_score >= 0:
-        raise ValueError(
-            f"{field_prefix} declarer_loss requires a negative settlement_score."
-        )
+        raise ValueError(f"{field_prefix} declarer_loss requires a negative settlement_score.")
 
 
 def validate_optional_list_analysis_results(data: dict[str, Any]) -> None:
@@ -601,8 +577,7 @@ def validate_optional_list_analysis_results(data: dict[str, Any]) -> None:
 
     if data.get("performance_rating_system") != "isko_list":
         raise ValueError(
-            "list_analysis_results requires performance_rating_system to be "
-            "isko_list."
+            "list_analysis_results requires performance_rating_system to be isko_list."
         )
 
     validate_list_entry_metadata(
@@ -652,13 +627,9 @@ def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
         if not isinstance(completed_trick, dict):
             raise ValueError(f"{field_prefix} must be an object.")
 
-        additional_fields = sorted(
-            set(completed_trick) - COMPLETED_TRICK_ALLOWED_KEYS
-        )
+        additional_fields = sorted(set(completed_trick) - COMPLETED_TRICK_ALLOWED_KEYS)
         if additional_fields:
-            raise ValueError(
-                f"{field_prefix} has unsupported keys: {additional_fields}"
-            )
+            raise ValueError(f"{field_prefix} has unsupported keys: {additional_fields}")
 
         if "cards" not in completed_trick:
             raise ValueError("Completed trick is missing required key: cards")
@@ -677,10 +648,7 @@ def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
         if len(cards) != 3:
             raise ValueError("Completed trick must contain exactly 3 cards.")
 
-        invalid_cards = [
-            card for card in cards
-            if card not in full_deck
-        ]
+        invalid_cards = [card for card in cards if card not in full_deck]
 
         if invalid_cards:
             raise ValueError(f"Invalid cards in completed_tricks: {invalid_cards}")
@@ -695,16 +663,14 @@ def validate_completed_tricks(completed_tricks: list[dict[str, Any]]) -> None:
             if len(players) != 3:
                 raise ValueError("Completed trick players must contain exactly 3 players.")
 
-            invalid_players = [
-                player for player in players
-                if player not in VALID_TRICK_PLAYERS
-            ]
+            invalid_players = [player for player in players if player not in VALID_TRICK_PLAYERS]
 
             if invalid_players:
                 raise ValueError(f"Invalid completed trick players: {invalid_players}")
 
         if winner_player is not None and winner_player not in VALID_TRICK_PLAYERS:
             raise ValueError(f"Invalid completed trick winner player: {winner_player}")
+
 
 def validate_optional_player_profile(
     profile: dict[str, Any] | None,
@@ -782,6 +748,7 @@ def validate_optional_analysis_metadata(data: dict[str, Any]) -> None:
             field_name="right_player_profile",
         )
 
+
 def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
     """
     Validates optional opponent policy fields.
@@ -807,12 +774,14 @@ def validate_optional_opponent_policies(data: dict[str, Any]) -> None:
     if "right_opponent_response_policy" in data:
         validate_opponent_card_policy(data["right_opponent_response_policy"])
 
+
 def validate_optional_profile_preset_settings(data: dict[str, Any]) -> None:
     """
     Validates optional profile-preset settings.
     """
     if "use_profile_presets" in data:
         validate_boolean(data["use_profile_presets"], "use_profile_presets")
+
 
 def validate_optional_game_declaration(data: dict[str, Any]) -> None:
     """
@@ -836,6 +805,8 @@ def validate_optional_game_shortening(data: dict[str, Any]) -> None:
         validate_defender_concession_context(data, game_shortening)
     elif isinstance(game_shortening, DeclarerCardExposure):
         validate_declarer_card_exposure_context(data, game_shortening)
+    elif isinstance(game_shortening, DefenderOpenPlay):
+        validate_defender_open_play_context(data, game_shortening)
     else:
         validate_declarer_concession_context(data, game_shortening)
 
@@ -855,8 +826,7 @@ def validate_impossible_null_settlement(data: dict[str, Any]) -> None:
     if reason != "impossible_null_declaration":
         if has_selection:
             raise ValueError(
-                "impossible_null_settlement requires "
-                "game_end_reason='impossible_null_declaration'."
+                "impossible_null_settlement requires game_end_reason='impossible_null_declaration'."
             )
         return
 
@@ -868,14 +838,10 @@ def validate_impossible_null_settlement(data: dict[str, Any]) -> None:
 
     declaration = build_game_declaration_from_input(data)
     if declaration.game_type != "null":
-        raise ValueError(
-            "game_end_reason='impossible_null_declaration' requires game_type='null'."
-        )
+        raise ValueError("game_end_reason='impossible_null_declaration' requires game_type='null'.")
 
     if declaration.bid_value is None:
-        raise ValueError(
-            "game_end_reason='impossible_null_declaration' requires bid_value."
-        )
+        raise ValueError("game_end_reason='impossible_null_declaration' requires bid_value.")
 
     null_game_value = get_null_game_value(declaration)
     if declaration.bid_value <= null_game_value:
@@ -886,22 +852,17 @@ def validate_impossible_null_settlement(data: dict[str, Any]) -> None:
 
     for field_name in ["played_cards", "current_trick", "completed_tricks"]:
         if data.get(field_name, []):
-            raise ValueError(
-                f"{field_name} must be empty for impossible_null_declaration."
-            )
+            raise ValueError(f"{field_name} must be empty for impossible_null_declaration.")
 
     if "actual_card_played" in data:
-        raise ValueError(
-            "actual_card_played is not allowed for impossible_null_declaration."
-        )
+        raise ValueError("actual_card_played is not allowed for impossible_null_declaration.")
 
     for field_name in ["declarer_points", "defender_points"]:
         if data.get(field_name, 0) != 0:
-            raise ValueError(
-                f"{field_name} must be zero for impossible_null_declaration."
-            )
+            raise ValueError(f"{field_name} must be zero for impossible_null_declaration.")
 
     build_impossible_null_settlement_selection_from_input(data)
+
 
 def validate_total_known_card_points(data: dict[str, Any]) -> None:
     explicit_declarer_points = data.get("declarer_points", 0)
@@ -909,15 +870,9 @@ def validate_total_known_card_points(data: dict[str, Any]) -> None:
 
     completed_trick_points = 0
     for completed_trick in data.get("completed_tricks", []):
-        completed_trick_points += sum(
-            get_card_points(card) for card in completed_trick["cards"]
-        )
+        completed_trick_points += sum(get_card_points(card) for card in completed_trick["cards"])
 
-    total_points = (
-        explicit_declarer_points
-        + explicit_defender_points
-        + completed_trick_points
-    )
+    total_points = explicit_declarer_points + explicit_defender_points + completed_trick_points
 
     if total_points > 120:
         raise ValueError("Known card points cannot exceed 120.")

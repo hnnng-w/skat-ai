@@ -20,6 +20,12 @@ Accepted declarer-card-exposure output uses:
 
 [`schemas/declarer_card_exposure_output.schema.json`](../schemas/declarer_card_exposure_output.schema.json)
 
+Defender-open-play and exact-proof output use:
+
+[`schemas/defender_open_play_output.schema.json`](../schemas/defender_open_play_output.schema.json)
+
+[`schemas/exact_rest_trick_proof.schema.json`](../schemas/exact_rest_trick_proof.schema.json)
+
 Ongoing exposure continuation and reusable public-hand output use:
 
 [`schemas/declarer_card_exposure_continuation_output.schema.json`](../schemas/declarer_card_exposure_continuation_output.schema.json)
@@ -546,7 +552,12 @@ canonical exposed cards, `confirmed` or `not_verifiable` reconciliation, both
 accepting defenders and acceptance forms, claimed level, prior decision state,
 winner basis, `continued_play_required: false`, and no point assignment.
 
-It contains no solver result or hypothetical future-play claim.
+The defender-open-play member is the bounded exception. It records the exposing
+and non-exposing defenders, exposed cards, unresolved-trick count, exact proof
+status and quantifiers, deterministic search statistics, a privacy-redacted
+canonical line, the rest-trick assignment, winner basis, and applicable ISkO
+sections. Completeness comes from exhaustive search, not from the displayed line.
+The declarer's and non-exposing defender's exact hands are never emitted.
 
 ## Game-continuation summary
 
@@ -634,6 +645,17 @@ levels. An undecided Suit or Grand game uses the highest declared mandatory or
 accepted claimed play level. Supported overbid requirements must be covered by
 that declaration or claim. Null permits only `simple` and uses its fixed value.
 No remaining card points are assigned.
+
+For defender open play, `settlement_basis` distinguishes the preexisting
+decision, exact proof status, valid or invalid open play, rule-assigned rest
+tricks, normally achieved Schneider or Schwarz, mandatory levels awarded under
+ISkO 4.1.5, and supported overbid-required valuation. Valid proof assigns every
+rest trick and all outstanding points to the defenders. Invalid proof records
+the corresponding declarer assignment without treating it as normally achieved
+play. An undecided invalid Suit or Grand claim gives the declarer the simple
+game unless a bounded mandatory level applies. An undecided invalid Null claim
+also gives the declarer the fixed-value contract and does not reinterpret the
+rule assignment as a played declarer trick.
 
 An ongoing exposure continuation does not enter this accepted-exposure
 settlement path. Its requested level is provenance only. The ordinary incomplete

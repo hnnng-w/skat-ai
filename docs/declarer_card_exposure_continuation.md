@@ -106,9 +106,10 @@ top-level workflows. Historical games and snapshots, datasets, statistics,
 rolling evaluation, and partition audits do not gain continuation support.
 
 This feature does not add general declared-Ouvert analysis, historical
-continuation records, ISkO 4.4.5 defender open play, ISkO 4.4.6 open throwing,
-new policies, solver proof, later final-settlement adjudication, or general
-hidden-world continuity.
+continuation records, exposed-defender continuation under ISkO 4.1.6, ISkO
+4.4.6 open throwing, new policies, later final-settlement adjudication, or
+general hidden-world continuity. Bounded exact ISkO 4.4.5 adjudication is a
+separate final workflow documented in [Defender open play](defender_open_play.md).
 
 See
 [`examples/declarer_card_exposure_continuation.json`](../examples/declarer_card_exposure_continuation.json)

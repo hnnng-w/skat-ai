@@ -6,8 +6,11 @@ from skat_ai.declarer_card_exposure import (
 )
 from skat_ai.declarer_concession import DeclarerConcession, build_declarer_concession
 from skat_ai.defender_concession import DefenderConcession, build_defender_concession
+from skat_ai.defender_open_play import DefenderOpenPlay, build_defender_open_play
 
-type GameShortening = DeclarerConcession | DefenderConcession | DeclarerCardExposure
+type GameShortening = (
+    DeclarerConcession | DefenderConcession | DeclarerCardExposure | DefenderOpenPlay
+)
 
 
 def build_game_shortening(value: Any) -> GameShortening:
@@ -22,10 +25,13 @@ def build_game_shortening(value: Any) -> GameShortening:
         return build_defender_concession(value)
     if kind == "declarer_card_exposure":
         return build_declarer_card_exposure(value)
+    if kind == "defender_open_play":
+        return build_defender_open_play(value)
 
     raise ValueError(
         "game_shortening.kind must be 'declarer_concession', "
-        "'defender_concession', or 'declarer_card_exposure' for schema_version 1."
+        "'defender_concession', 'declarer_card_exposure', or "
+        "'defender_open_play' for schema_version 1."
     )
 
 

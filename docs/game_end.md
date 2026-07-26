@@ -255,8 +255,10 @@ This prevents inconsistent inputs such as:
 
 `final_settlement_summary` uses the adjusted result.
 
-Both structured adjudication and legacy assignment can decide the final winner
-before settlement is calculated, but only the legacy path changes card points.
+Structured adjudication and legacy assignment can decide the final winner
+before settlement is calculated. Legacy endings and defender open play can
+change adjusted point accounting; defender open play additionally identifies
+the exact rule-assignment source and party-level trick count.
 
 For example:
 
@@ -268,7 +270,7 @@ For example:
 ## Current limitations
 
 * Legacy claims and concessions still assign remaining points.
-* Structured support covers bounded declarer and defender concessions plus unanimously accepted declarer card exposure.
-* Flat continued exposed-card play after an objection is supported separately from game endings; defender open play and open throwing remain unsupported.
-* Historical-game shortening or continuation and solver-backed claim proof are unsupported.
-* No game-shortening path simulates hypothetical continuation; the separate continuation analyzes an actual ongoing position.
+* Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, and bounded exact defender open play.
+* Flat continued declarer exposure is separate; exposed-defender continuation under 4.1.6 remains unsupported.
+* Historical-game shortening, unlimited exact solving, isolated-card claims, and ISkO 4.4.6 remain unsupported.
+* Defender open play proves a bounded final adjudication; it does not simulate or create continued play.

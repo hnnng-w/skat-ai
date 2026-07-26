@@ -20,15 +20,10 @@ TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.sche
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
 )
-OPPONENT_STATISTICS_SCHEMA_PATH = (
-    PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
-)
-GAME_SHORTENING_SCHEMA_PATH = (
-    PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
-)
-GAME_CONTINUATION_SCHEMA_PATH = (
-    PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
-)
+OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
+GAME_SHORTENING_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
+DEFENDER_OPEN_PLAY_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "defender_open_play.schema.json"
+GAME_CONTINUATION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
 POLICY_FIELDS = [
     "opponent_lead_policy",
     "opponent_response_policy",
@@ -54,6 +49,8 @@ with OPPONENT_STATISTICS_SCHEMA_PATH.open("r", encoding="utf-8") as statistics_s
     OPPONENT_STATISTICS_SCHEMA = json.load(statistics_schema_file)
 with GAME_SHORTENING_SCHEMA_PATH.open("r", encoding="utf-8") as game_shortening_file:
     GAME_SHORTENING_SCHEMA = json.load(game_shortening_file)
+with DEFENDER_OPEN_PLAY_SCHEMA_PATH.open("r", encoding="utf-8") as defender_open_play_file:
+    DEFENDER_OPEN_PLAY_SCHEMA = json.load(defender_open_play_file)
 with GAME_CONTINUATION_SCHEMA_PATH.open("r", encoding="utf-8") as game_continuation_file:
     GAME_CONTINUATION_SCHEMA = json.load(game_continuation_file)
 
@@ -75,6 +72,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             GAME_SHORTENING_SCHEMA["$id"],
             Resource.from_contents(GAME_SHORTENING_SCHEMA),
+        ),
+        (
+            DEFENDER_OPEN_PLAY_SCHEMA["$id"],
+            Resource.from_contents(DEFENDER_OPEN_PLAY_SCHEMA),
         ),
         (
             GAME_CONTINUATION_SCHEMA["$id"],
@@ -209,10 +210,7 @@ def assert_schema_valid(data: dict[str, object]) -> None:
         key=lambda validation_error: list(validation_error.absolute_path),
     )
 
-    assert not errors, [
-        f"{list(error.absolute_path)}: {error.message}"
-        for error in errors
-    ]
+    assert not errors, [f"{list(error.absolute_path)}: {error.message}" for error in errors]
 
 
 def assert_schema_invalid(data: dict[str, object]) -> None:
@@ -270,6 +268,15 @@ def test_schema_and_runtime_accept_structured_defender_concession() -> None:
 
 def test_schema_and_runtime_accept_declarer_card_exposure() -> None:
     assert_schema_and_runtime_valid(build_declarer_card_exposure_input())
+
+
+def test_schema_and_runtime_accept_defender_open_play() -> None:
+    with (PROJECT_ROOT / "examples" / "defender_open_play.json").open(
+        "r", encoding="utf-8"
+    ) as example_file:
+        data = json.load(example_file)
+
+    assert_schema_and_runtime_valid(data)
 
 
 @pytest.mark.parametrize(
@@ -399,9 +406,7 @@ def test_schema_and_runtime_accept_training_dataset_branch() -> None:
     data = build_valid_training_dataset_input()
 
     assert_schema_valid(data)
-    dataset = build_training_dataset_input(
-        copy.deepcopy(data["training_dataset_input"])
-    )
+    dataset = build_training_dataset_input(copy.deepcopy(data["training_dataset_input"]))
 
     assert dataset.dataset_id == "online-games-2026"
     assert len(dataset.records) == 2
@@ -411,18 +416,14 @@ def test_schema_and_runtime_accept_training_dataset_branch() -> None:
 def test_schema_accepts_versioned_dataset_partition_policy(mode: str) -> None:
     data = build_valid_training_dataset_input()
     if mode == "unseen_player":
-        data["training_dataset_input"]["records"] = data[
-            "training_dataset_input"
-        ]["records"][:1]
+        data["training_dataset_input"]["records"] = data["training_dataset_input"]["records"][:1]
     data["training_dataset_input"]["partition_policy"] = {
         "policy_version": 1,
         "mode": mode,
     }
 
     assert_schema_valid(data)
-    dataset = build_training_dataset_input(
-        copy.deepcopy(data["training_dataset_input"])
-    )
+    dataset = build_training_dataset_input(copy.deepcopy(data["training_dataset_input"]))
     assert dataset.partition_policy is not None
     assert dataset.partition_policy.mode == mode
 
@@ -482,9 +483,7 @@ def test_schema_rejects_structurally_invalid_training_dataset(
 
 def test_schema_rejects_unknown_training_provenance_field() -> None:
     data = build_valid_training_dataset_input()
-    data["training_dataset_input"]["records"][0]["provenance"]["url"] = (
-        "https://example.test"
-    )
+    data["training_dataset_input"]["records"][0]["provenance"]["url"] = "https://example.test"
 
     assert_schema_invalid(data)
 
