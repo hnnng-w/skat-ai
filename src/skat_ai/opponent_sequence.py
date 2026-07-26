@@ -8,6 +8,7 @@ from skat_ai.opponent_lead import (
     simulate_right_response_to_left_lead_once,
 )
 from skat_ai.opponent_policy import get_opponent_policy_settings_for_player
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.turn_phase import normalize_turn_phase
 
 UNSUPPORTED_TURN_PHASE_STOP_REASON = "unsupported_turn_phase"
@@ -100,6 +101,7 @@ def prepare_player_action_state(
     opponent_response_policy: str = "lowest_point",
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> tuple[GameState, dict[str, Any] | None]:
     """
     Prepares a state where the player can act.
@@ -138,6 +140,7 @@ def prepare_player_action_state(
             right_hand_size=right_hand_size,
             random_generator=random_generator,
             opponent_lead_policy=right_policy_settings["opponent_lead_policy"],
+            public_hand_constraints=public_hand_constraints,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result
@@ -163,6 +166,7 @@ def prepare_player_action_state(
             random_generator=random_generator,
             opponent_lead_policy=left_policy_settings["opponent_lead_policy"],
             opponent_response_policy=right_policy_settings["opponent_response_policy"],
+            public_hand_constraints=public_hand_constraints,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result
@@ -181,6 +185,7 @@ def prepare_player_action_state(
             right_hand_size=right_hand_size,
             random_generator=random_generator,
             opponent_response_policy=right_policy_settings["opponent_response_policy"],
+            public_hand_constraints=public_hand_constraints,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result

@@ -13,6 +13,7 @@ tricks, or assign unplayed card points.
 The following remain separate from this contract:
 
 * unanimously accepted declarer card exposure under ISkO 4.4.4, documented in [Accepted declarer card exposure](declarer_card_exposure.md)
+* rejected exposure with ongoing public-hand play, documented in [Declarer card exposure continuation](declarer_card_exposure_continuation.md)
 * defender open play under ISkO 4.4.5
 * open card throwing under ISkO 4.4.6
 * solver-backed claims or hypothetical continuation

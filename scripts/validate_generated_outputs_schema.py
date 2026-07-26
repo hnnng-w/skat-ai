@@ -62,6 +62,14 @@ DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
 DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_card_exposure_output.schema.json"
 )
+DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "declarer_card_exposure_continuation_output.schema.json"
+)
+PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -819,6 +827,43 @@ def check_declarer_card_exposure(data: dict[str, Any]) -> list[str]:
             errors.append("expected accepted Schneider not labeled as achieved")
         if basis.get("overbid_required_value_applied") is not False:
             errors.append("expected no overbid-required value")
+    return errors
+
+
+def check_declarer_card_exposure_continuation(
+    data: dict[str, Any],
+) -> list[str]:
+    """Checks exact public-hand analysis without game-end adjudication."""
+    errors = []
+    summary = data.get("game_continuation_summary")
+    information = data.get("information_policy_summary", {})
+    adjusted_result = data["adjusted_game_result_summary"]
+    settlement = data["final_settlement_summary"]
+    if not isinstance(summary, dict):
+        return ["expected game_continuation_summary"]
+    if summary.get("continuing_defenders") != ["me"]:
+        errors.append("expected local defender to request continuation")
+    if summary.get("accepting_defenders") != ["right"]:
+        errors.append("expected right defender acceptance provenance")
+    if summary.get("public_declarer_cards") != ["C10", "SK", "SJ", "S7", "HK", "DK"]:
+        errors.append("expected canonical exact public declarer hand")
+    if summary.get("game_end_applied") is not False:
+        errors.append("expected no game end from continuation")
+    if summary.get("settlement_applied") is not False:
+        errors.append("expected no settlement from continuation")
+    constraints = information.get("public_hand_constraints")
+    if not isinstance(constraints, list) or len(constraints) != 1:
+        errors.append("expected one public declarer-hand constraint")
+    elif constraints[0].get("player") != "left":
+        errors.append("expected public constraint for left declarer")
+    if adjusted_result.get("is_complete") is not False:
+        errors.append("expected continued game to remain incomplete")
+    if adjusted_result.get("game_end_reason") != "not_ended":
+        errors.append("expected neutral game-end reason")
+    if settlement.get("is_complete") is not False:
+        errors.append("expected incomplete final settlement")
+    if not data.get("analysis_report"):
+        errors.append("expected available Immediate Analysis")
     return errors
 
 
@@ -1718,6 +1763,16 @@ SCENARIOS = (
         expect_quiet_stdout=True,
     ),
     Scenario(
+        name="declarer_card_exposure_continuation",
+        input_path=(
+            PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
+        ),
+        branch="continued play with exposed declarer cards",
+        cli_args=("--quiet",),
+        check_output=check_declarer_card_exposure_continuation,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
         name="overbid_settlement",
         input_path=(
             PROJECT_ROOT
@@ -1989,6 +2044,12 @@ def validate_generated_outputs() -> list[str]:
     declarer_card_exposure_output_schema = load_json_file(
         DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH
     )
+    declarer_card_exposure_continuation_output_schema = load_json_file(
+        DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH
+    )
+    public_hand_constraint_schema = load_json_file(
+        PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -2052,6 +2113,16 @@ def validate_generated_outputs() -> list[str]:
             (
                 declarer_card_exposure_output_schema["$id"],
                 Resource.from_contents(declarer_card_exposure_output_schema),
+            ),
+            (
+                declarer_card_exposure_continuation_output_schema["$id"],
+                Resource.from_contents(
+                    declarer_card_exposure_continuation_output_schema
+                ),
+            ),
+            (
+                public_hand_constraint_schema["$id"],
+                Resource.from_contents(public_hand_constraint_schema),
             ),
         ]
     )

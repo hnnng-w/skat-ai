@@ -32,7 +32,8 @@ validation script registers `schemas/historical_game.schema.json`,
 `schemas/training_dataset.schema.json`,
 `schemas/dataset_partition_policy.schema.json`, and
 `schemas/opponent_statistics.schema.json`, and
-`schemas/game_shortening.schema.json` locally; it does not fetch schema
+`schemas/game_shortening.schema.json`, and
+`schemas/game_continuation.schema.json` locally; it does not fetch schema
 definitions over the network.
 
 It validates example input files in `examples/`.
@@ -76,6 +77,7 @@ The input schema checks things such as:
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
 * strict version-1 declarer- and defender-concession union shapes
+* strict separate version-1 declarer-card-exposure continuation shape, response values, exposure forms, and public cards
 * complete historical-game player, deal, declaration, discard, and ten-trick shapes
 * training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
 * opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
@@ -122,6 +124,7 @@ The output schema checks the main output structure, including:
 * `game_result_summary`
 * `adjusted_game_result_summary`
 * optional `game_shortening_summary` through its strict focused schema
+* optional `game_continuation_summary` through its strict focused schema
 * `final_settlement_summary`
 * `performance_rating_summary`
 * `list_performance_summary`, when a single-rated-player list performance input mode is supplied
@@ -146,7 +149,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 36 deterministic scenarios. Position
+Generated-output validation covers 37 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -160,7 +163,7 @@ simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
 Null-objective post-game review, defender-perspective post-game review,
 legacy claim, all three structured shortening kinds including accepted declarer
-card exposure, overbid, and list-performance summaries from aggregated totals, normalized
+card exposure, exposed-declarer-hand continuation, overbid, and list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
@@ -180,7 +183,13 @@ nested analysis detail, but stable branch contracts such as
 uses `schemas/game_shortening.schema.json`; its summary and settlement basis use
 `schemas/declarer_concession_output.schema.json` or
 `schemas/defender_concession_output.schema.json`, or
-`schemas/declarer_card_exposure_output.schema.json`. Historical decision
+`schemas/declarer_card_exposure_output.schema.json`.
+Ongoing exposure continuation uses
+`schemas/declarer_card_exposure_continuation_output.schema.json` and
+`schemas/public_hand_constraint.schema.json`; runtime validation remains
+authoritative for exact defender membership, at least one continuation request,
+ownership reconciliation, workflow exclusivity, and simulation continuity.
+Historical decision
 snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses
 `schemas/historical_game_review.schema.json`. Training dataset output uses

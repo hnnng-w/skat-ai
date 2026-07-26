@@ -224,6 +224,9 @@
         }
       ]
     },
+    "game_continuation_summary": {
+      "$ref": "https://example.local/skat-ai/declarer_card_exposure_continuation_output.schema.json"
+    },
     "final_settlement_summary": {
       "$ref": "#/$defs/final_settlement_summary"
     },
@@ -1539,6 +1542,12 @@
         },
         "unverifiable_completed_trick_winner_metadata_allowed": {
           "type": "boolean"
+        },
+        "public_hand_constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "https://example.local/skat-ai/public_hand_constraint.schema.json"
+          }
         }
       }
     },
@@ -1778,6 +1787,12 @@
         },
         "event_count": {
           "$ref": "#/$defs/non_negative_integer"
+        },
+        "public_hand_constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "https://example.local/skat-ai/public_hand_constraint.schema.json"
+          }
         },
         "strategic_metadata": {
           "type": "object",

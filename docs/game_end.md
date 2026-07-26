@@ -179,6 +179,16 @@ fixed value. Accepted levels are not labeled as achieved during play. Observed
 and unplayed points remain separate, with no recipient or artificial 120-point
 total. See [Accepted declarer card exposure](declarer_card_exposure.md).
 
+## Rejected exposure continuation
+
+At least one `continue` response prevents the ISkO 4.4.4 exposure from ending
+the game. This uses separate `game_continuation`, keeps the declarer's exact
+current hand public, and continues ordinary play. It does not assign points,
+select a winner, accept the requested level, or invoke settlement. Actual later
+play determines achieved levels and the final result. Reactionary defender
+cards remain hidden. See
+[Declarer card exposure continuation](declarer_card_exposure_continuation.md).
+
 ## Legacy claims and concessions
 
 The three legacy reasons are modeled by assigning all remaining card points to
@@ -225,6 +235,7 @@ Rules:
 * every structured shortening requires incomplete play and a calculable declaration.
 * structured defender concession requires distinct concrete declarer and conceding defender identities.
 * declarer card exposure requires all remaining cards and exactly both concrete defender acceptances.
+* exposure continuation requires exactly both defender responses, at least one continuation request, an exact nonempty current public declarer hand, and neutral `not_ended` state.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
 * unknown `game_end_reason` values are rejected.
@@ -258,6 +269,6 @@ For example:
 
 * Legacy claims and concessions still assign remaining points.
 * Structured support covers bounded declarer and defender concessions plus unanimously accepted declarer card exposure.
-* Continued exposed-card play after an objection, defender open play, and open throwing are unsupported.
-* Historical-game shortening and solver-backed claim proof are unsupported.
-* No game-shortening path simulates hypothetical continuation.
+* Flat continued exposed-card play after an objection is supported separately from game endings; defender open play and open throwing remain unsupported.
+* Historical-game shortening or continuation and solver-backed claim proof are unsupported.
+* No game-shortening path simulates hypothetical continuation; the separate continuation analyzes an actual ongoing position.

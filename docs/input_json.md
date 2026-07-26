@@ -560,13 +560,50 @@ incomplete evidence reports `not_verifiable` without inventing cards.
 
 Both defenders must occur exactly once and accept explicitly or through conduct
 already externally classified as unambiguous acceptance. One defender cannot
-bind the other. A rejection or continuation response is rejected because Issue
-#88 does not implement play with exposed cards.
+bind the other. A rejection or continuation response belongs to the separate
+ongoing `game_continuation` contract below, not this game-ending union member.
 
 Suit and Grand support `simple`, `schneider`, and `schwarz`; Null requires
 `simple`. The object is exclusive with every other game ending and every live,
 simulation, policy-comparison, list, historical, training, statistics, or audit
 workflow. See [Accepted declarer card exposure](declarer_card_exposure.md).
+
+## Declarer card exposure continuation
+
+When at least one defender rejects the attempted shortening, use the separate
+top-level `game_continuation` object:
+
+```json
+{
+  "game_continuation": {
+    "schema_version": 1,
+    "kind": "declarer_card_exposure",
+    "exposure": {"form": "shown_to_defender", "shown_to_player": "left"},
+    "claimed_play_level": "simple",
+    "defender_responses": [
+      {"player": "left", "response": "continue", "form": "explicit"},
+      {"player": "right", "response": "accept", "form": "explicit"}
+    ],
+    "public_declarer_cards": ["CA", "C10", "CJ"]
+  }
+}
+```
+
+The object requires exactly both concrete defenders and at least one
+`continue`; two acceptances must use `game_shortening`. The public list is the
+complete current remaining declarer hand. It is validated against reliable
+hand, size, trick, played-card, skat, and local-defender ownership evidence.
+Valid evidence reports `confirmed` or `not_verifiable`; either status keeps the
+explicit list public and authoritative.
+
+The continuation supports flat live and post-game decision positions,
+Immediate Analysis, supported Multi-Step, Policy Comparison, and
+`actual_card_played` review. It requires an ongoing incomplete game, concrete
+declarer, and calculable final declaration. It is exclusive with every ending,
+impossible Null, list mode, and historical/data/statistics workflow. Suit and
+Grand preserve all three claimed levels; Null variants permit only `simple`.
+The requested level has no immediate result or settlement effect. See
+[Declarer card exposure continuation](declarer_card_exposure_continuation.md).
 
 ## Analysis metadata fields
 
@@ -718,6 +755,8 @@ Important validation rules:
 * In `live_decision`, `winner_role` is accepted only when the winning side can be derived from `cards`, `players`, `game_type`, and concrete `declarer_player`.
 * In `live_decision`, completed tricks with `winner_role` but without `players` are rejected.
 * In `live_decision`, completed tricks with `players` are rejected if `winner_role` contradicts the rule-derived winner side or if the winner side cannot be derived.
+* A validated `game_continuation` is a narrow exception: its exact current declarer hand is public to all players.
+* The exception does not authorize the co-defender hand, reactionary defender cards, future plays, future winners, or post-game opponent information.
 
 Examples:
 

@@ -84,6 +84,14 @@ DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
 DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_card_exposure_output.schema.json"
 )
+DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "declarer_card_exposure_continuation_output.schema.json"
+)
+PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -123,6 +131,12 @@ with DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DEFENDER_CONCESSION_OUTPUT_SCHEMA = json.load(file)
 with DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA = json.load(file)
+with DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA = json.load(file)
+with PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    PUBLIC_HAND_CONSTRAINT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -183,11 +197,33 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
             DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA),
         ),
+        (
+            DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA),
+        ),
+        (
+            PUBLIC_HAND_CONSTRAINT_SCHEMA["$id"],
+            Resource.from_contents(PUBLIC_HAND_CONSTRAINT_SCHEMA),
+        ),
     ]
 )
 OUTPUT_VALIDATOR = Draft202012Validator(
     load_output_schema(), registry=OUTPUT_SCHEMA_REGISTRY
 )
+
+
+def test_exposed_declarer_continuation_output_matches_public_schema() -> None:
+    from main import build_analysis_result
+
+    result = build_analysis_result(
+        file_path=str(
+            PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
+        ),
+        sample_count_override=5,
+        random_seed_override=89,
+    )
+
+    assert list(OUTPUT_VALIDATOR.iter_errors(result)) == []
 
 
 def build_policy_settings() -> dict[str, str]:

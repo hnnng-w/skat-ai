@@ -5,6 +5,10 @@ from skat_ai.declarer_card_exposure import (
     DeclarerCardExposure,
     validate_declarer_card_exposure_context,
 )
+from skat_ai.declarer_card_exposure_continuation import (
+    get_game_continuation_from_input,
+    resolve_declarer_card_exposure_continuation,
+)
 from skat_ai.declarer_concession import validate_declarer_concession_context
 from skat_ai.defender_concession import (
     DefenderConcession,
@@ -374,6 +378,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_profile_preset_settings(data)
     validate_optional_game_declaration(data)
     validate_optional_game_shortening(data)
+    validate_optional_game_continuation(data)
     validate_impossible_null_settlement(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
     validate_list_performance_input_modes(data)
@@ -833,6 +838,13 @@ def validate_optional_game_shortening(data: dict[str, Any]) -> None:
         validate_declarer_card_exposure_context(data, game_shortening)
     else:
         validate_declarer_concession_context(data, game_shortening)
+
+
+def validate_optional_game_continuation(data: dict[str, Any]) -> None:
+    """Validates the optional separate ongoing continuation contract."""
+    continuation = get_game_continuation_from_input(data)
+    if continuation is not None:
+        resolve_declarer_card_exposure_continuation(data, continuation)
 
 
 def validate_impossible_null_settlement(data: dict[str, Any]) -> None:

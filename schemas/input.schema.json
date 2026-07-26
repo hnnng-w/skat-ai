@@ -98,6 +98,26 @@
       }
     },
     {
+      "if": {"required": ["game_continuation"]},
+      "then": {
+        "required": ["declarer_player"],
+        "properties": {
+          "declarer_player": {"enum": ["me", "left", "right"]},
+          "game_end_reason": {"const": "not_ended"}
+        },
+        "not": {
+          "anyOf": [
+            {"required": ["game_shortening"]},
+            {"required": ["impossible_null_settlement"]},
+            {"required": ["list_performance_input"]},
+            {"required": ["list_game_contributions"]},
+            {"required": ["list_analysis_results"]},
+            {"required": ["list_standings_input"]}
+          ]
+        }
+      }
+    },
+    {
       "if": {
         "required": ["list_game_contributions"]
       },
@@ -468,6 +488,9 @@
     },
     "game_shortening": {
       "$ref": "https://example.local/skat-ai/game_shortening.schema.json"
+    },
+    "game_continuation": {
+      "$ref": "https://example.local/skat-ai/game_continuation.schema.json"
     },
     "impossible_null_settlement": {
       "$ref": "#/$defs/impossible_null_settlement_input"

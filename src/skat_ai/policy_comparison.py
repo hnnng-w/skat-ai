@@ -4,6 +4,7 @@ from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.strategic_metadata import StrategicMetadata
 
 
@@ -23,6 +24,7 @@ def compare_multi_step_policies(
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, Any]:
     """
     Compares multiple card-selection policies on the same multi-step setup.
@@ -48,6 +50,7 @@ def compare_multi_step_policies(
             left_opponent_policy_settings=left_opponent_policy_settings,
             right_opponent_policy_settings=right_opponent_policy_settings,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
 
         summary = multi_step_result["summary"]

@@ -199,6 +199,9 @@ engine derives whether the contract was undecided or already decided, grants
 only an undecided game to the declarer, and never reverses a preexisting loss.
 
 Accepted declarer card exposure also preserves observed and unplayed points.
+Rejected-shortening continuation preserves the same observed score without
+adjudication. Its requested play level has no immediate scoring or settlement
+effect, and actual completed play remains authoritative.
 Both defenders must accept; an undecided game is adjudicated, while an already
 decided winner is preserved. No remaining points are assigned.
 

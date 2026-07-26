@@ -10,12 +10,18 @@ from skat_ai.opponent_sequence import (
     get_unsupported_turn_phase_reason,
     prepare_player_action_state,
 )
+from skat_ai.public_hand_constraint import (
+    PublicHandConstraint,
+    get_constrained_hand_sizes,
+    remove_public_hand_cards,
+)
 from skat_ai.simulation_context import (
     SimulationContext,
     add_simulated_opponent_cards,
     add_simulation_event,
     apply_context_to_state_for_sampling,
     build_context_summary,
+    update_public_hand_constraints,
     validate_no_duplicate_simulated_opponent_cards,
 )
 from skat_ai.simulation_step import simulate_and_advance_once
@@ -71,6 +77,7 @@ def prepare_state_for_player_action(
     opponent_response_policy: str = "lowest_point",
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> tuple[GameState, dict[str, Any] | None]:
     """
     Kept as a compatibility wrapper around opponent_sequence.prepare_player_action_state.
@@ -84,6 +91,7 @@ def prepare_state_for_player_action(
         opponent_response_policy=opponent_response_policy,
         left_opponent_policy_settings=left_opponent_policy_settings,
         right_opponent_policy_settings=right_opponent_policy_settings,
+        public_hand_constraints=public_hand_constraints,
     )
 
 def extract_opponent_cards_from_step(
@@ -126,6 +134,7 @@ def simulate_multiple_steps(
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -146,9 +155,12 @@ def simulate_multiple_steps(
     steps = []
     stop_reason = None
     context = (
-        SimulationContext(strategic_metadata=strategic_metadata)
+        SimulationContext(
+            strategic_metadata=strategic_metadata,
+            public_hand_constraints=public_hand_constraints,
+        )
         if strategic_metadata is not None
-        else SimulationContext()
+        else SimulationContext(public_hand_constraints=public_hand_constraints)
     )
 
     for step_index in range(step_count):
@@ -173,36 +185,54 @@ def simulate_multiple_steps(
             context=context,
         )
 
+        sampling_left_size, sampling_right_size = get_constrained_hand_sizes(
+            context.public_hand_constraints,
+            left_hand_size,
+            right_hand_size,
+        )
         prepared_state, opponent_lead_result = prepare_state_for_player_action(
             current_state=sampling_state,
-            left_hand_size=left_hand_size,
-            right_hand_size=right_hand_size,
+            left_hand_size=sampling_left_size,
+            right_hand_size=sampling_right_size,
             random_generator=rng,
             opponent_lead_policy=opponent_lead_policy,
             opponent_response_policy=opponent_response_policy,
             left_opponent_policy_settings=left_opponent_policy_settings,
             right_opponent_policy_settings=right_opponent_policy_settings,
+            public_hand_constraints=context.public_hand_constraints,
+        )
+
+        prepared_constraints = remove_public_hand_cards(
+            context.public_hand_constraints,
+            extract_opponent_sequence_cards(opponent_lead_result),
+        )
+        prepared_left_size, prepared_right_size = get_constrained_hand_sizes(
+            prepared_constraints,
+            left_hand_size,
+            right_hand_size,
         )
 
         candidate_card = choose_card_by_policy(
             state=prepared_state,
             policy=card_selection_policy,
-            left_hand_size=left_hand_size,
-            right_hand_size=right_hand_size,
+            left_hand_size=prepared_left_size,
+            right_hand_size=prepared_right_size,
             expected_value_sample_count=expected_value_sample_count,
             random_seed=rng.randint(0, 10**9) if random_seed is not None else None,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=prepared_constraints,
         )
 
         step_result = simulate_and_advance_once(
             state=prepared_state,
             candidate_card=candidate_card,
-            left_hand_size=left_hand_size,
-            right_hand_size=right_hand_size,
+            left_hand_size=prepared_left_size,
+            right_hand_size=prepared_right_size,
             random_generator=rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=prepared_constraints,
         )
 
         step = {
@@ -220,6 +250,13 @@ def simulate_multiple_steps(
         context = add_simulated_opponent_cards(
             context=context,
             cards=opponent_cards,
+        )
+        context = update_public_hand_constraints(
+            context,
+            remove_public_hand_cards(
+                prepared_constraints,
+                step_result["detailed_result"]["trick"],
+            ),
         )
 
         context = add_simulation_event(

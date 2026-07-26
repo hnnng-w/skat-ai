@@ -4,6 +4,7 @@ from skat_ai.objective_utility import (
     calculate_expected_objective_utility,
     choose_best_card_by_expected_objective,
 )
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.rules import (
     SUIT_GAME_RANK_STRENGTH,
     get_card_points,
@@ -259,6 +260,7 @@ def recommend_card_by_expected_value(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> tuple[str, str, dict[str, dict[str, float]]]:
     """
     Recommends a card based on immediate expected point swing.
@@ -280,6 +282,7 @@ def recommend_card_by_expected_value(
         random_seed=random_seed,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
+        public_hand_constraints=public_hand_constraints,
     )
 
     if not values:

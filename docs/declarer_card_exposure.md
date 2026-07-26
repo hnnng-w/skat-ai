@@ -14,13 +14,13 @@ both defenders must separately accept.
 
 This workflow records already classified `explicit` or
 `unambiguous_conduct` acceptance. It does not interpret natural language,
-physical conduct, or ambiguity. A defender objection requires continued play
-with exposed cards; that continuation is not supported by Issue #88 and is
-rejected rather than simulated.
+physical conduct, or ambiguity. A defender objection requires the separate
+ongoing [`game_continuation`](declarer_card_exposure_continuation.md) workflow;
+it is never treated as this accepted final adjudication.
 
 Defender open play under ISkO 4.4.5, open throwing under ISkO 4.4.6, historical
-exposure records, solver proof, and exposed-card recommendation simulation are
-separate unsupported workflows.
+exposure records, solver proof, and general declared-Ouvert recommendation
+simulation remain separate unsupported workflows.
 
 ## Input
 
@@ -111,6 +111,8 @@ The new object is the third member of the version-1 `game_shortening` union.
 Structured declarer concession, structured defender concession, all legacy
 claim/concession reasons, impossible Null, and normal completion retain their
 existing behavior. Only one effective game-ending mechanism may be active.
+The ongoing continuation contract is not a fourth union member and cannot
+coexist with this accepted shortening.
 
 See [`examples/declarer_card_exposure.json`](../examples/declarer_card_exposure.json)
 for the public deterministic example.

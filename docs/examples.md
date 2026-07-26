@@ -304,7 +304,8 @@ source records for medium-confidence actionable coverage.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 36 scenarios. The behavioral match
+therefore covers 37 scenarios, including the exposed-declarer-hand continuation.
+The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
 The two aggregation games keep the same three case-sensitive players while
@@ -412,6 +413,16 @@ all observed and unplayed points, and adds no optional achieved level.
 The `declarer_card_exposure.json` example lays open the exact nine-card remaining
 Grand hand, records both concrete acceptances, applies an accepted Schneider
 claim without marking achieved Schneider, and assigns no remaining points.
+The `declarer_card_exposure_continuation.json` example instead keeps a live
+Spades game ongoing after one defender objects, makes the opponent declarer's
+six current cards public, retains the co-defender and skat as unknown, and runs
+deterministic Immediate Analysis without settlement.
+
+Run the continuation example:
+
+```powershell
+python main.py --input examples/declarer_card_exposure_continuation.json
+```
 
 The older examples retain simplified legacy game-end reasons:
 
@@ -434,12 +445,14 @@ because ended game reasons are post-game review information.
 | `declarer_concession.json`                       | Structured no-assignment declarer concession under ISkO 4.4.1. |
 | `defender_concession.json`                       | Structured joint-liability defender concession under ISkO 4.4.3. |
 | `declarer_card_exposure.json`                    | Unanimously accepted no-assignment declarer card exposure under ISkO 4.4.4. |
+| `declarer_card_exposure_continuation.json`       | Live ongoing play with the exact public opponent-declarer hand after an ISkO 4.4.4 objection. |
 | `grand_claimed_remaining_tricks.json`            | Declarer claims remaining tricks.   |
 | `grand_declarer_conceded_remaining_tricks.json`  | Legacy simplified declarer concession assignment. |
 | `grand_defenders_conceded_remaining_tricks.json` | Defenders concede remaining tricks. |
 
-Each structured example has its own deterministic generated-output scenario and
-quiet JSON coverage. Historical shortening examples are intentionally absent.
+Each structured example has deterministic generated-output and quiet JSON
+coverage. Historical shortening or continuation examples are intentionally
+absent.
 
 ## Overbid examples
 

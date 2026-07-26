@@ -7,6 +7,7 @@ from skat_ai.opponent_policy import (
     choose_opponent_lead_card_by_policy,
     choose_opponent_response_card_by_policy,
 )
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.side_ownership import get_player_side, normalize_declarer_player
 from skat_ai.simulation import generate_random_opponent_hands
 from skat_ai.turn_phase import derive_next_player, normalize_turn_phase
@@ -204,6 +205,7 @@ def simulate_opponent_lead_once(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     opponent_lead_policy: str = "lowest_point",
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, str | GameState]:
     """
     Simulates one opponent lead when next_player is left or right.
@@ -224,11 +226,15 @@ def simulate_opponent_lead_once(
 
     rng = random_generator or random
 
+    sampling_kwargs: dict[str, Any] = {}
+    if public_hand_constraints:
+        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
     left_hand, right_hand = generate_random_opponent_hands(
         state=state,
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=rng,
+        **sampling_kwargs,
     )
 
     if phase.next_player == "left":
@@ -263,6 +269,7 @@ def simulate_left_lead_and_right_response_once(
     random_generator: random.Random | None = None,
     opponent_lead_policy: str = "lowest_point",
     opponent_response_policy: str = "lowest_point",
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, Any]:
     """
     Simulates the sequence:
@@ -285,11 +292,15 @@ def simulate_left_lead_and_right_response_once(
 
     rng = random_generator or random
 
+    sampling_kwargs: dict[str, Any] = {}
+    if public_hand_constraints:
+        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
     left_hand, right_hand = generate_random_opponent_hands(
         state=state,
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=rng,
+        **sampling_kwargs,
     )
 
     lead_card = choose_opponent_lead_card_by_policy(
@@ -333,6 +344,7 @@ def simulate_right_response_to_left_lead_once(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     opponent_response_policy: str = "lowest_point",
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, Any]:
     """
     Simulates only right's response after an existing left lead.
@@ -354,11 +366,15 @@ def simulate_right_response_to_left_lead_once(
 
     rng = random_generator or random
 
+    sampling_kwargs: dict[str, Any] = {}
+    if public_hand_constraints:
+        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
     _, right_hand = generate_random_opponent_hands(
         state=state,
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=rng,
+        **sampling_kwargs,
     )
 
     response_card = choose_right_response_to_left_lead_card(

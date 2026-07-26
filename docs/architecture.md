@@ -154,6 +154,8 @@ insufficient.
 | `src/skat_ai/declarer_concession.py` | Typed version-1 validation, hand-count reconciliation, and no-assignment declarer-concession adjudication.    |
 | `src/skat_ai/defender_concession.py` | Typed party validation, pre-concession decision derivation, and no-assignment defender-concession adjudication. |
 | `src/skat_ai/declarer_card_exposure.py` | Typed 4.4.4 exposure, exact defender unanimity, card reconciliation, and accepted-claim adjudication. |
+| `src/skat_ai/declarer_card_exposure_continuation.py` | Separate typed 4.4.4 ongoing continuation, response validation, reconciliation, and summary. |
+| `src/skat_ai/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
 | `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
 | `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
@@ -167,7 +169,10 @@ game to the declarer, and separates mandatory awarded levels from levels secured
 during play. Accepted declarer card exposure requires both concrete defenders,
 preserves a preexisting loss, and separates declared, accepted claimed, achieved,
 and overbid-required levels. Legacy reasons retain their existing simplified
-assignment behavior. No structured path simulates future play.
+assignment behavior. The separate `game_continuation` path does not adjudicate
+a game end: it supplies the exact current declarer hand to analysis while
+ordinary play and eventual actual settlement remain authoritative. No
+`game_shortening` path simulates future play.
 
 ## Simulation
 
@@ -181,6 +186,13 @@ assignment behavior. No structured path simulates future play.
 | `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
 
 The simulation layer is probabilistic and heuristic. It is designed for analysis support, not for perfect-information solving.
+
+An exposed-declarer continuation adds one exact public-hand constraint. Hidden
+worlds fix those cards to the concrete declarer and sample only genuinely
+unknown defender and skat cards. Immediate, Multi-Step, and Policy Comparison
+share that constraint. Multi-Step removes played public cards along a path, but
+the existing limitation for coherent assignment of all other hidden cards
+remains.
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the
@@ -289,6 +301,9 @@ Presets, response policies, and enabled profile presets activate the sparse resp
 lead-only policy sources do not. When the sparse map is absent, immediate analysis and
 multi-step candidate completion keep the legacy basic or random opponent response
 behavior selected by `use_basic_opponent_strategy`.
+
+Public declarer cards alter legal ownership information only. They add no lead,
+response, or tactical policy and disclose no co-defender hand.
 
 Immediate candidate analysis does not simulate an opponent lead and only runs for
 local-action phases. It starts with the local candidate card and applies the

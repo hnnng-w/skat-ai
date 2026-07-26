@@ -1092,6 +1092,29 @@ def test_declarer_card_exposure_example_adjudicates_without_points() -> None:
     ] is True
     assert settlement["settlement_basis"]["achieved_schneider_applied"] is False
 
+
+def test_declarer_card_exposure_continuation_example_remains_ongoing() -> None:
+    result = build_example_analysis_result(
+        "declarer_card_exposure_continuation.json"
+    )
+    summary = result["game_continuation_summary"]
+    constraint = result["information_policy_summary"]["public_hand_constraints"][0]
+
+    assert summary["continuing_defenders"] == ["me"]
+    assert summary["accepting_defenders"] == ["right"]
+    assert summary["card_reconciliation"] == "not_verifiable"
+    assert summary["visibility_scope"] == "all_players"
+    assert summary["game_end_applied"] is False
+    assert summary["settlement_applied"] is False
+    assert constraint["player"] == "left"
+    assert constraint["cards"] == summary["public_declarer_cards"]
+    assert result["analysis_report"]
+    assert result["adjusted_game_result_summary"]["is_complete"] is False
+    assert result["adjusted_game_result_summary"]["game_end_reason"] == "not_ended"
+    assert result["final_settlement_summary"]["is_complete"] is False
+    assert result["final_settlement_summary"]["settlement_score"] is None
+    assert "game_shortening_summary" not in result
+
 def test_defenders_conceded_remaining_tricks_example_adjusts_result() -> None:
     result = build_example_analysis_result(
         "grand_defenders_conceded_remaining_tricks.json"

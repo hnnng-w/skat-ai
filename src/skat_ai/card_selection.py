@@ -5,6 +5,7 @@ from skat_ai.objective_utility import (
 from skat_ai.objective_utility import (
     choose_best_card_by_expected_objective,
 )
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.rules import get_card_points, get_legal_cards
 from skat_ai.simulation import (
     DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
@@ -81,6 +82,7 @@ def choose_highest_expected_value_card(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> str:
     """
     Chooses the legal card with the highest estimated immediate expected point swing.
@@ -93,6 +95,7 @@ def choose_highest_expected_value_card(
         random_seed=random_seed,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
+        public_hand_constraints=public_hand_constraints,
     )
 
     if not values:
@@ -114,6 +117,7 @@ def choose_card_by_policy(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> str:
     """
     Chooses a card using the given card-selection policy.
@@ -141,6 +145,7 @@ def choose_card_by_policy(
             random_seed=random_seed,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
 
     raise ValueError(f"Invalid card selection policy: {policy}")

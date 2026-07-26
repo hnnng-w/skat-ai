@@ -20,6 +20,10 @@ from skat_ai.declarer_card_exposure import (
     adjudicate_accepted_declarer_card_exposure,
     build_declarer_exposed_card_evidence,
 )
+from skat_ai.declarer_card_exposure_continuation import (
+    build_game_continuation_summary,
+    resolve_declarer_card_exposure_continuation,
+)
 from skat_ai.declarer_concession import (
     adjudicate_declarer_concession,
     build_declarer_card_count_evidence,
@@ -64,6 +68,7 @@ from skat_ai.input_loader import (
     build_local_game_state_from_input,
     get_actual_card_played_from_input,
     get_analysis_metadata_from_input,
+    get_game_continuation_from_input,
     get_game_declaration_from_input,
     get_game_shortening_from_input,
     get_impossible_null_settlement_from_input,
@@ -317,6 +322,17 @@ def build_analysis_result(
     )
     actual_card_played = get_actual_card_played_from_input(data)
     game_shortening = get_game_shortening_from_input(data)
+    game_continuation = get_game_continuation_from_input(data)
+    continuation_context = (
+        resolve_declarer_card_exposure_continuation(data, game_continuation)
+        if game_continuation is not None
+        else None
+    )
+    public_hand_constraints = (
+        (continuation_context.public_hand_constraint,)
+        if continuation_context is not None
+        else ()
+    )
     game_declaration = get_game_declaration_from_input(
         data if game_shortening is not None else local_data
     )
@@ -390,6 +406,7 @@ def build_analysis_result(
             random_seed=settings["random_seed"],
             use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
 
         report = build_card_analysis_report(
@@ -400,6 +417,7 @@ def build_analysis_result(
             random_seed=settings["random_seed"],
             use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
         strategic_summary = build_strategic_summary(
             report,
@@ -504,6 +522,7 @@ def build_analysis_result(
         analysis_mode=analysis_metadata.strategic_metadata.analysis_mode,
         skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
         game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
+        public_hand_constraints=public_hand_constraints,
     )
 
     result = {
@@ -556,6 +575,11 @@ def build_analysis_result(
 
     if game_shortening_summary is not None:
         result["game_shortening_summary"] = game_shortening_summary
+
+    if continuation_context is not None:
+        result["game_continuation_summary"] = build_game_continuation_summary(
+            continuation_context
+        )
 
     if opponent_profile_application_summary is not None:
         result["opponent_profile_application_summary"] = (
@@ -857,6 +881,8 @@ def print_analysis_result(result: dict[str, Any]) -> None:
 
     print_game_shortening_summary(result)
 
+    print_game_continuation_summary(result)
+
     print_post_game_review_summary(result)
 
 
@@ -871,6 +897,29 @@ def print_game_shortening_summary(result: dict[str, Any]) -> None:
         print_declarer_card_exposure_summary(result)
     else:
         print_declarer_concession_summary(result)
+
+
+def print_game_continuation_summary(result: dict[str, Any]) -> None:
+    """Prints the ongoing declarer-card-exposure continuation setup."""
+    summary = result.get("game_continuation_summary")
+    if not isinstance(summary, dict):
+        return
+    print()
+    print("Declarer card exposure was not accepted unanimously.")
+    continuing = summary["continuing_defenders"]
+    if len(continuing) == 2:
+        print("Both defenders requested continued play.")
+    else:
+        print(f"{continuing[0].title()} requested continued play.")
+    print(
+        f"The declarer's {summary['public_declarer_card_count']} remaining cards "
+        "are public to all players."
+    )
+    print(
+        f"Claimed level {summary['claimed_play_level'].title()} has no immediate "
+        "settlement effect."
+    )
+    print("Analysis continues using the exposed declarer hand.")
 
 
 def print_declarer_concession_summary(result: dict[str, Any]) -> None:
@@ -1409,6 +1458,20 @@ def run_json_position_analysis(
             "or policy comparison."
         )
     analysis_metadata = get_analysis_metadata_from_input(position_data)
+    game_continuation = get_game_continuation_from_input(position_data)
+    continuation_context = (
+        resolve_declarer_card_exposure_continuation(
+            position_data,
+            game_continuation,
+        )
+        if game_continuation is not None
+        else None
+    )
+    public_hand_constraints = (
+        (continuation_context.public_hand_constraint,)
+        if continuation_context is not None
+        else ()
+    )
     validate_live_opponent_profile_options(
         position_data=position_data,
         opponent_statistics_file=opponent_statistics_file,
@@ -1531,6 +1594,7 @@ def run_json_position_analysis(
             opponent_response_policy_by_player=(
                 effective_opponent_policy_settings.immediate_response_policy_by_player
             ),
+            public_hand_constraints=public_hand_constraints,
         )
 
         result["multi_step_result"] = build_serializable_multi_step_result(
@@ -1559,6 +1623,7 @@ def run_json_position_analysis(
                 opponent_response_policy_by_player=(
                     effective_opponent_policy_settings.immediate_response_policy_by_player
                 ),
+                public_hand_constraints=public_hand_constraints,
             )
 
             result["policy_comparison_result"] = build_serializable_policy_comparison_result(

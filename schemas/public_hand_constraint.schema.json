@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/public_hand_constraint.schema.json",
+  "title": "skat-ai public hand constraint output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["player", "source", "visibility_scope", "card_count", "cards"],
+  "properties": {
+    "player": {
+      "type": "string",
+      "enum": ["me", "left", "right"]
+    },
+    "source": {"const": "declarer_card_exposure_continuation"},
+    "visibility_scope": {"const": "all_players"},
+    "card_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "cards": {
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+      }
+    }
+  }
+}

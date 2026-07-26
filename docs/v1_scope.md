@@ -144,15 +144,20 @@ Training-data representation remains partial because approved later historical
 end reasons are not supported. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. The v1
-gate remains open for exposed-card-aware recommendation analysis and approved
-later end reasons. Full auction representation is planned after v1.0.
+gate remains open for general declared-Ouvert and historical exposed-card-aware
+recommendation analysis and approved later end reasons. The bounded flat 4.4.4
+continuation hand constraint is implemented. Full auction representation is
+planned after v1.0.
 
 The generic position workflow now has bounded version-1 declarer-concession
 adjudication under ISkO 4.4.1 and 4.4.2 plus defender-concession adjudication
 under ISkO 4.4.3 with bounded 4.1.3 through 4.1.5 effects, plus unanimously
-accepted final declarer-card-exposure adjudication under ISkO 4.4.4. This does
-not close the broader v1 gates for continued exposed-card play after an
-objection, structured historical claims/concessions, 4.4.5 or 4.4.6 open-card
+accepted final declarer-card-exposure adjudication under ISkO 4.4.4. A separate
+flat-position continuation records both defender responses and constrains
+Immediate, Multi-Step, Policy Comparison, and flat review with the exact public
+declarer hand after an objection. This does not close broader v1 gates for
+historical continuation, general Ouvert analysis, structured historical
+claims/concessions, 4.4.5 or 4.4.6 open-card
 consequences, complete settlement
 coverage, or historical training and review after game shortening.
 

@@ -1,6 +1,10 @@
 from typing import Any
 
 from skat_ai.game_history import validate_completed_trick_rule_winner
+from skat_ai.public_hand_constraint import (
+    PublicHandConstraint,
+    build_serializable_public_hand_constraints,
+)
 from skat_ai.rules import get_trick_points
 
 
@@ -17,6 +21,7 @@ def build_information_policy_summary(
     analysis_mode: str,
     skat_visibility: str,
     game_end_reason: str,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, Any]:
     """
     Builds a JSON-serializable information policy summary.
@@ -27,7 +32,7 @@ def build_information_policy_summary(
         or skat_visibility == "known_to_declarer"
     )
 
-    return {
+    summary = {
         "analysis_mode": analysis_mode,
         "skat_visibility": skat_visibility,
         "game_end_reason": game_end_reason,
@@ -39,6 +44,11 @@ def build_information_policy_summary(
             not live_information_enforced
         ),
     }
+    if public_hand_constraints:
+        summary["public_hand_constraints"] = build_serializable_public_hand_constraints(
+            public_hand_constraints
+        )
+    return summary
 
 
 def calculate_known_card_points_from_input(

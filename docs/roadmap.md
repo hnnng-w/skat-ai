@@ -66,6 +66,7 @@ Implemented:
 * Structured concealed or verbal declarer concession with exact hand-card and defender-consent rules
 * Structured defender concession with concrete party validation, joint liability, and preexisting-result preservation
 * Unanimously accepted declarer card exposure with complete-card reconciliation and claimed-level settlement
+* Ongoing ISkO 4.4.4 play after an objection with an exact all-player public declarer hand across Immediate, Multi-Step, Policy Comparison, and flat review
 * Legacy declarer concession remaining-point assignment
 * Defenders concede remaining tricks
 * Immediate impossible Null declaration end handling
@@ -230,7 +231,7 @@ Implemented:
 * Continued exposed-card play after an objection, defender open play, open throwing, and historical game shortening remain incomplete; general settlement coverage is incomplete.
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
-* Multi-Step does not preserve one coherent hidden-world assignment across every simulated path.
+* Multi-Step does not preserve one coherent hidden-world assignment across every simulated path; a validated exposed declarer hand is the bounded exception and remains coherent along each path.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -262,15 +263,17 @@ Implemented:
 * The engine still depends on the correctness of the provided position context.
 * Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
 * Live decision examples should not contain post-game-only information.
+* ISkO 4.4.4 continuation is a narrow rule-authorized exception that exposes only the exact current declarer hand; defender reaction cards remain hidden.
 
 ## Release baselines
 
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-covers 36 deterministic scenarios. Issues #86 through #88 add bounded structured
-declarer concession, defender concession, and accepted declarer-card-exposure adjudication while the package remains
-`0.8.0`. Issues #78 through #84 are complete:
+coverage now includes 37 deterministic scenarios. Issues #86 through #89 add
+bounded structured concessions, accepted declarer-card-exposure adjudication,
+and ongoing exposed-hand continuation while the package remains `0.8.0`.
+Issues #78 through #84 are complete:
 
 * #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.
 * #79 added deterministic explainable profile derivation with scoped heuristic confidence and actionable gating.

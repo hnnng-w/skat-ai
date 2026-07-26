@@ -2,6 +2,7 @@ import random
 from typing import Any
 
 from skat_ai.game_state import GameState
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.simulation import simulate_immediate_trick_once_detailed
 from skat_ai.state_transition import advance_state_after_detailed_trick
 
@@ -14,6 +15,7 @@ def simulate_and_advance_once(
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, Any]:
     """
     Simulates one immediate trick and advances the game state.
@@ -30,6 +32,7 @@ def simulate_and_advance_once(
         random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
+        public_hand_constraints=public_hand_constraints,
     )
 
     next_state = advance_state_after_detailed_trick(

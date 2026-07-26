@@ -8,6 +8,10 @@ from skat_ai.known_cards import (
     get_unique_cards_preserving_order,
     validate_no_duplicate_known_cards,
 )
+from skat_ai.public_hand_constraint import (
+    PublicHandConstraint,
+    build_serializable_public_hand_constraints,
+)
 from skat_ai.strategic_metadata import (
     StrategicMetadata,
     build_default_strategic_metadata,
@@ -26,6 +30,7 @@ class SimulationContext:
     strategic_metadata: StrategicMetadata = field(
         default_factory=build_default_strategic_metadata
     )
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = ()
 
 
 def add_simulated_opponent_card(
@@ -42,6 +47,7 @@ def add_simulated_opponent_card(
         simulated_opponent_cards=updated_cards,
         events=context.events.copy(),
         strategic_metadata=context.strategic_metadata,
+        public_hand_constraints=context.public_hand_constraints,
     )
 
 
@@ -77,6 +83,20 @@ def add_simulation_event(
         simulated_opponent_cards=context.simulated_opponent_cards.copy(),
         events=updated_events,
         strategic_metadata=context.strategic_metadata,
+        public_hand_constraints=context.public_hand_constraints,
+    )
+
+
+def update_public_hand_constraints(
+    context: SimulationContext,
+    constraints: tuple[PublicHandConstraint, ...],
+) -> SimulationContext:
+    """Returns a context with the current public hands replaced."""
+    return SimulationContext(
+        simulated_opponent_cards=context.simulated_opponent_cards.copy(),
+        events=context.events.copy(),
+        strategic_metadata=context.strategic_metadata,
+        public_hand_constraints=constraints,
     )
 
 
@@ -107,7 +127,7 @@ def build_context_summary(
     unique_cards = get_unique_simulated_opponent_cards(context)
     duplicates = get_duplicate_simulated_opponent_cards(context)
 
-    return {
+    summary = {
         "simulated_opponent_card_count": len(context.simulated_opponent_cards),
         "unique_simulated_opponent_card_count": len(unique_cards),
         "duplicate_simulated_opponent_cards": duplicates,
@@ -118,6 +138,11 @@ def build_context_summary(
             "game_end_reason": context.strategic_metadata.game_end_reason,
         },
     }
+    if context.public_hand_constraints:
+        summary["public_hand_constraints"] = build_serializable_public_hand_constraints(
+            context.public_hand_constraints
+        )
+    return summary
 
 def get_context_cards_safe_to_add_to_played_cards(
     state: GameState,

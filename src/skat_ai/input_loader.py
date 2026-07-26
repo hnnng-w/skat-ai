@@ -6,6 +6,12 @@ from skat_ai.analysis_metadata import (
     AnalysisMetadata,
     build_analysis_metadata_from_input,
 )
+from skat_ai.declarer_card_exposure_continuation import (
+    DeclarerCardExposureContinuation,
+)
+from skat_ai.declarer_card_exposure_continuation import (
+    get_game_continuation_from_input as build_game_continuation_from_input,
+)
 from skat_ai.declarer_concession import (
     DeclarerConcession,
 )
@@ -175,6 +181,13 @@ def get_simulation_settings_from_input(data: dict[str, Any]) -> dict[str, Any]:
         "random_seed": data.get("random_seed"),
         "use_basic_opponent_strategy": data.get("use_basic_opponent_strategy", True),
     }
+
+
+def get_game_continuation_from_input(
+    data: dict[str, Any],
+) -> DeclarerCardExposureContinuation | None:
+    """Returns the optional separate ongoing continuation contract."""
+    return build_game_continuation_from_input(data)
 
 def get_analysis_metadata_from_input(
     data: dict[str, Any],

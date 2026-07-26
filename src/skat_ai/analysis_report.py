@@ -6,6 +6,7 @@ from skat_ai.objective_utility import (
 from skat_ai.objective_utility import (
     calculate_expected_point_swing as calculate_value_expected_point_swing,
 )
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.simulation import estimate_immediate_trick_values_for_legal_cards
 
 
@@ -27,6 +28,7 @@ def build_card_analysis_report(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> list[dict[str, float | str | bool]]:
     """
     Builds an analysis report for all legal cards.
@@ -42,6 +44,7 @@ def build_card_analysis_report(
         random_seed=random_seed,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
+        public_hand_constraints=public_hand_constraints,
     )
 
     return build_card_analysis_report_from_values(state=state, values=values)

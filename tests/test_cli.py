@@ -61,6 +61,9 @@ DEFENDER_CONCESSION_INPUT_PATH = (
 DECLARER_CARD_EXPOSURE_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "declarer_card_exposure.json"
 )
+DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
+)
 
 
 def run_cli(*args: object) -> subprocess.CompletedProcess[str]:
@@ -1878,6 +1881,59 @@ def test_cli_rejects_multi_step_for_declarer_card_exposure() -> None:
 
     assert completed_process.returncode == 1
     assert "cannot be combined with multi-step simulation" in completed_process.stderr
+
+
+def test_cli_prints_declarer_card_exposure_continuation_summary() -> None:
+    completed_process = run_cli(
+        "--input", DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert (
+        "Declarer card exposure was not accepted unanimously."
+        in completed_process.stdout
+    )
+    assert "Me requested continued play." in completed_process.stdout
+    assert (
+        "The declarer's 6 remaining cards are public to all players."
+        in completed_process.stdout
+    )
+    assert (
+        "Claimed level Schneider has no immediate settlement effect."
+        in completed_process.stdout
+    )
+    assert "Analysis continues using the exposed declarer hand." in completed_process.stdout
+    assert "Settlement:" not in completed_process.stdout
+
+
+def test_cli_continuation_quiet_multi_step_and_policy_comparison(
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "continuation_output.json"
+    completed_process = run_cli(
+        "--input",
+        DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH,
+        "--multi-step",
+        1,
+        "--compare-policies",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as file:
+        output = json.load(file)
+    assert output["game_continuation_summary"]["game_end_applied"] is False
+    assert output["final_settlement_summary"]["settlement_score"] is None
+    assert output["multi_step_result"]["context_summary"][
+        "public_hand_constraints"
+    ]
+    for policy_result in output["policy_comparison_result"]["policy_results"]:
+        assert policy_result["context_summary"]["public_hand_constraints"]
 
 
 def test_build_analysis_result_omits_list_performance_summary_when_input_absent() -> None:

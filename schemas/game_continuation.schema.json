@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/game_continuation.schema.json",
+  "title": "skat-ai ongoing game continuation input",
+  "oneOf": [
+    {"$ref": "#/$defs/declarer_card_exposure_continuation"}
+  ],
+  "$defs": {
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "declarer_card_exposure_continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "exposure",
+        "claimed_play_level",
+        "defender_responses",
+        "public_declarer_cards"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "declarer_card_exposure"},
+        "exposure": {"$ref": "#/$defs/exposure"},
+        "claimed_play_level": {
+          "type": "string",
+          "enum": ["simple", "schneider", "schwarz"]
+        },
+        "defender_responses": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {"$ref": "#/$defs/defender_response"}
+        },
+        "public_declarer_cards": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/card"}
+        }
+      }
+    },
+    "exposure": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["form"],
+          "properties": {"form": {"const": "laid_open"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["form", "shown_to_player"],
+          "properties": {
+            "form": {"const": "shown_to_defender"},
+            "shown_to_player": {
+              "type": "string",
+              "enum": ["me", "left", "right"]
+            }
+          }
+        }
+      ]
+    },
+    "defender_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player", "response", "form"],
+      "properties": {
+        "player": {
+          "type": "string",
+          "enum": ["me", "left", "right"]
+        },
+        "response": {
+          "type": "string",
+          "enum": ["accept", "continue"]
+        },
+        "form": {
+          "type": "string",
+          "enum": ["explicit", "unambiguous_conduct"]
+        }
+      }
+    }
+  }
+}

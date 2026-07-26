@@ -170,3 +170,6 @@ open card throwing, natural-language detection, solver-backed proof, or
 historical defender-concession records. Unanimously accepted declarer card
 exposure is the separate union member documented in
 [Accepted declarer card exposure](declarer_card_exposure.md).
+Rejected exposure instead uses the separate ongoing
+[declarer card exposure continuation](declarer_card_exposure_continuation.md)
+contract and does not change defender-concession behavior.

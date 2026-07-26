@@ -11,6 +11,7 @@ from skat_ai.game_history import (
 from skat_ai.game_state import GameState
 from skat_ai.objective_utility import calculate_null_trick_objective_utility
 from skat_ai.opponent_policy import choose_opponent_response_card_by_policy
+from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.rules import (
     get_card_points,
     get_card_strength,
@@ -41,6 +42,7 @@ def generate_sampled_hidden_state(
     left_hand_size: int,
     right_hand_size: int,
     random_generator: random.Random | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> SampledHiddenState:
     """Generates one coherent local-perspective hidden-card sample."""
     validate_enough_cards_for_opponent_sampling(
@@ -56,12 +58,73 @@ def generate_sampled_hidden_state(
     if required_card_count > len(unseen_cards):
         raise ValueError("Requested more opponent cards than unseen cards available.")
 
-    shuffled_cards = unseen_cards.copy()
-    rng.shuffle(shuffled_cards)
+    if not public_hand_constraints:
+        shuffled_cards = unseen_cards.copy()
+        rng.shuffle(shuffled_cards)
+        return SampledHiddenState(
+            left_hand=shuffled_cards[:left_hand_size],
+            right_hand=shuffled_cards[left_hand_size:required_card_count],
+            hypothetical_skat=shuffled_cards[required_card_count:],
+        )
 
-    left_hand = shuffled_cards[:left_hand_size]
-    right_hand = shuffled_cards[left_hand_size:required_card_count]
-    hypothetical_skat = shuffled_cards[required_card_count:]
+    constraints_by_player: dict[str, PublicHandConstraint] = {}
+    constrained_cards: set[str] = set()
+    for constraint in public_hand_constraints:
+        if constraint.player in constraints_by_player:
+            raise ValueError(f"Duplicate public hand constraint for {constraint.player}.")
+        constraints_by_player[constraint.player] = constraint
+        if len(set(constraint.cards)) != len(constraint.cards):
+            raise ValueError("Public hand constraints must contain unique cards.")
+        duplicates = constrained_cards.intersection(constraint.cards)
+        if duplicates:
+            raise ValueError(
+                f"Public hand constraints assign cards more than once: {sorted(duplicates)}"
+            )
+        constrained_cards.update(constraint.cards)
+
+    local_constraint = constraints_by_player.get("me")
+    if local_constraint is not None and set(local_constraint.cards) != set(state.hand):
+        raise ValueError("The local public hand constraint must exactly match state.hand.")
+
+    for player, hand_size in (("left", left_hand_size), ("right", right_hand_size)):
+        constraint = constraints_by_player.get(player)
+        if constraint is None:
+            continue
+        if len(constraint.cards) != hand_size:
+            raise ValueError(
+                f"The exact public {player} hand has {len(constraint.cards)} cards, "
+                f"but the required hand size is {hand_size}."
+            )
+        unavailable = sorted(set(constraint.cards) - set(unseen_cards))
+        if unavailable:
+            raise ValueError(
+                f"Public {player} hand cards are unavailable for sampling: {unavailable}"
+            )
+
+    opponent_constrained_cards = {
+        card
+        for player, constraint in constraints_by_player.items()
+        if player in {"left", "right"}
+        for card in constraint.cards
+    }
+    shuffled_cards = [
+        card for card in unseen_cards if card not in opponent_constrained_cards
+    ]
+    rng.shuffle(shuffled_cards)
+    offset = 0
+    left_constraint = constraints_by_player.get("left")
+    if left_constraint is None:
+        left_hand = shuffled_cards[offset : offset + left_hand_size]
+        offset += left_hand_size
+    else:
+        left_hand = list(left_constraint.cards)
+    right_constraint = constraints_by_player.get("right")
+    if right_constraint is None:
+        right_hand = shuffled_cards[offset : offset + right_hand_size]
+        offset += right_hand_size
+    else:
+        right_hand = list(right_constraint.cards)
+    hypothetical_skat = shuffled_cards[offset:]
 
     return SampledHiddenState(
         left_hand=left_hand,
@@ -75,6 +138,7 @@ def generate_random_opponent_hands(
     left_hand_size: int,
     right_hand_size: int,
     random_generator: random.Random | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> tuple[list[str], list[str]]:
     """
     Generates random opponent hands from unseen cards.
@@ -84,6 +148,7 @@ def generate_random_opponent_hands(
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=random_generator,
+        public_hand_constraints=public_hand_constraints,
     )
 
     return sample.left_hand, sample.right_hand
@@ -95,6 +160,7 @@ def generate_multiple_random_opponent_hands(
     right_hand_size: int,
     sample_count: int,
     random_seed: int | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> list[tuple[list[str], list[str]]]:
     """
     Generates multiple random possible card distributions for the two opponents.
@@ -110,6 +176,7 @@ def generate_multiple_random_opponent_hands(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             random_generator=rng,
+            public_hand_constraints=public_hand_constraints,
         )
         for _ in range(sample_count)
     ]
@@ -319,6 +386,7 @@ def simulate_immediate_trick_once(
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> bool:
     """
     Simulates the current trick once after the player plays candidate_card.
@@ -333,6 +401,7 @@ def simulate_immediate_trick_once(
         random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
+        public_hand_constraints=public_hand_constraints,
     )
 
     return bool(result["did_win"])
@@ -347,6 +416,7 @@ def estimate_immediate_trick_win_rate(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> float:
     """
     Estimates how often the local player's side wins the current trick.
@@ -367,6 +437,7 @@ def estimate_immediate_trick_win_rate(
             random_generator=rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
 
         if did_win:
@@ -383,6 +454,7 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, float]:
     """
     Estimates immediate trick win rates for all legal cards in the current state.
@@ -405,6 +477,7 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
             random_seed=rng.randint(0, 10**9) if rng is not None else None,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
         for card in legal_cards
     }
@@ -418,6 +491,7 @@ def simulate_immediate_trick_once_with_points(
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> tuple[bool, int]:
     """
     Simulates the current trick once and returns whether the local player's
@@ -431,6 +505,7 @@ def simulate_immediate_trick_once_with_points(
         random_generator=random_generator,
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
+        public_hand_constraints=public_hand_constraints,
     )
 
     return bool(result["did_win"]), int(result["trick_points"])
@@ -445,6 +520,7 @@ def estimate_immediate_trick_value(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, float]:
     """
     Estimates immediate trick value for one candidate card.
@@ -475,6 +551,7 @@ def estimate_immediate_trick_value(
             random_generator=rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
         did_win = bool(detailed_result["did_win"])
         trick_points = int(detailed_result["trick_points"])
@@ -514,6 +591,7 @@ def estimate_immediate_trick_values_for_legal_cards(
     random_seed: int | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, dict[str, float]]:
     """
     Estimates immediate trick value metrics for all legal cards in the current state.
@@ -536,6 +614,7 @@ def estimate_immediate_trick_values_for_legal_cards(
             random_seed=rng.randint(0, 10**9) if rng is not None else None,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
         )
         for card in legal_cards
     }
@@ -549,6 +628,7 @@ def simulate_immediate_trick_once_detailed(
     random_generator: random.Random | None = None,
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
 ) -> dict[str, Any]:
     """
     Simulates the current trick once and returns detailed information.
@@ -565,11 +645,15 @@ def simulate_immediate_trick_once_detailed(
 
     validate_candidate_card_for_current_trick(state, candidate_card)
 
+    sampling_kwargs: dict[str, Any] = {}
+    if public_hand_constraints:
+        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
     left_hand, right_hand = generate_random_opponent_hands(
         state=state,
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=rng,
+        **sampling_kwargs,
     )
 
     trick = complete_trick_after_candidate_card(

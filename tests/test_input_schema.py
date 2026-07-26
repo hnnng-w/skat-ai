@@ -26,6 +26,9 @@ OPPONENT_STATISTICS_SCHEMA_PATH = (
 GAME_SHORTENING_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
 )
+GAME_CONTINUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
+)
 POLICY_FIELDS = [
     "opponent_lead_policy",
     "opponent_response_policy",
@@ -51,6 +54,8 @@ with OPPONENT_STATISTICS_SCHEMA_PATH.open("r", encoding="utf-8") as statistics_s
     OPPONENT_STATISTICS_SCHEMA = json.load(statistics_schema_file)
 with GAME_SHORTENING_SCHEMA_PATH.open("r", encoding="utf-8") as game_shortening_file:
     GAME_SHORTENING_SCHEMA = json.load(game_shortening_file)
+with GAME_CONTINUATION_SCHEMA_PATH.open("r", encoding="utf-8") as game_continuation_file:
+    GAME_CONTINUATION_SCHEMA = json.load(game_continuation_file)
 
 INPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -70,6 +75,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             GAME_SHORTENING_SCHEMA["$id"],
             Resource.from_contents(GAME_SHORTENING_SCHEMA),
+        ),
+        (
+            GAME_CONTINUATION_SCHEMA["$id"],
+            Resource.from_contents(GAME_CONTINUATION_SCHEMA),
         ),
     ]
 )
