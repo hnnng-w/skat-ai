@@ -9,6 +9,7 @@ decision_count = played_card_count
 snapshot_count = decision_count
 review_decision_count = decision_count
 training_sample_count = decision_count
+rolling_target_decision_count = decision_count
 ```
 
 Normal completion still requires exactly 30 plays and preserves its existing 30
@@ -56,8 +57,11 @@ Partition policies and audits remain record- and stable-player-based. A
 zero-sample record still contributes all three participants to known-opponent
 coverage and unseen-player overlap enforcement.
 
-Historical opponent-statistics aggregation and rolling opponent-policy
-evaluation remain explicitly normal-completion-only. Their shortened-game
-semantics are not implemented. No other historical end kind, historical
-continuation, concession-choice target, feature version, or learned model is
-added by this support.
+Historical opponent statistics count each supported record once, independently
+of this decision count. Rolling targets use the same exact cardinality without
+padding; zero-decision targets remain present with all participants and as-of
+profiles. Completed source concessions may affect later profiles through normal
+game statistics, but a target outcome never affects its own profile or card
+predictions. No other historical end kind, historical continuation,
+concession-choice target, feature version, or learned model is added. See
+[Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).

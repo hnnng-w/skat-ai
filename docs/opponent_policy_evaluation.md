@@ -1,8 +1,8 @@
 # Rolling opponent-policy evaluation
 
-This fixed-30 workflow accepts only normal-completion historical dataset records.
-Historical declarer-concession records can produce training samples, but rolling
-profile construction and evaluation for shortened games are planned separately.
+This workflow accepts exactly normal-completion and declarer-concession
+historical dataset records. Normal targets contribute 30 decisions; concession
+targets contribute their validated zero through 29 actual card plays.
 
 `skat-ai` can evaluate whether an existing profile-derived deterministic policy
 describes observed historical card choices better than the fixed
@@ -17,6 +17,12 @@ Run the focused example with the default `train` source partition and default
 
 ```powershell
 python main.py --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --output outputs/opponent-policy-evaluation.json
+```
+
+The mixed shortened example uses the equivalent public alias:
+
+```powershell
+python main.py --input examples/training_dataset_shortened_opponent_workflows.json --evaluate-rolling-opponent-policies
 ```
 
 Source and evaluation options are repeatable:
@@ -57,6 +63,9 @@ statistics aggregation, exact profile conversion, and the existing explainable
 derivation. The latest eligible source timestamp becomes `captured_at` and is
 strictly earlier than target `played_at`.
 
+Every eligible normal or concession source contributes one statistics game,
+including a zero-play concession. Source play count does not weight profiles.
+
 One immutable game-start profile state is built for each target participant by
 exact, opaque, case-sensitive `player_id`. Labels and seats do not identify a
 player, so stable identities survive seat changes. The target game never enters
@@ -71,13 +80,15 @@ required.
 
 ## Decision information
 
-All 30 target decisions are reconstructed from the existing decision-time
+Every actual target decision is reconstructed from the existing decision-time
 historical snapshots. A prediction may use the acting player's identity and
 side, visible declaration and game type, own hand, current trick, legal cards,
 public completed tricks, stable relative identities, and the game-start as-of
 profile. It cannot use future plays or winners, another player's hidden hand,
 final result or settlement, later games, or source games at or after target
 start. The actual card is read only after prediction as the comparison label.
+The terminal concession, consent, unresolved cards, and knowledge that play will
+end are absent. No card decision is padded and no concession event is predicted.
 
 The acting player's own profile is evaluated. It is not attached to historical
 `left` or `right` recommendation slots. Defender partner-winning context is
@@ -129,6 +140,10 @@ percentage points. Zero-actionable evaluations remain valid with zero counts
 and null rates and deltas. No confidence intervals or significance claims are
 calculated.
 
+Metrics remain decision-weighted. A zero-decision target is retained with empty
+decision rows, zero counts, and null denominator-zero rates; an all-zero target
+set is valid when prior participant history exists.
+
 ## Output and reconciliation
 
 The dedicated `rolling_opponent_policy_evaluation_summary` includes source
@@ -145,10 +160,15 @@ authoritative for every target game.
 
 Each target game includes record and game identity, preserved timestamp,
 contract, participants, as-of source count and latest timestamp, compact player
-profile/provenance summaries, reconciled aggregate results, and 30 ordered
+profile/provenance summaries, reconciled aggregate results, and zero through 30 ordered
 decision rows. Player summaries contain only bounded source IDs, timestamps,
 exact and normalized statistics, and derivation, never full source games.
 Decision rows expose legal cards but no hidden opponent hands.
+
+Target game and distinct-player coverage use all three participants, including
+players who did not act before concession. Decision breakdowns still contain
+only actual actors. Target decision totals reconcile with per-game rows,
+coverage, baseline counts, paired counts, and breakdowns.
 
 Coverage explicitly counts missing as-of games, missing players,
 insufficient-confidence, neutral, insufficient-data, explainable, and
@@ -162,6 +182,9 @@ identity with seat changes, complete baseline evaluation, and low-confidence
 coverage. Focused tests construct 100 repeated source records to exercise
 medium-confidence actionable paired behavior without making the public example
 impractically large.
+
+See [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md)
+for the shared game-level versus decision-level evidence boundary.
 
 ## Limitations
 

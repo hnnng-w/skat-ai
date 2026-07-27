@@ -211,7 +211,10 @@ Live left/right binding IDs, comparison, and multi-step options are rejected.
 See [Historical opponent profiles](historical_opponent_profiles.md).
 Declarer-concession records also accept snapshot, review, external-profile,
 review-policy, sample, and seed options. The terminal event itself is not a card
-decision. Statistics aggregation and rolling evaluation remain normal-only.
+decision. Dataset-level statistics aggregation, export, and rolling evaluation
+support both normal completion and declarer concession; rolling targets use only
+actual plays. See
+[Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).
 
 ## Remaining scope
 
@@ -227,7 +230,7 @@ Later work is still required for:
 
 Four-player tables remain out of scope.
 
-Complete normal-play records can be wrapped with provenance and explicit
+Supported historical records can be wrapped with provenance and explicit
 partitions by the separate [training data](training_data.md) workflow. That
 workflow uses snapshots rather than historical review, so ouvert records remain
 valid and no recommendation simulation is invoked.

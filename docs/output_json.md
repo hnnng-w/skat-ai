@@ -242,6 +242,9 @@ The branch contains no training samples, recommendation, review, policy
 application, or quality result. See
 [Historical opponent statistics](historical_opponent_statistics.md) and
 [`historical_opponent_statistics_aggregation.schema.json`](../schemas/historical_opponent_statistics_aggregation.schema.json).
+Normal and concession records use the same shape. A concession contributes only
+existing game-level counts and provenance; no event, consent, hand, trick, or
+unresolved-point detail enters the output or export.
 
 Rolling opponent-policy evaluation produces a dedicated branch:
 
@@ -266,9 +269,12 @@ Selection metadata identifies `known_opponent` mode and bounded source/target
 player overlap without claiming temporal eligibility. The baseline covers every target decision. Profile and paired-baseline metrics
 cover only actionable profile predictions. Preferred-card matching is primary;
 exact-card matching is the stricter tie-break-sensitive metric. Target games
-contain compact as-of player provenance and profiles plus 30 ordered decisions,
-without hidden hands, expected-value recommendations, settlement inputs, or
-decision-quality review. See
+contain compact as-of player provenance and profiles plus zero through 30 ordered
+actual decisions. Empty decision arrays and zero total decisions are valid, and
+zero-denominator rates are null. Coverage counts all target participants while
+decision breakdowns count only actual actors. Decision objects contain no end
+reason, consent, final winner, settlement, unresolved points, or remaining
+cards. See
 [Rolling opponent-policy evaluation](opponent_policy_evaluation.md) and
 [`rolling_opponent_policy_evaluation.schema.json`](../schemas/rolling_opponent_policy_evaluation.schema.json).
 

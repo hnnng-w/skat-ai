@@ -1,0 +1,176 @@
+{
+  "training_dataset_input": {
+    "schema_version": 1,
+    "dataset_id": "shortened-opponent-workflows-example",
+    "dataset_version": "1",
+    "feature_generation_version": 1,
+    "target": "actual_card_played",
+    "partition_policy": {
+      "policy_version": 1,
+      "mode": "known_opponent"
+    },
+    "records": [
+      {
+        "record_id": "normal-source-001",
+        "partition": "train",
+        "provenance": {
+          "source_type": "synthetic",
+          "source_name": "Issue 95 shortened opponent workflows",
+          "source_record_id": "normal-source-001",
+          "collected_at": "2026-07-11T00:00:00Z",
+          "notes": "Earlier normal-completion profile source."
+        },
+        "historical_game": {
+          "schema_version": 1,
+          "game_id": "shortened-workflow-normal-source-001",
+          "played_at": "2026-07-10T18:00:00+02:00",
+          "players": [
+            {
+              "player_id": "player-a",
+              "player_label": "Alice",
+              "seat": "forehand",
+              "initial_hand": ["CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"]
+            },
+            {
+              "player_id": "player-b",
+              "player_label": "Bob",
+              "seat": "middlehand",
+              "initial_hand": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"]
+            },
+            {
+              "player_id": "player-c",
+              "player_label": "Carol",
+              "seat": "rearhand",
+              "initial_hand": ["HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"]
+            }
+          ],
+          "skat": ["D8", "D7"],
+          "declarer_player_id": "player-b",
+          "declaration": {"game_type": "grand", "hand_game": false, "bid_value": 18},
+          "discarded_cards": ["SK", "SQ"],
+          "game_end_reason": "normal_completion",
+          "tricks": [
+            {"trick_number": 1, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "CA"}, {"player_id": "player-b", "card": "SJ"}, {"player_id": "player-c", "card": "HJ"}]},
+            {"trick_number": 2, "leader_player_id": "player-b", "plays": [{"player_id": "player-b", "card": "S9"}, {"player_id": "player-c", "card": "H9"}, {"player_id": "player-a", "card": "SA"}]},
+            {"trick_number": 3, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "C10"}, {"player_id": "player-b", "card": "S8"}, {"player_id": "player-c", "card": "H8"}]},
+            {"trick_number": 4, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "CK"}, {"player_id": "player-b", "card": "S7"}, {"player_id": "player-c", "card": "H7"}]},
+            {"trick_number": 5, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "CQ"}, {"player_id": "player-b", "card": "HA"}, {"player_id": "player-c", "card": "DA"}]},
+            {"trick_number": 6, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "CJ"}, {"player_id": "player-b", "card": "H10"}, {"player_id": "player-c", "card": "DJ"}]},
+            {"trick_number": 7, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "C9"}, {"player_id": "player-b", "card": "HK"}, {"player_id": "player-c", "card": "D10"}]},
+            {"trick_number": 8, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "C8"}, {"player_id": "player-b", "card": "HQ"}, {"player_id": "player-c", "card": "DK"}]},
+            {"trick_number": 9, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "C7"}, {"player_id": "player-b", "card": "D8"}, {"player_id": "player-c", "card": "DQ"}]},
+            {"trick_number": 10, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "S10"}, {"player_id": "player-b", "card": "D7"}, {"player_id": "player-c", "card": "D9"}]}
+          ]
+        }
+      },
+      {
+        "record_id": "concession-source-001",
+        "partition": "train",
+        "provenance": {
+          "source_type": "synthetic",
+          "source_name": "Issue 95 shortened opponent workflows",
+          "source_record_id": "concession-source-001",
+          "collected_at": "2026-07-13T00:00:00Z",
+          "notes": "Earlier zero-play declarer-concession profile source."
+        },
+        "historical_game": {
+          "schema_version": 1,
+          "game_id": "shortened-workflow-concession-source-001",
+          "played_at": "2026-07-12T18:00:00+02:00",
+          "players": [
+            {
+              "player_id": "player-a",
+              "player_label": "Alice",
+              "seat": "forehand",
+              "initial_hand": ["CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"]
+            },
+            {
+              "player_id": "player-b",
+              "player_label": "Bob",
+              "seat": "middlehand",
+              "initial_hand": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"]
+            },
+            {
+              "player_id": "player-c",
+              "player_label": "Carol",
+              "seat": "rearhand",
+              "initial_hand": ["HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"]
+            }
+          ],
+          "skat": ["D8", "D7"],
+          "declarer_player_id": "player-b",
+          "declaration": {"game_type": "grand", "hand_game": false, "bid_value": 18},
+          "discarded_cards": ["SK", "SQ"],
+          "game_end_reason": "declarer_concession",
+          "game_end": {
+            "schema_version": 1,
+            "kind": "declarer_concession",
+            "declarer_hand_cards_remaining": 10,
+            "defender_consent": {
+              "status": "not_required",
+              "consenting_defender_player_ids": []
+            }
+          },
+          "tricks": []
+        }
+      },
+      {
+        "record_id": "concession-target-001",
+        "partition": "validation",
+        "provenance": {
+          "source_type": "synthetic",
+          "source_name": "Issue 95 shortened opponent workflows",
+          "source_record_id": "concession-target-001",
+          "collected_at": "2026-07-21T00:00:00Z",
+          "notes": "Later 14-decision declarer-concession evaluation target."
+        },
+        "historical_game": {
+          "schema_version": 1,
+          "game_id": "shortened-workflow-concession-target-001",
+          "played_at": "2026-07-20T19:00:00+02:00",
+          "players": [
+            {
+              "player_id": "player-a",
+              "player_label": "Alice",
+              "seat": "forehand",
+              "initial_hand": ["CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"]
+            },
+            {
+              "player_id": "player-b",
+              "player_label": "Bob",
+              "seat": "middlehand",
+              "initial_hand": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"]
+            },
+            {
+              "player_id": "player-c",
+              "player_label": "Carol",
+              "seat": "rearhand",
+              "initial_hand": ["HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"]
+            }
+          ],
+          "skat": ["D8", "D7"],
+          "declarer_player_id": "player-b",
+          "declaration": {"game_type": "grand", "hand_game": false, "bid_value": 18},
+          "discarded_cards": ["SK", "SQ"],
+          "game_end_reason": "declarer_concession",
+          "game_end": {
+            "schema_version": 1,
+            "kind": "declarer_concession",
+            "declarer_hand_cards_remaining": 5,
+            "defender_consent": {
+              "status": "granted",
+              "consenting_defender_player_ids": ["player-a"]
+            }
+          },
+          "tricks": [
+            {"trick_number": 1, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "CA"}, {"player_id": "player-b", "card": "SJ"}, {"player_id": "player-c", "card": "HJ"}]},
+            {"trick_number": 2, "leader_player_id": "player-b", "plays": [{"player_id": "player-b", "card": "S9"}, {"player_id": "player-c", "card": "H9"}, {"player_id": "player-a", "card": "SA"}]},
+            {"trick_number": 3, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "C10"}, {"player_id": "player-b", "card": "S8"}, {"player_id": "player-c", "card": "H8"}]},
+            {"trick_number": 4, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "CK"}, {"player_id": "player-b", "card": "S7"}, {"player_id": "player-c", "card": "H7"}]},
+            {"trick_number": 5, "leader_player_id": "player-a", "plays": [{"player_id": "player-a", "card": "CQ"}, {"player_id": "player-b", "card": "HA"}]}
+          ]
+        }
+      }
+    ]
+  }
+}

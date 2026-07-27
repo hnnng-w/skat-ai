@@ -1,6 +1,8 @@
 import copy
+from dataclasses import replace
 
 import pytest
+from test_historical_declarer_concession import build_concession_prefix
 from test_historical_game import build_historical_input
 from test_training_dataset import build_training_input
 
@@ -63,6 +65,41 @@ def aggregate(dataset, partitions=None, before=None):
         included_partitions=partitions,
         before=before,
     )
+
+
+def build_29_play_concession() -> dict:
+    game = build_historical_input()
+    game["players"][0]["initial_hand"].remove("C7")
+    game["players"][0]["initial_hand"].append("DQ")
+    game["players"][2]["initial_hand"].remove("DQ")
+    game["players"][2]["initial_hand"].append("C7")
+    game["tricks"][0]["plays"][2]["card"] = "C7"
+    game["tricks"][4]["plays"][2]["card"] = "D9"
+    game["tricks"][8]["plays"][0]["card"] = "DQ"
+    game["tricks"][8]["plays"][2]["card"] = "DA"
+    game["tricks"][9] = {
+        "trick_number": 10,
+        "leader_player_id": "player-c",
+        "plays": [
+            {"player_id": "player-c", "card": "HJ"},
+            {"player_id": "player-a", "card": "S10"},
+        ],
+    }
+    game.update(
+        {
+            "game_end_reason": "declarer_concession",
+            "game_end": {
+                "schema_version": 1,
+                "kind": "declarer_concession",
+                "declarer_hand_cards_remaining": 1,
+                "defender_consent": {
+                    "status": "granted",
+                    "consenting_defender_player_ids": ["player-a"],
+                },
+            },
+        }
+    )
+    return game
 
 
 def test_selection_is_canonical_strict_and_deterministic() -> None:
@@ -343,3 +380,157 @@ def test_aggregation_accepts_compliant_partition_policies_and_preserves_provenan
 
     assert summary["source_dataset"]["partition_policy"] == data["partition_policy"]
     assert summary["source_game_count"] == 1
+
+
+@pytest.mark.parametrize(
+    ("completed_tricks", "current_trick_cards", "expected_plays"),
+    [(0, 0, 0), (0, 1, 1), (1, 0, 3), (4, 2, 14), (9, 2, 29)],
+)
+def test_concessions_contribute_one_settled_game_independent_of_play_count(
+    completed_tricks: int,
+    current_trick_cards: int,
+    expected_plays: int,
+) -> None:
+    game = (
+        build_29_play_concession()
+        if expected_plays == 29
+        else build_concession_prefix(
+            completed_trick_count=completed_tricks,
+            current_trick_card_count=current_trick_cards,
+        )
+    )
+    result = aggregate(
+        build_dataset([("train", "2026-07-10T18:00:00Z", game)])
+    )
+    records = {
+        record.statistics_record.player_id: record.statistics_record
+        for record in result.records
+    }
+    declarer = records[game["declarer_player_id"]]
+    defender_ids = set(records) - {game["declarer_player_id"]}
+
+    assert sum(len(trick["plays"]) for trick in game["tricks"]) == expected_plays
+    assert result.source_record_count == result.source_game_count == 1
+    assert all(record.games_played == 1 for record in records.values())
+    assert declarer.exact_counts is not None
+    assert declarer.exact_counts.solo_games_played == 1
+    assert declarer.exact_counts.solo_games_won == 0
+    assert all(
+        records[player_id].exact_counts is not None
+        and records[player_id].exact_counts.defender_games_played == 1
+        and records[player_id].exact_counts.defender_games_won == 1
+        for player_id in defender_ids
+    )
+
+
+@pytest.mark.parametrize(
+    ("game_type", "hand_game", "ouvert", "category"),
+    [
+        ("clubs", False, False, "suit_games"),
+        ("spades", False, False, "suit_games"),
+        ("hearts", False, False, "suit_games"),
+        ("diamonds", False, False, "suit_games"),
+        ("grand", True, False, "grand_games"),
+        ("null", False, False, "null_games"),
+        ("null", True, False, "null_games"),
+        ("null", False, True, "null_games"),
+        ("null", True, True, "null_games"),
+    ],
+)
+def test_concession_contract_and_hand_counts_use_existing_categories(
+    game_type: str,
+    hand_game: bool,
+    ouvert: bool,
+    category: str,
+) -> None:
+    game = build_concession_prefix()
+    game["declaration"] = {
+        "game_type": game_type,
+        "hand_game": hand_game,
+        "ouvert": ouvert,
+        "bid_value": 18,
+    }
+    game["discarded_cards"] = [] if hand_game else ["SK", "SQ"]
+
+    result = aggregate(
+        build_dataset([("train", "2026-07-10T18:00:00Z", game)])
+    )
+    declarer = next(
+        record.statistics_record
+        for record in result.records
+        if record.statistics_record.player_id == game["declarer_player_id"]
+    )
+    counts = declarer.exact_counts
+
+    assert counts is not None
+    assert getattr(counts, category) == 1
+    assert counts.solo_hand_games == int(hand_game)
+
+
+def test_mixed_concession_aggregation_preserves_provenance_export_and_consent_isolation(
+) -> None:
+    normal = build_historical_input()
+    concession = build_concession_prefix(
+        completed_trick_count=4,
+        current_trick_card_count=2,
+    )
+    dataset = build_dataset(
+        [
+            ("train", "2026-07-10T18:00:00Z", normal),
+            ("train", "2026-07-11T18:00:00Z", concession),
+        ]
+    )
+    aggregation = aggregate(dataset)
+    summary = build_historical_opponent_statistics_aggregation_summary(aggregation)
+    serialized = build_serializable_opponent_statistics_input(
+        build_exportable_opponent_statistics_input(aggregation)
+    )
+
+    assert summary["source_record_count"] == summary["source_game_count"] == 2
+    assert summary["first_played_at"] == "2026-07-10T18:00:00Z"
+    assert summary["last_played_at"] == "2026-07-11T18:00:00Z"
+    assert all(record["games_played"] == 2 for record in summary["records"])
+    assert all(
+        record["source"]["historical_aggregation"]["source_record_ids"]
+        == ["record-001", "record-002"]
+        for record in summary["records"]
+    )
+    assert build_opponent_statistics_input(serialized["opponent_statistics_input"])
+
+    changed_consent = copy.deepcopy(concession)
+    changed_consent["game_end"]["defender_consent"][
+        "consenting_defender_player_ids"
+    ] = ["player-a", "player-c"]
+    original_record = aggregate(
+        build_dataset([("train", "2026-07-11T18:00:00Z", concession)])
+    ).records
+    changed_record = aggregate(
+        build_dataset([("train", "2026-07-11T18:00:00Z", changed_consent)])
+    ).records
+    assert original_record == changed_record
+
+
+def test_unsupported_selected_end_reason_names_record_game_and_supported_reasons() -> None:
+    dataset = build_dataset()
+    record = dataset.records[0]
+    unsupported = replace(
+        dataset,
+        records=(
+            replace(
+                record,
+                historical_game=replace(
+                    record.historical_game,
+                    game_end_reason="future_historical_end",
+                ),
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "record-001.*dataset-game-1.*future_historical_end.*normal_completion"
+            ".*declarer_concession"
+        ),
+    ):
+        aggregate(unsupported)

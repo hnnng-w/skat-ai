@@ -1311,6 +1311,16 @@ def print_rolling_opponent_policy_evaluation_result(result: dict[str, Any]) -> N
         f"{coverage['decisions_with_actionable_profile']} of "
         f"{coverage['target_decisions']} decisions."
     )
+    zero_decision_game_count = sum(
+        target_game["decision_count"] == 0 for target_game in summary["target_games"]
+    )
+    if zero_decision_game_count == 1:
+        print("One target game contained no card decisions before its terminal event.")
+    elif zero_decision_game_count:
+        print(
+            f"{zero_decision_game_count} target games contained no card decisions "
+            "before their terminal events."
+        )
     if paired["paired_decision_count"] == 0:
         print(
             "No actionable profile predictions were available; baseline and coverage "
@@ -2102,6 +2112,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--evaluate-opponent-policy-profiles",
+        "--evaluate-rolling-opponent-policies",
         action="store_true",
         help="Evaluate rolling as-of profile policies against simple_lowest.",
     )

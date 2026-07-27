@@ -1,7 +1,7 @@
 # Historical opponent statistics
 
 `skat-ai` can deterministically aggregate exact reusable opponent statistics
-from complete normal-play historical games. The source is the existing
+from normal-completion and declarer-concession historical games. The source is the existing
 version-1 `training_dataset_input`; no second multi-game format is introduced.
 The dataset is reused as a validated container for games, stable identities,
 provenance, and partitions. Aggregation does not generate decision samples,
@@ -20,10 +20,9 @@ python main.py `
 Every included dataset record contributes exactly one validated historical
 game. Existing training-dataset checks continue to reject duplicate record,
 game, and complete source identities and cross-partition game/source leakage.
-The historical contract remains limited to complete `normal_completion` games.
-Historical declarer-concession records are rejected before aggregation because
-shortened-game behavioral statistics semantics are planned separately. Basic
-variable-length training conversion and partition audits are supported.
+The workflow supports exactly `normal_completion` and `declarer_concession`.
+Other future historical end reasons are rejected when they participate in the
+selected aggregation.
 
 Every record selected by partition must have a valid offset-aware RFC 3339
 `historical_game.played_at`, even when no temporal cutoff is supplied. This
@@ -94,6 +93,12 @@ following exact non-negative integer counts are emitted for every player:
 | `defender_games_played` | Included games where the player is not declarer. |
 | `defender_games_won` | Defender games where final settlement is a declarer loss. |
 
+Every record has exactly one game of weight regardless of played cards,
+snapshots, samples, tricks, observed points, or unresolved points. A zero-play
+concession counts once. A concession gives the declarer one solo loss and each
+defender one defender win through the authoritative settlement. Consent and
+terminal-event details do not affect any count.
+
 The authoritative `final_settlement_summary.is_loss` determines the winner,
 not raw card points. `false` credits a declarer win; `true` credits a defender
 win. An overbid declarer loss therefore counts as a declarer loss, and both
@@ -156,6 +161,10 @@ metadata, explanations, and actionability are unchanged. Win, Hand, and
 contract exact counts remain available even when a current signal does not use
 them.
 
+No concession-specific statistic, signal, classification, threshold, or preset
+is derived. Concession records appear only through existing provenance IDs,
+timestamps, role/result counts, Hand count, and contract distribution.
+
 ## Structured output and export
 
 `--output` writes the dedicated aggregation result:
@@ -191,7 +200,7 @@ workflow:
 
 ```powershell
 python main.py `
-  --input examples/training_dataset_normal_play.json `
+    --input examples/training_dataset_shortened_opponent_workflows.json `
   --aggregate-opponent-statistics `
   --output outputs/historical-statistics.json `
   --export-opponent-statistics outputs/opponent-statistics.json
@@ -229,9 +238,13 @@ recency-weight, use count-based rolling windows, or merge platform/manual
 statistics, multiple captures per player, capture selection or persistence,
 automatic policy use, recommendation-quality evaluation, strategic policy-
 quality claims, learned behavior, machine-learning training, or
-claims/concessions and other historical end reasons.
+other historical end reasons or concession prediction.
 
 The separate [rolling opponent-policy evaluation](opponent_policy_evaluation.md)
 reuses this exact aggregation with one strict target-start cutoff per game. It
 measures observed-card imitation only and does not alter or automatically apply
 the aggregated profiles.
+
+See [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md)
+for mixed-source weighting, zero-play behavior, rolling targets, and information
+safety.

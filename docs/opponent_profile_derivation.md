@@ -35,6 +35,11 @@ over rate estimates, so overall, declarer, and defender evidence kinds are
 and contract counts are preserved in the statistics record but do not add new
 version-1 signals.
 
+Exact historical evidence may come from normal completion or declarer
+concession. Every included record has one game of evidence regardless of play
+length. Concession status, timing, consent, remaining cards, and unresolved
+points do not enter derivation.
+
 Exact role counts cannot exceed total games. When both exact role counts are
 present, they must sum to total games. Exact counts and matching rates must agree
 within the existing `2.0` percentage-point rounding tolerance.
@@ -120,6 +125,8 @@ matching; no second percentage or classification implementation exists.
 Rolling opponent-policy evaluation also reuses this exact derivation unchanged;
 it never upgrades low confidence and only its existing non-null actionable
 preset can produce a paired profile prediction.
+Mixed normal/concession statistics therefore use the same derivation version,
+confidence bands, thresholds, signals, classifications, and actionable presets.
 
 ## Compatibility and limits
 
@@ -139,3 +146,5 @@ bindings map an explicit ID to a relative side. Historical review instead uses
 the existing decision snapshot mapping to move exact stable-ID profiles between
 relative sides. Neither path activates a merely recommended or `simple_lowest`
 preset.
+It also does not predict concession or derive a concession tendency. See
+[Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).

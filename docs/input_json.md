@@ -172,6 +172,8 @@ versioned multi-game container. Every partition-selected game then requires
 `--opponent-statistics-before` comparison is strict. Aggregation creates no new
 JSON input branch and emits no training samples. See
 [Historical opponent statistics](historical_opponent_statistics.md).
+Both supported end reasons contribute one statistics game per record, including
+zero-play concessions. Other historical end reasons remain rejected.
 
 With `--evaluate-opponent-policy-profiles`, the same dataset branch supplies
 disjoint rolling profile-source and policy-evaluation partitions under an
@@ -179,7 +181,9 @@ explicit known-opponent workflow. Declared unseen-player data is rejected. Sourc
 defaults to `train`; evaluation defaults to `validation` and `test`. Every
 selected source and target game requires `played_at`, and only source instants
 strictly earlier than each target are eligible. Repeated stable players across
-partitions are expected. See
+partitions are expected. Normal targets use 30 decisions; concession targets use
+their validated zero through 29 actual plays. The alias
+`--evaluate-rolling-opponent-policies` selects the same workflow. See
 [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).
 
 An opponent-statistics file contains only its statistics branch:
@@ -1337,7 +1341,7 @@ Version-1 `historical_game_input` optionally accepts `played_at`, the RFC 3339
 instant when the game began. It must contain an explicit UTC offset and is
 preserved exactly. It is required only when `--opponent-statistics-file` is used
 with `--historical-game-review`, or when its dataset record is selected for
-`--aggregate-opponent-statistics`. Existing historical, snapshot, and normal
+`--aggregate-opponent-statistics` or rolling source/target evaluation. Existing historical, snapshot, and normal
 training conversion inputs remain valid without it when neither feature is
 requested.
 

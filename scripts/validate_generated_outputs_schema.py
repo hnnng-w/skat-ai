@@ -1669,6 +1669,83 @@ def check_rolling_opponent_policy_evaluation(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_shortened_rolling_opponent_policy_evaluation(
+    data: dict[str, Any],
+) -> list[str]:
+    """Checks mixed sources and one variable-cardinality concession target."""
+    if set(data) != {"input_file", "rolling_opponent_policy_evaluation_summary"}:
+        return ["expected only the shortened rolling evaluation branch"]
+    summary = data["rolling_opponent_policy_evaluation_summary"]
+    selection = summary["selection"]
+    coverage = summary["coverage"]
+    baseline = summary["baseline_results"]
+    paired = summary["actionable_profile_paired_results"]
+    errors = []
+    if (
+        selection["source_record_count"] != 2
+        or selection["target_record_count"] != 1
+        or selection["target_game_count"] != 1
+        or selection["target_decision_count"] != 14
+    ):
+        errors.append("expected two mixed sources and one 14-decision target")
+    overlap = selection["selected_partition_player_overlap"]
+    if overlap["shared_player_ids"] != ["player-a", "player-b", "player-c"]:
+        errors.append("expected all stable target participants in source membership")
+    if (
+        coverage["target_game_count"] != 1
+        or coverage["target_player_game_count"] != 3
+        or coverage["distinct_target_player_count"] != 3
+        or coverage["target_decisions"] != 14
+        or coverage["decisions_with_insufficient_confidence"] != 14
+    ):
+        errors.append("expected participant-based coverage over 14 actual decisions")
+    if baseline["baseline_policy_preset"] != "simple_lowest" or baseline[
+        "decision_count"
+    ] != 14:
+        errors.append("expected the unchanged baseline on all actual decisions")
+    if (
+        paired["paired_decision_count"] != 0
+        or paired["profile_preferred_card_match_rate"] is not None
+    ):
+        errors.append("expected nullable paired rates for low-confidence profiles")
+    target = summary["target_games"][0]
+    decisions = target["decisions"]
+    if (
+        target["as_of_source_game_count"] != 2
+        or target["decision_count"] != 14
+        or len(decisions) != 14
+        or [decision["decision_index"] for decision in decisions] != list(range(1, 15))
+    ):
+        errors.append("expected two as-of games and 14 consecutive target decisions")
+    if target["baseline_results"]["decision_count"] != 14:
+        errors.append("expected per-target baseline reconciliation")
+    if not all(
+        profile["source_game_count"] == 2 for profile in target["player_as_of_profiles"]
+    ):
+        errors.append("expected both source games in every recurring-player profile")
+    if (
+        sum(game["decision_count"] for game in summary["target_games"])
+        != selection["target_decision_count"]
+        or selection["target_decision_count"] != coverage["target_decisions"]
+        or coverage["target_decisions"] != baseline["decision_count"]
+    ):
+        errors.append("expected actual target decision totals to reconcile")
+    decision_fields = {field_name for decision in decisions for field_name in decision}
+    if decision_fields.intersection(
+        {
+            "game_end_reason",
+            "concession_status",
+            "defender_consent",
+            "winner",
+            "final_settlement_summary",
+            "unresolved_points",
+            "remaining_cards",
+        }
+    ):
+        errors.append("expected terminal-event and hidden-result isolation")
+    return errors
+
+
 def check_dataset_partition_audit(data: dict[str, Any]) -> list[str]:
     """Checks deterministic membership, overlap, coverage, and output isolation."""
     if set(data) != {"input_file", "dataset_partition_audit_summary"}:
@@ -2190,6 +2267,19 @@ SCENARIOS = (
         branch="rolling as-of profile-derived behavioral policy evaluation",
         cli_args=("--evaluate-opponent-policy-profiles", "--quiet"),
         check_output=check_rolling_opponent_policy_evaluation,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="rolling_shortened_opponent_policy_evaluation",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "training_dataset_shortened_opponent_workflows.json"
+        ),
+        branch="rolling evaluation with concession source and variable target decisions",
+        cli_args=("--evaluate-rolling-opponent-policies", "--quiet"),
+        check_output=check_shortened_rolling_opponent_policy_evaluation,
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),

@@ -6,7 +6,6 @@ from skat_ai.dataset_partition_policy import (
     collect_player_partition_memberships,
 )
 from skat_ai.game_declaration import build_serializable_game_declaration
-from skat_ai.historical_decision_cardinality import MAX_HISTORICAL_DECISION_COUNT
 from skat_ai.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
     build_historical_decision_snapshots,
@@ -16,6 +15,9 @@ from skat_ai.historical_opponent_statistics import (
     HistoricalOpponentStatisticsAggregation,
     aggregate_historical_opponent_statistics,
     build_exportable_opponent_statistics_input,
+)
+from skat_ai.historical_opponent_workflow import (
+    validate_historical_opponent_workflow_records,
 )
 from skat_ai.opponent_policy import (
     choose_opponent_lead_card_by_policy,
@@ -30,7 +32,6 @@ from skat_ai.training_dataset import (
     TRAINING_PARTITIONS,
     TrainingDatasetInput,
     TrainingDatasetRecord,
-    require_normal_completion_dataset,
 )
 
 ROLLING_OPPONENT_POLICY_EVALUATION_VERSION = 1
@@ -136,6 +137,11 @@ def _validate_selection(
             played_at,
             f"Historical game '{record.historical_game.game_id}' played_at",
         )
+    validate_historical_opponent_workflow_records(
+        record
+        for record in dataset.records
+        if record.partition in source or record.partition in evaluation
+    )
     return source, evaluation, targets
 
 
@@ -450,7 +456,11 @@ def _build_decision(
     }
 
 
-def _build_coverage(decisions: list[dict[str, Any]], target_game_count: int) -> dict[str, int]:
+def _build_coverage(
+    decisions: list[dict[str, Any]],
+    target_participant_ids: list[list[str]],
+) -> dict[str, int]:
+    target_game_count = len(target_participant_ids)
     status_field_names = {
         "actionable": "decisions_with_actionable_profile",
         "no_prior_source_games": "decisions_without_prior_source_games",
@@ -463,7 +473,11 @@ def _build_coverage(decisions: list[dict[str, Any]], target_game_count: int) -> 
         "target_game_count": target_game_count,
         "target_player_game_count": target_game_count * 3,
         "distinct_target_player_count": len(
-            {decision["acting_player_id"] for decision in decisions}
+            {
+                player_id
+                for participant_ids in target_participant_ids
+                for player_id in participant_ids
+            }
         ),
         "target_decisions": len(decisions),
         "decisions_with_prior_player_history": sum(
@@ -579,7 +593,15 @@ def _validate_reconciliation(
         raise ValueError("Baseline decision totals do not reconcile.")
     if sum(game["decision_count"] for game in target_games) != total:
         raise ValueError("Target-game decision totals do not reconcile.")
+    if coverage["target_decisions"] != total:
+        raise ValueError("Target decision coverage does not reconcile.")
+    if coverage["target_game_count"] != len(target_games):
+        raise ValueError("Target game coverage does not reconcile.")
+    if coverage["target_player_game_count"] != len(target_games) * 3:
+        raise ValueError("Target player-game coverage does not reconcile.")
     for game in target_games:
+        if game["decision_count"] != len(game["decisions"]):
+            raise ValueError("Target-game decision cardinality does not reconcile.")
         expected_baseline = _build_match_results(
             game["decisions"],
             prediction_key="baseline_prediction",
@@ -666,12 +688,6 @@ def evaluate_rolling_opponent_policy_predictions(
     evaluation_partitions: tuple[str, ...] = DEFAULT_EVALUATION_PARTITIONS,
 ) -> RollingOpponentPolicyEvaluation:
     """Evaluates time-safe profile policy imitation against a fixed baseline."""
-    require_normal_completion_dataset(
-        dataset,
-        "Rolling opponent-policy evaluation currently supports only normal-completion "
-        "records. Variable-length training samples are supported, but shortened-game "
-        "rolling profiles and evaluation are planned separately.",
-    )
     if (
         dataset.partition_policy is not None
         and dataset.partition_policy.mode == "unseen_player"
@@ -720,10 +736,11 @@ def evaluate_rolling_opponent_policy_predictions(
         )
         historical_summary = build_historical_game_summary(target.historical_game)
         snapshots = build_historical_decision_snapshots(historical_summary)
-        if snapshots.snapshot_count != MAX_HISTORICAL_DECISION_COUNT:
+        expected_decision_count = snapshots.cardinality.expected_snapshot_count
+        if snapshots.snapshot_count != expected_decision_count:
             raise ValueError(
-                f"Target game '{target.historical_game.game_id}' must contribute exactly "
-                f"{MAX_HISTORICAL_DECISION_COUNT} decisions."
+                f"Target game '{target.historical_game.game_id}' snapshot count does not "
+                "match its validated played-card count."
             )
         decisions = [
             _build_decision(
@@ -782,7 +799,10 @@ def evaluate_rolling_opponent_policy_predictions(
     )
     paired = _build_paired_results(all_decisions)
     breakdowns = _build_breakdowns(all_decisions)
-    coverage = _build_coverage(all_decisions, len(targets))
+    coverage = _build_coverage(
+        all_decisions,
+        [game["participant_ids"] for game in target_games],
+    )
     _validate_reconciliation(
         decisions=all_decisions,
         target_games=target_games,

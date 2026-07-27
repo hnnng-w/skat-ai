@@ -493,13 +493,8 @@ def test_shortened_dataset_boundaries_are_workflow_specific() -> None:
     assert audit_training_dataset_partitions(dataset, "report_only").source_dataset[
         "total_record_count"
     ] == 1
-    with pytest.raises(
-        ValueError,
-        match="Historical opponent-statistics aggregation.*normal-completion",
-    ):
-        aggregate_historical_opponent_statistics(dataset)
-    with pytest.raises(
-        ValueError,
-        match="Rolling opponent-policy evaluation.*normal-completion",
-    ):
+    aggregation = aggregate_historical_opponent_statistics(dataset)
+    assert aggregation.source_game_count == 1
+    assert all(record.statistics_record.games_played == 1 for record in aggregation.records)
+    with pytest.raises(ValueError, match="contain no target records"):
         evaluate_rolling_opponent_policy_predictions(dataset)

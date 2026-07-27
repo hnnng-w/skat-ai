@@ -99,7 +99,7 @@
         "source_record_count": {"type": "integer", "minimum": 1},
         "target_record_count": {"type": "integer", "minimum": 1},
         "target_game_count": {"type": "integer", "minimum": 1},
-        "target_decision_count": {"type": "integer", "minimum": 30, "multipleOf": 30}
+        "target_decision_count": {"$ref": "#/$defs/count"}
       }
     },
     "selected_partition_player_overlap": {
@@ -147,7 +147,7 @@
         "target_game_count": {"type": "integer", "minimum": 1},
         "target_player_game_count": {"type": "integer", "minimum": 3, "multipleOf": 3},
         "distinct_target_player_count": {"type": "integer", "minimum": 1},
-        "target_decisions": {"type": "integer", "minimum": 30, "multipleOf": 30},
+        "target_decisions": {"$ref": "#/$defs/count"},
         "decisions_with_prior_player_history": {"$ref": "#/$defs/count"},
         "decisions_with_explainable_derived_profile": {"$ref": "#/$defs/count"},
         "decisions_with_actionable_profile": {"$ref": "#/$defs/count"},
@@ -186,7 +186,7 @@
         "preferred_card_match_rate"
       ],
       "properties": {
-        "decision_count": {"const": 30},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
         "exact_card_match_count": {"$ref": "#/$defs/count"},
         "exact_card_match_rate": {"$ref": "#/$defs/rate"},
         "preferred_card_match_count": {"$ref": "#/$defs/count"},
@@ -563,10 +563,10 @@
         "as_of_source_game_count": {"$ref": "#/$defs/count"},
         "latest_eligible_source_played_at": {"type": ["string", "null"], "format": "date-time"},
         "player_as_of_profiles": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/player_profile"}},
-        "decision_count": {"const": 30},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
         "baseline_results": {"$ref": "#/$defs/target_match_results"},
         "actionable_profile_paired_results": {"$ref": "#/$defs/paired_results"},
-        "decisions": {"type": "array", "minItems": 30, "maxItems": 30, "items": {"$ref": "#/$defs/decision"}}
+        "decisions": {"type": "array", "minItems": 0, "maxItems": 30, "items": {"$ref": "#/$defs/decision"}}
       }
     }
   }

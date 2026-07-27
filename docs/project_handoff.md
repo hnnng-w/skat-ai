@@ -192,7 +192,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 42 deterministic scenarios.
+Generated-output validation currently covers 43 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -452,7 +452,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 42 deterministic generated-output
+The `v0.8.0` development baseline validates 43 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -527,6 +527,7 @@ Subsequent bounded historical work:
 
 * #93 added exact-prefix historical declarer concession with stable-ID consent and settlement
 * #94 generalized snapshots, review, training samples, external-profile review, and partition audits to actual played-card cardinality
+* #95 integrated concession records into game-weighted statistics/export and actual-decision rolling evaluation
 
 ## Current implementation baseline
 
@@ -542,11 +543,12 @@ Completed implementation scope:
 * rolling game-start known-opponent behavioral policy evaluation
 * known-opponent and unseen-player dataset policies with exact overlap auditing
 * variable-length historical decision artifacts for normal completion and declarer concession
+* mixed normal/concession historical statistics, export, and rolling evaluation
 
 ## Current high-priority limitations
 
 * Historical records support normal completion and exact-prefix declarer concession; other claims, concessions, continuations, and end reasons are required.
-* Historical opponent-statistics aggregation and rolling policy evaluation remain normal-completion-only.
+* Historical opponent-statistics aggregation and rolling policy evaluation support exactly normal completion and declarer concession; other end reasons remain unsupported.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.
 * General live position input lacks complete field-level provenance.

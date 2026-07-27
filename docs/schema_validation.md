@@ -150,7 +150,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 42 deterministic scenarios. Position
+Generated-output validation covers 43 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including declarer concession, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -178,6 +178,10 @@ time-safe historical external-profile review, and one exact historical
 opponent-statistics aggregation with strict selection and standalone export,
 and one rolling as-of opponent-policy evaluation with baseline-only low-
 confidence coverage, plus one exact stable-player dataset-partition audit.
+The additional rolling scenario uses a normal source, a zero-play concession
+source, and a 14-decision concession target. Its schema permits empty target
+decision arrays, zero overall decisions, null zero-denominator rates, and
+participant-based target-player coverage without a version increment.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

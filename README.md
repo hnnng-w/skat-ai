@@ -275,9 +275,11 @@ binding IDs are rejected. `--samples` and `--seed` are accepted only with review
 Historical declarer concessions support snapshots, review, time-safe external
 profiles, variable training samples, and record/player partition audits for every
 actual supplied play. The terminal event is not reviewed or used as a target.
-Historical opponent statistics and rolling policy evaluation remain restricted
-to normal completion. See
-[Variable-length historical decisions](docs/variable_length_historical_decisions.md).
+Historical opponent statistics, reusable export, rolling profile construction,
+and rolling policy evaluation support normal completion and declarer concession.
+Each source record has one game of statistics weight, while targets contribute
+only actual card decisions, including valid zero-decision targets. See
+[Shortened historical opponent workflows](docs/shortened_historical_opponent_workflows.md).
 
 Convert a versioned training/evaluation dataset without running
 recommendations or simulation:
@@ -317,11 +319,22 @@ exclusive cutoff, derives wins from final settlement, emits no decision samples,
 and does not apply a policy. See
 [Historical opponent statistics](docs/historical_opponent_statistics.md).
 
+The mixed normal/concession example supports aggregation and export with the
+same commands:
+
+```powershell
+python main.py --input examples/training_dataset_shortened_opponent_workflows.json --aggregate-opponent-statistics
+```
+
 Evaluate rolling game-start profiles against observed known-opponent card choices:
 
 ```powershell
 python main.py --input examples/historical_opponent_policy_evaluation_dataset.json --evaluate-opponent-policy-profiles --output outputs/opponent-policy-evaluation.json
 ```
+
+Use `--evaluate-rolling-opponent-policies` with
+`examples/training_dataset_shortened_opponent_workflows.json` to evaluate its
+14-decision concession target against two strictly earlier source games.
 
 This workflow uses disjoint source and evaluation partition names, strict as-of
 history, and preferred-card matching. It measures behavioral imitation only, not
@@ -401,6 +414,7 @@ Detailed documentation is split into topic-specific files:
 * [Opponent statistics](docs/opponent_statistics.md)
 * [Historical opponent statistics](docs/historical_opponent_statistics.md)
 * [Rolling opponent-policy evaluation](docs/opponent_policy_evaluation.md)
+* [Shortened historical opponent workflows](docs/shortened_historical_opponent_workflows.md)
 * [Opponent profile derivation](docs/opponent_profile_derivation.md)
 * [Live opponent profiles](docs/live_opponent_profiles.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
@@ -463,7 +477,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 42 deterministic scenarios,
+complete. Generated-output validation covers 43 deterministic scenarios,
 including both ongoing public-hand continuations and bounded exact defender
 open-play adjudication plus structured open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
@@ -476,9 +490,9 @@ summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
-Complete normal-play historical records, information-safe pre-play snapshots,
-bounded 30-decision immediate review, and versioned training/evaluation dataset
-wrapping are partially supported. Five structured generic-position shortening
+Normal-completion and declarer-concession historical records, information-safe
+variable-cardinality snapshots and review, and versioned training/evaluation
+dataset wrapping are partially supported. Five structured generic-position shortening
 variants are supported: declarer concession, defender concession, unanimously
 accepted declarer card exposure, bounded exact defender open play, and open card
 throw under ISkO 4.4.6. The first
@@ -488,7 +502,7 @@ trick and outstanding point to the opposing party without proof or simulation. A
 version-1 flat-position continuation union keeps either the exact current
 declarer hand public after an objection or the exposing defender's returned hand
 public after a 4.1.6 request, without ending or settling the game. Remaining gaps
-include structured historical shortening or continuation, unlimited exact
+include additional structured historical endings or continuation, unlimited exact
 solving, isolated-card claims, simultaneous throws and specific-trick assertions,
 additional historical end reasons, approved settlement
 completeness, complete-game coaching, stronger solving, exposed-card-aware
@@ -501,7 +515,9 @@ be validated, normalized, and reused by stable ID in live or strict time-safe
 historical profile workflows. A separate rolling as-of workflow evaluates
 whether existing actionable profile policies imitate observed known-player cards
 better than the fixed `simple_lowest` baseline, using preferred-card matching as
-its primary metric. It does not run recommendations or expected-value
+its primary metric. Normal and concession source games have equal game-level
+statistics weight; concession targets contribute only their actual card plays,
+and target participant coverage includes all three players. It does not run recommendations or expected-value
 simulation, claim strategic quality, evaluate unseen players, merge captures,
 or learn behavior. The product supports fixed three-player tables only.
 

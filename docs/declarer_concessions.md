@@ -97,8 +97,8 @@ It is rejected with:
 Historical games do not accept this flat `game_shortening` object. Their separate
 version-1 `game_end` event uses stable defender IDs and exact complete-deal replay.
 Historical review/snapshots, training datasets, and partition audits support the
-exact played prefix. Opponent statistics and rolling evaluation remain normal-
-completion-only. See
+exact played prefix. Opponent statistics count historical concessions once and
+rolling evaluation uses only their actual card decisions. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
 ## Adjudicated result

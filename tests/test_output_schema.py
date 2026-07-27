@@ -847,6 +847,20 @@ def build_valid_rolling_opponent_policy_evaluation_output() -> dict[str, object]
     }
 
 
+def build_valid_shortened_rolling_opponent_policy_evaluation_output() -> dict[str, object]:
+    input_path = (
+        PROJECT_ROOT / "examples" / "training_dataset_shortened_opponent_workflows.json"
+    )
+    dataset = load_training_dataset_from_json(str(input_path))
+    evaluation = evaluate_rolling_opponent_policy_predictions(dataset)
+    return {
+        "input_file": str(input_path),
+        "rolling_opponent_policy_evaluation_summary": (
+            build_serializable_rolling_opponent_policy_evaluation(evaluation)
+        ),
+    }
+
+
 def build_valid_dataset_partition_audit_output() -> dict[str, object]:
     input_path = PROJECT_ROOT / "examples" / "training_dataset_partition_audit.json"
     dataset = load_training_dataset_from_json(str(input_path))
@@ -939,6 +953,54 @@ def test_schema_accepts_historical_opponent_statistics_output_branch() -> None:
 
 def test_schema_accepts_rolling_opponent_policy_evaluation_output_branch() -> None:
     assert_schema_valid(build_valid_rolling_opponent_policy_evaluation_output())
+
+
+def test_schema_accepts_variable_rolling_opponent_policy_evaluation_output() -> None:
+    data = build_valid_shortened_rolling_opponent_policy_evaluation_output()
+    summary = data["rolling_opponent_policy_evaluation_summary"]
+
+    assert summary["selection"]["target_decision_count"] == 14
+    assert summary["target_games"][0]["decision_count"] == 14
+    assert_schema_valid(data)
+
+
+def test_schema_accepts_zero_decision_rolling_target_shape() -> None:
+    data = build_valid_shortened_rolling_opponent_policy_evaluation_output()
+    summary = data["rolling_opponent_policy_evaluation_summary"]
+    summary["selection"]["target_decision_count"] = 0
+    coverage = summary["coverage"]
+    for field_name in coverage:
+        if field_name not in {
+            "target_game_count",
+            "target_player_game_count",
+            "distinct_target_player_count",
+        }:
+            coverage[field_name] = 0
+    baseline = summary["baseline_results"]
+    baseline.update(
+        {
+            "decision_count": 0,
+            "exact_card_match_count": 0,
+            "exact_card_match_rate": None,
+            "preferred_card_match_count": 0,
+            "preferred_card_match_rate": None,
+        }
+    )
+    summary["breakdowns"] = {
+        breakdown_name: [] for breakdown_name in summary["breakdowns"]
+    }
+    target = summary["target_games"][0]
+    target["decision_count"] = 0
+    target["decisions"] = []
+    target["baseline_results"] = {
+        "decision_count": 0,
+        "exact_card_match_count": 0,
+        "exact_card_match_rate": None,
+        "preferred_card_match_count": 0,
+        "preferred_card_match_rate": None,
+    }
+
+    assert_schema_valid(data)
 
 
 def test_schema_accepts_dataset_partition_audit_output_branch() -> None:

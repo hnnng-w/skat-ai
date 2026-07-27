@@ -51,8 +51,9 @@ The following directions are required for `v1.0.0`:
   statistics, scoped exact or estimated evidence, deterministic explainable
   profiles, actionable gating, explicit live stable-ID bindings, strict time-safe
   historical application, and rolling known-opponent behavioral evaluation.
-  These bounded requirements are implemented; profiles remain rule-based and
-  confidence remains heuristic.
+  These bounded requirements are implemented for normal completion and declarer
+  concession, including zero-play source games and variable-cardinality rolling
+  targets; profiles remain rule-based and confidence remains heuristic.
 * Preserve optional known-opponent and unseen-player dataset policies, exact
   stable-player overlap audits, and strict declared unseen-player disjointness.
   This bounded requirement is implemented.
@@ -146,7 +147,9 @@ with one sample per actual play. Optional partition intent, exact overlap audits
 and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. The v1
 gate remains open for general declared-Ouvert and historical exposed-card-aware
-recommendation analysis and approved later end reasons. The bounded flat 4.4.4
+recommendation analysis and approved later end reasons. Historical statistics
+and rolling policy evaluation support those same two end reasons with game-level
+source weighting, actual-play target weighting, and strict as-of safety. The bounded flat 4.4.4
 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
 constraint are implemented. Full auction representation is planned after v1.0.
 

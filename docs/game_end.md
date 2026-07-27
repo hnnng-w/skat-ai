@@ -147,7 +147,8 @@ from the complete deal, confirms the declarer hand count, applies the same
 consent matrix and adjudicator, and preserves observed plus unresolved points.
 Snapshots, review, external-profile review, training conversion, and partition
 audits follow the exact played-card count. Statistics aggregation and rolling
-evaluation remain normal-completion-only. See
+evaluation support normal completion and declarer concession. Statistics count
+the completed record once; rolling targets evaluate only actual cards. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
 ## Structured defender concession

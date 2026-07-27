@@ -110,8 +110,12 @@ Shortened records produce one snapshot, review decision, and training sample per
 actual supplied play, including cards in an incomplete final trick. Empty
 prefixes produce zero artifacts. External-profile review and record/player
 partition audits are supported. The concession and consent remain outside
-decision-time state. Historical opponent-statistics aggregation and rolling
-opponent-policy evaluation remain normal-completion-only.
+decision-time state. Historical opponent-statistics aggregation counts every
+concession once, including zero-play records, with a declarer loss and two
+defender wins from final settlement. Completed concessions may contribute to
+later rolling profiles; target concessions contribute only actual card plays,
+including valid zero-decision targets. No concession-specific signal exists.
+See [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).
 
 Historical defender concession, card exposure, defender open play, open card
 throwing, continuation, claims of remaining tricks, and every other historical

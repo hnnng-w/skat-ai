@@ -174,6 +174,11 @@ source, but aggregation emits exact player records rather than these samples.
 prefix ending in an incomplete trick. It produces 14 samples and no terminal-
 event target.
 
+`examples/training_dataset_shortened_opponent_workflows.json` combines an
+earlier normal source, an earlier zero-play concession source, and a later
+14-play concession target. Sample counts remain actual-play counts, while
+statistics count each record once.
+
 The stable structures are defined by:
 
 * [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
@@ -211,10 +216,15 @@ aggregation branch. Its only additional options are repeatable
 meanings. Samples, seeds, review, simulation, comparison, policy, profile, and
 binding options are rejected. Without the aggregation flag, sample conversion is
 unchanged.
+Aggregation accepts exactly normal completion and declarer concession; zero-
+sample concession records remain full game-level evidence.
 
 With `--evaluate-opponent-policy-profiles`, the dataset instead feeds the
 separate known-opponent rolling behavioral evaluation. It accepts unspecified
 or `known_opponent` intent and rejects `unseen_player`. Source partitions default to `train`;
 evaluation partitions default to `validation` and `test`; the roles must be
 disjoint. This mode emits no samples and leaves normal conversion unchanged.
+Normal targets contribute 30 decisions and concession targets contribute their
+actual zero through 29 decisions without padding. Target participant coverage
+always includes all three stable IDs.
 See [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).

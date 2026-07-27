@@ -50,6 +50,7 @@ def get_position_example_json_files() -> list[Path]:
             "opponent_statistics.json",
             "training_dataset_normal_play.json",
             "training_dataset_partition_audit.json",
+            "training_dataset_shortened_opponent_workflows.json",
             "training_dataset_variable_length.json",
         }
     ]
@@ -76,6 +77,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_opponent_policy_evaluation_dataset.json",
             "training_dataset_normal_play.json",
             "training_dataset_partition_audit.json",
+            "training_dataset_shortened_opponent_workflows.json",
             "training_dataset_variable_length.json",
         }:
             dataset = load_training_dataset_from_json(str(example_file))
@@ -83,6 +85,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
                 "online-games-2026",
                 "opponent-policy-evaluation-example",
                 "dataset-partition-audit-example",
+                "shortened-opponent-workflows-example",
                 "variable-length-historical-decisions",
             }
             continue
@@ -219,6 +222,19 @@ def test_rolling_opponent_policy_evaluation_example_builds_target_results() -> N
     assert evaluation.selection["target_game_count"] == 1
     assert evaluation.coverage["target_decisions"] == 30
     assert evaluation.coverage["decisions_with_insufficient_confidence"] == 30
+
+
+def test_shortened_opponent_workflows_example_builds_mixed_rolling_results() -> None:
+    path = Path("examples/training_dataset_shortened_opponent_workflows.json")
+    evaluation = evaluate_rolling_opponent_policy_predictions(
+        load_training_dataset_from_json(str(path))
+    )
+
+    assert evaluation.selection["source_record_count"] == 2
+    assert evaluation.selection["target_game_count"] == 1
+    assert evaluation.coverage["target_decisions"] == 14
+    assert evaluation.coverage["target_player_game_count"] == 3
+    assert evaluation.target_games[0]["as_of_source_game_count"] == 2
 
 
 def test_dataset_partition_audit_example_has_three_way_overlap() -> None:

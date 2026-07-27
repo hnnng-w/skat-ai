@@ -9,6 +9,8 @@ This workflow validates and normalizes supplied statistics, then derives a
 versioned explainable rule-based profile. Standalone conversion does not run
 analysis. Separate live and strict time-safe historical bindings can reuse its
 records. Exact historical aggregation can produce the same input contract.
+That aggregate may mix normal-completion and declarer-concession records; each
+record contributes one game and no concession-specific field is added.
 
 ## Input workflow
 
@@ -58,6 +60,9 @@ unique source record/game ID arrays, and valid first/last source timestamps.
 represent the same instant as `last_played_at`. `historical_aggregation` is
 rejected for the other source types. See
 [Historical opponent statistics](historical_opponent_statistics.md).
+Concession source details are represented only by these existing IDs,
+timestamps, and exact game-level counts. Hands, tricks, consent, unresolved
+points, and terminal events are not exported.
 
 ## Percentage definitions
 
@@ -224,3 +229,7 @@ rule-based description, not a learned profile. See
 [Historical opponent profiles](historical_opponent_profiles.md).
 Behavioral evaluation is documented in
 [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).
+Mixed historical exports retain the same schema version, percentages,
+derivation thresholds, signals, classifications, and live/historical/rolling
+loader behavior. See
+[Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).

@@ -7,6 +7,9 @@ from skat_ai.dataset_partition_policy import (
 )
 from skat_ai.game_declaration import SUIT_GAME_TYPES
 from skat_ai.historical_game import build_historical_game_summary
+from skat_ai.historical_opponent_workflow import (
+    validate_historical_opponent_workflow_records,
+)
 from skat_ai.opponent_statistics import (
     OPPONENT_STATISTICS_SCHEMA_VERSION,
     HistoricalAggregationProvenance,
@@ -21,7 +24,6 @@ from skat_ai.rfc3339 import parse_rfc3339_datetime
 from skat_ai.training_dataset import (
     TRAINING_PARTITIONS,
     TrainingDatasetInput,
-    require_normal_completion_dataset,
 )
 
 HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_VERSION = 1
@@ -187,12 +189,6 @@ def aggregate_historical_opponent_statistics(
     before: str | None = None,
 ) -> HistoricalOpponentStatisticsAggregation:
     """Aggregates exact reusable player statistics from selected historical games."""
-    require_normal_completion_dataset(
-        dataset,
-        "Historical opponent-statistics aggregation currently supports only "
-        "normal-completion records. Variable-length training samples are supported, "
-        "but shortened-game statistics are planned separately.",
-    )
     selected_partitions = _canonicalize_partitions(included_partitions, dataset)
     before_instant = (
         parse_rfc3339_datetime(before, "opponent-statistics-before")
@@ -226,6 +222,9 @@ def aggregate_historical_opponent_statistics(
     ]
     if not included_records:
         raise ValueError("Opponent-statistics selection leaves no historical games.")
+    validate_historical_opponent_workflow_records(
+        record for record, _played_at_instant in included_records
+    )
 
     accumulators: dict[str, _PlayerAccumulator] = {}
     for record, played_at_instant in included_records:

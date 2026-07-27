@@ -270,6 +270,7 @@ simulation. Review uses the normal example with 20 samples and base seed 42.
 | `training_dataset_variable_length.json` | One 14-play declarer-concession record ending with a two-card incomplete trick and producing exactly 14 information-safe actual-card samples. |
 | `historical_opponent_policy_evaluation_dataset.json` | One earlier train source and one later validation target with repeated stable players in changed seats for rolling behavioral evaluation. |
 | `training_dataset_partition_audit.json` | One timestamped normal-completion record in each partition, with the same exact stable players changing seats and no declared policy, for report-only or requested policy auditing. |
+| `training_dataset_shortened_opponent_workflows.json` | Known-opponent dataset with an earlier normal source, an earlier zero-play concession source, and a later 14-decision concession target for mixed aggregation, export, and rolling evaluation. |
 
 This separate workflow runs historical validation and snapshot generation but
 does not run recommendations, review, or simulation. Its generated-output
@@ -310,10 +311,13 @@ identity, complete `simple_lowest` baseline evaluation, and low-confidence
 coverage without upgrading profiles. Its generated-output scenario has no
 actionable paired predictions; focused programmatic tests use 100 repeated
 source records for medium-confidence actionable coverage.
+The shortened opponent-workflow scenario verifies equal source-game weighting,
+strict as-of construction, variable target cardinality, participant coverage,
+and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 42 scenarios, including variable-length training data,
+therefore covers 43 scenarios, including variable-length training data,
 historical declarer concession, both
 ongoing public-hand continuations, bounded exact defender-open-play adjudication,
 and open-card-throw adjudication.

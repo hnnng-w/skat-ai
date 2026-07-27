@@ -272,7 +272,7 @@ Implemented:
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 42 deterministic scenarios. Issues #86 through #92 add
+coverage now includes 43 deterministic scenarios. Issues #86 through #92 add
 bounded structured concessions, accepted declarer-card-exposure adjudication,
 ongoing exposed-hand continuation, and bounded exact defender open-play
 adjudication plus non-adjudicating continued play and bounded open-card-throw
@@ -281,7 +281,10 @@ Issue #93 adds the first structured shortened historical record: exact-prefix
 declarer concession with stable-ID consent, unassigned unresolved points, and
 base/quiet CLI output. Issue #94 generalizes snapshots, review, external-profile
 review, training conversion, and partition audits to actual played-card counts.
-Historical statistics and rolling evaluation remain normal-completion-only.
+Issue #95 integrates normal-completion and declarer-concession records into
+historical aggregation/export and rolling evaluation. Every source record has
+one game of statistics weight; targets contribute only actual decisions,
+including zero-decision games with participant-based coverage.
 Issues #78 through #84 are complete:
 
 * #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.

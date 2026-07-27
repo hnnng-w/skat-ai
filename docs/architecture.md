@@ -60,6 +60,8 @@ to aggregate exact per-player role, result, Hand, and contract counts. It then
 reuses opponent-statistics normalization and profile derivation and can serialize
 a standalone `opponent_statistics_input`. It does not generate samples or run
 recommendation, review, policy application, quality evaluation, or training.
+Normal-completion and declarer-concession records are explicitly supported and
+each contributes one game regardless of play count.
 
 The rolling opponent-policy evaluation is explicitly a known-opponent flow. It
 selects disjoint source and target partitions, reports membership overlap,
@@ -69,6 +71,9 @@ actual card with the fixed `simple_lowest` baseline and any existing actionable
 profile preset. It evaluates deterministic preferred-card and exact-card
 matches without calling recommendation, expected-value simulation, historical
 decision-quality review, policy application, or model training.
+Sources use equal game-level weight. Targets use their shared validated actual-
+play cardinality, including zero-decision concessions, while player coverage is
+participant-based and decision breakdowns remain actor-based.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
@@ -100,7 +105,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_game_end.py` | Versioned stable-ID historical game-end union parsing and canonical serialization. |
 | `src/skat_ai/historical_play_prefix.py` | Exact immutable prefix replay, remaining-hand reconstruction, and incomplete-trick state. |
 | `src/skat_ai/historical_declarer_concession.py` | Historical point accounting and shared declarer-concession adjudication/settlement adaptation. |
-| `src/skat_ai/historical_decision_cardinality.py` | Shared actual-play cardinality for snapshots, review decisions, and training samples. |
+| `src/skat_ai/historical_decision_cardinality.py` | Shared actual-play cardinality for snapshots, review decisions, training samples, and rolling targets. |
 | `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
 | `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
 | `src/skat_ai/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |
@@ -110,6 +115,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
 | `src/skat_ai/opponent_statistics.py` | Typed external statistics/provenance records, percentage validation, normalized profile conversion, and serialization. |
 | `src/skat_ai/historical_opponent_statistics.py` | Canonical partition/time selection, exact historical aggregation, provenance, summary, and reusable export construction. |
+| `src/skat_ai/historical_opponent_workflow.py` | Explicit supported-end-reason validation shared by historical opponent workflows. |
 | `src/skat_ai/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
 | `src/skat_ai/rolling_opponent_policy_evaluation.py` | Strict rolling as-of profile construction, snapshot policy prediction, metrics, breakdowns, and reconciliation. |
 | `src/skat_ai/rfc3339.py` | Shared offset-aware RFC 3339 parsing for preserved timestamp text and instant comparison. |

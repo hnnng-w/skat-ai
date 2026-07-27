@@ -38,6 +38,64 @@ def serialize(dataset, source=("train",), evaluation=("validation", "test")):
     )
 
 
+def build_concession_from_game(game: dict, played_card_count: int) -> dict:
+    game = copy.deepcopy(game)
+    if played_card_count == 29:
+        game["players"][0]["initial_hand"].remove("C7")
+        game["players"][0]["initial_hand"].append("DQ")
+        game["players"][2]["initial_hand"].remove("DQ")
+        game["players"][2]["initial_hand"].append("C7")
+        game["tricks"][0]["plays"][2]["card"] = "C7"
+        game["tricks"][4]["plays"][2]["card"] = "D9"
+        game["tricks"][8]["plays"][0]["card"] = "DQ"
+        game["tricks"][8]["plays"][2]["card"] = "DA"
+        game["tricks"][9] = {
+            "trick_number": 10,
+            "leader_player_id": "player-c",
+            "plays": [
+                {"player_id": "player-c", "card": "HJ"},
+                {"player_id": "player-a", "card": "S10"},
+                {"player_id": "player-b", "card": "D7"},
+            ],
+        }
+    complete_trick_count, current_trick_card_count = divmod(played_card_count, 3)
+    tricks = copy.deepcopy(game["tricks"][:complete_trick_count])
+    if current_trick_card_count:
+        current_trick = copy.deepcopy(game["tricks"][complete_trick_count])
+        current_trick["plays"] = current_trick["plays"][:current_trick_card_count]
+        tricks.append(current_trick)
+    declarer_id = game["declarer_player_id"]
+    declarer_play_count = sum(
+        play["player_id"] == declarer_id for trick in tricks for play in trick["plays"]
+    )
+    declarer_cards_remaining = 10 - declarer_play_count
+    defenders = [
+        player["player_id"]
+        for player in game["players"]
+        if player["player_id"] != declarer_id
+    ]
+    game.update(
+        {
+            "game_end_reason": "declarer_concession",
+            "game_end": {
+                "schema_version": 1,
+                "kind": "declarer_concession",
+                "declarer_hand_cards_remaining": declarer_cards_remaining,
+                "defender_consent": {
+                    "status": (
+                        "granted" if declarer_cards_remaining < 9 else "not_required"
+                    ),
+                    "consenting_defender_player_ids": (
+                        [defenders[0]] if declarer_cards_remaining < 9 else []
+                    ),
+                },
+            },
+            "tricks": tricks,
+        }
+    )
+    return game
+
+
 def test_default_selection_is_canonical_deterministic_and_reconciled() -> None:
     dataset = build_dataset(
         [
@@ -425,3 +483,184 @@ def test_paired_metric_delta_uses_only_actionable_decisions(
     assert result["paired_decision_count"] == 1
     assert result["preferred_card_rate_delta_percentage_points"] == expected_delta
     assert sum(result["preferred_comparison_outcome_counts"].values()) == 1
+
+
+@pytest.mark.parametrize("played_card_count", [0, 1, 2, 14, 29])
+def test_concession_targets_use_exact_variable_decision_cardinality(
+    played_card_count: int,
+) -> None:
+    source = build_historical_input()
+    target = build_concession_from_game(build_historical_input(), played_card_count)
+    result = serialize(
+        build_dataset(
+            [
+                ("train", "2026-07-10T16:00:00Z", source),
+                ("validation", "2026-07-11T16:00:00Z", target),
+            ]
+        )
+    )
+    target_result = result["target_games"][0]
+
+    assert target_result["decision_count"] == played_card_count
+    assert len(target_result["decisions"]) == played_card_count
+    assert [decision["decision_index"] for decision in target_result["decisions"]] == list(
+        range(1, played_card_count + 1)
+    )
+    assert result["selection"]["target_decision_count"] == played_card_count
+    assert result["coverage"]["target_decisions"] == played_card_count
+    assert result["baseline_results"]["decision_count"] == played_card_count
+
+
+def test_zero_decision_target_retains_profiles_participants_and_nullable_metrics() -> None:
+    result = serialize(
+        build_dataset(
+            [
+                ("train", "2026-07-10T16:00:00Z", build_historical_input()),
+                (
+                    "validation",
+                    "2026-07-11T16:00:00Z",
+                    build_concession_from_game(build_historical_input(), 0),
+                ),
+            ]
+        )
+    )
+    target = result["target_games"][0]
+
+    assert target["participant_ids"] == ["player-a", "player-b", "player-c"]
+    assert len(target["player_as_of_profiles"]) == 3
+    assert target["as_of_source_game_count"] == 1
+    assert target["decision_count"] == 0
+    assert target["decisions"] == []
+    assert target["baseline_results"] == {
+        "decision_count": 0,
+        "exact_card_match_count": 0,
+        "exact_card_match_rate": None,
+        "preferred_card_match_count": 0,
+        "preferred_card_match_rate": None,
+    }
+    assert target["actionable_profile_paired_results"]["paired_decision_count"] == 0
+    assert result["coverage"]["target_game_count"] == 1
+    assert result["coverage"]["target_player_game_count"] == 3
+    assert result["coverage"]["distinct_target_player_count"] == 3
+    assert result["coverage"]["target_decisions"] == 0
+    assert all(rows == [] for rows in result["breakdowns"].values())
+
+
+def test_mixed_concession_sources_have_equal_game_weight_and_strict_as_of_selection() -> None:
+    normal_source = build_historical_input()
+    zero_play_source = build_concession_from_game(build_historical_input(), 0)
+    partial_source = build_concession_from_game(build_historical_input(), 14)
+    target = build_concession_from_game(build_historical_input(), 2)
+    result = serialize(
+        build_dataset(
+            [
+                ("train", "2026-07-08T16:00:00Z", normal_source),
+                ("train", "2026-07-09T16:00:00Z", zero_play_source),
+                ("train", "2026-07-10T16:00:00Z", partial_source),
+                ("train", "2026-07-11T18:00:00+02:00", partial_source),
+                ("train", "2026-07-12T16:00:00Z", partial_source),
+                ("validation", "2026-07-11T16:00:00Z", target),
+            ]
+        )
+    )
+    target_result = result["target_games"][0]
+
+    assert target_result["as_of_source_game_count"] == 3
+    assert target_result["latest_eligible_source_played_at"] == "2026-07-10T16:00:00Z"
+    assert all(
+        profile["source_game_count"] == 3
+        and profile["source_record_ids"] == ["record-001", "record-002", "record-003"]
+        and profile["exact_counts"] is not None
+        for profile in target_result["player_as_of_profiles"]
+    )
+
+
+def test_normal_and_concession_shared_prefixes_have_identical_safe_decisions() -> None:
+    source = build_historical_input()
+    normal_target = build_historical_input()
+    concession_target = build_concession_from_game(normal_target, 14)
+    result = serialize(
+        build_dataset(
+            [
+                ("train", "2026-07-10T16:00:00Z", source),
+                ("validation", "2026-07-11T16:00:00Z", normal_target),
+                ("validation", "2026-07-11T16:00:00Z", concession_target),
+            ]
+        )
+    )
+    normal, concession = result["target_games"]
+
+    def without_game_id(decision: dict) -> dict:
+        return {key: value for key, value in decision.items() if key != "game_id"}
+
+    assert [without_game_id(decision) for decision in normal["decisions"][:14]] == [
+        without_game_id(decision) for decision in concession["decisions"]
+    ]
+    serialized_decisions = str(concession["decisions"])
+    for forbidden in (
+        "game_end_reason",
+        "concession",
+        "consent",
+        "winner",
+        "settlement",
+        "unresolved",
+        "remaining",
+    ):
+        assert forbidden not in serialized_decisions
+
+
+def test_concession_consent_does_not_change_rolling_decisions_or_profiles() -> None:
+    target = build_concession_from_game(build_historical_input(), 14)
+    changed_consent = copy.deepcopy(target)
+    declarer_id = changed_consent["declarer_player_id"]
+    changed_consent["game_end"]["defender_consent"][
+        "consenting_defender_player_ids"
+    ] = [
+        player["player_id"]
+        for player in changed_consent["players"]
+        if player["player_id"] != declarer_id
+    ]
+    specs = [("train", "2026-07-10T16:00:00Z", build_historical_input())]
+
+    original = serialize(
+        build_dataset([*specs, ("validation", "2026-07-11T16:00:00Z", target)])
+    )
+    changed = serialize(
+        build_dataset(
+            [*specs, ("validation", "2026-07-11T16:00:00Z", changed_consent)]
+        )
+    )
+
+    assert original == changed
+
+
+def test_rolling_rejects_unsupported_selected_end_reason_with_record_and_game() -> None:
+    dataset = build_dataset(
+        [
+            ("train", "2026-07-10T16:00:00Z", build_historical_input()),
+            ("validation", "2026-07-11T16:00:00Z", build_historical_input()),
+        ]
+    )
+    target = dataset.records[1]
+    unsupported = replace(
+        dataset,
+        records=(
+            dataset.records[0],
+            replace(
+                target,
+                historical_game=replace(
+                    target.historical_game,
+                    game_end_reason="future_historical_end",
+                ),
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "record-002.*dataset-game-2.*future_historical_end.*normal_completion"
+            ".*declarer_concession"
+        ),
+    ):
+        serialize(unsupported)

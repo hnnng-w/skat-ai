@@ -36,6 +36,9 @@ HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
 ROLLING_EVALUATION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_opponent_policy_evaluation_dataset.json"
 )
+SHORTENED_OPPONENT_WORKFLOWS_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "training_dataset_shortened_opponent_workflows.json"
+)
 DATASET_PARTITION_AUDIT_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "training_dataset_partition_audit.json"
 )
@@ -598,6 +601,63 @@ def test_cli_rolling_opponent_policy_evaluation_writes_quiet_separate_branch(
     assert summary["selection"]["evaluation_partitions"] == ["validation"]
     assert "training_dataset_summary" not in result
     assert "recommendation" not in str(result)
+
+
+def test_cli_shortened_opponent_workflows_support_aggregation_export_and_rolling_alias(
+    tmp_path,
+) -> None:
+    aggregation_path = tmp_path / "shortened-aggregation.json"
+    export_path = tmp_path / "shortened-opponent-statistics.json"
+    aggregation = run_cli(
+        "--input",
+        SHORTENED_OPPONENT_WORKFLOWS_INPUT_PATH,
+        "--aggregate-opponent-statistics",
+        "--output",
+        aggregation_path,
+        "--export-opponent-statistics",
+        export_path,
+        "--quiet",
+    )
+    rolling = run_cli(
+        "--input",
+        SHORTENED_OPPONENT_WORKFLOWS_INPUT_PATH,
+        "--evaluate-rolling-opponent-policies",
+    )
+
+    assert aggregation.returncode == 0
+    assert aggregation.stdout == aggregation.stderr == ""
+    assert aggregation_path.exists()
+    assert export_path.exists()
+    assert rolling.returncode == 0
+    assert rolling.stderr == ""
+    assert "Rolling opponent-policy evaluation: 1 target games, 14 decisions." in (
+        rolling.stdout
+    )
+    assert "concession" not in rolling.stdout.lower()
+
+
+def test_cli_rolling_summary_reports_zero_decision_target_without_hidden_details(
+    capsys,
+) -> None:
+    main_module.print_rolling_opponent_policy_evaluation_result(
+        {
+            "rolling_opponent_policy_evaluation_summary": {
+                "coverage": {
+                    "target_game_count": 1,
+                    "target_decisions": 0,
+                    "decisions_with_prior_player_history": 0,
+                    "decisions_with_actionable_profile": 0,
+                },
+                "actionable_profile_paired_results": {"paired_decision_count": 0},
+                "target_games": [{"decision_count": 0}],
+            }
+        }
+    )
+
+    output = capsys.readouterr().out
+    assert "One target game contained no card decisions before its terminal event." in output
+    assert "consent" not in output
+    assert "remaining" not in output
 
 
 @pytest.mark.parametrize(
