@@ -26,6 +26,12 @@ Defender-open-play and exact-proof output use:
 
 [`schemas/exact_rest_trick_proof.schema.json`](../schemas/exact_rest_trick_proof.schema.json)
 
+Open-card-throw output and its bounded theoretical assessment use:
+
+[`schemas/open_card_throw_output.schema.json`](../schemas/open_card_throw_output.schema.json)
+
+[`schemas/theoretical_level_assessment.schema.json`](../schemas/theoretical_level_assessment.schema.json)
+
 Ongoing exposure continuation and reusable public-hand output use:
 
 [`schemas/declarer_card_exposure_continuation_output.schema.json`](../schemas/declarer_card_exposure_continuation_output.schema.json)
@@ -559,6 +565,14 @@ canonical line, the rest-trick assignment, winner basis, and applicable ISkO
 sections. Completeness comes from exhaustive search, not from the displayed line.
 The declarer's and non-exposing defender's exact hands are never emitted.
 
+The open-card-throw member records the concrete throwing player, derived parties,
+defender joint liability, canonical thrown cards, `confirmed` or
+`not_verifiable` reconciliation, statement provenance, pre-throw decision,
+observed and rule-assigned trick and point totals, final winner, open-throw
+Schneider and Schwarz flags, and the jack-only theoretical assessment. Only the
+thrown hand is public. A non-throwing local hand is redacted, and no exact proof
+or hidden complete hand is emitted.
+
 ## Game-continuation summary
 
 `game_continuation_summary` is present only for the separate ongoing continuation
@@ -665,6 +679,15 @@ play. An undecided invalid Suit or Grand claim gives the declarer the simple
 game unless a bounded mandatory level applies. An undecided invalid Null claim
 also gives the declarer the fixed-value contract and does not reinterpret the
 rule assignment as a played declarer trick.
+
+For open card throw, `settlement_basis` separates the preexisting decision,
+opposing-party rest-trick recipient, final-point Schneider source, rule-state
+Schwarz source, jack-only theoretical status, declared mandatory level,
+supported overbid requirement, achieved-play flags, and open-throw rule flags.
+Suit and Grand reconcile to 120 points and ten party-level tricks. Null uses
+completed and rule-assigned declarer tricks, fixed values, and no Schneider or
+Schwarz. A preexisting result remains binding even if the later assignment would
+otherwise reverse it.
 
 An ongoing continuation does not enter an adjudication settlement path. The
 4.4.4 requested level is provenance only; the 4.1.6 request creates no optional

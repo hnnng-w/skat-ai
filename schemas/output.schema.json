@@ -224,6 +224,9 @@
         },
         {
           "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json"
+        },
+        {
+          "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json"
         }
       ]
     },
@@ -339,7 +342,8 @@
         "declarer_concession",
         "defender_concession",
         "declarer_card_exposure",
-        "defender_open_play"
+        "defender_open_play",
+        "open_card_throw"
       ]
     },
     "overbid_status": {
@@ -1043,7 +1047,8 @@
             "declarer_concession",
             "defender_concession",
             "declarer_card_exposure",
-            "defender_open_play"
+            "defender_open_play",
+            "open_card_throw"
           ]
         },
         "outcome_source": {
@@ -1051,6 +1056,7 @@
           "enum": [
             "adjudicated",
             "exact_adjudication",
+            "rule_adjudication",
             "preexisting_game_decision"
           ]
         },
@@ -1062,7 +1068,10 @@
             "preexisting_game_decision",
             "uncovered_overbid_requirement",
             "valid_defender_open_play",
-            "invalid_defender_open_play"
+            "invalid_defender_open_play",
+            "open_card_throw_rule_state",
+            "failed_mandatory_level",
+            "theoretically_excluded_required_schwarz"
           ]
         },
         "decision_state_before_game_end": {
@@ -1127,7 +1136,46 @@
           "enum": ["schneider", "schwarz", null]
         },
         "rest_trick_assignment": {
-          "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json#/$defs/rest_trick_assignment"
+          "oneOf": [
+            {
+              "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json#/$defs/rest_trick_assignment"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/rest_trick_assignment"
+            }
+          ]
+        },
+        "observed_trick_counts": {
+          "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/party_counts"
+        },
+        "rule_assigned_trick_counts": {
+          "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/party_counts"
+        },
+        "final_trick_counts": {
+          "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/party_counts"
+        },
+        "observed_points": {
+          "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/party_counts"
+        },
+        "rule_assigned_points": {
+          "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/party_counts"
+        },
+        "final_points": {
+          "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/party_counts"
+        },
+        "theoretical_schwarz_assessment": {
+          "$ref": "https://example.local/skat-ai/theoretical_level_assessment.schema.json"
+        },
+        "theoretical_schwarz_status": {
+          "type": "string",
+          "enum": ["not_excluded", "excluded"]
+        },
+        "open_throw_schneider_applied": {"type": "boolean"},
+        "open_throw_schwarz_applied": {"type": "boolean"},
+        "mandatory_level_covered": {"type": "boolean"},
+        "overbid_required_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
         }
       }
     },
@@ -1212,6 +1260,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json#/$defs/settlement_basis"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/settlement_basis"
             }
           ]
         }

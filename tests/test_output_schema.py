@@ -83,6 +83,12 @@ DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
 DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_open_play_output.schema.json"
 )
+OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "open_card_throw_output.schema.json"
+)
+THEORETICAL_LEVEL_ASSESSMENT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "theoretical_level_assessment.schema.json"
+)
 EXACT_REST_TRICK_PROOF_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "exact_rest_trick_proof.schema.json"
 DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_card_exposure_continuation_output.schema.json"
@@ -130,6 +136,10 @@ with DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as fi
     DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA = json.load(file)
 with DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA = json.load(file)
+with OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    OPEN_CARD_THROW_OUTPUT_SCHEMA = json.load(file)
+with THEORETICAL_LEVEL_ASSESSMENT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    THEORETICAL_LEVEL_ASSESSMENT_SCHEMA = json.load(file)
 with EXACT_REST_TRICK_PROOF_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     EXACT_REST_TRICK_PROOF_SCHEMA = json.load(file)
 with DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
@@ -203,6 +213,14 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
             Resource.from_contents(DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA),
         ),
         (
+            OPEN_CARD_THROW_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(OPEN_CARD_THROW_OUTPUT_SCHEMA),
+        ),
+        (
+            THEORETICAL_LEVEL_ASSESSMENT_SCHEMA["$id"],
+            Resource.from_contents(THEORETICAL_LEVEL_ASSESSMENT_SCHEMA),
+        ),
+        (
             EXACT_REST_TRICK_PROOF_SCHEMA["$id"],
             Resource.from_contents(EXACT_REST_TRICK_PROOF_SCHEMA),
         ),
@@ -221,6 +239,23 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     ]
 )
 OUTPUT_VALIDATOR = Draft202012Validator(load_output_schema(), registry=OUTPUT_SCHEMA_REGISTRY)
+
+
+def test_open_card_throw_output_matches_public_schema_and_hides_other_hands() -> None:
+    from main import build_analysis_result
+
+    result = build_analysis_result(
+        file_path=str(PROJECT_ROOT / "examples" / "open_card_throw.json"),
+        sample_count_override=5,
+        random_seed_override=92,
+    )
+
+    assert list(OUTPUT_VALIDATOR.iter_errors(result)) == []
+    assert result["position"]["hand"] == []
+    assert result["game_shortening_summary"]["thrown_cards"] == ["C10", "S10"]
+    serialized = json.dumps(result)
+    assert "remaining_hands" not in serialized
+    assert "exact_proof" not in serialized
 
 
 def test_defender_open_play_output_matches_public_schema_and_hides_private_hands() -> None:

@@ -98,6 +98,11 @@ from skat_ai.live_opponent_profile_binding import (
 )
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_expected_objective_utility
+from skat_ai.open_card_throw import (
+    OpenCardThrow,
+    adjudicate_open_card_throw,
+    resolve_open_card_throw_context,
+)
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
 from skat_ai.opponent_profile_application import (
     EffectiveLiveOpponentProfiles,
@@ -481,6 +486,17 @@ def build_analysis_result(
         )
         adjusted_game_result_summary = adjudication.game_result_summary
         game_shortening_summary = adjudication.game_shortening_summary
+    elif isinstance(game_shortening, OpenCardThrow):
+        adjudication = adjudicate_open_card_throw(
+            game_shortening=game_shortening,
+            context=resolve_open_card_throw_context(data, game_shortening),
+            game_result_summary=game_result_summary,
+            game_value_summary=game_value_summary,
+            overbid_summary=overbid_summary,
+            completed_tricks=state.completed_tricks,
+        )
+        adjusted_game_result_summary = adjudication.game_result_summary
+        game_shortening_summary = adjudication.game_shortening_summary
     elif game_shortening is not None:
         adjudication = adjudicate_declarer_concession(
             game_shortening=game_shortening,
@@ -546,8 +562,14 @@ def build_analysis_result(
             "trick_leader": state.trick_leader,
             "hand": (
                 state.hand
-                if not isinstance(game_shortening, DefenderOpenPlay)
-                or game_shortening.exposing_defender == "me"
+                if (
+                    not isinstance(game_shortening, DefenderOpenPlay)
+                    or game_shortening.exposing_defender == "me"
+                )
+                and (
+                    not isinstance(game_shortening, OpenCardThrow)
+                    or game_shortening.throwing_player == "me"
+                )
                 else []
             ),
             "current_trick": state.current_trick,
@@ -877,6 +899,8 @@ def print_game_shortening_summary(result: dict[str, Any]) -> None:
         print_declarer_card_exposure_summary(result)
     elif summary.get("kind") == "defender_open_play":
         print_defender_open_play_summary(result)
+    elif summary.get("kind") == "open_card_throw":
+        print_open_card_throw_summary(result)
     else:
         print_declarer_concession_summary(result)
 
@@ -1040,6 +1064,55 @@ def print_defender_open_play_summary(result: dict[str, Any]) -> None:
     else:
         result_text = "won" if summary["adjudicated_winner"] == "declarer" else "lost"
         print(f"Result: declarer {result_text}.")
+    print(f"Settlement: {settlement['settlement_score']}.")
+
+
+def print_open_card_throw_summary(result: dict[str, Any]) -> None:
+    """Prints one privacy-safe ISkO 4.4.6 adjudication."""
+    summary = result.get("game_shortening_summary")
+    if not isinstance(summary, dict) or summary.get("kind") != "open_card_throw":
+        return
+
+    assignment = summary["rest_trick_assignment"]
+    observed_tricks = summary["observed_trick_counts"]
+    observed_points = summary["observed_points"]
+    settlement = result["final_settlement_summary"]
+    print()
+    print(
+        f"Open card throw: {summary['throwing_player']} threw "
+        f"{summary['thrown_card_count']} remaining cards."
+    )
+    throwing_party_label = (
+        "defending" if summary["throwing_party"] == "defenders" else "declarer"
+    )
+    print(
+        f"The {throwing_party_label} party keeps its "
+        f"{observed_tricks[summary['throwing_party']]} completed tricks and "
+        f"{observed_points[summary['throwing_party']]} points."
+    )
+    print(
+        f"All {assignment['remaining_trick_count']} unresolved tricks and "
+        f"{assignment['assigned_card_points']} outstanding points go to the "
+        f"{summary['opposing_party']} party."
+    )
+    decision_state = summary["decision_state_before_shortening"]
+    if decision_state != "undecided":
+        existing_winner = "declarer" if decision_state == "declarer_already_won" else "defenders"
+        print(f"The game had already been won by the {existing_winner} party.")
+        print("The later open throw did not reverse the existing result.")
+    else:
+        levels = []
+        if summary["schneider_rule_level_applied"]:
+            levels.append("Schneider")
+        if summary["schwarz_rule_level_applied"]:
+            levels.append("Schwarz")
+        level_text = f" with {' and '.join(levels)}" if levels else ""
+        print(f"Result: {summary['adjudicated_winner']} won{level_text}.")
+    if summary["theoretical_schwarz_status"] == "excluded":
+        basis = summary["theoretical_schwarz_assessment"]["exclusion_basis"]
+        print(f"Schwarz was theoretically excluded under the jack-only assessment: {basis}.")
+    else:
+        print("Schwarz was not theoretically excluded under the jack-only assessment.")
     print(f"Settlement: {settlement['settlement_score']}.")
 
 
@@ -1463,6 +1536,23 @@ def run_json_position_analysis(
         raise ValueError(
             "Structured game_shortening cannot be combined with multi-step simulation "
             "or policy comparison."
+        )
+    shortening_value = position_data.get("game_shortening")
+    is_open_card_throw = (
+        isinstance(shortening_value, dict)
+        and shortening_value.get("kind") == "open_card_throw"
+    )
+    if is_open_card_throw and any(
+        value is not None
+        for value in [
+            opponent_statistics_file,
+            left_opponent_player_id,
+            right_opponent_player_id,
+        ]
+    ):
+        raise ValueError(
+            "Open card throw cannot be combined with opponent-statistics or "
+            "live profile-binding options."
         )
     analysis_metadata = get_analysis_metadata_from_input(position_data)
     game_continuation = get_game_continuation_from_input(position_data)

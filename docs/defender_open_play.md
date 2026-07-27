@@ -133,7 +133,7 @@ This feature does not implement:
 * historical defender-open-play records or snapshots;
 * training records from shortened games;
 * general coherent hidden-world solving;
-* ISkO 4.4.6 open throwing;
+* ISkO 4.4.6 open throwing, which is the separate rule-assignment workflow in [Open card throw](open_card_throw.md);
 * four-player tables.
 
 Existing concessions, accepted declarer exposure, exposed-declarer

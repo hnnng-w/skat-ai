@@ -16,6 +16,7 @@ DATASET_PARTITION_POLICY_SCHEMA_PATH = (
 )
 GAME_SHORTENING_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
 DEFENDER_OPEN_PLAY_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "defender_open_play.schema.json"
+OPEN_CARD_THROW_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "open_card_throw.schema.json"
 GAME_CONTINUATION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
 DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_open_play_continuation.schema.json"
@@ -69,6 +70,7 @@ def validate_example_files() -> list[str]:
     dataset_partition_policy_schema = load_json_file(DATASET_PARTITION_POLICY_SCHEMA_PATH)
     game_shortening_schema = load_json_file(GAME_SHORTENING_SCHEMA_PATH)
     defender_open_play_schema = load_json_file(DEFENDER_OPEN_PLAY_SCHEMA_PATH)
+    open_card_throw_schema = load_json_file(OPEN_CARD_THROW_SCHEMA_PATH)
     game_continuation_schema = load_json_file(GAME_CONTINUATION_SCHEMA_PATH)
     defender_open_play_continuation_schema = load_json_file(
         DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH
@@ -95,6 +97,10 @@ def validate_example_files() -> list[str]:
             (
                 defender_open_play_schema["$id"],
                 Resource.from_contents(defender_open_play_schema),
+            ),
+            (
+                open_card_throw_schema["$id"],
+                Resource.from_contents(open_card_throw_schema),
             ),
             (
                 game_continuation_schema["$id"],

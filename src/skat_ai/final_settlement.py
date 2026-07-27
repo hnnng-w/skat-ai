@@ -1,6 +1,6 @@
 from typing import Any
 
-from skat_ai.game_result import get_completed_trick_schwarz_status
+from skat_ai.game_result import get_card_point_winner, get_completed_trick_schwarz_status
 
 
 def get_missing_final_settlement_inputs(
@@ -37,6 +37,7 @@ def get_missing_final_settlement_inputs(
         "defender_concession",
         "declarer_card_exposure",
         "defender_open_play",
+        "open_card_throw",
     } and is_completed_trick_ownership_required_for_schwarz_announcement(
         game_value_summary=game_value_summary,
         game_result_summary=game_result_summary,
@@ -224,6 +225,15 @@ def build_final_settlement_summary(
 
     if game_result_summary.get("game_end_kind") == "defender_open_play":
         return build_defender_open_play_settlement_summary(
+            game_value_summary=game_value_summary,
+            game_result_summary=game_result_summary,
+            overbid_summary=overbid_summary,
+            is_complete=is_complete,
+            missing_inputs=missing_inputs,
+        )
+
+    if game_result_summary.get("game_end_kind") == "open_card_throw":
+        return build_open_card_throw_settlement_summary(
             game_value_summary=game_value_summary,
             game_result_summary=game_result_summary,
             overbid_summary=overbid_summary,
@@ -540,6 +550,105 @@ def build_defender_open_play_settlement_summary(
             "Defender open play is settled from complete exact adjudication.",
             "Rule-assigned rest tricks remain separate from normally achieved levels.",
             "Preexisting decisions remain binding.",
+        ],
+    }
+
+
+def build_open_card_throw_settlement_summary(
+    game_value_summary: dict[str, Any],
+    game_result_summary: dict[str, Any],
+    overbid_summary: dict[str, Any],
+    is_complete: bool,
+    missing_inputs: list[str],
+) -> dict[str, Any]:
+    """Builds settlement from the ISkO 4.4.6 rule-assigned final state."""
+    game_value = game_value_summary["game_value"]
+    effective_game_value = None
+    if is_complete and game_value is not None:
+        if game_value_summary.get("is_null_game") is True:
+            effective_game_value = game_value
+        else:
+            effective_game_value = get_effective_settlement_game_value(
+                game_value,
+                overbid_summary,
+            )
+            base_value = game_value_summary.get("base_value")
+            if isinstance(base_value, int) and overbid_summary.get("is_overbid") is not True:
+                if game_result_summary["open_throw_schneider_applied"] is True:
+                    effective_game_value += base_value
+                if game_result_summary["open_throw_schwarz_applied"] is True:
+                    effective_game_value += base_value
+
+    winner = game_result_summary["winner"]
+    declarer_won = winner == "declarer"
+    settlement_score = (
+        calculate_basic_settlement_score(effective_game_value, declarer_won)
+        if effective_game_value is not None and is_complete
+        else None
+    )
+    settlement_basis = {
+        "game_end_kind": "open_card_throw",
+        "outcome_source": game_result_summary["outcome_source"],
+        "winner_basis": game_result_summary["winner_basis"],
+        "decision_state_before_game_end": game_result_summary[
+            "decision_state_before_game_end"
+        ],
+        "rest_tricks_recipient": game_result_summary["rest_tricks_recipient"],
+        "schneider_level_source": game_result_summary["schneider_level_source"],
+        "schwarz_level_source": game_result_summary["schwarz_level_source"],
+        "theoretical_schwarz_status": game_result_summary[
+            "theoretical_schwarz_status"
+        ],
+        "declared_mandatory_play_level": game_result_summary[
+            "declared_mandatory_play_level"
+        ],
+        "mandatory_play_level": game_result_summary["mandatory_play_level"],
+        "mandatory_level_source": game_result_summary["mandatory_level_source"],
+        "mandatory_level_covered": game_result_summary["mandatory_level_covered"],
+        "achieved_schneider_applied": False,
+        "achieved_schwarz_applied": False,
+        "open_throw_schneider_applied": game_result_summary[
+            "open_throw_schneider_applied"
+        ],
+        "open_throw_schwarz_applied": game_result_summary[
+            "open_throw_schwarz_applied"
+        ],
+        "overbid_required_level": game_result_summary["overbid_required_level"],
+        "overbid_requirement_covered": game_result_summary[
+            "overbid_requirement_covered"
+        ],
+        "overbid_required_value_applied": game_result_summary[
+            "overbid_required_value_applied"
+        ],
+    }
+    return {
+        "is_complete": is_complete,
+        "missing_inputs": missing_inputs,
+        "declarer_won_by_card_points": (
+            None
+            if game_value_summary.get("is_null_game") is True
+            else get_card_point_winner(
+                game_result_summary["declarer_points"],
+                game_result_summary["defender_points"],
+            )
+            == "declarer"
+        ),
+        "winner": winner if is_complete else None,
+        "game_value": game_value,
+        "effective_game_value": effective_game_value,
+        "bid_value": overbid_summary["bid_value"],
+        "settlement_score": settlement_score,
+        "is_loss": not declarer_won if is_complete else None,
+        "is_overbid": overbid_summary["is_overbid"],
+        "overbid_margin": overbid_summary["margin"],
+        "overbid_status": overbid_summary["status"],
+        "overbid_required_game_value": overbid_summary["required_game_value"],
+        "settlement_basis": settlement_basis,
+        "notes": [
+            "Open card throw assigns every unresolved trick and card point to the opposing party.",
+            "Rule-assigned Schneider and Schwarz remain distinct from normally achieved levels.",
+            "Preexisting decisions, declarations, matadors, and supported "
+            "overbid values remain binding.",
         ],
     }
 

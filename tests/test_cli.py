@@ -53,6 +53,7 @@ DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
 )
 DEFENDER_OPEN_PLAY_INPUT_PATH = PROJECT_ROOT / "examples" / "defender_open_play.json"
+OPEN_CARD_THROW_INPUT_PATH = PROJECT_ROOT / "examples" / "open_card_throw.json"
 DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "defender_open_play_continuation.json"
 )
@@ -1876,6 +1877,52 @@ def test_cli_defender_open_play_quiet_output_is_privacy_safe(tmp_path: Path) -> 
     serialized = json.dumps(output)
     assert "remaining_hands" not in serialized
     assert output["game_shortening_summary"]["exact_proof"]["status"] == "valid"
+
+
+def test_cli_prints_open_card_throw_summary_without_hidden_hands() -> None:
+    completed_process = run_cli("--input", OPEN_CARD_THROW_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Open card throw: left threw 2 remaining cards." in completed_process.stdout
+    assert (
+        "The defending party keeps its 0 completed tricks and 0 points."
+        in completed_process.stdout
+    )
+    assert (
+        "All 2 unresolved tricks and 63 outstanding points go to the declarer party."
+        in completed_process.stdout
+    )
+    assert "Result: declarer won with Schneider and Schwarz." in completed_process.stdout
+    assert (
+        "Schwarz was not theoretically excluded under the jack-only assessment."
+        in completed_process.stdout
+    )
+    assert "['H10', 'HK']" not in completed_process.stdout
+    assert "exact proof" not in completed_process.stdout.lower()
+
+
+def test_cli_open_card_throw_quiet_output_is_schema_ready(tmp_path: Path) -> None:
+    output_path = tmp_path / "open_card_throw_output.json"
+    completed_process = run_cli(
+        "--input",
+        OPEN_CARD_THROW_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as file:
+        output = json.load(file)
+    assert output["game_shortening_summary"]["kind"] == "open_card_throw"
+    assert output["position"]["hand"] == []
+    assert output["adjusted_game_result_summary"]["final_points"] == {
+        "declarer": 120,
+        "defenders": 0,
+    }
 
 
 def test_cli_prints_declarer_card_exposure_continuation_summary() -> None:

@@ -26,6 +26,7 @@ from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_selection_from_input,
 )
 from skat_ai.information_policy import validate_information_policy_from_input
+from skat_ai.open_card_throw import OpenCardThrow, validate_open_card_throw
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.opponent_profile_derivation import validate_player_profile_evidence
@@ -807,6 +808,8 @@ def validate_optional_game_shortening(data: dict[str, Any]) -> None:
         validate_declarer_card_exposure_context(data, game_shortening)
     elif isinstance(game_shortening, DefenderOpenPlay):
         validate_defender_open_play_context(data, game_shortening)
+    elif isinstance(game_shortening, OpenCardThrow):
+        validate_open_card_throw(data, game_shortening)
     else:
         validate_declarer_concession_context(data, game_shortening)
 

@@ -149,7 +149,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 39 deterministic scenarios. Position
+Generated-output validation covers 40 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -162,8 +162,8 @@ output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
 simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
 Null-objective post-game review, defender-perspective post-game review,
-legacy claim, all four structured shortening kinds including accepted declarer
-card exposure and exact defender open play, both ongoing public-hand continuations,
+legacy claim, all five structured shortening kinds including accepted declarer
+card exposure, exact defender open play, and open card throw, both ongoing public-hand continuations,
 overbid, and list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
@@ -184,8 +184,14 @@ nested analysis detail, but stable branch contracts such as
 uses `schemas/game_shortening.schema.json`; its summary and settlement basis use
 `schemas/declarer_concession_output.schema.json` or
 `schemas/defender_concession_output.schema.json`,
-`schemas/declarer_card_exposure_output.schema.json`, or
-`schemas/defender_open_play_output.schema.json`. Defender open play also uses
+`schemas/declarer_card_exposure_output.schema.json`,
+`schemas/defender_open_play_output.schema.json`, or
+`schemas/open_card_throw_output.schema.json`. Open card throw also uses
+`schemas/open_card_throw.schema.json` and
+`schemas/theoretical_level_assessment.schema.json`; runtime validation remains
+authoritative for party derivation, complete-hand and turn reconciliation,
+assignment, preexisting decisions, jack-only exclusion, settlement, and privacy.
+Defender open play also uses
 `schemas/defender_open_play.schema.json` and the referenced
 `schemas/exact_rest_trick_proof.schema.json`; runtime validation remains
 authoritative for exact card accounting, party membership, turn phase, the

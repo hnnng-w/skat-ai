@@ -306,7 +306,8 @@
                 "enum": [
                   "defender_concession",
                   "declarer_card_exposure",
-                  "defender_open_play"
+                  "defender_open_play",
+                  "open_card_throw"
                 ]
               }
             }

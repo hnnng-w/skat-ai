@@ -228,6 +228,67 @@ def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
     player_role = data.get("player_role", "unknown")
 
     game_shortening = data.get("game_shortening")
+    if isinstance(game_shortening, dict) and game_shortening.get("kind") == (
+        "open_card_throw"
+    ):
+        declarer_player = data.get("declarer_player")
+        throwing_player = game_shortening.get("throwing_player")
+        thrown_cards = game_shortening.get("thrown_cards")
+        if (
+            declarer_player in CONCRETE_PLAYERS
+            and throwing_player in CONCRETE_PLAYERS
+            and isinstance(thrown_cards, list)
+        ):
+            completed_tricks = data.get("completed_tricks", [])
+            if not isinstance(completed_tricks, list):
+                completed_tricks = []
+            declarer_owned, non_declarer_owned = (
+                get_completed_trick_ownership_cards_for_declarer(
+                    completed_tricks,
+                    declarer_player,
+                )
+            )
+            target = (
+                declarer_owned
+                if throwing_player == declarer_player
+                else non_declarer_owned
+            )
+            target.extend(thrown_cards)
+
+            local_hand = data.get("hand", [])
+            if isinstance(local_hand, list):
+                target = (
+                    declarer_owned if declarer_player == "me" else non_declarer_owned
+                )
+                target.extend(local_hand)
+            skat = data.get("skat", [])
+            if isinstance(skat, list):
+                declarer_owned.extend(skat)
+            current_trick = data.get("current_trick", [])
+            if isinstance(current_trick, list):
+                phase = normalize_turn_phase_for_position(
+                    data.get("trick_leader", "unknown"),
+                    data.get("next_player", "unknown"),
+                    current_trick,
+                    completed_tricks,
+                )
+                if phase.trick_leader in CONCRETE_PLAYERS:
+                    for index, card in enumerate(current_trick):
+                        owner = derive_next_player(phase.trick_leader, index)
+                        target = (
+                            declarer_owned
+                            if owner == declarer_player
+                            else non_declarer_owned
+                        )
+                        target.append(card)
+            inferred = infer_matadors_from_known_ownership(
+                game_type=data["game_type"],
+                declarer_owned_cards=declarer_owned,
+                non_declarer_owned_cards=non_declarer_owned,
+            )
+            if inferred is not None:
+                return inferred
+
     if isinstance(game_shortening, dict) and game_shortening.get("kind") == ("defender_open_play"):
         remaining_hands = game_shortening.get("remaining_hands")
         declarer_player = data.get("declarer_player")

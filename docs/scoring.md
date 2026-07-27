@@ -338,15 +338,25 @@ covered by the declaration or accepted claim; uncovered requirements settle as
 an overbid loss. Already-decided games retain only secured observed levels. Null
 requires simple and uses the fixed contract value.
 
+Open card throw assigns every unresolved trick and outstanding point to the
+opposing party. Suit and Grand Schneider comes from the final rule-assigned point
+state. Schwarz additionally requires zero final losing-party tricks and no
+bounded jack-only theoretical exclusion. These levels use open-throw source flags
+and are never labeled as achieved during normal play. The original declaration,
+matadors, Hand, announcements, ouvert, and supported overbid-required value remain
+binding; a level that failed before the throw cannot be repaired. Null uses
+completed plus rule-assigned declarer tricks and the fixed variant value, without
+Schneider or Schwarz.
+
 An impossible Null declaration is also an immediate doubled loss, but it has no
 card-point winner and requires no points or completed tricks. Zero assigned
 points are not interpreted as Schneider or Schwarz. Missing replacement
 metadata keeps settlement incomplete instead of inventing a contract.
 
 Legacy claims and concessions assign remaining points. Exact defender open play
-also assigns outstanding points, but records those points and rest tricks as a
-separate rule consequence. Other structured shortening kinds do not assign
-them. Declarer card exposure can settle an explicitly requested and
+and open card throw also assign outstanding points, but record those points and
+rest tricks as separate rule consequences. Other structured shortening kinds do
+not assign them. Declarer card exposure can settle an explicitly requested and
 accepted Schwarz level without claiming that unfinished play achieved Schwarz.
 Defender-open-play continuation is not this exact adjudication: it disregards the
 open-play consequence, assigns no tricks or points, preserves the original

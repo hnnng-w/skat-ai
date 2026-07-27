@@ -102,8 +102,9 @@ list modes, and unrelated top-level workflows.
 
 Historical games and snapshots, datasets, statistics, rolling evaluation,
 partition audits, general corrected-play handling, general Ouvert-aware
-simulation, new tactics, later continued-game settlement, ISkO 4.4.6, and
-four-player tables are not added. Accepted exact adjudication remains documented
+simulation, new tactics, later continued-game settlement, and four-player tables
+are not added. ISkO 4.4.6 is a separate final workflow documented in
+[Open card throw](open_card_throw.md). Accepted exact adjudication remains documented
 in [Defender open play](defender_open_play.md).
 
 See

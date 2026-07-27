@@ -160,10 +160,15 @@ adjudication under the November 2022 wording of ISkO 4.4.5 supports at most five
 unresolved tricks with private exact three-hand evidence. Separate continued
 play under 4.1.6 fixes only the exposing defender's returned public hand and
 creates no proof, assignment, result, settlement, or optional level obligation.
+Bounded flat post-game open card throw under 4.4.6 supports either party, one
+concrete complete thrown hand, empty through two-card current tricks, opposing-
+party assignment, preexisting decisions, all four Null variants, and jack-only
+theoretical Schwarz exclusion without exact proof or simulation.
 This does not close broader v1 gates for
 historical continuation, general Ouvert analysis, structured historical
 claims/concessions, general corrected play, unlimited exact solving,
-isolated-card claims, 4.4.6 open-card consequences, complete settlement
+isolated or specific-trick claims, simultaneous throws, full-card theoretical
+solving, complete settlement
 coverage, or historical training and review after game shortening.
 
 Bounded historical player-statistics aggregation is supported from the same

@@ -20,8 +20,9 @@ it is never treated as this accepted final adjudication.
 
 Bounded exact defender open play under ISkO 4.4.5 is a separate supported
 post-game workflow documented in [Defender open play](defender_open_play.md).
-Open throwing under ISkO 4.4.6, historical exposure records, general claim
-proof, and declared-Ouvert recommendation simulation remain unsupported.
+Open throwing under ISkO 4.4.6 is the separate supported final workflow in
+[Open card throw](open_card_throw.md). Historical exposure records, general claim
+proof, and declared-Ouvert recommendation simulation remain unsupported here.
 
 ## Input
 
@@ -108,7 +109,7 @@ created, and the exposed cards are not used to simulate future play.
 
 ## Compatibility
 
-This object is the third member of the four-member version-1 `game_shortening` union.
+This object is the third member of the five-member version-1 `game_shortening` union.
 Structured declarer concession, structured defender concession, all legacy
 claim/concession reasons, impossible Null, and normal completion retain their
 existing behavior. Only one effective game-ending mechanism may be active.

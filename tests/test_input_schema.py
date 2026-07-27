@@ -23,6 +23,7 @@ DATASET_PARTITION_POLICY_SCHEMA_PATH = (
 OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
 GAME_SHORTENING_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
 DEFENDER_OPEN_PLAY_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "defender_open_play.schema.json"
+OPEN_CARD_THROW_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "open_card_throw.schema.json"
 GAME_CONTINUATION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
 DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_open_play_continuation.schema.json"
@@ -54,6 +55,8 @@ with GAME_SHORTENING_SCHEMA_PATH.open("r", encoding="utf-8") as game_shortening_
     GAME_SHORTENING_SCHEMA = json.load(game_shortening_file)
 with DEFENDER_OPEN_PLAY_SCHEMA_PATH.open("r", encoding="utf-8") as defender_open_play_file:
     DEFENDER_OPEN_PLAY_SCHEMA = json.load(defender_open_play_file)
+with OPEN_CARD_THROW_SCHEMA_PATH.open("r", encoding="utf-8") as open_card_throw_file:
+    OPEN_CARD_THROW_SCHEMA = json.load(open_card_throw_file)
 with GAME_CONTINUATION_SCHEMA_PATH.open("r", encoding="utf-8") as game_continuation_file:
     GAME_CONTINUATION_SCHEMA = json.load(game_continuation_file)
 with DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH.open(
@@ -83,6 +86,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             DEFENDER_OPEN_PLAY_SCHEMA["$id"],
             Resource.from_contents(DEFENDER_OPEN_PLAY_SCHEMA),
+        ),
+        (
+            OPEN_CARD_THROW_SCHEMA["$id"],
+            Resource.from_contents(OPEN_CARD_THROW_SCHEMA),
         ),
         (
             GAME_CONTINUATION_SCHEMA["$id"],
@@ -288,6 +295,48 @@ def test_schema_and_runtime_accept_defender_open_play() -> None:
         data = json.load(example_file)
 
     assert_schema_and_runtime_valid(data)
+
+
+def test_schema_and_runtime_accept_open_card_throw() -> None:
+    with (PROJECT_ROOT / "examples" / "open_card_throw.json").open(
+        "r", encoding="utf-8"
+    ) as example_file:
+        data = json.load(example_file)
+
+    assert_schema_and_runtime_valid(data)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_value"),
+    [
+        ("schema_version", 2),
+        ("throwing_player", "unknown"),
+        ("thrown_cards", []),
+        ("thrown_cards", ["C10", "C10"]),
+        ("statement_classification", "specific_trick_claim"),
+    ],
+)
+def test_schema_rejects_invalid_open_card_throw_fields(
+    field_name: str,
+    invalid_value: object,
+) -> None:
+    with (PROJECT_ROOT / "examples" / "open_card_throw.json").open(
+        "r", encoding="utf-8"
+    ) as example_file:
+        data = json.load(example_file)
+    data["game_shortening"][field_name] = invalid_value
+
+    assert_schema_invalid(data)
+
+
+def test_schema_rejects_unknown_open_card_throw_property() -> None:
+    with (PROJECT_ROOT / "examples" / "open_card_throw.json").open(
+        "r", encoding="utf-8"
+    ) as example_file:
+        data = json.load(example_file)
+    data["game_shortening"]["statement"] = "out of Schneider"
+
+    assert_schema_invalid(data)
 
 
 @pytest.mark.parametrize(

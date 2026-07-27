@@ -59,6 +59,12 @@ DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
 DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_open_play_output.schema.json"
 )
+OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "open_card_throw_output.schema.json"
+)
+THEORETICAL_LEVEL_ASSESSMENT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "theoretical_level_assessment.schema.json"
+)
 EXACT_REST_TRICK_PROOF_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "exact_rest_trick_proof.schema.json"
 DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_card_exposure_continuation_output.schema.json"
@@ -872,6 +878,67 @@ def check_defender_open_play(data: dict[str, Any]) -> list[str]:
     for hidden_card in ("D7", "D8", "D9", "H8"):
         if f'"{hidden_card}"' in serialized:
             errors.append(f"hidden proof card {hidden_card} must not be emitted")
+    return errors
+
+
+def check_open_card_throw(data: dict[str, Any]) -> list[str]:
+    """Checks ISkO 4.4.6 assignment, level state, privacy, and settlement."""
+    errors = []
+    adjusted = data["adjusted_game_result_summary"]
+    summary = data.get("game_shortening_summary")
+    settlement = data["final_settlement_summary"]
+    if not isinstance(summary, dict):
+        return ["expected open-card-throw game_shortening_summary"]
+    if summary.get("rule_sections") != ["4.4.6"]:
+        errors.append("expected deterministic ISkO 4.4.6 rule section")
+    if summary.get("throwing_player") != "left":
+        errors.append("expected concrete left throwing player")
+    if summary.get("throwing_party") != "defenders":
+        errors.append("expected defending throwing party")
+    if summary.get("opposing_party") != "declarer":
+        errors.append("expected declarer opposing party")
+    if summary.get("joint_liability") is not True:
+        errors.append("expected joint defender liability")
+    if summary.get("thrown_cards") != ["C10", "S10"]:
+        errors.append("expected canonical public thrown hand")
+    if summary.get("card_reconciliation") != "not_verifiable":
+        errors.append("expected bounded opponent-hand reconciliation")
+    if summary.get("statement_classification") != "attempted_level_limitation":
+        errors.append("expected restrictive-statement provenance")
+    if summary.get("decision_state_before_shortening") != "undecided":
+        errors.append("expected undecided pre-throw state")
+    if summary.get("rest_trick_assignment") != {
+        "source": "open_card_throw",
+        "recipient": "declarer",
+        "remaining_trick_count": 2,
+        "assigned_card_count": 6,
+        "assigned_card_points": 63,
+    }:
+        errors.append("expected complete declarer-side unresolved assignment")
+    if adjusted.get("final_points") != {"declarer": 120, "defenders": 0}:
+        errors.append("expected final 120-point reconciliation")
+    if adjusted.get("final_trick_counts") != {"declarer": 10, "defenders": 0}:
+        errors.append("expected final ten-trick reconciliation")
+    if adjusted.get("winner") != "declarer":
+        errors.append("expected defender throw adjudicated for declarer")
+    if adjusted.get("open_throw_schneider_applied") is not True:
+        errors.append("expected open-throw Schneider rule level")
+    if adjusted.get("open_throw_schwarz_applied") is not True:
+        errors.append("expected open-throw Schwarz rule level")
+    if adjusted.get("achieved_schneider_applied") is not False:
+        errors.append("expected Schneider not labeled as achieved during play")
+    if adjusted.get("achieved_schwarz_applied") is not False:
+        errors.append("expected Schwarz not labeled as achieved during play")
+    if summary.get("theoretical_schwarz_status") != "not_excluded":
+        errors.append("expected deterministic non-excluded jack-only assessment")
+    if settlement.get("settlement_score") != 168:
+        errors.append("expected Grand Schneider and Schwarz settlement")
+    if data.get("position", {}).get("hand") != []:
+        errors.append("non-throwing complete local hand must be redacted")
+    serialized = json.dumps(data)
+    for unsupported in ("remaining_hands", "exact_proof", "proof_complete"):
+        if unsupported in serialized:
+            errors.append(f"open-card-throw output must not contain {unsupported}")
     return errors
 
 
@@ -1838,6 +1905,14 @@ SCENARIOS = (
         expect_quiet_stdout=True,
     ),
     Scenario(
+        name="open_card_throw",
+        input_path=PROJECT_ROOT / "examples" / "open_card_throw.json",
+        branch="structured open-card-throw rule adjudication",
+        cli_args=("--quiet",),
+        check_output=check_open_card_throw,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
         name="declarer_card_exposure_continuation",
         input_path=(PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"),
         branch="continued play with exposed declarer cards",
@@ -2078,6 +2153,10 @@ def validate_generated_outputs() -> list[str]:
     defender_concession_output_schema = load_json_file(DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH)
     declarer_card_exposure_output_schema = load_json_file(DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH)
     defender_open_play_output_schema = load_json_file(DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH)
+    open_card_throw_output_schema = load_json_file(OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH)
+    theoretical_level_assessment_schema = load_json_file(
+        THEORETICAL_LEVEL_ASSESSMENT_SCHEMA_PATH
+    )
     exact_rest_trick_proof_schema = load_json_file(EXACT_REST_TRICK_PROOF_SCHEMA_PATH)
     declarer_card_exposure_continuation_output_schema = load_json_file(
         DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH
@@ -2151,6 +2230,14 @@ def validate_generated_outputs() -> list[str]:
             (
                 defender_open_play_output_schema["$id"],
                 Resource.from_contents(defender_open_play_output_schema),
+            ),
+            (
+                open_card_throw_output_schema["$id"],
+                Resource.from_contents(open_card_throw_output_schema),
+            ),
+            (
+                theoretical_level_assessment_schema["$id"],
+                Resource.from_contents(theoretical_level_assessment_schema),
             ),
             (
                 exact_rest_trick_proof_schema["$id"],

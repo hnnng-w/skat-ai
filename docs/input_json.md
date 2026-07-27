@@ -16,6 +16,10 @@ Defender open play additionally uses:
 
 [`schemas/defender_open_play.schema.json`](../schemas/defender_open_play.schema.json)
 
+Open card throw additionally uses:
+
+[`schemas/open_card_throw.schema.json`](../schemas/open_card_throw.schema.json)
+
 Complete historical records use the focused referenced schema:
 
 [`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json)
@@ -607,6 +611,42 @@ Only `accept_adjudication` is supported in this completed-game object.
 branch is exclusive with every other ending or continuation and all historical,
 dataset, statistics, audit, list, and simulation workflows. See
 [Defender open play](defender_open_play.md).
+
+## Open card throw
+
+The fifth version-1 `game_shortening` member records ISkO 4.4.6:
+
+```json
+{
+  "analysis_mode": "post_game_review",
+  "declarer_player": "me",
+  "game_shortening": {
+    "schema_version": 1,
+    "kind": "open_card_throw",
+    "throwing_player": "left",
+    "thrown_cards": ["C10", "S10"],
+    "statement_classification": "attempted_level_limitation"
+  }
+}
+```
+
+The concrete throwing player determines the throwing and opposing parties. One
+defender binds both defenders. `thrown_cards` is the complete current physical
+hand and is reconciled against exact local evidence, reliable hand size, played
+and completed cards, the current trick, skat, and ownership. Output reports
+`confirmed` or `not_verifiable`; contradictions are rejected.
+
+Empty, one-card, and two-card current tricks are supported. An incomplete
+current trick remains unresolved. Every unresolved trick and outstanding point
+goes to the opposing party, while the throwing party keeps only completed tricks
+and observed points. `none`, `generic_concession`, and
+`attempted_level_limitation` are provenance only. Free text and specific future-
+trick assertions are rejected.
+
+The object is post-game flat-position-only and exclusive with continuation,
+legacy endings, normal completion, impossible Null, completed ten-trick play,
+historical/data/statistics/list workflows, Multi-Step, and Policy Comparison.
+See [Open card throw](open_card_throw.md).
 
 ## Declarer card exposure continuation
 

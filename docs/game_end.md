@@ -189,6 +189,32 @@ play determines achieved levels and the final result. Reactionary defender
 cards remain hidden. See
 [Declarer card exposure continuation](declarer_card_exposure_continuation.md).
 
+## Open card throw
+
+The fifth version-1 `game_shortening` member applies ISkO 4.4.6 equally to the
+declarer and defending parties. One concrete player throws that player's complete
+current hand openly. One defender binds the full defending party without partner
+approval.
+
+The throwing party keeps only completed tricks and observed points. Every
+unresolved trick and outstanding point goes to the opposing party. A one-card or
+two-card current trick is unresolved and included exactly once. Completed plus
+assigned tricks total ten; Suit and Grand observed plus assigned points total
+120. No card order or individual future winner is simulated.
+
+The pre-throw decision is recorded separately. A preexisting result remains
+binding. For an undecided game, a declarer throw normally gives the game to the
+defenders and a defender throw normally gives it to the declarer. Schneider
+comes from the final rule-assigned point state. Schwarz additionally requires
+zero losing-party tricks and no jack-only theoretical exclusion. Reliable losing-
+party ownership of `CJ` or all `SJ`, `HJ`, and `DJ` excludes Schwarz; unknown
+ownership and skat jacks do not establish exclusion.
+
+Declarations, matadors, Hand, announcements, ouvert, and supported overbid
+requirements remain effective. Rule levels are not achieved normal-play levels.
+All Null variants use completed and assigned trick ownership and fixed values.
+See [Open card throw](open_card_throw.md).
+
 ## Defender open play continuation
 
 Under ISkO 4.4.5 and 4.1.6, a completed continuation request uses separate
@@ -251,6 +277,7 @@ Rules:
 * declarer card exposure requires all remaining cards and exactly both concrete defender acceptances.
 * exposure continuation requires exactly both defender responses, at least one continuation request, an exact nonempty current public declarer hand, and neutral `not_ended` state.
 * defender-open-play continuation requires a concrete exposing defender, the exact nonempty returned current hand, `request_continued_play`, reliable hand-size and turn reconciliation, and neutral `not_ended` state.
+* open card throw requires one concrete throwing player, the complete nonempty current thrown hand, deterministic hand-size and turn reconciliation, and neutral `not_ended` state.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
 * unknown `game_end_reason` values are rejected.
@@ -271,9 +298,9 @@ This prevents inconsistent inputs such as:
 `final_settlement_summary` uses the adjusted result.
 
 Structured adjudication and legacy assignment can decide the final winner
-before settlement is calculated. Legacy endings and defender open play can
-change adjusted point accounting; defender open play additionally identifies
-the exact rule-assignment source and party-level trick count.
+before settlement is calculated. Legacy endings, defender open play, and open
+card throw can change adjusted point accounting. Open throw records observed and
+assigned party-level tricks and points without invoking exact proof.
 
 For example:
 
@@ -285,7 +312,7 @@ For example:
 ## Current limitations
 
 * Legacy claims and concessions still assign remaining points.
-* Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, and bounded exact defender open play.
+* Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, bounded exact defender open play, and bounded open card throw.
 * Flat continued declarer exposure and bounded defender-open-play continuation are separate ongoing workflows.
-* Historical-game shortening, unlimited exact solving, isolated-card claims, and ISkO 4.4.6 remain unsupported.
+* Historical open throwing, simultaneous throws, continued play, specific-trick assertions, unlimited exact solving, and isolated-card claims remain unsupported.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.

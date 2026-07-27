@@ -159,6 +159,8 @@ insufficient.
 | `src/skat_ai/game_continuation.py` | Runtime dispatcher for the version-1 ongoing continuation union. |
 | `src/skat_ai/defender_open_play.py` | Typed 4.4.5 exact-state validation, adjudication, rule assignment, and privacy-safe summary. |
 | `src/skat_ai/exact_rest_trick_proof.py` | Immutable, canonical, memoized exact game tree with existential exposing-defender and universal other-player nodes. |
+| `src/skat_ai/open_card_throw.py` | Typed 4.4.6 event, hand reconciliation, party-level unresolved assignment, and result adjudication. |
+| `src/skat_ai/theoretical_level_exclusion.py` | Bounded jack-only theoretical Schwarz exclusion and privacy-safe evidence. |
 | `src/skat_ai/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
 | `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
 | `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
@@ -182,6 +184,12 @@ hand under 4.4.5 and 4.1.6. Accepted defender open play is the bounded exception
 it proves at most five unresolved tricks
 exactly, without Monte Carlo, policies, or assumed play, and adjudicates rather
 than continuing play.
+
+Open card throw is a separate final rule path. It assigns every unresolved trick
+and outstanding point to the opposing party, preserves preexisting decisions,
+and applies only the jack-only theoretical Schwarz assessment. It does not import
+or call the exact proof engine, simulation, or opponent policy. Only the thrown
+hand becomes public; no second complete hand is serialized.
 
 ## Simulation
 

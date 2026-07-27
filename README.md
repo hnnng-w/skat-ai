@@ -358,6 +358,7 @@ Detailed documentation is split into topic-specific files:
 * [Declarer card exposure continuation](docs/declarer_card_exposure_continuation.md)
 * [Defender open play](docs/defender_open_play.md)
 * [Defender open play continuation](docs/defender_open_play_continuation.md)
+* [Open card throw](docs/open_card_throw.md)
 * [Game-shortening input schema](schemas/game_shortening.schema.json)
 * [Game-continuation input schema](schemas/game_continuation.schema.json)
 * [Declarer-concession output schema](schemas/declarer_concession_output.schema.json)
@@ -368,6 +369,9 @@ Detailed documentation is split into topic-specific files:
 * [Defender-open-play output schema](schemas/defender_open_play_output.schema.json)
 * [Defender-open-play continuation input schema](schemas/defender_open_play_continuation.schema.json)
 * [Defender-open-play continuation output schema](schemas/defender_open_play_continuation_output.schema.json)
+* [Open-card-throw input schema](schemas/open_card_throw.schema.json)
+* [Open-card-throw output schema](schemas/open_card_throw_output.schema.json)
+* [Theoretical-level assessment schema](schemas/theoretical_level_assessment.schema.json)
 * [Exact rest-trick proof schema](schemas/exact_rest_trick_proof.schema.json)
 * [Public-hand constraint schema](schemas/public_hand_constraint.schema.json)
 * [Historical games](docs/historical_games.md)
@@ -441,9 +445,9 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 39 deterministic scenarios,
+complete. Generated-output validation covers 40 deterministic scenarios,
 including both ongoing public-hand continuations and bounded exact defender
-open-play adjudication.
+open-play adjudication plus structured open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
@@ -456,16 +460,18 @@ performance features.
 
 Complete normal-play historical records, information-safe pre-play snapshots,
 bounded 30-decision immediate review, and versioned training/evaluation dataset
-wrapping are partially supported. Four structured generic-position shortening
+wrapping are partially supported. Five structured generic-position shortening
 variants are supported: declarer concession, defender concession, unanimously
-accepted declarer card exposure, and bounded exact defender open play. The first
+accepted declarer card exposure, bounded exact defender open play, and open card
+throw under ISkO 4.4.6. The first
 three preserve unplayed points; defender open play records the rule-assigned
-rest tricks and points. A separate
+rest tricks and points after exact proof; open throwing assigns every unresolved
+trick and outstanding point to the opposing party without proof or simulation. A separate
 version-1 flat-position continuation union keeps either the exact current
 declarer hand public after an objection or the exposing defender's returned hand
 public after a 4.1.6 request, without ending or settling the game. Remaining gaps
 include structured historical shortening or continuation, unlimited exact
-solving, isolated-card claims, open throwing,
+solving, isolated-card claims, simultaneous throws and specific-trick assertions,
 additional historical end reasons, approved settlement
 completeness, complete-game coaching, stronger solving, exposed-card-aware
 Ouvert simulation, complete field-level live provenance, coherent hidden-world
