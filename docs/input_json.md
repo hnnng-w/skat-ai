@@ -601,8 +601,9 @@ in-play cards must be accounted for, leaving two inferred out-of-play cards.
 The current trick may contain zero, one, or two cards. One through five tricks
 may remain unresolved.
 
-Only `accept_adjudication` is supported. `request_continued_play` is rejected
-because exposed-defender continuation under ISkO 4.1.6 is not implemented. The
+Only `accept_adjudication` is supported in this completed-game object.
+`request_continued_play` must use the separate defender-open-play
+`game_continuation` member below. The
 branch is exclusive with every other ending or continuation and all historical,
 dataset, statistics, audit, list, and simulation workflows. See
 [Defender open play](defender_open_play.md).
@@ -643,6 +644,38 @@ impossible Null, list mode, and historical/data/statistics workflow. Suit and
 Grand preserve all three claimed levels; Null variants permit only `simple`.
 The requested level has no immediate result or settlement effect. See
 [Declarer card exposure continuation](declarer_card_exposure_continuation.md).
+
+## Defender open play continuation
+
+After the declarer has requested continued play under ISkO 4.1.6, use the
+second version-1 `game_continuation` member:
+
+```json
+{
+  "game_continuation": {
+    "schema_version": 1,
+    "kind": "defender_open_play",
+    "exposing_defender": "left",
+    "declarer_response": "request_continued_play",
+    "public_exposing_defender_cards": ["C7", "H8", "D9"]
+  }
+}
+```
+
+The defender has physically taken the cards back, but the complete current hand
+remains known to all players. Runtime validation requires concrete distinct
+declarer and exposing-defender identities, defending-party membership, a
+concrete legal turn phase, `1..10` valid unique current hand cards, an incomplete
+neutral game, and a calculable original declaration. Reliable local ownership,
+hand-size, completed/current-trick, played-card, and skat contradictions are
+rejected. `confirmed` and `not_verifiable` both keep the explicit list exact and
+authoritative.
+
+Flat live analysis, supported Multi-Step, Policy Comparison, and flat review use
+the same exact known hand. No proof is run, the five-trick exact-adjudication
+bound does not apply, and no rest tricks, points, decided winner, or settlement
+are produced. Accepted adjudication remains in `game_shortening`. See
+[Defender open play continuation](defender_open_play_continuation.md).
 
 ## Analysis metadata fields
 

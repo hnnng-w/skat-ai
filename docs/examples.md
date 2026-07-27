@@ -304,8 +304,8 @@ source records for medium-confidence actionable coverage.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 38 scenarios, including exposed-declarer-hand continuation and
-bounded exact defender open-play adjudication.
+therefore covers 39 scenarios, including both ongoing public-hand continuations
+and bounded exact defender open-play adjudication.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -422,6 +422,10 @@ The `defender_open_play.json` example supplies private exact hands for all three
 players with two tricks left, exposes the local defender's two cards, proves the
 claim exactly, assigns the rest tricks and 12 outstanding points to the
 defenders, and omits both hidden proof hands from output.
+The `defender_open_play_continuation.json` example instead keeps a live Grand
+game ongoing after a 4.1.6 request. The exposing left defender has taken three
+cards back, those exact cards remain known to all players, and deterministic
+Immediate Analysis runs without proof, assignment, game end, or settlement.
 
 Run the continuation example:
 
@@ -433,6 +437,12 @@ Run the bounded exact defender-open-play example:
 
 ```powershell
 python main.py --input examples/defender_open_play.json
+```
+
+Run the defender-open-play continuation example:
+
+```powershell
+python main.py --input examples/defender_open_play_continuation.json
 ```
 
 The older examples retain simplified legacy game-end reasons:
@@ -458,6 +468,7 @@ because ended game reasons are post-game review information.
 | `declarer_card_exposure.json`                    | Unanimously accepted no-assignment declarer card exposure under ISkO 4.4.4. |
 | `declarer_card_exposure_continuation.json`       | Live ongoing play with the exact public opponent-declarer hand after an ISkO 4.4.4 objection. |
 | `defender_open_play.json`                        | Exact final adjudication of a valid two-trick defender open play under ISkO 4.4.5. |
+| `defender_open_play_continuation.json`           | Live ongoing play with the exposing defender's exact returned public hand under ISkO 4.4.5 and 4.1.6. |
 | `grand_claimed_remaining_tricks.json`            | Declarer claims remaining tricks.   |
 | `grand_declarer_conceded_remaining_tricks.json`  | Legacy simplified declarer concession assignment. |
 | `grand_defenders_conceded_remaining_tricks.json` | Defenders concede remaining tricks. |

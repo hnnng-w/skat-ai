@@ -3,7 +3,10 @@
   "$id": "https://example.local/skat-ai/game_continuation.schema.json",
   "title": "skat-ai ongoing game continuation input",
   "oneOf": [
-    {"$ref": "#/$defs/declarer_card_exposure_continuation"}
+    {"$ref": "#/$defs/declarer_card_exposure_continuation"},
+    {
+      "$ref": "https://example.local/skat-ai/defender_open_play_continuation.schema.json"
+    }
   ],
   "$defs": {
     "card": {

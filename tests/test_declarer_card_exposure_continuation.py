@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator, ValidationError
+from referencing import Registry, Resource
 
 from skat_ai.declarer_card_exposure_continuation import (
     build_declarer_card_exposure_continuation,
@@ -25,11 +26,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE_PATH = PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
 GAME_CONTINUATION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
 CONTINUATION_OUTPUT_SCHEMA_PATH = (
-    PROJECT_ROOT
-    / "schemas"
-    / "declarer_card_exposure_continuation_output.schema.json"
+    PROJECT_ROOT / "schemas" / "declarer_card_exposure_continuation_output.schema.json"
 )
 PUBLIC_HAND_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
+DEFENDER_CONTINUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "defender_open_play_continuation.schema.json"
+)
 
 
 def build_continuation() -> dict[str, object]:
@@ -95,19 +97,20 @@ def test_focused_schemas_accept_valid_contract_and_outputs() -> None:
         "cards": ["C10", "SA", "D7"],
     }
 
-    Draft202012Validator(load_schema(GAME_CONTINUATION_SCHEMA_PATH)).validate(
+    defender_schema = load_schema(DEFENDER_CONTINUATION_SCHEMA_PATH)
+    registry = Registry().with_resource(
+        defender_schema["$id"],
+        Resource.from_contents(defender_schema),
+    )
+    Draft202012Validator(load_schema(GAME_CONTINUATION_SCHEMA_PATH), registry=registry).validate(
         build_continuation()
     )
-    Draft202012Validator(load_schema(CONTINUATION_OUTPUT_SCHEMA_PATH)).validate(
-        summary
-    )
+    Draft202012Validator(load_schema(CONTINUATION_OUTPUT_SCHEMA_PATH)).validate(summary)
     Draft202012Validator(load_schema(PUBLIC_HAND_SCHEMA_PATH)).validate(constraint)
 
     summary["settlement_applied"] = True
     with pytest.raises(ValidationError):
-        Draft202012Validator(load_schema(CONTINUATION_OUTPUT_SCHEMA_PATH)).validate(
-            summary
-        )
+        Draft202012Validator(load_schema(CONTINUATION_OUTPUT_SCHEMA_PATH)).validate(summary)
 
 
 def test_resolves_separate_continuation_with_canonical_output() -> None:
@@ -143,9 +146,7 @@ def test_resolves_separate_continuation_with_canonical_output() -> None:
         "card_reconciliation": "confirmed",
         "visibility_scope": "all_players",
         "claimed_play_level": "schneider",
-        "claimed_play_level_status": (
-            "continuation_required_no_immediate_settlement_effect"
-        ),
+        "claimed_play_level_status": ("continuation_required_no_immediate_settlement_effect"),
         "game_end_applied": False,
         "settlement_applied": False,
     }
@@ -205,9 +206,7 @@ def test_public_hand_accepts_one_or_ten_unique_cards(cards: list[str]) -> None:
             "exactly two defender responses",
         ),
         (
-            lambda value: value.update(
-                defender_responses=[value["defender_responses"][0]] * 2
-            ),
+            lambda value: value.update(defender_responses=[value["defender_responses"][0]] * 2),
             "each defender exactly once",
         ),
         (
@@ -285,9 +284,7 @@ def test_rejects_declarer_response_and_declarer_shown_player() -> None:
     value["defender_responses"][0]["player"] = "me"
     continuation = build_declarer_card_exposure_continuation(value)
     with pytest.raises(ValueError, match="cannot include the declarer"):
-        resolve_declarer_card_exposure_continuation(
-            build_local_declarer_position(), continuation
-        )
+        resolve_declarer_card_exposure_continuation(build_local_declarer_position(), continuation)
 
     value = build_continuation()
     value["exposure"] = {
@@ -296,9 +293,7 @@ def test_rejects_declarer_response_and_declarer_shown_player() -> None:
     }
     continuation = build_declarer_card_exposure_continuation(value)
     with pytest.raises(ValueError, match="not the declarer"):
-        resolve_declarer_card_exposure_continuation(
-            build_local_declarer_position(), continuation
-        )
+        resolve_declarer_card_exposure_continuation(build_local_declarer_position(), continuation)
 
 
 @pytest.mark.parametrize("field", ["current_trick", "played_cards", "skat"])
@@ -330,9 +325,7 @@ def test_rejects_public_hand_count_or_exact_local_hand_mismatch() -> None:
     continuation_value["public_declarer_cards"] = ["SA", "C10"]
     continuation = build_declarer_card_exposure_continuation(continuation_value)
     with pytest.raises(ValueError, match="expected 3 cards, got 2"):
-        resolve_declarer_card_exposure_continuation(
-            build_local_declarer_position(), continuation
-        )
+        resolve_declarer_card_exposure_continuation(build_local_declarer_position(), continuation)
 
     position = build_local_declarer_position()
     position["hand"] = ["SA", "C10", "D8"]
@@ -434,9 +427,7 @@ def test_rejects_missing_concrete_declarer_declaration_and_completed_play() -> N
     ]
     continuation_without_declaration = build_declarer_card_exposure_continuation(value)
     with pytest.raises(ValueError, match="final declaration information"):
-        resolve_declarer_card_exposure_continuation(
-            position, continuation_without_declaration
-        )
+        resolve_declarer_card_exposure_continuation(position, continuation_without_declaration)
 
     position = build_local_declarer_position()
     position["completed_tricks"] = [{} for _ in range(10)]
@@ -552,9 +543,7 @@ def test_multi_step_removes_played_public_cards_without_reintroducing_them() -> 
     assert result["steps_simulated"] == 2
     assert "C10" in played_public
     assert played_public.isdisjoint(remaining)
-    assert result["context_summary"]["public_hand_constraints"][0]["cards"] == list(
-        remaining
-    )
+    assert result["context_summary"]["public_hand_constraints"][0]["cards"] == list(remaining)
 
 
 def test_policy_comparison_uses_same_public_hand_without_new_policies() -> None:
@@ -588,6 +577,4 @@ def test_policy_comparison_uses_same_public_hand_without_new_policies() -> None:
     assert first == second
     assert first["policies"] == ["first_legal", "lowest_point"]
     for policy_result in first["policy_results"]:
-        assert policy_result["context_summary"]["public_hand_constraints"][0][
-            "player"
-        ] == "left"
+        assert policy_result["context_summary"]["public_hand_constraints"][0]["player"] == "left"

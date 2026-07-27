@@ -228,7 +228,14 @@
       ]
     },
     "game_continuation_summary": {
-      "$ref": "https://example.local/skat-ai/declarer_card_exposure_continuation_output.schema.json"
+      "oneOf": [
+        {
+          "$ref": "https://example.local/skat-ai/declarer_card_exposure_continuation_output.schema.json"
+        },
+        {
+          "$ref": "https://example.local/skat-ai/defender_open_play_continuation_output.schema.json"
+        }
+      ]
     },
     "final_settlement_summary": {
       "$ref": "#/$defs/final_settlement_summary"

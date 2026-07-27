@@ -561,8 +561,8 @@ The declarer's and non-exposing defender's exact hands are never emitted.
 
 ## Game-continuation summary
 
-`game_continuation_summary` is present only for the separate ongoing exposure
-contract. It records version and kind, ISkO section `4.4.4`, concrete declarer,
+`game_continuation_summary` is present only for the separate ongoing continuation
+union. The declarer-exposure member records version and kind, ISkO section `4.4.4`, concrete declarer,
 exposure form, both canonical defender responses, continuing and accepting
 defenders, canonical current public cards, `confirmed` or `not_verifiable`
 reconciliation, and `visibility_scope: "all_players"`.
@@ -572,6 +572,15 @@ reconciliation, and `visibility_scope: "all_players"`.
 reports `game_end_applied: false` and `settlement_applied: false`. It contains no
 hidden defender cards, accepted claim, winner, point assignment, or settlement
 basis.
+
+The defender-open-play member records sections `4.4.5` and `4.1.6`, concrete
+declarer and both defenders, the continuation response, returned/not-physically-
+open status, canonical public exposing-defender cards, and `confirmed` or
+`not_verifiable` reconciliation. It reports
+`not_adjudicated_due_to_continued_play`,
+`open_play_consequence_disregarded`, and false proof, game-end, and settlement
+flags. It emits no private other hand, proof line, rest-trick or point assignment,
+decided winner, or settlement basis.
 
 ## Final settlement summary
 
@@ -657,10 +666,11 @@ game unless a bounded mandatory level applies. An undecided invalid Null claim
 also gives the declarer the fixed-value contract and does not reinterpret the
 rule assignment as a played declarer trick.
 
-An ongoing exposure continuation does not enter this accepted-exposure
-settlement path. Its requested level is provenance only. The ordinary incomplete
-`final_settlement_summary` remains incomplete until actual play supplies a real
-completed result.
+An ongoing continuation does not enter an adjudication settlement path. The
+4.4.4 requested level is provenance only; the 4.1.6 request creates no optional
+Schneider or Schwarz obligation. The original declaration remains binding, and
+the ordinary incomplete `final_settlement_summary` remains incomplete until
+actual play supplies a real completed result.
 
 For an impossible Null declaration, `declarer_won_by_card_points` is `null`,
 `winner` is `defenders`, and `is_loss` is `true`. Complete replacement metadata
@@ -721,12 +731,13 @@ Fields:
 | `known_skat_cards_allowed`                             | Whether known skat cards are allowed in the input under the selected visibility.       |
 | `ended_game_allowed`                                   | Whether completed game states are allowed.                                             |
 | `unverifiable_completed_trick_winner_metadata_allowed` | Whether winner metadata without full verification context is allowed.                  |
-| `public_hand_constraints`                              | Optional rule-authorized exact public hands; currently only the exposed declarer continuation. |
+| `public_hand_constraints`                              | Optional rule-authorized exact public hands from the supported continuation union. |
 
-For continuation, each public-hand constraint identifies the concrete declarer,
-source `declarer_card_exposure_continuation`, all-player visibility, count, and
-canonical cards. This is distinct from post-game hidden information and never
-contains an accepting defender's reactionary cards.
+For continuation, each public-hand constraint identifies its concrete owner,
+all-player visibility, count, canonical cards, and either source
+`declarer_card_exposure_continuation` or
+`defender_open_play_continuation`. Only that one rule-authorized hand is emitted;
+the other hands, private proof evidence, and hidden skat remain protected.
 
 ## Performance rating summary
 
@@ -926,10 +937,9 @@ defender, `win_rate` means either defender wins the trick. `average_points_won`,
 `average_points_lost`, and `expected_point_swing` use the same local-side
 perspective.
 
-With an exposure continuation, every candidate uses the same exact public
-declarer hand. A simulated declarer can play only those cards; played cards are
-removed and cannot reappear. Candidate objectives and card-selection policies
-are otherwise unchanged.
+With a continuation, every candidate uses the same exact public hand. Its owner
+can play only those cards; played cards are removed and cannot reappear.
+Candidate objectives and card-selection policies are otherwise unchanged.
 
 For Null games, candidate ordering and `is_recommended` use the Null contract
 objective instead of card-point swing. A local Null declarer prefers avoiding
@@ -977,10 +987,10 @@ recommendation. The unavailable shape is:
 `post_game_review_summary` compares the actual played card with the recommended card.
 It requires an available local Immediate Analysis report.
 
-Flat continuation review uses the same public information state. A local
-declarer's actual card must belong to the exact public hand; a local defender's
-actual card retains ordinary local-hand legality. Continuation alone never adds
-a final result or settlement to the review.
+Flat continuation review uses the same public information state. When the local
+actor owns the public hand, `actual_card_played` must belong to it; other local
+cards retain ordinary hand and follow-suit validation. Continuation alone never
+adds a final result or settlement to the review.
 
 If `actual_card_played` was not provided, the summary is still present but marked as unavailable.
 If Immediate Analysis is unavailable, the summary is also unavailable and uses
@@ -1105,9 +1115,9 @@ not already represented by `completed_tricks`. Points from simulated completed
 tricks are contributed by the completed-trick cards and are reflected in the
 summary totals.
 
-For exposure continuation, `context_summary.public_hand_constraints` contains
-the remaining exact declarer hand. Each child path removes declarer cards that
-were played and retains every unplayed public card. Otherwise hidden-card
+For continuation, `context_summary.public_hand_constraints` contains the
+remaining exact public hand. Each child path removes known cards that were
+played and retains every unplayed public card with its original source. Otherwise hidden-card
 sampling keeps the existing non-global-continuity limitation.
 
 Nested `steps[].detailed_result` uses explicit ownership fields:
@@ -1145,7 +1155,7 @@ tie-breakers.
 
 Every compared policy starts from the same public-hand constraint and seed.
 Policy differences therefore cannot come from changing or resampling the
-exposed declarer hand, and no new policy is introduced.
+public continuation hand, and no new policy is introduced.
 
 The output schema defines the stable `policy_comparison_result` structure,
 including requested settings, compared policies, per-policy result rows,

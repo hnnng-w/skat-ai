@@ -25,10 +25,7 @@
         "right": {"$ref": "#/$defs/remaining_hand"}
       }
     },
-    "declarer_response": {
-      "type": "string",
-      "enum": ["accept_adjudication", "request_continued_play"]
-    }
+    "declarer_response": {"const": "accept_adjudication"}
   },
   "$defs": {
     "player": {

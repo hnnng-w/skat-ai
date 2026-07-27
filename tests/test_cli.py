@@ -53,6 +53,9 @@ DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "declarer_card_exposure_continuation.json"
 )
 DEFENDER_OPEN_PLAY_INPUT_PATH = PROJECT_ROOT / "examples" / "defender_open_play.json"
+DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "defender_open_play_continuation.json"
+)
 
 
 def run_cli(*args: object) -> subprocess.CompletedProcess[str]:
@@ -1886,6 +1889,48 @@ def test_cli_prints_declarer_card_exposure_continuation_summary() -> None:
     assert "Claimed level Schneider has no immediate settlement effect." in completed_process.stdout
     assert "Analysis continues using the exposed declarer hand." in completed_process.stdout
     assert "Settlement:" not in completed_process.stdout
+
+
+def test_cli_prints_defender_open_play_continuation_summary() -> None:
+    completed_process = run_cli("--input", DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Continued play was requested after defender open play." in completed_process.stdout
+    assert "Left took the 3 exposed cards back into the hand." in completed_process.stdout
+    assert "Those cards remain known to all players." in completed_process.stdout
+    assert "The original rest-trick claim is not adjudicated." in completed_process.stdout
+    assert "Analysis continues from the corrected legal position." in completed_process.stdout
+    assert "Settlement:" not in completed_process.stdout
+
+
+def test_cli_defender_open_play_continuation_quiet_multi_step_and_comparison(
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "defender_continuation_output.json"
+    completed_process = run_cli(
+        "--input",
+        DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH,
+        "--multi-step",
+        1,
+        "--compare-policies",
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as file:
+        output = json.load(file)
+    assert output["game_continuation_summary"]["exact_proof_applied"] is False
+    assert output["final_settlement_summary"]["settlement_score"] is None
+    root = output["information_policy_summary"]["public_hand_constraints"][0]
+    assert root["source"] == "defender_open_play_continuation"
+    assert output["multi_step_result"]["context_summary"]["public_hand_constraints"]
+    for policy_result in output["policy_comparison_result"]["policy_results"]:
+        assert policy_result["context_summary"]["public_hand_constraints"]
 
 
 def test_cli_continuation_quiet_multi_step_and_policy_comparison(

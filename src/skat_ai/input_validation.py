@@ -5,10 +5,6 @@ from skat_ai.declarer_card_exposure import (
     DeclarerCardExposure,
     validate_declarer_card_exposure_context,
 )
-from skat_ai.declarer_card_exposure_continuation import (
-    get_game_continuation_from_input,
-    resolve_declarer_card_exposure_continuation,
-)
 from skat_ai.declarer_concession import validate_declarer_concession_context
 from skat_ai.defender_concession import (
     DefenderConcession,
@@ -17,6 +13,10 @@ from skat_ai.defender_concession import (
 from skat_ai.defender_open_play import (
     DefenderOpenPlay,
     validate_defender_open_play_context,
+)
+from skat_ai.game_continuation import (
+    get_game_continuation_from_input,
+    resolve_game_continuation,
 )
 from skat_ai.game_declaration import build_game_declaration_from_input
 from skat_ai.game_history import validate_completed_trick_sequence
@@ -815,7 +815,7 @@ def validate_optional_game_continuation(data: dict[str, Any]) -> None:
     """Validates the optional separate ongoing continuation contract."""
     continuation = get_game_continuation_from_input(data)
     if continuation is not None:
-        resolve_declarer_card_exposure_continuation(data, continuation)
+        resolve_game_continuation(data, continuation)
 
 
 def validate_impossible_null_settlement(data: dict[str, Any]) -> None:

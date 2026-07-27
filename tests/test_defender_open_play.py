@@ -98,7 +98,11 @@ def test_context_accepts_every_concrete_exposing_defender(
         ("schema_version", True, "schema_version"),
         ("exposing_defender", " left", "exposing_defender"),
         ("declarer_response", "continue", "declarer_response"),
-        ("declarer_response", "request_continued_play", "4.1.6"),
+        (
+            "declarer_response",
+            "request_continued_play",
+            "game_continuation.kind='defender_open_play'",
+        ),
     ],
 )
 def test_builder_rejects_unsupported_values(field_name: str, value: object, message: str) -> None:

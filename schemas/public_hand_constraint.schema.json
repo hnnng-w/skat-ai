@@ -10,7 +10,13 @@
       "type": "string",
       "enum": ["me", "left", "right"]
     },
-    "source": {"const": "declarer_card_exposure_continuation"},
+    "source": {
+      "type": "string",
+      "enum": [
+        "declarer_card_exposure_continuation",
+        "defender_open_play_continuation"
+      ]
+    },
     "visibility_scope": {"const": "all_players"},
     "card_count": {
       "type": "integer",

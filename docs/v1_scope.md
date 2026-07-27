@@ -146,8 +146,8 @@ and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. The v1
 gate remains open for general declared-Ouvert and historical exposed-card-aware
 recommendation analysis and approved later end reasons. The bounded flat 4.4.4
-continuation hand constraint is implemented. Full auction representation is
-planned after v1.0.
+continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
+constraint are implemented. Full auction representation is planned after v1.0.
 
 The generic position workflow now has bounded version-1 declarer-concession
 adjudication under ISkO 4.4.1 and 4.4.2 plus defender-concession adjudication
@@ -157,9 +157,12 @@ flat-position continuation records both defender responses and constrains
 Immediate, Multi-Step, Policy Comparison, and flat review with the exact public
 declarer hand after an objection. Bounded exact post-game defender open-play
 adjudication under the November 2022 wording of ISkO 4.4.5 supports at most five
-unresolved tricks with private exact three-hand evidence. This does not close broader v1 gates for
+unresolved tricks with private exact three-hand evidence. Separate continued
+play under 4.1.6 fixes only the exposing defender's returned public hand and
+creates no proof, assignment, result, settlement, or optional level obligation.
+This does not close broader v1 gates for
 historical continuation, general Ouvert analysis, structured historical
-claims/concessions, continued play under 4.1.6, unlimited exact solving,
+claims/concessions, general corrected play, unlimited exact solving,
 isolated-card claims, 4.4.6 open-card consequences, complete settlement
 coverage, or historical training and review after game shortening.
 

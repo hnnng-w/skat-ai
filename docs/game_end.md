@@ -189,6 +189,20 @@ play determines achieved levels and the final result. Reactionary defender
 cards remain hidden. See
 [Declarer card exposure continuation](declarer_card_exposure_continuation.md).
 
+## Defender open play continuation
+
+Under ISkO 4.4.5 and 4.1.6, a completed continuation request uses separate
+`game_continuation`. The exposing defender takes the cards back, but the complete
+current returned hand stays known to all players and constrains Immediate,
+supported Multi-Step, Policy Comparison, and flat review.
+
+The original rest-trick claim is not adjudicated. The exact solver and its
+five-trick bound are not used; no rest tricks, points, decided winner, mandatory
+awarded level, settlement basis, or final settlement are produced. The original
+declaration remains binding, requesting continuation adds no optional Schneider
+or Schwarz obligation, and actual later play determines achieved levels and the
+result. See [Defender open play continuation](defender_open_play_continuation.md).
+
 ## Legacy claims and concessions
 
 The three legacy reasons are modeled by assigning all remaining card points to
@@ -236,6 +250,7 @@ Rules:
 * structured defender concession requires distinct concrete declarer and conceding defender identities.
 * declarer card exposure requires all remaining cards and exactly both concrete defender acceptances.
 * exposure continuation requires exactly both defender responses, at least one continuation request, an exact nonempty current public declarer hand, and neutral `not_ended` state.
+* defender-open-play continuation requires a concrete exposing defender, the exact nonempty returned current hand, `request_continued_play`, reliable hand-size and turn reconciliation, and neutral `not_ended` state.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
 * unknown `game_end_reason` values are rejected.
@@ -271,6 +286,6 @@ For example:
 
 * Legacy claims and concessions still assign remaining points.
 * Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, and bounded exact defender open play.
-* Flat continued declarer exposure is separate; exposed-defender continuation under 4.1.6 remains unsupported.
+* Flat continued declarer exposure and bounded defender-open-play continuation are separate ongoing workflows.
 * Historical-game shortening, unlimited exact solving, isolated-card claims, and ISkO 4.4.6 remain unsupported.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.

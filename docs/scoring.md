@@ -348,6 +348,10 @@ also assigns outstanding points, but records those points and rest tricks as a
 separate rule consequence. Other structured shortening kinds do not assign
 them. Declarer card exposure can settle an explicitly requested and
 accepted Schwarz level without claiming that unfinished play achieved Schwarz.
+Defender-open-play continuation is not this exact adjudication: it disregards the
+open-play consequence, assigns no tricks or points, preserves the original
+declaration without a new optional Schneider or Schwarz obligation, and remains
+unsettled until actual later play supplies a supported result.
 
 Example:
 

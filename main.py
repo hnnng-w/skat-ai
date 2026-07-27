@@ -20,10 +20,6 @@ from skat_ai.declarer_card_exposure import (
     adjudicate_accepted_declarer_card_exposure,
     build_declarer_exposed_card_evidence,
 )
-from skat_ai.declarer_card_exposure_continuation import (
-    build_game_continuation_summary,
-    resolve_declarer_card_exposure_continuation,
-)
 from skat_ai.declarer_concession import (
     adjudicate_declarer_concession,
     build_declarer_card_count_evidence,
@@ -42,6 +38,10 @@ from skat_ai.effective_opponent_policy import (
     build_effective_opponent_policy_settings,
 )
 from skat_ai.final_settlement import build_final_settlement_summary
+from skat_ai.game_continuation import (
+    build_game_continuation_summary,
+    resolve_game_continuation,
+)
 from skat_ai.game_declaration import build_serializable_game_declaration
 from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
@@ -330,7 +330,7 @@ def build_analysis_result(
     game_shortening = get_game_shortening_from_input(data)
     game_continuation = get_game_continuation_from_input(data)
     continuation_context = (
-        resolve_declarer_card_exposure_continuation(data, game_continuation)
+        resolve_game_continuation(data, game_continuation)
         if game_continuation is not None
         else None
     )
@@ -882,9 +882,12 @@ def print_game_shortening_summary(result: dict[str, Any]) -> None:
 
 
 def print_game_continuation_summary(result: dict[str, Any]) -> None:
-    """Prints the ongoing declarer-card-exposure continuation setup."""
+    """Prints one supported ongoing continuation setup."""
     summary = result.get("game_continuation_summary")
     if not isinstance(summary, dict):
+        return
+    if summary.get("kind") == "defender_open_play":
+        print_defender_open_play_continuation_summary(summary)
         return
     print()
     print("Declarer card exposure was not accepted unanimously.")
@@ -901,6 +904,24 @@ def print_game_continuation_summary(result: dict[str, Any]) -> None:
         f"Claimed level {summary['claimed_play_level'].title()} has no immediate settlement effect."
     )
     print("Analysis continues using the exposed declarer hand.")
+
+
+def print_defender_open_play_continuation_summary(summary: dict[str, Any]) -> None:
+    """Prints the non-adjudicating defender-open-play continuation state."""
+    exposing_defender = summary["exposing_defender"]
+    card_count = summary["public_exposing_defender_card_count"]
+    print()
+    print("Continued play was requested after defender open play.")
+    if exposing_defender == "me":
+        print(f"You took your {card_count} exposed cards back into the hand.")
+        print("Your remaining hand is known to both opponents.")
+    else:
+        print(
+            f"{exposing_defender.title()} took the {card_count} exposed cards back into the hand."
+        )
+        print("Those cards remain known to all players.")
+    print("The original rest-trick claim is not adjudicated.")
+    print("Analysis continues from the corrected legal position.")
 
 
 def print_declarer_concession_summary(result: dict[str, Any]) -> None:
@@ -1446,7 +1467,7 @@ def run_json_position_analysis(
     analysis_metadata = get_analysis_metadata_from_input(position_data)
     game_continuation = get_game_continuation_from_input(position_data)
     continuation_context = (
-        resolve_declarer_card_exposure_continuation(
+        resolve_game_continuation(
             position_data,
             game_continuation,
         )

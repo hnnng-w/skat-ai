@@ -105,7 +105,7 @@ def build_defender_open_play(value: Any) -> DefenderOpenPlay:
     if exposing_defender not in CONCRETE_PLAYERS:
         raise ValueError("game_shortening.exposing_defender must be 'me', 'left', or 'right'.")
     if value["declarer_response"] == "request_continued_play":
-        raise ValueError("Exposed-defender continuation under ISkO 4.1.6 is not yet supported.")
+        raise ValueError("Continued play must use game_continuation.kind='defender_open_play'.")
     if value["declarer_response"] != "accept_adjudication":
         raise ValueError("game_shortening.declarer_response must be 'accept_adjudication'.")
 

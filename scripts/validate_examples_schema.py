@@ -17,6 +17,9 @@ DATASET_PARTITION_POLICY_SCHEMA_PATH = (
 GAME_SHORTENING_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
 DEFENDER_OPEN_PLAY_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "defender_open_play.schema.json"
 GAME_CONTINUATION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
+DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "defender_open_play_continuation.schema.json"
+)
 ROOT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
 EXAMPLES_DIR = PROJECT_ROOT / "examples"
 
@@ -67,6 +70,9 @@ def validate_example_files() -> list[str]:
     game_shortening_schema = load_json_file(GAME_SHORTENING_SCHEMA_PATH)
     defender_open_play_schema = load_json_file(DEFENDER_OPEN_PLAY_SCHEMA_PATH)
     game_continuation_schema = load_json_file(GAME_CONTINUATION_SCHEMA_PATH)
+    defender_open_play_continuation_schema = load_json_file(
+        DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (historical_schema["$id"], Resource.from_contents(historical_schema)),
@@ -93,6 +99,10 @@ def validate_example_files() -> list[str]:
             (
                 game_continuation_schema["$id"],
                 Resource.from_contents(game_continuation_schema),
+            ),
+            (
+                defender_open_play_continuation_schema["$id"],
+                Resource.from_contents(defender_open_play_continuation_schema),
             ),
         ]
     )

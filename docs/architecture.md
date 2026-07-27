@@ -155,6 +155,8 @@ insufficient.
 | `src/skat_ai/defender_concession.py` | Typed party validation, pre-concession decision derivation, and no-assignment defender-concession adjudication. |
 | `src/skat_ai/declarer_card_exposure.py` | Typed 4.4.4 exposure, exact defender unanimity, card reconciliation, and accepted-claim adjudication. |
 | `src/skat_ai/declarer_card_exposure_continuation.py` | Separate typed 4.4.4 ongoing continuation, response validation, reconciliation, and summary. |
+| `src/skat_ai/defender_open_play_continuation.py` | Typed 4.4.5/4.1.6 returned-hand continuation, reconciliation, and non-adjudicating summary. |
+| `src/skat_ai/game_continuation.py` | Runtime dispatcher for the version-1 ongoing continuation union. |
 | `src/skat_ai/defender_open_play.py` | Typed 4.4.5 exact-state validation, adjudication, rule assignment, and privacy-safe summary. |
 | `src/skat_ai/exact_rest_trick_proof.py` | Immutable, canonical, memoized exact game tree with existential exposing-defender and universal other-player nodes. |
 | `src/skat_ai/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
@@ -173,9 +175,11 @@ during play. Accepted declarer card exposure requires both concrete defenders,
 preserves a preexisting loss, and separates declared, accepted claimed, achieved,
 and overbid-required levels. Legacy reasons retain their existing simplified
 assignment behavior. The separate `game_continuation` path does not adjudicate
-a game end: it supplies the exact current declarer hand to analysis while
-ordinary play and eventual actual settlement remain authoritative. Defender
-open play is the bounded exception: it proves at most five unresolved tricks
+a game end: it supplies one rule-authorized exact current public hand to analysis
+while ordinary play and eventual actual settlement remain authoritative. This
+can be the declarer's exposed hand under 4.4.4 or the exposing defender's returned
+hand under 4.4.5 and 4.1.6. Accepted defender open play is the bounded exception:
+it proves at most five unresolved tricks
 exactly, without Monte Carlo, policies, or assumed play, and adjudicates rather
 than continuing play.
 
@@ -197,10 +201,10 @@ layer. It receives complete private post-game hands, reuses legal-card and
 trick-winner rules, and exhaustively evaluates the bounded game tree. Its proof
 hands never become simulation information.
 
-An exposed-declarer continuation adds one exact public-hand constraint. Hidden
-worlds fix those cards to the concrete declarer and sample only genuinely
-unknown defender and skat cards. Immediate, Multi-Step, and Policy Comparison
-share that constraint. Multi-Step removes played public cards along a path, but
+Each continuation adds one exact public-hand constraint. Hidden worlds fix those
+cards to the concrete owner and sample only genuinely unknown hands and skat
+cards. Immediate, Multi-Step, and Policy Comparison share that constraint.
+Multi-Step removes played public cards along a path, but
 the existing limitation for coherent assignment of all other hidden cards
 remains.
 

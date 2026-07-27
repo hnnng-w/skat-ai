@@ -6,14 +6,14 @@ from skat_ai.analysis_metadata import (
     AnalysisMetadata,
     build_analysis_metadata_from_input,
 )
-from skat_ai.declarer_card_exposure_continuation import (
-    DeclarerCardExposureContinuation,
-)
-from skat_ai.declarer_card_exposure_continuation import (
-    get_game_continuation_from_input as build_game_continuation_from_input,
-)
 from skat_ai.declarer_concession import (
     DeclarerConcession,
+)
+from skat_ai.game_continuation import (
+    GameContinuation,
+)
+from skat_ai.game_continuation import (
+    get_game_continuation_from_input as build_game_continuation_from_input,
 )
 from skat_ai.game_declaration import (
     GameDeclaration,
@@ -185,9 +185,10 @@ def get_simulation_settings_from_input(data: dict[str, Any]) -> dict[str, Any]:
 
 def get_game_continuation_from_input(
     data: dict[str, Any],
-) -> DeclarerCardExposureContinuation | None:
+) -> GameContinuation | None:
     """Returns the optional separate ongoing continuation contract."""
     return build_game_continuation_from_input(data)
+
 
 def get_analysis_metadata_from_input(
     data: dict[str, Any],
@@ -196,6 +197,7 @@ def get_analysis_metadata_from_input(
     Extracts analysis metadata from input data.
     """
     return build_analysis_metadata_from_input(data)
+
 
 def get_opponent_policy_settings_from_input(
     data: dict[str, Any],
@@ -223,6 +225,7 @@ def get_opponent_policy_settings_from_input(
         settings["opponent_response_policy"] = data["opponent_response_policy"]
 
     return settings
+
 
 def get_left_opponent_policy_settings_from_input(
     data: dict[str, Any],
@@ -269,6 +272,7 @@ def get_right_opponent_policy_settings_from_input(
         ),
     }
 
+
 def get_profile_preset_settings_from_input(
     data: dict[str, Any],
 ) -> dict[str, bool]:
@@ -278,6 +282,7 @@ def get_profile_preset_settings_from_input(
     return {
         "use_profile_presets": data.get("use_profile_presets", False),
     }
+
 
 def get_game_declaration_from_input(
     data: dict[str, Any],
@@ -310,6 +315,7 @@ def get_impossible_null_settlement_from_input(
 ) -> ImpossibleNullSettlementSelection | None:
     """Extracts the optional external impossible Null replacement selection."""
     return build_impossible_null_settlement_selection_from_input(data)
+
 
 def get_performance_rating_system_from_input(
     data: dict[str, Any],

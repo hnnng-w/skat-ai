@@ -35,9 +35,7 @@ GAME_CONTINUATION_KEYS = {
 EXPOSURE_KEYS = {"form"}
 DEFENDER_RESPONSE_KEYS = {"player", "response", "form"}
 VALID_RESPONSES = {"accept", "continue"}
-CLAIMED_PLAY_LEVEL_STATUS = (
-    "continuation_required_no_immediate_settlement_effect"
-)
+CLAIMED_PLAY_LEVEL_STATUS = "continuation_required_no_immediate_settlement_effect"
 
 
 @dataclass(frozen=True)
@@ -71,8 +69,7 @@ def build_continuation_exposure_details(value: Any) -> ContinuationExposureDetai
     form = value.get("form")
     if form not in VALID_EXPOSURE_FORMS:
         raise ValueError(
-            "game_continuation.exposure.form must be 'laid_open' or "
-            "'shown_to_defender'."
+            "game_continuation.exposure.form must be 'laid_open' or 'shown_to_defender'."
         )
     required_keys = EXPOSURE_KEYS.copy()
     if form == "shown_to_defender":
@@ -81,8 +78,7 @@ def build_continuation_exposure_details(value: Any) -> ContinuationExposureDetai
     shown_to_player = value.get("shown_to_player")
     if form == "shown_to_defender" and shown_to_player not in CONCRETE_PLAYERS:
         raise ValueError(
-            "game_continuation.exposure.shown_to_player must be 'me', 'left', or "
-            "'right'."
+            "game_continuation.exposure.shown_to_player must be 'me', 'left', or 'right'."
         )
     return ContinuationExposureDetails(form, shown_to_player)
 
@@ -104,9 +100,7 @@ def build_continuation_defender_response(
         raise ValueError(f"{field_name}.response must be 'accept' or 'continue'.")
     response_form = value["form"]
     if response_form not in VALID_ACCEPTANCE_FORMS:
-        raise ValueError(
-            f"{field_name}.form must be 'explicit' or 'unambiguous_conduct'."
-        )
+        raise ValueError(f"{field_name}.form must be 'explicit' or 'unambiguous_conduct'.")
     return DefenderExposureResponse(player, response, response_form)
 
 
@@ -122,20 +116,17 @@ def build_declarer_card_exposure_continuation(
         raise ValueError("game_continuation.schema_version must be exactly 1.")
     if value["kind"] != DECLARER_CARD_EXPOSURE_KIND:
         raise ValueError(
-            "game_continuation.kind must be 'declarer_card_exposure' for "
-            "schema_version 1."
+            "game_continuation.kind must be 'declarer_card_exposure' for schema_version 1."
         )
     claimed_play_level = value["claimed_play_level"]
     if claimed_play_level not in VALID_CLAIMED_PLAY_LEVELS:
         raise ValueError(
-            "game_continuation.claimed_play_level must be 'simple', 'schneider', "
-            "or 'schwarz'."
+            "game_continuation.claimed_play_level must be 'simple', 'schneider', or 'schwarz'."
         )
     response_values = value["defender_responses"]
     if not isinstance(response_values, list) or len(response_values) != 2:
         raise ValueError(
-            "game_continuation.defender_responses must contain exactly two "
-            "defender responses."
+            "game_continuation.defender_responses must contain exactly two defender responses."
         )
     responses = tuple(
         build_continuation_defender_response(response, index)
@@ -143,13 +134,11 @@ def build_declarer_card_exposure_continuation(
     )
     if len({response.player for response in responses}) != 2:
         raise ValueError(
-            "game_continuation.defender_responses must identify each defender "
-            "exactly once."
+            "game_continuation.defender_responses must identify each defender exactly once."
         )
     if all(response.response == "accept" for response in responses):
         raise ValueError(
-            "Unanimous defender acceptance must use "
-            "game_shortening.kind='declarer_card_exposure'."
+            "Unanimous defender acceptance must use game_shortening.kind='declarer_card_exposure'."
         )
     cards = value["public_declarer_cards"]
     if not isinstance(cards, list):
@@ -159,19 +148,15 @@ def build_declarer_card_exposure_continuation(
             "game_continuation.public_declarer_cards must contain between 1 and 10 cards."
         )
     full_deck = set(get_full_deck())
-    invalid_cards = [
-        card for card in cards if not isinstance(card, str) or card not in full_deck
-    ]
+    invalid_cards = [card for card in cards if not isinstance(card, str) or card not in full_deck]
     if invalid_cards:
         raise ValueError(
-            "Invalid cards in game_continuation.public_declarer_cards: "
-            f"{invalid_cards}"
+            f"Invalid cards in game_continuation.public_declarer_cards: {invalid_cards}"
         )
     duplicate_cards = sorted({card for card in cards if cards.count(card) > 1})
     if duplicate_cards:
         raise ValueError(
-            "Duplicate cards in game_continuation.public_declarer_cards: "
-            f"{duplicate_cards}"
+            f"Duplicate cards in game_continuation.public_declarer_cards: {duplicate_cards}"
         )
     return DeclarerCardExposureContinuation(
         schema_version=schema_version,
@@ -185,11 +170,11 @@ def build_declarer_card_exposure_continuation(
 
 def get_game_continuation_from_input(
     data: dict[str, Any],
-) -> DeclarerCardExposureContinuation | None:
-    """Returns the optional separate ongoing continuation contract."""
-    if "game_continuation" not in data:
-        return None
-    return build_declarer_card_exposure_continuation(data["game_continuation"])
+) -> Any:
+    """Compatibility wrapper for the versioned continuation union parser."""
+    from skat_ai.game_continuation import get_game_continuation_from_input as get_union
+
+    return get_union(data)
 
 
 def validate_continuation_parties(
@@ -199,19 +184,15 @@ def validate_continuation_parties(
     """Requires both concrete defenders and a defender-only shown player."""
     if declarer_player not in CONCRETE_PLAYERS:
         raise ValueError(
-            "game_continuation declarer card exposure requires a concrete "
-            "declarer_player."
+            "game_continuation declarer card exposure requires a concrete declarer_player."
         )
     defenders = [player for player in CONCRETE_PLAYERS if player != declarer_player]
     responders = [response.player for response in continuation.defender_responses]
     if declarer_player in responders:
-        raise ValueError(
-            "game_continuation.defender_responses cannot include the declarer."
-        )
+        raise ValueError("game_continuation.defender_responses cannot include the declarer.")
     if set(responders) != set(defenders):
         raise ValueError(
-            "game_continuation.defender_responses must identify exactly the two "
-            "concrete defenders."
+            "game_continuation.defender_responses must identify exactly the two concrete defenders."
         )
     shown_to_player = continuation.exposure.shown_to_player
     if shown_to_player is not None and shown_to_player not in defenders:
@@ -234,9 +215,7 @@ def reconcile_public_declarer_cards(
             unavailable_by_card.update((card, field_name) for card in cards)
     for trick in data.get("completed_tricks", []):
         if isinstance(trick, dict) and isinstance(trick.get("cards"), list):
-            unavailable_by_card.update(
-                (card, "completed_tricks") for card in trick["cards"]
-            )
+            unavailable_by_card.update((card, "completed_tricks") for card in trick["cards"])
     if data.get("declarer_player") != "me" and isinstance(data.get("hand"), list):
         unavailable_by_card.update((card, "defender_hand") for card in data["hand"])
     contradictions = sorted(public_cards.intersection(unavailable_by_card))
@@ -249,8 +228,7 @@ def reconcile_public_declarer_cards(
     count_evidence = build_declarer_card_count_evidence(data)
     if (
         count_evidence is not None
-        and len(continuation.public_declarer_cards)
-        != count_evidence.hand_cards_remaining
+        and len(continuation.public_declarer_cards) != count_evidence.hand_cards_remaining
     ):
         raise ValueError(
             "game_continuation.public_declarer_cards contradict reliable "
@@ -288,13 +266,10 @@ def resolve_declarer_card_exposure_continuation(
     game_end_reason = position.get("game_end_reason", "not_ended")
     if game_end_reason != "not_ended":
         raise ValueError(
-            "game_continuation requires an ongoing game with "
-            "game_end_reason='not_ended'."
+            "game_continuation requires an ongoing game with game_end_reason='not_ended'."
         )
     if "impossible_null_settlement" in position:
-        raise ValueError(
-            "game_continuation cannot be combined with impossible_null_settlement."
-        )
+        raise ValueError("game_continuation cannot be combined with impossible_null_settlement.")
     conflicting_list_fields = sorted(LIST_WORKFLOW_FIELDS.intersection(position))
     if conflicting_list_fields:
         raise ValueError(
@@ -302,9 +277,7 @@ def resolve_declarer_card_exposure_continuation(
             f"{conflicting_list_fields}."
         )
     if len(position.get("completed_tricks", [])) >= 10:
-        raise ValueError(
-            "game_continuation cannot be used after all ten tricks are complete."
-        )
+        raise ValueError("game_continuation cannot be used after all ten tricks are complete.")
     declaration = build_game_declaration_from_input(position)
     game_value_summary = build_game_value_summary(declaration)
     if game_value_summary["game_value"] is None:
@@ -314,8 +287,7 @@ def resolve_declarer_card_exposure_continuation(
         )
     if game_value_summary["is_null_game"] and continuation.claimed_play_level != "simple":
         raise ValueError(
-            "Null declarer card exposure continuation requires "
-            "claimed_play_level='simple'."
+            "Null declarer card exposure continuation requires claimed_play_level='simple'."
         )
     reconciliation = reconcile_public_declarer_cards(position, continuation)
     return DeclarerCardExposureContinuationContext(
@@ -337,9 +309,7 @@ def build_game_continuation_summary(
     responses_by_player = {
         response.player: response for response in continuation.defender_responses
     }
-    ordered_players = [
-        player for player in CONCRETE_PLAYERS if player in responses_by_player
-    ]
+    ordered_players = [player for player in CONCRETE_PLAYERS if player in responses_by_player]
     responses = [
         {
             "player": player,
@@ -349,15 +319,9 @@ def build_game_continuation_summary(
         for player in ordered_players
     ]
     continuing = [
-        response["player"]
-        for response in responses
-        if response["response"] == "continue"
+        response["player"] for response in responses if response["response"] == "continue"
     ]
-    accepting = [
-        response["player"]
-        for response in responses
-        if response["response"] == "accept"
-    ]
+    accepting = [response["player"] for response in responses if response["response"] == "accept"]
     cards = list(canonicalize_cards(continuation.public_declarer_cards))
     return {
         "schema_version": continuation.schema_version,

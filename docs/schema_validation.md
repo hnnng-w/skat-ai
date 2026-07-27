@@ -77,7 +77,7 @@ The input schema checks things such as:
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
 * strict version-1 declarer- and defender-concession union shapes
-* strict separate version-1 declarer-card-exposure continuation shape, response values, exposure forms, and public cards
+* strict version-1 continuation union with declarer-exposure responses and cards or defender-open-play response, exposing defender, and returned public hand
 * complete historical-game player, deal, declaration, discard, and ten-trick shapes
 * training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
 * opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
@@ -149,7 +149,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 38 deterministic scenarios. Position
+Generated-output validation covers 39 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. The historical-game scenario
 omits position-only overrides. It is separate from input-example schema validation: input validation
@@ -163,7 +163,7 @@ simulation, policy comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
 Null-objective post-game review, defender-perspective post-game review,
 legacy claim, all four structured shortening kinds including accepted declarer
-card exposure and exact defender open play, exposed-declarer-hand continuation,
+card exposure and exact defender open play, both ongoing public-hand continuations,
 overbid, and list-performance summaries from aggregated totals, normalized
 game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
@@ -190,11 +190,14 @@ uses `schemas/game_shortening.schema.json`; its summary and settlement basis use
 `schemas/exact_rest_trick_proof.schema.json`; runtime validation remains
 authoritative for exact card accounting, party membership, turn phase, the
 five-trick bound, adjudication, and private-hand protection.
-Ongoing exposure continuation uses
-`schemas/declarer_card_exposure_continuation_output.schema.json` and
-`schemas/public_hand_constraint.schema.json`; runtime validation remains
-authoritative for exact defender membership, at least one continuation request,
-ownership reconciliation, workflow exclusivity, and simulation continuity.
+Ongoing continuation uses the two-member
+`schemas/game_continuation.schema.json` union, the focused declarer- and
+defender-open-play continuation schemas, their focused output schemas, and
+`schemas/public_hand_constraint.schema.json`. Runtime validation remains
+authoritative for party membership, response semantics, exact current-hand and
+turn reconciliation, workflow exclusivity, information authorization, and
+known-card path continuity. The defender-open-play continuation never invokes
+the exact proof schema or five-trick bound.
 Historical decision
 snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses

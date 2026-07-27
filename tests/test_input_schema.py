@@ -24,6 +24,9 @@ OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistic
 GAME_SHORTENING_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
 DEFENDER_OPEN_PLAY_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "defender_open_play.schema.json"
 GAME_CONTINUATION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_continuation.schema.json"
+DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "defender_open_play_continuation.schema.json"
+)
 POLICY_FIELDS = [
     "opponent_lead_policy",
     "opponent_response_policy",
@@ -53,6 +56,10 @@ with DEFENDER_OPEN_PLAY_SCHEMA_PATH.open("r", encoding="utf-8") as defender_open
     DEFENDER_OPEN_PLAY_SCHEMA = json.load(defender_open_play_file)
 with GAME_CONTINUATION_SCHEMA_PATH.open("r", encoding="utf-8") as game_continuation_file:
     GAME_CONTINUATION_SCHEMA = json.load(game_continuation_file)
+with DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as defender_continuation_file:
+    DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA = json.load(defender_continuation_file)
 
 INPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -80,6 +87,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             GAME_CONTINUATION_SCHEMA["$id"],
             Resource.from_contents(GAME_CONTINUATION_SCHEMA),
+        ),
+        (
+            DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA["$id"],
+            Resource.from_contents(DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA),
         ),
     ]
 )

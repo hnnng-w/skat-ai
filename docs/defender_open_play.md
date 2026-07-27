@@ -34,8 +34,9 @@ current trick are not repeated in those hands. The exposing defender must have
 at least one card.
 
 Version 1 accepts only `accept_adjudication`. A
-`request_continued_play` response is rejected with an explicit message because
-continued play under ISkO 4.1.6 is not implemented.
+`request_continued_play` response is rejected with guidance to use the separate
+ongoing `game_continuation` contract documented in
+[Defender open play continuation](defender_open_play_continuation.md).
 
 ## Exact evidence
 
@@ -126,7 +127,6 @@ turned into an Immediate, Multi-Step, Policy Comparison, or live-analysis hand.
 
 This feature does not implement:
 
-* continued exposed-defender play under ISkO 4.1.6;
 * more than five unresolved tricks;
 * heuristic or Monte Carlo proof;
 * isolated decisive-card showing;
@@ -139,3 +139,7 @@ This feature does not implement:
 Existing concessions, accepted declarer exposure, exposed-declarer
 continuation, legacy reasons, normal completion, impossible Null, and unrelated
 analysis workflows remain separate.
+
+Continued play under ISkO 4.1.6 is also separate. It uses only the public
+exposing-defender hand, does not import the private exact proof hands, does not
+call this solver, and does not produce adjudication or settlement.

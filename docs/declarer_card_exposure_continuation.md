@@ -31,8 +31,8 @@ Continuation uses top-level `game_continuation`, not the game-ending
 }
 ```
 
-Version 1 supports only `kind: "declarer_card_exposure"`. Unknown properties
-are rejected. `laid_open` forbids `shown_to_player`;
+This version-1 object is the `declarer_card_exposure` member of the
+`game_continuation` union. Unknown properties are rejected. `laid_open` forbids `shown_to_player`;
 `shown_to_defender` requires one concrete defender. Once continuation is
 requested, visibility is `all_players` regardless of who initially saw the
 cards.
@@ -106,10 +106,12 @@ top-level workflows. Historical games and snapshots, datasets, statistics,
 rolling evaluation, and partition audits do not gain continuation support.
 
 This feature does not add general declared-Ouvert analysis, historical
-continuation records, exposed-defender continuation under ISkO 4.1.6, ISkO
-4.4.6 open throwing, new policies, later final-settlement adjudication, or
+continuation records, ISkO 4.4.6 open throwing, new policies, later
+final-settlement adjudication, or
 general hidden-world continuity. Bounded exact ISkO 4.4.5 adjudication is a
 separate final workflow documented in [Defender open play](defender_open_play.md).
+The sibling ongoing 4.4.5/4.1.6 workflow is documented in
+[Defender open play continuation](defender_open_play_continuation.md).
 
 See
 [`examples/declarer_card_exposure_continuation.json`](../examples/declarer_card_exposure_continuation.json)

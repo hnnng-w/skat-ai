@@ -84,19 +84,13 @@ def build_declarer_concession(value: Any) -> DeclarerConcession:
 
     kind = value["kind"]
     if kind != DECLARER_CONCESSION_KIND:
-        raise ValueError(
-            "game_shortening.kind must be 'declarer_concession' for schema_version 1."
-        )
+        raise ValueError("game_shortening.kind must be 'declarer_concession' for schema_version 1.")
 
     hand_cards_remaining = value["declarer_hand_cards_remaining"]
     if not is_strict_integer(hand_cards_remaining):
-        raise ValueError(
-            "game_shortening.declarer_hand_cards_remaining must be an integer."
-        )
+        raise ValueError("game_shortening.declarer_hand_cards_remaining must be an integer.")
     if not 1 <= hand_cards_remaining <= 10:
-        raise ValueError(
-            "game_shortening.declarer_hand_cards_remaining must be between 1 and 10."
-        )
+        raise ValueError("game_shortening.declarer_hand_cards_remaining must be between 1 and 10.")
 
     consent_value = value["defender_consent"]
     if not isinstance(consent_value, dict):
@@ -110,20 +104,17 @@ def build_declarer_concession(value: Any) -> DeclarerConcession:
     consent_status = consent_value["status"]
     if consent_status not in VALID_CONSENT_STATUSES:
         raise ValueError(
-            "game_shortening.defender_consent.status must be 'not_required' or "
-            "'granted'."
+            "game_shortening.defender_consent.status must be 'not_required' or 'granted'."
         )
 
     consenting_defender_count = consent_value["consenting_defender_count"]
     if not is_strict_integer(consenting_defender_count):
         raise ValueError(
-            "game_shortening.defender_consent.consenting_defender_count must be "
-            "an integer."
+            "game_shortening.defender_consent.consenting_defender_count must be an integer."
         )
     if not 0 <= consenting_defender_count <= 2:
         raise ValueError(
-            "game_shortening.defender_consent.consenting_defender_count must be "
-            "between 0 and 2."
+            "game_shortening.defender_consent.consenting_defender_count must be between 0 and 2."
         )
 
     if hand_cards_remaining >= 9:
@@ -168,18 +159,34 @@ def build_declarer_card_count_evidence(
     data: dict[str, Any],
 ) -> DeclarerCardCountEvidence | None:
     """Builds reliable current-hand evidence for a concrete declarer."""
-    declarer_player = data.get("declarer_player", "unknown")
+    evidence = build_player_card_count_evidence(
+        data,
+        data.get("declarer_player", "unknown"),
+    )
+    if evidence is None or not evidence.source.startswith("local_hand"):
+        return evidence
+    return DeclarerCardCountEvidence(
+        hand_cards_remaining=evidence.hand_cards_remaining,
+        source=evidence.source.replace("local_hand", "declarer_hand", 1),
+    )
+
+
+def build_player_card_count_evidence(
+    data: dict[str, Any],
+    player: str,
+) -> DeclarerCardCountEvidence | None:
+    """Builds reliable current-hand-size evidence for one concrete player."""
     direct_evidence = None
 
-    if declarer_player == "me":
+    if player == "me":
         hand = data.get("hand")
         if isinstance(hand, list):
             direct_evidence = DeclarerCardCountEvidence(
                 hand_cards_remaining=len(hand),
-                source="declarer_hand",
+                source="local_hand",
             )
 
-    if declarer_player == "left":
+    if player == "left":
         left_hand_size = data.get("left_hand_size")
         if is_strict_integer(left_hand_size):
             direct_evidence = DeclarerCardCountEvidence(
@@ -187,7 +194,7 @@ def build_declarer_card_count_evidence(
                 source="left_hand_size",
             )
 
-    if declarer_player == "right":
+    if player == "right":
         right_hand_size = data.get("right_hand_size")
         if is_strict_integer(right_hand_size):
             direct_evidence = DeclarerCardCountEvidence(
@@ -195,14 +202,14 @@ def build_declarer_card_count_evidence(
                 source="right_hand_size",
             )
 
-    history_evidence = build_play_history_card_count_evidence(data)
+    history_evidence = build_play_history_player_card_count_evidence(data, player)
     if direct_evidence is None:
         return history_evidence
     if history_evidence is None:
         return direct_evidence
     if direct_evidence.hand_cards_remaining != history_evidence.hand_cards_remaining:
         raise ValueError(
-            "Reliable declarer current-hand evidence contradicts play history: "
+            f"Reliable {player} current-hand evidence contradicts play history: "
             f"{direct_evidence.hand_cards_remaining} versus "
             f"{history_evidence.hand_cards_remaining}."
         )
@@ -217,6 +224,17 @@ def build_play_history_card_count_evidence(
     data: dict[str, Any],
 ) -> DeclarerCardCountEvidence | None:
     """Derives the declarer's physical hand count from reliable play timing."""
+    return build_play_history_player_card_count_evidence(
+        data,
+        data.get("declarer_player", "unknown"),
+    )
+
+
+def build_play_history_player_card_count_evidence(
+    data: dict[str, Any],
+    player: str,
+) -> DeclarerCardCountEvidence | None:
+    """Derives one player's physical hand count from reliable play timing."""
     completed_trick_count = len(data.get("completed_tricks", []))
     current_trick = data.get("current_trick", [])
     if not isinstance(current_trick, list):
@@ -226,8 +244,7 @@ def build_play_history_card_count_evidence(
     if not current_trick:
         return DeclarerCardCountEvidence(base_count, "play_history")
 
-    declarer_player = data.get("declarer_player", "unknown")
-    if declarer_player not in CONCRETE_PLAYERS:
+    if player not in CONCRETE_PLAYERS:
         return None
 
     phase = normalize_turn_phase_for_position(
@@ -244,10 +261,10 @@ def build_play_history_card_count_evidence(
         CONCRETE_PLAYERS[(leader_index + offset) % len(CONCRETE_PLAYERS)]
         for offset in range(len(current_trick))
     }
-    declarer_already_played = declarer_player in players_who_played
+    player_already_played = player in players_who_played
 
     return DeclarerCardCountEvidence(
-        hand_cards_remaining=base_count - int(declarer_already_played),
+        hand_cards_remaining=base_count - int(player_already_played),
         source="play_history",
     )
 
@@ -277,11 +294,7 @@ def get_known_assigned_card_points(data: dict[str, Any]) -> int:
         for trick in data.get("completed_tricks", [])
         for card in trick.get("cards", [])
     )
-    return (
-        data.get("declarer_points", 0)
-        + data.get("defender_points", 0)
-        + completed_trick_points
-    )
+    return data.get("declarer_points", 0) + data.get("defender_points", 0) + completed_trick_points
 
 
 def validate_declarer_concession_context(
@@ -291,8 +304,7 @@ def validate_declarer_concession_context(
     """Validates position-workflow and settlement prerequisites."""
     if data.get("analysis_mode", "live_decision") != "post_game_review":
         raise ValueError(
-            "game_shortening declarer concession requires "
-            "analysis_mode='post_game_review'."
+            "game_shortening declarer concession requires analysis_mode='post_game_review'."
         )
 
     game_end_reason = data.get("game_end_reason", "not_ended")
@@ -303,9 +315,7 @@ def validate_declarer_concession_context(
         )
 
     if "impossible_null_settlement" in data:
-        raise ValueError(
-            "game_shortening cannot be combined with impossible_null_settlement."
-        )
+        raise ValueError("game_shortening cannot be combined with impossible_null_settlement.")
 
     conflicting_list_fields = sorted(LIST_WORKFLOW_FIELDS.intersection(data))
     if conflicting_list_fields:
@@ -335,13 +345,9 @@ def validate_declarer_concession_context(
         game_value_summary=game_value_summary,
         bid_value=declaration.bid_value,
     )
-    if (
-        overbid_summary["is_overbid"] is True
-        and overbid_summary["required_game_value"] is None
-    ):
+    if overbid_summary["is_overbid"] is True and overbid_summary["required_game_value"] is None:
         raise ValueError(
-            "game_shortening declarer concession requires a supported "
-            "overbid-required game value."
+            "game_shortening declarer concession requires a supported overbid-required game value."
         )
 
     reconcile_declarer_hand_card_count(
@@ -368,9 +374,7 @@ def adjudicate_declarer_concession(
         overbid_summary.get("is_overbid") is True
         and overbid_summary.get("required_game_value") is None
     ):
-        raise ValueError(
-            "A declarer concession requires a supported overbid-required game value."
-        )
+        raise ValueError("A declarer concession requires a supported overbid-required game value.")
 
     reconciliation = reconcile_declarer_hand_card_count(game_shortening, evidence)
     adjudicated_result = game_result_summary.copy()
@@ -395,9 +399,7 @@ def adjudicate_declarer_concession(
         "schema_version": game_shortening.schema_version,
         "kind": game_shortening.kind,
         "rule_sections": [rule_section],
-        "declarer_hand_cards_remaining": (
-            game_shortening.declarer_hand_cards_remaining
-        ),
+        "declarer_hand_cards_remaining": (game_shortening.declarer_hand_cards_remaining),
         "hand_card_count_reconciliation": reconciliation,
         "consent_required": consent_required,
         "defender_consent": {
@@ -408,9 +410,7 @@ def adjudicate_declarer_concession(
         },
         "adjudicated_winner": "defenders",
         "remaining_points_assigned": False,
-        "settlement_level_policy": (
-            "declared_or_overbid_value_without_achieved_levels"
-        ),
+        "settlement_level_policy": ("declared_or_overbid_value_without_achieved_levels"),
     }
 
     return DeclarerConcessionAdjudication(

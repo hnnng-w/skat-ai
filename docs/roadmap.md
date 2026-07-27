@@ -228,10 +228,10 @@ Implemented:
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Complete historical-game records currently support normal completion only; claims, concessions, and other later end reasons are not represented there.
-* Continued exposed-defender play under 4.1.6, unlimited exact solving, isolated-card claims, open throwing, and historical game shortening remain incomplete; general settlement coverage is incomplete.
+* Historical corrected play, unlimited exact solving, isolated-card claims, open throwing, and historical game shortening remain incomplete; general settlement coverage is incomplete.
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
-* Multi-Step does not preserve one coherent hidden-world assignment across every simulated path; a validated exposed declarer hand is the bounded exception and remains coherent along each path.
+* Multi-Step does not preserve one coherent hidden-world assignment across every simulated path; either validated continuation hand is a bounded exception and remains coherent along each path.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -264,16 +264,18 @@ Implemented:
 * Some older or intentionally minimal completed-trick inputs may not contain enough metadata for full verification.
 * Live decision examples should not contain post-game-only information.
 * ISkO 4.4.4 continuation is a narrow rule-authorized exception that exposes only the exact current declarer hand; defender reaction cards remain hidden.
+* ISkO 4.4.5/4.1.6 continuation is a second narrow exception that fixes only the exposing defender's returned complete current hand; the declarer, partner, and skat remain protected.
 
 ## Release baselines
 
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 38 deterministic scenarios. Issues #86 through #90 add
+coverage now includes 39 deterministic scenarios. Issues #86 through #91 add
 bounded structured concessions, accepted declarer-card-exposure adjudication,
 ongoing exposed-hand continuation, and bounded exact defender open-play
-adjudication while the package remains `0.8.0`.
+adjudication plus non-adjudicating continued play while the package remains
+`0.8.0`.
 Issues #78 through #84 are complete:
 
 * #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.

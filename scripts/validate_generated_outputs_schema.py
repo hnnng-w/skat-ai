@@ -63,6 +63,9 @@ EXACT_REST_TRICK_PROOF_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "exact_rest_tric
 DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "declarer_card_exposure_continuation_output.schema.json"
 )
+DEFENDER_OPEN_PLAY_CONTINUATION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "defender_open_play_continuation_output.schema.json"
+)
 PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
@@ -906,6 +909,52 @@ def check_declarer_card_exposure_continuation(
         errors.append("expected incomplete final settlement")
     if not data.get("analysis_report"):
         errors.append("expected available Immediate Analysis")
+    return errors
+
+
+def check_defender_open_play_continuation(
+    data: dict[str, Any],
+) -> list[str]:
+    """Checks returned public cards without proof, adjudication, or settlement."""
+    errors = []
+    summary = data.get("game_continuation_summary")
+    information = data.get("information_policy_summary", {})
+    adjusted_result = data["adjusted_game_result_summary"]
+    settlement = data["final_settlement_summary"]
+    if not isinstance(summary, dict):
+        return ["expected defender-open-play game_continuation_summary"]
+    if summary.get("exposing_defender") != "left":
+        errors.append("expected left exposing defender")
+    if summary.get("non_exposing_defender") != "right":
+        errors.append("expected right non-exposing defender")
+    if summary.get("public_exposing_defender_cards") != ["C7", "H8", "D9"]:
+        errors.append("expected canonical exact public exposing-defender hand")
+    if summary.get("cards_returned_to_hand") is not True:
+        errors.append("expected exposed cards returned to hand")
+    if summary.get("hand_physically_open") is not False:
+        errors.append("expected returned hand not physically open")
+    if summary.get("rest_trick_claim_status") != ("not_adjudicated_due_to_continued_play"):
+        errors.append("expected original rest-trick claim not adjudicated")
+    for field in ("exact_proof_applied", "game_end_applied", "settlement_applied"):
+        if summary.get(field) is not False:
+            errors.append(f"expected {field} false")
+    constraints = information.get("public_hand_constraints")
+    if not isinstance(constraints, list) or len(constraints) != 1:
+        errors.append("expected one public exposing-defender constraint")
+    elif constraints[0].get("source") != "defender_open_play_continuation":
+        errors.append("expected defender-open-play continuation constraint source")
+    if adjusted_result.get("is_complete") is not False:
+        errors.append("expected continued game to remain incomplete")
+    if adjusted_result.get("winner") != "undecided":
+        errors.append("expected no decided winner from continued play")
+    if settlement.get("is_complete") is not False:
+        errors.append("expected incomplete final settlement")
+    if not data.get("analysis_report"):
+        errors.append("expected available Immediate Analysis")
+    serialized = json.dumps(data)
+    for forbidden in ('"exact_proof":', '"rest_trick_assignment":', '"settlement_basis":'):
+        if forbidden in serialized:
+            errors.append(f"unexpected {forbidden} in continuation output")
     return errors
 
 
@@ -1797,6 +1846,14 @@ SCENARIOS = (
         expect_quiet_stdout=True,
     ),
     Scenario(
+        name="defender_open_play_continuation",
+        input_path=PROJECT_ROOT / "examples" / "defender_open_play_continuation.json",
+        branch="continued play with returned public exposing-defender cards",
+        cli_args=("--quiet",),
+        check_output=check_defender_open_play_continuation,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
         name="overbid_settlement",
         input_path=(PROJECT_ROOT / "examples" / "grand_overbid_declarer_card_points_win.json"),
         branch="supported Suit/Grand overbid settlement",
@@ -2025,6 +2082,9 @@ def validate_generated_outputs() -> list[str]:
     declarer_card_exposure_continuation_output_schema = load_json_file(
         DECLARER_CARD_EXPOSURE_CONTINUATION_OUTPUT_SCHEMA_PATH
     )
+    defender_open_play_continuation_output_schema = load_json_file(
+        DEFENDER_OPEN_PLAY_CONTINUATION_OUTPUT_SCHEMA_PATH
+    )
     public_hand_constraint_schema = load_json_file(PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH)
     registry = Registry().with_resources(
         [
@@ -2099,6 +2159,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 declarer_card_exposure_continuation_output_schema["$id"],
                 Resource.from_contents(declarer_card_exposure_continuation_output_schema),
+            ),
+            (
+                defender_open_play_continuation_output_schema["$id"],
+                Resource.from_contents(defender_open_play_continuation_output_schema),
             ),
             (
                 public_hand_constraint_schema["$id"],

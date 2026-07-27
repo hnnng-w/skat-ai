@@ -1,0 +1,79 @@
+{
+  "game_type": "grand",
+  "player_role": "declarer",
+  "player_position": "middlehand",
+  "declarer_player": "me",
+  "trick_leader": "me",
+  "hand": ["DQ", "D8", "D7"],
+  "current_trick": [],
+  "played_cards": [],
+  "completed_tricks": [
+    {
+      "cards": ["HJ", "CJ", "C8"],
+      "players": ["me", "left", "right"],
+      "winner_role": "defenders",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["SJ", "H7", "H9"],
+      "players": ["left", "right", "me"],
+      "winner_role": "defenders",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["DJ", "DA", "D10"],
+      "players": ["left", "right", "me"],
+      "winner_role": "defenders",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["S10", "S7", "SA"],
+      "players": ["left", "right", "me"],
+      "winner_role": "declarer",
+      "winner_player": "me"
+    },
+    {
+      "cards": ["CA", "C10", "C9"],
+      "players": ["me", "left", "right"],
+      "winner_role": "declarer",
+      "winner_player": "me"
+    },
+    {
+      "cards": ["H10", "HA", "HQ"],
+      "players": ["me", "left", "right"],
+      "winner_role": "defenders",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["SQ", "S8", "SK"],
+      "players": ["left", "right", "me"],
+      "winner_role": "declarer",
+      "winner_player": "me"
+    }
+  ],
+  "declarer_points": 0,
+  "defender_points": 0,
+  "next_player": "me",
+  "skat": [],
+  "left_hand_size": 3,
+  "right_hand_size": 3,
+  "sample_count": 40,
+  "random_seed": 91,
+  "use_basic_opponent_strategy": true,
+  "analysis_mode": "live_decision",
+  "skat_visibility": "unknown",
+  "game_end_reason": "not_ended",
+  "hand_game": true,
+  "ouvert": false,
+  "schneider_announced": false,
+  "schwarz_announced": false,
+  "matadors": 1,
+  "bid_value": 48,
+  "game_continuation": {
+    "schema_version": 1,
+    "kind": "defender_open_play",
+    "exposing_defender": "left",
+    "declarer_response": "request_continued_play",
+    "public_exposing_defender_cards": ["C7", "D9", "H8"]
+  }
+}
