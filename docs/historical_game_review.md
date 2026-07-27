@@ -1,14 +1,10 @@
 # Historical game review
 
-Historical game review evaluates all 30 actual plays in a validated normal-play
-historical game through the existing immediate recommendation and post-game
-review logic. It does not introduce a separate historical recommendation
-algorithm.
-
-Review, review-only policy overrides, samples/seeds, and external profile
-application reject historical declarer-concession records. This contract remains
-exactly 30 decisions from `game_end_reason: "normal_completion"`; variable-length
-historical review is planned separately.
+Historical game review evaluates every actual card play in a validated normal-
+completion or declarer-concession record through the existing immediate
+recommendation and post-game review logic. Normal completion remains 30
+decisions; concession review contains zero through 29 decisions. The terminal
+event is not evaluated as a card choice.
 
 Rolling opponent-policy evaluation is a separate workflow. It predicts the
 acting player's observed card with their own game-start profile and the fixed
@@ -38,8 +34,9 @@ of 100 samples. A supplied base seed is converted to a per-decision seed with:
 effective_random_seed = base_random_seed + decision_index - 1
 ```
 
-Decision 1 therefore uses the base seed and decision 30 uses the base seed plus
-29. Without a base seed, every row exposes `effective_random_seed: null` and
+Decision 1 therefore uses the base seed and the final actual decision uses its
+one-based index offset. Without a base seed, every row exposes
+`effective_random_seed: null` and
 keeps the existing unseeded simulation behavior. The opponent policy mode is
 `default` without external profiles and `external_profiles` when the validated
 historical binding is active.
@@ -67,11 +64,15 @@ contains:
 
 * schema version, analysis method, and `decision_time` information policy
 * effective sample, base-seed, and default-policy settings
-* exactly 30 chronological decision rows
+* one chronological decision row per actual supplied play
 * reviewed and unavailable totals
 * counts for `optimal`, `acceptable`, `suboptimal`, `mistake`, and
   `not_available`
-* exactly three player summaries in input order, with ten decisions each
+* exactly three player summaries in input order, with actual per-player counts
+
+A zero-play concession has an empty decision array, zero overall counts, and
+three zero-decision player summaries. In shortened non-empty records, player
+counts may differ and always sum to the total.
 
 With external profiles, each row additionally reconciles acting, left, and right
 stable identities, match/actionability status, precedence, and effective side
@@ -101,7 +102,7 @@ public_exposed_cards_not_supported
 The row preserves its identity, actual card, and effective seed, while exposing
 an empty legal-card list and analysis report, a null recommendation card, and
 the existing unavailable post-game review shape with `not_available` quality.
-Counts still reconcile across all 30 rows and all three players. Exposed-card-
+Counts still reconcile across all rows and all three players. Exposed-card-
 aware simulation is not implemented by this workflow.
 
 ## Scope

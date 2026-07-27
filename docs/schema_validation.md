@@ -150,7 +150,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 41 deterministic scenarios. Position
+Generated-output validation covers 42 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including declarer concession, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -170,7 +170,8 @@ game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
 validation, settlement, information-safe decision snapshots, one seeded
-30-decision historical game review, one versioned two-record/60-sample training dataset,
+30-decision historical game review, one versioned two-record/60-sample training
+dataset, one 14-sample variable-length concession dataset,
 one versioned external opponent-statistics conversion, and one seeded live
 external-profile binding with distinct left/right presets, plus one seeded
 time-safe historical external-profile review, and one exact historical

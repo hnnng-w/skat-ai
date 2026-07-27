@@ -257,9 +257,9 @@ right's response is simulated before the local third-hand decision.
 
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
-`historical_game_summary`, its optional 30 decision-time snapshots, and the
-seeded complete historical review. A fourth scenario covers concession base and
-quiet output only. Snapshot-only generation does not run recommendation or
+`historical_game_summary`, its optional decision-time snapshots, and the
+seeded complete historical review. Another scenario covers concession base and
+quiet output. Snapshot-only generation does not run recommendation or
 simulation. Review uses the normal example with 20 samples and base seed 42.
 
 ## Training-dataset example
@@ -267,6 +267,7 @@ simulation. Review uses the normal example with 20 samples and base seed 42.
 | File | Purpose |
 | ---- | ------- |
 | `training_dataset_normal_play.json` | Two versioned Grand records in train and validation, with timestamps, repeated players in changed seats, opposite settlement outcomes, and 60 information-safe actual-card samples. It is also the historical-statistics aggregation source. |
+| `training_dataset_variable_length.json` | One 14-play declarer-concession record ending with a two-card incomplete trick and producing exactly 14 information-safe actual-card samples. |
 | `historical_opponent_policy_evaluation_dataset.json` | One earlier train source and one later validation target with repeated stable players in changed seats for rolling behavioral evaluation. |
 | `training_dataset_partition_audit.json` | One timestamped normal-completion record in each partition, with the same exact stable players changing seats and no declared policy, for report-only or requested policy auditing. |
 
@@ -274,7 +275,8 @@ This separate workflow runs historical validation and snapshot generation but
 does not run recommendations, review, or simulation. Its generated-output
 scenario verifies the dedicated branch, all three partition-count entries,
 stable sample IDs, legal labels, and identity-free features.
-Each game contributes 30 samples in normal conversion. Aggregation reuses the
+Each game contributes one sample per actual play; normal completion contributes
+30 and declarer concession contributes zero through 29. Aggregation reuses the
 dataset container but emits no samples, recommendations, review, or policy
 application.
 
@@ -311,7 +313,8 @@ source records for medium-confidence actionable coverage.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 41 scenarios, including historical declarer concession, both
+therefore covers 42 scenarios, including variable-length training data,
+historical declarer concession, both
 ongoing public-hand continuations, bounded exact defender-open-play adjudication,
 and open-card-throw adjudication.
 The behavioral match

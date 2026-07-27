@@ -106,12 +106,12 @@ not emit reconstructed complete remaining hands.
 
 ## Workflow boundary
 
-Shortened records are rejected by historical decision snapshots, complete-game
-review, external-profile historical review, training conversion, historical
-opponent-statistics aggregation, rolling opponent-policy evaluation, and dataset
-partition audits. Those contracts still require normal completion and exactly
-30 decisions. Variable-length historical decision and dataset support is
-planned separately.
+Shortened records produce one snapshot, review decision, and training sample per
+actual supplied play, including cards in an incomplete final trick. Empty
+prefixes produce zero artifacts. External-profile review and record/player
+partition audits are supported. The concession and consent remain outside
+decision-time state. Historical opponent-statistics aggregation and rolling
+opponent-policy evaluation remain normal-completion-only.
 
 Historical defender concession, card exposure, defender open play, open card
 throwing, continuation, claims of remaining tricks, and every other historical

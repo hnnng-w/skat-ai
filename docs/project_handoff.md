@@ -192,7 +192,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 41 deterministic scenarios.
+Generated-output validation currently covers 42 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -281,9 +281,9 @@ Implemented:
 * card-rank gap details
 * CLI output for post-game review summaries
 * unavailable summary when Immediate Analysis is unavailable because there is no current local decision
-* information-safe pre-play snapshots for all 30 decisions in a normal-play historical game
-* bounded review of all 30 historical decisions through existing immediate recommendation logic
-* deterministic per-decision seeds and reconciled game and player quality summaries
+* information-safe pre-play snapshots for every actual normal-completion or declarer-concession play
+* bounded review of every actual supported historical card decision through existing immediate recommendation logic
+* deterministic per-decision seeds and variable reconciled game and player quality summaries
 
 Current output fields include:
 
@@ -452,7 +452,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 41 deterministic generated-output
+The `v0.8.0` development baseline validates 42 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -523,6 +523,11 @@ through #84 is complete:
 * #83 evaluated rolling as-of known-opponent policy behavior against `simple_lowest`
 * #84 added dataset partition policies and deterministic stable-player overlap audits
 
+Subsequent bounded historical work:
+
+* #93 added exact-prefix historical declarer concession with stable-ID consent and settlement
+* #94 generalized snapshots, review, training samples, external-profile review, and partition audits to actual played-card cardinality
+
 ## Current implementation baseline
 
 **v0.8.0: Explainable and time-safe opponent intelligence**
@@ -536,10 +541,12 @@ Completed implementation scope:
 * exact historical aggregation with reusable export
 * rolling game-start known-opponent behavioral policy evaluation
 * known-opponent and unseen-player dataset policies with exact overlap auditing
+* variable-length historical decision artifacts for normal completion and declarer concession
 
 ## Current high-priority limitations
 
 * Historical records support normal completion and exact-prefix declarer concession; other claims, concessions, continuations, and end reasons are required.
+* Historical opponent-statistics aggregation and rolling policy evaluation remain normal-completion-only.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.
 * General live position input lacks complete field-level provenance.

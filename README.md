@@ -60,8 +60,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Versioned complete historical-game records for normal play
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
 * Derived historical trick winners, points, game value, overbid, and settlement
-* Optional information-safe pre-play snapshots for all 30 historical decisions
-* Optional decision-time review of all 30 historical plays through the existing immediate recommendation logic
+* Optional information-safe pre-play snapshots for every actual normal-completion or declarer-concession play
+* Optional decision-time review of those actual historical plays through the existing immediate recommendation logic
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
 * Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
 * Deterministic information-safe samples using the legal historical actual card as the version-1 target
@@ -272,15 +272,24 @@ Historical-game inputs form a separate workflow. External profile application
 requires `played_at`, historical review, profile-preset opt-in, at least one exact
 participant match, and captures strictly older than the game. Live-only relative
 binding IDs are rejected. `--samples` and `--seed` are accepted only with review.
-Historical declarer-concession base and quiet output are supported, but snapshots,
-review, profiles, datasets, statistics, evaluation, and audits remain restricted
-to normal completion and fixed 30-decision records.
+Historical declarer concessions support snapshots, review, time-safe external
+profiles, variable training samples, and record/player partition audits for every
+actual supplied play. The terminal event is not reviewed or used as a target.
+Historical opponent statistics and rolling policy evaluation remain restricted
+to normal completion. See
+[Variable-length historical decisions](docs/variable_length_historical_decisions.md).
 
-Convert a versioned normal-play training/evaluation dataset without running
+Convert a versioned training/evaluation dataset without running
 recommendations or simulation:
 
 ```powershell
 python main.py --input examples/training_dataset_normal_play.json
+```
+
+The variable-length example produces 14 samples from a concession prefix:
+
+```powershell
+python main.py --input examples/training_dataset_variable_length.json
 ```
 
 Audit exact stable-player membership without generating samples:
@@ -454,7 +463,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 41 deterministic scenarios,
+complete. Generated-output validation covers 42 deterministic scenarios,
 including both ongoing public-hand continuations and bounded exact defender
 open-play adjudication plus structured open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication

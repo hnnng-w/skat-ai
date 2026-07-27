@@ -188,7 +188,10 @@ def aggregate_historical_opponent_statistics(
 ) -> HistoricalOpponentStatisticsAggregation:
     """Aggregates exact reusable player statistics from selected historical games."""
     require_normal_completion_dataset(
-        dataset, "Historical opponent-statistics aggregation"
+        dataset,
+        "Historical opponent-statistics aggregation currently supports only "
+        "normal-completion records. Variable-length training samples are supported, "
+        "but shortened-game statistics are planned separately.",
     )
     selected_partitions = _canonicalize_partitions(included_partitions, dataset)
     before_instant = (

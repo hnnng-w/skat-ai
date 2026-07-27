@@ -25,7 +25,7 @@
       "$ref": "https://example.local/skat-ai/dataset_partition_policy.schema.json"
     },
     "record_count": {"type": "integer", "minimum": 1},
-    "sample_count": {"type": "integer", "minimum": 30},
+    "sample_count": {"type": "integer", "minimum": 0},
     "partition_counts": {"$ref": "#/$defs/partition_counts"},
     "records": {
       "type": "array",
@@ -327,22 +327,12 @@
         "provenance": {"$ref": "#/$defs/provenance"},
         "source_game_id": {"$ref": "#/$defs/stable_identifier"},
         "source_played_at": {"type": "string", "format": "date-time"},
-        "historical_game": {
-          "allOf": [
-            {"$ref": "https://example.local/skat-ai/historical_game.schema.json"},
-            {
-              "properties": {
-                "game_end_reason": {"const": "normal_completion"}
-              },
-              "not": {"required": ["game_end"]}
-            }
-          ]
-        },
-        "sample_count": {"const": 30},
+        "historical_game": {"$ref": "https://example.local/skat-ai/historical_game.schema.json"},
+        "sample_count": {"type": "integer", "minimum": 0, "maximum": 30},
         "samples": {
           "type": "array",
           "items": {"$ref": "#/$defs/sample"},
-          "minItems": 30,
+          "minItems": 0,
           "maxItems": 30
         }
       }

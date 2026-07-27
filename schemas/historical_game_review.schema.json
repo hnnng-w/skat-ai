@@ -20,7 +20,7 @@
     "schema_version": {"const": 1},
     "analysis_method": {"const": "immediate_expected_value"},
     "information_policy": {"const": "decision_time"},
-    "decision_count": {"const": 30},
+    "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
     "reviewed_decision_count": {
       "type": "integer",
       "minimum": 0,
@@ -42,7 +42,7 @@
     "decisions": {
       "type": "array",
       "items": {"$ref": "#/$defs/decision"},
-      "minItems": 30,
+      "minItems": 0,
       "maxItems": 30
     },
     "opponent_profile_application_counts": {
@@ -178,7 +178,7 @@
           "enum": ["forehand", "middlehand", "rearhand"]
         },
         "side": {"type": "string", "enum": ["declarer", "defenders"]},
-        "decision_count": {"const": 10},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 10},
         "reviewed_decision_count": {
           "type": "integer",
           "minimum": 0,

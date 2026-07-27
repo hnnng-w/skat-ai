@@ -1171,22 +1171,27 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         print("Result: declarer lost")
         print("Unresolved points assigned: no")
         print("Settlement:", settlement["settlement_score"])
-        return
-
-    print("Historical game summary")
-    print("Input file:", result["input_file"])
-    print("Game ID:", summary["game_id"])
-    print("Game type:", declaration["game_type"])
-    print("Declarer:", summary["record"]["declarer_player_id"])
-    print("Result winner:", summary["winner"])
-    print("Declarer points:", summary["declarer_points"])
-    print("Defender points:", summary["defender_points"])
-    print("Game value:", summary["game_value_summary"]["game_value"])
-    print("Overbid status:", summary["overbid_summary"]["status"])
-    print("Settlement score:", settlement["settlement_score"])
+    else:
+        print("Historical game summary")
+        print("Input file:", result["input_file"])
+        print("Game ID:", summary["game_id"])
+        print("Game type:", declaration["game_type"])
+        print("Declarer:", summary["record"]["declarer_player_id"])
+        print("Result winner:", summary["winner"])
+        print("Declarer points:", summary["declarer_points"])
+        print("Defender points:", summary["defender_points"])
+        print("Game value:", summary["game_value_summary"]["game_value"])
+        print("Overbid status:", summary["overbid_summary"]["status"])
+        print("Settlement score:", settlement["settlement_score"])
     decision_snapshot_summary = summary.get("decision_snapshot_summary")
     if decision_snapshot_summary is not None:
-        print("Decision snapshots generated:", decision_snapshot_summary["snapshot_count"])
+        snapshot_count = decision_snapshot_summary["snapshot_count"]
+        if game_end_summary is not None:
+            print("Historical decision snapshots:", snapshot_count)
+            if snapshot_count == 0:
+                print("No card decisions occurred before the terminal event.")
+        else:
+            print("Decision snapshots generated:", snapshot_count)
     review_summary = summary.get("historical_game_review_summary")
     if review_summary is not None:
         profile_summary = result.get("historical_opponent_profile_application_summary")
@@ -1214,10 +1219,20 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
                 f"{applied_decisions} of {application_counts['total_decisions']}."
             )
         print()
-        print("Historical game review")
-        print("Total decisions:", review_summary["decision_count"])
+        if game_end_summary is not None:
+            print(
+                "Historical game review:",
+                review_summary["decision_count"],
+                "decisions",
+            )
+        else:
+            print("Historical game review")
+            print("Total decisions:", review_summary["decision_count"])
         print("Reviewed decisions:", review_summary["reviewed_decision_count"])
         print("Unavailable decisions:", review_summary["unavailable_decision_count"])
+        if game_end_summary is not None:
+            print("Terminal event: declarer concession")
+            print("The terminal event itself was not reviewed as a card decision.")
         for quality, count in review_summary["quality_counts"].items():
             print(f"{quality.replace('_', ' ').title()} decisions:", count)
         for decision in review_summary["decisions"]:
@@ -1786,27 +1801,6 @@ def run_json_historical_game_analysis(
 ) -> None:
     """Runs the complete historical-game workflow."""
     record = load_historical_game_from_json(file_path)
-    if record.game_end_reason != "normal_completion" and any(
-        (
-            historical_decision_snapshots,
-            historical_game_review,
-            opponent_statistics_file is not None,
-            sample_count is not None,
-            base_random_seed is not None,
-            opponent_policy_preset_override is not None,
-            opponent_lead_policy_override is not None,
-            opponent_response_policy_override is not None,
-            left_opponent_lead_policy_override is not None,
-            left_opponent_response_policy_override is not None,
-            right_opponent_lead_policy_override is not None,
-            right_opponent_response_policy_override is not None,
-        )
-    ):
-        raise ValueError(
-            "Historical decision snapshots and review currently require "
-            "game_end_reason='normal_completion'; variable-length historical decision "
-            "support is planned separately."
-        )
     historical_game_summary = build_historical_game_summary(record)
     opponent_profile_bindings: HistoricalOpponentProfileBindings | None = None
     if opponent_statistics_file is not None:
@@ -2129,13 +2123,13 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--historical-decision-snapshots",
         action="store_true",
-        help=("Add 30 information-safe pre-play snapshots to historical-game output."),
+        help=("Add one information-safe pre-play snapshot per supplied historical play."),
     )
 
     parser.add_argument(
         "--historical-game-review",
         action="store_true",
-        help=("Evaluate all 30 historical decisions with decision-time information."),
+        help=("Evaluate every supplied historical card decision with decision-time information."),
     )
 
     parser.add_argument(

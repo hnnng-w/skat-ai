@@ -93,8 +93,9 @@ supported overbid settlement. Reconstructed remaining hand card lists are not
 emitted. See [Historical declarer concessions](historical_declarer_concessions.md).
 
 When `--historical-decision-snapshots` is requested, the summary also contains
-`decision_snapshot_summary`. Its version-1 `decision_time` policy provides 30
-chronological snapshots immediately before the actual plays. Each snapshot keeps
+`decision_snapshot_summary`. Its version-1 `decision_time` policy provides one
+chronological snapshot immediately before each actual supplied play. Normal
+completion has 30; declarer concession has zero through 29. Each snapshot keeps
 the actual card as a retrospective label and limits `visible_state` to the
 acting player's remaining hand, legal cards, prior public play, public point and
 hand-size state, legitimate skat knowledge, conservative visible matadors, and
@@ -104,7 +105,7 @@ ouvert exposure. It excludes final result, overbid, and settlement facts. See
 When `--historical-game-review` is requested, the summary also contains
 `historical_game_review_summary`. The version-1 object exposes fixed
 `immediate_expected_value` and `decision_time` policies, sample/base-seed
-settings, 30 decision rows, quality counts, and exactly three player summaries.
+settings, one row per actual decision, quality counts, and exactly three player summaries.
 Each reviewed row contains all legal candidates, one recommendation, the
 existing analysis report, and the existing post-game review shape. Ouvert rows
 are explicitly unavailable with `public_exposed_cards_not_supported` and do not
@@ -136,7 +137,8 @@ Training-dataset input produces a separate stable branch:
 ```
 
 Every output record preserves provenance and the canonical validated historical
-game and contains exactly 30 ordered samples. Sample metadata contains stable
+game and contains one ordered sample per snapshot. Zero-sample records remain
+present. Sample metadata contains stable
 traceability identities. Features contain only decision-time state and use
 `me`, `left`, and `right` for player references. The separate label contains the
 legal historical actual card. Final results, settlement, recommendations, and

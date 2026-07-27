@@ -145,8 +145,9 @@ The historical workflow has a separate versioned `game_end` event with stable
 player IDs. It replays an empty, complete-trick, or final partial-trick prefix
 from the complete deal, confirms the declarer hand count, applies the same
 consent matrix and adjudicator, and preserves observed plus unresolved points.
-The base and quiet CLI workflows are supported; fixed-30 snapshots, review,
-datasets, statistics, evaluation, and audits reject the shortened record. See
+Snapshots, review, external-profile review, training conversion, and partition
+audits follow the exact played-card count. Statistics aggregation and rolling
+evaluation remain normal-completion-only. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
 ## Structured defender concession

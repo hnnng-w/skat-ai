@@ -12,13 +12,9 @@ from skat_ai.declarer_concession import (
 )
 from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.game_result import build_game_result_summary_from_points
-from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
 from skat_ai.historical_game import (
     build_historical_game_record,
     build_historical_game_summary_from_input,
-)
-from skat_ai.historical_opponent_profile_binding import (
-    resolve_historical_opponent_profile_bindings,
 )
 from skat_ai.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
@@ -446,12 +442,7 @@ def test_canonical_concession_round_trip_is_deterministic_and_private() -> None:
     ]
 
 
-def test_fixed_thirty_decision_workflows_reject_concession_records() -> None:
-    summary = build_historical_game_summary_from_input(build_concession_prefix())
-
-    with pytest.raises(ValueError, match="require game_end_reason='normal_completion'"):
-        build_historical_decision_snapshots(summary)
-
+def test_training_input_accepts_and_preserves_concession_records() -> None:
     training_data = {
         "schema_version": 1,
         "dataset_id": "shortened",
@@ -467,11 +458,13 @@ def test_fixed_thirty_decision_workflows_reject_concession_records() -> None:
             }
         ],
     }
-    with pytest.raises(ValueError, match="later variable-length dataset support"):
-        build_training_dataset_input(training_data)
+    dataset = build_training_dataset_input(training_data)
+
+    assert dataset.records[0].historical_game.game_end_reason == "declarer_concession"
+    assert build_training_dataset_summary(dataset)["sample_count"] == 0
 
 
-def test_typed_dataset_statistics_evaluation_and_audit_entry_points_reject_concession() -> None:
+def test_shortened_dataset_boundaries_are_workflow_specific() -> None:
     record = build_historical_game_record(build_concession_prefix())
     dataset = TrainingDatasetInput(
         schema_version=1,
@@ -496,15 +489,17 @@ def test_typed_dataset_statistics_evaluation_and_audit_entry_points_reject_conce
         ),
     )
 
-    calls = [
-        lambda: build_training_dataset_summary(dataset),
-        lambda: aggregate_historical_opponent_statistics(dataset),
-        lambda: evaluate_rolling_opponent_policy_predictions(dataset),
-        lambda: audit_training_dataset_partitions(dataset, "report_only"),
-    ]
-    for call in calls:
-        with pytest.raises(ValueError, match="fixed 30-decision records"):
-            call()
-
-    with pytest.raises(ValueError, match="External profile-enabled historical review"):
-        resolve_historical_opponent_profile_bindings(record, None, "unused.json")
+    assert build_training_dataset_summary(dataset)["sample_count"] == 0
+    assert audit_training_dataset_partitions(dataset, "report_only").source_dataset[
+        "total_record_count"
+    ] == 1
+    with pytest.raises(
+        ValueError,
+        match="Historical opponent-statistics aggregation.*normal-completion",
+    ):
+        aggregate_historical_opponent_statistics(dataset)
+    with pytest.raises(
+        ValueError,
+        match="Rolling opponent-policy evaluation.*normal-completion",
+    ):
+        evaluate_rolling_opponent_policy_predictions(dataset)

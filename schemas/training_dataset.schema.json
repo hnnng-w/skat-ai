@@ -70,17 +70,7 @@
           "enum": ["train", "validation", "test"]
         },
         "provenance": {"$ref": "#/$defs/provenance"},
-        "historical_game": {
-          "allOf": [
-            {"$ref": "https://example.local/skat-ai/historical_game.schema.json"},
-            {
-              "properties": {
-                "game_end_reason": {"const": "normal_completion"}
-              },
-              "not": {"required": ["game_end"]}
-            }
-          ]
-        }
+        "historical_game": {"$ref": "https://example.local/skat-ai/historical_game.schema.json"}
       }
     }
   }

@@ -9,7 +9,7 @@ from skat_ai.dataset_partition_policy import (
     build_serializable_dataset_partition_policy,
     collect_player_partition_memberships,
 )
-from skat_ai.training_dataset import TrainingDatasetInput, require_normal_completion_dataset
+from skat_ai.training_dataset import TrainingDatasetInput
 
 DATASET_PARTITION_AUDIT_VERSION = 1
 
@@ -250,7 +250,6 @@ def audit_training_dataset_partitions(
     mode: DatasetPartitionAuditMode,
 ) -> DatasetPartitionAudit:
     """Audits exact stable-player overlap without replaying or sampling games."""
-    require_normal_completion_dataset(dataset, "Dataset partition audit")
     if mode not in DATASET_PARTITION_AUDIT_MODES:
         raise ValueError(
             f"Dataset partition audit mode must be one of {list(DATASET_PARTITION_AUDIT_MODES)}."

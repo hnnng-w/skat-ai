@@ -96,8 +96,9 @@ It is rejected with:
 
 Historical games do not accept this flat `game_shortening` object. Their separate
 version-1 `game_end` event uses stable defender IDs and exact complete-deal replay.
-Historical review/snapshots, training datasets, opponent statistics, rolling
-evaluation, and partition audits remain normal-completion-only. See
+Historical review/snapshots, training datasets, and partition audits support the
+exact played prefix. Opponent statistics and rolling evaluation remain normal-
+completion-only. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
 ## Adjudicated result

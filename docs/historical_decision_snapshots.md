@@ -1,16 +1,16 @@
 # Historical decision snapshots
 
 Historical decision snapshots reconstruct the information available immediately
-before each actual card in an already validated normal-play historical game.
+before each actual card in an already validated normal-completion or
+declarer-concession play prefix.
 Snapshot-only output does not run recommendations or create training-dataset
 records. The optional historical game review uses these same snapshots as its
 only decision-state input. The separate training-dataset workflow also reuses
 them, converting stable player IDs to relative feature references without
 changing snapshot-only output.
 
-This fixed contract rejects historical declarer-concession records with a
-deterministic normal-completion error. It does not emit a variable number of
-snapshots; shortened-game snapshot support is planned separately.
+The count is the validated played-card count: 30 for normal completion and zero
+through 29 for declarer concession. The concession event itself has no snapshot.
 
 ## Requesting snapshots
 
@@ -38,15 +38,16 @@ The optional object is nested under `historical_game_summary`:
   "decision_snapshot_summary": {
     "schema_version": 1,
     "information_policy": "decision_time",
-    "snapshot_count": 30,
+    "snapshot_count": 14,
     "snapshots": []
   }
 }
 ```
 
 There is exactly one snapshot immediately before each actual play. Snapshots are
-ordered chronologically with `decision_index` values `1..30`, trick numbers
-`1..10`, and play indices `1..3`. `source_game_id` preserves the historical game
+ordered chronologically with consecutive one-based `decision_index` values,
+trick numbers `1..10`, and play indices `1..3`. Empty concession prefixes produce
+zero snapshots. `source_game_id` preserves the historical game
 ID. The pair of `source_game_id` and `decision_index` is the snapshot identity.
 
 Optional `source_played_at` preserves the original historical game-start
@@ -94,6 +95,10 @@ ID and side, and trick points. Current-trick lengths are `0`, `1`, and `2` befor
 the first, second, and third play. Point totals exclude the incomplete current
 trick and exclude original or discarded skat points.
 
+If a concession follows one or two cards of the final supplied trick, those
+cards receive snapshots but the trick remains incomplete. No winner is built,
+its points are not added, and no snapshot is created for the next player.
+
 ## Skat and matadors
 
 A non-Hand declarer sees the two final discarded cards with
@@ -119,7 +124,8 @@ simulation for such snapshots.
 Snapshots do not contain future plays, future winners, future points, hidden
 opponent hands, final points, final winner, achieved Schneider or Schwarz, final
 game value, overbid outcome, settlement, recommendations, or decision-quality
-ratings. The builder consumes the validated historical replay result and does
+ratings. Concession facts and defender consent are also excluded. The builder
+consumes the validated historical replay result and does
 not perform a second competing complete-game validation.
 
 External profile application does not add source statistics or hidden cards to
@@ -134,6 +140,9 @@ existing immediate recommendation workflow. The separate
 actual-card label without running that workflow. Complete-game retrospective
 analysis remains partial because ouvert recommendation simulation, later end
 reasons, and other approved gaps remain.
+
+See [Variable-length historical decisions](variable_length_historical_decisions.md)
+for shared count reconciliation and prefix-parity guarantees.
 
 The stable structure is defined by
 [`schemas/historical_decision_snapshot.schema.json`](../schemas/historical_decision_snapshot.schema.json)

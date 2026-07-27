@@ -283,36 +283,62 @@ def test_cli_historical_declarer_concession_quiet_output_is_private_and_schema_r
     assert "remaining_hands" not in json.dumps(result)
 
 
-@pytest.mark.parametrize(
-    "review_args",
-    [
-        ("--historical-decision-snapshots",),
-        ("--historical-game-review",),
-        ("--historical-game-review", "--samples", "1", "--seed", "42"),
-        (
-            "--historical-game-review",
-            "--opponent-statistics-file",
-            HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH,
-            "--use-profile-presets",
-            "--opponent-policy-preset",
-            "simple_lowest",
-        ),
-    ],
-)
-def test_cli_fixed_decision_workflows_reject_historical_concession(review_args) -> None:
+def test_cli_variable_decision_workflows_accept_historical_concession() -> None:
     completed_process = run_cli(
         "--input",
         HISTORICAL_CONCESSION_INPUT_PATH,
-        *review_args,
+        "--historical-decision-snapshots",
+        "--historical-game-review",
+        "--samples",
+        "1",
+        "--seed",
+        "42",
     )
 
-    assert completed_process.returncode == 1
-    assert "currently require game_end_reason='normal_completion'" in (
-        completed_process.stderr
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical decision snapshots: 14" in completed_process.stdout
+    assert "Historical game review: 14 decisions" in completed_process.stdout
+    assert "Reviewed decisions: 14" in completed_process.stdout
+    assert "Terminal event: declarer concession" in completed_process.stdout
+    assert "The terminal event itself was not reviewed as a card decision." in (
+        completed_process.stdout
     )
-    assert "variable-length historical decision support is planned separately" in (
-        completed_process.stderr
+    assert "remaining_hand_sizes" not in completed_process.stdout
+
+
+def test_cli_zero_decision_concession_prints_empty_workflow_wording(tmp_path) -> None:
+    with HISTORICAL_CONCESSION_INPUT_PATH.open("r", encoding="utf-8") as source_file:
+        data = json.load(source_file)
+    historical_game = data["historical_game_input"]
+    historical_game["game_id"] = "zero-decision-concession"
+    historical_game["tricks"] = []
+    historical_game["game_end"]["declarer_hand_cards_remaining"] = 10
+    historical_game["game_end"]["defender_consent"] = {
+        "status": "not_required",
+        "consenting_defender_player_ids": [],
+    }
+    input_path = tmp_path / "zero-decision-concession.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+
+    completed_process = run_cli(
+        "--input",
+        input_path,
+        "--historical-decision-snapshots",
+        "--historical-game-review",
+        "--samples",
+        "1",
     )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical decision snapshots: 0" in completed_process.stdout
+    assert "No card decisions occurred before the terminal event." in (
+        completed_process.stdout
+    )
+    assert "Historical game review: 0 decisions" in completed_process.stdout
+    assert "Reviewed decisions: 0" in completed_process.stdout
+    assert "Unavailable decisions: 0" in completed_process.stdout
 
 
 def test_cli_training_dataset_prints_identity_totals_and_partitions() -> None:

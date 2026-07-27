@@ -16,9 +16,9 @@ optional, so existing datasets remain valid with unspecified partition intent.
 `report_only` is an audit CLI mode and cannot be stored in dataset metadata.
 Policy metadata is preserved by canonical dataset conversion and in bounded
 historical-aggregation and rolling-evaluation source provenance.
-The dataset and audit contracts remain normal-completion-only. Historical
-declarer-concession records are rejected until variable-length dataset support is
-defined; audits do not silently inspect shortened records.
+Datasets and audits accept normal-completion and declarer-concession records.
+Membership remains record- and participant-based, so zero-sample records still
+participate fully in overlap and coverage checks.
 
 ## Leakage and overlap
 
@@ -30,7 +30,8 @@ or invalid depending on the declared policy.
 
 Player identity is exact, opaque, and case-sensitive. Labels and seats do not
 define identity, so a seat change does not create another player and two IDs
-with the same label remain distinct. Every game contributes all three participant
+with the same label remain distinct. Every game, including a zero-play
+concession, contributes all three participant
 IDs. Repeated games for one player inside a single partition are valid and are
 not cross-partition leakage.
 
@@ -91,6 +92,9 @@ rolling evaluation, review historical decisions, recommend cards, simulate
 play, train a model, modify records, or repartition data. Automatic splitting,
 balancing, record movement, unseen-player profile prediction, machine-learning
 training, and model generalization evaluation remain unsupported.
+
+Historical opponent-statistics aggregation and rolling opponent-policy
+evaluation retain their separate normal-completion-only guards.
 
 Stable structures are defined by:
 

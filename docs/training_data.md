@@ -1,17 +1,15 @@
 # Training data
 
-`skat-ai` supports a separate versioned workflow that converts complete
-normal-play historical games into deterministic training or evaluation records.
+`skat-ai` supports a separate versioned workflow that converts supported
+historical play prefixes into deterministic training or evaluation records.
 It stores provenance and explicit partitions and derives one information-safe
 sample for every historical card play. It does not train, select, evaluate, or
 deploy a machine-learning model.
 
 Training-data representation remains `partially_supported`. Version 1 accepts
-only complete historical games with `game_end_reason: "normal_completion"`.
-Historical declarer concession is supported by the base historical workflow but
-is deliberately rejected here. Shortened records require later variable-length
-sample and dataset support; each accepted record still produces exactly 30
-samples.
+normal completion and declarer concession. Normal records produce 30 samples;
+concession records produce zero through 29 samples from their actual play prefix.
+Other historical end reasons remain unsupported.
 
 ## Dataset input
 
@@ -97,10 +95,11 @@ if no cutoff is supplied.
 
 Each accepted record is replayed once through the existing historical-game
 implementation. The validated result is passed to the existing decision
-snapshot generator, producing exactly 30 samples in `decision_index` order.
+snapshot generator, producing one sample per actual play in `decision_index` order.
 No recommender, recommendation simulation, or historical review is run.
 
-Dataset sample order is record input order followed by decision indices `1..30`.
+Dataset sample order is record input order followed by consecutive one-based
+decision indices.
 The stable sample ID is:
 
 ```text
@@ -146,6 +145,8 @@ All player references inside features use only `me`, `left`, and `right`.
 Features contain no future plays, hidden opponent cards, final winner or points,
 achieved future Schneider/Schwarz result, final game value, overbid outcome,
 settlement, recommendation, or decision-quality value.
+The terminal event, defender consent, unresolved points, and the fact that a
+concession will occur are also absent from model-facing features.
 
 The label card is the historical actual card. It must be in the pre-play own
 hand and legal-card set and absent from the pre-play current trick. A
@@ -158,14 +159,20 @@ The dedicated output branch contains only `input_file` and
 supplied partition policy,
 contains canonical historical records and all samples, and reports reconciled
 record and sample totals. `partition_counts` always includes `train`,
-`validation`, and `test`, including zero-count partitions. Every record has 30
-samples, so total `sample_count` is `record_count * 30`.
+`validation`, and `test`, including zero-count partitions. Record counts remain
+independent of sample counts; each partition and dataset sample total is the sum
+of actual record sample counts. Zero-sample records and all-zero-sample datasets
+are valid.
 
 The public example currently has two games in `train` and `validation`, repeated
 stable players in changed seats, explicit timestamps, and opposite final
 settlement outcomes. Normal conversion therefore emits `record_count: 2`, 30
 samples per record, and `sample_count: 60`. The same file is the aggregation
 source, but aggregation emits exact player records rather than these samples.
+
+`examples/training_dataset_variable_length.json` contains a 14-play concession
+prefix ending in an incomplete trick. It produces 14 samples and no terminal-
+event target.
 
 The stable structures are defined by:
 

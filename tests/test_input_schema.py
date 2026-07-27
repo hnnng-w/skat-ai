@@ -305,16 +305,16 @@ def test_schema_and_runtime_accept_historical_declarer_concession_branch() -> No
     assert record.game_end_reason == "declarer_concession"
 
 
-def test_training_dataset_schema_and_runtime_reject_historical_concession() -> None:
+def test_training_dataset_schema_and_runtime_accept_historical_concession() -> None:
     data = build_valid_training_dataset_input()
     example_path = PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
     with example_path.open("r", encoding="utf-8") as example_file:
         concession = json.load(example_file)["historical_game_input"]
     data["training_dataset_input"]["records"][0]["historical_game"] = concession
 
-    assert_schema_invalid(data)
-    with pytest.raises(ValueError, match="later variable-length dataset support"):
-        build_training_dataset_input(data["training_dataset_input"])
+    assert_schema_valid(data)
+    dataset = build_training_dataset_input(data["training_dataset_input"])
+    assert dataset.records[0].historical_game.game_end_reason == "declarer_concession"
 
 
 def test_schema_and_runtime_accept_structured_declarer_concession() -> None:

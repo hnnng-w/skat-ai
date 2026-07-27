@@ -6,6 +6,7 @@ from skat_ai.dataset_partition_policy import (
     collect_player_partition_memberships,
 )
 from skat_ai.game_declaration import build_serializable_game_declaration
+from skat_ai.historical_decision_cardinality import MAX_HISTORICAL_DECISION_COUNT
 from skat_ai.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
     build_historical_decision_snapshots,
@@ -26,7 +27,6 @@ from skat_ai.opponent_policy_preset import get_opponent_policy_settings_for_pres
 from skat_ai.opponent_statistics import build_opponent_statistics_summary
 from skat_ai.rfc3339 import parse_rfc3339_datetime
 from skat_ai.training_dataset import (
-    SAMPLES_PER_TRAINING_RECORD,
     TRAINING_PARTITIONS,
     TrainingDatasetInput,
     TrainingDatasetRecord,
@@ -666,7 +666,12 @@ def evaluate_rolling_opponent_policy_predictions(
     evaluation_partitions: tuple[str, ...] = DEFAULT_EVALUATION_PARTITIONS,
 ) -> RollingOpponentPolicyEvaluation:
     """Evaluates time-safe profile policy imitation against a fixed baseline."""
-    require_normal_completion_dataset(dataset, "Rolling opponent-policy evaluation")
+    require_normal_completion_dataset(
+        dataset,
+        "Rolling opponent-policy evaluation currently supports only normal-completion "
+        "records. Variable-length training samples are supported, but shortened-game "
+        "rolling profiles and evaluation are planned separately.",
+    )
     if (
         dataset.partition_policy is not None
         and dataset.partition_policy.mode == "unseen_player"
@@ -715,10 +720,10 @@ def evaluate_rolling_opponent_policy_predictions(
         )
         historical_summary = build_historical_game_summary(target.historical_game)
         snapshots = build_historical_decision_snapshots(historical_summary)
-        if snapshots.snapshot_count != SAMPLES_PER_TRAINING_RECORD:
+        if snapshots.snapshot_count != MAX_HISTORICAL_DECISION_COUNT:
             raise ValueError(
                 f"Target game '{target.historical_game.game_id}' must contribute exactly "
-                f"{SAMPLES_PER_TRAINING_RECORD} decisions."
+                f"{MAX_HISTORICAL_DECISION_COUNT} decisions."
             )
         decisions = [
             _build_decision(

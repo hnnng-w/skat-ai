@@ -132,7 +132,7 @@ The current code and release-preparation baseline is `v0.8.0`, with the theme
 
 The package version is `0.8.0`.
 
-Generated-output validation currently covers 33 deterministic scenarios.
+Generated-output validation currently covers 42 deterministic scenarios.
 
 The documented `v0.8.0` issue scope, issues #78 through #84, is complete.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication

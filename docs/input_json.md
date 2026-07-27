@@ -152,9 +152,9 @@ A training-dataset file contains only its dataset branch:
 ```
 
 Each record supplies a unique `record_id`, a `train`, `validation`, or `test`
-partition, required provenance, and one normal-completion historical game. The
-dataset contract rejects shortened historical records until variable-length
-sample support is added. See
+partition, required provenance, and one normal-completion or declarer-concession
+historical game. Samples follow the exact validated played-card count, including
+zero. See
 [Training data](training_data.md) for identity, duplicate, provenance, sample,
 and information-safety rules.
 

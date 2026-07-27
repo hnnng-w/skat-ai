@@ -1,8 +1,8 @@
 # Rolling opponent-policy evaluation
 
 This fixed-30 workflow accepts only normal-completion historical dataset records.
-Historical declarer-concession records are rejected until variable-length
-dataset and evaluation support is defined.
+Historical declarer-concession records can produce training samples, but rolling
+profile construction and evaluation for shortened games are planned separately.
 
 `skat-ai` can evaluate whether an existing profile-derived deterministic policy
 describes observed historical card choices better than the fixed

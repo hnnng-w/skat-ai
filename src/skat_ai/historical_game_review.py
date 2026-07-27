@@ -313,14 +313,20 @@ def build_historical_game_review_summary(
     right_opponent_response_policy_override: str | None = None,
 ) -> dict[str, Any]:
     """Evaluates all historical decisions through the immediate review pipeline."""
-    if historical_record.game_end_reason != "normal_completion":
+    cardinality = snapshot_summary.cardinality
+    if historical_record.game_end_reason != cardinality.game_end_reason:
         raise ValueError(
-            "Historical decision snapshots and review currently require "
-            "game_end_reason='normal_completion'; variable-length historical decision "
-            "support is planned separately."
+            "Historical game review record and snapshot end reasons do not match."
         )
-    if snapshot_summary.snapshot_count != 30 or len(snapshot_summary.snapshots) != 30:
-        raise ValueError("Historical game review requires exactly 30 snapshots.")
+    if (
+        snapshot_summary.snapshot_count
+        != cardinality.expected_review_decision_count
+        or len(snapshot_summary.snapshots)
+        != cardinality.expected_review_decision_count
+    ):
+        raise ValueError(
+            "Historical game review snapshot count does not match the validated play prefix."
+        )
     validate_positive_integer_maximum(
         sample_count,
         "sample_count",
@@ -392,10 +398,10 @@ def build_historical_game_review_summary(
         decisions=decisions,
     )
 
-    if len(player_summaries) != 3 or any(
-        summary["decision_count"] != 10 for summary in player_summaries
-    ):
-        raise ValueError("Historical game review requires ten decisions per player.")
+    if len(player_summaries) != 3:
+        raise ValueError("Historical game review requires exactly three player summaries.")
+    if sum(summary["decision_count"] for summary in player_summaries) != len(decisions):
+        raise ValueError("Historical player decision totals do not reconcile.")
     if sum(summary["reviewed_decision_count"] for summary in player_summaries) != reviewed_count:
         raise ValueError("Historical player reviewed-decision totals do not reconcile.")
     if sum(
@@ -407,6 +413,18 @@ def build_historical_game_review_summary(
             summary["quality_counts"][quality] for summary in player_summaries
         ) != quality_counts[quality]:
             raise ValueError("Historical player quality totals do not reconcile.")
+    if reviewed_count + unavailable_count != len(decisions):
+        raise ValueError("Historical review availability totals do not reconcile.")
+    if sum(quality_counts.values()) != len(decisions):
+        raise ValueError("Historical review quality totals do not reconcile.")
+    for summary in player_summaries:
+        if (
+            summary["reviewed_decision_count"]
+            + summary["unavailable_decision_count"]
+            != summary["decision_count"]
+            or sum(summary["quality_counts"].values()) != summary["decision_count"]
+        ):
+            raise ValueError("Historical player review counts do not reconcile.")
 
     result = {
         "schema_version": HISTORICAL_GAME_REVIEW_SCHEMA_VERSION,

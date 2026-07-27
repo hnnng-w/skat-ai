@@ -23,7 +23,8 @@ stable-ID record, and strictly replays either ten normal-completion tricks or an
 exact legal prefix ending in a versioned declarer-concession event. It derives
 points and ownership, reuses the declaration/value/overbid/settlement helpers,
 and emits `historical_game_summary`.
-When requested, the flow then derives 30 pre-play decision snapshots from that
+When requested, the flow derives one pre-play decision snapshot per actual
+supplied play from that
 validated replay result. Historical review adapts each snapshot independently
 to the existing local state, runs the existing immediate recommendation once,
 builds the candidate report from those values, and reuses post-game review.
@@ -32,7 +33,7 @@ The training-dataset flow validates dataset identity, provenance, optional
 known-opponent or unseen-player partition policy, and duplicate protection, then reuses the historical validator/replay and
 decision snapshot generator. It converts stable player references to the local
 `me`/`left`/`right` model in features, keeps traceability identities in metadata,
-and emits exactly 30 legal actual-card samples per record. It does not call the
+and emits one legal actual-card sample per snapshot. It does not call the
 recommender or simulation.
 
 The dataset-partition audit flow scans exact stable participant IDs without
@@ -99,6 +100,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_game_end.py` | Versioned stable-ID historical game-end union parsing and canonical serialization. |
 | `src/skat_ai/historical_play_prefix.py` | Exact immutable prefix replay, remaining-hand reconstruction, and incomplete-trick state. |
 | `src/skat_ai/historical_declarer_concession.py` | Historical point accounting and shared declarer-concession adjudication/settlement adaptation. |
+| `src/skat_ai/historical_decision_cardinality.py` | Shared actual-play cardinality for snapshots, review decisions, and training samples. |
 | `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
 | `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
 | `src/skat_ai/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |

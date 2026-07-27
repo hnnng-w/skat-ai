@@ -3,14 +3,14 @@
 `skat-ai` supports a separate versioned workflow for three-player games that
 ended through normal play or a bounded declarer concession. It validates the
 initial 32-card deal, final declaration, skat handling, every supplied play,
-result, and settlement. Normal completion can additionally reconstruct a local
-`me`/`left`/`right` information view immediately before all 30 actual plays.
+result, and settlement. Both supported endings can reconstruct a local
+`me`/`left`/`right` information view immediately before every actual play.
 
 Historical-game representation remains `partially_supported`. The bounded
-normal-play workflow can review all 30 decisions and can be wrapped by the
+decision workflow reviews actual plays and can be wrapped by the
 separate training-dataset workflow. Base historical output also supports
 declarer concession under ISkO 4.4.1 and 4.4.2, but it does not provide
-variable-length decision workflows, ouvert-aware recommendation simulation,
+ouvert-aware recommendation simulation,
 other claims/concessions, full auction events, player
 statistics directly from one historical-game invocation, or list/tournament
 aggregation. A timestamped collection wrapped by the training-dataset workflow
@@ -152,7 +152,7 @@ Concession output additionally contains `play_prefix_summary`, optional
 the reconstructed remaining card lists.
 
 With `--historical-decision-snapshots`, the summary additionally contains an
-optional `decision_snapshot_summary` with exactly 30 chronological pre-play
+optional `decision_snapshot_summary` with one chronological pre-play
 states. The actual card is a retrospective label outside the visible state.
 Snapshot hands, legal cards, prior tricks, point state, hand sizes, skat
 knowledge, matadors, and ouvert exposure follow the acting player's decision-time
@@ -160,7 +160,7 @@ information boundary. See
 [Historical decision snapshots](historical_decision_snapshots.md).
 
 With `--historical-game-review`, the summary additionally contains
-`historical_game_review_summary`. All 30 snapshots are evaluated through the
+`historical_game_review_summary`. Every actual snapshot is evaluated through the
 existing immediate recommendation and post-game review logic. Final result and
 settlement fields remain beside the review but do not influence it. See
 [Historical game review](historical_game_review.md).
@@ -209,9 +209,9 @@ historical review. External statistics, profile-preset opt-in, and existing
 global or side policy precedence are accepted only for profile-enabled review.
 Live left/right binding IDs, comparison, and multi-step options are rejected.
 See [Historical opponent profiles](historical_opponent_profiles.md).
-Declarer-concession records accept only the base and quiet-output workflow.
-Snapshot, review, external-profile, review-policy, sample, and seed options fail
-with the normal-completion/fixed-30 boundary error.
+Declarer-concession records also accept snapshot, review, external-profile,
+review-policy, sample, and seed options. The terminal event itself is not a card
+decision. Statistics aggregation and rolling evaluation remain normal-only.
 
 ## Remaining scope
 

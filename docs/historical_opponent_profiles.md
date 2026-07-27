@@ -1,8 +1,8 @@
 # Historical opponent profiles
 
-External profile-enabled historical review remains normal-completion-only.
-Historical declarer-concession records are supported by base output but are
-rejected before profile binding or variable-length review.
+External profile-enabled historical review supports actual card decisions from
+normal-completion and declarer-concession records. Empty prefixes produce zero
+application counts; consent is not behavioral evidence.
 
 Historical game review can apply validated external opponent profiles without
 using statistics captured during or after the reviewed game. The feature reuses

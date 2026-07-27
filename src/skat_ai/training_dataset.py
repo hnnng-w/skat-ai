@@ -32,13 +32,6 @@ TRAINING_SOURCE_TYPES = (
     "synthetic",
     "other",
 )
-SAMPLES_PER_TRAINING_RECORD = 30
-SHORTENED_DATASET_ERROR = (
-    "currently requires game_end_reason='normal_completion' and fixed 30-decision "
-    "records; shortened historical dataset records require later variable-length "
-    "dataset support."
-)
-
 TrainingPartition = Literal["train", "validation", "test"]
 TrainingSourceType = Literal[
     "online_platform",
@@ -85,9 +78,9 @@ class TrainingDatasetInput:
 
 def require_normal_completion_dataset(
     dataset: TrainingDatasetInput,
-    workflow_name: str,
+    workflow_error: str,
 ) -> None:
-    """Keeps fixed-length dataset workflows bounded to normal completion."""
+    """Keeps explicitly bounded downstream workflows on normal completion."""
     shortened_game_ids = [
         record.historical_game.game_id
         for record in dataset.records
@@ -95,7 +88,7 @@ def require_normal_completion_dataset(
     ]
     if shortened_game_ids:
         raise ValueError(
-            f"{workflow_name} {SHORTENED_DATASET_ERROR} "
+            f"{workflow_error} "
             f"Shortened games: {shortened_game_ids}."
         )
 
@@ -187,10 +180,6 @@ def _build_training_record(value: Any, record_index: int) -> TrainingDatasetReco
     historical_game_data = _require_object(
         data["historical_game"], f"{record_name}.historical_game"
     )
-    if historical_game_data.get("game_end_reason") != "normal_completion":
-        raise ValueError(
-            f"{record_name}.historical_game {SHORTENED_DATASET_ERROR}"
-        )
     return TrainingDatasetRecord(
         record_id=record_id,
         partition=partition,
@@ -403,7 +392,6 @@ def build_training_dataset_summary(
     dataset: TrainingDatasetInput,
 ) -> dict[str, Any]:
     """Replays records once and builds deterministic information-safe samples."""
-    require_normal_completion_dataset(dataset, "Training-sample generation")
     serialized_records = []
     partition_counts = {
         partition: {"record_count": 0, "sample_count": 0}
@@ -413,15 +401,23 @@ def build_training_dataset_summary(
     for record in dataset.records:
         historical_summary = build_historical_game_summary(record.historical_game)
         snapshots = build_historical_decision_snapshots(historical_summary)
-        if snapshots.snapshot_count != SAMPLES_PER_TRAINING_RECORD:
+        if (
+            snapshots.snapshot_count
+            != snapshots.cardinality.expected_training_sample_count
+        ):
             raise ValueError(
-                f"Training record '{record.record_id}' must produce exactly "
-                f"{SAMPLES_PER_TRAINING_RECORD} samples."
+                f"Training record '{record.record_id}' snapshot count does not match "
+                "the validated play prefix."
             )
         samples = [
             _build_sample(dataset, record, snapshot)
             for snapshot in snapshots.snapshots
         ]
+        if len(samples) != snapshots.cardinality.expected_training_sample_count:
+            raise ValueError(
+                f"Training record '{record.record_id}' sample count does not match "
+                "the validated play prefix."
+            )
         record_sample_ids = [sample["sample_id"] for sample in samples]
         if len(record_sample_ids) != len(set(record_sample_ids)):
             raise ValueError(
@@ -458,9 +454,6 @@ def build_training_dataset_summary(
         counts["sample_count"] for counts in partition_counts.values()
     ):
         raise ValueError("Training dataset partition sample counts do not reconcile.")
-    if sample_count != record_count * SAMPLES_PER_TRAINING_RECORD:
-        raise ValueError("Training dataset total sample count does not reconcile.")
-
     result = {
         "schema_version": dataset.schema_version,
         "dataset_id": dataset.dataset_id,

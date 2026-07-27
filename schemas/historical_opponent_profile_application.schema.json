@@ -187,7 +187,7 @@
         "application_counts_by_preset"
       ],
       "properties": {
-        "total_decisions": {"const": 30},
+        "total_decisions": {"type": "integer", "minimum": 0, "maximum": 30},
         "decisions_with_matched_opponent_profile": {"type": "integer", "minimum": 0, "maximum": 30},
         "decisions_with_applied_left_profile": {"type": "integer", "minimum": 0, "maximum": 30},
         "decisions_with_applied_right_profile": {"type": "integer", "minimum": 0, "maximum": 30},

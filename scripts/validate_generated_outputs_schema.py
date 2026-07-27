@@ -1504,6 +1504,59 @@ def check_training_dataset_normal_play(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_training_dataset_variable_length(data: dict[str, Any]) -> list[str]:
+    """Checks variable decision cardinality without terminal-event feature leakage."""
+    errors = []
+    if set(data) != {"input_file", "training_dataset_summary"}:
+        return ["expected only the training-dataset top-level output branch"]
+    summary = data["training_dataset_summary"]
+    if summary["record_count"] != 1 or summary["sample_count"] != 14:
+        errors.append("expected one shortened record and exactly 14 samples")
+    if summary["partition_counts"] != {
+        "train": {"record_count": 1, "sample_count": 14},
+        "validation": {"record_count": 0, "sample_count": 0},
+        "test": {"record_count": 0, "sample_count": 0},
+    }:
+        errors.append("expected variable partition sample reconciliation")
+    record = summary["records"][0]
+    if (
+        record["historical_game"]["game_end_reason"] != "declarer_concession"
+        or record["sample_count"] != 14
+    ):
+        errors.append("expected preserved concession provenance and 14 record samples")
+    samples = record["samples"]
+    if [sample["sample_id"] for sample in samples] != [
+        f"concession-record-001:{index}" for index in range(1, 15)
+    ]:
+        errors.append("expected consecutive variable-length sample IDs")
+    if any(
+        sample["label"]["target"] != "actual_card_played"
+        or sample["label"]["card"] not in sample["features"]["own_hand"]
+        or sample["label"]["card"] not in sample["features"]["legal_cards"]
+        for sample in samples
+    ):
+        errors.append("expected legal actual-card labels for shortened samples")
+    forbidden = {
+        "game_end",
+        "game_end_reason",
+        "defender_consent",
+        "game_result_summary",
+        "final_settlement_summary",
+        "unresolved_points",
+    }
+
+    def collect_keys(value: object) -> set[str]:
+        if isinstance(value, dict):
+            return set(value).union(*(collect_keys(item) for item in value.values()))
+        if isinstance(value, list):
+            return set().union(*(collect_keys(item) for item in value), set())
+        return set()
+
+    if any(forbidden.intersection(collect_keys(sample["features"])) for sample in samples):
+        errors.append("expected terminal-event-free variable-length training features")
+    return errors
+
+
 def check_historical_opponent_statistics(data: dict[str, Any]) -> list[str]:
     """Checks exact aggregation without training samples or policy application."""
     errors = []
@@ -2098,6 +2151,15 @@ SCENARIOS = (
         branch="versioned normal-play training dataset with 30 decision samples",
         cli_args=("--quiet",),
         check_output=check_training_dataset_normal_play,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="training_dataset_variable_length",
+        input_path=PROJECT_ROOT / "examples" / "training_dataset_variable_length.json",
+        branch="variable-length concession training data with 14 decision samples",
+        cli_args=("--quiet",),
+        check_output=check_training_dataset_variable_length,
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),

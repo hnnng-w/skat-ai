@@ -50,6 +50,7 @@ def get_position_example_json_files() -> list[Path]:
             "opponent_statistics.json",
             "training_dataset_normal_play.json",
             "training_dataset_partition_audit.json",
+            "training_dataset_variable_length.json",
         }
     ]
 
@@ -75,12 +76,14 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_opponent_policy_evaluation_dataset.json",
             "training_dataset_normal_play.json",
             "training_dataset_partition_audit.json",
+            "training_dataset_variable_length.json",
         }:
             dataset = load_training_dataset_from_json(str(example_file))
             assert dataset.dataset_id in {
                 "online-games-2026",
                 "opponent-policy-evaluation-example",
                 "dataset-partition-audit-example",
+                "variable-length-historical-decisions",
             }
             continue
         if example_file.name in {
@@ -190,6 +193,21 @@ def test_training_dataset_example_builds_sixty_samples() -> None:
         "record_count": 1,
         "sample_count": 30,
     }
+
+
+def test_variable_length_training_dataset_example_builds_fourteen_samples() -> None:
+    path = Path("examples/training_dataset_variable_length.json")
+    summary = build_training_dataset_summary(load_training_dataset_from_json(str(path)))
+
+    assert summary["record_count"] == 1
+    assert summary["sample_count"] == 14
+    assert summary["records"][0]["sample_count"] == 14
+    assert summary["records"][0]["historical_game"]["game_end_reason"] == (
+        "declarer_concession"
+    )
+    assert [sample["sample_id"] for sample in summary["records"][0]["samples"]] == [
+        f"concession-record-001:{index}" for index in range(1, 15)
+    ]
 
 
 def test_rolling_opponent_policy_evaluation_example_builds_target_results() -> None:

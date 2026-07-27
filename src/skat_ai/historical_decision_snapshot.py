@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from skat_ai.deck import get_full_deck
+from skat_ai.historical_decision_cardinality import (
+    HistoricalDecisionCardinality,
+    derive_historical_decision_cardinality,
+)
 from skat_ai.matador_inference import infer_matadors_from_known_ownership
 from skat_ai.rules import get_legal_cards
 
@@ -100,12 +104,13 @@ class HistoricalDecisionSnapshot:
 
 @dataclass(frozen=True)
 class HistoricalDecisionSnapshotSummary:
-    """The ordered decision snapshots for one normal-play historical game."""
+    """The ordered snapshots for one supported historical play prefix."""
 
     schema_version: int
     information_policy: Literal["decision_time"]
     snapshot_count: int
     snapshots: tuple[HistoricalDecisionSnapshot, ...]
+    cardinality: HistoricalDecisionCardinality
 
 
 def _serialize_play(play: HistoricalSnapshotPlay) -> dict[str, str]:
@@ -294,12 +299,7 @@ def build_historical_decision_snapshots(
 ) -> HistoricalDecisionSnapshotSummary:
     """Builds decision-time snapshots from one validated historical replay result."""
     record = historical_game_result["record"]
-    if record["game_end_reason"] != "normal_completion":
-        raise ValueError(
-            "Historical decision snapshots and review currently require "
-            "game_end_reason='normal_completion'; variable-length historical decision "
-            "support is planned separately."
-        )
+    cardinality = derive_historical_decision_cardinality(historical_game_result)
     declaration = record["declaration"]
     declarer_player_id = record["declarer_player_id"]
     players_by_id = {
@@ -317,7 +317,8 @@ def build_historical_decision_snapshots(
     snapshots = []
     decision_index = 0
 
-    for trick_index, trick in enumerate(record["tricks"]):
+    completed_trick_index = 0
+    for trick in record["tricks"]:
         current_trick: list[HistoricalSnapshotPlay] = []
         for play_index, play in enumerate(trick["plays"], start=1):
             decision_index += 1
@@ -434,23 +435,28 @@ def build_historical_decision_snapshots(
                 )
             )
 
-        completed_trick = _build_completed_trick(
-            historical_game_result["derived_tricks"][trick_index]
-        )
-        completed_tricks.append(completed_trick)
-        if completed_trick.winner_side == "declarer":
-            declarer_trick_points += completed_trick.trick_points
-        else:
-            defender_trick_points += completed_trick.trick_points
+        if len(trick["plays"]) == 3:
+            completed_trick = _build_completed_trick(
+                historical_game_result["derived_tricks"][completed_trick_index]
+            )
+            completed_trick_index += 1
+            completed_tricks.append(completed_trick)
+            if completed_trick.winner_side == "declarer":
+                declarer_trick_points += completed_trick.trick_points
+            else:
+                defender_trick_points += completed_trick.trick_points
 
-    if decision_index != 30:
+    if decision_index != cardinality.expected_snapshot_count:
         raise ValueError(
-            "Historical decision snapshots require exactly 30 validated plays."
+            "Historical decision snapshot count does not match the validated play prefix."
         )
+    if completed_trick_index != len(historical_game_result["derived_tricks"]):
+        raise ValueError("Historical completed-trick snapshots do not reconcile.")
 
     return HistoricalDecisionSnapshotSummary(
         schema_version=HISTORICAL_DECISION_SNAPSHOT_SCHEMA_VERSION,
         information_policy=HISTORICAL_DECISION_INFORMATION_POLICY,
         snapshot_count=len(snapshots),
         snapshots=tuple(snapshots),
+        cardinality=cardinality,
     )

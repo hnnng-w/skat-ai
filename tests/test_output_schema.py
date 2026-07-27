@@ -710,6 +710,18 @@ def build_valid_historical_output_with_decision_snapshots() -> dict[str, object]
     return data
 
 
+def build_valid_historical_concession_output_with_decision_snapshots() -> dict[str, object]:
+    data = build_valid_historical_concession_output()
+    historical_summary = data["historical_game_summary"]
+    assert isinstance(historical_summary, dict)
+    historical_summary["decision_snapshot_summary"] = (
+        build_serializable_historical_decision_snapshot_summary(
+            build_historical_decision_snapshots(historical_summary)
+        )
+    )
+    return data
+
+
 @lru_cache(maxsize=1)
 def build_cached_valid_historical_output_with_game_review() -> dict[str, object]:
     data = build_valid_historical_output()
@@ -729,6 +741,26 @@ def build_cached_valid_historical_output_with_game_review() -> dict[str, object]
 
 def build_valid_historical_output_with_game_review() -> dict[str, object]:
     return copy.deepcopy(build_cached_valid_historical_output_with_game_review())
+
+
+@lru_cache(maxsize=1)
+def build_cached_valid_historical_concession_output_with_game_review() -> dict[str, object]:
+    data = build_valid_historical_concession_output()
+    historical_summary = data["historical_game_summary"]
+    assert isinstance(historical_summary, dict)
+    input_path = PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
+    record = load_historical_game_from_json(str(input_path))
+    historical_summary["historical_game_review_summary"] = build_historical_game_review_summary(
+        build_historical_decision_snapshots(historical_summary),
+        record,
+        sample_count=1,
+        base_random_seed=42,
+    )
+    return data
+
+
+def build_valid_historical_concession_output_with_game_review() -> dict[str, object]:
+    return copy.deepcopy(build_cached_valid_historical_concession_output_with_game_review())
 
 
 @lru_cache(maxsize=1)
@@ -765,6 +797,15 @@ def build_valid_training_dataset_output() -> dict[str, object]:
     dataset = load_training_dataset_from_json(str(input_path))
     return {
         "input_file": "examples/training_dataset_normal_play.json",
+        "training_dataset_summary": build_training_dataset_summary(dataset),
+    }
+
+
+def build_valid_variable_training_dataset_output() -> dict[str, object]:
+    input_path = PROJECT_ROOT / "examples" / "training_dataset_variable_length.json"
+    dataset = load_training_dataset_from_json(str(input_path))
+    return {
+        "input_file": "examples/training_dataset_variable_length.json",
         "training_dataset_summary": build_training_dataset_summary(dataset),
     }
 
@@ -847,8 +888,24 @@ def test_schema_accepts_historical_decision_snapshot_output_branch() -> None:
     assert_schema_valid(build_valid_historical_output_with_decision_snapshots())
 
 
+def test_schema_accepts_shortened_historical_decision_snapshot_output_branch() -> None:
+    data = build_valid_historical_concession_output_with_decision_snapshots()
+    assert data["historical_game_summary"]["decision_snapshot_summary"][
+        "snapshot_count"
+    ] == 14
+    assert_schema_valid(data)
+
+
 def test_schema_accepts_historical_game_review_output_branch() -> None:
     assert_schema_valid(build_valid_historical_output_with_game_review())
+
+
+def test_schema_accepts_shortened_historical_game_review_output_branch() -> None:
+    data = build_valid_historical_concession_output_with_game_review()
+    assert data["historical_game_summary"]["historical_game_review_summary"][
+        "decision_count"
+    ] == 14
+    assert_schema_valid(data)
 
 
 def test_schema_accepts_historical_profile_application_output_branch() -> None:
@@ -866,6 +923,10 @@ def test_schema_rejects_simple_lowest_as_applied_historical_preset() -> None:
 
 def test_schema_accepts_training_dataset_output_branch() -> None:
     assert_schema_valid(build_valid_training_dataset_output())
+
+
+def test_schema_accepts_variable_training_dataset_output_branch() -> None:
+    assert_schema_valid(build_valid_variable_training_dataset_output())
 
 
 def test_schema_accepts_opponent_statistics_output_branch() -> None:
@@ -1064,8 +1125,8 @@ def test_schema_rejects_malformed_opponent_statistics_output(mutation) -> None:
     [
         lambda summary: summary.update(target="decision_quality"),
         lambda summary: summary["partition_counts"].pop("test"),
-        lambda summary: summary["records"][0].update(sample_count=29),
-        lambda summary: summary["records"][0]["samples"].pop(),
+        lambda summary: summary["records"][0].update(sample_count=31),
+        lambda summary: summary["records"][0].pop("samples"),
         lambda summary: summary["records"][0]["samples"][0]["features"].update(
             source_game_id="leaked-id"
         ),
@@ -1106,7 +1167,7 @@ def test_schema_accepts_nullable_seeds_and_ouvert_unavailable_review_branch() ->
 @pytest.mark.parametrize(
     "mutation",
     [
-        lambda review: review.update(decision_count=29),
+        lambda review: review.update(decision_count=31),
         lambda review: review["player_summaries"].pop(),
         lambda review: review["decisions"][0]["recommendation"].update(card=None),
         lambda review: review["decisions"][0].update(analysis_report=[]),
@@ -1127,7 +1188,7 @@ def test_schema_rejects_malformed_historical_decision_snapshot_summary() -> None
     assert isinstance(historical_summary, dict)
     snapshot_summary = historical_summary["decision_snapshot_summary"]
     assert isinstance(snapshot_summary, dict)
-    snapshot_summary["snapshot_count"] = 29
+    snapshot_summary["snapshot_count"] = 31
 
     assert_schema_invalid(data)
 

@@ -36,11 +36,12 @@ The following directions are required for `v1.0.0`:
   boundary is only partial support for this requirement.
 * Support retrospective single-decision review and complete-game coaching
   without future-information leakage into reconstructed decisions. Bounded
-  30-decision review exists, but a complete coaching workflow does not.
+  variable-cardinality review exists for supported endings, but a complete
+  coaching workflow does not.
 * Represent complete historical games with structured claims, concessions, and
   approved additional game-end reasons, then analyze rules, result, approved
   settlement, and eligible decisions retrospectively. Current complete records
-  support normal completion only.
+  support normal completion and exact-prefix declarer concession.
 * Complete the approved normative settlement matrix, including structured claim
   and concession outcomes, while preserving the bounded impossible Null
   interpretation from the International Skat Court decision collection.
@@ -140,9 +141,8 @@ The historical-game workflow satisfies deal-through-settlement for
 reconstruct information-safe pre-play states for all 30 actual cards. It also
 evaluates non-ouvert normal-play snapshots through bounded review and wraps all
 normal-play snapshots in versioned provenance-aware training/evaluation records.
-Training-data representation remains normal-completion-only; historical
-declarer concession and other shortened records require later variable-length
-dataset support. Optional partition intent, exact overlap audits,
+Training-data representation supports normal completion and declarer concession
+with one sample per actual play. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. The v1
 gate remains open for general declared-Ouvert and historical exposed-card-aware
@@ -170,7 +170,7 @@ historical continuation, general Ouvert analysis, historical defender
 concession and other historical claims/shortening, general corrected play,
 isolated or specific-trick claims, simultaneous throws, full-card theoretical
 solving, complete settlement
-coverage, or historical training and review after game shortening.
+coverage, or historical training and review for other shortening kinds.
 
 Bounded historical player-statistics aggregation is supported from the same
 dataset container under either compliant policy, but it does not infer or change policy and is not a

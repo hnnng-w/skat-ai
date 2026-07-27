@@ -18,14 +18,16 @@
       "const": "decision_time"
     },
     "snapshot_count": {
-      "const": 30
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 30
     },
     "snapshots": {
       "type": "array",
       "items": {
         "$ref": "#/$defs/snapshot"
       },
-      "minItems": 30,
+      "minItems": 0,
       "maxItems": 30
     }
   },
