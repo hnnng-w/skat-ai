@@ -18,7 +18,11 @@ from skat_ai.opponent_statistics import (
     build_opponent_statistics_summary,
 )
 from skat_ai.rfc3339 import parse_rfc3339_datetime
-from skat_ai.training_dataset import TRAINING_PARTITIONS, TrainingDatasetInput
+from skat_ai.training_dataset import (
+    TRAINING_PARTITIONS,
+    TrainingDatasetInput,
+    require_normal_completion_dataset,
+)
 
 HISTORICAL_OPPONENT_STATISTICS_AGGREGATION_VERSION = 1
 
@@ -183,6 +187,9 @@ def aggregate_historical_opponent_statistics(
     before: str | None = None,
 ) -> HistoricalOpponentStatisticsAggregation:
     """Aggregates exact reusable player statistics from selected historical games."""
+    require_normal_completion_dataset(
+        dataset, "Historical opponent-statistics aggregation"
+    )
     selected_partitions = _canonicalize_partitions(included_partitions, dataset)
     before_instant = (
         parse_rfc3339_datetime(before, "opponent-statistics-before")

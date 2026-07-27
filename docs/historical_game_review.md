@@ -5,6 +5,11 @@ historical game through the existing immediate recommendation and post-game
 review logic. It does not introduce a separate historical recommendation
 algorithm.
 
+Review, review-only policy overrides, samples/seeds, and external profile
+application reject historical declarer-concession records. This contract remains
+exactly 30 decisions from `game_end_reason: "normal_completion"`; variable-length
+historical review is planned separately.
+
 Rolling opponent-policy evaluation is a separate workflow. It predicts the
 acting player's observed card with their own game-start profile and the fixed
 baseline, and it does not call this expected-value recommendation or decision-

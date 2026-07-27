@@ -19,6 +19,13 @@ HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
 )
 HISTORICAL_GAME_REVIEW_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
 HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
+HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_end.schema.json"
+HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
+)
+HISTORICAL_DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_concession_output.schema.json"
+)
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
@@ -1303,6 +1310,39 @@ def check_historical_game_normal_completion(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_historical_declarer_concession(data: dict[str, Any]) -> list[str]:
+    """Checks exact-prefix historical concession adjudication and privacy."""
+    errors = []
+    if set(data) != {"input_file", "historical_game_summary"}:
+        return ["expected only the historical-game top-level output branch"]
+    summary = data["historical_game_summary"]
+    if summary["record"]["game_end_reason"] != "declarer_concession":
+        errors.append("expected historical declarer-concession record")
+    if summary["play_prefix_summary"] != {
+        "played_card_count": 14,
+        "completed_trick_count": 4,
+        "current_trick_card_count": 2,
+        "remaining_hand_sizes": {"player-a": 5, "player-b": 5, "player-c": 6},
+        "next_player_id": "player-c",
+    }:
+        errors.append("expected exact historical play-prefix summary")
+    points = summary["point_accounting"]
+    if (
+        points["observed_declarer_points"]
+        + points["observed_defender_points"]
+        + points["total_unresolved_points"]
+        != 120
+    ):
+        errors.append("expected observed and unresolved points to total 120")
+    if summary["winner"] != "defenders":
+        errors.append("expected adjudicated defender winner")
+    if summary["final_settlement_summary"]["settlement_score"] != -96:
+        errors.append("expected doubled declared Grand loss of -96")
+    if "remaining_hands" in json.dumps(summary):
+        errors.append("exact remaining hand cards must remain private")
+    return errors
+
+
 def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
     """Checks deterministic information-safe historical snapshot output."""
     errors = check_historical_game_normal_completion(data)
@@ -2000,6 +2040,15 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="historical_grand_declarer_concession",
+        input_path=(PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"),
+        branch="exact-prefix historical declarer-concession adjudication",
+        cli_args=("--quiet",),
+        check_output=check_historical_declarer_concession,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="historical_grand_decision_snapshots",
         input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
         branch="information-safe snapshots for all 30 historical decisions",
@@ -2133,6 +2182,13 @@ def validate_generated_outputs() -> list[str]:
     historical_decision_snapshot_schema = load_json_file(HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH)
     historical_game_review_schema = load_json_file(HISTORICAL_GAME_REVIEW_SCHEMA_PATH)
     historical_game_schema = load_json_file(HISTORICAL_GAME_SCHEMA_PATH)
+    historical_game_end_schema = load_json_file(HISTORICAL_GAME_END_SCHEMA_PATH)
+    historical_declarer_concession_schema = load_json_file(
+        HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH
+    )
+    historical_declarer_concession_output_schema = load_json_file(
+        HISTORICAL_DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH
+    )
     training_dataset_output_schema = load_json_file(TRAINING_DATASET_OUTPUT_SCHEMA_PATH)
     opponent_statistics_output_schema = load_json_file(OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH)
     opponent_statistics_input_schema = load_json_file(OPPONENT_STATISTICS_INPUT_SCHEMA_PATH)
@@ -2178,6 +2234,18 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_game_schema["$id"],
                 Resource.from_contents(historical_game_schema),
+            ),
+            (
+                historical_game_end_schema["$id"],
+                Resource.from_contents(historical_game_end_schema),
+            ),
+            (
+                historical_declarer_concession_schema["$id"],
+                Resource.from_contents(historical_declarer_concession_schema),
+            ),
+            (
+                historical_declarer_concession_output_schema["$id"],
+                Resource.from_contents(historical_declarer_concession_output_schema),
             ),
             (
                 training_dataset_output_schema["$id"],

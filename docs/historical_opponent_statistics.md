@@ -21,6 +21,8 @@ Every included dataset record contributes exactly one validated historical
 game. Existing training-dataset checks continue to reject duplicate record,
 game, and complete source identities and cross-partition game/source leakage.
 The historical contract remains limited to complete `normal_completion` games.
+Historical declarer-concession records are rejected before aggregation because
+shortened statistics require later variable-length dataset support.
 
 Every record selected by partition must have a valid offset-aware RFC 3339
 `historical_game.played_at`, even when no temporal cutoff is supplied. This

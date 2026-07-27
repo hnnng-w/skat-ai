@@ -16,6 +16,10 @@ from skat_ai.training_dataset import build_training_dataset_input
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
+HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_end.schema.json"
+HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
+)
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
@@ -45,6 +49,12 @@ def load_input_schema() -> dict:
 
 with HISTORICAL_SCHEMA_PATH.open("r", encoding="utf-8") as historical_schema_file:
     HISTORICAL_SCHEMA = json.load(historical_schema_file)
+with HISTORICAL_GAME_END_SCHEMA_PATH.open("r", encoding="utf-8") as historical_end_file:
+    HISTORICAL_GAME_END_SCHEMA = json.load(historical_end_file)
+with HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as historical_concession_file:
+    HISTORICAL_DECLARER_CONCESSION_SCHEMA = json.load(historical_concession_file)
 with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
     TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
 with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as policy_file:
@@ -67,6 +77,14 @@ with DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH.open(
 INPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
         (HISTORICAL_SCHEMA["$id"], Resource.from_contents(HISTORICAL_SCHEMA)),
+        (
+            HISTORICAL_GAME_END_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_GAME_END_SCHEMA),
+        ),
+        (
+            HISTORICAL_DECLARER_CONCESSION_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_DECLARER_CONCESSION_SCHEMA),
+        ),
         (
             TRAINING_DATASET_SCHEMA["$id"],
             Resource.from_contents(TRAINING_DATASET_SCHEMA),
@@ -274,6 +292,29 @@ def test_schema_and_runtime_accept_historical_game_branch() -> None:
     record = build_historical_game_record(copy.deepcopy(data["historical_game_input"]))
 
     assert record.game_id == "historical-grand-001"
+
+
+def test_schema_and_runtime_accept_historical_declarer_concession_branch() -> None:
+    example_path = PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        data = json.load(example_file)
+
+    assert_schema_valid(data)
+    record = build_historical_game_record(copy.deepcopy(data["historical_game_input"]))
+
+    assert record.game_end_reason == "declarer_concession"
+
+
+def test_training_dataset_schema_and_runtime_reject_historical_concession() -> None:
+    data = build_valid_training_dataset_input()
+    example_path = PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        concession = json.load(example_file)["historical_game_input"]
+    data["training_dataset_input"]["records"][0]["historical_game"] = concession
+
+    assert_schema_invalid(data)
+    with pytest.raises(ValueError, match="later variable-length dataset support"):
+        build_training_dataset_input(data["training_dataset_input"])
 
 
 def test_schema_and_runtime_accept_structured_declarer_concession() -> None:

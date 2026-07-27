@@ -92,6 +92,12 @@ def resolve_historical_opponent_profile_bindings(
     statistics_input_file: str,
 ) -> HistoricalOpponentProfileBindings:
     """Matches exact participant IDs and enforces strict pre-game capture ordering."""
+    if historical_game.game_end_reason != "normal_completion":
+        raise ValueError(
+            "External profile-enabled historical review currently requires "
+            "game_end_reason='normal_completion'; variable-length historical decision "
+            "support is planned separately."
+        )
     if historical_game.played_at is None:
         raise ValueError(
             f"Historical game '{historical_game.game_id}' played_at is required when "

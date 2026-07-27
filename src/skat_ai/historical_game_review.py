@@ -313,6 +313,12 @@ def build_historical_game_review_summary(
     right_opponent_response_policy_override: str | None = None,
 ) -> dict[str, Any]:
     """Evaluates all historical decisions through the immediate review pipeline."""
+    if historical_record.game_end_reason != "normal_completion":
+        raise ValueError(
+            "Historical decision snapshots and review currently require "
+            "game_end_reason='normal_completion'; variable-length historical decision "
+            "support is planned separately."
+        )
     if snapshot_summary.snapshot_count != 30 or len(snapshot_summary.snapshots) != 30:
         raise ValueError("Historical game review requires exactly 30 snapshots.")
     validate_positive_integer_maximum(

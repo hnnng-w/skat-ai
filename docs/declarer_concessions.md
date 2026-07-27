@@ -5,8 +5,9 @@ verbal declarer concession under ISkO 4.4.1 and 4.4.2.
 
 ## Scope
 
-The structured contract is supported only in the flat position/result workflow.
-It represents an accepted declarer concession and immediately settles the game
+The structured flat contract is supported in the position/result workflow.
+An equivalent stable-ID event is also supported by the base historical-game
+workflow. Both represent an accepted declarer concession and settle the game
 as a declarer loss. It does not reveal cards, simulate future play, prove future
 tricks, or assign unplayed card points.
 
@@ -17,7 +18,7 @@ The following remain separate from this contract:
 * bounded exact defender open play under ISkO 4.4.5, documented in [Defender open play](defender_open_play.md)
 * open card throwing under ISkO 4.4.6, documented in [Open card throw](open_card_throw.md)
 * general solver-backed claims or hypothetical continuation
-* historical-game shortening, snapshots after concession, and training samples
+* historical snapshots after concession and shortened-game training samples
 
 Defender concession under ISkO 4.4.3 is the separate version-1 union member
 documented in [Defender concessions](defender_concessions.md). Its joint
@@ -93,9 +94,11 @@ It is rejected with:
 * list-performance or non-position workflows
 * Multi-Step simulation
 
-Historical games, historical review and snapshots, training datasets, opponent
-statistics, partition audits, list workflows, and impossible-Null-only workflows
-do not accept this object.
+Historical games do not accept this flat `game_shortening` object. Their separate
+version-1 `game_end` event uses stable defender IDs and exact complete-deal replay.
+Historical review/snapshots, training datasets, opponent statistics, rolling
+evaluation, and partition audits remain normal-completion-only. See
+[Historical declarer concessions](historical_declarer_concessions.md).
 
 ## Adjudicated result
 

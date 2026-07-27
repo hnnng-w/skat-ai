@@ -9,6 +9,10 @@ from referencing import Registry, Resource
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
+HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_end.schema.json"
+HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
+)
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
@@ -65,6 +69,10 @@ def validate_example_files() -> list[str]:
     """
     schema = load_json_file(SCHEMA_PATH)
     historical_schema = load_json_file(HISTORICAL_SCHEMA_PATH)
+    historical_game_end_schema = load_json_file(HISTORICAL_GAME_END_SCHEMA_PATH)
+    historical_declarer_concession_schema = load_json_file(
+        HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH
+    )
     training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
     opponent_statistics_schema = load_json_file(OPPONENT_STATISTICS_SCHEMA_PATH)
     dataset_partition_policy_schema = load_json_file(DATASET_PARTITION_POLICY_SCHEMA_PATH)
@@ -78,6 +86,14 @@ def validate_example_files() -> list[str]:
     registry = Registry().with_resources(
         [
             (historical_schema["$id"], Resource.from_contents(historical_schema)),
+            (
+                historical_game_end_schema["$id"],
+                Resource.from_contents(historical_game_end_schema),
+            ),
+            (
+                historical_declarer_concession_schema["$id"],
+                Resource.from_contents(historical_declarer_concession_schema),
+            ),
             (
                 training_dataset_schema["$id"],
                 Resource.from_contents(training_dataset_schema),

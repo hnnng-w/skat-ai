@@ -1,5 +1,9 @@
 # Rolling opponent-policy evaluation
 
+This fixed-30 workflow accepts only normal-completion historical dataset records.
+Historical declarer-concession records are rejected until variable-length
+dataset and evaluation support is defined.
+
 `skat-ai` can evaluate whether an existing profile-derived deterministic policy
 describes observed historical card choices better than the fixed
 `simple_lowest` baseline. This is a known-opponent behavioral imitation

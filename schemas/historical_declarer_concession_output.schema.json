@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json",
+  "title": "skat-ai historical declarer-concession output fields version 1",
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "play": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "card"],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/stable_identifier"},
+        "card": {"type": "string", "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"}
+      }
+    },
+    "play_prefix_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "played_card_count",
+        "completed_trick_count",
+        "current_trick_card_count",
+        "remaining_hand_sizes",
+        "next_player_id"
+      ],
+      "properties": {
+        "played_card_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "current_trick_card_count": {"type": "integer", "minimum": 0, "maximum": 2},
+        "remaining_hand_sizes": {
+          "type": "object",
+          "minProperties": 3,
+          "maxProperties": 3,
+          "additionalProperties": {"type": "integer", "minimum": 0, "maximum": 10}
+        },
+        "next_player_id": {"$ref": "#/$defs/stable_identifier"}
+      }
+    },
+    "incomplete_current_trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trick_number", "leader_player_id", "plays", "next_player_id"],
+      "properties": {
+        "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
+        "leader_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "plays": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/play"},
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "next_player_id": {"$ref": "#/$defs/stable_identifier"}
+      }
+    },
+    "point_accounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed_trick_declarer_points",
+        "completed_trick_defender_points",
+        "skat_points",
+        "observed_declarer_points",
+        "observed_defender_points",
+        "unresolved_current_trick_points",
+        "unresolved_remaining_hand_points",
+        "total_unresolved_points",
+        "total_card_points"
+      ],
+      "properties": {
+        "completed_trick_declarer_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "completed_trick_defender_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "skat_points": {"type": "integer", "minimum": 0, "maximum": 22},
+        "observed_declarer_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "observed_defender_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "unresolved_current_trick_points": {"type": "integer", "minimum": 0, "maximum": 22},
+        "unresolved_remaining_hand_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "total_unresolved_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "total_card_points": {"const": 120}
+      }
+    },
+    "game_end_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "rule_sections",
+        "declarer_player_id",
+        "declarer_hand_cards_remaining",
+        "hand_card_count_reconciliation",
+        "consent_required",
+        "defender_consent",
+        "event_after_play_count",
+        "event_after_completed_trick_count",
+        "event_during_incomplete_trick",
+        "adjudicated_winner",
+        "remaining_points_assigned",
+        "settlement_level_policy"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "declarer_concession"},
+        "rule_sections": {
+          "type": "array",
+          "items": {"enum": ["4.4.1", "4.4.2"]},
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "declarer_hand_cards_remaining": {"type": "integer", "minimum": 1, "maximum": 10},
+        "hand_card_count_reconciliation": {"const": "confirmed"},
+        "consent_required": {"type": "boolean"},
+        "defender_consent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "consenting_defender_player_ids"],
+          "properties": {
+            "status": {"enum": ["not_required", "granted"]},
+            "consenting_defender_player_ids": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/stable_identifier"},
+              "maxItems": 2,
+              "uniqueItems": true
+            }
+          }
+        },
+        "event_after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "event_after_completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"},
+        "adjudicated_winner": {"const": "defenders"},
+        "remaining_points_assigned": {"const": false},
+        "settlement_level_policy": {
+          "const": "declared_or_overbid_value_without_achieved_levels"
+        }
+      }
+    }
+  }
+}

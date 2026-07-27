@@ -139,6 +139,16 @@ an achieved Schneider or Schwarz level.
 
 See [Declarer concessions](declarer_concessions.md) for the full contract.
 
+### Historical declarer concession
+
+The historical workflow has a separate versioned `game_end` event with stable
+player IDs. It replays an empty, complete-trick, or final partial-trick prefix
+from the complete deal, confirms the declarer hand count, applies the same
+consent matrix and adjudicator, and preserves observed plus unresolved points.
+The base and quiet CLI workflows are supported; fixed-30 snapshots, review,
+datasets, statistics, evaluation, and audits reject the shortened record. See
+[Historical declarer concessions](historical_declarer_concessions.md).
+
 ## Structured defender concession
 
 The second version-1 `game_shortening` variant records one concrete defender's

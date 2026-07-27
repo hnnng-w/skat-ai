@@ -33,6 +33,11 @@ TRAINING_SOURCE_TYPES = (
     "other",
 )
 SAMPLES_PER_TRAINING_RECORD = 30
+SHORTENED_DATASET_ERROR = (
+    "currently requires game_end_reason='normal_completion' and fixed 30-decision "
+    "records; shortened historical dataset records require later variable-length "
+    "dataset support."
+)
 
 TrainingPartition = Literal["train", "validation", "test"]
 TrainingSourceType = Literal[
@@ -76,6 +81,23 @@ class TrainingDatasetInput:
     target: Literal["actual_card_played"]
     partition_policy: DatasetPartitionPolicy | None
     records: tuple[TrainingDatasetRecord, ...]
+
+
+def require_normal_completion_dataset(
+    dataset: TrainingDatasetInput,
+    workflow_name: str,
+) -> None:
+    """Keeps fixed-length dataset workflows bounded to normal completion."""
+    shortened_game_ids = [
+        record.historical_game.game_id
+        for record in dataset.records
+        if record.historical_game.game_end_reason != "normal_completion"
+    ]
+    if shortened_game_ids:
+        raise ValueError(
+            f"{workflow_name} {SHORTENED_DATASET_ERROR} "
+            f"Shortened games: {shortened_game_ids}."
+        )
 
 
 def _require_object(value: Any, field_name: str) -> dict[str, Any]:
@@ -165,6 +187,10 @@ def _build_training_record(value: Any, record_index: int) -> TrainingDatasetReco
     historical_game_data = _require_object(
         data["historical_game"], f"{record_name}.historical_game"
     )
+    if historical_game_data.get("game_end_reason") != "normal_completion":
+        raise ValueError(
+            f"{record_name}.historical_game {SHORTENED_DATASET_ERROR}"
+        )
     return TrainingDatasetRecord(
         record_id=record_id,
         partition=partition,
@@ -377,6 +403,7 @@ def build_training_dataset_summary(
     dataset: TrainingDatasetInput,
 ) -> dict[str, Any]:
     """Replays records once and builds deterministic information-safe samples."""
+    require_normal_completion_dataset(dataset, "Training-sample generation")
     serialized_records = []
     partition_counts = {
         partition: {"record_count": 0, "sample_count": 0}

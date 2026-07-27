@@ -43,6 +43,7 @@ def get_position_example_json_files() -> list[Path]:
         for path in get_example_json_files()
         if path.name
         not in {
+            "historical_grand_declarer_concession.json",
             "historical_grand_normal_completion.json",
             "historical_opponent_policy_evaluation_dataset.json",
             "historical_opponent_statistics.json",
@@ -63,9 +64,12 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
     example_files = get_example_json_files()
 
     for example_file in example_files:
-        if example_file.name == "historical_grand_normal_completion.json":
+        if example_file.name in {
+            "historical_grand_declarer_concession.json",
+            "historical_grand_normal_completion.json",
+        }:
             record = load_historical_game_from_json(str(example_file))
-            assert record.game_id == "historical-grand-001"
+            assert record.game_id.startswith("historical-grand-")
             continue
         if example_file.name in {
             "historical_opponent_policy_evaluation_dataset.json",
@@ -159,6 +163,17 @@ def test_historical_game_example_builds_complete_summary() -> None:
     assert summary["played_at"] == "2026-07-24T18:30:00+02:00"
     assert len(summary["derived_tricks"]) == 10
     assert summary["declarer_points"] + summary["defender_points"] == 120
+
+
+def test_historical_declarer_concession_example_builds_adjudicated_summary() -> None:
+    path = Path("examples/historical_grand_declarer_concession.json")
+    summary = build_historical_game_summary(load_historical_game_from_json(str(path)))
+
+    assert summary["game_id"] == "historical-grand-concession-001"
+    assert summary["winner"] == "defenders"
+    assert summary["play_prefix_summary"]["played_card_count"] == 14
+    assert summary["point_accounting"]["total_card_points"] == 120
+    assert summary["final_settlement_summary"]["settlement_score"] == -96
 
 
 def test_training_dataset_example_builds_sixty_samples() -> None:

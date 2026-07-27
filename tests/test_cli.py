@@ -25,6 +25,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MAIN_PATH = PROJECT_ROOT / "main.py"
 VALID_INPUT_PATH = PROJECT_ROOT / "examples" / "grand_second_position.json"
 HISTORICAL_INPUT_PATH = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+HISTORICAL_CONCESSION_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
+)
 TRAINING_DATASET_INPUT_PATH = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 OPPONENT_STATISTICS_INPUT_PATH = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
@@ -236,6 +239,80 @@ def test_cli_historical_game_quiet_output_is_separate_branch(tmp_path) -> None:
     assert "decision_snapshot_summary" not in result["historical_game_summary"]
     assert "position" not in result
     assert "recommendation" not in result
+
+
+def test_cli_historical_declarer_concession_prints_bounded_summary() -> None:
+    completed_process = run_cli("--input", HISTORICAL_CONCESSION_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical game: historical-grand-concession-001" in completed_process.stdout
+    assert "End reason: declarer concession" in completed_process.stdout
+    assert "Played cards: 14" in completed_process.stdout
+    assert "Declarer cards remaining: 5" in completed_process.stdout
+    assert "Consent: granted by player-a" in completed_process.stdout
+    assert "Result: declarer lost" in completed_process.stdout
+    assert "Unresolved points assigned: no" in completed_process.stdout
+    assert "Settlement: -96" in completed_process.stdout
+
+
+def test_cli_historical_declarer_concession_quiet_output_is_private_and_schema_ready(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "historical-concession.json"
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_CONCESSION_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    summary = result["historical_game_summary"]
+    assert summary["winner"] == "defenders"
+    assert summary["play_prefix_summary"]["remaining_hand_sizes"] == {
+        "player-a": 5,
+        "player-b": 5,
+        "player-c": 6,
+    }
+    assert "remaining_hands" not in json.dumps(result)
+
+
+@pytest.mark.parametrize(
+    "review_args",
+    [
+        ("--historical-decision-snapshots",),
+        ("--historical-game-review",),
+        ("--historical-game-review", "--samples", "1", "--seed", "42"),
+        (
+            "--historical-game-review",
+            "--opponent-statistics-file",
+            HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH,
+            "--use-profile-presets",
+            "--opponent-policy-preset",
+            "simple_lowest",
+        ),
+    ],
+)
+def test_cli_fixed_decision_workflows_reject_historical_concession(review_args) -> None:
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_CONCESSION_INPUT_PATH,
+        *review_args,
+    )
+
+    assert completed_process.returncode == 1
+    assert "currently require game_end_reason='normal_completion'" in (
+        completed_process.stderr
+    )
+    assert "variable-length historical decision support is planned separately" in (
+        completed_process.stderr
+    )
 
 
 def test_cli_training_dataset_prints_identity_totals_and_partitions() -> None:

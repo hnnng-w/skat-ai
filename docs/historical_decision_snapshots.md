@@ -8,6 +8,10 @@ only decision-state input. The separate training-dataset workflow also reuses
 them, converting stable player IDs to relative feature references without
 changing snapshot-only output.
 
+This fixed contract rejects historical declarer-concession records with a
+deterministic normal-completion error. It does not emit a variable number of
+snapshots; shortened-game snapshot support is planned separately.
+
 ## Requesting snapshots
 
 Use the historical-only CLI flag:

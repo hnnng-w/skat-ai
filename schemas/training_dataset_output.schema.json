@@ -328,7 +328,15 @@
         "source_game_id": {"$ref": "#/$defs/stable_identifier"},
         "source_played_at": {"type": "string", "format": "date-time"},
         "historical_game": {
-          "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/historical_game.schema.json"},
+            {
+              "properties": {
+                "game_end_reason": {"const": "normal_completion"}
+              },
+              "not": {"required": ["game_end"]}
+            }
+          ]
         },
         "sample_count": {"const": 30},
         "samples": {

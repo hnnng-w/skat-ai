@@ -16,6 +16,10 @@ Structured defender-concession output uses:
 
 [`schemas/defender_concession_output.schema.json`](../schemas/defender_concession_output.schema.json)
 
+Historical declarer-concession output uses:
+
+[`schemas/historical_declarer_concession_output.schema.json`](../schemas/historical_declarer_concession_output.schema.json)
+
 Accepted declarer-card-exposure output uses:
 
 [`schemas/declarer_card_exposure_output.schema.json`](../schemas/declarer_card_exposure_output.schema.json)
@@ -65,7 +69,7 @@ For the validation-layer overview and schema limitations, see:
 
 ## Output workflows
 
-Position analysis retains the existing top-level result. Complete historical
+Position analysis retains the existing top-level result. Supported historical
 games instead produce exactly:
 
 ```json
@@ -80,6 +84,13 @@ tricks, trick and skat points, final 120-point allocation, winner, game result,
 game value, overbid, and final settlement. Base output contains no position,
 recommendation, simulation, profile, policy, or list result. See
 [Historical games](historical_games.md).
+
+For declarer concession, `derived_tricks` contains only completed prefix tricks.
+The summary adds exact play counts and remaining hand sizes, optional incomplete
+current-trick plays without a winner, observed/unresolved point accounting, the
+stable-ID game-end summary, an adjudicated defender win, and declared or
+supported overbid settlement. Reconstructed remaining hand card lists are not
+emitted. See [Historical declarer concessions](historical_declarer_concessions.md).
 
 When `--historical-decision-snapshots` is requested, the summary also contains
 `decision_snapshot_summary`. Its version-1 `decision_time` policy provides 30

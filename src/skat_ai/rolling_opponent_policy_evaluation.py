@@ -30,6 +30,7 @@ from skat_ai.training_dataset import (
     TRAINING_PARTITIONS,
     TrainingDatasetInput,
     TrainingDatasetRecord,
+    require_normal_completion_dataset,
 )
 
 ROLLING_OPPONENT_POLICY_EVALUATION_VERSION = 1
@@ -665,6 +666,7 @@ def evaluate_rolling_opponent_policy_predictions(
     evaluation_partitions: tuple[str, ...] = DEFAULT_EVALUATION_PARTITIONS,
 ) -> RollingOpponentPolicyEvaluation:
     """Evaluates time-safe profile policy imitation against a fixed baseline."""
+    require_normal_completion_dataset(dataset, "Rolling opponent-policy evaluation")
     if (
         dataset.partition_policy is not None
         and dataset.partition_policy.mode == "unseen_player"

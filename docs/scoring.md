@@ -19,6 +19,11 @@ Skat card points are:
 
 A complete game has 120 card points.
 
+Historical declarer concession preserves completed-trick and applicable skat
+points as observed. Cards in an incomplete current trick and exact remaining
+hands are unresolved, remain unassigned, and reconcile with observed points to
+120 without creating a fictitious final party distribution.
+
 ## Game value
 
 `game_value_summary` calculates the declared game value.

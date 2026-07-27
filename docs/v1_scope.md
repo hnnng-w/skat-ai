@@ -135,13 +135,14 @@ validation, and tests does not satisfy a gate.
 | Documentation | README, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 
-The normal-play historical-game workflow satisfies the deal-through-settlement
-portion of complete-game representation for `normal_completion` and can
+The historical-game workflow satisfies deal-through-settlement for
+`normal_completion` and exact-prefix declarer concession. Normal completion can
 reconstruct information-safe pre-play states for all 30 actual cards. It also
 evaluates non-ouvert normal-play snapshots through bounded review and wraps all
 normal-play snapshots in versioned provenance-aware training/evaluation records.
-Training-data representation remains partial because approved later historical
-end reasons are not supported. Optional partition intent, exact overlap audits,
+Training-data representation remains normal-completion-only; historical
+declarer concession and other shortened records require later variable-length
+dataset support. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. The v1
 gate remains open for general declared-Ouvert and historical exposed-card-aware
@@ -165,8 +166,8 @@ concrete complete thrown hand, empty through two-card current tricks, opposing-
 party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
 This does not close broader v1 gates for
-historical continuation, general Ouvert analysis, structured historical
-claims/concessions, general corrected play, unlimited exact solving,
+historical continuation, general Ouvert analysis, historical defender
+concession and other historical claims/shortening, general corrected play,
 isolated or specific-trick claims, simultaneous throws, full-card theoretical
 solving, complete settlement
 coverage, or historical training and review after game shortening.

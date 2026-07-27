@@ -20,9 +20,13 @@ Open card throw additionally uses:
 
 [`schemas/open_card_throw.schema.json`](../schemas/open_card_throw.schema.json)
 
-Complete historical records use the focused referenced schema:
+Supported historical records use the focused referenced schemas:
 
 [`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json)
+
+[`schemas/historical_game_end.schema.json`](../schemas/historical_game_end.schema.json)
+
+[`schemas/historical_declarer_concession.schema.json`](../schemas/historical_declarer_concession.schema.json)
 
 Training/evaluation datasets use:
 
@@ -83,7 +87,7 @@ Python validation covers Skat-specific rules such as:
 * legality of `actual_card_played`
 * point consistency
 * stable historical player/seat references and complete 32-card deals
-* historical pickup/discard ownership, final playable hands, all 30 plays, follow obligations, winners, points, matadors, and settlement
+* historical pickup/discard ownership, final playable hands, all normal plays or an exact concession prefix, follow obligations, winners, points, matadors, and settlement
 * training dataset versions, optional partition policy, unpadded identities, RFC 3339 provenance, duplicate game/source detection, partition leakage, and declared unseen-player disjointness
 * opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, optional exact-count reconciliation, historical aggregation provenance, and duplicate player IDs
 * historical opponent-statistics canonical partition selection, required source timestamps, strict cutoff, stable identity/label aggregation, and settlement-based exact counts
@@ -97,7 +101,7 @@ For the validation-layer overview and schema limitations, see:
 The public schema has four mutually exclusive branches:
 
 * the existing flat position-analysis input described below
-* a complete historical game under `historical_game_input`
+* a normal-completion or bounded declarer-concession historical game under `historical_game_input`
 * a versioned training/evaluation dataset under `training_dataset_input`
 * versioned external opponent statistics under `opponent_statistics_input`
 
@@ -123,6 +127,10 @@ settlement selection:
 
 See [Historical games](historical_games.md) for the complete identity, deal,
 declaration, skat, play, and runtime-validation contract.
+Historical declarer concession adds a required version-1 `game_end` object with
+stable defender consent IDs and permits an exact prefix whose final trick alone
+may have one or two plays. See
+[Historical declarer concessions](historical_declarer_concessions.md).
 
 A training-dataset file contains only its dataset branch:
 
@@ -144,7 +152,9 @@ A training-dataset file contains only its dataset branch:
 ```
 
 Each record supplies a unique `record_id`, a `train`, `validation`, or `test`
-partition, required provenance, and one complete historical game. See
+partition, required provenance, and one normal-completion historical game. The
+dataset contract rejects shortened historical records until variable-length
+sample support is added. See
 [Training data](training_data.md) for identity, duplicate, provenance, sample,
 and information-safety rules.
 

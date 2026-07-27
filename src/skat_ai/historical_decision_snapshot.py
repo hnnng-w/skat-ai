@@ -294,6 +294,12 @@ def build_historical_decision_snapshots(
 ) -> HistoricalDecisionSnapshotSummary:
     """Builds decision-time snapshots from one validated historical replay result."""
     record = historical_game_result["record"]
+    if record["game_end_reason"] != "normal_completion":
+        raise ValueError(
+            "Historical decision snapshots and review currently require "
+            "game_end_reason='normal_completion'; variable-length historical decision "
+            "support is planned separately."
+        )
     declaration = record["declaration"]
     declarer_player_id = record["declarer_player_id"]
     players_by_id = {

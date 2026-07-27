@@ -244,6 +244,12 @@ Validate and summarize a complete normally played historical game:
 python main.py --input examples/historical_grand_normal_completion.json
 ```
 
+Validate an exact historical play prefix ending in declarer concession:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_concession.json
+```
+
 Add one information-safe snapshot immediately before each actual play:
 
 ```powershell
@@ -266,6 +272,9 @@ Historical-game inputs form a separate workflow. External profile application
 requires `played_at`, historical review, profile-preset opt-in, at least one exact
 participant match, and captures strictly older than the game. Live-only relative
 binding IDs are rejected. `--samples` and `--seed` are accepted only with review.
+Historical declarer-concession base and quiet output are supported, but snapshots,
+review, profiles, datasets, statistics, evaluation, and audits remain restricted
+to normal completion and fixed 30-decision records.
 
 Convert a versioned normal-play training/evaluation dataset without running
 recommendations or simulation:
@@ -445,7 +454,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 40 deterministic scenarios,
+complete. Generated-output validation covers 41 deterministic scenarios,
 including both ongoing public-hand continuations and bounded exact defender
 open-play adjudication plus structured open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication

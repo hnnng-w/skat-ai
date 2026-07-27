@@ -8,8 +8,10 @@ deploy a machine-learning model.
 
 Training-data representation remains `partially_supported`. Version 1 accepts
 only complete historical games with `game_end_reason: "normal_completion"`.
-Claims, concessions, passed-in games, and other later historical end reasons
-require separate support.
+Historical declarer concession is supported by the base historical workflow but
+is deliberately rejected here. Shortened records require later variable-length
+sample and dataset support; each accepted record still produces exactly 30
+samples.
 
 ## Dataset input
 

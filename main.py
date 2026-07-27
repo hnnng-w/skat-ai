@@ -1150,6 +1150,29 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
     declaration = summary["record"]["declaration"]
     settlement = summary["final_settlement_summary"]
 
+    game_end_summary = summary.get("historical_game_end_summary")
+    if game_end_summary is not None:
+        consent_ids = game_end_summary["defender_consent"][
+            "consenting_defender_player_ids"
+        ]
+        consent_text = (
+            "not required"
+            if not consent_ids
+            else f"granted by {', '.join(consent_ids)}"
+        )
+        print(f"Historical game: {summary['game_id']}")
+        print("End reason: declarer concession")
+        print("Played cards:", summary["play_prefix_summary"]["played_card_count"])
+        print(
+            "Declarer cards remaining:",
+            game_end_summary["declarer_hand_cards_remaining"],
+        )
+        print("Consent:", consent_text)
+        print("Result: declarer lost")
+        print("Unresolved points assigned: no")
+        print("Settlement:", settlement["settlement_score"])
+        return
+
     print("Historical game summary")
     print("Input file:", result["input_file"])
     print("Game ID:", summary["game_id"])
@@ -1763,6 +1786,27 @@ def run_json_historical_game_analysis(
 ) -> None:
     """Runs the complete historical-game workflow."""
     record = load_historical_game_from_json(file_path)
+    if record.game_end_reason != "normal_completion" and any(
+        (
+            historical_decision_snapshots,
+            historical_game_review,
+            opponent_statistics_file is not None,
+            sample_count is not None,
+            base_random_seed is not None,
+            opponent_policy_preset_override is not None,
+            opponent_lead_policy_override is not None,
+            opponent_response_policy_override is not None,
+            left_opponent_lead_policy_override is not None,
+            left_opponent_response_policy_override is not None,
+            right_opponent_lead_policy_override is not None,
+            right_opponent_response_policy_override is not None,
+        )
+    ):
+        raise ValueError(
+            "Historical decision snapshots and review currently require "
+            "game_end_reason='normal_completion'; variable-length historical decision "
+            "support is planned separately."
+        )
     historical_game_summary = build_historical_game_summary(record)
     opponent_profile_bindings: HistoricalOpponentProfileBindings | None = None
     if opponent_statistics_file is not None:

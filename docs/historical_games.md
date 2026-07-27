@@ -1,15 +1,17 @@
 # Historical games
 
-`skat-ai` supports a separate versioned workflow for complete three-player games
-that ended through normal play. It validates the initial 32-card deal, final
-declaration, skat handling, all 30 plays, result, and settlement. On request, it
-also reconstructs a local `me`/`left`/`right` information view immediately
-before every actual play while preserving stable player IDs.
+`skat-ai` supports a separate versioned workflow for three-player games that
+ended through normal play or a bounded declarer concession. It validates the
+initial 32-card deal, final declaration, skat handling, every supplied play,
+result, and settlement. Normal completion can additionally reconstruct a local
+`me`/`left`/`right` information view immediately before all 30 actual plays.
 
 Historical-game representation remains `partially_supported`. The bounded
 normal-play workflow can review all 30 decisions and can be wrapped by the
-separate training-dataset workflow, but it does not provide ouvert-aware
-recommendation simulation, claims, concessions, full auction events, player
+separate training-dataset workflow. Base historical output also supports
+declarer concession under ISkO 4.4.1 and 4.4.2, but it does not provide
+variable-length decision workflows, ouvert-aware recommendation simulation,
+other claims/concessions, full auction events, player
 statistics directly from one historical-game invocation, or list/tournament
 aggregation. A timestamped collection wrapped by the training-dataset workflow
 can separately produce bounded historical player statistics. Direct snapshot
@@ -57,6 +59,8 @@ the original skat supplies two. The three hands and skat must equal the standard
 
 The focused structural schema is
 [`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json).
+Its historical game-end union references the strict version-1 declarer-
+concession event schemas.
 The public [`input.schema.json`](../schemas/input.schema.json) references it as a
 mutually exclusive alternative to the existing position branch.
 
@@ -85,8 +89,8 @@ claim to prove whether the declarer physically inspected the skat.
 
 ## Trick history
 
-Only `game_end_reason: "normal_completion"` is supported. The input contains
-exactly ten consecutively numbered tricks and three plays per trick:
+Normal completion keeps its original contract: no `game_end`, exactly ten
+consecutively numbered tricks, three plays per trick, and all 30 playable cards:
 
 ```json
 {
@@ -111,6 +115,13 @@ the existing Suit, Grand, or Null follow/trump obligations at every play. It
 derives each winner and requires that winner to lead the next trick. Input does
 not accept supplied winner or trick-point fields.
 
+`game_end_reason: "declarer_concession"` requires a matching version-1
+`game_end` and changes `tricks` to an exact legal prefix. The prefix may be empty,
+may contain zero through nine complete tricks, and may end with one incomplete
+trick of one or two plays. Only the final trick may be incomplete. Replay derives
+exact remaining hands and the next player without inferring unplayed cards. See
+[Historical declarer concessions](historical_declarer_concessions.md).
+
 ## Derived output
 
 Historical input produces only `input_file` and `historical_game_summary`. The
@@ -118,10 +129,10 @@ summary contains:
 
 * the canonical versioned `record`, including normalized declaration metadata
 * optional preserved game-start `played_at`
-* ten `derived_tricks` with winner player, winner side, and trick points
+* `derived_tricks` with winner player, winner side, and trick points for each completed trick
 * declarer and defender trick points
 * applicable skat points
-* final declarer and defender card points totaling 120
+* normal final points totaling 120, or concession observed/unresolved accounting totaling 120 without assignment
 * the Suit/Grand card-point or Null trick-ownership winner
 * `game_result_summary`
 * `game_value_summary`
@@ -134,6 +145,11 @@ settlement workflow and are rejected by this normal-play branch.
 
 Base historical output emits no recommendation, simulation, local position,
 opponent policy, profile, list, or training-data output.
+
+Concession output additionally contains `play_prefix_summary`, optional
+`incomplete_current_trick`, `point_accounting`, and
+`historical_game_end_summary`. It exposes derived remaining hand sizes but not
+the reconstructed remaining card lists.
 
 With `--historical-decision-snapshots`, the summary additionally contains an
 optional `decision_snapshot_summary` with exactly 30 chronological pre-play
@@ -155,6 +171,12 @@ Print a concise summary:
 
 ```powershell
 python main.py --input examples/historical_grand_normal_completion.json
+```
+
+Print a declarer-concession summary:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_concession.json
 ```
 
 Write structured output without successful stdout:
@@ -187,12 +209,15 @@ historical review. External statistics, profile-preset opt-in, and existing
 global or side policy precedence are accepted only for profile-enabled review.
 Live left/right binding IDs, comparison, and multi-step options are rejected.
 See [Historical opponent profiles](historical_opponent_profiles.md).
+Declarer-concession records accept only the base and quiet-output workflow.
+Snapshot, review, external-profile, review-policy, sample, and seed options fail
+with the normal-completion/fixed-30 boundary error.
 
 ## Remaining scope
 
 Later work is still required for:
 
-* claims, concessions, passed-in games, and other approved end reasons
+* defender concession, claims, card exposure/open play/throwing, passed-in games, and other approved end reasons
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication

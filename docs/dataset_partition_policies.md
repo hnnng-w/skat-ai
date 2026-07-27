@@ -16,6 +16,9 @@ optional, so existing datasets remain valid with unspecified partition intent.
 `report_only` is an audit CLI mode and cannot be stored in dataset metadata.
 Policy metadata is preserved by canonical dataset conversion and in bounded
 historical-aggregation and rolling-evaluation source provenance.
+The dataset and audit contracts remain normal-completion-only. Historical
+declarer-concession records are rejected until variable-length dataset support is
+defined; audits do not silently inspect shortened records.
 
 ## Leakage and overlap
 

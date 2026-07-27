@@ -650,14 +650,14 @@
           "const": "complete"
         },
         "record": {
-          "$ref": "#/$defs/historical_record"
+          "$ref": "https://example.local/skat-ai/historical_game.schema.json"
         },
         "derived_tricks": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/historical_derived_trick"
           },
-          "minItems": 10,
+          "minItems": 0,
           "maxItems": 10
         },
         "declarer_trick_points": {
@@ -719,8 +719,55 @@
         },
         "historical_game_review_summary": {
           "$ref": "https://example.local/skat-ai/historical_game_review.schema.json"
+        },
+        "play_prefix_summary": {
+          "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/play_prefix_summary"
+        },
+        "incomplete_current_trick": {
+          "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/incomplete_current_trick"
+        },
+        "point_accounting": {
+          "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/point_accounting"
+        },
+        "historical_game_end_summary": {
+          "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/game_end_summary"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "game_end_reason": {"const": "normal_completion"}
+                },
+                "required": ["game_end_reason"]
+              }
+            },
+            "required": ["record"]
+          },
+          "then": {
+            "properties": {
+              "derived_tricks": {"minItems": 10, "maxItems": 10}
+            },
+            "not": {
+              "anyOf": [
+                {"required": ["play_prefix_summary"]},
+                {"required": ["incomplete_current_trick"]},
+                {"required": ["point_accounting"]},
+                {"required": ["historical_game_end_summary"]}
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "play_prefix_summary",
+              "point_accounting",
+              "historical_game_end_summary"
+            ]
+          }
+        }
+      ]
     },
     "game_declaration": {
       "type": "object",

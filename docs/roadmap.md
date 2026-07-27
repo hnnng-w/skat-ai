@@ -227,8 +227,8 @@ Implemented:
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
-* Complete historical-game records currently support normal completion only; claims, concessions, and other later end reasons are not represented there.
-* Historical corrected play, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, full-card theoretical solving, and historical game shortening remain incomplete; general settlement coverage is incomplete.
+* Historical records support normal completion and exact-prefix declarer concession; defender concession, claims, exposure/open-play/throwing, continuation, and other end reasons are not represented there.
+* Historical corrected play, variable-length decision/data workflows, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
 * Multi-Step does not preserve one coherent hidden-world assignment across every simulated path; either validated continuation hand is a bounded exception and remains coherent along each path.
@@ -272,11 +272,15 @@ Implemented:
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 40 deterministic scenarios. Issues #86 through #92 add
+coverage now includes 41 deterministic scenarios. Issues #86 through #92 add
 bounded structured concessions, accepted declarer-card-exposure adjudication,
 ongoing exposed-hand continuation, and bounded exact defender open-play
 adjudication plus non-adjudicating continued play and bounded open-card-throw
 adjudication while the package remains `0.8.0`.
+Issue #93 adds the first structured shortened historical record: exact-prefix
+declarer concession with stable-ID consent, unassigned unresolved points, and
+base/quiet CLI output. Historical snapshots, review, datasets, statistics,
+rolling evaluation, and audits remain normal-completion-only.
 Issues #78 through #84 are complete:
 
 * #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.

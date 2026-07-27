@@ -19,6 +19,7 @@ The project focuses on:
 * automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
 * post-game review support
 * complete normal-play historical-game records
+* exact-prefix historical declarer-concession records
 * information-safe historical decision snapshots and complete-game review
 * versioned training and evaluation dataset records
 * external and historically aggregated opponent statistics
@@ -186,12 +187,12 @@ Implemented:
 
 * `schemas/input.schema.json`
 * `schemas/output.schema.json`
-* focused historical-game, historical-decision-snapshot, historical-game-review, and training-dataset schemas
+* focused historical-game, historical game-end/concession, historical-decision-snapshot, historical-game-review, and training-dataset schemas
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 33 deterministic scenarios.
+Generated-output validation currently covers 41 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -451,8 +452,8 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` release-preparation baseline validates 33 deterministic
-generated-output scenarios and 2,640 pytest tests.
+The `v0.8.0` development baseline validates 41 deterministic generated-output
+scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -538,7 +539,7 @@ Completed implementation scope:
 
 ## Current high-priority limitations
 
-* Complete historical-game records support normal completion only; structured claims, concessions, and additional end reasons are required.
+* Historical records support normal completion and exact-prefix declarer concession; other claims, concessions, continuations, and end reasons are required.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.
 * General live position input lacks complete field-level provenance.

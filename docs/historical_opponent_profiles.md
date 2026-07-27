@@ -1,5 +1,9 @@
 # Historical opponent profiles
 
+External profile-enabled historical review remains normal-completion-only.
+Historical declarer-concession records are supported by base output but are
+rejected before profile binding or variable-length review.
+
 Historical game review can apply validated external opponent profiles without
 using statistics captured during or after the reviewed game. The feature reuses
 the existing opponent-statistics loader, normalized `PlayerProfile`, scoped

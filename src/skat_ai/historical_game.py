@@ -14,13 +14,27 @@ from skat_ai.game_result import (
     get_completed_trick_schwarz_status,
 )
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.historical_declarer_concession import (
+    adjudicate_historical_declarer_concession,
+)
+from skat_ai.historical_game_end import (
+    HISTORICAL_DECLARER_CONCESSION,
+    HISTORICAL_NORMAL_COMPLETION,
+    HistoricalGameEnd,
+    build_historical_game_end,
+    build_serializable_historical_game_end,
+)
+from skat_ai.historical_play_prefix import (
+    build_serializable_derived_trick,
+    replay_historical_play_prefix,
+)
 from skat_ai.matador_inference import infer_matadors_from_known_ownership
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.rfc3339 import parse_rfc3339_datetime
-from skat_ai.rules import get_card_points, get_legal_cards, get_trick_points, get_trick_winner
+from skat_ai.rules import get_card_points
 
 HISTORICAL_GAME_SCHEMA_VERSION = 1
-HISTORICAL_GAME_END_REASON = "normal_completion"
+HISTORICAL_GAME_END_REASON = HISTORICAL_NORMAL_COMPLETION
 HISTORICAL_SEATS = ("forehand", "middlehand", "rearhand")
 
 
@@ -44,7 +58,7 @@ class HistoricalPlay:
 
 @dataclass(frozen=True)
 class HistoricalTrick:
-    """One ordered three-card trick from a complete historical game."""
+    """One ordered historical trick, optionally incomplete only at the prefix end."""
 
     trick_number: int
     leader_player_id: str
@@ -53,7 +67,7 @@ class HistoricalTrick:
 
 @dataclass(frozen=True)
 class HistoricalGameRecord:
-    """A validated complete historical game ending through normal play."""
+    """A validated historical game with a supported version-1 end reason."""
 
     schema_version: int
     game_id: str
@@ -64,6 +78,7 @@ class HistoricalGameRecord:
     declaration: GameDeclaration
     discarded_cards: tuple[str, ...]
     game_end_reason: str
+    game_end: HistoricalGameEnd | None
     tricks: tuple[HistoricalTrick, ...]
 
 
@@ -264,9 +279,20 @@ def _build_declaration(
     )
 
 
-def _build_tricks(value: Any, game_id: str) -> tuple[HistoricalTrick, ...]:
-    if not isinstance(value, list) or len(value) != 10:
+def _build_tricks(
+    value: Any,
+    game_id: str,
+    game_end_reason: str,
+) -> tuple[HistoricalTrick, ...]:
+    if not isinstance(value, list):
+        raise ValueError(f"Historical game '{game_id}': tricks must be an array.")
+    if game_end_reason == HISTORICAL_NORMAL_COMPLETION and len(value) != 10:
         raise ValueError(f"Historical game '{game_id}': tricks must contain exactly ten tricks.")
+    if game_end_reason == HISTORICAL_DECLARER_CONCESSION and len(value) > 10:
+        raise ValueError(
+            f"Historical game '{game_id}': a declarer-concession play prefix may "
+            "contain at most ten trick entries."
+        )
 
     tricks = []
     for trick_index, raw_trick in enumerate(value):
@@ -293,8 +319,18 @@ def _build_tricks(value: Any, game_id: str) -> tuple[HistoricalTrick, ...]:
             trick_data["leader_player_id"], f"{field_name}.leader_player_id"
         )
         raw_plays = trick_data["plays"]
-        if not isinstance(raw_plays, list) or len(raw_plays) != 3:
-            raise ValueError(f"{field_name}.plays must contain exactly three plays.")
+        expected_play_counts = (
+            {3} if game_end_reason == HISTORICAL_NORMAL_COMPLETION else {1, 2, 3}
+        )
+        if not isinstance(raw_plays, list) or len(raw_plays) not in expected_play_counts:
+            if game_end_reason == HISTORICAL_NORMAL_COMPLETION:
+                raise ValueError(f"{field_name}.plays must contain exactly three plays.")
+            raise ValueError(f"{field_name}.plays must contain one, two, or three plays.")
+        if len(raw_plays) < 3 and trick_index != len(value) - 1:
+            raise ValueError(
+                f"{field_name} is incomplete; only the final historical trick may "
+                "be incomplete."
+            )
 
         plays = []
         for play_index, raw_play in enumerate(raw_plays):
@@ -339,7 +375,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
             "game_end_reason",
             "tricks",
         },
-        optional_fields={"played_at"},
+        optional_fields={"played_at", "game_end"},
         field_name="historical_game_input",
     )
     if (
@@ -399,12 +435,19 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
                 f"declarer after pickup: {unavailable_discards}."
             )
 
-    if data["game_end_reason"] != HISTORICAL_GAME_END_REASON:
-        raise ValueError(
-            f"Historical game '{game_id}': game_end_reason must be "
-            f"'{HISTORICAL_GAME_END_REASON}'."
-        )
-    tricks = _build_tricks(data["tricks"], game_id)
+    game_end_reason = data["game_end_reason"]
+    seat_order_player_ids = tuple(
+        next(player.player_id for player in players if player.seat == seat)
+        for seat in HISTORICAL_SEATS
+    )
+    game_end = build_historical_game_end(
+        data.get("game_end"),
+        game_end_reason=game_end_reason,
+        declarer_player_id=declarer_player_id,
+        seat_order_player_ids=seat_order_player_ids,
+        game_id=game_id,
+    )
+    tricks = _build_tricks(data["tricks"], game_id, game_end_reason)
     return HistoricalGameRecord(
         schema_version=HISTORICAL_GAME_SCHEMA_VERSION,
         game_id=game_id,
@@ -414,7 +457,8 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         declarer_player_id=declarer_player_id,
         declaration=declaration,
         discarded_cards=discarded_cards,
-        game_end_reason=HISTORICAL_GAME_END_REASON,
+        game_end_reason=game_end_reason,
+        game_end=game_end,
         tricks=tricks,
     )
 
@@ -464,129 +508,30 @@ def build_serializable_historical_record(
             for trick in record.tricks
         ],
     }
+    if record.game_end is not None:
+        result["game_end"] = build_serializable_historical_game_end(record.game_end)
     if record.played_at is not None:
         result["played_at"] = record.played_at
     return result
 
 
-def _build_playable_hands(record: HistoricalGameRecord) -> dict[str, list[str]]:
-    hands = {player.player_id: list(player.initial_hand) for player in record.players}
-    if not record.declaration.hand_game:
-        declarer_hand = hands[record.declarer_player_id]
-        declarer_hand.extend(record.skat)
-        for card in record.discarded_cards:
-            declarer_hand.remove(card)
-    return hands
-
-
-def _get_player_order_from_leader(
-    leader_player_id: str,
-    seat_order_player_ids: list[str],
-) -> list[str]:
-    leader_index = seat_order_player_ids.index(leader_player_id)
-    return [
-        seat_order_player_ids[(leader_index + offset) % len(seat_order_player_ids)]
-        for offset in range(len(seat_order_player_ids))
-    ]
-
-
 def _derive_tricks(
     record: HistoricalGameRecord,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    hands = _build_playable_hands(record)
-    player_by_seat = {player.seat: player.player_id for player in record.players}
-    seat_order_player_ids = [player_by_seat[seat] for seat in HISTORICAL_SEATS]
-    expected_leader = seat_order_player_ids[0]
-    derived_tricks = []
-    scoring_tricks = []
-    discarded_or_hand_skat = (
-        set(record.skat) if record.declaration.hand_game else set(record.discarded_cards)
-    )
-
-    for trick in record.tricks:
-        trick_name = f"Historical game '{record.game_id}' trick {trick.trick_number}"
-        if trick.leader_player_id not in hands:
-            raise ValueError(
-                f"{trick_name}.leader_player_id references unknown player "
-                f"'{trick.leader_player_id}'."
-            )
-        if trick.leader_player_id != expected_leader:
-            raise ValueError(
-                f"{trick_name} must be led by '{expected_leader}', got "
-                f"'{trick.leader_player_id}'."
-            )
-
-        expected_order = _get_player_order_from_leader(
-            trick.leader_player_id, seat_order_player_ids
-        )
-        supplied_order = [play.player_id for play in trick.plays]
-        if supplied_order != expected_order:
-            raise ValueError(
-                f"{trick_name} play order must be {expected_order}, got {supplied_order}."
-            )
-
-        trick_cards = []
-        for play_index, play in enumerate(trick.plays):
-            play_name = f"{trick_name} play {play_index + 1} player '{play.player_id}'"
-            if play.player_id not in hands:
-                raise ValueError(f"{play_name} references an unknown player.")
-            if play.card in discarded_or_hand_skat:
-                raise ValueError(
-                    f"{play_name} uses unplayable skat or discarded card '{play.card}'."
-                )
-            if play.card not in hands[play.player_id]:
-                owner = next(
-                    (
-                        player_id
-                        for player_id, remaining_hand in hands.items()
-                        if play.card in remaining_hand
-                    ),
-                    None,
-                )
-                owner_text = f"; remaining owner is '{owner}'" if owner is not None else ""
-                raise ValueError(
-                    f"{play_name} does not own remaining card '{play.card}'{owner_text}."
-                )
-            legal_cards = get_legal_cards(
-                hand=hands[play.player_id],
-                current_trick=trick_cards,
-                game_type=record.declaration.game_type,
-            )
-            if play.card not in legal_cards:
-                raise ValueError(
-                    f"{play_name} illegally plays '{play.card}'; legal cards are "
-                    f"{legal_cards}."
-                )
-            hands[play.player_id].remove(play.card)
-            trick_cards.append(play.card)
-
-        winner_index = get_trick_winner(trick_cards, record.declaration.game_type)
-        winner_player_id = trick.plays[winner_index].player_id
-        winner_side = (
-            "declarer"
-            if winner_player_id == record.declarer_player_id
-            else "defenders"
-        )
-        trick_points = get_trick_points(trick_cards)
-        derived_tricks.append(
-            {
-                "trick_number": trick.trick_number,
-                "leader_player_id": trick.leader_player_id,
-                "plays": [
-                    {"player_id": play.player_id, "card": play.card}
-                    for play in trick.plays
-                ],
-                "winner_player_id": winner_player_id,
-                "winner_side": winner_side,
-                "trick_points": trick_points,
-            }
-        )
-        scoring_tricks.append({"cards": trick_cards, "winner_role": winner_side})
-        expected_leader = winner_player_id
-
+    replay = replay_historical_play_prefix(record)
+    derived_tricks = [
+        build_serializable_derived_trick(trick) for trick in replay.completed_tricks
+    ]
+    scoring_tricks = [
+        {
+            "cards": [card for _, card in trick.plays],
+            "winner_role": trick.winner_side,
+        }
+        for trick in replay.completed_tricks
+    ]
     unplayed_cards = {
-        player_id: remaining_hand
-        for player_id, remaining_hand in hands.items()
+        player_id: list(remaining_hand)
+        for player_id, remaining_hand in replay.remaining_hands
         if remaining_hand
     }
     if unplayed_cards:
@@ -599,6 +544,30 @@ def _derive_tricks(
 
 def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any]:
     """Validates all plays and derives the complete result and settlement."""
+    if record.game_end_reason == HISTORICAL_DECLARER_CONCESSION:
+        replay = replay_historical_play_prefix(record)
+        if replay.played_card_count >= 30:
+            raise ValueError(
+                f"Historical game '{record.game_id}': a declarer concession cannot "
+                "occur after all 30 playable cards were played."
+            )
+        derived_tricks = [
+            build_serializable_derived_trick(trick)
+            for trick in replay.completed_tricks
+        ]
+        concession = adjudicate_historical_declarer_concession(record, replay)
+        result = {
+            "schema_version": record.schema_version,
+            "game_id": record.game_id,
+            "status": "complete",
+            "record": build_serializable_historical_record(record),
+            "derived_tricks": derived_tricks,
+            **concession,
+        }
+        if record.played_at is not None:
+            result["played_at"] = record.played_at
+        return result
+
     derived_tricks, scoring_tricks = _derive_tricks(record)
     declarer_trick_points = sum(
         trick["trick_points"]
