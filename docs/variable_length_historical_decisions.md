@@ -1,7 +1,8 @@
 # Variable-length historical decisions
 
 Version-1 historical decision workflows support `normal_completion`,
-`declarer_concession`, `defender_concession`, and `declarer_card_exposure`. One shared cardinality is derived from the validated
+`declarer_concession`, `defender_concession`, `declarer_card_exposure`, and
+`defender_open_play`. One shared cardinality is derived from the validated
 historical play prefix:
 
 ```text
@@ -14,7 +15,9 @@ rolling_target_decision_count = decision_count
 
 Normal completion still requires exactly 30 plays and preserves its existing 30
 snapshots, review decisions, ten decisions per player, and 30 training samples.
-A declarer concession, defender concession, or accepted exposure supports zero through 29 supplied plays while its event prerequisites remain valid. No missing card
+A declarer concession, defender concession, or accepted exposure supports zero
+through 29 supplied plays while defender open play requires at least five
+completed tricks and one through five unresolved tricks. No missing card
 is inferred, no array is padded, and the terminal event is not a card
 decision or training target.
 
@@ -38,12 +41,14 @@ an empty prefix.
 ## Information safety
 
 Decision-time visible state and model-facing training features never include the
-future concession or exposure, defender consent or acceptance, conceding or shown-to defender, event form, claimed level, final
+future concession, exposure, or open play; defender consent or acceptance;
+conceding, shown-to, or exposing defender; event form; exposed hand; proof;
+claimed level; final
 winner, unresolved points, settlement,
 or cards that were not yet visible. Records with a shared deal, declaration, and
 play prefix therefore produce equivalent snapshot states, review inputs,
 features, and actual-card labels for that prefix regardless of later normal
-continuation, concession, exposure, or valid terminal-event choice. Record IDs and provenance may
+continuation, concession, exposure, open play, or valid terminal-event choice. Record IDs and provenance may
 differ outside the feature view.
 
 ## Training and partitions
@@ -64,5 +69,6 @@ padding; zero-decision targets remain present with all participants and as-of
 profiles. Completed shortened source games may affect later profiles through normal
 game statistics, but a target outcome never affects its own profile or card
 predictions. No other historical end kind, historical continuation,
-concession/exposure-choice or acceptance target, feature version, or learned model is added. See
+concession/exposure/open-play choice, proof, acceptance, or continuation target,
+feature version, or learned model is added. See
 [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).

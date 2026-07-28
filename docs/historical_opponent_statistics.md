@@ -23,7 +23,7 @@ Every included dataset record contributes exactly one validated historical
 game. Existing training-dataset checks continue to reject duplicate record,
 game, and complete source identities and cross-partition game/source leakage.
 The workflow supports exactly `normal_completion`, `declarer_concession`,
-`defender_concession`, and `declarer_card_exposure`.
+`defender_concession`, `declarer_card_exposure`, and `defender_open_play`.
 Other future historical end reasons are rejected when they participate in the
 selected aggregation.
 

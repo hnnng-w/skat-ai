@@ -120,5 +120,7 @@ See [Shortened historical opponent workflows](shortened_historical_opponent_work
 Historical unanimously accepted declarer-card exposure is the separate supported
 version-1 union member documented in
 [Historical declarer card exposure](historical_declarer_card_exposure.md).
-Historical exposure continuation, defender open play, open-card throwing, claims
+Historical defender open play is separately supported in
+[Historical defender open play](historical_defender_open_play.md). Historical
+exposure continuation, open-card throwing, claims
 of remaining tricks, and every other historical end kind remain unsupported.

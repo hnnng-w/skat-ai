@@ -727,7 +727,14 @@
           "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/incomplete_current_trick"
         },
         "point_accounting": {
-          "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/point_accounting"
+          "oneOf": [
+            {
+              "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/point_accounting"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/historical_defender_open_play_output.schema.json#/$defs/point_accounting"
+            }
+          ]
         },
         "historical_game_end_summary": {
           "oneOf": [
@@ -739,6 +746,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure_output.schema.json#/$defs/game_end_summary"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/historical_defender_open_play_output.schema.json#/$defs/game_end_summary"
             }
           ]
         }
@@ -833,6 +843,29 @@
             "properties": {
               "historical_game_end_summary": {
                 "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure_output.schema.json#/$defs/game_end_summary"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "game_end_reason": {"const": "defender_open_play"}
+                },
+                "required": ["game_end_reason"]
+              }
+            },
+            "required": ["record"]
+          },
+          "then": {
+            "properties": {
+              "point_accounting": {
+                "$ref": "https://example.local/skat-ai/historical_defender_open_play_output.schema.json#/$defs/point_accounting"
+              },
+              "historical_game_end_summary": {
+                "$ref": "https://example.local/skat-ai/historical_defender_open_play_output.schema.json#/$defs/game_end_summary"
               }
             }
           }

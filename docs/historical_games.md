@@ -1,8 +1,9 @@
 # Historical games
 
 `skat-ai` supports a separate versioned workflow for three-player games that
-ended through normal play, a bounded declarer or defender concession, or
-unanimously accepted declarer-card exposure. It validates the
+ended through normal play, a bounded declarer or defender concession,
+unanimously accepted declarer-card exposure, or bounded exact defender open
+play. It validates the
 initial 32-card deal, final declaration, skat handling, every supplied play,
 result, and settlement. All supported endings can reconstruct a local
 `me`/`left`/`right` information view immediately before every actual play.
@@ -11,7 +12,8 @@ Historical-game representation remains `partially_supported`. The bounded
 decision workflow reviews actual plays and can be wrapped by the
 separate training-dataset workflow. Base historical output also supports
 declarer concession under ISkO 4.4.1 and 4.4.2, defender concession under
-ISkO 4.4.3, or accepted declarer-card exposure under ISkO 4.4.4, but it does not provide
+ISkO 4.4.3, accepted declarer-card exposure under ISkO 4.4.4, or terminal
+defender open play under ISkO 4.4.5, but it does not provide
 ouvert-aware recommendation simulation,
 other claims/concessions, full auction events, player
 statistics directly from one historical-game invocation, or list/tournament
@@ -62,7 +64,7 @@ the original skat supplies two. The three hands and skat must equal the standard
 The focused structural schema is
 [`schemas/historical_game.schema.json`](../schemas/historical_game.schema.json).
 Its historical game-end union references strict version-1 declarer-concession,
-defender-concession, and declarer-card-exposure event schemas.
+defender-concession, declarer-card-exposure, and defender-open-play event schemas.
 The public [`input.schema.json`](../schemas/input.schema.json) references it as a
 mutually exclusive alternative to the existing position branch.
 
@@ -134,6 +136,13 @@ the complete reconstructed remaining declarer hand, one optional stable shown-to
 defender, and exactly two stable defender acceptances. See
 [Historical declarer card exposure](historical_declarer_card_exposure.md).
 
+`game_end_reason: "defender_open_play"` requires at least five completed tricks,
+optionally followed by one or two current-trick plays. The stable exposing
+defender's supplied cards must equal the exact reconstructed current hand. The
+other hands are derived privately and passed to the existing bounded exact
+adjudicator. See
+[Historical defender open play](historical_defender_open_play.md).
+
 ## Derived output
 
 Historical input produces only `input_file` and `historical_game_summary`. The
@@ -144,7 +153,7 @@ summary contains:
 * `derived_tricks` with winner player, winner side, and trick points for each completed trick
 * declarer and defender trick points
 * applicable skat points
-* normal final points totaling 120, or shortened-event observed/unresolved accounting totaling 120 without assignment
+* normal final points totaling 120, shortened-event observed/unresolved accounting, and defender-open-play rule assignment totaling 120
 * the Suit/Grand card-point or Null trick-ownership winner
 * `game_result_summary`
 * `game_value_summary`
@@ -203,6 +212,12 @@ Print an accepted declarer-card-exposure summary:
 python main.py --input examples/historical_grand_declarer_card_exposure.json
 ```
 
+Print an exact defender-open-play summary:
+
+```powershell
+python main.py --input examples/historical_grand_defender_open_play.json
+```
+
 Write structured output without successful stdout:
 
 ```powershell
@@ -233,11 +248,11 @@ historical review. External statistics, profile-preset opt-in, and existing
 global or side policy precedence are accepted only for profile-enabled review.
 Live left/right binding IDs, comparison, and multi-step options are rejected.
 See [Historical opponent profiles](historical_opponent_profiles.md).
-All three shortened records also accept snapshot, review, external-profile,
+All four shortened records also accept snapshot, review, external-profile,
 review-policy, sample, and seed options. The terminal event itself is not a card
 decision. Dataset-level statistics aggregation, export, and rolling evaluation
-support normal completion, declarer concession, defender concession, and
-declarer-card exposure; rolling targets use only
+support normal completion, declarer concession, defender concession,
+declarer-card exposure, and defender open play; rolling targets use only
 actual plays. See
 [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).
 
@@ -245,7 +260,7 @@ actual plays. See
 
 Later work is still required for:
 
-* other historical claims, exposure continuation, defender open play, open-card throwing, passed-in games, and other approved end reasons
+* other historical claims, exposure continuation, defender-open-play continuation, open-card throwing, passed-in games, and other approved end reasons
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication

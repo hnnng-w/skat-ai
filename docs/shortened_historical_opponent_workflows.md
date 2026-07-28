@@ -7,6 +7,7 @@ profile construction, and rolling opponent-policy evaluation support exactly:
 * `declarer_concession`
 * `defender_concession`
 * `declarer_card_exposure`
+* `defender_open_play`
 
 Other historical end reasons remain unsupported until their result, evidence,
 and decision semantics receive an explicit implementation. A participating
@@ -42,6 +43,10 @@ requirements. A preexisting defender win or uncovered overbid requirement
 instead records one solo loss and two defender wins. Exposure and acceptance
 facts add no statistic.
 
+Defender open play also uses final settlement only. Proof validity, evaluated or
+memoized states, exposing identity, remaining tricks, and assigned points add no
+weight, blame count, validity rate, signal, profile, or policy semantic.
+
 ## Selection, provenance, and export
 
 Aggregation preserves canonical partition selection, strict `played_at`
@@ -63,7 +68,7 @@ compliant `unseen_player` partition intent. Rolling evaluation remains a
 
 ## Rolling source games
 
-Normal completions and all three shortened kinds in selected source partitions have
+Normal completions and all four shortened kinds in selected source partitions have
 equal game-level weight. For each target, eligibility remains strictly:
 
 ```text
@@ -76,8 +81,9 @@ ordinary existing game-level statistics.
 
 ## Rolling target games
 
-Normal completion contributes 30 actual card decisions. Any supported shortened event
-contributes its validated zero through 29 actual plays. The shared historical
+Normal completion contributes 30 actual card decisions. Any supported shortened
+event contributes its validated actual plays; defender open play has the narrower
+late-game bound. The shared historical
 cardinality enforces:
 
 ```text
@@ -102,8 +108,8 @@ continue to include only actual decision actors.
 ## Information safety
 
 Decision rows and prediction inputs do not include the target end reason,
-consent or acceptance, conceding or shown-to defender, event form, claimed level, final winner, settlement,
-unresolved points, remaining cards, or
+consent or acceptance, conceding or shown-to defender, event form, claimed level,
+open-play identity or proof, final winner, settlement, unresolved points, remaining cards, or
 knowledge of the future terminal event. Targets with the same legal prefix
 produce the same prediction inputs and outputs for that prefix, apart from
 record/game provenance. Changing valid consent or accepted-exposure facts does not

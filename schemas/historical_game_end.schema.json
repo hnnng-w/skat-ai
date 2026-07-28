@@ -11,6 +11,9 @@
     },
     {
       "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_defender_open_play.schema.json"
     }
   ]
 }

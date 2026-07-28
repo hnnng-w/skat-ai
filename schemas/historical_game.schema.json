@@ -54,7 +54,8 @@
         "normal_completion",
         "declarer_concession",
         "defender_concession",
-        "declarer_card_exposure"
+        "declarer_card_exposure",
+        "defender_open_play"
       ]
     },
     "game_end": {
@@ -123,6 +124,25 @@
         "properties": {
           "game_end": {
             "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure.schema.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "defender_open_play"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_defender_open_play.schema.json"
+          },
+          "tricks": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/trick"},
+            "minItems": 5,
+            "maxItems": 10
           }
         }
       }

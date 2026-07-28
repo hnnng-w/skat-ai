@@ -24,6 +24,10 @@ points as observed. Cards in an incomplete current trick and exact remaining
 hands are unresolved, remain unassigned, and reconcile with observed points to
 120 without creating a fictitious final party distribution.
 
+Historical defender open play is the exception. Exact adjudication assigns all
+unresolved tricks and points to defenders for a valid proof or to the declarer
+for an invalid proof, then settles from the resulting final state.
+
 ## Game value
 
 `game_value_summary` calculates the declared game value.

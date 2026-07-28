@@ -2,7 +2,8 @@
 
 Historical decision snapshots reconstruct the information available immediately
 before each actual card in any supported validated historical play prefix,
-including unanimously accepted declarer-card exposure.
+including unanimously accepted declarer-card exposure and terminal defender
+open play.
 Snapshot-only output does not run recommendations or create training-dataset
 records. The optional historical game review uses these same snapshots as its
 only decision-state input. The separate training-dataset workflow also reuses
@@ -10,7 +11,8 @@ them, converting stable player IDs to relative feature references without
 changing snapshot-only output.
 
 The count is the validated played-card count: 30 for normal completion and zero
-through 29 for a supported shortened end subject to its event prerequisites.
+through 29 for a supported shortened end subject to its event prerequisites;
+defender open play additionally requires at least five completed tricks.
 The terminal event itself has no snapshot.
 
 ## Requesting snapshots

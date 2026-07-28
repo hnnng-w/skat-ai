@@ -28,6 +28,10 @@ Historical declarer-card-exposure output uses:
 
 [`schemas/historical_declarer_card_exposure_output.schema.json`](../schemas/historical_declarer_card_exposure_output.schema.json)
 
+Historical defender-open-play output uses:
+
+[`schemas/historical_defender_open_play_output.schema.json`](../schemas/historical_defender_open_play_output.schema.json)
+
 Accepted declarer-card-exposure output uses:
 
 [`schemas/declarer_card_exposure_output.schema.json`](../schemas/declarer_card_exposure_output.schema.json)
@@ -99,9 +103,12 @@ current-trick plays without a winner, observed/unresolved point accounting, the
 stable-ID game-end summary, adjudicated or preserved result, and declared,
 accepted, or supported overbid settlement. Accepted exposure emits only the
 event-authorized remaining declarer cards; reconstructed defender remaining
-hands are not emitted. See [Historical declarer concessions](historical_declarer_concessions.md),
+hands are not emitted. Historical defender open play adds exact stable-ID proof
+metadata, exposing-hand cards, redacted private proof cards, rule assignment,
+and final point accounting. See [Historical declarer concessions](historical_declarer_concessions.md),
 [Historical defender concessions](historical_defender_concessions.md), and
-[Historical declarer card exposure](historical_declarer_card_exposure.md).
+[Historical declarer card exposure](historical_declarer_card_exposure.md), and
+[Historical defender open play](historical_defender_open_play.md).
 
 When `--historical-decision-snapshots` is requested, the summary also contains
 `decision_snapshot_summary`. Its version-1 `decision_time` policy provides one

@@ -83,6 +83,8 @@ python main.py --input examples/historical_grand_defender_concession.json --hist
 
 Unanimously accepted historical declarer-card exposure is documented separately
 in [Historical declarer card exposure](historical_declarer_card_exposure.md).
-Historical defender open play, open-card throwing, continued play after the
+Terminal historical defender open play is documented in
+[Historical defender open play](historical_defender_open_play.md). Historical
+open-card throwing, continued play after the
 event, concession-choice prediction, natural-language interpretation, learned
 models, and unlisted historical end kinds remain unsupported.

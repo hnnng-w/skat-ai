@@ -94,7 +94,8 @@ balancing, record movement, unseen-player profile prediction, machine-learning
 training, and model generalization evaluation remain unsupported.
 
 Historical opponent-statistics aggregation and rolling opponent-policy
-evaluation support exactly normal completion, declarer concession, defender concession, and declarer-card exposure. Standalone
+evaluation support exactly normal completion, declarer concession, defender
+concession, declarer-card exposure, and defender open play. Standalone
 aggregation retains all policy modes; rolling remains incompatible with declared
 `unseen_player`. Zero-sample source membership and all target participants remain
 part of coverage.

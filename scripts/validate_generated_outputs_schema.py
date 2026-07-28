@@ -38,6 +38,12 @@ HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH = (
 HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_card_exposure_output.schema.json"
 )
+HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_defender_open_play.schema.json"
+)
+HISTORICAL_DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_defender_open_play_output.schema.json"
+)
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
@@ -1416,6 +1422,40 @@ def check_historical_declarer_card_exposure(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_historical_defender_open_play(data: dict[str, Any]) -> list[str]:
+    """Checks exact stable-ID open-play adjudication and proof privacy."""
+    if set(data) != {"input_file", "historical_game_summary"}:
+        return ["expected only the historical-game top-level output branch"]
+    summary = data["historical_game_summary"]
+    end = summary["historical_game_end_summary"]
+    errors = []
+    if summary["record"]["game_end_reason"] != "defender_open_play":
+        errors.append("expected historical defender-open-play record")
+    if summary["play_prefix_summary"]["played_card_count"] != 24:
+        errors.append("expected exactly 24 actual prefix plays")
+    if end["exposing_defender_player_id"] != "player-a":
+        errors.append("expected stable exposing-defender identity")
+    if end["exact_proof"]["status"] != "valid":
+        errors.append("expected valid exact rest-trick proof")
+    if end["exact_proof"]["evaluated_state_count"] != 32:
+        errors.append("expected deterministic 32-state proof")
+    if summary["point_accounting"]["assigned_defender_points"] != 13:
+        errors.append("expected all 13 unresolved points assigned to defenders")
+    if summary["final_settlement_summary"]["settlement_score"] != -144:
+        errors.append("expected final Grand settlement of -144")
+    serialized = json.dumps(summary)
+    if any(identity in serialized for identity in ('"me"', '"left"', '"right"')):
+        errors.append("historical proof output must use only stable player IDs")
+    line = end["exact_proof"]["successful_line"]
+    if any(
+        move["card"] is not None
+        for move in line
+        if move["player_id"] != end["exposing_defender_player_id"]
+    ):
+        errors.append("private proof cards must be redacted")
+    return errors
+
+
 def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
     """Checks deterministic information-safe historical snapshot output."""
     errors = check_historical_game_normal_completion(data)
@@ -2272,6 +2312,17 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="historical_grand_defender_open_play",
+        input_path=(
+            PROJECT_ROOT / "examples" / "historical_grand_defender_open_play.json"
+        ),
+        branch="bounded exact historical defender-open-play adjudication",
+        cli_args=("--quiet",),
+        check_output=check_historical_defender_open_play,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="historical_grand_decision_snapshots",
         input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
         branch="information-safe snapshots for all 30 historical decisions",
@@ -2446,6 +2497,12 @@ def validate_generated_outputs() -> list[str]:
     historical_declarer_card_exposure_output_schema = load_json_file(
         HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH
     )
+    historical_defender_open_play_schema = load_json_file(
+        HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA_PATH
+    )
+    historical_defender_open_play_output_schema = load_json_file(
+        HISTORICAL_DEFENDER_OPEN_PLAY_OUTPUT_SCHEMA_PATH
+    )
     training_dataset_output_schema = load_json_file(TRAINING_DATASET_OUTPUT_SCHEMA_PATH)
     opponent_statistics_output_schema = load_json_file(OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH)
     opponent_statistics_input_schema = load_json_file(OPPONENT_STATISTICS_INPUT_SCHEMA_PATH)
@@ -2519,6 +2576,14 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_declarer_card_exposure_output_schema["$id"],
                 Resource.from_contents(historical_declarer_card_exposure_output_schema),
+            ),
+            (
+                historical_defender_open_play_schema["$id"],
+                Resource.from_contents(historical_defender_open_play_schema),
+            ),
+            (
+                historical_defender_open_play_output_schema["$id"],
+                Resource.from_contents(historical_defender_open_play_output_schema),
             ),
             (
                 training_dataset_output_schema["$id"],

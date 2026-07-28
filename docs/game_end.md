@@ -147,7 +147,7 @@ from the complete deal, confirms the declarer hand count, applies the same
 consent matrix and adjudicator, and preserves observed plus unresolved points.
 Snapshots, review, external-profile review, training conversion, and partition
 audits follow the exact played-card count. Statistics aggregation and rolling
-evaluation support normal completion and all three historical shortened kinds. Statistics count
+evaluation support normal completion and all four historical shortened kinds. Statistics count
 the completed record once; rolling targets evaluate only actual cards. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
@@ -171,6 +171,17 @@ preserves preexisting decisions and applies accepted claims, mandatory levels,
 supported overbid requirements, and Suit, Grand, and Null settlement without
 simulating cards or assigning unresolved points. See
 [Historical declarer card exposure](historical_declarer_card_exposure.md).
+
+### Historical defender open play
+
+Historical version 1 accepts `game_end_reason: "defender_open_play"` only for
+terminal adjudication after at least five completed tricks. Exact replay derives
+all remaining hands; the exposing stable defender's supplied cards must match
+that complete current hand. The existing bounded exact solver and adjudicator
+retain existential exposing-defender and universal declarer/partner quantifiers,
+assign all unresolved tricks and points, preserve prior decisions, and settle
+Suit, Grand, and all Null variants. Stable-ID proof lines redact both private
+hands. See [Historical defender open play](historical_defender_open_play.md).
 
 ## Structured defender concession
 

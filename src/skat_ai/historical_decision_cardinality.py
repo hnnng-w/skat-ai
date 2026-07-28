@@ -5,6 +5,7 @@ from skat_ai.historical_game_end import (
     HISTORICAL_DECLARER_CARD_EXPOSURE,
     HISTORICAL_DECLARER_CONCESSION,
     HISTORICAL_DEFENDER_CONCESSION,
+    HISTORICAL_DEFENDER_OPEN_PLAY,
     HISTORICAL_NORMAL_COMPLETION,
 )
 
@@ -14,6 +15,7 @@ SUPPORTED_HISTORICAL_DECISION_END_REASONS = {
     HISTORICAL_DECLARER_CONCESSION,
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_DECLARER_CARD_EXPOSURE,
+    HISTORICAL_DEFENDER_OPEN_PLAY,
 }
 
 
@@ -38,7 +40,7 @@ def derive_historical_decision_cardinality(
         raise ValueError(
             "Historical decision workflows support only normal_completion, "
             "declarer_concession, defender_concession, and "
-            "declarer_card_exposure, got "
+            "declarer_card_exposure, and defender_open_play, got "
             f"'{game_end_reason}'."
         )
 

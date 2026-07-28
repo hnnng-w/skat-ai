@@ -1171,6 +1171,19 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
                 else f"granted by {', '.join(consent_ids)}"
             )
             print("End reason: declarer concession")
+        elif end_kind == "defender_open_play":
+            print("End reason: defender open play")
+            print(
+                "Exposing defender:",
+                game_end_summary["exposing_defender_player_id"],
+            )
+            print(
+                "Non-exposing defender:",
+                game_end_summary["non_exposing_defender_player_id"],
+            )
+            print("Exposed defender cards:", game_end_summary["exposed_card_count"])
+            print("Exact proof:", game_end_summary["exact_proof"]["status"])
+            print("Rest tricks assigned to:", game_end_summary["rest_tricks_recipient"])
         else:
             print("End reason: accepted declarer card exposure")
             print("Exposure form:", game_end_summary["exposure_form"])
@@ -1199,10 +1212,19 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
             )
             print("Consent:", consent_text)
             print("Result: declarer lost")
+        elif end_kind == "defender_open_play":
+            print(
+                "Decision before open play:",
+                game_end_summary["decision_state_before_shortening"],
+            )
+            print(f"Result: {summary['winner']} won")
         else:
             print("Decision before exposure:", game_end_summary["decision_state_before_shortening"])
             print(f"Result: {summary['winner']} won")
-        print("Unresolved points assigned: no")
+        print(
+            "Unresolved points assigned:",
+            "yes" if end_kind == "defender_open_play" else "no",
+        )
         print("Settlement:", settlement["settlement_score"])
     else:
         print("Historical game summary")

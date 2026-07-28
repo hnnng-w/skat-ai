@@ -35,10 +35,11 @@ over rate estimates, so overall, declarer, and defender evidence kinds are
 and contract counts are preserved in the statistics record but do not add new
 version-1 signals.
 
-Exact historical evidence may come from normal completion, declarer concession, or defender
-concession. Every included record has one game of evidence regardless of play
-length. Concession status, timing, consent, remaining cards, and unresolved
-points do not enter derivation.
+Exact historical evidence may come from normal completion, declarer concession,
+defender concession, accepted declarer-card exposure, or defender open play.
+Every included record has one game of evidence regardless of play length.
+Terminal-event status, timing, consent, exposing identity, proof validity,
+remaining cards, and unresolved points do not enter derivation.
 
 Exact role counts cannot exceed total games. When both exact role counts are
 present, they must sum to total games. Exact counts and matching rates must agree

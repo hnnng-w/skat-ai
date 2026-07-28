@@ -16,23 +16,9 @@ from skat_ai.historical_play_prefix import (
     HistoricalReplayState,
     build_serializable_incomplete_trick,
 )
+from skat_ai.historical_player_mapping import build_historical_player_mapping
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.rules import get_card_points
-
-
-def _stable_to_flat_player_map(record: Any) -> dict[str, str]:
-    seat_order = tuple(
-        player.player_id
-        for seat in ("forehand", "middlehand", "rearhand")
-        for player in record.players
-        if player.seat == seat
-    )
-    declarer_index = seat_order.index(record.declarer_player_id)
-    return {
-        seat_order[declarer_index]: "me",
-        seat_order[(declarer_index + 1) % 3]: "left",
-        seat_order[(declarer_index + 2) % 3]: "right",
-    }
 
 
 def _build_exact_card_evidence(
@@ -117,7 +103,7 @@ def adjudicate_historical_declarer_card_exposure(
             "must total 120."
         )
 
-    stable_to_flat = _stable_to_flat_player_map(record)
+    player_mapping = build_historical_player_mapping(record)
     scoring_tricks = [
         {"winner_role": trick.winner_side} for trick in replay.completed_tricks
     ]
@@ -137,7 +123,7 @@ def adjudicate_historical_declarer_card_exposure(
             form=event.exposure.form,
             exposed_cards=event.exposure.exposed_cards,
             shown_to_player=(
-                stable_to_flat[event.exposure.shown_to_defender_player_id]
+                player_mapping.to_flat(event.exposure.shown_to_defender_player_id)
                 if event.exposure.shown_to_defender_player_id is not None
                 else None
             ),
@@ -145,7 +131,7 @@ def adjudicate_historical_declarer_card_exposure(
         claimed_play_level=event.claimed_play_level,
         defender_responses=tuple(
             DefenderExposureResponse(
-                player=stable_to_flat[response.defender_player_id],
+                player=player_mapping.to_flat(response.defender_player_id),
                 response=response.response,
                 form=response.form,
             )

@@ -285,12 +285,13 @@ Historical-game inputs form a separate workflow. External profile application
 requires `played_at`, historical review, profile-preset opt-in, at least one exact
 participant match, and captures strictly older than the game. Live-only relative
 binding IDs are rejected. `--samples` and `--seed` are accepted only with review.
-Historical declarer and defender concessions and accepted declarer-card exposure support snapshots, review, time-safe external
+Historical declarer and defender concessions, accepted declarer-card exposure,
+and terminal defender open play support snapshots, review, time-safe external
 profiles, variable training samples, and record/player partition audits for every
 actual supplied play. The terminal event is not reviewed or used as a target.
 Historical opponent statistics, reusable export, rolling profile construction,
 and rolling policy evaluation support normal completion, declarer concession,
-defender concession, and declarer-card exposure.
+defender concession, declarer-card exposure, and defender open play.
 Each source record has one game of statistics weight, while targets contribute
 only actual card decisions, including valid zero-decision targets. See
 [Shortened historical opponent workflows](docs/shortened_historical_opponent_workflows.md).
@@ -421,6 +422,7 @@ Detailed documentation is split into topic-specific files:
 * [Public-hand constraint schema](schemas/public_hand_constraint.schema.json)
 * [Historical games](docs/historical_games.md)
 * [Historical declarer card exposure](docs/historical_declarer_card_exposure.md)
+* [Historical defender open play](docs/historical_defender_open_play.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
@@ -433,6 +435,8 @@ Detailed documentation is split into topic-specific files:
 * [Opponent profile derivation](docs/opponent_profile_derivation.md)
 * [Live opponent profiles](docs/live_opponent_profiles.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
+* [Historical defender-open-play input schema](schemas/historical_defender_open_play.schema.json)
+* [Historical defender-open-play output schema](schemas/historical_defender_open_play_output.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Historical game review schema](schemas/historical_game_review.schema.json)
 * [Historical opponent profile application schema](schemas/historical_opponent_profile_application.schema.json)
@@ -492,7 +496,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 45 deterministic scenarios,
+complete. Generated-output validation covers 46 deterministic scenarios,
 including both ongoing public-hand continuations and bounded exact defender
 open-play adjudication plus structured open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
@@ -505,7 +509,8 @@ summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
-Normal-completion, declarer-concession, defender-concession, and accepted declarer-card-exposure historical records, information-safe
+Normal-completion, declarer-concession, defender-concession, accepted
+declarer-card-exposure, and terminal defender-open-play historical records, information-safe
 variable-cardinality snapshots and review, and versioned training/evaluation
 dataset wrapping are partially supported. Five structured generic-position shortening
 variants are supported: declarer concession, defender concession, unanimously
@@ -530,8 +535,8 @@ be validated, normalized, and reused by stable ID in live or strict time-safe
 historical profile workflows. A separate rolling as-of workflow evaluates
 whether existing actionable profile policies imitate observed known-player cards
 better than the fixed `simple_lowest` baseline, using preferred-card matching as
-its primary metric. Normal and concession source games have equal game-level
-statistics weight; concession targets contribute only their actual card plays,
+its primary metric. All supported source games have equal game-level statistics
+weight; shortened targets contribute only their actual card plays,
 and target participant coverage includes all three players. It does not run recommendations or expected-value
 simulation, claim strategic quality, evaluate unseen players, merge captures,
 or learn behavior. The product supports fixed three-player tables only.

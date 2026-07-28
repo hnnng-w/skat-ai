@@ -27,7 +27,7 @@ The version-1 `game_shortening` member is:
 }
 ```
 
-The input is accepted only in the flat `post_game_review` position workflow.
+The flat input is accepted only in the `post_game_review` position workflow.
 It requires a concrete declarer, a concrete exposing defender who is not the
 declarer, and exact physical hands for all three players. Cards already in the
 current trick are not repeated in those hands. The exposing defender must have
@@ -87,7 +87,7 @@ contains a declarer-trick counterexample.
 
 A valid proof ends the game, assigns every remaining trick and all outstanding
 points to the defending party, and settles from that guaranteed final state.
-The assignment source is `exact_rest_trick_proof`. Guaranteed trick ownership
+The assignment source is `defender_open_play_adjudication`. Guaranteed trick ownership
 can establish Schwarz, but it is not described as normally played cards.
 
 An invalid proof ends the game and records that all rest tricks and outstanding
@@ -130,8 +130,7 @@ This feature does not implement:
 * more than five unresolved tricks;
 * heuristic or Monte Carlo proof;
 * isolated decisive-card showing;
-* historical defender-open-play records or snapshots;
-* training records from shortened games;
+* historical continued defender-open-play records;
 * general coherent hidden-world solving;
 * ISkO 4.4.6 open throwing, which is the separate rule-assignment workflow in [Open card throw](open_card_throw.md);
 * four-player tables.
@@ -139,6 +138,12 @@ This feature does not implement:
 Existing concessions, accepted declarer exposure, exposed-declarer
 continuation, legacy reasons, normal completion, impossible Null, and unrelated
 analysis workflows remain separate.
+
+Terminal historical defender open play reuses this exact adjudicator through a
+stable-ID adapter documented in
+[Historical defender open play](historical_defender_open_play.md). It supports
+snapshots and downstream historical workflows only for actual plays before the
+terminal event.
 
 Continued play under ISkO 4.1.6 is also separate. It uses only the public
 exposing-defender hand, does not import the private exact proof hands, does not

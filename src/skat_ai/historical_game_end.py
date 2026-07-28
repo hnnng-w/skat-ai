@@ -17,17 +17,20 @@ from skat_ai.defender_concession import (
     DEFENDER_CONCESSION_KIND,
     VALID_CONCESSION_FORMS,
 )
+from skat_ai.defender_open_play import DEFENDER_OPEN_PLAY_KIND
 
 HISTORICAL_GAME_END_SCHEMA_VERSION = 1
 HISTORICAL_NORMAL_COMPLETION = "normal_completion"
 HISTORICAL_DECLARER_CONCESSION = DECLARER_CONCESSION_KIND
 HISTORICAL_DEFENDER_CONCESSION = DEFENDER_CONCESSION_KIND
 HISTORICAL_DECLARER_CARD_EXPOSURE = DECLARER_CARD_EXPOSURE_KIND
+HISTORICAL_DEFENDER_OPEN_PLAY = DEFENDER_OPEN_PLAY_KIND
 HISTORICAL_GAME_END_REASONS = {
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_DECLARER_CONCESSION,
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_DECLARER_CARD_EXPOSURE,
+    HISTORICAL_DEFENDER_OPEN_PLAY,
 }
 
 
@@ -88,10 +91,22 @@ class HistoricalDeclarerCardExposure:
     defender_responses: tuple[HistoricalDefenderExposureResponse, ...]
 
 
+@dataclass(frozen=True)
+class HistoricalDefenderOpenPlay:
+    """Version-1 terminal historical defender-open-play event."""
+
+    schema_version: int
+    kind: str
+    exposing_defender_player_id: str
+    exposed_cards: tuple[str, ...]
+    declarer_response: str
+
+
 type HistoricalGameEnd = (
     HistoricalDeclarerConcession
     | HistoricalDefenderConcession
     | HistoricalDeclarerCardExposure
+    | HistoricalDefenderOpenPlay
 )
 
 
@@ -153,6 +168,75 @@ def build_historical_game_end(
         )
     if not isinstance(value, dict):
         raise ValueError(f"{field_name} must be an object.")
+
+    if game_end_reason == HISTORICAL_DEFENDER_OPEN_PLAY:
+        relative_player_ids = sorted(
+            set(seat_order_player_ids).intersection({"me", "left", "right"})
+        )
+        if relative_player_ids:
+            raise ValueError(
+                f"{field_name} requires stable historical player IDs and must not "
+                f"use relative identities: {relative_player_ids}."
+            )
+        _require_exact_fields(
+            value,
+            {
+                "schema_version",
+                "kind",
+                "exposing_defender_player_id",
+                "exposed_cards",
+                "declarer_response",
+            },
+            field_name,
+        )
+        if not is_strict_integer(value["schema_version"]) or value["schema_version"] != 1:
+            raise ValueError(f"{field_name}.schema_version must be exactly 1.")
+        if value["kind"] != HISTORICAL_DEFENDER_OPEN_PLAY:
+            raise ValueError(
+                f"{field_name}.kind must match game_end_reason "
+                f"'{HISTORICAL_DEFENDER_OPEN_PLAY}'."
+            )
+        exposing_defender_player_id = _require_stable_defender_id(
+            value["exposing_defender_player_id"],
+            field_name=f"{field_name}.exposing_defender_player_id",
+            declarer_player_id=declarer_player_id,
+            seat_order_player_ids=seat_order_player_ids,
+        )
+        raw_cards = value["exposed_cards"]
+        if not isinstance(raw_cards, list):
+            raise ValueError(f"{field_name}.exposed_cards must be an array.")
+        if not 1 <= len(raw_cards) <= 5:
+            raise ValueError(
+                f"{field_name}.exposed_cards must contain between 1 and 5 cards."
+            )
+        valid_cards = set(get_full_deck())
+        invalid_cards = [
+            card for card in raw_cards if not isinstance(card, str) or card not in valid_cards
+        ]
+        if invalid_cards:
+            raise ValueError(
+                f"{field_name}.exposed_cards contains invalid cards: {invalid_cards}."
+            )
+        if len(raw_cards) != len(set(raw_cards)):
+            raise ValueError(f"{field_name}.exposed_cards must not contain duplicates.")
+        card_order = {card: index for index, card in enumerate(get_full_deck())}
+        exposed_cards = tuple(sorted(raw_cards, key=card_order.__getitem__))
+        declarer_response = value["declarer_response"]
+        if declarer_response == "request_continued_play":
+            raise ValueError(
+                "Historical defender-open-play continuation remains separate future work."
+            )
+        if declarer_response != "accept_adjudication":
+            raise ValueError(
+                f"{field_name}.declarer_response must be 'accept_adjudication'."
+            )
+        return HistoricalDefenderOpenPlay(
+            schema_version=HISTORICAL_GAME_END_SCHEMA_VERSION,
+            kind=HISTORICAL_DEFENDER_OPEN_PLAY,
+            exposing_defender_player_id=exposing_defender_player_id,
+            exposed_cards=exposed_cards,
+            declarer_response=declarer_response,
+        )
 
     if game_end_reason == HISTORICAL_DEFENDER_CONCESSION:
         _require_exact_fields(
@@ -439,6 +523,14 @@ def build_serializable_historical_game_end(
             "kind": game_end.kind,
             "conceding_defender_player_id": game_end.conceding_defender_player_id,
             "concession_form": game_end.concession_form,
+        }
+    if isinstance(game_end, HistoricalDefenderOpenPlay):
+        return {
+            "schema_version": game_end.schema_version,
+            "kind": game_end.kind,
+            "exposing_defender_player_id": game_end.exposing_defender_player_id,
+            "exposed_cards": list(game_end.exposed_cards),
+            "declarer_response": game_end.declarer_response,
         }
     if isinstance(game_end, HistoricalDeclarerCardExposure):
         exposure = {

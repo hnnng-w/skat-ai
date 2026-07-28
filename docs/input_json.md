@@ -32,6 +32,8 @@ and
 
 [`schemas/historical_declarer_card_exposure.schema.json`](../schemas/historical_declarer_card_exposure.schema.json)
 
+[`schemas/historical_defender_open_play.schema.json`](../schemas/historical_defender_open_play.schema.json)
+
 Training/evaluation datasets use:
 
 [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
@@ -74,7 +76,7 @@ The schema checks stable structural constraints such as:
 * supported performance rating values
 * matador values from 1 through 11 and direct top-level Grand values through 4
 * direct top-level Suit/Grand declaration contradictions
-* strict version-1 declarer-concession, defender-concession, and declarer-card-exposure union shapes
+* strict version-1 declarer-concession, defender-concession, declarer-card-exposure, and defender-open-play union shapes
 
 More advanced cross-field validation is handled by the Python validation layer.
 
@@ -145,6 +147,11 @@ Historical accepted declarer-card exposure requires the exact remaining
 declarer hand, an optional stable shown-to defender, and exactly two stable
 defender `accept` responses. See
 [Historical declarer card exposure](historical_declarer_card_exposure.md).
+
+Historical defender open play requires one stable exposing defender, that
+defender's exact reconstructed current hand, at least five completed tricks, and
+`declarer_response: "accept_adjudication"`. See
+[Historical defender open play](historical_defender_open_play.md).
 
 A training-dataset file contains only its dataset branch:
 

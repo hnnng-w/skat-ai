@@ -19,6 +19,9 @@ HISTORICAL_DEFENDER_CONCESSION_SCHEMA_PATH = (
 HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_card_exposure.schema.json"
 )
+HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_defender_open_play.schema.json"
+)
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
@@ -85,6 +88,9 @@ def validate_example_files() -> list[str]:
     historical_declarer_card_exposure_schema = load_json_file(
         HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH
     )
+    historical_defender_open_play_schema = load_json_file(
+        HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA_PATH
+    )
     training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
     opponent_statistics_schema = load_json_file(OPPONENT_STATISTICS_SCHEMA_PATH)
     dataset_partition_policy_schema = load_json_file(DATASET_PARTITION_POLICY_SCHEMA_PATH)
@@ -113,6 +119,10 @@ def validate_example_files() -> list[str]:
             (
                 historical_declarer_card_exposure_schema["$id"],
                 Resource.from_contents(historical_declarer_card_exposure_schema),
+            ),
+            (
+                historical_defender_open_play_schema["$id"],
+                Resource.from_contents(historical_defender_open_play_schema),
             ),
             (
                 training_dataset_schema["$id"],

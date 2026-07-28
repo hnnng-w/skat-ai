@@ -46,6 +46,7 @@ def get_position_example_json_files() -> list[Path]:
             "historical_grand_defender_concession.json",
             "historical_grand_declarer_concession.json",
             "historical_grand_declarer_card_exposure.json",
+            "historical_grand_defender_open_play.json",
             "historical_grand_normal_completion.json",
             "historical_opponent_policy_evaluation_dataset.json",
             "historical_opponent_statistics.json",
@@ -72,6 +73,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_grand_defender_concession.json",
             "historical_grand_declarer_concession.json",
             "historical_grand_declarer_card_exposure.json",
+            "historical_grand_defender_open_play.json",
             "historical_grand_normal_completion.json",
         }:
             record = load_historical_game_from_json(str(example_file))
@@ -206,6 +208,19 @@ def test_historical_declarer_card_exposure_example_builds_adjudicated_summary() 
     assert summary["play_prefix_summary"]["played_card_count"] == 14
     assert summary["historical_game_end_summary"]["card_reconciliation"] == "confirmed"
     assert summary["final_settlement_summary"]["settlement_score"] == 72
+
+
+def test_historical_defender_open_play_example_builds_exact_summary() -> None:
+    path = Path("examples/historical_grand_defender_open_play.json")
+    summary = build_historical_game_summary(load_historical_game_from_json(str(path)))
+
+    end = summary["historical_game_end_summary"]
+    assert summary["game_id"] == "historical-grand-defender-open-play-001"
+    assert summary["play_prefix_summary"]["played_card_count"] == 24
+    assert end["exact_proof"]["status"] == "valid"
+    assert end["exact_proof"]["evaluated_state_count"] == 32
+    assert summary["point_accounting"]["assigned_defender_points"] == 13
+    assert summary["final_settlement_summary"]["settlement_score"] == -144
 
 
 def test_training_dataset_example_builds_sixty_samples() -> None:

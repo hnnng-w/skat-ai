@@ -104,6 +104,12 @@ exposure:
 python main.py --input examples/historical_grand_declarer_card_exposure.json
 ```
 
+Validate bounded exact terminal historical defender open play:
+
+```powershell
+python main.py --input examples/historical_grand_defender_open_play.json
+```
+
 Write its separate structured result without successful stdout:
 
 ```powershell
@@ -269,6 +275,7 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_declarer_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable-ID defender consent, unresolved-point accounting, and adjudicated settlement. |
 | `historical_grand_defender_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable conceding defender, joint liability, unresolved-point accounting, and adjudicated declarer win. |
 | `historical_grand_declarer_card_exposure.json`    | Complete deal, exact 14-play Grand prefix, exact exposed declarer hand, stable shown-to defender and unanimous acceptances, accepted Schneider result, and settlement. |
+| `historical_grand_defender_open_play.json` | Complete deal, exact 24-play Grand prefix, stable exposing defender, exact valid two-trick proof, privacy-safe assignment, and settlement. |
 
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
@@ -333,8 +340,8 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 45 scenarios, including variable-length training data,
-all three historical shortened kinds, both
+therefore covers 46 scenarios, including variable-length training data,
+all four historical shortened kinds, both
 ongoing public-hand continuations, bounded exact defender-open-play adjudication,
 and open-card-throw adjudication.
 The behavioral match
