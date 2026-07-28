@@ -8,6 +8,9 @@
     },
     {
       "$ref": "https://example.local/skat-ai/historical_defender_concession.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure.schema.json"
     }
   ]
 }

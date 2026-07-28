@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from skat_ai.historical_game_end import (
+    HISTORICAL_DECLARER_CARD_EXPOSURE,
     HISTORICAL_DECLARER_CONCESSION,
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_NORMAL_COMPLETION,
@@ -12,6 +13,7 @@ SUPPORTED_HISTORICAL_DECISION_END_REASONS = {
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_DECLARER_CONCESSION,
     HISTORICAL_DEFENDER_CONCESSION,
+    HISTORICAL_DECLARER_CARD_EXPOSURE,
 }
 
 
@@ -35,7 +37,8 @@ def derive_historical_decision_cardinality(
     if game_end_reason not in SUPPORTED_HISTORICAL_DECISION_END_REASONS:
         raise ValueError(
             "Historical decision workflows support only normal_completion, "
-            "declarer_concession, and defender_concession, got "
+            "declarer_concession, defender_concession, and "
+            "declarer_card_exposure, got "
             f"'{game_end_reason}'."
         )
 
@@ -49,7 +52,7 @@ def derive_historical_decision_cardinality(
             )
     elif not 0 <= played_card_count < MAX_HISTORICAL_DECISION_COUNT:
         raise ValueError(
-            "A validated concession record must contain between 0 and 29 plays."
+            "A validated shortened record must contain between 0 and 29 plays."
         )
 
     return HistoricalDecisionCardinality(

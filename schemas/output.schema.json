@@ -736,6 +736,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/historical_defender_concession_output.schema.json#/$defs/game_end_summary"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure_output.schema.json#/$defs/game_end_summary"
             }
           ]
         }
@@ -810,6 +813,26 @@
             "properties": {
               "historical_game_end_summary": {
                 "$ref": "https://example.local/skat-ai/historical_defender_concession_output.schema.json#/$defs/game_end_summary"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "game_end_reason": {"const": "declarer_card_exposure"}
+                },
+                "required": ["game_end_reason"]
+              }
+            },
+            "required": ["record"]
+          },
+          "then": {
+            "properties": {
+              "historical_game_end_summary": {
+                "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure_output.schema.json#/$defs/game_end_summary"
               }
             }
           }

@@ -31,6 +31,9 @@ HISTORICAL_CONCESSION_INPUT_PATH = (
 HISTORICAL_DEFENDER_CONCESSION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_grand_defender_concession.json"
 )
+HISTORICAL_DECLARER_CARD_EXPOSURE_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_grand_declarer_card_exposure.json"
+)
 TRAINING_DATASET_INPUT_PATH = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 OPPONENT_STATISTICS_INPUT_PATH = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
@@ -277,6 +280,25 @@ def test_cli_historical_defender_concession_prints_joint_liability_summary() -> 
     assert "Result: declarer won" in completed_process.stdout
     assert "Unresolved points assigned: no" in completed_process.stdout
     assert "Settlement: 48" in completed_process.stdout
+
+
+def test_cli_historical_declarer_card_exposure_prints_stable_accepted_summary() -> None:
+    completed_process = run_cli("--input", HISTORICAL_DECLARER_CARD_EXPOSURE_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "End reason: accepted declarer card exposure" in completed_process.stdout
+    assert "Exposure form: shown_to_defender" in completed_process.stdout
+    assert "Shown to defender: player-a" in completed_process.stdout
+    assert "Accepted by defenders: player-a, player-c" in completed_process.stdout
+    assert "Claimed play level: schneider" in completed_process.stdout
+    assert "Played cards: 14" in completed_process.stdout
+    assert "Result: declarer won" in completed_process.stdout
+    assert "Unresolved points assigned: no" in completed_process.stdout
+    assert "Settlement: 72" in completed_process.stdout
+    assert " me" not in completed_process.stdout
+    assert " left" not in completed_process.stdout
+    assert " right" not in completed_process.stdout
 
 
 def test_cli_historical_declarer_concession_quiet_output_is_private_and_schema_ready(

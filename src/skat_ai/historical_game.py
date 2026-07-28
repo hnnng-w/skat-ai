@@ -14,6 +14,9 @@ from skat_ai.game_result import (
     get_completed_trick_schwarz_status,
 )
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.historical_declarer_card_exposure import (
+    adjudicate_historical_declarer_card_exposure,
+)
 from skat_ai.historical_declarer_concession import (
     adjudicate_historical_declarer_concession,
 )
@@ -21,6 +24,7 @@ from skat_ai.historical_defender_concession import (
     adjudicate_historical_defender_concession,
 )
 from skat_ai.historical_game_end import (
+    HISTORICAL_DECLARER_CARD_EXPOSURE,
     HISTORICAL_DECLARER_CONCESSION,
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_NORMAL_COMPLETION,
@@ -293,11 +297,12 @@ def _build_tricks(
     if game_end_reason == HISTORICAL_NORMAL_COMPLETION and len(value) != 10:
         raise ValueError(f"Historical game '{game_id}': tricks must contain exactly ten tricks.")
     if game_end_reason in {
+        HISTORICAL_DECLARER_CARD_EXPOSURE,
         HISTORICAL_DECLARER_CONCESSION,
         HISTORICAL_DEFENDER_CONCESSION,
     } and len(value) > 10:
         raise ValueError(
-            f"Historical game '{game_id}': a concession play prefix may "
+            f"Historical game '{game_id}': a shortened play prefix may "
             "contain at most ten trick entries."
         )
 
@@ -552,31 +557,33 @@ def _derive_tricks(
 def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any]:
     """Validates all plays and derives the complete result and settlement."""
     if record.game_end_reason in {
+        HISTORICAL_DECLARER_CARD_EXPOSURE,
         HISTORICAL_DECLARER_CONCESSION,
         HISTORICAL_DEFENDER_CONCESSION,
     }:
         replay = replay_historical_play_prefix(record)
         if replay.played_card_count >= 30:
             raise ValueError(
-                f"Historical game '{record.game_id}': a concession cannot "
+                f"Historical game '{record.game_id}': a shortened event cannot "
                 "occur after all 30 playable cards were played."
             )
         derived_tricks = [
             build_serializable_derived_trick(trick)
             for trick in replay.completed_tricks
         ]
-        concession = (
-            adjudicate_historical_declarer_concession(record, replay)
-            if record.game_end_reason == HISTORICAL_DECLARER_CONCESSION
-            else adjudicate_historical_defender_concession(record, replay)
-        )
+        if record.game_end_reason == HISTORICAL_DECLARER_CONCESSION:
+            adjudicated_end = adjudicate_historical_declarer_concession(record, replay)
+        elif record.game_end_reason == HISTORICAL_DEFENDER_CONCESSION:
+            adjudicated_end = adjudicate_historical_defender_concession(record, replay)
+        else:
+            adjudicated_end = adjudicate_historical_declarer_card_exposure(record, replay)
         result = {
             "schema_version": record.schema_version,
             "game_id": record.game_id,
             "status": "complete",
             "record": build_serializable_historical_record(record),
             "derived_tricks": derived_tricks,
-            **concession,
+            **adjudicated_end,
         }
         if record.played_at is not None:
             result["played_at"] = record.played_at

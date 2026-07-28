@@ -132,7 +132,7 @@ The current code and release-preparation baseline is `v0.8.0`, with the theme
 
 The package version is `0.8.0`.
 
-Generated-output validation currently covers 44 deterministic scenarios.
+Generated-output validation currently covers 45 deterministic scenarios.
 
 The documented `v0.8.0` issue scope, issues #78 through #84, is complete.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
@@ -176,10 +176,11 @@ Major completed areas include:
 * rolling known-opponent behavioral policy evaluation
 * known-opponent and unseen-player dataset policies with overlap audits
 * declarer-concession integration in historical statistics, export, and rolling opponent-policy evaluation
+* unanimously accepted declarer-card-exposure historical records and variable-length workflow integration
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include historical opponent workflows beyond normal completion,
-declarer concession, and defender concession, simplified claims and concessions,
+declarer concession, defender concession, and accepted declarer-card exposure, simplified claims and concessions,
 incomplete settlement nuance, no coherent
 hidden-world assignment across a complete Multi-Step path, no exposed-card-aware
 Ouvert simulation, incomplete field-level live provenance, heuristic rule-based

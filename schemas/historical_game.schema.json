@@ -50,7 +50,12 @@
       "uniqueItems": true
     },
     "game_end_reason": {
-      "enum": ["normal_completion", "declarer_concession", "defender_concession"]
+      "enum": [
+        "normal_completion",
+        "declarer_concession",
+        "defender_concession",
+        "declarer_card_exposure"
+      ]
     },
     "game_end": {
       "$ref": "https://example.local/skat-ai/historical_game_end.schema.json"
@@ -105,6 +110,19 @@
         "properties": {
           "game_end": {
             "$ref": "https://example.local/skat-ai/historical_defender_concession.schema.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "declarer_card_exposure"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure.schema.json"
           }
         }
       }

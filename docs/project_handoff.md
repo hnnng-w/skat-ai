@@ -19,7 +19,7 @@ The project focuses on:
 * automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
 * post-game review support
 * complete normal-play historical-game records
-* exact-prefix historical declarer-concession records
+* exact-prefix historical declarer-concession, defender-concession, and accepted declarer-card-exposure records
 * information-safe historical decision snapshots and complete-game review
 * versioned training and evaluation dataset records
 * external and historically aggregated opponent statistics
@@ -192,7 +192,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 44 deterministic scenarios.
+Generated-output validation currently covers 45 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -452,7 +452,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 44 deterministic generated-output
+The `v0.8.0` development baseline validates 45 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -528,6 +528,8 @@ Subsequent bounded historical work:
 * #93 added exact-prefix historical declarer concession with stable-ID consent and settlement
 * #94 generalized snapshots, review, training samples, external-profile review, and partition audits to actual played-card cardinality
 * #95 integrated concession records into game-weighted statistics/export and actual-decision rolling evaluation
+* #96 added exact-prefix historical defender concession with stable-ID joint liability
+* #97 added exact-prefix unanimously accepted declarer-card exposure and integrated all variable-length workflows
 
 ## Current implementation baseline
 
@@ -542,14 +544,15 @@ Completed implementation scope:
 * exact historical aggregation with reusable export
 * rolling game-start known-opponent behavioral policy evaluation
 * known-opponent and unseen-player dataset policies with exact overlap auditing
-* variable-length historical decision artifacts for normal completion and both concession kinds
+* variable-length historical decision artifacts for normal completion and all three shortened kinds
 * mixed normal/concession historical statistics, export, and rolling evaluation
 * exact-prefix historical defender concession with stable-ID joint liability and flat adjudication parity
+* exact-prefix historical declarer-card exposure with exact reconciliation and flat adjudication parity
 
 ## Current high-priority limitations
 
-* Historical records support normal completion and exact-prefix declarer and defender concessions; other claims, continuations, and end reasons are required.
-* Historical opponent-statistics aggregation and rolling policy evaluation support exactly normal completion and both concession kinds; other end reasons remain unsupported.
+* Historical records support normal completion, exact-prefix declarer and defender concessions, and unanimously accepted declarer-card exposure; other claims, continuations, and end reasons are required.
+* Historical opponent-statistics aggregation and rolling policy evaluation support exactly those four end reasons; other end reasons remain unsupported.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.
 * General live position input lacks complete field-level provenance.

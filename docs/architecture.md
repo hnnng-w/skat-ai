@@ -20,7 +20,8 @@ The position-analysis flow is:
 
 The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, and strictly replays either ten normal-completion tricks or an
-exact legal prefix ending in a versioned declarer- or defender-concession event. It derives
+exact legal prefix ending in a versioned declarer-concession, defender-concession,
+or unanimously accepted declarer-card-exposure event. It derives
 points and ownership, reuses the declaration/value/overbid/settlement helpers,
 and emits `historical_game_summary`.
 When requested, the flow derives one pre-play decision snapshot per actual
@@ -60,7 +61,7 @@ to aggregate exact per-player role, result, Hand, and contract counts. It then
 reuses opponent-statistics normalization and profile derivation and can serialize
 a standalone `opponent_statistics_input`. It does not generate samples or run
 recommendation, review, policy application, quality evaluation, or training.
-Normal-completion, declarer-concession, and defender-concession records are explicitly supported and
+Normal-completion, declarer-concession, defender-concession, and declarer-card-exposure records are explicitly supported and
 each contributes one game regardless of play count.
 
 The rolling opponent-policy evaluation is explicitly a known-opponent flow. It
@@ -106,6 +107,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_play_prefix.py` | Exact immutable prefix replay, remaining-hand reconstruction, and incomplete-trick state. |
 | `src/skat_ai/historical_declarer_concession.py` | Historical point accounting and shared declarer-concession adjudication/settlement adaptation. |
 | `src/skat_ai/historical_defender_concession.py` | Stable-ID historical adaptation of shared defender-concession adjudication and settlement. |
+| `src/skat_ai/historical_declarer_card_exposure.py` | Exact stable-ID reconciliation and shared accepted-exposure adjudication/settlement adaptation. |
 | `src/skat_ai/historical_decision_cardinality.py` | Shared actual-play cardinality for snapshots, review decisions, training samples, and rolling targets. |
 | `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
 | `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
@@ -421,12 +423,14 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/declarer_concession_output.schema.json` | Strict adjudication summary and settlement-basis output.                |
 | `schemas/defender_concession_output.schema.json` | Strict joint-liability, decision-state, adjudication, and settlement-basis output. |
 | `schemas/declarer_card_exposure_output.schema.json` | Strict exposure, unanimity, reconciliation, decision-state, and settlement-basis output. |
-| `schemas/historical_game.schema.json`          | Versioned normal or supported concession historical-game input structure. |
+| `schemas/historical_game.schema.json`          | Versioned normal or explicitly supported shortened historical-game input structure. |
 | `schemas/historical_game_end.schema.json` | Extensible version-1 historical game-end union. |
 | `schemas/historical_declarer_concession.schema.json` | Strict stable-ID historical concession event. |
 | `schemas/historical_declarer_concession_output.schema.json` | Prefix, incomplete-trick, point, and event-summary output. |
 | `schemas/historical_defender_concession.schema.json` | Strict stable-ID historical defender-concession event. |
 | `schemas/historical_defender_concession_output.schema.json` | Joint-liability historical defender-concession event summary. |
+| `schemas/historical_declarer_card_exposure.schema.json` | Strict stable-ID unanimously accepted historical exposure event. |
+| `schemas/historical_declarer_card_exposure_output.schema.json` | Exact exposure reconciliation and stable-ID event summary. |
 | `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
 | `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |
 | `schemas/training_dataset.schema.json`       | Versioned training dataset input, records, provenance, and partitions.      |

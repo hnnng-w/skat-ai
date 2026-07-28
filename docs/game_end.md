@@ -147,7 +147,7 @@ from the complete deal, confirms the declarer hand count, applies the same
 consent matrix and adjudicator, and preserves observed plus unresolved points.
 Snapshots, review, external-profile review, training conversion, and partition
 audits follow the exact played-card count. Statistics aggregation and rolling
-evaluation support normal completion and both historical concession kinds. Statistics count
+evaluation support normal completion and all three historical shortened kinds. Statistics count
 the completed record once; rolling targets evaluate only actual cards. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
@@ -160,6 +160,17 @@ party without partner consent. Exact prefix replay, unresolved-point privacy,
 flat adjudication parity, variable decision artifacts, statistics, and rolling
 evaluation are documented in
 [Historical defender concessions](historical_defender_concessions.md).
+
+### Historical declarer card exposure
+
+Historical version 1 accepts `game_end_reason: "declarer_card_exposure"` only
+for a terminal unanimously accepted event. Exact replay must confirm every
+remaining declarer card, both stable defenders must accept exactly once, and an
+optional shown-to ID must identify a defender. The shared flat adjudicator
+preserves preexisting decisions and applies accepted claims, mandatory levels,
+supported overbid requirements, and Suit, Grand, and Null settlement without
+simulating cards or assigning unresolved points. See
+[Historical declarer card exposure](historical_declarer_card_exposure.md).
 
 ## Structured defender concession
 

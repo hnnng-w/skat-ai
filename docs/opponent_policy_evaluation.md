@@ -1,6 +1,6 @@
 # Rolling opponent-policy evaluation
 
-This workflow accepts exactly normal-completion, declarer-concession, and defender-concession
+This workflow accepts exactly normal-completion, declarer-concession, defender-concession, and declarer-card-exposure
 historical dataset records. Normal targets contribute 30 decisions; concession
 targets contribute their validated zero through 29 actual card plays.
 
@@ -88,7 +88,7 @@ profile. It cannot use future plays or winners, another player's hidden hand,
 final result or settlement, later games, or source games at or after target
 start. The actual card is read only after prediction as the comparison label.
 The terminal concession, consent, unresolved cards, and knowledge that play will
-end are absent. No card decision is padded and no concession event is predicted.
+end are absent. No card decision is padded and no terminal event is predicted.
 
 The acting player's own profile is evaluated. It is not attached to historical
 `left` or `right` recommendation slots. Defender partner-winning context is

@@ -1153,14 +1153,15 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
     game_end_summary = summary.get("historical_game_end_summary")
     if game_end_summary is not None:
         print(f"Historical game: {summary['game_id']}")
-        if game_end_summary["kind"] == "defender_concession":
+        end_kind = game_end_summary["kind"]
+        if end_kind == "defender_concession":
             print("End reason: defender concession")
             print(
                 "Conceding defender:",
                 game_end_summary["conceding_defender_player_id"],
             )
             print("Joint liability: yes")
-        else:
+        elif end_kind == "declarer_concession":
             consent_ids = game_end_summary["defender_consent"][
                 "consenting_defender_player_ids"
             ]
@@ -1170,8 +1171,20 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
                 else f"granted by {', '.join(consent_ids)}"
             )
             print("End reason: declarer concession")
+        else:
+            print("End reason: accepted declarer card exposure")
+            print("Exposure form:", game_end_summary["exposure_form"])
+            shown_to_id = game_end_summary["shown_to_defender_player_id"]
+            if shown_to_id is not None:
+                print("Shown to defender:", shown_to_id)
+            print("Exposed declarer cards:", game_end_summary["exposed_card_count"])
+            print(
+                "Accepted by defenders:",
+                ", ".join(game_end_summary["accepting_defender_player_ids"]),
+            )
+            print("Claimed play level:", game_end_summary["claimed_play_level"])
         print("Played cards:", summary["play_prefix_summary"]["played_card_count"])
-        if game_end_summary["kind"] == "defender_concession":
+        if end_kind == "defender_concession":
             print(f"Result: {summary['winner']} won")
             if (
                 game_end_summary["decision_state_before_concession"]
@@ -1179,13 +1192,16 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
             ):
                 print("The defending party had already won before the concession.")
                 print("The later concession did not reverse the existing result.")
-        else:
+        elif end_kind == "declarer_concession":
             print(
                 "Declarer cards remaining:",
                 game_end_summary["declarer_hand_cards_remaining"],
             )
             print("Consent:", consent_text)
             print("Result: declarer lost")
+        else:
+            print("Decision before exposure:", game_end_summary["decision_state_before_shortening"])
+            print(f"Result: {summary['winner']} won")
         print("Unresolved points assigned: no")
         print("Settlement:", settlement["settlement_score"])
     else:

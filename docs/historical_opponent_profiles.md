@@ -1,7 +1,7 @@
 # Historical opponent profiles
 
 External profile-enabled historical review supports actual card decisions from
-normal-completion, declarer-concession, and defender-concession records. Empty prefixes produce zero
+normal-completion, declarer-concession, defender-concession, and declarer-card-exposure records. Empty prefixes produce zero
 application counts; consent is not behavioral evidence.
 
 Historical game review can apply validated external opponent profiles without

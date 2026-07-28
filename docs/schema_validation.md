@@ -76,7 +76,7 @@ The input schema checks things such as:
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 * top-level and optional nested `game_declaration` declaration field types
-* strict version-1 declarer- and defender-concession union shapes
+* strict version-1 declarer-concession, defender-concession, and declarer-card-exposure union shapes
 * strict version-1 continuation union with declarer-exposure responses and cards or defender-open-play response, exposing defender, and returned public hand
 * complete historical-game player, deal, declaration, discard, and ten-trick shapes
 * training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
@@ -140,7 +140,7 @@ The output schema checks the main output structure, including:
 * `multi_step_result`, when Multi-Step simulation is requested
 * `policy_comparison_result`, when policy comparison is requested
 * the separate `historical_game_summary` branch
-* versioned historical game-end plus declarer- and defender-concession input/output schemas
+* versioned historical game-end plus declarer-concession, defender-concession, and declarer-card-exposure input/output schemas
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
 * optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
@@ -150,10 +150,10 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 44 deterministic scenarios. Position
+Generated-output validation covers 45 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
-including both concession kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
+including all three shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
 checks the example JSON files, while generated-output validation checks the
 production JSON output emitted from those inputs.
 
@@ -172,6 +172,7 @@ summaries, late-game history-heavy live input, and local defender redaction for
 validation, settlement, information-safe decision snapshots, one seeded
 30-decision historical game review, one versioned two-record/60-sample training
 dataset, one 14-sample variable-length concession dataset,
+one exact-prefix unanimously accepted historical declarer-card-exposure result,
 one versioned external opponent-statistics conversion, and one seeded live
 external-profile binding with distinct left/right presets, plus one seeded
 time-safe historical external-profile review, and one exact historical

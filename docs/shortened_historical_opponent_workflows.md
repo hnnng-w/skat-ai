@@ -6,6 +6,7 @@ profile construction, and rolling opponent-policy evaluation support exactly:
 * `normal_completion`
 * `declarer_concession`
 * `defender_concession`
+* `declarer_card_exposure`
 
 Other historical end reasons remain unsupported until their result, evidence,
 and decision semantics receive an explicit implementation. A participating
@@ -17,7 +18,7 @@ supported reasons.
 Every selected historical record contributes exactly one game to each of its
 three participants. Played-card, snapshot, review-decision, training-sample,
 trick, observed-point, and unresolved-point counts do not weight the aggregate.
-A zero-play concession is therefore full game-level evidence.
+A zero-play shortened game is therefore full game-level evidence.
 
 The existing `final_settlement_summary.is_loss` remains the winner authority.
 For a declarer concession it records one solo game and no solo win for the
@@ -34,6 +35,12 @@ No concession count, rate, timing feature, consent feature, classification,
 signal, confidence threshold, or policy preset is added. Defender consent,
 remaining cards, incomplete-trick details, and unresolved points cannot affect
 statistics or profile derivation.
+
+For accepted declarer-card exposure, final settlement records a solo win and two
+defender losses when the accepted declared or claimed level covers all
+requirements. A preexisting defender win or uncovered overbid requirement
+instead records one solo loss and two defender wins. Exposure and acceptance
+facts add no statistic.
 
 ## Selection, provenance, and export
 
@@ -56,7 +63,7 @@ compliant `unseen_player` partition intent. Rolling evaluation remains a
 
 ## Rolling source games
 
-Normal completions and both concession kinds in selected source partitions have
+Normal completions and all three shortened kinds in selected source partitions have
 equal game-level weight. For each target, eligibility remains strictly:
 
 ```text
@@ -64,12 +71,12 @@ source partition selected and source.played_at < target.played_at
 ```
 
 Equal-time and future sources are excluded, and the target never enters its own
-profile. A completed zero-play concession can influence a later profile through
+profile. A completed zero-play shortened game can influence a later profile through
 ordinary existing game-level statistics.
 
 ## Rolling target games
 
-Normal completion contributes 30 actual card decisions. Either concession
+Normal completion contributes 30 actual card decisions. Any supported shortened event
 contributes its validated zero through 29 actual plays. The shared historical
 cardinality enforces:
 
@@ -77,7 +84,7 @@ cardinality enforces:
 decision_count = snapshot_count = validated played_card_count
 ```
 
-No decisions are padded, inferred, duplicated, or normalized. The concession
+No decisions are padded, inferred, duplicated, or normalized. The terminal
 event is not a prediction target. Metrics remain decision-weighted, so a
 14-play target contributes 14 comparison rows and a zero-play target contributes
 none.
@@ -95,11 +102,11 @@ continue to include only actual decision actors.
 ## Information safety
 
 Decision rows and prediction inputs do not include the target end reason,
-consent, conceding defender, concession form, final winner, settlement,
+consent or acceptance, conceding or shown-to defender, event form, claimed level, final winner, settlement,
 unresolved points, remaining cards, or
-knowledge of the future terminal event. A normal target and concession target
-with the same legal prefix produce the same prediction inputs and outputs for
-that prefix, apart from record/game provenance. Changing valid consent does not
+knowledge of the future terminal event. Targets with the same legal prefix
+produce the same prediction inputs and outputs for that prefix, apart from
+record/game provenance. Changing valid consent or accepted-exposure facts does not
 change statistics, profiles, or card predictions.
 
 This workflow evaluates deterministic policy imitation, not strategic strength,

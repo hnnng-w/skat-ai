@@ -7,8 +7,9 @@ sample for every historical card play. It does not train, select, evaluate, or
 deploy a machine-learning model.
 
 Training-data representation remains `partially_supported`. Version 1 accepts
-normal completion, declarer concession, and defender concession. Normal records produce 30 samples;
-concession records produce zero through 29 samples from their actual play prefix.
+normal completion, declarer concession, defender concession, and accepted declarer-card exposure. Normal records produce 30 samples;
+shortened records produce zero through 29 samples from their actual play prefix,
+subject to event prerequisites.
 Other historical end reasons remain unsupported.
 
 ## Dataset input
@@ -216,15 +217,15 @@ aggregation branch. Its only additional options are repeatable
 meanings. Samples, seeds, review, simulation, comparison, policy, profile, and
 binding options are rejected. Without the aggregation flag, sample conversion is
 unchanged.
-Aggregation accepts exactly normal completion, declarer concession, and defender concession; zero-
-sample concession records remain full game-level evidence.
+Aggregation accepts exactly normal completion, declarer concession, defender concession, and declarer-card exposure; zero-
+sample shortened records remain full game-level evidence.
 
 With `--evaluate-opponent-policy-profiles`, the dataset instead feeds the
 separate known-opponent rolling behavioral evaluation. It accepts unspecified
 or `known_opponent` intent and rejects `unseen_player`. Source partitions default to `train`;
 evaluation partitions default to `validation` and `test`; the roles must be
 disjoint. This mode emits no samples and leaves normal conversion unchanged.
-Normal targets contribute 30 decisions and concession targets contribute their
+Normal targets contribute 30 decisions and shortened targets contribute their
 actual zero through 29 decisions without padding. Target participant coverage
 always includes all three stable IDs.
 See [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).

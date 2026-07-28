@@ -97,6 +97,13 @@ Validate a historical Grand prefix ending in defender concession:
 python main.py --input examples/historical_grand_defender_concession.json
 ```
 
+Validate a historical Grand prefix ending in unanimously accepted declarer-card
+exposure:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_card_exposure.json
+```
+
 Write its separate structured result without successful stdout:
 
 ```powershell
@@ -261,12 +268,13 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_normal_completion.json`         | Complete 32-card Grand deal with stable player IDs, non-Hand pickup/discards, ten legal tricks, inferred matadors, final points, and settlement. |
 | `historical_grand_declarer_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable-ID defender consent, unresolved-point accounting, and adjudicated settlement. |
 | `historical_grand_defender_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable conceding defender, joint liability, unresolved-point accounting, and adjudicated declarer win. |
+| `historical_grand_declarer_card_exposure.json`    | Complete deal, exact 14-play Grand prefix, exact exposed declarer hand, stable shown-to defender and unanimous acceptances, accepted Schneider result, and settlement. |
 
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
 `historical_game_summary`, its optional decision-time snapshots, and the
-seeded complete historical review. Two scenarios cover concession base and
-quiet output. Snapshot-only generation does not run recommendation or
+seeded complete historical review. Three scenarios cover the supported shortened
+base outputs. Snapshot-only generation does not run recommendation or
 simulation. Review uses the normal example with 20 samples and base seed 42.
 
 ## Training-dataset example
@@ -284,7 +292,8 @@ does not run recommendations, review, or simulation. Its generated-output
 scenario verifies the dedicated branch, all three partition-count entries,
 stable sample IDs, legal labels, and identity-free features.
 Each game contributes one sample per actual play; normal completion contributes
-30 and either concession contributes zero through 29. Aggregation reuses the
+30 and any supported shortened event contributes zero through 29 subject to its
+event prerequisites. Aggregation reuses the
 dataset container but emits no samples, recommendations, review, or policy
 application.
 
@@ -324,8 +333,8 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 44 scenarios, including variable-length training data,
-both historical concession kinds, both
+therefore covers 45 scenarios, including variable-length training data,
+all three historical shortened kinds, both
 ongoing public-hand continuations, bounded exact defender-open-play adjudication,
 and open-card-throw adjudication.
 The behavioral match
@@ -508,8 +517,8 @@ because ended game reasons are post-game review information.
 | `grand_defenders_conceded_remaining_tricks.json` | Defenders concede remaining tricks. |
 
 Each structured flat example has deterministic generated-output and quiet JSON
-coverage. Each historical concession kind has one separate generated scenario;
-no other historical shortening, continuation, or variable-length snapshot
+coverage. Each of the three supported historical shortened kinds has one
+separate generated scenario; no historical continuation or other shortening
 example is included.
 
 ## Overbid examples

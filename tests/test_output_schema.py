@@ -57,6 +57,12 @@ HISTORICAL_DEFENDER_CONCESSION_SCHEMA_PATH = (
 HISTORICAL_DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_defender_concession_output.schema.json"
 )
+HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_card_exposure.schema.json"
+)
+HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_card_exposure_output.schema.json"
+)
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
@@ -133,6 +139,12 @@ with HISTORICAL_DEFENDER_CONCESSION_SCHEMA_PATH.open("r", encoding="utf-8") as f
     HISTORICAL_DEFENDER_CONCESSION_SCHEMA = json.load(file)
 with HISTORICAL_DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_DEFENDER_CONCESSION_OUTPUT_SCHEMA = json.load(file)
+with HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA = json.load(file)
+with HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA = json.load(file)
 with TRAINING_DATASET_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     TRAINING_DATASET_OUTPUT_SCHEMA = json.load(file)
 with OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
@@ -202,6 +214,14 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             HISTORICAL_DEFENDER_CONCESSION_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_DEFENDER_CONCESSION_OUTPUT_SCHEMA),
+        ),
+        (
+            HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA),
+        ),
+        (
+            HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA),
         ),
         (
             TRAINING_DATASET_OUTPUT_SCHEMA["$id"],
@@ -725,6 +745,17 @@ def build_valid_historical_defender_concession_output() -> dict[str, object]:
     }
 
 
+def build_valid_historical_declarer_card_exposure_output() -> dict[str, object]:
+    input_path = (
+        PROJECT_ROOT / "examples" / "historical_grand_declarer_card_exposure.json"
+    )
+    record = load_historical_game_from_json(str(input_path))
+    return {
+        "input_file": "examples/historical_grand_declarer_card_exposure.json",
+        "historical_game_summary": build_historical_game_summary(record),
+    }
+
+
 def build_valid_historical_output_with_decision_snapshots() -> dict[str, object]:
     data = build_valid_historical_output()
     historical_summary = data["historical_game_summary"]
@@ -927,6 +958,10 @@ def test_schema_accepts_historical_declarer_concession_output_branch() -> None:
 
 def test_schema_accepts_historical_defender_concession_output_branch() -> None:
     assert_schema_valid(build_valid_historical_defender_concession_output())
+
+
+def test_schema_accepts_historical_declarer_card_exposure_output_branch() -> None:
+    assert_schema_valid(build_valid_historical_declarer_card_exposure_output())
 
 
 def test_schema_accepts_historical_decision_snapshot_output_branch() -> None:

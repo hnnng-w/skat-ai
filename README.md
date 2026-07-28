@@ -60,7 +60,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Versioned complete historical-game records for normal play
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
 * Derived historical trick winners, points, game value, overbid, and settlement
-* Optional information-safe pre-play snapshots for every actual normal-completion or declarer-concession play
+* Optional information-safe pre-play snapshots for every actual play in supported historical endings
 * Optional decision-time review of those actual historical plays through the existing immediate recommendation logic
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
 * Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
@@ -256,6 +256,13 @@ Validate an exact historical prefix ending in joint-liability defender concessio
 python main.py --input examples/historical_grand_defender_concession.json
 ```
 
+Validate an exact historical prefix ending in unanimously accepted declarer-card
+exposure:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_card_exposure.json
+```
+
 Add one information-safe snapshot immediately before each actual play:
 
 ```powershell
@@ -278,12 +285,12 @@ Historical-game inputs form a separate workflow. External profile application
 requires `played_at`, historical review, profile-preset opt-in, at least one exact
 participant match, and captures strictly older than the game. Live-only relative
 binding IDs are rejected. `--samples` and `--seed` are accepted only with review.
-Historical declarer and defender concessions support snapshots, review, time-safe external
+Historical declarer and defender concessions and accepted declarer-card exposure support snapshots, review, time-safe external
 profiles, variable training samples, and record/player partition audits for every
 actual supplied play. The terminal event is not reviewed or used as a target.
 Historical opponent statistics, reusable export, rolling profile construction,
 and rolling policy evaluation support normal completion, declarer concession,
-and defender concession.
+defender concession, and declarer-card exposure.
 Each source record has one game of statistics weight, while targets contribute
 only actual card decisions, including valid zero-decision targets. See
 [Shortened historical opponent workflows](docs/shortened_historical_opponent_workflows.md).
@@ -413,6 +420,7 @@ Detailed documentation is split into topic-specific files:
 * [Exact rest-trick proof schema](schemas/exact_rest_trick_proof.schema.json)
 * [Public-hand constraint schema](schemas/public_hand_constraint.schema.json)
 * [Historical games](docs/historical_games.md)
+* [Historical declarer card exposure](docs/historical_declarer_card_exposure.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
@@ -484,7 +492,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 44 deterministic scenarios,
+complete. Generated-output validation covers 45 deterministic scenarios,
 including both ongoing public-hand continuations and bounded exact defender
 open-play adjudication plus structured open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
@@ -497,7 +505,7 @@ summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
-Normal-completion, declarer-concession, and defender-concession historical records, information-safe
+Normal-completion, declarer-concession, defender-concession, and accepted declarer-card-exposure historical records, information-safe
 variable-cardinality snapshots and review, and versioned training/evaluation
 dataset wrapping are partially supported. Five structured generic-position shortening
 variants are supported: declarer concession, defender concession, unanimously

@@ -30,6 +30,8 @@ Supported historical records use the focused referenced schemas:
 and
 [`schemas/historical_defender_concession.schema.json`](../schemas/historical_defender_concession.schema.json)
 
+[`schemas/historical_declarer_card_exposure.schema.json`](../schemas/historical_declarer_card_exposure.schema.json)
+
 Training/evaluation datasets use:
 
 [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
@@ -72,7 +74,7 @@ The schema checks stable structural constraints such as:
 * supported performance rating values
 * matador values from 1 through 11 and direct top-level Grand values through 4
 * direct top-level Suit/Grand declaration contradictions
-* strict version-1 declarer- and defender-concession union shapes
+* strict version-1 declarer-concession, defender-concession, and declarer-card-exposure union shapes
 
 More advanced cross-field validation is handled by the Python validation layer.
 
@@ -89,7 +91,7 @@ Python validation covers Skat-specific rules such as:
 * legality of `actual_card_played`
 * point consistency
 * stable historical player/seat references and complete 32-card deals
-* historical pickup/discard ownership, final playable hands, all normal plays or an exact concession prefix, follow obligations, winners, points, matadors, and settlement
+* historical pickup/discard ownership, final playable hands, all normal plays or an exact shortened prefix, follow obligations, winners, points, matadors, and settlement
 * training dataset versions, optional partition policy, unpadded identities, RFC 3339 provenance, duplicate game/source detection, partition leakage, and declared unseen-player disjointness
 * opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, optional exact-count reconciliation, historical aggregation provenance, and duplicate player IDs
 * historical opponent-statistics canonical partition selection, required source timestamps, strict cutoff, stable identity/label aggregation, and settlement-based exact counts
@@ -103,7 +105,7 @@ For the validation-layer overview and schema limitations, see:
 The public schema has four mutually exclusive branches:
 
 * the existing flat position-analysis input described below
-* a normal-completion or bounded declarer-/defender-concession historical game under `historical_game_input`
+* a normal-completion or explicitly supported shortened historical game under `historical_game_input`
 * a versioned training/evaluation dataset under `training_dataset_input`
 * versioned external opponent statistics under `opponent_statistics_input`
 
@@ -139,6 +141,11 @@ one exact stable `conceding_defender_player_id`, and a supported structured
 `concession_form`. No second-defender consent exists. See
 [Historical defender concessions](historical_defender_concessions.md).
 
+Historical accepted declarer-card exposure requires the exact remaining
+declarer hand, an optional stable shown-to defender, and exactly two stable
+defender `accept` responses. See
+[Historical declarer card exposure](historical_declarer_card_exposure.md).
+
 A training-dataset file contains only its dataset branch:
 
 ```json
@@ -159,7 +166,7 @@ A training-dataset file contains only its dataset branch:
 ```
 
 Each record supplies a unique `record_id`, a `train`, `validation`, or `test`
-partition, required provenance, and one normal-completion or supported concession
+partition, required provenance, and one supported historical
 historical game. Samples follow the exact validated played-card count, including
 zero. See
 [Training data](training_data.md) for identity, duplicate, provenance, sample,

@@ -32,6 +32,12 @@ HISTORICAL_DEFENDER_CONCESSION_SCHEMA_PATH = (
 HISTORICAL_DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_defender_concession_output.schema.json"
 )
+HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_card_exposure.schema.json"
+)
+HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_declarer_card_exposure_output.schema.json"
+)
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
@@ -1385,6 +1391,31 @@ def check_historical_defender_concession(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_historical_declarer_card_exposure(data: dict[str, Any]) -> list[str]:
+    """Checks exact accepted exposure adjudication and defender-hand privacy."""
+    if set(data) != {"input_file", "historical_game_summary"}:
+        return ["expected only the historical-game top-level output branch"]
+    summary = data["historical_game_summary"]
+    end = summary["historical_game_end_summary"]
+    errors = []
+    if summary["record"]["game_end_reason"] != "declarer_card_exposure":
+        errors.append("expected historical declarer-card-exposure record")
+    if summary["play_prefix_summary"]["played_card_count"] != 14:
+        errors.append("expected exactly 14 actual prefix plays")
+    if end["card_reconciliation"] != "confirmed":
+        errors.append("expected exact exposed-card reconciliation")
+    if end["accepting_defender_player_ids"] != ["player-a", "player-c"]:
+        errors.append("expected canonical stable defender acceptance order")
+    if summary["winner"] != "declarer":
+        errors.append("expected accepted exposure to award the undecided game")
+    if summary["final_settlement_summary"]["settlement_score"] != 72:
+        errors.append("expected accepted Schneider Grand settlement of 72")
+    serialized = json.dumps(summary)
+    if "remaining_hands" in serialized:
+        errors.append("defender remaining hands must remain private")
+    return errors
+
+
 def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
     """Checks deterministic information-safe historical snapshot output."""
     errors = check_historical_game_normal_completion(data)
@@ -2230,6 +2261,17 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="historical_grand_declarer_card_exposure",
+        input_path=(
+            PROJECT_ROOT / "examples" / "historical_grand_declarer_card_exposure.json"
+        ),
+        branch="exact-prefix unanimously accepted historical declarer-card exposure",
+        cli_args=("--quiet",),
+        check_output=check_historical_declarer_card_exposure,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="historical_grand_decision_snapshots",
         input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
         branch="information-safe snapshots for all 30 historical decisions",
@@ -2398,6 +2440,12 @@ def validate_generated_outputs() -> list[str]:
     historical_defender_concession_output_schema = load_json_file(
         HISTORICAL_DEFENDER_CONCESSION_OUTPUT_SCHEMA_PATH
     )
+    historical_declarer_card_exposure_schema = load_json_file(
+        HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH
+    )
+    historical_declarer_card_exposure_output_schema = load_json_file(
+        HISTORICAL_DECLARER_CARD_EXPOSURE_OUTPUT_SCHEMA_PATH
+    )
     training_dataset_output_schema = load_json_file(TRAINING_DATASET_OUTPUT_SCHEMA_PATH)
     opponent_statistics_output_schema = load_json_file(OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH)
     opponent_statistics_input_schema = load_json_file(OPPONENT_STATISTICS_INPUT_SCHEMA_PATH)
@@ -2463,6 +2511,14 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_defender_concession_output_schema["$id"],
                 Resource.from_contents(historical_defender_concession_output_schema),
+            ),
+            (
+                historical_declarer_card_exposure_schema["$id"],
+                Resource.from_contents(historical_declarer_card_exposure_schema),
+            ),
+            (
+                historical_declarer_card_exposure_output_schema["$id"],
+                Resource.from_contents(historical_declarer_card_exposure_output_schema),
             ),
             (
                 training_dataset_output_schema["$id"],

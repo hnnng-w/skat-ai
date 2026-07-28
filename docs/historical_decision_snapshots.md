@@ -1,8 +1,8 @@
 # Historical decision snapshots
 
 Historical decision snapshots reconstruct the information available immediately
-before each actual card in an already validated normal-completion or
-declarer- or defender-concession play prefix.
+before each actual card in any supported validated historical play prefix,
+including unanimously accepted declarer-card exposure.
 Snapshot-only output does not run recommendations or create training-dataset
 records. The optional historical game review uses these same snapshots as its
 only decision-state input. The separate training-dataset workflow also reuses
@@ -10,7 +10,8 @@ them, converting stable player IDs to relative feature references without
 changing snapshot-only output.
 
 The count is the validated played-card count: 30 for normal completion and zero
-through 29 for either concession. The concession event itself has no snapshot.
+through 29 for a supported shortened end subject to its event prerequisites.
+The terminal event itself has no snapshot.
 
 ## Requesting snapshots
 
@@ -46,7 +47,7 @@ The optional object is nested under `historical_game_summary`:
 
 There is exactly one snapshot immediately before each actual play. Snapshots are
 ordered chronologically with consecutive one-based `decision_index` values,
-trick numbers `1..10`, and play indices `1..3`. Empty concession prefixes produce
+trick numbers `1..10`, and play indices `1..3`. Empty shortened prefixes produce
 zero snapshots. `source_game_id` preserves the historical game
 ID. The pair of `source_game_id` and `decision_index` is the snapshot identity.
 
