@@ -6,13 +6,19 @@ from skat_ai.declarer_concession import (
     VALID_CONSENT_STATUSES,
     is_strict_integer,
 )
+from skat_ai.defender_concession import (
+    DEFENDER_CONCESSION_KIND,
+    VALID_CONCESSION_FORMS,
+)
 
 HISTORICAL_GAME_END_SCHEMA_VERSION = 1
 HISTORICAL_NORMAL_COMPLETION = "normal_completion"
 HISTORICAL_DECLARER_CONCESSION = DECLARER_CONCESSION_KIND
+HISTORICAL_DEFENDER_CONCESSION = DEFENDER_CONCESSION_KIND
 HISTORICAL_GAME_END_REASONS = {
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_DECLARER_CONCESSION,
+    HISTORICAL_DEFENDER_CONCESSION,
 }
 
 
@@ -34,7 +40,17 @@ class HistoricalDeclarerConcession:
     defender_consent: HistoricalDefenderConsent
 
 
-type HistoricalGameEnd = HistoricalDeclarerConcession
+@dataclass(frozen=True)
+class HistoricalDefenderConcession:
+    """Version-1 historical defender-concession event."""
+
+    schema_version: int
+    kind: str
+    conceding_defender_player_id: str
+    concession_form: str
+
+
+type HistoricalGameEnd = HistoricalDeclarerConcession | HistoricalDefenderConcession
 
 
 def _require_exact_fields(
@@ -73,10 +89,61 @@ def build_historical_game_end(
     if value is None:
         raise ValueError(
             f"Historical game '{game_id}': game_end is required for "
-            "game_end_reason='declarer_concession'."
+            f"game_end_reason='{game_end_reason}'."
         )
     if not isinstance(value, dict):
         raise ValueError(f"{field_name} must be an object.")
+
+    if game_end_reason == HISTORICAL_DEFENDER_CONCESSION:
+        _require_exact_fields(
+            value,
+            {
+                "schema_version",
+                "kind",
+                "conceding_defender_player_id",
+                "concession_form",
+            },
+            field_name,
+        )
+        if not is_strict_integer(value["schema_version"]) or value["schema_version"] != 1:
+            raise ValueError(f"{field_name}.schema_version must be exactly 1.")
+        if value["kind"] != HISTORICAL_DEFENDER_CONCESSION:
+            raise ValueError(
+                f"{field_name}.kind must match game_end_reason "
+                f"'{HISTORICAL_DEFENDER_CONCESSION}'."
+            )
+        conceding_player_id = value["conceding_defender_player_id"]
+        if (
+            not isinstance(conceding_player_id, str)
+            or not conceding_player_id
+            or conceding_player_id != conceding_player_id.strip()
+        ):
+            raise ValueError(
+                f"{field_name}.conceding_defender_player_id must be a non-empty, "
+                "non-padded stable player ID."
+            )
+        if conceding_player_id not in seat_order_player_ids:
+            raise ValueError(
+                f"{field_name}.conceding_defender_player_id must reference an exact "
+                "stable participant ID."
+            )
+        if conceding_player_id == declarer_player_id:
+            raise ValueError(
+                f"{field_name}.conceding_defender_player_id must identify a member "
+                "of the defending party."
+            )
+        concession_form = value["concession_form"]
+        if concession_form not in VALID_CONCESSION_FORMS:
+            raise ValueError(
+                f"{field_name}.concession_form must be 'explicit_verbal' or "
+                "'adjudicated_unambiguous_conduct'."
+            )
+        return HistoricalDefenderConcession(
+            schema_version=HISTORICAL_GAME_END_SCHEMA_VERSION,
+            kind=HISTORICAL_DEFENDER_CONCESSION,
+            conceding_defender_player_id=conceding_player_id,
+            concession_form=concession_form,
+        )
 
     _require_exact_fields(
         value,
@@ -166,6 +233,13 @@ def build_serializable_historical_game_end(
     game_end: HistoricalGameEnd,
 ) -> dict[str, Any]:
     """Serializes one historical game-end union member deterministically."""
+    if isinstance(game_end, HistoricalDefenderConcession):
+        return {
+            "schema_version": game_end.schema_version,
+            "kind": game_end.kind,
+            "conceding_defender_player_id": game_end.conceding_defender_player_id,
+            "concession_form": game_end.concession_form,
+        }
     return {
         "schema_version": game_end.schema_version,
         "kind": game_end.kind,

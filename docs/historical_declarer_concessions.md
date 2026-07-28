@@ -117,6 +117,6 @@ later rolling profiles; target concessions contribute only actual card plays,
 including valid zero-decision targets. No concession-specific signal exists.
 See [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).
 
-Historical defender concession, card exposure, defender open play, open card
+Historical card exposure, defender open play, open card
 throwing, continuation, claims of remaining tricks, and every other historical
 end kind remain unsupported.

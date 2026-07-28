@@ -7,7 +7,7 @@ sample for every historical card play. It does not train, select, evaluate, or
 deploy a machine-learning model.
 
 Training-data representation remains `partially_supported`. Version 1 accepts
-normal completion and declarer concession. Normal records produce 30 samples;
+normal completion, declarer concession, and defender concession. Normal records produce 30 samples;
 concession records produce zero through 29 samples from their actual play prefix.
 Other historical end reasons remain unsupported.
 
@@ -216,7 +216,7 @@ aggregation branch. Its only additional options are repeatable
 meanings. Samples, seeds, review, simulation, comparison, policy, profile, and
 binding options are rejected. Without the aggregation flag, sample conversion is
 unchanged.
-Aggregation accepts exactly normal completion and declarer concession; zero-
+Aggregation accepts exactly normal completion, declarer concession, and defender concession; zero-
 sample concession records remain full game-level evidence.
 
 With `--evaluate-opponent-policy-profiles`, the dataset instead feeds the

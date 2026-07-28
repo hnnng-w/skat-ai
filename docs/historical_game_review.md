@@ -1,7 +1,7 @@
 # Historical game review
 
 Historical game review evaluates every actual card play in a validated normal-
-completion or declarer-concession record through the existing immediate
+completion, declarer-concession, or defender-concession record through the existing immediate
 recommendation and post-game review logic. Normal completion remains 30
 decisions; concession review contains zero through 29 decisions. The terminal
 event is not evaluated as a card choice.

@@ -1,7 +1,7 @@
 # Variable-length historical decisions
 
-Version-1 historical decision workflows support `normal_completion` and
-`declarer_concession`. One shared cardinality is derived from the validated
+Version-1 historical decision workflows support `normal_completion`,
+`declarer_concession`, and `defender_concession`. One shared cardinality is derived from the validated
 historical play prefix:
 
 ```text
@@ -14,7 +14,7 @@ rolling_target_decision_count = decision_count
 
 Normal completion still requires exactly 30 plays and preserves its existing 30
 snapshots, review decisions, ten decisions per player, and 30 training samples.
-A declarer concession supports zero through 29 supplied plays. No missing card
+A declarer or defender concession supports zero through 29 supplied plays. No missing card
 is inferred, no array is padded, and the terminal concession is not a card
 decision or training target.
 
@@ -38,7 +38,8 @@ an empty prefix.
 ## Information safety
 
 Decision-time visible state and model-facing training features never include the
-future concession, defender consent, final winner, unresolved points, settlement,
+future concession, defender consent, conceding defender, concession form, final
+winner, unresolved points, settlement,
 or cards that were not yet visible. Records with a shared deal, declaration, and
 play prefix therefore produce equivalent snapshot states, review inputs,
 features, and actual-card labels for that prefix regardless of later normal

@@ -17,8 +17,12 @@ from skat_ai.game_value import build_game_value_summary
 from skat_ai.historical_declarer_concession import (
     adjudicate_historical_declarer_concession,
 )
+from skat_ai.historical_defender_concession import (
+    adjudicate_historical_defender_concession,
+)
 from skat_ai.historical_game_end import (
     HISTORICAL_DECLARER_CONCESSION,
+    HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_NORMAL_COMPLETION,
     HistoricalGameEnd,
     build_historical_game_end,
@@ -288,9 +292,12 @@ def _build_tricks(
         raise ValueError(f"Historical game '{game_id}': tricks must be an array.")
     if game_end_reason == HISTORICAL_NORMAL_COMPLETION and len(value) != 10:
         raise ValueError(f"Historical game '{game_id}': tricks must contain exactly ten tricks.")
-    if game_end_reason == HISTORICAL_DECLARER_CONCESSION and len(value) > 10:
+    if game_end_reason in {
+        HISTORICAL_DECLARER_CONCESSION,
+        HISTORICAL_DEFENDER_CONCESSION,
+    } and len(value) > 10:
         raise ValueError(
-            f"Historical game '{game_id}': a declarer-concession play prefix may "
+            f"Historical game '{game_id}': a concession play prefix may "
             "contain at most ten trick entries."
         )
 
@@ -544,18 +551,25 @@ def _derive_tricks(
 
 def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any]:
     """Validates all plays and derives the complete result and settlement."""
-    if record.game_end_reason == HISTORICAL_DECLARER_CONCESSION:
+    if record.game_end_reason in {
+        HISTORICAL_DECLARER_CONCESSION,
+        HISTORICAL_DEFENDER_CONCESSION,
+    }:
         replay = replay_historical_play_prefix(record)
         if replay.played_card_count >= 30:
             raise ValueError(
-                f"Historical game '{record.game_id}': a declarer concession cannot "
+                f"Historical game '{record.game_id}': a concession cannot "
                 "occur after all 30 playable cards were played."
             )
         derived_tricks = [
             build_serializable_derived_trick(trick)
             for trick in replay.completed_tricks
         ]
-        concession = adjudicate_historical_declarer_concession(record, replay)
+        concession = (
+            adjudicate_historical_declarer_concession(record, replay)
+            if record.game_end_reason == HISTORICAL_DECLARER_CONCESSION
+            else adjudicate_historical_defender_concession(record, replay)
+        )
         result = {
             "schema_version": record.schema_version,
             "game_id": record.game_id,

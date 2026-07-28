@@ -16,7 +16,7 @@ optional, so existing datasets remain valid with unspecified partition intent.
 `report_only` is an audit CLI mode and cannot be stored in dataset metadata.
 Policy metadata is preserved by canonical dataset conversion and in bounded
 historical-aggregation and rolling-evaluation source provenance.
-Datasets and audits accept normal-completion and declarer-concession records.
+Datasets and audits accept normal-completion, declarer-concession, and defender-concession records.
 Membership remains record- and participant-based, so zero-sample records still
 participate fully in overlap and coverage checks.
 
@@ -94,7 +94,7 @@ balancing, record movement, unseen-player profile prediction, machine-learning
 training, and model generalization evaluation remain unsupported.
 
 Historical opponent-statistics aggregation and rolling opponent-policy
-evaluation support exactly normal completion and declarer concession. Standalone
+evaluation support exactly normal completion, declarer concession, and defender concession. Standalone
 aggregation retains all policy modes; rolling remains incompatible with declared
 `unseen_player`. Zero-sample source membership and all target participants remain
 part of coverage.

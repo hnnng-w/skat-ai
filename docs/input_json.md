@@ -27,6 +27,8 @@ Supported historical records use the focused referenced schemas:
 [`schemas/historical_game_end.schema.json`](../schemas/historical_game_end.schema.json)
 
 [`schemas/historical_declarer_concession.schema.json`](../schemas/historical_declarer_concession.schema.json)
+and
+[`schemas/historical_defender_concession.schema.json`](../schemas/historical_defender_concession.schema.json)
 
 Training/evaluation datasets use:
 
@@ -101,7 +103,7 @@ For the validation-layer overview and schema limitations, see:
 The public schema has four mutually exclusive branches:
 
 * the existing flat position-analysis input described below
-* a normal-completion or bounded declarer-concession historical game under `historical_game_input`
+* a normal-completion or bounded declarer-/defender-concession historical game under `historical_game_input`
 * a versioned training/evaluation dataset under `training_dataset_input`
 * versioned external opponent statistics under `opponent_statistics_input`
 
@@ -132,6 +134,11 @@ stable defender consent IDs and permits an exact prefix whose final trick alone
 may have one or two plays. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
+Historical defender concession instead requires `kind: "defender_concession"`,
+one exact stable `conceding_defender_player_id`, and a supported structured
+`concession_form`. No second-defender consent exists. See
+[Historical defender concessions](historical_defender_concessions.md).
+
 A training-dataset file contains only its dataset branch:
 
 ```json
@@ -152,7 +159,7 @@ A training-dataset file contains only its dataset branch:
 ```
 
 Each record supplies a unique `record_id`, a `train`, `validation`, or `test`
-partition, required provenance, and one normal-completion or declarer-concession
+partition, required provenance, and one normal-completion or supported concession
 historical game. Samples follow the exact validated played-card count, including
 zero. See
 [Training data](training_data.md) for identity, duplicate, provenance, sample,

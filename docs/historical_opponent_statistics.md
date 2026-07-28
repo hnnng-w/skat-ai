@@ -1,7 +1,8 @@
 # Historical opponent statistics
 
 `skat-ai` can deterministically aggregate exact reusable opponent statistics
-from normal-completion and declarer-concession historical games. The source is the existing
+from normal-completion, declarer-concession, and defender-concession historical
+games. The source is the existing
 version-1 `training_dataset_input`; no second multi-game format is introduced.
 The dataset is reused as a validated container for games, stable identities,
 provenance, and partitions. Aggregation does not generate decision samples,
@@ -20,7 +21,8 @@ python main.py `
 Every included dataset record contributes exactly one validated historical
 game. Existing training-dataset checks continue to reject duplicate record,
 game, and complete source identities and cross-partition game/source leakage.
-The workflow supports exactly `normal_completion` and `declarer_concession`.
+The workflow supports exactly `normal_completion`, `declarer_concession`, and
+`defender_concession`.
 Other future historical end reasons are rejected when they participate in the
 selected aggregation.
 
@@ -95,9 +97,11 @@ following exact non-negative integer counts are emitted for every player:
 
 Every record has exactly one game of weight regardless of played cards,
 snapshots, samples, tricks, observed points, or unresolved points. A zero-play
-concession counts once. A concession gives the declarer one solo loss and each
-defender one defender win through the authoritative settlement. Consent and
-terminal-event details do not affect any count.
+concession counts once. Declarer concession gives the declarer one solo loss and
+each defender one defender win. An undecided defender concession gives the
+declarer one solo win and each defender one loss; if defenders had already won,
+both defenders retain that win. The authoritative settlement controls these
+results. Consent and terminal-event details do not affect any count.
 
 The authoritative `final_settlement_summary.is_loss` determines the winner,
 not raw card points. `false` credits a declarer win; `true` credits a defender

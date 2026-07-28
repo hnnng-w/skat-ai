@@ -3,6 +3,7 @@ from typing import Any
 
 from skat_ai.historical_game_end import (
     HISTORICAL_DECLARER_CONCESSION,
+    HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_NORMAL_COMPLETION,
 )
 
@@ -10,6 +11,7 @@ MAX_HISTORICAL_DECISION_COUNT = 30
 SUPPORTED_HISTORICAL_DECISION_END_REASONS = {
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_DECLARER_CONCESSION,
+    HISTORICAL_DEFENDER_CONCESSION,
 }
 
 
@@ -32,8 +34,9 @@ def derive_historical_decision_cardinality(
     game_end_reason = record["game_end_reason"]
     if game_end_reason not in SUPPORTED_HISTORICAL_DECISION_END_REASONS:
         raise ValueError(
-            "Historical decision workflows support only normal_completion and "
-            f"declarer_concession, got '{game_end_reason}'."
+            "Historical decision workflows support only normal_completion, "
+            "declarer_concession, and defender_concession, got "
+            f"'{game_end_reason}'."
         )
 
     played_card_count = sum(
@@ -46,7 +49,7 @@ def derive_historical_decision_cardinality(
             )
     elif not 0 <= played_card_count < MAX_HISTORICAL_DECISION_COUNT:
         raise ValueError(
-            "A validated declarer-concession record must contain between 0 and 29 plays."
+            "A validated concession record must contain between 0 and 29 plays."
         )
 
     return HistoricalDecisionCardinality(

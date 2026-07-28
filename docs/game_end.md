@@ -1,7 +1,7 @@
 # Game-end handling
 
-This document explains normal completion, the structured concealed or verbal
-declarer concession, legacy claim/concession assignment, and impossible Null.
+This document explains normal completion, structured declarer and defender
+concessions, legacy claim/concession assignment, and impossible Null.
 
 ## Purpose
 
@@ -147,9 +147,19 @@ from the complete deal, confirms the declarer hand count, applies the same
 consent matrix and adjudicator, and preserves observed plus unresolved points.
 Snapshots, review, external-profile review, training conversion, and partition
 audits follow the exact played-card count. Statistics aggregation and rolling
-evaluation support normal completion and declarer concession. Statistics count
+evaluation support normal completion and both historical concession kinds. Statistics count
 the completed record once; rolling targets evaluate only actual cards. See
 [Historical declarer concessions](historical_declarer_concessions.md).
+
+### Historical defender concession
+
+Historical version 1 also accepts `game_end_reason: "defender_concession"` with
+one exact stable conceding defender ID and either `explicit_verbal` or
+`adjudicated_unambiguous_conduct`. One defender binds the complete defending
+party without partner consent. Exact prefix replay, unresolved-point privacy,
+flat adjudication parity, variable decision artifacts, statistics, and rolling
+evaluation are documented in
+[Historical defender concessions](historical_defender_concessions.md).
 
 ## Structured defender concession
 

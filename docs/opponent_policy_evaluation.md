@@ -1,6 +1,6 @@
 # Rolling opponent-policy evaluation
 
-This workflow accepts exactly normal-completion and declarer-concession
+This workflow accepts exactly normal-completion, declarer-concession, and defender-concession
 historical dataset records. Normal targets contribute 30 decisions; concession
 targets contribute their validated zero through 29 actual card plays.
 

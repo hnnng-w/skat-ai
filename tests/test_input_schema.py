@@ -20,6 +20,9 @@ HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_en
 HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
 )
+HISTORICAL_DEFENDER_CONCESSION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_defender_concession.schema.json"
+)
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
@@ -55,6 +58,12 @@ with HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH.open(
     "r", encoding="utf-8"
 ) as historical_concession_file:
     HISTORICAL_DECLARER_CONCESSION_SCHEMA = json.load(historical_concession_file)
+with HISTORICAL_DEFENDER_CONCESSION_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as historical_defender_concession_file:
+    HISTORICAL_DEFENDER_CONCESSION_SCHEMA = json.load(
+        historical_defender_concession_file
+    )
 with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
     TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
 with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as policy_file:
@@ -84,6 +93,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             HISTORICAL_DECLARER_CONCESSION_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_DECLARER_CONCESSION_SCHEMA),
+        ),
+        (
+            HISTORICAL_DEFENDER_CONCESSION_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_DEFENDER_CONCESSION_SCHEMA),
         ),
         (
             TRAINING_DATASET_SCHEMA["$id"],
@@ -303,6 +316,17 @@ def test_schema_and_runtime_accept_historical_declarer_concession_branch() -> No
     record = build_historical_game_record(copy.deepcopy(data["historical_game_input"]))
 
     assert record.game_end_reason == "declarer_concession"
+
+
+def test_schema_and_runtime_accept_historical_defender_concession_branch() -> None:
+    example_path = PROJECT_ROOT / "examples" / "historical_grand_defender_concession.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        data = json.load(example_file)
+
+    assert_schema_valid(data)
+    record = build_historical_game_record(copy.deepcopy(data["historical_game_input"]))
+
+    assert record.game_end_reason == "defender_concession"
 
 
 def test_training_dataset_schema_and_runtime_accept_historical_concession() -> None:

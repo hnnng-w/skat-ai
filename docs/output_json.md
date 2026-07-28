@@ -20,6 +20,10 @@ Historical declarer-concession output uses:
 
 [`schemas/historical_declarer_concession_output.schema.json`](../schemas/historical_declarer_concession_output.schema.json)
 
+Historical defender-concession output uses:
+
+[`schemas/historical_defender_concession_output.schema.json`](../schemas/historical_defender_concession_output.schema.json)
+
 Accepted declarer-card-exposure output uses:
 
 [`schemas/declarer_card_exposure_output.schema.json`](../schemas/declarer_card_exposure_output.schema.json)
@@ -85,17 +89,18 @@ game value, overbid, and final settlement. Base output contains no position,
 recommendation, simulation, profile, policy, or list result. See
 [Historical games](historical_games.md).
 
-For declarer concession, `derived_tricks` contains only completed prefix tricks.
+For either historical concession, `derived_tricks` contains only completed prefix tricks.
 The summary adds exact play counts and remaining hand sizes, optional incomplete
 current-trick plays without a winner, observed/unresolved point accounting, the
 stable-ID game-end summary, an adjudicated defender win, and declared or
 supported overbid settlement. Reconstructed remaining hand card lists are not
-emitted. See [Historical declarer concessions](historical_declarer_concessions.md).
+emitted. See [Historical declarer concessions](historical_declarer_concessions.md)
+and [Historical defender concessions](historical_defender_concessions.md).
 
 When `--historical-decision-snapshots` is requested, the summary also contains
 `decision_snapshot_summary`. Its version-1 `decision_time` policy provides one
 chronological snapshot immediately before each actual supplied play. Normal
-completion has 30; declarer concession has zero through 29. Each snapshot keeps
+completion has 30; either concession has zero through 29. Each snapshot keeps
 the actual card as a retrospective label and limits `visible_state` to the
 acting player's remaining hand, legal cards, prior public play, public point and
 hand-size state, legitimate skat knowledge, conservative visible matadors, and

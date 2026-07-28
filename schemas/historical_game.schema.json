@@ -50,7 +50,7 @@
       "uniqueItems": true
     },
     "game_end_reason": {
-      "enum": ["normal_completion", "declarer_concession"]
+      "enum": ["normal_completion", "declarer_concession", "defender_concession"]
     },
     "game_end": {
       "$ref": "https://example.local/skat-ai/historical_game_end.schema.json"
@@ -82,6 +82,32 @@
         "not": {"required": ["game_end"]}
       },
       "else": {"required": ["game_end"]}
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "declarer_concession"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_declarer_concession.schema.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "defender_concession"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_defender_concession.schema.json"
+          }
+        }
+      }
     }
   ],
   "$defs": {

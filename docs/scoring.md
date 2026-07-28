@@ -19,7 +19,7 @@ Skat card points are:
 
 A complete game has 120 card points.
 
-Historical declarer concession preserves completed-trick and applicable skat
+Historical declarer and defender concessions preserve completed-trick and applicable skat
 points as observed. Cards in an incomplete current trick and exact remaining
 hands are unresolved, remain unassigned, and reconcile with observed points to
 120 without creating a fictitious final party distribution.
@@ -202,6 +202,8 @@ assigned.
 For structured defender concession, the same points remain preserved. The
 engine derives whether the contract was undecided or already decided, grants
 only an undecided game to the declarer, and never reverses a preexisting loss.
+Historical defender concession reuses this adjudication with the same
+no-assignment accounting over an exact legal prefix.
 
 Accepted declarer card exposure also preserves observed and unplayed points.
 Rejected-shortening continuation preserves the same observed score without

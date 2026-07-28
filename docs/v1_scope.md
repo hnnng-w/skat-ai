@@ -41,7 +41,7 @@ The following directions are required for `v1.0.0`:
 * Represent complete historical games with structured claims, concessions, and
   approved additional game-end reasons, then analyze rules, result, approved
   settlement, and eligible decisions retrospectively. Current complete records
-  support normal completion and exact-prefix declarer concession.
+  support normal completion and exact-prefix declarer and defender concessions.
 * Complete the approved normative settlement matrix, including structured claim
   and concession outcomes, while preserving the bounded impossible Null
   interpretation from the International Skat Court decision collection.
@@ -51,8 +51,8 @@ The following directions are required for `v1.0.0`:
   statistics, scoped exact or estimated evidence, deterministic explainable
   profiles, actionable gating, explicit live stable-ID bindings, strict time-safe
   historical application, and rolling known-opponent behavioral evaluation.
-  These bounded requirements are implemented for normal completion and declarer
-  concession, including zero-play source games and variable-cardinality rolling
+  These bounded requirements are implemented for normal completion and both
+  concession kinds, including zero-play source games and variable-cardinality rolling
   targets; profiles remain rule-based and confidence remains heuristic.
 * Preserve optional known-opponent and unseen-player dataset policies, exact
   stable-player overlap audits, and strict declared unseen-player disjointness.
@@ -138,17 +138,17 @@ validation, and tests does not satisfy a gate.
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 
 The historical-game workflow satisfies deal-through-settlement for
-`normal_completion` and exact-prefix declarer concession. Normal completion can
+`normal_completion` and exact-prefix declarer and defender concessions. Normal completion can
 reconstruct information-safe pre-play states for all 30 actual cards. It also
 evaluates non-ouvert normal-play snapshots through bounded review and wraps all
 normal-play snapshots in versioned provenance-aware training/evaluation records.
-Training-data representation supports normal completion and declarer concession
+Training-data representation supports normal completion and both concession kinds
 with one sample per actual play. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. The v1
 gate remains open for general declared-Ouvert and historical exposed-card-aware
 recommendation analysis and approved later end reasons. Historical statistics
-and rolling policy evaluation support those same two end reasons with game-level
+and rolling policy evaluation support those same three end reasons with game-level
 source weighting, actual-play target weighting, and strict as-of safety. The bounded flat 4.4.4
 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
 constraint are implemented. Full auction representation is planned after v1.0.
@@ -169,8 +169,8 @@ concrete complete thrown hand, empty through two-card current tricks, opposing-
 party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
 This does not close broader v1 gates for
-historical continuation, general Ouvert analysis, historical defender
-concession and other historical claims/shortening, general corrected play,
+historical continuation, general Ouvert analysis, other historical
+claims/shortening, general corrected play,
 isolated or specific-trick claims, simultaneous throws, full-card theoretical
 solving, complete settlement
 coverage, or historical training and review for other shortening kinds.

@@ -9,7 +9,7 @@ This workflow validates and normalizes supplied statistics, then derives a
 versioned explainable rule-based profile. Standalone conversion does not run
 analysis. Separate live and strict time-safe historical bindings can reuse its
 records. Exact historical aggregation can produce the same input contract.
-That aggregate may mix normal-completion and declarer-concession records; each
+That aggregate may mix normal-completion, declarer-concession, and defender-concession records; each
 record contributes one game and no concession-specific field is added.
 
 ## Input workflow

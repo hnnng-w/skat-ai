@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_defender_concession.schema.json",
+  "title": "skat-ai historical defender-concession event version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "conceding_defender_player_id",
+    "concession_form"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "defender_concession"},
+    "conceding_defender_player_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "concession_form": {
+      "enum": ["explicit_verbal", "adjudicated_unambiguous_conduct"]
+    }
+  }
+}

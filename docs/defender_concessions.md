@@ -65,11 +65,13 @@ It is rejected with:
 * an unvalued declaration
 * an overbid requirement beyond the supported Schneider and Schwarz levels
 * Multi-Step simulation or policy comparison
-* historical-game, training-dataset, opponent-statistics, partition-audit,
-  list-performance, or other unrelated workflows
+* the flat-position form combined with historical-game, training-dataset,
+  opponent-statistics, partition-audit, list-performance, or unrelated workflows
 
-An absent legacy reason or neutral `not_ended` remains compatible. The other
-version-1 union member, `declarer_concession`, remains unchanged.
+An absent legacy reason or neutral `not_ended` remains compatible. Historical
+records use the separate stable-ID form documented in
+[Historical defender concessions](historical_defender_concessions.md). The
+declarer-concession union member remains unchanged.
 
 ## Decision before concession
 
@@ -167,7 +169,7 @@ silently reinterpreted as structured adjudication.
 
 This concession kind does not support continued exposed-defender play under
 ISkO 4.1.6, natural-language detection, general solver-backed claims, or
-historical defender-concession records. Open throwing is the separate supported
+historical continued-play records. Open throwing is the separate supported
 union member documented in [Open card throw](open_card_throw.md). Bounded exact defender open play is the
 separate union member documented in [Defender open play](defender_open_play.md).
 Unanimously accepted declarer card

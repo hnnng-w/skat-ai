@@ -5,6 +5,7 @@ profile construction, and rolling opponent-policy evaluation support exactly:
 
 * `normal_completion`
 * `declarer_concession`
+* `defender_concession`
 
 Other historical end reasons remain unsupported until their result, evidence,
 and decision semantics receive an explicit implementation. A participating
@@ -23,6 +24,11 @@ For a declarer concession it records one solo game and no solo win for the
 declarer, plus one defender game and one defender win for each defender. Suit,
 Grand, Null, and Hand counts use the existing declaration categories. Overbid
 losses remain losses.
+
+For a typical undecided defender concession, final settlement records one solo
+win for the declarer and one defender loss for each defender. If defenders had
+already won, the declarer loss and both defender wins remain binding. The
+conceding defender and concession form add no individual statistic.
 
 No concession count, rate, timing feature, consent feature, classification,
 signal, confidence threshold, or policy preset is added. Defender consent,
@@ -50,7 +56,7 @@ compliant `unseen_player` partition intent. Rolling evaluation remains a
 
 ## Rolling source games
 
-Normal completions and declarer concessions in selected source partitions have
+Normal completions and both concession kinds in selected source partitions have
 equal game-level weight. For each target, eligibility remains strictly:
 
 ```text
@@ -63,7 +69,7 @@ ordinary existing game-level statistics.
 
 ## Rolling target games
 
-Normal completion contributes 30 actual card decisions. Declarer concession
+Normal completion contributes 30 actual card decisions. Either concession
 contributes its validated zero through 29 actual plays. The shared historical
 cardinality enforces:
 
@@ -89,7 +95,8 @@ continue to include only actual decision actors.
 ## Information safety
 
 Decision rows and prediction inputs do not include the target end reason,
-consent, final winner, settlement, unresolved points, remaining cards, or
+consent, conceding defender, concession form, final winner, settlement,
+unresolved points, remaining cards, or
 knowledge of the future terminal event. A normal target and concession target
 with the same legal prefix produce the same prediction inputs and outputs for
 that prefix, apart from record/game provenance. Changing valid consent does not

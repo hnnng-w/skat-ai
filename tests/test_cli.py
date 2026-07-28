@@ -28,6 +28,9 @@ HISTORICAL_INPUT_PATH = PROJECT_ROOT / "examples" / "historical_grand_normal_com
 HISTORICAL_CONCESSION_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
 )
+HISTORICAL_DEFENDER_CONCESSION_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_grand_defender_concession.json"
+)
 TRAINING_DATASET_INPUT_PATH = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 OPPONENT_STATISTICS_INPUT_PATH = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
@@ -257,6 +260,23 @@ def test_cli_historical_declarer_concession_prints_bounded_summary() -> None:
     assert "Result: declarer lost" in completed_process.stdout
     assert "Unresolved points assigned: no" in completed_process.stdout
     assert "Settlement: -96" in completed_process.stdout
+
+
+def test_cli_historical_defender_concession_prints_joint_liability_summary() -> None:
+    completed_process = run_cli("--input", HISTORICAL_DEFENDER_CONCESSION_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "Historical game: historical-grand-defender-concession-001" in (
+        completed_process.stdout
+    )
+    assert "End reason: defender concession" in completed_process.stdout
+    assert "Conceding defender: player-a" in completed_process.stdout
+    assert "Joint liability: yes" in completed_process.stdout
+    assert "Played cards: 14" in completed_process.stdout
+    assert "Result: declarer won" in completed_process.stdout
+    assert "Unresolved points assigned: no" in completed_process.stdout
+    assert "Settlement: 48" in completed_process.stdout
 
 
 def test_cli_historical_declarer_concession_quiet_output_is_private_and_schema_ready(

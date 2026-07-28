@@ -2,7 +2,7 @@
 
 Historical decision snapshots reconstruct the information available immediately
 before each actual card in an already validated normal-completion or
-declarer-concession play prefix.
+declarer- or defender-concession play prefix.
 Snapshot-only output does not run recommendations or create training-dataset
 records. The optional historical game review uses these same snapshots as its
 only decision-state input. The separate training-dataset workflow also reuses
@@ -10,7 +10,7 @@ them, converting stable player IDs to relative feature references without
 changing snapshot-only output.
 
 The count is the validated played-card count: 30 for normal completion and zero
-through 29 for declarer concession. The concession event itself has no snapshot.
+through 29 for either concession. The concession event itself has no snapshot.
 
 ## Requesting snapshots
 

@@ -35,7 +35,7 @@ over rate estimates, so overall, declarer, and defender evidence kinds are
 and contract counts are preserved in the statistics record but do not add new
 version-1 signals.
 
-Exact historical evidence may come from normal completion or declarer
+Exact historical evidence may come from normal completion, declarer concession, or defender
 concession. Every included record has one game of evidence regardless of play
 length. Concession status, timing, consent, remaining cards, and unresolved
 points do not enter derivation.

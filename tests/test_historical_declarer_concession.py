@@ -149,7 +149,7 @@ def test_normal_completion_rejects_a_game_end_object() -> None:
 
 def test_unknown_historical_game_end_reason_is_rejected() -> None:
     data = build_concession_prefix()
-    data["game_end_reason"] = "defender_concession"
+    data["game_end_reason"] = "future_historical_end"
 
     with pytest.raises(ValueError, match="unsupported game_end_reason"):
         build_historical_game_record(data)

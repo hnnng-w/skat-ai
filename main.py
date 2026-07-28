@@ -1152,23 +1152,40 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
 
     game_end_summary = summary.get("historical_game_end_summary")
     if game_end_summary is not None:
-        consent_ids = game_end_summary["defender_consent"][
-            "consenting_defender_player_ids"
-        ]
-        consent_text = (
-            "not required"
-            if not consent_ids
-            else f"granted by {', '.join(consent_ids)}"
-        )
         print(f"Historical game: {summary['game_id']}")
-        print("End reason: declarer concession")
+        if game_end_summary["kind"] == "defender_concession":
+            print("End reason: defender concession")
+            print(
+                "Conceding defender:",
+                game_end_summary["conceding_defender_player_id"],
+            )
+            print("Joint liability: yes")
+        else:
+            consent_ids = game_end_summary["defender_consent"][
+                "consenting_defender_player_ids"
+            ]
+            consent_text = (
+                "not required"
+                if not consent_ids
+                else f"granted by {', '.join(consent_ids)}"
+            )
+            print("End reason: declarer concession")
         print("Played cards:", summary["play_prefix_summary"]["played_card_count"])
-        print(
-            "Declarer cards remaining:",
-            game_end_summary["declarer_hand_cards_remaining"],
-        )
-        print("Consent:", consent_text)
-        print("Result: declarer lost")
+        if game_end_summary["kind"] == "defender_concession":
+            print(f"Result: {summary['winner']} won")
+            if (
+                game_end_summary["decision_state_before_concession"]
+                == "defenders_already_won"
+            ):
+                print("The defending party had already won before the concession.")
+                print("The later concession did not reverse the existing result.")
+        else:
+            print(
+                "Declarer cards remaining:",
+                game_end_summary["declarer_hand_cards_remaining"],
+            )
+            print("Consent:", consent_text)
+            print("Result: declarer lost")
         print("Unresolved points assigned: no")
         print("Settlement:", settlement["settlement_score"])
     else:
@@ -1231,7 +1248,10 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         print("Reviewed decisions:", review_summary["reviewed_decision_count"])
         print("Unavailable decisions:", review_summary["unavailable_decision_count"])
         if game_end_summary is not None:
-            print("Terminal event: declarer concession")
+            print(
+                "Terminal event:",
+                game_end_summary["kind"].replace("_", " "),
+            )
             print("The terminal event itself was not reviewed as a card decision.")
         for quality, count in review_summary["quality_counts"].items():
             print(f"{quality.replace('_', ' ').title()} decisions:", count)
