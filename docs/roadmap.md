@@ -35,6 +35,7 @@ Implemented:
 * Exact hidden-card constraints from local/public ownership, legitimately known skat, attributed public play, and confirmed legal failure to follow
 * Exact DP compatible-world counts and ownership marginals with deterministic uniform labeled-assignment sampling
 * Common compatible worlds for Immediate candidates, compatible Multi-Step roots, shared Policy Comparison models/roots, and later visible evidence progression
+* Version-1 bounded-search information, eligibility, structural budget, terminal utility, aggregate result, privacy, and strict standalone-schema contracts without solver integration
 
 ### Game history and scoring
 
@@ -206,6 +207,7 @@ Implemented:
 * Output JSON schema
 * Focused historical-game, decision-snapshot, historical-review, training-dataset, and historical opponent-statistics aggregation schemas
 * Focused strict hidden-card inference summary schema
+* Focused strict bounded-search aggregate result schema
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, input schema validation, generated-output validation, and pytest
@@ -246,6 +248,7 @@ Implemented:
 * Historical corrected play, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * General live position inputs do not provide complete field-level provenance.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
+* Version-1 bounded-search contracts define safe inputs, budgets, statuses, exactness terminology, aggregate output, and privacy, but no general bounded solver, workflow integration, production budget profile, or latency promise exists.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -346,8 +349,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-Before `v1.0.0`, the project still requires stronger bounded Search/Solver
-functionality, fuller Replay Coaching, remaining approved settlement nuance,
+Before `v1.0.0`, the project still requires a solver implementation on top of
+the version-1 bounded Search/Solver contracts, fuller Replay Coaching, remaining approved settlement nuance,
 fixed-three-player 36-game list aggregation, remaining automatic dataset
 preparation, field-level live provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
@@ -364,11 +367,12 @@ series aggregation, tournament management, and official federation report
 formats are not required. Four-player tables are the only unconditional
 exclusion.
 
-The active next milestone is `v0.10.0`. Its first major subject is stronger
-bounded Search/Solver functionality with explicit information, quality,
-determinism, and latency contracts. The exact issue decomposition still requires
-a focused repository analysis. Later milestone numbers remain planning
-containers rather than fixed contractual releases.
+The active next milestone is `v0.10.0`. Version-1 bounded Search/Solver
+information, quality, determinism, budget, exactness, aggregate-result, and
+privacy contracts are implemented. A general bounded solver and workflow
+integration remain open, so the stronger-search completion gate is not closed.
+Later milestone numbers remain planning containers rather than fixed
+contractual releases.
 
 ## Open technical cleanup
 

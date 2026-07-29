@@ -147,6 +147,22 @@ timing, future play, complete post-game hands, result, value, overbid, and
 settlement evidence. It adds no behavioral, Bayesian, calibrated, learned, or
 new policy model. See [Hidden-card inference](hidden_card_inference.md).
 
+### Bounded-search contracts
+
+Implemented on the active `v0.10.0` development branch:
+
+* immutable version-1 live and historical decision-time search information views
+* explicit local-decision eligibility without compatible-world inspection
+* deterministic requested and consumed structural budgets plus a separate wall-clock cutoff
+* stable status, stop-reason, world-coverage, and solution-claim semantics
+* local-side terminal utility version 1 for Suit, Grand, and Null
+* privacy-safe aggregate candidate and overall result contracts
+* deterministic serialization and a strict standalone Draft 2020-12 schema
+
+No bounded solver, world-search implementation, recommendation integration,
+fallback execution, CLI output, or production budget profile exists yet. See
+[Bounded search contracts](bounded_search_contracts.md).
+
 ### Game history and scoring
 
 Implemented:
@@ -229,6 +245,7 @@ Implemented:
 * `schemas/output.schema.json`
 * focused historical-game, historical game-end/concession, historical-decision-snapshot, historical-game-review, and training-dataset schemas
 * strict version-1 hidden-card inference summary schema
+* strict standalone version-1 bounded-search aggregate result schema
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
@@ -443,6 +460,9 @@ Implemented:
 * `simulation.py`
 * `hidden_card_inference.py`
 * `coherent_hidden_world.py`
+* `bounded_search_information.py`
+* `terminal_utility.py`
+* `bounded_search_result.py`
 * `ouvert_simulation.py`
 * `simulation_step.py`
 * `multi_step_simulation.py`
@@ -495,6 +515,7 @@ Main documentation files:
 * `docs/ouvert_aware_simulation.md`
 * `docs/coherent_hidden_world_simulation.md`
 * `docs/hidden_card_inference.md`
+* `docs/bounded_search_contracts.md`
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
 * `docs/dataset_partition_policies.md`
@@ -635,7 +656,7 @@ Completed implementation scope:
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
 * General live position input lacks complete field-level provenance.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
-* Hidden-card inference beyond confirmed structural decision-time evidence and stronger search or solver functionality are not implemented.
+* Hidden-card inference beyond confirmed structural decision-time evidence and stronger search or solver functionality are not implemented; version-1 bounded-search contracts exist, but no general solver consumes them.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -645,9 +666,10 @@ Completed implementation scope:
 
 ## Next recommended action
 
-`v0.9.0` is published. The active next development milestone is `v0.10.0`, and
-its first planning subject is stronger bounded Search/Solver behavior with
-explicit information, quality, determinism, and latency contracts. Remaining
+`v0.9.0` is published. The active next development milestone is `v0.10.0`.
+Version-1 bounded Search/Solver information, quality, determinism, budget, and
+result contracts are now implemented; an actual bounded solver remains the next
+dependency and the overall stronger-search gate stays open. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

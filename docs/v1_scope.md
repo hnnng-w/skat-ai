@@ -64,7 +64,10 @@ The following directions are required for `v1.0.0`:
   stable-player overlap audits, and strict declared unseen-player disjointness.
   This bounded requirement is implemented.
 * Add stronger search or solver functionality with documented information,
-  quality, determinism, and latency contracts.
+  quality, determinism, and latency contracts. Version-1 information,
+  eligibility, budget, utility, result, exactness, privacy, and standalone-schema
+  contracts are implemented, but no general bounded solver exists yet. See
+  [Bounded search contracts](bounded_search_contracts.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
   execution-consistency requirement; stronger search remains a separate open
@@ -134,7 +137,7 @@ validation, and tests does not satisfy a gate.
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
-| Search and hidden-card inference | The stronger-search portion remains open and requires a reproducible, explainable solver under documented information, quality, determinism, and latency bounds. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
+| Search and hidden-card inference | The stronger-search portion remains open and requires a reproducible, explainable solver. Version-1 information, eligibility, structural budget, wall-clock safety, terminal utility, aggregate result, exactness, privacy, and standalone-schema contracts are implemented, but no solver consumes them. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
 | Ouvert-aware simulation | Historical and live Ouvert analysis uses legitimately exposed cards in recommendation simulation, never treats unexposed cards as public, and has deterministic contract- and perspective-specific tests. |
 | Recommendation behavior | Recommendations always select from legal candidates, use the documented Suit/Grand or Null objective, preserve player-side perspective, expose enough evidence to reproduce ranking, and have deterministic tie behavior under fixed settings. |
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
@@ -211,6 +214,15 @@ settlement; change legal cards, policies, objectives, ties, training feature
 version `1`, or rolling behavior; infer the real deal; or satisfy the separate
 stronger-search gate. The privacy-safe summary remains schema version `1`. See
 [Hidden-card inference](hidden_card_inference.md).
+
+The version-1 bounded-search contract adds an immutable shared decision boundary,
+explicit eligibility and budgets, independent selected-world coverage and
+per-selected-world solution claims, local-side terminal utility, privacy-safe
+common-prefix aggregates, and a strict standalone schema. Exact solutions for a
+sampled selected set are explicitly not exact over all compatible worlds. No
+search algorithm or recommendation workflow uses this contract yet, so it is
+evidence toward, not completion of, the stronger-search gate. See
+[Bounded search contracts](bounded_search_contracts.md).
 
 ## Release decision rule
 

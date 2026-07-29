@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/bounded_search_result.schema.json",
+  "title": "skat-ai bounded search aggregate result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "analysis_method",
+    "search_method",
+    "game_type",
+    "status",
+    "stop_reason",
+    "world_coverage",
+    "solution_claim",
+    "terminal_utility_version",
+    "requested_budget",
+    "consumed_budget",
+    "compatible_world_count",
+    "candidate_results",
+    "recommended_card",
+    "fallback_used",
+    "fallback_method"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "analysis_method": {"const": "bounded_search"},
+    "search_method": {
+      "type": "string",
+      "enum": [
+        "perfect_information_minimax_v1",
+        "compatible_world_minimax_v1"
+      ]
+    },
+    "game_type": {
+      "type": "string",
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["complete", "partial", "timeout", "unavailable"]
+    },
+    "stop_reason": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "node_budget_exhausted",
+        "depth_budget_exhausted",
+        "wall_clock_timeout",
+        "unsupported_turn_phase",
+        "unsupported_perspective",
+        "local_player_not_to_act",
+        "missing_concrete_declarer",
+        "remaining_trick_limit_exceeded",
+        "compatible_world_limit_exceeded",
+        "incompatible_world_space",
+        "missing_terminal_utility_inputs",
+        "game_already_complete",
+        "no_legal_cards"
+      ]
+    },
+    "world_coverage": {
+      "type": "string",
+      "enum": [
+        "none",
+        "single_exact_world",
+        "all_compatible_worlds",
+        "sampled_compatible_worlds"
+      ]
+    },
+    "solution_claim": {
+      "type": "string",
+      "enum": [
+        "none",
+        "exact_per_selected_world",
+        "depth_limited_per_selected_world",
+        "node_limited_partial"
+      ]
+    },
+    "terminal_utility_version": {"const": 1},
+    "requested_budget": {"$ref": "#/$defs/requested_budget"},
+    "consumed_budget": {"$ref": "#/$defs/consumed_budget"},
+    "compatible_world_count": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "candidate_results": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/candidate_result"},
+      "maxItems": 32
+    },
+    "recommended_card": {
+      "oneOf": [
+        {"$ref": "#/$defs/card"},
+        {"type": "null"}
+      ]
+    },
+    "fallback_used": {"type": "boolean"},
+    "fallback_method": {
+      "type": ["string", "null"],
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "complete"}}},
+      "then": {
+        "properties": {
+          "stop_reason": {"const": "completed"},
+          "solution_claim": {"const": "exact_per_selected_world"},
+          "candidate_results": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "partial"}}},
+      "then": {
+        "properties": {
+          "stop_reason": {
+            "enum": ["node_budget_exhausted", "depth_budget_exhausted"]
+          },
+          "candidate_results": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "partial"},
+          "stop_reason": {"const": "node_budget_exhausted"}
+        }
+      },
+      "then": {
+        "properties": {"solution_claim": {"const": "node_limited_partial"}}
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "partial"},
+          "stop_reason": {"const": "depth_budget_exhausted"}
+        }
+      },
+      "then": {
+        "properties": {
+          "solution_claim": {"const": "depth_limited_per_selected_world"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "timeout"}}},
+      "then": {
+        "properties": {
+          "stop_reason": {"const": "wall_clock_timeout"},
+          "candidate_results": {"minItems": 1},
+          "requested_budget": {
+            "properties": {
+              "wall_clock_timeout_ms": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "unavailable"}}},
+      "then": {
+        "properties": {
+          "stop_reason": {
+            "enum": [
+              "unsupported_turn_phase",
+              "unsupported_perspective",
+              "local_player_not_to_act",
+              "missing_concrete_declarer",
+              "remaining_trick_limit_exceeded",
+              "compatible_world_limit_exceeded",
+              "incompatible_world_space",
+              "missing_terminal_utility_inputs",
+              "game_already_complete",
+              "no_legal_cards"
+            ]
+          },
+          "world_coverage": {"const": "none"},
+          "solution_claim": {"const": "none"},
+          "candidate_results": {"maxItems": 0},
+          "recommended_card": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"world_coverage": {"const": "none"}}},
+      "then": {
+        "properties": {
+          "consumed_budget": {
+            "properties": {
+              "selected_world_count": {"const": 0},
+              "completed_world_count": {"const": 0},
+              "sampled_world_count": {"const": 0},
+              "unique_sampled_world_count": {"const": 0}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"world_coverage": {"const": "single_exact_world"}}
+      },
+      "then": {
+        "properties": {
+          "compatible_world_count": {"const": 1},
+          "consumed_budget": {
+            "properties": {
+              "selected_world_count": {"const": 1},
+              "sampled_world_count": {"const": 0},
+              "unique_sampled_world_count": {"const": 0}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"world_coverage": {"const": "sampled_compatible_worlds"}}
+      },
+      "then": {
+        "properties": {
+          "compatible_world_count": {"type": "integer", "minimum": 1},
+          "consumed_budget": {
+            "properties": {
+              "selected_world_count": {"minimum": 1},
+              "sampled_world_count": {"minimum": 1},
+              "unique_sampled_world_count": {"minimum": 1}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"world_coverage": {"const": "all_compatible_worlds"}}
+      },
+      "then": {
+        "properties": {
+          "compatible_world_count": {"type": "integer", "minimum": 1},
+          "consumed_budget": {
+            "properties": {
+              "selected_world_count": {"minimum": 1},
+              "sampled_world_count": {"const": 0},
+              "unique_sampled_world_count": {"const": 0}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "search_method": {"const": "perfect_information_minimax_v1"}
+        },
+        "not": {"properties": {"status": {"const": "unavailable"}}}
+      },
+      "then": {
+        "properties": {"world_coverage": {"const": "single_exact_world"}}
+      }
+    },
+    {
+      "if": {"properties": {"solution_claim": {"const": "none"}}},
+      "then": {
+        "properties": {
+          "consumed_budget": {
+            "properties": {"completed_world_count": {"const": 0}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"solution_claim": {"const": "exact_per_selected_world"}}
+      },
+      "then": {
+        "properties": {
+          "consumed_budget": {
+            "properties": {"completed_world_count": {"minimum": 1}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "solution_claim": {"const": "depth_limited_per_selected_world"}
+        }
+      },
+      "then": {
+        "properties": {
+          "consumed_budget": {
+            "properties": {"completed_world_count": {"minimum": 1}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"game_type": {"const": "null"}}},
+      "then": {
+        "properties": {
+          "candidate_results": {
+            "items": {
+              "properties": {
+                "mean_local_side_card_point_margin": {"type": "null"}
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "not": {"properties": {"game_type": {"const": "null"}}}
+      },
+      "then": {
+        "properties": {
+          "candidate_results": {
+            "items": {
+              "if": {
+                "properties": {"completed_world_count": {"minimum": 1}}
+              },
+              "then": {
+                "properties": {
+                  "mean_local_side_card_point_margin": {"type": "number"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"recommended_card": {"$ref": "#/$defs/card"}}
+      },
+      "then": {
+        "properties": {
+          "candidate_results": {
+            "contains": {
+              "properties": {"is_recommended": {"const": true}},
+              "required": ["is_recommended"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "candidate_results": {
+            "not": {
+              "contains": {
+                "properties": {"is_recommended": {"const": true}},
+                "required": ["is_recommended"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"fallback_used": {"const": true}}},
+      "then": {
+        "properties": {
+          "fallback_method": {"type": "string", "minLength": 1},
+          "recommended_card": {"type": "null"}
+        }
+      },
+      "else": {"properties": {"fallback_method": {"type": "null"}}}
+    }
+  ],
+  "$defs": {
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "requested_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_remaining_tricks",
+        "max_depth_plies",
+        "max_nodes",
+        "max_selected_worlds",
+        "max_sampled_worlds",
+        "minimum_comparable_worlds",
+        "wall_clock_timeout_ms"
+      ],
+      "properties": {
+        "max_remaining_tricks": {"type": "integer", "minimum": 1},
+        "max_depth_plies": {"type": "integer", "minimum": 1},
+        "max_nodes": {"type": "integer", "minimum": 1},
+        "max_selected_worlds": {"type": "integer", "minimum": 1},
+        "max_sampled_worlds": {"type": "integer", "minimum": 1},
+        "minimum_comparable_worlds": {"type": "integer", "minimum": 1},
+        "wall_clock_timeout_ms": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    },
+    "consumed_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "depth_reached",
+        "nodes_expanded",
+        "selected_world_count",
+        "completed_world_count",
+        "sampled_world_count",
+        "unique_sampled_world_count",
+        "wall_clock_elapsed_ms"
+      ],
+      "properties": {
+        "depth_reached": {"type": "integer", "minimum": 0},
+        "nodes_expanded": {"type": "integer", "minimum": 0},
+        "selected_world_count": {"type": "integer", "minimum": 0},
+        "completed_world_count": {"type": "integer", "minimum": 0},
+        "sampled_world_count": {"type": "integer", "minimum": 0},
+        "unique_sampled_world_count": {"type": "integer", "minimum": 0},
+        "wall_clock_elapsed_ms": {"type": "integer", "minimum": 0}
+      }
+    },
+    "candidate_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card",
+        "rank",
+        "is_recommended",
+        "completed_world_count",
+        "local_contract_success_count",
+        "local_contract_success_rate",
+        "mean_local_side_game_score",
+        "mean_local_side_card_point_margin"
+      ],
+      "properties": {
+        "card": {"$ref": "#/$defs/card"},
+        "rank": {"type": "integer", "minimum": 1},
+        "is_recommended": {"type": "boolean"},
+        "completed_world_count": {"type": "integer", "minimum": 0},
+        "local_contract_success_count": {"type": "integer", "minimum": 0},
+        "local_contract_success_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mean_local_side_game_score": {"type": ["number", "null"]},
+        "mean_local_side_card_point_margin": {"type": ["number", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"completed_world_count": {"const": 0}}},
+          "then": {
+            "properties": {
+              "local_contract_success_count": {"const": 0},
+              "local_contract_success_rate": {"type": "null"},
+              "mean_local_side_game_score": {"type": "null"},
+              "mean_local_side_card_point_margin": {"type": "null"}
+            }
+          },
+          "else": {
+            "properties": {
+              "local_contract_success_rate": {"type": "number"},
+              "mean_local_side_game_score": {"type": "number"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}
