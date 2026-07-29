@@ -135,6 +135,6 @@ proof, 13 points assigned to defenders, and a `-144` settlement.
 ## Boundaries
 
 This terminal feature does not add multiple historical events, continuation
-followed by shortening, historical open-card throwing, unlimited or heuristic
+followed by shortening, unlimited or heuristic
 proof, single-trick claims, open-play or proof prediction, learned models, or
 four-player support.

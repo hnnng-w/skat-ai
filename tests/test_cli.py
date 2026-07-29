@@ -37,6 +37,9 @@ HISTORICAL_DECLARER_CARD_EXPOSURE_INPUT_PATH = (
 HISTORICAL_DEFENDER_OPEN_PLAY_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_grand_defender_open_play.json"
 )
+HISTORICAL_OPEN_CARD_THROW_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_grand_open_card_throw.json"
+)
 HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH = (
     PROJECT_ROOT
     / "examples"
@@ -293,6 +296,19 @@ def test_cli_historical_defender_concession_prints_joint_liability_summary() -> 
     assert "Result: declarer won" in completed_process.stdout
     assert "Unresolved points assigned: no" in completed_process.stdout
     assert "Settlement: 48" in completed_process.stdout
+
+
+def test_cli_historical_open_card_throw_prints_stable_rule_summary() -> None:
+    completed_process = run_cli("--input", HISTORICAL_OPEN_CARD_THROW_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "End reason: open card throw" in completed_process.stdout
+    assert "Throwing player: player-a" in completed_process.stdout
+    assert "Throwing party: defenders" in completed_process.stdout
+    assert "Joint liability: yes" in completed_process.stdout
+    assert "Statement: attempted_level_limitation" in completed_process.stdout
+    assert "Unresolved points assigned: yes" in completed_process.stdout
 
 
 def test_cli_historical_declarer_card_exposure_prints_stable_accepted_summary() -> None:

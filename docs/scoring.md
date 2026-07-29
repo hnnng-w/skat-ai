@@ -358,6 +358,9 @@ matadors, Hand, announcements, ouvert, and supported overbid-required value rema
 binding; a level that failed before the throw cannot be repaired. Null uses
 completed plus rule-assigned declarer tricks and the fixed variant value, without
 Schneider or Schwarz.
+Historical open-card-throw records build the same flat adjudication context from
+exact replay, so equivalent historical and flat facts use identical result,
+level, overbid, and settlement semantics.
 
 An impossible Null declaration is also an immediate doubled loss, but it has no
 card-point winner and requires no points or completed tricks. Zero assigned

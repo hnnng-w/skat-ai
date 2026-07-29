@@ -8,6 +8,7 @@ profile construction, and rolling opponent-policy evaluation support exactly:
 * `defender_concession`
 * `declarer_card_exposure`
 * `defender_open_play`
+* `open_card_throw`
 
 Other historical end reasons remain unsupported until their result, evidence,
 and decision semantics receive an explicit implementation. A participating
@@ -55,6 +56,11 @@ Defender open play also uses final settlement only. Proof validity, evaluated or
 memoized states, exposing identity, remaining tricks, and assigned points add no
 weight, blame count, validity rate, signal, profile, or policy semantic.
 
+Open card throw uses final settlement only. Throwing identity, thrown-card
+count, remaining tricks, rule assignment, statement classification, and
+theoretical Schwarz assessment add no weight, blame count, signal, profile, or
+policy semantic.
+
 ## Selection, provenance, and export
 
 Aggregation preserves canonical partition selection, strict `played_at`
@@ -76,7 +82,7 @@ compliant `unseen_player` partition intent. Rolling evaluation remains a
 
 ## Rolling source games
 
-Normal completions and all four shortened kinds in selected source partitions have
+Normal completions and all five shortened kinds in selected source partitions have
 equal game-level weight. For each target, eligibility remains strictly:
 
 ```text

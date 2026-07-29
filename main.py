@@ -1185,6 +1185,21 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
             print("Exposed defender cards:", game_end_summary["exposed_card_count"])
             print("Exact proof:", game_end_summary["exact_proof"]["status"])
             print("Rest tricks assigned to:", game_end_summary["rest_tricks_recipient"])
+        elif end_kind == "open_card_throw":
+            print("End reason: open card throw")
+            print("Throwing player:", game_end_summary["throwing_player_id"])
+            print("Throwing party:", game_end_summary["throwing_party"])
+            print(
+                "Joint liability:",
+                "yes" if game_end_summary["joint_liability"] else "no",
+            )
+            print("Thrown cards:", game_end_summary["thrown_card_count"])
+            print("Statement:", game_end_summary["statement_classification"])
+            print("Rest tricks assigned to:", game_end_summary["rest_tricks_recipient"])
+            print(
+                "Theoretical Schwarz:",
+                game_end_summary["theoretical_schwarz_status"],
+            )
         else:
             print("End reason: accepted declarer card exposure")
             print("Exposure form:", game_end_summary["exposure_form"])
@@ -1219,12 +1234,18 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
                 game_end_summary["decision_state_before_shortening"],
             )
             print(f"Result: {summary['winner']} won")
+        elif end_kind == "open_card_throw":
+            print(
+                "Decision before throw:",
+                game_end_summary["decision_state_before_shortening"],
+            )
+            print(f"Result: {summary['winner']} won")
         else:
             print("Decision before exposure:", game_end_summary["decision_state_before_shortening"])
             print(f"Result: {summary['winner']} won")
         print(
             "Unresolved points assigned:",
-            "yes" if end_kind == "defender_open_play" else "no",
+            "yes" if end_kind in {"defender_open_play", "open_card_throw"} else "no",
         )
         print("Settlement:", settlement["settlement_score"])
     else:

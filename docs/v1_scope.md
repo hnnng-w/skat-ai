@@ -54,7 +54,7 @@ The following directions are required for `v1.0.0`:
   profiles, actionable gating, explicit live stable-ID bindings, strict time-safe
   historical application, and rolling known-opponent behavioral evaluation.
   These bounded requirements are implemented for normal completion and all
-  four shortened kinds, including zero-play source games and variable-cardinality rolling
+  five shortened kinds, including zero-play source games and variable-cardinality rolling
   targets; profiles remain rule-based and confidence remains heuristic.
 * Preserve optional known-opponent and unseen-player dataset policies, exact
   stable-player overlap audits, and strict declared unseen-player disjointness.
@@ -149,7 +149,7 @@ and 30 actual plays. It can reconstruct information-safe pre-play states for all
 boundary. It also
 evaluates non-ouvert normal-play snapshots through bounded review and wraps all
 normal-play snapshots in versioned provenance-aware training/evaluation records.
-Training-data representation supports normal completion and all four shortened kinds
+Training-data representation supports normal completion and all five shortened kinds
 with one sample per actual play. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. The v1

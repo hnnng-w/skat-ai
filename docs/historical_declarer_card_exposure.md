@@ -137,6 +137,6 @@ winner, unresolved-point policy, and settlement. `--quiet` preserves the normal
 structured-only behavior.
 
 This terminal workflow does not add multiple historical events, continuation
-followed by shortening, historical open-card throwing, free-text or gesture
+followed by shortening, free-text or gesture
 interpretation, exposure-choice or acceptance prediction, exact future-play
 proof, a learned model, or four-player support.

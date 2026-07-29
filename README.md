@@ -439,6 +439,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical declarer card exposure](docs/historical_declarer_card_exposure.md)
 * [Historical declarer-card-exposure continuation](docs/historical_declarer_card_exposure_continuation.md)
 * [Historical defender open play](docs/historical_defender_open_play.md)
+* [Historical open card throw](docs/historical_open_card_throw.md)
 * [Historical defender open-play continuation](docs/historical_defender_open_play_continuation.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
@@ -454,6 +455,8 @@ Detailed documentation is split into topic-specific files:
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical defender-open-play input schema](schemas/historical_defender_open_play.schema.json)
 * [Historical defender-open-play output schema](schemas/historical_defender_open_play_output.schema.json)
+* [Historical open-card-throw input schema](schemas/historical_open_card_throw.schema.json)
+* [Historical open-card-throw output schema](schemas/historical_open_card_throw_output.schema.json)
 * [Historical game-event schema](schemas/historical_game_event.schema.json)
 * [Historical declarer-card-exposure continuation event schema](schemas/historical_declarer_card_exposure_continuation_event.schema.json)
 * [Historical declarer-card-exposure continuation output schema](schemas/historical_declarer_card_exposure_continuation_event_output.schema.json)
@@ -518,7 +521,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 48 deterministic scenarios,
+complete. Generated-output validation covers 49 deterministic scenarios,
 including both flat ongoing public-hand continuations, both timed historical
 continuations, bounded exact defender-open-play adjudication, and structured
 open-card-throw adjudication.
@@ -533,7 +536,7 @@ enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
 Normal-completion, timed defender-open-play and declarer-card-exposure continuation, declarer-concession,
-defender-concession, accepted declarer-card-exposure, and terminal defender-open-play historical records, information-safe
+defender-concession, accepted declarer-card-exposure, terminal defender-open-play, and open-card-throw historical records, information-safe
 variable-cardinality snapshots and review, and versioned training/evaluation
 dataset wrapping are partially supported. Five structured generic-position shortening
 variants are supported: declarer concession, defender concession, unanimously

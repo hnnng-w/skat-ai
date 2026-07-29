@@ -183,6 +183,17 @@ assign all unresolved tricks and points, preserve prior decisions, and settle
 Suit, Grand, and all Null variants. Stable-ID proof lines redact both private
 hands. See [Historical defender open play](historical_defender_open_play.md).
 
+### Historical open card throw
+
+Historical version 1 accepts `game_end_reason: "open_card_throw"` with one exact
+stable participant and that player's complete reconstructed current hand. Exact
+prefix replay supports zero through 29 plays. The existing 4.4.6 adjudicator
+assigns all unresolved tricks and points to the opposing party, preserves any
+preexisting decision, applies the jack-only Schwarz exclusion, and reuses normal
+declaration, overbid, Null, and settlement behavior. It does not create a
+`game_events` member or future-play proof. See
+[Historical open card throw](historical_open_card_throw.md).
+
 ## Structured defender concession
 
 The second version-1 `game_shortening` variant records one concrete defender's
@@ -360,5 +371,5 @@ For example:
 * Legacy claims and concessions still assign remaining points.
 * Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, bounded exact defender open play, and bounded open card throw.
 * Flat continued declarer exposure and bounded defender-open-play continuation are separate ongoing workflows.
-* Historical open throwing, multiple continuation events, continuation followed by shortening, simultaneous throws, specific-trick assertions, unlimited exact solving, and isolated-card claims remain unsupported.
+* Multiple continuation events, continuation followed by shortening, simultaneous throws, specific-trick assertions, unlimited exact solving, and isolated-card claims remain unsupported.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.

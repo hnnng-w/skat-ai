@@ -18,6 +18,11 @@ from skat_ai.defender_concession import (
     VALID_CONCESSION_FORMS,
 )
 from skat_ai.defender_open_play import DEFENDER_OPEN_PLAY_KIND
+from skat_ai.open_card_throw import (
+    OPEN_CARD_THROW_KIND,
+    SPECIFIC_TRICK_ASSERTION_KEYS,
+    VALID_STATEMENT_CLASSIFICATIONS,
+)
 
 HISTORICAL_GAME_END_SCHEMA_VERSION = 1
 HISTORICAL_NORMAL_COMPLETION = "normal_completion"
@@ -25,12 +30,14 @@ HISTORICAL_DECLARER_CONCESSION = DECLARER_CONCESSION_KIND
 HISTORICAL_DEFENDER_CONCESSION = DEFENDER_CONCESSION_KIND
 HISTORICAL_DECLARER_CARD_EXPOSURE = DECLARER_CARD_EXPOSURE_KIND
 HISTORICAL_DEFENDER_OPEN_PLAY = DEFENDER_OPEN_PLAY_KIND
+HISTORICAL_OPEN_CARD_THROW = OPEN_CARD_THROW_KIND
 HISTORICAL_GAME_END_REASONS = {
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_DECLARER_CONCESSION,
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_DECLARER_CARD_EXPOSURE,
     HISTORICAL_DEFENDER_OPEN_PLAY,
+    HISTORICAL_OPEN_CARD_THROW,
 }
 
 
@@ -102,11 +109,23 @@ class HistoricalDefenderOpenPlay:
     declarer_response: str
 
 
+@dataclass(frozen=True)
+class HistoricalOpenCardThrow:
+    """Version-1 terminal historical open-card-throw event."""
+
+    schema_version: int
+    kind: str
+    throwing_player_id: str
+    thrown_cards: tuple[str, ...]
+    statement_classification: str
+
+
 type HistoricalGameEnd = (
     HistoricalDeclarerConcession
     | HistoricalDefenderConcession
     | HistoricalDeclarerCardExposure
     | HistoricalDefenderOpenPlay
+    | HistoricalOpenCardThrow
 )
 
 
@@ -168,6 +187,89 @@ def build_historical_game_end(
         )
     if not isinstance(value, dict):
         raise ValueError(f"{field_name} must be an object.")
+
+    if game_end_reason == HISTORICAL_OPEN_CARD_THROW:
+        relative_player_ids = sorted(
+            set(seat_order_player_ids).intersection({"me", "left", "right"})
+        )
+        if relative_player_ids:
+            raise ValueError(
+                f"{field_name} requires stable historical player IDs and must not "
+                f"use relative identities: {relative_player_ids}."
+            )
+        if SPECIFIC_TRICK_ASSERTION_KEYS.intersection(value):
+            raise ValueError(
+                "A specific future-trick assertion requires a separate classified "
+                "trick-claim workflow and is not a historical open-card throw."
+            )
+        _require_exact_fields(
+            value,
+            {
+                "schema_version",
+                "kind",
+                "throwing_player_id",
+                "thrown_cards",
+                "statement_classification",
+            },
+            field_name,
+        )
+        if not is_strict_integer(value["schema_version"]) or value["schema_version"] != 1:
+            raise ValueError(f"{field_name}.schema_version must be exactly 1.")
+        if value["kind"] != HISTORICAL_OPEN_CARD_THROW:
+            raise ValueError(
+                f"{field_name}.kind must match game_end_reason "
+                f"'{HISTORICAL_OPEN_CARD_THROW}'."
+            )
+        throwing_player_id = value["throwing_player_id"]
+        if (
+            not isinstance(throwing_player_id, str)
+            or not throwing_player_id
+            or throwing_player_id != throwing_player_id.strip()
+        ):
+            raise ValueError(
+                f"{field_name}.throwing_player_id must be a non-empty, non-padded "
+                "stable player ID."
+            )
+        if throwing_player_id in {"me", "left", "right"}:
+            raise ValueError(
+                f"{field_name}.throwing_player_id must not use a relative player identity."
+            )
+        if throwing_player_id not in seat_order_player_ids:
+            raise ValueError(
+                f"{field_name}.throwing_player_id must reference one exact stable "
+                "participant ID."
+            )
+        raw_cards = value["thrown_cards"]
+        if not isinstance(raw_cards, list):
+            raise ValueError(f"{field_name}.thrown_cards must be an array.")
+        if not 1 <= len(raw_cards) <= 10:
+            raise ValueError(
+                f"{field_name}.thrown_cards must contain between 1 and 10 cards."
+            )
+        valid_cards = set(get_full_deck())
+        invalid_cards = [
+            card for card in raw_cards if not isinstance(card, str) or card not in valid_cards
+        ]
+        if invalid_cards:
+            raise ValueError(
+                f"{field_name}.thrown_cards contains invalid cards: {invalid_cards}."
+            )
+        if len(raw_cards) != len(set(raw_cards)):
+            raise ValueError(f"{field_name}.thrown_cards must not contain duplicates.")
+        statement_classification = value["statement_classification"]
+        if statement_classification not in VALID_STATEMENT_CLASSIFICATIONS:
+            raise ValueError(
+                f"{field_name}.statement_classification must be 'none', "
+                "'generic_concession', or 'attempted_level_limitation'."
+            )
+        card_order = {card: index for index, card in enumerate(get_full_deck())}
+        return HistoricalOpenCardThrow(
+            schema_version=HISTORICAL_GAME_END_SCHEMA_VERSION,
+            kind=HISTORICAL_OPEN_CARD_THROW,
+            throwing_player_id=throwing_player_id,
+            thrown_cards=tuple(sorted(raw_cards, key=card_order.__getitem__)),
+            statement_classification=statement_classification,
+        )
 
     if game_end_reason == HISTORICAL_DEFENDER_OPEN_PLAY:
         relative_player_ids = sorted(
@@ -518,6 +620,14 @@ def build_serializable_historical_game_end(
     game_end: HistoricalGameEnd,
 ) -> dict[str, Any]:
     """Serializes one historical game-end union member deterministically."""
+    if isinstance(game_end, HistoricalOpenCardThrow):
+        return {
+            "schema_version": game_end.schema_version,
+            "kind": game_end.kind,
+            "throwing_player_id": game_end.throwing_player_id,
+            "thrown_cards": list(game_end.thrown_cards),
+            "statement_classification": game_end.statement_classification,
+        }
     if isinstance(game_end, HistoricalDefenderConcession):
         return {
             "schema_version": game_end.schema_version,

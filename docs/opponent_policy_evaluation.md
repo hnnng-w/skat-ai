@@ -2,9 +2,10 @@
 
 This workflow accepts exactly normal-completion, including either timed
 continuation kind, declarer-concession, defender-concession, declarer-card-exposure,
-and terminal defender-open-play
+terminal defender-open-play, and open-card-throw
 historical dataset records. Normal targets contribute 30 decisions; concession
-targets contribute their validated zero through 29 actual card plays.
+and other shortened targets contribute their validated zero through 29 actual
+card plays. Open-card-throw targets include no throw or statement decision.
 
 `skat-ai` can evaluate whether an existing profile-derived deterministic policy
 describes observed historical card choices better than the fixed

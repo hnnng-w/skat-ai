@@ -32,6 +32,7 @@ from skat_ai.historical_game_end import (
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_DEFENDER_OPEN_PLAY,
     HISTORICAL_NORMAL_COMPLETION,
+    HISTORICAL_OPEN_CARD_THROW,
     HistoricalGameEnd,
     build_historical_game_end,
     build_serializable_historical_game_end,
@@ -42,6 +43,7 @@ from skat_ai.historical_game_event import (
     build_historical_game_events_summary,
     build_serializable_historical_game_event,
 )
+from skat_ai.historical_open_card_throw import adjudicate_historical_open_card_throw
 from skat_ai.historical_play_prefix import (
     build_serializable_derived_trick,
     replay_historical_play_prefix,
@@ -312,6 +314,7 @@ def _build_tricks(
         HISTORICAL_DECLARER_CONCESSION,
         HISTORICAL_DEFENDER_CONCESSION,
         HISTORICAL_DEFENDER_OPEN_PLAY,
+        HISTORICAL_OPEN_CARD_THROW,
     } and len(value) > 10:
         raise ValueError(
             f"Historical game '{game_id}': a shortened play prefix may "
@@ -588,6 +591,7 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         HISTORICAL_DECLARER_CONCESSION,
         HISTORICAL_DEFENDER_CONCESSION,
         HISTORICAL_DEFENDER_OPEN_PLAY,
+        HISTORICAL_OPEN_CARD_THROW,
     }:
         replay = replay_historical_play_prefix(record)
         if replay.played_card_count >= 30:
@@ -605,6 +609,8 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
             adjudicated_end = adjudicate_historical_defender_concession(record, replay)
         elif record.game_end_reason == HISTORICAL_DEFENDER_OPEN_PLAY:
             adjudicated_end = adjudicate_historical_defender_open_play(record, replay)
+        elif record.game_end_reason == HISTORICAL_OPEN_CARD_THROW:
+            adjudicated_end = adjudicate_historical_open_card_throw(record, replay)
         else:
             adjudicated_end = adjudicate_historical_declarer_card_exposure(record, replay)
         result = {

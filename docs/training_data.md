@@ -226,7 +226,7 @@ meanings. Samples, seeds, review, simulation, comparison, policy, profile, and
 binding options are rejected. Without the aggregation flag, sample conversion is
 unchanged.
 Aggregation accepts exactly normal completion, declarer concession, defender
-concession, declarer-card exposure, and defender open play; zero-
+concession, declarer-card exposure, defender open play, and open card throw; zero-
 sample shortened records remain full game-level evidence.
 
 With `--evaluate-opponent-policy-profiles`, the dataset instead feeds the

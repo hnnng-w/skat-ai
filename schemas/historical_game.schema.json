@@ -55,7 +55,8 @@
         "declarer_concession",
         "defender_concession",
         "declarer_card_exposure",
-        "defender_open_play"
+        "defender_open_play",
+        "open_card_throw"
       ]
     },
     "game_end": {
@@ -168,6 +169,20 @@
             "maxItems": 10
           }
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "open_card_throw"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_open_card_throw.schema.json"
+          }
+        },
+        "not": {"required": ["game_events"]}
       }
     }
   ],

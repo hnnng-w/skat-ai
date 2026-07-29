@@ -5,8 +5,10 @@ throwing a complete remaining hand under ISkO 4.4.6.
 
 ## Scope
 
-The feature is available only in the flat position workflow with
-`analysis_mode: "post_game_review"`. It supports one concrete declarer or
+The flat feature is available in the position workflow with
+`analysis_mode: "post_game_review"`. The historical terminal adapter is
+documented separately in [Historical open card throw](historical_open_card_throw.md).
+Both support one concrete declarer or
 defender throwing that player's complete current hand. One defender's throw
 binds the complete defending party through joint liability; partner approval is
 not required.
@@ -137,8 +139,8 @@ remains silent.
 
 Version 1 does not add simultaneous unordered throws, natural-language parsing,
 specific future-trick assertions, isolated decisive-card claims, continued play,
-historical records or snapshots, training records, Monte Carlo analysis, policy
-use, full-card theoretical solving, exact rest-trick proof, or four-player
+Monte Carlo analysis, open-throw prediction, policy signals, full-card
+theoretical solving, exact rest-trick proof, or four-player
 tables. Complete settlement nuance remains unfinished outside this bounded path.
 
 See [`examples/open_card_throw.json`](../examples/open_card_throw.json) for the

@@ -192,7 +192,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 48 deterministic scenarios.
+Generated-output validation currently covers 49 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -457,7 +457,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 48 deterministic generated-output
+The `v0.8.0` development baseline validates 49 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -552,7 +552,7 @@ Completed implementation scope:
 * exact historical aggregation with reusable export
 * rolling game-start known-opponent behavioral policy evaluation
 * known-opponent and unseen-player dataset policies with exact overlap auditing
-* variable-length historical decision artifacts for normal completion and all four shortened kinds
+* variable-length historical decision artifacts for normal completion and all five shortened kinds
 * mixed normal/concession historical statistics, export, and rolling evaluation
 * exact-prefix historical defender concession with stable-ID joint liability and flat adjudication parity
 * exact-prefix historical declarer-card exposure with exact reconciliation and flat adjudication parity
@@ -561,7 +561,7 @@ Completed implementation scope:
 
 ## Current high-priority limitations
 
-* Historical records support normal completion with either one timed continuation kind, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, and bounded terminal defender open play; multiple events, continuation followed by shortening, other claims, and other end reasons remain unsupported.
+* Historical records support normal completion with either one timed continuation kind, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throw; multiple events, continuation followed by shortening, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support exactly those five end reasons; other end reasons remain unsupported.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.

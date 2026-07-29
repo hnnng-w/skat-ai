@@ -752,6 +752,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/historical_defender_open_play_output.schema.json#/$defs/game_end_summary"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/historical_open_card_throw_output.schema.json#/$defs/game_end_summary"
             }
           ]
         }
@@ -879,6 +882,29 @@
               },
               "historical_game_end_summary": {
                 "$ref": "https://example.local/skat-ai/historical_defender_open_play_output.schema.json#/$defs/game_end_summary"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "game_end_reason": {"const": "open_card_throw"}
+                },
+                "required": ["game_end_reason"]
+              }
+            },
+            "required": ["record"]
+          },
+          "then": {
+            "properties": {
+              "point_accounting": {
+                "$ref": "https://example.local/skat-ai/historical_defender_open_play_output.schema.json#/$defs/point_accounting"
+              },
+              "historical_game_end_summary": {
+                "$ref": "https://example.local/skat-ai/historical_open_card_throw_output.schema.json#/$defs/game_end_summary"
               }
             }
           }

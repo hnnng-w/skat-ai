@@ -60,7 +60,8 @@
               "local_exact_hand",
               "completed_tricks",
               "current_trick",
-              "skat"
+              "skat",
+              "historical_reconstructed_hand"
             ]
           }
         }

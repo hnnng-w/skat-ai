@@ -40,6 +40,9 @@ HISTORICAL_DECLARER_CARD_EXPOSURE_SCHEMA_PATH = (
 HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_defender_open_play.schema.json"
 )
+HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_open_card_throw.schema.json"
+)
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
@@ -107,6 +110,10 @@ with HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA_PATH.open(
     HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA = json.load(
         historical_defender_open_play_file
     )
+with HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as historical_open_card_throw_file:
+    HISTORICAL_OPEN_CARD_THROW_SCHEMA = json.load(historical_open_card_throw_file)
 with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
     TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
 with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as policy_file:
@@ -164,6 +171,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA),
+        ),
+        (
+            HISTORICAL_OPEN_CARD_THROW_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_OPEN_CARD_THROW_SCHEMA),
         ),
         (
             TRAINING_DATASET_SCHEMA["$id"],
@@ -422,6 +433,17 @@ def test_schema_and_runtime_accept_historical_defender_open_play_branch() -> Non
     assert record.game_end_reason == "defender_open_play"
 
 
+def test_schema_and_runtime_accept_historical_open_card_throw_branch() -> None:
+    example_path = PROJECT_ROOT / "examples" / "historical_grand_open_card_throw.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        data = json.load(example_file)
+
+    assert_schema_valid(data)
+    record = build_historical_game_record(copy.deepcopy(data["historical_game_input"]))
+
+    assert record.game_end_reason == "open_card_throw"
+
+
 def test_training_dataset_schema_and_runtime_accept_historical_concession() -> None:
     data = build_valid_training_dataset_input()
     example_path = PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
@@ -462,6 +484,18 @@ def test_training_dataset_schema_and_runtime_accept_historical_defender_open_pla
     assert_schema_valid(data)
     dataset = build_training_dataset_input(data["training_dataset_input"])
     assert dataset.records[0].historical_game.game_end_reason == "defender_open_play"
+
+
+def test_training_dataset_schema_and_runtime_accept_historical_open_card_throw() -> None:
+    data = build_valid_training_dataset_input()
+    example_path = PROJECT_ROOT / "examples" / "historical_grand_open_card_throw.json"
+    with example_path.open("r", encoding="utf-8") as example_file:
+        throw = json.load(example_file)["historical_game_input"]
+    data["training_dataset_input"]["records"][0]["historical_game"] = throw
+
+    assert_schema_valid(data)
+    dataset = build_training_dataset_input(data["training_dataset_input"])
+    assert dataset.records[0].historical_game.game_end_reason == "open_card_throw"
 
 
 def test_schema_and_runtime_accept_structured_declarer_concession() -> None:

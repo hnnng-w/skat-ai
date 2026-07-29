@@ -2,7 +2,7 @@
 
 Version-1 historical decision workflows support `normal_completion`,
 `declarer_concession`, `defender_concession`, `declarer_card_exposure`, and
-`defender_open_play`. One shared cardinality is derived from the validated
+`defender_open_play`, and `open_card_throw`. One shared cardinality is derived from the validated
 historical play prefix:
 
 ```text
@@ -15,7 +15,7 @@ rolling_target_decision_count = decision_count
 
 Normal completion still requires exactly 30 plays and preserves its existing 30
 snapshots, review decisions, ten decisions per player, and 30 training samples.
-A declarer concession, defender concession, or accepted exposure supports zero
+A declarer concession, defender concession, accepted exposure, or open-card throw supports zero
 through 29 supplied plays while defender open play requires at least five
 completed tricks and one through five unresolved tricks. No missing card
 is inferred, no array is padded, and the terminal event is not a card
@@ -41,7 +41,7 @@ an empty prefix.
 ## Information safety
 
 Decision-time visible state and model-facing training features never include the
-future concession, exposure, or open play; defender consent or acceptance;
+future concession, exposure, open play, or open-card throw; defender consent or acceptance;
 conceding, shown-to, or exposing defender; event form; exposed hand; proof;
 claimed level; final
 winner, unresolved points, settlement,

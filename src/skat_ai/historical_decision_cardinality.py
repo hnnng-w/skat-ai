@@ -7,6 +7,7 @@ from skat_ai.historical_game_end import (
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_DEFENDER_OPEN_PLAY,
     HISTORICAL_NORMAL_COMPLETION,
+    HISTORICAL_OPEN_CARD_THROW,
 )
 
 MAX_HISTORICAL_DECISION_COUNT = 30
@@ -16,6 +17,7 @@ SUPPORTED_HISTORICAL_DECISION_END_REASONS = {
     HISTORICAL_DEFENDER_CONCESSION,
     HISTORICAL_DECLARER_CARD_EXPOSURE,
     HISTORICAL_DEFENDER_OPEN_PLAY,
+    HISTORICAL_OPEN_CARD_THROW,
 }
 
 
@@ -40,7 +42,7 @@ def derive_historical_decision_cardinality(
         raise ValueError(
             "Historical decision workflows support only normal_completion, "
             "declarer_concession, defender_concession, and "
-            "declarer_card_exposure, and defender_open_play, got "
+            "declarer_card_exposure, defender_open_play, and open_card_throw, got "
             f"'{game_end_reason}'."
         )
 

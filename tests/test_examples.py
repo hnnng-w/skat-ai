@@ -47,6 +47,7 @@ def get_position_example_json_files() -> list[Path]:
             "historical_grand_declarer_concession.json",
             "historical_grand_declarer_card_exposure.json",
             "historical_grand_defender_open_play.json",
+            "historical_grand_open_card_throw.json",
             "historical_grand_defender_open_play_continuation.json",
             "historical_grand_declarer_card_exposure_continuation.json",
             "historical_grand_normal_completion.json",
@@ -76,6 +77,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_grand_declarer_concession.json",
             "historical_grand_declarer_card_exposure.json",
             "historical_grand_defender_open_play.json",
+            "historical_grand_open_card_throw.json",
             "historical_grand_defender_open_play_continuation.json",
             "historical_grand_declarer_card_exposure_continuation.json",
             "historical_grand_normal_completion.json",
@@ -225,6 +227,19 @@ def test_historical_defender_open_play_example_builds_exact_summary() -> None:
     assert end["exact_proof"]["evaluated_state_count"] == 32
     assert summary["point_accounting"]["assigned_defender_points"] == 13
     assert summary["final_settlement_summary"]["settlement_score"] == -144
+
+
+def test_historical_open_card_throw_example_builds_rule_assigned_summary() -> None:
+    path = Path("examples/historical_grand_open_card_throw.json")
+    summary = build_historical_game_summary(load_historical_game_from_json(str(path)))
+
+    end = summary["historical_game_end_summary"]
+    assert summary["game_id"] == "historical-grand-open-card-throw-001"
+    assert summary["play_prefix_summary"]["played_card_count"] == 24
+    assert end["throwing_player_id"] == "player-a"
+    assert end["card_reconciliation"] == "confirmed"
+    assert end["rest_tricks_recipient"] == "declarer"
+    assert summary["point_accounting"]["assigned_declarer_points"] == 13
 
 
 def test_training_dataset_example_builds_sixty_samples() -> None:

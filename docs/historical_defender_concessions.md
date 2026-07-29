@@ -88,6 +88,6 @@ Terminal historical defender open play is documented in
 normal-completion events are documented in
 [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md)
 and [Historical defender open-play continuation](historical_defender_open_play_continuation.md).
-Historical open-card throwing, continuation followed by this shortened event,
+Continuation followed by this shortened event,
 concession-choice prediction, natural-language interpretation, learned
 models, and unlisted historical end kinds remain unsupported.

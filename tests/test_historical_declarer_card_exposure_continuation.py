@@ -374,6 +374,7 @@ def test_null_requires_a_simple_claim() -> None:
         "historical_grand_defender_concession.json",
         "historical_grand_declarer_card_exposure.json",
         "historical_grand_defender_open_play.json",
+        "historical_grand_open_card_throw.json",
     ],
 )
 def test_event_cannot_be_combined_with_a_terminal_end(path_name: str) -> None:

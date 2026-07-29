@@ -40,6 +40,8 @@ and
 
 [`schemas/historical_defender_open_play.schema.json`](../schemas/historical_defender_open_play.schema.json)
 
+[`schemas/historical_open_card_throw.schema.json`](../schemas/historical_open_card_throw.schema.json)
+
 Training/evaluation datasets use:
 
 [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
@@ -82,7 +84,7 @@ The schema checks stable structural constraints such as:
 * supported performance rating values
 * matador values from 1 through 11 and direct top-level Grand values through 4
 * direct top-level Suit/Grand declaration contradictions
-* strict version-1 declarer-concession, defender-concession, declarer-card-exposure, and defender-open-play union shapes
+* strict version-1 declarer-concession, defender-concession, declarer-card-exposure, defender-open-play, and open-card-throw union shapes
 
 More advanced cross-field validation is handled by the Python validation layer.
 
@@ -158,6 +160,12 @@ Historical defender open play requires one stable exposing defender, that
 defender's exact reconstructed current hand, at least five completed tricks, and
 `declarer_response: "accept_adjudication"`. See
 [Historical defender open play](historical_defender_open_play.md).
+
+Historical open card throw requires one exact stable participant ID and that
+player's complete reconstructed current hand. It supports zero through 29 plays,
+assigns every unresolved trick and point to the opposing party, and cannot be
+combined with `game_events`. See
+[Historical open card throw](historical_open_card_throw.md).
 
 Normal completion may instead include one optional non-terminal `game_events`
 array containing at most one timed `defender_open_play_continuation` or

@@ -2,8 +2,8 @@
 
 `skat-ai` can deterministically aggregate exact reusable opponent statistics
 from normal-completion, including either timed continuation kind,
-declarer-concession, defender-concession, and
-declarer-card-exposure historical
+declarer-concession, defender-concession, declarer-card-exposure,
+defender-open-play, and open-card-throw historical
 games. The source is the existing
 version-1 `training_dataset_input`; no second multi-game format is introduced.
 The dataset is reused as a validated container for games, stable identities,
@@ -24,13 +24,17 @@ Every included dataset record contributes exactly one validated historical
 game. Existing training-dataset checks continue to reject duplicate record,
 game, and complete source identities and cross-partition game/source leakage.
 The workflow supports exactly `normal_completion`, `declarer_concession`,
-`defender_concession`, `declarer_card_exposure`, and `defender_open_play`.
+`defender_concession`, `declarer_card_exposure`, `defender_open_play`, and
+`open_card_throw`.
 Other future historical end reasons are rejected when they participate in the
 selected aggregation.
 
 A continuation record contributes one ordinary completed game per participant.
 Only final settlement is used; event kind, timing, public-card count, participant
 identity, claim, and responses create no statistic or profile signal.
+An open-card-throw record follows the same rule: only final settlement determines
+the winner, and throw details or theoretical assessment create no weighting or
+profile signal.
 
 Every record selected by partition must have a valid offset-aware RFC 3339
 `historical_game.played_at`, even when no temporal cutoff is supplied. This

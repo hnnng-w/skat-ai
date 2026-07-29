@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_open_card_throw.schema.json",
+  "title": "skat-ai historical open-card-throw event version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "throwing_player_id",
+    "thrown_cards",
+    "statement_classification"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "open_card_throw"},
+    "throwing_player_id": {"$ref": "#/$defs/stable_identifier"},
+    "thrown_cards": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/card"},
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "statement_classification": {
+      "enum": ["none", "generic_concession", "attempted_level_limitation"]
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?!me$|left$|right$)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    }
+  }
+}

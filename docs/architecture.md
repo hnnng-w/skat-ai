@@ -183,6 +183,7 @@ insufficient.
 | `src/skat_ai/defender_open_play.py` | Typed 4.4.5 exact-state validation, adjudication, rule assignment, and privacy-safe summary. |
 | `src/skat_ai/exact_rest_trick_proof.py` | Immutable, canonical, memoized exact game tree with existential exposing-defender and universal other-player nodes. |
 | `src/skat_ai/open_card_throw.py` | Typed 4.4.6 event, hand reconciliation, party-level unresolved assignment, and result adjudication. |
+| `src/skat_ai/historical_open_card_throw.py` | Exact historical replay adapter, stable-ID mapping, confirmed hand reconciliation, and shared 4.4.6 adjudication. |
 | `src/skat_ai/theoretical_level_exclusion.py` | Bounded jack-only theoretical Schwarz exclusion and privacy-safe evidence. |
 | `src/skat_ai/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
 | `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
@@ -446,6 +447,8 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/historical_declarer_card_exposure_output.schema.json` | Exact exposure reconciliation and stable-ID event summary. |
 | `schemas/historical_defender_open_play.schema.json` | Strict stable-ID terminal historical defender-open-play event. |
 | `schemas/historical_defender_open_play_output.schema.json` | Stable-ID exact proof, assignment, privacy, and final point accounting. |
+| `schemas/historical_open_card_throw.schema.json` | Strict stable-participant historical open-card-throw event. |
+| `schemas/historical_open_card_throw_output.schema.json` | Stable-ID throw, assignment, theoretical assessment, and final rule accounting. |
 | `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
 | `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |
 | `schemas/training_dataset.schema.json`       | Versioned training dataset input, records, provenance, and partitions.      |

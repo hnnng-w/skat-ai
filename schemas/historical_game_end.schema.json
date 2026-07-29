@@ -14,6 +14,9 @@
     },
     {
       "$ref": "https://example.local/skat-ai/historical_defender_open_play.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_open_card_throw.schema.json"
     }
   ]
 }

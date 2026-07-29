@@ -110,6 +110,10 @@ Validate bounded exact terminal historical defender open play:
 python main.py --input examples/historical_grand_defender_open_play.json
 ```
 
+```powershell
+python main.py --input examples/historical_grand_open_card_throw.json
+```
+
 Validate a normal historical Grand with timed defender-open-play continuation:
 
 ```powershell
@@ -289,6 +293,7 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_declarer_card_exposure.json`    | Complete deal, exact 14-play Grand prefix, exact exposed declarer hand, stable shown-to defender and unanimous acceptances, accepted Schneider result, and settlement. |
 | `historical_grand_declarer_card_exposure_continuation.json` | Complete normal Grand, exact timed public declarer hand, one stable defender continuation response, 30 actual plays, and ordinary settlement. |
 | `historical_grand_defender_open_play.json` | Complete deal, exact 24-play Grand prefix, stable exposing defender, exact valid two-trick proof, privacy-safe assignment, and settlement. |
+| `historical_grand_open_card_throw.json` | Complete deal, exact 24-play Grand prefix, stable defender throw, confirmed canonical hand, opposing-party assignment, and shared settlement. |
 | `historical_grand_defender_open_play_continuation.json` | Complete normal Grand with one timed exact returned defender hand and 30 actual plays. |
 
 This is a separate historical-game workflow, not a reconstructed local
@@ -354,7 +359,7 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 48 scenarios, including variable-length training data,
+therefore covers 49 scenarios, including variable-length training data,
 all four historical shortened kinds, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
 play adjudication, and open-card-throw adjudication.

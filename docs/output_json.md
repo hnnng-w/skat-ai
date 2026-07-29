@@ -32,6 +32,10 @@ Historical defender-open-play output uses:
 
 [`schemas/historical_defender_open_play_output.schema.json`](../schemas/historical_defender_open_play_output.schema.json)
 
+Historical open-card-throw output uses:
+
+[`schemas/historical_open_card_throw_output.schema.json`](../schemas/historical_open_card_throw_output.schema.json)
+
 Accepted declarer-card-exposure output uses:
 
 [`schemas/declarer_card_exposure_output.schema.json`](../schemas/declarer_card_exposure_output.schema.json)
@@ -116,7 +120,11 @@ metadata, exposing-hand cards, redacted private proof cards, rule assignment,
 and final point accounting. See [Historical declarer concessions](historical_declarer_concessions.md),
 [Historical defender concessions](historical_defender_concessions.md), and
 [Historical declarer card exposure](historical_declarer_card_exposure.md), and
-[Historical defender open play](historical_defender_open_play.md).
+[Historical defender open play](historical_defender_open_play.md). Historical
+open card throw emits the stable thrower, canonical confirmed thrown hand,
+party-level trick and point assignment, jack-only theoretical assessment, and
+shared settlement result without a future-play proof. See
+[Historical open card throw](historical_open_card_throw.md).
 
 When `--historical-decision-snapshots` is requested, the summary also contains
 `decision_snapshot_summary`. Its version-1 `decision_time` policy provides one
