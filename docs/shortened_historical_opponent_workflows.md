@@ -14,6 +14,12 @@ and decision semantics receive an explicit implementation. A participating
 unsupported record is rejected with its record ID, game ID, end reason, and the
 supported reasons.
 
+The non-terminal `defender_open_play_continuation` event is not another end
+reason. Its containing `normal_completion` record is accepted as one ordinary
+game. Statistics and rolling source profiles use only final settlement; rolling
+targets retain 30 actual-card decisions and authorize the exact public defender
+hand only after its event boundary. No event prediction or profile field exists.
+
 ## Game-level statistics
 
 Every selected historical record contributes exactly one game to each of its

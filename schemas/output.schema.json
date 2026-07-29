@@ -720,6 +720,9 @@
         "historical_game_review_summary": {
           "$ref": "https://example.local/skat-ai/historical_game_review.schema.json"
         },
+        "historical_game_events_summary": {
+          "$ref": "https://example.local/skat-ai/historical_game_events_output.schema.json"
+        },
         "play_prefix_summary": {
           "$ref": "https://example.local/skat-ai/historical_declarer_concession_output.schema.json#/$defs/play_prefix_summary"
         },
@@ -786,6 +789,16 @@
               "historical_game_end_summary"
             ]
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "record": {"required": ["game_events"]}
+            },
+            "required": ["record"]
+          },
+          "then": {"required": ["historical_game_events_summary"]},
+          "else": {"not": {"required": ["historical_game_events_summary"]}}
         },
         {
           "if": {

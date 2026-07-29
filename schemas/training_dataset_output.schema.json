@@ -249,7 +249,7 @@
         "public_exposed_cards": {
           "type": "array",
           "items": {"$ref": "#/$defs/exposed_cards"},
-          "maxItems": 1
+          "maxItems": 2
         }
       }
     },

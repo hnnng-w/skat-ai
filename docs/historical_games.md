@@ -3,7 +3,8 @@
 `skat-ai` supports a separate versioned workflow for three-player games that
 ended through normal play, a bounded declarer or defender concession,
 unanimously accepted declarer-card exposure, or bounded exact defender open
-play. It validates the
+play. Normal completion may additionally contain one timed non-terminal defender-
+open-play continuation. It validates the
 initial 32-card deal, final declaration, skat handling, every supplied play,
 result, and settlement. All supported endings can reconstruct a local
 `me`/`left`/`right` information view immediately before every actual play.
@@ -143,6 +144,12 @@ other hands are derived privately and passed to the existing bounded exact
 adjudicator. See
 [Historical defender open play](historical_defender_open_play.md).
 
+Normal completion may instead contain one optional `game_events` member for
+`defender_open_play_continuation`. It keeps no terminal `game_end`, all ten
+tricks, and all 30 plays. The exact returned defender hand becomes public only
+after `after_play_count` and shrinks through actual later play. See
+[Historical defender open-play continuation](historical_defender_open_play_continuation.md).
+
 ## Derived output
 
 Historical input produces only `input_file` and `historical_game_summary`. The
@@ -159,6 +166,7 @@ summary contains:
 * `game_value_summary`
 * `overbid_summary`
 * `final_settlement_summary`
+* optional `historical_game_events_summary` for the non-terminal continuation
 
 Suit/Grand overbids use the existing required-game-value and doubled-loss
 settlement behavior. Overbid Null records require the separate impossible-Null
@@ -218,6 +226,12 @@ Print an exact defender-open-play summary:
 python main.py --input examples/historical_grand_defender_open_play.json
 ```
 
+Print the timed non-terminal continuation and its snapshot transition:
+
+```powershell
+python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
+```
+
 Write structured output without successful stdout:
 
 ```powershell
@@ -260,7 +274,7 @@ actual plays. See
 
 Later work is still required for:
 
-* other historical claims, exposure continuation, defender-open-play continuation, open-card throwing, passed-in games, and other approved end reasons
+* other historical claims, declarer exposure continuation, multiple non-terminal events, continuation followed by shortening, historical open-card throwing, passed-in games, and other approved end reasons
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication

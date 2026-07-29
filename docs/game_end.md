@@ -321,6 +321,7 @@ Rules:
 * declarer card exposure requires all remaining cards and exactly both concrete defender acceptances.
 * exposure continuation requires exactly both defender responses, at least one continuation request, an exact nonempty current public declarer hand, and neutral `not_ended` state.
 * defender-open-play continuation requires a concrete exposing defender, the exact nonempty returned current hand, `request_continued_play`, reliable hand-size and turn reconciliation, and neutral `not_ended` state.
+* historical defender-open-play continuation is not a `game_end_reason`; it is a timed non-terminal `game_events` member inside an ordinary 30-play `normal_completion` record.
 * open card throw requires one concrete throwing player, the complete nonempty current thrown hand, deterministic hand-size and turn reconciliation, and neutral `not_ended` state.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.

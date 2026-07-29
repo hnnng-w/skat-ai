@@ -3,7 +3,8 @@
 Historical decision snapshots reconstruct the information available immediately
 before each actual card in any supported validated historical play prefix,
 including unanimously accepted declarer-card exposure and terminal defender
-open play.
+open play. Normal-completion snapshots also support a timed non-terminal defender-
+open-play continuation.
 Snapshot-only output does not run recommendations or create training-dataset
 records. The optional historical game review uses these same snapshots as its
 only decision-state input. The separate training-dataset workflow also reuses
@@ -87,7 +88,7 @@ not change this mapping. Opponent hand-size rows use `left`, then `right` order.
 * the acting player's remaining pre-play hand
 * legal cards derived from that hand, current trick, and contract
 * decision-time skat visibility and known skat cards
-* remaining publicly exposed declarer cards for ouvert games
+* remaining public hands from declared ouvert and timed defender-open-play continuation
 * only tricks completed before the decision
 * only earlier plays in the current trick
 * declarer and defender points from prior completed tricks only
@@ -115,12 +116,14 @@ Hand declarers and defenders receive `null` unless their own cards, prior public
 plays, and public exposure determine the count safely. The final historical
 matador value is never copied into snapshots.
 
-For Suit, Grand, and Null ouvert games, `public_exposed_cards` contains only the
-declarer's currently remaining playable cards. Non-ouvert games use an empty
-array. Hidden skat and discarded cards are never exposed. Ouvert visibility is
-represented here but is not consumed by current opponent-hand simulation.
-Historical review returns `public_exposed_cards_not_supported` without running
-simulation for such snapshots.
+For Suit, Grand, and Null ouvert games, `public_exposed_cards` contains the
+declarer's currently remaining playable cards. After a historical defender-open-
+play continuation boundary, it additionally contains the exposing defender's
+exact current returned hand. Known defender cards are removed as played and are
+used as defending-party matador evidence. Multiple hands use stable seat order.
+Hidden skat and every other hidden hand remain protected. Ouvert review remains
+unavailable, while the defender continuation uses the existing exact public-hand
+constraint in review.
 
 ## Leakage boundary
 

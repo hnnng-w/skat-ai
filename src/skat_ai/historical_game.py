@@ -36,6 +36,12 @@ from skat_ai.historical_game_end import (
     build_historical_game_end,
     build_serializable_historical_game_end,
 )
+from skat_ai.historical_game_event import (
+    HistoricalGameEvent,
+    build_historical_game_events,
+    build_historical_game_events_summary,
+    build_serializable_historical_game_event,
+)
 from skat_ai.historical_play_prefix import (
     build_serializable_derived_trick,
     replay_historical_play_prefix,
@@ -91,6 +97,7 @@ class HistoricalGameRecord:
     discarded_cards: tuple[str, ...]
     game_end_reason: str
     game_end: HistoricalGameEnd | None
+    game_events: tuple[HistoricalGameEvent, ...]
     tricks: tuple[HistoricalTrick, ...]
 
 
@@ -392,7 +399,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
             "game_end_reason",
             "tricks",
         },
-        optional_fields={"played_at", "game_end"},
+        optional_fields={"played_at", "game_end", "game_events"},
         field_name="historical_game_input",
     )
     if (
@@ -464,6 +471,14 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         seat_order_player_ids=seat_order_player_ids,
         game_id=game_id,
     )
+    game_events = build_historical_game_events(
+        data.get("game_events"),
+        game_end_reason=game_end_reason,
+        has_game_end=game_end is not None,
+        player_ids=tuple(player.player_id for player in players),
+        declarer_player_id=declarer_player_id,
+        game_id=game_id,
+    )
     tricks = _build_tricks(data["tricks"], game_id, game_end_reason)
     return HistoricalGameRecord(
         schema_version=HISTORICAL_GAME_SCHEMA_VERSION,
@@ -476,6 +491,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         discarded_cards=discarded_cards,
         game_end_reason=game_end_reason,
         game_end=game_end,
+        game_events=game_events,
         tricks=tricks,
     )
 
@@ -527,6 +543,11 @@ def build_serializable_historical_record(
     }
     if record.game_end is not None:
         result["game_end"] = build_serializable_historical_game_end(record.game_end)
+    if record.game_events:
+        result["game_events"] = [
+            build_serializable_historical_game_event(event)
+            for event in record.game_events
+        ]
     if record.played_at is not None:
         result["played_at"] = record.played_at
     return result
@@ -686,6 +707,10 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         "overbid_summary": overbid_summary,
         "final_settlement_summary": final_settlement_summary,
     }
+    if record.game_events:
+        result["historical_game_events_summary"] = (
+            build_historical_game_events_summary(record)
+        )
     if record.played_at is not None:
         result["played_at"] = record.played_at
     return result

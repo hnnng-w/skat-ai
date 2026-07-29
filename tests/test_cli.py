@@ -37,6 +37,11 @@ HISTORICAL_DECLARER_CARD_EXPOSURE_INPUT_PATH = (
 HISTORICAL_DEFENDER_OPEN_PLAY_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_grand_defender_open_play.json"
 )
+HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH = (
+    PROJECT_ROOT
+    / "examples"
+    / "historical_grand_defender_open_play_continuation.json"
+)
 TRAINING_DATASET_INPUT_PATH = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 OPPONENT_STATISTICS_INPUT_PATH = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
@@ -320,6 +325,29 @@ def test_cli_historical_defender_open_play_prints_stable_exact_summary() -> None
     assert " me" not in completed_process.stdout
     assert " left" not in completed_process.stdout
     assert " right" not in completed_process.stdout
+
+
+def test_cli_historical_defender_open_play_continuation_prints_timed_summary() -> None:
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH,
+        "--historical-decision-snapshots",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "End reason: normal completion" in completed_process.stdout
+    assert "Non-terminal event: defender open-play continuation" in completed_process.stdout
+    assert "Event after played cards: 12" in completed_process.stdout
+    assert "Exposing defender: player-a" in completed_process.stdout
+    assert "Returned public cards: 6" in completed_process.stdout
+    assert "Continued play requested: yes" in completed_process.stdout
+    assert "Rest-trick claim adjudicated: no" in completed_process.stdout
+    assert "Actual plays after the event: 18" in completed_process.stdout
+    assert "Settlement: -144" in completed_process.stdout
+    assert "Decision snapshots generated: 30" in completed_process.stdout
+    assert "Public defender hand begins at decision: 13" in completed_process.stdout
+    assert "Exact proof:" not in completed_process.stdout
 
 
 def test_cli_historical_declarer_concession_quiet_output_is_private_and_schema_ready(

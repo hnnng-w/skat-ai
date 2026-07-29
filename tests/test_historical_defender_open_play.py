@@ -123,7 +123,7 @@ def test_version_one_event_is_canonical_and_uses_stable_defender_identity() -> N
         ),
         (
             lambda event: event.update({"declarer_response": "request_continued_play"}),
-            "separate future work",
+            "game_events contract",
         ),
     ],
 )

@@ -10,6 +10,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_end.schema.json"
+HISTORICAL_GAME_EVENT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_event.schema.json"
+HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_defender_open_play_continuation_event.schema.json"
+)
 HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
 )
@@ -79,6 +85,10 @@ def validate_example_files() -> list[str]:
     schema = load_json_file(SCHEMA_PATH)
     historical_schema = load_json_file(HISTORICAL_SCHEMA_PATH)
     historical_game_end_schema = load_json_file(HISTORICAL_GAME_END_SCHEMA_PATH)
+    historical_game_event_schema = load_json_file(HISTORICAL_GAME_EVENT_SCHEMA_PATH)
+    historical_continuation_event_schema = load_json_file(
+        HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH
+    )
     historical_declarer_concession_schema = load_json_file(
         HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH
     )
@@ -107,6 +117,14 @@ def validate_example_files() -> list[str]:
             (
                 historical_game_end_schema["$id"],
                 Resource.from_contents(historical_game_end_schema),
+            ),
+            (
+                historical_game_event_schema["$id"],
+                Resource.from_contents(historical_game_event_schema),
+            ),
+            (
+                historical_continuation_event_schema["$id"],
+                Resource.from_contents(historical_continuation_event_schema),
             ),
             (
                 historical_declarer_concession_schema["$id"],

@@ -1,9 +1,10 @@
 # Historical game review
 
 Historical game review evaluates every actual card play in a validated normal-
-completion, declarer-concession, defender-concession, or declarer-card-exposure record through the existing immediate
+completion, including timed defender-open-play continuation, declarer-concession,
+defender-concession, declarer-card-exposure, or terminal defender-open-play record through the existing immediate
 recommendation and post-game review logic. Normal completion remains 30
-decisions; concession review contains zero through 29 decisions. The terminal
+decisions; shortened review contains zero through 29 decisions. The terminal
 event is not evaluated as a card choice.
 
 Rolling opponent-policy evaluation is a separate workflow. It predicts the
@@ -57,6 +58,11 @@ value, overbid outcome, and settlement are not analysis inputs. The final
 historical outcome remains available beside the review in the parent summary,
 but it cannot influence an earlier recommendation or quality classification.
 
+After a defender-open-play continuation boundary, the stable exposing defender
+is mapped relative to each actor and supplied through the existing exact
+`PublicHandConstraint`. No extra card enters that hand. Pre-event decisions are
+identical to the no-event record, and no event or response decision is reviewed.
+
 ## Review output
 
 `historical_game_review_summary` is nested under `historical_game_summary`. It
@@ -91,9 +97,8 @@ cross-player rankings.
 
 ## Ouvert limitation
 
-Current opponent-hand simulation cannot consume publicly exposed opponent-card
-identities. Every snapshot with `public_exposed_cards` therefore skips
-simulation and returns:
+Declared ouvert remains unavailable because that existing historical path is
+not consumed by recommendation simulation. Such snapshots return:
 
 ```text
 public_exposed_cards_not_supported
@@ -103,7 +108,8 @@ The row preserves its identity, actual card, and effective seed, while exposing
 an empty legal-card list and analysis report, a null recommendation card, and
 the existing unavailable post-game review shape with `not_available` quality.
 Counts still reconcile across all rows and all three players. Exposed-card-
-aware simulation is not implemented by this workflow.
+aware declared-Ouvert simulation is not implemented by this workflow; the exact
+defender continuation constraint is the bounded supported exception.
 
 ## Scope
 

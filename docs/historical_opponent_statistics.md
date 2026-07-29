@@ -1,7 +1,8 @@
 # Historical opponent statistics
 
 `skat-ai` can deterministically aggregate exact reusable opponent statistics
-from normal-completion, declarer-concession, defender-concession, and
+from normal-completion, including timed defender-open-play continuation,
+declarer-concession, defender-concession, and
 declarer-card-exposure historical
 games. The source is the existing
 version-1 `training_dataset_input`; no second multi-game format is introduced.
@@ -26,6 +27,10 @@ The workflow supports exactly `normal_completion`, `declarer_concession`,
 `defender_concession`, `declarer_card_exposure`, and `defender_open_play`.
 Other future historical end reasons are rejected when they participate in the
 selected aggregation.
+
+A continuation record contributes one ordinary completed game per participant.
+Only final settlement is used; event timing, exposed-card count, exposing
+identity, and the continuation response create no statistic or profile signal.
 
 Every record selected by partition must have a valid offset-aware RFC 3339
 `historical_game.played_at`, even when no temporal cutoff is supplied. This

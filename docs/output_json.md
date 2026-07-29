@@ -97,6 +97,12 @@ game value, overbid, and final settlement. Base output contains no position,
 recommendation, simulation, profile, policy, or list result. See
 [Historical games](historical_games.md).
 
+Normal completion with a non-terminal defender-open-play continuation also
+contains `historical_game_events_summary`. It reports the exact event boundary,
+stable defender IDs, only the exposing hand, returned/public semantics, and
+explicit no-proof/no-assignment/no-settlement effects. Final scoring remains the
+ordinary actual-play result.
+
 For any supported shortened historical end, `derived_tricks` contains only completed prefix tricks.
 The summary adds exact play counts and remaining hand sizes, optional incomplete
 current-trick plays without a winner, observed/unresolved point accounting, the
@@ -120,6 +126,8 @@ acting player's remaining hand, legal cards, prior public play, public point and
 hand-size state, legitimate skat knowledge, conservative visible matadors, and
 ouvert exposure. It excludes final result, overbid, and settlement facts. See
 [Historical decision snapshots](historical_decision_snapshots.md).
+For the timed continuation, snapshots through `after_play_count` are unchanged;
+later snapshots contain the shrinking exact exposing-defender hand.
 
 When `--historical-game-review` is requested, the summary also contains
 `historical_game_review_summary`. The version-1 object exposes fixed

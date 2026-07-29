@@ -1151,6 +1151,7 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
     settlement = summary["final_settlement_summary"]
 
     game_end_summary = summary.get("historical_game_end_summary")
+    game_events_summary = summary.get("historical_game_events_summary")
     if game_end_summary is not None:
         print(f"Historical game: {summary['game_id']}")
         end_kind = game_end_summary["kind"]
@@ -1227,17 +1228,31 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         )
         print("Settlement:", settlement["settlement_score"])
     else:
-        print("Historical game summary")
-        print("Input file:", result["input_file"])
-        print("Game ID:", summary["game_id"])
-        print("Game type:", declaration["game_type"])
-        print("Declarer:", summary["record"]["declarer_player_id"])
-        print("Result winner:", summary["winner"])
-        print("Declarer points:", summary["declarer_points"])
-        print("Defender points:", summary["defender_points"])
-        print("Game value:", summary["game_value_summary"]["game_value"])
-        print("Overbid status:", summary["overbid_summary"]["status"])
-        print("Settlement score:", settlement["settlement_score"])
+        if game_events_summary is not None:
+            event = game_events_summary["events"][0]
+            print(f"Historical game: {summary['game_id']}")
+            print("End reason: normal completion")
+            print("Non-terminal event: defender open-play continuation")
+            print("Event after played cards:", event["after_play_count"])
+            print("Exposing defender:", event["exposing_defender_player_id"])
+            print("Returned public cards:", event["exposed_card_count"])
+            print("Continued play requested: yes")
+            print("Rest-trick claim adjudicated: no")
+            print("Actual plays after the event:", event["actual_plays_after_event"])
+            print(f"Final result: {summary['winner']} won")
+            print("Settlement:", settlement["settlement_score"])
+        else:
+            print("Historical game summary")
+            print("Input file:", result["input_file"])
+            print("Game ID:", summary["game_id"])
+            print("Game type:", declaration["game_type"])
+            print("Declarer:", summary["record"]["declarer_player_id"])
+            print("Result winner:", summary["winner"])
+            print("Declarer points:", summary["declarer_points"])
+            print("Defender points:", summary["defender_points"])
+            print("Game value:", summary["game_value_summary"]["game_value"])
+            print("Overbid status:", summary["overbid_summary"]["status"])
+            print("Settlement score:", settlement["settlement_score"])
     decision_snapshot_summary = summary.get("decision_snapshot_summary")
     if decision_snapshot_summary is not None:
         snapshot_count = decision_snapshot_summary["snapshot_count"]
@@ -1247,6 +1262,11 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
                 print("No card decisions occurred before the terminal event.")
         else:
             print("Decision snapshots generated:", snapshot_count)
+            if game_events_summary is not None:
+                print(
+                    "Public defender hand begins at decision:",
+                    game_events_summary["events"][0]["first_affected_decision_index"],
+                )
     review_summary = summary.get("historical_game_review_summary")
     if review_summary is not None:
         profile_summary = result.get("historical_opponent_profile_application_summary")

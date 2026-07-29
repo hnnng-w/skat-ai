@@ -26,6 +26,10 @@ Supported historical records use the focused referenced schemas:
 
 [`schemas/historical_game_end.schema.json`](../schemas/historical_game_end.schema.json)
 
+[`schemas/historical_game_event.schema.json`](../schemas/historical_game_event.schema.json)
+and
+[`schemas/historical_defender_open_play_continuation_event.schema.json`](../schemas/historical_defender_open_play_continuation_event.schema.json)
+
 [`schemas/historical_declarer_concession.schema.json`](../schemas/historical_declarer_concession.schema.json)
 and
 [`schemas/historical_defender_concession.schema.json`](../schemas/historical_defender_concession.schema.json)
@@ -152,6 +156,13 @@ Historical defender open play requires one stable exposing defender, that
 defender's exact reconstructed current hand, at least five completed tricks, and
 `declarer_response: "accept_adjudication"`. See
 [Historical defender open play](historical_defender_open_play.md).
+
+Normal completion may instead include one optional non-terminal `game_events`
+array containing a timed `defender_open_play_continuation`. It requires a strict
+`after_play_count` from 0 through 29, one stable defender's exact reconstructed
+hand, and `request_continued_play`. Ten complete tricks and all 30 actual plays
+remain required. See
+[Historical defender open-play continuation](historical_defender_open_play_continuation.md).
 
 A training-dataset file contains only its dataset branch:
 

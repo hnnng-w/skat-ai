@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from skat_ai.deck import get_full_deck
@@ -186,6 +186,39 @@ def replay_historical_play_prefix(record: Any) -> HistoricalReplayState:
         next_player_id=expected_leader,
         played_card_count=played_card_count,
     )
+
+
+def replay_historical_state_at_play_boundary(
+    record: Any,
+    after_play_count: int,
+) -> HistoricalReplayState:
+    """Replays exactly the supplied number of chronological historical plays."""
+    total_play_count = sum(len(trick.plays) for trick in record.tricks)
+    if (
+        isinstance(after_play_count, bool)
+        or not isinstance(after_play_count, int)
+        or not 0 <= after_play_count <= total_play_count
+    ):
+        raise ValueError(
+            f"Historical game '{record.game_id}': play boundary must be an integer "
+            f"from 0 to {total_play_count}."
+        )
+
+    remaining_count = after_play_count
+    prefix_tricks = []
+    for trick in record.tricks:
+        if remaining_count == 0:
+            break
+        play_count = min(remaining_count, len(trick.plays))
+        prefix_tricks.append(replace(trick, plays=trick.plays[:play_count]))
+        remaining_count -= play_count
+        if play_count < len(trick.plays):
+            break
+    if remaining_count != 0:
+        raise ValueError(
+            f"Historical game '{record.game_id}': play boundary exceeds supplied plays."
+        )
+    return replay_historical_play_prefix(replace(record, tricks=tuple(prefix_tricks)))
 
 
 def build_serializable_derived_trick(

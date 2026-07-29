@@ -21,7 +21,9 @@ The position-analysis flow is:
 The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, and strictly replays either ten normal-completion tricks or an
 exact legal prefix ending in a versioned declarer-concession, defender-concession,
-or unanimously accepted declarer-card-exposure event. It derives
+unanimously accepted declarer-card-exposure, or terminal defender-open-play
+event. Normal completion may contain one separate timed non-terminal defender-
+open-play continuation event. It derives
 points and ownership, reuses the declaration/value/overbid/settlement helpers,
 and emits `historical_game_summary`.
 When requested, the flow derives one pre-play decision snapshot per actual
@@ -61,7 +63,8 @@ to aggregate exact per-player role, result, Hand, and contract counts. It then
 reuses opponent-statistics normalization and profile derivation and can serialize
 a standalone `opponent_statistics_input`. It does not generate samples or run
 recommendation, review, policy application, quality evaluation, or training.
-Normal-completion, declarer-concession, defender-concession, and declarer-card-exposure records are explicitly supported and
+Normal-completion, declarer-concession, defender-concession, declarer-card-exposure,
+and defender-open-play records are explicitly supported and
 each contributes one game regardless of play count.
 
 The rolling opponent-policy evaluation is explicitly a known-opponent flow. It
@@ -104,11 +107,13 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/turn_phase.py`         | Normalizes and validates canonical `trick_leader` and `next_player` from the current trick length.                  |
 | `src/skat_ai/historical_game.py`    | Typed stable-ID historical records, complete-deal validation, strict play replay, and historical result serialization. |
 | `src/skat_ai/historical_game_end.py` | Versioned stable-ID historical game-end union parsing and canonical serialization. |
+| `src/skat_ai/historical_game_event.py` | Versioned non-terminal historical event union, boundary replay, and event summary orchestration. |
 | `src/skat_ai/historical_play_prefix.py` | Exact immutable prefix replay, remaining-hand reconstruction, and incomplete-trick state. |
 | `src/skat_ai/historical_declarer_concession.py` | Historical point accounting and shared declarer-concession adjudication/settlement adaptation. |
 | `src/skat_ai/historical_defender_concession.py` | Stable-ID historical adaptation of shared defender-concession adjudication and settlement. |
 | `src/skat_ai/historical_declarer_card_exposure.py` | Exact stable-ID reconciliation and shared accepted-exposure adjudication/settlement adaptation. |
 | `src/skat_ai/historical_defender_open_play.py` | Exact historical state reconstruction, bounded flat adjudication reuse, stable-ID proof mapping, and privacy-safe assignment output. |
+| `src/skat_ai/historical_defender_open_play_continuation.py` | Timed exact-hand reconciliation and non-adjudicating historical continuation semantics. |
 | `src/skat_ai/historical_player_mapping.py` | Shared deterministic circular mapping between stable historical IDs and flat player order. |
 | `src/skat_ai/historical_decision_cardinality.py` | Shared actual-play cardinality for snapshots, review decisions, training samples, and rolling targets. |
 | `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
@@ -427,6 +432,9 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/declarer_card_exposure_output.schema.json` | Strict exposure, unanimity, reconciliation, decision-state, and settlement-basis output. |
 | `schemas/historical_game.schema.json`          | Versioned normal or explicitly supported shortened historical-game input structure. |
 | `schemas/historical_game_end.schema.json` | Extensible version-1 historical game-end union. |
+| `schemas/historical_game_event.schema.json` | Version-1 non-terminal historical game-event union. |
+| `schemas/historical_defender_open_play_continuation_event.schema.json` | Strict timed stable-ID continuation event. |
+| `schemas/historical_game_events_output.schema.json` | Non-adjudicating historical event summary. |
 | `schemas/historical_declarer_concession.schema.json` | Strict stable-ID historical concession event. |
 | `schemas/historical_declarer_concession_output.schema.json` | Prefix, incomplete-trick, point, and event-summary output. |
 | `schemas/historical_defender_concession.schema.json` | Strict stable-ID historical defender-concession event. |

@@ -131,6 +131,7 @@ def _build_reviewed_decision(
             sample_count=sample_count,
             random_seed=effective_random_seed,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=position.public_hand_constraints,
         )
     )
     analysis_report = build_card_analysis_report_from_values(
@@ -366,7 +367,7 @@ def build_historical_game_review_summary(
                     ),
                 )
             )
-        if snapshot.visible_state.public_exposed_cards:
+        if snapshot.visible_state.declaration.ouvert:
             decision = _build_unavailable_decision(
                 snapshot=snapshot,
                 effective_random_seed=effective_random_seed,

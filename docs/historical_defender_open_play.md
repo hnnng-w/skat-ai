@@ -3,8 +3,8 @@
 `skat-ai` supports terminal historical defender-open-play adjudication under the
 November 2022 wording of ISkO 4.4.5. The historical adapter reconstructs an
 exact late-game state from the complete deal and legal play prefix, then reuses
-the existing flat bounded adjudicator. It does not implement historical
-continued play.
+the existing flat bounded adjudicator. Historical continued play is a separate
+non-terminal normal-completion contract.
 
 ## Event contract
 
@@ -27,8 +27,8 @@ current hand. Callers do not supply the declarer's or non-exposing defender's
 remaining cards.
 
 Only `accept_adjudication` is supported. `request_continued_play` is rejected
-with guidance that historical defender-open-play continuation remains separate
-future work. The existing flat ongoing continuation contract is unchanged.
+with guidance to use `game_events.kind = "defender_open_play_continuation"`.
+See [Historical defender open-play continuation](historical_defender_open_play_continuation.md).
 
 The focused schemas are:
 

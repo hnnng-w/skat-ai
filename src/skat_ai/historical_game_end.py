@@ -224,7 +224,8 @@ def build_historical_game_end(
         declarer_response = value["declarer_response"]
         if declarer_response == "request_continued_play":
             raise ValueError(
-                "Historical defender-open-play continuation remains separate future work."
+                "Historical defender-open-play continuation must use the separate "
+                "non-terminal game_events contract."
             )
         if declarer_response != "accept_adjudication":
             raise ValueError(

@@ -136,7 +136,7 @@ unanimous acceptance, claimed level, actual play count, pre-event decision,
 winner, unresolved-point policy, and settlement. `--quiet` preserves the normal
 structured-only behavior.
 
-This implementation does not add historical exposure continuation, historical
-defender-open-play continuation, historical open-card throwing, free-text or gesture
+This implementation does not add historical declarer-exposure continuation,
+historical open-card throwing, free-text or gesture
 interpretation, exposure-choice or acceptance prediction, exact future-play
 proof, a learned model, or four-player support.

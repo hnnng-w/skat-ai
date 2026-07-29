@@ -110,6 +110,12 @@ Validate bounded exact terminal historical defender open play:
 python main.py --input examples/historical_grand_defender_open_play.json
 ```
 
+Validate a normal historical Grand with timed defender-open-play continuation:
+
+```powershell
+python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
+```
+
 Write its separate structured result without successful stdout:
 
 ```powershell
@@ -340,7 +346,7 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 46 scenarios, including variable-length training data,
+therefore covers 47 scenarios, including variable-length training data,
 all four historical shortened kinds, both
 ongoing public-hand continuations, bounded exact defender-open-play adjudication,
 and open-card-throw adjudication.
@@ -524,9 +530,10 @@ because ended game reasons are post-game review information.
 | `grand_defenders_conceded_remaining_tricks.json` | Defenders concede remaining tricks. |
 
 Each structured flat example has deterministic generated-output and quiet JSON
-coverage. Each of the three supported historical shortened kinds has one
-separate generated scenario; no historical continuation or other shortening
-example is included.
+coverage. Each of the four supported terminal historical shortened kinds has one
+separate generated scenario. The historical defender-open-play continuation has
+one additional snapshot-transition scenario; no other historical continuation
+kind is included.
 
 ## Overbid examples
 

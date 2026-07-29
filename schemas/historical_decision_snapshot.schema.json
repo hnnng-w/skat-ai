@@ -235,7 +235,7 @@
           "items": {
             "$ref": "#/$defs/public_exposed_cards"
           },
-          "maxItems": 1
+          "maxItems": 2
         },
         "completed_tricks": {
           "type": "array",

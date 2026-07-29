@@ -244,6 +244,12 @@ Validate and summarize a complete normally played historical game:
 python main.py --input examples/historical_grand_normal_completion.json
 ```
 
+Validate timed continued play after historical defender open play:
+
+```powershell
+python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
+```
+
 Validate an exact historical play prefix ending in declarer concession:
 
 ```powershell
@@ -289,9 +295,12 @@ Historical declarer and defender concessions, accepted declarer-card exposure,
 and terminal defender open play support snapshots, review, time-safe external
 profiles, variable training samples, and record/player partition audits for every
 actual supplied play. The terminal event is not reviewed or used as a target.
+Timed defender-open-play continuation remains normal completion with 30 actual
+plays; only post-event decisions receive the exact shrinking public defender hand.
 Historical opponent statistics, reusable export, rolling profile construction,
 and rolling policy evaluation support normal completion, declarer concession,
 defender concession, declarer-card exposure, and defender open play.
+Normal-completion event details add no statistic or profile signal.
 Each source record has one game of statistics weight, while targets contribute
 only actual card decisions, including valid zero-decision targets. See
 [Shortened historical opponent workflows](docs/shortened_historical_opponent_workflows.md).
@@ -423,6 +432,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical games](docs/historical_games.md)
 * [Historical declarer card exposure](docs/historical_declarer_card_exposure.md)
 * [Historical defender open play](docs/historical_defender_open_play.md)
+* [Historical defender open-play continuation](docs/historical_defender_open_play_continuation.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
@@ -437,6 +447,9 @@ Detailed documentation is split into topic-specific files:
 * [Historical-game schema](schemas/historical_game.schema.json)
 * [Historical defender-open-play input schema](schemas/historical_defender_open_play.schema.json)
 * [Historical defender-open-play output schema](schemas/historical_defender_open_play_output.schema.json)
+* [Historical game-event schema](schemas/historical_game_event.schema.json)
+* [Historical defender-open-play continuation event schema](schemas/historical_defender_open_play_continuation_event.schema.json)
+* [Historical game-events output schema](schemas/historical_game_events_output.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
 * [Historical game review schema](schemas/historical_game_review.schema.json)
 * [Historical opponent profile application schema](schemas/historical_opponent_profile_application.schema.json)
@@ -496,7 +509,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 46 deterministic scenarios,
+complete. Generated-output validation covers 47 deterministic scenarios,
 including both ongoing public-hand continuations and bounded exact defender
 open-play adjudication plus structured open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
@@ -509,8 +522,8 @@ summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
-Normal-completion, declarer-concession, defender-concession, accepted
-declarer-card-exposure, and terminal defender-open-play historical records, information-safe
+Normal-completion, timed defender-open-play continuation, declarer-concession,
+defender-concession, accepted declarer-card-exposure, and terminal defender-open-play historical records, information-safe
 variable-cardinality snapshots and review, and versioned training/evaluation
 dataset wrapping are partially supported. Five structured generic-position shortening
 variants are supported: declarer concession, defender concession, unanimously

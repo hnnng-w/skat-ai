@@ -16,7 +16,10 @@ optional, so existing datasets remain valid with unspecified partition intent.
 `report_only` is an audit CLI mode and cannot be stored in dataset metadata.
 Policy metadata is preserved by canonical dataset conversion and in bounded
 historical-aggregation and rolling-evaluation source provenance.
-Datasets and audits accept normal-completion, declarer-concession, defender-concession, and declarer-card-exposure records.
+Datasets and audits accept normal-completion, including its optional timed
+defender-open-play continuation, plus declarer-concession, defender-concession,
+declarer-card-exposure, and terminal defender-open-play records. The event does
+not change record identity or participant membership.
 Membership remains record- and participant-based, so zero-sample records still
 participate fully in overlap and coverage checks.
 

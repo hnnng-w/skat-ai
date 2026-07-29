@@ -192,7 +192,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 46 deterministic scenarios.
+Generated-output validation currently covers 47 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -369,6 +369,8 @@ Implemented:
 ### Historical games and datasets
 
 * `historical_game.py`
+* `historical_game_event.py`
+* `historical_defender_open_play_continuation.py`
 * `historical_decision_snapshot.py`
 * `historical_snapshot_adapter.py`
 * `historical_game_review.py`
@@ -427,6 +429,7 @@ Main documentation files:
 * `docs/performance_rating.md`
 * `docs/examples.md`
 * `docs/historical_games.md`
+* `docs/historical_defender_open_play_continuation.md`
 * `docs/historical_decision_snapshots.md`
 * `docs/historical_game_review.md`
 * `docs/historical_opponent_profiles.md`
@@ -452,7 +455,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 46 deterministic generated-output
+The `v0.8.0` development baseline validates 47 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:

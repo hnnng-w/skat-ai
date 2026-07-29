@@ -20,6 +20,15 @@ HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
 HISTORICAL_GAME_REVIEW_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
 HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_end.schema.json"
+HISTORICAL_GAME_EVENT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_event.schema.json"
+HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_defender_open_play_continuation_event.schema.json"
+)
+HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_game_events_output.schema.json"
+)
 HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
 )
@@ -1474,6 +1483,53 @@ def check_historical_decision_snapshots(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_historical_defender_open_play_continuation_snapshots(
+    data: dict[str, Any],
+) -> list[str]:
+    """Checks the timed public-hand transition and later known-card removal."""
+    errors = []
+    summary = data.get("historical_game_summary")
+    if not isinstance(summary, dict):
+        return ["expected historical game summary"]
+    if summary["record"]["game_end_reason"] != "normal_completion":
+        errors.append("expected continuation record to end by normal completion")
+    events = summary.get("historical_game_events_summary", {}).get("events", [])
+    if len(events) != 1:
+        errors.append("expected exactly one historical continuation event")
+        return errors
+    event = events[0]
+    if event["after_play_count"] != 12 or event["first_affected_decision_index"] != 13:
+        errors.append("expected event boundary after play 12")
+    if any(
+        event[field]
+        for field in ("exact_proof_applied", "game_end_applied", "settlement_applied")
+    ):
+        errors.append("continuation event must not apply proof, game end, or settlement")
+    snapshots = summary.get("decision_snapshot_summary", {}).get("snapshots", [])
+    if len(snapshots) != 30:
+        errors.append("expected exactly 30 continued-play snapshots")
+        return errors
+    if snapshots[11]["visible_state"]["public_exposed_cards"]:
+        errors.append("last pre-event snapshot must not expose the defender hand")
+    first_public = snapshots[12]["visible_state"]["public_exposed_cards"]
+    if first_public != [
+        {
+            "player_id": "player-a",
+            "cards": ["CQ", "CJ", "C9", "C8", "C7", "S10"],
+        }
+    ]:
+        errors.append("first post-event snapshot must contain the exact exposed hand")
+    later_public = snapshots[13]["visible_state"]["public_exposed_cards"]
+    if later_public != [
+        {
+            "player_id": "player-a",
+            "cards": ["CJ", "C9", "C8", "C7", "S10"],
+        }
+    ]:
+        errors.append("later snapshot must remove the exposing defender's played card")
+    return errors
+
+
 def check_historical_game_review(data: dict[str, Any]) -> list[str]:
     """Checks the deterministic complete historical decision review."""
     errors = check_historical_game_normal_completion(data)
@@ -2332,6 +2388,19 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="historical_grand_defender_open_play_continuation_snapshots",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "historical_grand_defender_open_play_continuation.json"
+        ),
+        branch="timed historical defender-open-play public-hand transition",
+        cli_args=("--historical-decision-snapshots", "--quiet"),
+        check_output=check_historical_defender_open_play_continuation_snapshots,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="historical_grand_game_review",
         input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
         branch="seeded complete review of all 30 historical decisions",
@@ -2479,6 +2548,13 @@ def validate_generated_outputs() -> list[str]:
     historical_game_review_schema = load_json_file(HISTORICAL_GAME_REVIEW_SCHEMA_PATH)
     historical_game_schema = load_json_file(HISTORICAL_GAME_SCHEMA_PATH)
     historical_game_end_schema = load_json_file(HISTORICAL_GAME_END_SCHEMA_PATH)
+    historical_game_event_schema = load_json_file(HISTORICAL_GAME_EVENT_SCHEMA_PATH)
+    historical_continuation_event_schema = load_json_file(
+        HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH
+    )
+    historical_game_events_output_schema = load_json_file(
+        HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA_PATH
+    )
     historical_declarer_concession_schema = load_json_file(
         HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH
     )
@@ -2552,6 +2628,18 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_game_end_schema["$id"],
                 Resource.from_contents(historical_game_end_schema),
+            ),
+            (
+                historical_game_event_schema["$id"],
+                Resource.from_contents(historical_game_event_schema),
+            ),
+            (
+                historical_continuation_event_schema["$id"],
+                Resource.from_contents(historical_continuation_event_schema),
+            ),
+            (
+                historical_game_events_output_schema["$id"],
+                Resource.from_contents(historical_game_events_output_schema),
             ),
             (
                 historical_declarer_concession_schema["$id"],

@@ -61,6 +61,14 @@
     "game_end": {
       "$ref": "https://example.local/skat-ai/historical_game_end.schema.json"
     },
+    "game_events": {
+      "type": "array",
+      "items": {
+        "$ref": "https://example.local/skat-ai/historical_game_event.schema.json"
+      },
+      "minItems": 1,
+      "maxItems": 1
+    },
     "tricks": {
       "type": "array",
       "items": {
@@ -88,6 +96,21 @@
         "not": {"required": ["game_end"]}
       },
       "else": {"required": ["game_end"]}
+    },
+    {
+      "if": {"required": ["game_events"]},
+      "then": {
+        "properties": {
+          "game_end_reason": {"const": "normal_completion"},
+          "tricks": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/complete_trick"},
+            "minItems": 10,
+            "maxItems": 10
+          }
+        },
+        "not": {"required": ["game_end"]}
+      }
     },
     {
       "if": {

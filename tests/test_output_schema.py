@@ -45,6 +45,15 @@ HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
 HISTORICAL_GAME_REVIEW_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_review.schema.json"
 HISTORICAL_GAME_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_end.schema.json"
+HISTORICAL_GAME_EVENT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_event.schema.json"
+HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_defender_open_play_continuation_event.schema.json"
+)
+HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_game_events_output.schema.json"
+)
 HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
 )
@@ -137,6 +146,14 @@ with HISTORICAL_GAME_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_GAME_SCHEMA = json.load(file)
 with HISTORICAL_GAME_END_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_GAME_END_SCHEMA = json.load(file)
+with HISTORICAL_GAME_EVENT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_GAME_EVENT_SCHEMA = json.load(file)
+with HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA = json.load(file)
+with HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA = json.load(file)
 with HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_DECLARER_CONCESSION_SCHEMA = json.load(file)
 with HISTORICAL_DECLARER_CONCESSION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
@@ -210,6 +227,20 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             HISTORICAL_GAME_END_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_GAME_END_SCHEMA),
+        ),
+        (
+            HISTORICAL_GAME_EVENT_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_GAME_EVENT_SCHEMA),
+        ),
+        (
+            HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA["$id"],
+            Resource.from_contents(
+                HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA
+            ),
+        ),
+        (
+            HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA),
         ),
         (
             HISTORICAL_DECLARER_CONCESSION_SCHEMA["$id"],

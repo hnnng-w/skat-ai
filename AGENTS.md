@@ -132,7 +132,7 @@ The current code and release-preparation baseline is `v0.8.0`, with the theme
 
 The package version is `0.8.0`.
 
-Generated-output validation currently covers 46 deterministic scenarios.
+Generated-output validation currently covers 47 deterministic scenarios.
 
 The documented `v0.8.0` issue scope, issues #78 through #84, is complete.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
@@ -178,6 +178,7 @@ Major completed areas include:
 * declarer-concession integration in historical statistics, export, and rolling opponent-policy evaluation
 * unanimously accepted declarer-card-exposure historical records and variable-length workflow integration
 * terminal bounded exact defender-open-play historical records and variable-length workflow integration
+* timed non-terminal historical defender-open-play continuation with persistent public-hand information
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include historical opponent workflows beyond normal completion,

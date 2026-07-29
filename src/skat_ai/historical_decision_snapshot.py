@@ -268,6 +268,8 @@ def _infer_visible_matadors(
     for exposure in public_exposed_cards:
         if exposure.player_id == declarer_player_id:
             declarer_owned_cards.extend(exposure.cards)
+        else:
+            non_declarer_owned_cards.extend(exposure.cards)
 
     return infer_matadors_from_known_ownership(
         game_type=game_type,
@@ -316,6 +318,14 @@ def build_historical_decision_snapshots(
     defender_trick_points = 0
     snapshots = []
     decision_index = 0
+    continuation_event = next(
+        (
+            event
+            for event in record.get("game_events", [])
+            if event["kind"] == "defender_open_play_continuation"
+        ),
+        None,
+    )
 
     completed_trick_index = 0
     for trick in record["tricks"]:
@@ -350,15 +360,41 @@ def build_historical_decision_snapshots(
             skat_visibility: SkatVisibility = (
                 "known_to_declarer" if known_skat_cards else "unknown"
             )
-            public_exposed_cards = (
-                (
+            exposures = []
+            if declaration["ouvert"]:
+                exposures.append(
                     HistoricalSnapshotExposedCards(
                         player_id=declarer_player_id,
                         cards=tuple(hands[declarer_player_id]),
-                    ),
+                    )
                 )
-                if declaration["ouvert"]
-                else ()
+            if (
+                continuation_event is not None
+                and decision_index > continuation_event["after_play_count"]
+            ):
+                exposing_player_id = continuation_event[
+                    "exposing_defender_player_id"
+                ]
+                remaining_exposed_cards = tuple(
+                    card
+                    for card in continuation_event["exposed_cards"]
+                    if card in hands[exposing_player_id]
+                )
+                exposures.append(
+                    HistoricalSnapshotExposedCards(
+                        player_id=exposing_player_id,
+                        cards=remaining_exposed_cards,
+                    )
+                )
+            player_order = {
+                player_id: index
+                for index, player_id in enumerate(seat_order_player_ids)
+            }
+            public_exposed_cards = tuple(
+                sorted(
+                    exposures,
+                    key=lambda exposure: player_order[exposure.player_id],
+                )
             )
             visible_matadors = _infer_visible_matadors(
                 game_type=declaration["game_type"],

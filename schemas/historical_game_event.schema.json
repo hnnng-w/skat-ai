@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_game_event.schema.json",
+  "title": "skat-ai historical non-terminal game event union version 1",
+  "oneOf": [
+    {
+      "$ref": "https://example.local/skat-ai/historical_defender_open_play_continuation_event.schema.json"
+    }
+  ]
+}
