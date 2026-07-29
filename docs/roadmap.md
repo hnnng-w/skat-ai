@@ -286,8 +286,8 @@ Implemented:
 
 ### v0.9.0: Structured game endings and coherent hidden information
 
-The current package and release-preparation baseline is `v0.9.0`. Issues #86
-through #104 are complete:
+The current published stable release and package baseline is `v0.9.0`. Its tag
+points to release commit `0679760`, and Issues #86 through #104 are complete:
 
 * #86 through #92 added structured concessions and exposures, bounded defender-open-play adjudication, open-card throwing, and both exact-public-hand continuation paths.
 * #93 through #101 added all five exact-prefix historical terminal events, both timed non-terminal continuation events, variable-length decision and dataset workflows, and shortened-game opponent workflows.
@@ -295,10 +295,9 @@ through #104 are complete:
 * #103 preserved one coherent private hidden world per Multi-Step path and one shared root across independent Policy Comparison copies.
 * #104 added exact evidence-constrained compatible-world counts, marginals, deterministic uniform sampling, decision-time-safe workflow integration, and privacy-safe uncalibrated summaries.
 
-The baseline validates 52 deterministic generated-output scenarios and passes
-3,558 pytest tests. It is prepared for manual tagging and publication;
-publication remains a maintainer action, and GitHub Releases is the authoritative
-publication record.
+The published baseline validates 52 deterministic generated-output scenarios
+and passes 3,558 pytest tests. GitHub Releases is the authoritative publication
+record.
 
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
@@ -365,9 +364,11 @@ series aggregation, tournament management, and official federation report
 formats are not required. Four-player tables are the only unconditional
 exclusion.
 
-The next recommended milestone focuses on stronger bounded Search/Solver work
-with documented information, quality, determinism, and latency contracts. Later
-milestones are not implied to have complete implementation designs.
+The active next milestone is `v0.10.0`. Its first major subject is stronger
+bounded Search/Solver functionality with explicit information, quality,
+determinism, and latency contracts. The exact issue decomposition still requires
+a focused repository analysis. Later milestone numbers remain planning
+containers rather than fixed contractual releases.
 
 ## Open technical cleanup
 
@@ -383,7 +384,7 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the `v0.9.0` release-preparation baseline, the authoritative
-publication state shown by GitHub Releases, requirements explicitly required for
-`v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
+should distinguish the published stable `v0.9.0` baseline, the authoritative
+publication state shown by GitHub Releases, requirements explicitly required
+for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

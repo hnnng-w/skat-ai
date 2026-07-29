@@ -4,9 +4,8 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current package and release-preparation baseline is `v0.9.0`; it is prepared
-for manual tagging and publication. Publication remains a maintainer action, and
-GitHub Releases is the authoritative publication record.
+The current published stable release and package baseline is `v0.9.0`. GitHub
+Releases is the authoritative publication record.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,

@@ -546,12 +546,15 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current package and release-preparation baseline is `v0.9.0`, with the theme
-"Structured game endings and coherent hidden information." Issues #86 through
-#104 are complete. Generated-output validation covers 52 deterministic scenarios,
-and the complete pytest suite contains 3,558 tests. The repository is prepared
-for manual `v0.9.0` tagging and publication; publication remains a maintainer
-action, and GitHub Releases is the authoritative publication record.
+The current published stable release and package baseline is `v0.9.0`, with the
+theme "Structured game endings and coherent hidden information." Issues #86
+through #104 are complete. Generated-output validation covers 52 deterministic
+scenarios, and the complete pytest suite contains 3,558 tests. GitHub Releases
+is the authoritative publication record.
+
+The active next development milestone is `v0.10.0`, starting with stronger
+bounded Search/Solver functionality with explicit information, quality,
+determinism, and latency contracts.
 
 The milestone adds five structured game-shortening forms, five matching
 historical terminal events, two historical non-terminal continuations, and

@@ -24,7 +24,7 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-At the `v0.9.0` release-preparation baseline, the check covers 52 deterministic
+At the published stable `v0.9.0` baseline, the check covers 52 deterministic
 generated-output scenarios and 3,558 pytest tests. The check script validates:
 
 * Ruff checks

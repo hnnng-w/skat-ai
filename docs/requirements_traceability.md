@@ -1,7 +1,7 @@
 # Requirements traceability
 
 This document is the authoritative audit of rule and product support in
-`skat-ai`. It records the `v0.9.0` release-preparation baseline and does not claim
+`skat-ai`. It records the published stable `v0.9.0` baseline and does not claim
 complete compliance with the official rules.
 
 ## Normative sources
@@ -24,9 +24,9 @@ software product limited to them.
 
 Rule references below are section numbers from the November 2022 PDF. The audit
 was verified against source modules, schemas, examples, validation scripts, and
-focused tests at the `v0.9.0` release-preparation baseline. Issues #86 through
-#104 are complete. The complete check validates 52 deterministic generated-
-output scenarios and 3,558 pytest tests.
+focused tests at the published stable `v0.9.0` baseline. Issues #86 through #104
+are complete. The complete check validates 52 deterministic generated-output
+scenarios and 3,558 pytest tests.
 
 ## Status vocabulary
 

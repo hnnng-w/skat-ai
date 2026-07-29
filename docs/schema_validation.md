@@ -152,7 +152,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-The `v0.9.0` release-preparation baseline passes 3,558 pytest tests.
+The published stable `v0.9.0` baseline passes 3,558 pytest tests.
 Generated-output validation covers 52 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,

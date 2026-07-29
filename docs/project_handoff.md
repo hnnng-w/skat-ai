@@ -510,18 +510,19 @@ Main documentation files:
 
 ## Release status
 
-Current code and release-preparation baseline: `v0.9.0`.
+Current published stable release: `v0.9.0`.
 
 Current package version: `0.9.0`.
 
-Issues #86 through #104 are complete in the release-preparation baseline.
+Release theme: "Structured game endings and coherent hidden information."
 
-The repository is prepared for manual `v0.9.0` tagging and publication. Tag and
-GitHub Release publication remain maintainer actions; GitHub Releases is the
-authoritative publication record.
+The published release tag points to commit `0679760`.
 
-The `v0.9.0` release-preparation baseline validates 52 deterministic generated-
-output scenarios and passes 3,558 pytest tests.
+Issues #86 through #104 are complete in the published baseline. GitHub Releases
+is the authoritative publication record.
+
+The published `v0.9.0` baseline validates 52 deterministic generated-output
+scenarios and passes 3,558 pytest tests.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -644,13 +645,13 @@ Completed implementation scope:
 
 ## Next recommended action
 
-After human review, tag and publish `v0.9.0` manually. The next recommended
-development block is stronger bounded Search/Solver behavior with documented
-information, quality, determinism, and latency contracts. Remaining pre-`v1.0.0`
-work also includes fuller Replay Coaching, approved settlement nuance, fixed-
-three-player 36-game list aggregation, automatic dataset preparation, field-
-level live provenance, interactive session capture, and a stable installed API
-and CLI interface.
+`v0.9.0` is published. The active next development milestone is `v0.10.0`, and
+its first planning subject is stronger bounded Search/Solver behavior with
+explicit information, quality, determinism, and latency contracts. Remaining
+pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
+nuance, fixed-three-player 36-game list aggregation, automatic dataset
+preparation, field-level live provenance, interactive session capture, and a
+stable installed API and CLI interface.
 
 ## Open future topics
 

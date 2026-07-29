@@ -129,18 +129,20 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current code and release-preparation baseline is `v0.9.0`, with the theme
-"Structured game endings and coherent hidden information."
+The current published stable release is `v0.9.0`, with the theme "Structured
+game endings and coherent hidden information."
 
 The package version is `0.9.0`.
 
 Generated-output validation currently covers 52 deterministic scenarios.
 The complete pytest suite contains 3,558 tests.
 
-The documented `v0.9.0` issue scope, Issues #86 through #104, is complete. The
-repository is prepared for manual `v0.9.0` tagging and publication. Tag and
-GitHub Release publication remain maintainer actions; GitHub Releases is the
-authoritative publication record.
+The published `v0.9.0` baseline completes Issues #86 through #104. GitHub
+Releases is the authoritative publication record.
+
+The active next development milestone is `v0.10.0`. Stronger bounded
+Search/Solver work with explicit information, quality, determinism, and latency
+contracts is the next recommended development direction.
 
 Major completed areas include:
 
@@ -203,8 +205,7 @@ calibrated or tactical hidden-card inference. Stronger Search/Solver behavior,
 full Replay Coaching, fixed-three-player 36-game list aggregation, interactive
 input/session capture, and a stable installed library and CLI interface remain
 open before `v1.0.0`. No learned model, model-training workflow, website, or
-browser integration exists. Stronger bounded Search/Solver work is the next
-recommended development direction.
+browser integration exists.
 
 ## Important design principles
 
