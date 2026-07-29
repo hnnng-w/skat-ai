@@ -151,7 +151,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 50 deterministic scenarios. Position
+Generated-output validation covers 51 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -161,7 +161,8 @@ production JSON output emitted from those inputs.
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
 output writing, quiet JSON-output automation, local and opponent-turn Multi-Step
-simulation, policy comparison, comparison-only policy output, side-specific
+simulation, policy comparison, one shared-root coherent hidden-world Policy
+Comparison, comparison-only policy output, side-specific
 opponent policies, completed-game settlement/rating, post-game review,
 Null-objective post-game review, defender-perspective post-game review,
 legacy claim, all five structured shortening kinds including accepted declarer
@@ -187,6 +188,13 @@ The additional rolling scenario uses a normal source, a zero-play concession
 source, and a 14-decision concession target. Its schema permits empty target
 decision arrays, zero overall decisions, null zero-denominator rates, and
 participant-based target-player coverage without a version increment.
+
+The coherent-world scenario uses
+`examples/grand_coherent_hidden_world.json`, three Multi-Step steps,
+`highest_expected_value`, and all four compared card-selection policies. It
+semantically verifies one shared root, equal independent policy-path worlds,
+owner-aware count reconciliation, a fixed hypothetical skat, no resampling, and
+the absence of private hidden-card fields.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

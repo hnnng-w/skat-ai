@@ -453,6 +453,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
 * [Ouvert-aware simulation](docs/ouvert_aware_simulation.md)
+* [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
 * [Dataset partition policies](docs/dataset_partition_policies.md)
@@ -531,10 +532,10 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 50 deterministic scenarios,
+complete. Generated-output validation covers 51 deterministic scenarios,
 including both flat ongoing public-hand continuations, both timed historical
 continuations, bounded exact defender-open-play adjudication, and structured
-open-card-throw adjudication.
+open-card-throw adjudication, plus coherent-world Policy Comparison.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
@@ -563,8 +564,7 @@ include additional structured historical endings, multiple events, or continuati
 solving, isolated-card claims, simultaneous throws and specific-trick assertions,
 additional historical end reasons, approved settlement
 completeness, complete-game coaching, stronger solving, complete field-level live
-provenance, coherent hidden-world
-continuity across Multi-Step paths, broader information-safe hidden-card
+provenance, broader information-safe hidden-card
 inference, full 36-game list aggregation, interactive input, and a stable
 installed interface. No website or browser integration exists. External and
 exact historically aggregated statistics can
@@ -577,6 +577,17 @@ weight; shortened targets contribute only their actual card plays,
 and target participant coverage includes all three players. It does not run recommendations or expected-value
 simulation, claim strategic quality, evaluate unseen players, merge captures,
 or learn behavior. The product supports fixed three-player tables only.
+
+Multi-Step now samples one private hidden-card root per path and preserves that
+ownership, including a fixed hypothetical skat, across supported preparation and
+completion steps. Policy Comparison gives equal independent immutable copies of
+one shared root to all policy paths. Local decision policies and JSON output do
+not receive private ownership; only privacy-safe count and status summaries are
+serialized. Immediate Analysis, historical decision-time information, feature
+version `1`, rolling behavior, supported phases, and package version `0.8.0`
+remain unchanged. See
+[Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and
+[`examples/grand_coherent_hidden_world.json`](examples/grand_coherent_hidden_world.json).
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

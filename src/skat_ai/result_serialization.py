@@ -33,7 +33,7 @@ def build_serializable_multi_step_step(
     """
     Builds a JSON-serializable representation of one multi-step result step.
     """
-    return {
+    serialized_step = {
         "step_index": step["step_index"],
         "opponent_lead_result": build_serializable_opponent_sequence_result(
             step["opponent_lead_result"]
@@ -41,8 +41,22 @@ def build_serializable_multi_step_step(
         "prepared_state": build_serializable_game_state(step["prepared_state"]),
         "candidate_card": step["candidate_card"],
         "card_selection_policy": step["card_selection_policy"],
-        "detailed_result": step["detailed_result"],
+        "detailed_result": {
+            key: step["detailed_result"][key]
+            for key in (
+                "trick",
+                "did_win",
+                "candidate_card_won",
+                "local_side_won",
+                "trick_points",
+                "completed_trick",
+            )
+            if key in step["detailed_result"]
+        },
     }
+    if "coherence_summary" in step:
+        serialized_step["coherence_summary"] = step["coherence_summary"]
+    return serialized_step
 
 
 def build_serializable_multi_step_result(
@@ -107,5 +121,7 @@ def build_serializable_policy_comparison_result(
 
     if "recommended_policy" in result:
         serializable_result["recommended_policy"] = result["recommended_policy"]
+    if "hidden_world" in result:
+        serializable_result["hidden_world"] = result["hidden_world"]
 
     return serializable_result

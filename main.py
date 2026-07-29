@@ -1578,6 +1578,19 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
 
         print("Context summary:", context_summary)
 
+        hidden_world_summary = context_summary.get("hidden_world")
+        if hidden_world_summary is not None:
+            print("Hidden-world mode:", hidden_world_summary["mode"])
+            print("Hidden world sampled once:", hidden_world_summary["sampled_once"])
+            print(
+                "Hidden world resampled after path start:",
+                hidden_world_summary["resampled_after_path_start"],
+            )
+            print(
+                "Hidden-world ownership preserved:",
+                hidden_world_summary["ownership_preserved"],
+            )
+
         if duplicate_cards:
             print(
                 "Context warning: duplicate simulated opponent cards detected:",
@@ -1639,6 +1652,14 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
         "Opponent response policy:",
         result.get("opponent_response_policy", "lowest_point"),
     )
+    if "hidden_world" in result:
+        hidden_world_summary = result["hidden_world"]
+        print("Hidden-world mode:", hidden_world_summary["mode"])
+        print("Policies shared one root world:", hidden_world_summary["shared_root_world"])
+        print(
+            "Policy paths use independent worlds:",
+            hidden_world_summary["independent_path_worlds"],
+        )
 
     print()
     print(f"{'Policy':<24}{'Steps':>7}{'Decl. +':>10}{'Def. +':>10}{'Swing':>10}{'Local':>10}")
@@ -2339,7 +2360,10 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--strict-context",
         action="store_true",
-        help="Fail multi-step simulation if duplicate simulated opponent cards are detected.",
+        help=(
+            "Fail multi-step simulation on duplicate cards, ownership drift, "
+            "or hidden-world accounting violations."
+        ),
     )
 
     parser.add_argument(

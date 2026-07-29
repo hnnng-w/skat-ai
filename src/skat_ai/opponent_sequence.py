@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import random
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.game_state import GameState
 from skat_ai.opponent_lead import (
@@ -10,6 +12,9 @@ from skat_ai.opponent_lead import (
 from skat_ai.opponent_policy import get_opponent_policy_settings_for_player
 from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.turn_phase import normalize_turn_phase
+
+if TYPE_CHECKING:
+    from skat_ai.coherent_hidden_world import CoherentHiddenWorld
 
 UNSUPPORTED_TURN_PHASE_STOP_REASON = "unsupported_turn_phase"
 LEFT_LEAD_AND_RIGHT_RESPONSE_PHASE = "left_lead_and_right_response"
@@ -102,6 +107,8 @@ def prepare_player_action_state(
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
 ) -> tuple[GameState, dict[str, Any] | None]:
     """
     Prepares a state where the player can act.
@@ -117,6 +124,17 @@ def prepare_player_action_state(
     - optional opponent sequence result
     """
     if is_local_action_phase(current_state):
+        if coherent_hidden_world is not None:
+            from skat_ai.coherent_hidden_world import validate_coherent_hidden_world
+
+            validate_coherent_hidden_world(
+                coherent_hidden_world,
+                state=current_state,
+                left_hand_size=left_hand_size,
+                right_hand_size=right_hand_size,
+                public_hand_constraints=public_hand_constraints,
+                step_index=coherent_step_index,
+            )
         return current_state, None
 
     opponent_policy_settings = {
@@ -141,6 +159,8 @@ def prepare_player_action_state(
             random_generator=random_generator,
             opponent_lead_policy=right_policy_settings["opponent_lead_policy"],
             public_hand_constraints=public_hand_constraints,
+            coherent_hidden_world=coherent_hidden_world,
+            coherent_step_index=coherent_step_index,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result
@@ -167,6 +187,8 @@ def prepare_player_action_state(
             opponent_lead_policy=left_policy_settings["opponent_lead_policy"],
             opponent_response_policy=right_policy_settings["opponent_response_policy"],
             public_hand_constraints=public_hand_constraints,
+            coherent_hidden_world=coherent_hidden_world,
+            coherent_step_index=coherent_step_index,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result
@@ -186,6 +208,8 @@ def prepare_player_action_state(
             random_generator=random_generator,
             opponent_response_policy=right_policy_settings["opponent_response_policy"],
             public_hand_constraints=public_hand_constraints,
+            coherent_hidden_world=coherent_hidden_world,
+            coherent_step_index=coherent_step_index,
         )
 
         return opponent_sequence_result["next_state"], opponent_sequence_result

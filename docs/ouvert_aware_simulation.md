@@ -64,15 +64,18 @@ The existing simple policies are not claimed to be optimal Ouvert strategy.
 
 ## Multi-Step and Policy Comparison
 
-The root `SimulationContext` retains the exact public hand. A declarer play
-removes that card; a defender play does not remove an unplayed declarer card.
-Played cards never return and no extra declarer card is sampled. Policy
-Comparison gives every existing policy the same initial constraint, source, and
-seed. No Ouvert-only policy or precedence rule is added.
+The root `SimulationContext` retains the exact public hand inside one coherent
+private execution world. A declarer play removes that card from the declarer's
+ownership; a defender play does not remove an unplayed declarer card. All other
+unknown ownership and the hypothetical skat are sampled once at path start and
+remain coherent through preparation and completion. Played cards never return
+and no extra declarer card is sampled.
 
-Supported turn phases and stop reasons are unchanged. Other unknown cards retain
-the documented per-step resampling limitation, so this feature does not claim a
-globally coherent hidden world across a complete Multi-Step path.
+Policy Comparison samples one shared root and gives every existing policy an
+equal independent immutable copy with the same public constraint and source. No
+Ouvert-only policy or precedence rule is added. Supported turn phases and stop
+reasons are unchanged. See
+[Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
 ## Historical workflows
 
@@ -111,7 +114,7 @@ is no Ouvert statistic, profile signal, preset, or prediction target.
 ## Boundaries
 
 This feature adds public ownership information to the existing seeded sampler.
-It does not add a solver, minimax, complete-contract proof, learned model,
-Ouvert-specific strategy, general hidden-card inference, or general hidden-world
-coherence. Other hands, hidden skat cards, future events, and post-game-only
-evidence remain protected.
+Coherent Multi-Step execution does not add a solver, minimax, complete-contract
+proof, learned model, Ouvert-specific strategy, general hidden-card inference,
+or proof that a sampled private root matches the real deal. Other hands, hidden
+skat cards, future events, and post-game-only evidence remain protected.

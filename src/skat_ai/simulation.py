@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import random
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.card_tracking import get_unseen_cards
 from skat_ai.game_history import (
@@ -26,6 +28,9 @@ from skat_ai.side_ownership import (
     did_local_side_win_for_winner_role,
     normalize_declarer_player,
 )
+
+if TYPE_CHECKING:
+    from skat_ai.coherent_hidden_world import CoherentHiddenWorld
 
 DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT = 100
 
@@ -645,6 +650,8 @@ def simulate_immediate_trick_once_detailed(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
 ) -> dict[str, Any]:
     """
     Simulates the current trick once and returns detailed information.
@@ -661,16 +668,30 @@ def simulate_immediate_trick_once_detailed(
 
     validate_candidate_card_for_current_trick(state, candidate_card)
 
-    sampling_kwargs: dict[str, Any] = {}
-    if public_hand_constraints:
-        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
-    left_hand, right_hand = generate_random_opponent_hands(
-        state=state,
-        left_hand_size=left_hand_size,
-        right_hand_size=right_hand_size,
-        random_generator=rng,
-        **sampling_kwargs,
-    )
+    if coherent_hidden_world is None:
+        sampling_kwargs: dict[str, Any] = {}
+        if public_hand_constraints:
+            sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        left_hand, right_hand = generate_random_opponent_hands(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=rng,
+            **sampling_kwargs,
+        )
+    else:
+        from skat_ai.coherent_hidden_world import validate_coherent_hidden_world
+
+        validate_coherent_hidden_world(
+            coherent_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+            step_index=coherent_step_index,
+        )
+        left_hand = list(coherent_hidden_world.left_hand)
+        right_hand = list(coherent_hidden_world.right_hand)
 
     trick = complete_trick_after_candidate_card(
         state=state,
@@ -696,6 +717,29 @@ def simulate_immediate_trick_once_detailed(
         completed_trick_cards=trick,
     )
 
+    opponent_plays: tuple[tuple[str, str], ...] = ()
+    updated_hidden_world = coherent_hidden_world
+    if coherent_hidden_world is not None:
+        from skat_ai.coherent_hidden_world import apply_hidden_world_plays
+
+        newly_played_cards = trick[len(state.current_trick) + 1 :]
+        if len(state.current_trick) == 0:
+            newly_played_players = ("left", "right")
+        elif len(state.current_trick) == 1:
+            if state.trick_leader == "unknown":
+                newly_played_players = ("right",)
+            else:
+                players = get_players_for_trick_leader(state.trick_leader)
+                newly_played_players = (players[2],)
+        else:
+            newly_played_players = ()
+        opponent_plays = tuple(zip(newly_played_players, newly_played_cards, strict=True))
+        updated_hidden_world = apply_hidden_world_plays(
+            coherent_hidden_world,
+            opponent_plays,
+            step_index=coherent_step_index,
+        )
+
     normalized_declarer_player = normalize_declarer_player(
         player_role=state.player_role,
         declarer_player=get_compatible_declarer_player(
@@ -715,7 +759,7 @@ def simulate_immediate_trick_once_detailed(
             declarer_player=normalized_declarer_player,
         )
 
-    return {
+    result = {
         "trick": trick,
         "did_win": local_side_won,
         "candidate_card_won": candidate_card_won,
@@ -723,3 +767,7 @@ def simulate_immediate_trick_once_detailed(
         "trick_points": trick_points,
         "completed_trick": completed_trick,
     }
+    if updated_hidden_world is not None:
+        result["_coherent_hidden_world"] = updated_hidden_world
+        result["_opponent_plays"] = opponent_plays
+    return result

@@ -672,6 +672,80 @@ def check_policy_comparison(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_coherent_hidden_world_policy_comparison(
+    data: dict[str, Any],
+) -> list[str]:
+    """Checks privacy-safe coherent-world evidence across compared paths."""
+    errors = []
+    comparison = data.get("policy_comparison_result")
+    if not isinstance(comparison, dict):
+        return ["expected populated policy_comparison_result"]
+
+    shared = comparison.get("hidden_world", {})
+    if shared.get("mode") != "coherent_path":
+        errors.append("expected coherent_path comparison mode")
+    if shared.get("shared_root_world") is not True:
+        errors.append("expected all policies to share one root world")
+    if shared.get("root_sample_count") != 1:
+        errors.append("expected exactly one comparison root sample")
+    if shared.get("independent_path_worlds") is not True:
+        errors.append("expected independent policy path worlds")
+
+    policy_results = comparison.get("policy_results", [])
+    if len(policy_results) != 4:
+        errors.append("expected all four local policies")
+    for policy_result in policy_results:
+        world = policy_result.get("context_summary", {}).get("hidden_world", {})
+        if world.get("mode") != "coherent_path":
+            errors.append("expected coherent_path mode for every policy")
+        if world.get("root_sample_count") != 1:
+            errors.append("expected one root sample per policy path")
+        if world.get("resampled_after_path_start") is not False:
+            errors.append("expected no path resampling")
+        if world.get("ownership_preserved") is not True:
+            errors.append("expected preserved ownership")
+        if world.get("duplicate_card_detected") is not False:
+            errors.append("expected no duplicate-card violation")
+        if world.get("ownership_violation_detected") is not False:
+            errors.append("expected no ownership violation")
+        if world.get("hidden_cards_emitted") is not False:
+            errors.append("expected no hidden cards to be emitted")
+        initial_total = world.get("initial_left_hand_size", 0) + world.get(
+            "initial_right_hand_size", 0
+        )
+        remaining_total = world.get("remaining_left_hand_size", 0) + world.get(
+            "remaining_right_hand_size", 0
+        )
+        if initial_total - remaining_total != world.get("opponent_cards_played"):
+            errors.append("expected opponent transition counts to reconcile")
+        if world.get("remaining_hypothetical_skat_size") != world.get(
+            "initial_hypothetical_skat_size"
+        ):
+            errors.append("expected fixed hypothetical skat count")
+
+    forbidden_keys = {
+        "left_hand",
+        "right_hand",
+        "hypothetical_skat",
+        "initial_hypothetical_skat",
+        "coherent_hidden_world",
+        "hidden_world_digest",
+    }
+
+    def find_forbidden(value: Any) -> bool:
+        if isinstance(value, dict):
+            return bool(forbidden_keys.intersection(value)) or any(
+                find_forbidden(child) for child in value.values()
+            )
+        if isinstance(value, list):
+            return any(find_forbidden(child) for child in value)
+        return False
+
+    if find_forbidden(comparison):
+        errors.append("expected no private hidden-world card fields")
+    return errors
+
+
 def check_comparison_only(data: dict[str, Any]) -> list[str]:
     """
     Checks comparison-only workflow output still contains JSON result branches.
@@ -2353,6 +2427,21 @@ SCENARIOS = (
             "--compare-policies",
         ),
         check_output=check_policy_comparison,
+    ),
+    Scenario(
+        name="coherent_hidden_world_policy_comparison",
+        input_path=PROJECT_ROOT / "examples" / "grand_coherent_hidden_world.json",
+        branch="three-step Policy Comparison with one coherent shared root world",
+        cli_args=(
+            "--multi-step",
+            "3",
+            "--card-policy",
+            "highest_expected_value",
+            "--expected-value-samples",
+            "20",
+            "--compare-policies",
+        ),
+        check_output=check_coherent_hidden_world_policy_comparison,
     ),
     Scenario(
         name="comparison_only_policy_comparison",

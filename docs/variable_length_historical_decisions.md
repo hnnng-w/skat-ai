@@ -51,6 +51,10 @@ features, and actual-card labels for that prefix regardless of later normal
 continuation, concession, exposure, open play, or valid terminal-event choice. Record IDs and provenance may
 differ outside the feature view.
 
+The private coherent root used for live Multi-Step execution does not change
+this equivalence. Historical future hands and root-world ownership remain absent
+from snapshots, review inputs, training features, and rolling predictions.
+
 ## Training and partitions
 
 Training records preserve feature-generation version `1`, target

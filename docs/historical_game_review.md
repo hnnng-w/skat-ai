@@ -71,6 +71,12 @@ relative to each actor and supplied through the existing exact
 identical to the no-event record, and no event, claim, or response decision is
 reviewed.
 
+The coherent private root used by Multi-Step is not created from the historical
+deal for review. Comparison and Multi-Step overrides remain unsupported, and
+actual future opponent hands never enter an earlier decision. Each row continues
+to use only its Immediate Analysis counterfactual samples from public decision-
+time information.
+
 ## Review output
 
 `historical_game_review_summary` is nested under `historical_game_summary`. It
@@ -122,6 +128,9 @@ explicit policy precedence, but it does not evaluate policy effects. The output
 is not a training or evaluation dataset record. The separate training-data workflow
 uses decision snapshots directly; recommendation cards, candidate reports, and
 decision-quality values are never training features or labels.
+
+Issue #103 changes no historical review schema, seed rule, sample method,
+information policy, or output count.
 
 Complete-game retrospective analysis remains `partially_supported` because
 additional approved historical end reasons, complete auction

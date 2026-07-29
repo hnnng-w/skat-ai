@@ -2041,6 +2041,70 @@
         }
       }
     },
+    "hidden_world_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "initial_left_hand_size",
+        "initial_right_hand_size",
+        "initial_hypothetical_skat_size",
+        "remaining_left_hand_size",
+        "remaining_right_hand_size",
+        "remaining_hypothetical_skat_size",
+        "root_sample_count",
+        "sampled_once",
+        "resampled_after_path_start",
+        "ownership_transition_count",
+        "opponent_cards_played",
+        "ownership_preserved",
+        "hand_sizes_reconciled",
+        "hypothetical_skat_fixed",
+        "duplicate_card_detected",
+        "ownership_violation_detected",
+        "hidden_cards_emitted"
+      ],
+      "properties": {
+        "mode": {"const": "coherent_path"},
+        "initial_left_hand_size": {"$ref": "#/$defs/non_negative_integer"},
+        "initial_right_hand_size": {"$ref": "#/$defs/non_negative_integer"},
+        "initial_hypothetical_skat_size": {"$ref": "#/$defs/non_negative_integer"},
+        "remaining_left_hand_size": {"$ref": "#/$defs/non_negative_integer"},
+        "remaining_right_hand_size": {"$ref": "#/$defs/non_negative_integer"},
+        "remaining_hypothetical_skat_size": {"$ref": "#/$defs/non_negative_integer"},
+        "root_sample_count": {"const": 1},
+        "sampled_once": {"const": true},
+        "resampled_after_path_start": {"const": false},
+        "ownership_transition_count": {"$ref": "#/$defs/non_negative_integer"},
+        "opponent_cards_played": {"$ref": "#/$defs/non_negative_integer"},
+        "ownership_preserved": {"const": true},
+        "hand_sizes_reconciled": {"const": true},
+        "hypothetical_skat_fixed": {"const": true},
+        "duplicate_card_detected": {"const": false},
+        "ownership_violation_detected": {"const": false},
+        "hidden_cards_emitted": {"const": false}
+      }
+    },
+    "policy_comparison_hidden_world_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "shared_root_world",
+        "root_sample_count",
+        "policy_path_count",
+        "independent_path_worlds",
+        "hidden_cards_emitted"
+      ],
+      "properties": {
+        "mode": {"const": "coherent_path"},
+        "shared_root_world": {"const": true},
+        "root_sample_count": {"const": 1},
+        "policy_path_count": {"type": "integer", "minimum": 1},
+        "independent_path_worlds": {"const": true},
+        "hidden_cards_emitted": {"const": false}
+      }
+    },
     "context_summary": {
       "type": "object",
       "additionalProperties": false,
@@ -2087,6 +2151,9 @@
               "$ref": "#/$defs/game_end_reason"
             }
           }
+        },
+        "hidden_world": {
+          "$ref": "#/$defs/hidden_world_summary"
         }
       }
     },
@@ -2237,6 +2304,9 @@
         },
         "detailed_result": {
           "$ref": "#/$defs/multi_step_detailed_result"
+        },
+        "coherence_summary": {
+          "$ref": "#/$defs/hidden_world_summary"
         }
       }
     },
@@ -2451,6 +2521,9 @@
             "$ref": "#/$defs/policy_comparison_policy_result"
           },
           "minItems": 1
+        },
+        "hidden_world": {
+          "$ref": "#/$defs/policy_comparison_hidden_world_summary"
         },
         "recommended_policy": {
           "$ref": "#/$defs/policy_recommendation"

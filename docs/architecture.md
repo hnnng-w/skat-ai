@@ -221,6 +221,7 @@ hand becomes public; no second complete hand is serialized.
 | File                                   | Purpose                                                |
 | -------------------------------------- | ------------------------------------------------------ |
 | `src/skat_ai/simulation.py`            | Monte Carlo simulation logic.                          |
+| `src/skat_ai/coherent_hidden_world.py` | Immutable private path ownership, reconciliation, privacy-safe summaries, and child-seed derivation. |
 | `src/skat_ai/simulation_context.py`    | Simulation context creation and strict-context checks. |
 | `src/skat_ai/simulation_step.py`       | Single simulation-step handling.                       |
 | `src/skat_ai/state_transition.py`      | Applies card plays and transitions game state.         |
@@ -239,9 +240,22 @@ worlds fix those cards to the concrete owners and sample only genuinely unknown
 hands and skat cards. Immediate, Multi-Step, and Policy Comparison share the
 resolved constraints. Identical declarer evidence is deduplicated with
 `declared_ouvert` precedence, while a disjoint public defender hand may coexist.
-Multi-Step removes played public cards along a path, but
-the existing limitation for coherent assignment of all other hidden cards
-remains.
+
+Multi-Step samples one immutable private root ownership assignment per path.
+Opponent-turn preparation and candidate-trick completion use that same world;
+opponent cards are removed only from their assigned owner, and the hypothetical
+skat remains fixed. Every current world is reconciled with known state, hand
+sizes, ownership transitions, and all public constraints, including two exact
+public hands. Local card-selection policies receive only public decision-time
+state and constraints. `highest_expected_value` retains separate public
+counterfactual Monte Carlo samples rather than reading the private path root.
+
+Seeded root sampling, opponent actions, and per-step expected-value samples use
+stable separate derived streams. Policy Comparison samples one shared root and
+gives equal independent immutable copies to all policy paths. Serialization
+exposes only count and status summaries, never hidden hands or hypothetical skat
+cards. Immediate Analysis does not use the persistent root and is unchanged. See
+[Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the
@@ -252,6 +266,11 @@ It can prepare an empty left lead through right response, an empty right lead,
 or right's response to an existing one-card left lead. Valid phases where the
 local player has already acted and only opponents remain stop with
 `unsupported_turn_phase` without mutating the state.
+
+Historical snapshot, review, training-feature, and rolling-evaluation flows do
+not consume the Multi-Step private root. Historical future hands remain excluded
+from every decision-time view; feature generation stays at version `1` and
+rolling behavior remains unchanged.
 
 ## Opponent modeling
 

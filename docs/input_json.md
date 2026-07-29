@@ -360,6 +360,20 @@ Valid phases where the local player has already acted and only an opponent actio
 remains are not automatically completed. Multi-Step stops with
 `unsupported_turn_phase` and leaves the state unchanged for those phases.
 
+Multi-Step requires no new input field for hidden-world coherence. It samples one
+private execution root from the validated position, hand sizes, and any exact
+public-hand constraints, then preserves that ownership and a fixed hypothetical
+skat across all supported steps. Preparation and trick completion use the same
+world. Public constraints, including the supported two-hand combination, remain
+exact. Local decision policies never receive private unplayed ownership.
+
+Seeded execution uses stable separate derived streams for the path root,
+opponent actions, and each step's `highest_expected_value` counterfactual Monte
+Carlo samples. Those counterfactual samples remain public decision-time samples
+and do not replace the execution root. Immediate Analysis, supported phases,
+stops, and existing input settings are unchanged. See
+[Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
+
 ## Declarer identity
 
 `player_role` describes the local player's side. `declarer_player` identifies the concrete player who declared the game.

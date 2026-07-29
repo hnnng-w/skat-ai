@@ -1,6 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+from skat_ai.coherent_hidden_world import (
+    CoherentHiddenWorld,
+    build_hidden_world_summary,
+    reconcile_hidden_world_with_state,
+)
 from skat_ai.game_state import GameState
 from skat_ai.known_cards import (
     get_duplicate_cards,
@@ -31,6 +36,47 @@ class SimulationContext:
         default_factory=build_default_strategic_metadata
     )
     public_hand_constraints: tuple[PublicHandConstraint, ...] = ()
+    hidden_world: CoherentHiddenWorld | None = field(default=None, repr=False)
+    root_hidden_world: CoherentHiddenWorld | None = field(default=None, repr=False)
+    simulated_opponent_card_ownership: list[tuple[str, str]] = field(
+        default_factory=list,
+        repr=False,
+    )
+
+
+def _copy_context(
+    context: SimulationContext,
+    *,
+    simulated_opponent_cards: list[str] | None = None,
+    events: list[dict[str, Any]] | None = None,
+    public_hand_constraints: tuple[PublicHandConstraint, ...] | None = None,
+    hidden_world: CoherentHiddenWorld | None = None,
+    replace_hidden_world: bool = False,
+    simulated_opponent_card_ownership: list[tuple[str, str]] | None = None,
+) -> SimulationContext:
+    return SimulationContext(
+        simulated_opponent_cards=(
+            context.simulated_opponent_cards.copy()
+            if simulated_opponent_cards is None
+            else simulated_opponent_cards
+        ),
+        events=context.events.copy() if events is None else events,
+        strategic_metadata=context.strategic_metadata,
+        public_hand_constraints=(
+            context.public_hand_constraints
+            if public_hand_constraints is None
+            else public_hand_constraints
+        ),
+        hidden_world=(
+            hidden_world if replace_hidden_world else context.hidden_world
+        ),
+        root_hidden_world=context.root_hidden_world,
+        simulated_opponent_card_ownership=(
+            context.simulated_opponent_card_ownership.copy()
+            if simulated_opponent_card_ownership is None
+            else simulated_opponent_card_ownership
+        ),
+    )
 
 
 def add_simulated_opponent_card(
@@ -43,11 +89,9 @@ def add_simulated_opponent_card(
     updated_cards = context.simulated_opponent_cards.copy()
     updated_cards.append(card)
 
-    return SimulationContext(
+    return _copy_context(
+        context,
         simulated_opponent_cards=updated_cards,
-        events=context.events.copy(),
-        strategic_metadata=context.strategic_metadata,
-        public_hand_constraints=context.public_hand_constraints,
     )
 
 
@@ -69,6 +113,20 @@ def add_simulated_opponent_cards(
     return updated_context
 
 
+def add_simulated_opponent_plays(
+    context: SimulationContext,
+    plays: tuple[tuple[str, str], ...],
+) -> SimulationContext:
+    """Records ordered opponent plays with stable ownership evidence."""
+    cards = [card for _, card in plays]
+    ownership = [*context.simulated_opponent_card_ownership, *plays]
+    return _copy_context(
+        context,
+        simulated_opponent_cards=[*context.simulated_opponent_cards, *cards],
+        simulated_opponent_card_ownership=ownership,
+    )
+
+
 def add_simulation_event(
     context: SimulationContext,
     event: dict[str, Any],
@@ -79,11 +137,9 @@ def add_simulation_event(
     updated_events = context.events.copy()
     updated_events.append(event.copy())
 
-    return SimulationContext(
-        simulated_opponent_cards=context.simulated_opponent_cards.copy(),
+    return _copy_context(
+        context,
         events=updated_events,
-        strategic_metadata=context.strategic_metadata,
-        public_hand_constraints=context.public_hand_constraints,
     )
 
 
@@ -92,11 +148,21 @@ def update_public_hand_constraints(
     constraints: tuple[PublicHandConstraint, ...],
 ) -> SimulationContext:
     """Returns a context with the current public hands replaced."""
-    return SimulationContext(
-        simulated_opponent_cards=context.simulated_opponent_cards.copy(),
-        events=context.events.copy(),
-        strategic_metadata=context.strategic_metadata,
+    return _copy_context(
+        context,
         public_hand_constraints=constraints,
+    )
+
+
+def update_hidden_world(
+    context: SimulationContext,
+    hidden_world: CoherentHiddenWorld,
+) -> SimulationContext:
+    """Returns a context with the current private execution world replaced."""
+    return _copy_context(
+        context,
+        hidden_world=hidden_world,
+        replace_hidden_world=True,
     )
 
 
@@ -142,6 +208,8 @@ def build_context_summary(
         summary["public_hand_constraints"] = build_serializable_public_hand_constraints(
             context.public_hand_constraints
         )
+    if context.hidden_world is not None:
+        summary["hidden_world"] = build_hidden_world_summary(context.hidden_world)
     return summary
 
 def get_context_cards_safe_to_add_to_played_cards(
@@ -221,3 +289,54 @@ def validate_no_duplicate_simulated_opponent_cards(
             "Duplicate simulated opponent cards detected: "
             f"{duplicates}"
         )
+
+
+def validate_simulation_context(
+    context: SimulationContext,
+    state: GameState,
+    *,
+    step_index: int,
+) -> None:
+    """Strictly reconciles path evidence, public state, and private ownership."""
+    validate_no_duplicate_simulated_opponent_cards(context)
+    if context.hidden_world is None:
+        raise ValueError(
+            f"Hidden-world ownership invariant violated at step {step_index}: "
+            "coherent path world is missing."
+        )
+    if context.root_hidden_world is None:
+        raise ValueError(
+            f"Hidden-world ownership invariant violated at step {step_index}: "
+            "root path world is missing."
+        )
+    if context.root_hidden_world.ownership_transitions:
+        raise ValueError(
+            f"Hidden-world ownership invariant violated at step {step_index}: "
+            "root path world already contains transitions."
+        )
+    if context.hidden_world.provenance != context.root_hidden_world.provenance:
+        raise ValueError(
+            f"Hidden-world ownership invariant violated at step {step_index}: "
+            "current world does not retain the sampled root ownership."
+        )
+    evidence_cards = [
+        card for _, card in context.simulated_opponent_card_ownership
+    ]
+    if evidence_cards != context.simulated_opponent_cards:
+        raise ValueError(
+            f"Hidden-world ownership invariant violated at step {step_index}: "
+            "owner-aware play evidence does not match simulated opponent cards."
+        )
+    if tuple(context.simulated_opponent_card_ownership) != (
+        context.hidden_world.ownership_transitions
+    ):
+        raise ValueError(
+            f"Hidden-world ownership invariant violated at step {step_index}: "
+            "world transitions do not match path ownership evidence."
+        )
+    reconcile_hidden_world_with_state(
+        context.hidden_world,
+        state,
+        context.public_hand_constraints,
+        step_index=step_index,
+    )

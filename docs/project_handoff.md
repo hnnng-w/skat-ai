@@ -111,6 +111,9 @@ Implemented:
 * canonical turn-phase-aware opponent preparation
 * supported preparation for empty left lead, empty right lead, and right response to an existing left lead
 * deterministic `unsupported_turn_phase` stops for valid phases that do not prepare a current local decision
+* one immutable private hidden-world root per path, owner-aware card removal, and a fixed hypothetical skat
+* shared-root Policy Comparison with equal independent immutable policy-path copies
+* privacy-safe coherent-world count and status summaries without hidden card identities
 
 ### Game history and scoring
 
@@ -192,7 +195,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 50 deterministic scenarios.
+Generated-output validation currently covers 51 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -436,6 +439,7 @@ Main documentation files:
 * `docs/historical_decision_snapshots.md`
 * `docs/historical_game_review.md`
 * `docs/ouvert_aware_simulation.md`
+* `docs/coherent_hidden_world_simulation.md`
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
 * `docs/dataset_partition_policies.md`
@@ -459,7 +463,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 50 deterministic generated-output
+The `v0.8.0` development baseline validates 51 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -541,6 +545,7 @@ Subsequent bounded historical work:
 * #99 added timed non-terminal historical defender-open-play continuation with persistent public-hand information
 * #100 added timed non-terminal historical declarer-card-exposure continuation with the same information-safe downstream boundary
 * #102 connected declared-Ouvert exact public hands to flat and historical recommendation simulation while preserving existing scoring, policies, training versions, and rolling as-of safety
+* #103 preserved one private hidden-world assignment across every Multi-Step path and one shared root across independent Policy Comparison paths, with privacy-safe summaries
 
 ## Current implementation baseline
 
@@ -562,6 +567,7 @@ Completed implementation scope:
 * bounded terminal historical defender open play with exact reconciliation, assignment, and flat adjudication parity
 * timed normal-completion continuation with an exact shrinking public defender or declarer hand
 * declared-Ouvert exact public-hand constraints in Immediate Analysis, supported Multi-Step, Policy Comparison, flat review, and historical review
+* coherent private hidden-world ownership across each Multi-Step path and shared-root Policy Comparison
 
 ## Current high-priority limitations
 
@@ -569,7 +575,7 @@ Completed implementation scope:
 * Historical opponent-statistics aggregation and rolling policy evaluation support exactly those five end reasons; other end reasons remain unsupported.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * General live position input lacks complete field-level provenance.
-* Multi-Step simulation does not preserve one hidden-world assignment across every step.
+* Coherent Multi-Step execution does not infer the real deal or provide exhaustive search.
 * Broader information-safe hidden-card inference and stronger search or solver functionality are not implemented.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.

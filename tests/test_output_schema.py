@@ -471,6 +471,29 @@ def build_policy_settings() -> dict[str, str]:
     }
 
 
+def build_hidden_world_summary() -> dict[str, object]:
+    return {
+        "mode": "coherent_path",
+        "initial_left_hand_size": 1,
+        "initial_right_hand_size": 1,
+        "initial_hypothetical_skat_size": 2,
+        "remaining_left_hand_size": 0,
+        "remaining_right_hand_size": 0,
+        "remaining_hypothetical_skat_size": 2,
+        "root_sample_count": 1,
+        "sampled_once": True,
+        "resampled_after_path_start": False,
+        "ownership_transition_count": 2,
+        "opponent_cards_played": 2,
+        "ownership_preserved": True,
+        "hand_sizes_reconciled": True,
+        "hypothetical_skat_fixed": True,
+        "duplicate_card_detected": False,
+        "ownership_violation_detected": False,
+        "hidden_cards_emitted": False,
+    }
+
+
 def build_context_summary() -> dict[str, object]:
     return {
         "simulated_opponent_card_count": 2,
@@ -482,6 +505,7 @@ def build_context_summary() -> dict[str, object]:
             "skat_visibility": "unknown",
             "game_end_reason": "not_ended",
         },
+        "hidden_world": build_hidden_world_summary(),
     }
 
 
@@ -570,6 +594,7 @@ def build_multi_step_result() -> dict[str, object]:
                     "trick_points": 11,
                     "completed_trick": completed_trick,
                 },
+                "coherence_summary": build_hidden_world_summary(),
             }
         ],
         "final_state": final_state,
@@ -600,6 +625,14 @@ def build_policy_comparison_result() -> dict[str, object]:
         "opponent_response_policy": "lowest_point",
         "policies": ["first_legal", "highest_point"],
         "policy_results": [policy_result],
+        "hidden_world": {
+            "mode": "coherent_path",
+            "shared_root_world": True,
+            "root_sample_count": 1,
+            "policy_path_count": 2,
+            "independent_path_worlds": True,
+            "hidden_cards_emitted": False,
+        },
         "recommended_policy": {
             "policy": "highest_point",
             "reason": "Best final point swing after tie-breakers.",
@@ -1510,6 +1543,21 @@ def test_schema_rejects_incomplete_historical_game_summary(
 
 def test_schema_accepts_structured_multi_step_and_policy_results() -> None:
     assert_schema_valid(build_valid_output_with_optional_results())
+
+
+def test_schema_keeps_new_coherence_summaries_additive() -> None:
+    output = build_valid_output_with_optional_results()
+    multi_step = output["multi_step_result"]
+    multi_step["context_summary"].pop("hidden_world", None)
+    multi_step["summary"]["context_summary"].pop("hidden_world", None)
+    for step in multi_step["steps"]:
+        step.pop("coherence_summary", None)
+    comparison = output["policy_comparison_result"]
+    comparison.pop("hidden_world", None)
+    for policy_result in comparison["policy_results"]:
+        policy_result["context_summary"].pop("hidden_world", None)
+
+    assert_schema_valid(output)
 
 
 def test_schema_accepts_list_standings_summary() -> None:

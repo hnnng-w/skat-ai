@@ -29,6 +29,9 @@ Implemented:
 * Strict simulation context checks
 * Policy comparison across card-selection strategies
 * Result serialization for multi-step and policy-comparison output
+* One immutable private hidden-world root per Multi-Step path with owner-aware card removal and a fixed hypothetical skat
+* One shared Policy Comparison root with equal independent immutable copies for policy paths
+* Privacy-safe coherent-world count and status summaries without hidden cards
 
 ### Game history and scoring
 
@@ -231,7 +234,7 @@ Implemented:
 * Historical corrected play, variable-length decision/data workflows, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
-* Multi-Step does not preserve one coherent hidden-world assignment across every simulated path; either validated continuation hand is a bounded exception and remains coherent along each path.
+* A coherent Multi-Step root is one hypothetical execution world, not proof of the real deal, exhaustive search, or broader hidden-card inference.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -273,7 +276,7 @@ Implemented:
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 50 deterministic scenarios. Issues #86 through #92 add
+coverage now includes 51 deterministic scenarios. Issues #86 through #92 add
 bounded structured concessions, accepted declarer-card-exposure adjudication,
 ongoing exposed-hand continuation, and bounded exact defender open-play
 adjudication plus non-adjudicating continued play and bounded open-card-throw
@@ -285,6 +288,11 @@ with an exact shrinking public declarer hand and unchanged final-result workflow
 Issue #102 connects declared-Ouvert public hands to Immediate Analysis, supported
 Multi-Step, Policy Comparison, flat review, historical review, and the existing
 training and rolling decision-time boundary without changing scoring or policies.
+Issue #103 gives each Multi-Step path one coherent private hidden-world root,
+uses one shared root with independent immutable copies for Policy Comparison,
+and adds privacy-safe output summaries without changing Immediate Analysis,
+historical future-hand boundaries, feature version `1`, rolling behavior,
+supported phases, policies, or package version.
 Issue #93 adds the first structured shortened historical record: exact-prefix
 declarer concession with stable-ID consent, unassigned unresolved points, and
 base/quiet CLI output. Issue #94 generalizes snapshots, review, external-profile
@@ -354,8 +362,8 @@ implementation details, and testable completion gates.
 Before `v1.0.0`, the project still requires structured claims, defender and
 historical concessions, open-card game-shortening outcomes,
 approved settlement completeness, additional historical end reasons,
-complete-game coaching, stronger solving, coherent hidden-world simulation,
-broader information-safe hidden-card inference, full
+complete-game coaching, stronger solving, broader information-safe hidden-card
+inference, full
 fixed-three-player 36-game list aggregation, field-level live provenance,
 interactive input, and a stable library and installed CLI/package interface.
 Bounded opponent statistics, explainable profiles, live and time-safe historical

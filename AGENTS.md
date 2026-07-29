@@ -132,7 +132,7 @@ The current code and release-preparation baseline is `v0.8.0`, with the theme
 
 The package version is `0.8.0`.
 
-Generated-output validation currently covers 50 deterministic scenarios.
+Generated-output validation currently covers 51 deterministic scenarios.
 
 The documented `v0.8.0` issue scope, issues #78 through #84, is complete.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
@@ -181,14 +181,14 @@ Major completed areas include:
 * timed non-terminal historical defender-open-play continuation with persistent public-hand information
 * timed non-terminal historical declarer-card-exposure continuation with persistent public-hand information
 * declared-Ouvert-aware Immediate, Multi-Step, Policy Comparison, flat review, and historical review simulation
+* coherent private hidden-world ownership across each Multi-Step path and shared-root Policy Comparison
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include multiple historical events, continuation followed by
 shortening, historical end reasons beyond the supported bounded set, simplified
 claims and concessions,
-incomplete settlement nuance, no coherent
-hidden-world assignment across a complete Multi-Step path, no exposed-card-aware
-incomplete field-level live provenance, heuristic rule-based
+incomplete settlement nuance, incomplete field-level live provenance for
+exposed-card inputs, heuristic rule-based
 opponent behavior, no complete-game coaching or 36-game list aggregation, no
 interactive or stable installed application interface, and no learned model or
 model-training workflow. No website or browser integration exists.

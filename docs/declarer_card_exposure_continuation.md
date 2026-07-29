@@ -75,16 +75,16 @@ follow-suit validation.
 
 Every hidden-world sample assigns exactly the public cards to the declarer. No
 additional card enters that hand, and no public declarer card enters a defender
-hand or the skat. Immediate candidate rollouts use the same exact hand. When a
-public declarer card is played, Multi-Step removes it while preserving every
-other public card for later steps. Policy Comparison gives every policy the
-same immutable initial constraint and seed behavior. No tactical policy is
-added or changed.
+hand or the skat. Immediate candidate rollouts use the same exact hand and
+otherwise retain their existing behavior.
 
-Otherwise unknown defender and skat cards retain their existing sampling
-semantics. Multi-Step still does not preserve one globally coherent assignment
-for all otherwise hidden cards across every branch; only the exposed declarer
-hand is coherent along each supported path.
+Multi-Step samples one coherent private root per path. The exposed declarer hand,
+both defender hands, and hypothetical skat retain their root ownership through
+opponent preparation and trick completion. A card is removed only when its owner
+plays it. Policy Comparison samples one shared root and gives every policy an
+equal independent immutable copy. Local card-selection policies never receive
+private root ownership, and no tactical policy is added or changed. See
+[Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
 ## Claimed level and result
 
@@ -110,7 +110,8 @@ deduplicates identical declarer evidence in favor of source `declared_ouvert`.
 This continuation feature still does not add multiple historical events,
 continuation followed by shortening, new policies, later
 final-settlement adjudication, or
-general hidden-world continuity. Bounded exact ISkO 4.4.5 adjudication is a
+general hidden-card inference or proof that the sampled world is the real deal.
+Bounded exact ISkO 4.4.5 adjudication is a
 separate final workflow documented in [Defender open play](defender_open_play.md).
 ISkO 4.4.6 is the separate final non-continuing workflow documented in
 [Open card throw](open_card_throw.md).

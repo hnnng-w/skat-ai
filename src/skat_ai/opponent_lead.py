@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import random
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.game_history import get_compatible_declarer_player
 from skat_ai.game_state import GameState
@@ -11,6 +13,9 @@ from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.side_ownership import get_player_side, normalize_declarer_player
 from skat_ai.simulation import generate_random_opponent_hands
 from skat_ai.turn_phase import derive_next_player, normalize_turn_phase
+
+if TYPE_CHECKING:
+    from skat_ai.coherent_hidden_world import CoherentHiddenWorld
 
 
 def choose_lowest_point_lead_card(hand: list[str]) -> str:
@@ -206,7 +211,9 @@ def simulate_opponent_lead_once(
     random_generator: random.Random | None = None,
     opponent_lead_policy: str = "lowest_point",
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
-) -> dict[str, str | GameState]:
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
+) -> dict[str, Any]:
     """
     Simulates one opponent lead when next_player is left or right.
 
@@ -226,16 +233,30 @@ def simulate_opponent_lead_once(
 
     rng = random_generator or random
 
-    sampling_kwargs: dict[str, Any] = {}
-    if public_hand_constraints:
-        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
-    left_hand, right_hand = generate_random_opponent_hands(
-        state=state,
-        left_hand_size=left_hand_size,
-        right_hand_size=right_hand_size,
-        random_generator=rng,
-        **sampling_kwargs,
-    )
+    if coherent_hidden_world is None:
+        sampling_kwargs: dict[str, Any] = {}
+        if public_hand_constraints:
+            sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        left_hand, right_hand = generate_random_opponent_hands(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=rng,
+            **sampling_kwargs,
+        )
+    else:
+        from skat_ai.coherent_hidden_world import validate_coherent_hidden_world
+
+        validate_coherent_hidden_world(
+            coherent_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+            step_index=coherent_step_index,
+        )
+        left_hand = list(coherent_hidden_world.left_hand)
+        right_hand = list(coherent_hidden_world.right_hand)
 
     if phase.next_player == "left":
         leader_hand = left_hand
@@ -255,11 +276,22 @@ def simulate_opponent_lead_once(
         leader=phase.next_player,
     )
 
-    return {
+    result = {
         "leader": phase.next_player,
         "lead_card": lead_card,
         "next_state": next_state,
     }
+    if coherent_hidden_world is not None:
+        from skat_ai.coherent_hidden_world import remove_card_from_hidden_world
+
+        result["_coherent_hidden_world"] = remove_card_from_hidden_world(
+            coherent_hidden_world,
+            phase.next_player,
+            lead_card,
+            step_index=coherent_step_index,
+        )
+        result["_opponent_plays"] = ((phase.next_player, lead_card),)
+    return result
 
 
 def simulate_left_lead_and_right_response_once(
@@ -270,6 +302,8 @@ def simulate_left_lead_and_right_response_once(
     opponent_lead_policy: str = "lowest_point",
     opponent_response_policy: str = "lowest_point",
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
 ) -> dict[str, Any]:
     """
     Simulates the sequence:
@@ -292,16 +326,30 @@ def simulate_left_lead_and_right_response_once(
 
     rng = random_generator or random
 
-    sampling_kwargs: dict[str, Any] = {}
-    if public_hand_constraints:
-        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
-    left_hand, right_hand = generate_random_opponent_hands(
-        state=state,
-        left_hand_size=left_hand_size,
-        right_hand_size=right_hand_size,
-        random_generator=rng,
-        **sampling_kwargs,
-    )
+    if coherent_hidden_world is None:
+        sampling_kwargs: dict[str, Any] = {}
+        if public_hand_constraints:
+            sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        left_hand, right_hand = generate_random_opponent_hands(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=rng,
+            **sampling_kwargs,
+        )
+    else:
+        from skat_ai.coherent_hidden_world import validate_coherent_hidden_world
+
+        validate_coherent_hidden_world(
+            coherent_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+            step_index=coherent_step_index,
+        )
+        left_hand = list(coherent_hidden_world.left_hand)
+        right_hand = list(coherent_hidden_world.right_hand)
 
     lead_card = choose_opponent_lead_card_by_policy(
         hand=left_hand,
@@ -329,13 +377,24 @@ def simulate_left_lead_and_right_response_once(
         responder="right",
     )
 
-    return {
+    result = {
         "leader": "left",
         "lead_card": lead_card,
         "responder": "right",
         "response_card": response_card,
         "next_state": next_state,
     }
+    if coherent_hidden_world is not None:
+        from skat_ai.coherent_hidden_world import apply_hidden_world_plays
+
+        opponent_plays = (("left", lead_card), ("right", response_card))
+        result["_coherent_hidden_world"] = apply_hidden_world_plays(
+            coherent_hidden_world,
+            opponent_plays,
+            step_index=coherent_step_index,
+        )
+        result["_opponent_plays"] = opponent_plays
+    return result
 
 
 def simulate_right_response_to_left_lead_once(
@@ -345,6 +404,8 @@ def simulate_right_response_to_left_lead_once(
     random_generator: random.Random | None = None,
     opponent_response_policy: str = "lowest_point",
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
 ) -> dict[str, Any]:
     """
     Simulates only right's response after an existing left lead.
@@ -366,16 +427,29 @@ def simulate_right_response_to_left_lead_once(
 
     rng = random_generator or random
 
-    sampling_kwargs: dict[str, Any] = {}
-    if public_hand_constraints:
-        sampling_kwargs["public_hand_constraints"] = public_hand_constraints
-    _, right_hand = generate_random_opponent_hands(
-        state=state,
-        left_hand_size=left_hand_size,
-        right_hand_size=right_hand_size,
-        random_generator=rng,
-        **sampling_kwargs,
-    )
+    if coherent_hidden_world is None:
+        sampling_kwargs: dict[str, Any] = {}
+        if public_hand_constraints:
+            sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        _, right_hand = generate_random_opponent_hands(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=rng,
+            **sampling_kwargs,
+        )
+    else:
+        from skat_ai.coherent_hidden_world import validate_coherent_hidden_world
+
+        validate_coherent_hidden_world(
+            coherent_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+            step_index=coherent_step_index,
+        )
+        right_hand = list(coherent_hidden_world.right_hand)
 
     response_card = choose_right_response_to_left_lead_card(
         state=state,
@@ -390,10 +464,21 @@ def simulate_right_response_to_left_lead_once(
         responder="right",
     )
 
-    return {
+    result = {
         "leader": "left",
         "lead_card": state.current_trick[0],
         "responder": "right",
         "response_card": response_card,
         "next_state": next_state,
     }
+    if coherent_hidden_world is not None:
+        from skat_ai.coherent_hidden_world import remove_card_from_hidden_world
+
+        result["_coherent_hidden_world"] = remove_card_from_hidden_world(
+            coherent_hidden_world,
+            "right",
+            response_card,
+            step_index=coherent_step_index,
+        )
+        result["_opponent_plays"] = (("right", response_card),)
+    return result

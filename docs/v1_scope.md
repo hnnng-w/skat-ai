@@ -62,6 +62,9 @@ The following directions are required for `v1.0.0`:
 * Add stronger search or solver functionality with documented information,
   quality, determinism, and latency contracts.
 * Preserve one coherent hidden-world assignment across each simulated path.
+  Multi-Step and shared-root Policy Comparison now satisfy this bounded
+  execution-consistency requirement; stronger search and broader hidden-card
+  inference remain separate open gates.
 * Add broader information-safe hidden-card inference with explicit allowed
   evidence and confidence semantics.
 * Preserve exposed-card use in Ouvert-aware recommendation simulation without
@@ -122,7 +125,7 @@ validation, and tests does not satisfy a gate.
 | Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; intentional breaking changes are recorded before release. |
-| Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. |
+| Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
 | Search and hidden-card inference | The approved stronger search or solver produces reproducible, explainable results under documented information assumptions and quality/latency bounds; broader hidden-card inference uses only documented decision-time evidence and exposes bounded confidence without leaking private or future facts. |
 | Ouvert-aware simulation | Historical and live Ouvert analysis uses legitimately exposed cards in recommendation simulation, never treats unexposed cards as public, and has deterministic contract- and perspective-specific tests. |
 | Recommendation behavior | Recommendations always select from legal candidates, use the documented Suit/Grand or Null objective, preserve player-side perspective, expose enough evidence to reproduce ranking, and have deterministic tie behavior under fixed settings. |
@@ -192,6 +195,12 @@ Rolling known-opponent policy imitation is also supported with disjoint
 partition names, intentional stable-player overlap, and strict as-of profiles. Its preferred-card match delta is not a
 strategic recommendation-quality, optimality, significance, or unseen-player
 generalization claim and does not close those broader gates.
+
+The coherent hidden-world gate is bounded to Multi-Step execution consistency.
+It does not expose private ownership to decision policies, alter Immediate
+Analysis, use historical future hands, change training feature version `1` or
+rolling behavior, infer the real deal, or satisfy the separate stronger-search
+and broader hidden-card-inference gates. Package version remains `0.8.0`.
 
 ## Release decision rule
 

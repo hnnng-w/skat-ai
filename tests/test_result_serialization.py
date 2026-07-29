@@ -111,6 +111,8 @@ def test_build_serializable_multi_step_step_without_opponent_sequence() -> None:
                 "cards": ["S7", "SA", "S8"],
                 "winner_role": "declarer",
             },
+            "_coherent_hidden_world": {"left_hand": ["SECRET"]},
+            "_opponent_plays": (("left", "D7"),),
         },
         "next_state": GameState(
             game_type="grand",
@@ -152,6 +154,8 @@ def test_build_serializable_multi_step_step_without_opponent_sequence() -> None:
             },
         },
     }
+    assert "SECRET" not in repr(result)
+    assert "_coherent_hidden_world" not in result["detailed_result"]
 
 
 def test_build_serializable_multi_step_step_with_opponent_sequence() -> None:

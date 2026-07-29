@@ -162,6 +162,12 @@ Declared-Ouvert cards are ordinary decision-time information, not an Ouvert or
 exposure prediction target. Feature-generation version `1`, target
 `actual_card_played`, and stable sample IDs remain unchanged.
 
+Multi-Step's private coherent execution root is not a feature source. Root-world
+ownership, hypothetical skat cards, ownership transitions, coherence summaries,
+and actual future historical hands remain excluded from version-1 features and
+labels. Dataset conversion does not run Multi-Step, so Issue #103 does not change
+feature values, sample cardinality, or schema versions.
+
 The label card is the historical actual card. It must be in the pre-play own
 hand and legal-card set and absent from the pre-play current trick. A
 recommendation, review quality, or final result is never a version-1 target.

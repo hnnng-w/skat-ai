@@ -1,6 +1,12 @@
+import random
 from typing import Any
 
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
+from skat_ai.coherent_hidden_world import (
+    build_coherent_hidden_world,
+    copy_coherent_hidden_world,
+    derive_simulation_child_seed,
+)
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
@@ -31,6 +37,18 @@ def compare_multi_step_policies(
     """
     selected_policies = policies or VALID_CARD_SELECTION_POLICIES
 
+    comparison_setup_seed = derive_simulation_child_seed(
+        random_seed,
+        "policy_comparison_setup",
+    )
+    shared_initial_hidden_world = build_coherent_hidden_world(
+        state=state,
+        left_hand_size=left_hand_size,
+        right_hand_size=right_hand_size,
+        random_generator=random.Random(comparison_setup_seed),
+        public_hand_constraints=public_hand_constraints,
+    )
+
     policy_results = []
 
     for policy in selected_policies:
@@ -51,6 +69,9 @@ def compare_multi_step_policies(
             right_opponent_policy_settings=right_opponent_policy_settings,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
+            initial_hidden_world=copy_coherent_hidden_world(
+                shared_initial_hidden_world
+            ),
         )
 
         summary = multi_step_result["summary"]
@@ -93,6 +114,14 @@ def compare_multi_step_policies(
         "opponent_response_policy": opponent_response_policy,
         "policies": selected_policies,
         "policy_results": sorted_policy_results,
+        "hidden_world": {
+            "mode": "coherent_path",
+            "shared_root_world": True,
+            "root_sample_count": 1,
+            "policy_path_count": len(selected_policies),
+            "independent_path_worlds": True,
+            "hidden_cards_emitted": False,
+        },
     }
 
     comparison_result["recommended_policy"] = build_policy_recommendation(comparison_result)

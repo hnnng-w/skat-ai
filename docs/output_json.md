@@ -1197,9 +1197,31 @@ tricks are contributed by the completed-trick cards and are reflected in the
 summary totals.
 
 For declared Ouvert or continuation, `context_summary.public_hand_constraints`
-contains every remaining exact public hand. Each child path removes known cards that were
-played and retains every unplayed public card with its original source. Otherwise hidden-card
-sampling keeps the existing non-global-continuity limitation.
+contains every remaining exact public hand. Each child path removes known cards
+that were played and retains every unplayed public card with its original source.
+Two supported disjoint public hands remain exact in the same path.
+
+`context_summary.hidden_world` and each `steps[].coherence_summary` expose the
+privacy-safe coherent-path contract:
+
+| Field | Meaning |
+| --- | --- |
+| `mode` | Always `coherent_path`. |
+| `initial_left_hand_size`, `initial_right_hand_size` | Root opponent-hand counts. |
+| `initial_hypothetical_skat_size` | Root hypothetical-skat count, without card identities. |
+| `remaining_left_hand_size`, `remaining_right_hand_size` | Current opponent-hand counts after owner-aware plays. |
+| `remaining_hypothetical_skat_size` | Current hypothetical-skat count; it remains equal to the initial count. |
+| `root_sample_count`, `sampled_once`, `resampled_after_path_start` | One root was sampled and no later step resampled it. |
+| `ownership_transition_count`, `opponent_cards_played` | Reconciled counts of cards removed from opponent owners. |
+| `ownership_preserved`, `hand_sizes_reconciled`, `hypothetical_skat_fixed` | Successful path invariants. |
+| `duplicate_card_detected`, `ownership_violation_detected` | Both remain `false` in successful output. |
+| `hidden_cards_emitted` | Always `false`. |
+
+These summaries never contain `left_hand`, `right_hand`, hypothetical-skat card
+identities, or any hidden-world digest. Opponent-turn preparation and candidate-
+trick completion use the same private path world. Local decision policies receive
+only public decision-time information; `highest_expected_value` keeps separate
+counterfactual Monte Carlo samples and does not expose the execution root.
 
 Nested `steps[].detailed_result` uses explicit ownership fields:
 
@@ -1234,14 +1256,31 @@ Each row includes `final_point_swing` for the declarer-perspective swing and
 `recommended_policy` are ranked by `local_point_swing`, then by the documented
 tie-breakers.
 
-Every compared policy starts from the same resolved public-hand constraints,
-sources, and seed.
-Policy differences therefore cannot come from changing or resampling the
-public hand, and no new policy is introduced.
+Every comparison samples one shared private root world. Each compared policy
+receives an equal independent immutable copy, together with the same resolved
+public-hand constraints and sources. Policy paths may diverge after their local
+actions, but one path cannot mutate another and differences cannot come from a
+separately resampled initial world.
+
+`policy_comparison_result.hidden_world` contains only:
+
+| Field | Meaning |
+| --- | --- |
+| `mode` | Always `coherent_path`. |
+| `shared_root_world` | Every policy began from the same root assignment. |
+| `root_sample_count` | Always `1`. |
+| `policy_path_count` | Number of independent policy paths. |
+| `independent_path_worlds` | Equal immutable copies evolve independently. |
+| `hidden_cards_emitted` | Always `false`. |
+
+Each policy row's `context_summary.hidden_world` contains the privacy-safe
+per-path counts and statuses documented above. No new policy, ranking objective,
+or tie-breaker is introduced. Immediate Analysis is unchanged.
 
 The output schema defines the stable `policy_comparison_result` structure,
 including requested settings, compared policies, per-policy result rows,
-context summaries, and `recommended_policy`.
+context summaries, shared-root hidden-world status, and `recommended_policy`.
+See [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
 ## Historical opponent profile application
 

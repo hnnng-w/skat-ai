@@ -193,6 +193,12 @@ Compare local card-selection policies:
 python main.py --input examples/grand_second_position.json --multi-step 1 --compare-policies
 ```
 
+Run the deterministic three-step coherent-world Policy Comparison example:
+
+```powershell
+python main.py --input examples/grand_coherent_hidden_world.json --multi-step 3 --card-policy highest_expected_value --expected-value-samples 20 --compare-policies
+```
+
 Print only policy-comparison output in the human-readable CLI view:
 
 ```powershell
@@ -242,6 +248,7 @@ Live decision examples must not include post-game-only information such as `know
 | `grand_leading.json`                       | Grand game where local player leads the trick.                                                                               |
 | `grand_late_game_history_heavy_live.json`  | Late-game live defender position with zero opponent hand sizes, nine ordered completed tricks, and completed-trick matador inference. |
 | `grand_left_right_opponent_policies.json`  | Grand game with distinct global, left-opponent, and right-opponent policy settings.                                           |
+| `grand_coherent_hidden_world.json`         | Late Grand position used by three-step Policy Comparison to verify one shared root world, independent immutable policy paths, fixed hypothetical skat, and privacy-safe summaries. |
 | `hearts_leading.json`                      | Suit game example.                                                                                                           |
 | `null_second_position.json`                | Null game example.                                                                                                           |
 
@@ -367,10 +374,12 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 50 scenarios, including variable-length training data,
+therefore covers 51 scenarios, including variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
-play adjudication, and open-card-throw adjudication.
+play adjudication, open-card-throw adjudication, and the generated three-step
+coherent hidden-world Policy Comparison scenario based on
+`grand_coherent_hidden_world.json`.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

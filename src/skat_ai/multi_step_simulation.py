@@ -1,7 +1,17 @@
+from __future__ import annotations
+
 import random
 from typing import Any
 
 from skat_ai.card_selection import choose_card_by_policy
+from skat_ai.coherent_hidden_world import (
+    CoherentHiddenWorld,
+    build_coherent_hidden_world,
+    build_hidden_world_summary,
+    derive_simulation_child_seed,
+    reconcile_hidden_world_with_state,
+    validate_coherent_hidden_world,
+)
 from skat_ai.game_state import GameState
 from skat_ai.multi_step_summary import build_multi_step_summary
 from skat_ai.opponent_sequence import (
@@ -12,17 +22,17 @@ from skat_ai.opponent_sequence import (
 )
 from skat_ai.public_hand_constraint import (
     PublicHandConstraint,
-    get_constrained_hand_sizes,
     remove_public_hand_cards,
 )
 from skat_ai.simulation_context import (
     SimulationContext,
-    add_simulated_opponent_cards,
+    add_simulated_opponent_plays,
     add_simulation_event,
     apply_context_to_state_for_sampling,
     build_context_summary,
+    update_hidden_world,
     update_public_hand_constraints,
-    validate_no_duplicate_simulated_opponent_cards,
+    validate_simulation_context,
 )
 from skat_ai.simulation_step import simulate_and_advance_once
 from skat_ai.strategic_metadata import StrategicMetadata
@@ -78,6 +88,8 @@ def prepare_state_for_player_action(
     left_opponent_policy_settings: dict[str, str] | None = None,
     right_opponent_policy_settings: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    coherent_hidden_world: CoherentHiddenWorld | None = None,
+    coherent_step_index: int = 0,
 ) -> tuple[GameState, dict[str, Any] | None]:
     """
     Kept as a compatibility wrapper around opponent_sequence.prepare_player_action_state.
@@ -92,6 +104,8 @@ def prepare_state_for_player_action(
         left_opponent_policy_settings=left_opponent_policy_settings,
         right_opponent_policy_settings=right_opponent_policy_settings,
         public_hand_constraints=public_hand_constraints,
+        coherent_hidden_world=coherent_hidden_world,
+        coherent_step_index=coherent_step_index,
     )
 
 def extract_opponent_cards_from_step(
@@ -135,21 +149,47 @@ def simulate_multiple_steps(
     right_opponent_policy_settings: dict[str, str] | None = None,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    initial_hidden_world: CoherentHiddenWorld | None = None,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
 
-    Current simplifications:
-    - The candidate card is selected with a configurable policy.
-    - The first step assumes the player can act in the current state.
-    - Later steps continue if next_player is "me".
-    - If next_player is "left" or "right", opponent-turn preparation can lead first.
-    - Opponent hands are resampled each step from unseen cards.
+    One private hidden-card world is sampled at path start and evolves only
+    through immutable opponent-card removals. Local candidate policies receive
+    public state and constraints, never private unplayed world ownership.
     """
     if step_count <= 0:
         raise ValueError("step_count must be a positive integer.")
 
-    rng = random.Random(random_seed) if random_seed is not None else random
+    root_seed = derive_simulation_child_seed(random_seed, "root_world")
+    opponent_action_seed = derive_simulation_child_seed(
+        random_seed,
+        "opponent_actions",
+    )
+    opponent_action_rng = random.Random(opponent_action_seed)
+
+    if initial_hidden_world is None:
+        hidden_world = build_coherent_hidden_world(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            random_generator=random.Random(root_seed),
+            public_hand_constraints=public_hand_constraints,
+        )
+    else:
+        validate_coherent_hidden_world(
+            initial_hidden_world,
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+        )
+        if initial_hidden_world.ownership_transitions:
+            raise ValueError(
+                "initial_hidden_world must be an unplayed root world without "
+                "ownership transitions."
+            )
+        hidden_world = initial_hidden_world
 
     current_state = state
     steps = []
@@ -158,9 +198,15 @@ def simulate_multiple_steps(
         SimulationContext(
             strategic_metadata=strategic_metadata,
             public_hand_constraints=public_hand_constraints,
+            hidden_world=hidden_world,
+            root_hidden_world=hidden_world,
         )
         if strategic_metadata is not None
-        else SimulationContext(public_hand_constraints=public_hand_constraints)
+        else SimulationContext(
+            public_hand_constraints=public_hand_constraints,
+            hidden_world=hidden_world,
+            root_hidden_world=hidden_world,
+        )
     )
 
     for step_index in range(step_count):
@@ -185,40 +231,62 @@ def simulate_multiple_steps(
             context=context,
         )
 
-        sampling_left_size, sampling_right_size = get_constrained_hand_sizes(
+        if context.hidden_world is None:
+            raise ValueError(
+                f"Hidden-world ownership invariant violated at step {step_index}: "
+                "coherent path world is missing."
+            )
+        current_world = context.hidden_world
+        reconcile_hidden_world_with_state(
+            current_world,
+            sampling_state,
             context.public_hand_constraints,
-            left_hand_size,
-            right_hand_size,
+            step_index=step_index,
         )
         prepared_state, opponent_lead_result = prepare_state_for_player_action(
             current_state=sampling_state,
-            left_hand_size=sampling_left_size,
-            right_hand_size=sampling_right_size,
-            random_generator=rng,
+            left_hand_size=len(current_world.left_hand),
+            right_hand_size=len(current_world.right_hand),
+            random_generator=opponent_action_rng,
             opponent_lead_policy=opponent_lead_policy,
             opponent_response_policy=opponent_response_policy,
             left_opponent_policy_settings=left_opponent_policy_settings,
             right_opponent_policy_settings=right_opponent_policy_settings,
             public_hand_constraints=context.public_hand_constraints,
+            coherent_hidden_world=current_world,
+            coherent_step_index=step_index,
         )
 
+        preparation_plays: tuple[tuple[str, str], ...] = ()
+        prepared_world = current_world
+        if opponent_lead_result is not None:
+            preparation_plays = opponent_lead_result.get("_opponent_plays", ())
+            prepared_world = opponent_lead_result.get(
+                "_coherent_hidden_world",
+                current_world,
+            )
         prepared_constraints = remove_public_hand_cards(
             context.public_hand_constraints,
-            extract_opponent_sequence_cards(opponent_lead_result),
+            [card for _, card in preparation_plays],
         )
-        prepared_left_size, prepared_right_size = get_constrained_hand_sizes(
+        reconcile_hidden_world_with_state(
+            prepared_world,
+            prepared_state,
             prepared_constraints,
-            left_hand_size,
-            right_hand_size,
+            step_index=step_index,
         )
 
         candidate_card = choose_card_by_policy(
             state=prepared_state,
             policy=card_selection_policy,
-            left_hand_size=prepared_left_size,
-            right_hand_size=prepared_right_size,
+            left_hand_size=len(prepared_world.left_hand),
+            right_hand_size=len(prepared_world.right_hand),
             expected_value_sample_count=expected_value_sample_count,
-            random_seed=rng.randint(0, 10**9) if random_seed is not None else None,
+            random_seed=derive_simulation_child_seed(
+                random_seed,
+                "expected_value_samples",
+                child_index=step_index,
+            ),
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=prepared_constraints,
@@ -227,13 +295,20 @@ def simulate_multiple_steps(
         step_result = simulate_and_advance_once(
             state=prepared_state,
             candidate_card=candidate_card,
-            left_hand_size=prepared_left_size,
-            right_hand_size=prepared_right_size,
-            random_generator=rng,
+            left_hand_size=len(prepared_world.left_hand),
+            right_hand_size=len(prepared_world.right_hand),
+            random_generator=opponent_action_rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=prepared_constraints,
+            coherent_hidden_world=prepared_world,
+            coherent_step_index=step_index,
         )
+        updated_world = step_result["coherent_hidden_world"]
+        completion_plays: tuple[tuple[str, str], ...] = step_result[
+            "opponent_plays"
+        ]
+        opponent_plays = (*preparation_plays, *completion_plays)
 
         step = {
             "step_index": step_index,
@@ -243,13 +318,13 @@ def simulate_multiple_steps(
             "card_selection_policy": card_selection_policy,
             "detailed_result": step_result["detailed_result"],
             "next_state": step_result["next_state"],
+            "coherence_summary": build_hidden_world_summary(updated_world),
         }
 
-        opponent_cards = extract_opponent_cards_from_step(step)
-
-        context = add_simulated_opponent_cards(
+        opponent_cards = [card for _, card in opponent_plays]
+        context = add_simulated_opponent_plays(
             context=context,
-            cards=opponent_cards,
+            plays=opponent_plays,
         )
         context = update_public_hand_constraints(
             context,
@@ -258,6 +333,7 @@ def simulate_multiple_steps(
                 step_result["detailed_result"]["trick"],
             ),
         )
+        context = update_hidden_world(context, updated_world)
 
         context = add_simulation_event(
             context=context,
@@ -266,11 +342,23 @@ def simulate_multiple_steps(
                 "step_index": step_index,
                 "candidate_card": candidate_card,
                 "opponent_cards": opponent_cards,
+                "opponent_plays": opponent_plays,
             },
         )
 
         if strict_context:
-            validate_no_duplicate_simulated_opponent_cards(context)
+            validate_simulation_context(
+                context,
+                step_result["next_state"],
+                step_index=step_index,
+            )
+        else:
+            reconcile_hidden_world_with_state(
+                updated_world,
+                step_result["next_state"],
+                context.public_hand_constraints,
+                step_index=step_index,
+            )
 
         steps.append(step)
 

@@ -110,6 +110,10 @@ exactly those cards to the constrained hand, assigns no additional card to it,
 and samples only genuinely unknown cards. Every policy compared at one decision
 receives the same constraint and seeded behavior remains deterministic.
 
+Historical review remains Immediate Analysis and does not use the later complete
+deal to construct a Multi-Step root. Actual future hands remain excluded from
+every pre-play decision state.
+
 The event is not a review decision. Normal review still has 30 actual-card
 decisions. Training still has 30 samples, feature-generation version `1`, stable
 `record_id:decision_index` sample IDs, and the `actual_card_played` target.

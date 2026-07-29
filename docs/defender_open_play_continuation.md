@@ -58,13 +58,16 @@ future outcome. The physically returned hand remains visible to all players.
 
 Every hidden-world sample assigns exactly those cards, and no additional card,
 to the exposing defender. The other defender, declarer, and skat retain their
-ordinary uncertainty unless independently known. Immediate Analysis, supported
-Multi-Step, Policy Comparison, and flat post-game review use the same root
-constraint. A played known card is removed in child states; every other known
-card remains fixed, and the played card cannot be resampled or reintroduced.
-Unknown cards retain the existing Multi-Step resampling limitation, so this is
-not general globally coherent hidden-world continuity. No policy is added or
-changed.
+ordinary uncertainty unless independently known. Immediate Analysis and flat
+post-game review keep their existing sampling behavior.
+
+Multi-Step samples one coherent private root per path. The exposing defender's
+public hand, all other ownership, and the hypothetical skat remain fixed through
+opponent preparation and trick completion; a played card is removed only from
+its owner and cannot be reintroduced. Policy Comparison samples one shared root
+and gives every policy an equal independent immutable copy. Local card-selection
+policies do not receive private root ownership. No policy is added or changed.
+See [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
 ## No adjudication or settlement
 

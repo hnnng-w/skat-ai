@@ -4,6 +4,15 @@
 
 **Release theme: Explainable and time-safe opponent intelligence**
 
+### Coherent hidden-world simulation
+
+* Sample one immutable private execution root per Multi-Step path, preserve opponent ownership through owner-aware card removal, and keep one fixed hypothetical skat without changing package version `0.8.0`.
+* Use the same root through opponent-turn preparation and candidate-trick completion while keeping local decision policies on public decision-time information and retaining separate counterfactual samples for `highest_expected_value`.
+* Derive stable separate seeded streams for root sampling, opponent actions, and per-step expected-value samples; Immediate Analysis and supported turn phases remain unchanged.
+* Give every Policy Comparison path an equal independent immutable copy of one shared root and serialize only privacy-safe coherence counts and status fields.
+* Add `examples/grand_coherent_hidden_world.json` and a deterministic three-step Policy Comparison generated-output scenario, bringing current generated-output coverage to 51 scenarios.
+* Preserve historical future-hand exclusion, training feature version `1`, rolling opponent-policy behavior, scoring, settlement, and existing policy semantics.
+
 ### Ouvert-aware recommendation simulation
 
 * Add `declared_ouvert` exact public-hand constraints for live and historical Suit, Grand, Null Ouvert, and Null Ouvert Hand decisions while retaining package version `0.8.0`.

@@ -105,6 +105,11 @@ defender hand or skat is added.
 The terminal concession, consent, unresolved cards, and knowledge that play will
 end are absent. No card decision is padded and no terminal event is predicted.
 
+The evaluator does not run Multi-Step and does not receive its private coherent
+execution root or coherence summaries. Actual future target hands remain
+excluded. Feature version `1`, preferred-card candidates, profile derivation,
+strict as-of selection, and every rolling metric are unchanged by Issue #103.
+
 The acting player's own profile is evaluated. It is not attached to historical
 `left` or `right` recommendation slots. Defender partner-winning context is
 derived only from the visible current trick and stable declarer identity; a

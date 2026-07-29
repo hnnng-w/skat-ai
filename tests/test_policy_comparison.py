@@ -43,6 +43,7 @@ def test_compare_multi_step_policies_returns_expected_keys() -> None:
         "recommended_policy",
         "opponent_lead_policy",
         "opponent_response_policy",
+        "hidden_world",
     }
 
 

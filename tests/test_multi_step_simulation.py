@@ -2,6 +2,8 @@
 import skat_ai.opponent_lead as opponent_lead_module
 import skat_ai.simulation as simulation_module
 from skat_ai.card_selection import choose_first_legal_card
+from skat_ai.card_tracking import get_unseen_cards
+from skat_ai.coherent_hidden_world import CoherentHiddenWorld
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_state import GameState
 from skat_ai.input_loader import build_local_game_state_from_input
@@ -14,6 +16,22 @@ from skat_ai.multi_step_simulation import (
 )
 from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
 from skat_ai.strategic_metadata import StrategicMetadata
+
+
+def build_test_hidden_world(
+    state: GameState,
+    left_hand: list[str],
+    right_hand: list[str],
+) -> CoherentHiddenWorld:
+    assigned = {*left_hand, *right_hand}
+    hypothetical_skat = tuple(
+        card for card in get_unseen_cards(state) if card not in assigned
+    )
+    return CoherentHiddenWorld(
+        left_hand=tuple(left_hand),
+        right_hand=tuple(right_hand),
+        hypothetical_skat=hypothetical_skat,
+    )
 
 
 def test_choose_first_legal_card_returns_first_legal_card_when_leading() -> None:
@@ -279,6 +297,7 @@ def test_simulate_multiple_steps_accumulates_completed_tricks_once(monkeypatch) 
         trick_leader="left",
         next_player="me",
     )
+    hidden_world = build_test_hidden_world(state, ["D10"], ["DK"])
 
     result = simulate_multiple_steps(
         state=state,
@@ -287,6 +306,7 @@ def test_simulate_multiple_steps_accumulates_completed_tricks_once(monkeypatch) 
         step_count=2,
         random_seed=42,
         card_selection_policy="highest_point",
+        initial_hidden_world=hidden_world,
     )
     final_state = result["final_state"]
     score_summary = build_score_summary(final_state)
@@ -682,7 +702,6 @@ def test_should_continue_multi_step_allows_right_next_player() -> None:
         trick_leader="right",
         next_player="right",
     )
-
     assert should_continue_multi_step_simulation(state, step_index=1) is True
 
 
@@ -805,6 +824,11 @@ def test_simulate_multiple_steps_after_right_lead_completes_with_left_hand(
         current_trick=[],
         next_player="right",
     )
+    hidden_world = build_test_hidden_world(
+        state,
+        ["S8", "H10"],
+        ["S7", "D10"],
+    )
 
     result = simulate_multiple_steps(
         state=state,
@@ -814,6 +838,7 @@ def test_simulate_multiple_steps_after_right_lead_completes_with_left_hand(
         random_seed=42,
         use_basic_opponent_strategy=True,
         card_selection_policy="highest_point",
+        initial_hidden_world=hidden_world,
     )
     step = result["steps"][0]
 
@@ -863,6 +888,7 @@ def test_multi_step_candidate_completion_consumes_configured_side_response_polic
         current_trick=[],
         next_player="right",
     )
+    hidden_world = build_test_hidden_world(state, ["S9", "SA"], ["S7"])
 
     result = simulate_multiple_steps(
         state=state,
@@ -885,6 +911,7 @@ def test_multi_step_candidate_completion_consumes_configured_side_response_polic
             "left": "highest_point",
             "right": "highest_point",
         },
+        initial_hidden_world=hidden_world,
     )
 
     step = result["steps"][0]
@@ -907,7 +934,6 @@ def test_should_continue_multi_step_allows_left_next_player() -> None:
         trick_leader="left",
         next_player="left",
     )
-
     assert should_continue_multi_step_simulation(state, step_index=1) is True
 
 
@@ -920,7 +946,6 @@ def test_get_multi_step_stop_reason_returns_none_when_left_is_next_player() -> N
         trick_leader="left",
         next_player="left",
     )
-
     reason = get_multi_step_stop_reason(
         current_state=state,
         step_index=1,
@@ -937,7 +962,6 @@ def test_simulate_multiple_steps_continues_after_left_lead_and_right_response() 
         current_trick=[],
         next_player="left",
     )
-
     result = simulate_multiple_steps(
         state=state,
         left_hand_size=5,
@@ -980,6 +1004,7 @@ def test_multi_step_opponent_turn_preparation_executes_effective_right_response_
         current_trick=[],
         next_player="left",
     )
+    hidden_world = build_test_hidden_world(state, ["S7"], ["S9", "SA"])
 
     result = simulate_multiple_steps(
         state=state,
@@ -997,6 +1022,7 @@ def test_multi_step_opponent_turn_preparation_executes_effective_right_response_
             "opponent_lead_policy": "lowest_point",
             "opponent_response_policy": "highest_point",
         },
+        initial_hidden_world=hidden_world,
     )
 
     opponent_lead_result = result["steps"][0]["opponent_lead_result"]
@@ -1037,6 +1063,11 @@ def test_multi_step_observes_side_specific_left_lead_policy_in_score_swing(
         trick_leader="left",
         next_player="left",
     )
+    hidden_world = build_test_hidden_world(
+        state,
+        ["DA", "D7"],
+        ["D10", "D9"],
+    )
 
     default_result = simulate_multiple_steps(
         state=state,
@@ -1045,6 +1076,7 @@ def test_multi_step_observes_side_specific_left_lead_policy_in_score_swing(
         step_count=1,
         random_seed=42,
         card_selection_policy="highest_point",
+        initial_hidden_world=hidden_world,
     )
     left_highest_result = simulate_multiple_steps(
         state=state,
@@ -1061,6 +1093,7 @@ def test_multi_step_observes_side_specific_left_lead_policy_in_score_swing(
             "opponent_lead_policy": "lowest_point",
             "opponent_response_policy": "lowest_point",
         },
+        initial_hidden_world=hidden_world,
     )
 
     default_step = default_result["steps"][0]
@@ -1219,7 +1252,7 @@ def test_simulate_multiple_steps_preserves_declarer_player() -> None:
 
     assert result["final_state"].declarer_player == "left"
     assert result["context_summary"]["event_count"] == 1
-    assert result["context_summary"]["simulated_opponent_card_count"] >= 1
+    assert result["context_summary"]["simulated_opponent_card_count"] == 0
 
 def test_simulate_multiple_steps_context_tracks_opponent_cards() -> None:
     state = GameState(
@@ -1512,6 +1545,7 @@ def test_simulate_multiple_steps_prepares_right_response_to_existing_left_lead(
         trick_leader="left",
         next_player="right",
     )
+    hidden_world = build_test_hidden_world(state, ["C7"], ["D9", "DA"])
 
     result = simulate_multiple_steps(
         state=state,
@@ -1524,6 +1558,7 @@ def test_simulate_multiple_steps_prepares_right_response_to_existing_left_lead(
             "opponent_lead_policy": "lowest_point",
             "opponent_response_policy": "highest_point",
         },
+        initial_hidden_world=hidden_world,
     )
     step = result["steps"][0]
 
@@ -1567,6 +1602,7 @@ def test_multi_step_advances_local_information_state_for_defender_private_skat(
         "skat_visibility": "known_to_declarer",
     }
     state = build_local_game_state_from_input(privileged_input)
+    hidden_world = build_test_hidden_world(state, ["C7"], ["D7"])
 
     result = simulate_multiple_steps(
         state=state,
@@ -1575,6 +1611,7 @@ def test_multi_step_advances_local_information_state_for_defender_private_skat(
         step_count=1,
         random_seed=42,
         card_selection_policy="highest_point",
+        initial_hidden_world=hidden_world,
     )
     final_state = result["final_state"]
     final_cards = []

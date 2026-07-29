@@ -100,6 +100,10 @@ Snapshots and historical review map the stable declarer to `me`, `left`, or
 sampler. No additional card enters the declarer's hand; only genuinely unknown
 cards are sampled. Every compared policy receives the same constraint.
 
+Historical review remains Immediate Analysis and does not use the later complete
+deal to construct a Multi-Step root. Actual future hands remain excluded from
+every pre-play decision state.
+
 ## Downstream workflows
 
 The event is not a decision. Snapshots, review, training conversion, and rolling
