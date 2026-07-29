@@ -56,6 +56,10 @@ def build_serializable_multi_step_step(
     }
     if "coherence_summary" in step:
         serialized_step["coherence_summary"] = step["coherence_summary"]
+    if "hidden_card_inference_summary" in step:
+        serialized_step["hidden_card_inference_summary"] = step[
+            "hidden_card_inference_summary"
+        ]
     return serialized_step
 
 
@@ -65,7 +69,7 @@ def build_serializable_multi_step_result(
     """
     Builds a JSON-serializable multi-step result.
     """
-    return {
+    serialized_result = {
         "card_selection_policy": result["card_selection_policy"],
         "requested_step_count": result["requested_step_count"],
         "steps_simulated": result["steps_simulated"],
@@ -82,6 +86,11 @@ def build_serializable_multi_step_result(
         ],
         "final_state": build_serializable_game_state(result["final_state"]),
     }
+    if "hidden_card_inference_summary" in result:
+        serialized_result["hidden_card_inference_summary"] = result[
+            "hidden_card_inference_summary"
+        ]
+    return serialized_result
 
 
 def build_serializable_policy_comparison_result(
@@ -123,5 +132,9 @@ def build_serializable_policy_comparison_result(
         serializable_result["recommended_policy"] = result["recommended_policy"]
     if "hidden_world" in result:
         serializable_result["hidden_world"] = result["hidden_world"]
+    if "hidden_card_inference_summary" in result:
+        serializable_result["hidden_card_inference_summary"] = result[
+            "hidden_card_inference_summary"
+        ]
 
     return serializable_result

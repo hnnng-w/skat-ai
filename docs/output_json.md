@@ -58,6 +58,10 @@ Ongoing exposure continuation and reusable public-hand output use:
 
 [`schemas/public_hand_constraint.schema.json`](../schemas/public_hand_constraint.schema.json)
 
+Evidence-constrained hidden-card inference output uses:
+
+[`schemas/hidden_card_inference_summary.schema.json`](../schemas/hidden_card_inference_summary.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -147,7 +151,9 @@ Each reviewed row contains all legal candidates, one recommendation, the
 existing analysis report, and the existing post-game review shape. Declared-
 Ouvert rows additionally expose the exact decision-relative
 `public_hand_constraints` used by simulation and follow the ordinary reviewed
-path. See [Historical game review](historical_game_review.md) and
+path. A row with confirmed failure-to-follow evidence can also contain the same
+privacy-safe `hidden_card_inference_summary` as a live decision. See
+[Historical game review](historical_game_review.md) and
 [`historical_game_review.schema.json`](../schemas/historical_game_review.schema.json).
 
 Historical review quality counts summarize decisions; they are not player
@@ -344,6 +350,7 @@ Typical top-level fields include:
 | `post_game_review_summary`       | Actual-card comparison and post-game review result.         |
 | `multi_step_result`              | Optional multi-step simulation result.                      |
 | `policy_comparison_result`       | Optional policy-comparison result.                          |
+| `hidden_card_inference_summary`  | Optional exact evidence-constrained compatible-world summary. |
 | `information_policy_summary`     | Summary of the active live-vs-post-game information policy. |
 | `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.           |
 | `right_opponent_policy_settings` | Normalized policy settings for the right opponent.          |
@@ -820,6 +827,36 @@ count, canonical cards, and source `declared_ouvert`,
 a disjoint declared-Ouvert hand and public defender continuation hand may both be
 present. Other hands, private proof evidence, and hidden skat remain protected.
 
+## Hidden-card inference summary
+
+`hidden_card_inference_summary` is emitted only when attributed public play
+provides at least one confirmed legal failure-to-follow constraint. Its stable
+strict schema version is `1`. The summary reports:
+
+* `information_cutoff: "current_decision"`, mode
+  `exact_evidence_constrained`, and compatible-world model
+  `uniform_labeled_assignments`;
+* the exact `compatible_world_count`, hypothetical skat size, provenance status,
+  and counts of confirmed void evidence and exact public hands;
+* confirmed structural evidence, forbidden effective categories, and exact
+  per-card `left`/`right`/`skat` ownership probabilities;
+* the most likely owner, possible owners, `exact_owner_confirmed`, and confidence
+  `confirmed`, `high`, `medium`, or `low`;
+* fixed thresholds `0.85` and `0.65`, concentration basis, and
+  `confidence_is_calibrated: false`; and
+* explicit `behavioral_inference_applied: false`,
+  `future_information_used: false`, and privacy fields.
+
+`confirmed` means exactly one compatible owner; otherwise `high` starts at
+`0.85`, `medium` at `0.65`, and `low` is below `0.65`. These labels do not add a
+constraint or world weight.
+
+Every privacy flag is `false`: no sampled hand, sampled hypothetical skat,
+coherent-root ownership, actual historical hidden hand, or dynamic-programming
+table is emitted. Ownership marginals summarize all compatible assignments and
+do not reveal the private sampled execution root. See
+[Hidden-card inference](hidden_card_inference.md).
+
 ## Performance rating summary
 
 `performance_rating_summary` is separate from single-game settlement.
@@ -1201,6 +1238,12 @@ contains every remaining exact public hand. Each child path removes known cards
 that were played and retains every unplayed public card with its original source.
 Two supported disjoint public hands remain exact in the same path.
 
+When root evidence supports inference, `multi_step_result.hidden_card_inference_summary`
+matches the root model. A step can additionally contain
+`steps[].hidden_card_inference_summary` for its prepared public decision state.
+A later visible simulated failure to follow can increase later evidence, but it
+does not mutate or resample the immutable compatible root.
+
 `context_summary.hidden_world` and each `steps[].coherence_summary` expose the
 privacy-safe coherent-path contract:
 
@@ -1275,7 +1318,10 @@ separately resampled initial world.
 
 Each policy row's `context_summary.hidden_world` contains the privacy-safe
 per-path counts and statuses documented above. No new policy, ranking objective,
-or tie-breaker is introduced. Immediate Analysis is unchanged.
+or tie-breaker is introduced. When available,
+`policy_comparison_result.hidden_card_inference_summary` describes the one shared
+root inference model. Every policy receives an immutable copy of the same sampled
+compatible root; later public evidence may diverge only after path play diverges.
 
 The output schema defines the stable `policy_comparison_result` structure,
 including requested settings, compared policies, per-policy result rows,

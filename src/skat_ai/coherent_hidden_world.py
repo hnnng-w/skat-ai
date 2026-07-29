@@ -5,6 +5,12 @@ from typing import Any
 
 from skat_ai.deck import get_full_deck
 from skat_ai.game_state import GameState
+from skat_ai.hidden_card_inference import (
+    HiddenCardInferenceConstraints,
+    HiddenCardInferenceModel,
+    build_hidden_card_inference_model,
+    get_public_effective_category,
+)
 from skat_ai.known_cards import (
     get_known_cards_from_state,
     validate_no_duplicate_known_cards,
@@ -192,6 +198,7 @@ def validate_coherent_hidden_world(
     left_hand_size: int | None = None,
     right_hand_size: int | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_constraints: HiddenCardInferenceConstraints | None = None,
     step_index: int = 0,
 ) -> None:
     """Validates card accounting and optional current public-state agreement."""
@@ -322,6 +329,19 @@ def validate_coherent_hidden_world(
         _validate_public_constraints(
             world, state, public_hand_constraints, step_index
         )
+        if hidden_card_inference_constraints is not None:
+            for player in _OPPONENT_PLAYERS:
+                player_constraints = hidden_card_inference_constraints.for_player(player)
+                hand = world.left_hand if player == "left" else world.right_hand
+                for card in hand:
+                    category = get_public_effective_category(card, state.game_type)
+                    if category in player_constraints.forbidden_effective_categories:
+                        _raise_invariant_error(
+                            step_index,
+                            f"{player} is confirmed void in {category}, but owns card "
+                            f"{card} under evidence source "
+                            f"{hidden_card_inference_constraints.provenance_status}.",
+                        )
         missing_transition_cards = transitioned_cards.difference(known_cards)
         if missing_transition_cards:
             _raise_invariant_error(
@@ -335,14 +355,15 @@ def validate_coherent_hidden_world(
                 step_index,
                 f"state and hidden world do not account for cards: {sorted(missing_cards)}.",
             )
-    elif public_hand_constraints:
-        raise ValueError("state is required when validating public hand constraints.")
+    elif public_hand_constraints or hidden_card_inference_constraints is not None:
+        raise ValueError("state is required when validating public ownership constraints.")
 
 
 def reconcile_hidden_world_with_state(
     world: CoherentHiddenWorld,
     state: GameState,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_constraints: HiddenCardInferenceConstraints | None = None,
     *,
     step_index: int = 0,
 ) -> None:
@@ -351,6 +372,7 @@ def reconcile_hidden_world_with_state(
         world,
         state=state,
         public_hand_constraints=public_hand_constraints,
+        hidden_card_inference_constraints=hidden_card_inference_constraints,
         step_index=step_index,
     )
 
@@ -361,6 +383,7 @@ def build_coherent_hidden_world(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> CoherentHiddenWorld:
     """Samples and validates exactly one immutable root path world."""
     if left_hand_size < 0 or right_hand_size < 0:
@@ -374,12 +397,19 @@ def build_coherent_hidden_world(
         public_hand_constraints,
     )
 
+    inference_model = hidden_card_inference_model or build_hidden_card_inference_model(
+        state,
+        left_hand_size,
+        right_hand_size,
+        public_hand_constraints,
+    )
     sample = generate_sampled_hidden_state(
         state=state,
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=random_generator,
         public_hand_constraints=public_hand_constraints,
+        hidden_card_inference_model=inference_model,
     )
     world = CoherentHiddenWorld(
         left_hand=tuple(sample.left_hand),
@@ -404,6 +434,9 @@ def build_coherent_hidden_world(
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         public_hand_constraints=public_hand_constraints,
+        hidden_card_inference_constraints=(
+            inference_model.constraints if inference_model is not None else None
+        ),
     )
     return world
 

@@ -62,6 +62,11 @@ Grand expected-point objective and Null contract objective are unchanged.
 Opponent lead and response preparation receives the same exact ownership facts.
 The existing simple policies are not claimed to be optimal Ouvert strategy.
 
+When attributed public play also confirms a failure to follow, the exact Ouvert
+hand remains authoritative while hidden-card inference constrains only the
+remaining unknown ownership. A conflict between the public hand and confirmed
+evidence is rejected rather than reweighted or ignored.
+
 ## Multi-Step and Policy Comparison
 
 The root `SimulationContext` retains the exact public hand inside one coherent
@@ -118,3 +123,8 @@ Coherent Multi-Step execution does not add a solver, minimax, complete-contract
 proof, learned model, Ouvert-specific strategy, general hidden-card inference,
 or proof that a sampled private root matches the real deal. Other hands, hidden
 skat cards, future events, and post-game-only evidence remain protected.
+
+The separate bounded exact evidence model is documented in
+[Hidden-card inference](hidden_card_inference.md). It uses only structural
+decision-time evidence and does not infer from Ouvert declaration behavior,
+profiles, results, or settlement.

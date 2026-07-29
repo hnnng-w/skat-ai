@@ -147,6 +147,9 @@ DEFENDER_OPEN_PLAY_CONTINUATION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_open_play_continuation_output.schema.json"
 )
 PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
+HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "hidden_card_inference_summary.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -242,6 +245,8 @@ with DEFENDER_OPEN_PLAY_CONTINUATION_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-
     DEFENDER_OPEN_PLAY_CONTINUATION_OUTPUT_SCHEMA = json.load(file)
 with PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     PUBLIC_HAND_CONSTRAINT_SCHEMA = json.load(file)
+with HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -402,9 +407,41 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
             PUBLIC_HAND_CONSTRAINT_SCHEMA["$id"],
             Resource.from_contents(PUBLIC_HAND_CONSTRAINT_SCHEMA),
         ),
+        (
+            HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA["$id"],
+            Resource.from_contents(HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA),
+        ),
     ]
 )
 OUTPUT_VALIDATOR = Draft202012Validator(load_output_schema(), registry=OUTPUT_SCHEMA_REGISTRY)
+
+
+def test_hidden_card_inference_output_matches_schema_and_hides_private_world() -> None:
+    from main import build_analysis_result
+
+    result = build_analysis_result(
+        file_path=str(PROJECT_ROOT / "examples" / "grand_hidden_card_inference.json"),
+        sample_count_override=5,
+        random_seed_override=104,
+    )
+
+    assert list(OUTPUT_VALIDATOR.iter_errors(result)) == []
+    summary = result["hidden_card_inference_summary"]
+    assert summary["compatible_world_count"] == 275275
+    assert summary["confirmed_voids"] == [
+        {"player": "right", "forbidden_effective_categories": ["clubs"]}
+    ]
+    assert summary["privacy_flags"] == {
+        "sampled_hands_emitted": False,
+        "sampled_hypothetical_skat_emitted": False,
+        "coherent_root_ownership_emitted": False,
+        "actual_historical_hidden_hands_emitted": False,
+        "dynamic_programming_tables_emitted": False,
+    }
+    serialized_summary = json.dumps(summary)
+    assert '"left_hand"' not in serialized_summary
+    assert '"right_hand"' not in serialized_summary
+    assert '"hypothetical_skat"' not in serialized_summary
 
 
 def test_open_card_throw_output_matches_public_schema_and_hides_other_hands() -> None:

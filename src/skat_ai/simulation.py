@@ -11,6 +11,11 @@ from skat_ai.game_history import (
     get_players_for_trick_leader,
 )
 from skat_ai.game_state import GameState
+from skat_ai.hidden_card_inference import (
+    HiddenCardInferenceModel,
+    build_hidden_card_inference_model,
+    sample_compatible_hidden_world,
+)
 from skat_ai.objective_utility import calculate_null_trick_objective_utility
 from skat_ai.opponent_policy import choose_opponent_response_card_by_policy
 from skat_ai.public_hand_constraint import DECLARED_OUVERT_SOURCE, PublicHandConstraint
@@ -48,6 +53,7 @@ def generate_sampled_hidden_state(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> SampledHiddenState:
     """Generates one coherent local-perspective hidden-card sample."""
     validate_enough_cards_for_opponent_sampling(
@@ -62,6 +68,31 @@ def generate_sampled_hidden_state(
 
     if required_card_count > len(unseen_cards):
         raise ValueError("Requested more opponent cards than unseen cards available.")
+
+    inference_model = hidden_card_inference_model
+    if inference_model is None:
+        inference_model = build_hidden_card_inference_model(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            public_hand_constraints=public_hand_constraints,
+        )
+    if inference_model is not None:
+        problem = inference_model.assignment_problem
+        if (
+            problem.cards != tuple(unseen_cards)
+            or problem.left_slots != left_hand_size
+            or problem.right_slots != right_hand_size
+        ):
+            raise ValueError(
+                "Hidden-card inference model does not match the current sampling state."
+            )
+        compatible_world = sample_compatible_hidden_world(problem, rng)
+        return SampledHiddenState(
+            left_hand=list(compatible_world.left_hand),
+            right_hand=list(compatible_world.right_hand),
+            hypothetical_skat=list(compatible_world.hypothetical_skat),
+        )
 
     if not public_hand_constraints:
         shuffled_cards = unseen_cards.copy()
@@ -144,6 +175,7 @@ def generate_random_opponent_hands(
     right_hand_size: int,
     random_generator: random.Random | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> tuple[list[str], list[str]]:
     """
     Generates random opponent hands from unseen cards.
@@ -154,6 +186,7 @@ def generate_random_opponent_hands(
         right_hand_size=right_hand_size,
         random_generator=random_generator,
         public_hand_constraints=public_hand_constraints,
+        hidden_card_inference_model=hidden_card_inference_model,
     )
 
     return sample.left_hand, sample.right_hand
@@ -166,6 +199,7 @@ def generate_multiple_random_opponent_hands(
     sample_count: int,
     random_seed: int | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> list[tuple[list[str], list[str]]]:
     """
     Generates multiple random possible card distributions for the two opponents.
@@ -182,6 +216,7 @@ def generate_multiple_random_opponent_hands(
             right_hand_size=right_hand_size,
             random_generator=rng,
             public_hand_constraints=public_hand_constraints,
+            hidden_card_inference_model=hidden_card_inference_model,
         )
         for _ in range(sample_count)
     ]
@@ -392,6 +427,7 @@ def simulate_immediate_trick_once(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> bool:
     """
     Simulates the current trick once after the player plays candidate_card.
@@ -407,6 +443,7 @@ def simulate_immediate_trick_once(
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
         public_hand_constraints=public_hand_constraints,
+        hidden_card_inference_model=hidden_card_inference_model,
     )
 
     return bool(result["did_win"])
@@ -422,6 +459,7 @@ def estimate_immediate_trick_win_rate(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> float:
     """
     Estimates how often the local player's side wins the current trick.
@@ -430,8 +468,19 @@ def estimate_immediate_trick_win_rate(
         raise ValueError("Sample count must be greater than zero.")
 
     rng = random.Random(random_seed) if random_seed is not None else random
+    inference_model = hidden_card_inference_model or build_hidden_card_inference_model(
+        state,
+        left_hand_size,
+        right_hand_size,
+        public_hand_constraints,
+    )
 
     wins = 0
+    inference_kwargs = (
+        {"hidden_card_inference_model": inference_model}
+        if inference_model is not None
+        else {}
+    )
 
     for _ in range(sample_count):
         did_win = simulate_immediate_trick_once(
@@ -443,6 +492,7 @@ def estimate_immediate_trick_win_rate(
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
+            **inference_kwargs,
         )
 
         if did_win:
@@ -460,6 +510,7 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> dict[str, float]:
     """
     Estimates immediate trick win rates for all legal cards in the current state.
@@ -471,10 +522,16 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
     )
 
     rng = random.Random(random_seed) if random_seed is not None else None
+    inference_model = hidden_card_inference_model or build_hidden_card_inference_model(
+        state,
+        left_hand_size,
+        right_hand_size,
+        public_hand_constraints,
+    )
     use_common_seed = any(
         constraint.source == DECLARED_OUVERT_SOURCE
         for constraint in public_hand_constraints
-    )
+    ) or inference_model is not None
 
     return {
         card: estimate_immediate_trick_win_rate(
@@ -491,6 +548,7 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
+            hidden_card_inference_model=inference_model,
         )
         for card in legal_cards
     }
@@ -505,6 +563,7 @@ def simulate_immediate_trick_once_with_points(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> tuple[bool, int]:
     """
     Simulates the current trick once and returns whether the local player's
@@ -519,6 +578,7 @@ def simulate_immediate_trick_once_with_points(
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
         public_hand_constraints=public_hand_constraints,
+        hidden_card_inference_model=hidden_card_inference_model,
     )
 
     return bool(result["did_win"]), int(result["trick_points"])
@@ -534,6 +594,8 @@ def estimate_immediate_trick_value(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
+    sampled_hidden_states: tuple[SampledHiddenState, ...] | None = None,
 ) -> dict[str, float]:
     """
     Estimates immediate trick value for one candidate card.
@@ -548,6 +610,16 @@ def estimate_immediate_trick_value(
         raise ValueError("Sample count must be greater than zero.")
 
     rng = random.Random(random_seed) if random_seed is not None else random
+    inference_model = hidden_card_inference_model
+    if inference_model is None and sampled_hidden_states is None:
+        inference_model = build_hidden_card_inference_model(
+            state,
+            left_hand_size,
+            right_hand_size,
+            public_hand_constraints,
+        )
+    if sampled_hidden_states is not None and len(sampled_hidden_states) != sample_count:
+        raise ValueError("Common sampled hidden states must match sample_count.")
 
     wins = 0
     total_trick_points = 0
@@ -555,7 +627,7 @@ def estimate_immediate_trick_value(
     total_points_lost = 0
     total_objective_utility = 0.0
 
-    for _ in range(sample_count):
+    for sample_index in range(sample_count):
         detailed_result = simulate_immediate_trick_once_detailed(
             state=state,
             candidate_card=candidate_card,
@@ -565,6 +637,12 @@ def estimate_immediate_trick_value(
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
+            hidden_card_inference_model=inference_model,
+            sampled_hidden_state=(
+                sampled_hidden_states[sample_index]
+                if sampled_hidden_states is not None
+                else None
+            ),
         )
         did_win = bool(detailed_result["did_win"])
         trick_points = int(detailed_result["trick_points"])
@@ -605,6 +683,7 @@ def estimate_immediate_trick_values_for_legal_cards(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> dict[str, dict[str, float]]:
     """
     Estimates immediate trick value metrics for all legal cards in the current state.
@@ -616,9 +695,36 @@ def estimate_immediate_trick_values_for_legal_cards(
     )
 
     rng = random.Random(random_seed) if random_seed is not None else None
+    inference_model = hidden_card_inference_model
+    if inference_model is None:
+        inference_model = build_hidden_card_inference_model(
+            state,
+            left_hand_size,
+            right_hand_size,
+            public_hand_constraints,
+        )
     use_common_seed = any(
         constraint.source == DECLARED_OUVERT_SOURCE
         for constraint in public_hand_constraints
+    ) or inference_model is not None
+    common_samples = None
+    if inference_model is not None:
+        sample_rng = random.Random(random_seed) if random_seed is not None else random
+        common_samples = tuple(
+            generate_sampled_hidden_state(
+                state=state,
+                left_hand_size=left_hand_size,
+                right_hand_size=right_hand_size,
+                random_generator=sample_rng,
+                public_hand_constraints=public_hand_constraints,
+                hidden_card_inference_model=inference_model,
+            )
+            for _ in range(sample_count)
+        )
+    inference_kwargs = (
+        {"hidden_card_inference_model": inference_model}
+        if inference_model is not None
+        else {}
     )
 
     return {
@@ -636,6 +742,8 @@ def estimate_immediate_trick_values_for_legal_cards(
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
+            sampled_hidden_states=common_samples,
+            **inference_kwargs,
         )
         for card in legal_cards
     }
@@ -652,6 +760,8 @@ def simulate_immediate_trick_once_detailed(
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
     coherent_hidden_world: CoherentHiddenWorld | None = None,
     coherent_step_index: int = 0,
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
+    sampled_hidden_state: SampledHiddenState | None = None,
 ) -> dict[str, Any]:
     """
     Simulates the current trick once and returns detailed information.
@@ -668,10 +778,12 @@ def simulate_immediate_trick_once_detailed(
 
     validate_candidate_card_for_current_trick(state, candidate_card)
 
-    if coherent_hidden_world is None:
+    if coherent_hidden_world is None and sampled_hidden_state is None:
         sampling_kwargs: dict[str, Any] = {}
         if public_hand_constraints:
             sampling_kwargs["public_hand_constraints"] = public_hand_constraints
+        if hidden_card_inference_model is not None:
+            sampling_kwargs["hidden_card_inference_model"] = hidden_card_inference_model
         left_hand, right_hand = generate_random_opponent_hands(
             state=state,
             left_hand_size=left_hand_size,
@@ -679,6 +791,13 @@ def simulate_immediate_trick_once_detailed(
             random_generator=rng,
             **sampling_kwargs,
         )
+    elif sampled_hidden_state is not None:
+        if coherent_hidden_world is not None:
+            raise ValueError(
+                "A sampled hidden state and coherent hidden world cannot both be supplied."
+            )
+        left_hand = list(sampled_hidden_state.left_hand)
+        right_hand = list(sampled_hidden_state.right_hand)
     else:
         from skat_ai.coherent_hidden_world import validate_coherent_hidden_world
 
@@ -688,6 +807,11 @@ def simulate_immediate_trick_once_detailed(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             public_hand_constraints=public_hand_constraints,
+            hidden_card_inference_constraints=(
+                hidden_card_inference_model.constraints
+                if hidden_card_inference_model is not None
+                else None
+            ),
             step_index=coherent_step_index,
         )
         left_hand = list(coherent_hidden_world.left_hand)

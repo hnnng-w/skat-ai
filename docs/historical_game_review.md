@@ -64,6 +64,13 @@ value, overbid outcome, and settlement are not analysis inputs. The final
 historical outcome remains available beside the review in the parent summary,
 but it cannot influence an earlier recommendation or quality classification.
 
+When the visible attributed prefix confirms a legal failure to follow, review
+derives one exact hidden-card inference model for that decision. It uses only the
+local hand, public prefix and current trick, authorized public hands, and
+legitimately known skat. Canonical historical replay proves the supplied prefix
+is legal; complete actual hands, the actual next card, future cards, result,
+game value, overbid, settlement, and not-yet-visible events are not model inputs.
+
 For declared Ouvert, the exact current declarer hand is public from decision 1.
 After either continuation boundary, the stable public-hand owner is mapped
 relative to each actor and supplied through the existing exact
@@ -105,6 +112,12 @@ existing candidate analysis report for all legal alternatives, and the existing
 post-game review summary with ranks, quality, factors, and explanation. One-card
 decisions, including the final three plays, are still reviewed.
 
+A reviewed row with confirmed failure-to-follow evidence also contains the
+strict version-1 privacy-safe `hidden_card_inference_summary`. It reports exact
+compatible-world counts and marginals, never actual or sampled hands, sampled
+skat, coherent-root ownership, or dynamic-programming tables. See
+[Hidden-card inference](hidden_card_inference.md).
+
 Player and overall counts reconcile with the decision rows. They are descriptive
 summaries only. They are not grades, percentages, skill ratings, winners, or
 cross-player rankings.
@@ -129,8 +142,9 @@ is not a training or evaluation dataset record. The separate training-data workf
 uses decision snapshots directly; recommendation cards, candidate reports, and
 decision-quality values are never training features or labels.
 
-Issue #103 changes no historical review schema, seed rule, sample method,
-information policy, or output count.
+Issue #104 preserves the review seed rule, decision count, recommendation
+objective, policy behavior, and quality classification while adding the optional
+inference summary to reviewed rows.
 
 Complete-game retrospective analysis remains `partially_supported` because
 additional approved historical end reasons, complete auction

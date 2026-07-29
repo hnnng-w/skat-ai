@@ -35,6 +35,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Left/right opponent policy CLI overrides
 * Shared opponent-policy precedence for immediate and multi-step paths
 * Basic defender cooperation heuristics
+* Exact evidence-constrained hidden-card worlds from confirmed public failures to follow
+* Exact compatible-world counts and ownership marginals with privacy-safe confidence summaries
 
 ### Game history, scoring, and settlement
 
@@ -179,6 +181,16 @@ Run a multi-step analysis:
 ```powershell
 python main.py --input examples/grand_second_position.json --multi-step 2
 ```
+
+Run the deterministic hidden-card inference example with two Multi-Step decisions:
+
+```powershell
+python main.py --input examples/grand_hidden_card_inference.json --multi-step 2
+```
+
+Its attributed public Grand history confirms that `right` failed to follow
+clubs. The exact root compatible-world count is `275275`, and the generated
+scenario also demonstrates later simulated public-evidence progression.
 
 Compare all multi-step local card-selection policies:
 
@@ -454,6 +466,8 @@ Detailed documentation is split into topic-specific files:
 * [Historical game review](docs/historical_game_review.md)
 * [Ouvert-aware simulation](docs/ouvert_aware_simulation.md)
 * [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md)
+* [Hidden-card inference](docs/hidden_card_inference.md)
+* [Hidden-card inference summary schema](schemas/hidden_card_inference_summary.schema.json)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
 * [Dataset partition policies](docs/dataset_partition_policies.md)
@@ -532,13 +546,15 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 51 deterministic scenarios,
+complete. Issue #104 is complete in the development baseline. Generated-output validation covers 52 deterministic scenarios,
 including both flat ongoing public-hand continuations, both timed historical
 continuations, bounded exact defender-open-play adjudication, and structured
-open-card-throw adjudication, plus coherent-world Policy Comparison.
+open-card-throw adjudication, coherent-world Policy Comparison, and exact
+evidence-constrained hidden-card inference with later evidence progression.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
-publication state.
+publication state. No tag, release, or issue publication action occurred for
+Issue #104.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
 simulation, opponent-policy modeling, game-result summaries, game-value
@@ -564,8 +580,8 @@ include additional structured historical endings, multiple events, or continuati
 solving, isolated-card claims, simultaneous throws and specific-trick assertions,
 additional historical end reasons, approved settlement
 completeness, complete-game coaching, stronger solving, complete field-level live
-provenance, broader information-safe hidden-card
-inference, full 36-game list aggregation, interactive input, and a stable
+provenance, hidden-card inference beyond confirmed structural decision-time
+evidence, full 36-game list aggregation, interactive input, and a stable
 installed interface. No website or browser integration exists. External and
 exact historically aggregated statistics can
 be validated, normalized, and reused by stable ID in live or strict time-safe
@@ -578,12 +594,19 @@ and target participant coverage includes all three players. It does not run reco
 simulation, claim strategic quality, evaluate unseen players, merge captures,
 or learn behavior. The product supports fixed three-player tables only.
 
-Multi-Step now samples one private hidden-card root per path and preserves that
+Exact hidden-card inference now constrains sampling from local and public exact
+hands, legitimately known skat, attributed public ownership, and confirmed legal
+failure to follow. It uses exact dynamic-programming counts, marginals, and
+uniform labeled assignments without behavioral, profile, future, result, or
+settlement evidence. See [Hidden-card inference](docs/hidden_card_inference.md).
+
+Multi-Step samples one private hidden-card root per path and preserves that
 ownership, including a fixed hypothetical skat, across supported preparation and
 completion steps. Policy Comparison gives equal independent immutable copies of
 one shared root to all policy paths. Local decision policies and JSON output do
 not receive private ownership; only privacy-safe count and status summaries are
-serialized. Immediate Analysis, historical decision-time information, feature
+serialized. Later visible simulated failures may add later evidence without
+changing the immutable root. Historical decision-time information, feature
 version `1`, rolling behavior, supported phases, and package version `0.8.0`
 remain unchanged. See
 [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and

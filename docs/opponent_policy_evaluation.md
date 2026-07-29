@@ -110,6 +110,13 @@ execution root or coherence summaries. Actual future target hands remain
 excluded. Feature version `1`, preferred-card candidates, profile derivation,
 strict as-of selection, and every rolling metric are unchanged by Issue #103.
 
+It also does not build or consume hidden-card inference summaries, compatible-
+world counts, ownership marginals, void confidence, or inference signals.
+Inference does not change source statistics, profiles, actionable gating,
+preferred cards, sample identities, or target `actual_card_played`. The evaluator
+remains behavioral and deterministic; it is not Bayesian, calibrated, learned,
+or strategically optimized. See [Hidden-card inference](hidden_card_inference.md).
+
 The acting player's own profile is evaluated. It is not attached to historical
 `left` or `right` recommendation slots. Defender partner-winning context is
 derived only from the visible current trick and stable declarer identity; a

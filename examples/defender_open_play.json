@@ -9,49 +9,49 @@
   "played_cards": [],
   "completed_tricks": [
     {
-      "cards": ["HJ", "CJ", "C8"],
-      "players": ["left", "right", "me"],
-      "winner_role": "defenders",
-      "winner_player": "right"
-    },
-    {
-      "cards": ["SJ", "H7", "H9"],
-      "players": ["right", "me", "left"],
-      "winner_role": "defenders",
-      "winner_player": "right"
-    },
-    {
-      "cards": ["DJ", "DA", "D10"],
-      "players": ["right", "me", "left"],
-      "winner_role": "defenders",
-      "winner_player": "right"
-    },
-    {
-      "cards": ["S10", "S7", "SA"],
-      "players": ["right", "me", "left"],
-      "winner_role": "declarer",
-      "winner_player": "left"
-    },
-    {
-      "cards": ["CA", "C10", "C9"],
+      "cards": ["H10", "HQ", "H9"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["H10", "HA", "HQ"],
+      "cards": ["S7", "S8", "SA"],
+      "players": ["left", "right", "me"],
+      "winner_role": "defenders",
+      "winner_player": "me"
+    },
+    {
+      "cards": ["DA", "DQ", "D10"],
+      "players": ["me", "left", "right"],
+      "winner_role": "defenders",
+      "winner_player": "me"
+    },
+    {
+      "cards": ["C8", "C10", "CQ"],
+      "players": ["me", "left", "right"],
+      "winner_role": "declarer",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["DJ", "HJ", "C7"],
       "players": ["left", "right", "me"],
       "winner_role": "defenders",
       "winner_player": "right"
     },
     {
-      "cards": ["SQ", "S8", "SK"],
+      "cards": ["SK", "S10", "H7"],
       "players": ["right", "me", "left"],
+      "winner_role": "defenders",
+      "winner_player": "me"
+    },
+    {
+      "cards": ["C9", "SJ", "HA"],
+      "players": ["me", "left", "right"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["DQ", "C7", "CQ"],
+      "cards": ["CJ", "SQ", "CA"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"

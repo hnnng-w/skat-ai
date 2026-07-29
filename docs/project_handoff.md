@@ -14,6 +14,7 @@ The project focuses on:
 * expected point swing estimation
 * card recommendations
 * multi-step simulation
+* exact evidence-constrained hidden-card inference and compatible-world sampling
 * opponent policy modeling
 * game result and settlement summaries
 * automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
@@ -115,6 +116,37 @@ Implemented:
 * shared-root Policy Comparison with equal independent immutable policy-path copies
 * privacy-safe coherent-world count and status summaries without hidden card identities
 
+### Hidden-card inference
+
+Implemented:
+
+* hard constraints only from the local exact hand, exact public hands,
+  legitimately known skat, attributed public played ownership, and confirmed
+  legal failure to follow the effective Suit/Grand/Null category
+* evidence beginning after the proving public play, persistent for later
+  decisions, and never retroactive; current-trick use requires concrete
+  leader/order
+* trusted canonical attributed completed history and stricter legal historical
+  replay, without guessing ownership from legacy `played_cards` or unattributed
+  tricks
+* immutable contradiction-checked constraints, exact DP compatible-world counts
+  and marginals, and deterministic uniform labeled-assignment sampling without a
+  rejection loop
+* concentration-only confidence: one-owner `confirmed`, `high` from `0.85`,
+  `medium` from `0.65`, and `low` below `0.65`, explicitly not calibrated
+* one model and common compatible worlds for Immediate candidates, one
+  compatible coherent Multi-Step root, and one shared Policy Comparison
+  model/root with immutable path copies
+* historical review constrained only by the visible decision prefix, current
+  trick, authorized public hands, and legitimately known skat
+* strict version-1 privacy-safe summaries without sampled hands/skat/root,
+  actual historical hidden hands, or DP tables
+
+The feature excludes tactical choices, declarations, profiles, concessions,
+timing, future play, complete post-game hands, result, value, overbid, and
+settlement evidence. It adds no behavioral, Bayesian, calibrated, learned, or
+new policy model. See [Hidden-card inference](hidden_card_inference.md).
+
 ### Game history and scoring
 
 Implemented:
@@ -191,11 +223,12 @@ Implemented:
 * `schemas/input.schema.json`
 * `schemas/output.schema.json`
 * focused historical-game, historical game-end/concession, historical-decision-snapshot, historical-game-review, and training-dataset schemas
+* strict version-1 hidden-card inference summary schema
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 51 deterministic scenarios.
+Generated-output validation currently covers 52 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -266,7 +299,7 @@ Known remaining areas:
 * no dedicated null-game defender-partnership strategy exists yet
 * no stable declarer/partner identity exists when the local player itself is only known generically as `defender`
 * no full partnership/tactical plan model exists yet
-* no perfect-information solving, search, machine learning, or hidden-card inference is used
+* no perfect-information solving, search, machine learning, behavioral/Bayesian inference, or broader tactical hidden-card inference is used by defender cooperation
 
 ### Post-game review
 
@@ -389,6 +422,7 @@ Implemented:
 ### Simulation
 
 * `simulation.py`
+* `hidden_card_inference.py`
 * `ouvert_simulation.py`
 * `simulation_step.py`
 * `multi_step_simulation.py`
@@ -440,6 +474,7 @@ Main documentation files:
 * `docs/historical_game_review.md`
 * `docs/ouvert_aware_simulation.md`
 * `docs/coherent_hidden_world_simulation.md`
+* `docs/hidden_card_inference.md`
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
 * `docs/dataset_partition_policies.md`
@@ -459,11 +494,14 @@ Current code and release-preparation baseline: `v0.8.0`.
 
 Current package version: `0.8.0`.
 
+Issue #104 is complete in the development baseline. No tag, GitHub Release, or
+issue publication action occurred; those actions remain human-controlled.
+
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 51 deterministic generated-output
+The `v0.8.0` development baseline validates 52 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -546,6 +584,7 @@ Subsequent bounded historical work:
 * #100 added timed non-terminal historical declarer-card-exposure continuation with the same information-safe downstream boundary
 * #102 connected declared-Ouvert exact public hands to flat and historical recommendation simulation while preserving existing scoring, policies, training versions, and rolling as-of safety
 * #103 preserved one private hidden-world assignment across every Multi-Step path and one shared root across independent Policy Comparison paths, with privacy-safe summaries
+* #104 added exact structural hidden-card constraints, DP compatible-world counts and marginals, uniform sampling, workflow sharing, historical leakage controls, and privacy-safe summaries
 
 ## Current implementation baseline
 
@@ -568,6 +607,7 @@ Completed implementation scope:
 * timed normal-completion continuation with an exact shrinking public defender or declarer hand
 * declared-Ouvert exact public-hand constraints in Immediate Analysis, supported Multi-Step, Policy Comparison, flat review, and historical review
 * coherent private hidden-world ownership across each Multi-Step path and shared-root Policy Comparison
+* exact evidence-constrained hidden-card inference across Immediate, Multi-Step, Policy Comparison, and historical review
 
 ## Current high-priority limitations
 
@@ -575,8 +615,8 @@ Completed implementation scope:
 * Historical opponent-statistics aggregation and rolling policy evaluation support exactly those five end reasons; other end reasons remain unsupported.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * General live position input lacks complete field-level provenance.
-* Coherent Multi-Step execution does not infer the real deal or provide exhaustive search.
-* Broader information-safe hidden-card inference and stronger search or solver functionality are not implemented.
+* Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
+* Hidden-card inference beyond confirmed structural decision-time evidence and stronger search or solver functionality are not implemented.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.

@@ -199,6 +199,17 @@ Run the deterministic three-step coherent-world Policy Comparison example:
 python main.py --input examples/grand_coherent_hidden_world.json --multi-step 3 --card-policy highest_expected_value --expected-value-samples 20 --compare-policies
 ```
 
+Run exact evidence-constrained hidden-card inference through two Multi-Step
+decisions:
+
+```powershell
+python main.py --input examples/grand_hidden_card_inference.json --multi-step 2
+```
+
+The attributed Grand history confirms that `right` failed to follow clubs. The
+root has exactly `275275` compatible labeled worlds, and a later simulated
+public failure demonstrates evidence progression at a later step.
+
 Print only policy-comparison output in the human-readable CLI view:
 
 ```powershell
@@ -249,6 +260,7 @@ Live decision examples must not include post-game-only information such as `know
 | `grand_late_game_history_heavy_live.json`  | Late-game live defender position with zero opponent hand sizes, nine ordered completed tricks, and completed-trick matador inference. |
 | `grand_left_right_opponent_policies.json`  | Grand game with distinct global, left-opponent, and right-opponent policy settings.                                           |
 | `grand_coherent_hidden_world.json`         | Late Grand position used by three-step Policy Comparison to verify one shared root world, independent immutable policy paths, fixed hypothetical skat, and privacy-safe summaries. |
+| `grand_hidden_card_inference.json`         | Grand position with attributed failure-to-follow evidence, exact compatible-world count and marginals, privacy-safe inference output, and later Multi-Step evidence progression. |
 | `hearts_leading.json`                      | Suit game example.                                                                                                           |
 | `null_second_position.json`                | Null game example.                                                                                                           |
 
@@ -374,12 +386,13 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 51 scenarios, including variable-length training data,
+therefore covers 52 scenarios, including variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
 play adjudication, open-card-throw adjudication, and the generated three-step
 coherent hidden-world Policy Comparison scenario based on
-`grand_coherent_hidden_world.json`.
+`grand_coherent_hidden_world.json`, plus the exact hidden-card inference scenario
+with a `275275`-world root and later evidence progression.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -746,6 +759,7 @@ When adding new examples:
 * set `game_end_reason` consistently with known card points
 * add explicit `players` to completed tricks when winner metadata must be verifiable
 * prefer `completed_tricks` over `played_cards`
+* include ordered `completed_tricks[].players` when public ownership or failure-to-follow evidence should drive hidden-card inference; never rely on guessed ownership from legacy `played_cards`
 * use `performance_rating_system: "isko_list"` only when partial SkWO performance output should be demonstrated
 * omit `matadors` only when automatic inference from known declarer-card context is intended
 * prefer either top-level declaration fields or nested `game_declaration`; mixing is supported, with top-level fields taking precedence
@@ -779,6 +793,7 @@ Generated outputs may include:
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested
 * `policy_comparison_result`, if policy comparison is requested
+* `hidden_card_inference_summary`, when confirmed attributed failure-to-follow evidence is available
 
 Complete historical and training-dataset inputs instead use the mutually
 exclusive `historical_game_summary` and `training_dataset_summary` branches.
@@ -788,3 +803,4 @@ Training-dataset aggregation instead uses
 For detailed output field descriptions, see:
 
 * [Output JSON documentation](output_json.md)
+* [Hidden-card inference](hidden_card_inference.md)

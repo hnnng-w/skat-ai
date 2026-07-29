@@ -337,6 +337,9 @@
           "maxItems": 10
         },
         "post_game_review_summary": {"$ref": "#/$defs/post_game_review"},
+        "hidden_card_inference_summary": {
+          "$ref": "https://example.local/skat-ai/hidden_card_inference_summary.schema.json"
+        },
         "public_hand_constraints": {
           "type": "array",
           "minItems": 1,

@@ -4,6 +4,7 @@ import random
 from typing import TYPE_CHECKING, Any
 
 from skat_ai.game_state import GameState
+from skat_ai.hidden_card_inference import HiddenCardInferenceModel
 from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.simulation import simulate_immediate_trick_once_detailed
 from skat_ai.state_transition import advance_state_after_detailed_trick
@@ -23,6 +24,7 @@ def simulate_and_advance_once(
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
     coherent_hidden_world: CoherentHiddenWorld | None = None,
     coherent_step_index: int = 0,
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> dict[str, Any]:
     """
     Simulates one immediate trick and advances the game state.
@@ -42,6 +44,7 @@ def simulate_and_advance_once(
         public_hand_constraints=public_hand_constraints,
         coherent_hidden_world=coherent_hidden_world,
         coherent_step_index=coherent_step_index,
+        hidden_card_inference_model=hidden_card_inference_model,
     )
 
     updated_hidden_world = detailed_result.pop("_coherent_hidden_world", None)

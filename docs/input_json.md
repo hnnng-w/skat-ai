@@ -374,6 +374,26 @@ and do not replace the execution root. Immediate Analysis, supported phases,
 stops, and existing input settings are unchanged. See
 [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
+### Hidden-card inference evidence
+
+Hidden-card inference requires no new input field. When public play confirms a
+legal failure to follow, the engine derives an exact decision-time constraint
+from the existing position. Allowed hard evidence is limited to `hand`, exact
+authorized public hands, legitimately known `skat`, attributed public played
+ownership, and confirmed failure to follow the led effective category.
+
+Effective categories reuse `get_effective_suit`: Suit and Grand separate trump
+from side suits, and Null uses printed suits. Evidence begins after the public
+off-category play, persists for later decisions, and is never retroactive. A
+non-empty `current_trick` contributes only when concrete `trick_leader` and the
+fixed seating order attribute every supplied card. Exact Ouvert and continuation
+hands remain authoritative; a conflict with inferred evidence is rejected.
+
+Tactical choices, bids and declarations, profiles, concessions, timing, future
+play, complete post-game hands, final results, game values, overbid, and
+settlement never create inference constraints or weights. See
+[Hidden-card inference](hidden_card_inference.md).
+
 ## Declarer identity
 
 `player_role` describes the local player's side. `declarer_player` identifies the concrete player who declared the game.
@@ -1405,6 +1425,13 @@ Validation rules:
 * In `live_decision`, `winner_role` must be verifiable from `cards`, `players`, `game_type`, and concrete `declarer_player`; unverifiable or contradictory live `winner_role` values are rejected.
 
 Older completed-trick entries without `players` or `winner_player` remain supported, but they cannot be checked as strictly. Existing explicit `winner_role` values remain accepted as side-level facts unless concrete `players` plus declarer identity, or concrete `winner_player` plus declarer identity, prove a conflict.
+
+For hidden-card inference, canonical `cards` plus ordered `players` provide
+trusted legal attributed public history after ordinary position validation.
+Complete historical replay proves ownership, order, and follow legality more
+strictly. Legacy `played_cards` and completed tricks without `players` are never
+assigned to a guessed owner; mixed attributed and unattributed history is
+reported as partial provenance.
 
 For matador inference, completed tricks contribute ownership facts only when `cards`, ordered `players`, and concrete `declarer_player` are present. `winner_role`, `winner_player`, and trick winner alone are not used to infer matador ownership.
 

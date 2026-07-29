@@ -10,7 +10,9 @@ perfect-information solver or a claim that the sampled world is the real deal.
 One immutable private execution root assigns every currently unknown opponent
 card to `left` or `right` and assigns the remaining unseen cards to one fixed
 hypothetical skat. Public state and every exact `PublicHandConstraint` are
-reconciled before the root is accepted.
+reconciled before the root is accepted. When attributed public play confirms a
+failure to follow, the root is sampled uniformly from only the exact compatible
+labeled assignments counted by the hidden-card inference model.
 
 The root ownership assignment is preserved for the complete path:
 
@@ -41,9 +43,10 @@ counterfactual Monte Carlo samples. Those samples rank legal local candidates;
 they do not expose, replace, or mutate the private execution root used to carry
 the selected action forward. Other local card-selection policies are unchanged.
 
-Immediate Analysis is unchanged. It continues to sample the documented
-candidate rollouts and does not create or serialize a persistent Multi-Step
-execution root.
+Immediate Analysis does not create a persistent Multi-Step execution root. It
+derives one exact inference model for the decision and gives every legal
+candidate the same compatible-world sequence. Legal cards, policies, objectives,
+and tie behavior are unchanged.
 
 ## Random streams
 
@@ -58,7 +61,9 @@ stream. Unseeded execution remains probabilistic.
 Policy Comparison samples one shared root assignment for the comparison. Every
 policy path receives an equal independent immutable copy of that root. Paths may
 then diverge through their selected local actions and resulting opponent plays
-without mutating another policy's world.
+without mutating another policy's world. They share one root inference model;
+later visible simulated failure-to-follow evidence may diverge by path after
+their public plays diverge.
 
 This keeps compared policies equal on initial hidden ownership as well as public
 constraints and settings. Differences cannot come from a separately resampled
@@ -79,20 +84,28 @@ root-sample-count, independent-path, policy-path-count, and privacy status. Each
 policy row's context summary reports the same privacy-safe per-path coherence
 shape.
 
+When confirmed failure-to-follow evidence exists, Multi-Step and Policy
+Comparison also emit the version-1 privacy-safe
+`hidden_card_inference_summary`. Multi-Step may emit a later step summary after
+new visible simulated evidence. Neither summary emits sampled ownership,
+hypothetical skat cards, or dynamic-programming tables.
+
 See [Output JSON](output_json.md) for the stable fields and
 [`examples/grand_coherent_hidden_world.json`](../examples/grand_coherent_hidden_world.json)
 for the deterministic three-step Policy Comparison scenario.
 
 ## Historical and data boundaries
 
-Historical review remains an Immediate Analysis workflow. Its decision-time
-snapshot excludes actual future hands and future plays, and no later historical
-ownership is used to construct a simulated world. The new Multi-Step root does
-not authorize complete-deal or future-hand leakage into historical review.
+Historical review remains an Immediate Analysis workflow. Its inference model
+uses only the visible attributed prefix, current trick, public hands, and
+legitimately known skat. The actual next card, future hands and plays, complete-
+deal ownership, result, settlement, and not-yet-public events are excluded. The
+Multi-Step root does not authorize future-hand leakage into historical review.
 
 Training feature generation remains version `1` with target
 `actual_card_played`. No root-world card, simulated ownership, coherence field,
-or future hand is added to model-facing features or labels. Rolling
+inference feature, ownership statistic, evidence signal, or future hand is added
+to model-facing features or labels. Rolling
 opponent-policy evaluation remains a snapshot-based deterministic behavioral
 comparison and does not run Multi-Step or consume a private execution root.
 
@@ -101,7 +114,9 @@ comparison and does not run Multi-Step or consume a private execution root.
 Supported and unsupported turn phases and `unsupported_turn_phase` stops are
 unchanged. This feature does not add automatic completion of opponent-only
 phases, new input fields, new policies, a solver, minimax, exhaustive world
-enumeration, posterior hidden-card inference, complete-contract expected value,
-learned behavior, model training, or confidence that the sampled root matches
-the real deal. Scoring, settlement, historical schemas, training versions, and
-rolling metrics are unchanged. The package version remains `0.8.0`.
+search, behavioral or Bayesian hidden-card inference, complete-contract expected
+value, learned behavior, model training, or confidence that the sampled root
+matches the real deal. Exact DP enumeration counts compatible assignments but
+does not expose or exhaustively simulate them. Scoring, settlement, training
+versions, and rolling metrics are unchanged. The package version remains
+`0.8.0`. See [Hidden-card inference](hidden_card_inference.md).

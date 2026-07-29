@@ -168,6 +168,13 @@ and actual future historical hands remain excluded from version-1 features and
 labels. Dataset conversion does not run Multi-Step, so Issue #103 does not change
 feature values, sample cardinality, or schema versions.
 
+Issue #104 likewise does not run inference during feature generation and adds no
+inference evidence, compatible-world count, ownership marginal, confidence,
+privacy summary, statistic, or signal to features, metadata, or labels. Feature-
+generation version `1`, target `actual_card_played`, stable
+`record_id:decision_index` sample IDs, profile inputs, and sample cardinality are
+unchanged. See [Hidden-card inference](hidden_card_inference.md).
+
 The label card is the historical actual card. It must be in the pre-play own
 hand and legal-card set and absent from the pre-play current trick. A
 recommendation, review quality, or final result is never a version-1 target.

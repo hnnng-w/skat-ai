@@ -78,6 +78,11 @@ additional card enters that hand, and no public declarer card enters a defender
 hand or the skat. Immediate candidate rollouts use the same exact hand and
 otherwise retain their existing behavior.
 
+Confirmed attributed failure-to-follow evidence may further constrain unknown
+defender and skat assignments. The exact public declarer hand remains
+authoritative, and a conflict with a persistent void constraint is rejected.
+The continuation response and claimed level never become inference evidence.
+
 Multi-Step samples one coherent private root per path. The exposed declarer hand,
 both defender hands, and hypothetical skat retain their root ownership through
 opponent preparation and trick completion. A card is removed only when its owner
@@ -110,7 +115,9 @@ deduplicates identical declarer evidence in favor of source `declared_ouvert`.
 This continuation feature still does not add multiple historical events,
 continuation followed by shortening, new policies, later
 final-settlement adjudication, or
-general hidden-card inference or proof that the sampled world is the real deal.
+behavioral/Bayesian or broader hidden-card inference or proof that the sampled
+world is the real deal. The bounded structural model is documented in
+[Hidden-card inference](hidden_card_inference.md).
 Bounded exact ISkO 4.4.5 adjudication is a
 separate final workflow documented in [Defender open play](defender_open_play.md).
 ISkO 4.4.6 is the separate final non-continuing workflow documented in

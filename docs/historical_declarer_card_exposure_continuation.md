@@ -100,9 +100,17 @@ Snapshots and historical review map the stable declarer to `me`, `left`, or
 sampler. No additional card enters the declarer's hand; only genuinely unknown
 cards are sampled. Every compared policy receives the same constraint.
 
+For post-event review decisions, this exact shrinking hand remains authoritative
+when attributed prefix play also proves a failure to follow. Contradictions are
+rejected. Pre-event review cannot use the event, exposed hand, claim, or defender
+responses as inference evidence.
+
 Historical review remains Immediate Analysis and does not use the later complete
 deal to construct a Multi-Step root. Actual future hands remain excluded from
-every pre-play decision state.
+every pre-play decision state. A decision's hidden-card model uses only its
+visible prefix, current trick, public hands, and legitimate skat knowledge; the
+actual next card, future cards, result, and settlement are excluded. See
+[Hidden-card inference](hidden_card_inference.md).
 
 ## Downstream workflows
 

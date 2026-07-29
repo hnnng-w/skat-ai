@@ -9,55 +9,55 @@
   "played_cards": [],
   "completed_tricks": [
     {
-      "cards": ["HJ", "CJ", "C8"],
-      "players": ["left", "right", "me"],
-      "winner_role": "defenders",
-      "winner_player": "right"
-    },
-    {
-      "cards": ["SJ", "H7", "H9"],
+      "cards": ["CJ", "SJ", "HJ"],
       "players": ["right", "me", "left"],
       "winner_role": "defenders",
       "winner_player": "right"
     },
     {
-      "cards": ["DA", "D10", "DJ"],
+      "cards": ["CQ", "C7", "CA"],
       "players": ["right", "me", "left"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["SA", "S10", "S7"],
+      "cards": ["C10", "CK", "C8"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["CA", "C10", "C9"],
+      "cards": ["SA", "SK", "S9"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["HA", "H10", "HQ"],
+      "cards": ["S10", "SQ", "S8"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["SK", "SQ", "S8"],
+      "cards": ["HA", "HQ", "H8"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["DQ", "C7", "CQ"],
+      "cards": ["H10", "H9", "H7"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"
     },
     {
-      "cards": ["CK", "H8", "S9"],
+      "cards": ["DA", "D10", "DQ"],
+      "players": ["left", "right", "me"],
+      "winner_role": "declarer",
+      "winner_player": "left"
+    },
+    {
+      "cards": ["DJ", "C9", "S7"],
       "players": ["left", "right", "me"],
       "winner_role": "declarer",
       "winner_player": "left"

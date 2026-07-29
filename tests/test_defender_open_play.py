@@ -133,6 +133,7 @@ def test_context_rejects_declarer_as_exposing_player() -> None:
 def test_context_rejects_more_than_five_remaining_tricks() -> None:
     data = load_example()
     data["completed_tricks"] = data["completed_tricks"][:4]
+    data["game_declaration"]["matadors"] = 2
     open_play = build_defender_open_play(data["game_shortening"])
 
     with pytest.raises(ValueError, match="at most five"):

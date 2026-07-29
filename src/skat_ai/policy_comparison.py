@@ -8,6 +8,10 @@ from skat_ai.coherent_hidden_world import (
     derive_simulation_child_seed,
 )
 from skat_ai.game_state import GameState
+from skat_ai.hidden_card_inference import (
+    build_hidden_card_inference_model,
+    build_hidden_card_inference_summary,
+)
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
 from skat_ai.public_hand_constraint import PublicHandConstraint
@@ -41,12 +45,19 @@ def compare_multi_step_policies(
         random_seed,
         "policy_comparison_setup",
     )
+    shared_inference_model = build_hidden_card_inference_model(
+        state,
+        left_hand_size,
+        right_hand_size,
+        public_hand_constraints,
+    )
     shared_initial_hidden_world = build_coherent_hidden_world(
         state=state,
         left_hand_size=left_hand_size,
         right_hand_size=right_hand_size,
         random_generator=random.Random(comparison_setup_seed),
         public_hand_constraints=public_hand_constraints,
+        hidden_card_inference_model=shared_inference_model,
     )
 
     policy_results = []
@@ -72,6 +83,7 @@ def compare_multi_step_policies(
             initial_hidden_world=copy_coherent_hidden_world(
                 shared_initial_hidden_world
             ),
+            initial_hidden_card_inference_model=shared_inference_model,
         )
 
         summary = multi_step_result["summary"]
@@ -123,6 +135,9 @@ def compare_multi_step_policies(
             "hidden_cards_emitted": False,
         },
     }
+    inference_summary = build_hidden_card_inference_summary(shared_inference_model)
+    if inference_summary is not None:
+        comparison_result["hidden_card_inference_summary"] = inference_summary
 
     comparison_result["recommended_policy"] = build_policy_recommendation(comparison_result)
 

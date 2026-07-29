@@ -5,6 +5,7 @@ from dataclasses import replace
 import pytest
 
 from skat_ai.deck import get_full_deck
+from skat_ai.hidden_card_inference import build_hidden_card_inference_model
 from skat_ai.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot_summary,
@@ -16,6 +17,7 @@ from skat_ai.historical_game import (
 )
 from skat_ai.historical_game_review import (
     HistoricalGameReviewSettings,
+    _build_reviewed_decision,
     build_historical_game_review_summary,
 )
 from skat_ai.historical_snapshot_adapter import (
@@ -132,6 +134,7 @@ def build_stub_expected_value_recommendation(
     use_basic_opponent_strategy=True,
     opponent_response_policy_by_player=None,
     public_hand_constraints=(),
+    hidden_card_inference_model=None,
 ):
     del (
         left_hand_size,
@@ -141,6 +144,7 @@ def build_stub_expected_value_recommendation(
         use_basic_opponent_strategy,
         opponent_response_policy_by_player,
         public_hand_constraints,
+        hidden_card_inference_model,
     )
     legal_cards = get_legal_cards(
         state.hand,
@@ -712,6 +716,83 @@ def test_historical_review_uses_only_snapshot_state_for_unchanged_prefix(
     assert hidden_initial_cards.isdisjoint(first_state.hand)
 
 
+def test_historical_inference_and_recommendation_ignore_future_hidden_ownership() -> None:
+    record, snapshot_summary = build_typed_historical_review_inputs(
+        build_historical_input()
+    )
+    selected_snapshot = None
+    selected_position = None
+    for snapshot in snapshot_summary.snapshots:
+        position = build_position_from_historical_snapshot(snapshot, record)
+        model = build_hidden_card_inference_model(
+            position.state,
+            position.left_hand_size,
+            position.right_hand_size,
+            position.public_hand_constraints,
+        )
+        if model is not None:
+            selected_snapshot = snapshot
+            selected_position = position
+            break
+    assert selected_snapshot is not None
+    assert selected_position is not None
+
+    visible_cards = set(selected_position.state.hand)
+    visible_cards.update(selected_position.state.current_trick)
+    visible_cards.update(selected_position.state.skat)
+    for trick in selected_position.state.completed_tricks:
+        visible_cards.update(trick["cards"])
+    hidden_players = [
+        player
+        for player in record.players
+        if player.player_id != selected_snapshot.acting_player_id
+    ]
+    first_hidden_card = next(
+        card for card in hidden_players[0].initial_hand if card not in visible_cards
+    )
+    second_hidden_card = next(
+        card for card in hidden_players[1].initial_hand if card not in visible_cards
+    )
+    changed_players = tuple(
+        replace(
+            player,
+            initial_hand=tuple(
+                second_hidden_card
+                if card == first_hidden_card
+                else first_hidden_card
+                if card == second_hidden_card
+                else card
+                for card in player.initial_hand
+            ),
+        )
+        if player.player_id in {hidden_players[0].player_id, hidden_players[1].player_id}
+        else player
+        for player in record.players
+    )
+    changed_record = replace(record, players=changed_players)
+
+    original = _build_reviewed_decision(
+        selected_snapshot,
+        record,
+        sample_count=5,
+        effective_random_seed=104,
+    )
+    changed = _build_reviewed_decision(
+        selected_snapshot,
+        changed_record,
+        sample_count=5,
+        effective_random_seed=104,
+    )
+
+    assert changed_record.players != record.players
+    assert original["hidden_card_inference_summary"] == changed[
+        "hidden_card_inference_summary"
+    ]
+    assert original["analysis_report"] == changed["analysis_report"]
+    assert original["recommendation"] == changed["recommendation"]
+    assert original["post_game_review_summary"] == changed[
+        "post_game_review_summary"
+    ]
 def test_historical_review_actual_card_is_only_a_decision_label(monkeypatch) -> None:
     monkeypatch.setattr(
         "skat_ai.historical_game_review.recommend_card_by_expected_value",

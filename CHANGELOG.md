@@ -4,13 +4,36 @@
 
 **Release theme: Explainable and time-safe opponent intelligence**
 
+### Evidence-constrained hidden-card inference
+
+* Add exact hard constraints from local and rule-authorized public ownership,
+  legitimately known skat, attributed public plays, and confirmed legal failure
+  to follow the effective Suit, Grand, or Null category.
+* Count compatible left/right/hypothetical-skat labeled assignments and exact
+  per-card marginals with dynamic programming, then sample uniformly and
+  deterministically by completion count without rejection loops.
+* Apply one decision model and common compatible worlds to Immediate candidates,
+  one compatible coherent root to Multi-Step, and one shared model/root with
+  immutable path copies to Policy Comparison; later visible simulated evidence
+  may progress independently by path.
+* Keep historical inference decision-time safe and serialize only strict
+  version-1 privacy-safe summaries with uncalibrated concentration labels.
+* Add `src/skat_ai/hidden_card_inference.py`,
+  `schemas/hidden_card_inference_summary.schema.json`,
+  `examples/grand_hidden_card_inference.json`, and
+  `tests/test_hidden_card_inference.py` without changing package version `0.8.0`.
+* Preserve rules, policies, objectives, scoring, settlement, training feature
+  version `1`, sample IDs, profiles, statistics, and rolling evaluation. Issue
+  #104 is complete in the development baseline; no tag, release, or issue
+  publication action occurred.
+
 ### Coherent hidden-world simulation
 
 * Sample one immutable private execution root per Multi-Step path, preserve opponent ownership through owner-aware card removal, and keep one fixed hypothetical skat without changing package version `0.8.0`.
 * Use the same root through opponent-turn preparation and candidate-trick completion while keeping local decision policies on public decision-time information and retaining separate counterfactual samples for `highest_expected_value`.
 * Derive stable separate seeded streams for root sampling, opponent actions, and per-step expected-value samples; Immediate Analysis and supported turn phases remain unchanged.
 * Give every Policy Comparison path an equal independent immutable copy of one shared root and serialize only privacy-safe coherence counts and status fields.
-* Add `examples/grand_coherent_hidden_world.json` and a deterministic three-step Policy Comparison generated-output scenario, bringing current generated-output coverage to 51 scenarios.
+* Add `examples/grand_coherent_hidden_world.json` and a deterministic three-step Policy Comparison generated-output scenario; the current matrix, including the later hidden-card inference scenario, covers 52 scenarios.
 * Preserve historical future-hand exclusion, training feature version `1`, rolling opponent-policy behavior, scoring, settlement, and existing policy semantics.
 
 ### Ouvert-aware recommendation simulation

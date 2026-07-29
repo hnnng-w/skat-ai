@@ -123,6 +123,9 @@ DEFENDER_OPEN_PLAY_CONTINUATION_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "defender_open_play_continuation_output.schema.json"
 )
 PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "public_hand_constraint.schema.json"
+HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "hidden_card_inference_summary.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -2305,6 +2308,72 @@ def check_live_external_opponent_profiles(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_hidden_card_inference(data: dict[str, Any]) -> list[str]:
+    """Checks exact evidence-constrained counting, sampling, and privacy."""
+    errors = []
+    summary = data.get("hidden_card_inference_summary")
+    multi_step = data.get("multi_step_result")
+    if not isinstance(summary, dict):
+        return ["expected top-level hidden_card_inference_summary"]
+    if not isinstance(multi_step, dict):
+        return ["expected evidence-constrained multi_step_result"]
+    if summary.get("compatible_world_count") != 275275:
+        errors.append("expected exactly 275275 compatible root worlds")
+    if summary.get("confirmed_voids") != [
+        {"player": "right", "forbidden_effective_categories": ["clubs"]}
+    ]:
+        errors.append("expected confirmed right-player Clubs void evidence")
+    estimates = summary.get("ownership_estimates", [])
+    if not any(
+        estimate["ownership_probability"]["right"] == 0.0
+        for estimate in estimates
+    ):
+        errors.append("expected at least one impossible right-owner marginal")
+    if not any(estimate["confidence"] != "confirmed" for estimate in estimates):
+        errors.append("expected at least one bounded non-confirmed estimate")
+    if summary.get("confidence_is_calibrated") is not False:
+        errors.append("expected explicitly non-calibrated confidence")
+    if multi_step.get("hidden_card_inference_summary") != summary:
+        errors.append("expected Multi-Step to use the equivalent root evidence model")
+    if multi_step["context_summary"]["hidden_world"]["ownership_violation_detected"]:
+        errors.append("expected compatible coherent root ownership")
+    if not any(
+        step.get("hidden_card_inference_summary", {}).get(
+            "confirmed_void_evidence_count", 0
+        )
+        > summary["confirmed_void_evidence_count"]
+        for step in multi_step["steps"]
+    ):
+        errors.append("expected later simulated public evidence progression")
+
+    forbidden_keys = {
+        "left_hand",
+        "right_hand",
+        "sampled_hypothetical_skat",
+        "coherent_root_ownership",
+        "dynamic_programming_table",
+        "actual_historical_hidden_hands",
+    }
+
+    def collect_keys(value: Any) -> set[str]:
+        if isinstance(value, dict):
+            return set(value).union(
+                *(collect_keys(item) for item in value.values()),
+            )
+        if isinstance(value, list):
+            return set().union(*(collect_keys(item) for item in value))
+        return set()
+
+    emitted_forbidden_keys = collect_keys(data).intersection(forbidden_keys)
+    if emitted_forbidden_keys:
+        errors.append(
+            f"expected no private hidden ownership keys, got {sorted(emitted_forbidden_keys)}"
+        )
+    if any(summary["privacy_flags"].values()):
+        errors.append("expected every hidden-card inference privacy flag to be false")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -2442,6 +2511,18 @@ SCENARIOS = (
             "--compare-policies",
         ),
         check_output=check_coherent_hidden_world_policy_comparison,
+    ),
+    Scenario(
+        name="grand_hidden_card_inference",
+        input_path=PROJECT_ROOT / "examples" / "grand_hidden_card_inference.json",
+        branch="evidence-constrained hidden-card inference with coherent Multi-Step root",
+        cli_args=(
+            "--multi-step",
+            "2",
+            "--expected-value-samples",
+            "20",
+        ),
+        check_output=check_hidden_card_inference,
     ),
     Scenario(
         name="comparison_only_policy_comparison",
@@ -2937,6 +3018,9 @@ def validate_generated_outputs() -> list[str]:
         DEFENDER_OPEN_PLAY_CONTINUATION_OUTPUT_SCHEMA_PATH
     )
     public_hand_constraint_schema = load_json_file(PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH)
+    hidden_card_inference_summary_schema = load_json_file(
+        HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -3092,6 +3176,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 public_hand_constraint_schema["$id"],
                 Resource.from_contents(public_hand_constraint_schema),
+            ),
+            (
+                hidden_card_inference_summary_schema["$id"],
+                Resource.from_contents(hidden_card_inference_summary_schema),
             ),
         ]
     )

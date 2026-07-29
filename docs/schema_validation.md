@@ -140,6 +140,7 @@ The output schema checks the main output structure, including:
 * optional live `opponent_profile_application_summary` through its focused schema
 * `multi_step_result`, when Multi-Step simulation is requested
 * `policy_comparison_result`, when policy comparison is requested
+* optional `hidden_card_inference_summary` through its strict focused version-1 schema at position, Multi-Step, Policy Comparison, and historical-review decision locations
 * the separate `historical_game_summary` branch
 * versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, terminal open-card-throw, and both timed continuation input/output schemas
 * optional versioned historical decision snapshots through the focused referenced schema
@@ -151,7 +152,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 51 deterministic scenarios. Position
+Generated-output validation covers 52 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -184,6 +185,12 @@ time-safe historical external-profile review, and one exact historical
 opponent-statistics aggregation with strict selection and standalone export,
 and one rolling as-of opponent-policy evaluation with baseline-only low-
 confidence coverage, plus one exact stable-player dataset-partition audit.
+The additional hidden-card inference scenario uses
+`examples/grand_hidden_card_inference.json` with two Multi-Step decisions. It
+semantically verifies the exact root count `275275`, a confirmed right-player
+Grand clubs void, exact ownership marginals, shared root evidence, later visible
+simulated evidence progression, compatible coherent ownership, uncalibrated
+confidence, and privacy-safe output.
 The additional rolling scenario uses a normal source, a zero-play concession
 source, and a 14-decision concession target. Its schema permits empty target
 decision arrays, zero overall decisions, null zero-denominator rates, and
@@ -195,6 +202,14 @@ The coherent-world scenario uses
 semantically verifies one shared root, equal independent policy-path worlds,
 owner-aware count reconciliation, a fixed hypothetical skat, no resampling, and
 the absence of private hidden-card fields.
+
+`schemas/hidden_card_inference_summary.schema.json` defines the strict version-1
+summary and is referenced by position, Multi-Step, Policy Comparison, and
+historical-review output. It fixes evidence and confidence enums, `0.85` and
+`0.65` thresholds, exact compatible-world metadata, and all privacy flags.
+Runtime validation remains authoritative for attributed chronology, effective-
+category follow evidence, exact-hand contradictions, compatible assignment
+existence, DP counts and marginals, and uniform sampling semantics.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

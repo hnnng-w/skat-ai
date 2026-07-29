@@ -94,6 +94,12 @@ not change this mapping. Opponent hand-size rows use `left`, then `right` order.
 * declarer and defender points from prior completed tricks only
 * both opponents' public remaining-card counts without card identities
 
+These attributed public prefixes can support later hidden-card inference during
+review. A failure to follow becomes evidence only after the off-category play,
+persists in later snapshots, and is never applied retroactively. Current-trick
+cards are usable only when the concrete leader and fixed order identify their
+owners. Exact public hands and legitimately known skat remain authoritative.
+
 Completed tricks include ordered stable player IDs and cards, the derived winner
 ID and side, and trick points. Current-trick lengths are `0`, `1`, and `2` before
 the first, second, and third play. Point totals exclude the incomplete current
@@ -135,11 +141,20 @@ ratings. Concession facts and defender consent are also excluded. The builder
 consumes the validated historical replay result and does
 not perform a second competing complete-game validation.
 
+Replay uses the complete deal to prove legality, ownership, order, and follow
+rules, but the complete hidden hands are not copied into a snapshot or inference
+model. The actual card is a retrospective label outside `visible_state` and is
+not evidence before analysis; actual next and future cards, later events, final
+result, and settlement are likewise excluded.
+
 Coherent Multi-Step execution does not widen this boundary. A snapshot never
 contains actual future hands and cannot initialize a simulation from later
 complete-deal ownership. Historical review remains an Immediate Analysis flow;
 any candidate sample is generated only from that decision's visible state and
 authorized public constraints.
+
+See [Hidden-card inference](hidden_card_inference.md) for the exact allowed
+evidence, persistence, compatible-world, and privacy contract.
 
 External profile application does not add source statistics or hidden cards to
 `visible_state`. Historical review uses the existing `relative_player_map` only

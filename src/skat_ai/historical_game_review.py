@@ -7,6 +7,10 @@ from skat_ai.effective_opponent_policy import (
     build_effective_opponent_policy_settings,
 )
 from skat_ai.game_value import get_null_game_value
+from skat_ai.hidden_card_inference import (
+    build_hidden_card_inference_model,
+    build_hidden_card_inference_summary,
+)
 from skat_ai.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
     HistoricalDecisionSnapshotSummary,
@@ -93,16 +97,22 @@ def _build_reviewed_decision(
         snapshot=snapshot,
         historical_record=historical_record,
     )
+    hidden_card_inference_model = build_hidden_card_inference_model(
+        position.state,
+        position.left_hand_size,
+        position.right_hand_size,
+        position.public_hand_constraints,
+    )
     recommended_card, recommendation_reason, values = (
         recommend_card_by_expected_value(
             state=position.state,
             left_hand_size=position.left_hand_size,
             right_hand_size=position.right_hand_size,
             sample_count=sample_count,
-            random_seed=effective_random_seed,
-            opponent_response_policy_by_player=opponent_response_policy_by_player,
-            public_hand_constraints=position.public_hand_constraints,
-        )
+                random_seed=effective_random_seed,
+                opponent_response_policy_by_player=opponent_response_policy_by_player,
+                public_hand_constraints=position.public_hand_constraints,
+            )
     )
     analysis_report = build_card_analysis_report_from_values(
         state=position.state,
@@ -141,6 +151,11 @@ def _build_reviewed_decision(
     }
     if opponent_profile_application is not None:
         result["opponent_profile_application"] = opponent_profile_application
+    inference_summary = build_hidden_card_inference_summary(
+        hidden_card_inference_model
+    )
+    if inference_summary is not None:
+        result["hidden_card_inference_summary"] = inference_summary
     if any(
         constraint.source == DECLARED_OUVERT_SOURCE
         for constraint in position.public_hand_constraints

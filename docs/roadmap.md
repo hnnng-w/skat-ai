@@ -32,6 +32,9 @@ Implemented:
 * One immutable private hidden-world root per Multi-Step path with owner-aware card removal and a fixed hypothetical skat
 * One shared Policy Comparison root with equal independent immutable copies for policy paths
 * Privacy-safe coherent-world count and status summaries without hidden cards
+* Exact hidden-card constraints from local/public ownership, legitimately known skat, attributed public play, and confirmed legal failure to follow
+* Exact DP compatible-world counts and ownership marginals with deterministic uniform labeled-assignment sampling
+* Common compatible worlds for Immediate candidates, compatible Multi-Step roots, shared Policy Comparison models/roots, and later visible evidence progression
 
 ### Game history and scoring
 
@@ -104,6 +107,7 @@ Implemented:
 * `information_policy_summary` output
 * Rejection of post-game-only information in `live_decision`
 * Requirement that ended game reasons use `post_game_review`
+* Version-1 privacy-safe hidden-card inference summaries with explicit non-behavioral, non-calibrated, no-future-information flags
 
 ### Opponent modeling
 
@@ -194,6 +198,7 @@ Implemented:
 * Input JSON schema
 * Output JSON schema
 * Focused historical-game, decision-snapshot, historical-review, training-dataset, and historical opponent-statistics aggregation schemas
+* Focused strict hidden-card inference summary schema
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, input schema validation, generated-output validation, and pytest
@@ -234,7 +239,7 @@ Implemented:
 * Historical corrected play, variable-length decision/data workflows, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
 * General live position inputs do not provide complete field-level provenance.
-* A coherent Multi-Step root is one hypothetical execution world, not proof of the real deal, exhaustive search, or broader hidden-card inference.
+* A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -254,7 +259,7 @@ Implemented:
 * There is no complete rear-hand partnership model.
 * There is no dedicated null-game defender-partnership strategy.
 * There is no stable declarer/partner identity when the local player itself is only known generically as `defender`.
-* Defender cooperation does not use perfect-information solving, search, machine learning, or hidden-card inference.
+* Defender cooperation does not use perfect-information solving, search, machine learning, behavioral/Bayesian inference, or broader tactical hidden-card inference.
 * Opt-in profiles can influence policy presets, and exact statistics can be aggregated from historical games, but profile behavior is not learned.
 * Profile derivation uses documented deterministic thresholds and heuristic evidence bands, not calibrated uncertainty.
 * External-statistics derivations require profile-preset opt-in plus either explicit live side bindings or exact time-safe historical participant matching.
@@ -276,7 +281,7 @@ Implemented:
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 51 deterministic scenarios. Issues #86 through #92 add
+coverage now includes 52 deterministic scenarios. Issues #86 through #92 add
 bounded structured concessions, accepted declarer-card-exposure adjudication,
 ongoing exposed-hand continuation, and bounded exact defender open-play
 adjudication plus non-adjudicating continued play and bounded open-card-throw
@@ -293,6 +298,12 @@ uses one shared root with independent immutable copies for Policy Comparison,
 and adds privacy-safe output summaries without changing Immediate Analysis,
 historical future-hand boundaries, feature version `1`, rolling behavior,
 supported phases, policies, or package version.
+Issue #104 adds exact evidence-constrained compatible-world counting, marginals,
+uniform DP-guided sampling, Immediate candidate sharing, compatible coherent
+roots, historical decision-time inference, and strict privacy-safe summaries.
+It changes no rules, policies, objectives, training features, profiles, game
+values, overbid, settlement, or package version. The issue is complete in the
+development baseline; no tag, release, or issue publication action occurred.
 Issue #93 adds the first structured shortened historical record: exact-prefix
 declarer concession with stable-ID consent, unassigned unresolved points, and
 base/quiet CLI output. Issue #94 generalizes snapshots, review, external-profile

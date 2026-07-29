@@ -47,6 +47,10 @@ from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
 from skat_ai.game_value import build_game_value_summary
+from skat_ai.hidden_card_inference import (
+    build_hidden_card_inference_model,
+    build_hidden_card_inference_summary,
+)
 from skat_ai.historical_decision_snapshot import (
     build_historical_decision_snapshots,
     build_serializable_historical_decision_snapshot_summary,
@@ -421,7 +425,18 @@ def build_analysis_result(
             game_type=state.game_type,
         )
 
-        recommended_card, reason, _ = recommend_card_by_expected_value(
+        hidden_card_inference_model = build_hidden_card_inference_model(
+            state,
+            settings["left_hand_size"],
+            settings["right_hand_size"],
+            public_hand_constraints,
+        )
+        inference_kwargs = (
+            {"hidden_card_inference_model": hidden_card_inference_model}
+            if hidden_card_inference_model is not None
+            else {}
+        )
+        recommended_card, reason, values = recommend_card_by_expected_value(
             state=state,
             left_hand_size=settings["left_hand_size"],
             right_hand_size=settings["right_hand_size"],
@@ -430,6 +445,7 @@ def build_analysis_result(
             use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
+            **inference_kwargs,
         )
 
         report = build_card_analysis_report(
@@ -441,6 +457,8 @@ def build_analysis_result(
             use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
+            precomputed_values=values or None,
+            **inference_kwargs,
         )
         strategic_summary = build_strategic_summary(
             report,
@@ -448,6 +466,7 @@ def build_analysis_result(
             player_role=state.player_role,
         )
     else:
+        hidden_card_inference_model = None
         legal_cards = []
         recommended_card = None
         reason = immediate_unavailable_reason
@@ -636,6 +655,12 @@ def build_analysis_result(
     if opponent_profile_application_summary is not None:
         result["opponent_profile_application_summary"] = opponent_profile_application_summary
 
+    hidden_card_inference_summary = build_hidden_card_inference_summary(
+        hidden_card_inference_model
+    )
+    if hidden_card_inference_summary is not None:
+        result["hidden_card_inference_summary"] = hidden_card_inference_summary
+
     return result
 
 
@@ -665,6 +690,32 @@ def format_post_game_review_unavailable_reason(reason: object) -> str:
         reason_text,
         reason_text.replace("_", " "),
     )
+
+
+def print_hidden_card_inference_summary(summary: dict[str, Any] | None) -> None:
+    """Prints bounded public inference diagnostics without private assignments."""
+    if summary is None:
+        return
+    print("Hidden-card inference: applied")
+    void_descriptions = [
+        f"{item['player']} is void in "
+        f"{', '.join(item['forbidden_effective_categories']).title()}"
+        for item in summary["confirmed_voids"]
+    ]
+    print("Confirmed evidence:", "; ".join(void_descriptions))
+    print("Compatible hidden worlds:", summary["compatible_world_count"])
+    estimates = summary["ownership_estimates"]
+    if estimates:
+        highest = max(
+            estimates,
+            key=lambda item: item["ownership_probability"][item["most_likely_owner"]],
+        )
+        probability = highest["ownership_probability"][highest["most_likely_owner"]]
+        print(
+            "Highest bounded estimate:",
+            f"{highest['card']} -> {highest['most_likely_owner']} "
+            f"({probability:.0%}, {highest['confidence']})",
+        )
 
 
 def is_null_review_result(result: dict[str, object]) -> bool:
@@ -883,6 +934,8 @@ def print_analysis_result(result: dict[str, Any]) -> None:
         print("Ouvert-aware simulation: applied")
 
     print_opponent_profile_application_summary(result)
+
+    print_hidden_card_inference_summary(result.get("hidden_card_inference_summary"))
 
     print()
     print("Score summary")
@@ -1385,6 +1438,15 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
             print("Total decisions:", review_summary["decision_count"])
         print("Reviewed decisions:", review_summary["reviewed_decision_count"])
         print("Unavailable decisions:", review_summary["unavailable_decision_count"])
+        inference_decision_count = sum(
+            "hidden_card_inference_summary" in decision
+            for decision in review_summary["decisions"]
+        )
+        if inference_decision_count:
+            print(
+                "Hidden-card inference applied at reviewed decisions:",
+                inference_decision_count,
+            )
         if game_end_summary is not None:
             print(
                 "Terminal event:",
@@ -1563,6 +1625,7 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
     print("Requested steps:", result.get("requested_step_count", len(steps)))
     print("Steps simulated:", result.get("steps_simulated", len(steps)))
     print("Stop reason:", result.get("stop_reason", "unknown"))
+    print_hidden_card_inference_summary(result.get("hidden_card_inference_summary"))
     if "opponent_policy_settings" in result:
         print(
             "Opponent lead policy:",
@@ -1660,6 +1723,7 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
             "Policy paths use independent worlds:",
             hidden_world_summary["independent_path_worlds"],
         )
+    print_hidden_card_inference_summary(result.get("hidden_card_inference_summary"))
 
     print()
     print(f"{'Policy':<24}{'Steps':>7}{'Decl. +':>10}{'Def. +':>10}{'Swing':>10}{'Local':>10}")

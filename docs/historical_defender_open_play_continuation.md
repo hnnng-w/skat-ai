@@ -100,6 +100,9 @@ as declarer ownership. It infers no unrelated hidden ownership.
 Historical review retains both disjoint exact constraints, samples no additional
 card for either owner, and prefers source `declared_ouvert` if duplicate
 declarer-exposure evidence describes the already-public declarer hand.
+Confirmed attributed failure-to-follow evidence may constrain only the remaining
+unknown ownership. Exact continuation and Ouvert hands remain authoritative and
+contradictions are rejected.
 
 ## Review and training
 
@@ -112,7 +115,9 @@ receives the same constraint and seeded behavior remains deterministic.
 
 Historical review remains Immediate Analysis and does not use the later complete
 deal to construct a Multi-Step root. Actual future hands remain excluded from
-every pre-play decision state.
+every pre-play decision state. The model cannot use the actual next card, later
+hands or plays, event facts before their boundary, final result, or settlement.
+See [Hidden-card inference](hidden_card_inference.md).
 
 The event is not a review decision. Normal review still has 30 actual-card
 decisions. Training still has 30 samples, feature-generation version `1`, stable
@@ -120,7 +125,9 @@ decisions. Training still has 30 samples, feature-generation version `1`, stable
 Pre-event samples contain no event information. Post-event samples carry only
 the authorized hand through the existing relative public-exposure feature.
 There is no event, claim, proof, continuation-response, result, or settlement
-target or model-facing feature.
+target or model-facing feature. Hidden-card inference evidence, marginals,
+confidence, and compatible-world statistics are likewise not version-1 training
+features or labels.
 
 ## Result and opponent workflows
 

@@ -1,4 +1,5 @@
 from skat_ai.game_state import GameState
+from skat_ai.hidden_card_inference import HiddenCardInferenceModel
 from skat_ai.objective_utility import (
     calculate_expected_objective_utility,
     sort_cards_by_expected_objective,
@@ -29,6 +30,8 @@ def build_card_analysis_report(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
+    precomputed_values: dict[str, dict[str, float]] | None = None,
 ) -> list[dict[str, float | str | bool]]:
     """
     Builds an analysis report for all legal cards.
@@ -36,16 +39,24 @@ def build_card_analysis_report(
     The report is sorted by expected point swing in descending order.
     The first row is marked as recommended.
     """
-    values = estimate_immediate_trick_values_for_legal_cards(
-        state=state,
-        left_hand_size=left_hand_size,
-        right_hand_size=right_hand_size,
-        sample_count=sample_count,
-        random_seed=random_seed,
-        use_basic_opponent_strategy=use_basic_opponent_strategy,
-        opponent_response_policy_by_player=opponent_response_policy_by_player,
-        public_hand_constraints=public_hand_constraints,
-    )
+    values = precomputed_values
+    if values is None:
+        inference_kwargs = (
+            {"hidden_card_inference_model": hidden_card_inference_model}
+            if hidden_card_inference_model is not None
+            else {}
+        )
+        values = estimate_immediate_trick_values_for_legal_cards(
+            state=state,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            sample_count=sample_count,
+            random_seed=random_seed,
+            use_basic_opponent_strategy=use_basic_opponent_strategy,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
+            **inference_kwargs,
+        )
 
     return build_card_analysis_report_from_values(state=state, values=values)
 

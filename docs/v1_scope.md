@@ -23,6 +23,7 @@ must not be presented as official-rule requirements.
 | Rule-based player or opponent profile | Explicit fields and deterministic rules that select or parameterize explainable behavior. | It is not learned from data, even when its input statistics were historically derived. |
 | Rolling opponent-policy evaluation | A strict game-start as-of comparison of an acting player's observed cards with an actionable deterministic profile policy and the fixed `simple_lowest` baseline. | Preferred-card and exact-card matches measure behavioral imitation only, not strategic strength, optimality, recommendation quality, statistical significance, or unseen-player generalization. |
 | Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions but are not automatically split or balanced. |
+| Evidence-constrained hidden-card inference | Exact compatible left/right/hypothetical-skat assignments narrowed only by local and authorized public ownership plus confirmed legal failure to follow an effective category. | It is structural decision-time inference, not behavioral, Bayesian, calibrated, learned, tactically weighted, or proof of the actual hidden deal. |
 | Learned opponent model | A versioned artifact whose behavior or parameters were fit from data and are used during inference. | It requires separate training, evaluation, deployment, fallback, and explainability decisions. |
 | Training a machine-learning model | Running a reproducible process that fits model parameters from an approved training dataset and evaluates them on separated data. | It is distinct from storing historical games, generating labels, calculating statistics, or running rule-based simulation. |
 
@@ -63,10 +64,14 @@ The following directions are required for `v1.0.0`:
   quality, determinism, and latency contracts.
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
-  execution-consistency requirement; stronger search and broader hidden-card
-  inference remain separate open gates.
-* Add broader information-safe hidden-card inference with explicit allowed
-  evidence and confidence semantics.
+  execution-consistency requirement; stronger search remains a separate open
+  gate.
+* Preserve bounded information-safe hidden-card inference with explicit allowed
+  evidence and confidence semantics. Issue #104 satisfies this gate using only
+  exact decision-time ownership and confirmed legal failure-to-follow evidence,
+  exact DP compatible-world counts and marginals, uniform labeled assignments,
+  and uncalibrated concentration labels. Behavioral, Bayesian, learned, and
+  broader tactical inference remain outside this bounded gate.
 * Preserve exposed-card use in Ouvert-aware recommendation simulation without
   violating decision-time information boundaries. This bounded gate is implemented.
 * Aggregate complete fixed-three-player 36-game lists while preserving SkWO
@@ -126,7 +131,7 @@ validation, and tests does not satisfy a gate.
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
-| Search and hidden-card inference | The approved stronger search or solver produces reproducible, explainable results under documented information assumptions and quality/latency bounds; broader hidden-card inference uses only documented decision-time evidence and exposes bounded confidence without leaking private or future facts. |
+| Search and hidden-card inference | The stronger-search portion remains open and requires a reproducible, explainable solver under documented information, quality, determinism, and latency bounds. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
 | Ouvert-aware simulation | Historical and live Ouvert analysis uses legitimately exposed cards in recommendation simulation, never treats unexposed cards as public, and has deterministic contract- and perspective-specific tests. |
 | Recommendation behavior | Recommendations always select from legal candidates, use the documented Suit/Grand or Null objective, preserve player-side perspective, expose enough evidence to reproduce ranking, and have deterministic tie behavior under fixed settings. |
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
@@ -197,10 +202,15 @@ strategic recommendation-quality, optimality, significance, or unseen-player
 generalization claim and does not close those broader gates.
 
 The coherent hidden-world gate is bounded to Multi-Step execution consistency.
-It does not expose private ownership to decision policies, alter Immediate
-Analysis, use historical future hands, change training feature version `1` or
-rolling behavior, infer the real deal, or satisfy the separate stronger-search
-and broader hidden-card-inference gates. Package version remains `0.8.0`.
+Issue #104 additionally constrains Immediate candidate worlds and coherent roots
+with exact structural evidence while preserving private ownership boundaries.
+It does not use tactical choices, profiles, historical future hands, results, or
+settlement; change legal cards, policies, objectives, ties, training feature
+version `1`, or rolling behavior; infer the real deal; or satisfy the separate
+stronger-search gate. The privacy-safe summary remains schema version `1` and
+the package version remains `0.8.0`. See
+[Hidden-card inference](hidden_card_inference.md). Issue #104 is complete in the
+development baseline; no release, tag, or issue publication action occurred.
 
 ## Release decision rule
 

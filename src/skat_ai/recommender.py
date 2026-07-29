@@ -1,5 +1,6 @@
 from skat_ai.game_history import get_all_played_cards
 from skat_ai.game_state import GameState
+from skat_ai.hidden_card_inference import HiddenCardInferenceModel
 from skat_ai.objective_utility import (
     calculate_expected_objective_utility,
     choose_best_card_by_expected_objective,
@@ -261,6 +262,7 @@ def recommend_card_by_expected_value(
     use_basic_opponent_strategy: bool = True,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> tuple[str, str, dict[str, dict[str, float]]]:
     """
     Recommends a card based on immediate expected point swing.
@@ -274,6 +276,11 @@ def recommend_card_by_expected_value(
     - value metrics for all legal cards
     """
 
+    inference_kwargs = (
+        {"hidden_card_inference_model": hidden_card_inference_model}
+        if hidden_card_inference_model is not None
+        else {}
+    )
     values = estimate_immediate_trick_values_for_legal_cards(
         state=state,
         left_hand_size=left_hand_size,
@@ -283,6 +290,7 @@ def recommend_card_by_expected_value(
         use_basic_opponent_strategy=use_basic_opponent_strategy,
         opponent_response_policy_by_player=opponent_response_policy_by_player,
         public_hand_constraints=public_hand_constraints,
+        **inference_kwargs,
     )
 
     if not values:

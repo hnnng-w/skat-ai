@@ -13,6 +13,11 @@ from skat_ai.coherent_hidden_world import (
     validate_coherent_hidden_world,
 )
 from skat_ai.game_state import GameState
+from skat_ai.hidden_card_inference import (
+    HiddenCardInferenceModel,
+    build_hidden_card_inference_model,
+    build_hidden_card_inference_summary,
+)
 from skat_ai.multi_step_summary import build_multi_step_summary
 from skat_ai.opponent_sequence import (
     can_prepare_player_action,
@@ -150,6 +155,7 @@ def simulate_multiple_steps(
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
     initial_hidden_world: CoherentHiddenWorld | None = None,
+    initial_hidden_card_inference_model: HiddenCardInferenceModel | None = None,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -167,6 +173,15 @@ def simulate_multiple_steps(
         "opponent_actions",
     )
     opponent_action_rng = random.Random(opponent_action_seed)
+    root_inference_model = (
+        initial_hidden_card_inference_model
+        or build_hidden_card_inference_model(
+            state,
+            left_hand_size,
+            right_hand_size,
+            public_hand_constraints,
+        )
+    )
 
     if initial_hidden_world is None:
         hidden_world = build_coherent_hidden_world(
@@ -175,6 +190,7 @@ def simulate_multiple_steps(
             right_hand_size=right_hand_size,
             random_generator=random.Random(root_seed),
             public_hand_constraints=public_hand_constraints,
+            hidden_card_inference_model=root_inference_model,
         )
     else:
         validate_coherent_hidden_world(
@@ -183,6 +199,11 @@ def simulate_multiple_steps(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             public_hand_constraints=public_hand_constraints,
+            hidden_card_inference_constraints=(
+                root_inference_model.constraints
+                if root_inference_model is not None
+                else None
+            ),
         )
         if initial_hidden_world.ownership_transitions:
             raise ValueError(
@@ -241,6 +262,11 @@ def simulate_multiple_steps(
             current_world,
             sampling_state,
             context.public_hand_constraints,
+            hidden_card_inference_constraints=(
+                root_inference_model.constraints
+                if step_index == 0 and root_inference_model is not None
+                else None
+            ),
             step_index=step_index,
         )
         prepared_state, opponent_lead_result = prepare_state_for_player_action(
@@ -269,10 +295,21 @@ def simulate_multiple_steps(
             context.public_hand_constraints,
             [card for _, card in preparation_plays],
         )
+        prepared_inference_model = build_hidden_card_inference_model(
+            prepared_state,
+            len(prepared_world.left_hand),
+            len(prepared_world.right_hand),
+            prepared_constraints,
+        )
         reconcile_hidden_world_with_state(
             prepared_world,
             prepared_state,
             prepared_constraints,
+            hidden_card_inference_constraints=(
+                prepared_inference_model.constraints
+                if prepared_inference_model is not None
+                else None
+            ),
             step_index=step_index,
         )
 
@@ -290,6 +327,7 @@ def simulate_multiple_steps(
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=prepared_constraints,
+            hidden_card_inference_model=prepared_inference_model,
         )
 
         step_result = simulate_and_advance_once(
@@ -303,6 +341,7 @@ def simulate_multiple_steps(
             public_hand_constraints=prepared_constraints,
             coherent_hidden_world=prepared_world,
             coherent_step_index=step_index,
+            hidden_card_inference_model=prepared_inference_model,
         )
         updated_world = step_result["coherent_hidden_world"]
         completion_plays: tuple[tuple[str, str], ...] = step_result[
@@ -320,6 +359,11 @@ def simulate_multiple_steps(
             "next_state": step_result["next_state"],
             "coherence_summary": build_hidden_world_summary(updated_world),
         }
+        prepared_inference_summary = build_hidden_card_inference_summary(
+            prepared_inference_model
+        )
+        if prepared_inference_summary is not None:
+            step["hidden_card_inference_summary"] = prepared_inference_summary
 
         opponent_cards = [card for _, card in opponent_plays]
         context = add_simulated_opponent_plays(
@@ -387,5 +431,8 @@ def simulate_multiple_steps(
     }
 
     result["summary"] = build_multi_step_summary(result)
+    root_inference_summary = build_hidden_card_inference_summary(root_inference_model)
+    if root_inference_summary is not None:
+        result["hidden_card_inference_summary"] = root_inference_summary
 
     return result

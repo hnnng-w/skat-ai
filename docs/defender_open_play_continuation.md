@@ -61,6 +61,11 @@ to the exposing defender. The other defender, declarer, and skat retain their
 ordinary uncertainty unless independently known. Immediate Analysis and flat
 post-game review keep their existing sampling behavior.
 
+Confirmed attributed failure-to-follow evidence may further constrain the
+remaining unknown locations. The returned public hand stays authoritative and a
+conflict is rejected. The original claim, continuation request, private Issue
+#90 proof state, and later outcome are not inference evidence.
+
 Multi-Step samples one coherent private root per path. The exposing defender's
 public hand, all other ownership, and the hypothetical skat remain fixed through
 opponent preparation and trick completion; a played card is removed only from
@@ -111,6 +116,10 @@ General corrected-play handling, new tactics, shortened endings after
 continuation, and four-player tables are not added. ISkO 4.4.6 is a separate final workflow documented in
 [Open card throw](open_card_throw.md). Accepted exact adjudication remains documented
 in [Defender open play](defender_open_play.md).
+
+See [Hidden-card inference](hidden_card_inference.md) for the narrower exact
+structural evidence model; no behavioral, Bayesian, or calibrated inference is
+introduced by this continuation.
 
 See
 [`examples/defender_open_play_continuation.json`](../examples/defender_open_play_continuation.json)

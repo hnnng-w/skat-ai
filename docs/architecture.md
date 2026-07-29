@@ -222,6 +222,7 @@ hand becomes public; no second complete hand is serialized.
 | -------------------------------------- | ------------------------------------------------------ |
 | `src/skat_ai/simulation.py`            | Monte Carlo simulation logic.                          |
 | `src/skat_ai/coherent_hidden_world.py` | Immutable private path ownership, reconciliation, privacy-safe summaries, and child-seed derivation. |
+| `src/skat_ai/hidden_card_inference.py` | Exact public-evidence constraints, compatible-world DP counts and marginals, uniform sampling, and privacy-safe summaries. |
 | `src/skat_ai/simulation_context.py`    | Simulation context creation and strict-context checks. |
 | `src/skat_ai/simulation_step.py`       | Single simulation-step handling.                       |
 | `src/skat_ai/state_transition.py`      | Applies card plays and transitions game state.         |
@@ -241,6 +242,23 @@ hands and skat cards. Immediate, Multi-Step, and Policy Comparison share the
 resolved constraints. Identical declarer evidence is deduplicated with
 `declared_ouvert` precedence, while a disjoint public defender hand may coexist.
 
+When attributed public play confirms a legal failure to follow,
+`hidden_card_inference.py` adds an immutable forbidden effective-category
+constraint for later decisions. Effective categories reuse `get_effective_suit`:
+Suit and Grand distinguish side suits from trump, while Null uses printed suits.
+Only local and exact public hands, legitimately known skat, attributed public
+played ownership, and confirmed failure to follow are admitted. Tactical choices,
+declarations, profiles, concessions, timing, future play, complete post-game
+hands, and final result or settlement are excluded. Contradictions reject the
+state rather than weakening evidence.
+
+The inference layer uses dynamic programming to count every compatible labeled
+left/right/hypothetical-skat assignment and compute exact ownership marginals.
+Sampling follows DP completion counts uniformly and deterministically under a
+seed; it does not use a rejection loop. Confidence is uncalibrated compatible-
+world concentration only: `confirmed` means one possible owner, `high` starts at
+`0.85`, `medium` starts at `0.65`, and lower concentration is `low`.
+
 Multi-Step samples one immutable private root ownership assignment per path.
 Opponent-turn preparation and candidate-trick completion use that same world;
 opponent cards are removed only from their assigned owner, and the hypothetical
@@ -254,7 +272,9 @@ Seeded root sampling, opponent actions, and per-step expected-value samples use
 stable separate derived streams. Policy Comparison samples one shared root and
 gives equal independent immutable copies to all policy paths. Serialization
 exposes only count and status summaries, never hidden hands or hypothetical skat
-cards. Immediate Analysis does not use the persistent root and is unchanged. See
+cards. Immediate Analysis derives one inference model per decision and gives all
+legal candidates a common compatible-world sequence without using a persistent
+root. See [Hidden-card inference](hidden_card_inference.md) and
 [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
 Immediate Analysis is available only when the normalized input state has
@@ -267,9 +287,11 @@ or right's response to an existing one-card left lead. Valid phases where the
 local player has already acted and only opponents remain stop with
 `unsupported_turn_phase` without mutating the state.
 
-Historical snapshot, review, training-feature, and rolling-evaluation flows do
-not consume the Multi-Step private root. Historical future hands remain excluded
-from every decision-time view; feature generation stays at version `1` and
+Historical review may derive the same exact model from each snapshot's visible
+prefix, current trick, public hands, and legitimate skat knowledge. It excludes
+the actual next card, future plays and hands, results, settlement, and event facts
+not yet public. Snapshot, training-feature, and rolling-evaluation flows do not
+consume the Multi-Step private root; feature generation stays at version `1` and
 rolling behavior remains unchanged.
 
 ## Opponent modeling
@@ -336,7 +358,7 @@ Issue #22's current heuristic and explainable defender-partnership scope is impl
 * no complete rear-hand partnership model exists
 * no dedicated null-game defender-partnership strategy exists
 * defender partnership heuristics depend on the concrete `declarer_player` identity supplied by the input
-* no perfect-information solving, search, machine learning, or hidden-card inference is used
+* no perfect-information solving, search, machine learning, behavioral/Bayesian inference, or broader hidden-card inference is used by defender cooperation
 
 ## Left/right opponent policy flow
 
@@ -482,6 +504,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/opponent_statistics_output.schema.json` | Strict preserved-source and normalized-profile output. |
 | `schemas/historical_opponent_statistics_aggregation.schema.json` | Strict selected-game aggregation, exact records, and provenance output. |
 | `schemas/opponent_profile_derivation.schema.json` | Strict versioned confidence, signal, classification, preset, and explanation output. |
+| `schemas/hidden_card_inference_summary.schema.json` | Strict version-1 compatible-world evidence, marginals, confidence semantics, and privacy flags. |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |
@@ -513,6 +536,7 @@ Important regression areas:
 * opponent policies
 * left/right opponent policy behavior
 * schema validation
+* exact hidden-card evidence, contradictions, DP counts and marginals, uniform sampling, workflow sharing, historical leakage control, and output privacy
 
 ## Validation layers
 
