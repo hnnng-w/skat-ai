@@ -13,10 +13,10 @@ shortened records produce zero through 29 samples from their actual play prefix,
 subject to event prerequisites.
 Other historical end reasons remain unsupported.
 
-A normal-completion record may contain one timed defender-open-play continuation
-and still produces exactly 30 samples. Samples before the boundary contain no
-event information; later samples use the existing relative
-`public_exposed_cards` feature for the shrinking returned defender hand.
+A normal-completion record may contain one timed defender-open-play or declarer-
+card-exposure continuation and still produces exactly 30 samples. Samples before
+the boundary contain no event information; later samples use the existing
+relative `public_exposed_cards` feature for the shrinking public hand.
 
 ## Dataset input
 
@@ -154,7 +154,7 @@ achieved future Schneider/Schwarz result, final game value, overbid outcome,
 settlement, recommendation, or decision-quality value.
 The terminal event, defender consent, unresolved points, and the fact that a
 concession will occur are also absent from model-facing features.
-The continuation event and declarer response are not targets or direct features;
+The continuation event, claim, and responses are not targets or direct features;
 only the rule-authorized post-event public hand is represented.
 
 The label card is the historical actual card. It must be in the pre-play own

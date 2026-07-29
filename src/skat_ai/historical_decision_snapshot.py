@@ -322,7 +322,11 @@ def build_historical_decision_snapshots(
         (
             event
             for event in record.get("game_events", [])
-            if event["kind"] == "defender_open_play_continuation"
+            if event["kind"]
+            in {
+                "defender_open_play_continuation",
+                "declarer_card_exposure_continuation",
+            }
         ),
         None,
     )
@@ -372,20 +376,29 @@ def build_historical_decision_snapshots(
                 continuation_event is not None
                 and decision_index > continuation_event["after_play_count"]
             ):
-                exposing_player_id = continuation_event[
-                    "exposing_defender_player_id"
-                ]
+                if continuation_event["kind"] == "defender_open_play_continuation":
+                    exposing_player_id = continuation_event[
+                        "exposing_defender_player_id"
+                    ]
+                    exposed_cards = continuation_event["exposed_cards"]
+                else:
+                    exposing_player_id = declarer_player_id
+                    exposed_cards = continuation_event["public_declarer_cards"]
                 remaining_exposed_cards = tuple(
                     card
-                    for card in continuation_event["exposed_cards"]
+                    for card in exposed_cards
                     if card in hands[exposing_player_id]
                 )
-                exposures.append(
-                    HistoricalSnapshotExposedCards(
-                        player_id=exposing_player_id,
-                        cards=remaining_exposed_cards,
+                if not any(
+                    exposure.player_id == exposing_player_id
+                    for exposure in exposures
+                ):
+                    exposures.append(
+                        HistoricalSnapshotExposedCards(
+                            player_id=exposing_player_id,
+                            cards=remaining_exposed_cards,
+                        )
                     )
-                )
             player_order = {
                 player_id: index
                 for index, player_id in enumerate(seat_order_player_ids)

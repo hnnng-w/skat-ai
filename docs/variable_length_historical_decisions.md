@@ -68,8 +68,8 @@ of this decision count. Rolling targets use the same exact cardinality without
 padding; zero-decision targets remain present with all participants and as-of
 profiles. Completed shortened source games may affect later profiles through normal
 game statistics, but a target outcome never affects its own profile or card
-predictions. Timed defender-open-play continuation remains a 30-play normal
-completion rather than a variable-length end. No other historical end kind or continuation,
+predictions. Both timed continuation kinds remain 30-play normal completions
+rather than variable-length ends. No other historical end kind or continuation,
 concession/exposure/open-play choice, proof, acceptance, or continuation target,
 feature version, or learned model is added. See
 [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).

@@ -116,6 +116,12 @@ Validate a normal historical Grand with timed defender-open-play continuation:
 python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
 ```
 
+Validate a normal historical Grand with timed declarer-card-exposure continuation:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
+```
+
 Write its separate structured result without successful stdout:
 
 ```powershell
@@ -281,7 +287,9 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_declarer_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable-ID defender consent, unresolved-point accounting, and adjudicated settlement. |
 | `historical_grand_defender_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable conceding defender, joint liability, unresolved-point accounting, and adjudicated declarer win. |
 | `historical_grand_declarer_card_exposure.json`    | Complete deal, exact 14-play Grand prefix, exact exposed declarer hand, stable shown-to defender and unanimous acceptances, accepted Schneider result, and settlement. |
+| `historical_grand_declarer_card_exposure_continuation.json` | Complete normal Grand, exact timed public declarer hand, one stable defender continuation response, 30 actual plays, and ordinary settlement. |
 | `historical_grand_defender_open_play.json` | Complete deal, exact 24-play Grand prefix, stable exposing defender, exact valid two-trick proof, privacy-safe assignment, and settlement. |
+| `historical_grand_defender_open_play_continuation.json` | Complete normal Grand with one timed exact returned defender hand and 30 actual plays. |
 
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
@@ -346,10 +354,10 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 47 scenarios, including variable-length training data,
-all four historical shortened kinds, both
-ongoing public-hand continuations, bounded exact defender-open-play adjudication,
-and open-card-throw adjudication.
+therefore covers 48 scenarios, including variable-length training data,
+all four historical shortened kinds, both flat ongoing public-hand
+continuations, both timed historical continuations, bounded exact defender-open-
+play adjudication, and open-card-throw adjudication.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -531,9 +539,8 @@ because ended game reasons are post-game review information.
 
 Each structured flat example has deterministic generated-output and quiet JSON
 coverage. Each of the four supported terminal historical shortened kinds has one
-separate generated scenario. The historical defender-open-play continuation has
-one additional snapshot-transition scenario; no other historical continuation
-kind is included.
+separate generated scenario. Both historical continuation kinds have dedicated
+snapshot-transition scenarios.
 
 ## Overbid examples
 

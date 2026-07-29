@@ -322,6 +322,7 @@ Rules:
 * exposure continuation requires exactly both defender responses, at least one continuation request, an exact nonempty current public declarer hand, and neutral `not_ended` state.
 * defender-open-play continuation requires a concrete exposing defender, the exact nonempty returned current hand, `request_continued_play`, reliable hand-size and turn reconciliation, and neutral `not_ended` state.
 * historical defender-open-play continuation is not a `game_end_reason`; it is a timed non-terminal `game_events` member inside an ordinary 30-play `normal_completion` record.
+* historical declarer-card-exposure continuation is likewise a timed non-terminal `game_events` member with both stable defender responses and the exact public declarer hand.
 * open card throw requires one concrete throwing player, the complete nonempty current thrown hand, deterministic hand-size and turn reconciliation, and neutral `not_ended` state.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
@@ -359,5 +360,5 @@ For example:
 * Legacy claims and concessions still assign remaining points.
 * Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, bounded exact defender open play, and bounded open card throw.
 * Flat continued declarer exposure and bounded defender-open-play continuation are separate ongoing workflows.
-* Historical open throwing, simultaneous throws, continued play, specific-trick assertions, unlimited exact solving, and isolated-card claims remain unsupported.
+* Historical open throwing, multiple continuation events, continuation followed by shortening, simultaneous throws, specific-trick assertions, unlimited exact solving, and isolated-card claims remain unsupported.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.

@@ -192,7 +192,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 47 deterministic scenarios.
+Generated-output validation currently covers 48 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -370,6 +370,7 @@ Implemented:
 
 * `historical_game.py`
 * `historical_game_event.py`
+* `historical_declarer_card_exposure_continuation.py`
 * `historical_defender_open_play_continuation.py`
 * `historical_decision_snapshot.py`
 * `historical_snapshot_adapter.py`
@@ -429,6 +430,7 @@ Main documentation files:
 * `docs/performance_rating.md`
 * `docs/examples.md`
 * `docs/historical_games.md`
+* `docs/historical_declarer_card_exposure_continuation.md`
 * `docs/historical_defender_open_play_continuation.md`
 * `docs/historical_decision_snapshots.md`
 * `docs/historical_game_review.md`
@@ -455,7 +457,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 47 deterministic generated-output
+The `v0.8.0` development baseline validates 48 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -534,6 +536,8 @@ Subsequent bounded historical work:
 * #96 added exact-prefix historical defender concession with stable-ID joint liability
 * #97 added exact-prefix unanimously accepted declarer-card exposure and integrated all variable-length workflows
 * #98 added bounded terminal historical defender open play with exact flat adjudication reuse and privacy-safe stable-ID proof output
+* #99 added timed non-terminal historical defender-open-play continuation with persistent public-hand information
+* #100 added timed non-terminal historical declarer-card-exposure continuation with the same information-safe downstream boundary
 
 ## Current implementation baseline
 
@@ -553,10 +557,11 @@ Completed implementation scope:
 * exact-prefix historical defender concession with stable-ID joint liability and flat adjudication parity
 * exact-prefix historical declarer-card exposure with exact reconciliation and flat adjudication parity
 * bounded terminal historical defender open play with exact reconciliation, assignment, and flat adjudication parity
+* timed normal-completion continuation with an exact shrinking public defender or declarer hand
 
 ## Current high-priority limitations
 
-* Historical records support normal completion, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, and bounded terminal defender open play; other claims, continuations, and end reasons are required.
+* Historical records support normal completion with either one timed continuation kind, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, and bounded terminal defender open play; multiple events, continuation followed by shortening, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support exactly those five end reasons; other end reasons remain unsupported.
 * Claims, concessions, and approved settlement completeness remain incomplete.
 * Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.

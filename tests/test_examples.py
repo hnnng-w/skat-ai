@@ -48,6 +48,7 @@ def get_position_example_json_files() -> list[Path]:
             "historical_grand_declarer_card_exposure.json",
             "historical_grand_defender_open_play.json",
             "historical_grand_defender_open_play_continuation.json",
+            "historical_grand_declarer_card_exposure_continuation.json",
             "historical_grand_normal_completion.json",
             "historical_opponent_policy_evaluation_dataset.json",
             "historical_opponent_statistics.json",
@@ -76,6 +77,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_grand_declarer_card_exposure.json",
             "historical_grand_defender_open_play.json",
             "historical_grand_defender_open_play_continuation.json",
+            "historical_grand_declarer_card_exposure_continuation.json",
             "historical_grand_normal_completion.json",
         }:
             record = load_historical_game_from_json(str(example_file))

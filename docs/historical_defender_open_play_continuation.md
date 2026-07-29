@@ -28,10 +28,10 @@ The containing game remains an ordinary normal completion:
 ```
 
 `game_events` is optional. When absent, canonical records and behavior are
-unchanged and no empty array or event summary is emitted. Version 1 accepts
-exactly one event, only the `defender_open_play_continuation` kind, no terminal
-`game_end`, exactly ten complete tricks, and all 30 actual card plays. The event
-cannot be combined with a shortened final end.
+unchanged and no empty array or event summary is emitted. Version 1 accepts at
+most one event, either this kind or `declarer_card_exposure_continuation`, no
+terminal `game_end`, exactly ten complete tricks, and all 30 actual card plays.
+Multiple events and continuation followed by a shortened end remain unsupported.
 
 The event schema version is independent of the historical-game schema version;
 both currently equal `1`. Unsupported versions, kinds, missing fields, unknown
@@ -134,4 +134,5 @@ See
 [`examples/historical_grand_defender_open_play_continuation.json`](../examples/historical_grand_defender_open_play_continuation.json)
 for the deterministic Grand example and
 [Historical defender open play](historical_defender_open_play.md) for terminal
-accepted adjudication.
+accepted adjudication. The sibling public-declarer-hand event is documented in
+[Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).

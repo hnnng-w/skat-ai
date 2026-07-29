@@ -475,8 +475,9 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         data.get("game_events"),
         game_end_reason=game_end_reason,
         has_game_end=game_end is not None,
-        player_ids=tuple(player.player_id for player in players),
+        seat_order_player_ids=seat_order_player_ids,
         declarer_player_id=declarer_player_id,
+        game_type=declaration.game_type,
         game_id=game_id,
     )
     tricks = _build_tricks(data["tricks"], game_id, game_end_reason)

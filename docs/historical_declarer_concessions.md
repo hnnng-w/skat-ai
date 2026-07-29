@@ -122,5 +122,7 @@ version-1 union member documented in
 [Historical declarer card exposure](historical_declarer_card_exposure.md).
 Historical defender open play is separately supported in
 [Historical defender open play](historical_defender_open_play.md). Historical
-exposure continuation, open-card throwing, claims
+declarer-card-exposure continuation is documented in
+[Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
+Multiple events, continuation followed by shortening, open-card throwing, claims
 of remaining tricks, and every other historical end kind remain unsupported.

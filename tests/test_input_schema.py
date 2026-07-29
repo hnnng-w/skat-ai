@@ -23,6 +23,11 @@ HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH = (
     / "schemas"
     / "historical_defender_open_play_continuation_event.schema.json"
 )
+HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_declarer_card_exposure_continuation_event.schema.json"
+)
 HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
 )
@@ -73,6 +78,12 @@ with HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH.open(
 ) as historical_continuation_event_file:
     HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA = json.load(
         historical_continuation_event_file
+    )
+with HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as historical_declarer_continuation_event_file:
+    HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA = json.load(
+        historical_declarer_continuation_event_file
     )
 with HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH.open(
     "r", encoding="utf-8"
@@ -130,6 +141,12 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
             HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA["$id"],
             Resource.from_contents(
                 HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA
+            ),
+        ),
+        (
+            HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA["$id"],
+            Resource.from_contents(
+                HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA
             ),
         ),
         (

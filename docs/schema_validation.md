@@ -140,7 +140,7 @@ The output schema checks the main output structure, including:
 * `multi_step_result`, when Multi-Step simulation is requested
 * `policy_comparison_result`, when policy comparison is requested
 * the separate `historical_game_summary` branch
-* versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, and defender-open-play-continuation input/output schemas
+* versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, and both timed continuation input/output schemas
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
 * optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
@@ -150,7 +150,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 47 deterministic scenarios. Position
+Generated-output validation covers 48 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all four shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -174,7 +174,7 @@ validation, settlement, information-safe decision snapshots, one seeded
 dataset, one 14-sample variable-length concession dataset,
 one exact-prefix unanimously accepted historical declarer-card-exposure result,
 one bounded exact historical defender-open-play result,
-one timed historical defender-open-play continuation visibility transition,
+one timed historical visibility transition for each continuation kind,
 one versioned external opponent-statistics conversion, and one seeded live
 external-profile binding with distinct left/right presets, plus one seeded
 time-safe historical external-profile review, and one exact historical
@@ -205,14 +205,16 @@ Defender open play also uses
 `schemas/exact_rest_trick_proof.schema.json`; runtime validation remains
 authoritative for exact card accounting, party membership, turn phase, the
 five-trick bound, adjudication, and private-hand protection.
-Ongoing continuation uses the two-member
+Flat ongoing continuation uses the two-member
 `schemas/game_continuation.schema.json` union, the focused declarer- and
 defender-open-play continuation schemas, their focused output schemas, and
 `schemas/public_hand_constraint.schema.json`. Runtime validation remains
 authoritative for party membership, response semantics, exact current-hand and
 turn reconciliation, workflow exclusivity, information authorization, and
-known-card path continuity. The defender-open-play continuation never invokes
-the exact proof schema or five-trick bound.
+known-card path continuity. Historical continuation additionally uses the
+version-1 `historical_game_event` union and focused event/output schemas. Neither
+timed continuation invokes solver proof, assignment, or settlement; runtime
+replay verifies the exact boundary and complete public hand.
 Historical decision
 snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses

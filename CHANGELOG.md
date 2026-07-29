@@ -6,9 +6,9 @@
 
 ### Historical non-terminal events
 
-* Add one optional version-1 `game_events` member for timed defender-open-play continuation while preserving `normal_completion`, ten tricks, 30 actual plays, and package version `0.8.0`.
-* Reconstruct the exact event boundary and returned defender hand, expose that shrinking hand only to later snapshots/review/training features, and keep ordinary actual-play scoring authoritative.
-* Reuse the existing exact public-hand sampler in historical review without adding proof, assignment, event targets, response targets, statistics, or profile signals.
+* Add one optional version-1 `game_events` member for either timed defender-open-play or declarer-card-exposure continuation while preserving `normal_completion`, ten tricks, 30 actual plays, and package version `0.8.0`.
+* Reconstruct the exact event boundary and public defender or declarer hand, expose that shrinking hand only to later snapshots/review/training features, and keep ordinary actual-play scoring authoritative.
+* Reuse the existing exact public-hand sampler in historical review without adding proof, assignment, event targets, response targets, statistics, profile signals, or settlement effects.
 
 ### Opponent statistics and profiles
 

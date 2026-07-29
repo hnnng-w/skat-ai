@@ -22,8 +22,8 @@ The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, and strictly replays either ten normal-completion tricks or an
 exact legal prefix ending in a versioned declarer-concession, defender-concession,
 unanimously accepted declarer-card-exposure, or terminal defender-open-play
-event. Normal completion may contain one separate timed non-terminal defender-
-open-play continuation event. It derives
+event. Normal completion may contain at most one separate timed non-terminal
+defender-open-play or declarer-card-exposure continuation event. It derives
 points and ownership, reuses the declaration/value/overbid/settlement helpers,
 and emits `historical_game_summary`.
 When requested, the flow derives one pre-play decision snapshot per actual
@@ -112,6 +112,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_declarer_concession.py` | Historical point accounting and shared declarer-concession adjudication/settlement adaptation. |
 | `src/skat_ai/historical_defender_concession.py` | Stable-ID historical adaptation of shared defender-concession adjudication and settlement. |
 | `src/skat_ai/historical_declarer_card_exposure.py` | Exact stable-ID reconciliation and shared accepted-exposure adjudication/settlement adaptation. |
+| `src/skat_ai/historical_declarer_card_exposure_continuation.py` | Timed exact declarer-hand reconciliation and non-adjudicating historical continuation semantics. |
 | `src/skat_ai/historical_defender_open_play.py` | Exact historical state reconstruction, bounded flat adjudication reuse, stable-ID proof mapping, and privacy-safe assignment output. |
 | `src/skat_ai/historical_defender_open_play_continuation.py` | Timed exact-hand reconciliation and non-adjudicating historical continuation semantics. |
 | `src/skat_ai/historical_player_mapping.py` | Shared deterministic circular mapping between stable historical IDs and flat player order. |
@@ -433,6 +434,8 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/historical_game.schema.json`          | Versioned normal or explicitly supported shortened historical-game input structure. |
 | `schemas/historical_game_end.schema.json` | Extensible version-1 historical game-end union. |
 | `schemas/historical_game_event.schema.json` | Version-1 non-terminal historical game-event union. |
+| `schemas/historical_declarer_card_exposure_continuation_event.schema.json` | Strict timed stable-ID public-declarer-hand event. |
+| `schemas/historical_declarer_card_exposure_continuation_event_output.schema.json` | Non-adjudicating declarer exposure continuation summary. |
 | `schemas/historical_defender_open_play_continuation_event.schema.json` | Strict timed stable-ID continuation event. |
 | `schemas/historical_game_events_output.schema.json` | Non-adjudicating historical event summary. |
 | `schemas/historical_declarer_concession.schema.json` | Strict stable-ID historical concession event. |

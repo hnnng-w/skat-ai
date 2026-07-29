@@ -142,10 +142,11 @@ validation, and tests does not satisfy a gate.
 The historical-game workflow satisfies deal-through-settlement for
 `normal_completion`, exact-prefix declarer and defender concessions,
 unanimously accepted declarer-card exposure, and bounded terminal defender open
-play. Normal completion may contain one timed non-terminal defender-open-play
-continuation while retaining all ten tricks and 30 actual plays. It can
-reconstruct information-safe pre-play states for all 30 actual cards, with the
-returned defender hand visible only after the event boundary. It also
+play. Normal completion may contain at most one timed non-terminal defender-
+open-play or declarer-card-exposure continuation while retaining all ten tricks
+and 30 actual plays. It can reconstruct information-safe pre-play states for all
+30 actual cards, with the exact public hand visible only after the event
+boundary. It also
 evaluates non-ouvert normal-play snapshots through bounded review and wraps all
 normal-play snapshots in versioned provenance-aware training/evaluation records.
 Training-data representation supports normal completion and all four shortened kinds
@@ -158,7 +159,8 @@ and rolling policy evaluation support those same four end reasons with game-leve
 source weighting, actual-play target weighting, and strict as-of safety. The bounded flat 4.4.4
 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
 constraint are implemented for both flat and timed historical normal-completion
-play. Full auction representation is planned after v1.0.
+play. Multiple events and continuation followed by shortening remain
+unsupported. Full auction representation is planned after v1.0.
 
 The generic position workflow now has bounded version-1 declarer-concession
 adjudication under ISkO 4.4.1 and 4.4.2 plus defender-concession adjudication

@@ -42,6 +42,11 @@ HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH = (
     / "examples"
     / "historical_grand_defender_open_play_continuation.json"
 )
+HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH = (
+    PROJECT_ROOT
+    / "examples"
+    / "historical_grand_declarer_card_exposure_continuation.json"
+)
 TRAINING_DATASET_INPUT_PATH = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 OPPONENT_STATISTICS_INPUT_PATH = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
@@ -347,6 +352,33 @@ def test_cli_historical_defender_open_play_continuation_prints_timed_summary() -
     assert "Settlement: -144" in completed_process.stdout
     assert "Decision snapshots generated: 30" in completed_process.stdout
     assert "Public defender hand begins at decision: 13" in completed_process.stdout
+    assert "Exact proof:" not in completed_process.stdout
+
+
+def test_cli_historical_declarer_exposure_continuation_prints_timed_summary() -> None:
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH,
+        "--historical-decision-snapshots",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "End reason: normal completion" in completed_process.stdout
+    assert (
+        "Non-terminal event: declarer card-exposure continuation"
+        in completed_process.stdout
+    )
+    assert "Event after played cards: 12" in completed_process.stdout
+    assert "Exposure: declarer showed 6 remaining cards to player-a" in (
+        completed_process.stdout
+    )
+    assert "Continuing defender: player-c" in completed_process.stdout
+    assert "Claimed play level: Schneider" in completed_process.stdout
+    assert "Claimed level applied immediately: no" in completed_process.stdout
+    assert "Actual plays after the event: 18" in completed_process.stdout
+    assert "Decision snapshots generated: 30" in completed_process.stdout
+    assert "Public declarer hand begins at decision: 13" in completed_process.stdout
     assert "Exact proof:" not in completed_process.stdout
 
 

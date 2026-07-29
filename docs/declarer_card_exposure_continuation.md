@@ -100,13 +100,13 @@ later result and valuation.
 
 ## Boundaries
 
-The contract is exclusive with active `game_shortening`, legacy endings,
+The flat contract is exclusive with active `game_shortening`, legacy endings,
 normal completion, impossible Null, completed play, list modes, and unrelated
-top-level workflows. Historical games and snapshots, datasets, statistics,
-rolling evaluation, and partition audits do not gain continuation support.
+top-level workflows. Historical continuation uses the separate stable-ID
+`game_events` contract and complete-game replay.
 
-This feature does not add general declared-Ouvert analysis, historical
-continuation records, new policies, later
+This feature does not add general declared-Ouvert analysis, multiple historical
+events, continuation followed by shortening, new policies, later
 final-settlement adjudication, or
 general hidden-world continuity. Bounded exact ISkO 4.4.5 adjudication is a
 separate final workflow documented in [Defender open play](defender_open_play.md).
@@ -114,6 +114,8 @@ ISkO 4.4.6 is the separate final non-continuing workflow documented in
 [Open card throw](open_card_throw.md).
 The sibling ongoing 4.4.5/4.1.6 workflow is documented in
 [Defender open play continuation](defender_open_play_continuation.md).
+The timed complete-game form is documented in
+[Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
 
 See
 [`examples/declarer_card_exposure_continuation.json`](../examples/declarer_card_exposure_continuation.json)

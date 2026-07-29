@@ -51,6 +51,16 @@ HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH = (
     / "schemas"
     / "historical_defender_open_play_continuation_event.schema.json"
 )
+HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_declarer_card_exposure_continuation_event.schema.json"
+)
+HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_declarer_card_exposure_continuation_event_output.schema.json"
+)
 HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_game_events_output.schema.json"
 )
@@ -152,6 +162,16 @@ with HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH.open(
     "r", encoding="utf-8"
 ) as file:
     HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA = json.load(file)
+with HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA = json.load(file)
+with HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_OUTPUT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_OUTPUT_SCHEMA = json.load(
+        file
+    )
 with HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_GAME_EVENTS_OUTPUT_SCHEMA = json.load(file)
 with HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
@@ -236,6 +256,20 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
             HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA["$id"],
             Resource.from_contents(
                 HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA
+            ),
+        ),
+        (
+            HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA["$id"],
+            Resource.from_contents(
+                HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA
+            ),
+        ),
+        (
+            HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_OUTPUT_SCHEMA[
+                "$id"
+            ],
+            Resource.from_contents(
+                HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_OUTPUT_SCHEMA
             ),
         ),
         (

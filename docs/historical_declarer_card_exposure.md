@@ -2,7 +2,7 @@
 
 `skat-ai` supports version-1 historical games that end through unanimously
 accepted declarer-card exposure under ISkO 4.4.4. This is a terminal historical
-record, not the separate flat exposed-hand continuation workflow.
+record, not the separate flat or timed historical continuation workflow.
 
 ## Event contract
 
@@ -44,8 +44,8 @@ of this historical contract.
 response is `accept`, and each form is `explicit` or
 `unambiguous_conduct`. Input response order is canonicalized to historical
 forehand, middlehand, rearhand seat order. An objection or continuation response
-is rejected because historical exposed-hand continuation remains separate
-future work.
+is rejected here and belongs to the separate timed
+[historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
 
 The focused input schema is
 [`schemas/historical_declarer_card_exposure.schema.json`](../schemas/historical_declarer_card_exposure.schema.json).
@@ -136,7 +136,7 @@ unanimous acceptance, claimed level, actual play count, pre-event decision,
 winner, unresolved-point policy, and settlement. `--quiet` preserves the normal
 structured-only behavior.
 
-This implementation does not add historical declarer-exposure continuation,
-historical open-card throwing, free-text or gesture
+This terminal workflow does not add multiple historical events, continuation
+followed by shortening, historical open-card throwing, free-text or gesture
 interpretation, exposure-choice or acceptance prediction, exact future-play
 proof, a learned model, or four-player support.

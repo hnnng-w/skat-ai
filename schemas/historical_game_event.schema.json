@@ -5,6 +5,9 @@
   "oneOf": [
     {
       "$ref": "https://example.local/skat-ai/historical_defender_open_play_continuation_event.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure_continuation_event.schema.json"
     }
   ]
 }

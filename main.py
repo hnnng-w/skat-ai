@@ -1232,12 +1232,35 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
             event = game_events_summary["events"][0]
             print(f"Historical game: {summary['game_id']}")
             print("End reason: normal completion")
-            print("Non-terminal event: defender open-play continuation")
-            print("Event after played cards:", event["after_play_count"])
-            print("Exposing defender:", event["exposing_defender_player_id"])
-            print("Returned public cards:", event["exposed_card_count"])
-            print("Continued play requested: yes")
-            print("Rest-trick claim adjudicated: no")
+            if event["kind"] == "defender_open_play_continuation":
+                print("Non-terminal event: defender open-play continuation")
+                print("Event after played cards:", event["after_play_count"])
+                print("Exposing defender:", event["exposing_defender_player_id"])
+                print("Returned public cards:", event["exposed_card_count"])
+                print("Continued play requested: yes")
+                print("Rest-trick claim adjudicated: no")
+            else:
+                print("Non-terminal event: declarer card-exposure continuation")
+                print("Event after played cards:", event["after_play_count"])
+                if event["exposure_form"] == "shown_to_defender":
+                    print(
+                        "Exposure: declarer showed "
+                        f"{event['public_declarer_card_count']} remaining cards to "
+                        f"{event['shown_to_defender_player_id']}"
+                    )
+                else:
+                    print(
+                        "Exposure: declarer laid open "
+                        f"{event['public_declarer_card_count']} remaining cards"
+                    )
+                continuing_ids = event["continuing_defender_player_ids"]
+                if len(continuing_ids) == 2:
+                    print("Both defenders required continued play.")
+                else:
+                    print("Continuing defender:", continuing_ids[0])
+                print("Claimed play level:", event["claimed_play_level"].title())
+                print("Claimed level applied immediately: no")
+                print("The game continued with the declarer's cards open.")
             print("Actual plays after the event:", event["actual_plays_after_event"])
             print(f"Final result: {summary['winner']} won")
             print("Settlement:", settlement["settlement_score"])
@@ -1263,9 +1286,14 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         else:
             print("Decision snapshots generated:", snapshot_count)
             if game_events_summary is not None:
+                event = game_events_summary["events"][0]
                 print(
-                    "Public defender hand begins at decision:",
-                    game_events_summary["events"][0]["first_affected_decision_index"],
+                    (
+                        "Public defender hand begins at decision:"
+                        if event["kind"] == "defender_open_play_continuation"
+                        else "Public declarer hand begins at decision:"
+                    ),
+                    event["first_affected_decision_index"],
                 )
     review_summary = summary.get("historical_game_review_summary")
     if review_summary is not None:

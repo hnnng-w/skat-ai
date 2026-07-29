@@ -28,6 +28,8 @@ Supported historical records use the focused referenced schemas:
 
 [`schemas/historical_game_event.schema.json`](../schemas/historical_game_event.schema.json)
 and
+[`schemas/historical_declarer_card_exposure_continuation_event.schema.json`](../schemas/historical_declarer_card_exposure_continuation_event.schema.json)
+and
 [`schemas/historical_defender_open_play_continuation_event.schema.json`](../schemas/historical_defender_open_play_continuation_event.schema.json)
 
 [`schemas/historical_declarer_concession.schema.json`](../schemas/historical_declarer_concession.schema.json)
@@ -158,11 +160,14 @@ defender's exact reconstructed current hand, at least five completed tricks, and
 [Historical defender open play](historical_defender_open_play.md).
 
 Normal completion may instead include one optional non-terminal `game_events`
-array containing a timed `defender_open_play_continuation`. It requires a strict
-`after_play_count` from 0 through 29, one stable defender's exact reconstructed
-hand, and `request_continued_play`. Ten complete tricks and all 30 actual plays
-remain required. See
-[Historical defender open-play continuation](historical_defender_open_play_continuation.md).
+array containing at most one timed `defender_open_play_continuation` or
+`declarer_card_exposure_continuation`. Both require strict `after_play_count`
+from 0 through 29 and an exact reconstructed complete hand. Declarer exposure
+also requires both stable defender responses with at least one `continue`.
+Ten complete tricks, all 30 actual plays, no `game_end`, and ordinary final
+scoring remain required. See
+[Historical defender open-play continuation](historical_defender_open_play_continuation.md)
+and [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
 
 A training-dataset file contains only its dataset branch:
 

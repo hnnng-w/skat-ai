@@ -1,7 +1,7 @@
 # Rolling opponent-policy evaluation
 
-This workflow accepts exactly normal-completion, including timed defender-open-
-play continuation, declarer-concession, defender-concession, declarer-card-exposure,
+This workflow accepts exactly normal-completion, including either timed
+continuation kind, declarer-concession, defender-concession, declarer-card-exposure,
 and terminal defender-open-play
 historical dataset records. Normal targets contribute 30 decisions; concession
 targets contribute their validated zero through 29 actual card plays.
@@ -14,8 +14,8 @@ quality, game outcomes, strategic strength, or machine-learning performance.
 
 A continuation source contributes one ordinary game-level result. A continuation
 target contributes 30 actual decisions: pre-event snapshots do not contain the
-event, and post-event snapshots carry the exact shrinking public defender hand.
-No event or response prediction is created, and the target result remains absent
+event, and post-event snapshots carry the exact shrinking public hand. No event,
+claim, or response prediction is created, and the target result remains absent
 from its own as-of profile.
 
 ## CLI

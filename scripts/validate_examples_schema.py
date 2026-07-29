@@ -16,6 +16,11 @@ HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH = (
     / "schemas"
     / "historical_defender_open_play_continuation_event.schema.json"
 )
+HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "historical_declarer_card_exposure_continuation_event.schema.json"
+)
 HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_declarer_concession.schema.json"
 )
@@ -89,6 +94,9 @@ def validate_example_files() -> list[str]:
     historical_continuation_event_schema = load_json_file(
         HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_EVENT_SCHEMA_PATH
     )
+    historical_declarer_continuation_event_schema = load_json_file(
+        HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_EVENT_SCHEMA_PATH
+    )
     historical_declarer_concession_schema = load_json_file(
         HISTORICAL_DECLARER_CONCESSION_SCHEMA_PATH
     )
@@ -125,6 +133,10 @@ def validate_example_files() -> list[str]:
             (
                 historical_continuation_event_schema["$id"],
                 Resource.from_contents(historical_continuation_event_schema),
+            ),
+            (
+                historical_declarer_continuation_event_schema["$id"],
+                Resource.from_contents(historical_declarer_continuation_event_schema),
             ),
             (
                 historical_declarer_concession_schema["$id"],

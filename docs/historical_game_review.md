@@ -1,7 +1,7 @@
 # Historical game review
 
 Historical game review evaluates every actual card play in a validated normal-
-completion, including timed defender-open-play continuation, declarer-concession,
+completion, including either timed public-hand continuation, declarer-concession,
 defender-concession, declarer-card-exposure, or terminal defender-open-play record through the existing immediate
 recommendation and post-game review logic. Normal completion remains 30
 decisions; shortened review contains zero through 29 decisions. The terminal
@@ -58,10 +58,11 @@ value, overbid outcome, and settlement are not analysis inputs. The final
 historical outcome remains available beside the review in the parent summary,
 but it cannot influence an earlier recommendation or quality classification.
 
-After a defender-open-play continuation boundary, the stable exposing defender
-is mapped relative to each actor and supplied through the existing exact
+After either continuation boundary, the stable public-hand owner is mapped
+relative to each actor and supplied through the existing exact
 `PublicHandConstraint`. No extra card enters that hand. Pre-event decisions are
-identical to the no-event record, and no event or response decision is reviewed.
+identical to the no-event record, and no event, claim, or response decision is
+reviewed.
 
 ## Review output
 
@@ -109,7 +110,7 @@ an empty legal-card list and analysis report, a null recommendation card, and
 the existing unavailable post-game review shape with `not_available` quality.
 Counts still reconcile across all rows and all three players. Exposed-card-
 aware declared-Ouvert simulation is not implemented by this workflow; the exact
-defender continuation constraint is the bounded supported exception.
+timed continuation constraints are the bounded supported exceptions.
 
 ## Scope
 

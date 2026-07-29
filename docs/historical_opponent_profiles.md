@@ -1,10 +1,12 @@
 # Historical opponent profiles
 
 External profile-enabled historical review supports actual card decisions from
-normal-completion, including timed defender-open-play continuation, plus
+normal-completion, including either timed continuation kind, plus
 declarer-concession, defender-concession, declarer-card-exposure, and terminal
 defender-open-play records. Empty prefixes produce zero
 application counts; consent is not behavioral evidence.
+The authorized post-boundary public hand may affect analysis through the existing
+constraint, but event kind, claim, and responses add no profile signal.
 
 Historical game review can apply validated external opponent profiles without
 using statistics captured during or after the reviewed game. The feature reuses

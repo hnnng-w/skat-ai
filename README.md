@@ -250,6 +250,12 @@ Validate timed continued play after historical defender open play:
 python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
 ```
 
+Validate timed continued play after historical declarer-card exposure:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
+```
+
 Validate an exact historical play prefix ending in declarer concession:
 
 ```powershell
@@ -295,8 +301,8 @@ Historical declarer and defender concessions, accepted declarer-card exposure,
 and terminal defender open play support snapshots, review, time-safe external
 profiles, variable training samples, and record/player partition audits for every
 actual supplied play. The terminal event is not reviewed or used as a target.
-Timed defender-open-play continuation remains normal completion with 30 actual
-plays; only post-event decisions receive the exact shrinking public defender hand.
+Either timed continuation remains normal completion with 30 actual plays; only
+post-event decisions receive the exact shrinking public defender or declarer hand.
 Historical opponent statistics, reusable export, rolling profile construction,
 and rolling policy evaluation support normal completion, declarer concession,
 defender concession, declarer-card exposure, and defender open play.
@@ -431,6 +437,7 @@ Detailed documentation is split into topic-specific files:
 * [Public-hand constraint schema](schemas/public_hand_constraint.schema.json)
 * [Historical games](docs/historical_games.md)
 * [Historical declarer card exposure](docs/historical_declarer_card_exposure.md)
+* [Historical declarer-card-exposure continuation](docs/historical_declarer_card_exposure_continuation.md)
 * [Historical defender open play](docs/historical_defender_open_play.md)
 * [Historical defender open-play continuation](docs/historical_defender_open_play_continuation.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
@@ -448,6 +455,8 @@ Detailed documentation is split into topic-specific files:
 * [Historical defender-open-play input schema](schemas/historical_defender_open_play.schema.json)
 * [Historical defender-open-play output schema](schemas/historical_defender_open_play_output.schema.json)
 * [Historical game-event schema](schemas/historical_game_event.schema.json)
+* [Historical declarer-card-exposure continuation event schema](schemas/historical_declarer_card_exposure_continuation_event.schema.json)
+* [Historical declarer-card-exposure continuation output schema](schemas/historical_declarer_card_exposure_continuation_event_output.schema.json)
 * [Historical defender-open-play continuation event schema](schemas/historical_defender_open_play_continuation_event.schema.json)
 * [Historical game-events output schema](schemas/historical_game_events_output.schema.json)
 * [Historical decision snapshot schema](schemas/historical_decision_snapshot.schema.json)
@@ -509,9 +518,10 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 47 deterministic scenarios,
-including both ongoing public-hand continuations and bounded exact defender
-open-play adjudication plus structured open-card-throw adjudication.
+complete. Generated-output validation covers 48 deterministic scenarios,
+including both flat ongoing public-hand continuations, both timed historical
+continuations, bounded exact defender-open-play adjudication, and structured
+open-card-throw adjudication.
 `v0.7.0` is the preceding published release. Tag and GitHub Release publication
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
@@ -522,7 +532,7 @@ summaries, settlement summaries, overbid handling, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
-Normal-completion, timed defender-open-play continuation, declarer-concession,
+Normal-completion, timed defender-open-play and declarer-card-exposure continuation, declarer-concession,
 defender-concession, accepted declarer-card-exposure, and terminal defender-open-play historical records, information-safe
 variable-cardinality snapshots and review, and versioned training/evaluation
 dataset wrapping are partially supported. Five structured generic-position shortening
@@ -535,7 +545,7 @@ trick and outstanding point to the opposing party without proof or simulation. A
 version-1 flat-position continuation union keeps either the exact current
 declarer hand public after an objection or the exposing defender's returned hand
 public after a 4.1.6 request, without ending or settling the game. Remaining gaps
-include additional structured historical endings or continuation, unlimited exact
+include additional structured historical endings, multiple events, or continuation followed by shortening, unlimited exact
 solving, isolated-card claims, simultaneous throws and specific-trick assertions,
 additional historical end reasons, approved settlement
 completeness, complete-game coaching, stronger solving, exposed-card-aware

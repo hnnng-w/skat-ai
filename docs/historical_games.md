@@ -4,7 +4,7 @@
 ended through normal play, a bounded declarer or defender concession,
 unanimously accepted declarer-card exposure, or bounded exact defender open
 play. Normal completion may additionally contain one timed non-terminal defender-
-open-play continuation. It validates the
+open-play or declarer-card-exposure continuation. It validates the
 initial 32-card deal, final declaration, skat handling, every supplied play,
 result, and settlement. All supported endings can reconstruct a local
 `me`/`left`/`right` information view immediately before every actual play.
@@ -145,10 +145,12 @@ adjudicator. See
 [Historical defender open play](historical_defender_open_play.md).
 
 Normal completion may instead contain one optional `game_events` member for
-`defender_open_play_continuation`. It keeps no terminal `game_end`, all ten
-tricks, and all 30 plays. The exact returned defender hand becomes public only
-after `after_play_count` and shrinks through actual later play. See
-[Historical defender open-play continuation](historical_defender_open_play_continuation.md).
+either `defender_open_play_continuation` or
+`declarer_card_exposure_continuation`. It keeps no terminal `game_end`, all ten
+tricks, and all 30 plays. The exact returned defender hand or public declarer
+hand becomes visible only after `after_play_count` and shrinks through actual
+later play. See [Historical defender open-play continuation](historical_defender_open_play_continuation.md)
+and [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
 
 ## Derived output
 
@@ -232,6 +234,12 @@ Print the timed non-terminal continuation and its snapshot transition:
 python main.py --input examples/historical_grand_defender_open_play_continuation.json --historical-decision-snapshots
 ```
 
+Print the timed declarer-card-exposure continuation and its snapshot transition:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
+```
+
 Write structured output without successful stdout:
 
 ```powershell
@@ -274,7 +282,7 @@ actual plays. See
 
 Later work is still required for:
 
-* other historical claims, declarer exposure continuation, multiple non-terminal events, continuation followed by shortening, historical open-card throwing, passed-in games, and other approved end reasons
+* other historical claims, multiple non-terminal events, continuation followed by shortening, historical open-card throwing, passed-in games, and other approved end reasons
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication
