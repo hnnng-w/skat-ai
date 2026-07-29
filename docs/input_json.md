@@ -292,6 +292,7 @@ A basic input position requires:
 | `player_position`             | Local player position such as `forehand`, `middlehand`, `rearhand`, or `unknown`.              |
 | `trick_leader`                | Player who leads the current trick.                                                            |
 | `hand`                        | Known local hand cards.                                                                        |
+| `public_declarer_cards`       | Optional exact current opponent declarer hand, required for opponent-declarer Ouvert analysis. |
 | `current_trick`               | Cards already played in the current trick.                                                     |
 | `played_cards`                | Backward-compatible list of previously played cards. Prefer `completed_tricks` for new inputs. |
 | `completed_tricks`            | Detailed completed trick history.                                                              |
@@ -483,6 +484,20 @@ use `matadors`, `schneider_announced`, or `schwarz_announced`; those combination
 are rejected by runtime validation. Null `ouvert` and Null Hand are independent:
 `ouvert: true` does not imply `hand_game: true` for a Null game.
 
+### Declared Ouvert public hand
+
+Declared Ouvert authorizes the complete current declarer hand as public. If the
+declarer is `me`, analysis derives the constraint from `hand`; an optional
+`public_declarer_cards` value must match it exactly. If the declarer is `left` or
+`right`, `public_declarer_cards` is required and its count must equal the
+corresponding hand-size field.
+
+The field is rejected for non-Ouvert declarations or an unknown declarer. Cards
+must be valid and unique and cannot overlap played cards, the current trick,
+completed tricks, known skat, the local defender hand, or an independently
+public other-player hand. Output card order is canonical. Defender hands are not
+required. See [Ouvert-aware simulation](ouvert_aware_simulation.md).
+
 ### Impossible Null settlement selection
 
 An impossible Null declaration can optionally record the externally selected
@@ -514,6 +529,7 @@ unknown.
 Automatic matador inference can use known declarer-card context from:
 
 * the local declarer `hand`
+* the exact declared-Ouvert `public_declarer_cards`, when the declarer is an opponent
 * `skat`, when available and allowed by the analysis mode
 * `completed_tricks`, but only from tricks that provide both `cards` and ordered `players`, and only when `declarer_player` is concrete
 

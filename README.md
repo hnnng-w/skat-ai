@@ -27,6 +27,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Multi-step simulation
 * Configurable card-selection policies
 * Policy comparison across card-selection strategies
+* Declared-Ouvert exact public-hand ownership in Immediate Analysis, supported Multi-Step paths, and Policy Comparison
 * Opponent lead and response simulation
 * Opponent policy presets
 * Optional profile-based policy presets
@@ -79,6 +80,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Rejection of post-game-only information in live-decision mode
 * Information policy summary output
 * Rule-authorized all-player public-hand constraints for bounded exposure continuations
+* Rule-authorized exact current declarer hands for declared Ouvert
 * Private exact defender-open-play proof evidence with only the exposing defender's cards emitted
 
 ### Post-game review
@@ -287,6 +289,13 @@ Review all 30 historical decisions with deterministic immediate analysis:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
+Review a complete Grand Ouvert with the exact shrinking declarer hand from
+decision 1:
+
+```powershell
+python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
+```
+
 Apply exact stable-ID external profiles captured strictly before the game:
 
 ```powershell
@@ -443,6 +452,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical defender open-play continuation](docs/historical_defender_open_play_continuation.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
+* [Ouvert-aware simulation](docs/ouvert_aware_simulation.md)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
 * [Dataset partition policies](docs/dataset_partition_policies.md)
@@ -521,7 +531,7 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 The current code and package baseline is `v0.8.0`, prepared around the theme
 "Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Generated-output validation covers 49 deterministic scenarios,
+complete. Generated-output validation covers 50 deterministic scenarios,
 including both flat ongoing public-hand continuations, both timed historical
 continuations, bounded exact defender-open-play adjudication, and structured
 open-card-throw adjudication.
@@ -531,7 +541,8 @@ publication state.
 
 Skat AI already supports a broad set of single-position analysis, multi-step
 simulation, opponent-policy modeling, game-result summaries, game-value
-summaries, settlement summaries, overbid handling, live-vs-post-game information
+summaries, settlement summaries, overbid handling, declared-Ouvert-aware
+recommendations, live-vs-post-game information
 enforcement, post-game review output, and partial fixed-three-player SkWO-style
 performance features.
 
@@ -551,8 +562,8 @@ public after a 4.1.6 request, without ending or settling the game. Remaining gap
 include additional structured historical endings, multiple events, or continuation followed by shortening, unlimited exact
 solving, isolated-card claims, simultaneous throws and specific-trick assertions,
 additional historical end reasons, approved settlement
-completeness, complete-game coaching, stronger solving, exposed-card-aware
-Ouvert simulation, complete field-level live provenance, coherent hidden-world
+completeness, complete-game coaching, stronger solving, complete field-level live
+provenance, coherent hidden-world
 continuity across Multi-Step paths, broader information-safe hidden-card
 inference, full 36-game list aggregation, interactive input, and a stable
 installed interface. No website or browser integration exists. External and

@@ -118,8 +118,8 @@ the profile, or that a preset is optimal.
 ## Preserved behavior and limits
 
 Deterministic per-decision seed derivation, legal cards, information-safe
-snapshots, actual-card comparisons, replay, scoring, final settlement, and the
-Ouvert review limitation are unchanged. Without a companion file, historical
+snapshots, actual-card comparisons, replay, scoring, final settlement, and
+declared-Ouvert public-hand application are unchanged. Without a companion file, historical
 records without `played_at`, summaries, snapshots, reviews, and training-dataset
 generation retain their existing behavior. Live profile binding semantics are
 unchanged.

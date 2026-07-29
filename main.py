@@ -114,6 +114,10 @@ from skat_ai.opponent_statistics import (
     build_serializable_opponent_statistics_input,
 )
 from skat_ai.output_writer import write_analysis_result_to_json
+from skat_ai.ouvert_simulation import (
+    build_declared_ouvert_public_hand_constraint,
+    resolve_effective_public_hand_constraints,
+)
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.performance_rating import (
     build_list_performance_summary,
@@ -339,8 +343,20 @@ def build_analysis_result(
         if game_continuation is not None
         else None
     )
-    public_hand_constraints = (
-        (continuation_context.public_hand_constraint,) if continuation_context is not None else ()
+    declared_ouvert_constraint = build_declared_ouvert_public_hand_constraint(data)
+    public_hand_constraints = resolve_effective_public_hand_constraints(
+        tuple(
+            constraint
+            for constraint in (
+                declared_ouvert_constraint,
+                (
+                    continuation_context.public_hand_constraint
+                    if continuation_context is not None
+                    else None
+                ),
+            )
+            if constraint is not None
+        )
     )
     game_declaration = get_game_declaration_from_input(
         data if game_shortening is not None else local_data
@@ -850,6 +866,21 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print("Sample count:", settings["sample_count"])
     print("Random seed:", settings["random_seed"])
     print("Use basic opponent strategy:", settings["use_basic_opponent_strategy"])
+
+    declaration = result["game_declaration"]
+    if declaration["ouvert"]:
+        constraints = result["information_policy_summary"].get(
+            "public_hand_constraints", []
+        )
+        declared_constraint = next(
+            constraint
+            for constraint in constraints
+            if constraint["source"] == "declared_ouvert"
+        )
+        print("Declared Ouvert: yes")
+        print("Public declarer:", declared_constraint["player"])
+        print("Public declarer cards:", declared_constraint["card_count"])
+        print("Ouvert-aware simulation: applied")
 
     print_opponent_profile_application_summary(result)
 
@@ -1739,8 +1770,22 @@ def run_json_position_analysis(
         if game_continuation is not None
         else None
     )
-    public_hand_constraints = (
-        (continuation_context.public_hand_constraint,) if continuation_context is not None else ()
+    declared_ouvert_constraint = build_declared_ouvert_public_hand_constraint(
+        position_data
+    )
+    public_hand_constraints = resolve_effective_public_hand_constraints(
+        tuple(
+            constraint
+            for constraint in (
+                declared_ouvert_constraint,
+                (
+                    continuation_context.public_hand_constraint
+                    if continuation_context is not None
+                    else None
+                ),
+            )
+            if constraint is not None
+        )
     )
     validate_live_opponent_profile_options(
         position_data=position_data,

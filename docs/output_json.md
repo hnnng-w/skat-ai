@@ -144,9 +144,10 @@ When `--historical-game-review` is requested, the summary also contains
 `immediate_expected_value` and `decision_time` policies, sample/base-seed
 settings, one row per actual decision, quality counts, and exactly three player summaries.
 Each reviewed row contains all legal candidates, one recommendation, the
-existing analysis report, and the existing post-game review shape. Ouvert rows
-are explicitly unavailable with `public_exposed_cards_not_supported` and do not
-run simulation. See [Historical game review](historical_game_review.md) and
+existing analysis report, and the existing post-game review shape. Declared-
+Ouvert rows additionally expose the exact decision-relative
+`public_hand_constraints` used by simulation and follow the ordinary reviewed
+path. See [Historical game review](historical_game_review.md) and
 [`historical_game_review.schema.json`](../schemas/historical_game_review.schema.json).
 
 Historical review quality counts summarize decisions; they are not player
@@ -810,13 +811,14 @@ Fields:
 | `known_skat_cards_allowed`                             | Whether known skat cards are allowed in the input under the selected visibility.       |
 | `ended_game_allowed`                                   | Whether completed game states are allowed.                                             |
 | `unverifiable_completed_trick_winner_metadata_allowed` | Whether winner metadata without full verification context is allowed.                  |
-| `public_hand_constraints`                              | Optional rule-authorized exact public hands from the supported continuation union. |
+| `public_hand_constraints`                              | Optional rule-authorized exact public hands from declared Ouvert or the supported continuation union. |
 
-For continuation, each public-hand constraint identifies its concrete owner,
-all-player visibility, count, canonical cards, and either source
-`declarer_card_exposure_continuation` or
-`defender_open_play_continuation`. Only that one rule-authorized hand is emitted;
-the other hands, private proof evidence, and hidden skat remain protected.
+Each public-hand constraint identifies its concrete owner, all-player visibility,
+count, canonical cards, and source `declared_ouvert`,
+`declarer_card_exposure_continuation`, or
+`defender_open_play_continuation`. Identical same-player evidence is emitted once;
+a disjoint declared-Ouvert hand and public defender continuation hand may both be
+present. Other hands, private proof evidence, and hidden skat remain protected.
 
 ## Performance rating summary
 
@@ -1016,7 +1018,7 @@ defender, `win_rate` means either defender wins the trick. `average_points_won`,
 `average_points_lost`, and `expected_point_swing` use the same local-side
 perspective.
 
-With a continuation, every candidate uses the same exact public hand. Its owner
+With declared Ouvert or continuation, every candidate uses the same exact public hand. Its owner
 can play only those cards; played cards are removed and cannot reappear.
 Candidate objectives and card-selection policies are otherwise unchanged.
 
@@ -1066,7 +1068,7 @@ recommendation. The unavailable shape is:
 `post_game_review_summary` compares the actual played card with the recommended card.
 It requires an available local Immediate Analysis report.
 
-Flat continuation review uses the same public information state. When the local
+Flat declared-Ouvert and continuation review use the same public information state. When the local
 actor owns the public hand, `actual_card_played` must belong to it; other local
 cards retain ordinary hand and follow-suit validation. Continuation alone never
 adds a final result or settlement to the review.
@@ -1194,8 +1196,8 @@ not already represented by `completed_tricks`. Points from simulated completed
 tricks are contributed by the completed-trick cards and are reflected in the
 summary totals.
 
-For continuation, `context_summary.public_hand_constraints` contains the
-remaining exact public hand. Each child path removes known cards that were
+For declared Ouvert or continuation, `context_summary.public_hand_constraints`
+contains every remaining exact public hand. Each child path removes known cards that were
 played and retains every unplayed public card with its original source. Otherwise hidden-card
 sampling keeps the existing non-global-continuity limitation.
 
@@ -1232,9 +1234,10 @@ Each row includes `final_point_swing` for the declarer-perspective swing and
 `recommended_policy` are ranked by `local_point_swing`, then by the documented
 tie-breakers.
 
-Every compared policy starts from the same public-hand constraint and seed.
+Every compared policy starts from the same resolved public-hand constraints,
+sources, and seed.
 Policy differences therefore cannot come from changing or resampling the
-public continuation hand, and no new policy is introduced.
+public hand, and no new policy is introduced.
 
 The output schema defines the stable `policy_comparison_result` structure,
 including requested settings, compared policies, per-policy result rows,

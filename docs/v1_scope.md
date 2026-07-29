@@ -64,8 +64,8 @@ The following directions are required for `v1.0.0`:
 * Preserve one coherent hidden-world assignment across each simulated path.
 * Add broader information-safe hidden-card inference with explicit allowed
   evidence and confidence semantics.
-* Use exposed cards in Ouvert-aware recommendation simulation without violating
-  decision-time information boundaries.
+* Preserve exposed-card use in Ouvert-aware recommendation simulation without
+  violating decision-time information boundaries. This bounded gate is implemented.
 * Aggregate complete fixed-three-player 36-game lists while preserving SkWO
   6.3.1 performance formulas and tie handling.
 * Support interactive live and retrospective input and session capture.
@@ -145,16 +145,16 @@ unanimously accepted declarer-card exposure, and bounded terminal defender open
 play. Normal completion may contain at most one timed non-terminal defender-
 open-play or declarer-card-exposure continuation while retaining all ten tricks
 and 30 actual plays. It can reconstruct information-safe pre-play states for all
-30 actual cards, with the exact public hand visible only after the event
-boundary. It also
-evaluates non-ouvert normal-play snapshots through bounded review and wraps all
+30 actual cards, with continuation public hands visible only after their event
+boundary and declared-Ouvert hands visible from decision 1. It also evaluates
+normal-play snapshots through bounded review and wraps all
 normal-play snapshots in versioned provenance-aware training/evaluation records.
 Training-data representation supports normal completion and all five shortened kinds
 with one sample per actual play. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented; automatic
-splitting and unseen-player model evaluation are not v1 requirements. The v1
-gate remains open for general declared-Ouvert and historical exposed-card-aware
-recommendation analysis and approved later end reasons. Historical statistics
+splitting and unseen-player model evaluation are not v1 requirements. Bounded
+declared-Ouvert recommendation analysis is implemented; approved later end
+reasons remain open. Historical statistics
 and rolling policy evaluation support those same four end reasons with game-level
 source weighting, actual-play target weighting, and strict as-of safety. The bounded flat 4.4.4
 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
@@ -179,7 +179,7 @@ party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
 This does not close broader v1 gates for
 historical declarer-exposure continuation, multiple non-terminal events,
-continuation followed by shortening, general Ouvert analysis, other historical
+continuation followed by shortening, other historical
 claims/shortening, general corrected play,
 isolated or specific-trick claims, simultaneous throws, full-card theoretical
 solving, complete settlement

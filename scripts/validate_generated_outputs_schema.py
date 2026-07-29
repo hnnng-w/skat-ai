@@ -1675,6 +1675,90 @@ def check_historical_game_review(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_historical_grand_ouvert_review(data: dict[str, Any]) -> list[str]:
+    """Checks declared-Ouvert ownership and normal historical review."""
+    if set(data) != {"input_file", "historical_game_summary"}:
+        return ["expected only the historical-game top-level output branch"]
+    summary = data["historical_game_summary"]
+    review = summary.get("historical_game_review_summary")
+    errors = []
+    declaration = summary["record"]["declaration"]
+    if summary["game_id"] != "historical-grand-ouvert-review-001":
+        errors.append("expected preserved historical Grand Ouvert game ID")
+    if summary["status"] != "complete" or len(summary["derived_tricks"]) != 10:
+        errors.append("expected complete ten-trick historical Grand Ouvert game")
+    if declaration != {
+        "game_type": "grand",
+        "hand_game": True,
+        "ouvert": True,
+        "schneider_announced": True,
+        "schwarz_announced": True,
+        "matadors": 1,
+        "bid_value": 18,
+    }:
+        errors.append("expected canonical Grand Ouvert declaration with one matador")
+    if summary["game_value_summary"]["game_value"] != 144:
+        errors.append("expected unchanged Grand Ouvert game value of 144")
+    if summary["final_settlement_summary"]["settlement_score"] != -288:
+        errors.append("expected unchanged doubled Grand Ouvert loss of -288")
+    if not isinstance(review, dict):
+        errors.append("expected historical Grand Ouvert review summary")
+        return errors
+    if review["settings"] != {
+        "sample_count": 20,
+        "base_random_seed": 42,
+        "opponent_policy_mode": "default",
+    }:
+        errors.append("expected deterministic Grand Ouvert review settings")
+    if (
+        review["decision_count"] != 30
+        or review["reviewed_decision_count"] != 30
+        or review["unavailable_decision_count"] != 0
+        or len(review["decisions"]) != 30
+    ):
+        errors.append("expected all 30 Grand Ouvert decisions to be reviewed")
+    if review["quality_counts"]["not_available"] != 0:
+        errors.append("expected no Ouvert-only unavailable decisions")
+    if [decision["effective_random_seed"] for decision in review["decisions"]] != list(
+        range(42, 72)
+    ):
+        errors.append("expected Grand Ouvert decision seeds 42 through 71")
+    if any(
+        decision["status"] != "reviewed"
+        or decision["unavailable_reason"] is not None
+        or decision["recommendation"]["card"] is None
+        or decision["actual_card_played"] not in decision["legal_cards"]
+        or not decision.get("public_hand_constraints")
+        or decision["public_hand_constraints"][0]["source"] != "declared_ouvert"
+        for decision in review["decisions"]
+    ):
+        errors.append("expected reviewed decisions with declared-Ouvert constraints")
+    first_public = review["decisions"][0].get("public_hand_constraints")
+    if first_public != [
+        {
+            "player": "left",
+            "source": "declared_ouvert",
+            "visibility_scope": "all_players",
+            "card_count": 10,
+            "cards": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"],
+        }
+    ]:
+        errors.append("expected exact initial public declarer hand in review context")
+    first_decision = review["decisions"][0]
+    if (
+        first_decision["recommendation"]["card"] != "SA"
+        or first_decision["post_game_review_summary"]["decision_quality"] != "mistake"
+    ):
+        errors.append("expected stable first Ouvert recommendation and decision quality")
+    if len(review["player_summaries"]) != 3 or any(
+        player["reviewed_decision_count"] != 10
+        or player["unavailable_decision_count"] != 0
+        for player in review["player_summaries"]
+    ):
+        errors.append("expected three reconciled ten-decision player summaries")
+    return errors
+
+
 def check_historical_opponent_profile_review(data: dict[str, Any]) -> list[str]:
     """Checks time-safe stable-ID profile application across historical decisions."""
     base_output = {
@@ -2538,6 +2622,22 @@ SCENARIOS = (
             "--quiet",
         ),
         check_output=check_historical_game_review,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="historical_grand_ouvert_review",
+        input_path=(PROJECT_ROOT / "examples" / "historical_grand_ouvert_review.json"),
+        branch="declared-Ouvert historical review with exact public declarer hand",
+        cli_args=(
+            "--historical-game-review",
+            "--samples",
+            "20",
+            "--seed",
+            "42",
+            "--quiet",
+        ),
+        check_output=check_historical_grand_ouvert_review,
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),

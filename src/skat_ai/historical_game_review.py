@@ -30,7 +30,10 @@ from skat_ai.post_game_review import (
     OPTIMAL_DECISION_QUALITY,
     SUBOPTIMAL_DECISION_QUALITY,
     build_post_game_review_summary,
-    build_unavailable_post_game_review_summary,
+)
+from skat_ai.public_hand_constraint import (
+    DECLARED_OUVERT_SOURCE,
+    build_serializable_public_hand_constraints,
 )
 from skat_ai.recommender import recommend_card_by_expected_value
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
@@ -38,7 +41,6 @@ from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 HISTORICAL_GAME_REVIEW_SCHEMA_VERSION = 1
 HISTORICAL_GAME_REVIEW_ANALYSIS_METHOD = "immediate_expected_value"
 HISTORICAL_GAME_REVIEW_INFORMATION_POLICY = "decision_time"
-PUBLIC_EXPOSED_CARDS_UNAVAILABLE_REASON = "public_exposed_cards_not_supported"
 QUALITY_NAMES = (
     OPTIMAL_DECISION_QUALITY,
     ACCEPTABLE_DECISION_QUALITY,
@@ -59,38 +61,6 @@ class HistoricalGameReviewSettings:
 
 def _build_empty_quality_counts() -> dict[str, int]:
     return {quality: 0 for quality in QUALITY_NAMES}
-
-
-def _build_unavailable_decision(
-    snapshot: HistoricalDecisionSnapshot,
-    effective_random_seed: int | None,
-    opponent_profile_application: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    explanation = (
-        "No post-game review decision quality is available because public exposed "
-        "cards are not supported by immediate simulation."
-    )
-    post_game_review_summary = build_unavailable_post_game_review_summary(
-        reason=PUBLIC_EXPOSED_CARDS_UNAVAILABLE_REASON,
-        actual_card_played=snapshot.actual_card_played,
-        decision_explanation=explanation,
-    )
-    result = {
-        **_build_decision_identity(snapshot),
-        "status": "unavailable",
-        "unavailable_reason": PUBLIC_EXPOSED_CARDS_UNAVAILABLE_REASON,
-        "effective_random_seed": effective_random_seed,
-        "legal_cards": [],
-        "recommendation": {
-            "card": None,
-            "reason": explanation,
-        },
-        "analysis_report": [],
-        "post_game_review_summary": post_game_review_summary,
-    }
-    if opponent_profile_application is not None:
-        result["opponent_profile_application"] = opponent_profile_application
-    return result
 
 
 def _build_decision_identity(
@@ -171,6 +141,13 @@ def _build_reviewed_decision(
     }
     if opponent_profile_application is not None:
         result["opponent_profile_application"] = opponent_profile_application
+    if any(
+        constraint.source == DECLARED_OUVERT_SOURCE
+        for constraint in position.public_hand_constraints
+    ):
+        result["public_hand_constraints"] = build_serializable_public_hand_constraints(
+            position.public_hand_constraints
+        )
     return result
 
 
@@ -367,25 +344,18 @@ def build_historical_game_review_summary(
                     ),
                 )
             )
-        if snapshot.visible_state.declaration.ouvert:
-            decision = _build_unavailable_decision(
-                snapshot=snapshot,
-                effective_random_seed=effective_random_seed,
-                opponent_profile_application=opponent_profile_application,
-            )
-        else:
-            decision = _build_reviewed_decision(
-                snapshot=snapshot,
-                historical_record=historical_record,
-                sample_count=settings.sample_count,
-                effective_random_seed=effective_random_seed,
-                opponent_response_policy_by_player=(
-                    effective_policy_settings.immediate_response_policy_by_player
-                    if effective_policy_settings is not None
-                    else None
-                ),
-                opponent_profile_application=opponent_profile_application,
-            )
+        decision = _build_reviewed_decision(
+            snapshot=snapshot,
+            historical_record=historical_record,
+            sample_count=settings.sample_count,
+            effective_random_seed=effective_random_seed,
+            opponent_response_policy_by_player=(
+                effective_policy_settings.immediate_response_policy_by_player
+                if effective_policy_settings is not None
+                else None
+            ),
+            opponent_profile_application=opponent_profile_application,
+        )
         decisions.append(decision)
 
     quality_counts = _build_empty_quality_counts()

@@ -13,6 +13,7 @@
     "source": {
       "type": "string",
       "enum": [
+        "declared_ouvert",
         "declarer_card_exposure_continuation",
         "defender_open_play_continuation"
       ]

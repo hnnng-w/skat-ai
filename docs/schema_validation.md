@@ -75,6 +75,7 @@ The input schema checks things such as:
 * fixed three-player `list_standings_input` structure
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
+* optional exact `public_declarer_cards` card-array structure for declared Ouvert
 * top-level and optional nested `game_declaration` declaration field types
 * strict version-1 declarer-concession, defender-concession, and declarer-card-exposure union shapes
 * strict version-1 continuation union with declarer-exposure responses and cards or defender-open-play response, exposing defender, and returned public hand
@@ -150,7 +151,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
-Generated-output validation covers 49 deterministic scenarios. Position
+Generated-output validation covers 50 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -170,7 +171,8 @@ game contributions, and local analysis results, fixed three-player standings
 summaries, late-game history-heavy live input, and local defender redaction for
 `known_to_declarer` Skat visibility, plus complete normal-play historical-game
 validation, settlement, information-safe decision snapshots, one seeded
-30-decision historical game review, one versioned two-record/60-sample training
+30-decision ordinary historical game review, one seeded 30-decision declared-
+Ouvert historical review with exact public ownership, one versioned two-record/60-sample training
 dataset, one 14-sample variable-length concession dataset,
 one exact-prefix unanimously accepted historical declarer-card-exposure result,
 one bounded exact historical defender-open-play result,
@@ -215,6 +217,10 @@ known-card path continuity. Historical continuation additionally uses the
 version-1 `historical_game_event` union and focused event/output schemas. Neither
 timed continuation invokes solver proof, assignment, or settlement; runtime
 replay verifies the exact boundary and complete public hand.
+Declared Ouvert reuses the public-hand constraint schema with source
+`declared_ouvert`. Runtime validation is authoritative for concrete declarer
+identity, local-hand equality, opponent hand size, known-card contradictions,
+multi-source deduplication, disjoint ownership, and canonical output.
 Historical decision
 snapshots use `schemas/historical_decision_snapshot.schema.json`, referenced by
 the public output schema. Complete historical review uses

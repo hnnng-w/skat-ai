@@ -14,9 +14,9 @@ decision workflow reviews actual plays and can be wrapped by the
 separate training-dataset workflow. Base historical output also supports
 declarer concession under ISkO 4.4.1 and 4.4.2, defender concession under
 ISkO 4.4.3, accepted declarer-card exposure under ISkO 4.4.4, or terminal
-defender open play under ISkO 4.4.5, or open-card throw under ISkO 4.4.6, but it does not provide
-ouvert-aware recommendation simulation,
-other claims/concessions, full auction events, player
+defender open play under ISkO 4.4.5, or open-card throw under ISkO 4.4.6. It also
+reviews declared Ouvert with the exact current declarer hand, but it does not
+provide other claims/concessions, full auction events, player
 statistics directly from one historical-game invocation, or list/tournament
 aggregation. A timestamped collection wrapped by the training-dataset workflow
 can separately produce bounded historical player statistics. Direct snapshot
@@ -270,6 +270,13 @@ Review every historical decision:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
+Review the complete Grand Ouvert example with public declarer ownership from
+decision 1:
+
+```powershell
+python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
+```
+
 Apply pre-game external profiles by stable participant ID:
 
 ```powershell
@@ -298,7 +305,7 @@ Later work is still required for:
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication
-* exposed-card-aware ouvert simulation and complete-game coaching
+* complete-game coaching beyond bounded immediate decision review
 * unbounded player-statistics history, weighting, merging, multiple captures, policy-effect evaluation, and learned models
 * list, series, and tournament aggregation from historical records
 
@@ -306,8 +313,8 @@ Four-player tables remain out of scope.
 
 Supported historical records can be wrapped with provenance and explicit
 partitions by the separate [training data](training_data.md) workflow. That
-workflow uses snapshots rather than historical review, so ouvert records remain
-valid and no recommendation simulation is invoked.
+workflow uses snapshots rather than historical review, so Ouvert records retain
+the same exact decision-time public cards without invoking recommendation.
 The same dataset wrapper can instead aggregate exact per-player statistics from
 selected timestamped games without generating samples. See
 [Historical opponent statistics](historical_opponent_statistics.md).

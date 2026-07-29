@@ -5,7 +5,9 @@ from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
 from skat_ai.historical_decision_snapshot import HistoricalDecisionSnapshot
 from skat_ai.historical_game import HistoricalGameRecord
+from skat_ai.ouvert_simulation import resolve_effective_public_hand_constraints
 from skat_ai.public_hand_constraint import (
+    DECLARED_OUVERT_SOURCE,
     DECLARER_EXPOSURE_CONTINUATION_SOURCE,
     DEFENDER_OPEN_PLAY_CONTINUATION_SOURCE,
     PublicHandConstraint,
@@ -118,22 +120,21 @@ def build_position_from_historical_snapshot(
         matadors=declaration.matadors,
         bid_value=declaration.bid_value,
     )
-    public_hand_constraints = tuple(
+    public_hand_constraints = resolve_effective_public_hand_constraints(tuple(
         PublicHandConstraint(
             player=stable_to_local[exposure.player_id],
             cards=exposure.cards,
             source=(
-                DECLARER_EXPOSURE_CONTINUATION_SOURCE
+                DECLARED_OUVERT_SOURCE
+                if exposure.player_id == historical_record.declarer_player_id
+                and historical_record.declaration.ouvert
+                else DECLARER_EXPOSURE_CONTINUATION_SOURCE
                 if exposure.player_id == historical_record.declarer_player_id
                 else DEFENDER_OPEN_PLAY_CONTINUATION_SOURCE
             ),
         )
         for exposure in visible_state.public_exposed_cards
-        if not (
-            exposure.player_id == historical_record.declarer_player_id
-            and historical_record.declaration.ouvert
-        )
-    )
+    ))
 
     return HistoricalSnapshotPosition(
         state=state,

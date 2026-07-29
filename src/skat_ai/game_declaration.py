@@ -2,6 +2,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
+from skat_ai.information_view import is_skat_visible_to_local_player
 from skat_ai.matador_inference import (
     get_completed_trick_ownership_cards_for_declarer,
     infer_matadors_from_concrete_declarer_known_ownership,
@@ -226,6 +227,68 @@ def validate_game_declaration(declaration: GameDeclaration) -> None:
 def infer_missing_matadors_from_input(data: dict[str, Any]) -> int | None:
     """Infers missing matadors from deterministic declarer ownership facts."""
     player_role = data.get("player_role", "unknown")
+
+    nested_declaration = data.get("game_declaration", {})
+    if not isinstance(nested_declaration, Mapping):
+        nested_declaration = {}
+    declared_ouvert = data.get(
+        "ouvert",
+        nested_declaration.get("ouvert", False),
+    )
+    public_declarer_cards = data.get("public_declarer_cards")
+    declarer_player = data.get("declarer_player")
+    if (
+        declared_ouvert is True
+        and declarer_player in CONCRETE_PLAYERS
+        and isinstance(public_declarer_cards, list)
+    ):
+        completed_tricks = data.get("completed_tricks", [])
+        if not isinstance(completed_tricks, list):
+            completed_tricks = []
+        declarer_owned, non_declarer_owned = (
+            get_completed_trick_ownership_cards_for_declarer(
+                completed_tricks,
+                declarer_player,
+            )
+        )
+        declarer_owned.extend(public_declarer_cards)
+        hand = data.get("hand", [])
+        if isinstance(hand, list):
+            target = (
+                declarer_owned if declarer_player == "me" else non_declarer_owned
+            )
+            target.extend(hand)
+        current_trick = data.get("current_trick", [])
+        if isinstance(current_trick, list):
+            phase = normalize_turn_phase_for_position(
+                data.get("trick_leader", "unknown"),
+                data.get("next_player", "unknown"),
+                current_trick,
+                completed_tricks,
+            )
+            if phase.trick_leader in CONCRETE_PLAYERS:
+                for index, card in enumerate(current_trick):
+                    owner = derive_next_player(phase.trick_leader, index)
+                    target = (
+                        declarer_owned
+                        if owner == declarer_player
+                        else non_declarer_owned
+                    )
+                    target.append(card)
+        skat = data.get("skat", [])
+        if isinstance(skat, list) and is_skat_visible_to_local_player(
+            player_role=player_role,
+            declarer_player=declarer_player,
+            skat_visibility=data.get("skat_visibility", "unknown"),
+        ):
+            declarer_owned.extend(skat)
+        inferred = infer_matadors_from_known_ownership(
+            game_type=data["game_type"],
+            declarer_owned_cards=declarer_owned,
+            non_declarer_owned_cards=non_declarer_owned,
+        )
+        if inferred is not None:
+            return inferred
 
     game_shortening = data.get("game_shortening")
     if isinstance(game_shortening, dict) and game_shortening.get("kind") == (

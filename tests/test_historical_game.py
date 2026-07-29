@@ -750,13 +750,10 @@ def test_historical_review_actual_card_is_only_a_decision_label(monkeypatch) -> 
     assert changed["analysis_report"] == original["analysis_report"]
 
 
-def test_ouvert_historical_review_is_unavailable_without_simulation(monkeypatch) -> None:
-    def fail_simulation(*args, **kwargs):
-        raise AssertionError("Ouvert historical review must not run simulation.")
-
+def test_ouvert_historical_review_uses_normal_reviewed_path(monkeypatch) -> None:
     monkeypatch.setattr(
         "skat_ai.historical_game_review.recommend_card_by_expected_value",
-        fail_simulation,
+        build_stub_expected_value_recommendation,
     )
     data = build_historical_input(game_type="null", hand_game=True)
     data["declaration"]["ouvert"] = True
@@ -769,29 +766,21 @@ def test_ouvert_historical_review_is_unavailable_without_simulation(monkeypatch)
         base_random_seed=42,
     )
 
-    assert review["reviewed_decision_count"] == 0
-    assert review["unavailable_decision_count"] == 30
-    assert review["quality_counts"] == {
-        "optimal": 0,
-        "acceptable": 0,
-        "suboptimal": 0,
-        "mistake": 0,
-        "not_available": 30,
-    }
+    assert review["reviewed_decision_count"] == 30
+    assert review["unavailable_decision_count"] == 0
+    assert review["quality_counts"]["not_available"] == 0
     assert all(
-        decision["status"] == "unavailable"
-        and decision["unavailable_reason"]
-        == "public_exposed_cards_not_supported"
-        and decision["legal_cards"] == []
-        and decision["analysis_report"] == []
-        and decision["recommendation"]["card"] is None
-        and decision["post_game_review_summary"]["decision_quality"]
-        == "not_available"
+        decision["status"] == "reviewed"
+        and decision["unavailable_reason"] is None
+        and decision["actual_card_played"] in decision["legal_cards"]
+        and decision["recommendation"]["card"] is not None
+        and decision["public_hand_constraints"][0]["source"]
+        == "declared_ouvert"
         for decision in review["decisions"]
     )
     assert all(
-        player["unavailable_decision_count"] == 10
-        and player["quality_counts"]["not_available"] == 10
+        player["reviewed_decision_count"] == 10
+        and player["unavailable_decision_count"] == 0
         for player in review["player_summaries"]
     )
 

@@ -186,6 +186,7 @@ insufficient.
 | `src/skat_ai/historical_open_card_throw.py` | Exact historical replay adapter, stable-ID mapping, confirmed hand reconciliation, and shared 4.4.6 adjudication. |
 | `src/skat_ai/theoretical_level_exclusion.py` | Bounded jack-only theoretical Schwarz exclusion and privacy-safe evidence. |
 | `src/skat_ai/public_hand_constraint.py` | Immutable exact public-hand ownership constraint and stable serialization. |
+| `src/skat_ai/ouvert_simulation.py` | Declared-Ouvert exact-hand validation, construction, and deterministic multi-source constraint resolution. |
 | `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
 | `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
@@ -233,9 +234,11 @@ layer. It receives complete private post-game hands, reuses legal-card and
 trick-winner rules, and exhaustively evaluates the bounded game tree. Its proof
 hands never become simulation information.
 
-Each continuation adds one exact public-hand constraint. Hidden worlds fix those
-cards to the concrete owner and sample only genuinely unknown hands and skat
-cards. Immediate, Multi-Step, and Policy Comparison share that constraint.
+Each continuation and declared Ouvert add exact public-hand constraints. Hidden
+worlds fix those cards to the concrete owners and sample only genuinely unknown
+hands and skat cards. Immediate, Multi-Step, and Policy Comparison share the
+resolved constraints. Identical declarer evidence is deduplicated with
+`declared_ouvert` precedence, while a disjoint public defender hand may coexist.
 Multi-Step removes played public cards along a path, but
 the existing limitation for coherent assignment of all other hidden cards
 remains.
@@ -395,8 +398,9 @@ Complete historical review applies this same comparison independently to every
 snapshot. Only stable player/declarer identity is read outside the snapshot for
 relative mapping and player summaries. Prior review rows and final historical
 result or settlement fields are never inputs to later or earlier decisions.
-Ouvert snapshots bypass simulation because exposed opponent-card identities are
-not supported by the current sampler.
+Ouvert snapshots use the ordinary review path. The adapter maps the exact current
+declarer hand from each decision-time snapshot into a `declared_ouvert`
+constraint; no complete defender hand or future play is imported.
 
 Current post-game review output includes:
 

@@ -17,6 +17,8 @@ A normal-completion record may contain one timed defender-open-play or declarer-
 card-exposure continuation and still produces exactly 30 samples. Samples before
 the boundary contain no event information; later samples use the existing
 relative `public_exposed_cards` feature for the shrinking public hand.
+Declared-Ouvert records expose the exact shrinking declarer hand from decision 1
+through the same feature.
 
 ## Dataset input
 
@@ -156,6 +158,9 @@ The terminal event, defender consent, unresolved points, and the fact that a
 concession will occur are also absent from model-facing features.
 The continuation event, claim, and responses are not targets or direct features;
 only the rule-authorized post-event public hand is represented.
+Declared-Ouvert cards are ordinary decision-time information, not an Ouvert or
+exposure prediction target. Feature-generation version `1`, target
+`actual_card_played`, and stable sample IDs remain unchanged.
 
 The label card is the historical actual card. It must be in the pre-play own
 hand and legal-card set and absent from the pre-play current trick. A

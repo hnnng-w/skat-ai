@@ -21,8 +21,9 @@ it is never treated as this accepted final adjudication.
 Bounded exact defender open play under ISkO 4.4.5 is a separate supported
 post-game workflow documented in [Defender open play](defender_open_play.md).
 Open throwing under ISkO 4.4.6 is the separate supported final workflow in
-[Open card throw](open_card_throw.md). Historical exposure records, general claim
-proof, and declared-Ouvert recommendation simulation remain unsupported here.
+[Open card throw](open_card_throw.md). Historical exposure records and general
+claim proof remain separate. Declared-Ouvert recommendation simulation is
+documented in [Ouvert-aware simulation](ouvert_aware_simulation.md).
 
 ## Input
 

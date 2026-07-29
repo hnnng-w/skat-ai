@@ -192,7 +192,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 49 deterministic scenarios.
+Generated-output validation currently covers 50 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -386,6 +386,7 @@ Implemented:
 ### Simulation
 
 * `simulation.py`
+* `ouvert_simulation.py`
 * `simulation_step.py`
 * `multi_step_simulation.py`
 * `multi_step_summary.py`
@@ -434,6 +435,7 @@ Main documentation files:
 * `docs/historical_defender_open_play_continuation.md`
 * `docs/historical_decision_snapshots.md`
 * `docs/historical_game_review.md`
+* `docs/ouvert_aware_simulation.md`
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
 * `docs/dataset_partition_policies.md`
@@ -457,7 +459,7 @@ Current package version: `0.8.0`.
 remain manual maintainer actions; GitHub Releases is authoritative for current
 publication state.
 
-The `v0.8.0` development baseline validates 49 deterministic generated-output
+The `v0.8.0` development baseline validates 50 deterministic generated-output
 scenarios. The complete pytest count is reported by the current full check.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
@@ -538,6 +540,7 @@ Subsequent bounded historical work:
 * #98 added bounded terminal historical defender open play with exact flat adjudication reuse and privacy-safe stable-ID proof output
 * #99 added timed non-terminal historical defender-open-play continuation with persistent public-hand information
 * #100 added timed non-terminal historical declarer-card-exposure continuation with the same information-safe downstream boundary
+* #102 connected declared-Ouvert exact public hands to flat and historical recommendation simulation while preserving existing scoring, policies, training versions, and rolling as-of safety
 
 ## Current implementation baseline
 
@@ -558,13 +561,13 @@ Completed implementation scope:
 * exact-prefix historical declarer-card exposure with exact reconciliation and flat adjudication parity
 * bounded terminal historical defender open play with exact reconciliation, assignment, and flat adjudication parity
 * timed normal-completion continuation with an exact shrinking public defender or declarer hand
+* declared-Ouvert exact public-hand constraints in Immediate Analysis, supported Multi-Step, Policy Comparison, flat review, and historical review
 
 ## Current high-priority limitations
 
 * Historical records support normal completion with either one timed continuation kind, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throw; multiple events, continuation followed by shortening, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support exactly those five end reasons; other end reasons remain unsupported.
 * Claims, concessions, and approved settlement completeness remain incomplete.
-* Ouvert historical snapshots do not support exposed-card-aware recommendation simulation.
 * General live position input lacks complete field-level provenance.
 * Multi-Step simulation does not preserve one hidden-world assignment across every step.
 * Broader information-safe hidden-card inference and stronger search or solver functionality are not implemented.

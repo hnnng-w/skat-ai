@@ -437,7 +437,11 @@ def test_declared_ouvert_visibility_is_independent_and_deduplicated() -> None:
     assert snapshots[11].visible_state.public_exposed_cards[0].player_id == "player-b"
     record = build_historical_game_record(data)
     position = build_position_from_historical_snapshot(snapshots[12], record)
-    assert position.public_hand_constraints == ()
+    assert len(position.public_hand_constraints) == 1
+    assert position.public_hand_constraints[0].source == "declared_ouvert"
+    assert position.public_hand_constraints[0].cards == (
+        snapshots[12].visible_state.public_exposed_cards[0].cards
+    )
 
 
 @pytest.mark.parametrize("decision_index", [13, 14, 15])

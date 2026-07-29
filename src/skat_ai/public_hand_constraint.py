@@ -4,6 +4,7 @@ from typing import Any
 from skat_ai.deck import get_full_deck
 
 PUBLIC_HAND_VISIBILITY_SCOPE = "all_players"
+DECLARED_OUVERT_SOURCE = "declared_ouvert"
 DECLARER_EXPOSURE_CONTINUATION_SOURCE = "declarer_card_exposure_continuation"
 DEFENDER_OPEN_PLAY_CONTINUATION_SOURCE = "defender_open_play_continuation"
 

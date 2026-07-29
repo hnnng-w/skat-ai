@@ -18,6 +18,10 @@ target contributes 30 actual decisions: pre-event snapshots do not contain the
 event, and post-event snapshots carry the exact shrinking public hand. No event,
 claim, or response prediction is created, and the target result remains absent
 from its own as-of profile.
+Declared-Ouvert targets carry the exact shrinking declarer hand from decision 1
+in the same snapshots supplied to baseline and profile prediction. Existing
+policies may remain behaviorally identical because they do not add an Ouvert-
+specific tactic.
 
 ## CLI
 
@@ -96,6 +100,8 @@ public completed tricks, stable relative identities, and the game-start as-of
 profile. It cannot use future plays or winners, another player's hidden hand,
 final result or settlement, later games, or source games at or after target
 start. The actual card is read only after prediction as the comparison label.
+Declared-Ouvert public cards are allowed decision-time information; no hidden
+defender hand or skat is added.
 The terminal concession, consent, unresolved cards, and knowledge that play will
 end are absent. No card decision is padded and no terminal event is predicted.
 

@@ -374,6 +374,28 @@ def test_declared_ouvert_and_continuation_hands_remain_independent_and_ordered()
         "player-a",
         "player-b",
     ]
+    position = build_position_from_historical_snapshot(rows[12], record_without_event)
+    assert [constraint.source for constraint in position.public_hand_constraints] == [
+        "defender_open_play_continuation",
+        "declared_ouvert",
+    ]
+    assert set(position.public_hand_constraints[0].cards).isdisjoint(
+        position.public_hand_constraints[1].cards
+    )
+    sampled = generate_sampled_hidden_state(
+        position.state,
+        position.left_hand_size,
+        position.right_hand_size,
+        random.Random(42),
+        position.public_hand_constraints,
+    )
+    sampled_by_player = {
+        "left": sampled.left_hand,
+        "right": sampled.right_hand,
+    }
+    for constraint in position.public_hand_constraints:
+        if constraint.player != "me":
+            assert sampled_by_player[constraint.player] == list(constraint.cards)
 
 
 @pytest.mark.parametrize("decision_index", [13, 14, 15])

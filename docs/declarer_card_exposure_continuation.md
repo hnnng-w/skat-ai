@@ -105,8 +105,10 @@ normal completion, impossible Null, completed play, list modes, and unrelated
 top-level workflows. Historical continuation uses the separate stable-ID
 `game_events` contract and complete-game replay.
 
-This feature does not add general declared-Ouvert analysis, multiple historical
-events, continuation followed by shortening, new policies, later
+Declared-Ouvert analysis reuses this exact-hand infrastructure and deterministically
+deduplicates identical declarer evidence in favor of source `declared_ouvert`.
+This continuation feature still does not add multiple historical events,
+continuation followed by shortening, new policies, later
 final-settlement adjudication, or
 general hidden-world continuity. Bounded exact ISkO 4.4.5 adjudication is a
 separate final workflow documented in [Defender open play](defender_open_play.md).

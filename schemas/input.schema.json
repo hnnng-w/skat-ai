@@ -118,6 +118,30 @@
       }
     },
     {
+      "if": {"required": ["public_declarer_cards"]},
+      "then": {
+        "required": ["declarer_player"],
+        "properties": {
+          "declarer_player": {"enum": ["me", "left", "right"]}
+        },
+        "anyOf": [
+          {
+            "required": ["ouvert"],
+            "properties": {"ouvert": {"const": true}}
+          },
+          {
+            "required": ["game_declaration"],
+            "properties": {
+              "game_declaration": {
+                "required": ["ouvert"],
+                "properties": {"ouvert": {"const": true}}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "if": {
         "required": ["list_game_contributions"]
       },
@@ -416,6 +440,11 @@
       "$ref": "#/$defs/player"
     },
     "hand": {
+      "$ref": "#/$defs/card_array",
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "public_declarer_cards": {
       "$ref": "#/$defs/card_array",
       "maxItems": 10,
       "uniqueItems": true

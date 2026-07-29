@@ -97,6 +97,9 @@ Declared ouvert remains independent. When both hands are public, snapshots use
 stable seat order. Visible matador inference treats the continuation hand as
 known defending-party ownership and still treats declared-ouvert declarer cards
 as declarer ownership. It infers no unrelated hidden ownership.
+Historical review retains both disjoint exact constraints, samples no additional
+card for either owner, and prefers source `declared_ouvert` if duplicate
+declarer-exposure evidence describes the already-public declarer hand.
 
 ## Review and training
 

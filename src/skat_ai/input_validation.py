@@ -30,6 +30,10 @@ from skat_ai.open_card_throw import OpenCardThrow, validate_open_card_throw
 from skat_ai.opponent_policy import validate_opponent_card_policy
 from skat_ai.opponent_policy_preset import validate_opponent_policy_preset
 from skat_ai.opponent_profile_derivation import validate_player_profile_evidence
+from skat_ai.ouvert_simulation import (
+    build_declared_ouvert_public_hand_constraint,
+    resolve_effective_public_hand_constraints,
+)
 from skat_ai.performance_rating import (
     LIST_ENTRY_METADATA_FIELDS,
     build_list_game_contribution_from_analysis_result,
@@ -379,6 +383,7 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_game_declaration(data)
     validate_optional_game_shortening(data)
     validate_optional_game_continuation(data)
+    validate_optional_declared_ouvert_public_hand(data)
     validate_impossible_null_settlement(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
     validate_list_performance_input_modes(data)
@@ -819,6 +824,30 @@ def validate_optional_game_continuation(data: dict[str, Any]) -> None:
     continuation = get_game_continuation_from_input(data)
     if continuation is not None:
         resolve_game_continuation(data, continuation)
+
+
+def validate_optional_declared_ouvert_public_hand(data: dict[str, Any]) -> None:
+    """Validates declared Ouvert and any coexisting continuation public hand."""
+    declared_constraint = build_declared_ouvert_public_hand_constraint(data)
+    continuation = get_game_continuation_from_input(data)
+    continuation_context = (
+        resolve_game_continuation(data, continuation)
+        if continuation is not None
+        else None
+    )
+    constraints = tuple(
+        constraint
+        for constraint in (
+            declared_constraint,
+            (
+                continuation_context.public_hand_constraint
+                if continuation_context is not None
+                else None
+            ),
+        )
+        if constraint is not None
+    )
+    resolve_effective_public_hand_constraints(constraints)
 
 
 def validate_impossible_null_settlement(data: dict[str, Any]) -> None:

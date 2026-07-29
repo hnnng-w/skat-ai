@@ -144,6 +144,12 @@ Review all 30 decisions with deterministic settings:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 20 --seed 42
 ```
 
+Review a complete Grand Ouvert through the same deterministic path:
+
+```powershell
+python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
+```
+
 Convert the versioned training/evaluation dataset example:
 
 ```powershell
@@ -288,6 +294,7 @@ right's response is simulated before the local third-hand decision.
 | File                                              | Purpose |
 | ------------------------------------------------- | ------- |
 | `historical_grand_normal_completion.json`         | Complete 32-card Grand deal with stable player IDs, non-Hand pickup/discards, ten legal tricks, inferred matadors, final points, and settlement. |
+| `historical_grand_ouvert_review.json`              | Complete Grand Ouvert Hand game with exact declarer exposure from decision 1 and deterministic review of all 30 decisions. |
 | `historical_grand_declarer_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable-ID defender consent, unresolved-point accounting, and adjudicated settlement. |
 | `historical_grand_defender_concession.json`       | Complete deal, exact 14-play Grand prefix with a two-card final trick, stable conceding defender, joint liability, unresolved-point accounting, and adjudicated declarer win. |
 | `historical_grand_declarer_card_exposure.json`    | Complete deal, exact 14-play Grand prefix, exact exposed declarer hand, stable shown-to defender and unanimous acceptances, accepted Schneider result, and settlement. |
@@ -301,7 +308,8 @@ post-game position. Dedicated generated-output scenarios cover the base
 `historical_game_summary`, its optional decision-time snapshots, and the
 seeded complete historical review. Three scenarios cover the supported shortened
 base outputs. Snapshot-only generation does not run recommendation or
-simulation. Review uses the normal example with 20 samples and base seed 42.
+simulation. Review uses the normal and Grand Ouvert examples with 20 samples and
+base seed 42; Ouvert rows are reviewed with the exact public declarer hand.
 
 ## Training-dataset example
 
@@ -359,8 +367,8 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 49 scenarios, including variable-length training data,
-all four historical shortened kinds, both flat ongoing public-hand
+therefore covers 50 scenarios, including variable-length training data,
+all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
 play adjudication, and open-card-throw adjudication.
 The behavioral match
@@ -543,7 +551,7 @@ because ended game reasons are post-game review information.
 | `grand_defenders_conceded_remaining_tricks.json` | Defenders concede remaining tricks. |
 
 Each structured flat example has deterministic generated-output and quiet JSON
-coverage. Each of the four supported terminal historical shortened kinds has one
+coverage. Each of the five supported terminal historical shortened kinds has one
 separate generated scenario. Both historical continuation kinds have dedicated
 snapshot-transition scenarios.
 

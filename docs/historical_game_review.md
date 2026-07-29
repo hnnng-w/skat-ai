@@ -21,6 +21,12 @@ Use the historical-only flag with an optional sample count and base seed:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 100 --seed 42
 ```
 
+The complete Grand Ouvert example uses the same reviewed path:
+
+```powershell
+python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
+```
+
 `--historical-game-review` automatically generates the decision snapshots used
 internally. Adding `--historical-decision-snapshots` also emits those snapshots;
 it does not generate them a second time. `--samples` and `--seed` are accepted
@@ -58,6 +64,7 @@ value, overbid outcome, and settlement are not analysis inputs. The final
 historical outcome remains available beside the review in the parent summary,
 but it cannot influence an earlier recommendation or quality classification.
 
+For declared Ouvert, the exact current declarer hand is public from decision 1.
 After either continuation boundary, the stable public-hand owner is mapped
 relative to each actor and supplied through the existing exact
 `PublicHandConstraint`. No extra card enters that hand. Pre-event decisions are
@@ -96,21 +103,14 @@ Player and overall counts reconcile with the decision rows. They are descriptive
 summaries only. They are not grades, percentages, skill ratings, winners, or
 cross-player rankings.
 
-## Ouvert limitation
+## Ouvert review
 
-Declared ouvert remains unavailable because that existing historical path is
-not consumed by recommendation simulation. Such snapshots return:
-
-```text
-public_exposed_cards_not_supported
-```
-
-The row preserves its identity, actual card, and effective seed, while exposing
-an empty legal-card list and analysis report, a null recommendation card, and
-the existing unavailable post-game review shape with `not_available` quality.
-Counts still reconcile across all rows and all three players. Exposed-card-
-aware declared-Ouvert simulation is not implemented by this workflow; the exact
-timed continuation constraints are the bounded supported exceptions.
+Declared-Ouvert snapshots are adapted into the exact `declared_ouvert` public-
+hand constraint and use normal recommendation and actual-card comparison. A
+normal completed game has 30 reviewed and zero unavailable decisions unless an
+independent limitation applies. Played declarer cards disappear from later
+constraints. Each Ouvert row serializes only the authorized public hand; hidden
+defender hands, skat, and future cards remain absent.
 
 ## Scope
 
@@ -124,7 +124,7 @@ uses decision snapshots directly; recommendation cards, candidate reports, and
 decision-quality values are never training features or labels.
 
 Complete-game retrospective analysis remains `partially_supported` because
-ouvert simulation, additional approved historical end reasons, complete auction
+additional approved historical end reasons, complete auction
 representation, and other approved v1 gaps remain open.
 
 The stable structure is defined by

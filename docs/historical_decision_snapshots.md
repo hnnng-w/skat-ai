@@ -122,8 +122,9 @@ continuation boundary, it contains the exact current public defender or
 declarer hand. Cards are removed only through that player's actual later plays.
 Known cards contribute only their legitimate party ownership to visible matador
 inference. Multiple hands use stable seat order. Hidden skat and every other
-hidden hand remain protected. Ouvert review remains unavailable, while both
-continuations use the existing exact public-hand constraint in review.
+hidden hand remain protected. Ouvert review and both continuations use the
+existing exact public-hand constraint infrastructure; declared Ouvert uses
+source `declared_ouvert` from decision 1.
 
 ## Leakage boundary
 
@@ -144,8 +145,8 @@ training/evaluation dataset records. The separate
 existing immediate recommendation workflow. The separate
 [training data](training_data.md) workflow derives identity-free features and an
 actual-card label without running that workflow. Complete-game retrospective
-analysis remains partial because ouvert recommendation simulation, later end
-reasons, and other approved gaps remain.
+analysis remains partial because later end reasons, complete coaching, and other
+approved gaps remain.
 
 See [Variable-length historical decisions](variable_length_historical_decisions.md)
 for shared count reconciliation and prefix-parity guarantees.

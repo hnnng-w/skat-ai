@@ -4,6 +4,13 @@
 
 **Release theme: Explainable and time-safe opponent intelligence**
 
+### Ouvert-aware recommendation simulation
+
+* Add `declared_ouvert` exact public-hand constraints for live and historical Suit, Grand, Null Ouvert, and Null Ouvert Hand decisions while retaining package version `0.8.0`.
+* Require and reconcile `public_declarer_cards` for opponent declarers, derive local declarer ownership from `hand`, and reject hand-size, played-card, skat, local-hand, continuation, and cross-player ownership contradictions.
+* Reuse existing Immediate, Multi-Step, Policy Comparison, opponent lead/response, post-game review, snapshot, training, rolling, and visible-matador paths without changing policies, objectives, scoring, or settlement.
+* Review declared-Ouvert historical decisions through the ordinary reviewed path and add one deterministic complete Grand Ouvert example and generated-output scenario.
+
 ### Historical non-terminal events
 
 * Add one optional version-1 `game_events` member for either timed defender-open-play or declarer-card-exposure continuation while preserving `normal_completion`, ten tricks, 30 actual plays, and package version `0.8.0`.

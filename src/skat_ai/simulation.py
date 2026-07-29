@@ -11,7 +11,7 @@ from skat_ai.game_history import (
 from skat_ai.game_state import GameState
 from skat_ai.objective_utility import calculate_null_trick_objective_utility
 from skat_ai.opponent_policy import choose_opponent_response_card_by_policy
-from skat_ai.public_hand_constraint import PublicHandConstraint
+from skat_ai.public_hand_constraint import DECLARED_OUVERT_SOURCE, PublicHandConstraint
 from skat_ai.rules import (
     get_card_points,
     get_card_strength,
@@ -466,6 +466,10 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
     )
 
     rng = random.Random(random_seed) if random_seed is not None else None
+    use_common_seed = any(
+        constraint.source == DECLARED_OUVERT_SOURCE
+        for constraint in public_hand_constraints
+    )
 
     return {
         card: estimate_immediate_trick_win_rate(
@@ -474,7 +478,11 @@ def estimate_immediate_trick_win_rates_for_legal_cards(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             sample_count=sample_count,
-            random_seed=rng.randint(0, 10**9) if rng is not None else None,
+            random_seed=(
+                random_seed
+                if use_common_seed
+                else rng.randint(0, 10**9) if rng is not None else None
+            ),
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,
@@ -603,6 +611,10 @@ def estimate_immediate_trick_values_for_legal_cards(
     )
 
     rng = random.Random(random_seed) if random_seed is not None else None
+    use_common_seed = any(
+        constraint.source == DECLARED_OUVERT_SOURCE
+        for constraint in public_hand_constraints
+    )
 
     return {
         card: estimate_immediate_trick_value(
@@ -611,7 +623,11 @@ def estimate_immediate_trick_values_for_legal_cards(
             left_hand_size=left_hand_size,
             right_hand_size=right_hand_size,
             sample_count=sample_count,
-            random_seed=rng.randint(0, 10**9) if rng is not None else None,
+            random_seed=(
+                random_seed
+                if use_common_seed
+                else rng.randint(0, 10**9) if rng is not None else None
+            ),
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
             public_hand_constraints=public_hand_constraints,

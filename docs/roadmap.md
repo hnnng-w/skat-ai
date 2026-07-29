@@ -265,6 +265,7 @@ Implemented:
 * Live decision examples should not contain post-game-only information.
 * ISkO 4.4.4 continuation is a narrow rule-authorized exception that exposes only the exact current declarer hand; defender reaction cards remain hidden.
 * ISkO 4.4.5/4.1.6 continuation is a second narrow exception that fixes only the exposing defender's returned complete current hand; the declarer, partner, and skat remain protected.
+* Declared Ouvert fixes only the exact current declarer hand from declaration visibility; it can coexist with a disjoint returned defender hand.
 * ISkO 4.4.6 open throw exposes only the complete thrown hand. A non-throwing local hand is redacted, and no hidden complete hand or exact proof is emitted.
 
 ## Release baselines
@@ -272,7 +273,7 @@ Implemented:
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
 The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 49 deterministic scenarios. Issues #86 through #92 add
+coverage now includes 50 deterministic scenarios. Issues #86 through #92 add
 bounded structured concessions, accepted declarer-card-exposure adjudication,
 ongoing exposed-hand continuation, and bounded exact defender open-play
 adjudication plus non-adjudicating continued play and bounded open-card-throw
@@ -281,6 +282,9 @@ Issue #99 adds timed non-terminal historical defender-open-play continuation
 without changing the normal-completion end reason or package version.
 Issue #100 adds the parallel timed historical declarer-card-exposure continuation
 with an exact shrinking public declarer hand and unchanged final-result workflows.
+Issue #102 connects declared-Ouvert public hands to Immediate Analysis, supported
+Multi-Step, Policy Comparison, flat review, historical review, and the existing
+training and rolling decision-time boundary without changing scoring or policies.
 Issue #93 adds the first structured shortened historical record: exact-prefix
 declarer concession with stable-ID consent, unassigned unresolved points, and
 base/quiet CLI output. Issue #94 generalizes snapshots, review, external-profile
@@ -351,7 +355,7 @@ Before `v1.0.0`, the project still requires structured claims, defender and
 historical concessions, open-card game-shortening outcomes,
 approved settlement completeness, additional historical end reasons,
 complete-game coaching, stronger solving, coherent hidden-world simulation,
-broader information-safe hidden-card inference, Ouvert-aware simulation, full
+broader information-safe hidden-card inference, full
 fixed-three-player 36-game list aggregation, field-level live provenance,
 interactive input, and a stable library and installed CLI/package interface.
 Bounded opponent statistics, explainable profiles, live and time-safe historical
