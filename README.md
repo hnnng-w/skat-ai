@@ -2,7 +2,8 @@
 
 ![Check](https://github.com/hnnng-w/skat-ai/actions/workflows/check.yml/badge.svg)
 
-Skat AI is a local Python-based analysis, simulation, and historical-data engine for Skat positions and complete normal-play historical games.
+Skat AI is a local Python-based analysis, simulation, and historical-data engine
+for Skat positions and supported complete or shortened historical games.
 
 It evaluates legal card choices, estimates expected point swings, recommends cards, tracks game state, simulates multi-step play, and supports post-game review workflows. The project focuses on rule-based and probability-based analysis rather than machine learning.
 
@@ -60,7 +61,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Bounded impossible Null settlement with an externally supplied Suit or Grand replacement
 * Partial fixed-three-player SkWO-style performance rating
 * SkWO 6.3.1 shared ranks for unresolved standings ties and optional external lot order
-* Versioned complete historical-game records for normal play
+* Versioned complete historical-game records for normal play and five supported shortened terminal events
+* Two timed non-terminal historical continuation events with exact public-hand boundaries
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
 * Derived historical trick winners, points, game value, overbid, and settlement
 * Optional information-safe pre-play snapshots for every actual play in supported historical endings
@@ -325,8 +327,8 @@ actual supplied play. The terminal event is not reviewed or used as a target.
 Either timed continuation remains normal completion with 30 actual plays; only
 post-event decisions receive the exact shrinking public defender or declarer hand.
 Historical opponent statistics, reusable export, rolling profile construction,
-and rolling policy evaluation support normal completion, declarer concession,
-defender concession, declarer-card exposure, and defender open play.
+and rolling policy evaluation support normal completion and all five shortened
+terminal events, including open-card throwing.
 Normal-completion event details add no statistic or profile signal.
 Each source record has one game of statistics weight, while targets contribute
 only actual card decisions, including valid zero-decision targets. See
@@ -544,73 +546,41 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current code and package baseline is `v0.8.0`, prepared around the theme
-"Explainable and time-safe opponent intelligence." Issues #78 through #84 are
-complete. Issue #104 is complete in the development baseline. Generated-output validation covers 52 deterministic scenarios,
-including both flat ongoing public-hand continuations, both timed historical
-continuations, bounded exact defender-open-play adjudication, and structured
-open-card-throw adjudication, coherent-world Policy Comparison, and exact
-evidence-constrained hidden-card inference with later evidence progression.
-`v0.7.0` is the preceding published release. Tag and GitHub Release publication
-remain manual maintainer actions; GitHub Releases is authoritative for current
-publication state. No tag, release, or issue publication action occurred for
-Issue #104.
+The current package and release-preparation baseline is `v0.9.0`, with the theme
+"Structured game endings and coherent hidden information." Issues #86 through
+#104 are complete. Generated-output validation covers 52 deterministic scenarios,
+and the complete pytest suite contains 3,558 tests. The repository is prepared
+for manual `v0.9.0` tagging and publication; publication remains a maintainer
+action, and GitHub Releases is the authoritative publication record.
 
-Skat AI already supports a broad set of single-position analysis, multi-step
-simulation, opponent-policy modeling, game-result summaries, game-value
-summaries, settlement summaries, overbid handling, declared-Ouvert-aware
-recommendations, live-vs-post-game information
-enforcement, post-game review output, and partial fixed-three-player SkWO-style
-performance features.
+The milestone adds five structured game-shortening forms, five matching
+historical terminal events, two historical non-terminal continuations, and
+variable-length decision snapshots, Historical Review, training samples, and
+shortened-game opponent workflows. Declared-Ouvert decisions use exact public
+declarer ownership in supported recommendation paths. See
+[Historical games](docs/historical_games.md),
+[Historical game review](docs/historical_game_review.md), and
+[Shortened historical opponent workflows](docs/shortened_historical_opponent_workflows.md).
 
-Normal-completion, timed defender-open-play and declarer-card-exposure continuation, declarer-concession,
-defender-concession, accepted declarer-card-exposure, terminal defender-open-play, and open-card-throw historical records, information-safe
-variable-cardinality snapshots and review, and versioned training/evaluation
-dataset wrapping are partially supported. Five structured generic-position shortening
-variants are supported: declarer concession, defender concession, unanimously
-accepted declarer card exposure, bounded exact defender open play, and open card
-throw under ISkO 4.4.6. The first
-three preserve unplayed points; defender open play records the rule-assigned
-rest tricks and points after exact proof; open throwing assigns every unresolved
-trick and outstanding point to the opposing party without proof or simulation. A separate
-version-1 flat-position continuation union keeps either the exact current
-declarer hand public after an objection or the exposing defender's returned hand
-public after a 4.1.6 request, without ending or settling the game. Remaining gaps
-include additional structured historical endings, multiple events, or continuation followed by shortening, unlimited exact
-solving, isolated-card claims, simultaneous throws and specific-trick assertions,
-additional historical end reasons, approved settlement
-completeness, complete-game coaching, stronger solving, complete field-level live
-provenance, hidden-card inference beyond confirmed structural decision-time
-evidence, full 36-game list aggregation, interactive input, and a stable
-installed interface. No website or browser integration exists. External and
-exact historically aggregated statistics can
-be validated, normalized, and reused by stable ID in live or strict time-safe
-historical profile workflows. A separate rolling as-of workflow evaluates
-whether existing actionable profile policies imitate observed known-player cards
-better than the fixed `simple_lowest` baseline, using preferred-card matching as
-its primary metric. All supported source games have equal game-level statistics
-weight; shortened targets contribute only their actual card plays,
-and target participant coverage includes all three players. It does not run recommendations or expected-value
-simulation, claim strategic quality, evaluate unseen players, merge captures,
-or learn behavior. The product supports fixed three-player tables only.
-
-Exact hidden-card inference now constrains sampling from local and public exact
-hands, legitimately known skat, attributed public ownership, and confirmed legal
-failure to follow. It uses exact dynamic-programming counts, marginals, and
-uniform labeled assignments without behavioral, profile, future, result, or
-settlement evidence. See [Hidden-card inference](docs/hidden_card_inference.md).
-
-Multi-Step samples one private hidden-card root per path and preserves that
-ownership, including a fixed hypothetical skat, across supported preparation and
-completion steps. Policy Comparison gives equal independent immutable copies of
-one shared root to all policy paths. Local decision policies and JSON output do
-not receive private ownership; only privacy-safe count and status summaries are
-serialized. Later visible simulated failures may add later evidence without
-changing the immutable root. Historical decision-time information, feature
-version `1`, rolling behavior, supported phases, and package version `0.8.0`
-remain unchanged. See
+Multi-Step preserves one coherent hypothetical hidden world per path, while
+Policy Comparison gives independent path copies of one shared root. Exact
+evidence-constrained inference counts and samples uniformly weighted labeled
+assignments compatible with public ownership and confirmed failure-to-follow
+evidence. These worlds do not prove the real deal, and confidence is not
+calibrated. See
 [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and
-[`examples/grand_coherent_hidden_world.json`](examples/grand_coherent_hidden_world.json).
+[Hidden-card inference](docs/hidden_card_inference.md).
+
+Remaining work includes stronger Search/Solver behavior, fuller Replay Coaching,
+approved settlement nuance, fixed-three-player 36-game list aggregation,
+automatic dataset preparation, field-level live provenance, interactive input
+and session capture, and a stable installed library and CLI interface. General
+and specific-trick claims, defender-open-play proof beyond five unresolved
+tricks, multiple historical events, continuation followed by shortening, and
+historical end reasons outside the supported set remain unsupported. Current
+recommendations, opponent policies, and confidence are heuristic; no learned
+model or model-training workflow is included. The product supports fixed
+three-player tables only.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

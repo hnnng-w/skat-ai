@@ -127,7 +127,7 @@ matching; no second percentage or classification implementation exists.
 Rolling opponent-policy evaluation also reuses this exact derivation unchanged;
 it never upgrades low confidence and only its existing non-null actionable
 preset can produce a paired profile prediction.
-Mixed normal/concession statistics therefore use the same derivation version,
+Mixed supported-end-reason statistics therefore use the same derivation version,
 confidence bands, thresholds, signals, classifications, and actionable presets.
 
 ## Compatibility and limits

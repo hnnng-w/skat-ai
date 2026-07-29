@@ -754,7 +754,7 @@ def test_response_order_does_not_change_deterministic_output_or_inputs() -> None
     ]
 
 
-def test_package_version_remains_0_8_0() -> None:
+def test_package_version_is_0_9_0() -> None:
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert 'version = "0.8.0"' in pyproject
+    assert 'version = "0.9.0"' in pyproject

@@ -1,53 +1,101 @@
 # Changelog
 
-## v0.8.0
+## v0.9.0
 
-**Release theme: Explainable and time-safe opponent intelligence**
+**Release theme: Structured game endings and coherent hidden information**
+
+### Structured game-end handling
+
+* Add structured declarer concession, defender concession, unanimously accepted
+  declarer-card exposure, bounded exact defender open play, and open-card
+  throwing for Suit, Grand, and all four Null variants (Issues #86 through #92).
+* Continue play after rejected declarer-card exposure with the exact public
+  declarer hand, or after defender open play with the exposing defender's exact
+  returned public hand, without adjudication or settlement.
+* Preserve preexisting results where required, enforce mandatory declaration
+  levels and supported overbid behavior, and serialize privacy-safe proof and
+  event summaries without exposing unrelated hands.
+* Bound exact defender-open-play proof to five unresolved tricks. Open-card
+  throwing uses bounded jack-only theoretical Schwarz exclusion; unsupported
+  general claims and specific-trick claims remain outside this release.
+
+### Historical shortened games
+
+* Add versioned terminal events for declarer concession, defender concession,
+  unanimously accepted declarer-card exposure, bounded defender open play, and
+  open-card throwing (Issues #93 through #101).
+* Replay exact legal prefixes, including an optional incomplete final trick,
+  reconstruct exact remaining hands, preserve stable player identities, and
+  round-trip canonical privacy-safe records and summaries.
+* Add timed non-terminal defender-open-play and declarer-card-exposure
+  continuations with exact public-hand visibility only after the event boundary.
+* Keep continuations non-terminal. Version 1 supports at most one non-terminal
+  event; continuation followed by a shortened terminal end remains unsupported,
+  and terminal-event choices never become training targets.
+
+### Decision, dataset, and opponent workflows
+
+* Derive snapshot, review, and training-sample counts from the actual played-card
+  count, including valid zero-decision and zero-sample shortened records.
+* Preserve information-safe historical review, feature-generation version `1`,
+  and target `actual_card_played`; no terminal-event target or event-specific
+  profile field or signal is added.
+* Apply existing dataset partition audits to shortened records while preserving
+  strict temporal and partition safety.
+* Aggregate one game of opponent-statistics weight per supported record and use
+  actual decision counts plus participant-based target coverage in rolling
+  opponent-policy evaluation.
+
+### Ouvert-aware recommendation
+
+* Apply declared-Ouvert public-hand constraints and exact declarer-hand
+  reconciliation to live and historical Suit, Grand, Null Ouvert, and Null
+  Ouvert Hand decisions (Issue #102).
+* Reuse the exact public hand in Immediate Analysis, supported Multi-Step paths,
+  Policy Comparison, flat review, and Historical Review, including coexistence
+  with continuation public hands and information-safe matador evidence.
+* Keep declaration and settlement rules unchanged. No Ouvert-specific tactical
+  policy or perfect-information solver is added; current policies remain
+  heuristic.
+
+### Coherent hidden worlds
+
+* Sample one immutable hidden execution root per Multi-Step path, preserve
+  ownership through owner-aware transitions, and keep one fixed hypothetical
+  skat (Issue #103).
+* Give Policy Comparison paths independent copies of one shared root and use
+  separated deterministic random streams for root sampling, opponent actions,
+  and expected-value samples.
+* Keep candidate selection on information-safe local state and serialize only
+  privacy-safe coherence summaries. One coherent world is one hypothetical
+  sample, not proof of the real deal; Immediate Analysis remains independently
+  sampled and unsupported Multi-Step phases remain unchanged.
 
 ### Evidence-constrained hidden-card inference
 
-* Add exact hard constraints from local and rule-authorized public ownership,
-  legitimately known skat, attributed public plays, and confirmed legal failure
-  to follow the effective Suit, Grand, or Null category.
-* Count compatible left/right/hypothetical-skat labeled assignments and exact
-  per-card marginals with dynamic programming, then sample uniformly and
-  deterministically by completion count without rejection loops.
-* Apply one decision model and common compatible worlds to Immediate candidates,
-  one compatible coherent root to Multi-Step, and one shared model/root with
-  immutable path copies to Policy Comparison; later visible simulated evidence
-  may progress independently by path.
-* Keep historical inference decision-time safe and serialize only strict
-  version-1 privacy-safe summaries with uncalibrated concentration labels.
-* Add `src/skat_ai/hidden_card_inference.py`,
-  `schemas/hidden_card_inference_summary.schema.json`,
-  `examples/grand_hidden_card_inference.json`, and
-  `tests/test_hidden_card_inference.py` without changing package version `0.8.0`.
-* Preserve rules, policies, objectives, scoring, settlement, training feature
-  version `1`, sample IDs, profiles, statistics, and rolling evaluation. Issue
-  #104 is complete in the development baseline; no tag, release, or issue
-  publication action occurred.
+* Constrain Suit, Grand, and Null hidden ownership using exact public ownership,
+  legitimately known skat, attributed public play, and confirmed legal failure
+  to follow the effective category (Issue #104).
+* Count exact compatible labeled worlds and ownership marginals, then sample
+  deterministic uniform compatible assignments with dynamic programming.
+* Integrate common compatible worlds into Immediate Analysis, coherent roots
+  into Multi-Step and Policy Comparison, and decision-time-safe evidence into
+  Historical Review with strict privacy-safe output.
+* Report `confirmed`, `high`, `medium`, and `low` concentration labels. Ownership
+  estimates are conditional on uniformly weighted structurally compatible
+  labeled assignments; confidence is not calibrated real-deal probability.
+* Only confirmed structural evidence creates hard constraints. No behavioral,
+  profile-weighted, Bayesian, or learned ownership model is added.
 
-### Coherent hidden-world simulation
+### Validation
 
-* Sample one immutable private execution root per Multi-Step path, preserve opponent ownership through owner-aware card removal, and keep one fixed hypothetical skat without changing package version `0.8.0`.
-* Use the same root through opponent-turn preparation and candidate-trick completion while keeping local decision policies on public decision-time information and retaining separate counterfactual samples for `highest_expected_value`.
-* Derive stable separate seeded streams for root sampling, opponent actions, and per-step expected-value samples; Immediate Analysis and supported turn phases remain unchanged.
-* Give every Policy Comparison path an equal independent immutable copy of one shared root and serialize only privacy-safe coherence counts and status fields.
-* Add `examples/grand_coherent_hidden_world.json` and a deterministic three-step Policy Comparison generated-output scenario; the current matrix, including the later hidden-card inference scenario, covers 52 scenarios.
-* Preserve historical future-hand exclusion, training feature version `1`, rolling opponent-policy behavior, scoring, settlement, and existing policy semantics.
+* Validate 52 deterministic generated-output scenarios.
+* Pass 3,558 pytest tests together with Ruff, input/example schema validation,
+  and generated-output schema validation.
 
-### Ouvert-aware recommendation simulation
+## v0.8.0
 
-* Add `declared_ouvert` exact public-hand constraints for live and historical Suit, Grand, Null Ouvert, and Null Ouvert Hand decisions while retaining package version `0.8.0`.
-* Require and reconcile `public_declarer_cards` for opponent declarers, derive local declarer ownership from `hand`, and reject hand-size, played-card, skat, local-hand, continuation, and cross-player ownership contradictions.
-* Reuse existing Immediate, Multi-Step, Policy Comparison, opponent lead/response, post-game review, snapshot, training, rolling, and visible-matador paths without changing policies, objectives, scoring, or settlement.
-* Review declared-Ouvert historical decisions through the ordinary reviewed path and add one deterministic complete Grand Ouvert example and generated-output scenario.
-
-### Historical non-terminal events
-
-* Add one optional version-1 `game_events` member for either timed defender-open-play or declarer-card-exposure continuation while preserving `normal_completion`, ten tricks, 30 actual plays, and package version `0.8.0`.
-* Reconstruct the exact event boundary and public defender or declarer hand, expose that shrinking hand only to later snapshots/review/training features, and keep ordinary actual-play scoring authoritative.
-* Reuse the existing exact public-hand sampler in historical review without adding proof, assignment, event targets, response targets, statistics, profile signals, or settlement effects.
+**Release theme: Explainable and time-safe opponent intelligence**
 
 ### Opponent statistics and profiles
 

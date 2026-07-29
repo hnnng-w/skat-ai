@@ -118,5 +118,5 @@ search, behavioral or Bayesian hidden-card inference, complete-contract expected
 value, learned behavior, model training, or confidence that the sampled root
 matches the real deal. Exact DP enumeration counts compatible assignments but
 does not expose or exhaustively simulate them. Scoring, settlement, training
-versions, and rolling metrics are unchanged. The package version remains
-`0.8.0`. See [Hidden-card inference](hidden_card_inference.md).
+versions, and rolling metrics were unchanged by the feature. See
+[Hidden-card inference](hidden_card_inference.md).

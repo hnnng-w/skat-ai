@@ -21,8 +21,8 @@ The position-analysis flow is:
 The alternative historical-game flow loads `historical_game_input`, builds a
 stable-ID record, and strictly replays either ten normal-completion tricks or an
 exact legal prefix ending in a versioned declarer-concession, defender-concession,
-unanimously accepted declarer-card-exposure, or terminal defender-open-play
-event. Normal completion may contain at most one separate timed non-terminal
+unanimously accepted declarer-card-exposure, terminal defender-open-play, or
+open-card-throw event. Normal completion may contain at most one separate timed non-terminal
 defender-open-play or declarer-card-exposure continuation event. It derives
 points and ownership, reuses the declaration/value/overbid/settlement helpers,
 and emits `historical_game_summary`.
@@ -64,7 +64,7 @@ reuses opponent-statistics normalization and profile derivation and can serializ
 a standalone `opponent_statistics_input`. It does not generate samples or run
 recommendation, review, policy application, quality evaluation, or training.
 Normal-completion, declarer-concession, defender-concession, declarer-card-exposure,
-and defender-open-play records are explicitly supported and
+defender-open-play, and open-card-throw records are explicitly supported and
 each contributes one game regardless of play count.
 
 The rolling opponent-policy evaluation is explicitly a known-opponent flow. It

@@ -19,7 +19,8 @@ The project focuses on:
 * game result and settlement summaries
 * automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
 * post-game review support
-* complete normal-play historical-game records
+* complete normal-play and supported shortened historical-game records
+* two supported non-terminal historical continuation events
 * information-safe historical decision snapshots and complete-game review
 * versioned training and evaluation dataset records
 * external and historically aggregated opponent statistics
@@ -128,17 +129,18 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current code and release-preparation baseline is `v0.8.0`, with the theme
-"Explainable and time-safe opponent intelligence."
+The current code and release-preparation baseline is `v0.9.0`, with the theme
+"Structured game endings and coherent hidden information."
 
-The package version is `0.8.0`.
+The package version is `0.9.0`.
 
 Generated-output validation currently covers 52 deterministic scenarios.
+The complete pytest suite contains 3,558 tests.
 
-The documented `v0.8.0` issue scope, issues #78 through #84, is complete.
-`v0.7.0` is the preceding published release. Tag and GitHub Release publication
-remain manual maintainer actions; GitHub Releases is authoritative for current
-publication state.
+The documented `v0.9.0` issue scope, Issues #86 through #104, is complete. The
+repository is prepared for manual `v0.9.0` tagging and publication. Tag and
+GitHub Release publication remain maintainer actions; GitHub Releases is the
+authoritative publication record.
 
 Major completed areas include:
 
@@ -176,6 +178,11 @@ Major completed areas include:
 * exact historical opponent-statistics aggregation and reusable export
 * rolling known-opponent behavioral policy evaluation
 * known-opponent and unseen-player dataset policies with overlap audits
+* structured declarer and defender concessions, accepted declarer-card exposure, bounded defender open play, and open-card throwing
+* continued play with exact public hands after declarer-card exposure or defender open play
+* exact-prefix historical records for all five supported shortened terminal events
+* variable-length historical snapshots, review decisions, and training samples, including zero-decision records
+* shortened-game historical statistics, export, and rolling opponent-policy evaluation
 * declarer-concession integration in historical statistics, export, and rolling opponent-policy evaluation
 * unanimously accepted declarer-card-exposure historical records and variable-length workflow integration
 * terminal bounded exact defender-open-play historical records and variable-length workflow integration
@@ -186,15 +193,18 @@ Major completed areas include:
 * exact compatible-world counting, marginals, and DP-guided sampling from confirmed public failure-to-follow evidence
 * updated README, docs, roadmap, and project handoff
 
-Current limitations include multiple historical events, continuation followed by
-shortening, historical end reasons beyond the supported bounded set, simplified
-claims and concessions,
-incomplete settlement nuance, incomplete field-level live provenance for
-exposed-card inputs, heuristic rule-based
-opponent behavior, hidden-card inference beyond confirmed structural decision-
-time evidence, no complete-game coaching or 36-game list aggregation, no
-interactive or stable installed application interface, and no learned model or
-model-training workflow. No website or browser integration exists.
+Current limitations include general and specific-trick claim verification,
+defender-open-play proof beyond five unresolved tricks, multiple historical
+events, continuation followed by shortening, historical end reasons beyond the
+supported bounded set, incomplete settlement nuance, incomplete automatic
+dataset preparation, incomplete field-level live provenance, heuristic rule-
+based recommendations and opponent behavior, and structural rather than
+calibrated or tactical hidden-card inference. Stronger Search/Solver behavior,
+full Replay Coaching, fixed-three-player 36-game list aggregation, interactive
+input/session capture, and a stable installed library and CLI interface remain
+open before `v1.0.0`. No learned model, model-training workflow, website, or
+browser integration exists. Stronger bounded Search/Solver work is the next
+recommended development direction.
 
 ## Important design principles
 

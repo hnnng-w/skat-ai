@@ -165,4 +165,4 @@ card detection, objectives, game results, game values, overbid handling, and
 settlement are unchanged. Training feature generation remains version `1` with
 target `actual_card_played`; sample IDs, opponent profiles, statistics, rolling
 metrics, and profile signals are unchanged, and no inference feature or target
-is added. The package version remains `0.8.0`.
+is added.

@@ -4,6 +4,10 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
+The current package and release-preparation baseline is `v0.9.0`; it is prepared
+for manual tagging and publication. Publication remains a maintainer action, and
+GitHub Releases is the authoritative publication record.
+
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
 recommendations, historical data, and opponent modeling are specified here and
@@ -19,7 +23,7 @@ must not be presented as official-rule requirements.
 | Complete historical game | One coherent record of the deal, players/seats, final bid and declaration facts, skat handling, ordered play events, end reason, result, and settlement. | A position plus selected completed tricks is not a complete historical game; a full auction sequence is planned after v1.0. |
 | Historical game used as training or evaluation data | A complete historical game wrapped in a validated record with provenance, stable identity, intended labels/targets, and explicit dataset partition metadata. | Representation and evaluation use do not imply that a machine-learning model is trained. |
 | Externally captured opponent statistics | A versioned record of supplied total games and percentage-point statistics with stable player identity, source provenance, capture time, and deterministic explainable profile derivation. | Explicit live side bindings or strict pre-game historical participant matching may apply confidence-gated actionable presets; external values do not imply exact counts, predict behavior, or learn a profile. |
-| Statistics derived from historical player data | Reproducible exact aggregates computed from selected timestamped normal-play dataset games for a stable case-sensitive player identity, with per-player source provenance and reusable export. | Bounded aggregation differs from manually supplied values and learned parameters; it does not weight or merge sources, manage multiple captures, or apply a policy automatically. |
+| Statistics derived from historical player data | Reproducible exact aggregates computed from selected timestamped supported historical dataset games for a stable case-sensitive player identity, with per-player source provenance and reusable export. | Bounded aggregation differs from manually supplied values and learned parameters; it does not weight or merge sources, manage multiple captures, or apply a policy automatically. |
 | Rule-based player or opponent profile | Explicit fields and deterministic rules that select or parameterize explainable behavior. | It is not learned from data, even when its input statistics were historically derived. |
 | Rolling opponent-policy evaluation | A strict game-start as-of comparison of an acting player's observed cards with an actionable deterministic profile policy and the fixed `simple_lowest` baseline. | Preferred-card and exact-card matches measure behavioral imitation only, not strategic strength, optimality, recommendation quality, statistical significance, or unseen-player generalization. |
 | Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions but are not automatically split or balanced. |
@@ -42,9 +46,9 @@ The following directions are required for `v1.0.0`:
 * Represent complete historical games with structured claims, concessions, and
   approved additional game-end reasons, then analyze rules, result, approved
   settlement, and eligible decisions retrospectively. Current complete records
-  support normal completion, exact-prefix declarer and defender concessions,
-  exact-prefix unanimously accepted declarer-card exposure, and bounded terminal
-  defender open play.
+  support normal completion, all five exact-prefix shortened terminal reasons,
+  and one timed non-terminal defender-open-play or declarer-card-exposure
+  continuation in a normal-completion record.
 * Complete the approved normative settlement matrix, including structured claim
   and concession outcomes, while preserving the bounded impossible Null
   interpretation from the International Skat Court decision collection.
@@ -149,23 +153,24 @@ validation, and tests does not satisfy a gate.
 
 The historical-game workflow satisfies deal-through-settlement for
 `normal_completion`, exact-prefix declarer and defender concessions,
-unanimously accepted declarer-card exposure, and bounded terminal defender open
-play. Normal completion may contain at most one timed non-terminal defender-
-open-play or declarer-card-exposure continuation while retaining all ten tricks
-and 30 actual plays. It can reconstruct information-safe pre-play states for all
-30 actual cards, with continuation public hands visible only after their event
-boundary and declared-Ouvert hands visible from decision 1. It also evaluates
-normal-play snapshots through bounded review and wraps all
-normal-play snapshots in versioned provenance-aware training/evaluation records.
+unanimously accepted declarer-card exposure, bounded terminal defender open
+play, and terminal open-card throwing. Normal completion may contain at most one
+timed non-terminal defender-open-play or declarer-card-exposure continuation while retaining all ten tricks
+and 30 actual plays. Every supported terminal record can reconstruct one
+information-safe pre-play state per actual card, including valid zero-decision
+records. Continuation public hands are visible only after their event boundary,
+and declared-Ouvert hands are visible from decision 1. Bounded review and
+versioned provenance-aware training/evaluation records use that same actual-play
+cardinality.
 Training-data representation supports normal completion and all five shortened kinds
 with one sample per actual play. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented; automatic
 splitting and unseen-player model evaluation are not v1 requirements. Bounded
 declared-Ouvert recommendation analysis is implemented; approved later end
-reasons remain open. Historical statistics
-and rolling policy evaluation support those same four end reasons with game-level
-source weighting, actual-play target weighting, and strict as-of safety. The bounded flat 4.4.4
-continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
+reasons remain open. Historical statistics and rolling policy evaluation support
+normal completion and all five shortened terminal reasons with game-level
+source weighting, actual-play target weighting, and strict as-of safety. The
+bounded flat 4.4.4 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
 constraint are implemented for both flat and timed historical normal-completion
 play. Multiple events and continuation followed by shortening remain
 unsupported. Full auction representation is planned after v1.0.
@@ -185,13 +190,11 @@ Bounded flat post-game open card throw under 4.4.6 supports either party, one
 concrete complete thrown hand, empty through two-card current tricks, opposing-
 party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
-This does not close broader v1 gates for
-historical declarer-exposure continuation, multiple non-terminal events,
-continuation followed by shortening, other historical
-claims/shortening, general corrected play,
+This does not close broader v1 gates for multiple non-terminal events,
+continuation followed by shortening, other historical claims/shortening,
+general corrected play,
 isolated or specific-trick claims, simultaneous throws, full-card theoretical
-solving, complete settlement
-coverage, or historical training and review for other shortening kinds.
+solving, or complete settlement coverage.
 
 Bounded historical player-statistics aggregation is supported from the same
 dataset container under either compliant policy, but it does not infer or change policy and is not a
@@ -207,10 +210,8 @@ with exact structural evidence while preserving private ownership boundaries.
 It does not use tactical choices, profiles, historical future hands, results, or
 settlement; change legal cards, policies, objectives, ties, training feature
 version `1`, or rolling behavior; infer the real deal; or satisfy the separate
-stronger-search gate. The privacy-safe summary remains schema version `1` and
-the package version remains `0.8.0`. See
-[Hidden-card inference](hidden_card_inference.md). Issue #104 is complete in the
-development baseline; no release, tag, or issue publication action occurred.
+stronger-search gate. The privacy-safe summary remains schema version `1`. See
+[Hidden-card inference](hidden_card_inference.md).
 
 ## Release decision rule
 

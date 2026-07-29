@@ -162,7 +162,7 @@ def test_strict_builder_and_focused_schemas() -> None:
         invalid = copy.deepcopy(value)
         invalid["declarer_response"] = "accept_adjudication"
         Draft202012Validator(input_schema).validate(invalid)
-    assert 'version = "0.8.0"' in (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'version = "0.9.0"' in (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize(

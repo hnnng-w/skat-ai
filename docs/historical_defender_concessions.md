@@ -84,7 +84,9 @@ python main.py --input examples/historical_grand_defender_concession.json --hist
 Unanimously accepted historical declarer-card exposure is documented separately
 in [Historical declarer card exposure](historical_declarer_card_exposure.md).
 Terminal historical defender open play is documented in
-[Historical defender open play](historical_defender_open_play.md). Timed
+[Historical defender open play](historical_defender_open_play.md), and historical
+open-card throwing is documented in
+[Historical open card throw](historical_open_card_throw.md). Timed
 normal-completion events are documented in
 [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md)
 and [Historical defender open-play continuation](historical_defender_open_play_continuation.md).

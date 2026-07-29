@@ -48,6 +48,9 @@ Implemented:
 * Schneider/Schwarz status summaries
 * Versioned complete normal-play historical-game records
 * Full-deal, ownership, play-order, follow-rule, winner, point, and settlement replay validation
+* Exact-prefix historical records for declarer concession, defender concession, accepted declarer-card exposure, bounded defender open play, and open-card throwing
+* One timed non-terminal defender-open-play or declarer-card-exposure continuation in a normal-completion record
+* Variable-length decision artifacts based on actual supplied play count
 
 ### Game declaration and settlement
 
@@ -73,6 +76,9 @@ Implemented:
 * Structured defender concession with concrete party validation, joint liability, and preexisting-result preservation
 * Unanimously accepted declarer card exposure with complete-card reconciliation and claimed-level settlement
 * Ongoing ISkO 4.4.4 play after an objection with an exact all-player public declarer hand across Immediate, Multi-Step, Policy Comparison, and flat review
+* Bounded exact defender open play for at most five unresolved tricks
+* Ongoing ISkO 4.4.5/4.1.6 play with the exposing defender's exact returned public hand
+* Open-card throwing with opposing-party assignment and bounded jack-only theoretical Schwarz exclusion
 * Legacy declarer concession remaining-point assignment
 * Defenders concede remaining tricks
 * Immediate impossible Null declaration end handling
@@ -174,16 +180,17 @@ Implemented:
   * `better_card_count`
 * Human-readable CLI output for post-game review summaries, including objective-aware Null review wording
 * Unavailable post-game review shape when Immediate Analysis is unavailable
-* Information-safe pre-play snapshots for all 30 decisions in a normal-play historical game
-* Bounded 30-decision historical review with deterministic seeds and reconciled player summaries
+* Information-safe pre-play snapshots for every actual play in each supported historical terminal record
+* Variable-length historical review, including zero-decision records, with deterministic seeds and reconciled player summaries
+* Declared-Ouvert and continuation public hands at their exact decision-time visibility boundaries
 
 ### Training and evaluation data
 
 Implemented:
 
-* Versioned normal-play training and evaluation dataset records
+* Versioned normal-play and shortened-game training and evaluation dataset records
 * Required source provenance and explicit `train`, `validation`, and `test` partitions
-* Deterministic 30-sample conversion from each historical game
+* Deterministic zero-through-30 sample conversion from each supported historical game
 * Relative model-facing features and `actual_card_played` version-1 labels
 * Duplicate identity and cross-partition game/source leakage rejection
 * Optional version-1 known-opponent and unseen-player partition policy metadata
@@ -236,8 +243,7 @@ Implemented:
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Historical records support normal completion with at most one optional timed defender-open-play or declarer-card-exposure continuation, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throwing; other claims, multiple events, continuation followed by shortening, and other end reasons are not represented there.
-* Historical corrected play, variable-length decision/data workflows, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
-* Historical ouvert decisions expose public cards in snapshots but do not run exposed-card-aware recommendation simulation.
+* Historical corrected play, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * General live position inputs do not provide complete field-level provenance.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
@@ -278,50 +284,25 @@ Implemented:
 
 ## Release baselines
 
+### v0.9.0: Structured game endings and coherent hidden information
+
+The current package and release-preparation baseline is `v0.9.0`. Issues #86
+through #104 are complete:
+
+* #86 through #92 added structured concessions and exposures, bounded defender-open-play adjudication, open-card throwing, and both exact-public-hand continuation paths.
+* #93 through #101 added all five exact-prefix historical terminal events, both timed non-terminal continuation events, variable-length decision and dataset workflows, and shortened-game opponent workflows.
+* #102 made Immediate, supported Multi-Step, Policy Comparison, flat review, and Historical Review recommendation paths declared-Ouvert-aware.
+* #103 preserved one coherent private hidden world per Multi-Step path and one shared root across independent Policy Comparison copies.
+* #104 added exact evidence-constrained compatible-world counts, marginals, deterministic uniform sampling, decision-time-safe workflow integration, and privacy-safe uncalibrated summaries.
+
+The baseline validates 52 deterministic generated-output scenarios and passes
+3,558 pytest tests. It is prepared for manual tagging and publication;
+publication remains a maintainer action, and GitHub Releases is the authoritative
+publication record.
+
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
-The current code and package version is `0.8.0`. Generated-output validation
-coverage now includes 52 deterministic scenarios. Issues #86 through #92 add
-bounded structured concessions, accepted declarer-card-exposure adjudication,
-ongoing exposed-hand continuation, and bounded exact defender open-play
-adjudication plus non-adjudicating continued play and bounded open-card-throw
-adjudication while the package remains `0.8.0`.
-Issue #99 adds timed non-terminal historical defender-open-play continuation
-without changing the normal-completion end reason or package version.
-Issue #100 adds the parallel timed historical declarer-card-exposure continuation
-with an exact shrinking public declarer hand and unchanged final-result workflows.
-Issue #102 connects declared-Ouvert public hands to Immediate Analysis, supported
-Multi-Step, Policy Comparison, flat review, historical review, and the existing
-training and rolling decision-time boundary without changing scoring or policies.
-Issue #103 gives each Multi-Step path one coherent private hidden-world root,
-uses one shared root with independent immutable copies for Policy Comparison,
-and adds privacy-safe output summaries without changing Immediate Analysis,
-historical future-hand boundaries, feature version `1`, rolling behavior,
-supported phases, policies, or package version.
-Issue #104 adds exact evidence-constrained compatible-world counting, marginals,
-uniform DP-guided sampling, Immediate candidate sharing, compatible coherent
-roots, historical decision-time inference, and strict privacy-safe summaries.
-It changes no rules, policies, objectives, training features, profiles, game
-values, overbid, settlement, or package version. The issue is complete in the
-development baseline; no tag, release, or issue publication action occurred.
-Issue #93 adds the first structured shortened historical record: exact-prefix
-declarer concession with stable-ID consent, unassigned unresolved points, and
-base/quiet CLI output. Issue #94 generalizes snapshots, review, external-profile
-review, training conversion, and partition audits to actual played-card counts.
-Issue #95 integrates normal-completion and declarer-concession records into
-historical aggregation/export and rolling evaluation. Every source record has
-one game of statistics weight; targets contribute only actual decisions,
-including zero-decision games with participant-based coverage.
-Issue #96 adds exact-prefix historical defender concession with stable IDs,
-joint liability, flat adjudication parity, and the same variable-length
-decision, dataset, statistics, export, and rolling workflows.
-Issue #97 adds exact-prefix unanimously accepted historical declarer-card
-exposure with exact remaining-hand reconciliation, stable defender identities,
-flat adjudication parity, and the same variable-length and opponent workflows.
-Issue #98 adds bounded terminal historical defender open play with stable IDs,
-exact reconstructed private state, flat proof/result/settlement parity,
-privacy-safe proof output, and the same actual-play downstream workflows.
-Issues #78 through #84 are complete:
+The bounded Issues #78 through #84 milestone is complete:
 
 * #78 added versioned external opponent-statistics records with stable identity, provenance, eight percentages, and optional exact counts.
 * #79 added deterministic explainable profile derivation with scoped heuristic confidence and actionable gating.
@@ -330,10 +311,6 @@ Issues #78 through #84 are complete:
 * #82 aggregated exact settlement-based statistics from timestamped historical dataset games and exported records for existing live and historical loaders.
 * #83 evaluated rolling acting-player card imitation with strict as-of history, the fixed `simple_lowest` baseline, policy-equivalent preferred cards, and actionable paired metrics.
 * #84 added known-opponent and unseen-player dataset policies, exact membership and overlap audits, directed coverage, and strict declared unseen-player disjointness.
-
-`v0.7.0` is the preceding published release. Tag and GitHub Release publication
-remain manual maintainer actions; GitHub Releases is authoritative for current
-publication state.
 
 ### v0.7.0: Rules confidence and information-safe historical workflows
 
@@ -370,15 +347,16 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-Before `v1.0.0`, the project still requires structured claims, defender and
-historical concessions, open-card game-shortening outcomes,
-approved settlement completeness, additional historical end reasons,
-complete-game coaching, stronger solving, broader information-safe hidden-card
-inference, full
-fixed-three-player 36-game list aggregation, field-level live provenance,
-interactive input, and a stable library and installed CLI/package interface.
-Bounded opponent statistics, explainable profiles, live and time-safe historical
-application, rolling behavioral evaluation, and dataset partition policies are
+Before `v1.0.0`, the project still requires stronger bounded Search/Solver
+functionality, fuller Replay Coaching, remaining approved settlement nuance,
+fixed-three-player 36-game list aggregation, remaining automatic dataset
+preparation, field-level live provenance, interactive live and retrospective
+input/session capture, and a stable library API and installed CLI/package
+interface. General claim verification and historical end reasons outside the
+supported bounded set also remain incomplete. Structured concessions and
+exposures, bounded defender open play, open-card throwing, supported historical
+terminal and continuation events, variable-length workflows, Ouvert-aware
+recommendation, coherent hidden worlds, and bounded structural inference are
 already implemented.
 
 Full auction modeling, learned opponent profiles, machine-learning card-decision
@@ -387,11 +365,9 @@ series aggregation, tournament management, and official federation report
 formats are not required. Four-player tables are the only unconditional
 exclusion.
 
-The next recommended milestone focuses on official game-end and settlement
-completeness: structured historical claims and concessions, defender and
-open-card variants, additional end reasons, normative settlement coverage, and remaining claim/concession
-validation. Later milestones are not implied to have complete implementation
-designs.
+The next recommended milestone focuses on stronger bounded Search/Solver work
+with documented information, quality, determinism, and latency contracts. Later
+milestones are not implied to have complete implementation designs.
 
 ## Open technical cleanup
 
@@ -407,6 +383,7 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the `v0.8.0` implementation baseline, the latest published
-release, requirements explicitly required for `v1.0.0`, planned post-v1.0 work,
-not-required workflows, and unconditional exclusions.
+should distinguish the `v0.9.0` release-preparation baseline, the authoritative
+publication state shown by GitHub Releases, requirements explicitly required for
+`v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
+exclusions.

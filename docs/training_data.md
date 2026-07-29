@@ -8,10 +8,10 @@ deploy a machine-learning model.
 
 Training-data representation remains `partially_supported`. Version 1 accepts
 normal completion, declarer concession, defender concession, accepted
-declarer-card exposure, and defender open play. Normal records produce 30 samples;
-shortened records produce zero through 29 samples from their actual play prefix,
-subject to event prerequisites.
-Other historical end reasons remain unsupported.
+declarer-card exposure, defender open play, and open-card throwing. Normal
+records produce 30 samples; shortened records produce zero through 29 samples
+from their actual play prefix, subject to event prerequisites. Historical end
+reasons beyond this bounded set remain unsupported.
 
 A normal-completion record may contain one timed defender-open-play or declarer-
 card-exposure continuation and still produces exactly 30 samples. Samples before

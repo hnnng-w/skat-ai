@@ -24,7 +24,8 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The check script validates:
+At the `v0.9.0` release-preparation baseline, the check covers 52 deterministic
+generated-output scenarios and 3,558 pytest tests. The check script validates:
 
 * Ruff checks
 * input JSON schema validation
@@ -325,7 +326,7 @@ right's response is simulated before the local third-hand decision.
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
 `historical_game_summary`, its optional decision-time snapshots, and the
-seeded complete historical review. Three scenarios cover the supported shortened
+seeded complete historical review. Five scenarios cover the supported shortened
 base outputs. Snapshot-only generation does not run recommendation or
 simulation. Review uses the normal and Grand Ouvert examples with 20 samples and
 base seed 42; Ouvert rows are reviewed with the exact public declarer hand.
