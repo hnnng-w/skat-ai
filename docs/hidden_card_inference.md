@@ -68,6 +68,14 @@ The model is optional when no confirmed failure-to-follow evidence exists. When
 hard constraints leave zero compatible worlds, analysis rejects the
 contradictory position.
 
+The private bounded-Search layer reuses the assignment problem independently of
+that optional public model. It therefore constructs and counts the complete
+structural Search space even with no confirmed void evidence. Assignment cards
+and owner traversal are canonical. Small spaces can be enumerated completely
+without truncation; larger selected spaces use deterministic IID uniform draws
+with replacement, preserving draw order and duplicates. Batch sampling reuses
+one completion-count structure and retains the existing single-draw sequence.
+
 ## Confidence
 
 Per-card confidence describes only ownership concentration across the exact
@@ -103,6 +111,19 @@ and gives each policy an equal immutable copy. Paths may accumulate different
 later public evidence after their simulated plays diverge, but no path mutates
 another path or starts from a separately sampled model or root.
 
+Bounded Search now has a separate private compatible-world construction and
+selection layer. It derives alternatives only from `SearchInformationView`,
+counts them exactly, enumerates all worlds within the selected-world budget or
+samples exactly the sampled-world budget from one domain-separated seed stream,
+and materializes each selected assignment as a strict `ExactSearchState`. Every
+state shares the same legal local root candidates and the selected tuple is
+frozen as future common-world order. This layer does not invoke Minimax,
+aggregate candidate values, recommend a card, or enter existing workflows.
+
+A compatible Search world is an information-set alternative. A coherent
+Multi-Step world is one private execution environment for one simulated path.
+The Search layer neither accepts nor compares coherent execution ownership.
+
 Declared-Ouvert and both continuation exact public hands remain authoritative in
 all three workflows. Any conflict with inferred constraints rejects the state.
 
@@ -136,6 +157,13 @@ hidden hands, or dynamic-programming tables.
 
 The summary's ownership probabilities describe all exact compatible assignments;
 they do not reveal which private world was sampled for execution.
+
+Search selections have no public serializer. Exact opponent hands,
+hypothetical or known out-of-play identities, exact states, hashes,
+fingerprints, DP tables, enumeration paths, and sample seeds are absent from
+bounded-search results, schemas, CLI output, generated output, and this summary.
+For sampled Search selection, aggregate accounting may later report draw and
+unique-draw counts, but duplicates are retained in private evaluation order.
 
 ## Example
 

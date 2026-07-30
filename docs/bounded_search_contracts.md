@@ -1,12 +1,12 @@
 # Bounded search contracts
 
 This document defines version 1 of the shared bounded-search contracts. The
-contracts provide an information boundary, an internal exact complete-world
-state and legal transition kernel, eligibility semantics, budgets, terminal
-utility, aggregate results, deterministic serialization, and a strict standalone
-schema. They also include one executable bounded perfect-information Minimax
-solver for a caller-supplied exact world. No existing recommendation workflow
-emits a bounded-search result.
+contracts provide an information boundary, a private compatible-world selection
+layer, an internal exact complete-world state and legal transition kernel,
+eligibility semantics, budgets, terminal utility, aggregate results,
+deterministic serialization, and a strict standalone schema. They also include
+one executable bounded perfect-information Minimax solver for a caller-supplied
+exact world. No existing recommendation workflow emits a bounded-search result.
 
 ## Current scope
 
@@ -27,6 +27,10 @@ latency promise.
 The exact solver supports Suit, Grand, and normal non-overbid Null, including
 Null, Null Hand, Null Ouvert, and Null Hand Ouvert. Null fixed values remain
 owned by the existing game-value helpers.
+
+Compatible Search-world selection version `1` is implemented as a private layer
+between `SearchInformationView` and `ExactSearchState`. It does not execute the
+reserved `compatible_world_minimax_v1` method or produce a bounded-search result.
 
 ## Search information
 
@@ -108,12 +112,68 @@ not determine contract success, Schneider, Schwarz, overbid, game value,
 settlement, `TerminalUtility`, or card ranking; the exact terminal-utility
 adapter composes those existing facilities separately.
 
-No adapter from `SearchInformationView`, compatible hidden worlds, or analysis
-and review workflows exists yet. The exact solver accepts an `ExactSearchState`
-directly. Exact hands and out-of-play cards remain private and are never
-serialized in a bounded-search result. The specialized five-trick
+The private compatible-world layer now materializes strictly validated exact
+states from `SearchInformationView`; no analysis or review workflow adapter
+exists yet. The exact solver still accepts an `ExactSearchState` directly and is
+not invoked by world selection. Exact hands and out-of-play cards remain private
+and are never serialized in a bounded-search result. The specialized five-trick
 defender-open-play proof also reuses this legal transition kernel while retaining
 its event-specific quantifiers, memoization, proof line, and privacy-safe output.
+
+## Compatible Search worlds
+
+`CompatibleSearchWorldSpace` is frozen, internal, and builder-only. Its input is
+one `SearchInformationView`; it does not accept actual opponent hands, an actual
+unknown skat, a coherent execution root, future historical play, a complete
+deal, final settlement, caller-supplied ownership, or profile weights. Non-empty
+exact opponent ownership must be backed by an authorized exact public hand.
+
+Assignment cards follow canonical full-deck order and exclude the local hand,
+completed public cards, the current partial trick, and legitimately known
+out-of-play cards. Exact public opponent cards remain assignment cards fixed to
+their owner. Slot counts are the public left and right remaining-hand sizes plus
+`2 - known out-of-play card count` for the skat, and must reconcile exactly.
+Existing Suit, Grand, and Null effective-category helpers apply confirmed voids
+only to opponents; the skat remains allowed. With no confirmed void, every
+structurally valid labeled assignment remains compatible even though the
+optional public `HiddenCardInferenceModel` remains absent.
+
+The existing dynamic-programming counter returns the exact deterministic world
+count, including zero. A reusable bounded enumerator first counts the space,
+rejects a limit smaller than that count without truncation, and traverses cards
+and owners canonically while pruning zero-completion branches. A reusable batch
+sampler uses one caller-owned `random.Random`, one completion-count structure,
+and IID uniform draws with replacement. It preserves order and duplicates and
+does not alter the existing single-world sampler sequence.
+
+Selection requires an explicit non-boolean integer base seed. Sampled selection
+derives one process-stable SHA-256 child stream named
+`bounded_search_compatible_world_selection_v1` and uses one RNG for the complete
+sequence; exact enumeration consumes no random draws. A zero count reports
+`incompatible_world_space`. A count no greater than `max_selected_worlds`
+enumerates every world with `all_compatible_worlds`, including a one-world
+space. A larger count draws exactly `max_sampled_worlds` with
+`sampled_compatible_worlds`. `minimum_comparable_worlds`, node, depth, and
+wall-clock budgets do not participate in selection, and
+`compatible_world_limit_exceeded` remains reserved for a future exact-only
+request.
+
+Every selected assignment is validated for exact slots, complete one-owner card
+coverage, allowed ownership, and canonical immutable card collections before
+strict exact-state construction. The local hand, public completed-card prefix,
+current trick, declaration, declarer, next player, awarded points, completed
+trick counts, and exact public hands stay fixed. Only hidden opponent and
+out-of-play ownership may vary, and the final out-of-play pair always has two
+cards. All selected states must expose the same deterministic legal root-card
+tuple. The frozen selected-state tuple, including retained sampled duplicates,
+is the future common-world evaluation order.
+
+Compatible Search worlds are alternatives derived from the player's information
+view. They are not and are never compared with the one private coherent
+execution world used by Multi-Step simulation. Exact states, ownership,
+hypothetical skat cards, hashes, fingerprints, DP tables, paths, and child seeds
+remain private and are not added to results, schemas, CLI output, generated
+outputs, or inference summaries.
 
 ## Eligibility
 
@@ -139,9 +199,9 @@ Current assessment can return `unsupported_perspective`,
 `missing_concrete_declarer`, `game_already_complete`,
 `unsupported_turn_phase`, `local_player_not_to_act`, `no_legal_cards`,
 `missing_terminal_utility_inputs`, or `remaining_trick_limit_exceeded`.
-`compatible_world_limit_exceeded` and `incompatible_world_space` are reserved
-result reasons for a future world-selection stage; this contract does not
-inspect compatible worlds.
+`incompatible_world_space` is now used by the private selection stage after
+eligibility. `compatible_world_limit_exceeded` remains reserved for a future
+explicit exact-only request; eligibility itself still does not inspect worlds.
 
 The exact solver additionally requires Suit, Grand, or normal non-overbid Null,
 a non-terminal state, the concrete `perspective_player` to equal the state's
@@ -172,6 +232,11 @@ completed world counts, sampled and unique sampled world counts, and elapsed
 wall-clock milliseconds. Counts are non-negative and reconcile with each other
 and the requested structural limits. Elapsed wall-clock time is diagnostic and
 is outside strict cross-machine determinism.
+
+World selection consumes only `max_selected_worlds` and `max_sampled_worlds`.
+It does not consume nodes or depth, apply `minimum_comparable_worlds`, or inspect
+the wall-clock cutoff. Sampled counts include duplicate draws, while the unique
+sampled count reports distinct exact states without deduplication or reordering.
 
 For `perfect_information_minimax_v1`, every uncached state, including the root
 and terminal leaves, consumes one node. Timeout is checked before node
@@ -316,12 +381,13 @@ version 1.
 
 ## Remaining work
 
-The executable solver is limited to one caller-supplied exact Suit, Grand, or
-supported normal Null world. Overbid Null remains unavailable because the solver
-does not select an impossible-Null replacement. It has no compatible-world
-counting, enumeration, sampling, or selection; no `SearchInformationView`
-adapter; and no recommendation workflow, review, CLI, default budget,
-production profile, or latency integration. Hidden-information search,
-Expectimax, and broader search remain unsupported. The stronger-search v1.0
-completion gate therefore remains open because compatible-world, hidden-
-information, and product-workflow integration are absent.
+The executable solver remains limited to one caller-supplied exact Suit, Grand,
+or supported normal Null world. Overbid Null remains unavailable because the
+solver does not select an impossible-Null replacement. Compatible-world exact
+counting, bounded canonical enumeration, deterministic IID selection, and
+strict exact-state materialization now exist, but no Minimax call, candidate
+aggregation, recommendation, fallback, common completed-world scheduling,
+workflow, review, CLI, default budget, production profile, or latency integration
+uses that sequence. Hidden-information Minimax, Expectimax, and broader search
+remain unsupported. The stronger-search v1.0 completion gate therefore remains
+open.

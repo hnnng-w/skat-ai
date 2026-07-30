@@ -6,6 +6,7 @@ from functools import cache
 from typing import Any
 
 from skat_ai.card_tracking import get_unseen_cards
+from skat_ai.deck import get_full_deck
 from skat_ai.game_history import get_players_for_trick_leader
 from skat_ai.game_state import GameState
 from skat_ai.public_hand_constraint import PublicHandConstraint, canonicalize_cards
@@ -28,6 +29,9 @@ _EFFECTIVE_CATEGORY_NAMES = {
     "D": "diamonds",
     "TRUMP": "trump",
 }
+_FULL_DECK = tuple(get_full_deck())
+_FULL_DECK_SET = set(_FULL_DECK)
+_CARD_ORDER = {card: index for index, card in enumerate(_FULL_DECK)}
 
 
 @dataclass(frozen=True)
@@ -88,6 +92,21 @@ class CompatibleAssignmentProblem:
     skat_slots: int
     allowed_locations_by_card: tuple[tuple[str, tuple[str, ...]], ...]
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.cards, tuple):
+            raise TypeError("cards must be a tuple.")
+        if not isinstance(self.allowed_locations_by_card, tuple):
+            raise TypeError("allowed_locations_by_card must be a tuple.")
+        for item in self.allowed_locations_by_card:
+            if (
+                not isinstance(item, tuple)
+                or len(item) != 2
+                or not isinstance(item[1], tuple)
+            ):
+                raise TypeError(
+                    "allowed_locations_by_card entries must contain a card and owner tuple."
+                )
+
     def allowed_locations(self) -> dict[str, tuple[str, ...]]:
         return dict(self.allowed_locations_by_card)
 
@@ -108,6 +127,11 @@ class CompatibleHiddenWorld:
     left_hand: tuple[str, ...]
     right_hand: tuple[str, ...]
     hypothetical_skat: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        for field_name in ("left_hand", "right_hand", "hypothetical_skat"):
+            if not isinstance(getattr(self, field_name), tuple):
+                raise TypeError(f"{field_name} must be a tuple.")
 
 
 @dataclass(frozen=True)
@@ -553,10 +577,19 @@ def _validate_assignment_inputs(
     right_slots: int,
     allowed_locations_by_card: dict[str, tuple[str, ...]],
 ) -> None:
-    if left_slots < 0 or right_slots < 0:
-        raise ValueError("Assignment slot counts must not be negative.")
+    for field_name, value in (
+        ("left_slots", left_slots),
+        ("right_slots", right_slots),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ValueError(f"{field_name} must be a non-negative integer.")
     if left_slots + right_slots > len(cards):
         raise ValueError("Assignment slot counts exceed the card count.")
+    invalid_cards = [
+        card for card in cards if not isinstance(card, str) or card not in _FULL_DECK_SET
+    ]
+    if invalid_cards:
+        raise ValueError(f"Invalid compatible assignment cards: {invalid_cards}")
     if len(cards) != len(set(cards)):
         raise ValueError("Compatible assignment cards must be unique.")
     if set(cards) != set(allowed_locations_by_card):
@@ -567,6 +600,37 @@ def _validate_assignment_inputs(
             owner not in OWNER_ORDER for owner in allowed
         ):
             raise ValueError(f"Invalid allowed ownership locations for card {card}.")
+
+
+def _validate_assignment_problem(
+    problem: CompatibleAssignmentProblem,
+) -> dict[str, tuple[str, ...]]:
+    if not isinstance(problem, CompatibleAssignmentProblem):
+        raise ValueError("problem must be a CompatibleAssignmentProblem.")
+    if (
+        isinstance(problem.skat_slots, bool)
+        or not isinstance(problem.skat_slots, int)
+        or problem.skat_slots < 0
+    ):
+        raise ValueError("skat_slots must be a non-negative integer.")
+    location_cards = tuple(card for card, _ in problem.allowed_locations_by_card)
+    if len(location_cards) != len(set(location_cards)):
+        raise ValueError("Allowed ownership locations contain duplicate cards.")
+    allowed_by_card = problem.allowed_locations()
+    _validate_assignment_inputs(
+        problem.cards,
+        problem.left_slots,
+        problem.right_slots,
+        allowed_by_card,
+    )
+    if problem.cards != tuple(sorted(problem.cards, key=_CARD_ORDER.__getitem__)):
+        raise ValueError("Compatible assignment cards must use canonical deck order.")
+    if (
+        problem.left_slots + problem.right_slots + problem.skat_slots
+        != len(problem.cards)
+    ):
+        raise ValueError("Compatible assignment slots must equal the assignment-card count.")
+    return allowed_by_card
 
 
 def _build_completion_counter(
@@ -615,12 +679,102 @@ def count_compatible_assignments(
 
 def count_compatible_hidden_worlds(problem: CompatibleAssignmentProblem) -> int:
     """Counts exact worlds for one immutable assignment problem."""
-    return count_compatible_assignments(
-        problem.cards,
-        problem.left_slots,
-        problem.right_slots,
-        problem.allowed_locations(),
+    allowed_by_card = _validate_assignment_problem(problem)
+    counter = _build_completion_counter(problem.cards, allowed_by_card)
+    return counter(0, problem.left_slots, problem.right_slots)
+
+
+def validate_compatible_hidden_world(
+    problem: CompatibleAssignmentProblem,
+    world: CompatibleHiddenWorld,
+) -> None:
+    """Validates one complete assignment against exact slots and allowed owners."""
+    allowed_by_card = _validate_assignment_problem(problem)
+    if not isinstance(world, CompatibleHiddenWorld):
+        raise ValueError("world must be a CompatibleHiddenWorld.")
+
+    locations = (
+        ("left", world.left_hand, problem.left_slots),
+        ("right", world.right_hand, problem.right_slots),
+        ("skat", world.hypothetical_skat, problem.skat_slots),
     )
+    all_cards: list[str] = []
+    for owner, cards, expected_size in locations:
+        if len(cards) != expected_size:
+            raise ValueError(
+                f"Compatible world {owner} size is {len(cards)}, expected {expected_size}."
+            )
+        for card in cards:
+            if not isinstance(card, str) or card not in _FULL_DECK_SET:
+                raise ValueError(f"Compatible world contains invalid card {card!r}.")
+            if card not in allowed_by_card:
+                raise ValueError(f"Compatible world contains foreign card {card}.")
+            if owner not in allowed_by_card[card]:
+                raise ValueError(f"Card {card} is not allowed to be owned by {owner}.")
+        if cards != tuple(sorted(cards, key=_CARD_ORDER.__getitem__)):
+            raise ValueError(f"Compatible world {owner} cards must use canonical deck order.")
+        all_cards.extend(cards)
+
+    if len(all_cards) != len(set(all_cards)):
+        raise ValueError("Compatible world assigns at least one card more than once.")
+    if set(all_cards) != set(problem.cards):
+        missing = tuple(card for card in problem.cards if card not in all_cards)
+        foreign = tuple(card for card in all_cards if card not in allowed_by_card)
+        raise ValueError(
+            "Compatible world must cover every assignment card exactly once: "
+            f"missing={missing}, foreign={foreign}."
+        )
+
+
+def enumerate_compatible_hidden_worlds(
+    problem: CompatibleAssignmentProblem,
+    max_worlds: int,
+) -> tuple[CompatibleHiddenWorld, ...]:
+    """Enumerates every compatible world canonically when the exact space fits."""
+    if isinstance(max_worlds, bool) or not isinstance(max_worlds, int) or max_worlds <= 0:
+        raise ValueError("max_worlds must be a positive integer.")
+    allowed_by_card = _validate_assignment_problem(problem)
+    counter = _build_completion_counter(problem.cards, allowed_by_card)
+    total = counter(0, problem.left_slots, problem.right_slots)
+    if total > max_worlds:
+        raise ValueError(
+            f"Compatible world count {total} exceeds max_worlds {max_worlds}; "
+            "enumeration is not truncated."
+        )
+    if total == 0:
+        return ()
+
+    hands: dict[str, list[str]] = {owner: [] for owner in OWNER_ORDER}
+    worlds: list[CompatibleHiddenWorld] = []
+
+    def enumerate_from(index: int, left_remaining: int, right_remaining: int) -> None:
+        if index == len(problem.cards):
+            world = CompatibleHiddenWorld(
+                left_hand=tuple(hands["left"]),
+                right_hand=tuple(hands["right"]),
+                hypothetical_skat=tuple(hands["skat"]),
+            )
+            validate_compatible_hidden_world(problem, world)
+            worlds.append(world)
+            return
+
+        card = problem.cards[index]
+        allowed = allowed_by_card[card]
+        for owner in OWNER_ORDER:
+            if owner not in allowed:
+                continue
+            next_left = left_remaining - int(owner == "left")
+            next_right = right_remaining - int(owner == "right")
+            if counter(index + 1, next_left, next_right) == 0:
+                continue
+            hands[owner].append(card)
+            enumerate_from(index + 1, next_left, next_right)
+            hands[owner].pop()
+
+    enumerate_from(0, problem.left_slots, problem.right_slots)
+    if len(worlds) != total:
+        raise ValueError("Canonical enumeration did not reconcile with the exact world count.")
+    return tuple(worlds)
 
 
 def calculate_hidden_card_ownership_marginals(
@@ -628,7 +782,7 @@ def calculate_hidden_card_ownership_marginals(
     compatible_world_count: int | None = None,
 ) -> tuple[HiddenCardOwnershipMarginal, ...]:
     """Calculates exact per-card ownership counts under the uniform model."""
-    allowed_by_card = problem.allowed_locations()
+    allowed_by_card = _validate_assignment_problem(problem)
     total = (
         count_compatible_hidden_worlds(problem)
         if compatible_world_count is None
@@ -685,17 +839,27 @@ def sample_compatible_hidden_world(
     random_generator: random.Random,
 ) -> CompatibleHiddenWorld:
     """Samples one world uniformly using exact DP completion counts."""
-    allowed_by_card = problem.allowed_locations()
-    _validate_assignment_inputs(
-        problem.cards,
-        problem.left_slots,
-        problem.right_slots,
-        allowed_by_card,
-    )
+    allowed_by_card = _validate_assignment_problem(problem)
     counter = _build_completion_counter(problem.cards, allowed_by_card)
     total = counter(0, problem.left_slots, problem.right_slots)
     if total == 0:
         raise ValueError("Hidden-card inference has no compatible assignment to sample.")
+
+    return _sample_compatible_hidden_world_with_counter(
+        problem,
+        random_generator,
+        allowed_by_card,
+        counter,
+    )
+
+
+def _sample_compatible_hidden_world_with_counter(
+    problem: CompatibleAssignmentProblem,
+    random_generator: random.Random,
+    allowed_by_card: dict[str, tuple[str, ...]],
+    counter,
+) -> CompatibleHiddenWorld:
+    """Draws one world using a caller-validated reusable completion counter."""
 
     hands: dict[str, list[str]] = {owner: [] for owner in OWNER_ORDER}
     left_remaining = problem.left_slots
@@ -727,10 +891,42 @@ def sample_compatible_hidden_world(
 
     if left_remaining != 0 or right_remaining != 0:
         raise ValueError("Sampled compatible world does not fill exact opponent hand sizes.")
-    return CompatibleHiddenWorld(
+    world = CompatibleHiddenWorld(
         left_hand=tuple(hands["left"]),
         right_hand=tuple(hands["right"]),
         hypothetical_skat=tuple(hands["skat"]),
+    )
+    validate_compatible_hidden_world(problem, world)
+    return world
+
+
+def sample_compatible_hidden_worlds(
+    problem: CompatibleAssignmentProblem,
+    sample_count: int,
+    random_generator: random.Random,
+) -> tuple[CompatibleHiddenWorld, ...]:
+    """Draws IID compatible worlds with replacement while preserving draw order."""
+    if (
+        isinstance(sample_count, bool)
+        or not isinstance(sample_count, int)
+        or sample_count <= 0
+    ):
+        raise ValueError("sample_count must be a positive integer.")
+    if not isinstance(random_generator, random.Random):
+        raise ValueError("random_generator must be a random.Random instance.")
+    allowed_by_card = _validate_assignment_problem(problem)
+    counter = _build_completion_counter(problem.cards, allowed_by_card)
+    total = counter(0, problem.left_slots, problem.right_slots)
+    if total == 0:
+        raise ValueError("Hidden-card inference has no compatible assignment to sample.")
+    return tuple(
+        _sample_compatible_hidden_world_with_counter(
+            problem,
+            random_generator,
+            allowed_by_card,
+            counter,
+        )
+        for _ in range(sample_count)
     )
 
 
