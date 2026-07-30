@@ -67,7 +67,9 @@ The following directions are required for `v1.0.0`:
   quality, determinism, and latency contracts. Version-1 information, private
   exact complete-world state, deterministic legal transition, eligibility,
   budget, utility, result, exactness, privacy, and standalone-schema contracts
-  are implemented, but no general bounded solver exists yet. See
+  plus bounded `perfect_information_minimax_v1` are implemented for one fully
+  specified Suit or Grand state with at most five remaining tricks. Compatible-
+  world, hidden-information, and workflow integration remain absent. See
   [Bounded search contracts](bounded_search_contracts.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
@@ -138,7 +140,7 @@ validation, and tests does not satisfy a gate.
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
-| Search and hidden-card inference | The stronger-search portion remains open and requires a reproducible, explainable solver. Version-1 information, private perspective-neutral exact complete-world state, deterministic legal transitions, neutral terminal facts, eligibility, structural budget, wall-clock safety, terminal utility, aggregate result, exactness, privacy, and standalone-schema contracts are implemented, but no general solver consumes them. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
+| Search and hidden-card inference | The stronger-search portion remains open. Version-1 contracts and `perfect_information_minimax_v1` reproducibly solve one fully specified non-terminal Suit or Grand exact state for the current actor, limited by the lower of five remaining tricks and the request. Canonical full-window root values, deterministic below-root Alpha-Beta, invocation-local exact-only cache reuse, declarer-versus-cooperating-defenders utility, existing settlement reuse, explicit node/depth/timeout outcomes, and complete-versus-zero-completion claims are implemented without partial recommendations. Compatible-world, hidden-information, workflow/CLI, default-budget, and latency integration are still required. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
 | Ouvert-aware simulation | Historical and live Ouvert analysis uses legitimately exposed cards in recommendation simulation, never treats unexposed cards as public, and has deterministic contract- and perspective-specific tests. |
 | Recommendation behavior | Recommendations always select from legal candidates, use the documented Suit/Grand or Null objective, preserve player-side perspective, expose enough evidence to reproduce ranking, and have deterministic tie behavior under fixed settings. |
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
@@ -222,9 +224,12 @@ legal transitions and neutral normal-terminal facts, explicit eligibility and
 budgets, independent selected-world coverage and per-selected-world solution
 claims, local-side terminal utility, privacy-safe common-prefix aggregates, and
 a strict standalone schema. Exact solutions for a sampled selected set are
-explicitly not exact over all compatible worlds. No general search algorithm or
-recommendation workflow uses this contract yet, so it is evidence toward, not
-completion of, the stronger-search gate. See
+explicitly not exact over all compatible worlds. The executable exact-state
+solver covers one Suit or Grand world, uses canonical full-window root values
+and deterministic below-root Alpha-Beta, and returns no partial recommendation
+or fallback. It has no compatible-world, hidden-information, recommendation-
+workflow, CLI, default-budget, or latency integration, so it is evidence toward,
+not completion of, the stronger-search gate. See
 [Bounded search contracts](bounded_search_contracts.md).
 
 ## Release decision rule

@@ -30,7 +30,9 @@ The project focuses on:
 * dataset partition policies and stable-player overlap audits
 * JSON input/output for regression-friendly testing
 
-The project is not a machine-learning model, not a full official tournament system, and not a perfect-information Skat solver.
+The project is not a machine-learning model or a full official tournament
+system. It has one bounded exact-state perfect-information solver, but not a
+general hidden-information Skat solver.
 
 ## Current development style
 
@@ -161,11 +163,21 @@ Implemented on the active `v0.10.0` development branch:
 * one private immutable perspective-neutral exact complete-world state with
   strict construction, canonical legal-card generation, pure transitions,
   completed-trick accounting, and neutral normal-terminal facts
+* executable `perfect_information_minimax_v1` for one fully specified Suit or
+  Grand `ExactSearchState`, limited by the lower of five remaining tricks and
+  the requested budget
+* canonical full-window root values, deterministic below-root Alpha-Beta,
+  invocation-local exact-only transposition reuse, and declarer-versus-
+  cooperating-defenders utility orientation
+* exact terminal composition through existing result, value, overbid, final
+  settlement, and utility semantics
 * shared legal transition reuse by the specialized five-trick defender-open-play proof
 
-No general Minimax solver, world-search implementation, recommendation
-integration, fallback execution, CLI output, or production budget profile
-exists yet. See [Bounded search contracts](bounded_search_contracts.md).
+The exact solver returns no partial recommendation or fallback after a node,
+depth, or timeout abort. Compatible-world and hidden-information search,
+recommendation integration, CLI output, default or production budgets, and a
+latency contract do not exist yet. See
+[Bounded search contracts](bounded_search_contracts.md).
 
 ### Game history and scoring
 
@@ -465,6 +477,9 @@ Implemented:
 * `hidden_card_inference.py`
 * `coherent_hidden_world.py`
 * `bounded_search_information.py`
+* `exact_search_state.py`
+* `exact_terminal_utility.py`
+* `perfect_information_minimax.py`
 * `terminal_utility.py`
 * `bounded_search_result.py`
 * `ouvert_simulation.py`
@@ -660,7 +675,9 @@ Completed implementation scope:
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
 * General live position input lacks complete field-level provenance.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
-* Hidden-card inference beyond confirmed structural decision-time evidence and stronger search or solver functionality are not implemented; version-1 bounded-search contracts and the private exact legal-transition kernel exist, but no general solver consumes them.
+* Hidden-card inference beyond confirmed structural decision-time evidence and
+  general stronger search remain incomplete. The bounded exact-state Suit/Grand
+  Minimax solver is not connected to compatible worlds or product workflows.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -673,8 +690,9 @@ Completed implementation scope:
 `v0.9.0` is published. The active next development milestone is `v0.10.0`.
 Version-1 bounded Search/Solver information, quality, determinism, budget,
 result, exact complete-world state, and legal-transition contracts are now
-implemented; an actual bounded solver remains the next dependency and the
-overall stronger-search gate stays open. Remaining
+implemented together with one bounded exact-state Suit/Grand Minimax solver.
+Compatible-world, hidden-information, and workflow integration remain the next
+solver dependencies, so the overall stronger-search gate stays open. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

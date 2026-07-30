@@ -118,6 +118,13 @@ def test_standalone_schema_accepts_each_valid_status(status: str) -> None:
     VALIDATOR.validate(_fixture(status))
 
 
+def test_standalone_schema_accepts_unsupported_game_type_unavailable_reason() -> None:
+    fixture = _fixture("unavailable")
+    fixture["stop_reason"] = "unsupported_game_type"
+
+    VALIDATOR.validate(fixture)
+
+
 @pytest.mark.parametrize(
     ("path", "value"),
     [
@@ -229,18 +236,67 @@ def test_schema_rejects_timeout_without_cutoff_and_missing_suit_margin() -> None
         VALIDATOR.validate(missing_margin)
 
 
-def test_schema_rejects_depth_claim_without_completed_or_unique_sampled_world() -> None:
+def test_schema_accepts_depth_claim_with_zero_completed_worlds() -> None:
     depth_limited = _fixture("partial")
     depth_limited["stop_reason"] = "depth_budget_exhausted"
     depth_limited["solution_claim"] = "depth_limited_per_selected_world"
     depth_limited["consumed_budget"]["completed_world_count"] = 0
+    depth_limited["recommended_card"] = None
+    for candidate in depth_limited["candidate_results"]:
+        candidate.update(
+            is_recommended=False,
+            completed_world_count=0,
+            local_contract_success_count=0,
+            local_contract_success_rate=None,
+            mean_local_side_game_score=None,
+            mean_local_side_card_point_margin=None,
+        )
+
+    VALIDATOR.validate(depth_limited)
+
+
+def test_schema_rejects_depth_claim_without_a_selected_world() -> None:
+    depth_limited = _fixture("partial")
+    depth_limited["stop_reason"] = "depth_budget_exhausted"
+    depth_limited["solution_claim"] = "depth_limited_per_selected_world"
+    depth_limited["world_coverage"] = "none"
+    depth_limited["compatible_world_count"] = None
+    depth_limited["consumed_budget"].update(
+        selected_world_count=0,
+        completed_world_count=0,
+        sampled_world_count=0,
+        unique_sampled_world_count=0,
+    )
+
     with pytest.raises(ValidationError):
         VALIDATOR.validate(depth_limited)
 
+
+def test_schema_still_rejects_sampled_coverage_without_unique_sample() -> None:
     no_unique_sample = _fixture("complete")
     no_unique_sample["consumed_budget"]["unique_sampled_world_count"] = 0
+
     with pytest.raises(ValidationError):
         VALIDATOR.validate(no_unique_sample)
+
+
+def test_schema_accepts_privacy_safe_single_exact_world_result() -> None:
+    fixture = _fixture("complete")
+    fixture["search_method"] = "perfect_information_minimax_v1"
+    fixture["world_coverage"] = "single_exact_world"
+    fixture["compatible_world_count"] = 1
+    fixture["consumed_budget"].update(
+        selected_world_count=1,
+        completed_world_count=1,
+        sampled_world_count=0,
+        unique_sampled_world_count=0,
+    )
+    for candidate in fixture["candidate_results"]:
+        candidate["completed_world_count"] = 1
+        candidate["local_contract_success_count"] = 1
+        candidate["local_contract_success_rate"] = 1.0
+
+    VALIDATOR.validate(fixture)
 
 
 def test_schema_rejects_recommendation_marker_inconsistency() -> None:

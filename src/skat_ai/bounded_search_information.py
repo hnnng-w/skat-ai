@@ -38,6 +38,7 @@ SEARCH_INFORMATION_SOURCES = (
 )
 
 SEARCH_UNAVAILABLE_REASONS = (
+    "unsupported_game_type",
     "unsupported_turn_phase",
     "unsupported_perspective",
     "local_player_not_to_act",

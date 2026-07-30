@@ -4,15 +4,19 @@ This document defines version 1 of the shared bounded-search contracts. The
 contracts provide an information boundary, an internal exact complete-world
 state and legal transition kernel, eligibility semantics, budgets, terminal
 utility, aggregate results, deterministic serialization, and a strict standalone
-schema. They do not implement Minimax or another general bounded solver, and no
-existing recommendation workflow emits a bounded-search result.
+schema. They also include one executable bounded perfect-information Minimax
+solver for a caller-supplied exact world. No existing recommendation workflow
+emits a bounded-search result.
 
 ## Current scope
 
 The first supported search perspective is a current local decision at the fixed
-three-player table. A future solver may use one of the reserved methods:
+three-player table. The implemented exact-world solver uses:
 
 * `perfect_information_minimax_v1`
+
+The following hidden-world method remains reserved:
+
 * `compatible_world_minimax_v1`
 
 The public result uses `analysis_method = bounded_search`, bounded-search schema
@@ -95,16 +99,17 @@ produce equal transitions.
 
 Normal terminal facts remain neutral. They add the two out-of-play card points
 to the declarer's awarded trick points, leave defender points unchanged, and
-require 120 final card points and ten completed tricks. They do not determine
-contract success, Schneider, Schwarz, overbid, game value, settlement,
-`TerminalUtility`, or card ranking.
+require 120 final card points and ten completed tricks. The facts themselves do
+not determine contract success, Schneider, Schwarz, overbid, game value,
+settlement, `TerminalUtility`, or card ranking; the exact terminal-utility
+adapter composes those existing facilities separately.
 
-No adapter from `SearchInformationView`, hidden execution worlds, or analysis
-and review workflows exists yet. Exact hands and out-of-play cards remain
-private and are never serialized in a bounded-search result. The specialized
-five-trick defender-open-play proof reuses this legal transition kernel while
-retaining its event-specific quantifiers, memoization, proof line, and
-privacy-safe output.
+No adapter from `SearchInformationView`, compatible hidden worlds, or analysis
+and review workflows exists yet. The exact solver accepts an `ExactSearchState`
+directly. Exact hands and out-of-play cards remain private and are never
+serialized in a bounded-search result. The specialized five-trick
+defender-open-play proof also reuses this legal transition kernel while retaining
+its event-specific quantifiers, memoization, proof line, and privacy-safe output.
 
 ## Eligibility
 
@@ -134,6 +139,12 @@ Current assessment can return `unsupported_perspective`,
 result reasons for a future world-selection stage; this contract does not
 inspect compatible worlds.
 
+The exact solver additionally requires Suit or Grand, a non-terminal state, the
+concrete `perspective_player` to equal the state's current `next_player`, known
+matadors and bid value, at least one legal card, and no more remaining tricks
+than the lower of the implementation limit of five and the requested limit.
+Null returns `unavailable` with `unsupported_game_type`.
+
 ## Requested and consumed budgets
 
 `RequestedSearchBudget` contains `max_remaining_tricks`, `max_depth_plies`,
@@ -153,6 +164,13 @@ wall-clock milliseconds. Counts are non-negative and reconcile with each other
 and the requested structural limits. Elapsed wall-clock time is diagnostic and
 is outside strict cross-machine determinism.
 
+For `perfect_information_minimax_v1`, every uncached state, including the root
+and terminal leaves, consumes one node. Timeout is checked before node
+exhaustion; a non-terminal state then aborts when its current ply depth reaches
+the requested depth limit. Cache hits consume no node, while still contributing
+to the maximum reached depth. The timeout and elapsed milliseconds remain
+machine-dependent diagnostics rather than a latency promise.
+
 ## Status and stopping
 
 Status and stop reason are separate stable fields:
@@ -167,6 +185,8 @@ Status and stop reason are separate stable fields:
 A partial or timed-out search recommendation is usable only when every
 candidate has the same completed-world prefix and that prefix reaches
 `minimum_comparable_worlds`. Otherwise no candidate is marked recommended.
+The current exact solver is stricter: any node, depth, or timeout abort reports
+zero completed worlds for every root candidate and returns no recommendation.
 
 ## Coverage and solution claims
 
@@ -212,6 +232,40 @@ Null compares by:
 Null has no invented card-point secondary objective. Canonical root-card order
 is the final aggregate candidate tie-break and is not terminal game utility.
 
+Exact Suit/Grand leaves reuse `get_exact_search_terminal_facts()` and the
+existing game-result, game-value, overbid, and final-settlement builders before
+building terminal utility. Final settlement is authoritative for winner
+orientation: `settlement.is_loss = true` means a defender win, and `false`
+means a declarer win. Utility is then oriented to the acting player's declarer
+or defender side.
+
+## Perfect-information Minimax version 1
+
+`solve_perfect_information_minimax()` solves one fully specified
+`ExactSearchState` for Suit or Grand with at most five remaining tricks. The
+current concrete acting player supplies the perspective. Declarer actions
+optimize the declarer side, both defenders optimize one cooperating-defenders
+side, and the side containing the perspective maximizes its local terminal
+utility while the other side minimizes it.
+
+Root legal cards use canonical order and are each searched with a fresh full
+Alpha-Beta window, so every completed root candidate has a canonical exact
+terminal value. Below each root card, deterministic Alpha-Beta follows canonical
+legal-card order. One invocation-local transposition table is shared across root
+candidates and reuses only exact values: terminal values and non-terminal values
+that were not merely Alpha-Beta bounds. Nothing is persisted across calls.
+
+A completed call reports one selected and completed exact world,
+`single_exact_world`, `exact_per_selected_world`, exact aggregates for every
+legal root card, and one deterministic recommendation. If any search branch
+hits the node, depth, or timeout budget, the whole call is incomplete: it
+reports one selected world but zero completed worlds, placeholder candidates
+with absent rates and means, no recommendation, and no fallback. It does not
+publish a partial root value, principal variation, or heuristic substitute.
+Node exhaustion returns `partial + node_limited_partial`, depth exhaustion
+returns `partial + depth_limited_per_selected_world`, and timeout returns
+`timeout + none`.
+
 ## Candidate aggregates
 
 Candidate results contain only card-level aggregates over the common completed
@@ -246,8 +300,10 @@ version 1.
 
 ## Remaining work
 
-No general bounded solver exists yet. The exact state and transition kernel do
-not implement Minimax, Alpha-Beta pruning, transposition tables, hidden-world
-search, Expectimax, world enumeration or sampling, production budgets, or
-CLI/workflow integration. The stronger-search v1.0 completion gate therefore
-remains open.
+The executable solver is limited to one caller-supplied exact Suit or Grand
+world. It has no compatible-world counting, enumeration, sampling, or selection;
+no `SearchInformationView` adapter; and no recommendation workflow, review,
+CLI, default budget, production profile, or latency integration. Null, hidden-
+information search, Expectimax, and broader search remain unsupported. The
+stronger-search v1.0 completion gate therefore remains open because compatible-
+world, hidden-information, and product-workflow integration are absent.

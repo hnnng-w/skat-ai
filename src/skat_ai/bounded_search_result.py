@@ -384,13 +384,15 @@ class BoundedSearchResult:
             raise ValueError(
                 "Exact-per-selected-world requires every selected world to complete."
             )
-        if self.solution_claim == "depth_limited_per_selected_world" and (
-            consumed.completed_world_count != consumed.selected_world_count
-            or consumed.completed_world_count == 0
-        ):
-            raise ValueError(
-                "Depth-limited-per-selected-world requires every selected world."
-            )
+        if self.solution_claim == "depth_limited_per_selected_world":
+            if consumed.selected_world_count == 0:
+                raise ValueError(
+                    "Depth-limited-per-selected-world requires a selected world."
+                )
+            if consumed.completed_world_count not in {0, consumed.selected_world_count}:
+                raise ValueError(
+                    "Depth-limited-per-selected-world requires zero or every selected world."
+                )
         if self.solution_claim == "node_limited_partial" and self.status not in {
             "partial",
             "timeout",

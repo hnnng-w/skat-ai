@@ -35,7 +35,8 @@ Implemented:
 * Exact hidden-card constraints from local/public ownership, legitimately known skat, attributed public play, and confirmed legal failure to follow
 * Exact DP compatible-world counts and ownership marginals with deterministic uniform labeled-assignment sampling
 * Common compatible worlds for Immediate candidates, compatible Multi-Step roots, shared Policy Comparison models/roots, and later visible evidence progression
-* Version-1 bounded-search information, private immutable exact complete-world state, deterministic legal transitions, eligibility, structural budget, terminal utility, aggregate result, privacy, and strict standalone-schema contracts without general solver integration
+* Version-1 bounded-search information, private immutable exact complete-world state, deterministic legal transitions, eligibility, structural budget, terminal utility, aggregate result, privacy, and strict standalone-schema contracts
+* Executable `perfect_information_minimax_v1` for one exact Suit or Grand state with at most five remaining tricks, canonical full-window root values, deterministic below-root Alpha-Beta, invocation-local exact-only transposition reuse, and exact terminal settlement utility
 
 ### Game history and scoring
 
@@ -234,7 +235,8 @@ Implemented:
 
 ### Gameplay and rules
 
-* The engine is not a full perfect-information solver.
+* The engine has one bounded exact-state Suit/Grand perfect-information solver,
+  not a full or general hidden-information solver.
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
 * Full official settlement nuance coverage is not complete.
@@ -248,7 +250,10 @@ Implemented:
 * Historical corrected play, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * General live position inputs do not provide complete field-level provenance.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
-* Version-1 bounded-search contracts define safe inputs, a private exact complete-world state and legal transition kernel, budgets, statuses, exactness terminology, aggregate output, and privacy, but no general bounded solver, workflow integration, production budget profile, or latency promise exists.
+* Version-1 bounded-search contracts and a single-world exact Suit/Grand Minimax
+  implementation exist. Compatible-world search, hidden-information selection,
+  workflow or CLI integration, fallback behavior, default or production budget
+  profiles, and a latency promise do not.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -349,8 +354,9 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-Before `v1.0.0`, the project still requires a solver implementation on top of
-the version-1 bounded Search/Solver contracts, fuller Replay Coaching, remaining approved settlement nuance,
+Before `v1.0.0`, the project still requires compatible-world,
+hidden-information, and workflow integration around the bounded exact-state
+solver, fuller Replay Coaching, remaining approved settlement nuance,
 fixed-three-player 36-game list aggregation, remaining automatic dataset
 preparation, field-level live provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
@@ -370,7 +376,8 @@ exclusion.
 The active next milestone is `v0.10.0`. Version-1 bounded Search/Solver
 information, quality, determinism, budget, exactness, aggregate-result, privacy,
 exact complete-world state, and deterministic legal-transition contracts are
-implemented. A general bounded solver and workflow integration remain open, so
+implemented together with bounded `perfect_information_minimax_v1` for one exact
+Suit or Grand state. Compatible-world and workflow integration remain open, so
 the stronger-search completion gate is not closed.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.

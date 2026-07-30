@@ -47,6 +47,7 @@
         "node_budget_exhausted",
         "depth_budget_exhausted",
         "wall_clock_timeout",
+        "unsupported_game_type",
         "unsupported_turn_phase",
         "unsupported_perspective",
         "local_player_not_to_act",
@@ -167,6 +168,7 @@
         "properties": {
           "stop_reason": {
             "enum": [
+              "unsupported_game_type",
               "unsupported_turn_phase",
               "unsupported_perspective",
               "local_player_not_to_act",
@@ -294,7 +296,7 @@
       "then": {
         "properties": {
           "consumed_budget": {
-            "properties": {"completed_world_count": {"minimum": 1}}
+            "properties": {"selected_world_count": {"minimum": 1}}
           }
         }
       }

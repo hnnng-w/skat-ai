@@ -289,6 +289,41 @@ def test_partial_and_timeout_status_invariants_allow_common_prefix_recommendatio
     assert result.recommended_card == "CA"
 
 
+def test_depth_limited_result_accepts_zero_completed_selected_worlds() -> None:
+    result = _result(
+        status="partial",
+        stop_reason="depth_budget_exhausted",
+        solution_claim="depth_limited_per_selected_world",
+        consumed_budget=_consumed(completed_world_count=0),
+        candidate_results=_ranked_candidates(completed=0, recommend=False),
+        recommended_card=None,
+    )
+
+    assert result.consumed_budget.selected_world_count == 3
+    assert result.consumed_budget.completed_world_count == 0
+    assert all(
+        candidate.local_contract_success_rate is None
+        for candidate in result.candidate_results
+    )
+
+    with pytest.raises(ValueError, match="requires a selected world"):
+        _result(
+            status="partial",
+            stop_reason="depth_budget_exhausted",
+            solution_claim="depth_limited_per_selected_world",
+            world_coverage="none",
+            consumed_budget=_consumed(
+                selected_world_count=0,
+                completed_world_count=0,
+                sampled_world_count=0,
+                unique_sampled_world_count=0,
+            ),
+            compatible_world_count=None,
+            candidate_results=_ranked_candidates(completed=0, recommend=False),
+            recommended_card=None,
+        )
+
+
 def test_unavailable_status_has_no_worlds_candidates_or_recommendation() -> None:
     result = _result(
         status="unavailable",
