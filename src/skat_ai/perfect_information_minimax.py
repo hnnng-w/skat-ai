@@ -15,10 +15,10 @@ from skat_ai.exact_search_state import (
     apply_exact_search_card,
     get_exact_search_legal_cards,
 )
-from skat_ai.exact_terminal_utility import (
-    build_exact_suit_or_grand_terminal_utility,
-)
+from skat_ai.exact_terminal_utility import build_exact_terminal_utility
 from skat_ai.game_declaration import SUIT_GAME_TYPES
+from skat_ai.game_value import build_game_value_summary
+from skat_ai.overbid import build_overbid_summary
 from skat_ai.side_ownership import VALID_CONCRETE_PLAYERS, get_player_side
 from skat_ai.terminal_utility import (
     TERMINAL_UTILITY_VERSION,
@@ -86,7 +86,7 @@ def _search(
 
     context.begin_uncached_evaluation(depth)
     if state.is_terminal:
-        utility = build_exact_suit_or_grand_terminal_utility(
+        utility = build_exact_terminal_utility(
             state=state,
             local_side=context.local_side,
         )
@@ -229,13 +229,29 @@ def _incomplete_result(
     )
 
 
+def _has_supported_terminal_utility_inputs(state: ExactSearchState) -> bool:
+    declaration = state.declaration
+    if declaration.bid_value is None:
+        return False
+    if declaration.game_type != "null":
+        return declaration.matadors is not None
+
+    game_value = build_game_value_summary(declaration)
+    overbid = build_overbid_summary(
+        game_value_summary=game_value,
+        bid_value=declaration.bid_value,
+        game_end_reason="normal_completion",
+    )
+    return overbid["is_overbid"] is False
+
+
 def solve_perfect_information_minimax(
     *,
     state: ExactSearchState,
     perspective_player: str,
     requested_budget: RequestedSearchBudget,
 ) -> BoundedSearchResult:
-    """Solves one exact late Suit or Grand world with deterministic two-side Minimax."""
+    """Solves one exact late Suit, Grand, or Null world with deterministic Minimax."""
     if not isinstance(state, ExactSearchState):
         raise ValueError("state must be a valid ExactSearchState.")
     if not isinstance(requested_budget, RequestedSearchBudget):
@@ -244,7 +260,7 @@ def solve_perfect_information_minimax(
         raise ValueError("perspective_player must be a concrete player.")
 
     game_type = state.declaration.game_type
-    if game_type not in {*SUIT_GAME_TYPES, "grand"}:
+    if game_type not in {*SUIT_GAME_TYPES, "grand", "null"}:
         return _unavailable_result(
             state=state,
             requested_budget=requested_budget,
@@ -262,7 +278,7 @@ def solve_perfect_information_minimax(
             requested_budget=requested_budget,
             reason="local_player_not_to_act",
         )
-    if state.declaration.matadors is None or state.declaration.bid_value is None:
+    if not _has_supported_terminal_utility_inputs(state):
         return _unavailable_result(
             state=state,
             requested_budget=requested_budget,

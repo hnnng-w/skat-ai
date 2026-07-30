@@ -4,10 +4,27 @@ from skat_ai.exact_search_state import (
 )
 from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.game_declaration import SUIT_GAME_TYPES
-from skat_ai.game_result import build_game_result_summary_from_points
+from skat_ai.game_result import (
+    apply_completed_null_contract_result,
+    build_game_result_summary_from_points,
+)
 from skat_ai.game_value import build_game_value_summary
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.terminal_utility import TerminalUtility, build_terminal_utility
+
+
+def build_exact_terminal_utility(
+    *,
+    state: ExactSearchState,
+    local_side: str,
+) -> TerminalUtility:
+    """Builds exact normal-completion utility for a supported game type."""
+    if state.declaration.game_type == "null":
+        return build_exact_null_terminal_utility(state=state, local_side=local_side)
+    return build_exact_suit_or_grand_terminal_utility(
+        state=state,
+        local_side=local_side,
+    )
 
 
 def build_exact_suit_or_grand_terminal_utility(
@@ -22,6 +39,37 @@ def build_exact_suit_or_grand_terminal_utility(
     if state.declaration.matadors is None or state.declaration.bid_value is None:
         raise ValueError("Exact terminal utility requires matadors and a bid value.")
 
+    return _build_exact_terminal_utility(
+        state=state,
+        local_side=local_side,
+        apply_null_result=False,
+    )
+
+
+def build_exact_null_terminal_utility(
+    *,
+    state: ExactSearchState,
+    local_side: str,
+) -> TerminalUtility:
+    """Builds exact normal-completion Null utility through existing settlement logic."""
+    if state.declaration.game_type != "null":
+        raise ValueError("Exact Null terminal utility supports only Null games.")
+    if state.declaration.bid_value is None:
+        raise ValueError("Exact Null terminal utility requires a bid value.")
+
+    return _build_exact_terminal_utility(
+        state=state,
+        local_side=local_side,
+        apply_null_result=True,
+    )
+
+
+def _build_exact_terminal_utility(
+    *,
+    state: ExactSearchState,
+    local_side: str,
+    apply_null_result: bool,
+) -> TerminalUtility:
     facts = get_exact_search_terminal_facts(state)
     completed_tricks = [
         *({"winner_role": "declarer"} for _ in range(facts.declarer_trick_count)),
@@ -31,6 +79,11 @@ def build_exact_suit_or_grand_terminal_utility(
         declarer_points=facts.declarer_final_points,
         defender_points=facts.defender_final_points,
     )
+    if apply_null_result:
+        game_result = apply_completed_null_contract_result(
+            game_result,
+            completed_tricks,
+        )
     game_value = build_game_value_summary(state.declaration)
     overbid = build_overbid_summary(
         game_value_summary=game_value,
@@ -56,7 +109,7 @@ def build_exact_suit_or_grand_terminal_utility(
         raise ValueError("Exact terminal utility requires an integer settlement score.")
 
     return build_terminal_utility(
-        game_type=game_type,
+        game_type=state.declaration.game_type,
         local_side=local_side,
         winner="defenders" if is_loss else "declarer",
         declarer_settlement_score=settlement_score,

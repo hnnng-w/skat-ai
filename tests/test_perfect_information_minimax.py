@@ -7,6 +7,7 @@ from jsonschema import Draft202012Validator
 
 import skat_ai.perfect_information_minimax as minimax_module
 from skat_ai.bounded_search_result import (
+    BoundedSearchResult,
     RequestedSearchBudget,
     build_serializable_bounded_search_result,
 )
@@ -18,7 +19,7 @@ from skat_ai.exact_search_state import (
     get_exact_search_legal_cards,
 )
 from skat_ai.exact_terminal_utility import (
-    build_exact_suit_or_grand_terminal_utility,
+    build_exact_terminal_utility,
 )
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.perfect_information_minimax import solve_perfect_information_minimax
@@ -87,6 +88,22 @@ def _state(
     )
 
 
+def _curated_null_choice_state(
+    declaration: GameDeclaration | None = None,
+) -> ExactSearchState:
+    return _state(
+        hands={
+            "me": ["C7", "S7"],
+            "left": ["C8", "H7"],
+            "right": ["C9", "H8"],
+        },
+        next_player="me",
+        declaration=declaration or GameDeclaration("null", bid_value=23),
+        declarer_points=0,
+        declarer_tricks=0,
+    )
+
+
 def _oracle_value(
     state: ExactSearchState,
     local_side: str,
@@ -95,7 +112,7 @@ def _oracle_value(
     if evaluated_states is not None:
         evaluated_states.append(state)
     if state.is_terminal:
-        return build_exact_suit_or_grand_terminal_utility(
+        return build_exact_terminal_utility(
             state=state,
             local_side=local_side,
         )
@@ -131,7 +148,10 @@ def _oracle_root_values(
     }
 
 
-def _assert_oracle_agreement(state: ExactSearchState, perspective_player: str) -> None:
+def _assert_oracle_agreement(
+    state: ExactSearchState,
+    perspective_player: str,
+) -> BoundedSearchResult:
     expected = _oracle_root_values(state, perspective_player)
     expected_card = next(iter(expected))
     for card, utility in expected.items():
@@ -155,9 +175,12 @@ def _assert_oracle_agreement(state: ExactSearchState, perspective_player: str) -
         assert candidate.local_contract_success_count == int(utility.local_contract_success)
         assert candidate.local_contract_success_rate == float(utility.local_contract_success)
         assert candidate.mean_local_side_game_score == float(utility.local_side_game_score)
-        assert candidate.mean_local_side_card_point_margin == float(
-            utility.local_side_card_point_margin
+        assert candidate.mean_local_side_card_point_margin == (
+            float(utility.local_side_card_point_margin)
+            if utility.local_side_card_point_margin is not None
+            else None
         )
+    return result
 
 
 @pytest.mark.parametrize("game_type", ["clubs", "spades", "hearts", "diamonds", "grand"])
@@ -243,6 +266,167 @@ def test_minimax_matches_brute_force_oracle_for_curated_three_trick_world() -> N
     _assert_oracle_agreement(state, "me")
 
 
+@pytest.mark.parametrize(
+    ("declaration", "value"),
+    [
+        (GameDeclaration("null", bid_value=23), 23),
+        (GameDeclaration("null", hand_game=True, bid_value=35), 35),
+        (GameDeclaration("null", ouvert=True, bid_value=46), 46),
+        (GameDeclaration("null", hand_game=True, ouvert=True, bid_value=59), 59),
+    ],
+    ids=["null", "null-hand", "null-ouvert", "null-hand-ouvert"],
+)
+def test_null_minimax_matches_oracle_for_all_variants_and_settlements(
+    declaration: GameDeclaration,
+    value: int,
+) -> None:
+    result = _assert_oracle_agreement(
+        _curated_null_choice_state(declaration),
+        "me",
+    )
+    candidates = {candidate.card: candidate for candidate in result.candidate_results}
+
+    assert result.recommended_card == "C7"
+    assert candidates["C7"].local_contract_success_count == 1
+    assert candidates["C7"].mean_local_side_game_score == float(value)
+    assert candidates["S7"].local_contract_success_count == 0
+    assert candidates["S7"].mean_local_side_game_score == float(-2 * value)
+    assert all(
+        candidate.mean_local_side_card_point_margin is None
+        for candidate in result.candidate_results
+    )
+
+
+def test_null_minimax_supports_bid_below_fixed_value() -> None:
+    result = _assert_oracle_agreement(
+        _curated_null_choice_state(GameDeclaration("null", bid_value=18)),
+        "me",
+    )
+
+    assert result.status == "complete"
+    assert result.recommended_card == "C7"
+
+
+@pytest.mark.parametrize(
+    ("hands", "current_trick", "next_player"),
+    [
+        ({"me": ["C7"], "left": ["C8"], "right": ["C9"]}, (), "me"),
+        ({"me": [], "left": ["C8"], "right": ["C9"]}, (("me", "C7"),), "left"),
+        (
+            {"me": [], "left": [], "right": ["C9"]},
+            (("me", "C7"), ("left", "C8")),
+            "right",
+        ),
+    ],
+    ids=["lead", "second-seat", "third-seat"],
+)
+def test_null_minimax_matches_oracle_from_every_root_trick_seat(
+    hands: Mapping[str, Iterable[str]],
+    current_trick: tuple[tuple[str, str], ...],
+    next_player: str,
+) -> None:
+    state = _state(
+        hands=hands,
+        current_trick=current_trick,
+        next_player=next_player,
+        declaration=GameDeclaration("null", bid_value=23),
+        declarer_points=0,
+        declarer_tricks=0,
+    )
+
+    _assert_oracle_agreement(state, next_player)
+
+
+@pytest.mark.parametrize("perspective_player", ["me", "left", "right"])
+def test_null_minimax_orientation_and_cooperating_defenders_match_oracle(
+    perspective_player: str,
+) -> None:
+    state = _state(
+        hands={
+            "me": ["C7", "S7"],
+            "left": ["C8", "H7"],
+            "right": ["C9", "H8"],
+        },
+        next_player=perspective_player,
+        declaration=GameDeclaration("null", bid_value=23),
+        declarer_points=0,
+        declarer_tricks=0,
+    )
+
+    _assert_oracle_agreement(state, perspective_player)
+
+
+def test_null_alpha_beta_and_exact_transpositions_match_full_oracle_with_less_work() -> None:
+    state = _state(
+        hands={
+            "me": ["C7", "S7", "H7"],
+            "left": ["C8", "S8", "H8"],
+            "right": ["C9", "S9", "H9"],
+        },
+        next_player="me",
+        declaration=GameDeclaration("null", bid_value=23),
+        declarer_points=0,
+        declarer_tricks=0,
+    )
+    evaluated_states: list[ExactSearchState] = []
+    for card in get_exact_search_legal_cards(state):
+        _oracle_value(
+            apply_exact_search_card(state, card).next_state,
+            "declarer",
+            evaluated_states,
+        )
+
+    result = _assert_oracle_agreement(state, "me")
+
+    assert result.consumed_budget.nodes_expanded < 1 + len(evaluated_states)
+
+
+def test_null_transposition_table_caches_only_exact_non_aborted_values() -> None:
+    state = _curated_null_choice_state()
+    cutoff_context = minimax_module._SearchContext(
+        local_side="declarer",
+        requested_budget=_budget(),
+        started_at=minimax_module._monotonic(),
+        transposition_table={},
+    )
+    lower_beta = TerminalUtility(1, "null", False, -46, None)
+
+    minimax_module._search(
+        state,
+        depth=0,
+        alpha=None,
+        beta=lower_beta,
+        context=cutoff_context,
+    )
+
+    assert state not in cutoff_context.transposition_table
+    exact = minimax_module._search(
+        state,
+        depth=0,
+        alpha=None,
+        beta=None,
+        context=cutoff_context,
+    )
+    assert exact == _oracle_value(state, "declarer")
+    assert cutoff_context.transposition_table[state] == exact
+
+    aborted_context = minimax_module._SearchContext(
+        local_side="declarer",
+        requested_budget=_budget(max_nodes=2),
+        started_at=minimax_module._monotonic(),
+        transposition_table={},
+    )
+    with pytest.raises(minimax_module._SearchAborted):
+        minimax_module._search(
+            state,
+            depth=0,
+            alpha=None,
+            beta=None,
+            context=aborted_context,
+        )
+    assert state not in aborted_context.transposition_table
+
+
 def test_alpha_beta_and_exact_transpositions_reduce_full_oracle_work() -> None:
     state = _state(
         hands={
@@ -294,6 +478,29 @@ def test_minimax_uses_canonical_root_order_for_terminal_utility_ties() -> None:
     assert result.recommended_card == "C7"
 
 
+def test_null_minimax_uses_canonical_root_order_for_utility_ties() -> None:
+    state = _state(
+        hands={
+            "me": ["C7", "S7"],
+            "left": ["C8", "S8"],
+            "right": ["C9", "S9"],
+        },
+        next_player="me",
+        declaration=GameDeclaration("null", bid_value=23),
+        declarer_points=0,
+        declarer_tricks=0,
+    )
+
+    result = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(),
+    )
+
+    assert [candidate.card for candidate in result.candidate_results] == ["C7", "S7"]
+    assert result.recommended_card == "C7"
+
+
 def test_minimax_depth_boundary_is_exact_and_one_less_is_exhausted() -> None:
     state = _state(
         hands={
@@ -324,6 +531,76 @@ def test_minimax_depth_boundary_is_exact_and_one_less_is_exhausted() -> None:
     assert exhausted.solution_claim == "depth_limited_per_selected_world"
     assert exhausted.consumed_budget.depth_reached == 5
     assert exhausted.consumed_budget.completed_world_count == 0
+
+
+def test_null_minimax_preserves_depth_and_node_budget_boundaries() -> None:
+    state = _curated_null_choice_state()
+    baseline = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(),
+    )
+    exact_depth = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(max_depth_plies=6),
+    )
+    short_depth = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(max_depth_plies=5),
+    )
+    exact_nodes = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(max_nodes=baseline.consumed_budget.nodes_expanded),
+    )
+    short_nodes = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(max_nodes=baseline.consumed_budget.nodes_expanded - 1),
+    )
+
+    assert baseline.status == exact_depth.status == exact_nodes.status == "complete"
+    assert baseline.consumed_budget.depth_reached == 6
+    assert short_depth.stop_reason == "depth_budget_exhausted"
+    assert short_nodes.stop_reason == "node_budget_exhausted"
+    assert short_depth.consumed_budget.completed_world_count == 0
+    assert short_nodes.consumed_budget.completed_world_count == 0
+    assert short_depth.recommended_card is None
+    assert short_nodes.recommended_card is None
+    assert short_depth.fallback_used is False
+    assert short_nodes.fallback_used is False
+    assert all(
+        candidate.local_contract_success_rate is None
+        and candidate.mean_local_side_game_score is None
+        and candidate.mean_local_side_card_point_margin is None
+        for result in (short_depth, short_nodes)
+        for candidate in result.candidate_results
+    )
+
+
+def test_null_minimax_accepts_the_five_remaining_trick_maximum() -> None:
+    deck = get_full_deck()
+    state = _state(
+        hands={
+            "me": deck[:5],
+            "left": deck[5:10],
+            "right": deck[10:15],
+        },
+        next_player="me",
+        declaration=GameDeclaration("null", bid_value=23),
+    )
+
+    result = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(max_nodes=1),
+    )
+
+    assert state.remaining_tricks == 5
+    assert result.status == "partial"
+    assert result.stop_reason == "node_budget_exhausted"
 
 
 def test_minimax_root_partial_trick_cards_do_not_consume_future_depth() -> None:
@@ -450,6 +727,32 @@ def test_minimax_does_not_reuse_aborted_work_across_solver_calls() -> None:
     )
 
 
+def test_null_minimax_exact_cache_is_invocation_local_after_abort() -> None:
+    state = _curated_null_choice_state()
+    partial = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(max_nodes=2),
+    )
+    first_complete = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(),
+    )
+    second_complete = solve_perfect_information_minimax(
+        state=state,
+        perspective_player="me",
+        requested_budget=_budget(),
+    )
+
+    assert partial.stop_reason == "node_budget_exhausted"
+    assert first_complete.candidate_results == second_complete.candidate_results
+    assert (
+        first_complete.consumed_budget.nodes_expanded
+        == second_complete.consumed_budget.nodes_expanded
+    )
+
+
 def test_minimax_fake_clock_timeout_is_deterministic_and_has_fair_placeholders(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -486,25 +789,30 @@ def test_minimax_fake_clock_timeout_is_deterministic_and_has_fair_placeholders(
     )
 
 
-def test_minimax_null_is_explicitly_unavailable() -> None:
-    state = _state(
-        hands={"me": ["C7"], "left": ["S7"], "right": ["H7"]},
-        next_player="me",
-        declaration=GameDeclaration("null", bid_value=23),
-        declarer_points=55,
-        declarer_tricks=4,
-    )
+def test_null_minimax_fake_clock_timeout_has_null_placeholders(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    readings = iter((10.0, 10.011, 10.012))
+    monkeypatch.setattr(minimax_module, "_monotonic", lambda: next(readings))
 
     result = solve_perfect_information_minimax(
-        state=state,
+        state=_curated_null_choice_state(),
         perspective_player="me",
-        requested_budget=_budget(),
+        requested_budget=_budget(wall_clock_timeout_ms=10),
     )
 
-    assert result.status == "unavailable"
-    assert result.stop_reason == "unsupported_game_type"
-    assert result.world_coverage == "none"
-    assert result.candidate_results == ()
+    assert result.status == "timeout"
+    assert result.stop_reason == "wall_clock_timeout"
+    assert result.consumed_budget.selected_world_count == 1
+    assert result.consumed_budget.completed_world_count == 0
+    assert result.recommended_card is None
+    assert result.fallback_used is False
+    assert all(
+        candidate.local_contract_success_rate is None
+        and candidate.mean_local_side_game_score is None
+        and candidate.mean_local_side_card_point_margin is None
+        for candidate in result.candidate_results
+    )
 
 
 @pytest.mark.parametrize(
@@ -534,6 +842,30 @@ def test_minimax_null_is_explicitly_unavailable() -> None:
                 declaration=GameDeclaration("clubs", bid_value=18),
                 declarer_points=55,
                 declarer_tricks=4,
+            ),
+            "me",
+            _budget(),
+            "missing_terminal_utility_inputs",
+        ),
+        (
+            _state(
+                hands={"me": ["C7"], "left": ["C8"], "right": ["C9"]},
+                next_player="me",
+                declaration=GameDeclaration("null"),
+                declarer_points=0,
+                declarer_tricks=0,
+            ),
+            "me",
+            _budget(),
+            "missing_terminal_utility_inputs",
+        ),
+        (
+            _state(
+                hands={"me": ["C7"], "left": ["C8"], "right": ["C9"]},
+                next_player="me",
+                declaration=GameDeclaration("null", bid_value=24),
+                declarer_points=0,
+                declarer_tricks=0,
             ),
             "me",
             _budget(),
@@ -585,6 +917,48 @@ def test_minimax_returns_privacy_empty_unavailable_results(
     assert result.candidate_results == ()
     assert result.recommended_card is None
     assert result.fallback_used is False
+
+
+@pytest.mark.parametrize(
+    ("state", "perspective_player", "reason"),
+    [
+        (
+            _state(
+                hands={"me": [], "left": [], "right": []},
+                next_player="me",
+                declaration=GameDeclaration("null", bid_value=24),
+                declarer_points=0,
+                declarer_tricks=0,
+            ),
+            "me",
+            "game_already_complete",
+        ),
+        (
+            _state(
+                hands={"me": ["C7"], "left": ["C8"], "right": ["C9"]},
+                next_player="left",
+                declaration=GameDeclaration("null", bid_value=24),
+                declarer_points=0,
+                declarer_tricks=0,
+            ),
+            "me",
+            "local_player_not_to_act",
+        ),
+    ],
+)
+def test_overbid_null_preserves_availability_precedence(
+    state: ExactSearchState,
+    perspective_player: str,
+    reason: str,
+) -> None:
+    result = solve_perfect_information_minimax(
+        state=state,
+        perspective_player=perspective_player,
+        requested_budget=_budget(),
+    )
+
+    assert result.status == "unavailable"
+    assert result.stop_reason == reason
 
 
 def test_minimax_reports_no_legal_root_card_when_kernel_returns_none(
@@ -647,25 +1021,18 @@ def test_minimax_rejects_malformed_perspective() -> None:
 
 
 def test_minimax_serialization_is_aggregate_only_and_privacy_safe() -> None:
-    state = _state(
-        hands={
-            "me": ["CA", "H7"],
-            "left": ["C10", "S7"],
-            "right": ["C7", "SA"],
-        },
-        next_player="left",
-        declarer_points=50,
-        declarer_tricks=4,
-    )
+    state = _curated_null_choice_state()
     result = solve_perfect_information_minimax(
         state=state,
-        perspective_player="left",
+        perspective_player="me",
         requested_budget=_budget(),
     )
 
     serialized = build_serializable_bounded_search_result(result)
 
+    assert serialized == build_serializable_bounded_search_result(result)
     assert serialized["search_method"] == "perfect_information_minimax_v1"
+    assert serialized["game_type"] == "null"
     assert serialized["compatible_world_count"] == 1
     text = repr(serialized)
     for private_field in (
@@ -695,15 +1062,16 @@ def test_all_solver_result_statuses_validate_against_standalone_schema(
             "right": ["C9", "S9"],
         },
         next_player="me",
-        declarer_points=60,
-        declarer_tricks=4,
-    )
-    null_state = _state(
-        hands={"me": ["C7"], "left": ["S7"], "right": ["H7"]},
-        next_player="me",
         declaration=GameDeclaration("null", bid_value=23),
-        declarer_points=55,
-        declarer_tricks=4,
+        declarer_points=0,
+        declarer_tricks=0,
+    )
+    overbid_null = _state(
+        hands={"me": ["C7"], "left": ["C8"], "right": ["C9"]},
+        next_player="me",
+        declaration=GameDeclaration("null", bid_value=24),
+        declarer_points=0,
+        declarer_tricks=0,
     )
     results = [
         solve_perfect_information_minimax(
@@ -717,7 +1085,12 @@ def test_all_solver_result_statuses_validate_against_standalone_schema(
             requested_budget=_budget(max_depth_plies=5),
         ),
         solve_perfect_information_minimax(
-            state=null_state,
+            state=overbid_null,
+            perspective_player="me",
+            requested_budget=_budget(),
+        ),
+        solve_perfect_information_minimax(
+            state=_curated_null_choice_state(),
             perspective_player="me",
             requested_budget=_budget(),
         ),
@@ -731,7 +1104,6 @@ def test_all_solver_result_statuses_validate_against_standalone_schema(
             requested_budget=_budget(wall_clock_timeout_ms=10),
         )
     )
-
     assert {result.status for result in results} == {
         "complete",
         "partial",

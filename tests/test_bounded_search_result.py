@@ -430,6 +430,25 @@ def test_null_candidates_reject_card_point_margin() -> None:
         )
 
 
+def test_complete_null_result_serializes_deterministically_without_margin() -> None:
+    candidates = _ranked_candidates(game_type="null")
+    result = _result(
+        game_type="null",
+        candidate_results=candidates,
+        recommended_card=candidates[0].card,
+    )
+
+    first = build_serializable_bounded_search_result(result)
+    second = build_serializable_bounded_search_result(result)
+
+    assert first == second
+    assert first["game_type"] == "null"
+    assert all(
+        candidate["mean_local_side_card_point_margin"] is None
+        for candidate in first["candidate_results"]
+    )
+
+
 def test_serialization_is_deterministic_and_contains_no_private_world_data() -> None:
     result = _result()
 

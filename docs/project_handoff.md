@@ -163,14 +163,17 @@ Implemented on the active `v0.10.0` development branch:
 * one private immutable perspective-neutral exact complete-world state with
   strict construction, canonical legal-card generation, pure transitions,
   completed-trick accounting, and neutral normal-terminal facts
-* executable `perfect_information_minimax_v1` for one fully specified Suit or
-  Grand `ExactSearchState`, limited by the lower of five remaining tricks and
-  the requested budget
+* executable `perfect_information_minimax_v1` for one fully specified Suit,
+  Grand, or normal non-overbid Null `ExactSearchState`, limited by the lower of
+  five remaining tricks and the requested budget
 * canonical full-window root values, deterministic below-root Alpha-Beta,
   invocation-local exact-only transposition reuse, and declarer-versus-
   cooperating-defenders utility orientation
 * exact terminal composition through existing result, value, overbid, final
   settlement, and utility semantics
+* all four Null variants with exact zero-trick declarer wins, one-or-more-trick
+  defender wins, fixed-value settlement reuse, and no card-point secondary
+  objective; missing or over-value Null bids stop before search
 * shared legal transition reuse by the specialized five-trick defender-open-play proof
 
 The exact solver returns no partial recommendation or fallback after a node,
@@ -676,8 +679,9 @@ Completed implementation scope:
 * General live position input lacks complete field-level provenance.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
-  general stronger search remain incomplete. The bounded exact-state Suit/Grand
-  Minimax solver is not connected to compatible worlds or product workflows.
+  general stronger search remain incomplete. The bounded exact-state Suit,
+  Grand, and supported Null Minimax solver is not connected to compatible worlds
+  or product workflows; overbid Null replacement selection remains outside it.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -690,9 +694,12 @@ Completed implementation scope:
 `v0.9.0` is published. The active next development milestone is `v0.10.0`.
 Version-1 bounded Search/Solver information, quality, determinism, budget,
 result, exact complete-world state, and legal-transition contracts are now
-implemented together with one bounded exact-state Suit/Grand Minimax solver.
-Compatible-world, hidden-information, and workflow integration remain the next
-solver dependencies, so the overall stronger-search gate stays open. Remaining
+implemented together with one bounded exact-state Suit, Grand, and normal
+non-overbid Null Minimax solver. All four Null variants are covered while
+preserving its five-trick, budget, Alpha-Beta, transposition, determinism, and
+privacy contracts. Compatible-world, hidden-information, and workflow
+integration remain the next solver dependencies, so the overall stronger-search
+gate stays open. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

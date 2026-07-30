@@ -24,6 +24,10 @@ version `1`, and terminal-utility version `1`. These are internal contracts and
 do not add a stable package-root API, CLI branch, production budget profile, or
 latency promise.
 
+The exact solver supports Suit, Grand, and normal non-overbid Null, including
+Null, Null Hand, Null Ouvert, and Null Hand Ouvert. Null fixed values remain
+owned by the existing game-value helpers.
+
 ## Search information
 
 `SearchInformationView` is frozen and uses canonical immutable tuples. Its
@@ -139,11 +143,16 @@ Current assessment can return `unsupported_perspective`,
 result reasons for a future world-selection stage; this contract does not
 inspect compatible worlds.
 
-The exact solver additionally requires Suit or Grand, a non-terminal state, the
-concrete `perspective_player` to equal the state's current `next_player`, known
-matadors and bid value, at least one legal card, and no more remaining tricks
-than the lower of the implementation limit of five and the requested limit.
-Null returns `unavailable` with `unsupported_game_type`.
+The exact solver additionally requires Suit, Grand, or normal non-overbid Null,
+a non-terminal state, the concrete `perspective_player` to equal the state's
+current `next_player`, at least one legal card, and no more remaining tricks than
+the lower of the implementation limit of five and the requested limit. Suit and
+Grand require known matadors and bid value. Null requires a bid value at or
+below its fixed variant value; a missing bid or a bid above that value returns
+`missing_terminal_utility_inputs` before search. The boundary uses the existing
+game-value and overbid helpers and does not select or construct the Suit or Grand
+replacement required by impossible-Null settlement. `unsupported_game_type`
+remains a stable contract reason.
 
 ## Requested and consumed budgets
 
@@ -232,21 +241,28 @@ Null compares by:
 Null has no invented card-point secondary objective. Canonical root-card order
 is the final aggregate candidate tie-break and is not terminal game utility.
 
-Exact Suit/Grand leaves reuse `get_exact_search_terminal_facts()` and the
-existing game-result, game-value, overbid, and final-settlement builders before
-building terminal utility. Final settlement is authoritative for winner
-orientation: `settlement.is_loss = true` means a defender win, and `false`
-means a declarer win. Utility is then oriented to the acting player's declarer
-or defender side.
+Exact Suit, Grand, and Null leaves reuse `get_exact_search_terminal_facts()` and
+the existing game-result, game-value, overbid, and final-settlement builders
+before building terminal utility. Null first constructs ten role-only trick
+owners from exact terminal trick counts and applies the completed Null result:
+zero declarer tricks is a declarer win, while one or more is a defender win.
+Card points remain factual settlement input but never determine Null success or
+provide a Null secondary objective. The four fixed Null values therefore settle
+through existing helpers as `+23/-46`, `+35/-70`, `+46/-92`, and `+59/-118`.
+Final settlement is authoritative for winner orientation:
+`settlement.is_loss = true` means a defender win, and `false` means a declarer
+win. Utility is then oriented to the acting player's declarer or defender side.
 
 ## Perfect-information Minimax version 1
 
 `solve_perfect_information_minimax()` solves one fully specified
-`ExactSearchState` for Suit or Grand with at most five remaining tricks. The
-current concrete acting player supplies the perspective. Declarer actions
-optimize the declarer side, both defenders optimize one cooperating-defenders
-side, and the side containing the perspective maximizes its local terminal
-utility while the other side minimizes it.
+`ExactSearchState` for Suit, Grand, or supported Null with at most five remaining
+tricks. The current concrete acting player supplies the perspective. Declarer
+actions optimize the declarer side, both defenders optimize one cooperating-
+defenders side, and the side containing the perspective maximizes its local
+terminal utility while the other side minimizes it. Null play continues to
+normal card exhaustion even after the declarer has taken a contract-losing
+trick.
 
 Root legal cards use canonical order and are each searched with a fresh full
 Alpha-Beta window, so every completed root candidate has a canonical exact
@@ -300,10 +316,12 @@ version 1.
 
 ## Remaining work
 
-The executable solver is limited to one caller-supplied exact Suit or Grand
-world. It has no compatible-world counting, enumeration, sampling, or selection;
-no `SearchInformationView` adapter; and no recommendation workflow, review,
-CLI, default budget, production profile, or latency integration. Null, hidden-
-information search, Expectimax, and broader search remain unsupported. The
-stronger-search v1.0 completion gate therefore remains open because compatible-
-world, hidden-information, and product-workflow integration are absent.
+The executable solver is limited to one caller-supplied exact Suit, Grand, or
+supported normal Null world. Overbid Null remains unavailable because the solver
+does not select an impossible-Null replacement. It has no compatible-world
+counting, enumeration, sampling, or selection; no `SearchInformationView`
+adapter; and no recommendation workflow, review, CLI, default budget,
+production profile, or latency integration. Hidden-information search,
+Expectimax, and broader search remain unsupported. The stronger-search v1.0
+completion gate therefore remains open because compatible-world, hidden-
+information, and product-workflow integration are absent.

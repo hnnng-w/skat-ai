@@ -33,30 +33,44 @@ def _consumed(
     return ConsumedSearchBudget(6, 100, selected, completed, sampled, sampled, 12)
 
 
-def _candidates(completed: int = 3, recommend: bool = True):
+def _candidates(
+    completed: int = 3,
+    recommend: bool = True,
+    game_type: str = "grand",
+):
+    first_margin = None if game_type == "null" else 10.0 if completed else None
+    second_margin = None if game_type == "null" else 5.0 if completed else None
     rows = (
         AggregateSearchCandidateResult(
-            "CA", 1, False, completed, min(2, completed),
+            "CA",
+            1,
+            False,
+            completed,
+            min(2, completed),
             min(2, completed) / completed if completed else None,
             24.0 if completed else None,
-            10.0 if completed else None,
+            first_margin,
         ),
         AggregateSearchCandidateResult(
-            "D7", 1, False, completed, min(1, completed),
+            "D7",
+            1,
+            False,
+            completed,
+            min(1, completed),
             min(1, completed) / completed if completed else None,
             18.0 if completed else None,
-            5.0 if completed else None,
+            second_margin,
         ),
     )
-    return rank_search_candidate_results(rows, "grand", recommend=recommend)
+    return rank_search_candidate_results(rows, game_type, recommend=recommend)
 
 
-def _fixture(status: str) -> dict:
+def _fixture(status: str, game_type: str = "grand") -> dict:
     common = {
         "schema_version": 1,
         "analysis_method": "bounded_search",
         "search_method": "compatible_world_minimax_v1",
-        "game_type": "grand",
+        "game_type": game_type,
         "terminal_utility_version": 1,
         "requested_budget": _budget(),
         "fallback_used": False,
@@ -71,7 +85,7 @@ def _fixture(status: str) -> dict:
             solution_claim="exact_per_selected_world",
             consumed_budget=_consumed(),
             compatible_world_count=100,
-            candidate_results=_candidates(),
+            candidate_results=_candidates(game_type=game_type),
             recommended_card="CA",
         )
     elif status == "partial":
@@ -83,7 +97,7 @@ def _fixture(status: str) -> dict:
             solution_claim="node_limited_partial",
             consumed_budget=_consumed(completed=2),
             compatible_world_count=100,
-            candidate_results=_candidates(2),
+            candidate_results=_candidates(2, game_type=game_type),
             recommended_card="CA",
         )
     elif status == "timeout":
@@ -95,7 +109,7 @@ def _fixture(status: str) -> dict:
             solution_claim="node_limited_partial",
             consumed_budget=_consumed(completed=2),
             compatible_world_count=100,
-            candidate_results=_candidates(2),
+            candidate_results=_candidates(2, game_type=game_type),
             recommended_card="CA",
         )
     else:
@@ -114,8 +128,9 @@ def _fixture(status: str) -> dict:
 
 
 @pytest.mark.parametrize("status", ["complete", "partial", "timeout", "unavailable"])
-def test_standalone_schema_accepts_each_valid_status(status: str) -> None:
-    VALIDATOR.validate(_fixture(status))
+@pytest.mark.parametrize("game_type", ["grand", "null"])
+def test_standalone_schema_accepts_each_valid_status(status: str, game_type: str) -> None:
+    VALIDATOR.validate(_fixture(status, game_type))
 
 
 def test_standalone_schema_accepts_unsupported_game_type_unavailable_reason() -> None:
@@ -280,8 +295,9 @@ def test_schema_still_rejects_sampled_coverage_without_unique_sample() -> None:
         VALIDATOR.validate(no_unique_sample)
 
 
-def test_schema_accepts_privacy_safe_single_exact_world_result() -> None:
-    fixture = _fixture("complete")
+@pytest.mark.parametrize("game_type", ["grand", "null"])
+def test_schema_accepts_privacy_safe_single_exact_world_result(game_type: str) -> None:
+    fixture = _fixture("complete", game_type)
     fixture["search_method"] = "perfect_information_minimax_v1"
     fixture["world_coverage"] = "single_exact_world"
     fixture["compatible_world_count"] = 1
