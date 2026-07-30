@@ -1,7 +1,14 @@
 from dataclasses import dataclass
 
 from skat_ai.deck import get_full_deck
-from skat_ai.rules import get_legal_cards, get_trick_winner
+from skat_ai.exact_search_state import (
+    ExactSearchState,
+    apply_exact_search_card,
+    build_exact_search_state,
+    get_exact_search_legal_cards,
+)
+from skat_ai.game_declaration import GameDeclaration
+from skat_ai.rules import get_trick_points
 from skat_ai.turn_phase import CONCRETE_PLAYERS, derive_next_player
 
 
@@ -57,7 +64,7 @@ def build_exact_remaining_play_state(
 
 
 def prove_defender_rest_tricks(
-    state: ExactRemainingPlayState,
+    state: ExactRemainingPlayState | ExactSearchState,
     exposing_defender: str,
     declarer_player: str,
 ) -> DefenderRestTrickProof:
@@ -74,11 +81,38 @@ def prove_defender_rest_tricks(
     if remaining_trick_count > 5:
         raise ValueError("Exact rest-trick proof supports at most five remaining tricks.")
 
-    cache: dict[ExactRemainingPlayState, tuple[bool, tuple[ExactPlayMove, ...]]] = {}
+    if isinstance(state, ExactSearchState):
+        if state.declarer_player != declarer_player:
+            raise ValueError("Exact proof declarer_player contradicts the exact search state.")
+        search_root = state
+    else:
+        explicit_cards = {
+            *(card for hand in state.hands for card in hand),
+            *(card for _, card in state.current_trick),
+        }
+        completed_or_out_of_play = [
+            card for card in get_full_deck() if card not in explicit_cards
+        ]
+        out_of_play_cards = completed_or_out_of_play[:2]
+        completed_cards = completed_or_out_of_play[2:]
+        search_root = build_exact_search_state(
+            declaration=GameDeclaration(state.game_type),
+            declarer_player=declarer_player,
+            remaining_hands=zip(CONCRETE_PLAYERS, state.hands, strict=True),
+            current_trick=state.current_trick,
+            next_player=state.next_player,
+            declarer_trick_points=0,
+            defender_trick_points=get_trick_points(completed_cards),
+            declarer_completed_tricks=0,
+            defender_completed_tricks=len(completed_cards) // 3,
+            out_of_play_cards=out_of_play_cards,
+        )
+
+    cache: dict[ExactSearchState, tuple[bool, tuple[ExactPlayMove, ...]]] = {}
     evaluated_state_count = 0
 
     def search(
-        current_state: ExactRemainingPlayState,
+        current_state: ExactSearchState,
     ) -> tuple[bool, tuple[ExactPlayMove, ...]]:
         nonlocal evaluated_state_count
         cached = cache.get(current_state)
@@ -86,33 +120,21 @@ def prove_defender_rest_tricks(
             return cached
         evaluated_state_count += 1
 
-        if not any(current_state.hands):
+        if current_state.is_terminal:
             result = (True, ())
             cache[current_state] = result
             return result
 
         player = current_state.next_player
-        player_index = CONCRETE_PLAYERS.index(player)
-        hand = current_state.hands[player_index]
-        trick_cards = [card for _, card in current_state.current_trick]
-        legal_cards = _canonical_cards(
-            get_legal_cards(list(hand), trick_cards, current_state.game_type)
-        )
+        legal_cards = get_exact_search_legal_cards(current_state)
         child_results: list[tuple[bool, tuple[ExactPlayMove, ...]]] = []
 
         for card in legal_cards:
-            next_hand = tuple(held_card for held_card in hand if held_card != card)
-            next_hands = list(current_state.hands)
-            next_hands[player_index] = next_hand
-            next_trick = (*current_state.current_trick, (player, card))
-            trick_winner = None
+            transition = apply_exact_search_card(current_state, card)
+            resolution = transition.completed_trick
+            trick_winner = resolution.winner_player if resolution is not None else None
 
-            if len(next_trick) == 3:
-                winner_index = get_trick_winner(
-                    [played_card for _, played_card in next_trick],
-                    current_state.game_type,
-                )
-                trick_winner = next_trick[winner_index][0]
+            if resolution is not None:
                 if trick_winner == declarer_player:
                     child_result = (
                         False,
@@ -120,21 +142,8 @@ def prove_defender_rest_tricks(
                     )
                     child_results.append(child_result)
                     continue
-                child_state = ExactRemainingPlayState(
-                    game_type=current_state.game_type,
-                    hands=tuple(next_hands),
-                    current_trick=(),
-                    next_player=trick_winner,
-                )
-            else:
-                child_state = ExactRemainingPlayState(
-                    game_type=current_state.game_type,
-                    hands=tuple(next_hands),
-                    current_trick=next_trick,
-                    next_player=derive_next_player(player, 1),
-                )
 
-            child_valid, child_line = search(child_state)
+            child_valid, child_line = search(transition.next_state)
             child_results.append(
                 (
                     child_valid,
@@ -156,7 +165,7 @@ def prove_defender_rest_tricks(
         cache[current_state] = selected
         return selected
 
-    valid, line = search(state)
+    valid, line = search(search_root)
     return DefenderRestTrickProof(
         status="valid" if valid else "invalid",
         proof_complete=True,

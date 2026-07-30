@@ -11,9 +11,9 @@ from skat_ai.declarer_concession import (
 from skat_ai.exact_rest_trick_proof import (
     DefenderRestTrickProof,
     ExactRemainingPlayState,
-    build_exact_remaining_play_state,
     prove_defender_rest_tricks,
 )
+from skat_ai.exact_search_state import ExactSearchState, build_exact_search_state
 from skat_ai.final_settlement import is_schneider_announced
 from skat_ai.game_decision import (
     determine_decision_state_before_game_end,
@@ -29,7 +29,7 @@ from skat_ai.game_result import (
 )
 from skat_ai.game_value import build_game_value_summary
 from skat_ai.overbid import build_overbid_summary, get_overbid_required_level
-from skat_ai.rules import get_legal_cards
+from skat_ai.rules import get_trick_points
 from skat_ai.turn_phase import (
     CONCRETE_PLAYERS,
     derive_next_player,
@@ -64,7 +64,7 @@ class DefenderOpenPlayContext:
     declarer_player: str
     exposing_defender: str
     non_exposing_defender: str
-    exact_state: ExactRemainingPlayState
+    exact_state: ExactRemainingPlayState | ExactSearchState
     remaining_trick_count: int
     assigned_card_count: int
     inferred_out_of_play_cards: tuple[str, ...]
@@ -141,23 +141,6 @@ def build_defender_open_play(value: Any) -> DefenderOpenPlay:
 
 def _completed_cards(data: dict[str, Any]) -> list[str]:
     return [card for trick in data.get("completed_tricks", []) for card in trick.get("cards", [])]
-
-
-def _validate_current_trick_legal_play(
-    hands: dict[str, tuple[str, ...]],
-    current_trick: list[str],
-    trick_leader: str,
-    game_type: str,
-) -> None:
-    prior_cards: list[str] = []
-    for index, card in enumerate(current_trick):
-        player = derive_next_player(trick_leader, index)
-        hand_before_play = [*hands[player], card]
-        if card not in get_legal_cards(hand_before_play, prior_cards, game_type):
-            raise ValueError(
-                f"current_trick card {card} was not a legal follow-suit play for {player}."
-            )
-        prior_cards.append(card)
 
 
 def validate_exact_remaining_play_state(
@@ -246,18 +229,34 @@ def validate_exact_remaining_play_state(
             "use completed_tricks for played-card evidence."
         )
 
-    _validate_current_trick_legal_play(
-        hands,
-        current_trick,
-        phase.trick_leader,
-        data["game_type"],
+    declarer_completed_tricks = sum(
+        trick.get("winner_role") == "declarer" for trick in completed_tricks
     )
-    exact_state = build_exact_remaining_play_state(
-        game_type=data["game_type"],
+    defender_completed_tricks = completed_count - declarer_completed_tricks
+    declarer_trick_points = sum(
+        get_trick_points(trick["cards"])
+        for trick in completed_tricks
+        if trick.get("winner_role") == "declarer"
+    )
+    defender_trick_points = sum(
+        get_trick_points(trick["cards"])
+        for trick in completed_tricks
+        if trick.get("winner_role") == "defenders"
+    )
+    exact_state = build_exact_search_state(
+        declaration=build_game_declaration_from_input(data),
+        declarer_player=declarer_player,
         remaining_hands=hands,
-        current_trick_cards=current_trick,
-        trick_leader=phase.trick_leader,
+        current_trick=tuple(
+            (derive_next_player(phase.trick_leader, index), card)
+            for index, card in enumerate(current_trick)
+        ),
         next_player=phase.next_player,
+        declarer_trick_points=declarer_trick_points,
+        defender_trick_points=defender_trick_points,
+        declarer_completed_tricks=declarer_completed_tricks,
+        defender_completed_tricks=defender_completed_tricks,
+        out_of_play_cards=inferred_out_of_play,
     )
     return DefenderOpenPlayContext(
         declarer_player=declarer_player,

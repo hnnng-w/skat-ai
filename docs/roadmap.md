@@ -35,7 +35,7 @@ Implemented:
 * Exact hidden-card constraints from local/public ownership, legitimately known skat, attributed public play, and confirmed legal failure to follow
 * Exact DP compatible-world counts and ownership marginals with deterministic uniform labeled-assignment sampling
 * Common compatible worlds for Immediate candidates, compatible Multi-Step roots, shared Policy Comparison models/roots, and later visible evidence progression
-* Version-1 bounded-search information, eligibility, structural budget, terminal utility, aggregate result, privacy, and strict standalone-schema contracts without solver integration
+* Version-1 bounded-search information, private immutable exact complete-world state, deterministic legal transitions, eligibility, structural budget, terminal utility, aggregate result, privacy, and strict standalone-schema contracts without general solver integration
 
 ### Game history and scoring
 
@@ -248,7 +248,7 @@ Implemented:
 * Historical corrected play, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * General live position inputs do not provide complete field-level provenance.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
-* Version-1 bounded-search contracts define safe inputs, budgets, statuses, exactness terminology, aggregate output, and privacy, but no general bounded solver, workflow integration, production budget profile, or latency promise exists.
+* Version-1 bounded-search contracts define safe inputs, a private exact complete-world state and legal transition kernel, budgets, statuses, exactness terminology, aggregate output, and privacy, but no general bounded solver, workflow integration, production budget profile, or latency promise exists.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -368,9 +368,10 @@ formats are not required. Four-player tables are the only unconditional
 exclusion.
 
 The active next milestone is `v0.10.0`. Version-1 bounded Search/Solver
-information, quality, determinism, budget, exactness, aggregate-result, and
-privacy contracts are implemented. A general bounded solver and workflow
-integration remain open, so the stronger-search completion gate is not closed.
+information, quality, determinism, budget, exactness, aggregate-result, privacy,
+exact complete-world state, and deterministic legal-transition contracts are
+implemented. A general bounded solver and workflow integration remain open, so
+the stronger-search completion gate is not closed.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

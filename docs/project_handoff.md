@@ -158,10 +158,14 @@ Implemented on the active `v0.10.0` development branch:
 * local-side terminal utility version 1 for Suit, Grand, and Null
 * privacy-safe aggregate candidate and overall result contracts
 * deterministic serialization and a strict standalone Draft 2020-12 schema
+* one private immutable perspective-neutral exact complete-world state with
+  strict construction, canonical legal-card generation, pure transitions,
+  completed-trick accounting, and neutral normal-terminal facts
+* shared legal transition reuse by the specialized five-trick defender-open-play proof
 
-No bounded solver, world-search implementation, recommendation integration,
-fallback execution, CLI output, or production budget profile exists yet. See
-[Bounded search contracts](bounded_search_contracts.md).
+No general Minimax solver, world-search implementation, recommendation
+integration, fallback execution, CLI output, or production budget profile
+exists yet. See [Bounded search contracts](bounded_search_contracts.md).
 
 ### Game history and scoring
 
@@ -656,7 +660,7 @@ Completed implementation scope:
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
 * General live position input lacks complete field-level provenance.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
-* Hidden-card inference beyond confirmed structural decision-time evidence and stronger search or solver functionality are not implemented; version-1 bounded-search contracts exist, but no general solver consumes them.
+* Hidden-card inference beyond confirmed structural decision-time evidence and stronger search or solver functionality are not implemented; version-1 bounded-search contracts and the private exact legal-transition kernel exist, but no general solver consumes them.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -667,9 +671,10 @@ Completed implementation scope:
 ## Next recommended action
 
 `v0.9.0` is published. The active next development milestone is `v0.10.0`.
-Version-1 bounded Search/Solver information, quality, determinism, budget, and
-result contracts are now implemented; an actual bounded solver remains the next
-dependency and the overall stronger-search gate stays open. Remaining
+Version-1 bounded Search/Solver information, quality, determinism, budget,
+result, exact complete-world state, and legal-transition contracts are now
+implemented; an actual bounded solver remains the next dependency and the
+overall stronger-search gate stays open. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

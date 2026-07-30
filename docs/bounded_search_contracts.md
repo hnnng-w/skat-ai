@@ -1,10 +1,11 @@
 # Bounded search contracts
 
 This document defines version 1 of the shared bounded-search contracts. The
-contracts provide an information boundary, eligibility semantics, budgets,
-terminal utility, aggregate results, deterministic serialization, and a strict
-standalone schema. They do not implement Minimax or another general bounded
-solver, and no existing recommendation workflow emits a bounded-search result.
+contracts provide an information boundary, an internal exact complete-world
+state and legal transition kernel, eligibility semantics, budgets, terminal
+utility, aggregate results, deterministic serialization, and a strict standalone
+schema. They do not implement Minimax or another general bounded solver, and no
+existing recommendation workflow emits a bounded-search result.
 
 ## Current scope
 
@@ -57,6 +58,53 @@ labels. Invalid or contradictory public facts are validation errors rather than
 
 The complete information view is internal and is never serialized in the public
 bounded-search result.
+
+## Exact complete-world state
+
+`ExactSearchState` is the private, perspective-neutral representation of one
+fully specified three-player world. It is not a local recommendation view and
+does not contain utility orientation, rankings, random state, budgets, timing,
+or result diagnostics. It stores the normalized declaration, concrete
+declarer, all three exact remaining hands in fixed concrete-player order, an
+ordered attributed partial trick, the concrete next player, completed-trick
+points and trick counts for both sides, and the exact two final out-of-play Skat
+or discard cards.
+
+The strict builder defensively copies input, canonicalizes each hand and the two
+out-of-play cards in full-deck order, preserves current-trick play order, and
+validates the normal 32-card structure. Cards outside the remaining hands,
+partial trick, and out-of-play pair are the completed-play cards. Their count
+must equal three times the supplied completed-trick count, and their points must
+equal the supplied declarer and defender awarded trick points. Partial-trick
+points and out-of-play points have not yet been awarded to those fields.
+
+The state supports zero through ten remaining tricks. `remaining_plies` counts
+only cards still held, while `remaining_tricks` also includes cards already in
+the partial trick. Late-game limits remain a search-budget concern rather than a
+state restriction. A normal terminal state has empty hands, an empty current
+trick, and ten completed tricks.
+
+Legal-card generation calls the canonical `get_legal_cards()` rules and returns
+an immutable canonical tuple. A pure single-card transition removes one owned
+legal card, advances the fixed seat order, or resolves the third card with the
+canonical trick-winner and trick-point rules. Completed resolution records the
+ordered attributed plays, concrete winner, declarer or defender side, and trick
+points; only that side's awarded points and trick count advance, and the winner
+leads next. Parent states remain unchanged, and equal state-plus-move inputs
+produce equal transitions.
+
+Normal terminal facts remain neutral. They add the two out-of-play card points
+to the declarer's awarded trick points, leave defender points unchanged, and
+require 120 final card points and ten completed tricks. They do not determine
+contract success, Schneider, Schwarz, overbid, game value, settlement,
+`TerminalUtility`, or card ranking.
+
+No adapter from `SearchInformationView`, hidden execution worlds, or analysis
+and review workflows exists yet. Exact hands and out-of-play cards remain
+private and are never serialized in a bounded-search result. The specialized
+five-trick defender-open-play proof reuses this legal transition kernel while
+retaining its event-specific quantifiers, memoization, proof line, and
+privacy-safe output.
 
 ## Eligibility
 
@@ -198,7 +246,8 @@ version 1.
 
 ## Remaining work
 
-No general bounded solver exists yet. This contract does not implement Minimax,
-Alpha-Beta pruning, transposition tables, hidden-world search, Expectimax,
-world enumeration or sampling, production budgets, or CLI/workflow integration.
-The stronger-search v1.0 completion gate therefore remains open.
+No general bounded solver exists yet. The exact state and transition kernel do
+not implement Minimax, Alpha-Beta pruning, transposition tables, hidden-world
+search, Expectimax, world enumeration or sampling, production budgets, or
+CLI/workflow integration. The stronger-search v1.0 completion gate therefore
+remains open.

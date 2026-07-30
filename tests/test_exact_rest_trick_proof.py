@@ -1,3 +1,5 @@
+import pytest
+
 from skat_ai.exact_rest_trick_proof import (
     ExactRemainingPlayState,
     build_exact_remaining_play_state,
@@ -114,3 +116,40 @@ def test_non_exposing_defender_uses_universal_legal_choice() -> None:
     assert proof.status == "invalid"
     assert proof.line[0].player == "right"
     assert proof.line[0].card == "S7"
+
+
+def test_exact_proof_retains_five_remaining_trick_bound() -> None:
+    cards = (
+        "CA",
+        "C10",
+        "CK",
+        "CQ",
+        "CJ",
+        "C9",
+        "C8",
+        "C7",
+        "SA",
+        "S10",
+        "SK",
+        "SQ",
+        "SJ",
+        "S9",
+        "S8",
+        "S7",
+        "HA",
+        "H10",
+    )
+    state = build_exact_remaining_play_state(
+        game_type="grand",
+        remaining_hands={
+            "me": cards[:6],
+            "left": cards[6:12],
+            "right": cards[12:],
+        },
+        current_trick_cards=[],
+        trick_leader="left",
+        next_player="left",
+    )
+
+    with pytest.raises(ValueError, match="at most five"):
+        prove_defender_rest_tricks(state, "left", "me")

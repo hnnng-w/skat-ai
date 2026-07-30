@@ -11,6 +11,7 @@ from skat_ai.defender_open_play import (
     validate_defender_open_play_context,
 )
 from skat_ai.exact_rest_trick_proof import build_exact_remaining_play_state
+from skat_ai.exact_search_state import ExactSearchState
 from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_result import build_game_result_summary_from_points
@@ -39,6 +40,7 @@ def test_example_has_complete_bounded_exact_state() -> None:
     assert context.assigned_card_count == 6
     assert set(context.inferred_out_of_play_cards) == {"HK", "DK"}
     assert context.non_exposing_defender == "right"
+    assert isinstance(context.exact_state, ExactSearchState)
 
 
 @pytest.mark.parametrize("exposing_defender", ["me", "left", "right"])
