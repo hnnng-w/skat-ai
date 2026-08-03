@@ -37,7 +37,8 @@ Implemented:
 * Common compatible worlds for Immediate candidates, compatible Multi-Step roots, shared Policy Comparison models/roots, and later visible evidence progression
 * Version-1 bounded-search information, private immutable exact complete-world state, deterministic legal transitions, eligibility, structural budget, terminal utility, aggregate result, privacy, and strict standalone-schema contracts
 * Executable `perfect_information_minimax_v1` for one exact Suit, Grand, or normal non-overbid Null state with at most five remaining tricks, canonical full-window root values, deterministic below-root Alpha-Beta, invocation-local exact-only transposition reuse, and exact terminal settlement utility; all four Null variants use trick ownership, fixed-value settlement, and no card-point secondary objective
-* Private compatible Search-world construction from `SearchInformationView`, exact counting with or without void evidence, canonical bounded enumeration, deterministic uniform IID sampling with replacement, retained duplicate accounting, strict exact-state materialization, and one frozen common legal-root world order without Minimax execution
+* Private compatible Search-world construction from `SearchInformationView`, exact counting with or without void evidence, canonical bounded enumeration, deterministic uniform IID sampling with replacement, retained duplicate accounting, strict exact-state materialization, and one frozen common legal-root world order
+* Executable `compatible_world_minimax_v1` with shared exact-world recursion, frozen-order common-prefix scheduling, global nodes, per-world depth and exact-only cache, one post-selection timeout window, equal duplicate-sample weighting, aggregate ranking, and threshold-gated partial or timeout recommendations
 
 ### Game history and scoring
 
@@ -251,13 +252,14 @@ Implemented:
 * Historical corrected play, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
 * General live position inputs do not provide complete field-level provenance.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
-* Version-1 bounded-search contracts, a single-world exact Suit/Grand/Null
-  Minimax implementation, and private deterministic compatible-world selection
-  with strict exact-state materialization exist. Null requires a bid no greater
-  than its fixed value; overbid Null replacement selection remains unsupported.
-  Multi-world Minimax execution, candidate aggregation, workflow or CLI
-  integration, fallback behavior, default or production budget profiles, and a
-  latency promise do not.
+* Version-1 bounded-search contracts, direct exact-world and compatible-world
+  Suit/Grand/Null Minimax, and private deterministic compatible-world selection
+  with strict exact-state materialization exist. Compatible execution retains
+  only one exact common completed prefix and remains determinization-based and
+  subject to strategy fusion. Null requires a bid no greater than its fixed
+  value; overbid Null replacement selection remains unsupported. Workflow or CLI
+  integration, fallback behavior, Search-versus-Heuristic evaluation, default or
+  production budget profiles, and a latency promise do not exist.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -358,9 +360,9 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-Before `v1.0.0`, the project still requires multi-world hidden-information
-Minimax, candidate aggregation, and workflow integration around the bounded
-exact-state solver, fuller Replay Coaching, remaining approved settlement nuance,
+Before `v1.0.0`, the project still requires workflow integration and evaluation
+around the bounded compatible-world solver, fuller Replay Coaching, remaining
+approved settlement nuance,
 fixed-three-player 36-game list aggregation, remaining automatic dataset
 preparation, field-level live provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
@@ -380,15 +382,15 @@ exclusion.
 The active next milestone is `v0.10.0`. Version-1 bounded Search/Solver
 information, quality, determinism, budget, exactness, aggregate-result, privacy,
 exact complete-world state, and deterministic legal-transition contracts are
-implemented together with bounded `perfect_information_minimax_v1` for one exact
-Suit, Grand, or normal non-overbid Null state. Null uses exact completed-trick
-ownership, fixed-value settlement, and no card-point secondary objective. The
-five-trick, budget, Alpha-Beta, exact-only transposition, determinism, and privacy
-contracts are unchanged. Canonical compatible-world spaces, exact counting,
-bounded enumeration, deterministic IID selection, duplicate accounting, strict
-exact-state materialization, and common root-card verification are implemented,
-but no multi-world Minimax or aggregation runs and workflow integration remains
-open, so the stronger-search completion gate is not closed.
+implemented together with bounded direct and compatible-world Minimax for late
+Suit, Grand, and normal non-overbid Null states. Compatible execution uses the
+same exact evaluator in frozen selected order, retains only complete common-
+prefix aggregates, and preserves equal duplicate-draw weight. Exhaustive
+coverage is exact across compatible worlds, while sampled and partial claims are
+narrower; determinization and strategy fusion prevent an optimal imperfect-
+information policy claim. Workflow, fallback, evaluation, production budget,
+and latency integration remain open, so the stronger-search completion gate is
+not closed.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

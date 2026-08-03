@@ -106,7 +106,7 @@ def _fixture(status: str, game_type: str = "grand") -> dict:
             status="timeout",
             stop_reason="wall_clock_timeout",
             world_coverage="sampled_compatible_worlds",
-            solution_claim="node_limited_partial",
+            solution_claim="none",
             consumed_budget=_consumed(completed=2),
             compatible_world_count=100,
             candidate_results=_candidates(2, game_type=game_type),
@@ -195,6 +195,34 @@ def test_schema_rejects_partial_stop_and_claim_mismatch(
     fixture = _fixture("partial")
     fixture["stop_reason"] = stop_reason
     fixture["solution_claim"] = solution_claim
+
+    with pytest.raises(ValidationError):
+        VALIDATOR.validate(fixture)
+
+
+def test_schema_requires_timeout_none_claim_with_a_completed_prefix() -> None:
+    timeout = _fixture("timeout")
+
+    VALIDATOR.validate(timeout)
+    timeout["solution_claim"] = "node_limited_partial"
+    with pytest.raises(ValidationError):
+        VALIDATOR.validate(timeout)
+
+
+@pytest.mark.parametrize(
+    ("search_method", "world_coverage"),
+    [
+        ("perfect_information_minimax_v1", "sampled_compatible_worlds"),
+        ("compatible_world_minimax_v1", "single_exact_world"),
+    ],
+)
+def test_schema_rejects_method_coverage_mismatches(
+    search_method: str,
+    world_coverage: str,
+) -> None:
+    fixture = _fixture("complete")
+    fixture["search_method"] = search_method
+    fixture["world_coverage"] = world_coverage
 
     with pytest.raises(ValidationError):
         VALIDATOR.validate(fixture)

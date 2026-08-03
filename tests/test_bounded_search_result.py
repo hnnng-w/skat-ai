@@ -190,6 +190,21 @@ def test_complete_sampled_exact_selected_worlds_do_not_claim_all_world_exactness
     assert result.world_coverage != "all_compatible_worlds"
 
 
+def test_sampled_coverage_reconciles_draw_and_unique_counts() -> None:
+    with pytest.raises(ValueError, match="one sampled draw"):
+        _result(
+            consumed_budget=_consumed(
+                sampled_world_count=2,
+                unique_sampled_world_count=2,
+            )
+        )
+    with pytest.raises(ValueError, match="cannot exceed compatible worlds"):
+        _result(
+            compatible_world_count=2,
+            consumed_budget=_consumed(),
+        )
+
+
 @pytest.mark.parametrize(
     ("search_method", "coverage", "compatible_count", "consumed"),
     [
@@ -230,11 +245,30 @@ def test_complete_exact_coverage_modes_are_distinct(
     assert result.world_coverage == coverage
 
 
+def test_available_search_methods_require_their_own_coverage_modes() -> None:
+    with pytest.raises(ValueError, match="Perfect-information search"):
+        _result(search_method="perfect_information_minimax_v1")
+
+    exact_consumed = _consumed(
+        selected_world_count=1,
+        completed_world_count=1,
+        sampled_world_count=0,
+        unique_sampled_world_count=0,
+    )
+    with pytest.raises(ValueError, match="Compatible-world search"):
+        _result(
+            world_coverage="single_exact_world",
+            compatible_world_count=1,
+            consumed_budget=exact_consumed,
+            candidate_results=_ranked_candidates(completed=1),
+        )
+
+
 def test_timeout_below_common_prefix_has_no_search_recommendation() -> None:
     result = _result(
         status="timeout",
         stop_reason="wall_clock_timeout",
-        solution_claim="node_limited_partial",
+        solution_claim="none",
         consumed_budget=_consumed(completed_world_count=1),
         candidate_results=_ranked_candidates(completed=1, recommend=False),
         recommended_card=None,
@@ -242,6 +276,20 @@ def test_timeout_below_common_prefix_has_no_search_recommendation() -> None:
 
     assert result.recommended_card is None
     assert not any(candidate.is_recommended for candidate in result.candidate_results)
+
+
+def test_timeout_requires_none_claim_but_allows_an_exact_completed_prefix() -> None:
+    result = _result(
+        status="timeout",
+        stop_reason="wall_clock_timeout",
+        solution_claim="none",
+        consumed_budget=_consumed(completed_world_count=2),
+        candidate_results=_ranked_candidates(completed=2),
+    )
+
+    assert result.consumed_budget.completed_world_count == 2
+    with pytest.raises(ValueError, match="no reproducible solution claim"):
+        replace(result, solution_claim="node_limited_partial")
 
 
 @pytest.mark.parametrize(
@@ -258,14 +306,13 @@ def test_timeout_below_common_prefix_has_no_search_recommendation() -> None:
             "partial",
             "depth_budget_exhausted",
             "depth_limited_per_selected_world",
-            _consumed(selected_world_count=2, completed_world_count=2, sampled_world_count=2,
-                      unique_sampled_world_count=2),
+            _consumed(completed_world_count=2),
             2,
         ),
         (
             "timeout",
             "wall_clock_timeout",
-            "node_limited_partial",
+            "none",
             _consumed(completed_world_count=2),
             2,
         ),
@@ -306,7 +353,7 @@ def test_depth_limited_result_accepts_zero_completed_selected_worlds() -> None:
         for candidate in result.candidate_results
     )
 
-    with pytest.raises(ValueError, match="requires a selected world"):
+    with pytest.raises(ValueError, match="compatible-world coverage"):
         _result(
             status="partial",
             stop_reason="depth_budget_exhausted",

@@ -1,4 +1,5 @@
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from skat_ai.bounded_search_result import (
@@ -15,10 +16,11 @@ from skat_ai.exact_search_state import (
     apply_exact_search_card,
     get_exact_search_legal_cards,
 )
-from skat_ai.exact_terminal_utility import build_exact_terminal_utility
+from skat_ai.exact_terminal_utility import (
+    build_exact_terminal_utility,
+    has_supported_terminal_utility_inputs,
+)
 from skat_ai.game_declaration import SUIT_GAME_TYPES
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.overbid import build_overbid_summary
 from skat_ai.side_ownership import VALID_CONCRETE_PLAYERS, get_player_side
 from skat_ai.terminal_utility import (
     TERMINAL_UTILITY_VERSION,
@@ -39,16 +41,15 @@ class _SearchAborted(Exception):
 
 
 @dataclass
-class _SearchContext:
-    local_side: str
+class _SearchExecutionController:
     requested_budget: RequestedSearchBudget
     started_at: float
-    transposition_table: dict[ExactSearchState, TerminalUtility]
+    monotonic: Callable[[], float]
     nodes_expanded: int = 0
     depth_reached: int = 0
 
     def current_elapsed_ms(self) -> float:
-        return max(0.0, (_monotonic() - self.started_at) * 1000)
+        return max(0.0, (self.monotonic() - self.started_at) * 1000)
 
     def elapsed_ms(self) -> int:
         return int(self.current_elapsed_ms())
@@ -61,6 +62,13 @@ class _SearchContext:
             raise _SearchAborted("node_budget_exhausted")
         self.nodes_expanded += 1
         self.depth_reached = max(self.depth_reached, depth)
+
+
+@dataclass
+class _SearchContext:
+    local_side: str
+    execution_controller: _SearchExecutionController
+    transposition_table: dict[ExactSearchState, TerminalUtility]
 
 
 def _is_at_least(left: TerminalUtility, right: TerminalUtility) -> bool:
@@ -81,10 +89,13 @@ def _search(
 ) -> TerminalUtility:
     cached = context.transposition_table.get(state)
     if cached is not None:
-        context.depth_reached = max(context.depth_reached, depth)
+        context.execution_controller.depth_reached = max(
+            context.execution_controller.depth_reached,
+            depth,
+        )
         return cached
 
-    context.begin_uncached_evaluation(depth)
+    context.execution_controller.begin_uncached_evaluation(depth)
     if state.is_terminal:
         utility = build_exact_terminal_utility(
             state=state,
@@ -92,7 +103,7 @@ def _search(
         )
         context.transposition_table[state] = utility
         return utility
-    if depth >= context.requested_budget.max_depth_plies:
+    if depth >= context.execution_controller.requested_budget.max_depth_plies:
         raise _SearchAborted("depth_budget_exhausted")
 
     original_alpha = alpha
@@ -191,7 +202,7 @@ def _incomplete_result(
     *,
     state: ExactSearchState,
     requested_budget: RequestedSearchBudget,
-    context: _SearchContext,
+    execution_controller: _SearchExecutionController,
     legal_cards: tuple[str, ...],
     reason: str,
 ) -> BoundedSearchResult:
@@ -213,13 +224,13 @@ def _incomplete_result(
         terminal_utility_version=TERMINAL_UTILITY_VERSION,
         requested_budget=requested_budget,
         consumed_budget=ConsumedSearchBudget(
-            depth_reached=context.depth_reached,
-            nodes_expanded=context.nodes_expanded,
+            depth_reached=execution_controller.depth_reached,
+            nodes_expanded=execution_controller.nodes_expanded,
             selected_world_count=1,
             completed_world_count=0,
             sampled_world_count=0,
             unique_sampled_world_count=0,
-            wall_clock_elapsed_ms=context.elapsed_ms(),
+            wall_clock_elapsed_ms=execution_controller.elapsed_ms(),
         ),
         compatible_world_count=1,
         candidate_results=_placeholder_candidates(legal_cards, state.declaration.game_type),
@@ -229,20 +240,32 @@ def _incomplete_result(
     )
 
 
-def _has_supported_terminal_utility_inputs(state: ExactSearchState) -> bool:
-    declaration = state.declaration
-    if declaration.bid_value is None:
-        return False
-    if declaration.game_type != "null":
-        return declaration.matadors is not None
-
-    game_value = build_game_value_summary(declaration)
-    overbid = build_overbid_summary(
-        game_value_summary=game_value,
-        bid_value=declaration.bid_value,
-        game_end_reason="normal_completion",
+def _evaluate_exact_world_root_utilities(
+    *,
+    state: ExactSearchState,
+    local_side: str,
+    execution_controller: _SearchExecutionController,
+) -> tuple[tuple[str, TerminalUtility], ...]:
+    """Returns exact full-window root values for one complete private world."""
+    context = _SearchContext(
+        local_side=local_side,
+        execution_controller=execution_controller,
+        transposition_table={},
     )
-    return overbid["is_overbid"] is False
+    execution_controller.begin_uncached_evaluation(depth=0)
+    return tuple(
+        (
+            card,
+            _search(
+                apply_exact_search_card(state, card).next_state,
+                depth=1,
+                alpha=None,
+                beta=None,
+                context=context,
+            ),
+        )
+        for card in get_exact_search_legal_cards(state)
+    )
 
 
 def solve_perfect_information_minimax(
@@ -278,7 +301,7 @@ def solve_perfect_information_minimax(
             requested_budget=requested_budget,
             reason="local_player_not_to_act",
         )
-    if not _has_supported_terminal_utility_inputs(state):
+    if not has_supported_terminal_utility_inputs(state.declaration):
         return _unavailable_result(
             state=state,
             requested_budget=requested_budget,
@@ -305,34 +328,22 @@ def solve_perfect_information_minimax(
     local_side = get_player_side(perspective_player, state.declarer_player)
     if local_side is None:
         raise ValueError("Exact Minimax requires concrete side ownership.")
-    context = _SearchContext(
-        local_side=local_side,
+    execution_controller = _SearchExecutionController(
         requested_budget=requested_budget,
         started_at=_monotonic(),
-        transposition_table={},
+        monotonic=_monotonic,
     )
     try:
-        context.begin_uncached_evaluation(depth=0)
-        utilities = []
-        for card in legal_cards:
-            child = apply_exact_search_card(state, card).next_state
-            utilities.append(
-                (
-                    card,
-                    _search(
-                        child,
-                        depth=1,
-                        alpha=None,
-                        beta=None,
-                        context=context,
-                    ),
-                )
-            )
+        utilities = _evaluate_exact_world_root_utilities(
+            state=state,
+            local_side=local_side,
+            execution_controller=execution_controller,
+        )
     except _SearchAborted as aborted:
         return _incomplete_result(
             state=state,
             requested_budget=requested_budget,
-            context=context,
+            execution_controller=execution_controller,
             legal_cards=legal_cards,
             reason=aborted.reason,
         )
@@ -370,13 +381,13 @@ def solve_perfect_information_minimax(
         terminal_utility_version=TERMINAL_UTILITY_VERSION,
         requested_budget=requested_budget,
         consumed_budget=ConsumedSearchBudget(
-            depth_reached=context.depth_reached,
-            nodes_expanded=context.nodes_expanded,
+            depth_reached=execution_controller.depth_reached,
+            nodes_expanded=execution_controller.nodes_expanded,
             selected_world_count=1,
             completed_world_count=1,
             sampled_world_count=0,
             unique_sampled_world_count=0,
-            wall_clock_elapsed_ms=context.elapsed_ms(),
+            wall_clock_elapsed_ms=execution_controller.elapsed_ms(),
         ),
         compatible_world_count=1,
         candidate_results=candidates,

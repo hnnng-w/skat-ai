@@ -179,12 +179,20 @@ Implemented on the active `v0.10.0` development branch:
   enumeration, deterministic uniform IID sampling with replacement, retained
   duplicate accounting, strict exact-state materialization, and one frozen
   common legal-root sequence
+* executable `compatible_world_minimax_v1` over that frozen sequence, using the
+  same internal exact-world evaluator as direct Minimax, one global node budget,
+  per-world depth reset and exact-only cache, one post-selection timeout window,
+  and first-incomplete-world common-prefix stopping
+* equal-weight card-identity aggregation of exact completed-world success,
+  settlement score, and Suit/Grand margin, including repeated duplicate draws,
+  threshold-gated partial/timeout recommendations, and privacy-safe results
 * shared legal transition reuse by the specialized five-trick defender-open-play proof
 
-The exact solver returns no partial recommendation or fallback after a node,
-depth, or timeout abort. The compatible-world layer does not invoke Minimax or
-aggregate candidates. Multi-world hidden-information solving, recommendation
-integration, CLI output, default or production budgets, and a latency contract
+The direct exact solver returns no partial recommendation or fallback after a
+node, depth, or timeout abort. Compatible-world Minimax may recommend only from
+an exact common completed prefix that reaches the configured minimum; no method
+executes fallback. Recommendation-workflow integration, CLI output, default or
+production budgets, Search-versus-Heuristic evaluation, and a latency contract
 do not exist yet. See
 [Bounded search contracts](bounded_search_contracts.md).
 
@@ -685,10 +693,10 @@ Completed implementation scope:
 * General live position input lacks complete field-level provenance.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
-  general stronger search remain incomplete. Canonical compatible Search-world
-  selection and strict exact-state materialization now connect the information
-  view to private exact states, but do not run the bounded Suit, Grand, or
-  supported Null Minimax solver, aggregate candidates, or connect to product
+  general stronger search remain incomplete. Compatible-world Minimax now
+  evaluates the frozen selected sequence and aggregates one exact common prefix,
+  but it is determinization-based and subject to strategy fusion. It is not an
+  optimal imperfect-information policy proof and is not connected to product
   workflows; overbid Null replacement selection remains outside it.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
@@ -701,13 +709,14 @@ Completed implementation scope:
 
 `v0.9.0` is published. The active next development milestone is `v0.10.0`.
 Version-1 bounded Search/Solver information, quality, determinism, budget,
-result, exact complete-world state, legal-transition, and compatible-world
-selection contracts are now implemented together with one bounded exact-state
-Suit, Grand, and normal non-overbid Null Minimax solver. All four Null variants
-are covered while preserving its five-trick, budget, Alpha-Beta, transposition,
-determinism, and privacy contracts. The selected common-world sequence is not
-yet evaluated or aggregated, and workflow integration remains open, so the
-overall stronger-search gate stays open. Remaining
+result, exact complete-world state, legal-transition, compatible-world
+selection, and common-prefix aggregate contracts are now implemented together
+with direct exact-state and compatible-world Suit, Grand, and normal non-overbid
+Null Minimax. All four Null variants are covered while preserving the five-
+trick, Alpha-Beta, exact-only transposition, determinism, and privacy contracts.
+Compatible-world execution still lacks workflow, fallback, evaluation,
+production-budget, and latency integration, so the overall stronger-search gate
+stays open. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

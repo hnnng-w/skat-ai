@@ -3,7 +3,7 @@ from skat_ai.exact_search_state import (
     get_exact_search_terminal_facts,
 )
 from skat_ai.final_settlement import build_final_settlement_summary
-from skat_ai.game_declaration import SUIT_GAME_TYPES
+from skat_ai.game_declaration import SUIT_GAME_TYPES, GameDeclaration
 from skat_ai.game_result import (
     apply_completed_null_contract_result,
     build_game_result_summary_from_points,
@@ -11,6 +11,22 @@ from skat_ai.game_result import (
 from skat_ai.game_value import build_game_value_summary
 from skat_ai.overbid import build_overbid_summary
 from skat_ai.terminal_utility import TerminalUtility, build_terminal_utility
+
+
+def has_supported_terminal_utility_inputs(declaration: GameDeclaration) -> bool:
+    """Returns whether normal terminal settlement is supported for a declaration."""
+    if not isinstance(declaration, GameDeclaration) or declaration.bid_value is None:
+        return False
+    if declaration.game_type != "null":
+        return declaration.matadors is not None
+
+    game_value = build_game_value_summary(declaration)
+    overbid = build_overbid_summary(
+        game_value_summary=game_value,
+        bid_value=declaration.bid_value,
+        game_end_reason="normal_completion",
+    )
+    return overbid["is_overbid"] is False
 
 
 def build_exact_terminal_utility(

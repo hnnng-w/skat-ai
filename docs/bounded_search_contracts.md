@@ -6,17 +6,16 @@ layer, an internal exact complete-world state and legal transition kernel,
 eligibility semantics, budgets, terminal utility, aggregate results,
 deterministic serialization, and a strict standalone schema. They also include
 one executable bounded perfect-information Minimax solver for a caller-supplied
-exact world. No existing recommendation workflow emits a bounded-search result.
+exact world and one executable compatible-world Minimax method over a frozen
+selected-world sequence. No existing recommendation workflow emits a bounded-
+search result.
 
 ## Current scope
 
 The first supported search perspective is a current local decision at the fixed
-three-player table. The implemented exact-world solver uses:
+three-player table. The implemented methods are:
 
 * `perfect_information_minimax_v1`
-
-The following hidden-world method remains reserved:
-
 * `compatible_world_minimax_v1`
 
 The public result uses `analysis_method = bounded_search`, bounded-search schema
@@ -28,9 +27,10 @@ The exact solver supports Suit, Grand, and normal non-overbid Null, including
 Null, Null Hand, Null Ouvert, and Null Hand Ouvert. Null fixed values remain
 owned by the existing game-value helpers.
 
-Compatible Search-world selection version `1` is implemented as a private layer
-between `SearchInformationView` and `ExactSearchState`. It does not execute the
-reserved `compatible_world_minimax_v1` method or produce a bounded-search result.
+Compatible Search-world selection version `1` remains a private layer between
+`SearchInformationView` and `ExactSearchState`. The compatible-world solver
+consumes that frozen selection directly; it is not integrated into Immediate,
+Multi-Step, Policy Comparison, Historical Review, CLI, or generated outputs.
 
 ## Search information
 
@@ -112,13 +112,14 @@ not determine contract success, Schneider, Schwarz, overbid, game value,
 settlement, `TerminalUtility`, or card ranking; the exact terminal-utility
 adapter composes those existing facilities separately.
 
-The private compatible-world layer now materializes strictly validated exact
-states from `SearchInformationView`; no analysis or review workflow adapter
-exists yet. The exact solver still accepts an `ExactSearchState` directly and is
-not invoked by world selection. Exact hands and out-of-play cards remain private
-and are never serialized in a bounded-search result. The specialized five-trick
-defender-open-play proof also reuses this legal transition kernel while retaining
-its event-specific quantifiers, memoization, proof line, and privacy-safe output.
+The private compatible-world layer materializes strictly validated exact states
+from `SearchInformationView`; no analysis or review workflow adapter exists yet.
+The direct solver accepts an `ExactSearchState`, while compatible-world Minimax
+passes each selected state to the same internal exact-world evaluator. Exact
+hands and out-of-play cards remain private and are never serialized in a bounded-
+search result. The specialized five-trick defender-open-play proof also reuses
+this legal transition kernel while retaining its event-specific quantifiers,
+memoization, proof line, and privacy-safe output.
 
 ## Compatible Search worlds
 
@@ -166,7 +167,8 @@ trick counts, and exact public hands stay fixed. Only hidden opponent and
 out-of-play ownership may vary, and the final out-of-play pair always has two
 cards. All selected states must expose the same deterministic legal root-card
 tuple. The frozen selected-state tuple, including retained sampled duplicates,
-is the future common-world evaluation order.
+is the compatible-world evaluation order and is never reselected, reordered,
+sorted, or deduplicated.
 
 Compatible Search worlds are alternatives derived from the player's information
 view. They are not and are never compared with the one private coherent
@@ -203,7 +205,7 @@ Current assessment can return `unsupported_perspective`,
 eligibility. `compatible_world_limit_exceeded` remains reserved for a future
 explicit exact-only request; eligibility itself still does not inspect worlds.
 
-The exact solver additionally requires Suit, Grand, or normal non-overbid Null,
+Both Minimax methods require Suit, Grand, or normal non-overbid Null,
 a non-terminal state, the concrete `perspective_player` to equal the state's
 current `next_player`, at least one legal card, and no more remaining tricks than
 the lower of the implementation limit of five and the requested limit. Suit and
@@ -245,6 +247,21 @@ the requested depth limit. Cache hits consume no node, while still contributing
 to the maximum reached depth. The timeout and elapsed milliseconds remain
 machine-dependent diagnostics rather than a latency promise.
 
+For `compatible_world_minimax_v1`, `max_nodes` is global across the complete
+selected sequence. Each attempted world root consumes one node when capacity is
+available, every new uncached exact-state evaluation consumes one node, cache
+hits consume none, and work from an aborted world remains consumed. Depth starts
+at zero for each world, uses the same `max_depth_plies`, and reports the maximum
+reached across attempted worlds. One monotonic execution window begins only
+after successful selection and spans all exact-world evaluations; construction
+and selection are outside it. Timeout is checked before each uncached evaluation.
+If the final selected world completes, a later diagnostic elapsed-time reading
+does not convert the complete result to timeout.
+
+Each selected draw gets a fresh transposition table, shared only across that
+world's root candidates. Exact cache entries are never reused across worlds.
+Sampled duplicates are separate draws and are evaluated separately.
+
 ## Status and stopping
 
 Status and stop reason are separate stable fields:
@@ -256,11 +273,16 @@ Status and stop reason are separate stable fields:
 * `unavailable` uses one valid unsupported-domain reason and has no world
   coverage, solution claim, candidates, or search recommendation.
 
-A partial or timed-out search recommendation is usable only when every
+A partial or timed-out compatible-world recommendation is usable only when every
 candidate has the same completed-world prefix and that prefix reaches
 `minimum_comparable_worlds`. Otherwise no candidate is marked recommended.
 The current exact solver is stricter: any node, depth, or timeout abort reports
 zero completed worlds for every root candidate and returns no recommendation.
+Compatible-world execution stops at the first incomplete world, discards all
+values from that world, retains only earlier complete worlds, and never visits a
+later world. Timeout uses `solution_claim = none`; this means there is no
+reproducible complete selected-world solution claim, not that retained completed-
+prefix values are inexact.
 
 ## Coverage and solution claims
 
@@ -284,6 +306,15 @@ solutions for the selected sample only. It is not exact over all compatible
 worlds, does not identify the real deal, and must not be shortened to an
 "exact search" claim. Only `all_compatible_worlds` together with
 `exact_per_selected_world` supports exact-all-compatible-world terminology.
+That combination is an exact aggregate across all structurally compatible
+worlds. A sampled completion is exact only within each selected sample. A
+partial result is exact only over its completed prefix. Selected coverage is
+therefore distinct from completed coverage.
+
+Compatible-world Minimax is determinization-based. Independent exact play in
+each world can choose world-specific continuation strategies, so the aggregate
+is subject to strategy fusion. Even exhaustive compatible-world enumeration is
+not proof of an optimal imperfect-information policy.
 
 ## Terminal utility version 1
 
@@ -347,6 +378,40 @@ Node exhaustion returns `partial + node_limited_partial`, depth exhaustion
 returns `partial + depth_limited_per_selected_world`, and timeout returns
 `timeout + none`.
 
+The public direct solver and compatible-world method use the same internal
+exact-world evaluator. It consumes one world-root node, evaluates every root
+card with a fresh full Alpha-Beta window, keeps canonical below-root Alpha-Beta
+and exact-only transposition semantics, and returns only exact root-card terminal
+utilities to its caller. It returns no public result, private state, principal
+variation, or searched branch information.
+
+## Compatible-world Minimax version 1
+
+`solve_compatible_world_minimax()` accepts one information-safe
+`SearchInformationView`, one validated requested budget, and an explicit non-
+boolean integer seed. Preflight applies the existing eligibility order with the
+lower of the implementation five-trick limit and the requested limit. The shared
+terminal-input check requires bid and matadors for Suit/Grand, requires a bid no
+greater than the fixed Null value, and rejects overbid Null before world
+construction.
+
+After successful selection, worlds execute in frozen order. Every common legal
+root card must receive an exact terminal utility before that world's values are
+added to totals and its completed count advances. Node, depth, or timeout abort
+discards the current world's values, stops immediately, and retains aggregate
+totals only from the common completed prefix. Selection count, coverage, sampled
+count, unique sampled count, exact-state order, and duplicate draws remain
+unchanged.
+
+For each card, each completed draw contributes equal weight to local contract
+success count, local-side settlement score, and Suit/Grand local card-point
+margin. Division by the shared completed count produces success rate and means;
+Null always has a null margin. Duplicate draws contribute repeatedly. There is
+no deduplication, marginal weighting, profile weighting, worst-case ranking, or
+adaptive ordering. The existing aggregate rank order selects deterministic rank
+1 when all worlds complete, or on a partial/timeout prefix only when the minimum
+comparable-world threshold is reached. No fallback runs.
+
 ## Candidate aggregates
 
 Candidate results contain only card-level aggregates over the common completed
@@ -381,13 +446,12 @@ version 1.
 
 ## Remaining work
 
-The executable solver remains limited to one caller-supplied exact Suit, Grand,
-or supported normal Null world. Overbid Null remains unavailable because the
-solver does not select an impossible-Null replacement. Compatible-world exact
-counting, bounded canonical enumeration, deterministic IID selection, and
-strict exact-state materialization now exist, but no Minimax call, candidate
-aggregation, recommendation, fallback, common completed-world scheduling,
-workflow, review, CLI, default budget, production profile, or latency integration
-uses that sequence. Hidden-information Minimax, Expectimax, and broader search
-remain unsupported. The stronger-search v1.0 completion gate therefore remains
-open.
+Both executable methods remain limited to late Suit, Grand, and supported normal
+Null play. Overbid Null remains unavailable because search does not select an
+impossible-Null replacement. Compatible-world Minimax is an internal
+determinization aggregate, not information-set search or an optimal policy
+proof. No Immediate, Multi-Step, Policy Comparison, Historical Review, fallback,
+Search-versus-Heuristic evaluation, CLI, generated-output, default budget,
+production profile, latency guarantee, confidence interval, adaptive sampling,
+Expectimax, strategy-fusion correction, or stable package-root API integration
+exists. The stronger-search v1.0 completion gate therefore remains open.

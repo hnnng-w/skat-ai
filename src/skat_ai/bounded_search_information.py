@@ -2,6 +2,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 
 from skat_ai.deck import get_full_deck
+from skat_ai.exact_terminal_utility import has_supported_terminal_utility_inputs
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_history import get_players_for_trick_leader
 from skat_ai.game_state import GameState
@@ -553,9 +554,7 @@ def get_remaining_search_trick_count(view: SearchInformationView) -> int:
 
 def has_terminal_utility_inputs(view: SearchInformationView) -> bool:
     """Returns whether existing settlement inputs can be resolved at a leaf."""
-    if view.declaration.bid_value is None:
-        return False
-    return view.game_type == "null" or view.declaration.matadors is not None
+    return has_supported_terminal_utility_inputs(view.declaration)
 
 
 def assess_search_eligibility(

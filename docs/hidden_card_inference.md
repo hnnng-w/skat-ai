@@ -117,8 +117,9 @@ counts them exactly, enumerates all worlds within the selected-world budget or
 samples exactly the sampled-world budget from one domain-separated seed stream,
 and materializes each selected assignment as a strict `ExactSearchState`. Every
 state shares the same legal local root candidates and the selected tuple is
-frozen as future common-world order. This layer does not invoke Minimax,
-aggregate candidate values, recommend a card, or enter existing workflows.
+frozen as common-world order. The separate compatible-world Minimax method now
+evaluates that tuple and emits only common-prefix candidate aggregates. It does
+not enter existing recommendation workflows or expose a selected world.
 
 A compatible Search world is an information-set alternative. A coherent
 Multi-Step world is one private execution environment for one simulated path.
@@ -162,8 +163,8 @@ Search selections have no public serializer. Exact opponent hands,
 hypothetical or known out-of-play identities, exact states, hashes,
 fingerprints, DP tables, enumeration paths, and sample seeds are absent from
 bounded-search results, schemas, CLI output, generated output, and this summary.
-For sampled Search selection, aggregate accounting may later report draw and
-unique-draw counts, but duplicates are retained in private evaluation order.
+For sampled Search selection, aggregate accounting reports draw and unique-draw
+counts, while duplicates are retained and evaluated separately in private order.
 
 ## Example
 

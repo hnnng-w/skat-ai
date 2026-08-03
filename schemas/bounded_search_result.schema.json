@@ -153,6 +153,7 @@
       "then": {
         "properties": {
           "stop_reason": {"const": "wall_clock_timeout"},
+          "solution_claim": {"const": "none"},
           "candidate_results": {"minItems": 1},
           "requested_budget": {
             "properties": {
@@ -266,7 +267,27 @@
       }
     },
     {
-      "if": {"properties": {"solution_claim": {"const": "none"}}},
+      "if": {
+        "properties": {
+          "search_method": {"const": "compatible_world_minimax_v1"}
+        },
+        "not": {"properties": {"status": {"const": "unavailable"}}}
+      },
+      "then": {
+        "properties": {
+          "world_coverage": {
+            "enum": ["all_compatible_worlds", "sampled_compatible_worlds"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "solution_claim": {"const": "none"}
+        },
+        "not": {"properties": {"status": {"const": "timeout"}}}
+      },
       "then": {
         "properties": {
           "consumed_budget": {

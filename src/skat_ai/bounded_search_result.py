@@ -313,6 +313,8 @@ class BoundedSearchResult:
             raise ValueError("Depth-budget exhaustion requires a depth-limited claim.")
         if self.status == "timeout" and self.requested_budget.wall_clock_timeout_ms is None:
             raise ValueError("Timeout status requires a requested wall-clock cutoff.")
+        if self.status == "timeout" and self.solution_claim != "none":
+            raise ValueError("Timeout results require no reproducible solution claim.")
 
     def _validate_budget_consumption(self) -> None:
         consumed = self.consumed_budget
@@ -361,8 +363,13 @@ class BoundedSearchResult:
             or self.compatible_world_count <= 0
         ):
             raise ValueError("Sampled coverage requires selected sampled worlds.")
+        elif consumed.selected_world_count != consumed.sampled_world_count:
+            raise ValueError("Every selected sampled world must be one sampled draw.")
+        elif consumed.unique_sampled_world_count > self.compatible_world_count:
+            raise ValueError("Unique sampled worlds cannot exceed compatible worlds.")
         if (
-            self.compatible_world_count is not None
+            self.world_coverage != "sampled_compatible_worlds"
+            and self.compatible_world_count is not None
             and consumed.selected_world_count > self.compatible_world_count
         ):
             raise ValueError("Selected worlds cannot exceed compatible worlds.")
@@ -374,8 +381,18 @@ class BoundedSearchResult:
             raise ValueError(
                 "Perfect-information search requires single exact world coverage."
             )
+        if (
+            self.search_method == "compatible_world_minimax_v1"
+            and self.status != "unavailable"
+            and self.world_coverage not in {"all_compatible_worlds", "sampled_compatible_worlds"}
+        ):
+            raise ValueError("Compatible-world search requires compatible-world coverage.")
 
-        if self.solution_claim == "none" and consumed.completed_world_count != 0:
+        if (
+            self.solution_claim == "none"
+            and self.status != "timeout"
+            and consumed.completed_world_count != 0
+        ):
             raise ValueError("A result with completed worlds requires a solution claim.")
         if self.solution_claim == "exact_per_selected_world" and (
             consumed.completed_world_count != consumed.selected_world_count
@@ -386,18 +403,18 @@ class BoundedSearchResult:
             )
         if self.solution_claim == "depth_limited_per_selected_world":
             if consumed.selected_world_count == 0:
+                raise ValueError("Depth-limited-per-selected-world requires a selected world.")
+            if consumed.completed_world_count >= consumed.selected_world_count:
                 raise ValueError(
-                    "Depth-limited-per-selected-world requires a selected world."
+                    "Depth-limited-per-selected-world requires an incomplete selected prefix."
                 )
-            if consumed.completed_world_count not in {0, consumed.selected_world_count}:
-                raise ValueError(
-                    "Depth-limited-per-selected-world requires zero or every selected world."
-                )
-        if self.solution_claim == "node_limited_partial" and self.status not in {
-            "partial",
-            "timeout",
-        }:
-            raise ValueError("Node-limited partial claims require partial or timeout.")
+        if self.solution_claim == "node_limited_partial" and self.status != "partial":
+            raise ValueError("Node-limited partial claims require partial status.")
+        if self.status in {"partial", "timeout"} and (
+            consumed.selected_world_count == 0
+            or consumed.completed_world_count >= consumed.selected_world_count
+        ):
+            raise ValueError("Incomplete search results require a strict completed-world prefix.")
 
     def _validate_candidates(self) -> None:
         candidates = self.candidate_results

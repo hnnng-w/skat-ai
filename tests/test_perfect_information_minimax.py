@@ -383,10 +383,14 @@ def test_null_alpha_beta_and_exact_transpositions_match_full_oracle_with_less_wo
 
 def test_null_transposition_table_caches_only_exact_non_aborted_values() -> None:
     state = _curated_null_choice_state()
-    cutoff_context = minimax_module._SearchContext(
-        local_side="declarer",
+    cutoff_controller = minimax_module._SearchExecutionController(
         requested_budget=_budget(),
         started_at=minimax_module._monotonic(),
+        monotonic=minimax_module._monotonic,
+    )
+    cutoff_context = minimax_module._SearchContext(
+        local_side="declarer",
+        execution_controller=cutoff_controller,
         transposition_table={},
     )
     lower_beta = TerminalUtility(1, "null", False, -46, None)
@@ -410,10 +414,14 @@ def test_null_transposition_table_caches_only_exact_non_aborted_values() -> None
     assert exact == _oracle_value(state, "declarer")
     assert cutoff_context.transposition_table[state] == exact
 
-    aborted_context = minimax_module._SearchContext(
-        local_side="declarer",
+    aborted_controller = minimax_module._SearchExecutionController(
         requested_budget=_budget(max_nodes=2),
         started_at=minimax_module._monotonic(),
+        monotonic=minimax_module._monotonic,
+    )
+    aborted_context = minimax_module._SearchContext(
+        local_side="declarer",
+        execution_controller=aborted_controller,
         transposition_table={},
     )
     with pytest.raises(minimax_module._SearchAborted):
