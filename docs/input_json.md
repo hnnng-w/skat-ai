@@ -374,6 +374,12 @@ and do not replace the execution root. Immediate Analysis, supported phases,
 stops, and existing input settings are unchanged. See
 [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
+The local Multi-Step policy registry keeps the four legacy policies unchanged:
+`first_legal`, `lowest_point`, `highest_point`, and
+`highest_expected_value`. It additionally accepts the Search-aware identifiers
+`bounded_search` and `auto`. `first_legal` remains the omitted default whenever
+no Search recommendation method is configured.
+
 ### Hidden-card inference evidence
 
 Hidden-card inference requires no new input field. When public play confirms a
@@ -435,14 +441,15 @@ Both Search methods require this exact object with no unknown or missing keys:
 The Search seed must be a non-boolean integer. Every structural budget field is
 positive; sampled and minimum-comparable worlds cannot exceed selected worlds.
 The timeout is positive or null. There is no default or named production budget.
-The top-level `random_seed` remains independent and controls only Immediate or
-auto fallback. The derived private Search child seed is never input or output.
+The top-level `random_seed` remains independent and controls Immediate, legacy
+Multi-Step streams, or auto fallback. The derived private Search child seed is
+never input or output.
 
-Search methods are accepted only in the flat position workflow with
+Search methods are accepted only in the position workflow with
 `analysis_mode: "live_decision"` and `game_end_reason: "not_ended"`. They reject
 `actual_card_played`, post-game Skat visibility, terminal shortening, impossible
-Null settlement, list modes, Multi-Step, Policy Comparison, historical review,
-and historical/training/statistics workflows. Non-empty legacy `played_cards`
+Null settlement, list modes, historical review, and historical/training/statistics
+workflows. Non-empty legacy `played_cards`
 is rejected; prior public play must use `completed_tricks` with ordered concrete
 `players`. Existing concrete turn-phase validation still applies.
 
@@ -453,6 +460,33 @@ hand sizes, legitimately visible Skat, those public-hand constraints, and
 confirmed structural evidence. It never receives private opponent hands,
 coherent execution roots, historical hidden ownership, future play, profile
 weights, or tactical ownership assumptions.
+
+With `--multi-step`, an explicitly configured `bounded_search` or `auto` method
+becomes the local policy when `--card-policy` is omitted. An explicit legacy
+policy conflicts with configured Search, the two Search identifiers cannot be
+mismatched, and a Search card policy without the matching JSON method and full
+settings is rejected. No Search budget or seed CLI flags exist.
+
+At every prepared local decision, Multi-Step reruns the existing recommendation
+workflow from the current public state. Public left/right hand sizes are derived
+from initial counts and attributed public path actions; only those integers enter
+Search. The immutable requested budget applies freshly to each decision, so the
+total path cost scales with local decisions multiplied by the per-decision
+budget. Child seeds use the versioned
+`multi_step_bounded_search_decision_v1` stream from the explicit Search base
+seed, independently of the coherent root, opponent actions, Immediate seed,
+policy result, and private ownership.
+
+Strict `bounded_search` executes every qualified Search recommendation and stops
+with `local_policy_no_recommendation` without rolling back prepared opponent
+actions when Search has no card. `auto` executes Search when available and
+otherwise uses only the existing validated Immediate fallback. If neither
+method returns a card, it stops with the same reason and does not mark fallback.
+
+Policy Comparison remains the four legacy policies when Search is absent. With
+an explicit Search method, exactly that method is appended last. Every path gets
+an independent copy of one shared coherent execution root, but the Search path
+uses that root only after its public recommendation has been selected.
 
 ## Declarer identity
 

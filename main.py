@@ -10,7 +10,10 @@ from skat_ai.analysis_report import (
     format_card_analysis_report,
 )
 from skat_ai.bounded_search_result import build_serializable_bounded_search_result
-from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
+from skat_ai.card_selection import (
+    SEARCH_AWARE_MULTI_STEP_POLICIES,
+    VALID_MULTI_STEP_POLICIES,
+)
 from skat_ai.dataset_partition_audit import (
     audit_training_dataset_partitions,
     build_serializable_dataset_partition_audit,
@@ -132,13 +135,11 @@ from skat_ai.performance_rating import (
     build_list_standings_summary,
     build_performance_rating_summary,
 )
-from skat_ai.policy_comparison import (
-    compare_multi_step_policies,
-    find_best_policy_by_local_point_swing,
-)
+from skat_ai.policy_comparison import compare_multi_step_policies
 from skat_ai.post_game_review import build_post_game_review_summary
 from skat_ai.recommendation_workflow import (
     SEARCH_RECOMMENDATION_METHODS,
+    RecommendationMethodConfiguration,
     build_recommendation_method_summary,
     build_serializable_bounded_search_settings,
     execute_recommendation_workflow,
@@ -305,6 +306,31 @@ def build_right_opponent_policy_settings(
         "opponent_lead_policy": effective_settings.right_lead_policy,
         "opponent_response_policy": effective_settings.right_response_policy,
     }
+
+
+def resolve_multi_step_card_selection_policy(
+    explicit_policy: str | None,
+    recommendation_configuration: RecommendationMethodConfiguration,
+) -> str:
+    """Resolves CLI policy omission and explicit Search-method precedence."""
+    configured_search_method = (
+        recommendation_configuration.requested_method
+        if recommendation_configuration.requested_method in SEARCH_RECOMMENDATION_METHODS
+        else None
+    )
+    if configured_search_method is not None:
+        if explicit_policy is not None and explicit_policy != configured_search_method:
+            raise ValueError(
+                "Explicit --card-policy conflicts with the configured Search "
+                f"recommendation method {configured_search_method}."
+            )
+        return configured_search_method
+    if explicit_policy in SEARCH_AWARE_MULTI_STEP_POLICIES:
+        raise ValueError(
+            "A Search-aware --card-policy requires matching recommendation_method "
+            "and bounded_search_settings."
+        )
+    return explicit_policy or "first_legal"
 
 
 def build_analysis_result(
@@ -1687,6 +1713,24 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
         print()
         print("Step:", step["step_index"])
 
+        decision = step.get("recommendation_decision")
+        if decision is not None:
+            search = decision.bounded_search_result
+            consumed = search.consumed_budget
+            print("Requested recommendation method:", decision.requested_method)
+            print("Effective recommendation method:", decision.effective_method)
+            print("Search status:", search.status)
+            print("Search stop reason:", search.stop_reason)
+            print(
+                "Search completed worlds:",
+                f"{consumed.completed_world_count} of {consumed.selected_world_count}",
+            )
+            if decision.fallback_used:
+                print("Fallback method:", decision.fallback_method)
+                print("Fallback chosen card:", decision.recommendation_card)
+            else:
+                print("Search chosen card:", decision.recommendation_card)
+
         if opponent_lead_result is not None:
             print("Opponent lead player:", opponent_lead_result["leader"])
             print("Opponent lead card:", opponent_lead_result["lead_card"])
@@ -1705,6 +1749,22 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
         print("Trick points:", detailed_result["trick_points"])
         print("Winner role:", completed_trick["winner_role"])
 
+    stopped_decision = result.get("stopped_recommendation_decision")
+    if stopped_decision is not None:
+        search = stopped_decision.bounded_search_result
+        consumed = search.consumed_budget
+        print()
+        print("Stopped recommendation decision:", stopped_decision.step_index)
+        print("Requested recommendation method:", stopped_decision.requested_method)
+        print("Effective recommendation method:", stopped_decision.effective_method)
+        print("Search status:", search.status)
+        print("Search stop reason:", search.stop_reason)
+        print(
+            "Search completed worlds:",
+            f"{consumed.completed_world_count} of {consumed.selected_world_count}",
+        )
+        print("No local recommendation was available; no local card was executed.")
+
     print()
     print("Final state")
     print("Remaining hand:", final_state.hand)
@@ -1718,8 +1778,6 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
     """
     Prints a compact policy comparison result.
     """
-    best_policy = find_best_policy_by_local_point_swing(result)
-
     print()
     print("Policy comparison")
     print("Requested steps:", result["requested_step_count"])
@@ -1759,6 +1817,23 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
             f"{policy_result['final_point_swing']:>10}"
             f"{local_point_swing:>10}"
         )
+        if "recommendation_summary" in policy_result:
+            recommendation_summary = policy_result["recommendation_summary"]
+            print(
+                "  Search decisions: "
+                f"{recommendation_summary['decisions_attempted']} attempted, "
+                f"{recommendation_summary['decisions_executed']} executed, "
+                f"{recommendation_summary['search_recommendations_used']} Search, "
+                f"{recommendation_summary['immediate_fallbacks_used']} fallback, "
+                f"{recommendation_summary['no_recommendation_count']} no recommendation"
+            )
+        if "eligible_for_recommendation" in policy_result:
+            print(
+                "  Eligible for recommendation:",
+                policy_result["eligible_for_recommendation"],
+            )
+            if policy_result["ineligible_reason"] is not None:
+                print("  Ineligible reason:", policy_result["ineligible_reason"])
 
     recommended_policy = result.get("recommended_policy")
 
@@ -1776,12 +1851,7 @@ def print_policy_comparison_result(result: dict[str, Any]) -> None:
             ),
         )
     else:
-        print("Best policy:", best_policy["policy"])
-        print("Best final point swing:", best_policy["final_point_swing"])
-        print(
-            "Best local point swing:",
-            best_policy.get("local_point_swing", best_policy["final_point_swing"]),
-        )
+        print("Recommended policy: none")
 
 
 def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
@@ -1819,7 +1889,7 @@ def run_json_position_analysis(
     right_opponent_response_policy_override: str | None = None,
     output_path: str | None = None,
     multi_step_count: int | None = None,
-    card_selection_policy: str = "first_legal",
+    card_selection_policy: str | None = None,
     expected_value_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     strict_context: bool = False,
     compare_policies: bool = False,
@@ -1840,14 +1910,6 @@ def run_json_position_analysis(
         raise ValueError("multi_step_count must be a positive integer.")
 
     position_data = load_position_from_json(file_path)
-    if (
-        position_data.get("recommendation_method") in SEARCH_RECOMMENDATION_METHODS
-        and (multi_step_count is not None or compare_policies)
-    ):
-        raise ValueError(
-            "Search recommendation methods are supported only for flat position analysis, "
-            "not Multi-Step or Policy Comparison."
-        )
     if "game_shortening" in position_data and (multi_step_count is not None or compare_policies):
         raise ValueError(
             "Structured game_shortening cannot be combined with multi-step simulation "
@@ -1871,6 +1933,9 @@ def run_json_position_analysis(
             "live profile-binding options."
         )
     analysis_metadata = get_analysis_metadata_from_input(position_data)
+    recommendation_configuration = (
+        get_recommendation_method_configuration_from_input(position_data)
+    )
     game_continuation = get_game_continuation_from_input(position_data)
     continuation_context = (
         resolve_game_continuation(
@@ -1969,6 +2034,13 @@ def run_json_position_analysis(
 
     if multi_step_count is not None:
         state = build_local_game_state_from_input(position_data)
+        game_declaration = get_game_declaration_from_input(
+            build_local_analysis_input(position_data)
+        )
+        effective_card_selection_policy = resolve_multi_step_card_selection_policy(
+            card_selection_policy,
+            recommendation_configuration,
+        )
         settings = get_simulation_settings_from_input(position_data)
         opponent_policy_settings = build_global_opponent_policy_settings(
             effective_opponent_policy_settings
@@ -2004,7 +2076,7 @@ def run_json_position_analysis(
             step_count=multi_step_count,
             random_seed=settings["random_seed"],
             use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-            card_selection_policy=card_selection_policy,
+            card_selection_policy=effective_card_selection_policy,
             expected_value_sample_count=expected_value_sample_count,
             strict_context=strict_context,
             strategic_metadata=analysis_metadata.strategic_metadata,
@@ -2016,6 +2088,12 @@ def run_json_position_analysis(
                 effective_opponent_policy_settings.immediate_response_policy_by_player
             ),
             public_hand_constraints=public_hand_constraints,
+            game_declaration=game_declaration,
+            recommendation_configuration=(
+                recommendation_configuration
+                if effective_card_selection_policy in SEARCH_AWARE_MULTI_STEP_POLICIES
+                else None
+            ),
         )
 
         result["multi_step_result"] = build_serializable_multi_step_result(multi_step_result)
@@ -2043,6 +2121,13 @@ def run_json_position_analysis(
                     effective_opponent_policy_settings.immediate_response_policy_by_player
                 ),
                 public_hand_constraints=public_hand_constraints,
+                game_declaration=game_declaration,
+                recommendation_configuration=(
+                    recommendation_configuration
+                    if recommendation_configuration.requested_method
+                    in SEARCH_RECOMMENDATION_METHODS
+                    else None
+                ),
             )
 
             result["policy_comparison_result"] = build_serializable_policy_comparison_result(
@@ -2434,9 +2519,12 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "--card-policy",
-        choices=VALID_CARD_SELECTION_POLICIES,
+        choices=VALID_MULTI_STEP_POLICIES,
         default=None,
-        help="Choose local cards during multi-step simulation. Default: first_legal.",
+        help=(
+            "Choose local cards during multi-step simulation. Search policies require "
+            "matching JSON recommendation settings; otherwise the default is first_legal."
+        ),
     )
 
     parser.add_argument(
@@ -2458,7 +2546,10 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--compare-policies",
         action="store_true",
-        help="Compare all local card policies for the requested multi-step setup.",
+        help=(
+            "Compare the four legacy local policies and append the configured Search "
+            "method when present."
+        ),
     )
 
     parser.add_argument(
@@ -3000,7 +3091,7 @@ def main() -> int:
                 right_opponent_response_policy_override=args.right_opponent_response_policy,
                 output_path=args.output,
                 multi_step_count=args.multi_step,
-                card_selection_policy=args.card_policy or "first_legal",
+                card_selection_policy=args.card_policy,
                 expected_value_sample_count=(
                     args.expected_value_samples or DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
                 ),

@@ -1283,6 +1283,7 @@ When a multi-step simulation is requested, the output can include `multi_step_re
 | `opponent_policy_settings`       | Global opponent policy settings used as fallback.                 |
 | `left_opponent_policy_settings`  | Left-opponent policy settings passed into multi-step simulation.  |
 | `right_opponent_policy_settings` | Right-opponent policy settings passed into multi-step simulation. |
+| `stopped_recommendation_decision` | Search diagnostics when no local card was executed, otherwise absent. |
 
 Nested `steps[].prepared_state` is the state after any supported opponent-turn
 preparation and before the local candidate card is simulated. This separates the
@@ -1326,6 +1327,26 @@ identities, or any hidden-world digest. Opponent-turn preparation and candidate-
 trick completion use the same private path world. Local decision policies receive
 only public decision-time information; `highest_expected_value` keeps separate
 counterfactual Monte Carlo samples and does not expose the execution root.
+
+Search-aware steps add `recommendation_decision` with the decision index,
+requested and effective methods, Search-attempt flag, selected card and reason,
+fallback metadata, and the externally schema-validated aggregate
+`bounded_search_result`. It contains no Immediate report rows, private hands,
+coherent world, ownership map, hypothetical Skat, future path, or child seed.
+The decision card always equals `candidate_card`.
+
+When Search and any allowed auto fallback both return no card, the path stops
+with `local_policy_no_recommendation`. No step is added. The same decision shape
+appears as `stopped_recommendation_decision` with a null card, and any opponent
+actions already used to prepare that public decision remain in `final_state` and
+the context/coherence counts.
+
+Only Search-aware summaries add `requested_method`, `decisions_attempted`,
+`decisions_executed`, `search_recommendations_used`,
+`immediate_fallbacks_used`, and `no_recommendation_count`. Attempted decisions
+equal executed decisions plus no-recommendation stops; executed decisions equal
+Search recommendations plus Immediate fallbacks. Strict Search always reports
+zero Immediate fallbacks. Legacy results omit all of these fields.
 
 Nested `steps[].detailed_result` uses explicit ownership fields:
 
@@ -1378,8 +1399,8 @@ separately resampled initial world.
 | `hidden_cards_emitted` | Always `false`. |
 
 Each policy row's `context_summary.hidden_world` contains the privacy-safe
-per-path counts and statuses documented above. No new policy, ranking objective,
-or tie-breaker is introduced. When available,
+per-path counts and statuses documented above. No new point-swing, Null horizon,
+or tie-break objective is introduced. When available,
 `policy_comparison_result.hidden_card_inference_summary` describes the one shared
 root inference model. Every policy receives an immutable copy of the same sampled
 compatible root; later public evidence may diverge only after path play diverges.
@@ -1388,6 +1409,20 @@ The output schema defines the stable `policy_comparison_result` structure,
 including requested settings, compared policies, per-policy result rows,
 context summaries, shared-root hidden-world status, and `recommended_policy`.
 See [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
+
+Without Search configuration, comparison output remains the exact legacy four-
+policy shape. With explicit `bounded_search` or `auto`, exactly that method is
+appended last. Search-inclusive rows add `eligible_for_recommendation` and a
+nullable `ineligible_reason`; a Search path stopped by
+`local_policy_no_recommendation` remains visible but is ineligible, sorts after
+eligible policies, and cannot be recommended. `recommended_policy` is null when
+no row is eligible.
+
+The Search row also includes the six-field `recommendation_summary` documented
+above and ordered `search_decision_diagnostics`. Each compact diagnostic contains
+only step index, effective method, Search status and stop reason, selected and
+completed world counts, recommendation card, and fallback flag. Full per-world
+or coherent-root data is never copied into comparison output.
 
 ## Historical opponent profile application
 

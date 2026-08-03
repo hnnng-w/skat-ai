@@ -670,6 +670,21 @@
         "highest_expected_value"
       ]
     },
+    "search_aware_multi_step_policy": {
+      "type": "string",
+      "enum": ["bounded_search", "auto"]
+    },
+    "multi_step_policy": {
+      "type": "string",
+      "enum": [
+        "first_legal",
+        "lowest_point",
+        "highest_point",
+        "highest_expected_value",
+        "bounded_search",
+        "auto"
+      ]
+    },
     "game_end_reason": {
       "type": "string",
       "enum": [
@@ -702,7 +717,8 @@
         "Player has no cards left.",
         "Game is already complete.",
         "Requested step count reached.",
-        "unsupported_turn_phase"
+        "unsupported_turn_phase",
+        "local_policy_no_recommendation"
       ]
     },
     "profile_preset_settings": {
@@ -2561,7 +2577,7 @@
           "$ref": "#/$defs/multi_step_stop_reason"
         },
         "card_selection_policy": {
-          "$ref": "#/$defs/card_selection_policy"
+          "$ref": "#/$defs/multi_step_policy"
         },
         "strict_context": {
           "type": "boolean"
@@ -2571,8 +2587,180 @@
         },
         "context_summary": {
           "$ref": "#/$defs/context_summary"
+        },
+        "requested_method": {
+          "$ref": "#/$defs/search_aware_multi_step_policy"
+        },
+        "decisions_attempted": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "decisions_executed": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "search_recommendations_used": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "immediate_fallbacks_used": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "no_recommendation_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "card_selection_policy": {
+                "$ref": "#/$defs/search_aware_multi_step_policy"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "requested_method",
+              "decisions_attempted",
+              "decisions_executed",
+              "search_recommendations_used",
+              "immediate_fallbacks_used",
+              "no_recommendation_count"
+            ]
+          },
+          "else": {
+            "properties": {
+              "requested_method": false,
+              "decisions_attempted": false,
+              "decisions_executed": false,
+              "search_recommendations_used": false,
+              "immediate_fallbacks_used": false,
+              "no_recommendation_count": false
+            }
+          }
+        },
+        {
+          "if": {"properties": {"requested_method": {"const": "bounded_search"}}},
+          "then": {"properties": {"immediate_fallbacks_used": {"const": 0}}}
+        }
+      ]
+    },
+    "multi_step_recommendation_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_index",
+        "requested_method",
+        "effective_method",
+        "search_attempted",
+        "recommendation_card",
+        "recommendation_reason",
+        "fallback_used",
+        "fallback_method",
+        "bounded_search_result"
+      ],
+      "properties": {
+        "step_index": {"$ref": "#/$defs/non_negative_integer"},
+        "requested_method": {"$ref": "#/$defs/search_aware_multi_step_policy"},
+        "effective_method": {
+          "type": "string",
+          "enum": ["compatible_world_minimax_v1", "immediate_expected_value", "none"]
+        },
+        "search_attempted": {"const": true},
+        "recommendation_card": {
+          "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+        },
+        "recommendation_reason": {"type": "string"},
+        "fallback_used": {"type": "boolean"},
+        "fallback_method": {
+          "type": ["string", "null"],
+          "enum": ["immediate_expected_value", null]
+        },
+        "bounded_search_result": {
+          "$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"requested_method": {"const": "bounded_search"}}},
+          "then": {
+            "properties": {
+              "effective_method": {"enum": ["compatible_world_minimax_v1", "none"]},
+              "fallback_used": {"const": false},
+              "fallback_method": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"fallback_used": {"const": true}}},
+          "then": {
+            "properties": {
+              "requested_method": {"const": "auto"},
+              "effective_method": {"const": "immediate_expected_value"},
+              "fallback_method": {"const": "immediate_expected_value"}
+            }
+          },
+          "else": {"properties": {"fallback_method": {"type": "null"}}}
+        },
+        {
+          "if": {
+            "properties": {
+              "effective_method": {"const": "compatible_world_minimax_v1"}
+            }
+          },
+          "then": {
+            "properties": {
+              "recommendation_card": {"$ref": "#/$defs/card"},
+              "bounded_search_result": {
+                "properties": {
+                  "recommended_card": {"$ref": "#/$defs/card"},
+                  "fallback_used": {"const": false},
+                  "fallback_method": {"type": "null"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "effective_method": {"const": "immediate_expected_value"}
+            }
+          },
+          "then": {
+            "properties": {
+              "requested_method": {"const": "auto"},
+              "recommendation_card": {"$ref": "#/$defs/card"},
+              "fallback_used": {"const": true},
+              "fallback_method": {"const": "immediate_expected_value"},
+              "bounded_search_result": {
+                "properties": {
+                  "recommended_card": {"type": "null"},
+                  "fallback_used": {"const": true},
+                  "fallback_method": {"const": "immediate_expected_value"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"effective_method": {"const": "none"}}},
+          "then": {
+            "properties": {
+              "recommendation_card": {"type": "null"},
+              "fallback_used": {"const": false},
+              "fallback_method": {"type": "null"},
+              "bounded_search_result": {
+                "properties": {
+                  "recommended_card": {"type": "null"},
+                  "fallback_used": {"const": false},
+                  "fallback_method": {"type": "null"}
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "multi_step_detailed_result": {
       "type": "object",
@@ -2640,7 +2828,7 @@
           "$ref": "#/$defs/card"
         },
         "card_selection_policy": {
-          "$ref": "#/$defs/card_selection_policy"
+          "$ref": "#/$defs/multi_step_policy"
         },
         "detailed_result": {
           "$ref": "#/$defs/multi_step_detailed_result"
@@ -2650,8 +2838,31 @@
         },
         "hidden_card_inference_summary": {
           "$ref": "https://example.local/skat-ai/hidden_card_inference_summary.schema.json"
+        },
+        "recommendation_decision": {
+          "$ref": "#/$defs/multi_step_recommendation_decision"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "card_selection_policy": {
+                "$ref": "#/$defs/search_aware_multi_step_policy"
+              }
+            }
+          },
+          "then": {
+            "required": ["recommendation_decision"],
+            "properties": {
+              "recommendation_decision": {
+                "properties": {"recommendation_card": {"$ref": "#/$defs/card"}}
+              }
+            }
+          },
+          "else": {"properties": {"recommendation_decision": false}}
+        }
+      ]
     },
     "nullable_opponent_policy_settings": {
       "oneOf": [
@@ -2682,7 +2893,7 @@
       ],
       "properties": {
         "card_selection_policy": {
-          "$ref": "#/$defs/card_selection_policy"
+          "$ref": "#/$defs/multi_step_policy"
         },
         "requested_step_count": {
           "type": "integer",
@@ -2723,7 +2934,110 @@
         },
         "hidden_card_inference_summary": {
           "$ref": "https://example.local/skat-ai/hidden_card_inference_summary.schema.json"
+        },
+        "stopped_recommendation_decision": {
+          "allOf": [
+            {"$ref": "#/$defs/multi_step_recommendation_decision"},
+            {"properties": {"recommendation_card": {"type": "null"}}}
+          ]
         }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "card_selection_policy": {"$ref": "#/$defs/card_selection_policy"}
+            }
+          },
+          "then": {"properties": {"stopped_recommendation_decision": false}}
+        },
+        {
+          "if": {"properties": {"stop_reason": {"const": "local_policy_no_recommendation"}}},
+          "then": {"required": ["stopped_recommendation_decision"]}
+        },
+        {
+          "if": {"required": ["stopped_recommendation_decision"]},
+          "then": {
+            "properties": {
+              "stop_reason": {"const": "local_policy_no_recommendation"}
+            }
+          }
+        }
+      ]
+    },
+    "search_aware_decision_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested_method",
+        "decisions_attempted",
+        "decisions_executed",
+        "search_recommendations_used",
+        "immediate_fallbacks_used",
+        "no_recommendation_count"
+      ],
+      "properties": {
+        "requested_method": {"$ref": "#/$defs/search_aware_multi_step_policy"},
+        "decisions_attempted": {"$ref": "#/$defs/non_negative_integer"},
+        "decisions_executed": {"$ref": "#/$defs/non_negative_integer"},
+        "search_recommendations_used": {"$ref": "#/$defs/non_negative_integer"},
+        "immediate_fallbacks_used": {"$ref": "#/$defs/non_negative_integer"},
+        "no_recommendation_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "compact_search_decision_diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_index",
+        "effective_method",
+        "search_status",
+        "search_stop_reason",
+        "selected_world_count",
+        "completed_world_count",
+        "recommendation_card",
+        "fallback_used"
+      ],
+      "properties": {
+        "step_index": {"$ref": "#/$defs/non_negative_integer"},
+        "effective_method": {
+          "type": "string",
+          "enum": ["compatible_world_minimax_v1", "immediate_expected_value", "none"]
+        },
+        "search_status": {
+          "type": "string",
+          "enum": ["complete", "partial", "timeout", "unavailable"]
+        },
+        "search_stop_reason": {
+          "type": "string",
+          "enum": [
+            "completed",
+            "node_budget_exhausted",
+            "depth_budget_exhausted",
+            "wall_clock_timeout",
+            "unsupported_game_type",
+            "unsupported_turn_phase",
+            "unsupported_perspective",
+            "local_player_not_to_act",
+            "missing_concrete_declarer",
+            "remaining_trick_limit_exceeded",
+            "compatible_world_limit_exceeded",
+            "incompatible_world_space",
+            "missing_terminal_utility_inputs",
+            "game_already_complete",
+            "no_legal_cards"
+          ]
+        },
+        "selected_world_count": {"$ref": "#/$defs/non_negative_integer"},
+        "completed_world_count": {"$ref": "#/$defs/non_negative_integer"},
+        "recommendation_card": {
+          "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+        },
+        "fallback_used": {"type": "boolean"}
       }
     },
     "policy_comparison_policy_result": {
@@ -2743,7 +3057,7 @@
       ],
       "properties": {
         "policy": {
-          "$ref": "#/$defs/card_selection_policy"
+          "$ref": "#/$defs/multi_step_policy"
         },
         "requested_step_count": {
           "type": "integer",
@@ -2772,8 +3086,43 @@
         },
         "context_summary": {
           "$ref": "#/$defs/context_summary"
+        },
+        "eligible_for_recommendation": {"type": "boolean"},
+        "ineligible_reason": {
+          "type": ["string", "null"],
+          "enum": ["local_policy_no_recommendation", null]
+        },
+        "recommendation_summary": {
+          "$ref": "#/$defs/search_aware_decision_summary"
+        },
+        "search_decision_diagnostics": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/compact_search_decision_diagnostic"}
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "policy": {"$ref": "#/$defs/search_aware_multi_step_policy"}
+            }
+          },
+          "then": {
+            "required": ["recommendation_summary", "search_decision_diagnostics"]
+          },
+          "else": {
+            "properties": {
+              "recommendation_summary": false,
+              "search_decision_diagnostics": false
+            }
+          }
+        },
+        {
+          "if": {"properties": {"eligible_for_recommendation": {"const": false}}},
+          "then": {"properties": {"ineligible_reason": {"const": "local_policy_no_recommendation"}}},
+          "else": {"properties": {"ineligible_reason": {"type": "null"}}}
+        }
+      ]
     },
     "policy_recommendation": {
       "type": "object",
@@ -2790,7 +3139,7 @@
       ],
       "properties": {
         "policy": {
-          "$ref": "#/$defs/card_selection_policy"
+          "$ref": "#/$defs/multi_step_policy"
         },
         "reason": {
           "type": "string"
@@ -2857,9 +3206,13 @@
         "policies": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/card_selection_policy"
+            "$ref": "#/$defs/multi_step_policy"
           },
-          "minItems": 1
+          "minItems": 1,
+          "uniqueItems": true,
+          "contains": {"$ref": "#/$defs/search_aware_multi_step_policy"},
+          "minContains": 0,
+          "maxContains": 1
         },
         "policy_results": {
           "type": "array",
@@ -2872,12 +3225,182 @@
           "$ref": "#/$defs/policy_comparison_hidden_world_summary"
         },
         "recommended_policy": {
-          "$ref": "#/$defs/policy_recommendation"
+          "oneOf": [
+            {"$ref": "#/$defs/policy_recommendation"},
+            {"type": "null"}
+          ]
         },
         "hidden_card_inference_summary": {
           "$ref": "https://example.local/skat-ai/hidden_card_inference_summary.schema.json"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "policies": {
+                "contains": {"$ref": "#/$defs/search_aware_multi_step_policy"}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "items": {
+                  "required": [
+                    "eligible_for_recommendation",
+                    "ineligible_reason"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "recommended_policy": {
+                "type": "object",
+                "required": ["policy"],
+                "properties": {"policy": {"const": "first_legal"}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "first_legal"},
+                    "eligible_for_recommendation": {"const": true}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "recommended_policy": {
+                "type": "object",
+                "required": ["policy"],
+                "properties": {"policy": {"const": "lowest_point"}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "lowest_point"},
+                    "eligible_for_recommendation": {"const": true}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "recommended_policy": {
+                "type": "object",
+                "required": ["policy"],
+                "properties": {"policy": {"const": "highest_point"}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "highest_point"},
+                    "eligible_for_recommendation": {"const": true}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "recommended_policy": {
+                "type": "object",
+                "required": ["policy"],
+                "properties": {"policy": {"const": "highest_expected_value"}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "highest_expected_value"},
+                    "eligible_for_recommendation": {"const": true}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "recommended_policy": {
+                "type": "object",
+                "required": ["policy"],
+                "properties": {"policy": {"const": "bounded_search"}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "bounded_search"},
+                    "eligible_for_recommendation": {"const": true}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "recommended_policy": {
+                "type": "object",
+                "required": ["policy"],
+                "properties": {"policy": {"const": "auto"}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "auto"},
+                    "eligible_for_recommendation": {"const": true}
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

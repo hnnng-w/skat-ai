@@ -156,7 +156,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
 The published stable `v0.9.0` baseline passes 3,558 pytest tests.
-Current generated-output validation covers 54 deterministic scenarios. Position
+Current generated-output validation covers 56 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -206,6 +206,16 @@ They verify method-summary relationships, report separation, independent seeds,
 fallback metadata, standalone-schema registration, and absence of private Search
 state. Prior generated scenarios remain unchanged because omitted methods emit no
 new fields.
+
+Two further deterministic scenarios cover Search-aware Multi-Step execution and
+Search-inclusive Policy Comparison. The schema references the standalone bounded-
+Search result instead of duplicating it, rejects private or unknown decision
+properties, distinguishes executed and stopped decisions, constrains strict and
+auto fallback shapes, validates Search-only summary fields and compact ordered
+comparison diagnostics, and permits a null recommended policy. Runtime
+validation remains authoritative for card identity, count arithmetic, per-
+decision budget equality, eligibility selection, and public/coherent-world
+separation.
 
 The coherent-world scenario uses
 `examples/grand_coherent_hidden_world.json`, three Multi-Step steps,

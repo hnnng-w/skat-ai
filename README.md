@@ -30,6 +30,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Multi-step simulation
 * Configurable card-selection policies
 * Policy comparison across card-selection strategies
+* Opt-in bounded Search or `auto` at every Multi-Step local decision
+* Optional five-policy comparison with one configured Search method appended last
 * Declared-Ouvert exact public-hand ownership in Immediate Analysis, supported Multi-Step paths, and Policy Comparison
 * Opponent lead and response simulation
 * Opponent policy presets
@@ -177,7 +179,7 @@ python main.py --input examples/grand_second_position.json
 The existing Immediate expected-value recommendation remains the default. JSON
 input may explicitly select `immediate_expected_value`, strict `bounded_search`,
 or `auto`. Search methods require a complete `bounded_search_settings` object and
-are limited to flat, ongoing `live_decision` positions:
+are limited to ongoing `live_decision` positions:
 
 ```powershell
 python main.py --input examples/grand_bounded_search_exhaustive.json
@@ -189,6 +191,22 @@ valid result without a recommendation, and marks fallback only when Immediate
 returns a card. Search uses its own required seed; the existing top-level seed
 continues to control Immediate and auto fallback. No CLI method override is
 provided.
+
+The same configured Search method becomes the local Multi-Step policy when
+`--multi-step` is supplied and `--card-policy` is omitted. An explicit
+`--card-policy` must match that Search method; a legacy policy conflict, a
+strict/auto mismatch, or a Search card policy without matching JSON settings is
+rejected. Legacy inputs still default to `first_legal`.
+
+```powershell
+python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1
+python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1 --compare-policies
+```
+
+Search is rerun from the prepared public state at every local decision. Each
+decision receives the full configured budget freshly and a deterministic child
+of the explicit Search seed. Search never receives the coherent execution root;
+the selected public recommendation is executed separately in that root.
 
 Run immediate analysis with a configured opponent response policy:
 
@@ -593,7 +611,7 @@ calibrated. See
 [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and
 [Hidden-card inference](docs/hidden_card_inference.md).
 
-Remaining work includes extending Search beyond flat live recommendations,
+Remaining Search work includes Historical Review integration,
 Search-versus-Heuristic evaluation, production budgets and latency baselines,
 fuller Replay Coaching,
 approved settlement nuance, fixed-three-player 36-game list aggregation,

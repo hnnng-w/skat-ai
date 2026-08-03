@@ -2437,6 +2437,74 @@ def check_auto_search_fallback(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_search_aware_multi_step(data: dict[str, Any]) -> list[str]:
+    errors = []
+    result = data.get("multi_step_result")
+    if not isinstance(result, dict):
+        return ["expected Search-aware multi_step_result"]
+    if result["card_selection_policy"] != "bounded_search":
+        errors.append("expected bounded_search Multi-Step policy")
+    if result["steps_simulated"] != 1 or len(result["steps"]) != 1:
+        errors.append("expected one executed Search-aware decision")
+        return errors
+    step = result["steps"][0]
+    decision = step.get("recommendation_decision")
+    if not isinstance(decision, dict):
+        return [*errors, "expected recommendation_decision"]
+    if decision["recommendation_card"] != step["candidate_card"]:
+        errors.append("expected decision and executed card to match")
+    if decision["bounded_search_result"]["recommended_card"] != step["candidate_card"]:
+        errors.append("expected nested Search and executed card to match")
+    expected_summary = {
+        "requested_method": "bounded_search",
+        "decisions_attempted": 1,
+        "decisions_executed": 1,
+        "search_recommendations_used": 1,
+        "immediate_fallbacks_used": 0,
+        "no_recommendation_count": 0,
+    }
+    for key, value in expected_summary.items():
+        if result["summary"].get(key) != value:
+            errors.append(f"expected Multi-Step Search summary {key}={value}")
+    if "child_seed" in repr(result) or "exact_states" in repr(result):
+        errors.append("expected no child seed or private Search states")
+    return errors
+
+
+def check_search_inclusive_policy_comparison(data: dict[str, Any]) -> list[str]:
+    errors = check_search_aware_multi_step(data)
+    comparison = data.get("policy_comparison_result")
+    if not isinstance(comparison, dict):
+        return [*errors, "expected Search-inclusive policy_comparison_result"]
+    expected_policies = [
+        "first_legal",
+        "lowest_point",
+        "highest_point",
+        "highest_expected_value",
+        "bounded_search",
+    ]
+    if comparison["policies"] != expected_policies:
+        errors.append("expected four legacy policies followed by bounded_search")
+    rows = [
+        row
+        for row in comparison["policy_results"]
+        if row["policy"] == "bounded_search"
+    ]
+    if len(rows) != 1:
+        return [*errors, "expected exactly one bounded_search policy row"]
+    search_row = rows[0]
+    if not search_row["eligible_for_recommendation"]:
+        errors.append("expected completed Search policy to remain eligible")
+    if search_row["ineligible_reason"] is not None:
+        errors.append("expected no ineligibility reason for completed Search")
+    if search_row["recommendation_summary"]["search_recommendations_used"] != 1:
+        errors.append("expected one Search recommendation in comparison summary")
+    diagnostics = search_row["search_decision_diagnostics"]
+    if len(diagnostics) != 1 or diagnostics[0]["recommendation_card"] != "D7":
+        errors.append("expected one compact Search decision diagnostic")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -2463,6 +2531,20 @@ SCENARIOS = (
         input_path=PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json",
         branch="node-limited bounded Search with explicit Immediate fallback",
         check_output=check_auto_search_fallback,
+    ),
+    Scenario(
+        name="search_aware_multi_step",
+        input_path=PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json",
+        branch="one executed bounded-Search Multi-Step decision",
+        cli_args=("--multi-step", "1"),
+        check_output=check_search_aware_multi_step,
+    ),
+    Scenario(
+        name="search_inclusive_policy_comparison",
+        input_path=PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json",
+        branch="four legacy policies plus one bounded-Search comparison path",
+        cli_args=("--multi-step", "1", "--compare-policies"),
+        check_output=check_search_inclusive_policy_comparison,
     ),
     Scenario(
         name="local_live_multi_step_two_steps",

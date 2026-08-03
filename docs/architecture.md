@@ -227,6 +227,7 @@ hand becomes public; no second complete hand is serialized.
 | `src/skat_ai/simulation_step.py`       | Single simulation-step handling.                       |
 | `src/skat_ai/state_transition.py`      | Applies card plays and transitions game state.         |
 | `src/skat_ai/multi_step_simulation.py` | Multi-step simulation orchestration.                   |
+| `src/skat_ai/multi_step_recommendation.py` | Immutable privacy-safe Search decision and compact comparison diagnostics. |
 | `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
 
 The simulation layer is probabilistic and heuristic. It is designed for analysis support, not for perfect-information solving.
@@ -268,6 +269,16 @@ public hands. Local card-selection policies receive only public decision-time
 state and constraints. `highest_expected_value` retains separate public
 counterfactual Monte Carlo samples rather than reading the private path root.
 
+Explicit `bounded_search` or `auto` Multi-Step policies call the existing
+recommendation workflow after opponent preparation has become public. Each call
+receives the normalized declaration, current public opponent counts, current
+public-hand constraints and evidence, legitimate Skat visibility, a separate
+Immediate seed, and a per-decision Search configuration. It never receives the
+coherent world. The selected card is validated and then executed through the
+ordinary coherent transition. Search runs again at every local decision with a
+fresh copy of the requested budget and a child of
+`multi_step_bounded_search_decision_v1`.
+
 Seeded root sampling, opponent actions, and per-step expected-value samples use
 stable separate derived streams. Policy Comparison samples one shared root and
 gives equal independent immutable copies to all policy paths. Serialization
@@ -276,6 +287,11 @@ cards. Immediate Analysis derives one inference model per decision and gives all
 legal candidates a common compatible-world sequence without using a persistent
 root. See [Hidden-card inference](hidden_card_inference.md) and
 [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
+
+Policy Comparison retains the four legacy defaults. Explicit Search appends
+exactly the configured strict or auto method last. Every result remains visible,
+but a Search path stopped without a recommendation is marked ineligible, sorted
+after eligible paths, and excluded from the recommended-policy selection.
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the

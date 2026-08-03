@@ -13,12 +13,21 @@ from skat_ai.simulation import (
     estimate_immediate_trick_values_for_legal_cards,
 )
 
-VALID_CARD_SELECTION_POLICIES = [
+LEGACY_CARD_SELECTION_POLICIES = [
     "first_legal",
     "lowest_point",
     "highest_point",
     "highest_expected_value",
 ]
+SEARCH_AWARE_MULTI_STEP_POLICIES = ["bounded_search", "auto"]
+VALID_MULTI_STEP_POLICIES = [
+    *LEGACY_CARD_SELECTION_POLICIES,
+    *SEARCH_AWARE_MULTI_STEP_POLICIES,
+]
+DEFAULT_POLICY_COMPARISON_POLICIES = LEGACY_CARD_SELECTION_POLICIES.copy()
+
+# Retain the established name for callers that execute legacy card policies.
+VALID_CARD_SELECTION_POLICIES = LEGACY_CARD_SELECTION_POLICIES
 
 
 def get_legal_cards_for_state(state: GameState) -> list[str]:

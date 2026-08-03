@@ -43,6 +43,13 @@ counterfactual Monte Carlo samples. Those samples rank legal local candidates;
 they do not expose, replace, or mutate the private execution root used to carry
 the selected action forward. Other local card-selection policies are unchanged.
 
+Opt-in `bounded_search` and `auto` decisions use the same separation. Opponent
+actions first prepare the public decision in the coherent world. Search then
+receives only that prepared public state, public counts, authorized public hands,
+legitimate Skat visibility, and decision-time evidence. It reconstructs separate
+compatible worlds without receiving or comparing against the coherent root. The
+recommended legal local card is subsequently executed in the coherent world.
+
 Immediate Analysis does not create a persistent Multi-Step execution root. It
 derives one exact inference model for the decision and gives every legal
 candidate the same compatible-world sequence. Legal cards, policies, objectives,
@@ -54,7 +61,10 @@ Seeded Multi-Step execution derives stable separate random streams for the root
 world, opponent actions, and each step's `highest_expected_value`
 counterfactual samples. Root sampling therefore does not consume opponent-action
 randomness, and counterfactual sampling does not advance either execution
-stream. Unseeded execution remains probabilistic.
+stream. Search-aware Multi-Step derives the additional per-decision stream
+`multi_step_bounded_search_decision_v1` from the explicit Search base seed. It is
+not mixed with the coherent root, opponent actions, Immediate seed, policy name,
+outcome, or ownership. Unseeded legacy execution remains probabilistic.
 
 ## Policy Comparison
 
@@ -69,6 +79,12 @@ This keeps compared policies equal on initial hidden ownership as well as public
 constraints and settings. Differences cannot come from a separately resampled
 root. The existing ranking objective, tie-breakers, supported policies, and
 opponent-policy precedence are unchanged.
+
+Without Search configuration, the compared set remains exactly the four legacy
+policies. With explicit `bounded_search` or `auto`, exactly that policy is
+appended last. Its coherent copy is used only for opponent preparation and
+execution, never as a Search world or Search input. A no-recommendation Search
+path remains visible but is ineligible for recommended-policy selection.
 
 ## Output summaries
 
@@ -112,11 +128,10 @@ comparison and does not run Multi-Step or consume a private execution root.
 ## Unchanged scope and non-goals
 
 Supported and unsupported turn phases and `unsupported_turn_phase` stops are
-unchanged. This feature does not add automatic completion of opponent-only
-phases, new input fields, new policies, a solver, minimax, exhaustive world
-search, behavioral or Bayesian hidden-card inference, complete-contract expected
-value, learned behavior, model training, or confidence that the sampled root
-matches the real deal. Exact DP enumeration counts compatible assignments but
-does not expose or exhaustively simulate them. Scoring, settlement, training
-versions, and rolling metrics were unchanged by the feature. See
+unchanged. Search integration does not add automatic completion of opponent-only
+phases, new input fields, opponent Search, coherent-root access, path-global
+budgets, cross-decision caches, principal-line execution, behavioral or Bayesian
+hidden-card inference, learned behavior, model training, or confidence that the
+sampled root matches the real deal. Scoring, settlement, training versions, and
+rolling metrics remain unchanged. See
 [Hidden-card inference](hidden_card_inference.md).

@@ -1,20 +1,32 @@
 import random
 from typing import Any
 
-from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
+from skat_ai.card_selection import (
+    DEFAULT_POLICY_COMPARISON_POLICIES,
+    SEARCH_AWARE_MULTI_STEP_POLICIES,
+)
 from skat_ai.coherent_hidden_world import (
     build_coherent_hidden_world,
     copy_coherent_hidden_world,
     derive_simulation_child_seed,
 )
+from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
 from skat_ai.hidden_card_inference import (
     build_hidden_card_inference_model,
     build_hidden_card_inference_summary,
 )
+from skat_ai.multi_step_recommendation import (
+    LOCAL_POLICY_NO_RECOMMENDATION,
+    build_compact_search_decision_diagnostic,
+)
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
 from skat_ai.public_hand_constraint import PublicHandConstraint
+from skat_ai.recommendation_workflow import (
+    SEARCH_RECOMMENDATION_METHODS,
+    RecommendationMethodConfiguration,
+)
 from skat_ai.strategic_metadata import StrategicMetadata
 
 
@@ -35,11 +47,40 @@ def compare_multi_step_policies(
     right_opponent_policy_settings: dict[str, str] | None = None,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
+    game_declaration: GameDeclaration | None = None,
+    recommendation_configuration: RecommendationMethodConfiguration | None = None,
 ) -> dict[str, Any]:
     """
     Compares multiple card-selection policies on the same multi-step setup.
     """
-    selected_policies = policies or VALID_CARD_SELECTION_POLICIES
+    if policies is not None and not policies:
+        raise ValueError("Policy Comparison requires at least one policy.")
+    selected_policies = list(
+        DEFAULT_POLICY_COMPARISON_POLICIES if policies is None else policies
+    )
+    if len(selected_policies) != len(set(selected_policies)):
+        raise ValueError("Policy Comparison policies must be unique.")
+    search_policy = None
+    if (
+        recommendation_configuration is not None
+        and recommendation_configuration.requested_method in SEARCH_RECOMMENDATION_METHODS
+    ):
+        search_policy = recommendation_configuration.requested_method
+        if game_declaration is None:
+            raise ValueError("Search-inclusive Policy Comparison requires a declaration.")
+        selected_policies = [
+            policy for policy in selected_policies if policy != search_policy
+        ]
+        selected_policies.append(search_policy)
+    unexpected_search_policies = [
+        policy
+        for policy in selected_policies
+        if policy in SEARCH_AWARE_MULTI_STEP_POLICIES and policy != search_policy
+    ]
+    if unexpected_search_policies:
+        raise ValueError(
+            "Policy Comparison Search policy requires matching Search configuration."
+        )
 
     comparison_setup_seed = derive_simulation_child_seed(
         random_seed,
@@ -84,6 +125,10 @@ def compare_multi_step_policies(
                 shared_initial_hidden_world
             ),
             initial_hidden_card_inference_model=shared_inference_model,
+            game_declaration=(game_declaration if policy == search_policy else None),
+            recommendation_configuration=(
+                recommendation_configuration if policy == search_policy else None
+            ),
         )
 
         summary = multi_step_result["summary"]
@@ -104,6 +149,35 @@ def compare_multi_step_policies(
             ),
             "context_summary": summary["context_summary"],
         }
+        if search_policy is not None:
+            eligible = multi_step_result["stop_reason"] != LOCAL_POLICY_NO_RECOMMENDATION
+            policy_result["eligible_for_recommendation"] = eligible
+            policy_result["ineligible_reason"] = (
+                None if eligible else LOCAL_POLICY_NO_RECOMMENDATION
+            )
+        if policy == search_policy:
+            policy_result["recommendation_summary"] = {
+                key: summary[key]
+                for key in (
+                    "requested_method",
+                    "decisions_attempted",
+                    "decisions_executed",
+                    "search_recommendations_used",
+                    "immediate_fallbacks_used",
+                    "no_recommendation_count",
+                )
+            }
+            decisions = [
+                step["recommendation_decision"]
+                for step in multi_step_result["steps"]
+            ]
+            stopped = multi_step_result.get("stopped_recommendation_decision")
+            if stopped is not None:
+                decisions.append(stopped)
+            policy_result["search_decision_diagnostics"] = [
+                build_compact_search_decision_diagnostic(decision)
+                for decision in decisions
+            ]
 
         if state.game_type == "null":
             policy_result["_objective_utility"] = calculate_null_horizon_utility_from_states(
@@ -159,7 +233,11 @@ def find_best_policy_by_local_point_swing(
     """
     Returns the best policy result using the same ordering as the comparison table.
     """
-    policy_results = comparison_result["policy_results"]
+    policy_results = [
+        result
+        for result in comparison_result["policy_results"]
+        if result.get("eligible_for_recommendation", True)
+    ]
 
     if not policy_results:
         raise ValueError("No policy results available.")
@@ -192,6 +270,7 @@ def sort_policy_results_by_local_point_swing(
     """
     def build_sort_key(result: dict[str, Any]) -> tuple:
         point_sort_key = (
+            not result.get("eligible_for_recommendation", True),
             -result.get("local_point_swing", result["final_point_swing"]),
             -result["final_point_swing"],
             -result["declarer_points_gained"],
@@ -201,7 +280,11 @@ def sort_policy_results_by_local_point_swing(
         )
 
         if "_objective_utility" in result:
-            return (-result["_objective_utility"], *point_sort_key)
+            return (
+                point_sort_key[0],
+                -result["_objective_utility"],
+                *point_sort_key[1:],
+            )
 
         return point_sort_key
 
@@ -210,11 +293,14 @@ def sort_policy_results_by_local_point_swing(
 
 def build_policy_recommendation(
     comparison_result: dict[str, Any],
-) -> dict[str, Any]:
+) -> dict[str, Any] | None:
     """
     Builds a compact policy recommendation from a policy comparison result.
     """
-    best_policy = find_best_policy_by_local_point_swing(comparison_result)
+    try:
+        best_policy = find_best_policy_by_local_point_swing(comparison_result)
+    except ValueError:
+        return None
 
     reason = "Best final point swing after tie-breakers."
     if "_objective_utility" in best_policy:

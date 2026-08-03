@@ -1,6 +1,8 @@
 from typing import Any
 
+from skat_ai.bounded_search_result import build_serializable_bounded_search_result
 from skat_ai.game_state import GameState
+from skat_ai.multi_step_recommendation import MultiStepRecommendationDecision
 from skat_ai.opponent_sequence import build_serializable_opponent_sequence_result
 
 
@@ -24,6 +26,31 @@ def build_serializable_game_state(
         "declarer_points": state.declarer_points,
         "defender_points": state.defender_points,
         "next_player": state.next_player,
+    }
+
+
+def build_serializable_multi_step_recommendation_decision(
+    decision: MultiStepRecommendationDecision,
+    *,
+    executed_card: str | None,
+) -> dict[str, Any]:
+    """Serializes one aggregate-only Search-aware Multi-Step decision."""
+    if not isinstance(decision, MultiStepRecommendationDecision):
+        raise ValueError("Invalid Multi-Step recommendation decision.")
+    if decision.recommendation_card != executed_card:
+        raise ValueError("Recommendation decision card must match the executed card.")
+    return {
+        "step_index": decision.step_index,
+        "requested_method": decision.requested_method,
+        "effective_method": decision.effective_method,
+        "search_attempted": decision.search_attempted,
+        "recommendation_card": decision.recommendation_card,
+        "recommendation_reason": decision.recommendation_reason,
+        "fallback_used": decision.fallback_used,
+        "fallback_method": decision.fallback_method,
+        "bounded_search_result": build_serializable_bounded_search_result(
+            decision.bounded_search_result
+        ),
     }
 
 
@@ -60,6 +87,13 @@ def build_serializable_multi_step_step(
         serialized_step["hidden_card_inference_summary"] = step[
             "hidden_card_inference_summary"
         ]
+    if "recommendation_decision" in step:
+        serialized_step["recommendation_decision"] = (
+            build_serializable_multi_step_recommendation_decision(
+                step["recommendation_decision"],
+                executed_card=step["candidate_card"],
+            )
+        )
     return serialized_step
 
 
@@ -90,6 +124,13 @@ def build_serializable_multi_step_result(
         serialized_result["hidden_card_inference_summary"] = result[
             "hidden_card_inference_summary"
         ]
+    if "stopped_recommendation_decision" in result:
+        serialized_result["stopped_recommendation_decision"] = (
+            build_serializable_multi_step_recommendation_decision(
+                result["stopped_recommendation_decision"],
+                executed_card=None,
+            )
+        )
     return serialized_result
 
 
@@ -123,6 +164,28 @@ def build_serializable_policy_comparison_result(
                     policy_result["final_point_swing"],
                 ),
                 "context_summary": policy_result["context_summary"],
+                **(
+                    {
+                        "eligible_for_recommendation": policy_result[
+                            "eligible_for_recommendation"
+                        ],
+                        "ineligible_reason": policy_result["ineligible_reason"],
+                    }
+                    if "eligible_for_recommendation" in policy_result
+                    else {}
+                ),
+                **(
+                    {
+                        "recommendation_summary": policy_result[
+                            "recommendation_summary"
+                        ],
+                        "search_decision_diagnostics": policy_result[
+                            "search_decision_diagnostics"
+                        ],
+                    }
+                    if "recommendation_summary" in policy_result
+                    else {}
+                ),
             }
             for policy_result in result["policy_results"]
         ],

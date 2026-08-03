@@ -409,7 +409,7 @@ def test_default_cli_text_remains_without_method_lines() -> None:
     assert "Search status:" not in completed.stdout
 
 
-def test_search_rejects_multi_step_with_expected_exit_code() -> None:
+def test_search_supports_multi_step_with_expected_cli_output() -> None:
     completed = subprocess.run(
         [
             sys.executable,
@@ -425,5 +425,94 @@ def test_search_rejects_multi_step_with_expected_exit_code() -> None:
         check=False,
     )
 
+    assert completed.returncode == 0
+    assert "Card selection policy: bounded_search" in completed.stdout
+    assert "Requested recommendation method: bounded_search" in completed.stdout
+    assert "Search chosen card: D7" in completed.stdout
+    assert completed.stderr == ""
+
+
+def test_auto_multi_step_cli_labels_fallback_card_and_comparison_counts() -> None:
+    fallback = subprocess.run(
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "main.py"),
+            "--input",
+            str(FALLBACK_EXAMPLE),
+            "--multi-step",
+            "1",
+        ],
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    comparison = subprocess.run(
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "main.py"),
+            "--input",
+            str(EXHAUSTIVE_EXAMPLE),
+            "--multi-step",
+            "1",
+            "--compare-policies",
+        ],
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert fallback.returncode == 0
+    assert "Fallback method: immediate_expected_value" in fallback.stdout
+    assert "Fallback chosen card: D7" in fallback.stdout
+    assert "Search chosen card: D7" not in fallback.stdout
+    assert comparison.returncode == 0
+    assert (
+        "Search decisions: 1 attempted, 1 executed, 1 Search, 0 fallback, "
+        "0 no recommendation"
+    ) in comparison.stdout
+
+
+def test_search_multi_step_rejects_conflicting_explicit_card_policy() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "main.py"),
+            "--input",
+            str(EXHAUSTIVE_EXAMPLE),
+            "--multi-step",
+            "1",
+            "--card-policy",
+            "first_legal",
+        ],
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
     assert completed.returncode == 1
-    assert "flat position analysis" in completed.stderr
+    assert "conflicts with the configured Search" in completed.stderr
+
+
+def test_search_card_policy_requires_matching_json_configuration() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "main.py"),
+            "--input",
+            str(PROJECT_ROOT / "examples" / "grand_second_position.json"),
+            "--multi-step",
+            "1",
+            "--card-policy",
+            "bounded_search",
+        ],
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    assert "requires matching recommendation_method" in completed.stderr

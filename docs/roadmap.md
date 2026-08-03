@@ -40,6 +40,7 @@ Implemented:
 * Private compatible Search-world construction from `SearchInformationView`, exact counting with or without void evidence, canonical bounded enumeration, deterministic uniform IID sampling with replacement, retained duplicate accounting, strict exact-state materialization, and one frozen common legal-root world order
 * Executable `compatible_world_minimax_v1` with shared exact-world recursion, frozen-order common-prefix scheduling, global nodes, per-world depth and exact-only cache, one post-selection timeout window, equal duplicate-sample weighting, aggregate ranking, and threshold-gated partial or timeout recommendations
 * Explicit flat live `immediate_expected_value`, strict `bounded_search`, and Search-first `auto` recommendation methods with validated budgets, separate seeds, explicit fallback, report separation, schema output, CLI summaries, and privacy-safe examples
+* Opt-in Search-aware Multi-Step and Policy Comparison with public-state re-search at every local decision, fresh per-decision budgets, domain-separated child seeds, coherent execution-world separation, strict stopping, auto fallback, eligibility-aware ranking, and compact privacy-safe diagnostics
 
 ### Game history and scoring
 
@@ -258,9 +259,9 @@ Implemented:
   with strict exact-state materialization exist. Compatible execution retains
   only one exact common completed prefix and remains determinization-based and
   subject to strategy fusion. Null requires a bid no greater than its fixed
-  value; overbid Null replacement selection remains unsupported. Flat live JSON
-  recommendation, CLI summary, and explicit auto fallback exist. Multi-Step,
-  Policy Comparison, post-game and Historical Review Search,
+  value; overbid Null replacement selection remains unsupported. Flat and
+  opt-in Multi-Step/Policy Comparison live routing, CLI summaries, and explicit
+  auto fallback exist. Post-game and Historical Review Search,
   Search-versus-Heuristic evaluation, default or production budget profiles,
   performance baselines, and a latency promise do not exist.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
@@ -363,9 +364,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-Before `v1.0.0`, the project still requires Multi-Step, Policy Comparison, and
-Historical Review integration plus evaluation around the bounded compatible-
-world solver, fuller Replay Coaching, remaining
+Before `v1.0.0`, the project still requires Historical Review integration plus
+evaluation around the bounded compatible-world solver, fuller Replay Coaching, remaining
 approved settlement nuance,
 fixed-three-player 36-game list aggregation, remaining automatic dataset
 preparation, field-level live provenance, interactive live and retrospective
@@ -393,8 +393,9 @@ prefix aggregates, and preserves equal duplicate-draw weight. Exhaustive
 coverage is exact across compatible worlds, while sampled and partial claims are
 narrower; determinization and strategy fusion prevent an optimal imperfect-
 information policy claim. Flat live workflow and explicit fallback integration
-are implemented; evaluation, Multi-Step/Policy Comparison/Historical Review,
-production budgets, performance, and latency integration remain open, so the
+are implemented; opt-in Multi-Step and Policy Comparison are also integrated,
+while evaluation, Historical Review, production budgets, performance, and
+latency integration remain open, so the
 stronger-search completion gate is not closed.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.

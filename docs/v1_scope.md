@@ -68,8 +68,8 @@ The following directions are required for `v1.0.0`:
   exact complete-world state, deterministic legal transition, eligibility,
   budget, utility, result, exactness, privacy, and standalone-schema contracts,
   bounded `perfect_information_minimax_v1`, compatible-world Minimax and
-  aggregation, and explicit flat live strict/auto recommendation routing are
-  implemented. Multi-Step, Policy Comparison, Historical Review,
+  aggregation, explicit flat live strict/auto routing, and opt-in Multi-Step and
+  Policy Comparison routing are implemented. Historical Review,
   Search-versus-Heuristic evaluation, production budgets, performance and
   latency baselines, and release preparation remain open. See
   [Bounded search contracts](bounded_search_contracts.md).
@@ -128,6 +128,14 @@ area. No other area is unconditionally excluded.
 Every gate below must have automated evidence unless it explicitly names a
 manual release artifact. A feature field or example without source behavior,
 validation, and tests does not satisfy a gate.
+
+For the Search gate, Issue #114 adds opt-in live Multi-Step and Policy
+Comparison routing to the flat strict/auto baseline described in the compact
+table. Each local decision re-searches its current public state with a fresh
+per-decision budget and a domain-separated child seed, while the coherent world
+remains execution-only. Historical Review, post-game Search, comparative
+evaluation, production budgets, performance baselines, and latency guarantees
+remain open, so the stronger-search gate is not closed.
 
 | Area | Observable completion condition |
 | --- | --- |
@@ -241,11 +249,13 @@ caches, per-world depth reset, and exact common-prefix aggregation. Timeout clai
 retained prefix values. It exposes no ownership and does not inspect coherent
 execution roots. It remains determinization-based and subject to strategy
 fusion; even exhaustive enumeration does not prove an optimal imperfect-
-information policy. Explicit flat ongoing live recommendations now support
-strict Search and Search-first auto fallback with separate seeds, report
-separation, schema output, CLI summaries, and privacy-safe examples. Multi-Step,
-Policy Comparison, flat post-game review, Historical Review,
-Search-versus-Heuristic evaluation, default/production budgets, performance and
+information policy. Explicit ongoing live recommendations now support strict
+Search and Search-first auto fallback in flat and opt-in Multi-Step/Policy
+Comparison paths. Multi-Step re-searches each public decision with a fresh
+per-decision budget and domain-separated child seed, then executes the card in a
+separate coherent world. Output includes privacy-safe decision, summary,
+eligibility, and compact comparison diagnostics. Flat post-game review,
+Historical Review, Search-versus-Heuristic evaluation, default/production budgets, performance and
 latency baselines, and release preparation remain open, so this is evidence
 toward, not completion of, the stronger-search gate. See
 [Bounded search contracts](bounded_search_contracts.md).

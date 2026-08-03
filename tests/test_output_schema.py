@@ -977,6 +977,93 @@ def build_valid_output_with_optional_results() -> dict[str, object]:
     return data
 
 
+def test_schema_accepts_search_aware_multi_step_and_rejects_private_decision_data(
+    tmp_path: Path,
+) -> None:
+    from main import run_json_position_analysis
+
+    output_path = tmp_path / "search-multi-step.json"
+    run_json_position_analysis(
+        file_path=str(PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json"),
+        output_path=str(output_path),
+        multi_step_count=1,
+        compare_policies=True,
+        quiet=True,
+    )
+    data = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert_schema_valid(data)
+    private_decision = copy.deepcopy(data)
+    private_decision["multi_step_result"]["steps"][0]["recommendation_decision"][  # type: ignore[index]
+        "coherent_world"
+    ] = {"left_hand": ["C7"]}
+    assert_schema_invalid(private_decision)
+
+    private_search = copy.deepcopy(data)
+    private_search["multi_step_result"]["steps"][0]["recommendation_decision"][  # type: ignore[index]
+        "bounded_search_result"
+    ]["left_hand"] = ["C7"]
+    assert_schema_invalid(private_search)
+
+    missing_eligibility = copy.deepcopy(data)
+    del missing_eligibility["policy_comparison_result"]["policy_results"][0][  # type: ignore[index]
+        "eligible_for_recommendation"
+    ]
+    assert_schema_invalid(missing_eligibility)
+
+    recommended_ineligible = copy.deepcopy(data)
+    recommended_policy = recommended_ineligible["policy_comparison_result"][  # type: ignore[index]
+        "recommended_policy"
+    ]["policy"]
+    recommended_row = next(
+        row
+        for row in recommended_ineligible["policy_comparison_result"][  # type: ignore[index]
+            "policy_results"
+        ]
+        if row["policy"] == recommended_policy
+    )
+    recommended_row["eligible_for_recommendation"] = False
+    recommended_row["ineligible_reason"] = "local_policy_no_recommendation"
+    assert_schema_invalid(recommended_ineligible)
+
+
+def test_schema_accepts_search_aware_stopped_decision(tmp_path: Path) -> None:
+    from main import run_json_position_analysis
+
+    source = json.loads(
+        (PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    source["recommendation_method"] = "bounded_search"
+    input_path = tmp_path / "strict-no-recommendation.json"
+    input_path.write_text(json.dumps(source), encoding="utf-8")
+    output_path = tmp_path / "strict-no-recommendation-output.json"
+    run_json_position_analysis(
+        file_path=str(input_path),
+        output_path=str(output_path),
+        multi_step_count=1,
+        quiet=True,
+    )
+    data = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert data["multi_step_result"]["stop_reason"] == (
+        "local_policy_no_recommendation"
+    )
+    assert data["multi_step_result"]["stopped_recommendation_decision"][
+        "recommendation_card"
+    ] is None
+    assert_schema_valid(data)
+    invalid_stop = copy.deepcopy(data)
+    invalid_stop["multi_step_result"]["stop_reason"] = (
+        "Requested step count reached."
+    )
+    invalid_stop["multi_step_result"]["summary"]["stop_reason"] = (
+        "Requested step count reached."
+    )
+    assert_schema_invalid(invalid_stop)
+
+
 def build_valid_historical_output() -> dict[str, object]:
     input_path = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
     record = load_historical_game_from_json(str(input_path))

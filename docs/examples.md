@@ -201,6 +201,14 @@ Run local live Multi-Step analysis:
 python main.py --input examples/grand_second_position.json --multi-step 2
 ```
 
+Run one strict Search-aware Multi-Step decision and a Search-inclusive Policy
+Comparison using the example's explicit small structural budget and Search seed:
+
+```powershell
+python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1
+python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1 --compare-policies
+```
+
 Compare local card-selection policies:
 
 ```powershell
@@ -402,7 +410,7 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 54 scenarios, including the two explicit live Search method
+therefore covers 56 scenarios, including the two explicit flat live Search method
 branches, variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
@@ -410,6 +418,9 @@ play adjudication, open-card-throw adjudication, and the generated three-step
 coherent hidden-world Policy Comparison scenario based on
 `grand_coherent_hidden_world.json`, plus the exact hidden-card inference scenario
 with a `275275`-world root and later evidence progression.
+The two additional Search integration scenarios cover one executed strict
+Search-aware Multi-Step decision and one comparison containing the unchanged
+four legacy policies followed by `bounded_search`.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

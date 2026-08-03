@@ -7,8 +7,9 @@ eligibility semantics, budgets, terminal utility, aggregate results,
 deterministic serialization, and a strict standalone schema. They also include
 one executable bounded perfect-information Minimax solver for a caller-supplied
 exact world and one executable compatible-world Minimax method over a frozen
-selected-world sequence. The flat live recommendation workflow now consumes that
-result only when explicitly requested.
+selected-world sequence. The live recommendation workflow consumes that result
+only when explicitly requested, including at each local decision of an opt-in
+Multi-Step or Policy Comparison path.
 
 ## Current scope
 
@@ -29,10 +30,10 @@ owned by the existing game-value helpers.
 
 Compatible Search-world selection version `1` remains a private layer between
 `SearchInformationView` and `ExactSearchState`. The compatible-world solver
-consumes that frozen selection directly. It is integrated only into explicit
-flat ongoing live-position recommendation; it is not integrated into Multi-Step,
-Policy Comparison, flat post-game review, Historical Review, or historical-game
-workflows.
+consumes that frozen selection directly. It is integrated into explicit ongoing
+live-position recommendation and opt-in local Multi-Step/Policy Comparison
+decisions. It is not integrated into flat post-game review, Historical Review,
+or historical-game workflows.
 
 ## Search information
 
@@ -445,10 +446,10 @@ or missing keys are rejected, nullable timeout remains supported, and no default
 or production budget profile exists. Explicit Immediate and omitted methods
 reject Search settings.
 
-The Search workflow is restricted to flat `live_decision`, `not_ended`
+The Search workflow is restricted to position `live_decision`, `not_ended`
 positions. It rejects actual-card review, terminal shortening, impossible Null,
-post-game Skat, list and non-position workflows, Multi-Step, Policy Comparison,
-legacy non-empty `played_cards`, and unattributed completed history. Existing
+post-game Skat, list and non-position workflows, legacy non-empty `played_cards`,
+and unattributed completed history. Existing
 declared-Ouvert and supported continuation public hands are allowed only after
 their current information-policy resolution.
 
@@ -479,6 +480,57 @@ Search settings seed controls compatible-world selection. Exact enumeration
 consumes no random draws, changing only the Immediate seed cannot change a
 successful Search, and no derived child seed is serialized.
 
+## Multi-Step and Policy Comparison
+
+The four legacy local policies remain `first_legal`, `lowest_point`,
+`highest_point`, and `highest_expected_value`; only those policies execute
+through `choose_card_by_policy()`. Multi-Step additionally accepts
+`bounded_search` and `auto`, both routed through the existing recommendation
+workflow. The omitted Multi-Step default remains `first_legal`, and Policy
+Comparison remains the four legacy policies unless one Search method is
+explicitly configured. In that case exactly the configured method is appended
+last.
+
+At each local decision, opponent preparation first executes in the private
+coherent world. Those actions are then represented in the prepared public state,
+public exact-hand constraints and failure-to-follow evidence are updated, and
+Search runs only from that public boundary. It receives integer remaining hand
+sizes derived from initial public counts and attributed public path actions. The
+coherent root, private hands, hypothetical Skat, ownership map, root identity,
+and future path are never Search inputs. Search independently reconstructs its
+compatible worlds. The chosen legal local card is then executed in the coherent
+world, preserving exact owner removal and fixed-Skat continuity.
+
+Every decision reruns Search. Compatible selections, exact states, caches,
+principal lines, and candidate values are not shared between decisions. The
+same immutable requested budget applies freshly to each call, so total path cost
+scales with the number of attempted local decisions multiplied by the configured
+per-decision budget. There is no path-global budget.
+
+Each decision derives a child Search seed from the explicit Search base seed
+through `multi_step_bounded_search_decision_v1`. The decision index is the child
+index. The stream excludes the coherent root, opponent RNG, Immediate seed,
+policy name, policy result, and private ownership. Child seeds are not emitted.
+Existing root, opponent-action, expected-value, and Search-internal streams are
+unchanged.
+
+Strict `bounded_search` executes complete and qualified partial or timeout
+recommendations without Immediate fallback. A valid Search result without a
+recommendation stops before local execution with
+`local_policy_no_recommendation`; already prepared opponent actions remain in the
+final state and coherent transition counts. `auto` uses Search whenever it
+recommends, otherwise calls the existing Immediate fallback. If neither returns
+a card, fallback remains unmarked and the path stops for the same reason.
+Unexpected Search, information-view, result, or serialization errors propagate.
+
+Executed Search-aware steps expose one aggregate-only
+`recommendation_decision`; a pre-execution stop exposes
+`stopped_recommendation_decision`. Search-aware summaries reconcile attempts,
+executions, Search recommendations, Immediate fallbacks, and no-recommendation
+stops. Search-inclusive comparison rows add recommendation eligibility and
+compact ordered decision diagnostics. An ineligible Search row remains visible,
+sorts after eligible rows, and cannot become `recommended_policy`.
+
 ## Result privacy and schema
 
 `build_serializable_bounded_search_result` emits only the version, methods,
@@ -507,7 +559,7 @@ Both executable methods remain limited to late Suit, Grand, and supported normal
 Null play. Overbid Null remains unavailable because search does not select an
 impossible-Null replacement. Compatible-world Minimax is an internal
 determinization aggregate, not information-set search or an optimal policy
-proof. No Multi-Step, Policy Comparison, flat post-game, Historical Review,
+proof. No flat post-game or Historical Review Search,
 Search-versus-Heuristic evaluation, default budget, production profile, latency
 guarantee, confidence interval, adaptive sampling,
 Expectimax, strategy-fusion correction, or stable package-root API integration

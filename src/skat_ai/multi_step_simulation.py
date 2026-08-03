@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 import random
+from dataclasses import replace
 from typing import Any
 
-from skat_ai.card_selection import choose_card_by_policy
+from skat_ai.card_selection import (
+    LEGACY_CARD_SELECTION_POLICIES,
+    SEARCH_AWARE_MULTI_STEP_POLICIES,
+    VALID_MULTI_STEP_POLICIES,
+    choose_card_by_policy,
+)
 from skat_ai.coherent_hidden_world import (
     CoherentHiddenWorld,
     build_coherent_hidden_world,
@@ -12,11 +18,17 @@ from skat_ai.coherent_hidden_world import (
     reconcile_hidden_world_with_state,
     validate_coherent_hidden_world,
 )
+from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
 from skat_ai.hidden_card_inference import (
     HiddenCardInferenceModel,
     build_hidden_card_inference_model,
     build_hidden_card_inference_summary,
+)
+from skat_ai.multi_step_recommendation import (
+    LOCAL_POLICY_NO_RECOMMENDATION,
+    MULTI_STEP_BOUNDED_SEARCH_DECISION_STREAM,
+    build_multi_step_recommendation_decision,
 )
 from skat_ai.multi_step_summary import build_multi_step_summary
 from skat_ai.opponent_sequence import (
@@ -29,6 +41,11 @@ from skat_ai.public_hand_constraint import (
     PublicHandConstraint,
     remove_public_hand_cards,
 )
+from skat_ai.recommendation_workflow import (
+    RecommendationMethodConfiguration,
+    execute_recommendation_workflow,
+)
+from skat_ai.rules import get_legal_cards
 from skat_ai.simulation_context import (
     SimulationContext,
     add_simulated_opponent_plays,
@@ -137,6 +154,55 @@ def extract_opponent_cards_from_step(
 
     return opponent_cards
 
+
+def _advance_public_opponent_hand_sizes(
+    left_hand_size: int,
+    right_hand_size: int,
+    plays: tuple[tuple[str, str], ...],
+) -> tuple[int, int]:
+    """Applies attributed public opponent actions to public hand counts."""
+    for player, _card in plays:
+        if player == "left":
+            left_hand_size -= 1
+        elif player == "right":
+            right_hand_size -= 1
+        else:
+            raise ValueError(f"Unexpected opponent play owner: {player}")
+        if left_hand_size < 0 or right_hand_size < 0:
+            raise ValueError("Public opponent hand-size accounting became negative.")
+    return left_hand_size, right_hand_size
+
+
+def _validate_search_policy_inputs(
+    card_selection_policy: str,
+    game_declaration: GameDeclaration | None,
+    recommendation_configuration: RecommendationMethodConfiguration | None,
+    strategic_metadata: StrategicMetadata | None,
+) -> None:
+    if card_selection_policy not in VALID_MULTI_STEP_POLICIES:
+        raise ValueError(f"Invalid card selection policy: {card_selection_policy}")
+    if card_selection_policy in LEGACY_CARD_SELECTION_POLICIES:
+        return
+    if not isinstance(game_declaration, GameDeclaration):
+        raise ValueError("Search-aware Multi-Step requires a normalized game declaration.")
+    if not isinstance(
+        recommendation_configuration,
+        RecommendationMethodConfiguration,
+    ):
+        raise ValueError("Search-aware Multi-Step requires Search method configuration.")
+    if recommendation_configuration.requested_method != card_selection_policy:
+        raise ValueError("Multi-Step Search policy and recommendation method must match.")
+    if recommendation_configuration.search_random_seed is None:
+        raise ValueError("Search-aware Multi-Step requires an explicit Search base seed.")
+    if recommendation_configuration.requested_search_budget is None:
+        raise ValueError("Search-aware Multi-Step requires a requested Search budget.")
+    if strategic_metadata is None:
+        raise ValueError("Search-aware Multi-Step requires live strategic metadata.")
+    if strategic_metadata.analysis_mode != "live_decision":
+        raise ValueError("Search-aware Multi-Step requires analysis_mode='live_decision'.")
+    if strategic_metadata.game_end_reason != "not_ended":
+        raise ValueError("Search-aware Multi-Step requires game_end_reason='not_ended'.")
+
 def simulate_multiple_steps(
     state: GameState,
     left_hand_size: int,
@@ -156,6 +222,8 @@ def simulate_multiple_steps(
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
     initial_hidden_world: CoherentHiddenWorld | None = None,
     initial_hidden_card_inference_model: HiddenCardInferenceModel | None = None,
+    game_declaration: GameDeclaration | None = None,
+    recommendation_configuration: RecommendationMethodConfiguration | None = None,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -166,6 +234,12 @@ def simulate_multiple_steps(
     """
     if step_count <= 0:
         raise ValueError("step_count must be a positive integer.")
+    _validate_search_policy_inputs(
+        card_selection_policy,
+        game_declaration,
+        recommendation_configuration,
+        strategic_metadata,
+    )
 
     root_seed = derive_simulation_child_seed(random_seed, "root_world")
     opponent_action_seed = derive_simulation_child_seed(
@@ -213,8 +287,11 @@ def simulate_multiple_steps(
         hidden_world = initial_hidden_world
 
     current_state = state
+    public_left_hand_size = left_hand_size
+    public_right_hand_size = right_hand_size
     steps = []
     stop_reason = None
+    stopped_recommendation_decision = None
     context = (
         SimulationContext(
             strategic_metadata=strategic_metadata,
@@ -258,6 +335,11 @@ def simulate_multiple_steps(
                 "coherent path world is missing."
             )
         current_world = context.hidden_world
+        if (
+            len(current_world.left_hand) != public_left_hand_size
+            or len(current_world.right_hand) != public_right_hand_size
+        ):
+            raise ValueError("Public and coherent-world opponent hand sizes disagree.")
         reconcile_hidden_world_with_state(
             current_world,
             sampling_state,
@@ -271,8 +353,8 @@ def simulate_multiple_steps(
         )
         prepared_state, opponent_lead_result = prepare_state_for_player_action(
             current_state=sampling_state,
-            left_hand_size=len(current_world.left_hand),
-            right_hand_size=len(current_world.right_hand),
+            left_hand_size=public_left_hand_size,
+            right_hand_size=public_right_hand_size,
             random_generator=opponent_action_rng,
             opponent_lead_policy=opponent_lead_policy,
             opponent_response_policy=opponent_response_policy,
@@ -295,10 +377,22 @@ def simulate_multiple_steps(
             context.public_hand_constraints,
             [card for _, card in preparation_plays],
         )
+        prepared_left_hand_size, prepared_right_hand_size = (
+            _advance_public_opponent_hand_sizes(
+                public_left_hand_size,
+                public_right_hand_size,
+                preparation_plays,
+            )
+        )
+        if (
+            len(prepared_world.left_hand) != prepared_left_hand_size
+            or len(prepared_world.right_hand) != prepared_right_hand_size
+        ):
+            raise ValueError("Prepared public and coherent-world hand sizes disagree.")
         prepared_inference_model = build_hidden_card_inference_model(
             prepared_state,
-            len(prepared_world.left_hand),
-            len(prepared_world.right_hand),
+            prepared_left_hand_size,
+            prepared_right_hand_size,
             prepared_constraints,
         )
         reconcile_hidden_world_with_state(
@@ -313,28 +407,96 @@ def simulate_multiple_steps(
             step_index=step_index,
         )
 
-        candidate_card = choose_card_by_policy(
-            state=prepared_state,
-            policy=card_selection_policy,
-            left_hand_size=len(prepared_world.left_hand),
-            right_hand_size=len(prepared_world.right_hand),
-            expected_value_sample_count=expected_value_sample_count,
-            random_seed=derive_simulation_child_seed(
-                random_seed,
-                "expected_value_samples",
-                child_index=step_index,
-            ),
-            use_basic_opponent_strategy=use_basic_opponent_strategy,
-            opponent_response_policy_by_player=opponent_response_policy_by_player,
-            public_hand_constraints=prepared_constraints,
-            hidden_card_inference_model=prepared_inference_model,
+        immediate_seed = derive_simulation_child_seed(
+            random_seed,
+            "expected_value_samples",
+            child_index=step_index,
         )
+        recommendation_decision = None
+        if card_selection_policy in SEARCH_AWARE_MULTI_STEP_POLICIES:
+            if game_declaration is None or recommendation_configuration is None:
+                raise ValueError("Search-aware Multi-Step configuration is missing.")
+            decision_configuration = replace(
+                recommendation_configuration,
+                search_random_seed=derive_simulation_child_seed(
+                    recommendation_configuration.search_random_seed,
+                    MULTI_STEP_BOUNDED_SEARCH_DECISION_STREAM,
+                    child_index=step_index,
+                ),
+            )
+            recommendation_workflow = execute_recommendation_workflow(
+                configuration=decision_configuration,
+                state=prepared_state,
+                declaration=game_declaration,
+                left_hand_size=prepared_left_hand_size,
+                right_hand_size=prepared_right_hand_size,
+                sample_count=expected_value_sample_count,
+                immediate_random_seed=immediate_seed,
+                use_basic_opponent_strategy=use_basic_opponent_strategy,
+                opponent_response_policy_by_player=(
+                    opponent_response_policy_by_player or {}
+                ),
+                public_hand_constraints=prepared_constraints,
+                skat_visibility=strategic_metadata.skat_visibility,
+                immediate_unavailable_reason=None,
+            )
+            recommendation_decision = build_multi_step_recommendation_decision(
+                step_index,
+                recommendation_workflow,
+            )
+            candidate_card = recommendation_decision.recommendation_card
+            if candidate_card is None:
+                context = add_simulated_opponent_plays(context, preparation_plays)
+                context = update_public_hand_constraints(context, prepared_constraints)
+                context = update_hidden_world(context, prepared_world)
+                if preparation_plays:
+                    context = add_simulation_event(
+                        context,
+                        {
+                            "type": "opponent_preparation_before_local_stop",
+                            "step_index": step_index,
+                            "opponent_cards": [card for _, card in preparation_plays],
+                            "opponent_plays": preparation_plays,
+                        },
+                    )
+                current_state = prepared_state
+                public_left_hand_size = prepared_left_hand_size
+                public_right_hand_size = prepared_right_hand_size
+                if strict_context:
+                    validate_simulation_context(
+                        context,
+                        current_state,
+                        step_index=step_index,
+                    )
+                stopped_recommendation_decision = recommendation_decision
+                stop_reason = LOCAL_POLICY_NO_RECOMMENDATION
+                break
+        else:
+            candidate_card = choose_card_by_policy(
+                state=prepared_state,
+                policy=card_selection_policy,
+                left_hand_size=prepared_left_hand_size,
+                right_hand_size=prepared_right_hand_size,
+                expected_value_sample_count=expected_value_sample_count,
+                random_seed=immediate_seed,
+                use_basic_opponent_strategy=use_basic_opponent_strategy,
+                opponent_response_policy_by_player=opponent_response_policy_by_player,
+                public_hand_constraints=prepared_constraints,
+                hidden_card_inference_model=prepared_inference_model,
+            )
+
+        if candidate_card not in prepared_state.hand or candidate_card not in get_legal_cards(
+            prepared_state.hand,
+            prepared_state.current_trick,
+            prepared_state.game_type,
+        ):
+            raise ValueError("The local policy selected an illegal or unowned card.")
 
         step_result = simulate_and_advance_once(
             state=prepared_state,
             candidate_card=candidate_card,
-            left_hand_size=len(prepared_world.left_hand),
-            right_hand_size=len(prepared_world.right_hand),
+            left_hand_size=prepared_left_hand_size,
+            right_hand_size=prepared_right_hand_size,
             random_generator=opponent_action_rng,
             use_basic_opponent_strategy=use_basic_opponent_strategy,
             opponent_response_policy_by_player=opponent_response_policy_by_player,
@@ -348,6 +510,18 @@ def simulate_multiple_steps(
             "opponent_plays"
         ]
         opponent_plays = (*preparation_plays, *completion_plays)
+        public_left_hand_size, public_right_hand_size = (
+            _advance_public_opponent_hand_sizes(
+                prepared_left_hand_size,
+                prepared_right_hand_size,
+                completion_plays,
+            )
+        )
+        if (
+            len(updated_world.left_hand) != public_left_hand_size
+            or len(updated_world.right_hand) != public_right_hand_size
+        ):
+            raise ValueError("Updated public and coherent-world hand sizes disagree.")
 
         step = {
             "step_index": step_index,
@@ -359,6 +533,8 @@ def simulate_multiple_steps(
             "next_state": step_result["next_state"],
             "coherence_summary": build_hidden_world_summary(updated_world),
         }
+        if recommendation_decision is not None:
+            step["recommendation_decision"] = recommendation_decision
         prepared_inference_summary = build_hidden_card_inference_summary(
             prepared_inference_model
         )
@@ -429,6 +605,9 @@ def simulate_multiple_steps(
         "context_summary": build_context_summary(context),
         "steps": steps,
     }
+
+    if stopped_recommendation_decision is not None:
+        result["stopped_recommendation_decision"] = stopped_recommendation_decision
 
     result["summary"] = build_multi_step_summary(result)
     root_inference_summary = build_hidden_card_inference_summary(root_inference_model)
