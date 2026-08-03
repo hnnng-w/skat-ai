@@ -77,6 +77,10 @@ Implemented:
 * Supported Suit/Grand overbid detection
 * Supported Suit/Grand overbid settlement loss handling
 * Bounded impossible Null settlement from an externally supplied Suit or Grand replacement
+* Immutable [version-1 normative settlement matrix](settlement_normative_matrix.md)
+  with direct-rule,
+  approved-bounded, legacy, implementation-required, decision-required, and
+  `v0.11.0` exclusion classifications
 
 ### Game-end handling
 
@@ -228,6 +232,7 @@ Implemented:
 * Topic-specific documentation split into `docs/`
 * Project handoff documentation
 * Authoritative requirements traceability and testable `v1.0.0` scope
+* Version-1 settlement normative matrix and table-driven runtime-kind coverage
 
 ### CLI and workflow usability
 
@@ -261,8 +266,8 @@ Implemented:
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
-* Historical records support normal completion with at most one optional timed defender-open-play or declarer-card-exposure continuation, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throwing; other claims, multiple events, continuation followed by shortening, and other end reasons are not represented there.
-* Historical corrected play, unlimited exact solving, isolated or specific-trick claims, simultaneous throws, and full-card theoretical solving remain incomplete; general settlement coverage is incomplete.
+* Historical records support normal completion with at most one optional timed defender-open-play or declarer-card-exposure continuation, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throwing. The normative matrix approves at most one continuation followed by at most one supported terminal shortening, but implementation remains required; multiple non-terminal events, arbitrary event streams, other claims, and other end reasons are not represented there.
+* Historical corrected play and isolated or specific-trick claims remain incomplete; unlimited proof, simultaneous throws, and arbitrary event streams are outside `v0.11.0`; general settlement coverage is incomplete.
 * General live position inputs do not provide complete field-level provenance.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Version-1 bounded-search contracts, direct exact-world and compatible-world
@@ -402,6 +407,10 @@ exposures, bounded defender open play, open-card throwing, supported historical
 terminal and continuation events, variable-length workflows, Ouvert-aware
 recommendation, coherent hidden worlds, and bounded structural inference are
 already implemented.
+The approved [settlement matrix](settlement_normative_matrix.md) now defines
+their normative scope and the later bounded continuation-plus-terminal-
+shortening sequence without changing runtime behavior. Claims, Concessions, and
+Final Settlement remain partially supported.
 
 Full auction modeling, learned opponent profiles, machine-learning card-decision
 models, and platform or browser adapters are planned after `v1.0.0`. Formal
@@ -432,6 +441,8 @@ The active next planning milestone is `v0.11.0`, directed at Replay Coaching and
 remaining approved rule/claim/settlement completion. Its final theme,
 feature issue split, and implementation details require a separate focused
 repository analysis.
+Issue #118 establishes the normative settlement matrix as the first contract
+foundation for that milestone.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

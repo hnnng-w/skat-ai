@@ -30,6 +30,7 @@ The project focuses on:
 * dataset partition policies and stable-player overlap audits
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
+* immutable version-1 normative settlement and approved claim-boundary matrix
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -256,6 +257,9 @@ Implemented:
 * supported Suit/Grand overbid detection
 * supported Suit/Grand overbid settlement loss handling
 * bounded impossible Null settlement from an externally supplied Suit or Grand replacement
+* immutable version-1 normative settlement matrix covering current support,
+  bounded interpretations, legacy compatibility, approved later semantics,
+  decision-required claims, and `v0.11.0` exclusions
 
 Known remaining areas:
 
@@ -276,6 +280,10 @@ Implemented:
 
 General claims, specific-trick claims, defender-open-play proof beyond five
 unresolved tricks, and broader settlement nuance remain unsupported.
+The normative boundaries and the approved one-continuation-plus-one-terminal-
+shortening historical sequence are defined in
+[Settlement normative matrix](settlement_normative_matrix.md); the latter still
+requires implementation.
 
 ### Performance rating
 
@@ -495,6 +503,7 @@ Implemented:
 * `overbid.py`
 * `impossible_null_settlement.py`
 * `final_settlement.py`
+* `settlement_normative_matrix.py`
 * `performance_rating.py`
 
 ### Historical games and datasets
@@ -601,6 +610,7 @@ Main documentation files:
 * `docs/historical_opponent_statistics.md`
 * `docs/opponent_policy_evaluation.md`
 * `docs/requirements_traceability.md`
+* `docs/settlement_normative_matrix.md`
 * `docs/v1_scope.md`
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
@@ -753,7 +763,7 @@ Completed implementation scope:
 
 ## Current high-priority limitations
 
-* Historical records support normal completion with either one timed continuation kind, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throw; multiple events, continuation followed by shortening, other claims, and other end reasons remain unsupported.
+* Historical records support normal completion with either one timed continuation kind, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throw. One continuation followed by one supported terminal shortening now has approved matrix semantics but remains unimplemented; multiple non-terminal events, arbitrary event streams, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
 * General live position input lacks complete field-level provenance.
@@ -775,11 +785,10 @@ Completed implementation scope:
 
 ## Next recommended action
 
-The active next planning milestone is `v0.11.0`. The next action is a focused
-repository analysis covering Replay Coaching and the remaining approved
-rule/claim/settlement gaps. That analysis should establish the next bounded
-planning direction without creating the final feature-issue split in this
-publication-synchronization task.
+The active next planning milestone is `v0.11.0`. Settlement and claim work should
+use version 1 of the normative matrix as the implementation boundary, while
+Replay Coaching and remaining approved gaps continue as focused follow-up work.
+Issue #118 establishes this matrix as the first `v0.11.0` contract foundation.
 
 ## Open future topics
 

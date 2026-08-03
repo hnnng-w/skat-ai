@@ -9,6 +9,8 @@ The current published stable release and package baseline are `v0.10.0`.
 publication status. It validates 59 deterministic generated-output scenarios and
 4,075 pytest tests. The active next planning milestone is `v0.11.0`, directed at
 Replay Coaching and remaining approved rule/claim/settlement completion.
+Issue #118 establishes normative settlement matrix version 1 as the first
+contract foundation for `v0.11.0` without changing the published baseline.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -51,9 +53,13 @@ The following directions are required for `v1.0.0`:
   support normal completion, all five exact-prefix shortened terminal reasons,
   and one timed non-terminal defender-open-play or declarer-card-exposure
   continuation in a normal-completion record.
-* Complete the approved normative settlement matrix, including structured claim
-  and concession outcomes, while preserving the bounded impossible Null
-  interpretation from the International Skat Court decision collection.
+* Complete the approved
+  [normative settlement matrix](settlement_normative_matrix.md), including
+  structured claim and concession outcomes, while preserving the bounded impossible Null
+  interpretation from the International Skat Court decision collection. Matrix
+  version 1 now defines the approved classifications and policy boundaries;
+  runtime completion remains open where cases are marked `implementation_required`
+  or `decision_required`.
 * Represent complete historical games as validated training and evaluation data
   without requiring model training.
 * Preserve versioned external and exact historically aggregated opponent
@@ -197,8 +203,11 @@ normal completion and all five shortened terminal reasons with game-level
 source weighting, actual-play target weighting, and strict as-of safety. The
 bounded flat 4.4.4 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
 constraint are implemented for both flat and timed historical normal-completion
-play. Multiple events and continuation followed by shortening remain
-unsupported. Full auction representation is planned after v1.0.
+play. The matrix approves at most one supported non-terminal continuation
+followed by at most one supported terminal shortening, but that sequence still
+requires implementation. Multiple non-terminal continuation events and
+arbitrary event streams are outside `v0.11.0`. Full auction representation is
+planned after v1.0.
 
 The generic position workflow now has bounded version-1 declarer-concession
 adjudication under ISkO 4.4.1 and 4.4.2 plus defender-concession adjudication
@@ -215,11 +224,13 @@ Bounded flat post-game open card throw under 4.4.6 supports either party, one
 concrete complete thrown hand, empty through two-card current tricks, opposing-
 party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
-This does not close broader v1 gates for multiple non-terminal events,
-continuation followed by shortening, other historical claims/shortening,
-general corrected play,
-isolated or specific-trick claims, simultaneous throws, full-card theoretical
-solving, or complete settlement coverage.
+This does not close broader v1 gates for the approved but unimplemented bounded
+continuation-plus-terminal-shortening sequence, other historical
+claims/shortening, general corrected play, party-wide or specific-trick claims,
+generalized non-jack theoretical exclusion, or complete settlement coverage.
+Multiple non-terminal events, arbitrary event streams, simultaneous throws,
+unlimited proof, free-text or natural-language interpretation, generative
+adjudication, and unclassified conduct remain outside `v0.11.0`.
 
 Bounded historical player-statistics aggregation is supported from the same
 dataset container under either compliant policy, but it does not infer or change policy and is not a
