@@ -2,8 +2,8 @@
 
 Version-1 historical games support one terminal open-card throw under ISkO
 4.4.6. The event extends the historical `game_end` union; it is not a
-`game_events` continuation and cannot coexist with `game_events` or another
-terminal event.
+`game_events` continuation. One supported non-terminal continuation may precede
+it, but another terminal event cannot coexist with it.
 
 ## Event contract
 
@@ -98,10 +98,10 @@ classification, threshold, policy, preset, or prediction target is added.
 
 ## Boundaries
 
-Version 1 does not support simultaneous throws, a prior terminal event,
-`game_events` combinations, continued play, specific future-trick claims,
-full-card theoretical solving, exact rest-trick proof, throw or statement
-prediction, learned models, or four-player tables.
+Version 1 does not support simultaneous throws, a prior terminal event, multiple
+continuations, arbitrary event streams, continued play after the throw, specific
+future-trick claims, full-card theoretical solving, exact rest-trick proof, throw
+or statement prediction, learned models, or four-player tables.
 
 See
 [`examples/historical_grand_open_card_throw.json`](../examples/historical_grand_open_card_throw.json),

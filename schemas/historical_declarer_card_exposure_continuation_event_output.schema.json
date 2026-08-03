@@ -82,12 +82,23 @@
     "claimed_play_level": {"enum": ["simple", "schneider", "schwarz"]},
     "claimed_play_level_status": {"const": "continuation_required_no_immediate_settlement_effect"},
     "first_affected_decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
-    "actual_plays_after_event": {"type": "integer", "minimum": 1, "maximum": 30},
+    "actual_plays_after_event": {"type": "integer", "minimum": 0, "maximum": 30},
     "exact_proof_applied": {"const": false},
     "game_end_applied": {"const": false},
     "settlement_applied": {"const": false},
-    "final_game_end_reason": {"const": "normal_completion"},
-    "final_outcome_source": {"const": "actual_continued_play"}
+    "final_game_end_reason": {
+      "enum": [
+        "normal_completion",
+        "declarer_concession",
+        "defender_concession",
+        "declarer_card_exposure",
+        "defender_open_play",
+        "open_card_throw"
+      ]
+    },
+    "final_outcome_source": {
+      "enum": ["actual_continued_play", "subsequent_terminal_shortening"]
+    }
   },
   "allOf": [
     {

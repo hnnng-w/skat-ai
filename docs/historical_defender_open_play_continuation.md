@@ -8,7 +8,8 @@ the final result.
 
 ## Record contract
 
-The containing game remains an ordinary normal completion:
+The containing game may end normally or through one later supported terminal
+shortening. Normal completion uses:
 
 ```json
 {
@@ -30,8 +31,11 @@ The containing game remains an ordinary normal completion:
 `game_events` is optional. When absent, canonical records and behavior are
 unchanged and no empty array or event summary is emitted. Version 1 accepts at
 most one event, either this kind or `declarer_card_exposure_continuation`, no
-terminal `game_end`, exactly ten complete tricks, and all 30 actual card plays.
-Multiple events and continuation followed by a shortened end remain unsupported.
+terminal `game_end` for normal completion, exactly ten complete tricks, and all
+30 actual card plays. Alternatively, the same event may precede one of the five
+existing terminal `game_end` kinds. The terminal object remains top-level and is
+not copied into `game_events`. Multiple continuations and arbitrary event streams
+remain unsupported.
 
 The event schema version is independent of the historical-game schema version;
 both currently equal `1`. Unsupported versions, kinds, missing fields, unknown
@@ -93,6 +97,13 @@ snapshots `N+1..30` are post-event states. Post-event
 actual exposing-defender play removes that card; no extra card is assigned and a
 played card never returns. The constraint is empty after completed play.
 
+For terminal shortening, `N` may equal the final recorded play count; otherwise
+the public hand shrinks only when the exposing defender actually plays. At the
+terminal boundary it must exactly equal that defender's reconstructed remaining
+hand. The terminal adjudicator then applies independently. The continuation
+summary keeps all proof, game-end, and settlement flags false and reports
+`final_outcome_source: "subsequent_terminal_shortening"`.
+
 Declared ouvert remains independent. When both hands are public, snapshots use
 stable seat order. Visible matador inference treats the continuation hand as
 known defending-party ownership and still treats declared-ouvert declarer cards
@@ -120,7 +131,8 @@ hands or plays, event facts before their boundary, final result, or settlement.
 See [Hidden-card inference](hidden_card_inference.md).
 
 The event is not a review decision. Normal review still has 30 actual-card
-decisions. Training still has 30 samples, feature-generation version `1`, stable
+decisions; shortened chains use only their zero through 29 actual plays. Training
+uses the same cardinality, feature-generation version `1`, stable
 `record_id:decision_index` sample IDs, and the `actual_card_played` target.
 Pre-event samples contain no event information. Post-event samples carry only
 the authorized hand through the existing relative public-exposure feature.
@@ -131,10 +143,11 @@ features or labels.
 
 ## Result and opponent workflows
 
-All ten actual trick winners and ordinary normal-completion scoring remain
-authoritative. The event adds no level and cannot change points, winner,
-Schneider, Schwarz, game value, overbid, or final settlement for the same play
-history. It may change only post-event analysis because more ownership is public.
+All actual trick winners remain authoritative. The event adds no level and cannot
+itself change points, winner, Schneider, Schwarz, game value, overbid, or final
+settlement. Normal play or the independently delegated terminal shortening
+determines those values. The event may change only post-event card analysis
+because more ownership is public.
 
 Dataset membership and partition semantics remain participant-based. Historical
 statistics count one ordinary completed game per participant and use only final

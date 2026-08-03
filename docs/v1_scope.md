@@ -52,7 +52,7 @@ The following directions are required for `v1.0.0`:
   settlement, and eligible decisions retrospectively. Current complete records
   support normal completion, all five exact-prefix shortened terminal reasons,
   and one timed non-terminal defender-open-play or declarer-card-exposure
-  continuation in a normal-completion record.
+  continuation before normal completion or one supported terminal shortening.
 * Complete the approved
   [normative settlement matrix](settlement_normative_matrix.md), including
   structured claim and concession outcomes, while preserving the bounded impossible Null
@@ -185,9 +185,10 @@ milestone is complete, but the stronger-search gate is not closed.
 The historical-game workflow satisfies deal-through-settlement for
 `normal_completion`, exact-prefix declarer and defender concessions,
 unanimously accepted declarer-card exposure, bounded terminal defender open
-play, and terminal open-card throwing. Normal completion may contain at most one
-timed non-terminal defender-open-play or declarer-card-exposure continuation while retaining all ten tricks
-and 30 actual plays. Every supported terminal record can reconstruct one
+play, and terminal open-card throwing. Any supported final reason may contain at
+most one timed non-terminal defender-open-play or declarer-card-exposure
+continuation. Normal completion retains all ten tricks and 30 actual plays; a
+terminal chain ends after zero through 29 plays. Every supported terminal record can reconstruct one
 information-safe pre-play state per actual card, including valid zero-decision
 records. Continuation public hands are visible only after their event boundary,
 and declared-Ouvert hands are visible from decision 1. Bounded review and
@@ -202,10 +203,9 @@ reasons remain open. Historical statistics and rolling policy evaluation support
 normal completion and all five shortened terminal reasons with game-level
 source weighting, actual-play target weighting, and strict as-of safety. The
 bounded flat 4.4.4 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
-constraint are implemented for both flat and timed historical normal-completion
-play. The matrix approves at most one supported non-terminal continuation
-followed by at most one supported terminal shortening, but that sequence still
-requires implementation. Multiple non-terminal continuation events and
+constraint are implemented for flat and timed historical play. At most one
+supported non-terminal continuation may be followed by normal completion or at
+most one supported terminal shortening. Multiple non-terminal continuation events and
 arbitrary event streams are outside `v0.11.0`. Full auction representation is
 planned after v1.0.
 
@@ -224,9 +224,8 @@ Bounded flat post-game open card throw under 4.4.6 supports either party, one
 concrete complete thrown hand, empty through two-card current tricks, opposing-
 party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
-This does not close broader v1 gates for the approved but unimplemented bounded
-continuation-plus-terminal-shortening sequence, other historical
-claims/shortening, general corrected play, party-wide or specific-trick claims,
+This does not close broader v1 gates for other historical claims/shortening,
+general corrected play, party-wide or specific-trick claims,
 generalized non-jack theoretical exclusion, or complete settlement coverage.
 Multiple non-terminal events, arbitrary event streams, simultaneous throws,
 unlimited proof, free-text or natural-language interpretation, generative

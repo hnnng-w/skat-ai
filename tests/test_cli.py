@@ -50,6 +50,16 @@ HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH = (
     / "examples"
     / "historical_grand_declarer_card_exposure_continuation.json"
 )
+HISTORICAL_DEFENDER_CONTINUATION_CONCESSION_INPUT_PATH = (
+    PROJECT_ROOT
+    / "examples"
+    / "historical_grand_defender_open_play_continuation_declarer_concession.json"
+)
+HISTORICAL_DECLARER_CONTINUATION_DEFENDER_CONCESSION_INPUT_PATH = (
+    PROJECT_ROOT
+    / "examples"
+    / "historical_grand_declarer_card_exposure_continuation_defender_concession.json"
+)
 TRAINING_DATASET_INPUT_PATH = PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 OPPONENT_STATISTICS_INPUT_PATH = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 HISTORICAL_OPPONENT_STATISTICS_INPUT_PATH = (
@@ -396,6 +406,49 @@ def test_cli_historical_declarer_exposure_continuation_prints_timed_summary() ->
     assert "Decision snapshots generated: 30" in completed_process.stdout
     assert "Public declarer hand begins at decision: 13" in completed_process.stdout
     assert "Exact proof:" not in completed_process.stdout
+
+
+def test_cli_historical_chain_prints_continuation_and_terminal_summary() -> None:
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_DEFENDER_CONTINUATION_CONCESSION_INPUT_PATH,
+        "--historical-decision-snapshots",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "End reason: declarer concession" in completed_process.stdout
+    assert "Non-terminal event: defender open-play continuation" in (
+        completed_process.stdout
+    )
+    assert "Event after played cards: 12" in completed_process.stdout
+    assert "Actual plays after the event: 2" in completed_process.stdout
+    assert "Historical decision snapshots: 14" in completed_process.stdout
+    assert "Public defender hand begins at decision: 13" in completed_process.stdout
+    assert "Settlement: -96" in completed_process.stdout
+
+
+def test_cli_historical_immediate_chain_quiet_output_preserves_both_summaries(
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "historical-immediate-chain.json"
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_DECLARER_CONTINUATION_DEFENDER_CONCESSION_INPUT_PATH,
+        "--output",
+        output_path,
+        "--quiet",
+    )
+
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == ""
+    assert completed_process.stderr == ""
+    result = json.loads(output_path.read_text(encoding="utf-8"))
+    summary = result["historical_game_summary"]
+    event = summary["historical_game_events_summary"]["events"][0]
+    assert summary["historical_game_end_summary"]["kind"] == "defender_concession"
+    assert event["actual_plays_after_event"] == 0
+    assert event["final_outcome_source"] == "subsequent_terminal_shortening"
 
 
 def test_cli_historical_declarer_concession_quiet_output_is_private_and_schema_ready(

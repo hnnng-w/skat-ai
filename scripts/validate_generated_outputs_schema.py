@@ -1722,6 +1722,59 @@ def check_historical_declarer_card_exposure_continuation_snapshots(
     return errors
 
 
+def check_historical_continuation_terminal_chain(data: dict[str, Any]) -> list[str]:
+    """Checks separated continuation and terminal summaries at both chain boundaries."""
+    errors = []
+    summary = data.get("historical_game_summary")
+    if not isinstance(summary, dict):
+        return ["expected historical game summary"]
+    events = summary.get("historical_game_events_summary", {}).get("events", [])
+    end = summary.get("historical_game_end_summary")
+    if len(events) != 1 or not isinstance(end, dict):
+        return ["expected both continuation and terminal summaries"]
+    event = events[0]
+    if event["final_game_end_reason"] != end["kind"]:
+        errors.append("expected continuation summary to name the terminal reason")
+    if event["final_outcome_source"] != "subsequent_terminal_shortening":
+        errors.append("expected subsequent terminal shortening outcome source")
+    if any(
+        event[field]
+        for field in ("exact_proof_applied", "game_end_applied", "settlement_applied")
+    ):
+        errors.append("continuation must remain non-adjudicating")
+    snapshots = summary.get("decision_snapshot_summary", {}).get("snapshots", [])
+    if len(snapshots) != 14:
+        errors.append("expected one snapshot for each of 14 actual card plays")
+        return errors
+    if event["kind"] == "defender_open_play_continuation":
+        if event["after_play_count"] != 12 or event["actual_plays_after_event"] != 2:
+            errors.append("expected two plays after the defender continuation")
+        if snapshots[11]["visible_state"]["public_exposed_cards"]:
+            errors.append("pre-continuation snapshot must not expose the defender hand")
+        if snapshots[12]["visible_state"]["public_exposed_cards"] != [
+            {
+                "player_id": "player-a",
+                "cards": ["CQ", "CJ", "C9", "C8", "C7", "S10"],
+            }
+        ]:
+            errors.append("first post-continuation snapshot must expose the exact hand")
+        if snapshots[13]["visible_state"]["public_exposed_cards"] != [
+            {
+                "player_id": "player-a",
+                "cards": ["CJ", "C9", "C8", "C7", "S10"],
+            }
+        ]:
+            errors.append("public defender hand must shrink after its actual play")
+    else:
+        if event["after_play_count"] != 14 or event["actual_plays_after_event"] != 0:
+            errors.append("expected immediate terminal action at the exposure boundary")
+        if any(
+            snapshot["visible_state"]["public_exposed_cards"] for snapshot in snapshots
+        ):
+            errors.append("same-boundary terminal action must add no card-play snapshot")
+    return errors
+
+
 def check_historical_game_review(data: dict[str, Any]) -> list[str]:
     """Checks the deterministic complete historical decision review."""
     errors = check_historical_game_normal_completion(data)
@@ -3004,6 +3057,32 @@ SCENARIOS = (
         branch="timed historical public declarer-hand transition",
         cli_args=("--historical-decision-snapshots", "--quiet"),
         check_output=check_historical_declarer_card_exposure_continuation_snapshots,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="historical_defender_continuation_then_declarer_concession",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "historical_grand_defender_open_play_continuation_declarer_concession.json"
+        ),
+        branch="defender continuation followed by terminal declarer concession",
+        cli_args=("--historical-decision-snapshots", "--quiet"),
+        check_output=check_historical_continuation_terminal_chain,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="historical_declarer_continuation_then_defender_concession",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "historical_grand_declarer_card_exposure_continuation_defender_concession.json"
+        ),
+        branch="declarer continuation followed immediately by defender concession",
+        cli_args=("--historical-decision-snapshots", "--quiet"),
+        check_output=check_historical_continuation_terminal_chain,
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),

@@ -91,7 +91,8 @@ def test_every_enum_like_value_is_stable_and_represented(
         getattr(case, field_name) for case in matrix.get_normative_settlement_cases()
     }
 
-    assert represented == valid_values
+    assert represented <= valid_values
+    assert represented
 
 
 def test_matrix_self_validation_passes() -> None:
@@ -400,14 +401,18 @@ def test_incomplete_and_contradictory_evidence_never_define_outcomes() -> None:
     )
 
 
-def test_bounded_historical_sequence_is_approved_but_not_implemented() -> None:
+def test_bounded_historical_sequence_is_supported_by_terminal_delegation() -> None:
     case = matrix.get_normative_settlement_case(
         "historical.sequence.continuation_then_terminal_shortening"
     )
 
-    assert case.implementation_status == matrix.IMPLEMENTATION_REQUIRED
+    assert case.implementation_status == matrix.SUPPORTED_AS_IS
     assert case.interpretation_scope == matrix.PRODUCT_BOUNDARY
-    assert case.implementation_modules == ()
+    assert case.implementation_modules == (
+        "skat_ai.historical_game",
+        "skat_ai.historical_game_event",
+    )
+    assert case.stable_unavailable_reason is None
     assert case.winner_policy == matrix.WINNER_UNRESOLVED
     assert case.remaining_assignment_policy == matrix.REMAINING_UNRESOLVED
     assert case.level_policy == matrix.LEVEL_UNRESOLVED

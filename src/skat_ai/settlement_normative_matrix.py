@@ -741,7 +741,7 @@ SETTLEMENT_NORMATIVE_MATRIX = (
         contract_scope="historical_all_supported_contracts",
         pre_end_decision_state="delegated_to_supported_terminal_case",
         evidence_class=EXACT_COMPLETE_WORLD,
-        implementation_status=IMPLEMENTATION_REQUIRED,
+        implementation_status=SUPPORTED_AS_IS,
         interpretation_scope=PRODUCT_BOUNDARY,
         winner_policy=WINNER_UNRESOLVED,
         remaining_assignment_policy=REMAINING_UNRESOLVED,
@@ -749,7 +749,10 @@ SETTLEMENT_NORMATIVE_MATRIX = (
         overbid_policy=OVERBID_UNRESOLVED,
         settlement_policy=EXISTING_SHORTENING_SETTLEMENT,
         terminal_effect=TERMINAL,
-        stable_unavailable_reason="historical_event_chain_not_implemented",
+        implementation_modules=(
+            "skat_ai.historical_game",
+            "skat_ai.historical_game_event",
+        ),
         delegated_terminal_case_ids=(
             "structured_shortening.declarer_card_exposure.accepted_preexisting",
             "structured_shortening.declarer_card_exposure.accepted_undecided",
@@ -1504,8 +1507,11 @@ def validate_normative_settlement_matrix(
             raise ValueError(f"{case.case_id} requires a stable unavailable reason.")
 
         if case.delegated_terminal_case_ids:
-            if case.implementation_status != IMPLEMENTATION_REQUIRED:
-                raise ValueError(f"{case.case_id} cannot delegate implemented behavior.")
+            if case.implementation_status not in {
+                IMPLEMENTATION_REQUIRED,
+                SUPPORTED_AS_IS,
+            }:
+                raise ValueError(f"{case.case_id} cannot delegate terminal behavior.")
             if len(case.delegated_terminal_case_ids) != len(
                 set(case.delegated_terminal_case_ids)
             ):

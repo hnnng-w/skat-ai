@@ -112,9 +112,10 @@ top-level workflows. Historical continuation uses the separate stable-ID
 
 Declared-Ouvert analysis reuses this exact-hand infrastructure and deterministically
 deduplicates identical declarer evidence in favor of source `declared_ouvert`.
-This continuation feature still does not add multiple historical events,
-continuation followed by shortening, new policies, later
-final-settlement adjudication, or
+The historical counterpart supports one continuation followed by one existing
+terminal shortening, but this flat continuation still adds no terminal
+settlement itself. Neither form adds multiple continuations, arbitrary event
+streams, new policies, or
 behavioral/Bayesian or broader hidden-card inference or proof that the sampled
 world is the real deal. The bounded structural model is documented in
 [Hidden-card inference](hidden_card_inference.md).

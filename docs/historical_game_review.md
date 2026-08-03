@@ -1,11 +1,12 @@
 # Historical game review
 
 Historical game review evaluates every actual card play in a validated normal-
-completion, including either timed public-hand continuation, declarer-concession,
-defender-concession, declarer-card-exposure, or terminal defender-open-play record through the existing immediate
-recommendation and post-game review logic. Normal completion remains 30
-decisions; shortened review contains zero through 29 decisions. The terminal
-event is not evaluated as a card choice.
+completion or supported shortened record through the existing immediate
+recommendation and post-game review logic. Either timed public-hand continuation
+may precede normal completion or one supported terminal shortening. Normal
+completion remains 30 decisions; shortened review contains zero through 29
+decisions. Neither the continuation nor the terminal event is evaluated as a
+card choice.
 
 Rolling opponent-policy evaluation is a separate workflow. It predicts the
 acting player's observed card with their own game-start profile and the fixed
@@ -80,7 +81,9 @@ After either continuation boundary, the stable public-hand owner is mapped
 relative to each actor and supplied through the existing exact
 `PublicHandConstraint`. No extra card enters that hand. Pre-event decisions are
 identical to the no-event record, and no event, claim, or response decision is
-reviewed.
+reviewed. A later terminal shortening contributes no future evidence to any
+earlier snapshot; shared card-play prefixes therefore produce identical Immediate
+and Search inputs even when their later terminal objects differ.
 
 The coherent private root used by Multi-Step is not created from the historical
 deal for review. Comparison and Multi-Step overrides remain unsupported, and

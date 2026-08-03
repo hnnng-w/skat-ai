@@ -203,6 +203,9 @@ def build_historical_defender_open_play_continuation_summary(
     context: HistoricalDefenderOpenPlayContinuationContext,
     *,
     event_index: int,
+    final_recorded_play_count: int = 30,
+    final_game_end_reason: str = "normal_completion",
+    terminal_shortening: bool = False,
 ) -> dict[str, Any]:
     """Builds the privacy-safe, non-adjudicating historical event summary."""
     event = context.event
@@ -229,10 +232,14 @@ def build_historical_defender_open_play_continuation_summary(
         "rest_trick_claim_status": "not_adjudicated_due_to_continued_play",
         "continued_play_effect": "open_play_consequence_disregarded",
         "first_affected_decision_index": event.after_play_count + 1,
-        "actual_plays_after_event": 30 - event.after_play_count,
+        "actual_plays_after_event": final_recorded_play_count - event.after_play_count,
         "exact_proof_applied": False,
         "game_end_applied": False,
         "settlement_applied": False,
-        "final_game_end_reason": "normal_completion",
-        "final_outcome_source": "actual_continued_play",
+        "final_game_end_reason": final_game_end_reason,
+        "final_outcome_source": (
+            "subsequent_terminal_shortening"
+            if terminal_shortening
+            else "actual_continued_play"
+        ),
     }

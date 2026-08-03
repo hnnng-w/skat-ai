@@ -310,6 +310,9 @@ def build_historical_declarer_card_exposure_continuation_summary(
     context: HistoricalDeclarerCardExposureContinuationContext,
     *,
     event_index: int,
+    final_recorded_play_count: int = 30,
+    final_game_end_reason: str = "normal_completion",
+    terminal_shortening: bool = False,
 ) -> dict[str, Any]:
     """Builds the privacy-safe, non-adjudicating historical event summary."""
     event = context.event
@@ -354,12 +357,16 @@ def build_historical_declarer_card_exposure_continuation_summary(
         "claimed_play_level": event.claimed_play_level,
         "claimed_play_level_status": CLAIMED_PLAY_LEVEL_STATUS,
         "first_affected_decision_index": event.after_play_count + 1,
-        "actual_plays_after_event": 30 - event.after_play_count,
+        "actual_plays_after_event": final_recorded_play_count - event.after_play_count,
         "exact_proof_applied": False,
         "game_end_applied": False,
         "settlement_applied": False,
-        "final_game_end_reason": "normal_completion",
-        "final_outcome_source": "actual_continued_play",
+        "final_game_end_reason": final_game_end_reason,
+        "final_outcome_source": (
+            "subsequent_terminal_shortening"
+            if terminal_shortening
+            else "actual_continued_play"
+        ),
     }
     if event.exposure.shown_to_defender_player_id is not None:
         summary["shown_to_defender_player_id"] = (

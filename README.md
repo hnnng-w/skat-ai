@@ -71,6 +71,7 @@ official Skat rules arbitration.
 * SkWO 6.3.1 shared ranks for unresolved standings ties and optional external lot order
 * Versioned complete historical-game records for normal play and five supported shortened terminal events
 * Two timed non-terminal historical continuation events with exact public-hand boundaries
+* Bounded historical chains with at most one continuation followed by normal completion or one supported terminal shortening
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
 * Derived historical trick winners, points, game value, overbid, and settlement
 * Optional information-safe pre-play snapshots for every actual play in supported historical endings
@@ -389,8 +390,9 @@ Historical declarer and defender concessions, accepted declarer-card exposure,
 and terminal defender open play support snapshots, review, time-safe external
 profiles, variable training samples, and record/player partition audits for every
 actual supplied play. The terminal event is not reviewed or used as a target.
-Either timed continuation remains normal completion with 30 actual plays; only
-post-event decisions receive the exact shrinking public defender or declarer hand.
+Either timed continuation may precede normal completion or one supported terminal
+shortening; only post-event card decisions receive the exact shrinking public
+defender or declarer hand, and the terminal action is never a decision target.
 Historical opponent statistics, reusable export, rolling profile construction,
 and rolling policy evaluation support normal completion and all five shortened
 terminal events, including open-card throwing.
@@ -668,8 +670,8 @@ approved settlement nuance, fixed-three-player 36-game list aggregation,
 automatic dataset preparation, field-level live provenance, interactive input
 and session capture, and a stable installed library and CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
-tricks, multiple historical events, continuation followed by shortening, and
-historical end reasons outside the supported set remain unsupported. Current
+tricks, multiple continuation events, arbitrary event streams, and historical
+end reasons outside the supported set remain unsupported. Current
 recommendations, opponent policies, and confidence are heuristic; no learned
 model or model-training workflow is included. The product supports fixed
 three-player tables only; four-player tables are excluded, and complete official

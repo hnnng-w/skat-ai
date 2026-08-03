@@ -90,6 +90,7 @@ open-card throwing is documented in
 normal-completion events are documented in
 [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md)
 and [Historical defender open-play continuation](historical_defender_open_play_continuation.md).
-Continuation followed by this shortened event,
-concession-choice prediction, natural-language interpretation, learned
-models, and unlisted historical end kinds remain unsupported.
+Either single supported continuation may precede this shortened event.
+Multiple continuations, arbitrary event streams, concession-choice prediction,
+natural-language interpretation, learned models, and unlisted historical end
+kinds remain unsupported.

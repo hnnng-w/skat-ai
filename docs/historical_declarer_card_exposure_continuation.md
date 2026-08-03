@@ -8,7 +8,8 @@ result.
 
 ## Record contract
 
-The containing game remains an ordinary normal completion:
+The containing game may end normally or through one later supported terminal
+shortening. Normal completion uses:
 
 ```json
 {
@@ -44,10 +45,11 @@ The containing game remains an ordinary normal completion:
 
 `game_events` is optional. Version 1 accepts at most one event and that event is
 either `declarer_card_exposure_continuation` or
-`defender_open_play_continuation`. When an event is present, the record requires
-`game_end_reason: "normal_completion"`, no terminal `game_end`, exactly ten
-complete tricks, and all 30 actual plays. Multiple events and continuation
-followed by a shortened end remain unsupported.
+`defender_open_play_continuation`. Normal completion requires no terminal
+`game_end`, exactly ten complete tricks, and all 30 actual plays. Alternatively,
+the event may precede one matching existing terminal reason and top-level
+`game_end`. The terminal object is not serialized in `game_events`. Multiple
+continuations and arbitrary event streams remain unsupported.
 
 The event schema version is independent of the historical-game schema version;
 both currently equal `1`. The focused input schema is
@@ -95,6 +97,13 @@ and remains in the declarer's legal possession. It shrinks only when the
 declarer actually plays one of its cards. Continued normal play must consume the
 complete hand.
 
+For terminal shortening, the final play count may equal `after_play_count` or be
+larger, but remains below 30. The hand shrinks only through actual declarer plays
+and must exactly equal the reconstructed terminal declarer hand. The terminal
+adjudicator remains authoritative; this event still applies no proof, result,
+level, or settlement and reports
+`final_outcome_source: "subsequent_terminal_shortening"`.
+
 Snapshots and historical review map the stable declarer to `me`, `left`, or
 `right` for each actor and reuse the existing `PublicHandConstraint` and exact
 sampler. No additional card enters the declarer's hand; only genuinely unknown
@@ -115,15 +124,17 @@ actual next card, future cards, result, and settlement are excluded. See
 ## Downstream workflows
 
 The event is not a decision. Snapshots, review, training conversion, and rolling
-targets still contain exactly 30 actual-card decisions or samples. Pre-event
+targets contain exactly the actual card plays: 30 for normal completion and zero
+through 29 for a shortened chain. Pre-event
 artifacts contain no event information; post-event artifacts contain only the
 authorized shrinking hand through the existing public-exposure feature. There
 is no event, claim, response, result, settlement, or profile target or signal.
 
-All ten actual trick winners and ordinary normal-completion scoring remain
-authoritative. Historical statistics and rolling source profiles use only final
-results and count the record as one ordinary game. Dataset partitions and audits
-remain record-, participant-, and stable-ID-based.
+Actual trick winners remain authoritative. Normal completion or the independently
+delegated terminal adjudicator supplies the final result. Historical statistics
+and rolling source profiles use only that final result and count the record as
+one game. Dataset partitions and audits remain record-, participant-, and stable-
+ID-based.
 
 See the implementation in
 [`src/skat_ai/historical_declarer_card_exposure_continuation.py`](../src/skat_ai/historical_declarer_card_exposure_continuation.py),

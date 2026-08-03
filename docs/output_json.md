@@ -117,12 +117,15 @@ game value, overbid, and final settlement. Base output contains no position,
 recommendation, simulation, profile, policy, or list result. See
 [Historical games](historical_games.md).
 
-Normal completion with either non-terminal continuation also contains
+Any historical record with either non-terminal continuation also contains
 `historical_game_events_summary`. It reports the exact event boundary, stable
 participants, only the authorized public hand, continued-play semantics, and
 explicit no-proof/no-assignment/no-settlement effects. Claimed declarer levels
-remain non-settling provenance. Final scoring remains the ordinary actual-play
-result. See [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md)
+remain non-settling provenance. For normal completion,
+`final_outcome_source` is `actual_continued_play`; for a later shortening it is
+`subsequent_terminal_shortening`, and the existing reason-specific
+`historical_game_end_summary` appears beside the event summary. Zero actual plays
+after the continuation is valid. See [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md)
 and [Historical defender open-play continuation](historical_defender_open_play_continuation.md).
 
 For any supported shortened historical end, `derived_tricks` contains only completed prefix tricks.
@@ -153,7 +156,10 @@ hand-size state, legitimate skat knowledge, conservative visible matadors, and
 ouvert exposure. It excludes final result, overbid, and settlement facts. See
 [Historical decision snapshots](historical_decision_snapshots.md).
 For either timed continuation, snapshots through `after_play_count` are
-unchanged; later snapshots contain the shrinking exact public hand.
+unchanged; later actual-card snapshots contain the shrinking exact public hand.
+A same-boundary terminal shortening creates no post-event snapshot. Future
+terminal evidence, final hidden hands, and settlement never enter earlier review,
+Search, or training inputs.
 
 When `--historical-game-review` is requested, the summary also contains
 `historical_game_review_summary`. The version-1 object exposes fixed

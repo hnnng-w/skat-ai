@@ -136,7 +136,7 @@ unanimous acceptance, claimed level, actual play count, pre-event decision,
 winner, unresolved-point policy, and settlement. `--quiet` preserves the normal
 structured-only behavior.
 
-This terminal workflow does not add multiple historical events, continuation
-followed by shortening, free-text or gesture
+Either single supported continuation may precede this terminal workflow. It does
+not add multiple continuations, arbitrary event streams, free-text or gesture
 interpretation, exposure-choice or acceptance prediction, exact future-play
 proof, a learned model, or four-player support.

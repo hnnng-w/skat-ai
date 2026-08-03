@@ -1,6 +1,8 @@
 import random
 from pathlib import Path
 
+import pytest
+
 from main import build_analysis_result
 from skat_ai.analysis_report import build_card_analysis_report
 from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
@@ -50,6 +52,8 @@ def get_position_example_json_files() -> list[Path]:
             "historical_grand_open_card_throw.json",
             "historical_grand_defender_open_play_continuation.json",
             "historical_grand_declarer_card_exposure_continuation.json",
+            "historical_grand_defender_open_play_continuation_declarer_concession.json",
+            "historical_grand_declarer_card_exposure_continuation_defender_concession.json",
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
             "historical_opponent_policy_evaluation_dataset.json",
@@ -81,6 +85,8 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_grand_open_card_throw.json",
             "historical_grand_defender_open_play_continuation.json",
             "historical_grand_declarer_card_exposure_continuation.json",
+            "historical_grand_defender_open_play_continuation_declarer_concession.json",
+            "historical_grand_declarer_card_exposure_continuation_defender_concession.json",
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
         }:
@@ -242,6 +248,46 @@ def test_historical_open_card_throw_example_builds_rule_assigned_summary() -> No
     assert end["card_reconciliation"] == "confirmed"
     assert end["rest_tricks_recipient"] == "declarer"
     assert summary["point_accounting"]["assigned_declarer_points"] == 13
+
+
+@pytest.mark.parametrize(
+    ("name", "event_kind", "end_kind", "event_boundary", "plays_after_event"),
+    [
+        (
+            "historical_grand_defender_open_play_continuation_declarer_concession.json",
+            "defender_open_play_continuation",
+            "declarer_concession",
+            12,
+            2,
+        ),
+        (
+            "historical_grand_declarer_card_exposure_continuation_defender_concession.json",
+            "declarer_card_exposure_continuation",
+            "defender_concession",
+            14,
+            0,
+        ),
+    ],
+)
+def test_historical_event_chain_examples_build_both_summaries(
+    name: str,
+    event_kind: str,
+    end_kind: str,
+    event_boundary: int,
+    plays_after_event: int,
+) -> None:
+    summary = build_historical_game_summary(
+        load_historical_game_from_json(str(Path("examples") / name))
+    )
+    event = summary["historical_game_events_summary"]["events"][0]
+
+    assert summary["play_prefix_summary"]["played_card_count"] == 14
+    assert summary["historical_game_end_summary"]["kind"] == end_kind
+    assert event["kind"] == event_kind
+    assert event["after_play_count"] == event_boundary
+    assert event["actual_plays_after_event"] == plays_after_event
+    assert event["final_game_end_reason"] == end_kind
+    assert event["final_outcome_source"] == "subsequent_terminal_shortening"
 
 
 def test_training_dataset_example_builds_sixty_samples() -> None:

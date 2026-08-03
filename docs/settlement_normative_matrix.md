@@ -185,7 +185,7 @@ kinds.
 | Legacy remaining-point reasons | `supported_as_is`, `legacy_compatibility` | Existing simplified point assignment only; no rest-trick proof. |
 | Historical normal and five terminal kinds | `supported_as_is` | Exact replay adapters retain the corresponding current terminal policy. |
 | Both historical continuation kinds | `supported_as_is`, `product_boundary` | One non-terminal event followed by independently settled normal completion. |
-| One continuation then one terminal shortening | `implementation_required`, `product_boundary` | The subsequent supported terminal kind retains its existing policy. |
+| One continuation then one terminal shortening | `supported_as_is`, `product_boundary` | The subsequent supported terminal kind retains its existing policy. |
 | New general or specific claims | `decision_required`, `product_boundary` | No definitive outcome is approved. |
 | Milestone exclusions | `out_of_scope_v0_11`, `product_boundary` | No implementation or adjudication policy. |
 | Incomplete or contradictory evidence | `supported_as_is`, `not_applicable` | Winner, assignment, level, overbid, and settlement remain unresolved. |
@@ -265,11 +265,11 @@ not generic claim proofs. Search remains separate from claim adjudication.
 
 Current version-1 historical records support at most one timed non-terminal
 declarer-card-exposure or defender-open-play continuation followed by normal
-completion. The continuation event itself has no winner, assignment, level,
-proof, or terminal settlement effect; later normal play determines settlement.
+completion or one supported terminal shortening. The continuation event itself
+has no winner, assignment, level, proof, or terminal settlement effect; later
+normal play or the independently delegated terminal case determines settlement.
 
-The following bounded sequence has approved semantics but still requires
-implementation:
+The implemented bounded sequence is:
 
 ```text
 at most one supported non-terminal continuation event
@@ -277,14 +277,18 @@ at most one supported non-terminal continuation event
 at most one subsequent supported terminal shortening
 ```
 
-Its matrix status is `implementation_required`. Multiple non-terminal events and
-arbitrary event streams remain outside `v0.11.0`. Issue #118 does not change
-historical parsing, schemas, replay, or settlement.
+Its matrix status is `supported_as_is`. The runtime keeps the continuation in
+`game_events[0]` and the optional terminal shortening in top-level
+`game_end_reason` plus `game_end`, with both schema versions unchanged at `1`.
+Multiple non-terminal events and arbitrary event streams remain outside
+`v0.11.0`.
 
 The sequence case delegates by immutable case ID to every currently supported
 terminal shortening subcase. Its own winner, assignment, level, and overbid
 dimensions remain unresolved until one delegated terminal kind is selected;
 that terminal case then supplies the existing approved policy and settlement.
+Matrix validation permits this supported chain to delegate only to existing
+supported terminal shortening cases and still requires all five terminal kinds.
 
 ## Validation
 

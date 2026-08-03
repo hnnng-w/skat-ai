@@ -149,6 +149,20 @@ Validate a normal historical Grand with timed declarer-card-exposure continuatio
 python main.py --input examples/historical_grand_declarer_card_exposure_continuation.json --historical-decision-snapshots
 ```
 
+Validate defender-open-play continuation followed by declarer concession, with
+two actual cards after the continuation:
+
+```powershell
+python main.py --input examples/historical_grand_defender_open_play_continuation_declarer_concession.json --historical-decision-snapshots
+```
+
+Validate declarer-card exposure followed immediately by defender concession at
+the same play boundary:
+
+```powershell
+python main.py --input examples/historical_grand_declarer_card_exposure_continuation_defender_concession.json --historical-decision-snapshots
+```
+
 Write its separate structured result without successful stdout:
 
 ```powershell
@@ -368,6 +382,8 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_defender_open_play.json` | Complete deal, exact 24-play Grand prefix, stable exposing defender, exact valid two-trick proof, privacy-safe assignment, and settlement. |
 | `historical_grand_open_card_throw.json` | Complete deal, exact 24-play Grand prefix, stable defender throw, confirmed canonical hand, opposing-party assignment, and shared settlement. |
 | `historical_grand_defender_open_play_continuation.json` | Complete normal Grand with one timed exact returned defender hand and 30 actual plays. |
+| `historical_grand_defender_open_play_continuation_declarer_concession.json` | Timed public defender hand after play 12, two later plays with exact hand shrinkage, then delegated declarer concession. |
+| `historical_grand_declarer_card_exposure_continuation_defender_concession.json` | Public declarer hand after play 14 followed immediately by delegated defender concession with no post-event card decision. |
 
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
@@ -378,7 +394,8 @@ simulation. Review uses the normal and Grand Ouvert examples with 20 samples and
 base seed 42; Ouvert rows are reviewed with the exact public declarer hand.
 Historical Search Review uses an explicit Search seed and records eligible late
 decisions alongside early out-of-profile decisions without serializing derived
-per-decision Search seeds.
+per-decision Search seeds. The two chain examples keep the continuation summary
+separate from the reason-specific terminal summary and retain schema versions `1`.
 
 ## Training-dataset example
 
@@ -442,7 +459,7 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 59 scenarios, including the two explicit flat live Search method
+therefore covers 61 scenarios, including the two explicit flat live Search method
 branches, variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
@@ -457,6 +474,9 @@ Three further scenarios cover flat post-game Search comparison through
 `grand_bounded_search_post_game_review.json`, Historical Search Review with both
 eligible and unavailable decisions, and a capped bounded-Search dataset
 evaluation using the default validation/test partition selection.
+Two Issue #119 scenarios cover defender continuation followed by terminal
+declarer concession and immediate declarer-exposure continuation followed by
+terminal defender concession. The previous 59 scenarios are unchanged.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

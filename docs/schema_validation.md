@@ -81,7 +81,7 @@ The input schema checks things such as:
 * top-level and optional nested `game_declaration` declaration field types
 * strict version-1 declarer-concession, defender-concession, and declarer-card-exposure union shapes
 * strict version-1 continuation union with declarer-exposure responses and cards or defender-open-play response, exposing defender, and returned public hand
-* complete historical-game player, deal, declaration, discard, and ten-trick shapes
+* complete historical-game player, deal, declaration, discard, normal or shortened trick shapes, and one optional continuation before normal completion or one terminal shortening
 * training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
 * opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
 
@@ -158,8 +158,9 @@ The output schema checks the main output structure, including:
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 * the separate versioned `bounded_search_evaluation_summary` branch through its strict focused schema
 
-The published stable `v0.10.0` baseline passes 4,075 pytest tests and covers 59
-deterministic generated-output scenarios. The historical published `v0.9.0`
+The current generated-output matrix covers 61 deterministic scenarios. The
+published stable `v0.10.0` baseline passes 4,075 pytest tests and covers 59
+scenarios. The historical published `v0.9.0`
 baseline passes 3,558 pytest tests and covers 52 scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
@@ -186,7 +187,9 @@ Ouvert historical review with exact public ownership, one versioned two-record/6
 dataset, one 14-sample variable-length concession dataset,
 one exact-prefix unanimously accepted historical declarer-card-exposure result,
 one bounded exact historical defender-open-play result,
-one timed historical visibility transition for each continuation kind,
+one timed historical visibility transition for each continuation kind, two
+bounded continuation-then-terminal chains with post-event and same-boundary
+chronology,
 one versioned external opponent-statistics conversion, and one seeded live
 external-profile binding with distinct left/right presets, plus one seeded
 time-safe historical external-profile review, and one exact historical
@@ -290,7 +293,10 @@ turn reconciliation, workflow exclusivity, information authorization, and
 known-card path continuity. Historical continuation additionally uses the
 version-1 `historical_game_event` union and focused event/output schemas. Neither
 timed continuation invokes solver proof, assignment, or settlement; runtime
-replay verifies the exact boundary and complete public hand.
+replay verifies the exact event boundary, owner-only hand shrinkage, and exact
+final public hand. A later terminal shortening reuses its existing input and
+output schema and adjudicator; all historical and event schema versions remain
+`1`.
 Declared Ouvert reuses the public-hand constraint schema with source
 `declared_ouvert`. Runtime validation is authoritative for concrete declarer
 identity, local-hand equality, opponent hand size, known-card contradictions,

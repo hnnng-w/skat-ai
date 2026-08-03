@@ -39,6 +39,7 @@ from skat_ai.historical_game_end import (
 )
 from skat_ai.historical_game_event import (
     HistoricalGameEvent,
+    build_historical_game_event_chain_context,
     build_historical_game_events,
     build_historical_game_events_summary,
     build_serializable_historical_game_event,
@@ -484,7 +485,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         game_id=game_id,
     )
     tricks = _build_tricks(data["tricks"], game_id, game_end_reason)
-    return HistoricalGameRecord(
+    record = HistoricalGameRecord(
         schema_version=HISTORICAL_GAME_SCHEMA_VERSION,
         game_id=game_id,
         played_at=played_at,
@@ -498,6 +499,9 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         game_events=game_events,
         tricks=tricks,
     )
+    if record.game_events:
+        build_historical_game_event_chain_context(record)
+    return record
 
 
 def build_serializable_historical_record(
@@ -603,6 +607,12 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
             build_serializable_derived_trick(trick)
             for trick in replay.completed_tricks
         ]
+        chain_context = None
+        if record.game_events:
+            chain_context = build_historical_game_event_chain_context(
+                record,
+                final_replay=replay,
+            )
         if record.game_end_reason == HISTORICAL_DECLARER_CONCESSION:
             adjudicated_end = adjudicate_historical_declarer_concession(record, replay)
         elif record.game_end_reason == HISTORICAL_DEFENDER_CONCESSION:
@@ -623,6 +633,13 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         }
         if record.played_at is not None:
             result["played_at"] = record.played_at
+        if chain_context is not None:
+            result["historical_game_events_summary"] = (
+                build_historical_game_events_summary(
+                    record,
+                    chain_context=chain_context,
+                )
+            )
         return result
 
     derived_tricks, scoring_tricks = _derive_tricks(record)

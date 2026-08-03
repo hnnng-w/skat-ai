@@ -126,6 +126,6 @@ open-card throwing is documented in
 [Historical open card throw](historical_open_card_throw.md). Historical
 declarer-card-exposure continuation is documented in
 [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
-Multiple events, continuation followed by shortening, claims
-of remaining tricks, and historical end kinds beyond the supported union remain
-unsupported.
+A single supported continuation may precede this concession. Multiple
+continuations, arbitrary event streams, claims of remaining tricks, and
+historical end kinds beyond the supported union remain unsupported.

@@ -367,24 +367,6 @@ def test_null_requires_a_simple_claim() -> None:
         build_historical_game_record(data)
 
 
-@pytest.mark.parametrize(
-    "path_name",
-    [
-        "historical_grand_declarer_concession.json",
-        "historical_grand_defender_concession.json",
-        "historical_grand_declarer_card_exposure.json",
-        "historical_grand_defender_open_play.json",
-        "historical_grand_open_card_throw.json",
-    ],
-)
-def test_event_cannot_be_combined_with_a_terminal_end(path_name: str) -> None:
-    data = load_historical_data(PROJECT_ROOT / "examples" / path_name)
-    data["game_events"] = copy.deepcopy(build_event_record()["game_events"])
-
-    with pytest.raises(ValueError, match="requires game_end_reason='normal_completion'"):
-        build_historical_game_record(data)
-
-
 def test_snapshot_boundary_is_exact_and_public_hand_only_shrinks() -> None:
     event_summary = build_historical_game_summary_from_input(build_event_record())
     no_event_summary = build_historical_game_summary_from_input(

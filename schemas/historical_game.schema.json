@@ -99,21 +99,6 @@
       "else": {"required": ["game_end"]}
     },
     {
-      "if": {"required": ["game_events"]},
-      "then": {
-        "properties": {
-          "game_end_reason": {"const": "normal_completion"},
-          "tricks": {
-            "type": "array",
-            "items": {"$ref": "#/$defs/complete_trick"},
-            "minItems": 10,
-            "maxItems": 10
-          }
-        },
-        "not": {"required": ["game_end"]}
-      }
-    },
-    {
       "if": {
         "properties": {"game_end_reason": {"const": "declarer_concession"}},
         "required": ["game_end_reason"]
@@ -181,8 +166,7 @@
           "game_end": {
             "$ref": "https://example.local/skat-ai/historical_open_card_throw.schema.json"
           }
-        },
-        "not": {"required": ["game_events"]}
+        }
       }
     }
   ],

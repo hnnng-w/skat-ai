@@ -194,6 +194,28 @@ declaration, overbid, Null, and settlement behavior. It does not create a
 `game_events` member or future-play proof. See
 [Historical open card throw](historical_open_card_throw.md).
 
+### Historical continuation before terminal shortening
+
+Version 1 permits at most one non-terminal
+`declarer_card_exposure_continuation` or
+`defender_open_play_continuation` in `game_events[0]`, followed by normal
+completion or one of the five existing terminal reasons in top-level
+`game_end_reason` and `game_end`. The terminal object is never copied into
+`game_events`, and both schema versions remain `1`.
+
+For shortening, chronology requires the continuation boundary to be no later
+than the final recorded play count, which remains below 30. Equality is valid, so
+the terminal action can occur before another card is played. Exact replay
+validates any partial final trick and removes public cards only when their owner
+actually plays them. The surviving public hand must exactly match the owner's
+reconstructed terminal hand.
+
+The continuation remains non-adjudicating. Its summary keeps proof, game-end,
+and settlement flags false, while the separate reason-specific terminal summary
+comes from the existing terminal adjudicator. Earlier snapshots, Immediate and
+Search review, training features, statistics decisions, and rolling evaluation
+never receive future terminal evidence or final hidden hands.
+
 ## Structured defender concession
 
 The second version-1 `game_shortening` variant records one concrete defender's
@@ -332,8 +354,9 @@ Rules:
 * declarer card exposure requires all remaining cards and exactly both concrete defender acceptances.
 * exposure continuation requires exactly both defender responses, at least one continuation request, an exact nonempty current public declarer hand, and neutral `not_ended` state.
 * defender-open-play continuation requires a concrete exposing defender, the exact nonempty returned current hand, `request_continued_play`, reliable hand-size and turn reconciliation, and neutral `not_ended` state.
-* historical defender-open-play continuation is not a `game_end_reason`; it is a timed non-terminal `game_events` member inside an ordinary 30-play `normal_completion` record.
+* historical defender-open-play continuation is not a `game_end_reason`; it is a timed non-terminal `game_events` member before normal completion or one supported terminal shortening.
 * historical declarer-card-exposure continuation is likewise a timed non-terminal `game_events` member with both stable defender responses and the exact public declarer hand.
+* a shortened chain requires the continuation boundary to be no later than the final recorded play, permits equality, and reconciles the shrinking public hand with its owner's exact terminal hand.
 * open card throw requires one concrete throwing player, the complete nonempty current thrown hand, deterministic hand-size and turn reconciliation, and neutral `not_ended` state.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
@@ -371,5 +394,7 @@ For example:
 * Legacy claims and concessions still assign remaining points.
 * Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, bounded exact defender open play, and bounded open card throw.
 * Flat continued declarer exposure and bounded defender-open-play continuation are separate ongoing workflows.
-* Multiple continuation events, continuation followed by shortening, simultaneous throws, specific-trick assertions, unlimited exact solving, and isolated-card claims remain unsupported.
+* Multiple continuation events, arbitrary event streams, simultaneous throws,
+  specific-trick assertions, unlimited exact solving, and isolated-card claims
+  remain unsupported.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.

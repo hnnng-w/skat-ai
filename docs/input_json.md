@@ -163,17 +163,23 @@ defender's exact reconstructed current hand, at least five completed tricks, and
 
 Historical open card throw requires one exact stable participant ID and that
 player's complete reconstructed current hand. It supports zero through 29 plays,
-assigns every unresolved trick and point to the opposing party, and cannot be
-combined with `game_events`. See
+and assigns every unresolved trick and point to the opposing party. See
 [Historical open card throw](historical_open_card_throw.md).
 
-Normal completion may instead include one optional non-terminal `game_events`
-array containing at most one timed `defender_open_play_continuation` or
+Any supported historical record may include one optional non-terminal
+`game_events` array containing exactly one timed
+`defender_open_play_continuation` or
 `declarer_card_exposure_continuation`. Both require strict `after_play_count`
 from 0 through 29 and an exact reconstructed complete hand. Declarer exposure
 also requires both stable defender responses with at least one `continue`.
-Ten complete tricks, all 30 actual plays, no `game_end`, and ordinary final
-scoring remain required. See
+Normal completion still requires ten complete tricks, all 30 actual plays, no
+`game_end`, and ordinary final scoring. Alternatively, the same continuation may
+precede one matching existing terminal `game_end` after zero or more additional
+plays. Its boundary must not exceed the terminal prefix, and terminal shortening
+must occur before play 30. The public hand must shrink only through its owner's
+actual plays and equal that owner's exact reconstructed terminal hand. Historical
+game and event schema versions remain `1`; `game_events` remains exactly one item
+when present, and the terminal object is not serialized inside it. See
 [Historical defender open-play continuation](historical_defender_open_play_continuation.md)
 and [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
 

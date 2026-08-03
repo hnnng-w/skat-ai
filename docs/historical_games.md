@@ -150,12 +150,15 @@ current hand. Every unresolved trick and point is assigned to the opposing
 party through the shared flat adjudicator. See
 [Historical open card throw](historical_open_card_throw.md).
 
-Normal completion may instead contain one optional `game_events` member for
+Any supported final reason may contain one optional `game_events` member for
 either `defender_open_play_continuation` or
-`declarer_card_exposure_continuation`. It keeps no terminal `game_end`, all ten
-tricks, and all 30 plays. The exact returned defender hand or public declarer
-hand becomes visible only after `after_play_count` and shrinks through actual
-later play. See [Historical defender open-play continuation](historical_defender_open_play_continuation.md)
+`declarer_card_exposure_continuation`. Normal completion keeps no terminal
+`game_end`, all ten tricks, and all 30 plays. A shortened chain keeps the terminal
+reason and matching top-level `game_end`, with the continuation no later than the
+final recorded play. The exact returned defender hand or public declarer hand
+becomes visible only after `after_play_count`, shrinks through its owner's actual
+later plays, and must equal that owner's exact hand at the terminal boundary. See
+[Historical defender open-play continuation](historical_defender_open_play_continuation.md)
 and [Historical declarer-card-exposure continuation](historical_declarer_card_exposure_continuation.md).
 
 ## Derived output
@@ -174,7 +177,8 @@ summary contains:
 * `game_value_summary`
 * `overbid_summary`
 * `final_settlement_summary`
-* optional `historical_game_events_summary` for the non-terminal continuation
+* optional `historical_game_events_summary` for the non-terminal continuation,
+  beside the reason-specific terminal summary when a shortening follows
 
 Suit/Grand overbids use the existing required-game-value and doubled-loss
 settlement behavior. Overbid Null records require the separate impossible-Null
@@ -301,7 +305,8 @@ actual plays. See
 
 Later work is still required for:
 
-* other historical claims, multiple non-terminal events, continuation followed by shortening, passed-in games, and other approved end reasons
+* other historical claims, multiple non-terminal events, arbitrary event streams,
+  passed-in games, and other approved end reasons
 * complete auction event history
 * impossible Null historical play records
 * rule-violation adjudication

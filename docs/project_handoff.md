@@ -241,7 +241,7 @@ Implemented:
 * versioned complete normal-play historical-game records
 * complete deal, pickup or Hand, discard, ownership, play-order, follow-rule, winner, point, and settlement replay validation
 * exact legal prefixes and remaining-hand reconstruction for all five supported shortened terminal events
-* one optional timed defender-open-play or declarer-card-exposure continuation in a normal-completion record
+* one optional timed defender-open-play or declarer-card-exposure continuation before normal completion or one supported terminal shortening
 * variable-length snapshots, review decisions, and training samples based on actual play count
 
 ### Game declaration and settlement
@@ -280,10 +280,9 @@ Implemented:
 
 General claims, specific-trick claims, defender-open-play proof beyond five
 unresolved tricks, and broader settlement nuance remain unsupported.
-The normative boundaries and the approved one-continuation-plus-one-terminal-
+The normative boundaries and implemented one-continuation-plus-one-terminal-
 shortening historical sequence are defined in
-[Settlement normative matrix](settlement_normative_matrix.md); the latter still
-requires implementation.
+[Settlement normative matrix](settlement_normative_matrix.md).
 
 ### Performance rating
 
@@ -323,8 +322,9 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 59 deterministic scenarios in the
-published `v0.10.0` release baseline. The published `v0.9.0` baseline remains 52.
+Generated-output validation currently covers 61 deterministic scenarios. The
+published `v0.10.0` release baseline remains 59, and the published `v0.9.0`
+baseline remains 52.
 
 ### Live-vs-post-game information enforcement
 
@@ -751,7 +751,7 @@ Completed implementation scope:
 * exact-prefix records for all five supported historical shortened terminal events
 * variable-length historical decision artifacts for normal completion and all five shortened kinds
 * shortened-game historical statistics, export, and rolling evaluation
-* timed normal-completion continuation with an exact shrinking public defender or declarer hand
+* timed continuation with an exact shrinking public defender or declarer hand before normal completion or one supported terminal shortening
 * declared-Ouvert exact public-hand constraints in Immediate Analysis, supported Multi-Step, Policy Comparison, flat review, and historical review
 * coherent private hidden-world ownership across each Multi-Step path and shared-root Policy Comparison
 * exact evidence-constrained hidden-card inference across Immediate, Multi-Step, Policy Comparison, and historical review
@@ -763,7 +763,7 @@ Completed implementation scope:
 
 ## Current high-priority limitations
 
-* Historical records support normal completion with either one timed continuation kind, exact-prefix declarer and defender concessions, unanimously accepted declarer-card exposure, bounded terminal defender open play, and terminal open-card throw. One continuation followed by one supported terminal shortening now has approved matrix semantics but remains unimplemented; multiple non-terminal events, arbitrary event streams, other claims, and other end reasons remain unsupported.
+* Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
 * General live position input lacks complete field-level provenance.

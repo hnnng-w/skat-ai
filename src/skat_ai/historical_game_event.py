@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any
 
 from skat_ai.historical_declarer_card_exposure_continuation import (
@@ -16,13 +17,31 @@ from skat_ai.historical_defender_open_play_continuation import (
     build_historical_defender_open_play_continuation_summary,
     validate_historical_defender_open_play_continuation,
 )
-from skat_ai.historical_play_prefix import replay_historical_state_at_play_boundary
+from skat_ai.historical_play_prefix import (
+    HistoricalReplayState,
+    replay_historical_play_prefix,
+    replay_historical_state_at_play_boundary,
+)
 
 HISTORICAL_GAME_EVENTS_SCHEMA_VERSION = 1
 type HistoricalGameEvent = (
     HistoricalDefenderOpenPlayContinuationEvent
     | HistoricalDeclarerCardExposureContinuationEvent
 )
+
+
+@dataclass(frozen=True)
+class HistoricalGameEventChainContext:
+    """Exact chronology and public-hand state for one bounded historical chain."""
+
+    continuation_event: HistoricalGameEvent
+    continuation_play_boundary: int
+    final_recorded_play_count: int
+    plays_after_continuation: tuple[tuple[str, str], ...]
+    final_game_end_reason: str
+    terminal_shortening: bool
+    continuation_replay: HistoricalReplayState
+    final_replay: HistoricalReplayState
 
 
 def build_historical_game_events(
@@ -43,10 +62,10 @@ def build_historical_game_events(
             f"Historical game '{game_id}': game_events must contain exactly one "
             "event when present."
         )
-    if game_end_reason != "normal_completion" or has_game_end:
+    if (game_end_reason == "normal_completion") == has_game_end:
         raise ValueError(
-            f"Historical game '{game_id}': game_events version 1 requires "
-            "game_end_reason='normal_completion' and no terminal game_end."
+            f"Historical game '{game_id}': game_events requires normal completion "
+            "without game_end or a supported terminal reason with game_end."
         )
     raw_event = value[0]
     if not isinstance(raw_event, dict):
@@ -74,6 +93,97 @@ def build_historical_game_events(
     raise ValueError(
         f"Historical game '{game_id}': unsupported historical game event kind "
         f"'{event_kind}'."
+    )
+
+
+def build_historical_game_event_chain_context(
+    record: Any,
+    *,
+    final_replay: HistoricalReplayState | None = None,
+) -> HistoricalGameEventChainContext:
+    """Validates one continuation followed by completion or terminal shortening."""
+    if len(record.game_events) != 1:
+        raise ValueError(
+            f"Historical game '{record.game_id}': an event chain requires exactly "
+            "one continuation event."
+        )
+    event = record.game_events[0]
+    replay = final_replay or replay_historical_play_prefix(record)
+    final_play_count = replay.played_card_count
+    terminal_shortening = record.game_end_reason != "normal_completion"
+    if terminal_shortening and final_play_count >= 30:
+        raise ValueError(
+            f"Historical game '{record.game_id}': a terminal shortening after a "
+            "continuation must occur before all 30 plays."
+        )
+    if event.after_play_count > final_play_count:
+        raise ValueError(
+            f"Historical game '{record.game_id}': continuation boundary "
+            f"{event.after_play_count} exceeds the final recorded play count "
+            f"{final_play_count}."
+        )
+
+    continuation_replay = replay_historical_state_at_play_boundary(
+        record,
+        event.after_play_count,
+    )
+    all_plays = tuple(
+        (play.player_id, play.card) for trick in record.tricks for play in trick.plays
+    )
+    plays_after_continuation = all_plays[event.after_play_count :]
+    if isinstance(event, HistoricalDefenderOpenPlayContinuationEvent):
+        validate_historical_defender_open_play_continuation(
+            record,
+            event,
+            continuation_replay,
+        )
+        public_hand_owner = event.exposing_defender_player_id
+        final_public_hand = build_historical_continuation_public_hand_state(
+            event,
+            tuple(
+                card
+                for player_id, card in plays_after_continuation
+                if player_id == public_hand_owner
+            ),
+        )
+    else:
+        validate_historical_declarer_card_exposure_continuation(
+            record,
+            event,
+            continuation_replay,
+        )
+        public_hand_owner = record.declarer_player_id
+        final_public_hand = build_historical_declarer_public_hand_state(
+            event,
+            tuple(
+                card
+                for player_id, card in plays_after_continuation
+                if player_id == public_hand_owner
+            ),
+        )
+
+    final_exact_hand = replay.remaining_hand_for(public_hand_owner)
+    if set(final_public_hand) != set(final_exact_hand):
+        raise ValueError(
+            f"Historical game '{record.game_id}': the continuation public hand must "
+            "exactly equal its owner's reconstructed remaining hand at the final "
+            "recorded play boundary."
+        )
+    if not terminal_shortening and final_exact_hand:
+        raise ValueError(
+            f"Historical game '{record.game_id}': continued normal play must consume "
+            "every card from the public hand."
+        )
+
+    return HistoricalGameEventChainContext(
+        continuation_event=event,
+        continuation_play_boundary=event.after_play_count,
+        final_recorded_play_count=final_play_count,
+        plays_after_continuation=plays_after_continuation,
+        final_game_end_reason=record.game_end_reason,
+        terminal_shortening=terminal_shortening,
+        continuation_replay=continuation_replay,
+        final_replay=replay,
     )
 
 
@@ -113,59 +223,45 @@ def build_serializable_historical_game_event(
     }
 
 
-def build_historical_game_events_summary(record: Any) -> dict[str, Any]:
+def build_historical_game_events_summary(
+    record: Any,
+    *,
+    chain_context: HistoricalGameEventChainContext | None = None,
+) -> dict[str, Any]:
     """Reconstructs and summarizes all supported non-terminal game events."""
+    context = chain_context or build_historical_game_event_chain_context(record)
     events = []
     for event_index, event in enumerate(record.game_events, start=1):
-        replay = replay_historical_state_at_play_boundary(
-            record,
-            event.after_play_count,
-        )
-        actual_plays = tuple(
-            play.card for trick in record.tricks for play in trick.plays
-        )
         if isinstance(event, HistoricalDefenderOpenPlayContinuationEvent):
-            context = validate_historical_defender_open_play_continuation(
+            event_context = validate_historical_defender_open_play_continuation(
                 record,
                 event,
-                replay,
+                context.continuation_replay,
             )
-            final_public_hand = build_historical_continuation_public_hand_state(
-                event,
-                actual_plays[event.after_play_count :],
-            )
-            if final_public_hand:
-                raise ValueError(
-                    f"Historical game '{record.game_id}': continued normal play must "
-                    "consume every card from the exposed defender hand."
-                )
             events.append(
                 build_historical_defender_open_play_continuation_summary(
                     record,
-                    context,
+                    event_context,
                     event_index=event_index,
+                    final_recorded_play_count=context.final_recorded_play_count,
+                    final_game_end_reason=context.final_game_end_reason,
+                    terminal_shortening=context.terminal_shortening,
                 )
             )
             continue
-        context = validate_historical_declarer_card_exposure_continuation(
+        event_context = validate_historical_declarer_card_exposure_continuation(
             record,
             event,
-            replay,
+            context.continuation_replay,
         )
-        final_public_hand = build_historical_declarer_public_hand_state(
-            event,
-            actual_plays[event.after_play_count :],
-        )
-        if final_public_hand:
-            raise ValueError(
-                f"Historical game '{record.game_id}': continued normal play must "
-                "consume every card from the public declarer hand."
-            )
         events.append(
             build_historical_declarer_card_exposure_continuation_summary(
                 record,
-                context,
+                event_context,
                 event_index=event_index,
+                final_recorded_play_count=context.final_recorded_play_count,
+                final_game_end_reason=context.final_game_end_reason,
+                terminal_shortening=context.terminal_shortening,
             )
         )
     return {
