@@ -55,7 +55,7 @@ Schwarz is not inferred from unfinished play.
 Suit and Grand preserve matadors, Hand, announcements, ouvert, mandatory levels,
 and supported overbid-required values. Existing bounded mandatory-level handling
 may award a still-required level; a level already failed preserves a declarer
-loss. Null, Null Hand, Null ouvert, and Null ouvert Hand use their fixed values
+loss. Null, Null Hand, Null Ouvert, and Null Hand Ouvert use their fixed values
 and completed declarer-trick ownership. Unsupported overbid Null remains invalid.
 
 ## Historical workflows

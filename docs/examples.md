@@ -24,9 +24,9 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-At the published stable `v0.9.0` baseline, the check covers 52 deterministic
-generated-output scenarios and 3,558 pytest tests. The prepared `v0.10.0`
-package baseline covers 59 deterministic scenarios and 4,075 pytest tests. The
+At the published stable `v0.10.0` baseline, the check covers 59 deterministic
+generated-output scenarios and 4,075 pytest tests. The historical published
+`v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest tests. The
 check script validates:
 
 * Ruff checks
@@ -657,7 +657,7 @@ snapshot-transition scenarios.
 | File                                          | Purpose                                                                        |
 | --------------------------------------------- | ------------------------------------------------------------------------------ |
 | `grand_overbid_declarer_card_points_win.json` | Declarer wins by card points but loses settlement because the game is overbid. |
-| `null_impossible_declaration_settlement.json`  | Null ouvert Hand ends immediately and is settled from a separate Clubs Hand replacement selection. |
+| `null_impossible_declaration_settlement.json`  | Null Hand Ouvert ends immediately and is settled from a separate Clubs Hand replacement selection. |
 
 The impossible Null example preserves the original Null declaration, transfers
 only Hand status to the replacement, and demonstrates the doubled loss without

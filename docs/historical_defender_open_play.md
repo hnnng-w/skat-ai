@@ -83,7 +83,7 @@ trick and hand points. Output then reports the rule-assigned points and final
 achieved Schneider or Schwarz.
 
 Suit, Grand, overbid-required values, announced mandatory levels, Null, Null
-Hand, Null ouvert, and Null ouvert Hand use the existing flat adjudicator and
+Hand, Null Ouvert, and Null Hand Ouvert use the existing flat adjudicator and
 settlement builder without historical-only scoring semantics. Equivalent flat
 and historical facts therefore produce the same proof status, final result, and
 settlement.

@@ -1,9 +1,9 @@
 # Requirements traceability
 
 This document is the authoritative audit of rule and product support in
-`skat-ai`. It records the prepared `v0.10.0` package baseline and does not claim
-complete compliance with the official rules. GitHub Releases is authoritative;
-the current published release remains `v0.9.0` until manual publication.
+`skat-ai`. It records the published `v0.10.0` release baseline and does not claim
+complete compliance with the official rules. `v0.10.0` is the latest GitHub
+Release, and GitHub Releases is authoritative for publication status.
 
 ## Normative sources
 
@@ -25,7 +25,7 @@ software product limited to them.
 
 Rule references below are section numbers from the November 2022 PDF. The audit
 was verified against source modules, schemas, examples, validation scripts, and
-focused tests at the prepared `v0.10.0` package baseline. Issues #107 through
+focused tests at the published `v0.10.0` release baseline. Issues #107 through
 #115 complete that functional milestone. The complete check validates 59
 deterministic generated-output scenarios and 4,075 pytest tests. The published
 `v0.9.0` baseline remains historical evidence for 52 scenarios and 3,558 tests.
@@ -56,7 +56,7 @@ An output field alone is not evidence of support.
 | Trick resolution | ISkO | 4.3.1-4.3.4 | `supported` | `get_trick_winner` derives each winner; complete historical records derive stable winner IDs, side ownership, points, and next leaders for all ten tricks. | Three ordered cards, game type, and player order for ownership validation. | Partial legacy histories without players still cannot prove a concrete winner identity. | Retain rule-winner, strict complete-history ownership, and next-leader tests. | v1.0 | Yes |
 | Bidding and declarations | ISkO | 3.3.1-3.3.11; 3.5.1-3.5.6 | `partially_supported` | `GameDeclaration` represents the final contract and bid value; runtime validation canonicalizes Suit/Grand declaration dependencies and checks Null exclusions. | Final game type, declaration modifiers, optional matadors, and optional bid value. | No auction sequence, bid/hold/pass model, declarer derivation, legal bid-value validation, or passed-in game. | Retain final-declaration dependency and precedence tests; full auction modeling is planned after v1.0 and needs separate acceptance criteria. | v1.0 final declaration; post-v1.0 auction | Final declaration: Yes; full auction: No |
 | Suit and Grand game values | ISkO | 2.4.1; 2.5.1-2.5.8 | `partially_supported` | Base values, cumulative canonical declaration levels, and multiplier calculation are implemented in `game_declaration.py` and `game_value.py`. | Valid final declaration and known matador count. | The complete official outcome and settlement combination matrix is not yet covered. | Parameterize every base value and retain legal-level, invalid-dependency, and boundary-count tests. | v1.0 | Yes |
-| Null game values | ISkO | 2.4.2; 2.5.9 | `supported` | Null, Null Hand, Null ouvert, and Null ouvert Hand map to 23, 35, 46, and 59 with focused tests. | Null game type plus Hand and ouvert flags. | This row covers fixed values, not impossible Null overbid settlement. | Retain all four variant tests and declaration-exclusion tests. | v1.0 | Yes |
+| Null game values | ISkO | 2.4.2; 2.5.9 | `supported` | Null, Null Hand, Null Ouvert, and Null Hand Ouvert map to 23, 35, 46, and 59 with focused tests. | Null game type plus Hand and Ouvert flags. | This row covers fixed values, not impossible Null overbid settlement. | Retain all four variant tests and declaration-exclusion tests. | v1.0 | Yes |
 | Matadors | ISkO | 2.3.1-2.3.4; 2.5.2-2.5.3 | `partially_supported` | Explicit Suit `1..11` and Grand `1..4` bounds plus conservative position inference are tested; all supported complete historical deals deterministically infer and verify the count from declarer ownership including the original skat. | Explicit count or deterministic declarer ownership including the skat where known. | Partial positions can remain ambiguous; other complete-game claims and shortening forms are not represented. | Retain boundary, with/without sequence, Hand skat, complete-deal consistency, and ambiguity tests. | v1.0 | Yes |
 | Hand games | ISkO | 2.1.1-2.1.2; 2.6.1-2.6.4; 3.5.1 | `partially_supported` | `hand_game` contributes one game-value level, is required for Suit/Grand announcements, and complete historical records enforce no discards, unplayed original skat, and declarer skat ownership for points/matadors across the supported end reasons. | Final declaration and cards needed for valuation; full deal for strict historical validation. | The engine cannot prove whether the skat was physically inspected; historical end reasons beyond the supported bounded set remain absent. | Retain historical pickup/Hand, declaration hierarchy, and skat-dependent valuation tests. | v1.0 | Yes |
 | Schneider and Schwarz | ISkO | 2.5.4-2.5.8; 3.6.4; 4.4.6 | `partially_supported` | Card-point Schneider and ten-trick ownership-based Schwarz affect settlement; announced levels are canonicalized with their required Hand hierarchy. Bounded valid defender open play can guarantee defender-side rest-trick Schwarz. Open card throw derives Schneider from final rule-assigned points and Schwarz from zero losing-party tricks plus bounded jack-only theoretical non-exclusion. | Complete points; reliable trick owners, a complete bounded exact 4.4.5 state, or a valid 4.4.6 throw; declaration flags and reliable jack ownership where available. | Full rule-violation and non-jack theoretical exclusion coverage is absent. | Retain both-party, zero-point-trick, announcement, exact-proof, open-throw rule-level, jack-exclusion, higher-level, incomplete-history, and invalid-declaration tests. | v1.0 | Yes |

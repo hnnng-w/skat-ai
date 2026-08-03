@@ -101,7 +101,7 @@ For Null, a prior declarer trick preserves an existing loss. Otherwise a valid
 proof produces a declarer win because no declarer trick remains possible. An
 invalid pre-decision claim also produces a declarer win because the defending
 party caused the invalid open play; rule-assigned tricks are not treated as
-played Null tricks. Null, Null Hand, Null ouvert, and Null ouvert Hand retain
+played Null tricks. Null, Null Hand, Null Ouvert, and Null Hand Ouvert retain
 their fixed values.
 
 ISkO 4.1.3 preserves every result already decided before exposure. Rule

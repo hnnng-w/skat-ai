@@ -616,16 +616,16 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The prepared package baseline is `v0.10.0`, with the theme "Information-safe
-bounded Search across compatible worlds." Issues #107 through #115 complete its
-functional milestone. Generated-output validation covers 59 deterministic
-scenarios, and the complete pytest suite contains 4,075 tests. The package is not
-yet claimed as tagged or published: GitHub Releases is authoritative, the
-current published release remains `v0.9.0`, and manual tag and publication are
-maintainer actions.
+The current published stable release is `v0.10.0`. Its theme is "Information-safe
+bounded Search across compatible worlds." It is the latest GitHub Release and
+points to commit `b4c8738`. Issues #107 through #115 complete its functional
+milestone, and Issue #116 completed release preparation. Generated-output
+validation covers 59 deterministic scenarios, and the complete pytest suite
+contains 4,075 tests. GitHub Releases remains authoritative for publication
+status.
 
-The milestone adds five structured game-shortening forms, five matching
-historical terminal events, two historical non-terminal continuations, and
+The published `v0.10.0` milestone adds five structured game-shortening forms,
+five matching historical terminal events, two historical non-terminal continuations, and
 variable-length decision snapshots, Historical Review, training samples, and
 shortened-game opponent workflows. Declared-Ouvert decisions use exact public
 declarer ownership in supported recommendation paths. See
@@ -674,6 +674,9 @@ recommendations, opponent policies, and confidence are heuristic; no learned
 model or model-training workflow is included. The product supports fixed
 three-player tables only; four-player tables are excluded, and complete official
 rule coverage is not claimed.
+
+The active next planning milestone is `v0.11.0`, directed at Replay Coaching and
+remaining approved rule/claim/settlement completion.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

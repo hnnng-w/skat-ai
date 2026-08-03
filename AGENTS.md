@@ -132,22 +132,21 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current published stable release is `v0.9.0`, with the theme "Structured
-game endings and coherent hidden information."
-
-The prepared package baseline is `v0.10.0`, with the theme "Information-safe
-bounded Search across compatible worlds." It is not yet claimed as tagged or
-published; manual tag and publication remain maintainer actions.
+The current published stable release is `v0.10.0`. Its latest GitHub Release
+title is "v0.10.0 — Information-safe bounded Search across compatible worlds".
+Its theme is "Information-safe bounded Search across compatible worlds."
+The release commit is `b4c8738`, the package version is `0.10.0`, and the Python
+requirement is `>=3.13`.
 
 Generated-output validation currently covers 59 deterministic scenarios.
 The complete pytest suite contains 4,075 tests.
 
-The published `v0.9.0` baseline completes Issues #86 through #104. GitHub
-Releases is the authoritative publication record.
+Issues #107 through #115 complete the functional `v0.10.0` milestone, and Issue
+#116 completed release preparation. Publication was performed manually by the
+maintainer, and GitHub Releases remains authoritative for publication status.
 
-Issues #107 through #115 complete the functional `v0.10.0` milestone. GitHub
-Releases remains authoritative for publication status, so the current published
-release remains `v0.9.0` until manual publication.
+The active next planning milestone is `v0.11.0`, directed at Replay Coaching and
+remaining approved rule/claim/settlement completion.
 
 Major completed areas include:
 

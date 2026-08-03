@@ -158,9 +158,9 @@ The output schema checks the main output structure, including:
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 * the separate versioned `bounded_search_evaluation_summary` branch through its strict focused schema
 
-The published stable `v0.9.0` baseline passes 3,558 pytest tests and covers 52
-generated-output scenarios. The prepared `v0.10.0` package baseline passes 4,075
-pytest tests and covers 59 deterministic scenarios. Position
+The published stable `v0.10.0` baseline passes 4,075 pytest tests and covers 59
+deterministic generated-output scenarios. The historical published `v0.9.0`
+baseline passes 3,558 pytest tests and covers 52 scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation

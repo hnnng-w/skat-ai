@@ -128,7 +128,7 @@ value. The forced loss is:
 settlement_score = -2 * effective_game_value
 ```
 
-Null, Null Hand, Null ouvert, and Null ouvert Hand use their fixed values and the
+Null, Null Hand, Null Ouvert, and Null Hand Ouvert use their fixed values and the
 same doubled-loss rule.
 
 No achieved Schneider or Schwarz level is inferred from observed points,

@@ -156,7 +156,7 @@ can affect settlement. Schneider needs sufficient observed points. Schwarz
 needs reliable complete trick ownership; hypothetical continuation and an
 incomplete current trick are not proof.
 
-Null, Null Hand, Null ouvert, and Null ouvert Hand use their fixed values. A
+Null, Null Hand, Null Ouvert, and Null Hand Ouvert use their fixed values. A
 prior completed declarer trick preserves the doubled loss; otherwise the
 adjudicated win uses the positive fixed value.
 

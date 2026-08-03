@@ -101,7 +101,7 @@ Typical supported Null values:
 | Null             |    23 |
 | Null hand        |    35 |
 | Null ouvert      |    46 |
-| Null ouvert hand |    59 |
+| Null Hand Ouvert |    59 |
 
 ## Schneider and Schwarz
 

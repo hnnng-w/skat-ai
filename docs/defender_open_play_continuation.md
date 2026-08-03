@@ -97,7 +97,7 @@ Actual later play determines the result and achieved levels.
 The original declaration remains authoritative. Hand, announced Schneider,
 announced Schwarz, ouvert, and supported overbid requirements are unchanged.
 Requesting continuation creates no new optional Schneider or Schwarz obligation.
-Suit, Grand, Null, Null Hand, Null ouvert, and Null ouvert Hand remain accepted
+Suit, Grand, Null, Null Hand, Null Ouvert, and Null Hand Ouvert remain accepted
 where their ordinary declaration is valid.
 
 ## Supported workflows and boundaries

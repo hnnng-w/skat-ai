@@ -16,8 +16,8 @@
 * Add bounded Perfect-Information Minimax for exact Suit and Grand worlds with
   deterministic Alpha-Beta search, exact-only transposition reuse, and existing
   result, value, overbid, settlement, and utility semantics (Issue #109).
-* Extend exact-world solving to Null, Null Hand, Null Ouvert, and Null Ouvert
-  Hand when they are normal non-overbid contracts (Issue #110). Search remains
+* Extend exact-world solving to Null, Null Hand, Null Ouvert, and Null Hand
+  Ouvert when they are normal non-overbid contracts (Issue #110). Search remains
   limited to the lower of five remaining tricks and the requested budget.
 
 ### Compatible worlds and aggregate Search
@@ -133,8 +133,8 @@
 ### Ouvert-aware recommendation
 
 * Apply declared-Ouvert public-hand constraints and exact declarer-hand
-  reconciliation to live and historical Suit, Grand, Null Ouvert, and Null
-  Ouvert Hand decisions (Issue #102).
+  reconciliation to live and historical Suit, Grand, Null Ouvert, and Null Hand
+  Ouvert decisions (Issue #102).
 * Reuse the exact public hand in Immediate Analysis, supported Multi-Step paths,
   Policy Comparison, flat review, and Historical Review, including coexistence
   with continuation public hands and information-safe matador evidence.

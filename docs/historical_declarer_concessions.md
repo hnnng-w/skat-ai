@@ -84,7 +84,7 @@ Historical adjudication delegates to the existing structured declarer-
 concession behavior. Suit and Grand preserve the declaration, Hand,
 announcements, ouvert, inferred or verified matadors, and supported overbid-
 required value. The loss is twice the effective game value. Null, Null Hand,
-Null ouvert, and Null ouvert Hand use fixed values 23, 35, 46, and 59 and the
+Null Ouvert, and Null Hand Ouvert use fixed values 23, 35, 46, and 59 and the
 same doubled-loss rule. Overbid Null remains unsupported.
 
 For equivalent declaration, bid, points, and concession facts, flat and
