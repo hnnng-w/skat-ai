@@ -35,8 +35,9 @@
           {"required": ["training_dataset_summary"]},
           {"required": ["opponent_statistics_summary"]},
           {"required": ["historical_opponent_statistics_aggregation_summary"]},
-          {"required": ["rolling_opponent_policy_evaluation_summary"]},
-          {"required": ["dataset_partition_audit_summary"]}
+            {"required": ["rolling_opponent_policy_evaluation_summary"]},
+            {"required": ["dataset_partition_audit_summary"]},
+            {"required": ["bounded_search_evaluation_summary"]}
         ]
       }
     },
@@ -114,6 +115,16 @@
         },
         "dataset_partition_audit_summary": {
           "$ref": "https://example.local/skat-ai/dataset_partition_audit.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": ["input_file", "bounded_search_evaluation_summary"],
+      "properties": {
+        "input_file": {"type": "string"},
+        "bounded_search_evaluation_summary": {
+          "$ref": "https://example.local/skat-ai/bounded_search_evaluation.schema.json"
         }
       },
       "additionalProperties": false
@@ -329,6 +340,9 @@
     "dataset_partition_audit_summary": {
       "$ref": "https://example.local/skat-ai/dataset_partition_audit.schema.json"
     },
+    "bounded_search_evaluation_summary": {
+      "$ref": "https://example.local/skat-ai/bounded_search_evaluation.schema.json"
+    },
     "position": {
       "type": "object",
       "additionalProperties": true,
@@ -380,6 +394,9 @@
     },
     "post_game_review_summary": {
       "$ref": "#/$defs/post_game_review_summary"
+    },
+    "bounded_search_post_game_review_summary": {
+      "$ref": "https://example.local/skat-ai/bounded_search_post_game_review.schema.json"
     },
     "hidden_card_inference_summary": {
       "$ref": "https://example.local/skat-ai/hidden_card_inference_summary.schema.json"
@@ -1075,6 +1092,9 @@
         },
         "historical_game_review_summary": {
           "$ref": "https://example.local/skat-ai/historical_game_review.schema.json"
+        },
+        "historical_search_review_summary": {
+          "$ref": "https://example.local/skat-ai/historical_search_review.schema.json"
         },
         "historical_game_events_summary": {
           "$ref": "https://example.local/skat-ai/historical_game_events_output.schema.json"

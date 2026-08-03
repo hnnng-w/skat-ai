@@ -7,9 +7,9 @@ eligibility semantics, budgets, terminal utility, aggregate results,
 deterministic serialization, and a strict standalone schema. They also include
 one executable bounded perfect-information Minimax solver for a caller-supplied
 exact world and one executable compatible-world Minimax method over a frozen
-selected-world sequence. The live recommendation workflow consumes that result
-only when explicitly requested, including at each local decision of an opt-in
-Multi-Step or Policy Comparison path.
+selected-world sequence. Explicit flat live and post-game position analysis,
+opt-in Multi-Step and Policy Comparison, Historical Search Review, and bounded-
+Search dataset evaluation consume the same aggregate result contract.
 
 ## Current scope
 
@@ -21,8 +21,10 @@ three-player table. The implemented methods are:
 
 The public result uses `analysis_method = bounded_search`, bounded-search schema
 version `1`, and terminal-utility version `1`. These are internal contracts and
-do not add a stable package-root API, CLI method override, production budget
-profile, or latency promise.
+do not add a stable package-root API or a calibrated latency promise. Dedicated
+Historical Search Review and dataset-evaluation CLI options select immutable,
+versioned internal budget profiles; flat recommendation settings remain explicit
+JSON and have no CLI method or budget override.
 
 The exact solver supports Suit, Grand, and normal non-overbid Null, including
 Null, Null Hand, Null Ouvert, and Null Hand Ouvert. Null fixed values remain
@@ -31,9 +33,9 @@ owned by the existing game-value helpers.
 Compatible Search-world selection version `1` remains a private layer between
 `SearchInformationView` and `ExactSearchState`. The compatible-world solver
 consumes that frozen selection directly. It is integrated into explicit ongoing
-live-position recommendation and opt-in local Multi-Step/Policy Comparison
-decisions. It is not integrated into flat post-game review, Historical Review,
-or historical-game workflows.
+live-position recommendation, flat post-game Search review, opt-in local Multi-
+Step and Policy Comparison decisions, Historical Search Review, and bounded-
+Search dataset evaluation.
 
 ## Search information
 
@@ -116,9 +118,9 @@ settlement, `TerminalUtility`, or card ranking; the exact terminal-utility
 adapter composes those existing facilities separately.
 
 The private compatible-world layer materializes strictly validated exact states
-from `SearchInformationView`. Flat live recommendation uses the existing live
-local-view adapter; historical snapshot construction remains internal and is not
-connected to a Search recommendation workflow.
+from `SearchInformationView`. Flat live and post-game position analysis use the
+existing local-view adapter. Historical Search Review and dataset evaluation
+adapt each already reconstructed decision-time snapshot independently.
 The direct solver accepts an `ExactSearchState`, while compatible-world Minimax
 passes each selected state to the same internal exact-world evaluator. Exact
 hands and out-of-play cards remain private and are never serialized in a bounded-
@@ -434,7 +436,7 @@ deck order is the final tie-break. Rates and means are absent when no world is
 complete. No candidate contains a world-specific ownership assignment or
 principal variation.
 
-## Live recommendation workflow
+## Flat recommendation workflow
 
 `recommendation_method` is optional. Omission executes the exact preexisting
 Immediate expected-value path and emits no method-specific fields. Explicit
@@ -443,13 +445,14 @@ values are `immediate_expected_value`, `bounded_search`, and `auto`.
 Both Search methods require `bounded_search_settings` with one explicit non-
 boolean integer `random_seed` plus every `RequestedSearchBudget` field. Unknown
 or missing keys are rejected, nullable timeout remains supported, and no default
-or production budget profile exists. Explicit Immediate and omitted methods
-reject Search settings.
+or named profile applies to flat JSON recommendation. Explicit Immediate and
+omitted methods reject Search settings.
 
-The Search workflow is restricted to position `live_decision`, `not_ended`
-positions. It rejects actual-card review, terminal shortening, impossible Null,
-post-game Skat, list and non-position workflows, legacy non-empty `played_cards`,
-and unattributed completed history. Existing
+The Search workflow is restricted to `not_ended` flat positions. It accepts
+`live_decision` without `actual_card_played`, or `post_game_review` with a legal
+`actual_card_played`. It rejects terminal shortening, impossible Null, post-game
+Skat, list and non-position workflows, legacy non-empty `played_cards`, and
+unattributed completed history. Existing
 declared-Ouvert and supported continuation public hands are allowed only after
 their current information-policy resolution.
 
@@ -531,6 +534,116 @@ stops. Search-inclusive comparison rows add recommendation eligibility and
 compact ordered decision diagnostics. An ineligible Search row remains visible,
 sorts after eligible rows, and cannot become `recommended_policy`.
 
+## Retrospective comparisons
+
+Flat post-game Search runs the requested Search method first and then runs an
+independent `immediate_expected_value` baseline with the ordinary top-level
+Immediate sample count, seed, policies, and public information. The existing
+`post_game_review_summary` is intentionally built from that Immediate report;
+the configured Search or auto workflow keeps ownership of the top-level
+recommendation and adds
+`bounded_search_post_game_review_summary` with
+`analysis_method = bounded_search_with_immediate_baseline`.
+
+`search_actual_card_comparison` ranks the observed card in Search's candidate
+aggregate and reports recommendation-minus-actual gaps in contract success rate,
+mean local-side game score, and the Suit/Grand mean card-point margin. Its basis
+is `all_compatible_worlds`, `sampled_compatible_worlds`, or
+`completed_common_prefix`. `search_vs_immediate_comparison` aligns both cards in
+the same Search aggregate while also reporting each card's rank under the other
+method. Its aggregate relation is `search_better`, `aggregate_equivalent`, or
+`not_available`; canonical card-order tie-breaking does not turn equal aggregate
+metrics into a strict improvement. Null comparisons keep margin values null.
+
+These are retrospective aggregate comparisons, not proof that Search selected
+an optimal imperfect-information policy. Zero completed worlds or a missing
+aligned candidate produces an explicit unavailable reason rather than invented
+metrics.
+
+## Named budget profiles
+
+The dedicated historical and evaluation workflows accept exactly these
+immutable versioned profiles:
+
+| Profile | Remaining tricks | Depth plies | Nodes | Selected worlds | Sampled worlds | Comparable worlds | Timeout ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `interactive_v1` | 3 | 9 | 500,000 | 64 | 32 | 8 | 1,000 |
+| `historical_review_v1` | 4 | 12 | 2,000,000 | 128 | 64 | 16 | 5,000 |
+| `evaluation_v1` | 5 | 15 | 10,000,000 | 512 | 256 | 32 | null |
+
+The profile mapping and each `RequestedSearchBudget` are immutable. Profiles do
+not contain seeds and do not change the explicit budget required by flat JSON
+recommendation input. Historical Search Review defaults to
+`historical_review_v1`; dataset evaluation defaults to `evaluation_v1`.
+
+## Historical Search Review
+
+`--historical-search-review --search-seed INTEGER` evaluates every actual card
+decision in a validated historical record with Search and an independently run
+Immediate baseline. `--search-budget-profile` selects one named profile.
+`--samples` and `--seed` control the Immediate baseline; their defaults remain
+100 samples and no explicit Immediate seed. The output uses schema version `1`,
+`analysis_method = bounded_search_with_immediate_baseline`, and
+`information_policy = decision_time`.
+
+Each row contains stable decision identity, game type, local side, root seat,
+remaining tricks, actual card, the Immediate baseline, bounded Search result,
+and both retrospective comparisons. Search receives only the reconstructed
+decision-time view. Both analyses finish before the observed card is introduced
+for comparison, and future private cards, final outcomes, and settlement do not
+enter either analysis.
+
+The caller-supplied base Search seed is domain-separated with
+`historical_bounded_search_decision_v1`, stable game ID, and one-based decision
+index through SHA-256. The resulting 64-bit decision seed is stable across
+processes and dataset record reordering. Derived Search seeds are private and
+are never serialized.
+
+Aggregate output reconciles attempted, available, unavailable, recommendation,
+and no-recommendation decision counts; all Search statuses; exact, sampled, and
+no-coverage counts; Search/Immediate agreement; actual-card top-1/top-3 rates;
+aggregate quality; and performance totals, mean, nearest-rank p50/p95, maximum,
+and fallback count. The same metrics are broken down by game type, local side,
+root seat, remaining tricks, Search status, and coverage. Zero-decision records
+produce empty rows, null rates/percentiles, zero totals, and a vacuously passing
+quality gate.
+
+## Dataset evaluation
+
+`--evaluate-bounded-search --search-seed INTEGER` runs the same information-safe
+decision comparison over `training_dataset_input`. Repeatable
+`--search-evaluation-partition` accepts only `train`, `validation`, and `test`;
+the default is canonical `validation`, then `test`. Evaluation uses
+`evaluation_v1` unless `--search-budget-profile` selects another named profile.
+Its independent Immediate baseline is fixed at 100 samples with base seed `0`.
+
+`--search-evaluation-max-decisions` is an optional positive global cap over the
+stable selected-record and decision order, not a per-record cap. All selected
+records remain in output, including zero-decision records and records reached
+after capacity is exhausted. Source and evaluated counts, cap status, and empty
+decision arrays remain explicit.
+
+The quality gate considers only available Search-versus-Immediate comparisons:
+`search_not_worse_count = search_strictly_better_count +
+search_equivalent_count`, and `quality_violation_count =
+comparable_decision_count - search_not_worse_count`. It passes exactly when the
+violation count is zero, including the zero-comparison case. This arithmetic
+measures the two cards on Search's own aggregate; it is not independent policy
+proof or calibrated sampled-world quality.
+
+Independent exhaustive reference tests show one strict Search improvement over
+Immediate in each of Suit, Grand, and Null. Separate 560-world fixtures exercise
+IID sampled convergence at 32, 64, and 128 draws across five seeds per game type:
+rank-1 agreement is at least 90% where the exhaustive success-rate gap is at
+least 0.10, and the 128-draw mean absolute success-rate error is at most 0.05.
+This is bounded regression evidence, not a statistical calibration guarantee.
+
+The deterministic Suit/Grand/Null benchmark corpus, reproduction command, and
+local measurements are documented in [Bounded Search performance](bounded_search_performance.md).
+Named profiles are work budgets, and elapsed measurements are diagnostics. There
+is no calibrated latency guarantee, service-level objective, or cross-machine
+performance threshold.
+
 ## Result privacy and schema
 
 `build_serializable_bounded_search_result` emits only the version, methods,
@@ -541,10 +654,15 @@ view.
 
 The strict Draft 2020-12 schema is
 [`schemas/bounded_search_result.schema.json`](../schemas/bounded_search_result.schema.json).
-It recursively rejects unknown properties. The serializer and schema never
+Flat comparison, Historical Search Review, and dataset evaluation additionally
+use [`schemas/bounded_search_post_game_review.schema.json`](../schemas/bounded_search_post_game_review.schema.json),
+[`schemas/historical_search_review.schema.json`](../schemas/historical_search_review.schema.json),
+and [`schemas/bounded_search_evaluation.schema.json`](../schemas/bounded_search_evaluation.schema.json).
+These focused schemas recursively reject unknown properties. The serializers and schemas never
 emit actual or sampled hidden hands, a hypothetical private Skat, compatible
 world assignments, coherent roots, ownership-reconstructing fingerprints,
-future historical data, or world-specific principal variations.
+future historical data, derived Search seeds, or world-specific principal
+variations.
 
 `fallback_used` and `fallback_method` are consistency checked. They remain false
 for solver-only calls and strict Search; only the caller-owned auto workflow may
@@ -559,8 +677,10 @@ Both executable methods remain limited to late Suit, Grand, and supported normal
 Null play. Overbid Null remains unavailable because search does not select an
 impossible-Null replacement. Compatible-world Minimax is an internal
 determinization aggregate, not information-set search or an optimal policy
-proof. No flat post-game or Historical Review Search,
-Search-versus-Heuristic evaluation, default budget, production profile, latency
-guarantee, confidence interval, adaptive sampling,
-Expectimax, strategy-fusion correction, or stable package-root API integration
-exists. The stronger-search v1.0 completion gate therefore remains open.
+proof. Flat post-game review, Historical Search Review, dataset Search-versus-
+Immediate evaluation, immutable internal profiles, quality fixtures, and a
+bounded performance baseline now exist. They do not add calibrated sampled-
+quality estimates, a latency guarantee, adaptive sampling, information-set
+search, Expectimax, strategy-fusion correction, complete-contract solving, or a
+stable package-root API. Existing omitted-method Immediate behavior is unchanged.
+The stronger-search v1.0 completion gate therefore remains open.

@@ -25,7 +25,8 @@ Run the full project check:
 ```
 
 At the published stable `v0.9.0` baseline, the check covers 52 deterministic
-generated-output scenarios and 3,558 pytest tests. The check script validates:
+generated-output scenarios and 3,558 pytest tests. The active `v0.10.0`
+development matrix covers 59 deterministic scenarios. The check script validates:
 
 * Ruff checks
 * input JSON schema validation
@@ -77,6 +78,13 @@ Immediate expected value:
 
 ```powershell
 python main.py --input examples/grand_auto_search_fallback.json
+```
+
+Run flat post-game bounded Search with independent Immediate and actual-card
+comparisons:
+
+```powershell
+python main.py --input examples/grand_bounded_search_post_game_review.json
 ```
 
 Write structured JSON output:
@@ -158,6 +166,13 @@ Review all 30 decisions with deterministic settings:
 python main.py --input examples/historical_grand_normal_completion.json --historical-game-review --samples 20 --seed 42
 ```
 
+Run Historical Search Review with an explicit Search seed and the default
+immutable `historical_review_v1` budget:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71
+```
+
 Review a complete Grand Ouvert through the same deterministic path:
 
 ```powershell
@@ -168,6 +183,13 @@ Convert the versioned training/evaluation dataset example:
 
 ```powershell
 python main.py --input examples/training_dataset_normal_play.json
+```
+
+Evaluate bounded Search against Immediate on the default validation/test
+partitions with one stable global decision-prefix cap:
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10
 ```
 
 Audit exact stable-player overlap without generating samples:
@@ -349,10 +371,13 @@ right's response is simulated before the local third-hand decision.
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
 `historical_game_summary`, its optional decision-time snapshots, and the
-seeded complete historical review. Five scenarios cover the supported shortened
+seeded complete Immediate and Search reviews. Five scenarios cover the supported shortened
 base outputs. Snapshot-only generation does not run recommendation or
 simulation. Review uses the normal and Grand Ouvert examples with 20 samples and
 base seed 42; Ouvert rows are reviewed with the exact public declarer hand.
+Historical Search Review uses an explicit Search seed and records eligible late
+decisions alongside early out-of-profile decisions without serializing derived
+per-decision Search seeds.
 
 ## Training-dataset example
 
@@ -373,6 +398,12 @@ Each game contributes one sample per actual play; normal completion contributes
 event prerequisites. Aggregation reuses the
 dataset container but emits no samples, recommendations, review, or policy
 application.
+
+The separate `--evaluate-bounded-search` mode does run Search and an independent
+Immediate baseline over selected dataset records. It defaults to validation and
+test partitions, preserves zero-decision records, optionally caps one global
+stable decision prefix, and emits strict aggregate quality and performance
+summaries instead of training samples.
 
 ## Opponent-statistics example
 
@@ -410,7 +441,7 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 56 scenarios, including the two explicit flat live Search method
+therefore covers 59 scenarios, including the two explicit flat live Search method
 branches, variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
@@ -421,6 +452,10 @@ with a `275275`-world root and later evidence progression.
 The two additional Search integration scenarios cover one executed strict
 Search-aware Multi-Step decision and one comparison containing the unchanged
 four legacy policies followed by `bounded_search`.
+Three further scenarios cover flat post-game Search comparison through
+`grand_bounded_search_post_game_review.json`, Historical Search Review with both
+eligible and unavailable decisions, and a capped bounded-Search dataset
+evaluation using the default validation/test partition selection.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -445,7 +480,10 @@ Typical metadata:
 }
 ```
 
-Post-game review examples may include known skat cards and completed game information.
+Post-game review examples may include known skat cards and completed game
+information. The bounded-Search post-game workflow is narrower: it requires
+`game_end_reason: "not_ended"`, rejects `known_post_game` Skat, and treats the
+actual card only as a retrospective comparison label.
 
 | File                                       | Purpose                                                                                                                      |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -456,6 +494,7 @@ Post-game review examples may include known skat cards and completed game inform
 | `spades_post_game_actual_card_played.json` | Post-game review with `actual_card_played`, decision quality, decision factors, explanation, and recommendation gap details. |
 | `null_post_game_objective_actual_card.json` | Null post-game review where the actual card differs from the recommendation but has no missed Null contract-objective utility. |
 | `spades_post_game_defender_actual_card.json` | Defender-perspective post-game review with a concrete declarer seat and a suboptimal actual card.                          |
+| `grand_bounded_search_post_game_review.json` | Late Grand flat Search review with an actual card, independent Immediate baseline, and Search aggregate comparisons.      |
 | `grand_complete_declarer_win.json`         | Completed-result position where declarer wins; also demonstrates `bid_value` and partial SkWO performance metadata.          |
 | `grand_complete_declarer_loss.json`        | Completed-result position where declarer loses; also demonstrates fixed three-player SkWO counterparty points.               |
 | `grand_list_performance_input.json`        | Completed-result position plus already aggregated list performance input and output.                                         |
@@ -494,12 +533,19 @@ Run a defender-perspective post-game review example:
 python main.py --input examples/spades_post_game_defender_actual_card.json
 ```
 
+Run the bounded-Search post-game example:
+
+```powershell
+python main.py --input examples/grand_bounded_search_post_game_review.json
+```
+
 Representative review outcomes covered by examples:
 
 * `grand_post_game_mistake_actual_card.json` demonstrates `decision_quality: "mistake"`, two better alternatives, and a large expected-point-swing gap.
 * `grand_post_game_acceptable_actual_card.json` demonstrates `decision_quality: "acceptable"` with a small expected-point-swing gap.
 * `null_post_game_objective_actual_card.json` demonstrates `decision_quality: "optimal"` by Null contract objective even though the actual and recommended card-point swings differ.
 * `spades_post_game_defender_actual_card.json` demonstrates local defender review with a concrete `declarer_player` and a suboptimal actual card.
+* `grand_bounded_search_post_game_review.json` keeps Search and Immediate independent, then compares the actual and Immediate cards on Search's aggregate.
 * Opponent-turn and completed-game examples demonstrate unavailable Immediate Analysis output; selected unavailable branches are covered by generated-output validation.
 
 The output includes:
@@ -821,6 +867,7 @@ Generated outputs may include:
 * `list_standings_summary`, if fixed three-player standings input is provided
 * `recommendation`
 * `recommendation_method_summary` and `bounded_search_result`, only for an explicitly supplied recommendation method
+* `bounded_search_post_game_review_summary`, for an explicit flat post-game Search method
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested
 * `policy_comparison_result`, if policy comparison is requested
@@ -828,6 +875,9 @@ Generated outputs may include:
 
 Complete historical and training-dataset inputs instead use the mutually
 exclusive `historical_game_summary` and `training_dataset_summary` branches.
+Historical Search Review is nested under `historical_game_summary`; bounded-
+Search dataset evaluation uses the separate
+`bounded_search_evaluation_summary` branch.
 Training-dataset aggregation instead uses
 `historical_opponent_statistics_aggregation_summary`.
 

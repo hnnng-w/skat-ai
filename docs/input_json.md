@@ -231,6 +231,18 @@ their validated zero through 29 actual plays. The alias
 `--evaluate-rolling-opponent-policies` selects the same workflow. See
 [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).
 
+With `--evaluate-bounded-search`, the dataset branch instead runs deterministic
+Search-versus-Immediate evaluation. It requires `--search-seed`. Repeatable
+`--search-evaluation-partition` accepts `train`, `validation`, or `test`; when
+omitted, selection is canonical `validation`, then `test`. The optional
+`--search-evaluation-max-decisions` must be positive and caps one stable global
+decision prefix across selected records, not each record separately. Selected
+zero-decision records remain present. `--search-budget-profile` accepts exactly
+`interactive_v1`, `historical_review_v1`, or `evaluation_v1`, with
+`evaluation_v1` as the default. This mode is mutually exclusive with ordinary
+dataset conversion, partition audit, statistics aggregation, and opponent-policy
+evaluation.
+
 An opponent-statistics file contains only its statistics branch:
 
 ```json
@@ -400,7 +412,7 @@ play, complete post-game hands, final results, game values, overbid, and
 settlement never create inference constraints or weights. See
 [Hidden-card inference](hidden_card_inference.md).
 
-## Live recommendation method
+## Flat recommendation method
 
 Omitting `recommendation_method` preserves the existing Immediate expected-value
 path and output exactly. An explicit method accepts:
@@ -445,13 +457,22 @@ The top-level `random_seed` remains independent and controls Immediate, legacy
 Multi-Step streams, or auto fallback. The derived private Search child seed is
 never input or output.
 
-Search methods are accepted only in the position workflow with
-`analysis_mode: "live_decision"` and `game_end_reason: "not_ended"`. They reject
-`actual_card_played`, post-game Skat visibility, terminal shortening, impossible
-Null settlement, list modes, historical review, and historical/training/statistics
-workflows. Non-empty legacy `played_cards`
+Search methods are accepted only in the flat position workflow with
+`game_end_reason: "not_ended"`. Live mode requires
+`analysis_mode: "live_decision"` and rejects `actual_card_played`. Flat Search
+review requires `analysis_mode: "post_game_review"` and a legal
+`actual_card_played`. Both reject `known_post_game` Skat visibility, terminal
+shortening, impossible Null settlement, list modes, and
+historical/training/statistics workflows. Non-empty legacy `played_cards`
 is rejected; prior public play must use `completed_tricks` with ordered concrete
 `players`. Existing concrete turn-phase validation still applies.
+
+Flat Search review runs the configured Search method and an independent
+Immediate baseline. Search uses `bounded_search_settings.random_seed`; Immediate
+uses the top-level `sample_count` and `random_seed`. The actual card is used only
+after both analyses to build Search actual-card and Search-versus-Immediate
+aggregate comparisons. See
+`examples/grand_bounded_search_post_game_review.json`.
 
 Declared Ouvert and either supported ongoing continuation remain valid because
 their exact public hands are already authorized and resolved by the information
@@ -465,7 +486,8 @@ With `--multi-step`, an explicitly configured `bounded_search` or `auto` method
 becomes the local policy when `--card-policy` is omitted. An explicit legacy
 policy conflicts with configured Search, the two Search identifiers cannot be
 mismatched, and a Search card policy without the matching JSON method and full
-settings is rejected. No Search budget or seed CLI flags exist.
+settings is rejected. The dedicated historical-review and dataset-evaluation
+Search flags do not override this flat JSON configuration.
 
 At every prepared local decision, Multi-Step reruns the existing recommendation
 workflow from the current public state. Public left/right hand sizes are derived
@@ -487,6 +509,54 @@ Policy Comparison remains the four legacy policies when Search is absent. With
 an explicit Search method, exactly that method is appended last. Every path gets
 an independent copy of one shared coherent execution root, but the Search path
 uses that root only after its public recommendation has been selected.
+
+### Historical Search Review CLI
+
+Historical-game input can add Search review without adding JSON fields:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71
+```
+
+Exact options are:
+
+| Option | Meaning |
+| --- | --- |
+| `--historical-search-review` | Evaluate every supplied historical decision with Search and Immediate. |
+| `--search-seed INTEGER` | Required Search base seed. |
+| `--search-budget-profile PROFILE` | One of `interactive_v1`, `historical_review_v1`, or `evaluation_v1`; default `historical_review_v1`. |
+| `--samples INTEGER` | Immediate samples per decision; default `100`. |
+| `--seed INTEGER` | Optional Immediate base seed; decision `n` uses base plus `n - 1`. |
+| `--output PATH` | Write the complete strict output branch. |
+| `--quiet` | Suppress successful human-readable output. |
+
+The named profiles are immutable internal budgets, not editable JSON objects:
+
+| Profile | Remaining tricks | Depth | Nodes | Selected | Sampled | Minimum comparable | Timeout ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `interactive_v1` | 3 | 9 | 500000 | 64 | 32 | 8 | 1000 |
+| `historical_review_v1` | 4 | 12 | 2000000 | 128 | 64 | 16 | 5000 |
+| `evaluation_v1` | 5 | 15 | 10000000 | 512 | 256 | 32 | null |
+
+Historical Search receives only each reconstructed decision-time snapshot. Its
+private per-decision seed is stably derived from the base seed, domain
+`historical_bounded_search_decision_v1`, source game ID, and decision index; it
+is not an input field and is never serialized.
+
+### Bounded-Search dataset evaluation CLI
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10
+```
+
+The evaluation-only options are
+`--search-evaluation-partition {train,validation,test}` (repeatable) and
+`--search-evaluation-max-decisions INTEGER`. The default profile is
+`evaluation_v1`; `--search-budget-profile` may select any profile above. The
+Immediate baseline is fixed to 100 samples and base seed `0`; position-analysis
+`--samples` and `--seed` are not accepted. Selected records retain source and
+evaluated decision counts even when the global cap leaves their `decisions`
+array empty.
 
 ## Declarer identity
 

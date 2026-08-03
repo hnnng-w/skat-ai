@@ -153,6 +153,15 @@ HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH = (
 BOUNDED_SEARCH_RESULT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_result.schema.json"
 )
+BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "bounded_search_post_game_review.schema.json"
+)
+HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_search_review.schema.json"
+)
+BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -252,6 +261,12 @@ with HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH.open("r", encoding="utf-8") as fi
     HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA = json.load(file)
 with BOUNDED_SEARCH_RESULT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     BOUNDED_SEARCH_RESULT_SCHEMA = json.load(file)
+with BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA = json.load(file)
+with HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_SEARCH_REVIEW_SCHEMA = json.load(file)
+with BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    BOUNDED_SEARCH_EVALUATION_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -419,6 +434,18 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             BOUNDED_SEARCH_RESULT_SCHEMA["$id"],
             Resource.from_contents(BOUNDED_SEARCH_RESULT_SCHEMA),
+        ),
+        (
+            BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA["$id"],
+            Resource.from_contents(BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA),
+        ),
+        (
+            HISTORICAL_SEARCH_REVIEW_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_SEARCH_REVIEW_SCHEMA),
+        ),
+        (
+            BOUNDED_SEARCH_EVALUATION_SCHEMA["$id"],
+            Resource.from_contents(BOUNDED_SEARCH_EVALUATION_SCHEMA),
         ),
     ]
 )

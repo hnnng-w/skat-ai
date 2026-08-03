@@ -18,7 +18,7 @@ must not be presented as official-rule requirements.
 | --- | --- | --- |
 | Live position | A position analyzed using only facts legitimately available to the selected player at that decision time. | Post-game skat, future plays, later outcomes, and retrospective labels must be rejected or redacted. |
 | Retrospective single-decision review | One historical decision reconstructed with the actual card and facts available at that point, then compared with the engine recommendation. | It is not a complete-game replay. Retrospective facts may explain the result but must not leak into the reconstructed decision analysis. |
-| Complete historical game review | All eligible decisions from one complete historical game, independently reconstructed from decision-time snapshots and compared with the existing immediate recommendation. | It is not a perfect-information solver, complete-contract optimization, player rating, or training/evaluation record. |
+| Complete historical game review | All eligible decisions from one complete historical game, independently reconstructed from decision-time snapshots and compared with Immediate or, in the separate Search workflow, bounded Search plus an independent Immediate baseline. | It is not a perfect-information solver, complete-contract optimization, player rating, or training/evaluation record. |
 | Complete historical game | One coherent record of the deal, players/seats, final bid and declaration facts, skat handling, ordered play events, end reason, result, and settlement. | A position plus selected completed tricks is not a complete historical game; a full auction sequence is planned after v1.0. |
 | Historical game used as training or evaluation data | A complete historical game wrapped in a validated record with provenance, stable identity, intended labels/targets, and explicit dataset partition metadata. | Representation and evaluation use do not imply that a machine-learning model is trained. |
 | Externally captured opponent statistics | A versioned record of supplied total games and percentage-point statistics with stable player identity, source provenance, capture time, and deterministic explainable profile derivation. | Explicit live side bindings or strict pre-game historical participant matching may apply confidence-gated actionable presets; external values do not imply exact counts, predict behavior, or learn a profile. |
@@ -69,9 +69,12 @@ The following directions are required for `v1.0.0`:
   budget, utility, result, exactness, privacy, and standalone-schema contracts,
   bounded `perfect_information_minimax_v1`, compatible-world Minimax and
   aggregation, explicit flat live strict/auto routing, and opt-in Multi-Step and
-  Policy Comparison routing are implemented. Historical Review,
-  Search-versus-Heuristic evaluation, production budgets, performance and
-  latency baselines, and release preparation remain open. See
+  Policy Comparison routing are implemented. Flat post-game Search, Historical
+  Search Review, bounded dataset Search-versus-Immediate evaluation, immutable
+  versioned work profiles, deterministic quality/convergence regressions, and a
+  reproducible local performance baseline are also implemented. Calibrated
+  sampled quality, an optimal imperfect-information policy, a latency guarantee,
+  and release preparation remain open. See
   [Bounded search contracts](bounded_search_contracts.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
@@ -129,13 +132,16 @@ Every gate below must have automated evidence unless it explicitly names a
 manual release artifact. A feature field or example without source behavior,
 validation, and tests does not satisfy a gate.
 
-For the Search gate, Issue #114 adds opt-in live Multi-Step and Policy
+For the Search gate, Issue #114 added opt-in live Multi-Step and Policy
 Comparison routing to the flat strict/auto baseline described in the compact
-table. Each local decision re-searches its current public state with a fresh
-per-decision budget and a domain-separated child seed, while the coherent world
-remains execution-only. Historical Review, post-game Search, comparative
-evaluation, production budgets, performance baselines, and latency guarantees
-remain open, so the stronger-search gate is not closed.
+table. Issue #115 adds flat post-game Search, information-safe Historical Search
+Review, bounded dataset evaluation, immutable work profiles, independent quality
+and convergence evidence, and a measured local performance baseline. Historical
+decisions use domain-separated private child seeds while future-private facts
+remain outside the reconstructed Search view. Sampled quality is not calibrated,
+the determinization aggregate is not an optimal imperfect-information policy,
+and measured wall time is not a latency guarantee, so the stronger-search gate
+is not closed.
 
 | Area | Observable completion condition |
 | --- | --- |
@@ -254,10 +260,11 @@ Search and Search-first auto fallback in flat and opt-in Multi-Step/Policy
 Comparison paths. Multi-Step re-searches each public decision with a fresh
 per-decision budget and domain-separated child seed, then executes the card in a
 separate coherent world. Output includes privacy-safe decision, summary,
-eligibility, and compact comparison diagnostics. Flat post-game review,
-Historical Review, Search-versus-Heuristic evaluation, default/production budgets, performance and
-latency baselines, and release preparation remain open, so this is evidence
-toward, not completion of, the stronger-search gate. See
+eligibility, and compact comparison diagnostics. Flat post-game Search,
+Historical Search Review, bounded dataset evaluation, immutable profiles, and a
+local performance baseline are implemented. Calibrated sampled quality, a true
+imperfect-information policy, guaranteed latency, and release preparation remain
+open, so this is evidence toward, not completion of, the stronger-search gate. See
 [Bounded search contracts](bounded_search_contracts.md).
 
 ## Release decision rule

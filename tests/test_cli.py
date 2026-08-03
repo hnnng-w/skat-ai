@@ -1315,6 +1315,7 @@ def test_cli_historical_game_rejects_position_specific_overrides(
         ("--opponent-strategy", "random"),
         ("--historical-decision-snapshots",),
         ("--historical-game-review",),
+        ("--historical-search-review", "--search-seed", "71"),
         ("--multi-step", "1"),
         ("--card-policy", "highest_point"),
         ("--expected-value-samples", "1"),

@@ -297,7 +297,7 @@ def test_configuration_rejects_invalid_contracts(data: dict, message: str) -> No
 @pytest.mark.parametrize(
     ("override", "message"),
     [
-        ({"analysis_mode": "post_game_review"}, "analysis_mode"),
+        ({"analysis_mode": "post_game_review"}, "actual_card_played"),
         ({"game_end_reason": "normal_completion"}, "game_end_reason"),
         ({"skat_visibility": "known_post_game"}, "post-game Skat"),
         ({"actual_card_played": "D7"}, "actual_card_played"),

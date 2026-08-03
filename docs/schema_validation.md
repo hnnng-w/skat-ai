@@ -76,7 +76,7 @@ The input schema checks things such as:
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
 * the three recommendation methods and strict complete bounded-Search settings object
-* Search-only live/not-ended, attributed-history, and workflow exclusions
+* Search-only flat live/post-game, not-ended, actual-card, attributed-history, and workflow constraints
 * optional exact `public_declarer_cards` card-array structure for declared Ouvert
 * top-level and optional nested `game_declaration` declaration field types
 * strict version-1 declarer-concession, defender-concession, and declarer-card-exposure union shapes
@@ -144,19 +144,23 @@ The output schema checks the main output structure, including:
 * `policy_comparison_result`, when policy comparison is requested
 * optional `hidden_card_inference_summary` through its strict focused version-1 schema at position, Multi-Step, Policy Comparison, and historical-review decision locations
 * optional `recommendation_method_summary` plus `bounded_search_result` through the registered strict standalone bounded-Search schema
+* optional flat `bounded_search_post_game_review_summary` through its strict focused schema
 * the separate `historical_game_summary` branch
 * versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, terminal open-card-throw, and both timed continuation input/output schemas
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
+* optional versioned Historical Search Review through its strict focused schema
 * optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
 * the separate versioned `historical_opponent_statistics_aggregation_summary` branch through its strict focused schema
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
+* the separate versioned `bounded_search_evaluation_summary` branch through its strict focused schema
 
-The published stable `v0.9.0` baseline passes 3,558 pytest tests.
-Current generated-output validation covers 56 deterministic scenarios. Position
+The published stable `v0.9.0` baseline passes 3,558 pytest tests and covers 52
+generated-output scenarios. Current `v0.10.0` development validation covers 59
+deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -189,6 +193,9 @@ time-safe historical external-profile review, and one exact historical
 opponent-statistics aggregation with strict selection and standalone export,
 and one rolling as-of opponent-policy evaluation with baseline-only low-
 confidence coverage, plus one exact stable-player dataset-partition audit.
+It also covers flat bounded-Search post-game comparison, Historical Search Review
+with eligible and unavailable decisions, and bounded-Search dataset evaluation
+with default validation/test partitions and a deterministic one-decision cap.
 The additional hidden-card inference scenario uses
 `examples/grand_hidden_card_inference.json` with two Multi-Step decisions. It
 semantically verifies the exact root count `275275`, a confirmed right-player
@@ -241,8 +248,19 @@ summary, nonempty Immediate reports for report method `none`, incompatible
 top-level recommendation nullability, and disagreement between workflow and
 Search-result fallback markers. Runtime validation remains authoritative for
 budget cross-field limits and request/result equality, attributed history, flat
-live workflow eligibility, contextual Search method and game type, top-level
+live/post-game workflow eligibility, contextual Search method and game type, top-level
 effective-card identity, and fallback execution.
+
+`schemas/bounded_search_post_game_review.schema.json`,
+`schemas/historical_search_review.schema.json`, and
+`schemas/bounded_search_evaluation.schema.json` are also Draft 2020-12 strict
+schemas registered locally. They recursively reject unknown and private fields,
+constrain methods, profiles, statuses, coverage, relations, ranks, rates, counts,
+Null margin nullability, records, and breakdown structures, and reference the
+standalone bounded-Search result rather than duplicating it. Runtime tests remain
+authoritative for aggregate arithmetic, profile-to-budget identity, stable global
+prefix selection, derived seed rules and non-serialization, shared-prefix
+information safety, and zero-decision record preservation.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as
@@ -402,6 +420,11 @@ Examples:
 * relative-only feature player references and absence of stable identities
 * whether each training label is the legal pre-play historical actual card
 * whether future plays, final outcomes, settlement, recommendations, or review quality leak into training features or labels
+* whether Historical Search and Immediate run before the observed card is introduced
+* whether historical Search seeds use the stable domain, game ID, and decision index and remain non-serialized
+* whether Search status, coverage, availability, recommendation, agreement, quality, and performance counts reconcile
+* whether the bounded-Search evaluation cap is one stable global prefix while preserving zero-decision records
+* whether named Search profiles serialize their exact immutable requested budgets
 * duplicate opponent-statistics player identities
 * RFC 3339 capture-time time-zone requirements and finite percentage values
 * inclusive `98..102` role and contract-distribution sums

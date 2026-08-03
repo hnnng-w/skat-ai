@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "corpus_name": "bounded_search_late_game_v1",
+  "cases": [
+    {
+      "name": "clubs_interactive_sampled",
+      "profile_name": "interactive_v1",
+      "random_seed": 115,
+      "declaration": {
+        "game_type": "clubs",
+        "hand_game": false,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": 1,
+        "bid_value": 18
+      },
+      "position": {
+        "local_hand": ["DJ", "D8"],
+        "hidden_cards": ["D10", "HK", "CK", "DA", "D7", "SQ"],
+        "current_trick": [],
+        "declarer_points": 38
+      },
+      "expected_result": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "sampled_compatible_worlds",
+        "recommended_card": "D8",
+        "compatible_world_count": 90,
+        "depth_reached": 6,
+        "nodes_expanded": 841,
+        "selected_world_count": 32,
+        "completed_world_count": 32,
+        "sampled_world_count": 32
+      }
+    },
+    {
+      "name": "grand_historical_review_exhaustive",
+      "profile_name": "historical_review_v1",
+      "random_seed": 115,
+      "declaration": {
+        "game_type": "grand",
+        "hand_game": false,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": 1,
+        "bid_value": 18
+      },
+      "position": {
+        "local_hand": ["H10", "H7"],
+        "hidden_cards": ["HJ", "C10", "HA", "D8", "S10", "H9"],
+        "current_trick": [],
+        "declarer_points": 24
+      },
+      "expected_result": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "recommended_card": "H10",
+        "compatible_world_count": 90,
+        "depth_reached": 6,
+        "nodes_expanded": 1846,
+        "selected_world_count": 90,
+        "completed_world_count": 90,
+        "sampled_world_count": 0
+      }
+    },
+    {
+      "name": "null_evaluation_exhaustive",
+      "profile_name": "evaluation_v1",
+      "random_seed": 115,
+      "declaration": {
+        "game_type": "null",
+        "hand_game": false,
+        "ouvert": false,
+        "schneider_announced": false,
+        "schwarz_announced": false,
+        "matadors": null,
+        "bid_value": 23
+      },
+      "position": {
+        "local_hand": ["H7", "CK"],
+        "hidden_cards": ["HA", "C10", "SA", "S10"],
+        "current_trick": [["left", "D10"], ["right", "DQ"]],
+        "declarer_points": 0
+      },
+      "expected_result": {
+        "status": "complete",
+        "stop_reason": "completed",
+        "world_coverage": "all_compatible_worlds",
+        "recommended_card": "CK",
+        "compatible_world_count": 12,
+        "depth_reached": 4,
+        "nodes_expanded": 99,
+        "selected_world_count": 12,
+        "completed_world_count": 12,
+        "sampled_world_count": 0
+      }
+    }
+  ]
+}

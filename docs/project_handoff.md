@@ -29,6 +29,7 @@ The project focuses on:
 * rolling opponent-policy evaluation
 * dataset partition policies and stable-player overlap audits
 * JSON input/output for regression-friendly testing
+* bounded Search post-game, historical-review, and dataset-evaluation workflows
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -198,6 +199,21 @@ Implemented on the active `v0.10.0` development branch:
   state, then the selected card executes in the private path world
 * Search-inclusive Policy Comparison with one appended configured method,
   eligibility-aware recommendation, and compact aggregate-only diagnostics
+* flat post-game Search with an independently executed Immediate baseline,
+  actual-card aggregate ranking, and Search-versus-Immediate comparison
+* Historical Search Review for every actual decision with reconciled status,
+  coverage, agreement, quality, and performance summaries
+* stable private SHA-256 decision seeds in domain
+  `historical_bounded_search_decision_v1`, derived from base seed, game ID, and
+  decision index and never serialized
+* bounded-Search dataset evaluation with default validation/test partitions, one
+  stable global decision cap, and preservation of selected zero-decision records
+* immutable `interactive_v1`, `historical_review_v1`, and `evaluation_v1`
+  structural work profiles
+* independent exhaustive strict-improvement fixtures for Suit, Grand, and Null,
+  plus sampled convergence evidence at 32, 64, and 128 worlds
+* a deterministic late-game Suit/Grand/Null benchmark corpus and measured
+  performance documentation without a calibrated latency guarantee
 * shared legal transition reuse by the specialized five-trick defender-open-play proof
 
 The direct exact solver returns no partial recommendation or fallback after a
@@ -205,9 +221,10 @@ node, depth, or timeout abort. Compatible-world Minimax may recommend only from
 an exact common completed prefix that reaches the configured minimum. The flat
 live workflow now exposes strict Search and Search-first auto routing; auto may
 mark Immediate fallback only after a valid no-recommendation Search result.
-Flat post-game review, Historical Review, Search-versus-Heuristic evaluation,
-default/production budgets, and a latency
-contract remain open. See
+These additions remain bounded late-game determinization. Search aggregates do
+not prove an optimal imperfect-information policy, sampled quality is not
+calibrated, no latency guarantee exists, and omitted-method Immediate behavior
+is unchanged. The stronger-search v1.0 gate therefore remains open. See
 [Bounded search contracts](bounded_search_contracts.md).
 
 ### Game history and scoring
@@ -293,11 +310,13 @@ Implemented:
 * focused historical-game, historical game-end/concession, historical-decision-snapshot, historical-game-review, and training-dataset schemas
 * strict version-1 hidden-card inference summary schema
 * strict standalone version-1 bounded-search aggregate result schema
+* strict flat post-game Search, Historical Search Review, and bounded-Search evaluation schemas
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 56 deterministic scenarios.
+Generated-output validation currently covers 59 deterministic scenarios in the
+active `v0.10.0` development tree. The published `v0.9.0` baseline remains 52.
 
 ### Live-vs-post-game information enforcement
 
@@ -513,6 +532,11 @@ Implemented:
 * `perfect_information_minimax.py`
 * `terminal_utility.py`
 * `bounded_search_result.py`
+* `bounded_search_post_game_review.py`
+* `retrospective_search_comparison.py`
+* `historical_search_review.py`
+* `bounded_search_evaluation.py`
+* `search_budget_profiles.py`
 * `recommendation_workflow.py`
 * `ouvert_simulation.py`
 * `simulation_step.py`
@@ -567,6 +591,7 @@ Main documentation files:
 * `docs/coherent_hidden_world_simulation.md`
 * `docs/hidden_card_inference.md`
 * `docs/bounded_search_contracts.md`
+* `docs/bounded_search_performance.md`
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
 * `docs/dataset_partition_policies.md`
@@ -711,10 +736,10 @@ Completed implementation scope:
   general stronger search remain incomplete. Compatible-world Minimax now
   evaluates the frozen selected sequence and aggregates one exact common prefix,
   but it is determinization-based and subject to strategy fusion. It is not an
-  optimal imperfect-information policy proof. It is connected only to explicit
-  live recommendation methods, including opt-in Multi-Step and Policy
-  Comparison; overbid Null replacement selection and retrospective
-  recommendation workflows remain outside it.
+  optimal imperfect-information policy proof. Explicit live methods, opt-in
+  Multi-Step and Policy Comparison, flat post-game review, Historical Search
+  Review, and bounded dataset evaluation are connected. Overbid Null replacement
+  selection remains outside it.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -731,10 +756,12 @@ selection, and common-prefix aggregate contracts are now implemented together
 with direct exact-state and compatible-world Suit, Grand, and normal non-overbid
 Null Minimax. All four Null variants are covered while preserving the five-
 trick, Alpha-Beta, exact-only transposition, determinism, and privacy contracts.
-Compatible-world execution now has bounded flat and opt-in Multi-Step/Policy
-Comparison live workflow integration. Historical Review, Search-versus-Heuristic
-evaluation, production-budget, performance, and latency
-integration remain open, so the overall stronger-search gate stays open. Remaining
+Compatible-world execution now has bounded flat live and post-game, opt-in Multi-
+Step/Policy Comparison, Historical Search Review, and dataset Search-versus-
+Immediate evaluation integration. Immutable profiles, independent quality
+fixtures, convergence checks, and the performance corpus provide bounded
+evidence, but not calibrated sampled quality, a latency guarantee, or policy
+optimality, so the overall stronger-search gate stays open. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

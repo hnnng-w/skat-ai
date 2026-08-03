@@ -31,6 +31,10 @@ supplied play from that
 validated replay result. Historical review adapts each snapshot independently
 to the existing local state, runs the existing immediate recommendation once,
 builds the candidate report from those values, and reuses post-game review.
+Historical Search Review instead builds the same decision-time position, runs
+bounded Search and a separate Immediate baseline before introducing the observed
+card, and emits reconciled decision, status, coverage, agreement, quality, and
+performance summaries.
 
 The training-dataset flow validates dataset identity, provenance, optional
 known-opponent or unseen-player partition policy, and duplicate protection, then reuses the historical validator/replay and
@@ -38,6 +42,12 @@ decision snapshot generator. It converts stable player references to the local
 `me`/`left`/`right` model in features, keeps traceability identities in metadata,
 and emits one legal actual-card sample per snapshot. It does not call the
 recommender or simulation.
+
+The separate bounded-Search dataset-evaluation mode selects canonical dataset
+partitions, preserves every selected record including zero-decision records,
+and evaluates one stable global decision prefix with the same historical Search
+and independent Immediate comparison. It does not alter training samples or
+partition policy.
 
 The dataset-partition audit flow scans exact stable participant IDs without
 replaying games. It emits deterministic membership, overlap, directed coverage,
@@ -120,7 +130,9 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_decision_snapshot.py` | Typed information-safe pre-play snapshot reconstruction and serialization over a validated historical result. |
 | `src/skat_ai/historical_snapshot_adapter.py` | Decision-time snapshot to local immediate-analysis position conversion. |
 | `src/skat_ai/historical_game_review.py` | Historical decision evaluation, deterministic seeds, unavailable handling, and complete-game aggregation. |
+| `src/skat_ai/historical_search_review.py` | Decision-time bounded Search plus independent Immediate analysis, stable private seed derivation, and reconciled historical aggregates. |
 | `src/skat_ai/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
+| `src/skat_ai/bounded_search_evaluation.py` | Canonical dataset selection, stable global decision-prefix evaluation, zero-decision preservation, and aggregate Search quality output. |
 | `src/skat_ai/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
 | `src/skat_ai/dataset_partition_audit.py` | Deterministic partition, membership, overlap, known-opponent coverage, and unseen-player compliance auditing. |
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
@@ -229,6 +241,9 @@ hand becomes public; no second complete hand is serialized.
 | `src/skat_ai/multi_step_simulation.py` | Multi-step simulation orchestration.                   |
 | `src/skat_ai/multi_step_recommendation.py` | Immutable privacy-safe Search decision and compact comparison diagnostics. |
 | `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
+| `src/skat_ai/search_budget_profiles.py` | Immutable versioned Search budgets for interactive, historical-review, and evaluation workflows. |
+| `src/skat_ai/retrospective_search_comparison.py` | Search actual-card and Search-versus-Immediate aggregate comparisons. |
+| `src/skat_ai/bounded_search_post_game_review.py` | Flat post-game Search comparison summary construction. |
 
 The simulation layer is probabilistic and heuristic. It is designed for analysis support, not for perfect-information solving.
 
@@ -292,6 +307,26 @@ Policy Comparison retains the four legacy defaults. Explicit Search appends
 exactly the configured strict or auto method last. Every result remains visible,
 but a Search path stopped without a recommendation is marked ineligible, sorted
 after eligible paths, and excluded from the recommended-policy selection.
+
+Flat post-game Search retains the normal Search recommendation but reruns
+Immediate independently from the same public position. The existing Immediate
+post-game review remains intact, while the Search-specific summary aligns the
+actual, Search, and Immediate cards against Search's aggregate metrics.
+
+Historical Search Review derives each Search seed from the explicit base seed,
+`historical_bounded_search_decision_v1`, stable game ID, and decision index. The
+derived seed is never serialized. Search and Immediate see only the reconstructed
+pre-play snapshot; future play and complete private deal ownership remain outside
+the analysis. Dataset evaluation reuses this row builder, defaults to validation
+and test partitions, fixes the Immediate baseline to 100 samples with base seed
+0, and optionally caps one global stable decision prefix.
+
+The named profiles are immutable structural work budgets:
+`interactive_v1`, `historical_review_v1`, and `evaluation_v1`. They do not imply
+calibrated latency. Search remains limited to late positions and compatible-
+world determinization; sampled aggregate evidence is not an optimal policy proof.
+See [Bounded search contracts](bounded_search_contracts.md) and
+[Bounded Search performance](bounded_search_performance.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the

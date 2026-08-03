@@ -9,6 +9,13 @@ from skat_ai.analysis_report import (
     build_strategic_summary,
     format_card_analysis_report,
 )
+from skat_ai.bounded_search_evaluation import (
+    DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS,
+    evaluate_bounded_search_dataset,
+)
+from skat_ai.bounded_search_post_game_review import (
+    build_bounded_search_post_game_review_summary,
+)
 from skat_ai.bounded_search_result import build_serializable_bounded_search_result
 from skat_ai.card_selection import (
     SEARCH_AWARE_MULTI_STEP_POLICIES,
@@ -70,6 +77,7 @@ from skat_ai.historical_opponent_statistics import (
     build_exportable_opponent_statistics_input,
     build_historical_opponent_statistics_aggregation_summary,
 )
+from skat_ai.historical_search_review import build_historical_search_review_summary
 from skat_ai.impossible_null_settlement import (
     build_impossible_null_settlement_summary,
     build_serializable_impossible_null_settlement_summary,
@@ -138,6 +146,7 @@ from skat_ai.performance_rating import (
 from skat_ai.policy_comparison import compare_multi_step_policies
 from skat_ai.post_game_review import build_post_game_review_summary
 from skat_ai.recommendation_workflow import (
+    IMMEDIATE_EXPECTED_VALUE_METHOD,
     SEARCH_RECOMMENDATION_METHODS,
     RecommendationMethodConfiguration,
     build_recommendation_method_summary,
@@ -156,6 +165,11 @@ from skat_ai.rolling_opponent_policy_evaluation import (
     evaluate_rolling_opponent_policy_predictions,
 )
 from skat_ai.rules import get_legal_cards
+from skat_ai.search_budget_profiles import (
+    EVALUATION_SEARCH_BUDGET_PROFILE,
+    HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
+    SEARCH_BUDGET_PROFILE_IDENTIFIERS,
+)
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 from skat_ai.training_dataset import build_training_dataset_summary
 
@@ -480,9 +494,53 @@ def build_analysis_result(
     strategic_summary = recommendation_workflow.strategic_summary
     hidden_card_inference_model = recommendation_workflow.hidden_card_inference_model
 
+    bounded_search_post_game_review_summary = None
+    immediate_review_report = report
+    if (
+        recommendation_configuration.requested_method in SEARCH_RECOMMENDATION_METHODS
+        and analysis_metadata.strategic_metadata.analysis_mode == "post_game_review"
+        and actual_card_played is not None
+    ):
+        immediate_baseline = execute_recommendation_workflow(
+            configuration=RecommendationMethodConfiguration(
+                explicitly_supplied=True,
+                requested_method=IMMEDIATE_EXPECTED_VALUE_METHOD,
+            ),
+            state=state,
+            declaration=game_declaration,
+            left_hand_size=settings["left_hand_size"],
+            right_hand_size=settings["right_hand_size"],
+            sample_count=settings["sample_count"],
+            immediate_random_seed=settings["random_seed"],
+            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
+            skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
+            immediate_unavailable_reason=immediate_unavailable_reason,
+            legal_cards_builder=get_legal_cards,
+            hidden_model_builder=build_hidden_card_inference_model,
+            immediate_recommender=recommend_card_by_expected_value,
+            report_builder=build_card_analysis_report,
+            summary_builder=build_strategic_summary,
+            unavailable_summary_builder=build_unavailable_strategic_summary,
+        )
+        immediate_review_report = list(immediate_baseline.analysis_report)
+        if recommendation_workflow.bounded_search_result is None:
+            raise ValueError("Post-game Search review requires a bounded Search result.")
+        bounded_search_post_game_review_summary = (
+            build_bounded_search_post_game_review_summary(
+                search_result=recommendation_workflow.bounded_search_result,
+                actual_card=actual_card_played,
+                immediate_card=immediate_baseline.recommendation_card,
+                immediate_analysis_report=immediate_review_report,
+                game_type=state.game_type,
+                player_role=state.player_role,
+            )
+        )
+
     post_game_review_summary = build_post_game_review_summary(
         actual_card_played=actual_card_played,
-        analysis_report=report,
+        analysis_report=immediate_review_report,
         game_type=state.game_type,
         player_role=state.player_role,
         game_value=game_value_summary["game_value"],
@@ -661,6 +719,11 @@ def build_analysis_result(
             )
             if recommendation_workflow.bounded_search_result is not None
             else None
+        )
+
+    if bounded_search_post_game_review_summary is not None:
+        result["bounded_search_post_game_review_summary"] = (
+            bounded_search_post_game_review_summary
         )
 
     if list_performance_summary is not None:
@@ -1526,6 +1589,44 @@ def print_training_dataset_result(result: dict[str, Any]) -> None:
         )
 
 
+def print_bounded_search_evaluation_result(result: dict[str, Any]) -> None:
+    """Prints a concise bounded-Search dataset evaluation summary."""
+    summary = result["bounded_search_evaluation_summary"]
+    quality = summary["quality_gate"]
+    counts = summary["decision_counts"]
+    print(
+        "Bounded Search evaluation: "
+        f"{summary['record_count']} records, {counts['decision_count']} decisions."
+    )
+    print(
+        "Search availability: "
+        f"{counts['search_available_decision_count']} available, "
+        f"{counts['search_unavailable_decision_count']} unavailable."
+    )
+    print(
+        "Search not-worse gate: "
+        f"{quality['search_not_worse_count']} of "
+        f"{quality['comparable_decision_count']} comparable decisions; "
+        f"violations {quality['quality_violation_count']}."
+    )
+
+
+def print_historical_search_review_result(summary: dict[str, Any]) -> None:
+    """Prints a concise Historical Search Review summary."""
+    quality = summary["quality_gate"]
+    counts = summary["decision_counts"]
+    print()
+    print("Historical Search Review")
+    print("Decisions attempted:", counts["search_attempted_count"])
+    print("Search recommendations:", counts["search_recommendation_count"])
+    print(
+        "Search not-worse gate:",
+        f"{quality['search_not_worse_count']} of "
+        f"{quality['comparable_decision_count']} comparable decisions; "
+        f"violations {quality['quality_violation_count']}.",
+    )
+
+
 def print_dataset_partition_audit_result(result: dict[str, Any]) -> None:
     """Prints a concise stable-player partition-audit summary."""
     summary = result["dataset_partition_audit_summary"]
@@ -2165,6 +2266,9 @@ def run_json_historical_game_analysis(
     quiet: bool = False,
     historical_decision_snapshots: bool = False,
     historical_game_review: bool = False,
+    historical_search_review: bool = False,
+    search_seed: int | None = None,
+    search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     sample_count: int | None = None,
     base_random_seed: int | None = None,
     opponent_statistics_file: str | None = None,
@@ -2188,7 +2292,7 @@ def run_json_historical_game_analysis(
             statistics_input_file=opponent_statistics_file,
         )
     snapshot_summary = None
-    if historical_decision_snapshots or historical_game_review:
+    if historical_decision_snapshots or historical_game_review or historical_search_review:
         snapshot_summary = build_historical_decision_snapshots(historical_game_summary)
     if historical_decision_snapshots:
         if snapshot_summary is None:
@@ -2219,6 +2323,25 @@ def run_json_historical_game_analysis(
                 right_opponent_response_policy_override=(right_opponent_response_policy_override),
             )
         )
+    if historical_search_review:
+        if snapshot_summary is None:
+            raise ValueError("Historical decision snapshots were not generated.")
+        if search_seed is None:
+            raise ValueError("Historical Search Review requires an explicit Search seed.")
+        historical_game_summary["historical_search_review_summary"] = (
+            build_historical_search_review_summary(
+                snapshot_summary=snapshot_summary,
+                historical_record=record,
+                base_search_seed=search_seed,
+                search_budget_profile=search_budget_profile,
+                immediate_sample_count=(
+                    sample_count
+                    if sample_count is not None
+                    else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+                ),
+                immediate_base_random_seed=base_random_seed,
+            )
+        )
     result = {
         "input_file": str(file_path),
         "historical_game_summary": historical_game_summary,
@@ -2235,6 +2358,10 @@ def run_json_historical_game_analysis(
         return
 
     print_historical_game_result(result)
+    if historical_search_review:
+        print_historical_search_review_result(
+            historical_game_summary["historical_search_review_summary"]
+        )
     if output_path is not None:
         print()
         print("Output file written:", output_path)
@@ -2256,6 +2383,38 @@ def run_json_training_dataset_conversion(
     if quiet:
         return
     print_training_dataset_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
+def run_json_bounded_search_evaluation(
+    file_path: str,
+    *,
+    search_seed: int,
+    partitions: tuple[str, ...] = DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS,
+    search_budget_profile: str = EVALUATION_SEARCH_BUDGET_PROFILE,
+    max_decisions: int | None = None,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Runs deterministic bounded-Search evaluation on selected dataset records."""
+    dataset = load_training_dataset_from_json(file_path)
+    result = {
+        "input_file": str(file_path),
+        "bounded_search_evaluation_summary": evaluate_bounded_search_dataset(
+            dataset,
+            base_search_seed=search_seed,
+            partitions=partitions,
+            search_budget_profile=search_budget_profile,
+            max_decisions=max_decisions,
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if quiet:
+        return
+    print_bounded_search_evaluation_result(result)
     if output_path is not None:
         print()
         print("Output file written:", output_path)
@@ -2509,6 +2668,41 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help=("Evaluate every supplied historical card decision with decision-time information."),
     )
+    parser.add_argument(
+        "--historical-search-review",
+        action="store_true",
+        help="Evaluate every historical decision with bounded Search and Immediate.",
+    )
+    parser.add_argument(
+        "--search-seed",
+        type=int,
+        default=None,
+        help="Use this explicit base seed for Historical Search Review or evaluation.",
+    )
+    parser.add_argument(
+        "--search-budget-profile",
+        choices=SEARCH_BUDGET_PROFILE_IDENTIFIERS,
+        default=None,
+        help="Select a versioned Historical Search Review or evaluation budget profile.",
+    )
+    parser.add_argument(
+        "--evaluate-bounded-search",
+        action="store_true",
+        help="Evaluate bounded Search against Immediate on a training dataset.",
+    )
+    parser.add_argument(
+        "--search-evaluation-partition",
+        action="append",
+        choices=("train", "validation", "test"),
+        default=None,
+        help="Select a bounded-Search evaluation partition; may be repeated.",
+    )
+    parser.add_argument(
+        "--search-evaluation-max-decisions",
+        type=int,
+        default=None,
+        help="Evaluate only this deterministic prefix of selected decisions.",
+    )
 
     parser.add_argument(
         "--multi-step",
@@ -2670,6 +2864,7 @@ def validate_cli_arguments(
 
     aggregate_statistics = getattr(args, "aggregate_opponent_statistics", False)
     evaluate_profiles = getattr(args, "evaluate_opponent_policy_profiles", False)
+    evaluate_search = getattr(args, "evaluate_bounded_search", False)
     audit_partitions = getattr(args, "audit_dataset_partitions", False)
     dataset_partition_mode = getattr(args, "dataset_partition_mode", None)
     if dataset_partition_mode is not None and not audit_partitions:
@@ -2696,6 +2891,51 @@ def validate_cli_arguments(
         raise CliUsageError(
             "--evaluate-opponent-policy-profiles is supported only for training_dataset_input."
         )
+    search_evaluation_options = {
+        "--search-evaluation-partition": getattr(
+            args, "search_evaluation_partition", None
+        )
+        is not None,
+        "--search-evaluation-max-decisions": getattr(
+            args, "search_evaluation_max_decisions", None
+        )
+        is not None,
+    }
+    supplied_search_evaluation_options = [
+        option for option, supplied in search_evaluation_options.items() if supplied
+    ]
+    if supplied_search_evaluation_options and not evaluate_search:
+        raise CliUsageError(
+            "Bounded-Search evaluation options require --evaluate-bounded-search: "
+            f"{', '.join(supplied_search_evaluation_options)}."
+        )
+    if evaluate_search and workflow != "training_dataset":
+        raise CliUsageError(
+            "--evaluate-bounded-search is supported only for training_dataset_input."
+        )
+    historical_search = getattr(args, "historical_search_review", False)
+    search_seed = getattr(args, "search_seed", None)
+    search_budget_profile = getattr(args, "search_budget_profile", None)
+    if (historical_search or evaluate_search) and search_seed is None:
+        raise CliUsageError(
+            "--historical-search-review and --evaluate-bounded-search require --search-seed."
+        )
+    if search_seed is not None and not (historical_search or evaluate_search):
+        raise CliUsageError(
+            "--search-seed requires --historical-search-review or --evaluate-bounded-search."
+        )
+    if search_budget_profile is not None and not (
+        historical_search or evaluate_search
+    ):
+        raise CliUsageError(
+            "--search-budget-profile requires --historical-search-review or "
+            "--evaluate-bounded-search."
+        )
+    if (
+        getattr(args, "search_evaluation_max_decisions", None) is not None
+        and args.search_evaluation_max_decisions <= 0
+    ):
+        raise CliUsageError("--search-evaluation-max-decisions must be positive.")
     source_partitions = tuple(
         getattr(args, "profile_source_partition", None) or DEFAULT_SOURCE_PARTITIONS
     )
@@ -2843,8 +3083,10 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
             "--opponent-statistics-file requires effective --use-profile-presets opt-in."
         )
     incompatible_options = {
-        "--samples": args.samples is not None and not args.historical_game_review,
-        "--seed": args.seed is not None and not args.historical_game_review,
+        "--samples": args.samples is not None
+        and not (args.historical_game_review or args.historical_search_review),
+        "--seed": args.seed is not None
+        and not (args.historical_game_review or args.historical_search_review),
         "--opponent-strategy": args.opponent_strategy is not None,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
@@ -2878,6 +3120,15 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         "--left-opponent-player-id": args.left_opponent_player_id is not None,
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
         "--aggregate-opponent-statistics": getattr(args, "aggregate_opponent_statistics", False),
+        "--evaluate-bounded-search": getattr(args, "evaluate_bounded_search", False),
+        "--search-evaluation-partition": getattr(
+            args, "search_evaluation_partition", None
+        )
+        is not None,
+        "--search-evaluation-max-decisions": getattr(
+            args, "search_evaluation_max_decisions", None
+        )
+        is not None,
     }
     supplied_options = [
         option for option, was_supplied in incompatible_options.items() if was_supplied
@@ -2898,6 +3149,7 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--opponent-strategy": args.opponent_strategy is not None,
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
+        "--historical-search-review": args.historical_search_review,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
         "--expected-value-samples": args.expected_value_samples is not None,
@@ -2917,6 +3169,7 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
     }
     evaluation_mode = getattr(args, "evaluate_opponent_policy_profiles", False)
+    search_evaluation_mode = getattr(args, "evaluate_bounded_search", False)
     audit_mode = getattr(args, "audit_dataset_partitions", False)
     if audit_mode:
         incompatible_options.update(
@@ -2933,6 +3186,7 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
                 "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
                 is not None,
                 "--evaluate-opponent-policy-profiles": evaluation_mode,
+                "--evaluate-bounded-search": search_evaluation_mode,
             }
         )
     if evaluation_mode:
@@ -2948,6 +3202,28 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
                 "--opponent-statistics-before": getattr(args, "opponent_statistics_before", None)
                 is not None,
                 "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
+                is not None,
+            }
+        )
+    if search_evaluation_mode:
+        incompatible_options.update(
+            {
+                "--audit-dataset-partitions": audit_mode,
+                "--aggregate-opponent-statistics": getattr(
+                    args, "aggregate_opponent_statistics", False
+                ),
+                "--evaluate-opponent-policy-profiles": evaluation_mode,
+                "--opponent-statistics-partition": getattr(
+                    args, "opponent_statistics_partition", None
+                )
+                is not None,
+                "--opponent-statistics-before": getattr(
+                    args, "opponent_statistics_before", None
+                )
+                is not None,
+                "--export-opponent-statistics": getattr(
+                    args, "export_opponent_statistics", None
+                )
                 is not None,
             }
         )
@@ -2970,6 +3246,19 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         "--opponent-strategy": args.opponent_strategy is not None,
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
+        "--historical-search-review": getattr(args, "historical_search_review", False),
+        "--search-seed": getattr(args, "search_seed", None) is not None,
+        "--search-budget-profile": getattr(args, "search_budget_profile", None)
+        is not None,
+        "--evaluate-bounded-search": getattr(args, "evaluate_bounded_search", False),
+        "--search-evaluation-partition": getattr(
+            args, "search_evaluation_partition", None
+        )
+        is not None,
+        "--search-evaluation-max-decisions": getattr(
+            args, "search_evaluation_max_decisions", None
+        )
+        is not None,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
         "--expected-value-samples": args.expected_value_samples is not None,
@@ -3016,7 +3305,23 @@ def main() -> int:
             )
         elif workflow == "training_dataset":
             validate_training_dataset_cli_arguments(args)
-            if args.audit_dataset_partitions:
+            if args.evaluate_bounded_search:
+                run_json_bounded_search_evaluation(
+                    file_path=args.input,
+                    search_seed=args.search_seed,
+                    partitions=tuple(
+                        args.search_evaluation_partition
+                        or DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS
+                    ),
+                    search_budget_profile=(
+                        args.search_budget_profile
+                        or EVALUATION_SEARCH_BUDGET_PROFILE
+                    ),
+                    max_decisions=args.search_evaluation_max_decisions,
+                    output_path=args.output,
+                    quiet=args.quiet,
+                )
+            elif args.audit_dataset_partitions:
                 run_json_dataset_partition_audit(
                     file_path=args.input,
                     requested_mode=args.dataset_partition_mode,
@@ -3062,6 +3367,12 @@ def main() -> int:
                 quiet=args.quiet,
                 historical_decision_snapshots=args.historical_decision_snapshots,
                 historical_game_review=args.historical_game_review,
+                historical_search_review=args.historical_search_review,
+                search_seed=args.search_seed,
+                search_budget_profile=(
+                    args.search_budget_profile
+                    or HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
+                ),
                 sample_count=args.samples,
                 base_random_seed=args.seed,
                 opponent_statistics_file=args.opponent_statistics_file,
@@ -3080,6 +3391,10 @@ def main() -> int:
                 )
             if args.historical_game_review:
                 raise CliUsageError("--historical-game-review requires historical-game input.")
+            if args.historical_search_review:
+                raise CliUsageError(
+                    "--historical-search-review requires historical-game input."
+                )
             run_json_position_analysis(
                 file_path=args.input,
                 sample_count_override=args.samples,

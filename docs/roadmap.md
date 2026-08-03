@@ -41,6 +41,12 @@ Implemented:
 * Executable `compatible_world_minimax_v1` with shared exact-world recursion, frozen-order common-prefix scheduling, global nodes, per-world depth and exact-only cache, one post-selection timeout window, equal duplicate-sample weighting, aggregate ranking, and threshold-gated partial or timeout recommendations
 * Explicit flat live `immediate_expected_value`, strict `bounded_search`, and Search-first `auto` recommendation methods with validated budgets, separate seeds, explicit fallback, report separation, schema output, CLI summaries, and privacy-safe examples
 * Opt-in Search-aware Multi-Step and Policy Comparison with public-state re-search at every local decision, fresh per-decision budgets, domain-separated child seeds, coherent execution-world separation, strict stopping, auto fallback, eligibility-aware ranking, and compact privacy-safe diagnostics
+* Flat post-game bounded Search with an independently executed Immediate baseline plus actual-card and Search-versus-Immediate aggregate comparisons
+* Historical Search Review over every decision-time snapshot with stable private per-decision seeds and reconciled status, coverage, agreement, quality, and performance summaries
+* Bounded-Search dataset evaluation over canonical validation/test defaults, optional stable global decision-prefix caps, and preserved zero-decision records
+* Immutable `interactive_v1`, `historical_review_v1`, and `evaluation_v1` work-budget profiles
+* Independent exhaustive Suit, Grand, and Null strict-improvement fixtures plus 32/64/128-draw convergence evidence
+* Deterministic Suit/Grand/Null benchmark corpus and measured performance documentation with no calibrated latency guarantee
 
 ### Game history and scoring
 
@@ -189,6 +195,7 @@ Implemented:
 * Information-safe pre-play snapshots for every actual play in each supported historical terminal record
 * Variable-length historical review, including zero-decision records, with deterministic seeds and reconciled player summaries
 * Declared-Ouvert and continuation public hands at their exact decision-time visibility boundaries
+* Flat and Historical Search review with independent Immediate baselines and strict aggregate comparison output
 
 ### Training and evaluation data
 
@@ -203,6 +210,7 @@ Implemented:
 * Deterministic exact-player membership, pairwise/three-way overlap, directed known-opponent coverage, and unseen-player compliance audits
 * Strict declared unseen-player disjointness with backward-compatible unspecified policy intent
 * Reuse of the dataset as the multi-game source for sample-free historical opponent-statistics aggregation
+* Deterministic bounded-Search evaluation on selected partitions with one global decision cap, zero-decision preservation, quality-gate arithmetic, and aggregate breakdowns
 
 ### Validation and documentation
 
@@ -213,6 +221,7 @@ Implemented:
 * Focused historical-game, decision-snapshot, historical-review, training-dataset, and historical opponent-statistics aggregation schemas
 * Focused strict hidden-card inference summary schema
 * Focused strict bounded-search aggregate result schema
+* Focused strict flat post-game Search, Historical Search Review, and bounded-Search evaluation schemas
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, input schema validation, generated-output validation, and pytest
@@ -234,6 +243,8 @@ Implemented:
 * Separate training-dataset conversion with strict rejection of unrelated analysis options
 * Historical opponent-statistics aggregation with partition/cutoff selection, separate normal output and export paths, and quiet output
 * Isolated `--audit-dataset-partitions` workflow with optional policy-mode resolution
+* `--historical-search-review` with explicit `--search-seed` and named profile selection
+* `--evaluate-bounded-search` with repeatable partition selection and optional global decision cap
 
 ## Current known limitations
 
@@ -261,9 +272,10 @@ Implemented:
   subject to strategy fusion. Null requires a bid no greater than its fixed
   value; overbid Null replacement selection remains unsupported. Flat and
   opt-in Multi-Step/Policy Comparison live routing, CLI summaries, and explicit
-  auto fallback exist. Post-game and Historical Review Search,
-  Search-versus-Heuristic evaluation, default or production budget profiles,
-  performance baselines, and a latency promise do not exist.
+  auto fallback exist. Flat post-game Search, Historical Search Review, and
+  Search-versus-Immediate dataset evaluation now use immutable versioned work
+  profiles. Search remains bounded late-game determinization, sampled quality is
+  not calibrated, and measured performance provides no latency guarantee.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 
 ### Performance rating
@@ -393,10 +405,13 @@ prefix aggregates, and preserves equal duplicate-draw weight. Exhaustive
 coverage is exact across compatible worlds, while sampled and partial claims are
 narrower; determinization and strategy fusion prevent an optimal imperfect-
 information policy claim. Flat live workflow and explicit fallback integration
-are implemented; opt-in Multi-Step and Policy Comparison are also integrated,
-while evaluation, Historical Review, production budgets, performance, and
-latency integration remain open, so the
-stronger-search completion gate is not closed.
+are implemented; opt-in Multi-Step and Policy Comparison, flat post-game review,
+Historical Search Review, and Search-versus-Immediate dataset evaluation are also
+integrated. Immutable work profiles, independent quality fixtures, sampled
+convergence checks, and a reproducible performance corpus provide bounded
+evidence. They do not provide calibrated sample quality, a latency guarantee,
+information-set policy search, or complete-contract solving, so the stronger-
+search completion gate is not closed.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

@@ -23,6 +23,7 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Card recommendations
 * Optional bounded compatible-world Minimax recommendations for eligible late live positions
 * Strict Search and Search-first `auto` routing with explicit Immediate fallback metadata
+* Flat post-game bounded Search with an independently executed Immediate baseline
 * JSON output for regression-friendly analysis
 
 ### Simulation and policy comparison
@@ -71,7 +72,9 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Derived historical trick winners, points, game value, overbid, and settlement
 * Optional information-safe pre-play snapshots for every actual play in supported historical endings
 * Optional decision-time review of those actual historical plays through the existing immediate recommendation logic
+* Optional Historical Search Review with per-decision and aggregate Search-versus-Immediate comparisons
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
+* Deterministic bounded-Search dataset evaluation over selected decision prefixes
 * Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
 * Deterministic information-safe samples using the legal historical actual card as the version-1 target
 * Versioned external opponent-statistics records with required provenance
@@ -179,11 +182,13 @@ python main.py --input examples/grand_second_position.json
 The existing Immediate expected-value recommendation remains the default. JSON
 input may explicitly select `immediate_expected_value`, strict `bounded_search`,
 or `auto`. Search methods require a complete `bounded_search_settings` object and
-are limited to ongoing `live_decision` positions:
+support ongoing `live_decision` positions plus bounded flat
+`post_game_review` positions with `actual_card_played`:
 
 ```powershell
 python main.py --input examples/grand_bounded_search_exhaustive.json
 python main.py --input examples/grand_auto_search_fallback.json
+python main.py --input examples/grand_bounded_search_post_game_review.json
 ```
 
 Strict Search never falls back. `auto` runs Immediate only when Search returns a
@@ -207,6 +212,27 @@ Search is rerun from the prepared public state at every local decision. Each
 decision receives the full configured budget freshly and a deterministic child
 of the explicit Search seed. Search never receives the coherent execution root;
 the selected public recommendation is executed separately in that root.
+
+Run Historical Search Review with an explicit Search seed. It uses the immutable
+`historical_review_v1` profile by default and runs an independent Immediate
+baseline at every decision:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71 --output outputs/historical-search.json
+```
+
+Evaluate bounded Search against Immediate on the default `validation` and `test`
+dataset partitions. `evaluation_v1` is the default profile, and the optional cap
+is one stable global decision prefix:
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10 --output outputs/search-evaluation.json
+```
+
+`--search-budget-profile` accepts `interactive_v1`, `historical_review_v1`, or
+`evaluation_v1`. These profiles are immutable work budgets, not latency
+guarantees. See [Bounded search contracts](docs/bounded_search_contracts.md) and
+[Bounded Search performance](docs/bounded_search_performance.md).
 
 Run immediate analysis with a configured opponent response policy:
 
@@ -506,6 +532,10 @@ Detailed documentation is split into topic-specific files:
 * [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md)
 * [Hidden-card inference](docs/hidden_card_inference.md)
 * [Bounded search contracts](docs/bounded_search_contracts.md)
+* [Bounded Search performance](docs/bounded_search_performance.md)
+* [Bounded Search post-game review schema](schemas/bounded_search_post_game_review.schema.json)
+* [Historical Search Review schema](schemas/historical_search_review.schema.json)
+* [Bounded Search evaluation schema](schemas/bounded_search_evaluation.schema.json)
 * [Hidden-card inference summary schema](schemas/hidden_card_inference_summary.schema.json)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
@@ -589,9 +619,11 @@ through #104 are complete. Generated-output validation covers 52 deterministic
 scenarios, and the complete pytest suite contains 3,558 tests. GitHub Releases
 is the authoritative publication record.
 
-The active next development milestone is `v0.10.0`, starting with stronger
-bounded Search/Solver functionality with explicit information, quality,
-determinism, and latency contracts.
+The active next development milestone is `v0.10.0`. Its current development
+tree validates 59 deterministic generated-output scenarios and extends bounded
+Search/Solver behavior with explicit information, quality, determinism, budget,
+and measured-performance contracts. The package version remains `0.9.0` until a
+human-controlled release.
 
 The milestone adds five structured game-shortening forms, five matching
 historical terminal events, two historical non-terminal continuations, and
@@ -611,9 +643,17 @@ calibrated. See
 [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and
 [Hidden-card inference](docs/hidden_card_inference.md).
 
-Remaining Search work includes Historical Review integration,
-Search-versus-Heuristic evaluation, production budgets and latency baselines,
-fuller Replay Coaching,
+Bounded Search now supports flat post-game comparison, Historical Search Review,
+and deterministic Search-versus-Immediate dataset evaluation with immutable
+named work profiles. Independent Suit, Grand, and Null fixtures demonstrate
+strict improvements and 32/64/128-draw convergence against exhaustive references.
+This remains bounded late-game determinization, not an optimal imperfect-
+information policy proof; sampled quality is not calibrated, and measured
+performance provides no latency guarantee. Existing omitted-method Immediate
+behavior remains unchanged.
+
+Remaining work includes stronger information-set or policy search, fuller Replay
+Coaching,
 approved settlement nuance, fixed-three-player 36-game list aggregation,
 automatic dataset preparation, field-level live provenance, interactive input
 and session capture, and a stable installed library and CLI interface. General

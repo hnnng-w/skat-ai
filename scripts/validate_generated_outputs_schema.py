@@ -129,6 +129,15 @@ HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH = (
 BOUNDED_SEARCH_RESULT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_result.schema.json"
 )
+BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "bounded_search_post_game_review.schema.json"
+)
+HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_search_review.schema.json"
+)
+BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -2505,6 +2514,60 @@ def check_search_inclusive_policy_comparison(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_bounded_search_post_game_review(data: dict[str, Any]) -> list[str]:
+    summary = data.get("bounded_search_post_game_review_summary")
+    if not isinstance(summary, dict):
+        return ["expected bounded_search_post_game_review_summary"]
+    errors = []
+    actual = summary["search_actual_card_comparison"]
+    comparison = summary["search_vs_immediate_comparison"]
+    if not actual["is_available"] or actual["actual_card"] != "D7":
+        errors.append("expected available Search actual-card comparison for D7")
+    if not comparison["is_available"] or comparison["search_aggregate_relation"] not in {
+        "search_better",
+        "aggregate_equivalent",
+    }:
+        errors.append("expected available Search-versus-Immediate comparison")
+    if not data["post_game_review_summary"]["is_available"]:
+        errors.append("expected unchanged Immediate post-game review to remain available")
+    return errors
+
+
+def check_historical_search_review(data: dict[str, Any]) -> list[str]:
+    review = data["historical_game_summary"].get("historical_search_review_summary")
+    if not isinstance(review, dict):
+        return ["expected historical_search_review_summary"]
+    errors = []
+    counts = review["decision_counts"]
+    if counts["decision_count"] != 30 or counts["search_attempted_count"] != 30:
+        errors.append("expected all 30 historical decisions to attempt Search")
+    if counts["search_available_decision_count"] == 0:
+        errors.append("expected at least one late eligible Search decision")
+    if counts["search_unavailable_decision_count"] == 0:
+        errors.append("expected early out-of-profile Search decisions")
+    if review["quality_gate"]["quality_violation_count"] != 0:
+        errors.append("expected no Search-not-worse quality violations")
+    if any("random_seed" in decision["bounded_search_result"] for decision in review["decisions"]):
+        errors.append("derived Search seeds must not be serialized")
+    return errors
+
+
+def check_bounded_search_evaluation(data: dict[str, Any]) -> list[str]:
+    summary = data.get("bounded_search_evaluation_summary")
+    if not isinstance(summary, dict):
+        return ["expected bounded_search_evaluation_summary"]
+    errors = []
+    if summary["selection"]["partitions"] != ["validation", "test"]:
+        errors.append("expected default validation/test evaluation partitions")
+    if summary["decision_counts"]["decision_count"] != 1:
+        errors.append("expected deterministic one-decision evaluation prefix")
+    if summary["quality_gate"]["quality_violation_count"] != 0:
+        errors.append("expected no Search-not-worse quality violations")
+    if summary["record_count"] != 1:
+        errors.append("expected one selected validation record")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -2531,6 +2594,14 @@ SCENARIOS = (
         input_path=PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json",
         branch="node-limited bounded Search with explicit Immediate fallback",
         check_output=check_auto_search_fallback,
+    ),
+    Scenario(
+        name="bounded_search_post_game_review",
+        input_path=(
+            PROJECT_ROOT / "examples" / "grand_bounded_search_post_game_review.json"
+        ),
+        branch="flat post-game Search actual-card and Immediate comparison",
+        check_output=check_bounded_search_post_game_review,
     ),
     Scenario(
         name="search_aware_multi_step",
@@ -2953,6 +3024,26 @@ SCENARIOS = (
         include_position_overrides=False,
     ),
     Scenario(
+        name="historical_grand_search_review",
+        input_path=(PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"),
+        branch="Historical Search Review with eligible and unavailable decisions",
+        cli_args=(
+            "--historical-search-review",
+            "--search-seed",
+            "71",
+            "--search-budget-profile",
+            "interactive_v1",
+            "--samples",
+            "1",
+            "--seed",
+            "42",
+            "--quiet",
+        ),
+        check_output=check_historical_search_review,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
         name="historical_grand_ouvert_review",
         input_path=(PROJECT_ROOT / "examples" / "historical_grand_ouvert_review.json"),
         branch="declared-Ouvert historical review with exact public declarer hand",
@@ -2993,6 +3084,22 @@ SCENARIOS = (
         branch="versioned normal-play training dataset with 30 decision samples",
         cli_args=("--quiet",),
         check_output=check_training_dataset_normal_play,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="bounded_search_dataset_evaluation",
+        input_path=PROJECT_ROOT / "examples" / "training_dataset_normal_play.json",
+        branch="bounded Search versus Immediate dataset evaluation",
+        cli_args=(
+            "--evaluate-bounded-search",
+            "--search-seed",
+            "71",
+            "--search-evaluation-max-decisions",
+            "1",
+            "--quiet",
+        ),
+        check_output=check_bounded_search_evaluation,
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
@@ -3179,6 +3286,15 @@ def validate_generated_outputs() -> list[str]:
         HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH
     )
     bounded_search_result_schema = load_json_file(BOUNDED_SEARCH_RESULT_SCHEMA_PATH)
+    bounded_search_post_game_review_schema = load_json_file(
+        BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA_PATH
+    )
+    historical_search_review_schema = load_json_file(
+        HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH
+    )
+    bounded_search_evaluation_schema = load_json_file(
+        BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH
+    )
     registry = Registry().with_resources(
         [
             (
@@ -3342,6 +3458,18 @@ def validate_generated_outputs() -> list[str]:
             (
                 bounded_search_result_schema["$id"],
                 Resource.from_contents(bounded_search_result_schema),
+            ),
+            (
+                bounded_search_post_game_review_schema["$id"],
+                Resource.from_contents(bounded_search_post_game_review_schema),
+            ),
+            (
+                historical_search_review_schema["$id"],
+                Resource.from_contents(historical_search_review_schema),
+            ),
+            (
+                bounded_search_evaluation_schema["$id"],
+                Resource.from_contents(bounded_search_evaluation_schema),
             ),
         ]
     )

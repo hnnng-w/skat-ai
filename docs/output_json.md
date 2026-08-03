@@ -62,9 +62,17 @@ Evidence-constrained hidden-card inference output uses:
 
 [`schemas/hidden_card_inference_summary.schema.json`](../schemas/hidden_card_inference_summary.schema.json)
 
-Explicit live bounded-Search output uses:
+Explicit flat bounded-Search output uses:
 
 [`schemas/bounded_search_result.schema.json`](../schemas/bounded_search_result.schema.json)
+
+Retrospective bounded-Search output additionally uses:
+
+[`schemas/bounded_search_post_game_review.schema.json`](../schemas/bounded_search_post_game_review.schema.json)
+
+[`schemas/historical_search_review.schema.json`](../schemas/historical_search_review.schema.json)
+
+[`schemas/bounded_search_evaluation.schema.json`](../schemas/bounded_search_evaluation.schema.json)
 
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
@@ -165,6 +173,39 @@ grades, percentages, skill ratings, winners, or rankings. The review evaluates
 the immediate heuristic, not perfect-information or complete-contract optimal
 play, and is not a training/evaluation dataset record.
 
+When `--historical-search-review` is requested, the historical summary adds
+`historical_search_review_summary`. It uses schema version `1`,
+`analysis_method: "bounded_search_with_immediate_baseline"`, and
+`information_policy: "decision_time"`. Every actual decision contains stable
+identity and position metadata, an independently executed Immediate baseline,
+the strict bounded Search result, an actual-card comparison, and a Search-versus-
+Immediate comparison.
+
+Its top-level and breakdown metrics include:
+
+* `decision_counts` for attempts, availability, and recommendations
+* all `status_counts` and exact, sampled, or no-coverage counts
+* Search-versus-Immediate recommendation agreement
+* actual-card top-1 and top-3 aggregate agreement, based on the number of
+  strictly better aggregate candidates so canonical ordering of tied cards does
+  not change the metric
+* `search_better`, `aggregate_equivalent`, and unavailable comparison counts
+* the Search-not-worse `quality_gate`
+* totals, mean, nearest-rank p50/p95, and maximum for nodes, selected/completed/
+  sampled worlds, depth, and elapsed milliseconds, plus fallback count
+
+Breakdowns use game type, local side, root seat, remaining tricks, Search status,
+and coverage. A zero-decision historical record is valid: arrays are empty,
+counts and totals are zero, rates and percentiles are null, and the quality gate
+passes with zero comparable decisions.
+
+`settings` records the explicit base Search seed, named immutable profile,
+expanded requested budget, Immediate sample count, and nullable Immediate base
+seed. Each private Search seed is derived from
+`historical_bounded_search_decision_v1`, the stable game ID, and decision index;
+no derived seed is serialized. Future cards, private historical hands, world
+assignments, and settlement do not enter or appear in a decision row.
+
 Training-dataset input produces a separate stable branch:
 
 ```json
@@ -194,6 +235,47 @@ review quality do not appear in features or labels. All three partition counts
 are always present and reconcile with total and per-record counts. See
 [Training data](training_data.md) and
 [`training_dataset_output.schema.json`](../schemas/training_dataset_output.schema.json).
+
+`--evaluate-bounded-search` produces a separate branch instead of
+`training_dataset_summary`:
+
+```json
+{
+  "input_file": "examples/training_dataset_normal_play.json",
+  "bounded_search_evaluation_summary": {
+    "schema_version": 1,
+    "evaluation_method": "bounded_search_vs_immediate_v1",
+    "source_dataset": {},
+    "settings": {},
+    "selection": {},
+    "decision_counts": {},
+    "status_counts": {},
+    "coverage": {},
+    "search_vs_immediate_agreement": {},
+    "quality_gate": {},
+    "actual_card_agreement": {},
+    "search_aggregate_quality": {},
+    "performance": {},
+    "breakdowns": {},
+    "records": []
+  }
+}
+```
+
+Selection defaults to `validation` and `test`. `max_decisions` is nullable and
+caps one stable global decision prefix. `available_decision_count` counts source
+decisions before the cap, `evaluated_decision_count` is the selected prefix, and
+`decision_cap_reached` reports truncation. Every selected record remains in
+`records`, including records with zero source decisions or an empty evaluated
+prefix; `zero_decision_record_count` counts the former.
+
+The quality gate includes only available Search-versus-Immediate comparisons:
+`search_not_worse_count` equals strictly better plus equivalent, and violations
+equal comparable minus not worse. It passes exactly when violations are zero.
+This is Search-aggregate arithmetic, not proof of an optimal policy or calibrated
+sample quality. Evaluation breakdowns add `by_partition` to the historical
+dimensions. Performance elapsed times are diagnostics and provide no latency
+guarantee.
 
 Dataset partition audit produces a separate sample-free branch:
 
@@ -353,6 +435,7 @@ Typical top-level fields include:
 | `recommendation`                 | Recommended card and reason.                                |
 | `recommendation_method_summary`  | Optional explicit-method routing and fallback summary.      |
 | `bounded_search_result`          | Optional strict bounded-Search aggregate result or null.    |
+| `bounded_search_post_game_review_summary` | Optional flat Search actual-card and Search-versus-Immediate aggregate comparisons. |
 | `post_game_review_summary`       | Actual-card comparison and post-game review result.         |
 | `multi_step_result`              | Optional multi-step simulation result.                      |
 | `policy_comparison_result`       | Optional policy-comparison result.                          |
@@ -1165,6 +1248,30 @@ recommendation. The unavailable shape is:
 
 `post_game_review_summary` compares the actual played card with the recommended card.
 It requires an available local Immediate Analysis report.
+
+For explicit `bounded_search` or `auto` flat post-game review, the engine runs a
+separate Immediate baseline after Search. The ordinary
+`post_game_review_summary` is built from that Immediate report and remains
+independent of the Search recommendation. The top-level recommendation remains
+the configured Search workflow result. The additional strict
+`bounded_search_post_game_review_summary` contains:
+
+| Field | Meaning |
+| --- | --- |
+| `schema_version` | Always `1`. |
+| `analysis_method` | Always `bounded_search_with_immediate_baseline`. |
+| `game_type` | The aligned Suit, Grand, or Null contract used to enforce margin semantics. |
+| `search_actual_card_comparison` | Actual card and Search rank/metrics, best/equivalent flags, completed-world basis, and recommendation-minus-actual gaps. |
+| `search_vs_immediate_comparison` | Both cards and reciprocal ranks, card agreement, aggregate relation, and Search-minus-Immediate aggregate advantages. |
+
+Comparison basis is `all_compatible_worlds`, `sampled_compatible_worlds`, or
+`completed_common_prefix`. Aggregate relation is `search_better`,
+`aggregate_equivalent`, or `not_available`; equal metrics remain equivalent even
+when canonical tie-breaking selects different cards. Suit and Grand include
+card-point margins. Null margin metrics and gaps are null. Explicit unavailable
+reasons cover zero completed worlds, a stopped Search with no recommendation,
+and missing aligned candidates. Candidate aggregates without a Search
+recommendation do not enter the Search-versus-Immediate quality denominator.
 
 Flat declared-Ouvert and continuation review use the same public information state. When the local
 actor owns the public hand, `actual_card_played` must belong to it; other local

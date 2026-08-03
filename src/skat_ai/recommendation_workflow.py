@@ -230,17 +230,24 @@ def validate_recommendation_method_workflow(
     data: dict[str, Any],
     configuration: RecommendationMethodConfiguration,
 ) -> None:
-    """Enforces the flat ongoing live-position boundary for Search methods."""
+    """Enforces the flat ongoing decision boundary for Search methods."""
     if configuration.requested_method not in SEARCH_RECOMMENDATION_METHODS:
         return
-    if data.get("analysis_mode", "live_decision") != "live_decision":
-        raise ValueError("Search recommendation methods require analysis_mode='live_decision'.")
+    analysis_mode = data.get("analysis_mode", "live_decision")
+    if analysis_mode not in {"live_decision", "post_game_review"}:
+        raise ValueError(
+            "Search recommendation methods require live_decision or post_game_review."
+        )
     if data.get("game_end_reason", "not_ended") != "not_ended":
         raise ValueError("Search recommendation methods require game_end_reason='not_ended'.")
     if data.get("skat_visibility", "unknown") == "known_post_game":
         raise ValueError("Search recommendation methods cannot use post-game Skat visibility.")
-    if "actual_card_played" in data:
+    if analysis_mode == "live_decision" and "actual_card_played" in data:
         raise ValueError("Search recommendation methods do not accept actual_card_played.")
+    if analysis_mode == "post_game_review" and "actual_card_played" not in data:
+        raise ValueError(
+            "Post-game Search recommendation methods require actual_card_played."
+        )
     if data.get("played_cards", []):
         raise ValueError(
             "Search recommendation methods require attributed completed_tricks instead "
