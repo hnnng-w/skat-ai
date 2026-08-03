@@ -13,6 +13,10 @@ baseline, and it does not call this expected-value recommendation or decision-
 quality review path. See
 [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).
 
+Historical Search Review is also a separate, opt-in workflow. It runs bounded
+Search plus an independently executed Immediate baseline for each actual
+decision without changing this Immediate-only review output.
+
 ## CLI
 
 Use the historical-only flag with an optional sample count and base seed:
@@ -83,6 +87,27 @@ deal for review. Comparison and Multi-Step overrides remain unsupported, and
 actual future opponent hands never enter an earlier decision. Each row continues
 to use only its Immediate Analysis counterfactual samples from public decision-
 time information.
+
+## Historical Search Review
+
+Use `--historical-search-review --search-seed INTEGER` to evaluate every actual
+decision with bounded Search and an independent Immediate baseline. The default
+immutable work profile is `historical_review_v1`; the other accepted named
+profiles are `interactive_v1` and `evaluation_v1`.
+
+Each Search call is built from the same reconstructed decision-time snapshot.
+Search and Immediate both finish before the observed card is introduced for
+comparison. The Search seed is derived privately from the supplied base seed,
+stable game ID, and decision index and is never serialized. Future cards, actual
+hidden ownership, final outcome, overbid, and settlement remain outside the
+Search view.
+
+The strict version-1 result reports per-decision Search status, coverage,
+recommendation, actual-card and Search-versus-Immediate comparisons, plus
+aggregate agreement, quality-gate, and performance summaries. Early decisions
+outside the selected late-game profile remain explicitly unavailable. See
+[Bounded search contracts](bounded_search_contracts.md) and
+[`historical_search_review.schema.json`](../schemas/historical_search_review.schema.json).
 
 ## Review output
 

@@ -152,7 +152,7 @@ new policy model. See [Hidden-card inference](hidden_card_inference.md).
 
 ### Bounded-search contracts
 
-Implemented on the active `v0.10.0` development branch:
+Implemented in the prepared `v0.10.0` package baseline:
 
 * immutable version-1 live and historical decision-time search information views
 * explicit local-decision eligibility without compatible-world inspection
@@ -316,7 +316,7 @@ Implemented:
 * schema validation documentation
 
 Generated-output validation currently covers 59 deterministic scenarios in the
-active `v0.10.0` development tree. The published `v0.9.0` baseline remains 52.
+prepared `v0.10.0` package baseline. The published `v0.9.0` baseline remains 52.
 
 ### Live-vs-post-game information enforcement
 
@@ -609,9 +609,10 @@ Main documentation files:
 
 Current published stable release: `v0.9.0`.
 
-Current package version: `0.9.0`.
+Current package version: `0.10.0`.
 
-Release theme: "Structured game endings and coherent hidden information."
+Prepared package theme: "Information-safe bounded Search across compatible
+worlds."
 
 The published release tag points to commit `0679760`.
 
@@ -620,6 +621,11 @@ is the authoritative publication record.
 
 The published `v0.9.0` baseline validates 52 deterministic generated-output
 scenarios and passes 3,558 pytest tests.
+
+The prepared `v0.10.0` package baseline validates 59 deterministic generated-
+output scenarios and passes 4,075 pytest tests. Issues #107 through #115 complete
+the functional milestone. No `v0.10.0` tag or GitHub Release is claimed here;
+those remain manual maintainer actions.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -709,9 +715,22 @@ The `v0.9.0` structured game endings and coherent hidden information issue range
 * #103 preserved one private hidden-world assignment across every Multi-Step path and one shared root across independent Policy Comparison paths, with privacy-safe summaries
 * #104 added exact structural hidden-card constraints, DP compatible-world counts and marginals, uniform sampling, workflow sharing, historical leakage controls, and privacy-safe summaries
 
+The `v0.10.0` information-safe bounded Search issue range #107 through #115 is
+functionally complete pending manual publication:
+
+* #107 defined bounded-Search information, budget, result, exactness, and privacy contracts
+* #108 added immutable exact states and legal transitions
+* #109 added Suit and Grand Perfect-Information Minimax
+* #110 added all four normal non-overbid Null variants
+* #111 added exact compatible-world counting, canonical enumeration, deterministic IID sampling, and selection
+* #112 added compatible-world Minimax with retained duplicate weighting and common-prefix aggregation
+* #113 added flat live strict Search and Search-first auto fallback
+* #114 integrated Search into Multi-Step and Policy Comparison
+* #115 added flat post-game and Historical Search Review, dataset evaluation, immutable profiles, quality and convergence evidence, and measured performance baselines
+
 ## Current implementation baseline
 
-**v0.9.0: Structured game endings and coherent hidden information**
+**v0.10.0: Information-safe bounded Search across compatible worlds**
 
 Completed implementation scope:
 
@@ -724,6 +743,11 @@ Completed implementation scope:
 * declared-Ouvert exact public-hand constraints in Immediate Analysis, supported Multi-Step, Policy Comparison, flat review, and historical review
 * coherent private hidden-world ownership across each Multi-Step path and shared-root Policy Comparison
 * exact evidence-constrained hidden-card inference across Immediate, Multi-Step, Policy Comparison, and historical review
+* immutable information-safe Search views and exact-world legal states
+* bounded exact-state Suit, Grand, and all four normal non-overbid Null Minimax
+* exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, retained duplicate weighting, and common-prefix aggregation
+* live, Multi-Step, Policy Comparison, post-game, Historical Search Review, and dataset-evaluation integration
+* immutable budget profiles, quality and convergence fixtures, and deterministic measured reference performance
 
 ## Current high-priority limitations
 
@@ -749,8 +773,9 @@ Completed implementation scope:
 
 ## Next recommended action
 
-`v0.9.0` is published. The active next development milestone is `v0.10.0`.
-Version-1 bounded Search/Solver information, quality, determinism, budget,
+The `v0.10.0` functional milestone is complete and the package baseline is
+prepared for manual tag and publication. Version-1 bounded Search/Solver
+information, quality, determinism, budget,
 result, exact complete-world state, legal-transition, compatible-world
 selection, and common-prefix aggregate contracts are now implemented together
 with direct exact-state and compatible-world Suit, Grand, and normal non-overbid
@@ -761,7 +786,8 @@ Step/Policy Comparison, Historical Search Review, and dataset Search-versus-
 Immediate evaluation integration. Immutable profiles, independent quality
 fixtures, convergence checks, and the performance corpus provide bounded
 evidence, but not calibrated sampled quality, a latency guarantee, or policy
-optimality, so the overall stronger-search gate stays open. Remaining
+optimality, so the overall stronger-search gate stays open. GitHub Releases
+remains authoritative; publication is a maintainer action. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

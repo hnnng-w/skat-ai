@@ -1,5 +1,89 @@
 # Changelog
 
+## v0.10.0
+
+**Release theme: Information-safe bounded Search across compatible worlds**
+
+### Search contracts and exact-world solving
+
+* Add immutable information-safe Search views, explicit eligibility, deterministic
+  node/depth/sample budgets, a separate machine-dependent timeout, and stable
+  `complete`, `partial`, `timeout`, and `unavailable` result semantics (Issue
+  #107).
+* Add immutable perspective-neutral exact states, canonical legal-card
+  generation, pure transitions, neutral terminal facts, and shared exact
+  transition reuse (Issue #108).
+* Add bounded Perfect-Information Minimax for exact Suit and Grand worlds with
+  deterministic Alpha-Beta search, exact-only transposition reuse, and existing
+  result, value, overbid, settlement, and utility semantics (Issue #109).
+* Extend exact-world solving to Null, Null Hand, Null Ouvert, and Null Ouvert
+  Hand when they are normal non-overbid contracts (Issue #110). Search remains
+  limited to the lower of five remaining tricks and the requested budget.
+
+### Compatible worlds and aggregate Search
+
+* Build private compatible-world spaces from the information-safe view, count
+  worlds exactly, canonically enumerate bounded complete spaces, and sample
+  larger spaces as deterministic uniform IID draws with replacement (Issue
+  #111). Duplicate draws retain their repeated aggregate weight.
+* Evaluate one frozen selected-world sequence with exact-world Minimax and retain
+  only the common completed-world prefix (Issue #112). Exhaustive completion is
+  exact across all compatible worlds, sampled completion is exact only per
+  selected draw, and partial or timeout values are exact only over the retained
+  completed prefix.
+* Exact compatible-world counts do not identify the real deal, and sampled
+  ownership quality is not calibrated probability. Compatible-world Minimax is
+  determinization subject to Strategy Fusion, not an optimal imperfect-
+  information policy.
+
+### Live and simulated workflow integration
+
+* Add explicit flat `bounded_search` and Search-first `auto` routing while
+  preserving Immediate expected value as the omitted default (Issue #113).
+  Strict Search never falls back; auto uses Immediate only after a valid Search
+  result has no recommendation.
+* Integrate opt-in Search into Multi-Step local decisions and Policy Comparison
+  with fresh deterministic per-decision budgets and seeds, public-state
+  reconstruction, coherent execution-world separation, and privacy-safe
+  diagnostics (Issue #114).
+* Keep Search opt-in and information-safe across live, Multi-Step, and Policy
+  Comparison workflows. Existing omitted-method workflows require no migration.
+
+### Retrospective review and evaluation
+
+* Add flat post-game Search with an independently executed Immediate baseline,
+  actual-card aggregate ranking, and Search-versus-Immediate comparison (Issue
+  #115).
+* Add information-safe Historical Search Review with private stable decision
+  seeds and reconciled status, coverage, agreement, quality, and performance
+  summaries (Issue #115).
+* Add deterministic bounded-Search dataset evaluation over selected decision
+  prefixes while preserving zero-decision records and existing dataset,
+  feature, target, and schema versions (Issue #115).
+
+### Budgets, quality, determinism, and performance
+
+* Add the immutable `interactive_v1`, `historical_review_v1`, and
+  `evaluation_v1` named work-budget profiles (Issue #115).
+* Add Search-versus-Immediate quality gates, independent exhaustive Suit, Grand,
+  and Null strict-improvement fixtures, and 32/64/128-draw convergence evidence
+  against exhaustive references (Issue #115).
+* Add the deterministic version-1 Suit/Grand/Null benchmark corpus and measured
+  local reference performance with node and world diagnostics (Issue #115).
+  Timings are reference measurements, not cross-machine guarantees, and
+  wall-clock timeout activation is machine-dependent.
+* Search remains bounded late-game determinization, not complete-contract Search.
+  Overbid Null remains outside normal Search when no external replacement is
+  available. No machine-learning model exists, four-player tables remain
+  excluded, and complete official rule coverage is not claimed.
+
+### Validation
+
+* Validate 59 deterministic generated-output scenarios without changing schema,
+  example, or generated-scenario versions.
+* Pass 4,075 pytest tests together with Ruff, input/example schema validation,
+  and generated-output schema validation on Python 3.13.
+
 ## v0.9.0
 
 **Release theme: Structured game endings and coherent hidden information**

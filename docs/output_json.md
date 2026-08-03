@@ -569,7 +569,7 @@ values are Clubs `12`, Spades `11`, Hearts `10`, Diamonds `9`, and Grand `24`.
 The game level combines the matador multiplier with supported declaration
 modifiers such as Hand, Schneider announced, Schwarz announced, and Ouvert.
 Null variants use fixed values: Null `23`, Null Hand `35`, Null Ouvert `46`, and
-Null Ouvert Hand `59`.
+Null Hand Ouvert `59`.
 
 ## Overbid summary
 

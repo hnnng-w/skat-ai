@@ -677,7 +677,7 @@ nested `game_declaration.bid_value`, then `null`. It must be a positive integer
 when provided. `bid_value: null` means the bid value is unknown.
 
 Null declarations use `game_type: "null"` plus `hand_game` and `ouvert` to
-represent Null, Null Hand, Null Ouvert, and Null Ouvert Hand. Null games do not
+represent Null, Null Hand, Null Ouvert, and Null Hand Ouvert. Null games do not
 use `matadors`, `schneider_announced`, or `schwarz_announced`; those combinations
 are rejected by runtime validation. Null `ouvert` and Null Hand are independent:
 `ouvert: true` does not imply `hand_game: true` for a Null game.

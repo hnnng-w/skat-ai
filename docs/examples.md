@@ -25,8 +25,9 @@ Run the full project check:
 ```
 
 At the published stable `v0.9.0` baseline, the check covers 52 deterministic
-generated-output scenarios and 3,558 pytest tests. The active `v0.10.0`
-development matrix covers 59 deterministic scenarios. The check script validates:
+generated-output scenarios and 3,558 pytest tests. The prepared `v0.10.0`
+package baseline covers 59 deterministic scenarios and 4,075 pytest tests. The
+check script validates:
 
 * Ruff checks
 * input JSON schema validation

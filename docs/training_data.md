@@ -179,6 +179,28 @@ The label card is the historical actual card. It must be in the pre-play own
 hand and legal-card set and absent from the pre-play current trick. A
 recommendation, review quality, or final result is never a version-1 target.
 
+## Bounded Search evaluation
+
+`--evaluate-bounded-search --search-seed INTEGER` is a separate evaluation-only
+use of the validated dataset container. It does not run ordinary sample
+conversion or change dataset schema version `1`, feature-generation version `1`,
+the `actual_card_played` target, features, labels, or sample IDs.
+
+Selection defaults to canonical `validation`, then `test`. The default immutable
+work profile is `evaluation_v1`; the optional positive maximum-decision value
+caps one stable global decision prefix rather than each record. Selected records
+remain present even when they contain zero source decisions or the cap leaves an
+empty evaluated prefix.
+
+Each selected decision runs information-safe bounded Search and an independent
+Immediate baseline before the observed card is introduced. Output uses the
+separate strict `bounded_search_evaluation_summary` branch with status, coverage,
+agreement, Search-not-worse quality-gate, aggregate, breakdown, and performance
+metrics. It is bounded regression evidence, not calibrated sampled-world
+probability or proof of an optimal imperfect-information policy. See
+[Bounded search contracts](bounded_search_contracts.md) and
+[`bounded_search_evaluation.schema.json`](../schemas/bounded_search_evaluation.schema.json).
+
 ## Output and counts
 
 The dedicated output branch contains only `input_file` and

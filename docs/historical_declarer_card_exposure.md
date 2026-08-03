@@ -88,7 +88,7 @@ overbid requirement awards the defenders the game.
 
 Suit and Grand preserve Hand, announcements, ouvert, matadors, mandatory levels,
 supported overbid requirements, ordinary winning values, and doubled losing
-values. Null, Null Hand, Null Ouvert, and Null Ouvert Hand retain their fixed
+values. Null, Null Hand, Null Ouvert, and Null Hand Ouvert retain their fixed
 values and preexisting-trick decision behavior. Overbid Null remains in the
 separate impossible-Null workflow.
 

@@ -5,7 +5,7 @@ players. `skat-ai` represents that exact ownership with source
 `declared_ouvert` and visibility scope `all_players`.
 
 This support applies to every valid existing Ouvert declaration: Suit Ouvert,
-Grand Ouvert, Null Ouvert, and Null Ouvert Hand. Suit and Grand retain the
+Grand Ouvert, Null Ouvert, and Null Hand Ouvert. Suit and Grand retain the
 existing Hand, Schneider-announced, and Schwarz-announced dependencies. Null
 retains its independent Hand modifier and fixed values. Declaration validation,
 matadors, game value, result, overbid, and settlement are unchanged.

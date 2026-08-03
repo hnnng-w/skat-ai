@@ -314,10 +314,23 @@ Implemented:
 
 ## Release baselines
 
+### v0.10.0: Information-safe bounded Search across compatible worlds
+
+The package baseline is `v0.10.0`, and Issues #107 through #115 complete the
+functional milestone. It validates 59 deterministic generated-output scenarios
+and passes 4,075 pytest tests. GitHub Releases remains authoritative; until the
+maintainer creates the tag and Release, the published release remains `v0.9.0`.
+
+The milestone provides bounded-Search contracts, immutable exact state, Suit,
+Grand, and all four normal non-overbid Null solving, compatible-world counting
+and selection, common-prefix aggregation, live and simulated integration,
+fallback, Historical Search Review, dataset evaluation, immutable profiles,
+quality and convergence evidence, and measured reference performance.
+
 ### v0.9.0: Structured game endings and coherent hidden information
 
-The current published stable release and package baseline is `v0.9.0`. Its tag
-points to release commit `0679760`, and Issues #86 through #104 are complete:
+The current published stable release is `v0.9.0`. Its tag points to release
+commit `0679760`, and Issues #86 through #104 are complete:
 
 * #86 through #92 added structured concessions and exposures, bounded defender-open-play adjudication, open-card throwing, and both exact-public-hand continuation paths.
 * #93 through #101 added all five exact-prefix historical terminal events, both timed non-terminal continuation events, variable-length decision and dataset workflows, and shortened-game opponent workflows.
@@ -376,8 +389,7 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-Before `v1.0.0`, the project still requires Historical Review integration plus
-evaluation around the bounded compatible-world solver, fuller Replay Coaching, remaining
+Before `v1.0.0`, the project still requires fuller Replay Coaching, remaining
 approved settlement nuance,
 fixed-three-player 36-game list aggregation, remaining automatic dataset
 preparation, field-level live provenance, interactive live and retrospective
@@ -395,7 +407,8 @@ series aggregation, tournament management, and official federation report
 formats are not required. Four-player tables are the only unconditional
 exclusion.
 
-The active next milestone is `v0.10.0`. Version-1 bounded Search/Solver
+The functional `v0.10.0` milestone is complete pending manual publication.
+Version-1 bounded Search/Solver
 information, quality, determinism, budget, exactness, aggregate-result, privacy,
 exact complete-world state, and deterministic legal-transition contracts are
 implemented together with bounded direct and compatible-world Minimax for late
@@ -429,7 +442,7 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the published stable `v0.9.0` baseline, the authoritative
+should distinguish the prepared `v0.10.0` package baseline, the authoritative
 publication state shown by GitHub Releases, requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

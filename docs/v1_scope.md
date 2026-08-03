@@ -4,8 +4,9 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable release and package baseline is `v0.9.0`. GitHub
-Releases is the authoritative publication record.
+The prepared package baseline is `v0.10.0`. GitHub Releases is authoritative,
+and the current published release remains `v0.9.0` until the maintainer manually
+creates the tag and Release.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -74,7 +75,8 @@ The following directions are required for `v1.0.0`:
   versioned work profiles, deterministic quality/convergence regressions, and a
   reproducible local performance baseline are also implemented. Calibrated
   sampled quality, an optimal imperfect-information policy, a latency guarantee,
-  and release preparation remain open. See
+  remain open. The functional `v0.10.0` milestone is complete, but these broader
+  stronger-solver requirements are not. See
   [Bounded search contracts](bounded_search_contracts.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
@@ -140,8 +142,8 @@ and convergence evidence, and a measured local performance baseline. Historical
 decisions use domain-separated private child seeds while future-private facts
 remain outside the reconstructed Search view. Sampled quality is not calibrated,
 the determinization aggregate is not an optimal imperfect-information policy,
-and measured wall time is not a latency guarantee, so the stronger-search gate
-is not closed.
+and measured wall time is not a latency guarantee. The functional `v0.10.0`
+milestone is complete, but the stronger-search gate is not closed.
 
 | Area | Observable completion condition |
 | --- | --- |
@@ -263,8 +265,8 @@ separate coherent world. Output includes privacy-safe decision, summary,
 eligibility, and compact comparison diagnostics. Flat post-game Search,
 Historical Search Review, bounded dataset evaluation, immutable profiles, and a
 local performance baseline are implemented. Calibrated sampled quality, a true
-imperfect-information policy, guaranteed latency, and release preparation remain
-open, so this is evidence toward, not completion of, the stronger-search gate. See
+imperfect-information policy, and guaranteed latency remain open, so this is
+evidence toward, not completion of, the stronger-search gate. See
 [Bounded search contracts](bounded_search_contracts.md).
 
 ## Release decision rule

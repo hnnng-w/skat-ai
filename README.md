@@ -7,7 +7,10 @@ for Skat positions and supported complete or shortened historical games.
 
 It evaluates legal card choices, estimates expected point swings, recommends cards, tracks game state, simulates multi-step play, and supports post-game review workflows. The project focuses on rule-based and probability-based analysis rather than machine learning.
 
-Skat AI is experimental. It is not a full official tournament system, not a perfect-information solver, and not a complete replacement for official Skat rules arbitration.
+Skat AI is experimental. It includes bounded late-game Perfect-Information
+Minimax for exact worlds, but it is not a general hidden-information or complete-
+contract solver, a full official tournament system, or a replacement for
+official Skat rules arbitration.
 
 ## Features
 
@@ -613,17 +616,13 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current published stable release and package baseline is `v0.9.0`, with the
-theme "Structured game endings and coherent hidden information." Issues #86
-through #104 are complete. Generated-output validation covers 52 deterministic
-scenarios, and the complete pytest suite contains 3,558 tests. GitHub Releases
-is the authoritative publication record.
-
-The active next development milestone is `v0.10.0`. Its current development
-tree validates 59 deterministic generated-output scenarios and extends bounded
-Search/Solver behavior with explicit information, quality, determinism, budget,
-and measured-performance contracts. The package version remains `0.9.0` until a
-human-controlled release.
+The prepared package baseline is `v0.10.0`, with the theme "Information-safe
+bounded Search across compatible worlds." Issues #107 through #115 complete its
+functional milestone. Generated-output validation covers 59 deterministic
+scenarios, and the complete pytest suite contains 4,075 tests. The package is not
+yet claimed as tagged or published: GitHub Releases is authoritative, the
+current published release remains `v0.9.0`, and manual tag and publication are
+maintainer actions.
 
 The milestone adds five structured game-shortening forms, five matching
 historical terminal events, two historical non-terminal continuations, and
@@ -643,14 +642,25 @@ calibrated. See
 [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and
 [Hidden-card inference](docs/hidden_card_inference.md).
 
-Bounded Search now supports flat post-game comparison, Historical Search Review,
+Bounded Search supports flat post-game comparison, Historical Search Review,
 and deterministic Search-versus-Immediate dataset evaluation with immutable
 named work profiles. Independent Suit, Grand, and Null fixtures demonstrate
 strict improvements and 32/64/128-draw convergence against exhaustive references.
-This remains bounded late-game determinization, not an optimal imperfect-
-information policy proof; sampled quality is not calibrated, and measured
-performance provides no latency guarantee. Existing omitted-method Immediate
-behavior remains unchanged.
+It provides exact compatible-world counts, canonical enumeration, deterministic
+uniform IID sampling with replacement and retained duplicate weighting, and
+common completed-world-prefix aggregation. Exhaustive results are exact across
+all compatible worlds; sampled and partial exactness claims are limited to their
+selected draws or completed prefix.
+
+Search remains bounded late-game determinization with a five-remaining-trick
+implementation maximum. It is subject to Strategy Fusion, is not an optimal
+imperfect-information policy or complete-contract Search, and exact compatible-
+world counts do not identify the real deal. Sampled ownership quality is not
+calibrated probability. Benchmark timings are reference measurements rather than
+cross-machine guarantees, and wall-clock timeout activation is machine-
+dependent. Overbid Null remains outside normal Search when no external
+replacement is available. Immediate remains the omitted default and Search is
+opt-in, so existing omitted-method workflows require no migration.
 
 Remaining work includes stronger information-set or policy search, fuller Replay
 Coaching,
@@ -662,7 +672,8 @@ tricks, multiple historical events, continuation followed by shortening, and
 historical end reasons outside the supported set remain unsupported. Current
 recommendations, opponent policies, and confidence are heuristic; no learned
 model or model-training workflow is included. The product supports fixed
-three-player tables only.
+three-player tables only; four-player tables are excluded, and complete official
+rule coverage is not claimed.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
@@ -670,6 +681,7 @@ scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
 
 ## Disclaimer
 
-This project is not a full official Skat rules engine, tournament system, or perfect-information solver.
+This project is not a full official Skat rules engine, tournament system, general
+hidden-information solver, or complete-contract solver.
 
 It is intended as an experimental analysis and simulation tool.

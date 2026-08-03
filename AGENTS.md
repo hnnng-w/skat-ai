@@ -15,6 +15,7 @@ The project focuses on:
 * card recommendations
 * multi-step simulation
 * exact evidence-constrained hidden-card inference and compatible-world sampling
+* information-safe bounded Search over exact and compatible worlds
 * opponent policy modeling
 * game result and settlement summaries
 * automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
@@ -30,9 +31,11 @@ The project focuses on:
 * dataset partition policies and stable-player overlap audits
 * JSON input/output for regression-friendly testing
 
-The current implementation is not a machine-learning model, a full official
-tournament system, or a perfect-information Skat solver. Future product scope is
-defined in [`docs/v1_scope.md`](docs/v1_scope.md).
+The current implementation is not a machine-learning model or a full official
+tournament system. It includes bounded late-game Perfect-Information Minimax for
+exact worlds, but not a general hidden-information, complete-contract, or full
+official Skat solver. Future product scope is defined in
+[`docs/v1_scope.md`](docs/v1_scope.md).
 
 ## Language rules
 
@@ -132,17 +135,19 @@ Do not assume old behavior if documentation or tests say otherwise.
 The current published stable release is `v0.9.0`, with the theme "Structured
 game endings and coherent hidden information."
 
-The package version is `0.9.0`.
+The prepared package baseline is `v0.10.0`, with the theme "Information-safe
+bounded Search across compatible worlds." It is not yet claimed as tagged or
+published; manual tag and publication remain maintainer actions.
 
-Generated-output validation currently covers 52 deterministic scenarios.
-The complete pytest suite contains 3,558 tests.
+Generated-output validation currently covers 59 deterministic scenarios.
+The complete pytest suite contains 4,075 tests.
 
 The published `v0.9.0` baseline completes Issues #86 through #104. GitHub
 Releases is the authoritative publication record.
 
-The active next development milestone is `v0.10.0`. Stronger bounded
-Search/Solver work with explicit information, quality, determinism, and latency
-contracts is the next recommended development direction.
+Issues #107 through #115 complete the functional `v0.10.0` milestone. GitHub
+Releases remains authoritative for publication status, so the current published
+release remains `v0.9.0` until manual publication.
 
 Major completed areas include:
 
@@ -193,6 +198,11 @@ Major completed areas include:
 * declared-Ouvert-aware Immediate, Multi-Step, Policy Comparison, flat review, and historical review simulation
 * coherent private hidden-world ownership across each Multi-Step path and shared-root Policy Comparison
 * exact compatible-world counting, marginals, and DP-guided sampling from confirmed public failure-to-follow evidence
+* immutable information-safe bounded-Search views and exact legal states
+* Suit, Grand, and all four normal non-overbid Null exact-world Minimax
+* exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, and common-prefix aggregation
+* strict Search, Search-first auto, Multi-Step, Policy Comparison, flat post-game, Historical Search Review, and dataset-evaluation integration
+* immutable Search budget profiles, strict-improvement and convergence fixtures, and measured reference performance
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -201,11 +211,16 @@ events, continuation followed by shortening, historical end reasons beyond the
 supported bounded set, incomplete settlement nuance, incomplete automatic
 dataset preparation, incomplete field-level live provenance, heuristic rule-
 based recommendations and opponent behavior, and structural rather than
-calibrated or tactical hidden-card inference. Stronger Search/Solver behavior,
-full Replay Coaching, fixed-three-player 36-game list aggregation, interactive
-input/session capture, and a stable installed library and CLI interface remain
-open before `v1.0.0`. No learned model, model-training workflow, website, or
-browser integration exists.
+calibrated or tactical hidden-card inference. Search remains bounded late-game
+determinization subject to Strategy Fusion, not an optimal imperfect-information
+policy or complete-contract Search; exact world counts do not identify the real
+deal, sampled ownership is not calibrated probability, measured timings are not
+latency guarantees, and timeout activation is machine-dependent. Overbid Null
+replacement selection, information-set Search, full Replay Coaching,
+fixed-three-player 36-game list aggregation, interactive input/session capture,
+and a stable installed library and CLI interface remain open before `v1.0.0`.
+No learned model, model-training workflow, website, browser integration,
+four-player support, or claim of complete official rule coverage exists.
 
 ## Important design principles
 

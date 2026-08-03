@@ -26,6 +26,10 @@ Historical Search Review and dataset-evaluation CLI options select immutable,
 versioned internal budget profiles; flat recommendation settings remain explicit
 JSON and have no CLI method or budget override.
 
+Issues #107 through #115 complete this functional scope for the `v0.10.0`
+package baseline. That milestone does not close the broader v1.0 stronger-solver
+gate described under remaining work.
+
 The exact solver supports Suit, Grand, and normal non-overbid Null, including
 Null, Null Hand, Null Ouvert, and Null Hand Ouvert. Null fixed values remain
 owned by the existing game-value helpers.
