@@ -9,6 +9,7 @@ from skat_ai.analysis_report import (
     build_strategic_summary,
     format_card_analysis_report,
 )
+from skat_ai.bounded_search_result import build_serializable_bounded_search_result
 from skat_ai.card_selection import VALID_CARD_SELECTION_POLICIES
 from skat_ai.dataset_partition_audit import (
     audit_training_dataset_partitions,
@@ -88,6 +89,7 @@ from skat_ai.input_loader import (
     get_list_standings_input_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
+    get_recommendation_method_configuration_from_input,
     get_simulation_settings_from_input,
     load_historical_game_from_json,
     load_json_object,
@@ -135,6 +137,12 @@ from skat_ai.policy_comparison import (
     find_best_policy_by_local_point_swing,
 )
 from skat_ai.post_game_review import build_post_game_review_summary
+from skat_ai.recommendation_workflow import (
+    SEARCH_RECOMMENDATION_METHODS,
+    build_recommendation_method_summary,
+    build_serializable_bounded_search_settings,
+    execute_recommendation_workflow,
+)
 from skat_ai.recommender import recommend_card_by_expected_value
 from skat_ai.result_serialization import (
     build_serializable_multi_step_result,
@@ -322,6 +330,7 @@ def build_analysis_result(
     local_data = build_local_analysis_input(data)
     state = build_game_state_from_input(local_data)
     settings = get_simulation_settings_from_input(data)
+    recommendation_configuration = get_recommendation_method_configuration_from_input(data)
     analysis_metadata = get_analysis_metadata_from_input(data)
     if effective_opponent_policy_settings is None:
         effective_opponent_policy_settings = build_effective_opponent_policy_settings_for_analysis(
@@ -418,60 +427,32 @@ def build_analysis_result(
         has_game_shortening=game_shortening is not None,
     )
 
-    if immediate_unavailable_reason is None:
-        legal_cards = get_legal_cards(
-            hand=state.hand,
-            current_trick=state.current_trick,
-            game_type=state.game_type,
-        )
-
-        hidden_card_inference_model = build_hidden_card_inference_model(
-            state,
-            settings["left_hand_size"],
-            settings["right_hand_size"],
-            public_hand_constraints,
-        )
-        inference_kwargs = (
-            {"hidden_card_inference_model": hidden_card_inference_model}
-            if hidden_card_inference_model is not None
-            else {}
-        )
-        recommended_card, reason, values = recommend_card_by_expected_value(
-            state=state,
-            left_hand_size=settings["left_hand_size"],
-            right_hand_size=settings["right_hand_size"],
-            sample_count=settings["sample_count"],
-            random_seed=settings["random_seed"],
-            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-            opponent_response_policy_by_player=opponent_response_policy_by_player,
-            public_hand_constraints=public_hand_constraints,
-            **inference_kwargs,
-        )
-
-        report = build_card_analysis_report(
-            state=state,
-            left_hand_size=settings["left_hand_size"],
-            right_hand_size=settings["right_hand_size"],
-            sample_count=settings["sample_count"],
-            random_seed=settings["random_seed"],
-            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-            opponent_response_policy_by_player=opponent_response_policy_by_player,
-            public_hand_constraints=public_hand_constraints,
-            precomputed_values=values or None,
-            **inference_kwargs,
-        )
-        strategic_summary = build_strategic_summary(
-            report,
-            game_type=state.game_type,
-            player_role=state.player_role,
-        )
-    else:
-        hidden_card_inference_model = None
-        legal_cards = []
-        recommended_card = None
-        reason = immediate_unavailable_reason
-        report = []
-        strategic_summary = build_unavailable_strategic_summary(immediate_unavailable_reason)
+    recommendation_workflow = execute_recommendation_workflow(
+        configuration=recommendation_configuration,
+        state=state,
+        declaration=game_declaration,
+        left_hand_size=settings["left_hand_size"],
+        right_hand_size=settings["right_hand_size"],
+        sample_count=settings["sample_count"],
+        immediate_random_seed=settings["random_seed"],
+        use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
+        public_hand_constraints=public_hand_constraints,
+        skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
+        immediate_unavailable_reason=immediate_unavailable_reason,
+        legal_cards_builder=get_legal_cards,
+        hidden_model_builder=build_hidden_card_inference_model,
+        immediate_recommender=recommend_card_by_expected_value,
+        report_builder=build_card_analysis_report,
+        summary_builder=build_strategic_summary,
+        unavailable_summary_builder=build_unavailable_strategic_summary,
+    )
+    legal_cards = list(recommendation_workflow.legal_cards)
+    recommended_card = recommendation_workflow.recommendation_card
+    reason = recommendation_workflow.recommendation_reason
+    report = list(recommendation_workflow.analysis_report)
+    strategic_summary = recommendation_workflow.strategic_summary
+    hidden_card_inference_model = recommendation_workflow.hidden_card_inference_model
 
     post_game_review_summary = build_post_game_review_summary(
         actual_card_played=actual_card_played,
@@ -639,6 +620,22 @@ def build_analysis_result(
             "reason": reason,
         },
     }
+
+    if recommendation_configuration.explicitly_supplied:
+        settings["recommendation_method"] = recommendation_configuration.requested_method
+        settings["bounded_search_settings"] = build_serializable_bounded_search_settings(
+            recommendation_configuration
+        )
+        result["recommendation_method_summary"] = build_recommendation_method_summary(
+            recommendation_workflow
+        )
+        result["bounded_search_result"] = (
+            build_serializable_bounded_search_result(
+                recommendation_workflow.bounded_search_result
+            )
+            if recommendation_workflow.bounded_search_result is not None
+            else None
+        )
 
     if list_performance_summary is not None:
         result["list_performance_summary"] = list_performance_summary
@@ -917,6 +914,26 @@ def print_analysis_result(result: dict[str, Any]) -> None:
     print("Sample count:", settings["sample_count"])
     print("Random seed:", settings["random_seed"])
     print("Use basic opponent strategy:", settings["use_basic_opponent_strategy"])
+
+    method_summary = result.get("recommendation_method_summary")
+    if isinstance(method_summary, dict):
+        print("Requested recommendation method:", method_summary["requested_method"])
+        print("Effective recommendation method:", method_summary["effective_method"])
+        search_settings = settings.get("bounded_search_settings")
+        if isinstance(search_settings, dict):
+            print("Search random seed:", search_settings["random_seed"])
+        search_result = result.get("bounded_search_result")
+        if isinstance(search_result, dict):
+            consumed = search_result["consumed_budget"]
+            print("Search status:", search_result["status"])
+            print("Search stop reason:", search_result["stop_reason"])
+            print("Search coverage:", search_result["world_coverage"])
+            print(
+                "Search completed worlds:",
+                f"{consumed['completed_world_count']} of {consumed['selected_world_count']}",
+            )
+        if method_summary["fallback_used"]:
+            print("Fallback method:", method_summary["fallback_method"])
 
     declaration = result["game_declaration"]
     if declaration["ouvert"]:
@@ -1823,6 +1840,14 @@ def run_json_position_analysis(
         raise ValueError("multi_step_count must be a positive integer.")
 
     position_data = load_position_from_json(file_path)
+    if (
+        position_data.get("recommendation_method") in SEARCH_RECOMMENDATION_METHODS
+        and (multi_step_count is not None or compare_policies)
+    ):
+        raise ValueError(
+            "Search recommendation methods are supported only for flat position analysis, "
+            "not Multi-Step or Policy Comparison."
+        )
     if "game_shortening" in position_data and (multi_step_count is not None or compare_policies):
         raise ValueError(
             "Structured game_shortening cannot be combined with multi-step simulation "

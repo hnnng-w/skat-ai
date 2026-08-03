@@ -42,6 +42,10 @@ from skat_ai.performance_rating import (
     validate_performance_rating_system,
 )
 from skat_ai.player_profile import build_player_profile_from_dict
+from skat_ai.recommendation_workflow import (
+    build_recommendation_method_configuration,
+    validate_recommendation_method_workflow,
+)
 from skat_ai.rules import GAME_TYPES, get_card_points, get_legal_cards
 from skat_ai.side_ownership import normalize_declarer_player
 from skat_ai.strategic_metadata import (
@@ -384,6 +388,8 @@ def validate_position_input(data: dict[str, Any]) -> None:
     validate_optional_game_shortening(data)
     validate_optional_game_continuation(data)
     validate_optional_declared_ouvert_public_hand(data)
+    recommendation_configuration = build_recommendation_method_configuration(data)
+    validate_recommendation_method_workflow(data, recommendation_configuration)
     validate_impossible_null_settlement(data)
     validate_performance_rating_system(data.get("performance_rating_system"))
     validate_list_performance_input_modes(data)

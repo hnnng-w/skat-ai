@@ -239,6 +239,119 @@ def build_valid_input() -> dict[str, object]:
     }
 
 
+def build_search_settings() -> dict[str, object]:
+    return {
+        "random_seed": 113,
+        "max_remaining_tricks": 3,
+        "max_depth_plies": 9,
+        "max_nodes": 1000,
+        "max_selected_worlds": 5,
+        "max_sampled_worlds": 5,
+        "minimum_comparable_worlds": 2,
+        "wall_clock_timeout_ms": None,
+    }
+
+
+@pytest.mark.parametrize(
+    "method",
+    ["immediate_expected_value", "bounded_search", "auto"],
+)
+def test_recommendation_methods_match_schema_and_runtime(method: str) -> None:
+    data = build_valid_input()
+    data["recommendation_method"] = method
+    if method != "immediate_expected_value":
+        data["bounded_search_settings"] = build_search_settings()
+
+    assert_schema_and_runtime_valid(data)
+
+
+def test_omitted_recommendation_method_remains_valid() -> None:
+    assert_schema_and_runtime_valid(build_valid_input())
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda data: data.update(recommendation_method="unknown"),
+        lambda data: data.update(recommendation_method="bounded_search"),
+        lambda data: data.update(bounded_search_settings=build_search_settings()),
+        lambda data: data.update(
+            recommendation_method="immediate_expected_value",
+            bounded_search_settings=build_search_settings(),
+        ),
+        lambda data: data.update(
+            recommendation_method="auto",
+            bounded_search_settings={**build_search_settings(), "unknown": 1},
+        ),
+        lambda data: data.update(
+            recommendation_method="auto",
+            bounded_search_settings={
+                key: value
+                for key, value in build_search_settings().items()
+                if key != "max_nodes"
+            },
+        ),
+        lambda data: data.update(
+            recommendation_method="auto",
+            bounded_search_settings={**build_search_settings(), "random_seed": True},
+        ),
+        lambda data: data.update(
+            recommendation_method="auto",
+            bounded_search_settings={**build_search_settings(), "max_nodes": 0},
+        ),
+    ],
+)
+def test_invalid_recommendation_settings_fail_schema_and_runtime(mutation) -> None:
+    data = build_valid_input()
+    mutation(data)
+
+    assert_schema_and_runtime_invalid(data)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda data: data.update(analysis_mode="post_game_review"),
+        lambda data: data.update(
+            analysis_mode="post_game_review",
+            game_end_reason="normal_completion",
+        ),
+        lambda data: data.update(
+            analysis_mode="post_game_review",
+            skat_visibility="known_post_game",
+        ),
+        lambda data: data.update(actual_card_played="SA"),
+        lambda data: data.update(played_cards=["C7"]),
+        lambda data: data.update(impossible_null_settlement={}),
+    ],
+)
+def test_search_method_workflow_restrictions_fail_schema_and_runtime(mutation) -> None:
+    data = build_valid_input()
+    data.update(
+        recommendation_method="bounded_search",
+        bounded_search_settings=build_search_settings(),
+    )
+    mutation(data)
+
+    assert_schema_and_runtime_invalid(data)
+
+
+def test_search_method_requires_attributed_completed_history() -> None:
+    data = build_valid_input()
+    data.update(
+        recommendation_method="bounded_search",
+        bounded_search_settings=build_search_settings(),
+        completed_tricks=[
+            {
+                "cards": ["C7", "C8", "C9"],
+                "winner_role": "declarer",
+            }
+        ],
+    )
+
+    assert_schema_and_runtime_invalid(data)
+
+
 def build_impossible_null_input() -> dict[str, object]:
     data = build_valid_input()
     data.update(

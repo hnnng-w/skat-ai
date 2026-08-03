@@ -38,6 +38,10 @@ from skat_ai.opponent_statistics import (
     OpponentStatisticsInput,
     build_opponent_statistics_input,
 )
+from skat_ai.recommendation_workflow import (
+    RecommendationMethodConfiguration,
+    build_recommendation_method_configuration,
+)
 from skat_ai.side_ownership import normalize_declarer_player
 from skat_ai.training_dataset import TrainingDatasetInput, build_training_dataset_input
 from skat_ai.turn_phase import normalize_turn_phase_for_position
@@ -181,6 +185,13 @@ def get_simulation_settings_from_input(data: dict[str, Any]) -> dict[str, Any]:
         "random_seed": data.get("random_seed"),
         "use_basic_opponent_strategy": data.get("use_basic_opponent_strategy", True),
     }
+
+
+def get_recommendation_method_configuration_from_input(
+    data: dict[str, Any],
+) -> RecommendationMethodConfiguration:
+    """Extracts the validated recommendation method and optional Search budget."""
+    return build_recommendation_method_configuration(data)
 
 
 def get_game_continuation_from_input(

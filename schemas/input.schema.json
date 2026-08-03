@@ -85,6 +85,55 @@
   },
   "allOf": [
     {
+      "if": {"required": ["bounded_search_settings"]},
+      "then": {
+        "required": ["recommendation_method"],
+        "properties": {
+          "recommendation_method": {"enum": ["bounded_search", "auto"]}
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method"],
+        "properties": {
+          "recommendation_method": {"enum": ["bounded_search", "auto"]}
+        }
+      },
+      "then": {
+        "required": ["bounded_search_settings"],
+        "properties": {
+          "analysis_mode": {"const": "live_decision"},
+          "game_end_reason": {"const": "not_ended"},
+          "skat_visibility": {"enum": ["unknown", "known_to_declarer"]},
+          "played_cards": {"maxItems": 0},
+          "completed_tricks": {
+            "items": {"required": ["players"]}
+          }
+        },
+        "not": {
+          "anyOf": [
+            {"required": ["actual_card_played"]},
+            {"required": ["game_shortening"]},
+            {"required": ["impossible_null_settlement"]},
+            {"required": ["list_performance_input"]},
+            {"required": ["list_game_contributions"]},
+            {"required": ["list_analysis_results"]},
+            {"required": ["list_standings_input"]}
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method"],
+        "properties": {
+          "recommendation_method": {"const": "immediate_expected_value"}
+        }
+      },
+      "then": {"not": {"required": ["bounded_search_settings"]}}
+    },
+    {
       "if": {
         "required": ["list_performance_input"]
       },
@@ -495,6 +544,13 @@
     "use_basic_opponent_strategy": {
       "type": "boolean"
     },
+    "recommendation_method": {
+      "type": "string",
+      "enum": ["immediate_expected_value", "bounded_search", "auto"]
+    },
+    "bounded_search_settings": {
+      "$ref": "#/$defs/bounded_search_settings"
+    },
 
     "hand_game": {
       "type": "boolean"
@@ -641,6 +697,33 @@
     "positive_integer": {
       "type": "integer",
       "minimum": 1
+    },
+    "bounded_search_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "random_seed",
+        "max_remaining_tricks",
+        "max_depth_plies",
+        "max_nodes",
+        "max_selected_worlds",
+        "max_sampled_worlds",
+        "minimum_comparable_worlds",
+        "wall_clock_timeout_ms"
+      ],
+      "properties": {
+        "random_seed": {"type": "integer"},
+        "max_remaining_tricks": {"$ref": "#/$defs/positive_integer"},
+        "max_depth_plies": {"$ref": "#/$defs/positive_integer"},
+        "max_nodes": {"$ref": "#/$defs/positive_integer"},
+        "max_selected_worlds": {"$ref": "#/$defs/positive_integer"},
+        "max_sampled_worlds": {"$ref": "#/$defs/positive_integer"},
+        "minimum_comparable_worlds": {"$ref": "#/$defs/positive_integer"},
+        "wall_clock_timeout_ms": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
     },
     "game_declaration_input": {
       "type": ["object", "null"],

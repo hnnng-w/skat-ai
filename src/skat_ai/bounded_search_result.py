@@ -33,6 +33,7 @@ SOLUTION_CLAIM_VALUES = (
     "depth_limited_per_selected_world",
     "node_limited_partial",
 )
+IMMEDIATE_EXPECTED_VALUE_FALLBACK_METHOD = "immediate_expected_value"
 
 
 def _validate_positive_integer(value: int, field_name: str) -> None:
@@ -482,12 +483,30 @@ class BoundedSearchResult:
         if not isinstance(self.fallback_used, bool):
             raise ValueError("fallback_used must be a boolean.")
         if self.fallback_used:
-            if not isinstance(self.fallback_method, str) or not self.fallback_method:
-                raise ValueError("A used fallback requires a fallback_method.")
+            if self.fallback_method != IMMEDIATE_EXPECTED_VALUE_FALLBACK_METHOD:
+                raise ValueError(
+                    "A used fallback requires fallback_method immediate_expected_value."
+                )
             if self.recommended_card is not None:
                 raise ValueError("Search and fallback recommendations are mutually exclusive.")
         elif self.fallback_method is not None:
             raise ValueError("fallback_method must be null when fallback_used is false.")
+
+
+def mark_bounded_search_fallback_used(result: BoundedSearchResult) -> BoundedSearchResult:
+    """Marks a no-recommendation Search result for Immediate top-level fallback."""
+    if not isinstance(result, BoundedSearchResult):
+        raise ValueError("result must be a BoundedSearchResult.")
+    if result.recommended_card is not None:
+        raise ValueError("A Search recommendation cannot use fallback.")
+    if result.fallback_used or result.fallback_method is not None:
+        raise ValueError("Search fallback has already been marked.")
+    return replace(
+        result,
+        recommended_card=None,
+        fallback_used=True,
+        fallback_method=IMMEDIATE_EXPECTED_VALUE_FALLBACK_METHOD,
+    )
 
 
 def _serialize_requested_budget(budget: RequestedSearchBudget) -> dict[str, Any]:

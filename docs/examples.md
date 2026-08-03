@@ -66,6 +66,19 @@ Run live recommendation with an explicit input file:
 python main.py --input examples/grand_second_position.json
 ```
 
+Run a complete one-world exhaustive bounded Search recommendation:
+
+```powershell
+python main.py --input examples/grand_bounded_search_exhaustive.json
+```
+
+Run Search-first auto routing with a structural node-budget fallback to
+Immediate expected value:
+
+```powershell
+python main.py --input examples/grand_auto_search_fallback.json
+```
+
 Write structured JSON output:
 
 ```powershell
@@ -262,6 +275,8 @@ Live decision examples must not include post-game-only information such as `know
 | `grand_left_right_opponent_policies.json`  | Grand game with distinct global, left-opponent, and right-opponent policy settings.                                           |
 | `grand_coherent_hidden_world.json`         | Late Grand position used by three-step Policy Comparison to verify one shared root world, independent immutable policy paths, fixed hypothetical skat, and privacy-safe summaries. |
 | `grand_hidden_card_inference.json`         | Grand position with attributed failure-to-follow evidence, exact compatible-world count and marginals, privacy-safe inference output, and later Multi-Step evidence progression. |
+| `grand_bounded_search_exhaustive.json`     | One legal late Grand card, one compatible world, exact exhaustive Search completion, and a direct Search recommendation. |
+| `grand_auto_search_fallback.json`          | The same late Grand information state with a one-node Search budget, a valid below-threshold partial result, and explicit Immediate fallback. |
 | `hearts_leading.json`                      | Suit game example.                                                                                                           |
 | `null_second_position.json`                | Null game example.                                                                                                           |
 
@@ -387,7 +402,8 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 52 scenarios, including variable-length training data,
+therefore covers 54 scenarios, including the two explicit live Search method
+branches, variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
 play adjudication, open-card-throw adjudication, and the generated three-step
@@ -761,6 +777,8 @@ When adding new examples:
 * add explicit `players` to completed tricks when winner metadata must be verifiable
 * prefer `completed_tricks` over `played_cards`
 * include ordered `completed_tricks[].players` when public ownership or failure-to-follow evidence should drive hidden-card inference; never rely on guessed ownership from legacy `played_cards`
+* use attributed `completed_tricks` and empty legacy `played_cards` for Search methods
+* give Search examples explicit structural budgets and separate Immediate/Search seeds; do not use wall-clock timeouts in deterministic generated examples
 * use `performance_rating_system: "isko_list"` only when partial SkWO performance output should be demonstrated
 * omit `matadors` only when automatic inference from known declarer-card context is intended
 * prefer either top-level declaration fields or nested `game_declaration`; mixing is supported, with top-level fields taking precedence
@@ -791,6 +809,7 @@ Generated outputs may include:
 * `list_performance_summary`, if a list performance input mode is provided
 * `list_standings_summary`, if fixed three-player standings input is provided
 * `recommendation`
+* `recommendation_method_summary` and `bounded_search_result`, only for an explicitly supplied recommendation method
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested
 * `policy_comparison_result`, if policy comparison is requested

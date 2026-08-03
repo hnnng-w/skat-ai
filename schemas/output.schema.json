@@ -119,6 +119,194 @@
       "additionalProperties": false
     }
   ],
+  "allOf": [
+    {
+      "if": {"required": ["recommendation_method_summary"]},
+      "then": {
+        "required": ["bounded_search_result"],
+        "properties": {
+          "settings": {
+            "required": ["recommendation_method", "bounded_search_settings"]
+          }
+        }
+      },
+      "else": {
+        "allOf": [
+          {"not": {"required": ["bounded_search_result"]}},
+          {
+            "properties": {
+              "settings": {
+                "not": {
+                  "anyOf": [
+                    {"required": ["recommendation_method"]},
+                    {"required": ["bounded_search_settings"]}
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method_summary"],
+        "properties": {
+          "recommendation_method_summary": {
+            "properties": {
+              "requested_method": {"const": "immediate_expected_value"}
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "bounded_search_result": {"type": "null"},
+          "settings": {
+            "properties": {
+              "recommendation_method": {"const": "immediate_expected_value"},
+              "bounded_search_settings": {"type": "null"}
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "bounded_search_result": {
+            "allOf": [
+              {
+                "$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"
+              },
+              {
+                "properties": {
+                  "search_method": {"const": "compatible_world_minimax_v1"}
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method_summary"],
+        "properties": {
+          "recommendation_method_summary": {
+            "properties": {"requested_method": {"const": "bounded_search"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "settings": {
+            "properties": {
+              "recommendation_method": {"const": "bounded_search"},
+              "bounded_search_settings": {
+                "$ref": "#/$defs/bounded_search_settings"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method_summary"],
+        "properties": {
+          "recommendation_method_summary": {
+            "properties": {"requested_method": {"const": "auto"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "settings": {
+            "properties": {
+              "recommendation_method": {"const": "auto"},
+              "bounded_search_settings": {
+                "$ref": "#/$defs/bounded_search_settings"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method_summary"],
+        "properties": {
+          "recommendation_method_summary": {
+            "properties": {"analysis_report_method": {"const": "none"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "analysis_report": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method_summary"],
+        "properties": {
+          "recommendation_method_summary": {
+            "properties": {"effective_method": {"const": "none"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "recommendation": {
+            "properties": {"card": {"type": "null"}}
+          }
+        }
+      },
+      "else": {
+        "if": {"required": ["recommendation_method_summary"]},
+        "then": {
+          "properties": {
+            "recommendation": {
+              "properties": {"card": {"$ref": "#/$defs/card"}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method_summary"],
+        "properties": {
+          "recommendation_method_summary": {
+            "properties": {"fallback_used": {"const": true}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "bounded_search_result": {
+            "properties": {
+              "fallback_used": {"const": true},
+              "fallback_method": {"const": "immediate_expected_value"}
+            }
+          }
+        }
+      },
+      "else": {
+        "if": {"required": ["recommendation_method_summary"]},
+        "then": {
+          "properties": {
+            "bounded_search_result": {
+              "properties": {
+                "fallback_used": {"const": false},
+                "fallback_method": {"type": "null"}
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "properties": {
     "input_file": {
       "type": "string"
@@ -151,7 +339,19 @@
       }
     },
     "settings": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "recommendation_method": {
+          "type": "string",
+          "enum": ["immediate_expected_value", "bounded_search", "auto"]
+        },
+        "bounded_search_settings": {
+          "oneOf": [
+            {"$ref": "#/$defs/bounded_search_settings"},
+            {"type": "null"}
+          ]
+        }
+      }
     },
     "opponent_policy_settings": {
       "$ref": "#/$defs/opponent_policy_settings"
@@ -258,6 +458,15 @@
     "recommendation": {
       "$ref": "#/$defs/recommendation"
     },
+    "recommendation_method_summary": {
+      "$ref": "#/$defs/recommendation_method_summary"
+    },
+    "bounded_search_result": {
+      "oneOf": [
+        {"$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"},
+        {"type": "null"}
+      ]
+    },
     "multi_step_result": {
       "$ref": "#/$defs/multi_step_result"
     },
@@ -288,6 +497,134 @@
     },
     "nullable_boolean": {
       "type": ["boolean", "null"]
+    },
+    "bounded_search_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "random_seed",
+        "max_remaining_tricks",
+        "max_depth_plies",
+        "max_nodes",
+        "max_selected_worlds",
+        "max_sampled_worlds",
+        "minimum_comparable_worlds",
+        "wall_clock_timeout_ms"
+      ],
+      "properties": {
+        "random_seed": {"type": "integer"},
+        "max_remaining_tricks": {"type": "integer", "minimum": 1},
+        "max_depth_plies": {"type": "integer", "minimum": 1},
+        "max_nodes": {"type": "integer", "minimum": 1},
+        "max_selected_worlds": {"type": "integer", "minimum": 1},
+        "max_sampled_worlds": {"type": "integer", "minimum": 1},
+        "minimum_comparable_worlds": {"type": "integer", "minimum": 1},
+        "wall_clock_timeout_ms": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "recommendation_method_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested_method",
+        "effective_method",
+        "search_attempted",
+        "fallback_used",
+        "fallback_method",
+        "analysis_report_method"
+      ],
+      "properties": {
+        "requested_method": {
+          "type": "string",
+          "enum": ["immediate_expected_value", "bounded_search", "auto"]
+        },
+        "effective_method": {
+          "type": "string",
+          "enum": [
+            "immediate_expected_value",
+            "compatible_world_minimax_v1",
+            "none"
+          ]
+        },
+        "search_attempted": {"type": "boolean"},
+        "fallback_used": {"type": "boolean"},
+        "fallback_method": {
+          "type": ["string", "null"],
+          "enum": ["immediate_expected_value", null]
+        },
+        "analysis_report_method": {
+          "type": "string",
+          "enum": ["immediate_expected_value", "none"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "requested_method": {"const": "immediate_expected_value"}
+            }
+          },
+          "then": {
+            "properties": {
+              "effective_method": {
+                "enum": ["immediate_expected_value", "none"]
+              },
+              "search_attempted": {"const": false},
+              "fallback_used": {"const": false},
+              "fallback_method": {"type": "null"},
+              "analysis_report_method": {"const": "immediate_expected_value"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"requested_method": {"const": "bounded_search"}}
+          },
+          "then": {
+            "properties": {
+              "effective_method": {
+                "enum": ["compatible_world_minimax_v1", "none"]
+              },
+              "search_attempted": {"const": true},
+              "fallback_used": {"const": false},
+              "fallback_method": {"type": "null"},
+              "analysis_report_method": {"const": "none"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"requested_method": {"const": "auto"}}},
+          "then": {
+            "properties": {"search_attempted": {"const": true}},
+            "oneOf": [
+              {
+                "properties": {
+                  "effective_method": {"const": "compatible_world_minimax_v1"},
+                  "fallback_used": {"const": false},
+                  "fallback_method": {"type": "null"},
+                  "analysis_report_method": {"const": "none"}
+                }
+              },
+              {
+                "properties": {
+                  "effective_method": {"const": "immediate_expected_value"},
+                  "fallback_used": {"const": true},
+                  "fallback_method": {"const": "immediate_expected_value"},
+                  "analysis_report_method": {"const": "immediate_expected_value"}
+                }
+              },
+              {
+                "properties": {
+                  "effective_method": {"const": "none"},
+                  "fallback_used": {"const": false},
+                  "fallback_method": {"type": "null"},
+                  "analysis_report_method": {"const": "immediate_expected_value"}
+                }
+              }
+            ]
+          }
+        }
+      ]
     },
     "non_negative_integer": {
       "type": "integer",

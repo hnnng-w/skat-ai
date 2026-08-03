@@ -354,3 +354,25 @@ def test_schema_rejects_recommendation_marker_inconsistency() -> None:
     marker_without_card["recommended_card"] = None
     with pytest.raises(ValidationError):
         VALIDATOR.validate(marker_without_card)
+
+
+def test_schema_accepts_only_immediate_expected_value_fallback_method() -> None:
+    fallback = _fixture("partial")
+    fallback["consumed_budget"]["completed_world_count"] = 1
+    fallback["recommended_card"] = None
+    fallback["fallback_used"] = True
+    fallback["fallback_method"] = "immediate_expected_value"
+    for candidate in fallback["candidate_results"]:
+        candidate["is_recommended"] = False
+        candidate["completed_world_count"] = 1
+        candidate["local_contract_success_count"] = min(
+            candidate["local_contract_success_count"], 1
+        )
+        candidate["local_contract_success_rate"] = candidate[
+            "local_contract_success_count"
+        ]
+
+    VALIDATOR.validate(fallback)
+    fallback["fallback_method"] = "another_method"
+    with pytest.raises(ValidationError):
+        VALIDATOR.validate(fallback)

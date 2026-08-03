@@ -7,8 +7,8 @@ eligibility semantics, budgets, terminal utility, aggregate results,
 deterministic serialization, and a strict standalone schema. They also include
 one executable bounded perfect-information Minimax solver for a caller-supplied
 exact world and one executable compatible-world Minimax method over a frozen
-selected-world sequence. No existing recommendation workflow emits a bounded-
-search result.
+selected-world sequence. The flat live recommendation workflow now consumes that
+result only when explicitly requested.
 
 ## Current scope
 
@@ -20,8 +20,8 @@ three-player table. The implemented methods are:
 
 The public result uses `analysis_method = bounded_search`, bounded-search schema
 version `1`, and terminal-utility version `1`. These are internal contracts and
-do not add a stable package-root API, CLI branch, production budget profile, or
-latency promise.
+do not add a stable package-root API, CLI method override, production budget
+profile, or latency promise.
 
 The exact solver supports Suit, Grand, and normal non-overbid Null, including
 Null, Null Hand, Null Ouvert, and Null Hand Ouvert. Null fixed values remain
@@ -29,8 +29,10 @@ owned by the existing game-value helpers.
 
 Compatible Search-world selection version `1` remains a private layer between
 `SearchInformationView` and `ExactSearchState`. The compatible-world solver
-consumes that frozen selection directly; it is not integrated into Immediate,
-Multi-Step, Policy Comparison, Historical Review, CLI, or generated outputs.
+consumes that frozen selection directly. It is integrated only into explicit
+flat ongoing live-position recommendation; it is not integrated into Multi-Step,
+Policy Comparison, flat post-game review, Historical Review, or historical-game
+workflows.
 
 ## Search information
 
@@ -113,7 +115,9 @@ settlement, `TerminalUtility`, or card ranking; the exact terminal-utility
 adapter composes those existing facilities separately.
 
 The private compatible-world layer materializes strictly validated exact states
-from `SearchInformationView`; no analysis or review workflow adapter exists yet.
+from `SearchInformationView`. Flat live recommendation uses the existing live
+local-view adapter; historical snapshot construction remains internal and is not
+connected to a Search recommendation workflow.
 The direct solver accepts an `ExactSearchState`, while compatible-world Minimax
 passes each selected state to the same internal exact-world evaluator. Exact
 hands and out-of-play cards remain private and are never serialized in a bounded-
@@ -412,6 +416,10 @@ adaptive ordering. The existing aggregate rank order selects deterministic rank
 1 when all worlds complete, or on a partial/timeout prefix only when the minimum
 comparable-world threshold is reached. No fallback runs.
 
+The solver itself never runs fallback. The caller-owned `auto` workflow may run
+Immediate only after the solver has successfully returned a validated result
+with no recommendation.
+
 ## Candidate aggregates
 
 Candidate results contain only card-level aggregates over the common completed
@@ -424,6 +432,52 @@ game score, and, for Suit and Grand, mean local card-point margin. Canonical
 deck order is the final tie-break. Rates and means are absent when no world is
 complete. No candidate contains a world-specific ownership assignment or
 principal variation.
+
+## Live recommendation workflow
+
+`recommendation_method` is optional. Omission executes the exact preexisting
+Immediate expected-value path and emits no method-specific fields. Explicit
+values are `immediate_expected_value`, `bounded_search`, and `auto`.
+
+Both Search methods require `bounded_search_settings` with one explicit non-
+boolean integer `random_seed` plus every `RequestedSearchBudget` field. Unknown
+or missing keys are rejected, nullable timeout remains supported, and no default
+or production budget profile exists. Explicit Immediate and omitted methods
+reject Search settings.
+
+The Search workflow is restricted to flat `live_decision`, `not_ended`
+positions. It rejects actual-card review, terminal shortening, impossible Null,
+post-game Skat, list and non-position workflows, Multi-Step, Policy Comparison,
+legacy non-empty `played_cards`, and unattributed completed history. Existing
+declared-Ouvert and supported continuation public hands are allowed only after
+their current information-policy resolution.
+
+Strict `bounded_search` uses every solver result containing a recommendation,
+including qualified partial or timeout common-prefix results. It never runs
+Immediate and returns effective method `none` when Search has no recommendation.
+`auto` behaves identically when Search recommends. Otherwise it attempts the
+existing Immediate path. Fallback is marked only when Immediate returns a card;
+if it does not, effective method remains `none` and the Search result is not
+marked. Arbitrary exceptions, view contradictions, compatible-world failures,
+invariant failures, invalid results, and serialization defects propagate rather
+than causing fallback.
+
+The immutable fallback helper requires a Search result with no recommendation
+and no prior fallback. It changes only `fallback_used` to true and
+`fallback_method` to `immediate_expected_value`; the Search recommendation stays
+null, while every status, count, budget, aggregate, coverage, and claim remains
+unchanged. The top-level recommendation carries the Immediate card.
+
+`analysis_report` remains an Immediate one-trick report. Effective Search and
+strict no-recommendation Search emit an empty report with method `none`. Explicit
+Immediate and auto fallback retain the existing report with method
+`immediate_expected_value`; Search aggregates remain only in
+`candidate_results`.
+
+The top-level `random_seed` controls Immediate and auto fallback. The separate
+Search settings seed controls compatible-world selection. Exact enumeration
+consumes no random draws, changing only the Immediate seed cannot change a
+successful Search, and no derived child seed is serialized.
 
 ## Result privacy and schema
 
@@ -440,9 +494,12 @@ emit actual or sampled hidden hands, a hypothetical private Skat, compatible
 world assignments, coherent roots, ownership-reconstructing fingerprints,
 future historical data, or world-specific principal variations.
 
-`fallback_used` and `fallback_method` are consistency-checked placeholders. No
-fallback is executed or connected to an existing recommendation workflow in
-version 1.
+`fallback_used` and `fallback_method` are consistency checked. They remain false
+for solver-only calls and strict Search; only the caller-owned auto workflow may
+mark `immediate_expected_value` fallback on an otherwise unchanged no-
+recommendation result. Live orchestration also rejects a solver result for a
+different Search method, game type, or requested budget before strict or auto
+routing can consume it.
 
 ## Remaining work
 
@@ -450,8 +507,8 @@ Both executable methods remain limited to late Suit, Grand, and supported normal
 Null play. Overbid Null remains unavailable because search does not select an
 impossible-Null replacement. Compatible-world Minimax is an internal
 determinization aggregate, not information-set search or an optimal policy
-proof. No Immediate, Multi-Step, Policy Comparison, Historical Review, fallback,
-Search-versus-Heuristic evaluation, CLI, generated-output, default budget,
-production profile, latency guarantee, confidence interval, adaptive sampling,
+proof. No Multi-Step, Policy Comparison, flat post-game, Historical Review,
+Search-versus-Heuristic evaluation, default budget, production profile, latency
+guarantee, confidence interval, adaptive sampling,
 Expectimax, strategy-fusion correction, or stable package-root API integration
 exists. The stronger-search v1.0 completion gate therefore remains open.

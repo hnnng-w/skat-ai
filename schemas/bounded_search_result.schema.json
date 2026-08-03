@@ -99,7 +99,7 @@
     "fallback_used": {"type": "boolean"},
     "fallback_method": {
       "type": ["string", "null"],
-      "minLength": 1
+      "enum": ["immediate_expected_value", null]
     }
   },
   "allOf": [
@@ -390,7 +390,7 @@
       "if": {"properties": {"fallback_used": {"const": true}}},
       "then": {
         "properties": {
-          "fallback_method": {"type": "string", "minLength": 1},
+          "fallback_method": {"const": "immediate_expected_value"},
           "recommended_card": {"type": "null"}
         }
       },

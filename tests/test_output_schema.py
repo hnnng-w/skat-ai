@@ -150,6 +150,9 @@ PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "public_hand_con
 HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "hidden_card_inference_summary.schema.json"
 )
+BOUNDED_SEARCH_RESULT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "bounded_search_result.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -247,6 +250,8 @@ with PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     PUBLIC_HAND_CONSTRAINT_SCHEMA = json.load(file)
 with HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA = json.load(file)
+with BOUNDED_SEARCH_RESULT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    BOUNDED_SEARCH_RESULT_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -411,9 +416,90 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
             HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA["$id"],
             Resource.from_contents(HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA),
         ),
+        (
+            BOUNDED_SEARCH_RESULT_SCHEMA["$id"],
+            Resource.from_contents(BOUNDED_SEARCH_RESULT_SCHEMA),
+        ),
     ]
 )
 OUTPUT_VALIDATOR = Draft202012Validator(load_output_schema(), registry=OUTPUT_SCHEMA_REGISTRY)
+
+
+@pytest.mark.parametrize(
+    "example_name",
+    ["grand_bounded_search_exhaustive.json", "grand_auto_search_fallback.json"],
+)
+def test_live_search_outputs_match_registered_standalone_schema(
+    example_name: str,
+) -> None:
+    from main import build_analysis_result
+
+    result = build_analysis_result(str(PROJECT_ROOT / "examples" / example_name))
+
+    assert list(OUTPUT_VALIDATOR.iter_errors(result)) == []
+
+
+def test_output_schema_references_standalone_bounded_search_schema() -> None:
+    schema = load_output_schema()
+
+    assert schema["properties"]["bounded_search_result"]["oneOf"][0]["$ref"] == (
+        BOUNDED_SEARCH_RESULT_SCHEMA["$id"]
+    )
+
+
+def test_output_schema_rejects_inconsistent_method_and_fallback_summary() -> None:
+    from main import build_analysis_result
+
+    result = build_analysis_result(
+        str(PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json")
+    )
+    result["recommendation_method_summary"]["fallback_used"] = False
+
+    assert list(OUTPUT_VALIDATOR.iter_errors(result))
+
+
+def test_output_schema_rejects_cross_object_method_contradictions() -> None:
+    from main import build_analysis_result
+
+    fallback = build_analysis_result(
+        str(PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json")
+    )
+    fallback["bounded_search_result"]["fallback_used"] = False
+    fallback["bounded_search_result"]["fallback_method"] = None
+    assert list(OUTPUT_VALIDATOR.iter_errors(fallback))
+
+    strict = build_analysis_result(
+        str(PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json")
+    )
+    strict["analysis_report"] = [
+        build_analysis_result(
+            str(PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json")
+        )["analysis_report"][0]
+    ]
+    assert list(OUTPUT_VALIDATOR.iter_errors(strict))
+
+    strict = build_analysis_result(
+        str(PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json")
+    )
+    strict["settings"]["bounded_search_settings"] = None
+    assert list(OUTPUT_VALIDATOR.iter_errors(strict))
+
+    strict["analysis_report"] = []
+    strict["recommendation_method_summary"]["effective_method"] = "none"
+    assert list(OUTPUT_VALIDATOR.iter_errors(strict))
+
+
+def test_output_schema_rejects_explicit_method_settings_without_summary() -> None:
+    from main import build_analysis_result
+
+    result = build_analysis_result(
+        str(PROJECT_ROOT / "examples" / "grand_second_position.json"),
+        sample_count_override=5,
+    )
+    result["settings"]["recommendation_method"] = "immediate_expected_value"
+    result["settings"]["bounded_search_settings"] = None
+
+    assert list(OUTPUT_VALIDATOR.iter_errors(result))
 
 
 def test_hidden_card_inference_output_matches_schema_and_hides_private_world() -> None:

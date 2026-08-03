@@ -62,6 +62,10 @@ Evidence-constrained hidden-card inference output uses:
 
 [`schemas/hidden_card_inference_summary.schema.json`](../schemas/hidden_card_inference_summary.schema.json)
 
+Explicit live bounded-Search output uses:
+
+[`schemas/bounded_search_result.schema.json`](../schemas/bounded_search_result.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -347,6 +351,8 @@ Typical top-level fields include:
 | `performance_rating_summary`     | Performance-rating layer.                                   |
 | `list_standings_summary`         | Optional fixed three-player list standings.                 |
 | `recommendation`                 | Recommended card and reason.                                |
+| `recommendation_method_summary`  | Optional explicit-method routing and fallback summary.      |
+| `bounded_search_result`          | Optional strict bounded-Search aggregate result or null.    |
 | `post_game_review_summary`       | Actual-card comparison and post-game review result.         |
 | `multi_step_result`              | Optional multi-step simulation result.                      |
 | `policy_comparison_result`       | Optional policy-comparison result.                          |
@@ -358,6 +364,10 @@ Typical top-level fields include:
 
 `profile_preset_settings` is emitted in production output and is required by
 the output schema.
+
+`recommendation_method_summary` and `bounded_search_result` are emitted only
+when input explicitly supplies `recommendation_method`. Omitted-method output
+retains the previous field set exactly.
 
 `opponent_profile_application_summary` is emitted only when
 `--opponent-statistics-file` is supplied for a live analysis. It records each
@@ -1049,6 +1059,13 @@ not have `next_player = "me"`, or when the game has already ended,
 `legal_cards` is `[]`, `analysis_report` is `[]`, and `recommendation.card` is
 `null`.
 
+For effective bounded Search, and for strict Search without a recommendation,
+`analysis_report` is empty because it remains an Immediate one-trick report.
+Search aggregates appear only in
+`bounded_search_result.candidate_results`; they are never copied into Immediate
+win-rate or point-swing fields. Auto fallback returns the unchanged Immediate
+report and marks its rank-1 Immediate candidate normally.
+
 Immediate win-rate and point-value fields are local-side based. For a local
 declarer, `win_rate` means the declarer side wins the trick. For a local
 defender, `win_rate` means either defender wins the trick. `average_points_won`,
@@ -1089,6 +1106,50 @@ Example:
   "reason": "This card has the highest estimated immediate expected point swing: 3.87."
 }
 ```
+
+For explicit methods, `recommendation.card` always belongs to the effective
+method. A Search recommendation uses deterministic Search-specific reason and
+strategic-summary text with status, stop reason, selected/completed worlds,
+coverage, success rate, mean local settlement score, and Suit/Grand margin when
+available. The text does not claim an optimal imperfect-information policy.
+
+The strict method summary is:
+
+```json
+{
+  "requested_method": "auto",
+  "effective_method": "immediate_expected_value",
+  "search_attempted": true,
+  "fallback_used": true,
+  "fallback_method": "immediate_expected_value",
+  "analysis_report_method": "immediate_expected_value"
+}
+```
+
+Effective methods are `immediate_expected_value`,
+`compatible_world_minimax_v1`, and `none`. Report methods are
+`immediate_expected_value` and `none`. Strict Search never sets fallback. Auto
+sets fallback only when Immediate actually returns the top-level card; if both
+methods produce no card, effective method is `none` and fallback remains false.
+
+Explicit Immediate emits `bounded_search_result: null`. Search and auto serialize
+the validated result through `build_serializable_bounded_search_result()`, using
+the standalone strict schema by reference. Auto fallback marks that Search result
+with `fallback_used: true`, `fallback_method: "immediate_expected_value"`, and a
+null Search `recommended_card`; the top-level recommendation holds the Immediate
+card. All Search status, budget, world-count, coverage, candidate, and claim data
+remain unchanged.
+
+With any explicit method, `settings` adds normalized
+`recommendation_method` and `bounded_search_settings`. Explicit Immediate uses a
+null Search settings value. Search settings include the public Search seed and
+requested budget, but no derived child seed. The top-level Immediate seed remains
+separate. Human-readable explicit Search output prints both the existing top-level
+random seed and a separately labeled `Search random seed`.
+
+No selected world, opponent hand, hypothetical Skat, exact state, coherent root,
+world fingerprint, principal variation, future historical fact, or profile
+weight is serialized.
 
 For opponent-turn inputs, Immediate Analysis does not create a local card
 recommendation. The unavailable shape is:

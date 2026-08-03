@@ -394,6 +394,66 @@ play, complete post-game hands, final results, game values, overbid, and
 settlement never create inference constraints or weights. See
 [Hidden-card inference](hidden_card_inference.md).
 
+## Live recommendation method
+
+Omitting `recommendation_method` preserves the existing Immediate expected-value
+path and output exactly. An explicit method accepts:
+
+* `immediate_expected_value`
+* `bounded_search`
+* `auto`
+
+Explicit Immediate also uses the existing `sample_count`, top-level
+`random_seed`, opponent policy, inference, and public-hand settings. It rejects
+`bounded_search_settings`.
+
+`bounded_search` is strict: it runs `compatible_world_minimax_v1` and never runs
+Immediate fallback. `auto` runs the same Search first and uses Immediate only
+when Search successfully returns a validated result whose `recommended_card` is
+null. A qualified partial or timeout Search recommendation is used directly.
+Search errors, contradictions, invariant failures, and serialization failures do
+not trigger fallback.
+
+Both Search methods require this exact object with no unknown or missing keys:
+
+```json
+{
+  "recommendation_method": "bounded_search",
+  "bounded_search_settings": {
+    "random_seed": 113,
+    "max_remaining_tricks": 3,
+    "max_depth_plies": 9,
+    "max_nodes": 100000,
+    "max_selected_worlds": 20,
+    "max_sampled_worlds": 20,
+    "minimum_comparable_worlds": 5,
+    "wall_clock_timeout_ms": null
+  }
+}
+```
+
+The Search seed must be a non-boolean integer. Every structural budget field is
+positive; sampled and minimum-comparable worlds cannot exceed selected worlds.
+The timeout is positive or null. There is no default or named production budget.
+The top-level `random_seed` remains independent and controls only Immediate or
+auto fallback. The derived private Search child seed is never input or output.
+
+Search methods are accepted only in the flat position workflow with
+`analysis_mode: "live_decision"` and `game_end_reason: "not_ended"`. They reject
+`actual_card_played`, post-game Skat visibility, terminal shortening, impossible
+Null settlement, list modes, Multi-Step, Policy Comparison, historical review,
+and historical/training/statistics workflows. Non-empty legacy `played_cards`
+is rejected; prior public play must use `completed_tricks` with ordered concrete
+`players`. Existing concrete turn-phase validation still applies.
+
+Declared Ouvert and either supported ongoing continuation remain valid because
+their exact public hands are already authorized and resolved by the information
+policy. Search receives only the local state, normalized declaration, public
+hand sizes, legitimately visible Skat, those public-hand constraints, and
+confirmed structural evidence. It never receives private opponent hands,
+coherent execution roots, historical hidden ownership, future play, profile
+weights, or tactical ownership assumptions.
+
 ## Declarer identity
 
 `player_role` describes the local player's side. `declarer_player` identifies the concrete player who declared the game.

@@ -75,6 +75,8 @@ The input schema checks things such as:
 * fixed three-player `list_standings_input` structure
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
+* the three recommendation methods and strict complete bounded-Search settings object
+* Search-only live/not-ended, attributed-history, and workflow exclusions
 * optional exact `public_declarer_cards` card-array structure for declared Ouvert
 * top-level and optional nested `game_declaration` declaration field types
 * strict version-1 declarer-concession, defender-concession, and declarer-card-exposure union shapes
@@ -141,6 +143,7 @@ The output schema checks the main output structure, including:
 * `multi_step_result`, when Multi-Step simulation is requested
 * `policy_comparison_result`, when policy comparison is requested
 * optional `hidden_card_inference_summary` through its strict focused version-1 schema at position, Multi-Step, Policy Comparison, and historical-review decision locations
+* optional `recommendation_method_summary` plus `bounded_search_result` through the registered strict standalone bounded-Search schema
 * the separate `historical_game_summary` branch
 * versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, terminal open-card-throw, and both timed continuation input/output schemas
 * optional versioned historical decision snapshots through the focused referenced schema
@@ -153,7 +156,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 
 The published stable `v0.9.0` baseline passes 3,558 pytest tests.
-Generated-output validation covers 52 deterministic scenarios. Position
+Current generated-output validation covers 54 deterministic scenarios. Position
 scenarios use CLI settings such as `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -197,6 +200,13 @@ source, and a 14-decision concession target. Its schema permits empty target
 decision arrays, zero overall decisions, null zero-denominator rates, and
 participant-based target-player coverage without a version increment.
 
+Two additional deterministic position scenarios cover one complete exhaustive
+live bounded Search recommendation and one structural node-budget auto fallback.
+They verify method-summary relationships, report separation, independent seeds,
+fallback metadata, standalone-schema registration, and absence of private Search
+state. Prior generated scenarios remain unchanged because omitted methods emit no
+new fields.
+
 The coherent-world scenario uses
 `examples/grand_coherent_hidden_world.json`, three Multi-Step steps,
 `highest_expected_value`, and all four compared card-selection policies. It
@@ -211,6 +221,18 @@ historical-review output. It fixes evidence and confidence enums, `0.85` and
 Runtime validation remains authoritative for attributed chronology, effective-
 category follow evidence, exact-hand contradictions, compatible assignment
 existence, DP counts and marginals, and uniform sampling semantics.
+
+`schemas/bounded_search_result.schema.json` is registered locally and referenced
+from `schemas/output.schema.json`; its structure is not duplicated there. The
+position output schema separately validates requested/effective method,
+Search-attempt, fallback, report-method, normalized-settings, and null-versus-
+object relationships. It also rejects explicit-method settings without a method
+summary, nonempty Immediate reports for report method `none`, incompatible
+top-level recommendation nullability, and disagreement between workflow and
+Search-result fallback markers. Runtime validation remains authoritative for
+budget cross-field limits and request/result equality, attributed history, flat
+live workflow eligibility, contextual Search method and game type, top-level
+effective-card identity, and fallback execution.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

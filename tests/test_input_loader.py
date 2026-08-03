@@ -14,6 +14,7 @@ from skat_ai.input_loader import (
     get_opponent_policy_settings_from_input,
     get_performance_rating_system_from_input,
     get_profile_preset_settings_from_input,
+    get_recommendation_method_configuration_from_input,
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
     load_historical_game_from_json,
@@ -313,6 +314,29 @@ def test_get_simulation_settings_from_input_uses_default_strategy_flag() -> None
     settings = get_simulation_settings_from_input(data)
 
     assert settings["use_basic_opponent_strategy"] is True
+
+
+def test_get_recommendation_method_configuration_from_input() -> None:
+    configuration = get_recommendation_method_configuration_from_input(
+        {
+            "recommendation_method": "bounded_search",
+            "bounded_search_settings": {
+                "random_seed": 113,
+                "max_remaining_tricks": 3,
+                "max_depth_plies": 9,
+                "max_nodes": 1000,
+                "max_selected_worlds": 5,
+                "max_sampled_worlds": 5,
+                "minimum_comparable_worlds": 2,
+                "wall_clock_timeout_ms": None,
+            },
+        }
+    )
+
+    assert configuration.requested_method == "bounded_search"
+    assert configuration.search_random_seed == 113
+    assert configuration.requested_search_budget is not None
+    assert configuration.requested_search_budget.max_nodes == 1000
 
 def test_get_analysis_metadata_from_input_defaults() -> None:
     metadata = get_analysis_metadata_from_input({})

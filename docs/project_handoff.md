@@ -186,14 +186,20 @@ Implemented on the active `v0.10.0` development branch:
 * equal-weight card-identity aggregation of exact completed-world success,
   settlement score, and Suit/Grand margin, including repeated duplicate draws,
   threshold-gated partial/timeout recommendations, and privacy-safe results
+* explicit flat live recommendation methods `immediate_expected_value`,
+  `bounded_search`, and `auto`, with Immediate still the omitted default
+* strict Search without fallback, validated Search-result-only auto fallback,
+  separate Immediate/Search seeds, report separation, and privacy-safe CLI/output
 * shared legal transition reuse by the specialized five-trick defender-open-play proof
 
 The direct exact solver returns no partial recommendation or fallback after a
 node, depth, or timeout abort. Compatible-world Minimax may recommend only from
-an exact common completed prefix that reaches the configured minimum; no method
-executes fallback. Recommendation-workflow integration, CLI output, default or
-production budgets, Search-versus-Heuristic evaluation, and a latency contract
-do not exist yet. See
+an exact common completed prefix that reaches the configured minimum. The flat
+live workflow now exposes strict Search and Search-first auto routing; auto may
+mark Immediate fallback only after a valid no-recommendation Search result.
+Multi-Step, Policy Comparison, flat post-game review, Historical Review,
+Search-versus-Heuristic evaluation, default/production budgets, and a latency
+contract remain open. See
 [Bounded search contracts](bounded_search_contracts.md).
 
 ### Game history and scoring
@@ -283,7 +289,7 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 52 deterministic scenarios.
+Generated-output validation currently covers 54 deterministic scenarios.
 
 ### Live-vs-post-game information enforcement
 
@@ -499,6 +505,7 @@ Implemented:
 * `perfect_information_minimax.py`
 * `terminal_utility.py`
 * `bounded_search_result.py`
+* `recommendation_workflow.py`
 * `ouvert_simulation.py`
 * `simulation_step.py`
 * `multi_step_simulation.py`
@@ -696,8 +703,9 @@ Completed implementation scope:
   general stronger search remain incomplete. Compatible-world Minimax now
   evaluates the frozen selected sequence and aggregates one exact common prefix,
   but it is determinization-based and subject to strategy fusion. It is not an
-  optimal imperfect-information policy proof and is not connected to product
-  workflows; overbid Null replacement selection remains outside it.
+  optimal imperfect-information policy proof. It is connected only to explicit
+  flat live recommendation methods; overbid Null replacement selection and all
+  deeper or retrospective recommendation workflows remain outside it.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -714,9 +722,10 @@ selection, and common-prefix aggregate contracts are now implemented together
 with direct exact-state and compatible-world Suit, Grand, and normal non-overbid
 Null Minimax. All four Null variants are covered while preserving the five-
 trick, Alpha-Beta, exact-only transposition, determinism, and privacy contracts.
-Compatible-world execution still lacks workflow, fallback, evaluation,
-production-budget, and latency integration, so the overall stronger-search gate
-stays open. Remaining
+Compatible-world execution now has bounded flat live workflow and explicit
+fallback integration. Multi-Step, Policy Comparison, Historical Review,
+Search-versus-Heuristic evaluation, production-budget, performance, and latency
+integration remain open, so the overall stronger-search gate stays open. Remaining
 pre-`v1.0.0` work also includes fuller Replay Coaching, approved settlement
 nuance, fixed-three-player 36-game list aggregation, automatic dataset
 preparation, field-level live provenance, interactive session capture, and a

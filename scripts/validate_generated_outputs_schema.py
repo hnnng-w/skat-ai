@@ -126,6 +126,9 @@ PUBLIC_HAND_CONSTRAINT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "public_hand_con
 HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "hidden_card_inference_summary.schema.json"
 )
+BOUNDED_SEARCH_RESULT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "bounded_search_result.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -2374,6 +2377,66 @@ def check_hidden_card_inference(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_complete_bounded_search(data: dict[str, Any]) -> list[str]:
+    errors = []
+    summary = data.get("recommendation_method_summary")
+    search = data.get("bounded_search_result")
+    if summary != {
+        "requested_method": "bounded_search",
+        "effective_method": "compatible_world_minimax_v1",
+        "search_attempted": True,
+        "fallback_used": False,
+        "fallback_method": None,
+        "analysis_report_method": "none",
+    }:
+        errors.append("expected strict bounded-Search method summary")
+    if not isinstance(search, dict):
+        return [*errors, "expected bounded_search_result"]
+    if search["status"] != "complete" or search["world_coverage"] != "all_compatible_worlds":
+        errors.append("expected complete exhaustive bounded Search")
+    if search["consumed_budget"]["selected_world_count"] != 1:
+        errors.append("expected one selected exhaustive world")
+    if search["consumed_budget"]["completed_world_count"] != 1:
+        errors.append("expected one completed exhaustive world")
+    if data["recommendation"]["card"] != search["recommended_card"]:
+        errors.append("expected top-level Search recommendation consistency")
+    if data["analysis_report"] != []:
+        errors.append("expected no Immediate report for effective Search")
+    if data["settings"]["bounded_search_settings"]["random_seed"] != 113:
+        errors.append("expected independent explicit Search seed")
+    if "child_seed" in repr(data) or "exact_states" in repr(data):
+        errors.append("expected no derived seed or private Search state")
+    return errors
+
+
+def check_auto_search_fallback(data: dict[str, Any]) -> list[str]:
+    errors = []
+    summary = data.get("recommendation_method_summary")
+    search = data.get("bounded_search_result")
+    if summary != {
+        "requested_method": "auto",
+        "effective_method": "immediate_expected_value",
+        "search_attempted": True,
+        "fallback_used": True,
+        "fallback_method": "immediate_expected_value",
+        "analysis_report_method": "immediate_expected_value",
+    }:
+        errors.append("expected auto Immediate-fallback method summary")
+    if not isinstance(search, dict):
+        return [*errors, "expected auto bounded_search_result"]
+    if search["status"] != "partial" or search["stop_reason"] != "node_budget_exhausted":
+        errors.append("expected node-limited Search fallback trigger")
+    if search["recommended_card"] is not None:
+        errors.append("expected Search result to retain no recommendation")
+    if not search["fallback_used"] or search["fallback_method"] != "immediate_expected_value":
+        errors.append("expected Search fallback marker")
+    if data["recommendation"]["card"] is None:
+        errors.append("expected top-level Immediate fallback card")
+    if not data["analysis_report"] or not data["analysis_report"][0]["is_recommended"]:
+        errors.append("expected unchanged Immediate fallback report")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -2388,6 +2451,18 @@ SCENARIOS = (
         cli_args=("--quiet",),
         check_output=check_normal_local_live,
         expect_quiet_stdout=True,
+    ),
+    Scenario(
+        name="complete_bounded_search",
+        input_path=PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json",
+        branch="complete small exhaustive live bounded Search recommendation",
+        check_output=check_complete_bounded_search,
+    ),
+    Scenario(
+        name="auto_bounded_search_fallback",
+        input_path=PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json",
+        branch="node-limited bounded Search with explicit Immediate fallback",
+        check_output=check_auto_search_fallback,
     ),
     Scenario(
         name="local_live_multi_step_two_steps",
@@ -3021,6 +3096,7 @@ def validate_generated_outputs() -> list[str]:
     hidden_card_inference_summary_schema = load_json_file(
         HIDDEN_CARD_INFERENCE_SUMMARY_SCHEMA_PATH
     )
+    bounded_search_result_schema = load_json_file(BOUNDED_SEARCH_RESULT_SCHEMA_PATH)
     registry = Registry().with_resources(
         [
             (
@@ -3180,6 +3256,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 hidden_card_inference_summary_schema["$id"],
                 Resource.from_contents(hidden_card_inference_summary_schema),
+            ),
+            (
+                bounded_search_result_schema["$id"],
+                Resource.from_contents(bounded_search_result_schema),
             ),
         ]
     )

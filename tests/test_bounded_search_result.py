@@ -464,7 +464,7 @@ def test_recommendation_and_fallback_fields_are_consistent() -> None:
         candidate_results=_ranked_candidates(completed=1, recommend=False),
         recommended_card=None,
         fallback_used=True,
-        fallback_method="reserved_rule_based_fallback",
+        fallback_method="immediate_expected_value",
     )
     assert fallback.fallback_used is True
 

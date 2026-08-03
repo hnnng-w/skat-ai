@@ -21,6 +21,8 @@ Skat AI is experimental. It is not a full official tournament system, not a perf
 * Configured opponent response policies for immediate analysis and multi-step candidate completion
 * Expected point swing calculation
 * Card recommendations
+* Optional bounded compatible-world Minimax recommendations for eligible late live positions
+* Strict Search and Search-first `auto` routing with explicit Immediate fallback metadata
 * JSON output for regression-friendly analysis
 
 ### Simulation and policy comparison
@@ -171,6 +173,22 @@ Run analysis with a specific input file:
 ```powershell
 python main.py --input examples/grand_second_position.json
 ```
+
+The existing Immediate expected-value recommendation remains the default. JSON
+input may explicitly select `immediate_expected_value`, strict `bounded_search`,
+or `auto`. Search methods require a complete `bounded_search_settings` object and
+are limited to flat, ongoing `live_decision` positions:
+
+```powershell
+python main.py --input examples/grand_bounded_search_exhaustive.json
+python main.py --input examples/grand_auto_search_fallback.json
+```
+
+Strict Search never falls back. `auto` runs Immediate only when Search returns a
+valid result without a recommendation, and marks fallback only when Immediate
+returns a card. Search uses its own required seed; the existing top-level seed
+continues to control Immediate and auto fallback. No CLI method override is
+provided.
 
 Run immediate analysis with a configured opponent response policy:
 
@@ -469,6 +487,7 @@ Detailed documentation is split into topic-specific files:
 * [Ouvert-aware simulation](docs/ouvert_aware_simulation.md)
 * [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md)
 * [Hidden-card inference](docs/hidden_card_inference.md)
+* [Bounded search contracts](docs/bounded_search_contracts.md)
 * [Hidden-card inference summary schema](schemas/hidden_card_inference_summary.schema.json)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
@@ -574,7 +593,9 @@ calibrated. See
 [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md) and
 [Hidden-card inference](docs/hidden_card_inference.md).
 
-Remaining work includes stronger Search/Solver behavior, fuller Replay Coaching,
+Remaining work includes extending Search beyond flat live recommendations,
+Search-versus-Heuristic evaluation, production budgets and latency baselines,
+fuller Replay Coaching,
 approved settlement nuance, fixed-three-player 36-game list aggregation,
 automatic dataset preparation, field-level live provenance, interactive input
 and session capture, and a stable installed library and CLI interface. General
