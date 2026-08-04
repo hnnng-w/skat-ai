@@ -1,9 +1,9 @@
 # Requirements traceability
 
 This document is the authoritative audit of rule and product support in the
-current `v0.11.0` package baseline. It preserves the published `v0.10.0` release
+published `v0.11.0` baseline. It preserves the published `v0.10.0` release
 baseline as historical evidence and does not claim complete compliance with the
-official rules. `v0.10.0` remains the latest GitHub Release, and GitHub Releases
+official rules. `v0.11.0` is the latest stable GitHub Release, and GitHub Releases
 is authoritative for publication status.
 
 ## Normative sources
@@ -27,9 +27,10 @@ software product limited to them.
 Rule references below are section numbers from the November 2022 PDF. The audit
 reflects the current `v0.11.0` package baseline and was verified against source
 modules, schemas, examples, validation scripts, and focused tests. Issues #118
-through #124 complete that functional milestone. The current generated-output
-matrix validates 64 deterministic scenarios. The published `v0.10.0` baseline
-remains historical evidence for 59 scenarios and 4,075 pytest tests; the
+through #124 complete that functional milestone, and Issue #125 completed release
+preparation. The published baseline validates 64 deterministic generated-output
+scenarios and passes 4,392 pytest tests. The published `v0.10.0` baseline remains
+historical evidence for 59 scenarios and 4,075 pytest tests; the
 published `v0.9.0` baseline remains historical evidence for 52 scenarios and
 3,558 tests.
 

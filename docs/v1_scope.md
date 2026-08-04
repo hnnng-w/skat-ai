@@ -4,14 +4,14 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current package baseline is `v0.11.0` and validates 64 deterministic
-generated-output scenarios. The current published stable release remains
-`v0.10.0`, which is the latest GitHub Release and remains historical evidence for
-59 scenarios and 4,075 pytest tests. GitHub Releases is authoritative for
-publication status. Issues #118 through #124 complete the functional `v0.11.0`
-milestone, and Issue #125 prepares its release candidate. The provisional next
-planning milestone is `v0.12.0`, directed at 36-game list aggregation and
-automatic dataset preparation; its final issue split is not defined.
+The current published stable release is `v0.11.0`. It validates 64 deterministic
+generated-output scenarios and passes 4,392 pytest tests. GitHub Releases is
+authoritative for publication status. Issues #118 through #124 complete the
+functional milestone, and Issue #125 completed release preparation. The active
+next planning milestone is `v0.12.0`; its provisional direction is 36-game list
+aggregation and automatic dataset preparation, and its final issue split is not
+defined. The historical published `v0.10.0` baseline remains evidence for 59
+scenarios and 4,075 pytest tests.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,

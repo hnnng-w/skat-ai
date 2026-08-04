@@ -132,24 +132,21 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current package baseline is `v0.11.0`, with release theme "Information-safe
-Replay Coaching and structured historical outcomes" and intended GitHub Release
-title "v0.11.0 — Information-safe Replay Coaching and structured historical
-outcomes". The Python requirement remains `>=3.13`.
+The current published stable release is `v0.11.0`, with release theme
+"Information-safe Replay Coaching and structured historical outcomes" and GitHub
+Release title "v0.11.0 — Information-safe Replay Coaching and structured
+historical outcomes". It points to commit `cfd28e5`; the package version is
+`0.11.0`, and the Python requirement remains `>=3.13`.
 
-The current published stable release remains `v0.10.0`. Its latest GitHub
-Release title is "v0.10.0 — Information-safe bounded Search across compatible
-worlds", points to commit `b4c8738`, validates 59 deterministic scenarios, and
-passes 4,075 pytest tests. GitHub Releases remains authoritative for publication
-status; `v0.11.0` publication is a manual maintainer action.
+The published baseline validates 64 deterministic generated-output scenarios and
+passes 4,392 pytest tests. Issues #118 through #124 complete the functional
+milestone, and Issue #125 completed release preparation. Publication was
+performed manually by the maintainer, and GitHub Releases remains authoritative
+for publication status.
 
-Generated-output validation for the current package baseline covers 64
-deterministic scenarios.
-
-Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
-#125 prepares the release candidate. The provisional next planning milestone is
-`v0.12.0`, directed at 36-game list aggregation and automatic dataset
-preparation; its final issue split is not defined.
+The active next planning milestone is `v0.12.0`. Its provisional direction is
+36-game list aggregation and automatic dataset preparation; its final issue split
+is not defined.
 
 Major completed areas include:
 

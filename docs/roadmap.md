@@ -340,11 +340,12 @@ Implemented:
 
 ### v0.11.0: Information-safe Replay Coaching and structured historical outcomes
 
-The current package baseline is `v0.11.0`. Issues #118 through #124 complete the
-functional milestone, and Issue #125 prepares the release candidate. The current
-matrix validates 64 deterministic generated-output scenarios. Publication
-remains a manual maintainer action, so `v0.10.0` remains the latest GitHub
-Release and GitHub Releases remains authoritative for publication status.
+The published `v0.11.0` milestone is complete. Issues #118 through #124 complete
+the functional milestone, and Issue #125 completed release preparation. The
+latest stable GitHub Release points to commit `cfd28e5`, validates 64
+deterministic generated-output scenarios, and passes 4,392 pytest tests.
+Publication was performed manually by the maintainer, and GitHub Releases remains
+authoritative for publication status.
 
 The milestone provides the immutable 61-case settlement matrix, one bounded
 continuation-before-shortening historical chain, information-safe Replay
@@ -354,12 +355,10 @@ composition, and the opt-in public JSON/schema/CLI workflow.
 
 ### v0.10.0: Information-safe bounded Search across compatible worlds
 
-The current published stable release is `v0.10.0`, and
-Issues #107 through #115 complete the functional milestone. Issue #116 completed
-release preparation, followed by manual maintainer publication. The latest
-GitHub Release points to commit `b4c8738`, validates 59 deterministic generated-
-output scenarios, and passes 4,075 pytest tests. GitHub Releases remains
-authoritative for publication status.
+The historical published `v0.10.0` release completed Issues #107 through #115 as
+its functional milestone. Issue #116 completed release preparation, followed by
+manual maintainer publication. The release points to commit `b4c8738`, validates
+59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
 
 The milestone provides bounded-Search contracts, immutable exact state, Suit,
 Grand, and all four normal non-overbid Null solving, compatible-world counting
@@ -380,7 +379,8 @@ Issues #86 through #104 are complete:
 
 The published baseline validates 52 deterministic generated-output scenarios
 and passes 3,558 pytest tests. GitHub Releases is the authoritative publication
-record.
+record. Issue #105 completed release preparation, and Issue #106 synchronized
+the publication status.
 
 ### v0.8.0: Explainable and time-safe opponent intelligence
 
@@ -470,16 +470,16 @@ evidence. They do not provide calibrated sample quality, a latency guarantee,
 information-set policy search, or complete-contract solving, so the stronger-
 search completion gate is not closed.
 
-The functional `v0.11.0` package milestone is complete through Issue #124, and
-Issue #125 performs release preparation. The milestone establishes the
+The published `v0.11.0` milestone is complete through functional Issue #124, and
+Issue #125 completed release preparation. The milestone establishes the
 settlement matrix and bounded continuation-before-shortening sequence, then
 delivers public one-game Replay Coaching through schema, CLI, examples, and
 generated-output coverage. Tactical motifs, cross-game Coaching, ratings, causal
 attribution, and stronger Search remain outside this bounded result.
 
-The provisional next planning milestone is `v0.12.0`, directed at 36-game list
-aggregation and automatic dataset preparation. Its final issue split is not
-defined.
+The active next planning milestone is `v0.12.0`. Its provisional direction is
+36-game list aggregation and automatic dataset preparation. Its final issue split
+is not defined.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 
@@ -497,8 +497,8 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the published `v0.10.0` release baseline, the current
-`v0.11.0` package baseline, the authoritative publication state shown by GitHub
-Releases, requirements explicitly required
+should distinguish the current published `v0.11.0` baseline, historical release
+evidence, the authoritative publication state shown by GitHub Releases,
+requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

@@ -24,10 +24,11 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The current `v0.11.0` package baseline covers 64 deterministic generated-output
-scenarios. The published stable `v0.10.0` baseline remains historical evidence
-for 59 scenarios and 4,075 pytest tests. The historical published `v0.9.0`
-baseline covers 52 deterministic scenarios and 3,558 pytest tests.
+The published stable `v0.11.0` baseline covers 64 deterministic generated-output
+scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
+baseline remains evidence for 59 scenarios and 4,075 pytest tests. The historical
+published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
+tests.
 The check script validates:
 
 * Ruff checks

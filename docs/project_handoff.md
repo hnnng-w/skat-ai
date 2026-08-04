@@ -325,9 +325,10 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 64 deterministic scenarios. The
-published `v0.10.0` release baseline remains 59, and the published `v0.9.0`
-baseline remains 52.
+The published `v0.11.0` baseline covers 64 deterministic generated-output
+scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
+release baseline remains 59 scenarios and 4,075 tests, and the historical
+published `v0.9.0` baseline remains 52 scenarios and 3,558 tests.
 
 ### Live-vs-post-game information enforcement
 
@@ -681,34 +682,26 @@ Main documentation files:
 
 ## Release status
 
-Current published stable release: `v0.10.0`.
+Current published stable release: `v0.11.0`.
 
 Current package version: `0.11.0`.
 
-Current package release theme: "Information-safe Replay Coaching and structured
+Published release theme: "Information-safe Replay Coaching and structured
 historical outcomes".
 
-Intended GitHub Release title: "v0.11.0 — Information-safe Replay Coaching and
+GitHub Release title: "v0.11.0 — Information-safe Replay Coaching and
 structured historical outcomes".
 
-Published release theme: "Information-safe bounded Search across compatible
-worlds."
+The latest stable GitHub Release points to commit `cfd28e5`. It requires Python
+`>=3.13`, validates 64 deterministic generated-output scenarios, and passes
+4,392 pytest tests.
 
-The latest GitHub Release points to commit `b4c8738`.
-
-Issues #107 through #115 complete the functional milestone, and Issue #116
-completed release preparation. Publication was performed manually by the
+Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
+#125 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
 
-Issues #118 through #124 complete the functional `v0.11.0` package milestone,
-and Issue #125 prepares its release candidate. Publication remains a manual
-maintainer action; `v0.11.0` is not yet the published release.
-
-The current package baseline validates 64 deterministic generated-output
-scenarios.
-
-The published `v0.10.0` baseline validates 59 deterministic generated-output
-scenarios and passes 4,075 pytest tests.
+The historical published `v0.10.0` release points to commit `b4c8738`, validates
+59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
 
 The historical published `v0.9.0` baseline validates 52 deterministic generated-
 output scenarios and passes 3,558 pytest tests.
@@ -819,7 +812,7 @@ publication.
 
 ## Current implementation baseline
 
-**v0.11.0: Information-safe Replay Coaching and structured historical outcomes**
+**Published v0.11.0: Information-safe Replay Coaching and structured historical outcomes**
 
 Completed implementation scope:
 
@@ -873,18 +866,21 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Issues #118 through #124 complete the functional `v0.11.0` package milestone.
-They establish the normative settlement boundary and approved historical event
-chain, then deliver the complete information-safe public one-game Replay
-Coaching workflow through JSON, schema, CLI, examples, and generated-output
-coverage. Issue #125 prepares the release candidate; publication remains a
-manual maintainer action.
+The active next planning milestone is `v0.12.0`. Its provisional direction is
+36-game list aggregation and automatic dataset preparation, and its final issue
+split is not defined. The next action is a focused repository analysis rather
+than implementation or final issue decomposition.
 
-The provisional next planning milestone is `v0.12.0`, directed at 36-game list
-aggregation and automatic dataset preparation. Its final issue split is not
-defined. Tactical motifs, cross-game Coaching, ratings, causal attribution,
-broader Search, general claims, and settlement completeness remain separate open
-work.
+For list aggregation, inspect the existing list-performance inputs and summaries,
+standings ordering and tie behavior, historical participant identity and record
+ordering, the boundary of exactly 36 games with three fixed participants, SkWO
+list and performance points, list progression and per-player contributions, and
+comparison across independent completed lists. For automatic dataset preparation, inspect
+the existing dataset policies, automatic Known-opponent and player-disjoint split
+generation, deterministic seed requirements, and identity, temporal, source, and
+partition leakage controls. Tactical motifs, cross-game Coaching, ratings, causal
+attribution, broader Search, general claims, and settlement completeness remain
+separate open work.
 
 ## Open future topics
 

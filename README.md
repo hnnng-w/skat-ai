@@ -630,18 +630,18 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current package baseline is `v0.11.0`. Its release theme is "Information-safe
-Replay Coaching and structured historical outcomes", and its intended GitHub
-Release title is "v0.11.0 — Information-safe Replay Coaching and structured
-historical outcomes". Issues #118 through #124 complete the functional milestone;
-Issue #125 prepares the release candidate. The package validates 64 deterministic
-generated-output scenarios. Python 3.13 or newer remains required.
+The current published stable release is `v0.11.0`, with release theme
+"Information-safe Replay Coaching and structured historical outcomes" and GitHub
+Release title "v0.11.0 — Information-safe Replay Coaching and structured
+historical outcomes". It points to commit `cfd28e5`, validates 64 deterministic
+generated-output scenarios, and passes 4,392 pytest tests. Issues #118 through
+#124 complete the functional milestone, and Issue #125 completed release
+preparation. Publication was performed manually by the maintainer, and GitHub
+Releases remains authoritative for publication status. The package version is
+`0.11.0`, and Python 3.13 or newer remains required.
 
-The current published stable release remains `v0.10.0`. It is the latest GitHub
-Release, points to commit `b4c8738`, validates 59 deterministic generated-output
-scenarios, and passes 4,075 pytest tests. Publication of `v0.11.0` remains a
-manual maintainer action, and GitHub Releases remains authoritative for
-publication status.
+The historical published `v0.10.0` release points to commit `b4c8738`, validates
+59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
 
 The `v0.11.0` package baseline adds an immutable 61-case normative settlement
 matrix and the bounded historical sequence of at most one continuation followed
@@ -731,9 +731,9 @@ model or model-training workflow is included. The product supports fixed
 three-player tables only; four-player tables are excluded, and complete official
 rule coverage is not claimed.
 
-The provisional next planning milestone is `v0.12.0`, directed at 36-game list
-aggregation and automatic dataset preparation. Its final issue split is not yet
-defined.
+The active next planning milestone is `v0.12.0`. Its provisional direction is
+36-game list aggregation and automatic dataset preparation. Its final issue split
+is not yet defined.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
