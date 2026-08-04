@@ -115,6 +115,10 @@ Implemented:
 * Single-rated-player list performance summaries from already aggregated totals, normalized contributions, and local analysis results
 * Explicit fixed three-player list standings output
 * SkWO 6.3.1 shared ranks for unresolved ties and optional external lot order
+* Internal immutable version-1 fixed-three-player 36-position historical-list
+  contracts with fixed stable identities, dedicated passed deals, dealer and
+  historical-seat rotation, optional timestamp auditing, settlement-derived
+  non-cumulative contributions, reconciliation, and deterministic serialization
 
 ### Metadata and information control
 
@@ -305,6 +309,9 @@ Implemented:
 ### Performance rating
 
 * Performance rating is partially implemented for fixed three-player single-game declarer rating and bounded list-aware summaries.
+* The complete historical 36-position contract exists internally, but cumulative
+  list aggregation, progression, standings from that contract, and independent-
+  list comparison are not implemented.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
 * Formal series aggregation, tournament management, and official federation report formats are not required product workflows.
@@ -431,7 +438,8 @@ implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance,
-fixed-three-player 36-game list aggregation, remaining automatic dataset
+cumulative fixed-three-player 36-game list aggregation from the implemented
+internal contract, remaining automatic dataset
 preparation, field-level live provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
 interface. General claim verification and historical end reasons outside the
@@ -478,8 +486,9 @@ generated-output coverage. Tactical motifs, cross-game Coaching, ratings, causal
 attribution, and stronger Search remain outside this bounded result.
 
 The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation. Its final issue split
-is not defined.
+36-game list aggregation and automatic dataset preparation. Issue #127 adds
+internal list contract version `1` for all 36 ordered positions and passed
+deals; cumulative aggregation and the remaining issue split are still open.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

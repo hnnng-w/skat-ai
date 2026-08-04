@@ -34,6 +34,9 @@ The project focuses on:
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * deterministic Replay Coaching Key Decisions, Turning Points, one-game patterns, and actionable recommendations
 * complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
+* internal immutable version-1 fixed-three-player 36-position historical-list
+  contracts with passed deals, rotating historical seats, settlement-derived
+  per-entry contribution facts, reconciliation, and deterministic serialization
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -303,10 +306,14 @@ Implemented:
 * local generated-output-style list inputs via `list_analysis_results`
 * explicit fixed three-player list standings via `list_standings_input`
 * SkWO 6.3.1 shared ranks for unresolved standings ties and optional external lot order
+* strict internal 36-position historical-list representation with fixed stable
+  participants, passed deals, rotation, timestamp auditing, and non-cumulative
+  contribution facts
 
 Not implemented:
 
-* raw full-game list aggregation without explicit standings input
+* cumulative aggregation and progression from the internal historical-list contract
+* standings from the internal historical-list contract
 * series aggregation
 * tournament aggregation
 * official federation report formats
@@ -564,6 +571,9 @@ Implemented:
 * `final_settlement.py`
 * `settlement_normative_matrix.py`
 * `performance_rating.py`
+* `fixed_three_player_historical_list.py`
+* `fixed_three_player_list_rotation.py`
+* `fixed_three_player_list_contribution.py`
 
 ### Historical games and datasets
 
@@ -853,7 +863,10 @@ Completed implementation scope:
   Multi-Step and Policy Comparison, flat post-game review, Historical Search
   Review, and bounded dataset evaluation are connected. Overbid Null replacement
   selection remains outside it.
-* Full fixed-three-player 36-game list aggregation is not implemented.
+* The immutable fixed-three-player 36-position historical-list and passed-deal
+  contracts are implemented internally. Cumulative aggregation, progression,
+  standings from those records, independent-list comparison, and public
+  workflows remain open.
 * Replay Coaching has a public version-1 one-game report with information-safe
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
@@ -867,15 +880,15 @@ Completed implementation scope:
 ## Next recommended action
 
 The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation, and its final issue
-split is not defined. The next action is a focused repository analysis rather
-than implementation or final issue decomposition.
+36-game list aggregation and automatic dataset preparation. Issue #127
+implements the version-1 historical-list contract foundation; cumulative
+aggregation and the remaining issue split stay open.
 
-For list aggregation, inspect the existing list-performance inputs and summaries,
-standings ordering and tie behavior, historical participant identity and record
-ordering, the boundary of exactly 36 games with three fixed participants, SkWO
-list and performance points, list progression and per-player contributions, and
-comparison across independent completed lists. For automatic dataset preparation, inspect
+For the next list step, build on the internal 36-position facts while preserving
+the existing list-performance inputs, standings ordering and tie behavior, and
+the explicit no-public-workflow boundary. Cumulative totals, progression,
+standings integration, and comparison across independent completed lists remain
+separate. For automatic dataset preparation, inspect
 the existing dataset policies, automatic Known-opponent and player-disjoint split
 generation, deterministic seed requirements, and identity, temporal, source, and
 partition leakage controls. Tactical motifs, cross-game Coaching, ratings, causal

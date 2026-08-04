@@ -109,7 +109,10 @@ The following directions are required for `v1.0.0`:
 * Preserve exposed-card use in Ouvert-aware recommendation simulation without
   violating decision-time information boundaries. This bounded gate is implemented.
 * Aggregate complete fixed-three-player 36-game lists while preserving SkWO
-  6.3.1 performance formulas and tie handling.
+  6.3.1 performance formulas and tie handling. Internal contract version `1`
+  now validates all 36 ordered played or passed positions, fixed identities,
+  rotation, historical settlement extraction, and non-cumulative contribution
+  facts. Cumulative aggregation and standings integration remain open.
 * Support interactive live and retrospective input and session capture.
 * Provide a stable library API and installed CLI/package interface.
 * Support all final declared Suit, Grand, and Null variants in the approved v1.0
@@ -182,7 +185,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
 | Profile confidence and behavioral evaluation | Accepted profile fields, exact or estimated evidence scopes, heuristic confidence, activation boundaries, conflict rules, and exact behavioral influence are documented and tested at every boundary. Rolling evaluation uses strict game-start as-of history and reports preferred/exact behavioral matching without strategic, optimality, significance, or unseen-player claims. |
 | Dataset partition policies | Optional known-opponent and unseen-player intent remains backward-compatible; exact membership, pairwise/three-way overlap, directed known-opponent coverage, and strict declared unseen-player disjointness are deterministic and schema-valid. |
-| List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-game lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. |
+| List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-game lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. Internal contract version `1` now supplies the immutable 36-position played/passed representation, rotation, settlement-derived entry facts, and per-entry reconciliation, but cumulative aggregation and standings from that contract remain open. |
 | Interactive input and session capture | Supported live and retrospective sessions can be entered interactively, validated incrementally, resumed or completed without hidden state, and serialized to the same documented information-safe records. |
 | Stable installed interface | A versioned public library API and installed CLI/package entry point have documented compatibility guarantees, installation tests, stable error behavior, and no dependence on running repository-root `main.py`. |
 | Examples | Examples cover each supported contract family, live/post-game boundary, complete historical record, training/evaluation record, claim/concession, overbid including impossible Null, rule-based profile, list aggregation, and standings; every example passes schema and semantic validation. |

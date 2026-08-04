@@ -69,7 +69,12 @@ Current assumptions:
 * Already aggregated list or series totals can be supplied directly.
 * Normalized per-game list or series contributions can be supplied directly.
 * Explicit fixed three-player standings game results can be supplied directly.
-* Raw full-game aggregation beyond explicit standings input, multi-list rollups, full tournament aggregation, and official report formats are not implemented yet.
+* An internal immutable version-1 contract now validates one complete ordered
+  fixed-three-player 36-position historical list, including dedicated passed
+  deals, rotation, settlement-derived contribution facts, and reconciliation.
+* Cumulative aggregation from that contract, progression, standings from it,
+  multi-list rollups, full tournament aggregation, and official report formats
+  are not implemented yet.
 
 Implemented rating points:
 
@@ -271,6 +276,12 @@ Analysis-result-derived summaries use the same field set with
 
 `list_performance_summary` is independent from `final_settlement_summary` and does not change `performance_rating_summary`.
 
+The separate internal
+[fixed-three-player 36-game list contract](fixed_three_player_36_game_list_contracts.md)
+uses complete historical settlement and the same performance helpers to derive
+non-cumulative facts for all three fixed participants. It does not add a public
+input mode and does not change any input or output described above.
+
 ## Fixed three-player standings input
 
 `list_standings_input` provides an explicit fixed three-player list model:
@@ -443,5 +454,8 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * Fixed three-player standings can be calculated when supplied via `list_standings_input`, with unresolved lots represented explicitly.
 * Optional `rated_player_id` and `game_id` metadata can validate per-game list inputs, but does not affect scoring.
 * Duplicate-game detection only uses supplied `game_id` values; content-based duplicate detection is not implemented.
-* Raw full-game aggregation, multi-list rollups, full tournament aggregation, and official federation report formats are not implemented yet.
+* A strict internal 36-position historical-list contract and passed-deal facts
+  exist, but cumulative full-list aggregation, progression, standings from that
+  contract, multi-list rollups, full tournament aggregation, and official
+  federation report formats are not implemented yet.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.
