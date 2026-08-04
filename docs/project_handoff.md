@@ -31,6 +31,7 @@ The project focuses on:
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
 * immutable version-1 normative settlement and approved claim-boundary matrix
+* immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -431,6 +432,27 @@ Current CLI wording uses review-objective language for rank and better-card
 summaries. For Null games, the CLI distinguishes Null contract-objective gaps
 from informational card-point swing fields.
 
+### Replay Coaching contracts
+
+Implemented as an internal `v0.11.0` foundation:
+
+* immutable contract version `1` with information policy
+  `decision_time_then_retrospective_attachment`
+* separate decision-time evidence and retrospective observed-card assessment
+* normalized reuse of existing Immediate evidence, bounded-Search results, and
+  Search comparisons without rerunning either analysis
+* opening, middle, and endgame phase conventions
+* stable statuses, evidence-basis priority, impact tiers, factors, limitations,
+  strict validation, and privacy-safe deterministic serialization
+* unchanged Immediate Historical Review, Historical Search Review, schemas, CLI,
+  examples, and generated outputs
+
+The observed card is not ground truth, no causal final-outcome claim is made,
+and exhaustive compatible-world aggregation remains subject to Strategy Fusion.
+Key decisions, turning points, patterns, recommendations, tactical detectors,
+and a complete Coaching Report remain unimplemented. See
+[Replay coaching contracts](replay_coaching_contracts.md).
+
 ### CLI and workflow usability
 
 Implemented:
@@ -544,6 +566,8 @@ Implemented:
 * `bounded_search_post_game_review.py`
 * `retrospective_search_comparison.py`
 * `historical_search_review.py`
+* `replay_coaching_evidence.py`
+* `replay_coaching_assessment.py`
 * `bounded_search_evaluation.py`
 * `search_budget_profiles.py`
 * `recommendation_workflow.py`
@@ -601,6 +625,7 @@ Main documentation files:
 * `docs/hidden_card_inference.md`
 * `docs/bounded_search_contracts.md`
 * `docs/bounded_search_performance.md`
+* `docs/replay_coaching_contracts.md`
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
 * `docs/dataset_partition_policies.md`
@@ -777,6 +802,7 @@ Completed implementation scope:
   Review, and bounded dataset evaluation are connected. Overbid Null replacement
   selection remains outside it.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
+* Replay Coaching has version-1 internal evidence and impact contracts, but no key-decision ranking, turning points, patterns, recommendations, or complete report.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
@@ -789,6 +815,8 @@ The active next planning milestone is `v0.11.0`. Settlement and claim work shoul
 use version 1 of the normative matrix as the implementation boundary, while
 Replay Coaching and remaining approved gaps continue as focused follow-up work.
 Issue #118 establishes this matrix as the first `v0.11.0` contract foundation.
+Issue #120 adds the separate information-safe Replay Coaching evidence and impact
+contract foundation while leaving full Replay Coaching incomplete.
 
 ## Open future topics
 

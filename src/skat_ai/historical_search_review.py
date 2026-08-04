@@ -1,6 +1,8 @@
 import hashlib
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Any
 
 from skat_ai.analysis_report import build_card_analysis_report_from_values
@@ -15,17 +17,30 @@ from skat_ai.bounded_search_result import (
     build_serializable_bounded_search_result,
 )
 from skat_ai.compatible_world_minimax import solve_compatible_world_minimax
+from skat_ai.game_value import get_null_game_value
 from skat_ai.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
     HistoricalDecisionSnapshotSummary,
 )
 from skat_ai.historical_game import HistoricalGameRecord
 from skat_ai.historical_snapshot_adapter import (
+    HistoricalSnapshotPosition,
     build_position_from_historical_snapshot,
 )
 from skat_ai.input_validation import MAX_SAMPLE_COUNT, validate_positive_integer_maximum
+from skat_ai.post_game_review import build_post_game_review_summary
 from skat_ai.recommender import recommend_card_by_expected_value
+from skat_ai.replay_coaching_assessment import (
+    ReplayCoachingDecisionAssessment,
+    build_replay_coaching_decision_assessment,
+)
+from skat_ai.replay_coaching_evidence import (
+    DecisionTimeReplayCoachingEvidence,
+    build_decision_time_replay_coaching_evidence,
+    build_immediate_replay_coaching_evidence,
+)
 from skat_ai.retrospective_search_comparison import (
+    SearchActualCardComparison,
     build_search_actual_card_comparison,
     build_search_vs_immediate_comparison,
     build_serializable_search_actual_card_comparison,
@@ -106,6 +121,27 @@ class HistoricalSearchReviewSettings:
             )
 
 
+@dataclass(frozen=True)
+class HistoricalSearchDecisionPreActualAnalysis:
+    """One Search and Immediate run completed before observed-card attachment."""
+
+    position: HistoricalSnapshotPosition
+    remaining_tricks: int
+    effective_immediate_seed: int | None
+    immediate_card: str
+    immediate_reason: str
+    immediate_report: tuple[Mapping[str, Any], ...]
+    decision_time_evidence: DecisionTimeReplayCoachingEvidence
+
+
+@dataclass(frozen=True)
+class HistoricalSearchDecisionRetrospectiveAttachment:
+    """The existing Search comparison plus its internal coaching assessment."""
+
+    search_actual_card_comparison: SearchActualCardComparison
+    coaching_assessment: ReplayCoachingDecisionAssessment
+
+
 def _serialize_requested_budget(budget: RequestedSearchBudget) -> dict[str, Any]:
     return {
         "max_remaining_tricks": budget.max_remaining_tricks,
@@ -146,14 +182,14 @@ def _decision_identity(snapshot: HistoricalDecisionSnapshot) -> dict[str, Any]:
     return result
 
 
-def build_historical_search_decision_review(
+def build_historical_search_decision_pre_actual_analysis(
     snapshot: HistoricalDecisionSnapshot,
     historical_record: HistoricalGameRecord,
     settings: HistoricalSearchReviewSettings,
     *,
     stable_game_identity: str | None = None,
-) -> dict[str, Any]:
-    """Evaluates one safe snapshot before introducing its observed card."""
+) -> HistoricalSearchDecisionPreActualAnalysis:
+    """Runs Search and Immediate once without reading the observed card."""
     if not isinstance(settings, HistoricalSearchReviewSettings):
         raise ValueError("settings must be HistoricalSearchReviewSettings.")
     if snapshot.play_index not in (1, 2, 3):
@@ -198,40 +234,134 @@ def build_historical_search_decision_review(
     if len(recommended_rows) != 1 or recommended_rows[0]["card"] != immediate_card:
         raise ValueError("Immediate recommendation and analysis report are inconsistent.")
 
-    # The observed card is deliberately introduced only after both analyses finish.
-    actual_card = snapshot.actual_card_played
-    actual_comparison = build_search_actual_card_comparison(search_result, actual_card)
-    immediate_comparison = build_search_vs_immediate_comparison(
+    search_vs_immediate_comparison = build_search_vs_immediate_comparison(
         search_result,
         immediate_card,
         immediate_report,
         position.state.game_type,
         position.state.player_role,
     )
+    immediate_evidence = build_immediate_replay_coaching_evidence(
+        legal_cards=position.legal_cards,
+        analysis_report=immediate_report,
+        recommended_card=immediate_card,
+        unavailable_reason=None,
+        game_type=position.state.game_type,
+        player_role=position.state.player_role,
+        objective_values=immediate_values,
+    )
+    decision_time_evidence = build_decision_time_replay_coaching_evidence(
+        source_game_id=snapshot.source_game_id,
+        decision_index=snapshot.decision_index,
+        trick_number=snapshot.trick_number,
+        play_index=snapshot.play_index,
+        acting_player_id=snapshot.acting_player_id,
+        acting_seat=snapshot.acting_seat,
+        local_side=information_view.local_side,
+        game_type=information_view.game_type,
+        legal_cards=position.legal_cards,
+        immediate_evidence=immediate_evidence,
+        bounded_search_result=search_result,
+        search_vs_immediate_comparison=search_vs_immediate_comparison,
+    )
+    return HistoricalSearchDecisionPreActualAnalysis(
+        position=position,
+        remaining_tricks=get_remaining_search_trick_count(information_view),
+        effective_immediate_seed=effective_immediate_seed,
+        immediate_card=immediate_card,
+        immediate_reason=immediate_reason,
+        immediate_report=tuple(MappingProxyType(dict(row)) for row in immediate_report),
+        decision_time_evidence=decision_time_evidence,
+    )
+
+
+def attach_historical_search_decision_retrospective_assessment(
+    snapshot: HistoricalDecisionSnapshot,
+    analysis: HistoricalSearchDecisionPreActualAnalysis,
+) -> HistoricalSearchDecisionRetrospectiveAttachment:
+    """Attaches the observed card to completed decision-time analyses."""
+    if snapshot.source_game_id != analysis.decision_time_evidence.source_game_id:
+        raise ValueError("Historical retrospective attachment game IDs do not match.")
+    if snapshot.decision_index != analysis.decision_time_evidence.decision_index:
+        raise ValueError("Historical retrospective attachment decisions do not match.")
+
+    actual_card = snapshot.actual_card_played
+    actual_comparison = build_search_actual_card_comparison(
+        analysis.decision_time_evidence.bounded_search_result,
+        actual_card,
+    )
+    immediate_report = [dict(row) for row in analysis.immediate_report]
+    game_value = (
+        get_null_game_value(analysis.position.game_declaration)
+        if analysis.position.state.game_type == "null"
+        else None
+    )
+    immediate_review = build_post_game_review_summary(
+        actual_card_played=actual_card,
+        analysis_report=immediate_report,
+        game_type=analysis.position.state.game_type,
+        player_role=analysis.position.state.player_role,
+        game_value=game_value,
+    )
+    coaching_assessment = build_replay_coaching_decision_assessment(
+        decision_time_evidence=analysis.decision_time_evidence,
+        actual_card=actual_card,
+        search_actual_card_comparison=actual_comparison,
+        immediate_baseline_quality=immediate_review["decision_quality"],
+    )
+    return HistoricalSearchDecisionRetrospectiveAttachment(
+        search_actual_card_comparison=actual_comparison,
+        coaching_assessment=coaching_assessment,
+    )
+
+
+def build_historical_search_decision_review(
+    snapshot: HistoricalDecisionSnapshot,
+    historical_record: HistoricalGameRecord,
+    settings: HistoricalSearchReviewSettings,
+    *,
+    stable_game_identity: str | None = None,
+) -> dict[str, Any]:
+    """Builds the unchanged review row after internal coaching attachment."""
+    analysis = build_historical_search_decision_pre_actual_analysis(
+        snapshot,
+        historical_record,
+        settings,
+        stable_game_identity=stable_game_identity,
+    )
+    attachment = attach_historical_search_decision_retrospective_assessment(
+        snapshot,
+        analysis,
+    )
+    evidence = analysis.decision_time_evidence
     return {
         **_decision_identity(snapshot),
-        "game_type": information_view.game_type,
-        "local_side": information_view.local_side,
+        "game_type": evidence.game_type,
+        "local_side": evidence.local_side,
         "root_seat": ROOT_SEATS[snapshot.play_index - 1],
-        "remaining_tricks": get_remaining_search_trick_count(information_view),
-        "actual_card": actual_card,
+        "remaining_tricks": analysis.remaining_tricks,
+        "actual_card": snapshot.actual_card_played,
         "immediate_baseline": {
-            "effective_random_seed": effective_immediate_seed,
-            "legal_cards": list(position.legal_cards),
+            "effective_random_seed": analysis.effective_immediate_seed,
+            "legal_cards": list(analysis.position.legal_cards),
             "recommendation": {
-                "card": immediate_card,
-                "reason": immediate_reason,
+                "card": analysis.immediate_card,
+                "reason": analysis.immediate_reason,
             },
-            "analysis_report": immediate_report,
+            "analysis_report": [dict(row) for row in analysis.immediate_report],
         },
         "bounded_search_result": build_serializable_bounded_search_result(
-            search_result
+            evidence.bounded_search_result
         ),
         "search_actual_card_comparison": (
-            build_serializable_search_actual_card_comparison(actual_comparison)
+            build_serializable_search_actual_card_comparison(
+                attachment.search_actual_card_comparison
+            )
         ),
         "search_vs_immediate_comparison": (
-            build_serializable_search_vs_immediate_comparison(immediate_comparison)
+            build_serializable_search_vs_immediate_comparison(
+                evidence.search_vs_immediate_comparison
+            )
         ),
     }
 

@@ -281,6 +281,14 @@ def test_single_decision_runs_both_analyses_before_observed_comparisons(
         events.append("immediate")
         return _fake_immediate(**kwargs)
 
+    def coaching_evidence(**kwargs):
+        events.append("coaching_evidence")
+        from skat_ai.replay_coaching_evidence import (
+            build_decision_time_replay_coaching_evidence,
+        )
+
+        return build_decision_time_replay_coaching_evidence(**kwargs)
+
     def actual_comparison(result, actual_card):
         events.append(("actual", actual_card))
         from skat_ai.retrospective_search_comparison import (
@@ -289,14 +297,30 @@ def test_single_decision_runs_both_analyses_before_observed_comparisons(
 
         return build_search_actual_card_comparison(result, actual_card)
 
+    def coaching_assessment(**kwargs):
+        events.append(("coaching_assessment", kwargs["actual_card"]))
+        from skat_ai.replay_coaching_assessment import (
+            build_replay_coaching_decision_assessment,
+        )
+
+        return build_replay_coaching_decision_assessment(**kwargs)
+
     monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
         "skat_ai.historical_search_review.recommend_card_by_expected_value",
         immediate,
     )
     monkeypatch.setattr(
+        "skat_ai.historical_search_review.build_decision_time_replay_coaching_evidence",
+        coaching_evidence,
+    )
+    monkeypatch.setattr(
         "skat_ai.historical_search_review.build_search_actual_card_comparison",
         actual_comparison,
+    )
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.build_replay_coaching_decision_assessment",
+        coaching_assessment,
     )
     decision = build_historical_search_decision_review(
         snapshots.snapshots[0],
@@ -304,8 +328,13 @@ def test_single_decision_runs_both_analyses_before_observed_comparisons(
         HistoricalSearchReviewSettings(17, immediate_base_random_seed=30),
     )
 
-    assert events[:2] == ["search", "immediate"]
-    assert events[2] == ("actual", snapshots.snapshots[0].actual_card_played)
+    assert events == [
+        "search",
+        "immediate",
+        "coaching_evidence",
+        ("actual", snapshots.snapshots[0].actual_card_played),
+        ("coaching_assessment", snapshots.snapshots[0].actual_card_played),
+    ]
     assert decision["root_seat"] == "lead"
     assert decision["immediate_baseline"]["effective_random_seed"] == 30
     assert decision["actual_card"] == snapshots.snapshots[0].actual_card_played
