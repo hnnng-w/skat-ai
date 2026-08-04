@@ -4,12 +4,16 @@
 
 `src/skat_ai/replay_coaching_evidence.py`,
 `src/skat_ai/replay_coaching_assessment.py`, and the focused prioritization
-modules define internal Replay Coaching contracts:
+and guidance modules define internal Replay Coaching contracts:
 
 ```text
 REPLAY_COACHING_CONTRACT_VERSION = 1
 REPLAY_COACHING_PRIORITIZATION_VERSION = 1
 MAX_REPLAY_COACHING_KEY_DECISIONS = 5
+REPLAY_COACHING_GUIDANCE_VERSION = 1
+MIN_REPLAY_COACHING_PATTERN_OCCURRENCES = 2
+MAX_REPLAY_COACHING_DECISION_RECOMMENDATIONS = 5
+MAX_REPLAY_COACHING_PATTERN_RECOMMENDATIONS = 5
 ```
 
 The contracts are frozen dataclasses with immutable tuples and deterministic
@@ -19,13 +23,13 @@ Historical Review and Historical Search Review output remains unchanged.
 
 The assessment contract defines evidence and impact semantics for one historical
 card decision. Prioritization version 1 adds deterministic game-level Key
-Decisions, Turning Points, and high-impact classification. It does not implement
-patterns, advice, recommendations, tactical detectors, or a complete Coaching
-Report.
+Decisions, Turning Points, and high-impact classification. Guidance version 1
+adds one-game repeated patterns and fixed-template actionable recommendations.
+It does not implement tactical detectors or a complete public Coaching Report.
 
-The prioritization version, maximum, eligibility, ranking, Turning Point, and
-high-impact rules are `skat-ai` product conventions. They are not official Skat
-rule classifications.
+The version numbers, maxima, eligibility, ranking, recurrence, scope, pattern,
+Turning Point, high-impact, and template rules are `skat-ai` product
+conventions. They are not official Skat rule classifications.
 
 ## Information policy
 
@@ -373,12 +377,191 @@ transposition state, principal variations, final settlement, or causal free
 text. No schema, CLI, example, generated scenario, or stable package-root API is
 added.
 
+## Guidance input and one-game boundary
+
+Guidance consumes exactly one validated `HistoricalGameRecord`, its complete
+chronological assessment tuple, and the deterministic prioritization built from
+that same tuple. Construction compares the expected prioritization and never
+reruns Search or Immediate Analysis.
+
+Version 1 describes recurrence only within that one recorded game. A player-
+scoped pattern is not a cross-game statistic, permanent trait, skill score,
+profile, player comparison, or ranking.
+
+## Pattern scopes and recurrence
+
+Every assessment contributes once to each canonical scope:
+
+1. `player`, using the acting player ID and fixed seat order;
+2. `role`, ordered `declarer`, then `defenders`;
+3. `phase`, ordered `opening`, `middle`, then `endgame`;
+4. `contract`, using `clubs`, `spades`, `hearts`, `diamonds`, `grand`, or
+   `null`.
+
+A pattern requires at least two distinct occurrence decisions. The threshold
+applies equally to every scope and type. It is a versioned product rule, not a
+statistical-significance test; no p-value, confidence interval, or calibrated
+recurrence probability is calculated.
+
+Pattern types and exact occurrence predicates are:
+
+1. `repeated_lower_contract_success`: `strictly_below_best` with
+   `contract_success` impact;
+2. `repeated_lower_settlement_score`: `strictly_below_best` with
+   `settlement_score` impact;
+3. `repeated_lower_card_point_margin`: `strictly_below_best` with
+   `card_point_margin` impact; Null is excluded;
+4. `repeated_immediate_only_gap`: `strictly_below_best` with `immediate_only`
+   impact;
+5. `repeated_search_immediate_divergence`: an available existing comparison
+   with different Search and Immediate recommended cards;
+6. `repeated_aggregate_equivalent_choice`: `best_or_equivalent`, aggregate
+   equivalence, and an observed card different from the canonical best card;
+7. `repeated_forced_move`: `forced_move`;
+8. `repeated_search_unavailable`: the existing `search_unavailable` factor.
+
+The first five are actionable review patterns. Aggregate-equivalent choices,
+forced moves, and Search unavailability are descriptive only and never produce
+an improvement recommendation.
+
+Patterns retain reconciled scope and occurrence counts, ascending unique
+decision indices, Key-Decision subsets, unique high-impact counts, canonical
+evidence-basis and impact-tier count tuples, one type factor, one scope factor,
+and canonical limitations. Every pattern states the one-game boundary, minimum-
+occurrence rule, observed-card boundary, no tactical-motif inference, and no
+causal outcome claim. Existing Search, sampled, completed-prefix, Immediate-
+only, and unavailable limitations are preserved. Exhaustive compatible-world
+evidence still retains the Strategy Fusion limitation.
+
+All patterns remain undeduplicated and sort by pattern type, scope, canonical
+scope value, occurrence count descending, and first decision index. This is
+deterministic composition order, not a player ranking.
+
+## Decision recommendations
+
+Exactly one decision recommendation is built for every existing Key Decision,
+retaining its rank:
+
+* `contract_success_gap` maps to `prioritize_contract_success`;
+* `settlement_score_gap` maps to `prefer_higher_settlement_score`;
+* `card_point_margin_gap` maps to `prefer_higher_card_point_margin`;
+* `immediate_only_gap` maps to `review_immediate_alternative`.
+
+Fixed English templates name only the existing observed card, best evaluated
+card, and objective-aligned gap. Contract-success advice places Contract success
+before settlement score and margin. Settlement advice follows Contract success
+and precedes margin. Suit/Grand margin is explicitly tertiary. Immediate-only
+advice states that it is one-trick evidence and not multi-trick Contract-success
+evidence.
+
+Decision actions are fixed as follows:
+
+```text
+Consider Contract success before settlement score or card-point margin when
+comparing the evaluated cards.
+
+Compare settlement score after Contract success and before card-point margin.
+
+Use card-point margin as a tertiary objective.
+
+Review this as one-trick Immediate evidence, not as multi-trick Contract-success
+evidence.
+```
+
+For Null, the Contract-success action omits margin entirely and is fixed as:
+
+```text
+Consider Contract success before settlement score when comparing the evaluated
+cards.
+```
+
+For Null, the settlement-score action also omits margin and is fixed as:
+
+```text
+Compare settlement score after Contract success.
+```
+
+Null cannot receive margin advice. Null Contract-success explanations include:
+
+```text
+For Null, the relevant contract objective is whether the declarer remains
+without a trick; card points are not a Search objective.
+```
+
+## Pattern recommendations
+
+The five actionable pattern types map directly to:
+
+* `review_repeated_contract_success_gaps`;
+* `review_repeated_settlement_score_gaps`;
+* `review_repeated_card_point_margin_gaps`;
+* `review_repeated_immediate_only_gaps`;
+* `review_search_immediate_divergence`.
+
+Candidates rank by actionable type, high-impact count descending, occurrence
+count descending, scope, first decision, and canonical scope value. Candidates
+with the same recommendation type and decision-index tuple are duplicates; only
+the earlier-ranked scope is retained. At most five recommendations remain and
+receive contiguous one-based ranks. The complete pattern list is not
+deduplicated.
+
+The fixed actions preserve the objective order. Immediate-only patterns retain
+their one-trick limitation. Search-versus-Immediate divergence is explicitly a
+review focus, not a player error. Pattern wording states the scope, occurrence
+count, and decisions without describing statistical significance or a permanent
+player trait.
+
+Pattern actions are fixed as follows:
+
+```text
+Review these decisions together and prioritize contract preservation before
+lower-order objectives.
+
+When Contract-success results are equivalent, compare mean local-side
+settlement score before card-point margin.
+
+Use card-point margin only after Contract success and settlement score are
+equivalent.
+
+Review the listed one-trick alternatives while keeping the Immediate-only
+evidence limitation explicit.
+
+Review these positions as bounded multi-trick evidence versus one-trick
+Immediate evidence; the divergence itself is not a player error.
+```
+
+For a Null settlement-score pattern, the corresponding action omits margin:
+
+```text
+When Contract-success results are equivalent, compare mean local-side settlement
+score.
+```
+
+## Guidance limitations and serialization
+
+Every recommendation is non-tactical and non-causal. Decision recommendations
+inherit relevant assessment limitations; pattern recommendations inherit their
+pattern limitations. Guidance makes no psychological, intentional, skill,
+perfect-play, optimal hidden-information, statistical-significance, or actual-
+outcome claim.
+
+The immutable guidance result reconciles source identity, assessment
+cardinality, prioritization, pattern counts, actionability, exact Key-Decision
+alignment, recommendation counts, ranks, limits, ordering, and deduplication.
+Zero-decision and zero-pattern games are valid.
+
+Internal serializers reuse assessment and prioritization serializers. They emit
+no private hands, final Skat, selected worlds, ownership assignments, Search
+seeds, transposition state, principal variations, or final settlement as advice
+evidence. A narrow Historical Search Review helper retains the unchanged public
+summary, assessments, prioritization, and guidance from one execution. Existing
+public builders, schemas, CLI output, examples, and generated outputs remain
+unchanged.
+
 ## Remaining Replay Coaching work
 
 Replay Coaching remains incomplete. Still missing are:
 
-* cross-decision pattern aggregation;
-* actionable coaching recommendations and explanations;
 * tactical detectors;
 * complete-game Coaching Report orchestration and presentation;
 * public schemas, CLI output, examples, and generated-output coverage for such a

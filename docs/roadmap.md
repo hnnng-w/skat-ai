@@ -202,6 +202,10 @@ Implemented:
 * Flat and Historical Search review with independent Immediate baselines and strict aggregate comparison output
 * Internal Replay Coaching contract version 1 with separate decision-time evidence and retrospective actual-card assessment, deterministic Search-first evidence priority, stable impact tiers/factors/limitations, and unchanged public review output
 * Internal Replay Coaching prioritization version 1 with at most five deterministic Key Decisions, separate decision-opportunity and recorded-outcome Turning Points, complete-normal Null fallback, threshold-free high impact, and no causal claim or public output
+* Internal Replay Coaching guidance version 1 with two-occurrence one-game
+  patterns by player, role, phase, and contract; separate actionable and
+  descriptive patterns; one fixed-template recommendation per Key Decision; and
+  at most five ranked, evidence-deduplicated actionable pattern recommendations
 
 ### Training and evaluation data
 
@@ -284,10 +288,10 @@ Implemented:
   profiles. Search remains bounded late-game determinization, sampled quality is
   not calibrated, and measured performance provides no latency guarantee.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
-* Replay Coaching now has internal version-1 evidence, impact, Key Decision,
-  Turning Point, and high-impact prioritization contracts, but cross-decision
-  patterns, advice, recommendations, tactical detectors, public report output,
-  and a complete coaching workflow remain unimplemented.
+* Replay Coaching now has internal version-1 evidence, impact, prioritization,
+  one-game cross-decision patterns, and deterministic actionable recommendation
+  contracts. Tactical detectors, cross-game player analysis, public schema/CLI/
+  report output, and a complete coaching workflow remain unimplemented.
 
 ### Performance rating
 
@@ -452,9 +456,12 @@ foundation for that milestone.
 Issue #120 establishes the information-safe Replay Coaching evidence and impact
 contracts without adding a public report, schema, CLI field, or causal outcome
 claim. Full Replay Coaching remains open.
-Issue #121 adds deterministic game-level Key Decisions and Turning Points without
-adding patterns, advice, a public report, or causal attribution. Full Replay
-Coaching remains open.
+Issue #121 added deterministic game-level Key Decisions and Turning Points while
+leaving patterns and advice to Issue #122. It added no public report or causal
+attribution. Full Replay Coaching remains open.
+Issue #122 adds deterministic one-game pattern aggregation and actionable
+guidance without tactical motif inference, player ratings, causal attribution,
+or public report output. Full Replay Coaching remains open.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

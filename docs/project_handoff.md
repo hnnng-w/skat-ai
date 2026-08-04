@@ -33,6 +33,7 @@ The project focuses on:
 * immutable version-1 normative settlement and approved claim-boundary matrix
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * internal version-1 deterministic Replay Coaching Key Decisions and Turning Points
+* internal version-1 one-game Replay Coaching patterns and actionable recommendations
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -457,11 +458,20 @@ Implemented as an internal `v0.11.0` foundation:
   a ten-trick Null declarer win without a declarer trick
 * threshold-free high-impact classification, stable factors and limitations,
   strict game-level reconciliation, and deterministic internal serialization
+* one-game player, role, phase, and contract patterns requiring two occurrences
+* separate actionable and descriptive pattern contracts with canonical counts,
+  ordering, factors, limitations, and deterministic serialization
+* one fixed-template recommendation per Key Decision and at most five ranked,
+  evidence-deduplicated actionable pattern recommendations
+* explicit Contract-success, settlement-score, Suit/Grand-margin, Null, Immediate-
+  only, and Search-versus-Immediate wording boundaries
+* one retained internal guidance result from the same Historical Search Review
+  execution without additional Search or Immediate calls
 
 The observed card is not ground truth, no causal final-outcome claim is made,
 and exhaustive compatible-world aggregation remains subject to Strategy Fusion.
-Patterns, recommendations, tactical detectors, public report output, and a
-complete Coaching Report remain unimplemented. See
+Tactical detectors, public report output, and a complete Coaching Report remain
+unimplemented. See
 [Replay coaching contracts](replay_coaching_contracts.md).
 
 ### CLI and workflow usability
@@ -579,6 +589,9 @@ Implemented:
 * `historical_search_review.py`
 * `replay_coaching_evidence.py`
 * `replay_coaching_assessment.py`
+* `replay_coaching_patterns.py`
+* `replay_coaching_recommendations.py`
+* `replay_coaching_guidance.py`
 * `bounded_search_evaluation.py`
 * `search_budget_profiles.py`
 * `recommendation_workflow.py`
@@ -813,9 +826,10 @@ Completed implementation scope:
   Review, and bounded dataset evaluation are connected. Overbid Null replacement
   selection remains outside it.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
-* Replay Coaching has version-1 internal evidence, impact, Key Decision, Turning
-  Point, and high-impact prioritization contracts, but no cross-decision patterns,
-  recommendations, advice, public report, or complete coaching workflow.
+* Replay Coaching has version-1 internal evidence, impact, prioritization,
+  one-game pattern, and actionable-recommendation contracts. Tactical motif
+  detection, cross-game patterns, public schema/CLI/report output, and the
+  complete coaching workflow remain unimplemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
@@ -830,8 +844,11 @@ Replay Coaching and remaining approved gaps continue as focused follow-up work.
 Issue #118 establishes this matrix as the first `v0.11.0` contract foundation.
 Issue #120 adds the separate information-safe Replay Coaching evidence and impact
 contract foundation while leaving full Replay Coaching incomplete.
-Issue #121 adds internal deterministic Key Decisions and Turning Points while
-leaving patterns, advice, and public Coaching Report output open.
+Issue #121 added internal deterministic Key Decisions and Turning Points while
+leaving patterns and advice to Issue #122 and public Coaching Report output open.
+Issue #122 adds internal one-game player, role, phase, and contract patterns plus
+deterministic decision and pattern recommendations while leaving tactical motifs
+and public Coaching Report composition open.
 
 ## Open future topics
 

@@ -1,7 +1,7 @@
 import hashlib
 import math
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import InitVar, dataclass
 from types import MappingProxyType
 from typing import Any
 
@@ -38,6 +38,15 @@ from skat_ai.replay_coaching_evidence import (
     DecisionTimeReplayCoachingEvidence,
     build_decision_time_replay_coaching_evidence,
     build_immediate_replay_coaching_evidence,
+)
+from skat_ai.replay_coaching_guidance import (
+    ReplayCoachingGuidanceResult,
+    build_replay_coaching_guidance,
+)
+from skat_ai.replay_coaching_prioritization import (
+    ReplayCoachingPrioritizationResult,
+    build_replay_coaching_prioritization_result,
+    validate_replay_coaching_assessment_sequence,
 )
 from skat_ai.retrospective_search_comparison import (
     SearchActualCardComparison,
@@ -199,6 +208,66 @@ class HistoricalSearchReviewInternalResult:
             self.assessments
         ):
             raise ValueError("Public decisions and coaching assessments must reconcile.")
+        object.__setattr__(
+            self,
+            "public_review_summary",
+            _freeze_json_value(dict(self.public_review_summary)),
+        )
+        object.__setattr__(self, "assessments", tuple(self.assessments))
+
+
+@dataclass(frozen=True)
+class HistoricalSearchReviewCoachingAnalysis:
+    """One retained Search Review, prioritization, and internal guidance result."""
+
+    public_review_summary: Mapping[str, Any]
+    assessments: tuple[ReplayCoachingDecisionAssessment, ...]
+    prioritization: ReplayCoachingPrioritizationResult
+    guidance: ReplayCoachingGuidanceResult
+    historical_record: InitVar[HistoricalGameRecord]
+
+    def __post_init__(self, historical_record: HistoricalGameRecord) -> None:
+        if not isinstance(self.public_review_summary, Mapping):
+            raise ValueError("public_review_summary must be a mapping.")
+        validate_replay_coaching_assessment_sequence(
+            historical_record, self.assessments
+        )
+        if not isinstance(self.prioritization, ReplayCoachingPrioritizationResult):
+            raise ValueError("prioritization has the wrong type.")
+        if not isinstance(self.guidance, ReplayCoachingGuidanceResult):
+            raise ValueError("guidance has the wrong type.")
+        expected_prioritization = build_replay_coaching_prioritization_result(
+            historical_record, self.assessments
+        )
+        expected_guidance = build_replay_coaching_guidance(
+            historical_record,
+            self.assessments,
+            expected_prioritization,
+        )
+        if (
+            self.prioritization != expected_prioritization
+            or self.guidance != expected_guidance
+        ):
+            raise ValueError("Historical Search Review coaching artifacts do not reconcile.")
+        decisions = self.public_review_summary.get("decisions")
+        if (
+            self.public_review_summary.get("source_game_id")
+            != historical_record.game_id
+            or not isinstance(decisions, (list, tuple))
+            or len(decisions) != len(self.assessments)
+        ):
+            raise ValueError("Public review summary does not match coaching artifacts.")
+        for decision, assessment in zip(decisions, self.assessments, strict=True):
+            evidence = assessment.decision_time_evidence
+            if (
+                not isinstance(decision, Mapping)
+                or decision.get("decision_index") != evidence.decision_index
+                or decision.get("actual_card") != assessment.actual_card
+                or decision.get("acting_player_id") != evidence.acting_player_id
+            ):
+                raise ValueError(
+                    "Public review decisions do not match coaching assessments."
+                )
         object.__setattr__(
             self,
             "public_review_summary",
@@ -775,3 +844,37 @@ def build_historical_search_review_summary(
         immediate_base_random_seed,
     )
     return _thaw_json_value(result.public_review_summary)
+
+
+def build_historical_search_review_coaching_analysis(
+    snapshot_summary: HistoricalDecisionSnapshotSummary,
+    historical_record: HistoricalGameRecord,
+    base_search_seed: int,
+    search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
+    immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
+    immediate_base_random_seed: int | None = None,
+) -> HistoricalSearchReviewCoachingAnalysis:
+    """Retains internal coaching artifacts from exactly one Search Review pass."""
+    review = build_historical_search_review_internal_result(
+        snapshot_summary,
+        historical_record,
+        base_search_seed,
+        search_budget_profile,
+        immediate_sample_count,
+        immediate_base_random_seed,
+    )
+    prioritization = build_replay_coaching_prioritization_result(
+        historical_record, review.assessments
+    )
+    guidance = build_replay_coaching_guidance(
+        historical_record,
+        review.assessments,
+        prioritization,
+    )
+    return HistoricalSearchReviewCoachingAnalysis(
+        public_review_summary=review.public_review_summary,
+        assessments=review.assessments,
+        prioritization=prioritization,
+        guidance=guidance,
+        historical_record=historical_record,
+    )
