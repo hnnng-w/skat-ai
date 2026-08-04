@@ -1,5 +1,70 @@
 # Changelog
 
+## v0.11.0
+
+**Release theme: Information-safe Replay Coaching and structured historical outcomes**
+
+### Normative settlement and historical event chains
+
+* Add the immutable 61-case normative settlement matrix, classifying direct,
+  bounded, compatibility-only legacy, undecided, and excluded scope without
+  changing adjudication or settlement behavior (Issue #118).
+* Document the current structured endings, bounded defender-open-play proof,
+  jack-only open-card-throw exclusion, decision-required future claims, and the
+  explicitly incomplete general claim, concession, and settlement boundary.
+* Support one timed non-terminal historical continuation followed by normal
+  completion or one supported terminal shortening, with unchanged terminal
+  adjudicators and settlement semantics (Issue #119).
+
+### Replay Coaching evidence and prioritization
+
+* Build decision-time evidence before attaching the observed card, retain the
+  observed card only as retrospective evidence rather than ground truth, and use
+  Search-first Contract-success, settlement-score, then Suit/Grand-margin impact
+  ordering with an explicit Immediate-only boundary (Issue #120).
+* Treat forced and aggregate-equivalent decisions as non-errors. Add at most five
+  deterministic Key Decisions plus separate decision-opportunity and recorded-
+  outcome Turning Points without single-card causality claims (Issue #121).
+
+### Patterns and actionable recommendations
+
+* Add one-game player, role, phase, and contract patterns under a two-occurrence
+  convention, separating actionable from descriptive patterns (Issue #122).
+* Add deterministic objective-aware decision and pattern recommendations without
+  tactical, psychological, skill, statistical-significance, causal, or
+  generative-text claims (Issue #122).
+
+### Complete report and public workflow
+
+* Compose the complete internal one-game report from retained assessment,
+  prioritization, and guidance artifacts, then attach isolated Outcome Context
+  with non-ranking player, role, phase, and contract summaries (Issue #123).
+* Expose the opt-in `--historical-replay-coaching` historical-game workflow under
+  `historical_replay_coaching_summary`, validated by
+  `historical_replay_coaching.schema.json` (Issue #124).
+* Reuse `--search-seed`, `--search-budget-profile`, `--samples`, and `--seed`;
+  support Coaching-only output or one-pass combination with Historical Search
+  Review; preserve full JSON, concise CLI, and quiet-mode behavior (Issue #124).
+
+### Information safety, determinism, and compatibility
+
+* Keep final outcome context outside decision-time evidence: it describes how
+  the recorded game ended and does not change Coaching classification.
+* Recursively exclude hands, final hidden ownership, Skat identities, discards,
+  compatible-world identities and contents, private Search states, derived
+  seeds, caches, branches, principal variations, ratings, and rankings from
+  public Coaching output.
+* Preserve all schema, Search, Replay Coaching, normative-matrix, historical,
+  budget-profile, and dataset versions. Existing workflows remain unchanged when
+  Replay Coaching is omitted.
+
+### Validation
+
+* Validate 64 deterministic generated-output scenarios, including three public
+  Replay Coaching scenarios and two continuation-before-shortening scenarios.
+* Pass the complete pytest suite together with Ruff, input/example schema
+  validation, and generated-output schema validation on Python 3.13.
+
 ## v0.10.0
 
 **Release theme: Information-safe bounded Search across compatible worlds**

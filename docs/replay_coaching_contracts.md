@@ -234,6 +234,12 @@ Likewise, exhaustive compatible-world coverage does not remove Strategy Fusion:
 each determinized world can select a world-specific continuation. The aggregate
 therefore does not prove an optimal imperfect-information policy.
 
+Search is bounded late-game solving with at most five remaining tricks. Sampled
+compatible-world evidence is not calibrated probability. Wall-clock behavior and
+timeout activation are machine-dependent and provide no latency guarantee.
+Overbid-Null replacement selection remains outside normal Search. No
+information-set Search or complete-contract Search is implemented.
+
 ## Validation and serialization
 
 Construction validates contract version, decision chronology, trick phase,
@@ -317,7 +323,7 @@ A decision-opportunity Turning Point requires `strictly_below_best`,
 rate gap. Settlement-only, margin-only, Immediate-only, forced,
 aggregate-equivalent, and not-assessable decisions cannot create one. It is a
 counterfactual aggregate opportunity, not a causal statement about the recorded
-result.
+result, and it does not guarantee that the alternative wins the actual deal.
 
 A recorded-outcome Turning Point is the first actual card-play-prefix transition
 from `undecided` to `declarer_already_won` or `defenders_already_won`. The
@@ -427,7 +433,8 @@ Pattern types and exact occurrence predicates are:
 
 The first five are actionable review patterns. Aggregate-equivalent choices,
 forced moves, and Search unavailability are descriptive only and never produce
-an improvement recommendation.
+an improvement recommendation. Search unavailability is not evidence of poor
+play.
 
 Patterns retain reconciled scope and occurrence counts, ascending unique
 decision indices, Key-Decision subsets, unique high-impact counts, canonical
@@ -682,7 +689,9 @@ backward-compatible and emits no new field.
 
 ## Remaining Replay Coaching work
 
-Replay Coaching remains incomplete. Still missing are:
+The public information-safe version-1 one-game Replay Coaching workflow is
+functionally complete for `v0.11.0`. Broader Replay Coaching work still missing
+is:
 
 * tactical and contract-specific motif detectors;
 * cross-game pattern and player development analysis;
@@ -690,6 +699,6 @@ Replay Coaching remains incomplete. Still missing are:
 * broader Search, information-set policy solving, and Strategy Fusion correction.
 
 These components require separate focused contracts and tests. Contract version
-1, prioritization version 1, guidance version 1, and report version 1 form the
-information-safe public one-game workflow without closing broader Replay
-Coaching scope.
+1, prioritization version 1, guidance version 1, and report version 1 do not
+claim tactical understanding, causality, player rating, generative text, perfect
+play, or complete broader Replay Coaching scope.

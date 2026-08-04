@@ -132,21 +132,24 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current published stable release is `v0.10.0`. Its latest GitHub Release
-title is "v0.10.0 — Information-safe bounded Search across compatible worlds".
-Its theme is "Information-safe bounded Search across compatible worlds."
-The release commit is `b4c8738`, the package version is `0.10.0`, and the Python
-requirement is `>=3.13`.
+The current package baseline is `v0.11.0`, with release theme "Information-safe
+Replay Coaching and structured historical outcomes" and intended GitHub Release
+title "v0.11.0 — Information-safe Replay Coaching and structured historical
+outcomes". The Python requirement remains `>=3.13`.
 
-Generated-output validation currently covers 59 deterministic scenarios.
-The complete pytest suite contains 4,075 tests.
+The current published stable release remains `v0.10.0`. Its latest GitHub
+Release title is "v0.10.0 — Information-safe bounded Search across compatible
+worlds", points to commit `b4c8738`, validates 59 deterministic scenarios, and
+passes 4,075 pytest tests. GitHub Releases remains authoritative for publication
+status; `v0.11.0` publication is a manual maintainer action.
 
-Issues #107 through #115 complete the functional `v0.10.0` milestone, and Issue
-#116 completed release preparation. Publication was performed manually by the
-maintainer, and GitHub Releases remains authoritative for publication status.
+Generated-output validation for the current package baseline covers 64
+deterministic scenarios.
 
-The active next planning milestone is `v0.11.0`, directed at Replay Coaching and
-remaining approved rule/claim/settlement completion.
+Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
+#125 prepares the release candidate. The provisional next planning milestone is
+`v0.12.0`, directed at 36-game list aggregation and automatic dataset
+preparation; its final issue split is not defined.
 
 Major completed areas include:
 
@@ -202,22 +205,25 @@ Major completed areas include:
 * exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, and common-prefix aggregation
 * strict Search, Search-first auto, Multi-Step, Policy Comparison, flat post-game, Historical Search Review, and dataset-evaluation integration
 * immutable Search budget profiles, strict-improvement and convergence fixtures, and measured reference performance
+* immutable 61-case normative settlement matrix and bounded continuation-before-shortening historical chains
+* information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
 defender-open-play proof beyond five unresolved tricks, multiple historical
-events, continuation followed by shortening, historical end reasons beyond the
-supported bounded set, incomplete settlement nuance, incomplete automatic
-dataset preparation, incomplete field-level live provenance, heuristic rule-
-based recommendations and opponent behavior, and structural rather than
-calibrated or tactical hidden-card inference. Search remains bounded late-game
-determinization subject to Strategy Fusion, not an optimal imperfect-information
-policy or complete-contract Search; exact world counts do not identify the real
-deal, sampled ownership is not calibrated probability, measured timings are not
-latency guarantees, and timeout activation is machine-dependent. Overbid Null
-replacement selection, information-set Search, full Replay Coaching,
-fixed-three-player 36-game list aggregation, interactive input/session capture,
-and a stable installed library and CLI interface remain open before `v1.0.0`.
+continuations, historical end reasons beyond the supported bounded set,
+incomplete settlement nuance, incomplete automatic dataset preparation,
+incomplete field-level live provenance, heuristic rule-based recommendations and
+opponent behavior, and structural rather than calibrated or tactical hidden-card
+inference. Search remains bounded late-game determinization subject to Strategy
+Fusion, not an optimal imperfect-information policy or complete-contract Search;
+exact world counts do not identify the real deal, sampled ownership is not
+calibrated probability, measured timings are not latency guarantees, and timeout
+activation is machine-dependent. Overbid Null replacement selection,
+information-set Search, tactical motif detection, cross-game Coaching, causal
+attribution, player ratings, fixed-three-player 36-game list aggregation,
+interactive input/session capture, and a stable installed library and CLI
+interface remain open before `v1.0.0`.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.
 

@@ -1,7 +1,8 @@
 # Game-end handling
 
-This document explains normal completion, structured declarer and defender
-concessions, legacy claim/concession assignment, and impossible Null.
+This document explains normal completion, structured concessions and exposure,
+bounded defender open play, open-card throwing, continuation chains, legacy
+claim/concession assignment, and impossible Null.
 
 ## Purpose
 
@@ -398,3 +399,7 @@ For example:
   specific-trick assertions, unlimited exact solving, and isolated-card claims
   remain unsupported.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.
+* Claims and Final Settlement remain partially supported beyond the approved
+  bounded cases. This document does not claim complete official-rule, claim,
+  concession, or settlement coverage; see the
+  [settlement normative matrix](settlement_normative_matrix.md).

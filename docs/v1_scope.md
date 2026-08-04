@@ -4,13 +4,14 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable release and package baseline are `v0.10.0`.
-`v0.10.0` is the latest GitHub Release, and GitHub Releases is authoritative for
-publication status. It validates 59 deterministic generated-output scenarios and
-4,075 pytest tests. The active next planning milestone is `v0.11.0`, directed at
-Replay Coaching and remaining approved rule/claim/settlement completion.
-Issue #118 establishes normative settlement matrix version 1 as the first
-contract foundation for `v0.11.0` without changing the published baseline.
+The current package baseline is `v0.11.0` and validates 64 deterministic
+generated-output scenarios. The current published stable release remains
+`v0.10.0`, which is the latest GitHub Release and remains historical evidence for
+59 scenarios and 4,075 pytest tests. GitHub Releases is authoritative for
+publication status. Issues #118 through #124 complete the functional `v0.11.0`
+milestone, and Issue #125 prepares its release candidate. The provisional next
+planning milestone is `v0.12.0`, directed at 36-game list aggregation and
+automatic dataset preparation; its final issue split is not defined.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,

@@ -24,10 +24,10 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-At the published stable `v0.10.0` baseline, the check covers 59 deterministic
-generated-output scenarios and 4,075 pytest tests. The historical published
-`v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest tests. The
-current development matrix covers 64 deterministic generated-output scenarios.
+The current `v0.11.0` package baseline covers 64 deterministic generated-output
+scenarios. The published stable `v0.10.0` baseline remains historical evidence
+for 59 scenarios and 4,075 pytest tests. The historical published `v0.9.0`
+baseline covers 52 deterministic scenarios and 3,558 pytest tests.
 The check script validates:
 
 * Ruff checks
@@ -196,6 +196,16 @@ Historical Search Review summary from one analysis pass:
 python main.py --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
 python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
 ```
+
+Replay Coaching is an opt-in historical-game workflow. It reuses
+`--search-seed`, `--search-budget-profile`, `--samples`, and `--seed`; combined
+Historical Search Review and Coaching run in one pass. `--output` writes the full
+JSON report, while the default CLI is concise and `--quiet` preserves the normal
+automation behavior. Public output excludes hands, final hidden ownership, Skat
+identities, discards, compatible-world identities and contents, private Search
+states, derived seeds, caches, branches, principal variations, ratings, and
+rankings. Aggregate compatible-world counts and coverage remain public evidence
+metadata.
 
 Exercise Null-specific coaching wording without Suit/Grand card-point-margin
 advice:
@@ -497,6 +507,8 @@ evaluation using the default validation/test partition selection.
 Two Issue #119 scenarios cover defender continuation followed by terminal
 declarer concession and immediate declarer-exposure continuation followed by
 terminal defender concession. The previous 59 scenarios are unchanged.
+Three Issue #124 scenarios then add normal Grand, Null, and shortened Replay
+Coaching, bringing the matrix to 64.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -917,7 +929,9 @@ Generated outputs may include:
 Complete historical and training-dataset inputs instead use the mutually
 exclusive `historical_game_summary` and `training_dataset_summary` branches.
 Historical Search Review is nested under `historical_game_summary`; bounded-
-Search dataset evaluation uses the separate
+Historical Replay Coaching is nested there as
+`historical_replay_coaching_summary`; bounded-Search dataset evaluation uses the
+separate
 `bounded_search_evaluation_summary` branch.
 Training-dataset aggregation instead uses
 `historical_opponent_statistics_aggregation_summary`.

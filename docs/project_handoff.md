@@ -683,7 +683,13 @@ Main documentation files:
 
 Current published stable release: `v0.10.0`.
 
-Current package version: `0.10.0`.
+Current package version: `0.11.0`.
+
+Current package release theme: "Information-safe Replay Coaching and structured
+historical outcomes".
+
+Intended GitHub Release title: "v0.11.0 — Information-safe Replay Coaching and
+structured historical outcomes".
 
 Published release theme: "Information-safe bounded Search across compatible
 worlds."
@@ -693,6 +699,13 @@ The latest GitHub Release points to commit `b4c8738`.
 Issues #107 through #115 complete the functional milestone, and Issue #116
 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
+
+Issues #118 through #124 complete the functional `v0.11.0` package milestone,
+and Issue #125 prepares its release candidate. Publication remains a manual
+maintainer action; `v0.11.0` is not yet the published release.
+
+The current package baseline validates 64 deterministic generated-output
+scenarios.
 
 The published `v0.10.0` baseline validates 59 deterministic generated-output
 scenarios and passes 4,075 pytest tests.
@@ -806,7 +819,7 @@ publication.
 
 ## Current implementation baseline
 
-**v0.10.0: Information-safe bounded Search across compatible worlds**
+**v0.11.0: Information-safe Replay Coaching and structured historical outcomes**
 
 Completed implementation scope:
 
@@ -824,6 +837,13 @@ Completed implementation scope:
 * exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, retained duplicate weighting, and common-prefix aggregation
 * live, Multi-Step, Policy Comparison, post-game, Historical Search Review, and dataset-evaluation integration
 * immutable budget profiles, quality and convergence fixtures, and deterministic measured reference performance
+* immutable 61-case normative settlement matrix with direct, bounded, legacy,
+  undecided, and excluded scope classifications
+* one supported non-terminal continuation before normal completion or one
+  supported terminal shortening, delegated to unchanged terminal adjudicators
+* information-safe one-game Replay Coaching evidence, impact, Key Decisions,
+  both Turning Point types, patterns, deterministic recommendations, complete
+  report, public JSON/schema/CLI, examples, and generated-output coverage
 
 ## Current high-priority limitations
 
@@ -853,25 +873,18 @@ Completed implementation scope:
 
 ## Next recommended action
 
-The active next planning milestone is `v0.11.0`. Settlement and claim work should
-use version 1 of the normative matrix as the implementation boundary, while
-Replay Coaching and remaining approved gaps continue as focused follow-up work.
-Issue #118 establishes this matrix as the first `v0.11.0` contract foundation.
-Issue #120 adds the separate information-safe Replay Coaching evidence and impact
-contract foundation while leaving full Replay Coaching incomplete.
-Issue #121 added internal deterministic Key Decisions and Turning Points while
-leaving patterns and advice to Issue #122 and public Coaching Report output open.
-Issue #122 adds internal one-game player, role, phase, and contract patterns plus
-deterministic decision and pattern recommendations while leaving tactical motifs
-and public Coaching Report presentation open.
-Issue #123 composes the complete privacy-safe internal report from one retained
-coaching analysis, including outcome isolation, coverage, and scope summaries,
-while leaving public presentation, schemas, CLI, examples, and generated output
-open.
-Issue #124 exposes that retained report as the opt-in public Replay Coaching
-workflow with strict schema, CLI presentation, normal/Null/shortened examples,
-and one-pass generated-output coverage while leaving tactical and cross-game
-coaching open.
+Issues #118 through #124 complete the functional `v0.11.0` package milestone.
+They establish the normative settlement boundary and approved historical event
+chain, then deliver the complete information-safe public one-game Replay
+Coaching workflow through JSON, schema, CLI, examples, and generated-output
+coverage. Issue #125 prepares the release candidate; publication remains a
+manual maintainer action.
+
+The provisional next planning milestone is `v0.12.0`, directed at 36-game list
+aggregation and automatic dataset preparation. Its final issue split is not
+defined. Tactical motifs, cross-game Coaching, ratings, causal attribution,
+broader Search, general claims, and settlement completeness remain separate open
+work.
 
 ## Open future topics
 

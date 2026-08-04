@@ -1,9 +1,10 @@
 # Requirements traceability
 
-This document is the authoritative audit of rule and product support in
-`skat-ai`. It records the published `v0.10.0` release baseline and does not claim
-complete compliance with the official rules. `v0.10.0` is the latest GitHub
-Release, and GitHub Releases is authoritative for publication status.
+This document is the authoritative audit of rule and product support in the
+current `v0.11.0` package baseline. It preserves the published `v0.10.0` release
+baseline as historical evidence and does not claim complete compliance with the
+official rules. `v0.10.0` remains the latest GitHub Release, and GitHub Releases
+is authoritative for publication status.
 
 ## Normative sources
 
@@ -24,11 +25,13 @@ SkWO permits three-player tables in section 6.1.1 but does not define a
 software product limited to them.
 
 Rule references below are section numbers from the November 2022 PDF. The audit
-was verified against source modules, schemas, examples, validation scripts, and
-focused tests at the published `v0.10.0` release baseline. Issues #107 through
-#115 complete that functional milestone. The complete check validates 59
-deterministic generated-output scenarios and 4,075 pytest tests. The published
-`v0.9.0` baseline remains historical evidence for 52 scenarios and 3,558 tests.
+reflects the current `v0.11.0` package baseline and was verified against source
+modules, schemas, examples, validation scripts, and focused tests. Issues #118
+through #124 complete that functional milestone. The current generated-output
+matrix validates 64 deterministic scenarios. The published `v0.10.0` baseline
+remains historical evidence for 59 scenarios and 4,075 pytest tests; the
+published `v0.9.0` baseline remains historical evidence for 52 scenarios and
+3,558 tests.
 
 ## Status vocabulary
 
@@ -184,7 +187,7 @@ complete-game retrospective analysis remains `partially_supported`.
 | Rolling opponent-policy evaluation | skat-ai product | Not applicable | `supported` | A dedicated known-opponent workflow builds strict game-start as-of profiles from every supported source reason, evaluates each actual zero-through-30 target card against ordered policy-equivalent preferred candidates and exact choices, retains zero-decision targets, and reports baseline, actionable-only paired, participant coverage, and bounded breakdown metrics. | Timestamped supported source and target games with stable player overlap, disjoint partition names, and unspecified or `known_opponent` dataset intent. | Behavioral matching does not predict terminal events or measure strategic strength, recommendation quality, optimal play, unseen-player generalization, or statistical significance. | Retain temporal/target exclusion, identity and seat remapping, prefix parity, event isolation, participant coverage, baseline, preferred/exact matching, actionable pairing, zero decisions, reconciliation, schema, CLI, and isolation tests. | v1.0 bounded requirement complete | Yes |
 | Learned opponent models | skat-ai product | Not applicable | `not_supported` | No learned model exists; current profiles and policies are deterministic and rule-based. | Approved historical features, model artifact, versioning, and inference contract. | Training, evaluation, deployment, fallback, and explainability details are not designed. | Define separate post-v1.0 acceptance criteria before implementation. | Post-v1.0 | No |
 | Machine-learning model training | skat-ai product | Not applicable | `not_supported` | No training pipeline exists. | Approved dataset, target, evaluation protocol, reproducibility, and artifact policy. | Historical training-data representation does not itself authorize model training. | Define separate post-v1.0 card-decision model acceptance criteria before implementation. | Post-v1.0 | No |
-| Generated-output validation | skat-ai product | Not applicable | `supported` | `validate_generated_outputs_schema.py` generates, semantically checks, and schema-validates 64 deterministic CLI scenarios. The published `v0.10.0` package baseline remains 59; two Issue #119 additions cover both continuation kinds before different terminal shortenings, and three Issue #124 additions cover normal Grand, Null, and shortened Replay Coaching. | Repository examples/fixtures, schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; the published `v0.9.0` baseline remains historical evidence for 52 scenarios. | Keep the count and scenario list explicit; add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
+| Generated-output validation | skat-ai product | Not applicable | `supported` | `validate_generated_outputs_schema.py` generates, semantically checks, and schema-validates 64 deterministic CLI scenarios for the current `v0.11.0` package baseline. The published `v0.10.0` release baseline remains 59; two Issue #119 additions cover both continuation kinds before different terminal shortenings, and three Issue #124 additions cover normal Grand, Null, and shortened Replay Coaching. | Repository examples/fixtures, schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; the published `v0.9.0` baseline remains historical evidence for 52 scenarios. | Keep the count and scenario list explicit; add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
 | Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and GitHub Actions run Ruff, input schema validation, generated-output validation, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance. | Require clean local and CI checks, synchronized docs/schemas, and human-controlled release actions. | v1.0 | Yes |
 
 ## Interpretations and unresolved rule questions

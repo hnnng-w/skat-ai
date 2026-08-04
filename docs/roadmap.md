@@ -338,9 +338,23 @@ Implemented:
 
 ## Release baselines
 
+### v0.11.0: Information-safe Replay Coaching and structured historical outcomes
+
+The current package baseline is `v0.11.0`. Issues #118 through #124 complete the
+functional milestone, and Issue #125 prepares the release candidate. The current
+matrix validates 64 deterministic generated-output scenarios. Publication
+remains a manual maintainer action, so `v0.10.0` remains the latest GitHub
+Release and GitHub Releases remains authoritative for publication status.
+
+The milestone provides the immutable 61-case settlement matrix, one bounded
+continuation-before-shortening historical chain, information-safe Replay
+Coaching evidence and impact, deterministic Key Decisions and both Turning Point
+types, one-game patterns, deterministic recommendations, complete report
+composition, and the opt-in public JSON/schema/CLI workflow.
+
 ### v0.10.0: Information-safe bounded Search across compatible worlds
 
-The current published stable release and package baseline are `v0.10.0`, and
+The current published stable release is `v0.10.0`, and
 Issues #107 through #115 complete the functional milestone. Issue #116 completed
 release preparation, followed by manual maintainer publication. The latest
 GitHub Release points to commit `b4c8738`, validates 59 deterministic generated-
@@ -415,8 +429,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-Before `v1.0.0`, the project still requires fuller Replay Coaching, remaining
-approved settlement nuance,
+Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
+remaining approved settlement nuance,
 fixed-three-player 36-game list aggregation, remaining automatic dataset
 preparation, field-level live provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
@@ -456,30 +470,16 @@ evidence. They do not provide calibrated sample quality, a latency guarantee,
 information-set policy search, or complete-contract solving, so the stronger-
 search completion gate is not closed.
 
-The active next planning milestone is `v0.11.0`, directed at Replay Coaching and
-remaining approved rule/claim/settlement completion. Its final theme,
-feature issue split, and implementation details require a separate focused
-repository analysis.
-Issue #118 establishes the normative settlement matrix as the first contract
-foundation for that milestone.
-Issue #120 establishes the information-safe Replay Coaching evidence and impact
-contracts without adding a public report, schema, CLI field, or causal outcome
-claim. Full Replay Coaching remains open.
-Issue #121 added deterministic game-level Key Decisions and Turning Points while
-leaving patterns and advice to Issue #122. It added no public report or causal
-attribution. Full Replay Coaching remains open.
-Issue #122 adds deterministic one-game pattern aggregation and actionable
-guidance without tactical motif inference, player ratings, causal attribution,
-or public report output. Full Replay Coaching remains open.
-Issue #123 adds complete internal report composition from one retained analysis,
-with final-outcome isolation, privacy-safe context, coverage, scope summaries,
-and canonical limitations. It adds no public schema, CLI, example, generated
-output, tactical detector, rating, or causal claim. Public Replay Coaching
-remains open.
-Issue #124 exposes that complete one-game report through
-`--historical-replay-coaching`, a strict public schema, concise CLI presentation,
-and three generated-output scenarios. Tactical motifs, cross-game coaching,
-ratings, causal attribution, and stronger Search remain open.
+The functional `v0.11.0` package milestone is complete through Issue #124, and
+Issue #125 performs release preparation. The milestone establishes the
+settlement matrix and bounded continuation-before-shortening sequence, then
+delivers public one-game Replay Coaching through schema, CLI, examples, and
+generated-output coverage. Tactical motifs, cross-game Coaching, ratings, causal
+attribution, and stronger Search remain outside this bounded result.
+
+The provisional next planning milestone is `v0.12.0`, directed at 36-game list
+aggregation and automatic dataset preparation. Its final issue split is not
+defined.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 
@@ -497,7 +497,8 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the published `v0.10.0` release baseline, the authoritative
-publication state shown by GitHub Releases, requirements explicitly required
+should distinguish the published `v0.10.0` release baseline, the current
+`v0.11.0` package baseline, the authoritative publication state shown by GitHub
+Releases, requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

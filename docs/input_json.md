@@ -518,7 +518,10 @@ uses that root only after its public recommendation has been selected.
 
 ### Historical Search Review and Replay Coaching CLI
 
-Historical-game input can add Search review without adding input JSON fields:
+Replay Coaching is opt-in and requires historical-game input. It adds no input
+JSON fields and supports normal completion, current shortened records, and valid
+zero-decision records. Historical-game input can add Search review with the same
+public settings:
 
 ```powershell
 python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71
@@ -539,6 +542,8 @@ Exact options are:
 
 | Option | Meaning |
 | --- | --- |
+| `--historical-decision-snapshots` | Also emit the existing decision-time snapshot summary. |
+| `--historical-game-review` | Also emit the existing Immediate Historical Review summary. |
 | `--historical-search-review` | Evaluate every supplied historical decision with Search and Immediate. |
 | `--historical-replay-coaching` | Build the complete public one-game Coaching Report from Search, Immediate, and retrospective context. |
 | `--search-seed INTEGER` | Required Search base seed. |
@@ -547,6 +552,10 @@ Exact options are:
 | `--seed INTEGER` | Optional Immediate base seed; decision `n` uses base plus `n - 1`. |
 | `--output PATH` | Write the complete strict output branch. |
 | `--quiet` | Suppress successful human-readable output. |
+
+JSON output retains the complete strict report. The default CLI presentation is
+concise, and `--quiet` continues to suppress successful human-readable output
+without suppressing JSON written through `--output`.
 
 The named profiles are immutable internal budgets, not editable JSON objects:
 

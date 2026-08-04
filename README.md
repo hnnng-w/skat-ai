@@ -630,17 +630,55 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current published stable release is `v0.10.0`. Its theme is "Information-safe
-bounded Search across compatible worlds." It is the latest GitHub Release and
-points to commit `b4c8738`. Issues #107 through #115 complete its functional
-milestone, and Issue #116 completed release preparation. Generated-output
-validation covers 59 deterministic scenarios, and the complete pytest suite
-contains 4,075 tests. GitHub Releases remains authoritative for publication
-status.
+The current package baseline is `v0.11.0`. Its release theme is "Information-safe
+Replay Coaching and structured historical outcomes", and its intended GitHub
+Release title is "v0.11.0 — Information-safe Replay Coaching and structured
+historical outcomes". Issues #118 through #124 complete the functional milestone;
+Issue #125 prepares the release candidate. The package validates 64 deterministic
+generated-output scenarios. Python 3.13 or newer remains required.
 
-The current development matrix covers 64 deterministic generated-output
-scenarios. The five post-release scenarios add both supported continuation-
-before-shortening chains and three public Replay Coaching branches.
+The current published stable release remains `v0.10.0`. It is the latest GitHub
+Release, points to commit `b4c8738`, validates 59 deterministic generated-output
+scenarios, and passes 4,075 pytest tests. Publication of `v0.11.0` remains a
+manual maintainer action, and GitHub Releases remains authoritative for
+publication status.
+
+The `v0.11.0` package baseline adds an immutable 61-case normative settlement
+matrix and the bounded historical sequence of at most one continuation followed
+by normal completion or one supported terminal shortening. Existing terminal
+adjudicators remain authoritative. Direct, bounded, compatibility-only legacy,
+undecided, and excluded scopes are explicit. Current structured endings include
+declarer and defender concessions, accepted declarer-card exposure, bounded
+defender open play, and open-card throwing. Defender-open-play proof remains
+bounded to five unresolved tricks, and open-card-throw exclusion remains jack-
+only. General claims, specific-trick claims, generalized correction, broader
+settlement, and complete official-rule coverage remain incomplete.
+
+Replay Coaching builds decision-time evidence before attaching the observed card
+as retrospective evidence rather than ground truth. Search-first impact follows
+Contract success, settlement score, then Suit/Grand card-point margin; Null has no
+margin objective. Forced and aggregate-equivalent decisions are non-errors, and
+Immediate-only evidence remains explicitly bounded to one-trick analysis.
+Deterministic Key Decisions, separate decision-opportunity and recorded-outcome
+Turning Points, two-occurrence one-game patterns, and deterministic decision and
+pattern recommendations make no tactical, causal, psychological, skill, or
+statistical-significance claims.
+
+The opt-in historical-game command `--historical-replay-coaching` emits the full
+`historical_replay_coaching_summary`, validated by
+`historical_replay_coaching.schema.json`. It reuses `--search-seed`,
+`--search-budget-profile`, `--samples`, and `--seed`, and can run alone or in one
+pass with Historical Search Review. JSON retains the complete report while CLI
+output stays concise; `--quiet` behavior is unchanged. Three deterministic public
+scenarios cover normal Grand, Null, and a shortened chain.
+
+Final outcome context describes how the recorded game ended. It is not decision-
+time evidence and does not change Coaching classification. Public Coaching output
+does not expose hands, final hidden ownership, Skat identities, discards,
+compatible-world identities or contents, private Search states, derived seeds,
+caches, branches, principal variations, ratings, or rankings. Aggregate world
+counts and coverage remain privacy-safe evidence metadata. Player, role, phase,
+and contract summaries are descriptive counts, not rankings.
 
 The published `v0.10.0` milestone adds five structured game-shortening forms,
 five matching historical terminal events, two historical non-terminal continuations, and
@@ -680,9 +718,9 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
-Remaining work includes stronger information-set or policy search, fuller Replay
-Coaching with tactical motifs and cross-game analysis,
-approved settlement nuance, fixed-three-player 36-game list aggregation,
+Remaining work includes stronger information-set or policy search, tactical
+motif detection and cross-game Coaching, approved settlement nuance,
+fixed-three-player 36-game list aggregation,
 automatic dataset preparation, field-level live provenance, interactive input
 and session capture, and a stable installed library and CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
@@ -693,8 +731,9 @@ model or model-training workflow is included. The product supports fixed
 three-player tables only; four-player tables are excluded, and complete official
 rule coverage is not claimed.
 
-The active next planning milestone is `v0.11.0`, directed at Replay Coaching and
-remaining approved rule/claim/settlement completion.
+The provisional next planning milestone is `v0.12.0`, directed at 36-game list
+aggregation and automatic dataset preparation. Its final issue split is not yet
+defined.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

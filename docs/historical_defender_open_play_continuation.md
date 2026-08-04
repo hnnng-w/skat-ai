@@ -124,11 +124,13 @@ exactly those cards to the constrained hand, assigns no additional card to it,
 and samples only genuinely unknown cards. Every policy compared at one decision
 receives the same constraint and seeded behavior remains deterministic.
 
-Historical review remains Immediate Analysis and does not use the later complete
-deal to construct a Multi-Step root. Actual future hands remain excluded from
-every pre-play decision state. The model cannot use the actual next card, later
-hands or plays, event facts before their boundary, final result, or settlement.
-See [Hidden-card inference](hidden_card_inference.md).
+Base Historical Review remains Immediate Analysis and does not use the later
+complete deal to construct a Multi-Step root. Optional Historical Search Review
+and Replay Coaching use the same decision-time snapshots and public-hand
+boundary. Actual future hands remain excluded from every pre-play decision
+state. The model cannot use the actual next card, later hands or plays, event
+facts before their boundary, final result, or settlement. See
+[Hidden-card inference](hidden_card_inference.md).
 
 The event is not a review decision. Normal review still has 30 actual-card
 decisions; shortened chains use only their zero through 29 actual plays. Training

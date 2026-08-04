@@ -108,12 +108,13 @@ Analysis, otherwise supported Multi-Step phases, Policy Comparison, and local
 exclusive with every shortening or ending, impossible Null, completed play,
 list modes, and unrelated top-level workflows.
 
-The separate historical contract supports completed normal games with a timed
-continuation event, decision snapshots, review, datasets, statistics, rolling
-evaluation, and partition audits; see
+The separate historical contract supports a timed continuation before completed
+normal play or one supported terminal shortening, together with decision
+snapshots, review, datasets, statistics, rolling evaluation, and partition
+audits; see
 [Historical defender open-play continuation](historical_defender_open_play_continuation.md).
-General corrected-play handling, new tactics, shortened endings after
-continuation, and four-player tables are not added. ISkO 4.4.6 is a separate final workflow documented in
+The flat-position contract adds no terminal shortening. General corrected-play
+handling, new tactics, and four-player tables are not added. ISkO 4.4.6 is a separate final workflow documented in
 [Open card throw](open_card_throw.md). Accepted exact adjudication remains documented
 in [Defender open play](defender_open_play.md).
 

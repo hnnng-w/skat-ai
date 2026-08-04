@@ -72,6 +72,8 @@ Retrospective bounded-Search output additionally uses:
 
 [`schemas/historical_search_review.schema.json`](../schemas/historical_search_review.schema.json)
 
+[`schemas/historical_replay_coaching.schema.json`](../schemas/historical_replay_coaching.schema.json)
+
 [`schemas/bounded_search_evaluation.schema.json`](../schemas/bounded_search_evaluation.schema.json)
 
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
@@ -90,8 +92,8 @@ The project check script also runs generated-output schema validation:
 
 Generated-output schema validation uses the real CLI and output writer. Position
 scenarios use deterministic settings such as `--samples 20` and `--seed 42`.
-The historical review scenario uses those two approved review settings; other
-historical scenarios use no position-only overrides. The
+Historical Review and Replay Coaching scenarios use their approved deterministic
+settings; other historical scenarios use no position-only overrides. The
 validator writes temporary output files, parses the generated JSON, validates it
 against `schemas/output.schema.json`.
 
@@ -227,15 +229,22 @@ patterns, fixed-template decision and pattern recommendations, complete coverage
 counts, exactly three player summaries, two role summaries, three phase
 summaries, one contract summary, and separately attached allowlisted final
 outcome context. Empty Key Decision, Turning Point, pattern, and recommendation
-arrays are valid. Null recommendations use contract-objective wording rather
-than raw card-point-margin advice.
+arrays are valid, and a zero-decision record has an empty assessment array. Null
+recommendations use contract-objective wording rather than raw card-point-margin
+advice.
 
-The recursive public boundary excludes initial/final/private hands, Skat,
-discards, selected worlds, ownership assignments, exact proof internals,
-derived child seeds, caches, branches, principal variations, ratings, grades,
-and rankings. The report makes no causal final-outcome, player-weakness,
-permanent-trait, statistical-significance, perfect-play, or optimal hidden-
-information claim. See [Replay coaching contracts](replay_coaching_contracts.md)
+Final outcome context describes how the recorded game ended. It is not decision-
+time evidence and does not change Coaching classification.
+
+The recursive public boundary excludes initial/final/private hands, final hidden
+ownership, Skat identities, discards, compatible-world identities and contents,
+private Search states, selected worlds, ownership assignments, exact proof
+internals, derived child seeds, caches, branches, principal variations, ratings,
+grades, and rankings. Aggregate compatible-world counts and coverage remain
+privacy-safe evidence metadata. The report makes no causal final-outcome, player-
+weakness, permanent-trait, statistical-significance, perfect-play, or optimal
+hidden-information claim. See
+[Replay coaching contracts](replay_coaching_contracts.md)
 and [`historical_replay_coaching.schema.json`](../schemas/historical_replay_coaching.schema.json).
 
 Training-dataset input produces a separate stable branch:

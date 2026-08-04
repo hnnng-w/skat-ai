@@ -3,15 +3,19 @@
 ## Version and purpose
 
 `src/skat_ai/settlement_normative_matrix.py` defines immutable settlement
-normative matrix version `1`. It records current support, interpretation scope,
-approved future semantics, undecided product boundaries, and `v0.11.0`
-exclusions in deterministic case-ID order.
+normative matrix version `1` with 61 canonical cases. It records current support,
+interpretation scope, approved future semantics, undecided product boundaries,
+and `v0.11.0` exclusions in deterministic case-ID order.
 
 The matrix is an internal specification and validation artifact. It is not a
 stable package-root API, does not inspect runtime game state, and is not imported
 by adjudication, settlement, Search, simulation, historical parsing, schemas,
 CLI, examples, or generated-output paths. Issue #118 changes no runtime
 adjudication or public serialized contract.
+
+The matrix does not claim complete official-rule, claim, concession, or
+settlement coverage. General Claims, Concessions, and Final Settlement remain
+partially supported beyond the documented bounded cases.
 
 ## Normative source hierarchy
 
@@ -184,7 +188,7 @@ kinds.
 | Open card throw | `supported_as_is`, `approved_bounded` | Opposing-party assignment, preexisting-winner preservation, and jack-only exclusion. |
 | Legacy remaining-point reasons | `supported_as_is`, `legacy_compatibility` | Existing simplified point assignment only; no rest-trick proof. |
 | Historical normal and five terminal kinds | `supported_as_is` | Exact replay adapters retain the corresponding current terminal policy. |
-| Both historical continuation kinds | `supported_as_is`, `product_boundary` | One non-terminal event followed by independently settled normal completion. |
+| Both historical continuation kinds | `supported_as_is`, `product_boundary` | One non-terminal event followed by independently settled normal completion or one supported terminal shortening. |
 | One continuation then one terminal shortening | `supported_as_is`, `product_boundary` | The subsequent supported terminal kind retains its existing policy. |
 | New general or specific claims | `decision_required`, `product_boundary` | No definitive outcome is approved. |
 | Milestone exclusions | `out_of_scope_v0_11`, `product_boundary` | No implementation or adjudication policy. |
