@@ -3,8 +3,8 @@
 ## Version and scope
 
 `src/skat_ai/replay_coaching_evidence.py`,
-`src/skat_ai/replay_coaching_assessment.py`, and the focused prioritization
-and guidance modules define internal Replay Coaching contracts:
+`src/skat_ai/replay_coaching_assessment.py`, and the focused prioritization,
+guidance, and report modules define internal Replay Coaching contracts:
 
 ```text
 REPLAY_COACHING_CONTRACT_VERSION = 1
@@ -14,6 +14,9 @@ REPLAY_COACHING_GUIDANCE_VERSION = 1
 MIN_REPLAY_COACHING_PATTERN_OCCURRENCES = 2
 MAX_REPLAY_COACHING_DECISION_RECOMMENDATIONS = 5
 MAX_REPLAY_COACHING_PATTERN_RECOMMENDATIONS = 5
+REPLAY_COACHING_REPORT_VERSION = 1
+REPLAY_COACHING_REPORT_METHOD = historical_replay_coaching_v1
+REPLAY_COACHING_OUTCOME_CONTEXT_POLICY = final_context_after_coaching
 ```
 
 The contracts are frozen dataclasses with immutable tuples and deterministic
@@ -25,7 +28,8 @@ The assessment contract defines evidence and impact semantics for one historical
 card decision. Prioritization version 1 adds deterministic game-level Key
 Decisions, Turning Points, and high-impact classification. Guidance version 1
 adds one-game repeated patterns and fixed-template actionable recommendations.
-It does not implement tactical detectors or a complete public Coaching Report.
+Report version 1 composes the complete internal one-game report. It does not
+implement tactical detectors or a public Coaching Report.
 
 The version numbers, maxima, eligibility, ranking, recurrence, scope, pattern,
 Turning Point, high-impact, and template rules are `skat-ai` product
@@ -558,16 +562,130 @@ summary, assessments, prioritization, and guidance from one execution. Existing
 public builders, schemas, CLI output, examples, and generated outputs remain
 unchanged.
 
+## Complete internal report
+
+`ReplayCoachingReport` composes one existing
+`HistoricalSearchReviewCoachingAnalysis`; it does not accept raw Search or
+Immediate inputs. The validated order is:
+
+```text
+decision analysis
+-> assessments
+-> prioritization
+-> guidance
+-> final outcome context
+-> complete internal report
+```
+
+The narrow `HistoricalReplayCoachingAnalysis` helper returns the unchanged
+public Historical Search Review summary, assessments, prioritization, guidance,
+and complete internal report from one review execution. Search and Immediate
+still run exactly once per recorded card decision. Report composition does not
+rerun Search, Immediate Analysis, assessment classification, prioritization, or
+guidance.
+
+The complete report contains report metadata, source review method and public
+base settings, privacy-safe game and final-outcome contexts, report-wide
+coverage, every chronological assessment, retained prioritization and guidance,
+player/role/phase/current-contract summaries, and canonical limitations. Derived
+per-decision seeds are not source review settings. Every nested coaching artifact
+must belong to the same game and exact assessment sequence.
+
+## Game and outcome context
+
+Game context contains the source game ID, optional `played_at`, exactly three
+players in `forehand`, `middlehand`, `rearhand` order, declarer ID, normalized
+game type and declaration, final game-end reason, continuation-event kinds, and
+recorded play and decision counts. Each player context contains only player ID,
+optional label, seat, and `declarer` or `defenders` side. It contains no hand,
+card ownership, score, grade, or rating.
+
+Outcome context is built only after coaching analysis is complete. It calls the
+existing `build_historical_game_summary(record)` and allowlists status, game
+result, game value, overbid, final settlement, optional event-chain summary, and
+the existing `historical_game_end_summary` for a supported terminal reason. The
+explicit reason mapping covers normal completion plus declarer concession,
+defender concession, accepted declarer-card exposure, defender open play, and
+open-card throw.
+
+Final outcome context describes how the recorded game ended. It is not
+decision-time evidence and does not change coaching classification. Event and
+terminal contexts omit card arrays, reconstructed hands, card reconciliation,
+exact proof, and ownership evidence. Result and settlement formulas are never
+reimplemented by Replay Coaching.
+
+## Report coverage and scopes
+
+The immutable coverage summary contains decision, assessable, forced,
+best-or-equivalent, strictly-below-best, not-assessable, high-impact, Key
+Decision, Turning Point, pattern, actionable-pattern, decision-recommendation,
+pattern-recommendation, Search-recommendation, and Immediate-available counts.
+It also retains canonical count tuples for assessment status, evidence basis,
+impact tier, Search status, and world coverage. Search status, exact/sample/no-
+coverage totals, decision count, and Search-recommendation count must equal the
+unchanged public Historical Search Review metrics. A zero-decision shortened
+game has complete all-zero coverage.
+
+One generic immutable scope-summary contract returns exactly three player rows
+in historical seat order, `declarer` and `defenders` role rows, `opening`,
+`middle`, and `endgame` phase rows, and one current normalized-contract row.
+Zero-decision rows are retained. Each row contains decision-quality, evidence,
+impact, high-impact, Key Decision, Turning Point, pattern, and recommendation
+counts plus chronological decision, Key-Decision, and Turning Point indices.
+Decision-derived totals reconcile independently across every dimension. Exact-
+scope pattern and pattern-recommendation totals reconcile within their declared
+dimension. Scope summaries never rank, compare, score, or grade players.
+
+## Report limitations
+
+Report limitations use this canonical order:
+
+```text
+outcome_context_not_decision_evidence
+single_recorded_game_only
+bounded_late_game_search
+determinization_strategy_fusion
+sampled_compatible_worlds
+completed_common_prefix
+immediate_expected_value_only
+search_unavailable
+observed_card_not_ground_truth
+incomplete_assessment_coverage
+no_tactical_motif_inference
+no_causal_outcome_claim
+no_player_skill_rating
+```
+
+Every report includes the outcome-context, one-game, observed-card,
+non-tactical, non-causal, and no-rating limitations. Conditional evidence
+limitations are inherited from retained assessments and guidance.
+`incomplete_assessment_coverage` appears only when at least one decision is
+`not_assessable`.
+
+## Report privacy and support
+
+The deterministic internal serializer emits no raw historical record, initial
+or final hands, Skat, discards, selected worlds, ownership, exact proof state,
+derived child seeds, caches, branches, principal variations, rating, grade, or
+tactical free text. It supports normal Suit and Grand, all four normal Null
+variants, all five terminal shortenings, either one supported continuation before
+normal completion or terminal shortening, zero-decision records, and valid
+incomplete final tricks.
+
+This is an internal composition contract only. It is not registered in the
+package root, main output, public schemas, CLI, examples, or generated outputs.
+
 ## Remaining Replay Coaching work
 
 Replay Coaching remains incomplete. Still missing are:
 
 * tactical detectors;
-* complete-game Coaching Report orchestration and presentation;
+* public complete-game Coaching Report presentation;
 * public schemas, CLI output, examples, and generated-output coverage for such a
   future report;
-* approved causal-language and outcome-context policy, if ever needed;
+* any separately approved causal-language policy;
 * broader Search, information-set policy solving, and Strategy Fusion correction.
 
 These components require separate focused contracts and tests. Contract version
-1 is only the information-safe evidence and impact foundation.
+1, prioritization version 1, guidance version 1, and internal report version 1
+are the information-safe one-game foundation, not a public coaching workflow.

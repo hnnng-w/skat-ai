@@ -34,6 +34,7 @@ The project focuses on:
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * internal version-1 deterministic Replay Coaching Key Decisions and Turning Points
 * internal version-1 one-game Replay Coaching patterns and actionable recommendations
+* complete internal version-1 Replay Coaching report composition
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -467,11 +468,19 @@ Implemented as an internal `v0.11.0` foundation:
   only, and Search-versus-Immediate wording boundaries
 * one retained internal guidance result from the same Historical Search Review
   execution without additional Search or Immediate calls
+* complete internal report version `1` and method
+  `historical_replay_coaching_v1`, composed from that retained analysis
+* privacy-safe player/game context, separately attached final outcome context,
+  reconciled coverage, and zero-preserving player/role/phase/contract summaries
+* explicit `final_context_after_coaching` isolation, deterministic internal
+  serialization, canonical report limitations, and no private deal or Search
+  state in report output
 
 The observed card is not ground truth, no causal final-outcome claim is made,
 and exhaustive compatible-world aggregation remains subject to Strategy Fusion.
-Tactical detectors, public report output, and a complete Coaching Report remain
-unimplemented. See
+Tactical detectors and public schema, CLI, example, generated-output, and report
+presentation remain unimplemented. The complete internal report is not a public
+workflow. See
 [Replay coaching contracts](replay_coaching_contracts.md).
 
 ### CLI and workflow usability
@@ -825,11 +834,11 @@ Completed implementation scope:
   Multi-Step and Policy Comparison, flat post-game review, Historical Search
   Review, and bounded dataset evaluation are connected. Overbid Null replacement
   selection remains outside it.
-* Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
+* Public complete-game coaching presentation and full fixed-three-player 36-game list aggregation are not implemented.
 * Replay Coaching has version-1 internal evidence, impact, prioritization,
-  one-game pattern, and actionable-recommendation contracts. Tactical motif
-  detection, cross-game patterns, public schema/CLI/report output, and the
-  complete coaching workflow remain unimplemented.
+  one-game pattern, actionable-recommendation, and complete internal report
+  contracts. Tactical motif detection, cross-game patterns, public schema/CLI/
+  report output, and the public coaching workflow remain unimplemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
@@ -848,7 +857,11 @@ Issue #121 added internal deterministic Key Decisions and Turning Points while
 leaving patterns and advice to Issue #122 and public Coaching Report output open.
 Issue #122 adds internal one-game player, role, phase, and contract patterns plus
 deterministic decision and pattern recommendations while leaving tactical motifs
-and public Coaching Report composition open.
+and public Coaching Report presentation open.
+Issue #123 composes the complete privacy-safe internal report from one retained
+coaching analysis, including outcome isolation, coverage, and scope summaries,
+while leaving public presentation, schemas, CLI, examples, and generated output
+open.
 
 ## Open future topics
 

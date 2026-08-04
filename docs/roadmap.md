@@ -206,6 +206,10 @@ Implemented:
   patterns by player, role, phase, and contract; separate actionable and
   descriptive patterns; one fixed-template recommendation per Key Decision; and
   at most five ranked, evidence-deduplicated actionable pattern recommendations
+* Complete internal Replay Coaching report version 1 composed from one retained
+  Historical Search Review coaching analysis, with privacy-safe game context,
+  separately attached final outcome context, reconciled coverage, zero-preserving
+  scope summaries, canonical limitations, and unchanged public output
 
 ### Training and evaluation data
 
@@ -289,9 +293,10 @@ Implemented:
   not calibrated, and measured performance provides no latency guarantee.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
 * Replay Coaching now has internal version-1 evidence, impact, prioritization,
-  one-game cross-decision patterns, and deterministic actionable recommendation
-  contracts. Tactical detectors, cross-game player analysis, public schema/CLI/
-  report output, and a complete coaching workflow remain unimplemented.
+  one-game cross-decision patterns, deterministic actionable recommendations,
+  and a complete internal report contract. Tactical detectors, cross-game player
+  analysis, public schema/CLI/report output, and a public coaching workflow remain
+  unimplemented.
 
 ### Performance rating
 
@@ -462,6 +467,11 @@ attribution. Full Replay Coaching remains open.
 Issue #122 adds deterministic one-game pattern aggregation and actionable
 guidance without tactical motif inference, player ratings, causal attribution,
 or public report output. Full Replay Coaching remains open.
+Issue #123 adds complete internal report composition from one retained analysis,
+with final-outcome isolation, privacy-safe context, coverage, scope summaries,
+and canonical limitations. It adds no public schema, CLI, example, generated
+output, tactical detector, rating, or causal claim. Public Replay Coaching
+remains open.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 
