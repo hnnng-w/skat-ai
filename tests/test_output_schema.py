@@ -31,6 +31,9 @@ from skat_ai.input_loader import (
 )
 from skat_ai.opponent_statistics import build_opponent_statistics_summary
 from skat_ai.post_game_review import build_unavailable_post_game_review_summary
+from skat_ai.replay_coaching_report import (
+    build_historical_replay_coaching_public_summaries,
+)
 from skat_ai.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
@@ -159,6 +162,9 @@ BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA_PATH = (
 HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_search_review.schema.json"
 )
+HISTORICAL_REPLAY_COACHING_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_replay_coaching.schema.json"
+)
 BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
 )
@@ -265,6 +271,8 @@ with BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA_PATH.open("r", encoding="utf-8") as 
     BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA = json.load(file)
 with HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_SEARCH_REVIEW_SCHEMA = json.load(file)
+with HISTORICAL_REPLAY_COACHING_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    HISTORICAL_REPLAY_COACHING_SCHEMA = json.load(file)
 with BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     BOUNDED_SEARCH_EVALUATION_SCHEMA = json.load(file)
 
@@ -444,6 +452,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
             Resource.from_contents(HISTORICAL_SEARCH_REVIEW_SCHEMA),
         ),
         (
+            HISTORICAL_REPLAY_COACHING_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_REPLAY_COACHING_SCHEMA),
+        ),
+        (
             BOUNDED_SEARCH_EVALUATION_SCHEMA["$id"],
             Resource.from_contents(BOUNDED_SEARCH_EVALUATION_SCHEMA),
         ),
@@ -472,6 +484,42 @@ def test_output_schema_references_standalone_bounded_search_schema() -> None:
     assert schema["properties"]["bounded_search_result"]["oneOf"][0]["$ref"] == (
         BOUNDED_SEARCH_RESULT_SCHEMA["$id"]
     )
+
+
+def test_output_schema_references_standalone_replay_coaching_schema() -> None:
+    schema = load_output_schema()
+
+    assert schema["$defs"]["historical_game_summary"]["properties"][
+        "historical_replay_coaching_summary"
+    ]["$ref"] == HISTORICAL_REPLAY_COACHING_SCHEMA["$id"]
+
+
+def test_replay_coaching_output_matches_registered_main_schema() -> None:
+    input_path = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+    record = load_historical_game_from_json(str(input_path))
+    historical_summary = build_historical_game_summary(record)
+    snapshots = build_historical_decision_snapshots(historical_summary)
+    public = build_historical_replay_coaching_public_summaries(
+        snapshots,
+        record,
+        71,
+        search_budget_profile="interactive_v1",
+        immediate_sample_count=1,
+        immediate_base_random_seed=42,
+    )
+    historical_summary["historical_replay_coaching_summary"] = public[
+        "historical_replay_coaching_summary"
+    ]
+    result = {
+        "input_file": str(input_path),
+        "historical_game_summary": historical_summary,
+    }
+
+    assert list(OUTPUT_VALIDATOR.iter_errors(result)) == []
+    result["historical_game_summary"]["historical_replay_coaching_summary"][
+        "private_remaining_hands"
+    ] = {}
+    assert list(OUTPUT_VALIDATOR.iter_errors(result))
 
 
 def test_output_schema_rejects_inconsistent_method_and_fallback_summary() -> None:

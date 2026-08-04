@@ -1,0 +1,1796 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_replay_coaching.schema.json",
+  "title": "skat-ai public historical Replay Coaching report version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_version",
+    "report_method",
+    "information_policy",
+    "outcome_context_policy",
+    "source_game_id",
+    "source_review_method",
+    "source_review_settings",
+    "game_context",
+    "outcome_context",
+    "coverage_summary",
+    "decision_assessments",
+    "prioritization",
+    "guidance",
+    "player_summaries",
+    "role_summaries",
+    "phase_summaries",
+    "contract_summaries",
+    "limitations"
+  ],
+  "properties": {
+    "report_version": {"const": 1},
+    "report_method": {"const": "historical_replay_coaching_v1"},
+    "information_policy": {
+      "const": "decision_time_then_retrospective_attachment"
+    },
+    "outcome_context_policy": {"const": "final_context_after_coaching"},
+    "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+    "source_review_method": {
+      "const": "bounded_search_with_immediate_baseline"
+    },
+    "source_review_settings": {
+      "$ref": "https://example.local/skat-ai/historical_search_review.schema.json#/$defs/settings"
+    },
+    "game_context": {"$ref": "#/$defs/game_context"},
+    "outcome_context": {"$ref": "#/$defs/outcome_context"},
+    "coverage_summary": {"$ref": "#/$defs/coverage_summary"},
+    "decision_assessments": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision_assessment"},
+      "maxItems": 30
+    },
+    "prioritization": {"$ref": "#/$defs/prioritization"},
+    "guidance": {"$ref": "#/$defs/guidance"},
+    "player_summaries": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {"$ref": "#/$defs/player_scope_summary"},
+        {"$ref": "#/$defs/player_scope_summary"},
+        {"$ref": "#/$defs/player_scope_summary"}
+      ],
+      "items": false
+    },
+    "role_summaries": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "allOf": [
+            {"$ref": "#/$defs/role_scope_summary"},
+            {"properties": {"scope_value": {"const": "declarer"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/role_scope_summary"},
+            {"properties": {"scope_value": {"const": "defenders"}}}
+          ]
+        }
+      ],
+      "items": false
+    },
+    "phase_summaries": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "allOf": [
+            {"$ref": "#/$defs/phase_scope_summary"},
+            {"properties": {"scope_value": {"const": "opening"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/phase_scope_summary"},
+            {"properties": {"scope_value": {"const": "middle"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/phase_scope_summary"},
+            {"properties": {"scope_value": {"const": "endgame"}}}
+          ]
+        }
+      ],
+      "items": false
+    },
+    "contract_summaries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {"$ref": "#/$defs/contract_scope_summary"}
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/report_limitation"},
+      "uniqueItems": true,
+      "maxItems": 13
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "non_empty_string": {"type": "string", "minLength": 1},
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "nullable_card": {
+      "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+    },
+    "count": {"type": "integer", "minimum": 0},
+    "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
+    "decision_indices": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision_index"},
+      "uniqueItems": true,
+      "maxItems": 30
+    },
+    "game_type": {
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "game_end_reason": {
+      "enum": [
+        "normal_completion",
+        "declarer_concession",
+        "defender_concession",
+        "declarer_card_exposure",
+        "defender_open_play",
+        "open_card_throw"
+      ]
+    },
+    "party": {"enum": ["declarer", "defenders"]},
+    "recorded_state": {
+      "enum": ["undecided", "declarer_already_won", "defenders_already_won"]
+    },
+    "nullable_recorded_state": {
+      "oneOf": [{"$ref": "#/$defs/recorded_state"}, {"type": "null"}]
+    },
+    "nullable_party": {
+      "oneOf": [{"$ref": "#/$defs/party"}, {"type": "null"}]
+    },
+    "nullable_integer": {"type": ["integer", "null"]},
+    "nullable_number": {"type": ["number", "null"]},
+    "nullable_boolean": {"type": ["boolean", "null"]},
+    "string_array": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/non_empty_string"},
+      "uniqueItems": true
+    },
+    "player_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "player_label", "seat", "side"],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/stable_identifier"},
+        "player_label": {
+          "oneOf": [
+            {"$ref": "#/$defs/stable_identifier"},
+            {"type": "null"}
+          ]
+        },
+        "seat": {"enum": ["forehand", "middlehand", "rearhand"]},
+        "side": {"$ref": "#/$defs/party"}
+      }
+    },
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_type",
+        "hand_game",
+        "ouvert",
+        "schneider_announced",
+        "schwarz_announced",
+        "matadors",
+        "bid_value"
+      ],
+      "properties": {
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "hand_game": {"type": "boolean"},
+        "ouvert": {"type": "boolean"},
+        "schneider_announced": {"type": "boolean"},
+        "schwarz_announced": {"type": "boolean"},
+        "matadors": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 11
+        },
+        "bid_value": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"game_type": {"const": "null"}},
+            "required": ["game_type"]
+          },
+          "then": {
+            "properties": {
+              "matadors": {"type": "null"},
+              "schneider_announced": {"const": false},
+              "schwarz_announced": {"const": false}
+            }
+          },
+          "else": {"properties": {"matadors": {"type": "integer"}}}
+        },
+        {
+          "if": {
+            "properties": {"game_type": {"const": "grand"}},
+            "required": ["game_type"]
+          },
+          "then": {"properties": {"matadors": {"maximum": 4}}}
+        }
+      ]
+    },
+    "game_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_game_id",
+        "played_at",
+        "players",
+        "declarer_player_id",
+        "game_type",
+        "declaration",
+        "game_end_reason",
+        "continuation_event_kinds",
+        "recorded_play_count",
+        "recorded_decision_count"
+      ],
+      "properties": {
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "played_at": {"type": ["string", "null"], "format": "date-time"},
+        "players": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "allOf": [
+                {"$ref": "#/$defs/player_context"},
+                {"properties": {"seat": {"const": "forehand"}}}
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/player_context"},
+                {"properties": {"seat": {"const": "middlehand"}}}
+              ]
+            },
+            {
+              "allOf": [
+                {"$ref": "#/$defs/player_context"},
+                {"properties": {"seat": {"const": "rearhand"}}}
+              ]
+            }
+          ],
+          "items": false
+        },
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "declaration": {"$ref": "#/$defs/declaration"},
+        "game_end_reason": {"$ref": "#/$defs/game_end_reason"},
+        "continuation_event_kinds": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "defender_open_play_continuation",
+              "declarer_card_exposure_continuation"
+            ]
+          },
+          "maxItems": 1,
+          "uniqueItems": true
+        },
+        "recorded_play_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "recorded_decision_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "declarer_win",
+        "defender_win",
+        "schneider",
+        "schwarz",
+        "total_card_points"
+      ],
+      "properties": {
+        "declarer_win": {"const": 61},
+        "defender_win": {"const": 60},
+        "schneider": {"const": 30},
+        "schwarz": {"const": 0},
+        "total_card_points": {"const": 120}
+      }
+    },
+    "party_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declarer", "defenders"],
+      "properties": {
+        "declarer": {"type": "integer", "minimum": 0, "maximum": 120},
+        "defenders": {"type": "integer", "minimum": 0, "maximum": 120}
+      }
+    },
+    "rest_trick_assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recipient",
+        "remaining_trick_count",
+        "assigned_card_count",
+        "assigned_card_points",
+        "source"
+      ],
+      "properties": {
+        "recipient": {"$ref": "#/$defs/party"},
+        "remaining_trick_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "assigned_card_count": {"type": "integer", "minimum": 1, "maximum": 30},
+        "assigned_card_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "source": {"enum": ["defender_open_play_adjudication", "open_card_throw"]}
+      }
+    },
+    "game_result_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "declarer_points",
+        "defender_points",
+        "points_remaining",
+        "is_complete",
+        "winner",
+        "status",
+        "raw_schneider_status",
+        "raw_schwarz_status",
+        "effective_schneider_status",
+        "effective_schwarz_status",
+        "thresholds",
+        "game_end_reason",
+        "remaining_points_recipient",
+        "remaining_points_assigned"
+      ],
+      "properties": {
+        "declarer_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "defender_points": {"type": "integer", "minimum": 0, "maximum": 120},
+        "points_remaining": {"type": "integer", "minimum": 0, "maximum": 120},
+        "is_complete": {"const": true},
+        "winner": {"$ref": "#/$defs/party"},
+        "status": {"enum": ["final_decided", "final_adjudicated"]},
+        "raw_schneider_status": {"$ref": "#/$defs/non_empty_string"},
+        "raw_schwarz_status": {"$ref": "#/$defs/non_empty_string"},
+        "effective_schneider_status": {"$ref": "#/$defs/non_empty_string"},
+        "effective_schwarz_status": {"$ref": "#/$defs/non_empty_string"},
+        "thresholds": {"$ref": "#/$defs/thresholds"},
+        "game_end_reason": {"$ref": "#/$defs/game_end_reason"},
+        "game_end_kind": {
+          "enum": [
+            "declarer_concession",
+            "defender_concession",
+            "declarer_card_exposure",
+            "defender_open_play",
+            "open_card_throw"
+          ]
+        },
+        "outcome_source": {"$ref": "#/$defs/non_empty_string"},
+        "winner_basis": {"$ref": "#/$defs/non_empty_string"},
+        "decision_state_before_game_end": {"$ref": "#/$defs/recorded_state"},
+        "mandatory_level_awarded": {"type": "boolean"},
+        "mandatory_level_source": {"type": ["string", "null"]},
+        "claimed_play_level": {
+          "type": ["string", "null"],
+          "enum": ["simple", "schneider", "schwarz", null]
+        },
+        "declared_mandatory_schneider_applied": {"type": "boolean"},
+        "declared_mandatory_schwarz_applied": {"type": "boolean"},
+        "accepted_claimed_schneider_applied": {"type": "boolean"},
+        "accepted_claimed_schwarz_applied": {"type": "boolean"},
+        "achieved_schneider_applied": {"type": "boolean"},
+        "achieved_schwarz_applied": {"type": "boolean"},
+        "overbid_required_value_applied": {"type": "boolean"},
+        "overbid_requirement_covered": {"type": "boolean"},
+        "settlement_play_level_count": {"type": "integer", "minimum": 0, "maximum": 2},
+        "rest_trick_proof_status": {"enum": ["valid", "invalid"]},
+        "rest_tricks_recipient": {"$ref": "#/$defs/party"},
+        "mandatory_play_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
+        },
+        "rest_trick_assignment": {"$ref": "#/$defs/rest_trick_assignment"},
+        "observed_trick_counts": {"$ref": "#/$defs/party_counts"},
+        "rule_assigned_trick_counts": {"$ref": "#/$defs/party_counts"},
+        "final_trick_counts": {"$ref": "#/$defs/party_counts"},
+        "observed_points": {"$ref": "#/$defs/party_counts"},
+        "rule_assigned_points": {"$ref": "#/$defs/party_counts"},
+        "final_points": {"$ref": "#/$defs/party_counts"},
+        "schneider_level_source": {"$ref": "#/$defs/non_empty_string"},
+        "schwarz_level_source": {"$ref": "#/$defs/non_empty_string"},
+        "theoretical_schwarz_status": {"enum": ["not_excluded", "excluded"]},
+        "declared_mandatory_play_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
+        },
+        "mandatory_level_covered": {"type": "boolean"},
+        "open_throw_schneider_applied": {"type": "boolean"},
+        "open_throw_schwarz_applied": {"type": "boolean"},
+        "overbid_required_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
+        },
+        "normally_played_declarer_trick_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "rule_assigned_declarer_trick_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "remaining_points_recipient": {"$ref": "#/$defs/nullable_party"},
+        "remaining_points_assigned": {"type": "integer", "minimum": 0, "maximum": 120}
+      }
+    },
+    "null_game_value_details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hand_game", "ouvert"],
+      "properties": {
+        "hand_game": {"type": "boolean"},
+        "ouvert": {"type": "boolean"}
+      }
+    },
+    "suit_grand_game_value_details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "matadors",
+        "matador_multiplier",
+        "hand_game",
+        "schneider_announced",
+        "schwarz_announced",
+        "ouvert",
+        "modifier_multiplier",
+        "is_complete"
+      ],
+      "properties": {
+        "matadors": {"type": ["integer", "null"], "minimum": 1, "maximum": 11},
+        "matador_multiplier": {"type": ["integer", "null"], "minimum": 2, "maximum": 12},
+        "hand_game": {"type": "boolean"},
+        "schneider_announced": {"type": "boolean"},
+        "schwarz_announced": {"type": "boolean"},
+        "ouvert": {"type": "boolean"},
+        "modifier_multiplier": {"type": "integer", "minimum": 0},
+        "is_complete": {"type": "boolean"}
+      }
+    },
+    "game_value_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_type", "is_null_game", "base_value", "game_level", "game_value", "details"],
+      "properties": {
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "is_null_game": {"type": "boolean"},
+        "base_value": {"$ref": "#/$defs/nullable_integer"},
+        "game_level": {"$ref": "#/$defs/nullable_integer"},
+        "game_value": {"$ref": "#/$defs/nullable_integer"},
+        "details": {
+          "oneOf": [
+            {"$ref": "#/$defs/null_game_value_details"},
+            {"$ref": "#/$defs/suit_grand_game_value_details"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"is_null_game": {"const": true}},
+            "required": ["is_null_game"]
+          },
+          "then": {
+            "properties": {
+              "game_type": {"const": "null"},
+              "base_value": {"type": "null"},
+              "game_level": {"type": "null"},
+              "game_value": {"type": "integer"},
+              "details": {"$ref": "#/$defs/null_game_value_details"}
+            }
+          },
+          "else": {
+            "properties": {
+              "game_type": {"enum": ["clubs", "spades", "hearts", "diamonds", "grand"]},
+              "base_value": {"type": "integer"},
+              "details": {"$ref": "#/$defs/suit_grand_game_value_details"}
+            }
+          }
+        }
+      ]
+    },
+    "overbid_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bid_value", "game_value", "is_overbid", "margin", "required_game_value", "status"],
+      "properties": {
+        "bid_value": {"$ref": "#/$defs/nullable_integer"},
+        "game_value": {"$ref": "#/$defs/nullable_integer"},
+        "is_overbid": {"$ref": "#/$defs/nullable_boolean"},
+        "margin": {"$ref": "#/$defs/nullable_integer"},
+        "required_game_value": {"$ref": "#/$defs/nullable_integer"},
+        "status": {
+          "enum": ["unknown", "unknown_bid_value", "unknown_game_value", "overbid", "not_overbid"]
+        }
+      }
+    },
+    "settlement_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "game_end_kind": {
+          "enum": [
+            "declarer_concession",
+            "defender_concession",
+            "declarer_card_exposure",
+            "defender_open_play",
+            "open_card_throw"
+          ]
+        },
+        "outcome_source": {"$ref": "#/$defs/non_empty_string"},
+        "forced_winner": {"$ref": "#/$defs/party"},
+        "winner_basis": {"$ref": "#/$defs/non_empty_string"},
+        "decision_state_before_game_end": {"$ref": "#/$defs/recorded_state"},
+        "mandatory_level_awarded": {"type": "boolean"},
+        "mandatory_level_source": {"type": ["string", "null"]},
+        "claimed_play_level": {
+          "type": ["string", "null"],
+          "enum": ["simple", "schneider", "schwarz", null]
+        },
+        "claimed_level_source": {"const": "unanimous_defender_acceptance"},
+        "declared_mandatory_schneider_applied": {"type": "boolean"},
+        "declared_mandatory_schwarz_applied": {"type": "boolean"},
+        "accepted_claimed_schneider_applied": {"type": "boolean"},
+        "accepted_claimed_schwarz_applied": {"type": "boolean"},
+        "achieved_schneider_applied": {"type": "boolean"},
+        "achieved_schwarz_applied": {"type": "boolean"},
+        "overbid_required_value_applied": {"type": "boolean"},
+        "overbid_requirement_covered": {"type": "boolean"},
+        "rest_trick_proof_status": {"enum": ["valid", "invalid"]},
+        "rest_tricks_recipient": {"$ref": "#/$defs/party"},
+        "schneider_level_source": {"$ref": "#/$defs/non_empty_string"},
+        "schwarz_level_source": {"$ref": "#/$defs/non_empty_string"},
+        "theoretical_schwarz_status": {"enum": ["not_excluded", "excluded"]},
+        "declared_mandatory_play_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
+        },
+        "mandatory_play_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
+        },
+        "mandatory_level_covered": {"type": "boolean"},
+        "open_throw_schneider_applied": {"type": "boolean"},
+        "open_throw_schwarz_applied": {"type": "boolean"},
+        "overbid_required_level": {
+          "type": ["string", "null"],
+          "enum": ["schneider", "schwarz", null]
+        }
+      }
+    },
+    "final_settlement_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_complete",
+        "missing_inputs",
+        "declarer_won_by_card_points",
+        "winner",
+        "game_value",
+        "effective_game_value",
+        "bid_value",
+        "settlement_score",
+        "is_loss",
+        "is_overbid",
+        "overbid_margin",
+        "overbid_status",
+        "overbid_required_game_value",
+        "notes"
+      ],
+      "properties": {
+        "is_complete": {"const": true},
+        "missing_inputs": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/non_empty_string"},
+          "maxItems": 0
+        },
+        "declarer_won_by_card_points": {"$ref": "#/$defs/nullable_boolean"},
+        "winner": {"$ref": "#/$defs/party"},
+        "game_value": {"$ref": "#/$defs/nullable_integer"},
+        "effective_game_value": {"$ref": "#/$defs/nullable_integer"},
+        "bid_value": {"$ref": "#/$defs/nullable_integer"},
+        "settlement_score": {"$ref": "#/$defs/nullable_integer"},
+        "is_loss": {"$ref": "#/$defs/nullable_boolean"},
+        "is_overbid": {"$ref": "#/$defs/nullable_boolean"},
+        "overbid_margin": {"$ref": "#/$defs/nullable_integer"},
+        "overbid_status": {"$ref": "#/$defs/non_empty_string"},
+        "overbid_required_game_value": {"$ref": "#/$defs/nullable_integer"},
+        "settlement_basis": {"$ref": "#/$defs/settlement_basis"},
+        "notes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/non_empty_string"},
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "defender_consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "consenting_defender_player_ids"],
+      "properties": {
+        "status": {"enum": ["not_required", "granted"]},
+        "consenting_defender_player_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/stable_identifier"},
+          "maxItems": 2,
+          "uniqueItems": true
+        }
+      }
+    },
+    "declarer_concession_end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "kind", "rule_sections", "declarer_hand_cards_remaining",
+        "hand_card_count_reconciliation", "consent_required", "defender_consent",
+        "adjudicated_winner", "remaining_points_assigned", "settlement_level_policy",
+        "declarer_player_id", "event_after_play_count",
+        "event_after_completed_trick_count", "event_during_incomplete_trick"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "declarer_concession"},
+        "rule_sections": {
+          "type": "array",
+          "items": {"enum": ["4.4.1", "4.4.2"]},
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "declarer_hand_cards_remaining": {"type": "integer", "minimum": 1, "maximum": 10},
+        "hand_card_count_reconciliation": {"const": "confirmed"},
+        "consent_required": {"type": "boolean"},
+        "defender_consent": {"$ref": "#/$defs/defender_consent"},
+        "adjudicated_winner": {"const": "defenders"},
+        "remaining_points_assigned": {"const": false},
+        "settlement_level_policy": {"const": "declared_or_overbid_value_without_achieved_levels"},
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "event_after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "event_after_completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"}
+      }
+    },
+    "defender_concession_end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "kind", "rule_sections", "concession_form", "liable_party",
+        "joint_liability", "decision_state_before_concession", "adjudicated_winner",
+        "winner_basis", "remaining_points_assigned", "continued_play_requested",
+        "settlement_level_policy", "conceding_defender_player_id",
+        "non_conceding_defender_player_id", "event_after_play_count",
+        "event_after_completed_trick_count", "event_during_incomplete_trick"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "defender_concession"},
+        "rule_sections": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "prefixItems": [{"const": "4.4.3"}, {"enum": ["4.1.3", "4.1.4"]}],
+          "items": {"const": "4.1.5"}
+        },
+        "concession_form": {"enum": ["explicit_verbal", "adjudicated_unambiguous_conduct"]},
+        "liable_party": {"const": "defenders"},
+        "joint_liability": {"const": true},
+        "decision_state_before_concession": {"$ref": "#/$defs/recorded_state"},
+        "adjudicated_winner": {"$ref": "#/$defs/party"},
+        "winner_basis": {"enum": ["defender_concession", "preexisting_game_decision"]},
+        "remaining_points_assigned": {"const": false},
+        "continued_play_requested": {"const": false},
+        "settlement_level_policy": {
+          "enum": [
+            "declared_or_mandatory_value_without_optional_achieved_levels",
+            "secured_observed_levels_only"
+          ]
+        },
+        "conceding_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "non_conceding_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "event_after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "event_after_completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"}
+      }
+    },
+    "acceptance_forms": {
+      "type": "object",
+      "minProperties": 2,
+      "maxProperties": 2,
+      "propertyNames": {"$ref": "#/$defs/stable_identifier"},
+      "additionalProperties": {"enum": ["explicit", "unambiguous_conduct"]}
+    },
+    "declarer_card_exposure_end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "kind", "rule_sections", "exposure_form", "exposed_card_count",
+        "unanimous_defender_acceptance", "claimed_play_level",
+        "decision_state_before_shortening", "adjudicated_winner", "winner_basis",
+        "continued_play_required", "remaining_points_assigned", "settlement_level_policy",
+        "declarer_player_id", "shown_to_defender_player_id",
+        "accepting_defender_player_ids", "acceptance_forms", "event_after_play_count",
+        "event_after_completed_trick_count", "event_during_incomplete_trick"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "declarer_card_exposure"},
+        "rule_sections": {"const": ["4.4.4"]},
+        "exposure_form": {"enum": ["laid_open", "shown_to_defender"]},
+        "exposed_card_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "unanimous_defender_acceptance": {"const": true},
+        "claimed_play_level": {"enum": ["simple", "schneider", "schwarz"]},
+        "decision_state_before_shortening": {"$ref": "#/$defs/recorded_state"},
+        "adjudicated_winner": {"$ref": "#/$defs/party"},
+        "winner_basis": {
+          "enum": [
+            "accepted_declarer_card_exposure",
+            "preexisting_game_decision",
+            "uncovered_overbid_requirement"
+          ]
+        },
+        "continued_play_required": {"const": false},
+        "remaining_points_assigned": {"const": false},
+        "settlement_level_policy": {
+          "enum": [
+            "declared_and_unanimously_accepted_claimed_levels",
+            "secured_observed_levels_only"
+          ]
+        },
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "shown_to_defender_player_id": {
+          "oneOf": [{"$ref": "#/$defs/stable_identifier"}, {"type": "null"}]
+        },
+        "accepting_defender_player_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/stable_identifier"},
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "acceptance_forms": {"$ref": "#/$defs/acceptance_forms"},
+        "event_after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "event_after_completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"}
+      }
+    },
+    "defender_open_play_end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "kind", "rule_sections", "declarer_player_id",
+        "exposing_defender_player_id", "non_exposing_defender_player_id",
+        "defending_party_player_ids", "exposed_card_count", "declarer_response",
+        "decision_state_before_shortening", "remaining_trick_count",
+        "rest_trick_assignment", "rest_tricks_recipient", "adjudicated_winner",
+        "winner_basis", "continued_play_requested", "event_after_play_count",
+        "event_after_completed_trick_count", "event_during_incomplete_trick"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "defender_open_play"},
+        "rule_sections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "prefixItems": [{"const": "4.4.5"}],
+          "items": {"enum": ["4.1.3", "4.1.4", "4.1.5"]}
+        },
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "exposing_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "non_exposing_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "defending_party_player_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/stable_identifier"},
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "exposed_card_count": {"type": "integer", "minimum": 1, "maximum": 5},
+        "declarer_response": {"const": "accept_adjudication"},
+        "decision_state_before_shortening": {"$ref": "#/$defs/recorded_state"},
+        "remaining_trick_count": {"type": "integer", "minimum": 1, "maximum": 5},
+        "rest_trick_assignment": {"$ref": "#/$defs/rest_trick_assignment"},
+        "rest_tricks_recipient": {"$ref": "#/$defs/party"},
+        "adjudicated_winner": {"$ref": "#/$defs/party"},
+        "winner_basis": {
+          "enum": ["preexisting_game_decision", "valid_defender_open_play", "invalid_defender_open_play"]
+        },
+        "continued_play_requested": {"const": false},
+        "event_after_play_count": {"type": "integer", "minimum": 15, "maximum": 29},
+        "event_after_completed_trick_count": {"type": "integer", "minimum": 5, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"}
+      }
+    },
+    "open_card_throw_end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "kind", "rule_sections", "throwing_party", "opposing_party",
+        "joint_liability", "thrown_card_count", "statement_classification",
+        "decision_state_before_shortening", "rest_trick_assignment",
+        "rest_tricks_recipient", "remaining_trick_count", "observed_trick_counts",
+        "rule_assigned_trick_counts", "final_trick_counts", "observed_points",
+        "rule_assigned_points", "final_points", "adjudicated_winner", "winner_basis",
+        "schneider_rule_level_applied", "schwarz_rule_level_applied",
+        "theoretical_schwarz_status", "continued_play_supported", "declarer_player_id",
+        "throwing_player_id", "event_after_play_count", "event_after_completed_trick_count",
+        "event_during_incomplete_trick"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "open_card_throw"},
+        "rule_sections": {"const": ["4.4.6"]},
+        "throwing_party": {"$ref": "#/$defs/party"},
+        "opposing_party": {"$ref": "#/$defs/party"},
+        "joint_liability": {"type": "boolean"},
+        "thrown_card_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "statement_classification": {
+          "enum": ["none", "generic_concession", "attempted_level_limitation"]
+        },
+        "decision_state_before_shortening": {"$ref": "#/$defs/recorded_state"},
+        "rest_trick_assignment": {"$ref": "#/$defs/rest_trick_assignment"},
+        "rest_tricks_recipient": {"$ref": "#/$defs/party"},
+        "remaining_trick_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "observed_trick_counts": {"$ref": "#/$defs/party_counts"},
+        "rule_assigned_trick_counts": {"$ref": "#/$defs/party_counts"},
+        "final_trick_counts": {"$ref": "#/$defs/party_counts"},
+        "observed_points": {"$ref": "#/$defs/party_counts"},
+        "rule_assigned_points": {"$ref": "#/$defs/party_counts"},
+        "final_points": {"$ref": "#/$defs/party_counts"},
+        "adjudicated_winner": {"$ref": "#/$defs/party"},
+        "winner_basis": {
+          "enum": [
+            "open_card_throw_rule_state", "preexisting_game_decision", "failed_mandatory_level",
+            "uncovered_overbid_requirement", "theoretically_excluded_required_schwarz"
+          ]
+        },
+        "schneider_rule_level_applied": {"type": "boolean"},
+        "schwarz_rule_level_applied": {"type": "boolean"},
+        "theoretical_schwarz_status": {"enum": ["not_excluded", "excluded"]},
+        "continued_play_supported": {"const": false},
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "throwing_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "event_after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "event_after_completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"}
+      }
+    },
+    "continuation_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["defender_player_id", "response", "form"],
+      "properties": {
+        "defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "response": {"enum": ["accept", "continue"]},
+        "form": {"enum": ["explicit", "unambiguous_conduct"]}
+      }
+    },
+    "defender_open_play_continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_index", "kind", "rule_sections", "after_play_count",
+        "after_completed_trick_count", "event_during_incomplete_trick", "next_player_id",
+        "declarer_player_id", "exposing_defender_player_id",
+        "non_exposing_defender_player_id", "exposed_card_count", "declarer_response",
+        "cards_returned_to_hand", "hand_physically_open", "visibility_scope",
+        "rest_trick_claim", "rest_trick_claim_status", "continued_play_effect",
+        "first_affected_decision_index", "actual_plays_after_event", "exact_proof_applied",
+        "game_end_applied", "settlement_applied", "final_game_end_reason",
+        "final_outcome_source"
+      ],
+      "properties": {
+        "event_index": {"const": 1},
+        "kind": {"const": "defender_open_play_continuation"},
+        "rule_sections": {"const": ["4.4.5", "4.1.6"]},
+        "after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "after_completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"},
+        "next_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "exposing_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "non_exposing_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "exposed_card_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "declarer_response": {"const": "request_continued_play"},
+        "cards_returned_to_hand": {"const": true},
+        "hand_physically_open": {"const": false},
+        "visibility_scope": {"const": "all_players"},
+        "rest_trick_claim": {"const": "all_remaining_tricks"},
+        "rest_trick_claim_status": {"const": "not_adjudicated_due_to_continued_play"},
+        "continued_play_effect": {"const": "open_play_consequence_disregarded"},
+        "first_affected_decision_index": {"$ref": "#/$defs/decision_index"},
+        "actual_plays_after_event": {"type": "integer", "minimum": 0, "maximum": 30},
+        "exact_proof_applied": {"const": false},
+        "game_end_applied": {"const": false},
+        "settlement_applied": {"const": false},
+        "final_game_end_reason": {"$ref": "#/$defs/game_end_reason"},
+        "final_outcome_source": {
+          "enum": ["actual_continued_play", "subsequent_terminal_shortening"]
+        }
+      }
+    },
+    "declarer_card_exposure_continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_index", "kind", "rule_sections", "after_play_count",
+        "after_completed_trick_count", "event_during_incomplete_trick", "next_player_id",
+        "declarer_player_id", "exposure_form", "defender_responses",
+        "continuing_defender_player_ids", "accepting_defender_player_ids",
+        "unanimous_acceptance", "continuation_required", "public_declarer_card_count",
+        "cards_remain_in_declarer_hand", "hand_physically_open", "visibility_scope",
+        "claimed_play_level", "claimed_play_level_status", "first_affected_decision_index",
+        "actual_plays_after_event", "exact_proof_applied", "game_end_applied",
+        "settlement_applied", "final_game_end_reason", "final_outcome_source"
+      ],
+      "properties": {
+        "event_index": {"const": 1},
+        "kind": {"const": "declarer_card_exposure_continuation"},
+        "rule_sections": {"const": ["4.4.4"]},
+        "after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "after_completed_trick_count": {"type": "integer", "minimum": 0, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"},
+        "next_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "exposure_form": {"enum": ["laid_open", "shown_to_defender"]},
+        "shown_to_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "defender_responses": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/continuation_response"},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "continuing_defender_player_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/stable_identifier"},
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "accepting_defender_player_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/stable_identifier"},
+          "maxItems": 1,
+          "uniqueItems": true
+        },
+        "unanimous_acceptance": {"const": false},
+        "continuation_required": {"const": true},
+        "public_declarer_card_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "cards_remain_in_declarer_hand": {"const": true},
+        "hand_physically_open": {"const": true},
+        "visibility_scope": {"const": "all_players"},
+        "claimed_play_level": {"enum": ["simple", "schneider", "schwarz"]},
+        "claimed_play_level_status": {"const": "continuation_required_no_immediate_settlement_effect"},
+        "first_affected_decision_index": {"$ref": "#/$defs/decision_index"},
+        "actual_plays_after_event": {"type": "integer", "minimum": 0, "maximum": 30},
+        "exact_proof_applied": {"const": false},
+        "game_end_applied": {"const": false},
+        "settlement_applied": {"const": false},
+        "final_game_end_reason": {"$ref": "#/$defs/game_end_reason"},
+        "final_outcome_source": {
+          "enum": ["actual_continued_play", "subsequent_terminal_shortening"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"exposure_form": {"const": "shown_to_defender"}},
+            "required": ["exposure_form"]
+          },
+          "then": {"required": ["shown_to_defender_player_id"]},
+          "else": {"not": {"required": ["shown_to_defender_player_id"]}}
+        }
+      ]
+    },
+    "historical_game_events_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "event_count", "events"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "event_count": {"const": 1},
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "oneOf": [
+              {"$ref": "#/$defs/defender_open_play_continuation"},
+              {"$ref": "#/$defs/declarer_card_exposure_continuation"}
+            ]
+          }
+        }
+      }
+    },
+    "outcome_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_game_id", "game_end_reason", "status", "game_result_summary",
+        "game_value_summary", "overbid_summary", "final_settlement_summary"
+      ],
+      "properties": {
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "game_end_reason": {"$ref": "#/$defs/game_end_reason"},
+        "status": {"const": "complete"},
+        "game_result_summary": {"$ref": "#/$defs/game_result_summary"},
+        "game_value_summary": {"$ref": "#/$defs/game_value_summary"},
+        "overbid_summary": {"$ref": "#/$defs/overbid_summary"},
+        "final_settlement_summary": {"$ref": "#/$defs/final_settlement_summary"},
+        "historical_game_events_summary": {
+          "$ref": "#/$defs/historical_game_events_summary"
+        },
+        "historical_game_end_summary": {
+          "oneOf": [
+            {"$ref": "#/$defs/declarer_concession_end"},
+            {"$ref": "#/$defs/defender_concession_end"},
+            {"$ref": "#/$defs/declarer_card_exposure_end"},
+            {"$ref": "#/$defs/defender_open_play_end"},
+            {"$ref": "#/$defs/open_card_throw_end"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"game_end_reason": {"const": "normal_completion"}},
+            "required": ["game_end_reason"]
+          },
+          "then": {"not": {"required": ["historical_game_end_summary"]}},
+          "else": {"required": ["historical_game_end_summary"]}
+        },
+        {
+          "if": {
+            "properties": {"game_end_reason": {"const": "declarer_concession"}},
+            "required": ["game_end_reason"]
+          },
+          "then": {
+            "properties": {
+              "historical_game_end_summary": {"$ref": "#/$defs/declarer_concession_end"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"game_end_reason": {"const": "defender_concession"}},
+            "required": ["game_end_reason"]
+          },
+          "then": {
+            "properties": {
+              "historical_game_end_summary": {"$ref": "#/$defs/defender_concession_end"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"game_end_reason": {"const": "declarer_card_exposure"}},
+            "required": ["game_end_reason"]
+          },
+          "then": {
+            "properties": {
+              "historical_game_end_summary": {"$ref": "#/$defs/declarer_card_exposure_end"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"game_end_reason": {"const": "defender_open_play"}},
+            "required": ["game_end_reason"]
+          },
+          "then": {
+            "properties": {
+              "historical_game_end_summary": {"$ref": "#/$defs/defender_open_play_end"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"game_end_reason": {"const": "open_card_throw"}},
+            "required": ["game_end_reason"]
+          },
+          "then": {
+            "properties": {
+              "historical_game_end_summary": {"$ref": "#/$defs/open_card_throw_end"}
+            }
+          }
+        }
+      ]
+    },
+    "assessment_status": {
+      "enum": ["forced_move", "best_or_equivalent", "strictly_below_best", "not_assessable"]
+    },
+    "evidence_basis": {
+      "enum": [
+        "all_compatible_worlds", "sampled_compatible_worlds", "completed_common_prefix",
+        "immediate_expected_value", "none"
+      ]
+    },
+    "impact_tier": {
+      "enum": [
+        "no_missed_impact", "contract_success", "settlement_score", "card_point_margin",
+        "immediate_only", "not_assessable"
+      ]
+    },
+    "assessment_factor": {
+      "enum": [
+        "forced_move", "aggregate_equivalent_choice", "strictly_lower_contract_success",
+        "strictly_lower_settlement_score", "strictly_lower_card_point_margin",
+        "immediate_only_best_or_equivalent", "immediate_only_better_alternative",
+        "search_unavailable", "no_assessable_evidence", "null_margin_not_applicable"
+      ]
+    },
+    "assessment_limitation": {
+      "enum": [
+        "bounded_late_game_search", "determinization_strategy_fusion",
+        "sampled_compatible_worlds", "completed_common_prefix",
+        "immediate_expected_value_only", "search_unavailable",
+        "observed_card_not_ground_truth", "no_assessable_evidence"
+      ]
+    },
+    "immediate_candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["card", "rank", "is_recommended", "expected_point_swing", "objective_utility"],
+      "properties": {
+        "card": {"$ref": "#/$defs/card"},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 10},
+        "is_recommended": {"type": "boolean"},
+        "expected_point_swing": {"type": "number"},
+        "objective_utility": {"type": "number"}
+      }
+    },
+    "immediate_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["is_available", "unavailable_reason", "recommended_card", "candidate_count", "candidates"],
+      "properties": {
+        "is_available": {"type": "boolean"},
+        "unavailable_reason": {"type": ["string", "null"]},
+        "recommended_card": {"$ref": "#/$defs/nullable_card"},
+        "candidate_count": {"type": "integer", "minimum": 0, "maximum": 10},
+        "candidates": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/immediate_candidate"},
+          "maxItems": 10
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"is_available": {"const": true}},
+            "required": ["is_available"]
+          },
+          "then": {
+            "properties": {
+              "unavailable_reason": {"type": "null"},
+              "recommended_card": {"$ref": "#/$defs/card"},
+              "candidate_count": {"minimum": 1},
+              "candidates": {"minItems": 1}
+            }
+          },
+          "else": {
+            "properties": {
+              "unavailable_reason": {"type": "string", "minLength": 1},
+              "recommended_card": {"type": "null"},
+              "candidate_count": {"const": 0},
+              "candidates": {"maxItems": 0}
+            }
+          }
+        }
+      ]
+    },
+    "decision_time_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version", "information_policy", "source_game_id", "decision_index",
+        "trick_number", "play_index", "acting_player_id", "acting_seat", "local_side",
+        "game_type", "root_seat", "game_phase", "legal_cards", "immediate_evidence",
+        "bounded_search_result", "search_vs_immediate_comparison"
+      ],
+      "properties": {
+        "contract_version": {"const": 1},
+        "information_policy": {"const": "decision_time_then_retrospective_attachment"},
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "decision_index": {"$ref": "#/$defs/decision_index"},
+        "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
+        "play_index": {"type": "integer", "minimum": 1, "maximum": 3},
+        "acting_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "acting_seat": {"enum": ["forehand", "middlehand", "rearhand"]},
+        "local_side": {"$ref": "#/$defs/party"},
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "root_seat": {"enum": ["lead", "second", "third"]},
+        "game_phase": {"enum": ["opening", "middle", "endgame"]},
+        "legal_cards": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/card"},
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "immediate_evidence": {"$ref": "#/$defs/immediate_evidence"},
+        "bounded_search_result": {
+          "$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"
+        },
+        "search_vs_immediate_comparison": {
+          "$ref": "https://example.local/skat-ai/historical_search_review.schema.json#/$defs/search_vs_immediate_comparison"
+        }
+      }
+    },
+    "decision_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version", "decision_time_evidence", "actual_card", "assessment_status",
+        "evidence_basis", "impact_tier", "best_card", "actual_card_rank", "best_card_rank",
+        "strictly_better_card_count", "aggregate_equivalent", "search_actual_card_comparison",
+        "immediate_baseline_quality", "immediate_expected_point_swing_gap", "factors", "limitations"
+      ],
+      "properties": {
+        "contract_version": {"const": 1},
+        "decision_time_evidence": {"$ref": "#/$defs/decision_time_evidence"},
+        "actual_card": {"$ref": "#/$defs/card"},
+        "assessment_status": {"$ref": "#/$defs/assessment_status"},
+        "evidence_basis": {"$ref": "#/$defs/evidence_basis"},
+        "impact_tier": {"$ref": "#/$defs/impact_tier"},
+        "best_card": {"$ref": "#/$defs/nullable_card"},
+        "actual_card_rank": {"type": ["integer", "null"], "minimum": 1, "maximum": 32},
+        "best_card_rank": {"type": ["integer", "null"], "minimum": 1, "maximum": 32},
+        "strictly_better_card_count": {"type": ["integer", "null"], "minimum": 0, "maximum": 31},
+        "aggregate_equivalent": {"$ref": "#/$defs/nullable_boolean"},
+        "search_actual_card_comparison": {
+          "$ref": "https://example.local/skat-ai/historical_search_review.schema.json#/$defs/search_actual_card_comparison"
+        },
+        "immediate_baseline_quality": {
+          "enum": ["not_available", "optimal", "acceptable", "suboptimal", "mistake"]
+        },
+        "immediate_expected_point_swing_gap": {"$ref": "#/$defs/nullable_number"},
+        "factors": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assessment_factor"},
+          "uniqueItems": true,
+          "maxItems": 10
+        },
+        "limitations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/assessment_limitation"},
+          "uniqueItems": true,
+          "maxItems": 8
+        }
+      }
+    },
+    "key_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prioritization_version", "rank", "assessment", "selection_reason",
+        "primary_gap", "is_high_impact", "turning_point_types"
+      ],
+      "properties": {
+        "prioritization_version": {"const": 1},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "assessment": {"$ref": "#/$defs/decision_assessment"},
+        "selection_reason": {
+          "enum": [
+            "contract_success_gap", "settlement_score_gap", "card_point_margin_gap",
+            "immediate_only_gap"
+          ]
+        },
+        "primary_gap": {"type": "number", "exclusiveMinimum": 0},
+        "is_high_impact": {"type": "boolean"},
+        "turning_point_types": {
+          "type": "array",
+          "items": {"enum": ["decision_opportunity", "recorded_outcome"]},
+          "uniqueItems": true,
+          "maxItems": 2
+        }
+      }
+    },
+    "turning_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prioritization_version", "turning_point_type", "decision_index", "assessment",
+        "is_high_impact", "recorded_state_before", "recorded_state_after", "decided_side",
+        "factors", "limitations"
+      ],
+      "properties": {
+        "prioritization_version": {"const": 1},
+        "turning_point_type": {"enum": ["decision_opportunity", "recorded_outcome"]},
+        "decision_index": {"$ref": "#/$defs/decision_index"},
+        "assessment": {"$ref": "#/$defs/decision_assessment"},
+        "is_high_impact": {"const": true},
+        "recorded_state_before": {"$ref": "#/$defs/nullable_recorded_state"},
+        "recorded_state_after": {"$ref": "#/$defs/nullable_recorded_state"},
+        "decided_side": {"$ref": "#/$defs/nullable_party"},
+        "factors": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "lower_contract_success_opportunity", "recorded_contract_became_decided",
+              "recorded_declarer_became_decided", "recorded_defenders_became_decided",
+              "forced_recorded_outcome_transition"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 3
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "bounded_late_game_search", "determinization_strategy_fusion",
+              "sampled_compatible_worlds", "completed_common_prefix",
+              "immediate_expected_value_only", "search_unavailable",
+              "observed_card_not_ground_truth", "no_assessable_evidence",
+              "counterfactual_aggregate_not_causal", "recorded_path_only",
+              "decision_not_single_cause"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 9
+        }
+      }
+    },
+    "prioritization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prioritization_version", "source_game_id", "decision_count",
+        "assessable_decision_count", "missed_impact_decision_count",
+        "high_impact_decision_count", "recorded_initial_state", "recorded_final_state",
+        "key_decisions", "turning_points"
+      ],
+      "properties": {
+        "prioritization_version": {"const": 1},
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "missed_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "recorded_initial_state": {"$ref": "#/$defs/recorded_state"},
+        "recorded_final_state": {"$ref": "#/$defs/recorded_state"},
+        "key_decisions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/key_decision"},
+          "maxItems": 5
+        },
+        "turning_points": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/turning_point"},
+          "maxItems": 31
+        }
+      }
+    },
+    "named_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count"],
+      "properties": {"count": {"$ref": "#/$defs/count"}}
+    },
+    "assessment_status_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment_status", "count"],
+      "properties": {
+        "assessment_status": {"$ref": "#/$defs/assessment_status"},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "evidence_basis_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_basis", "count"],
+      "properties": {
+        "evidence_basis": {"$ref": "#/$defs/evidence_basis"},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "impact_tier_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["impact_tier", "count"],
+      "properties": {
+        "impact_tier": {"$ref": "#/$defs/impact_tier"},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "search_status_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["search_status", "count"],
+      "properties": {
+        "search_status": {"enum": ["complete", "partial", "timeout", "unavailable"]},
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "world_coverage_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["world_coverage", "count"],
+      "properties": {
+        "world_coverage": {
+          "enum": ["none", "single_exact_world", "all_compatible_worlds", "sampled_compatible_worlds"]
+        },
+        "count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "coverage_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_count", "assessable_decision_count", "forced_move_count",
+        "best_or_equivalent_count", "strictly_below_best_count", "not_assessable_count",
+        "high_impact_decision_count", "key_decision_count", "turning_point_count",
+        "pattern_count", "actionable_pattern_count", "decision_recommendation_count",
+        "pattern_recommendation_count", "search_recommendation_count",
+        "immediate_available_count", "assessment_status_counts", "evidence_basis_counts",
+        "impact_tier_counts", "search_status_counts", "world_coverage_counts"
+      ],
+      "properties": {
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "forced_move_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "best_or_equivalent_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "strictly_below_best_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "not_assessable_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "key_decision_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "turning_point_count": {"type": "integer", "minimum": 0, "maximum": 31},
+        "pattern_count": {"type": "integer", "minimum": 0, "maximum": 72},
+        "actionable_pattern_count": {"type": "integer", "minimum": 0, "maximum": 45},
+        "decision_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "pattern_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "search_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "immediate_available_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessment_status_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/assessment_status_count"},
+          "minItems": 4, "maxItems": 4
+        },
+        "evidence_basis_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/evidence_basis_count"},
+          "minItems": 5, "maxItems": 5
+        },
+        "impact_tier_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/impact_tier_count"},
+          "minItems": 6, "maxItems": 6
+        },
+        "search_status_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/search_status_count"},
+          "minItems": 4, "maxItems": 4
+        },
+        "world_coverage_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/world_coverage_count"},
+          "minItems": 4, "maxItems": 4
+        }
+      }
+    },
+    "pattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version", "source_game_id", "pattern_type", "scope", "scope_value",
+        "game_type", "scope_decision_count", "scope_assessable_decision_count",
+        "occurrence_count", "decision_indices", "key_decision_indices",
+        "high_impact_decision_count", "evidence_basis_counts", "impact_tier_counts",
+        "is_actionable", "factors", "limitations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "pattern_type": {
+          "enum": [
+            "repeated_lower_contract_success", "repeated_lower_settlement_score",
+            "repeated_lower_card_point_margin", "repeated_immediate_only_gap",
+            "repeated_search_immediate_divergence", "repeated_aggregate_equivalent_choice",
+            "repeated_forced_move", "repeated_search_unavailable"
+          ]
+        },
+        "scope": {"enum": ["player", "role", "phase", "contract"]},
+        "scope_value": {"$ref": "#/$defs/stable_identifier"},
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "scope_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "scope_assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "occurrence_count": {"type": "integer", "minimum": 2, "maximum": 30},
+        "decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "key_decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "evidence_basis_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/evidence_basis_count"},
+          "minItems": 5, "maxItems": 5
+        },
+        "impact_tier_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/impact_tier_count"},
+          "minItems": 6, "maxItems": 6
+        },
+        "is_actionable": {"type": "boolean"},
+        "factors": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "repeated_contract_success_gap", "repeated_settlement_score_gap",
+              "repeated_card_point_margin_gap", "repeated_immediate_only_gap",
+              "repeated_search_immediate_divergence", "repeated_aggregate_equivalent_choice",
+              "repeated_forced_move", "repeated_search_unavailable", "player_scope",
+              "role_scope", "phase_scope", "contract_scope"
+            ]
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "single_recorded_game_only", "minimum_occurrence_product_rule",
+              "bounded_late_game_search", "determinization_strategy_fusion",
+              "sampled_compatible_worlds", "completed_common_prefix",
+              "immediate_expected_value_only", "search_unavailable",
+              "observed_card_not_ground_truth", "no_tactical_motif_inference",
+              "no_causal_outcome_claim"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 11
+        }
+      }
+    },
+    "recommendation_factor": {
+      "enum": [
+        "decision_specific", "repeated_pattern", "contract_success_priority",
+        "settlement_score_priority", "card_point_margin_priority", "immediate_only_evidence",
+        "search_immediate_divergence", "player_scope", "role_scope", "phase_scope",
+        "contract_scope"
+      ]
+    },
+    "decision_recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version", "rank", "recommendation_type", "key_decision", "title",
+        "explanation", "action", "factors", "limitations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "recommendation_type": {
+          "enum": [
+            "prioritize_contract_success", "prefer_higher_settlement_score",
+            "prefer_higher_card_point_margin", "review_immediate_alternative"
+          ]
+        },
+        "key_decision": {"$ref": "#/$defs/key_decision"},
+        "title": {"$ref": "#/$defs/non_empty_string"},
+        "explanation": {"$ref": "#/$defs/non_empty_string"},
+        "action": {"$ref": "#/$defs/non_empty_string"},
+        "factors": {
+          "type": "array", "items": {"$ref": "#/$defs/recommendation_factor"},
+          "minItems": 2, "maxItems": 2, "uniqueItems": true
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "single_recorded_game_only", "minimum_occurrence_product_rule",
+              "bounded_late_game_search", "determinization_strategy_fusion",
+              "sampled_compatible_worlds", "completed_common_prefix",
+              "immediate_expected_value_only", "search_unavailable",
+              "observed_card_not_ground_truth", "no_tactical_motif_inference",
+              "no_causal_outcome_claim"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 11
+        }
+      }
+    },
+    "pattern_recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version", "rank", "recommendation_type", "pattern", "title",
+        "explanation", "action", "decision_indices", "factors", "limitations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "recommendation_type": {
+          "enum": [
+            "review_repeated_contract_success_gaps", "review_repeated_settlement_score_gaps",
+            "review_repeated_card_point_margin_gaps", "review_repeated_immediate_only_gaps",
+            "review_search_immediate_divergence"
+          ]
+        },
+        "pattern": {"$ref": "#/$defs/pattern"},
+        "title": {"$ref": "#/$defs/non_empty_string"},
+        "explanation": {"$ref": "#/$defs/non_empty_string"},
+        "action": {"$ref": "#/$defs/non_empty_string"},
+        "decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "factors": {
+          "type": "array", "items": {"$ref": "#/$defs/recommendation_factor"},
+          "minItems": 3, "maxItems": 3, "uniqueItems": true
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "single_recorded_game_only", "minimum_occurrence_product_rule",
+              "bounded_late_game_search", "determinization_strategy_fusion",
+              "sampled_compatible_worlds", "completed_common_prefix",
+              "immediate_expected_value_only", "search_unavailable",
+              "observed_card_not_ground_truth", "no_tactical_motif_inference",
+              "no_causal_outcome_claim"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 11
+        }
+      }
+    },
+    "guidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_version", "source_game_id", "decision_count", "pattern_count",
+        "actionable_pattern_count", "decision_recommendation_count",
+        "pattern_recommendation_count", "prioritization", "patterns",
+        "decision_recommendations", "pattern_recommendations"
+      ],
+      "properties": {
+        "guidance_version": {"const": 1},
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "pattern_count": {"type": "integer", "minimum": 0, "maximum": 72},
+        "actionable_pattern_count": {"type": "integer", "minimum": 0, "maximum": 45},
+        "decision_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "pattern_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "prioritization": {"$ref": "#/$defs/prioritization"},
+        "patterns": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/pattern"},
+          "maxItems": 72
+        },
+        "decision_recommendations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/decision_recommendation"},
+          "maxItems": 5
+        },
+        "pattern_recommendations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/pattern_recommendation"},
+          "maxItems": 5
+        }
+      }
+    },
+    "scope_summary_properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope", "scope_value", "decision_count", "assessable_decision_count",
+        "forced_move_count", "best_or_equivalent_count", "strictly_below_best_count",
+        "not_assessable_count", "high_impact_decision_count", "key_decision_count",
+        "turning_point_count", "decision_indices", "key_decision_indices",
+        "turning_point_indices", "pattern_count", "actionable_pattern_count",
+        "decision_recommendation_count", "pattern_recommendation_count",
+        "assessment_status_counts", "evidence_basis_counts", "impact_tier_counts"
+      ],
+      "properties": {
+        "scope": {"enum": ["player", "role", "phase", "contract"]},
+        "scope_value": {"$ref": "#/$defs/stable_identifier"},
+        "decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "assessable_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "forced_move_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "best_or_equivalent_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "strictly_below_best_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "not_assessable_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "high_impact_decision_count": {"type": "integer", "minimum": 0, "maximum": 30},
+        "key_decision_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "turning_point_count": {"type": "integer", "minimum": 0, "maximum": 31},
+        "decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "key_decision_indices": {"$ref": "#/$defs/decision_indices"},
+        "turning_point_indices": {"$ref": "#/$defs/decision_indices"},
+        "pattern_count": {"type": "integer", "minimum": 0, "maximum": 72},
+        "actionable_pattern_count": {"type": "integer", "minimum": 0, "maximum": 45},
+        "decision_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "pattern_recommendation_count": {"type": "integer", "minimum": 0, "maximum": 5},
+        "assessment_status_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/assessment_status_count"},
+          "minItems": 4, "maxItems": 4
+        },
+        "evidence_basis_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/evidence_basis_count"},
+          "minItems": 5, "maxItems": 5
+        },
+        "impact_tier_counts": {
+          "type": "array", "items": {"$ref": "#/$defs/impact_tier_count"},
+          "minItems": 6, "maxItems": 6
+        }
+      }
+    },
+    "player_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {"properties": {"scope": {"const": "player"}}}
+      ]
+    },
+    "role_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {
+          "properties": {
+            "scope": {"const": "role"},
+            "scope_value": {"enum": ["declarer", "defenders"]}
+          }
+        }
+      ]
+    },
+    "phase_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {
+          "properties": {
+            "scope": {"const": "phase"},
+            "scope_value": {"enum": ["opening", "middle", "endgame"]}
+          }
+        }
+      ]
+    },
+    "contract_scope_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/scope_summary_properties"},
+        {
+          "properties": {
+            "scope": {"const": "contract"},
+            "scope_value": {"$ref": "#/$defs/game_type"}
+          }
+        }
+      ]
+    },
+    "report_limitation": {
+      "enum": [
+        "outcome_context_not_decision_evidence", "single_recorded_game_only",
+        "bounded_late_game_search", "determinization_strategy_fusion",
+        "sampled_compatible_worlds", "completed_common_prefix",
+        "immediate_expected_value_only", "search_unavailable",
+        "observed_card_not_ground_truth", "incomplete_assessment_coverage",
+        "no_tactical_motif_inference", "no_causal_outcome_claim", "no_player_skill_rating"
+      ]
+    }
+  }
+}

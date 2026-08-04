@@ -154,6 +154,9 @@ from skat_ai.recommendation_workflow import (
     execute_recommendation_workflow,
 )
 from skat_ai.recommender import recommend_card_by_expected_value
+from skat_ai.replay_coaching_report import (
+    build_historical_replay_coaching_public_summaries,
+)
 from skat_ai.result_serialization import (
     build_serializable_multi_step_result,
     build_serializable_policy_comparison_result,
@@ -1633,6 +1636,106 @@ def print_historical_search_review_result(summary: dict[str, Any]) -> None:
     )
 
 
+def print_historical_replay_coaching_result(summary: dict[str, Any]) -> None:
+    """Prints the concise public Replay Coaching view without private analysis state."""
+    game = summary["game_context"]
+    declaration = game["declaration"]
+    coverage = summary["coverage_summary"]
+    prioritization = summary["prioritization"]
+    guidance = summary["guidance"]
+    outcome = summary["outcome_context"]
+
+    print()
+    print("Historical Replay Coaching Report")
+    print("Source game:", summary["source_game_id"])
+    print("Method:", summary["report_method"])
+    print(
+        "Game type and declaration:",
+        f"{game['game_type']}; Hand {str(declaration['hand_game']).lower()}; "
+        f"Ouvert {str(declaration['ouvert']).lower()}; bid {declaration['bid_value']}.",
+    )
+    print("Game-end reason:", game["game_end_reason"].replace("_", " "))
+    print(
+        "Decision coverage:",
+        f"{coverage['assessable_decision_count']} of {coverage['decision_count']} assessable; "
+        f"{coverage['not_assessable_count']} not assessable.",
+    )
+    print("High-impact decisions:", coverage["high_impact_decision_count"])
+
+    print("Key Decisions")
+    if not prioritization["key_decisions"]:
+        print("None.")
+    for key_decision in prioritization["key_decisions"]:
+        assessment = key_decision["assessment"]
+        evidence = assessment["decision_time_evidence"]
+        marker = "high impact" if key_decision["is_high_impact"] else "review focus"
+        print(
+            f"{key_decision['rank']}. Decision {evidence['decision_index']}; "
+            f"actor {evidence['acting_player_id']}; trick {evidence['trick_number']}, "
+            f"play {evidence['play_index']}; actual {assessment['actual_card']}; "
+            f"best evaluated {assessment['best_card']}; impact "
+            f"{assessment['impact_tier'].replace('_', ' ')}; evidence "
+            f"{assessment['evidence_basis'].replace('_', ' ')}; {marker}."
+        )
+
+    print("Turning Points")
+    if not prioritization["turning_points"]:
+        print("None.")
+    for turning_point in prioritization["turning_points"]:
+        assessment = turning_point["assessment"]
+        evidence = assessment["decision_time_evidence"]
+        before = turning_point["recorded_state_before"]
+        after = turning_point["recorded_state_after"]
+        transition = (
+            f"{before.replace('_', ' ')} -> {after.replace('_', ' ')}"
+            if before is not None and after is not None
+            else "counterfactual aggregate opportunity; no recorded transition"
+        )
+        print(
+            f"{turning_point['turning_point_type'].replace('_', ' ')}; decision "
+            f"{turning_point['decision_index']}; actor {evidence['acting_player_id']}; "
+            f"{transition}; high impact."
+        )
+
+    print("Decision Recommendations")
+    if not guidance["decision_recommendations"]:
+        print("None.")
+    for recommendation in guidance["decision_recommendations"]:
+        print(f"{recommendation['rank']}. {recommendation['title']}")
+        print("Action:", recommendation["action"])
+
+    print("Pattern Recommendations")
+    if not guidance["pattern_recommendations"]:
+        print("None.")
+    for recommendation in guidance["pattern_recommendations"]:
+        print(f"{recommendation['rank']}. {recommendation['title']}")
+        print("Action:", recommendation["action"])
+
+    for label, field_name in (
+        ("Player summaries", "player_summaries"),
+        ("Role summaries", "role_summaries"),
+        ("Phase summaries", "phase_summaries"),
+        ("Contract summary", "contract_summaries"),
+    ):
+        rows = summary[field_name]
+        compact = "; ".join(
+            f"{row['scope_value']}: {row['decision_count']} decisions, "
+            f"{row['key_decision_count']} key, {row['turning_point_count']} turning"
+            for row in rows
+        )
+        print(f"{label}: {compact}.")
+
+    print("Retrospective outcome context")
+    print("Recorded end:", outcome["game_end_reason"].replace("_", " "))
+    print("Recorded winner:", outcome["game_result_summary"]["winner"])
+    print(
+        "Recorded settlement score:",
+        outcome["final_settlement_summary"]["settlement_score"],
+    )
+    print("This final outcome is retrospective context, not decision-time evidence.")
+    print("Report limitations:", ", ".join(summary["limitations"]))
+
+
 def print_dataset_partition_audit_result(result: dict[str, Any]) -> None:
     """Prints a concise stable-player partition-audit summary."""
     summary = result["dataset_partition_audit_summary"]
@@ -2273,6 +2376,7 @@ def run_json_historical_game_analysis(
     historical_decision_snapshots: bool = False,
     historical_game_review: bool = False,
     historical_search_review: bool = False,
+    historical_replay_coaching: bool = False,
     search_seed: int | None = None,
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     sample_count: int | None = None,
@@ -2298,7 +2402,12 @@ def run_json_historical_game_analysis(
             statistics_input_file=opponent_statistics_file,
         )
     snapshot_summary = None
-    if historical_decision_snapshots or historical_game_review or historical_search_review:
+    if (
+        historical_decision_snapshots
+        or historical_game_review
+        or historical_search_review
+        or historical_replay_coaching
+    ):
         snapshot_summary = build_historical_decision_snapshots(historical_game_summary)
     if historical_decision_snapshots:
         if snapshot_summary is None:
@@ -2329,7 +2438,31 @@ def run_json_historical_game_analysis(
                 right_opponent_response_policy_override=(right_opponent_response_policy_override),
             )
         )
-    if historical_search_review:
+    if historical_replay_coaching:
+        if snapshot_summary is None:
+            raise ValueError("Historical decision snapshots were not generated.")
+        if search_seed is None:
+            raise ValueError("Historical Replay Coaching requires an explicit Search seed.")
+        public_summaries = build_historical_replay_coaching_public_summaries(
+            snapshot_summary=snapshot_summary,
+            historical_record=record,
+            base_search_seed=search_seed,
+            search_budget_profile=search_budget_profile,
+            immediate_sample_count=(
+                sample_count
+                if sample_count is not None
+                else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+            ),
+            immediate_base_random_seed=base_random_seed,
+        )
+        historical_game_summary["historical_replay_coaching_summary"] = (
+            public_summaries["historical_replay_coaching_summary"]
+        )
+        if historical_search_review:
+            historical_game_summary["historical_search_review_summary"] = (
+                public_summaries["historical_search_review_summary"]
+            )
+    elif historical_search_review:
         if snapshot_summary is None:
             raise ValueError("Historical decision snapshots were not generated.")
         if search_seed is None:
@@ -2367,6 +2500,10 @@ def run_json_historical_game_analysis(
     if historical_search_review:
         print_historical_search_review_result(
             historical_game_summary["historical_search_review_summary"]
+        )
+    if historical_replay_coaching:
+        print_historical_replay_coaching_result(
+            historical_game_summary["historical_replay_coaching_summary"]
         )
     if output_path is not None:
         print()
@@ -2680,16 +2817,27 @@ def parse_arguments() -> argparse.Namespace:
         help="Evaluate every historical decision with bounded Search and Immediate.",
     )
     parser.add_argument(
+        "--historical-replay-coaching",
+        action="store_true",
+        help="Build the complete Replay Coaching Report for a historical game.",
+    )
+    parser.add_argument(
         "--search-seed",
         type=int,
         default=None,
-        help="Use this explicit base seed for Historical Search Review or evaluation.",
+        help=(
+            "Use this explicit base seed for Historical Search Review, Replay Coaching, "
+            "or evaluation."
+        ),
     )
     parser.add_argument(
         "--search-budget-profile",
         choices=SEARCH_BUDGET_PROFILE_IDENTIFIERS,
         default=None,
-        help="Select a versioned Historical Search Review or evaluation budget profile.",
+        help=(
+            "Select a versioned Historical Search Review, Replay Coaching, or evaluation "
+            "budget profile."
+        ),
     )
     parser.add_argument(
         "--evaluate-bounded-search",
@@ -2920,22 +3068,27 @@ def validate_cli_arguments(
             "--evaluate-bounded-search is supported only for training_dataset_input."
         )
     historical_search = getattr(args, "historical_search_review", False)
+    historical_coaching = getattr(args, "historical_replay_coaching", False)
     search_seed = getattr(args, "search_seed", None)
     search_budget_profile = getattr(args, "search_budget_profile", None)
-    if (historical_search or evaluate_search) and search_seed is None:
+    if (historical_search or historical_coaching or evaluate_search) and search_seed is None:
         raise CliUsageError(
-            "--historical-search-review and --evaluate-bounded-search require --search-seed."
+            "Historical Search Review, Historical Replay Coaching, and bounded-Search "
+            "evaluation require --search-seed."
         )
-    if search_seed is not None and not (historical_search or evaluate_search):
+    if search_seed is not None and not (
+        historical_search or historical_coaching or evaluate_search
+    ):
         raise CliUsageError(
-            "--search-seed requires --historical-search-review or --evaluate-bounded-search."
+            "--search-seed requires --historical-search-review, "
+            "--historical-replay-coaching, or --evaluate-bounded-search."
         )
     if search_budget_profile is not None and not (
-        historical_search or evaluate_search
+        historical_search or historical_coaching or evaluate_search
     ):
         raise CliUsageError(
             "--search-budget-profile requires --historical-search-review or "
-            "--evaluate-bounded-search."
+            "--historical-replay-coaching or --evaluate-bounded-search."
         )
     if (
         getattr(args, "search_evaluation_max_decisions", None) is not None
@@ -3090,9 +3243,17 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         )
     incompatible_options = {
         "--samples": args.samples is not None
-        and not (args.historical_game_review or args.historical_search_review),
+        and not (
+            args.historical_game_review
+            or args.historical_search_review
+            or args.historical_replay_coaching
+        ),
         "--seed": args.seed is not None
-        and not (args.historical_game_review or args.historical_search_review),
+        and not (
+            args.historical_game_review
+            or args.historical_search_review
+            or args.historical_replay_coaching
+        ),
         "--opponent-strategy": args.opponent_strategy is not None,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
@@ -3156,6 +3317,7 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
         "--historical-search-review": args.historical_search_review,
+        "--historical-replay-coaching": args.historical_replay_coaching,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
         "--expected-value-samples": args.expected_value_samples is not None,
@@ -3253,6 +3415,9 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
         "--historical-search-review": getattr(args, "historical_search_review", False),
+        "--historical-replay-coaching": getattr(
+            args, "historical_replay_coaching", False
+        ),
         "--search-seed": getattr(args, "search_seed", None) is not None,
         "--search-budget-profile": getattr(args, "search_budget_profile", None)
         is not None,
@@ -3374,6 +3539,7 @@ def main() -> int:
                 historical_decision_snapshots=args.historical_decision_snapshots,
                 historical_game_review=args.historical_game_review,
                 historical_search_review=args.historical_search_review,
+                historical_replay_coaching=args.historical_replay_coaching,
                 search_seed=args.search_seed,
                 search_budget_profile=(
                     args.search_budget_profile
@@ -3400,6 +3566,10 @@ def main() -> int:
             if args.historical_search_review:
                 raise CliUsageError(
                     "--historical-search-review requires historical-game input."
+                )
+            if args.historical_replay_coaching:
+                raise CliUsageError(
+                    "--historical-replay-coaching requires historical-game input."
                 )
             run_json_position_analysis(
                 file_path=args.input,

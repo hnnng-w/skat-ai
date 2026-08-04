@@ -4,7 +4,7 @@
 
 `src/skat_ai/replay_coaching_evidence.py`,
 `src/skat_ai/replay_coaching_assessment.py`, and the focused prioritization,
-guidance, and report modules define internal Replay Coaching contracts:
+guidance, and report modules define Replay Coaching contracts:
 
 ```text
 REPLAY_COACHING_CONTRACT_VERSION = 1
@@ -20,16 +20,17 @@ REPLAY_COACHING_OUTCOME_CONTEXT_POLICY = final_context_after_coaching
 ```
 
 The contracts are frozen dataclasses with immutable tuples and deterministic
-internal serializers. They do not add a stable package-root API, public JSON
-schema, CLI field, example, or generated-output branch. Existing Immediate
-Historical Review and Historical Search Review output remains unchanged.
+serializers. `--historical-replay-coaching` exposes the complete report under
+`historical_game_summary.historical_replay_coaching_summary`, validated by the
+strict Draft 2020-12 public schema. Existing Immediate Historical Review and
+Historical Search Review output remains unchanged.
 
 The assessment contract defines evidence and impact semantics for one historical
 card decision. Prioritization version 1 adds deterministic game-level Key
 Decisions, Turning Points, and high-impact classification. Guidance version 1
 adds one-game repeated patterns and fixed-template actionable recommendations.
-Report version 1 composes the complete internal one-game report. It does not
-implement tactical detectors or a public Coaching Report.
+Report version 1 composes the complete one-game report. It does not implement
+tactical detectors or cross-game coaching.
 
 The version numbers, maxima, eligibility, ranking, recurrence, scope, pattern,
 Turning Point, high-impact, and template rules are `skat-ai` product
@@ -554,15 +555,14 @@ cardinality, prioritization, pattern counts, actionability, exact Key-Decision
 alignment, recommendation counts, ranks, limits, ordering, and deduplication.
 Zero-decision and zero-pattern games are valid.
 
-Internal serializers reuse assessment and prioritization serializers. They emit
+Serializers reuse assessment and prioritization serializers. They emit
 no private hands, final Skat, selected worlds, ownership assignments, Search
 seeds, transposition state, principal variations, or final settlement as advice
 evidence. A narrow Historical Search Review helper retains the unchanged public
 summary, assessments, prioritization, and guidance from one execution. Existing
-public builders, schemas, CLI output, examples, and generated outputs remain
-unchanged.
+Historical Search Review output remains unchanged.
 
-## Complete internal report
+## Complete report
 
 `ReplayCoachingReport` composes one existing
 `HistoricalSearchReviewCoachingAnalysis`; it does not accept raw Search or
@@ -574,12 +574,12 @@ decision analysis
 -> prioritization
 -> guidance
 -> final outcome context
--> complete internal report
+-> complete report
 ```
 
 The narrow `HistoricalReplayCoachingAnalysis` helper returns the unchanged
 public Historical Search Review summary, assessments, prioritization, guidance,
-and complete internal report from one review execution. Search and Immediate
+and complete report from one review execution. Search and Immediate
 still run exactly once per recorded card decision. Report composition does not
 rerun Search, Immediate Analysis, assessment classification, prioritization, or
 guidance.
@@ -664,7 +664,7 @@ limitations are inherited from retained assessments and guidance.
 
 ## Report privacy and support
 
-The deterministic internal serializer emits no raw historical record, initial
+The deterministic serializer emits no raw historical record, initial
 or final hands, Skat, discards, selected worlds, ownership, exact proof state,
 derived child seeds, caches, branches, principal variations, rating, grade, or
 tactical free text. It supports normal Suit and Grand, all four normal Null
@@ -672,20 +672,24 @@ variants, all five terminal shortenings, either one supported continuation befor
 normal completion or terminal shortening, zero-decision records, and valid
 incomplete final tricks.
 
-This is an internal composition contract only. It is not registered in the
-package root, main output, public schemas, CLI, examples, or generated outputs.
+The public builder validates runtime identity, settings, cardinality, scope,
+outcome, and recursive privacy reconciliation before returning both the retained
+Historical Search Review summary and the coaching summary. The CLI attaches the
+Search Review only when its own flag is selected. The public coaching summary is
+registered in `schemas/output.schema.json` through
+`schemas/historical_replay_coaching.schema.json`; omitted coaching remains
+backward-compatible and emits no new field.
 
 ## Remaining Replay Coaching work
 
 Replay Coaching remains incomplete. Still missing are:
 
-* tactical detectors;
-* public complete-game Coaching Report presentation;
-* public schemas, CLI output, examples, and generated-output coverage for such a
-  future report;
+* tactical and contract-specific motif detectors;
+* cross-game pattern and player development analysis;
 * any separately approved causal-language policy;
 * broader Search, information-set policy solving, and Strategy Fusion correction.
 
 These components require separate focused contracts and tests. Contract version
-1, prioritization version 1, guidance version 1, and internal report version 1
-are the information-safe one-game foundation, not a public coaching workflow.
+1, prioritization version 1, guidance version 1, and report version 1 form the
+information-safe public one-game workflow without closing broader Replay
+Coaching scope.

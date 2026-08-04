@@ -45,16 +45,17 @@ The following directions are required for `v1.0.0`:
   boundary is only partial support for this requirement.
 * Support retrospective single-decision review and complete-game coaching
   without future-information leakage into reconstructed decisions. Bounded
-  variable-cardinality review exists for supported endings. Internal Replay
-  Coaching contract version 1 now separates decision-time evidence from
-  retrospective observed-card attachment and defines impact semantics. Internal
-  prioritization version 1 adds deterministic Key Decisions, separate
+  variable-cardinality review exists for supported endings. Public Replay
+  Coaching contract version 1 separates decision-time evidence from
+  retrospective observed-card attachment and defines impact semantics.
+  Prioritization version 1 adds deterministic Key Decisions, separate
   counterfactual and recorded-path Turning Points, and high-impact classification.
   Guidance version 1 adds two-occurrence one-game patterns by player, role,
   phase, and contract plus deterministic decision and actionable pattern
-  recommendations. Report version 1 composes the complete internal one-game
-  report with privacy-safe context, final-outcome isolation, coverage, and scope
-  summaries, but tactical motifs and public report presentation do not exist.
+  recommendations. Report version 1 exposes the complete one-game report through
+  a strict schema and CLI with privacy-safe context, final-outcome isolation,
+  coverage, and scope summaries. Tactical motifs and cross-game coaching do not
+  exist.
 * Represent complete historical games with structured claims, concessions, and
   approved additional game-end reasons, then analyze rules, result, approved
   settlement, and eligible decisions retrospectively. Current complete records
@@ -168,7 +169,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Live-position analysis | Every canonical three-player turn phase is either analyzed when the local player acts or advances through a documented opponent-preparation path; unsupported states fail explicitly without mutating the supplied position. |
 | Live information control | A documented field-level provenance policy rejects or redacts every post-game-only or opponent-private fact in live mode across loading, matador inference, simulation, recommendation, review, and serialization; adversarial regression fixtures prove no future event or post-game skat changes a live result. |
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
-| Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Internal Replay Coaching evidence, prioritization, pattern, recommendation, and complete-report contracts provide one-game information-safe foundations only; tactical motifs and public report presentation remain absent, so they do not close this gate. |
+| Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 now exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Tactical motifs, cross-game coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
 | Complete-game historical representation | A versioned schema and runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, skat pickup/discards or Hand state, every play, structured claims/concessions and approved additional end reasons, final result, and settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. |
 | Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
@@ -224,17 +225,19 @@ winner, result, or settlement. Its retrospective value adds one legal observed
 card and comparison fields without final-outcome context. Search evidence has
 priority over Immediate evidence; compatible-world aggregation remains bounded
 determinization subject to Strategy Fusion, and the observed card is not a
-ground-truth optimal label. This foundation adds no causal outcome claim and no
-public report. Prioritization version `1` adds at most five deterministic Key
+ground-truth optimal label. This foundation adds no causal outcome claim.
+Prioritization version `1` adds at most five deterministic Key
 Decisions, separate decision-opportunity and recorded-outcome Turning Points,
 and threshold-free high-impact classification. Guidance version `1` adds
 repeated one-game player, role, phase, and contract patterns plus bounded fixed-
 template decision and pattern recommendations. Report version `1` composes one
-complete internal report after guidance, then attaches allowlisted final outcome
+complete report after guidance, then attaches allowlisted final outcome
 context under `final_context_after_coaching`; outcome is not decision evidence.
 The report adds privacy-safe game/player context, coverage, zero-preserving scope
-summaries, and canonical limitations. It adds no tactical motifs, player rating,
-causal claim, public schema, CLI, or complete public Coaching Report. See
+summaries, and canonical limitations. Issue #124 exposes that exact report through
+`--historical-replay-coaching`, a strict public schema, concise CLI presentation,
+and normal Grand/Null/shortened generated-output coverage. It adds no tactical
+motifs, cross-game analysis, player rating, or causal claim. See
 [Replay coaching contracts](replay_coaching_contracts.md).
 
 The generic position workflow now has bounded version-1 declarer-concession

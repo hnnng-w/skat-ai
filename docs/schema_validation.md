@@ -150,6 +150,7 @@ The output schema checks the main output structure, including:
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
 * optional versioned Historical Search Review through its strict focused schema
+* optional versioned Historical Replay Coaching through its strict focused schema
 * optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
@@ -158,7 +159,7 @@ The output schema checks the main output structure, including:
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 * the separate versioned `bounded_search_evaluation_summary` branch through its strict focused schema
 
-The current generated-output matrix covers 61 deterministic scenarios. The
+The current generated-output matrix covers 64 deterministic scenarios. The
 published stable `v0.10.0` baseline passes 4,075 pytest tests and covers 59
 scenarios. The historical published `v0.9.0`
 baseline passes 3,558 pytest tests and covers 52 scenarios. Position
@@ -199,6 +200,9 @@ confidence coverage, plus one exact stable-player dataset-partition audit.
 It also covers flat bounded-Search post-game comparison, Historical Search Review
 with eligible and unavailable decisions, and bounded-Search dataset evaluation
 with default validation/test partitions and a deterministic one-decision cap.
+Three public Replay Coaching scenarios cover normal Grand with Key Decisions,
+Turning Points, and recommendations; normal Null without card-point-margin
+advice; and a continuation before terminal shortening with snapshot output.
 The additional hidden-card inference scenario uses
 `examples/grand_hidden_card_inference.json` with two Multi-Step decisions. It
 semantically verifies the exact root count `275275`, a confirmed right-player
@@ -264,6 +268,15 @@ standalone bounded-Search result rather than duplicating it. Runtime tests remai
 authoritative for aggregate arithmetic, profile-to-budget identity, stable global
 prefix selection, derived seed rules and non-serialization, shared-prefix
 information safety, and zero-decision record preservation.
+
+`schemas/historical_replay_coaching.schema.json` is a separate Draft 2020-12
+strict schema registered locally and referenced optionally from
+`historical_game_summary`. It fixes the report/method/policy constants and the
+complete context, assessment, prioritization, guidance, coverage, scope-summary,
+outcome, and limitation shapes. Runtime validation remains authoritative for
+cross-object identity and count reconciliation, one-pass Search/Immediate reuse,
+recursive private-field rejection, Null wording, and non-causal/non-rating
+claims.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

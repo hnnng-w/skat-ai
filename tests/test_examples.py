@@ -56,6 +56,7 @@ def get_position_example_json_files() -> list[Path]:
             "historical_grand_declarer_card_exposure_continuation_defender_concession.json",
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
+            "historical_null_replay_coaching.json",
             "historical_opponent_policy_evaluation_dataset.json",
             "historical_opponent_statistics.json",
             "opponent_statistics.json",
@@ -65,6 +66,12 @@ def get_position_example_json_files() -> list[Path]:
             "training_dataset_variable_length.json",
         }
     ]
+
+
+def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
+    from scripts.validate_generated_outputs_schema import SCENARIOS
+
+    assert len(SCENARIOS) == 64
 
 
 def test_examples_folder_contains_json_files() -> None:
@@ -89,9 +96,10 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_grand_declarer_card_exposure_continuation_defender_concession.json",
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
+            "historical_null_replay_coaching.json",
         }:
             record = load_historical_game_from_json(str(example_file))
-            assert record.game_id.startswith("historical-grand-")
+            assert record.game_id.startswith("historical-")
             continue
         if example_file.name in {
             "historical_opponent_policy_evaluation_dataset.json",

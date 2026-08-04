@@ -1096,6 +1096,9 @@
         "historical_search_review_summary": {
           "$ref": "https://example.local/skat-ai/historical_search_review.schema.json"
         },
+        "historical_replay_coaching_summary": {
+          "$ref": "https://example.local/skat-ai/historical_replay_coaching.schema.json"
+        },
         "historical_game_events_summary": {
           "$ref": "https://example.local/skat-ai/historical_game_events_output.schema.json"
         },

@@ -77,6 +77,7 @@ official Skat rules arbitration.
 * Optional information-safe pre-play snapshots for every actual play in supported historical endings
 * Optional decision-time review of those actual historical plays through the existing immediate recommendation logic
 * Optional Historical Search Review with per-decision and aggregate Search-versus-Immediate comparisons
+* Optional complete Historical Replay Coaching Report with Key Decisions, Turning Points, one-game patterns, actionable recommendations, scope summaries, and separately attached retrospective outcome context
 * Versioned training/evaluation dataset records with provenance and explicit train, validation, and test partitions
 * Deterministic bounded-Search dataset evaluation over selected decision prefixes
 * Optional known-opponent or unseen-player partition policies with deterministic stable-player overlap audits
@@ -223,6 +224,15 @@ baseline at every decision:
 
 ```powershell
 python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71 --output outputs/historical-search.json
+```
+
+Build the complete public Replay Coaching Report from the same information-safe
+decision analysis. Coaching-only output omits the separate Historical Search
+Review summary; supplying both flags emits both summaries from one shared pass:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42 --output outputs/replay-coaching.json
+python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
 ```
 
 Evaluate bounded Search against Immediate on the default `validation` and `test`
@@ -533,6 +543,7 @@ Detailed documentation is split into topic-specific files:
 * [Historical defender open-play continuation](docs/historical_defender_open_play_continuation.md)
 * [Historical decision snapshots](docs/historical_decision_snapshots.md)
 * [Historical game review](docs/historical_game_review.md)
+* [Replay coaching contracts](docs/replay_coaching_contracts.md)
 * [Ouvert-aware simulation](docs/ouvert_aware_simulation.md)
 * [Coherent hidden-world simulation](docs/coherent_hidden_world_simulation.md)
 * [Hidden-card inference](docs/hidden_card_inference.md)
@@ -540,6 +551,7 @@ Detailed documentation is split into topic-specific files:
 * [Bounded Search performance](docs/bounded_search_performance.md)
 * [Bounded Search post-game review schema](schemas/bounded_search_post_game_review.schema.json)
 * [Historical Search Review schema](schemas/historical_search_review.schema.json)
+* [Historical Replay Coaching schema](schemas/historical_replay_coaching.schema.json)
 * [Bounded Search evaluation schema](schemas/bounded_search_evaluation.schema.json)
 * [Hidden-card inference summary schema](schemas/hidden_card_inference_summary.schema.json)
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
@@ -626,6 +638,10 @@ validation covers 59 deterministic scenarios, and the complete pytest suite
 contains 4,075 tests. GitHub Releases remains authoritative for publication
 status.
 
+The current development matrix covers 64 deterministic generated-output
+scenarios. The five post-release scenarios add both supported continuation-
+before-shortening chains and three public Replay Coaching branches.
+
 The published `v0.10.0` milestone adds five structured game-shortening forms,
 five matching historical terminal events, two historical non-terminal continuations, and
 variable-length decision snapshots, Historical Review, training samples, and
@@ -665,7 +681,7 @@ replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
 Remaining work includes stronger information-set or policy search, fuller Replay
-Coaching,
+Coaching with tactical motifs and cross-game analysis,
 approved settlement nuance, fixed-three-player 36-game list aggregation,
 automatic dataset preparation, field-level live provenance, interactive input
 and session capture, and a stable installed library and CLI interface. General

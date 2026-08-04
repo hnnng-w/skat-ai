@@ -516,19 +516,31 @@ an explicit Search method, exactly that method is appended last. Every path gets
 an independent copy of one shared coherent execution root, but the Search path
 uses that root only after its public recommendation has been selected.
 
-### Historical Search Review CLI
+### Historical Search Review and Replay Coaching CLI
 
-Historical-game input can add Search review without adding JSON fields:
+Historical-game input can add Search review without adding input JSON fields:
 
 ```powershell
 python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71
 ```
+
+The complete public Replay Coaching Report uses the same Search and Immediate
+settings:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
+```
+
+Supplying `--historical-search-review` and `--historical-replay-coaching`
+together emits both public summaries from one shared Search/Immediate analysis.
+Coaching alone emits only `historical_replay_coaching_summary`.
 
 Exact options are:
 
 | Option | Meaning |
 | --- | --- |
 | `--historical-search-review` | Evaluate every supplied historical decision with Search and Immediate. |
+| `--historical-replay-coaching` | Build the complete public one-game Coaching Report from Search, Immediate, and retrospective context. |
 | `--search-seed INTEGER` | Required Search base seed. |
 | `--search-budget-profile PROFILE` | One of `interactive_v1`, `historical_review_v1`, or `evaluation_v1`; default `historical_review_v1`. |
 | `--samples INTEGER` | Immediate samples per decision; default `100`. |
@@ -544,10 +556,13 @@ The named profiles are immutable internal budgets, not editable JSON objects:
 | `historical_review_v1` | 4 | 12 | 2000000 | 128 | 64 | 16 | 5000 |
 | `evaluation_v1` | 5 | 15 | 10000000 | 512 | 256 | 32 | null |
 
-Historical Search receives only each reconstructed decision-time snapshot. Its
+Historical Search and Replay Coaching receive only each reconstructed decision-
+time snapshot before the observed card is attached. Their
 private per-decision seed is stably derived from the base seed, domain
 `historical_bounded_search_decision_v1`, source game ID, and decision index; it
-is not an input field and is never serialized.
+is not an input field and is never serialized. Replay Coaching attaches the
+allowlisted final result and settlement only after all coaching classifications
+are complete.
 
 ### Bounded-Search dataset evaluation CLI
 

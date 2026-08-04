@@ -27,7 +27,8 @@ Run the full project check:
 At the published stable `v0.10.0` baseline, the check covers 59 deterministic
 generated-output scenarios and 4,075 pytest tests. The historical published
 `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest tests. The
-check script validates:
+current development matrix covers 64 deterministic generated-output scenarios.
+The check script validates:
 
 * Ruff checks
 * input JSON schema validation
@@ -186,6 +187,21 @@ immutable `historical_review_v1` budget:
 
 ```powershell
 python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --search-seed 71
+```
+
+Build the complete public Replay Coaching Report, or emit it with the retained
+Historical Search Review summary from one analysis pass:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
+python main.py --input examples/historical_grand_normal_completion.json --historical-search-review --historical-replay-coaching --search-seed 71 --samples 20 --seed 42
+```
+
+Exercise Null-specific coaching wording without Suit/Grand card-point-margin
+advice:
+
+```powershell
+python main.py --input examples/historical_null_replay_coaching.json --historical-replay-coaching --search-seed 73 --samples 1 --seed 43
 ```
 
 Review a complete Grand Ouvert through the same deterministic path:
@@ -384,6 +400,7 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_defender_open_play_continuation.json` | Complete normal Grand with one timed exact returned defender hand and 30 actual plays. |
 | `historical_grand_defender_open_play_continuation_declarer_concession.json` | Timed public defender hand after play 12, two later plays with exact hand shrinkage, then delegated declarer concession. |
 | `historical_grand_declarer_card_exposure_continuation_defender_concession.json` | Public declarer hand after play 14 followed immediately by delegated defender concession with no post-event card decision. |
+| `historical_null_replay_coaching.json` | Complete 32-card Null deal with stable player IDs and deterministic public Replay Coaching coverage for Null objective wording. |
 
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
@@ -394,7 +411,10 @@ simulation. Review uses the normal and Grand Ouvert examples with 20 samples and
 base seed 42; Ouvert rows are reviewed with the exact public declarer hand.
 Historical Search Review uses an explicit Search seed and records eligible late
 decisions alongside early out-of-profile decisions without serializing derived
-per-decision Search seeds. The two chain examples keep the continuation summary
+per-decision Search seeds. Replay Coaching adds three generated-output scenarios:
+normal Grand with Key Decisions and a Turning Point, normal Null with no margin
+recommendation, and defender-open-play continuation before declarer concession.
+The two chain examples keep the continuation summary
 separate from the reason-specific terminal summary and retain schema versions `1`.
 
 ## Training-dataset example
@@ -459,7 +479,7 @@ and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
 the absence of samples or analysis products. Generated-output validation
-therefore covers 61 scenarios, including the two explicit flat live Search method
+therefore covers 64 scenarios, including the two explicit flat live Search method
 branches, variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-

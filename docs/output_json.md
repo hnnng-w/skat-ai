@@ -212,6 +212,32 @@ seed. Each private Search seed is derived from
 no derived seed is serialized. Future cards, private historical hands, world
 assignments, and settlement do not enter or appear in a decision row.
 
+When `--historical-replay-coaching` is requested, the historical summary adds
+`historical_replay_coaching_summary`. The strict report version is `1`, its
+method is `historical_replay_coaching_v1`, its information policy is
+`decision_time_then_retrospective_attachment`, and its outcome-context policy is
+`final_context_after_coaching`. Supplying both Replay Coaching and Historical
+Search Review emits both summaries from one shared Search/Immediate pass;
+Coaching-only output does not add `historical_search_review_summary`.
+
+The report contains privacy-safe game/player context, public source-review
+settings, one chronological assessment per actual card decision, at most five
+Key Decisions, bounded Turning Points, one-game player/role/phase/contract
+patterns, fixed-template decision and pattern recommendations, complete coverage
+counts, exactly three player summaries, two role summaries, three phase
+summaries, one contract summary, and separately attached allowlisted final
+outcome context. Empty Key Decision, Turning Point, pattern, and recommendation
+arrays are valid. Null recommendations use contract-objective wording rather
+than raw card-point-margin advice.
+
+The recursive public boundary excludes initial/final/private hands, Skat,
+discards, selected worlds, ownership assignments, exact proof internals,
+derived child seeds, caches, branches, principal variations, ratings, grades,
+and rankings. The report makes no causal final-outcome, player-weakness,
+permanent-trait, statistical-significance, perfect-play, or optimal hidden-
+information claim. See [Replay coaching contracts](replay_coaching_contracts.md)
+and [`historical_replay_coaching.schema.json`](../schemas/historical_replay_coaching.schema.json).
+
 Training-dataset input produces a separate stable branch:
 
 ```json

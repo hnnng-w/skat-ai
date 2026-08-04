@@ -135,6 +135,9 @@ BOUNDED_SEARCH_POST_GAME_REVIEW_SCHEMA_PATH = (
 HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_search_review.schema.json"
 )
+HISTORICAL_REPLAY_COACHING_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_replay_coaching.schema.json"
+)
 BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
 )
@@ -2605,6 +2608,165 @@ def check_historical_search_review(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _collect_property_names(value: Any) -> set[str]:
+    if isinstance(value, dict):
+        return set(value).union(
+            *(_collect_property_names(item) for item in value.values())
+        )
+    if isinstance(value, list):
+        return set().union(*(_collect_property_names(item) for item in value))
+    return set()
+
+
+def check_historical_replay_coaching(data: dict[str, Any]) -> list[str]:
+    summary = data["historical_game_summary"].get(
+        "historical_replay_coaching_summary"
+    )
+    if not isinstance(summary, dict):
+        return ["expected historical_replay_coaching_summary"]
+    errors = []
+    coverage = summary["coverage_summary"]
+    prioritization = summary["prioritization"]
+    guidance = summary["guidance"]
+    if summary["report_version"] != 1:
+        errors.append("expected Replay Coaching report version 1")
+    if summary["report_method"] != "historical_replay_coaching_v1":
+        errors.append("expected historical_replay_coaching_v1 method")
+    if summary["information_policy"] != (
+        "decision_time_then_retrospective_attachment"
+    ):
+        errors.append("expected decision-time then retrospective information policy")
+    if summary["outcome_context_policy"] != "final_context_after_coaching":
+        errors.append("expected final outcome context after coaching")
+    if coverage["decision_count"] != len(summary["decision_assessments"]):
+        errors.append("expected decision coverage to match assessments")
+    if coverage["key_decision_count"] != len(prioritization["key_decisions"]):
+        errors.append("expected Key Decision coverage to reconcile")
+    if coverage["turning_point_count"] != len(prioritization["turning_points"]):
+        errors.append("expected Turning Point coverage to reconcile")
+    if coverage["pattern_count"] != len(guidance["patterns"]):
+        errors.append("expected pattern coverage to reconcile")
+    if coverage["decision_recommendation_count"] != len(
+        guidance["decision_recommendations"]
+    ):
+        errors.append("expected decision recommendations to reconcile")
+    if coverage["pattern_recommendation_count"] != len(
+        guidance["pattern_recommendations"]
+    ):
+        errors.append("expected pattern recommendations to reconcile")
+    if tuple(
+        len(summary[field])
+        for field in (
+            "player_summaries",
+            "role_summaries",
+            "phase_summaries",
+            "contract_summaries",
+        )
+    ) != (3, 2, 3, 1):
+        errors.append("expected complete player, role, phase, and contract summaries")
+    if summary["outcome_context"]["source_game_id"] != summary["source_game_id"]:
+        errors.append("expected retrospective outcome source identity")
+    if any(
+        "random_seed" in row["decision_time_evidence"]["bounded_search_result"]
+        for row in summary["decision_assessments"]
+    ):
+        errors.append("derived Search seeds must not be serialized")
+    prohibited_properties = {
+        "initial_hand",
+        "initial_hands",
+        "final_hidden_hands",
+        "skat",
+        "discarded_cards",
+        "remaining_hands",
+        "private_remaining_hands",
+        "selected_worlds",
+        "ownership_assignments",
+        "exact_search_states",
+        "derived_child_seed",
+        "caches",
+        "branches",
+        "principal_variations",
+        "proof_internals",
+        "ratings",
+        "grades",
+        "rankings",
+    }
+    leaked = sorted(prohibited_properties.intersection(_collect_property_names(summary)))
+    if leaked:
+        errors.append(f"Replay Coaching report exposed private properties: {leaked}")
+    serialized = json.dumps(summary).lower()
+    for prohibited_claim in (
+        "caused the final outcome",
+        "certain counterfactual victory",
+        "player weakness",
+        "permanent trait",
+        "statistical significance",
+        "perfect play",
+        "optimal hidden-information play",
+    ):
+        if prohibited_claim in serialized:
+            errors.append(f"unexpected coaching claim: {prohibited_claim}")
+    return errors
+
+
+def check_historical_grand_replay_coaching(data: dict[str, Any]) -> list[str]:
+    errors = check_historical_replay_coaching(data)
+    historical = data["historical_game_summary"]
+    summary = historical["historical_replay_coaching_summary"]
+    if "historical_search_review_summary" not in historical:
+        errors.append("expected shared public Historical Search Review summary")
+    if not summary["prioritization"]["key_decisions"]:
+        errors.append("expected at least one Key Decision")
+    if not summary["prioritization"]["turning_points"]:
+        errors.append("expected at least one Turning Point")
+    if not summary["guidance"]["decision_recommendations"]:
+        errors.append("expected at least one decision recommendation")
+    if not summary["guidance"]["patterns"]:
+        errors.append("expected one-game patterns")
+    return errors
+
+
+def check_historical_null_replay_coaching(data: dict[str, Any]) -> list[str]:
+    errors = check_historical_replay_coaching(data)
+    historical = data["historical_game_summary"]
+    summary = historical["historical_replay_coaching_summary"]
+    if "historical_search_review_summary" in historical:
+        errors.append("Coaching-only workflow must not emit Historical Search Review")
+    if summary["game_context"]["game_type"] != "null":
+        errors.append("expected Null Replay Coaching context")
+    recommendations = [
+        *summary["guidance"]["decision_recommendations"],
+        *summary["guidance"]["pattern_recommendations"],
+    ]
+    if any("card-point margin" in item["action"] for item in recommendations):
+        errors.append("Null must not receive card-point-margin recommendation wording")
+    if any(
+        item["recommendation_type"] == "prefer_higher_card_point_margin"
+        for item in summary["guidance"]["decision_recommendations"]
+    ):
+        errors.append("Null must not receive a margin recommendation")
+    return errors
+
+
+def check_historical_shortened_replay_coaching(data: dict[str, Any]) -> list[str]:
+    errors = check_historical_replay_coaching(data)
+    historical = data["historical_game_summary"]
+    summary = historical["historical_replay_coaching_summary"]
+    if historical["decision_snapshot_summary"]["snapshot_count"] != 14:
+        errors.append("expected 14 shortened-game decision snapshots")
+    if summary["coverage_summary"]["decision_count"] != 14:
+        errors.append("expected 14 shortened-game coaching decisions")
+    outcome = summary["outcome_context"]
+    if outcome["game_end_reason"] != "declarer_concession":
+        errors.append("expected retrospective declarer-concession context")
+    events = outcome.get("historical_game_events_summary", {}).get("events", [])
+    if len(events) != 1 or events[0].get("kind") != (
+        "defender_open_play_continuation"
+    ):
+        errors.append("expected redacted continuation context before shortening")
+    return errors
+
+
 def check_bounded_search_evaluation(data: dict[str, Any]) -> list[str]:
     summary = data.get("bounded_search_evaluation_summary")
     if not isinstance(summary, dict):
@@ -3274,6 +3436,72 @@ SCENARIOS = (
         check_output=check_live_external_opponent_profiles,
         expect_quiet_stdout=True,
     ),
+    Scenario(
+        name="historical_grand_replay_coaching",
+        input_path=PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json",
+        branch="public Grand Replay Coaching with shared Historical Search Review",
+        cli_args=(
+            "--historical-search-review",
+            "--historical-replay-coaching",
+            "--search-seed",
+            "71",
+            "--search-budget-profile",
+            "interactive_v1",
+            "--samples",
+            "1",
+            "--seed",
+            "42",
+            "--quiet",
+        ),
+        check_output=check_historical_grand_replay_coaching,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="historical_null_replay_coaching",
+        input_path=PROJECT_ROOT / "examples" / "historical_null_replay_coaching.json",
+        branch="public Null Replay Coaching with no margin recommendation",
+        cli_args=(
+            "--historical-replay-coaching",
+            "--search-seed",
+            "73",
+            "--search-budget-profile",
+            "interactive_v1",
+            "--samples",
+            "1",
+            "--seed",
+            "43",
+            "--quiet",
+        ),
+        check_output=check_historical_null_replay_coaching,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="historical_shortened_replay_coaching",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "historical_grand_defender_open_play_continuation_declarer_concession.json"
+        ),
+        branch="public Replay Coaching after continuation and terminal shortening",
+        cli_args=(
+            "--historical-decision-snapshots",
+            "--historical-replay-coaching",
+            "--search-seed",
+            "79",
+            "--search-budget-profile",
+            "interactive_v1",
+            "--samples",
+            "1",
+            "--seed",
+            "44",
+            "--quiet",
+        ),
+        check_output=check_historical_shortened_replay_coaching,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -3370,6 +3598,9 @@ def validate_generated_outputs() -> list[str]:
     )
     historical_search_review_schema = load_json_file(
         HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH
+    )
+    historical_replay_coaching_schema = load_json_file(
+        HISTORICAL_REPLAY_COACHING_SCHEMA_PATH
     )
     bounded_search_evaluation_schema = load_json_file(
         BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH
@@ -3545,6 +3776,10 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_search_review_schema["$id"],
                 Resource.from_contents(historical_search_review_schema),
+            ),
+            (
+                historical_replay_coaching_schema["$id"],
+                Resource.from_contents(historical_replay_coaching_schema),
             ),
             (
                 bounded_search_evaluation_schema["$id"],

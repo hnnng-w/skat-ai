@@ -47,6 +47,7 @@ from skat_ai.replay_coaching_report import (
     REPLAY_COACHING_REPORT_VERSION,
     HistoricalReplayCoachingAnalysis,
     build_historical_replay_coaching_analysis,
+    build_historical_replay_coaching_public_summaries,
     build_replay_coaching_report,
     build_serializable_replay_coaching_report,
 )
@@ -846,3 +847,48 @@ def test_one_pass_wrapper_preserves_public_review_and_call_counts(monkeypatch) -
     assert "report" not in _collect_keys(public)
     assert "guidance" not in _collect_keys(public)
     assert "prioritization" not in _collect_keys(public)
+
+
+def test_public_builder_serializes_both_summaries_from_one_pass(monkeypatch) -> None:
+    record = build_historical_game_record(build_historical_input())
+    snapshots = build_historical_decision_snapshots(
+        build_historical_game_summary(record)
+    )
+    calls = {"search": 0, "immediate": 0}
+
+    def search(**kwargs):
+        calls["search"] += 1
+        return _historical_fake_search(**kwargs)
+
+    def immediate(**kwargs):
+        calls["immediate"] += 1
+        return _historical_fake_immediate(**kwargs)
+
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
+    )
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        immediate,
+    )
+
+    result = build_historical_replay_coaching_public_summaries(
+        snapshots,
+        record,
+        41,
+        immediate_sample_count=1,
+        immediate_base_random_seed=7,
+    )
+
+    assert calls == {"search": 30, "immediate": 30}
+    assert tuple(result) == (
+        "historical_search_review_summary",
+        "historical_replay_coaching_summary",
+    )
+    search_review = result["historical_search_review_summary"]
+    coaching = result["historical_replay_coaching_summary"]
+    assert search_review["decision_counts"]["decision_count"] == 30
+    assert coaching["coverage_summary"]["decision_count"] == 30
+    assert coaching["source_review_settings"] == search_review["settings"]
+    assert coaching["outcome_context"]["source_game_id"] == record.game_id
+    assert "derived_child_seed" not in _collect_keys(coaching)

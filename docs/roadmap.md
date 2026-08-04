@@ -200,16 +200,19 @@ Implemented:
 * Variable-length historical review, including zero-decision records, with deterministic seeds and reconciled player summaries
 * Declared-Ouvert and continuation public hands at their exact decision-time visibility boundaries
 * Flat and Historical Search review with independent Immediate baselines and strict aggregate comparison output
-* Internal Replay Coaching contract version 1 with separate decision-time evidence and retrospective actual-card assessment, deterministic Search-first evidence priority, stable impact tiers/factors/limitations, and unchanged public review output
-* Internal Replay Coaching prioritization version 1 with at most five deterministic Key Decisions, separate decision-opportunity and recorded-outcome Turning Points, complete-normal Null fallback, threshold-free high impact, and no causal claim or public output
-* Internal Replay Coaching guidance version 1 with two-occurrence one-game
+* Replay Coaching contract version 1 with separate decision-time evidence and retrospective actual-card assessment, deterministic Search-first evidence priority, stable impact tiers/factors/limitations, and unchanged existing review output
+* Replay Coaching prioritization version 1 with at most five deterministic Key Decisions, separate decision-opportunity and recorded-outcome Turning Points, complete-normal Null fallback, threshold-free high impact, and no causal claim
+* Replay Coaching guidance version 1 with two-occurrence one-game
   patterns by player, role, phase, and contract; separate actionable and
   descriptive patterns; one fixed-template recommendation per Key Decision; and
   at most five ranked, evidence-deduplicated actionable pattern recommendations
-* Complete internal Replay Coaching report version 1 composed from one retained
+* Complete Replay Coaching report version 1 composed from one retained
   Historical Search Review coaching analysis, with privacy-safe game context,
   separately attached final outcome context, reconciled coverage, zero-preserving
-  scope summaries, canonical limitations, and unchanged public output
+  scope summaries, canonical limitations, and unchanged existing review output
+* Public `--historical-replay-coaching` JSON and human-readable output, strict
+  standalone schema, conditional coaching-only attachment, one-pass combined
+  Search Review output, and normal Grand/Null/shortened generated scenarios
 
 ### Training and evaluation data
 
@@ -235,7 +238,7 @@ Implemented:
 * Focused historical-game, decision-snapshot, historical-review, training-dataset, and historical opponent-statistics aggregation schemas
 * Focused strict hidden-card inference summary schema
 * Focused strict bounded-search aggregate result schema
-* Focused strict flat post-game Search, Historical Search Review, and bounded-Search evaluation schemas
+* Focused strict flat post-game Search, Historical Search Review, Historical Replay Coaching, and bounded-Search evaluation schemas
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, input schema validation, generated-output validation, and pytest
@@ -259,6 +262,7 @@ Implemented:
 * Historical opponent-statistics aggregation with partition/cutoff selection, separate normal output and export paths, and quiet output
 * Isolated `--audit-dataset-partitions` workflow with optional policy-mode resolution
 * `--historical-search-review` with explicit `--search-seed` and named profile selection
+* `--historical-replay-coaching` with shared Search/Immediate settings and optional combined Search Review output
 * `--evaluate-bounded-search` with repeatable partition selection and optional global decision cap
 
 ## Current known limitations
@@ -292,10 +296,10 @@ Implemented:
   profiles. Search remains bounded late-game determinization, sampled quality is
   not calibrated, and measured performance provides no latency guarantee.
 * Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
-* Replay Coaching now has internal version-1 evidence, impact, prioritization,
-  one-game cross-decision patterns, deterministic actionable recommendations,
-  and a complete internal report contract. Tactical detectors, cross-game player
-  analysis, public schema/CLI/report output, and a public coaching workflow remain
+* Replay Coaching now has public version-1 evidence, impact, prioritization, one-
+  game cross-decision patterns, deterministic actionable recommendations, strict
+  schema/CLI/report output, and isolated retrospective context. Tactical motifs,
+  cross-game player analysis, broader Search, and causal attribution remain
   unimplemented.
 
 ### Performance rating
@@ -472,6 +476,10 @@ with final-outcome isolation, privacy-safe context, coverage, scope summaries,
 and canonical limitations. It adds no public schema, CLI, example, generated
 output, tactical detector, rating, or causal claim. Public Replay Coaching
 remains open.
+Issue #124 exposes that complete one-game report through
+`--historical-replay-coaching`, a strict public schema, concise CLI presentation,
+and three generated-output scenarios. Tactical motifs, cross-game coaching,
+ratings, causal attribution, and stronger Search remain open.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

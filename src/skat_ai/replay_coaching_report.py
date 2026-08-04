@@ -11,7 +11,9 @@ from skat_ai.historical_search_review import (
     HISTORICAL_SEARCH_REVIEW_INFORMATION_POLICY,
     HISTORICAL_SEARCH_REVIEW_SCHEMA_VERSION,
     HistoricalSearchReviewCoachingAnalysis,
+    HistoricalSearchReviewSettings,
     build_historical_search_review_coaching_analysis,
+    build_serializable_historical_search_review_settings,
 )
 from skat_ai.replay_coaching_assessment import (
     ReplayCoachingDecisionAssessment,
@@ -68,6 +70,39 @@ REPLAY_COACHING_REPORT_LIMITATIONS = (
     "no_causal_outcome_claim",
     "no_player_skill_rating",
 )
+_PRIVATE_PUBLIC_REPORT_FIELDS = {
+    "initial_hand",
+    "initial_hands",
+    "final_hidden_hand",
+    "final_hidden_hands",
+    "skat",
+    "skat_cards",
+    "discarded_cards",
+    "discard_identities",
+    "discards",
+    "remaining_hands",
+    "private_remaining_hands",
+    "selected_worlds",
+    "selected_compatible_worlds",
+    "ownership",
+    "ownership_assignments",
+    "exact_search_state",
+    "exact_search_states",
+    "derived_child_seed",
+    "derived_child_seeds",
+    "cache",
+    "caches",
+    "branches",
+    "principal_variation",
+    "principal_variations",
+    "proof_internals",
+    "rating",
+    "ratings",
+    "grade",
+    "grades",
+    "ranking",
+    "rankings",
+}
 
 
 def _freeze_json_value(value: Any) -> Any:
@@ -86,6 +121,18 @@ def _thaw_json_value(value: Any) -> Any:
     if isinstance(value, tuple):
         return [_thaw_json_value(item) for item in value]
     return value
+
+
+def _validate_public_report_privacy(value: Any, field_name: str = "report") -> None:
+    if isinstance(value, Mapping):
+        prohibited = tuple(key for key in value if key in _PRIVATE_PUBLIC_REPORT_FIELDS)
+        if prohibited:
+            raise ValueError(f"{field_name} contains private fields: {prohibited}.")
+        for key, item in value.items():
+            _validate_public_report_privacy(item, f"{field_name}.{key}")
+    elif isinstance(value, (list, tuple)):
+        for index, item in enumerate(value):
+            _validate_public_report_privacy(item, f"{field_name}[{index}]")
 
 
 def _validate_source_review(
@@ -473,4 +520,68 @@ def build_serializable_replay_coaching_report(
             for summary in report.contract_summaries
         ],
         "limitations": list(report.limitations),
+    }
+
+
+def build_historical_replay_coaching_public_summaries(
+    snapshot_summary: HistoricalDecisionSnapshotSummary,
+    historical_record: HistoricalGameRecord,
+    base_search_seed: int,
+    search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
+    immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
+    immediate_base_random_seed: int | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Builds both public summaries from one validated Replay Coaching analysis."""
+    analysis = build_historical_replay_coaching_analysis(
+        snapshot_summary=snapshot_summary,
+        historical_record=historical_record,
+        base_search_seed=base_search_seed,
+        search_budget_profile=search_budget_profile,
+        immediate_sample_count=immediate_sample_count,
+        immediate_base_random_seed=immediate_base_random_seed,
+    )
+    search_review = _thaw_json_value(analysis.public_review_summary)
+    replay_coaching = build_serializable_replay_coaching_report(analysis.report)
+    expected_settings = build_serializable_historical_search_review_settings(
+        HistoricalSearchReviewSettings(
+            base_search_seed=base_search_seed,
+            search_budget_profile=search_budget_profile,
+            immediate_sample_count=immediate_sample_count,
+            immediate_base_random_seed=immediate_base_random_seed,
+        )
+    )
+    decision_count = snapshot_summary.cardinality.expected_review_decision_count
+    if (
+        historical_record.game_end_reason != snapshot_summary.cardinality.game_end_reason
+        or snapshot_summary.snapshot_count != decision_count
+        or len(snapshot_summary.snapshots) != decision_count
+        or replay_coaching["source_game_id"] != historical_record.game_id
+        or replay_coaching["game_context"]["game_end_reason"]
+        != historical_record.game_end_reason
+        or replay_coaching["source_review_settings"] != expected_settings
+        or replay_coaching["report_version"] != REPLAY_COACHING_REPORT_VERSION
+        or replay_coaching["report_method"] != REPLAY_COACHING_REPORT_METHOD
+        or replay_coaching["information_policy"] != REPLAY_COACHING_INFORMATION_POLICY
+        or replay_coaching["outcome_context_policy"]
+        != REPLAY_COACHING_OUTCOME_CONTEXT_POLICY
+        or len(replay_coaching["decision_assessments"]) != decision_count
+        or replay_coaching["coverage_summary"]["decision_count"] != decision_count
+        or len(replay_coaching["player_summaries"]) != 3
+        or len(replay_coaching["role_summaries"]) != 2
+        or len(replay_coaching["phase_summaries"]) != 3
+        or len(replay_coaching["contract_summaries"]) != 1
+        or replay_coaching["outcome_context"]["source_game_id"]
+        != historical_record.game_id
+        or replay_coaching["outcome_context"]["game_end_reason"]
+        != historical_record.game_end_reason
+        or search_review["source_game_id"] != historical_record.game_id
+        or search_review["game_end_reason"] != historical_record.game_end_reason
+        or search_review["settings"] != expected_settings
+        or search_review["decision_counts"]["decision_count"] != decision_count
+    ):
+        raise ValueError("Public Replay Coaching summaries do not reconcile.")
+    _validate_public_report_privacy(replay_coaching)
+    return {
+        "historical_search_review_summary": search_review,
+        "historical_replay_coaching_summary": replay_coaching,
     }

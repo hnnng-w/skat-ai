@@ -18,6 +18,11 @@ Historical Search Review is also a separate, opt-in workflow. It runs bounded
 Search plus an independently executed Immediate baseline for each actual
 decision without changing this Immediate-only review output.
 
+Historical Replay Coaching is a third opt-in public view. It reuses one retained
+Historical Search Review coaching analysis to add prioritized decisions,
+Turning Points, one-game patterns, recommendations, scope summaries, and isolated
+retrospective outcome context without changing either existing review shape.
+
 ## CLI
 
 Use the historical-only flag with an optional sample count and base seed:
@@ -111,6 +116,33 @@ aggregate agreement, quality-gate, and performance summaries. Early decisions
 outside the selected late-game profile remain explicitly unavailable. See
 [Bounded search contracts](bounded_search_contracts.md) and
 [`historical_search_review.schema.json`](../schemas/historical_search_review.schema.json).
+
+## Historical Replay Coaching
+
+Use `--historical-replay-coaching --search-seed INTEGER` to build the complete
+public one-game report. `--samples`, `--seed`, and
+`--search-budget-profile` have the same meanings as in Historical Search Review.
+The flag may be combined with `--historical-decision-snapshots`,
+`--historical-game-review`, and `--historical-search-review`. When both Search
+Review and Replay Coaching are selected, Search and the coaching Immediate
+baseline still run exactly once per recorded decision and both summaries are
+serialized from that retained pass. Coaching-only output omits
+`historical_search_review_summary`.
+
+The report preserves the `decision_time_then_retrospective_attachment`
+information policy: each Search/Immediate decision finishes before the observed
+card is assessed, and final result/settlement context is attached only after all
+coaching classification. It exposes Key Decisions, Turning Points, bounded
+patterns and recommendations, complete coverage and scope summaries, and
+canonical limitations. Empty prioritized or guidance arrays remain valid.
+
+The report recursively excludes private deal and Search internals and does not
+claim causal outcome attribution, player weakness, persistent traits,
+statistical significance, perfect play, optimal hidden-information play, or
+player ratings/rankings. Null recommendations use contract-objective wording,
+not Suit/Grand card-point-margin advice. See
+[Replay coaching contracts](replay_coaching_contracts.md) and
+[`historical_replay_coaching.schema.json`](../schemas/historical_replay_coaching.schema.json).
 
 ## Review output
 

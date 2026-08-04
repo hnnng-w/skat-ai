@@ -5,6 +5,10 @@ import sys
 from pathlib import Path
 
 import pytest
+from test_replay_coaching_contracts import (
+    _historical_fake_immediate,
+    _historical_fake_search,
+)
 
 import main as main_module
 from main import (
@@ -146,6 +150,8 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
         "--right-opponent-player-id",
         "--historical-decision-snapshots",
         "--historical-game-review",
+        "--historical-search-review",
+        "--historical-replay-coaching",
         "--evaluate-opponent-policy-profiles",
         "--audit-dataset-partitions",
         "--dataset-partition-mode",
@@ -1166,6 +1172,122 @@ def test_cli_historical_game_review_quiet_output_and_both_flags(tmp_path) -> Non
     }
 
 
+def test_historical_replay_coaching_combines_public_workflows_in_one_pass(
+    monkeypatch,
+    tmp_path,
+    capsys,
+) -> None:
+    output_path = tmp_path / "historical-replay-coaching.json"
+    calls = {"search": 0, "immediate": 0}
+
+    def search(**kwargs):
+        calls["search"] += 1
+        return _historical_fake_search(**kwargs)
+
+    def immediate(**kwargs):
+        calls["immediate"] += 1
+        return _historical_fake_immediate(**kwargs)
+
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
+    )
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        immediate,
+    )
+    run_json_historical_game_analysis(
+        file_path=str(HISTORICAL_INPUT_PATH),
+        output_path=str(output_path),
+        historical_decision_snapshots=True,
+        historical_game_review=True,
+        historical_search_review=True,
+        historical_replay_coaching=True,
+        search_seed=71,
+        search_budget_profile="interactive_v1",
+        sample_count=1,
+        base_random_seed=42,
+    )
+
+    assert calls == {"search": 30, "immediate": 30}
+    stdout = capsys.readouterr().out
+    for heading in (
+        "Historical Search Review",
+        "Historical Replay Coaching Report",
+        "Game type and declaration:",
+        "Decision coverage:",
+        "High-impact decisions:",
+        "Key Decisions",
+        "Turning Points",
+        "Decision Recommendations",
+        "Pattern Recommendations",
+        "Player summaries:",
+        "Role summaries:",
+        "Phase summaries:",
+        "Contract summary:",
+        "Retrospective outcome context",
+        "Report limitations:",
+    ):
+        assert heading in stdout
+    with output_path.open("r", encoding="utf-8") as output_file:
+        result = json.load(output_file)
+    summary = result["historical_game_summary"]
+    coaching = summary["historical_replay_coaching_summary"]
+    search_review = summary["historical_search_review_summary"]
+    assert summary["decision_snapshot_summary"]["snapshot_count"] == 30
+    assert summary["historical_game_review_summary"]["decision_count"] == 30
+    assert coaching["coverage_summary"]["decision_count"] == 30
+    assert coaching["source_review_settings"] == search_review["settings"]
+
+
+def test_historical_replay_coaching_only_omits_search_review_summary(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    output_path = tmp_path / "historical-replay-coaching-only.json"
+    coaching = {
+        "report_version": 1,
+        "source_game_id": "historical-grand-normal-001",
+    }
+    monkeypatch.setattr(
+        main_module,
+        "build_historical_replay_coaching_public_summaries",
+        lambda **kwargs: {
+            "historical_search_review_summary": {"settings": {}},
+            "historical_replay_coaching_summary": coaching,
+        },
+    )
+
+    run_json_historical_game_analysis(
+        file_path=str(HISTORICAL_INPUT_PATH),
+        output_path=str(output_path),
+        quiet=True,
+        historical_replay_coaching=True,
+        search_seed=71,
+        sample_count=1,
+        base_random_seed=42,
+    )
+
+    with output_path.open("r", encoding="utf-8") as output_file:
+        summary = json.load(output_file)["historical_game_summary"]
+    assert summary["historical_replay_coaching_summary"] == coaching
+    assert "historical_search_review_summary" not in summary
+
+
+def test_historical_default_output_omits_replay_coaching(tmp_path) -> None:
+    output_path = tmp_path / "historical-default.json"
+
+    run_json_historical_game_analysis(
+        file_path=str(HISTORICAL_INPUT_PATH),
+        output_path=str(output_path),
+        quiet=True,
+    )
+
+    with output_path.open("r", encoding="utf-8") as output_file:
+        summary = json.load(output_file)["historical_game_summary"]
+    assert "historical_replay_coaching_summary" not in summary
+    assert "historical_search_review_summary" not in summary
+
+
 def test_cli_historical_profile_review_prints_setup_summary_and_writes_output(
     tmp_path,
 ) -> None:
@@ -1336,6 +1458,34 @@ def test_cli_rejects_historical_decision_snapshots_for_position_input() -> None:
     assert_no_success_output(completed_process)
 
 
+def test_cli_rejects_replay_coaching_without_search_seed() -> None:
+    completed_process = run_cli(
+        "--input",
+        HISTORICAL_INPUT_PATH,
+        "--historical-replay-coaching",
+    )
+
+    assert completed_process.returncode == 2
+    assert "require --search-seed" in completed_process.stderr
+    assert_no_success_output(completed_process)
+
+
+def test_cli_rejects_replay_coaching_for_position_input() -> None:
+    completed_process = run_cli(
+        "--input",
+        VALID_INPUT_PATH,
+        "--historical-replay-coaching",
+        "--search-seed",
+        "71",
+    )
+
+    assert completed_process.returncode == 2
+    assert "--historical-replay-coaching requires historical-game input" in (
+        completed_process.stderr
+    )
+    assert_no_success_output(completed_process)
+
+
 @pytest.mark.parametrize(
     "override_args",
     [
@@ -1369,6 +1519,7 @@ def test_cli_historical_game_rejects_position_specific_overrides(
         ("--historical-decision-snapshots",),
         ("--historical-game-review",),
         ("--historical-search-review", "--search-seed", "71"),
+        ("--historical-replay-coaching", "--search-seed", "71"),
         ("--multi-step", "1"),
         ("--card-policy", "highest_point"),
         ("--expected-value-samples", "1"),
@@ -1397,6 +1548,7 @@ def test_cli_training_dataset_rejects_analysis_and_review_options(
         ("--opponent-strategy", "random"),
         ("--historical-decision-snapshots",),
         ("--historical-game-review",),
+        ("--historical-replay-coaching", "--search-seed", "71"),
         ("--multi-step", "1"),
         ("--card-policy", "highest_point"),
         ("--expected-value-samples", "1"),

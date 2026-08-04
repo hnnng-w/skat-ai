@@ -32,9 +32,8 @@ The project focuses on:
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
 * immutable version-1 normative settlement and approved claim-boundary matrix
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
-* internal version-1 deterministic Replay Coaching Key Decisions and Turning Points
-* internal version-1 one-game Replay Coaching patterns and actionable recommendations
-* complete internal version-1 Replay Coaching report composition
+* deterministic Replay Coaching Key Decisions, Turning Points, one-game patterns, and actionable recommendations
+* complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -321,12 +320,12 @@ Implemented:
 * focused historical-game, historical game-end/concession, historical-decision-snapshot, historical-game-review, and training-dataset schemas
 * strict version-1 hidden-card inference summary schema
 * strict standalone version-1 bounded-search aggregate result schema
-* strict flat post-game Search, Historical Search Review, and bounded-Search evaluation schemas
+* strict flat post-game Search, Historical Search Review, Historical Replay Coaching, and bounded-Search evaluation schemas
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
 
-Generated-output validation currently covers 61 deterministic scenarios. The
+Generated-output validation currently covers 64 deterministic scenarios. The
 published `v0.10.0` release baseline remains 59, and the published `v0.9.0`
 baseline remains 52.
 
@@ -435,9 +434,9 @@ Current CLI wording uses review-objective language for rank and better-card
 summaries. For Null games, the CLI distinguishes Null contract-objective gaps
 from informational card-point swing fields.
 
-### Replay Coaching contracts
+### Replay Coaching
 
-Implemented as an internal `v0.11.0` foundation:
+Implemented as a `v0.11.0` information-safe public workflow:
 
 * immutable contract version `1` with information policy
   `decision_time_then_retrospective_attachment`
@@ -447,8 +446,7 @@ Implemented as an internal `v0.11.0` foundation:
 * opening, middle, and endgame phase conventions
 * stable statuses, evidence-basis priority, impact tiers, factors, limitations,
   strict validation, and privacy-safe deterministic serialization
-* unchanged Immediate Historical Review, Historical Search Review, schemas, CLI,
-  examples, and generated outputs
+* unchanged Immediate Historical Review and Historical Search Review output
 * one retained chronological assessment tuple from the same Historical Search
   Review execution, without additional Search or Immediate calls
 * deterministic selection of at most five strictly-below-best Key Decisions by
@@ -468,19 +466,27 @@ Implemented as an internal `v0.11.0` foundation:
   only, and Search-versus-Immediate wording boundaries
 * one retained internal guidance result from the same Historical Search Review
   execution without additional Search or Immediate calls
-* complete internal report version `1` and method
+* complete report version `1` and method
   `historical_replay_coaching_v1`, composed from that retained analysis
 * privacy-safe player/game context, separately attached final outcome context,
   reconciled coverage, and zero-preserving player/role/phase/contract summaries
 * explicit `final_context_after_coaching` isolation, deterministic internal
   serialization, canonical report limitations, and no private deal or Search
   state in report output
+* opt-in `--historical-replay-coaching` with explicit Search seed and the shared
+  immutable Search/Immediate settings
+* coaching-only conditional JSON output and combined one-pass emission with the
+  retained Historical Search Review summary
+* strict standalone Draft 2020-12 schema registered from the main output schema
+* concise human-readable Key Decision, Turning Point, recommendation, scope,
+  outcome-context, and limitation sections
+* normal Grand, Null, and continuation-before-shortening generated-output
+  coverage within the exact 64-scenario matrix
 
 The observed card is not ground truth, no causal final-outcome claim is made,
 and exhaustive compatible-world aggregation remains subject to Strategy Fusion.
-Tactical detectors and public schema, CLI, example, generated-output, and report
-presentation remain unimplemented. The complete internal report is not a public
-workflow. See
+Tactical motif detectors, cross-game analysis, stronger Search, and any causal
+language remain unimplemented. See
 [Replay coaching contracts](replay_coaching_contracts.md).
 
 ### CLI and workflow usability
@@ -834,11 +840,11 @@ Completed implementation scope:
   Multi-Step and Policy Comparison, flat post-game review, Historical Search
   Review, and bounded dataset evaluation are connected. Overbid Null replacement
   selection remains outside it.
-* Public complete-game coaching presentation and full fixed-three-player 36-game list aggregation are not implemented.
-* Replay Coaching has version-1 internal evidence, impact, prioritization,
-  one-game pattern, actionable-recommendation, and complete internal report
-  contracts. Tactical motif detection, cross-game patterns, public schema/CLI/
-  report output, and the public coaching workflow remain unimplemented.
+* Full fixed-three-player 36-game list aggregation is not implemented.
+* Replay Coaching has a public version-1 one-game report with information-safe
+  evidence, impact, prioritization, patterns, recommendations, scope summaries,
+  and isolated outcome context. Tactical motif detection, cross-game patterns,
+  broader Search, and causal attribution remain unimplemented.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
@@ -862,6 +868,10 @@ Issue #123 composes the complete privacy-safe internal report from one retained
 coaching analysis, including outcome isolation, coverage, and scope summaries,
 while leaving public presentation, schemas, CLI, examples, and generated output
 open.
+Issue #124 exposes that retained report as the opt-in public Replay Coaching
+workflow with strict schema, CLI presentation, normal/Null/shortened examples,
+and one-pass generated-output coverage while leaving tactical and cross-game
+coaching open.
 
 ## Open future topics
 
