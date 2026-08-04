@@ -24,6 +24,7 @@ from skat_ai.historical_search_review import (
     HISTORICAL_SEARCH_DECISION_SEED_DOMAIN,
     HistoricalSearchReviewSettings,
     build_historical_search_decision_review,
+    build_historical_search_review_internal_result,
     build_historical_search_review_metrics,
     build_historical_search_review_summary,
     derive_historical_search_decision_seed,
@@ -131,6 +132,14 @@ def _collect_card_values(value) -> set[str]:
     if isinstance(value, (list, tuple)):
         return set().union(*(_collect_card_values(item) for item in value))
     return set()
+
+
+def _plain_json_value(value):
+    if isinstance(value, dict) or hasattr(value, "items"):
+        return {key: _plain_json_value(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_plain_json_value(item) for item in value]
+    return value
 
 
 def test_decision_seed_uses_only_stable_identity_material() -> None:
@@ -481,6 +490,77 @@ def test_zero_decision_summary_has_reconciled_empty_metrics() -> None:
     }
     assert all(rows == [] for rows in result["breakdowns"].values())
     assert result["decisions"] == []
+
+
+def test_internal_review_retains_assessments_without_changing_public_summary(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.solve_compatible_world_minimax", _fake_search
+    )
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        _fake_immediate,
+    )
+    record, snapshots = _load_historical("historical_grand_normal_completion.json")
+
+    internal = build_historical_search_review_internal_result(
+        snapshots,
+        record,
+        41,
+        immediate_sample_count=1,
+    )
+    public = build_historical_search_review_summary(
+        snapshots,
+        record,
+        41,
+        immediate_sample_count=1,
+    )
+
+    assert _plain_json_value(internal.public_review_summary) == public
+    assert len(internal.assessments) == len(public["decisions"]) == 30
+    assert [assessment.actual_card for assessment in internal.assessments] == [
+        decision["actual_card"] for decision in public["decisions"]
+    ]
+    assert all("coaching" not in key for key in _collect_keys(public))
+    with pytest.raises(TypeError):
+        internal.public_review_summary["settings"]["base_search_seed"] = 9  # type: ignore[index]
+    with pytest.raises(FrozenInstanceError):
+        internal.assessments = ()  # type: ignore[misc]
+
+
+def test_internal_review_runs_search_and_immediate_once_per_decision(monkeypatch) -> None:
+    record, snapshots = _load_historical("historical_grand_normal_completion.json")
+    call_counts = {"search": 0, "immediate": 0}
+
+    def search(**kwargs):
+        call_counts["search"] += 1
+        return _fake_search(**kwargs)
+
+    def immediate(**kwargs):
+        call_counts["immediate"] += 1
+        return _fake_immediate(**kwargs)
+
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
+    )
+    monkeypatch.setattr(
+        "skat_ai.historical_search_review.recommend_card_by_expected_value",
+        immediate,
+    )
+
+    result = build_historical_search_review_internal_result(
+        snapshots,
+        record,
+        43,
+        immediate_sample_count=1,
+    )
+
+    assert len(result.assessments) == snapshots.snapshot_count
+    assert call_counts == {
+        "search": snapshots.snapshot_count,
+        "immediate": snapshots.snapshot_count,
+    }
 
 
 def test_real_search_reports_early_unavailable_and_late_eligible(monkeypatch) -> None:

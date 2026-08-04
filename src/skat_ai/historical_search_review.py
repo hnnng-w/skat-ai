@@ -142,6 +142,71 @@ class HistoricalSearchDecisionRetrospectiveAttachment:
     coaching_assessment: ReplayCoachingDecisionAssessment
 
 
+def _freeze_json_value(value: Any) -> Any:
+    if isinstance(value, dict):
+        return MappingProxyType(
+            {key: _freeze_json_value(item) for key, item in value.items()}
+        )
+    if isinstance(value, list):
+        return tuple(_freeze_json_value(item) for item in value)
+    return value
+
+
+def _thaw_json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _thaw_json_value(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_thaw_json_value(item) for item in value]
+    return value
+
+
+@dataclass(frozen=True)
+class HistoricalSearchDecisionInternalResult:
+    """One immutable public decision row and its retained assessment."""
+
+    public_review: Mapping[str, Any]
+    assessment: ReplayCoachingDecisionAssessment
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.public_review, Mapping):
+            raise ValueError("public_review must be a mapping.")
+        if not isinstance(self.assessment, ReplayCoachingDecisionAssessment):
+            raise ValueError("assessment must be ReplayCoachingDecisionAssessment.")
+        object.__setattr__(
+            self,
+            "public_review",
+            _freeze_json_value(dict(self.public_review)),
+        )
+
+
+@dataclass(frozen=True)
+class HistoricalSearchReviewInternalResult:
+    """The unchanged public summary plus chronological coaching assessments."""
+
+    public_review_summary: Mapping[str, Any]
+    assessments: tuple[ReplayCoachingDecisionAssessment, ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.public_review_summary, Mapping):
+            raise ValueError("public_review_summary must be a mapping.")
+        if not isinstance(self.assessments, tuple) or any(
+            not isinstance(assessment, ReplayCoachingDecisionAssessment)
+            for assessment in self.assessments
+        ):
+            raise ValueError("assessments must contain coaching assessments.")
+        decisions = self.public_review_summary.get("decisions")
+        if not isinstance(decisions, (list, tuple)) or len(decisions) != len(
+            self.assessments
+        ):
+            raise ValueError("Public decisions and coaching assessments must reconcile.")
+        object.__setattr__(
+            self,
+            "public_review_summary",
+            _freeze_json_value(dict(self.public_review_summary)),
+        )
+        object.__setattr__(self, "assessments", tuple(self.assessments))
+
+
 def _serialize_requested_budget(budget: RequestedSearchBudget) -> dict[str, Any]:
     return {
         "max_remaining_tricks": budget.max_remaining_tricks,
@@ -315,14 +380,14 @@ def attach_historical_search_decision_retrospective_assessment(
     )
 
 
-def build_historical_search_decision_review(
+def build_historical_search_decision_internal_result(
     snapshot: HistoricalDecisionSnapshot,
     historical_record: HistoricalGameRecord,
     settings: HistoricalSearchReviewSettings,
     *,
     stable_game_identity: str | None = None,
-) -> dict[str, Any]:
-    """Builds the unchanged review row after internal coaching attachment."""
+) -> HistoricalSearchDecisionInternalResult:
+    """Builds one public review row and retains its existing assessment."""
     analysis = build_historical_search_decision_pre_actual_analysis(
         snapshot,
         historical_record,
@@ -334,7 +399,7 @@ def build_historical_search_decision_review(
         analysis,
     )
     evidence = analysis.decision_time_evidence
-    return {
+    public_review = {
         **_decision_identity(snapshot),
         "game_type": evidence.game_type,
         "local_side": evidence.local_side,
@@ -364,6 +429,27 @@ def build_historical_search_decision_review(
             )
         ),
     }
+    return HistoricalSearchDecisionInternalResult(
+        public_review=_freeze_json_value(public_review),
+        assessment=attachment.coaching_assessment,
+    )
+
+
+def build_historical_search_decision_review(
+    snapshot: HistoricalDecisionSnapshot,
+    historical_record: HistoricalGameRecord,
+    settings: HistoricalSearchReviewSettings,
+    *,
+    stable_game_identity: str | None = None,
+) -> dict[str, Any]:
+    """Builds the unchanged public review row."""
+    result = build_historical_search_decision_internal_result(
+        snapshot,
+        historical_record,
+        settings,
+        stable_game_identity=stable_game_identity,
+    )
+    return _thaw_json_value(result.public_review)
 
 
 def _nearest_rank(values: list[int], percentile: float) -> int | None:
@@ -607,15 +693,15 @@ def _with_breakdown_fields(decision: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_historical_search_review_summary(
+def build_historical_search_review_internal_result(
     snapshot_summary: HistoricalDecisionSnapshotSummary,
     historical_record: HistoricalGameRecord,
     base_search_seed: int,
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     immediate_base_random_seed: int | None = None,
-) -> dict[str, Any]:
-    """Evaluates every decision in one validated historical play prefix."""
+) -> HistoricalSearchReviewInternalResult:
+    """Evaluates one review while retaining chronological assessments."""
     cardinality = snapshot_summary.cardinality
     if historical_record.game_end_reason != cardinality.game_end_reason:
         raise ValueError("Historical Search review end reasons do not match.")
@@ -634,14 +720,17 @@ def build_historical_search_review_summary(
         immediate_sample_count=immediate_sample_count,
         immediate_base_random_seed=immediate_base_random_seed,
     )
-    decisions = [
-        build_historical_search_decision_review(
+    decision_results = [
+        build_historical_search_decision_internal_result(
             snapshot,
             historical_record,
             settings,
             stable_game_identity=historical_record.game_id,
         )
         for snapshot in snapshot_summary.snapshots
+    ]
+    decisions = [
+        _thaw_json_value(result.public_review) for result in decision_results
     ]
     aggregate_decisions = [_with_breakdown_fields(decision) for decision in decisions]
     metrics = build_historical_search_review_metrics(aggregate_decisions)
@@ -651,7 +740,7 @@ def build_historical_search_review_summary(
             row["metrics"]["decision_counts"]["decision_count"] for row in rows
         ) != len(decisions):
             raise ValueError(f"{breakdown_name} decision counts do not reconcile.")
-    return {
+    public_summary = {
         "schema_version": HISTORICAL_SEARCH_REVIEW_SCHEMA_VERSION,
         "analysis_method": HISTORICAL_SEARCH_REVIEW_ANALYSIS_METHOD,
         "information_policy": HISTORICAL_SEARCH_REVIEW_INFORMATION_POLICY,
@@ -662,3 +751,27 @@ def build_historical_search_review_summary(
         "breakdowns": breakdowns,
         "decisions": decisions,
     }
+    return HistoricalSearchReviewInternalResult(
+        public_review_summary=_freeze_json_value(public_summary),
+        assessments=tuple(result.assessment for result in decision_results),
+    )
+
+
+def build_historical_search_review_summary(
+    snapshot_summary: HistoricalDecisionSnapshotSummary,
+    historical_record: HistoricalGameRecord,
+    base_search_seed: int,
+    search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
+    immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
+    immediate_base_random_seed: int | None = None,
+) -> dict[str, Any]:
+    """Evaluates every decision and returns the unchanged public summary."""
+    result = build_historical_search_review_internal_result(
+        snapshot_summary,
+        historical_record,
+        base_search_seed,
+        search_budget_profile,
+        immediate_sample_count,
+        immediate_base_random_seed,
+    )
+    return _thaw_json_value(result.public_review_summary)

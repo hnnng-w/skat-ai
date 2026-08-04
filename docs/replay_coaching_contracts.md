@@ -2,12 +2,14 @@
 
 ## Version and scope
 
-`src/skat_ai/replay_coaching_evidence.py` and
-`src/skat_ai/replay_coaching_assessment.py` define internal Replay Coaching
-contract version `1`:
+`src/skat_ai/replay_coaching_evidence.py`,
+`src/skat_ai/replay_coaching_assessment.py`, and the focused prioritization
+modules define internal Replay Coaching contracts:
 
 ```text
 REPLAY_COACHING_CONTRACT_VERSION = 1
+REPLAY_COACHING_PRIORITIZATION_VERSION = 1
+MAX_REPLAY_COACHING_KEY_DECISIONS = 5
 ```
 
 The contracts are frozen dataclasses with immutable tuples and deterministic
@@ -15,9 +17,15 @@ internal serializers. They do not add a stable package-root API, public JSON
 schema, CLI field, example, or generated-output branch. Existing Immediate
 Historical Review and Historical Search Review output remains unchanged.
 
-Version 1 defines evidence and impact semantics for one historical card
-decision. It does not implement key-decision ranking, turning points, patterns,
-recommendations, tactical detectors, or a complete Coaching Report.
+The assessment contract defines evidence and impact semantics for one historical
+card decision. Prioritization version 1 adds deterministic game-level Key
+Decisions, Turning Points, and high-impact classification. It does not implement
+patterns, advice, recommendations, tactical detectors, or a complete Coaching
+Report.
+
+The prioritization version, maximum, eligibility, ranking, Turning Point, and
+high-impact rules are `skat-ai` product conventions. They are not official Skat
+rule classifications.
 
 ## Information policy
 
@@ -240,12 +248,135 @@ decision. It does not claim that one observed card caused the final winner,
 result, settlement, or any later event. Final outcome context is deliberately
 outside these contracts.
 
+## Historical Search Review integration
+
+One internal Historical Search Review execution now retains both the unchanged
+public review summary and the chronological immutable assessment tuple. Search
+and Immediate still run exactly once per decision. The existing public builder
+returns the same serialized structure and values and does not expose the retained
+assessments or prioritization.
+
+The game-level builder accepts one validated historical record and exactly one
+assessment per recorded card play. It validates contract version, source game,
+contiguous one-based decision indices, chronological trick/play identity, acting
+player and seat, side, game type, and actual-card alignment. Zero through 30
+decisions are supported, including all current shortened records and a supported
+continuation followed by terminal shortening.
+
+## Key Decisions
+
+Only `strictly_below_best` assessments with a supported positive missed-impact
+tier are eligible. Forced moves, best or aggregate-equivalent choices,
+not-assessable choices, and choices without missed impact are excluded.
+
+Selection reasons, in priority order, are:
+
+1. `contract_success_gap`;
+2. `settlement_score_gap`;
+3. `card_point_margin_gap`;
+4. `immediate_only_gap`.
+
+Within one reason, evidence basis uses the existing priority:
+
+1. `all_compatible_worlds`;
+2. `sampled_compatible_worlds`;
+3. `completed_common_prefix`;
+4. `immediate_expected_value`.
+
+Remaining ordering is primary gap descending, strictly better card count
+descending, then decision index ascending. At most five decisions are retained,
+with contiguous one-based ranks and no duplicate decision.
+
+Search primary gaps reuse the existing aggregate comparison field selected by
+the impact tier. They are not recalculated. Immediate-only primary gaps use best
+Immediate objective utility minus observed-card Immediate objective utility.
+This preserves the Null contract objective and does not rank Null solely by raw
+point swing. Every selected primary gap is finite and positive.
+
+## Turning Points
+
+Prioritization version 1 supports exactly these types, in canonical order:
+
+1. `decision_opportunity`;
+2. `recorded_outcome`.
+
+Turning Points are sorted by decision index and then type order. Both types may
+occur on one decision, but they remain separate objects with separate semantics.
+
+A decision-opportunity Turning Point requires `strictly_below_best`,
+`contract_success`, Search evidence, and a positive existing contract-success-
+rate gap. Settlement-only, margin-only, Immediate-only, forced,
+aggregate-equivalent, and not-assessable decisions cannot create one. It is a
+counterfactual aggregate opportunity, not a causal statement about the recorded
+result.
+
+A recorded-outcome Turning Point is the first actual card-play-prefix transition
+from `undecided` to `declarer_already_won` or `defenders_already_won`. The
+timeline derives completed-trick cards, winner side, and points only from the
+recorded prefix. It does not inspect remaining hands, hidden ownership, the final
+Skat, future cards, or a terminal shortening. A continuation or shortening event
+does not create a synthetic card decision. A forced actual card may carry this
+Turning Point even though it cannot be a Key Decision.
+
+Once decided, the recorded timeline may neither return to `undecided` nor switch
+to the other side. An initially decided timeline is valid and creates no card
+transition.
+
+At the complete 30-card normal-play boundary only, a still-undecided state is
+resolved with existing result, game-value, Overbid, and final-settlement helpers.
+Point conservation supplies the terminal declarer total without reading final
+Skat card identities. This supports a normal Null declarer win after all ten
+tricks when the declarer took no trick. The fallback is never applied before the
+complete prefix or to shortened games.
+
+## High impact
+
+No numeric threshold is used. High impact is true for every Turning Point, every
+Key Decision with Contract-success impact, and every Key Decision on the same
+decision as a recorded-outcome Turning Point. Settlement-score, card-point-
+margin, and Immediate-only Key Decisions are otherwise not high impact.
+Immediate quality names do not affect this classification. The game-level count
+uses unique decisions, so two Turning Point types on one decision count once.
+
+## Turning Point factors and limitations
+
+Stable Turning Point factors use this canonical order:
+
+1. `lower_contract_success_opportunity`;
+2. `recorded_contract_became_decided`;
+3. `recorded_declarer_became_decided`;
+4. `recorded_defenders_became_decided`;
+5. `forced_recorded_outcome_transition`.
+
+Stable added limitations are:
+
+1. `counterfactual_aggregate_not_causal`;
+2. `recorded_path_only`;
+3. `decision_not_single_cause`;
+4. `observed_card_not_ground_truth`.
+
+Decision opportunities retain their assessment limitations and add the
+counterfactual non-causal limitation. Recorded outcomes use the recorded-path,
+not-single-cause, and observed-card limitations. Neither type adds tactical,
+intentional, skill, or causal interpretation.
+
+## Prioritization result and serialization
+
+The immutable game-level result records source identity, decision, assessable,
+missed-impact, and unique high-impact counts, initial and final recorded states,
+Key Decisions, and Turning Points. Construction reconciles counts, sources,
+subsets, ranks, ordering, Turning Point references, and deterministic selection.
+
+Internal serializers reuse the existing assessment serializer. They emit no
+hidden hands, final Skat, compatible-world assignments, Search seeds,
+transposition state, principal variations, final settlement, or causal free
+text. No schema, CLI, example, generated scenario, or stable package-root API is
+added.
+
 ## Remaining Replay Coaching work
 
 Replay Coaching remains incomplete. Still missing are:
 
-* key-decision selection and ranking;
-* turning-point and high-impact final classification;
 * cross-decision pattern aggregation;
 * actionable coaching recommendations and explanations;
 * tactical detectors;

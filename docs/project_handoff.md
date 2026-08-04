@@ -32,6 +32,7 @@ The project focuses on:
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
 * immutable version-1 normative settlement and approved claim-boundary matrix
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
+* internal version-1 deterministic Replay Coaching Key Decisions and Turning Points
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -446,11 +447,21 @@ Implemented as an internal `v0.11.0` foundation:
   strict validation, and privacy-safe deterministic serialization
 * unchanged Immediate Historical Review, Historical Search Review, schemas, CLI,
   examples, and generated outputs
+* one retained chronological assessment tuple from the same Historical Search
+  Review execution, without additional Search or Immediate calls
+* deterministic selection of at most five strictly-below-best Key Decisions by
+  impact, evidence, positive primary gap, alternative count, and chronology
+* separate Contract-success decision-opportunity and first recorded-prefix
+  outcome Turning Points
+* complete-normal-play fallback for still-undecided terminal contracts, including
+  a ten-trick Null declarer win without a declarer trick
+* threshold-free high-impact classification, stable factors and limitations,
+  strict game-level reconciliation, and deterministic internal serialization
 
 The observed card is not ground truth, no causal final-outcome claim is made,
 and exhaustive compatible-world aggregation remains subject to Strategy Fusion.
-Key decisions, turning points, patterns, recommendations, tactical detectors,
-and a complete Coaching Report remain unimplemented. See
+Patterns, recommendations, tactical detectors, public report output, and a
+complete Coaching Report remain unimplemented. See
 [Replay coaching contracts](replay_coaching_contracts.md).
 
 ### CLI and workflow usability
@@ -802,7 +813,9 @@ Completed implementation scope:
   Review, and bounded dataset evaluation are connected. Overbid Null replacement
   selection remains outside it.
 * Complete-game coaching and full fixed-three-player 36-game list aggregation are not implemented.
-* Replay Coaching has version-1 internal evidence and impact contracts, but no key-decision ranking, turning points, patterns, recommendations, or complete report.
+* Replay Coaching has version-1 internal evidence, impact, Key Decision, Turning
+  Point, and high-impact prioritization contracts, but no cross-decision patterns,
+  recommendations, advice, public report, or complete coaching workflow.
 * Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
@@ -817,6 +830,8 @@ Replay Coaching and remaining approved gaps continue as focused follow-up work.
 Issue #118 establishes this matrix as the first `v0.11.0` contract foundation.
 Issue #120 adds the separate information-safe Replay Coaching evidence and impact
 contract foundation while leaving full Replay Coaching incomplete.
+Issue #121 adds internal deterministic Key Decisions and Turning Points while
+leaving patterns, advice, and public Coaching Report output open.
 
 ## Open future topics
 
