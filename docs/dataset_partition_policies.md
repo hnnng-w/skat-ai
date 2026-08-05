@@ -18,8 +18,8 @@ Policy metadata is preserved by canonical dataset conversion and in bounded
 historical-aggregation and rolling-evaluation source provenance.
 Datasets and audits accept normal-completion, including either optional timed
 continuation kind, plus declarer-concession, defender-concession,
-declarer-card-exposure, and terminal defender-open-play records. The event does
-not change record identity or participant membership.
+declarer-card-exposure, terminal defender-open-play, and open-card-throwing
+records. The event does not change record identity or participant membership.
 Membership remains record- and participant-based, so zero-sample records still
 participate fully in overlap and coverage checks.
 
@@ -51,6 +51,12 @@ source game occurred before a target game. The rolling opponent-policy evaluator
 remains authoritative for strict `source.played_at < target.played_at`
 eligibility and rejects datasets declaring `unseen_player`.
 
+The separate internal `temporal_known_opponent_v1` complete-plan validator is
+stricter. It requires Historical Game `played_at` on every Record, unsplit equal-
+instant groups, non-empty strict Train/Validation/Test time blocks, and complete
+Train membership coverage for every Validation and Test player. Its temporal
+audit does not change or replace the membership-only public audit.
+
 ## Unseen players
 
 `unseen_player` requires every stable player to occur in exactly one of `train`,
@@ -63,6 +69,12 @@ An undeclared dataset may be audited with requested `unseen_player` semantics.
 That audit returns a complete `non_compliant` report instead of converting the
 request into invalid stored metadata. This distinction keeps violations
 inspectable without weakening declared-policy validation.
+
+The internal `component_balanced_unseen_player_v1` supplied-plan validator adds
+the non-empty three-partition requirement and then reuses declared-policy loading
+and this existing overlap audit. Whole zero-sample Records and transitive shared-
+player groups participate fully. The algorithm name is reserved; component
+construction and assignment are not implemented.
 
 ## Audit workflow
 
@@ -94,7 +106,11 @@ Audit mode does not replay games to generate samples, aggregate statistics, run
 rolling evaluation, review historical decisions, recommend cards, simulate
 play, train a model, modify records, or repartition data. Automatic splitting,
 balancing, record movement, unseen-player profile prediction, machine-learning
-training, and model generalization evaluation remain unsupported.
+training, and model generalization evaluation remain unsupported. Internal
+preparation contracts now validate explicit weights and complete or unavailable
+plans, but automatic temporal cuts, component construction, assignment,
+balancing, repartitioning, and public preparation remain unsupported. See
+[Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md).
 
 Historical opponent-statistics aggregation and rolling opponent-policy
 evaluation support exactly normal completion, including either timed event,

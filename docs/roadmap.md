@@ -243,6 +243,13 @@ Implemented:
 * Strict declared unseen-player disjointness with backward-compatible unspecified policy intent
 * Reuse of the dataset as the multi-game source for sample-free historical opponent-statistics aggregation
 * Deterministic bounded-Search evaluation on selected partitions with one global decision cap, zero-decision preservation, quality-gate arithmetic, and aggregate breakdowns
+* Internal preparation version `1` with unpartitioned source Records, explicit
+  positive integer weights, split-safe facts, order-independent identity/content
+  fingerprints, and mode-separated deterministic SHA-256 seed helpers
+* Internal partition-plan version `1` with caller-supplied complete assignment
+  validation, reasoned unavailable plans, exact Record-count target arithmetic,
+  strict Known-opponent temporal coverage, strict unseen-player disjointness,
+  existing-audit reuse, and lossless version-1 dataset materialization
 
 ### Validation and documentation
 
@@ -310,7 +317,10 @@ Implemented:
   Search-versus-Immediate dataset evaluation now use immutable versioned work
   profiles. Search remains bounded late-game determinization, sampled quality is
   not calibrated, and measured performance provides no latency guarantee.
-* Player-disjoint partitions can be declared and validated, but automatic splitting, balancing, and repartitioning are not implemented.
+* Complete supplied Known-opponent and unseen-player plans can be validated and
+  materialized, but temporal-cut selection, player-component construction, both
+  assignment generators, balancing/optimization, repartitioning, and a public
+  preparation workflow are not implemented.
 * Replay Coaching now has public version-1 evidence, impact, prioritization, one-
   game cross-decision patterns, deterministic actionable recommendations, strict
   schema/CLI/report output, and isolated retrospective context. Tactical motifs,
@@ -371,10 +381,12 @@ Coaching evidence and impact, deterministic Key Decisions and both Turning Point
 types, one-game patterns, deterministic recommendations, complete report
 composition, and the opt-in public JSON/schema/CLI workflow.
 
-Current `v0.12.0` development through Issue #130 exposes the fixed-three-player
+Current `v0.12.0` development through Issue #131 exposes the fixed-three-player
 historical-list source, cumulative aggregation, and independent comparison
-through strict JSON/schema/CLI workflows. Its three appended scenarios bring the
-development matrix to 67 while the published `v0.11.0` baseline remains 64.
+through strict JSON/schema/CLI workflows and adds internal dataset-preparation
+and deterministic supplied split-plan contracts. Issue #131 adds no public
+scenario, so the development matrix remains 67 while the published `v0.11.0`
+baseline remains 64.
 
 ### v0.10.0: Information-safe bounded Search across compatible worlds
 
@@ -453,7 +465,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, remaining automatic dataset preparation,
+remaining approved settlement nuance, remaining dataset assignment generators
+and public preparation decisions,
 field-level live
 provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
@@ -507,8 +520,10 @@ deals, Issue #128 adds internal cumulative totals, progression, final standings,
 and exact external-lot application, and Issue #129 adds independent completed-
 list comparison without series aggregation. Issue #130 exposes those retained
 contracts through strict root-selected JSON, schemas, CLI output, exactly three
-examples, and exactly three appended generated-output scenarios. Automatic
-dataset preparation and the remaining issue split are still open.
+examples, and exactly three appended generated-output scenarios. Issue #131 adds
+the internal version-1 source, weight, fact, fingerprint, seed, complete/
+unavailable plan, validation, audit-reuse, and materialization contracts without
+adding either assignment generator or public workflow.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

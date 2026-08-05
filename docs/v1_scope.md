@@ -13,8 +13,10 @@ aggregation and automatic dataset preparation. Issues #127 through #130
 implement the internal source, cumulative aggregation, and independent completed-
 list comparison contracts plus strict public JSON/schema/CLI integration. Their
 three appended scenarios bring the current development matrix to 67 while the
-published baseline remains 64. Automatic dataset preparation and the final issue
-split remain open. The historical published `v0.10.0` baseline remains evidence for 59
+published baseline remains 64. Issue #131 adds internal preparation and supplied
+split-plan version-1 contracts without public integration or another scenario.
+Both assignment generators and public preparation remain open. The historical
+published `v0.10.0` baseline remains evidence for 59
 scenarios and 4,075 pytest tests.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
@@ -35,7 +37,7 @@ must not be presented as official-rule requirements.
 | Statistics derived from historical player data | Reproducible exact aggregates computed from selected timestamped supported historical dataset games for a stable case-sensitive player identity, with per-player source provenance and reusable export. | Bounded aggregation differs from manually supplied values and learned parameters; it does not weight or merge sources, manage multiple captures, or apply a policy automatically. |
 | Rule-based player or opponent profile | Explicit fields and deterministic rules that select or parameterize explainable behavior. | It is not learned from data, even when its input statistics were historically derived. |
 | Rolling opponent-policy evaluation | A strict game-start as-of comparison of an acting player's observed cards with an actionable deterministic profile policy and the fixed `simple_lowest` baseline. | Preferred-card and exact-card matches measure behavioral imitation only, not strategic strength, optimality, recommendation quality, statistical significance, or unseen-player generalization. |
-| Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions but are not automatically split or balanced. |
+| Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. Internal version-1 preparation validates complete supplied temporal or player-disjoint plans and losslessly materializes them. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions. Temporal cuts, player-component construction, assignment, and balancing are not automatic. |
 | Evidence-constrained hidden-card inference | Exact compatible left/right/hypothetical-skat assignments narrowed only by local and authorized public ownership plus confirmed legal failure to follow an effective category. | It is structural decision-time inference, not behavioral, Bayesian, calibrated, learned, tactically weighted, or proof of the actual hidden deal. |
 | Learned opponent model | A versioned artifact whose behavior or parameters were fit from data and are used during inference. | It requires separate training, evaluation, deployment, fallback, and explainability decisions. |
 | Training a machine-learning model | Running a reproducible process that fits model parameters from an approved training dataset and evaluates them on separated data. | It is distinct from storing historical games, generating labels, calculating statistics, or running rule-based simulation. |
@@ -188,7 +190,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 now exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Tactical motifs, cross-game coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
 | Complete-game historical representation | A versioned schema and runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, skat pickup/discards or Hand state, every play, structured claims/concessions and approved additional end reasons, final result, and settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. |
-| Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. |
+| Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. Internal version-1 unpartitioned requests add explicit weights, split-safe facts, deterministic fingerprints/seeds, complete/unavailable supplied plans, strict temporal or player-disjoint proof, exact Record-count arithmetic, and lossless materialization without samples or public schema changes. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
@@ -222,8 +224,11 @@ versioned provenance-aware training/evaluation records use that same actual-play
 cardinality.
 Training-data representation supports normal completion and all five shortened kinds
 with one sample per actual play. Optional partition intent, exact overlap audits,
-and strict declared unseen-player disjointness are implemented; automatic
-splitting and unseen-player model evaluation are not v1 requirements. Bounded
+and strict declared unseen-player disjointness are implemented. Internal complete
+and unavailable plan validation and lossless materialization are also
+implemented; both assignment generators, balancing/optimization, and public
+preparation remain absent. Automatic splitting and unseen-player model evaluation
+are not v1 requirements. Bounded
 declared-Ouvert recommendation analysis is implemented; approved later end
 reasons remain open. Historical statistics and rolling policy evaluation support
 normal completion and all five shortened terminal reasons with game-level

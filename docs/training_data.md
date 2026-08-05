@@ -51,6 +51,13 @@ The workflow is mutually exclusive with position analysis,
 `historical_game_input`, list-performance inputs, impossible-Null settlement,
 profiles, and opponent-policy settings.
 
+Issue #131 also defines a separate internal version-1 preparation request whose
+Records do not yet contain `partition`. It requires explicit positive integer
+Train/Validation/Test weights and validates caller-supplied complete split plans.
+It is not a public input root and does not change the partitioned
+`training_dataset_input` shown above. See
+[Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md).
+
 ## Records and provenance
 
 Every record contains:
@@ -99,6 +106,13 @@ The same validated dataset can be reused as the multi-game source for
 mode, partition selection remains canonical but does not imply player-disjoint
 partitions. Every partition-selected historical game must have `played_at`, even
 if no cutoff is supplied.
+
+Internal preparation materializes only a validated complete plan. It preserves
+Record order, Record and Game IDs, provenance, complete Historical Game Records,
+zero-sample Records, feature version, and target, then adds only `partition` and
+the existing version-1 policy. Materialization reuses this dataset validator and
+the existing partition audit. It does not generate samples; later ordinary
+conversion therefore retains the same `record_id:decision_index` identities.
 
 ## Sample generation
 

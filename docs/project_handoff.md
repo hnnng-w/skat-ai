@@ -28,6 +28,8 @@ The project focuses on:
 * live and time-safe historical profile application
 * rolling opponent-policy evaluation
 * dataset partition policies and stable-player overlap audits
+* internal unpartitioned dataset-preparation requests, deterministic split-plan
+  proofs, strict supplied-assignment validation, and lossless materialization
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
 * immutable version-1 normative settlement and approved claim-boundary matrix
@@ -622,6 +624,9 @@ Implemented:
 * `training_feature_view.py`
 * `dataset_partition_policy.py`
 * `dataset_partition_audit.py`
+* `training_dataset_preparation.py`
+* `dataset_preparation_identity.py`
+* `dataset_partition_plan.py`
 * `historical_opponent_statistics.py`
 * `historical_opponent_profile_binding.py`
 * `historical_opponent_profile_application.py`
@@ -709,6 +714,7 @@ Main documentation files:
 * `docs/historical_opponent_profiles.md`
 * `docs/training_data.md`
 * `docs/dataset_partition_policies.md`
+* `docs/automatic_dataset_preparation_contracts.md`
 * `docs/opponent_statistics.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
@@ -740,10 +746,12 @@ Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
 #125 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
 
-Current `v0.12.0` development through Issue #130 implements the immutable
+Current `v0.12.0` development through Issue #131 implements the immutable
 historical-list source, cumulative aggregation, independent comparison, and
-strict public JSON/schema/CLI workflow. It appends three generated scenarios,
-bringing the development matrix to 67 while the published baseline remains 64.
+strict public JSON/schema/CLI workflow, plus internal version-1 unpartitioned
+dataset-preparation and supplied split-plan contracts. Issue #131 appends no
+scenario, so the development matrix remains 67 while the published baseline
+remains 64.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -922,12 +930,17 @@ The active next planning milestone is `v0.12.0`. Its provisional direction is
 36-game list aggregation and automatic dataset preparation. Issues #127 through
 #130 now implement the version-1 historical-list source, cumulative aggregation,
 independent completed-list comparison, and public JSON/schema/CLI workflow.
-Automatic dataset preparation and the remaining issue split stay open.
+Issue #131 adds internal unpartitioned source Records, explicit weights, split-
+safe facts, deterministic fingerprints and seed helpers, complete/unavailable
+plan validation, strict temporal and player-disjoint proof, and lossless
+materialization. Both assignment generators and all public preparation work stay
+open.
 
-For automatic dataset preparation, inspect
-the existing dataset policies, automatic Known-opponent and player-disjoint split
-generation, deterministic seed requirements, and identity, temporal, source, and
-partition leakage controls. Tactical motifs, cross-game Coaching, ratings, causal
+For the next dataset-preparation work, inspect the version-1 contracts and add
+either the temporal Known-opponent assignment generator or player-component and
+unseen-player assignment generator without using card, label, outcome, sample-
+count, or profile data. Public workflow design remains separate. Tactical motifs,
+cross-game Coaching, ratings, causal
 attribution, broader Search, general claims, and settlement completeness remain
 separate open work.
 

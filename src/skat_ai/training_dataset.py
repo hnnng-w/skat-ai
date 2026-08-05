@@ -125,7 +125,7 @@ def _require_version(value: Any, expected: int, field_name: str) -> int:
     return expected
 
 
-def _build_provenance(value: Any, record_name: str) -> TrainingProvenance:
+def build_training_provenance(value: Any, record_name: str) -> TrainingProvenance:
     field_name = f"{record_name}.provenance"
     data = _require_object(value, field_name)
     _require_exact_fields(
@@ -176,7 +176,7 @@ def _build_training_record(value: Any, record_index: int) -> TrainingDatasetReco
         raise ValueError(
             f"{record_name}.partition must be one of {list(TRAINING_PARTITIONS)}."
         )
-    provenance = _build_provenance(data["provenance"], record_name)
+    provenance = build_training_provenance(data["provenance"], record_name)
     historical_game_data = _require_object(
         data["historical_game"], f"{record_name}.historical_game"
     )
@@ -188,29 +188,34 @@ def _build_training_record(value: Any, record_index: int) -> TrainingDatasetReco
     )
 
 
-def _validate_unique_record_identities(
-    records: tuple[TrainingDatasetRecord, ...],
+def validate_unique_training_record_identities(
+    records: tuple[Any, ...],
 ) -> None:
-    record_partitions: dict[str, str] = {}
-    game_partitions: dict[str, str] = {}
-    source_partitions: dict[tuple[str, str, str], str] = {}
+    record_partitions: dict[str, str | None] = {}
+    game_partitions: dict[str, str | None] = {}
+    source_partitions: dict[tuple[str, str, str], str | None] = {}
     for record in records:
         if record.record_id in record_partitions:
             raise ValueError(
                 f"Duplicate training record_id '{record.record_id}' is not allowed."
             )
-        record_partitions[record.record_id] = record.partition
+        partition = getattr(record, "partition", None)
+        record_partitions[record.record_id] = partition
 
         game_id = record.historical_game.game_id
         if game_id in game_partitions:
             previous_partition = game_partitions[game_id]
-            if previous_partition != record.partition:
+            if (
+                previous_partition is not None
+                and partition is not None
+                and previous_partition != partition
+            ):
                 raise ValueError(
                     f"Historical game_id '{game_id}' appears in both "
-                    f"'{previous_partition}' and '{record.partition}' partitions."
+                    f"'{previous_partition}' and '{partition}' partitions."
                 )
             raise ValueError(f"Duplicate historical game_id '{game_id}' is not allowed.")
-        game_partitions[game_id] = record.partition
+        game_partitions[game_id] = partition
 
         provenance = record.provenance
         if provenance.source_record_id is None:
@@ -222,13 +227,17 @@ def _validate_unique_record_identities(
         )
         if source_identity in source_partitions:
             previous_partition = source_partitions[source_identity]
-            if previous_partition != record.partition:
+            if (
+                previous_partition is not None
+                and partition is not None
+                and previous_partition != partition
+            ):
                 raise ValueError(
                     f"Source record {source_identity!r} appears in both "
-                    f"'{previous_partition}' and '{record.partition}' partitions."
+                    f"'{previous_partition}' and '{partition}' partitions."
                 )
             raise ValueError(f"Duplicate source record {source_identity!r} is not allowed.")
-        source_partitions[source_identity] = record.partition
+        source_partitions[source_identity] = partition
 
 
 def build_training_dataset_input(data: dict[str, Any]) -> TrainingDatasetInput:
@@ -273,7 +282,7 @@ def build_training_dataset_input(data: dict[str, Any]) -> TrainingDatasetInput:
         _build_training_record(raw_record, record_index)
         for record_index, raw_record in enumerate(raw_records)
     )
-    _validate_unique_record_identities(records)
+    validate_unique_training_record_identities(records)
     partition_policy = (
         build_dataset_partition_policy(data["partition_policy"])
         if "partition_policy" in data

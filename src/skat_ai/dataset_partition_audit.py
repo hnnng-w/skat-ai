@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -329,7 +330,7 @@ def build_serializable_dataset_partition_audit(
     audit: DatasetPartitionAudit,
 ) -> dict[str, Any]:
     """Builds the stable public representation of a partition audit."""
-    return {
+    result = {
         "schema_version": audit.schema_version,
         "audit_version": audit.audit_version,
         "source_dataset": audit.source_dataset,
@@ -343,3 +344,15 @@ def build_serializable_dataset_partition_audit(
         "unseen_player_compliance": audit.unseen_player_compliance,
         "players": list(audit.players),
     }
+    return _copy_serializable_value(result)
+
+
+def _copy_serializable_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            key: _copy_serializable_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_copy_serializable_value(item) for item in value]
+    return value
