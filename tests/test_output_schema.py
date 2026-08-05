@@ -100,6 +100,13 @@ HISTORICAL_OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH = (
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
+TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
+DATASET_PARTITION_PLAN_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_plan.schema.json"
+)
+TRAINING_DATASET_PREPARATION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "training_dataset_preparation_output.schema.json"
+)
 OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
 )
@@ -233,6 +240,14 @@ with HISTORICAL_OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") a
     HISTORICAL_OPEN_CARD_THROW_OUTPUT_SCHEMA = json.load(file)
 with TRAINING_DATASET_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     TRAINING_DATASET_OUTPUT_SCHEMA = json.load(file)
+with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    TRAINING_DATASET_SCHEMA = json.load(file)
+with DATASET_PARTITION_PLAN_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    DATASET_PARTITION_PLAN_SCHEMA = json.load(file)
+with TRAINING_DATASET_PREPARATION_OUTPUT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    TRAINING_DATASET_PREPARATION_OUTPUT_SCHEMA = json.load(file)
 with OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     OPPONENT_STATISTICS_OUTPUT_SCHEMA = json.load(file)
 with OPPONENT_PROFILE_DERIVATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
@@ -376,6 +391,18 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             TRAINING_DATASET_OUTPUT_SCHEMA["$id"],
             Resource.from_contents(TRAINING_DATASET_OUTPUT_SCHEMA),
+        ),
+        (
+            TRAINING_DATASET_SCHEMA["$id"],
+            Resource.from_contents(TRAINING_DATASET_SCHEMA),
+        ),
+        (
+            DATASET_PARTITION_PLAN_SCHEMA["$id"],
+            Resource.from_contents(DATASET_PARTITION_PLAN_SCHEMA),
+        ),
+        (
+            TRAINING_DATASET_PREPARATION_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(TRAINING_DATASET_PREPARATION_OUTPUT_SCHEMA),
         ),
         (
             OPPONENT_STATISTICS_OUTPUT_SCHEMA["$id"],

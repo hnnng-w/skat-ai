@@ -215,5 +215,7 @@ The source and aggregation contracts also feed the public versioned
 [independent-list comparison contract](fixed_three_player_36_game_list_comparison.md).
 The following remain open:
 
-* series or tournament state;
-* automatic dataset preparation.
+* series or tournament state.
+
+Automatic Training Dataset preparation is now a separate root-selected workflow
+and does not consume or change this historical-list contract.

@@ -258,6 +258,9 @@ Implemented:
   exact transitive Player-connected components, dedicated content-isolated
   selector identities, non-empty greedy Record-count placement, strict whole-
   component move/swap improvement, source-order independence, and one final plan
+* Public `training_dataset_preparation_input` workflow with fixed mode-to-
+  algorithm dispatch, complete or explicit unavailable Plans, lossless existing
+  version-1 Training Dataset materialization, and a reconciled partition audit
 
 ### Validation and documentation
 
@@ -269,6 +272,8 @@ Implemented:
 * Focused strict hidden-card inference summary schema
 * Focused strict bounded-search aggregate result schema
 * Focused strict flat post-game Search, Historical Search Review, Historical Replay Coaching, and bounded-Search evaluation schemas
+* Strict automatic Training Dataset preparation request, partition Plan, and
+  preparation output schemas
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, input schema validation, generated-output validation, and pytest
@@ -294,6 +299,9 @@ Implemented:
 * `--historical-search-review` with explicit `--search-seed` and named profile selection
 * `--historical-replay-coaching` with shared Search/Immediate settings and optional combined Search Review output
 * `--evaluate-bounded-search` with repeatable partition selection and optional global decision cap
+* Root-selected automatic Training Dataset preparation with only `--input`,
+  `--output`, and `--quiet`, concise card-free Plan presentation, and no
+  algorithm or weight override
 
 ## Current known limitations
 
@@ -325,11 +333,12 @@ Implemented:
   Search-versus-Immediate dataset evaluation now use immutable versioned work
   profiles. Search remains bounded late-game determinization, sampled quality is
   not calibrated, and measured performance provides no latency guarantee.
-* Complete supplied Known-opponent and unseen-player plans can be validated and
-  materialized, and both temporal Known-opponent and component-balanced Player-
-  disjoint unseen-player assignments are generated internally. Global assignment
-  optimization, Sample-count balancing, ratio guarantees, general repartitioning,
-  and a public preparation workflow are not implemented.
+* Complete Known-opponent and unseen-player plans can be generated, validated,
+  and losslessly materialized through the public mode-derived workflow. It has no
+  new algorithms, algorithm selector or override, default weights, CLI overrides,
+  fallback, or partial Plan. Global optimization, ratio guarantees, Sample- or
+  Player-count balancing, component splitting, model training, and automatic
+  evaluation are not implemented.
 * Replay Coaching now has public version-1 evidence, impact, prioritization, one-
   game cross-decision patterns, deterministic actionable recommendations, strict
   schema/CLI/report output, and isolated retrospective context. Tactical motifs,
@@ -390,13 +399,14 @@ Coaching evidence and impact, deterministic Key Decisions and both Turning Point
 types, one-game patterns, deterministic recommendations, complete report
 composition, and the opt-in public JSON/schema/CLI workflow.
 
-Current `v0.12.0` development through Issue #133 exposes the fixed-three-player
+Current `v0.12.0` development through Issue #134 exposes the fixed-three-player
 historical-list source, cumulative aggregation, and independent comparison
-through strict JSON/schema/CLI workflows and adds internal dataset-preparation
-and deterministic supplied split-plan contracts plus temporal Known-opponent
-and Player-disjoint unseen-player assignment generation. Issues #131 through
-#133 add no public scenario, so the
-development matrix remains 67 while the published `v0.11.0` baseline remains 64.
+through strict JSON/schema/CLI workflows and exposes bounded automatic Training
+Dataset preparation through fixed mode dispatch, complete or explicit
+unavailable results, strict schemas, CLI, and three examples. The prior 67
+scenarios are unchanged; three Issue #134 scenarios bring the development matrix
+to 70 while the published `v0.11.0` baseline remains 64. The functional milestone
+is complete pending release preparation.
 
 ### v0.10.0: Information-safe bounded Search across compatible worlds
 
@@ -475,9 +485,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, public dataset-preparation decisions,
-field-level live
-provenance, interactive live and retrospective
+remaining approved settlement nuance, field-level live provenance, interactive
+live and retrospective
 input/session capture, and a stable library API and installed CLI/package
 interface. General claim verification and historical end reasons outside the
 supported bounded set also remain incomplete. Structured concessions and
@@ -522,8 +531,8 @@ delivers public one-game Replay Coaching through schema, CLI, examples, and
 generated-output coverage. Tactical motifs, cross-game Coaching, ratings, causal
 attribution, and stronger Search remain outside this bounded result.
 
-The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation. Issue #127 adds
+The functional `v0.12.0` milestone is complete pending release preparation.
+Issue #127 adds
 internal list contract version `1` for all 36 ordered positions and passed
 deals, Issue #128 adds internal cumulative totals, progression, final standings,
 and exact external-lot application, and Issue #129 adds independent completed-
@@ -531,11 +540,16 @@ list comparison without series aggregation. Issue #130 exposes those retained
 contracts through strict root-selected JSON, schemas, CLI output, exactly three
 examples, and exactly three appended generated-output scenarios. Issue #131 adds
 the internal version-1 source, weight, fact, fingerprint, seed, complete/
-unavailable plan, validation, audit-reuse, and materialization contracts without
-adding a public workflow. Issue #132 adds the deterministic temporal Known-
-opponent generator without public integration. Issue #133 adds deterministic
-Player-connected unseen-player assignment with greedy placement and strict local
-improvement; public preparation remains open.
+unavailable plan, validation, audit-reuse, and materialization contracts. Issue
+#132 adds the deterministic temporal Known-opponent generator. Issue #133 adds
+deterministic Player-connected unseen-player assignment with greedy placement and
+strict local improvement. Issue #134 exposes those contracts through the root-selected
+`training_dataset_preparation` workflow, strict request/Plan/output schemas,
+only `--input`/`--output`/`--quiet`, exactly three examples, and exactly three
+appended generated-output scenarios. Complete results materialize the existing
+version-1 dataset and audit; unavailable results succeed with null dataset/audit
+and no partial Plan. No new algorithm, algorithm override, fallback, default
+weight, balancing guarantee, model training, or automatic evaluation is added.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

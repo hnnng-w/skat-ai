@@ -27,7 +27,8 @@ schemas/input.schema.json
 ```
 
 Its alternative `historical_game_input`, `training_dataset_input`,
-`opponent_statistics_input`, `fixed_three_player_historical_list_input`, and
+`training_dataset_preparation_input`, `opponent_statistics_input`,
+`fixed_three_player_historical_list_input`, and
 `fixed_three_player_historical_list_comparison_input` branches reference focused
 versioned schemas. The
 validation script registers the focused historical, shortening, continuation,
@@ -81,6 +82,8 @@ The input schema checks things such as:
 * strict version-1 continuation union with declarer-exposure responses and cards or defender-open-play response, exposing defender, and returned public hand
 * complete historical-game player, deal, declaration, discard, normal or shortened trick shapes, and one optional continuation before normal completion or one terminal shortening
 * training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
+* automatic preparation version, mode, explicit positive weights, unpartitioned
+  Record shape, and absence of a caller-selected algorithm
 * opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
 * strict fixed-list request versions, canonical three-place players, exactly 36 Played Game or Passed Deal entries, explicit nullable lots, and comparison arrays of at least two sources
 
@@ -152,6 +155,8 @@ The output schema checks the main output structure, including:
 * optional versioned Historical Replay Coaching through its strict focused schema
 * optional historical participant, temporal, per-decision policy, and aggregate profile application through its focused schema
 * the separate versioned `training_dataset_summary` branch through its strict focused schema
+* the separate versioned `training_dataset_preparation_summary` branch through
+  its strict preparation-output and partition-Plan schemas
 * the separate versioned `opponent_statistics_summary` branch and referenced profile derivation through strict focused schemas
 * the separate versioned `historical_opponent_statistics_aggregation_summary` branch through its strict focused schema
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
@@ -170,11 +175,13 @@ including all five shortened kinds, omit position-only overrides. It is separate
 checks the example JSON files, while generated-output validation checks the
 production JSON output emitted from those inputs.
 
-The current Issue #130 development matrix appends three deterministic list
-scenarios to those unchanged 64 and therefore validates 67 outputs: mixed list
-with an applied lot, all-Passed-Deal list with an unresolved three-player tie,
-and compact independent comparison with changed table places, disjoint Game IDs,
-different Passed Deal counts, and resolved ranks.
+Issue #130 appends three deterministic list scenarios to those unchanged 64:
+mixed list with an applied lot, all-Passed-Deal list with an unresolved three-
+player tie, and compact independent comparison with changed table places,
+disjoint Game IDs, different Passed Deal counts, and resolved ranks. Issue #134
+preserves those 67 scenarios and appends complete Known-opponent, complete unseen-
+player, and successful unavailable automatic preparation. The current development
+matrix therefore validates 70 outputs while the published baseline remains 64.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
@@ -204,6 +211,8 @@ time-safe historical external-profile review, and one exact historical
 opponent-statistics aggregation with strict selection and standalone export,
 and one rolling as-of opponent-policy evaluation with baseline-only low-
 confidence coverage, plus one exact stable-player dataset-partition audit.
+It additionally covers both complete mode-derived automatic preparation branches
+and one unavailable result with null dataset/audit and no partial Plan.
 It also covers flat bounded-Search post-game comparison, Historical Search Review
 with eligible and unavailable decisions, and bounded-Search dataset evaluation
 with default validation/test partitions and a deterministic one-decision cap.
@@ -296,6 +305,17 @@ deltas, rank status, and nullable rank fields, and references aggregation player
 totals rather than duplicating that shape. Python remains authoritative for
 identity, rotation, chronology, settlement, tie, independence, alignment,
 arithmetic, and relational reconciliation.
+
+The preparation request, partition Plan, and preparation output are separate
+strict Draft 2020-12 resources registered locally with no network resolution:
+`schemas/training_dataset_preparation.schema.json`,
+`schemas/dataset_partition_plan.schema.json`, and
+`schemas/training_dataset_preparation_output.schema.json`. The root schemas
+reference them. Schema validation fixes mode/algorithm compatibility, exact
+complete/unavailable shapes, and nullability. Python remains authoritative for
+generation, lossless source preservation, fingerprint and count reconciliation,
+audit equality, card-free Plan presentation, and the successful unavailable
+boundary.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

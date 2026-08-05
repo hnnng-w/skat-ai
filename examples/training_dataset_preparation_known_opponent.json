@@ -1,0 +1,108 @@
+{
+  "training_dataset_preparation_input": {
+    "preparation_version": 1,
+    "dataset_id": "automatic-known-opponent-example",
+    "dataset_version": "1",
+    "feature_generation_version": 1,
+    "target": "actual_card_played",
+    "mode": "known_opponent",
+    "base_random_seed": 42,
+    "partition_weights": {
+      "train": 3,
+      "validation": 1,
+      "test": 1
+    },
+    "records": [
+      {
+        "record_id": "known-zero-001",
+        "provenance": {
+          "source_type": "synthetic",
+          "source_name": "Automatic preparation example",
+          "source_record_id": "known-zero-source-001"
+        },
+        "historical_game": {
+          "schema_version": 1,
+          "game_id": "known-zero-game-001",
+          "played_at": "2026-01-01T18:00:00Z",
+          "players": [
+            {"player_id": "known-a", "seat": "forehand", "initial_hand": ["CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"]},
+            {"player_id": "known-b", "seat": "middlehand", "initial_hand": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"]},
+            {"player_id": "known-c", "seat": "rearhand", "initial_hand": ["HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"]}
+          ],
+          "skat": ["D8", "D7"],
+          "declarer_player_id": "known-b",
+          "declaration": {"game_type": "grand", "hand_game": false, "bid_value": 18},
+          "discarded_cards": ["SK", "SQ"],
+          "game_end_reason": "declarer_concession",
+          "game_end": {
+            "schema_version": 1,
+            "kind": "declarer_concession",
+            "declarer_hand_cards_remaining": 10,
+            "defender_consent": {"status": "not_required", "consenting_defender_player_ids": []}
+          },
+          "tricks": []
+        }
+      },
+      {
+        "record_id": "known-zero-002",
+        "provenance": {
+          "source_type": "synthetic",
+          "source_name": "Automatic preparation example",
+          "source_record_id": "known-zero-source-002"
+        },
+        "historical_game": {
+          "schema_version": 1,
+          "game_id": "known-zero-game-002",
+          "played_at": "2026-02-01T18:00:00Z",
+          "players": [
+            {"player_id": "known-a", "seat": "forehand", "initial_hand": ["CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"]},
+            {"player_id": "known-b", "seat": "middlehand", "initial_hand": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"]},
+            {"player_id": "known-c", "seat": "rearhand", "initial_hand": ["HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"]}
+          ],
+          "skat": ["D8", "D7"],
+          "declarer_player_id": "known-b",
+          "declaration": {"game_type": "grand", "hand_game": false, "bid_value": 18},
+          "discarded_cards": ["SK", "SQ"],
+          "game_end_reason": "declarer_concession",
+          "game_end": {
+            "schema_version": 1,
+            "kind": "declarer_concession",
+            "declarer_hand_cards_remaining": 10,
+            "defender_consent": {"status": "not_required", "consenting_defender_player_ids": []}
+          },
+          "tricks": []
+        }
+      },
+      {
+        "record_id": "known-zero-003",
+        "provenance": {
+          "source_type": "synthetic",
+          "source_name": "Automatic preparation example",
+          "source_record_id": "known-zero-source-003"
+        },
+        "historical_game": {
+          "schema_version": 1,
+          "game_id": "known-zero-game-003",
+          "played_at": "2026-03-01T18:00:00Z",
+          "players": [
+            {"player_id": "known-a", "seat": "forehand", "initial_hand": ["CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"]},
+            {"player_id": "known-b", "seat": "middlehand", "initial_hand": ["SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"]},
+            {"player_id": "known-c", "seat": "rearhand", "initial_hand": ["HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"]}
+          ],
+          "skat": ["D8", "D7"],
+          "declarer_player_id": "known-b",
+          "declaration": {"game_type": "grand", "hand_game": false, "bid_value": 18},
+          "discarded_cards": ["SK", "SQ"],
+          "game_end_reason": "declarer_concession",
+          "game_end": {
+            "schema_version": 1,
+            "kind": "declarer_concession",
+            "declarer_hand_cards_remaining": 10,
+            "defender_consent": {"status": "not_required", "consenting_defender_player_ids": []}
+          },
+          "tricks": []
+        }
+      }
+    ]
+  }
+}

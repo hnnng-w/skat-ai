@@ -51,13 +51,14 @@ The workflow is mutually exclusive with position analysis,
 `historical_game_input`, list-performance inputs, impossible-Null settlement,
 profiles, and opponent-policy settings.
 
-Issues #131 through #133 define a separate internal version-1 preparation request
-whose Records do not yet contain `partition`. It requires explicit positive
-integer Train/Validation/Test weights, validates caller-supplied complete split
-plans, and can generate deterministic temporal Known-opponent or player-disjoint
-unseen-player plans.
-It is not a public input root and does not change the partitioned
-`training_dataset_input` shown above. See
+Issues #131 through #133 define the retained version-1 preparation request and
+mode-specific generators; Issue #134 exposes them through the separate public
+root `training_dataset_preparation_input`. Its Records do not contain
+`partition`. It requires explicit positive integer Train/Validation/Test weights
+and generates either a deterministic temporal Known-opponent or Player-disjoint
+unseen-player Plan. The mode derives the algorithm, so the request has no
+algorithm field. It does not change the partitioned `training_dataset_input`
+shown above. See
 [Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md)
 and [Temporal Known-opponent dataset splits](temporal_known_opponent_dataset_splits.md).
 The unseen-player generator is documented in
@@ -112,7 +113,7 @@ mode, partition selection remains canonical but does not imply player-disjoint
 partitions. Every partition-selected historical game must have `played_at`, even
 if no cutoff is supplied.
 
-Internal preparation materializes only a validated complete plan. It preserves
+Public preparation materializes only a validated complete Plan. It preserves
 Record order, Record and Game IDs, provenance, complete Historical Game Records,
 zero-sample Records, feature version, and target, then adds only `partition` and
 the existing version-1 policy. Materialization reuses this dataset validator and
@@ -121,6 +122,34 @@ conversion therefore retains the same `record_id:decision_index` identities.
 Both generators balance Record Count, not Sample Count. A zero-sample Record
 remains an indivisible assignment and full Player-membership unit; in unseen-
 player mode it may connect an entire transitive Player component.
+
+## Automatic preparation
+
+Root `training_dataset_preparation_input` selects workflow identifier
+`training_dataset_preparation`. Mode dispatch is fixed:
+
+* `known_opponent` -> `temporal_known_opponent_v1`
+* `unseen_player` -> `component_balanced_unseen_player_v1`
+
+The public result is `training_dataset_preparation_summary` with exactly
+`preparation_version`, `plan`, `training_dataset_input`, and `partition_audit`.
+A complete result contains a losslessly reusable existing version-1 Training
+Dataset and the matching audit. Reusing that nested object later in an ordinary
+`training_dataset_input` wrapper preserves Records and established sample IDs.
+
+An unavailable Plan is a successful result, not an input error. It has an
+explicit reason, no assignments or partition summaries, and null
+`training_dataset_input` and `partition_audit`; there is no partial Plan or
+fallback. The request has no default weights or algorithm override, and the CLI
+has no weight or algorithm override. Plan serialization and concise CLI output
+are card-free. A complete wrapper contains source cards only because the nested
+reusable dataset losslessly preserves each Historical Game Record.
+
+Stable structures are defined by:
+
+* [`schemas/training_dataset_preparation.schema.json`](../schemas/training_dataset_preparation.schema.json)
+* [`schemas/dataset_partition_plan.schema.json`](../schemas/dataset_partition_plan.schema.json)
+* [`schemas/training_dataset_preparation_output.schema.json`](../schemas/training_dataset_preparation_output.schema.json)
 
 ## Sample generation
 
@@ -241,6 +270,11 @@ settlement outcomes. Normal conversion therefore emits `record_count: 2`, 30
 samples per record, and `sample_count: 60`. The same file is the aggregation
 source, but aggregation emits exact player records rather than these samples.
 
+The three automatic preparation examples cover complete Known-opponent,
+complete unseen-player, and unavailable Known-opponent results. Preparation does
+not generate training samples; complete materialization creates the reusable
+partitioned source object consumed by the existing conversion workflow.
+
 `examples/training_dataset_variable_length.json` contains a 14-play concession
 prefix ending in an incomplete trick. It produces 14 samples and no terminal-
 event target.
@@ -274,6 +308,18 @@ Audit partition membership without generating samples:
 ```powershell
 python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
 ```
+
+Prepare complete datasets or inspect explicit unavailability:
+
+```powershell
+python main.py --input examples/training_dataset_preparation_known_opponent.json
+python main.py --input examples/training_dataset_preparation_unseen_player.json
+python main.py --input examples/training_dataset_preparation_unavailable.json
+```
+
+Preparation accepts only `--input`, `--output`, and `--quiet`. Every analysis,
+review, simulation, sample, seed, policy, profile, evaluation, audit, algorithm,
+and weight override is rejected rather than ignored.
 
 Normal output prints dataset ID and version, total record and sample counts, and
 all three partition counts. Historical snapshot/review flags and all position,

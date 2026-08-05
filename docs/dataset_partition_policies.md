@@ -51,13 +51,13 @@ source game occurred before a target game. The rolling opponent-policy evaluator
 remains authoritative for strict `source.played_at < target.played_at`
 eligibility and rejects datasets declaring `unseen_player`.
 
-The separate internal `temporal_known_opponent_v1` complete-plan validator is
+The separate `temporal_known_opponent_v1` complete-Plan validator is
 stricter. It requires Historical Game `played_at` on every Record, unsplit equal-
 instant groups, non-empty strict Train/Validation/Test time blocks, and complete
 Train membership coverage for every Validation and Test player. Its temporal
 audit does not change or replace the membership-only public audit.
 
-The internal generator now parses and groups equal instants, evaluates every
+The generator parses and groups equal instants, evaluates every
 contiguous chronological two-cut boundary, rejects candidates without complete
 Train coverage, and selects the exact best weighted Record-count objective.
 Deterministic seed-derived keys apply only after all Record-count metrics tie.
@@ -77,10 +77,10 @@ That audit returns a complete `non_compliant` report instead of converting the
 request into invalid stored metadata. This distinction keeps violations
 inspectable without weakening declared-policy validation.
 
-The internal `component_balanced_unseen_player_v1` supplied-plan validator adds
+The `component_balanced_unseen_player_v1` complete-Plan validator adds
 the non-empty three-partition requirement and then reuses declared-policy loading
 and this existing overlap audit. Whole zero-sample Records and transitive shared-
-player groups participate fully. The internal generator now constructs exact
+player groups participate fully. The generator constructs exact
 transitive Player-connected Record components, requires at least three, creates
 one deterministic non-empty greedy Record-count allocation, and applies strict
 whole-component move/swap improvement. See
@@ -117,12 +117,24 @@ rolling evaluation, review historical decisions, recommend cards, simulate
 play, train a model, modify records, or repartition data. Public or general
 automatic splitting, balancing, record movement, unseen-player profile
 prediction, machine-learning training, and model generalization evaluation
-remain unsupported. Internal
-preparation contracts now validate explicit weights and complete or unavailable
-plans and generate temporal Known-opponent and component-balanced unseen-player
-assignments. General repartitioning, global optimization, Sample-count balancing,
-and public preparation remain unsupported. See
+remain unsupported. The separate public preparation workflow validates explicit
+weights and complete or unavailable Plans and generates temporal Known-opponent
+or component-balanced unseen-player assignments. General repartitioning,
+additional algorithms, algorithm overrides, fallback or partial Plans, global
+optimization, ratio guarantees, Sample- or Player-count balancing, component
+splitting, model training, and automatic evaluation remain unsupported. See
 [Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md).
+
+Run the mode-derived preparation examples:
+
+```powershell
+python main.py --input examples/training_dataset_preparation_known_opponent.json
+python main.py --input examples/training_dataset_preparation_unseen_player.json
+python main.py --input examples/training_dataset_preparation_unavailable.json
+```
+
+Preparation is root-selected and accepts only `--input`, `--output`, and
+`--quiet`; it does not change the separate audit CLI.
 
 Historical opponent-statistics aggregation and rolling opponent-policy
 evaluation support exactly normal completion, including either timed event,
@@ -137,3 +149,6 @@ Stable structures are defined by:
 * [`schemas/dataset_partition_policy.schema.json`](../schemas/dataset_partition_policy.schema.json)
 * [`schemas/dataset_partition_audit.schema.json`](../schemas/dataset_partition_audit.schema.json)
 * [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
+* [`schemas/training_dataset_preparation.schema.json`](../schemas/training_dataset_preparation.schema.json)
+* [`schemas/dataset_partition_plan.schema.json`](../schemas/dataset_partition_plan.schema.json)
+* [`schemas/training_dataset_preparation_output.schema.json`](../schemas/training_dataset_preparation_output.schema.json)

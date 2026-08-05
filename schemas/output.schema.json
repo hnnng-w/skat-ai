@@ -32,6 +32,7 @@
       "not": {
         "anyOf": [
           {"required": ["historical_game_summary"]},
+          {"required": ["training_dataset_preparation_summary"]},
           {"required": ["training_dataset_summary"]},
           {"required": ["opponent_statistics_summary"]},
           {"required": ["historical_opponent_statistics_aggregation_summary"]},
@@ -54,6 +55,18 @@
         },
         "historical_opponent_profile_application_summary": {
           "$ref": "https://example.local/skat-ai/historical_opponent_profile_application.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": ["input_file", "training_dataset_preparation_summary"],
+      "properties": {
+        "input_file": {
+          "type": "string"
+        },
+        "training_dataset_preparation_summary": {
+          "$ref": "https://example.local/skat-ai/training_dataset_preparation_output.schema.json"
         }
       },
       "additionalProperties": false
@@ -349,6 +362,9 @@
     },
     "historical_game_summary": {
       "$ref": "#/$defs/historical_game_summary"
+    },
+    "training_dataset_preparation_summary": {
+      "$ref": "https://example.local/skat-ai/training_dataset_preparation_output.schema.json"
     },
     "training_dataset_summary": {
       "$ref": "https://example.local/skat-ai/training_dataset_output.schema.json"

@@ -82,6 +82,12 @@ Complete historical-list aggregation and compact independent-list comparison use
 
 [`schemas/fixed_three_player_historical_list_comparison.schema.json`](../schemas/fixed_three_player_historical_list_comparison.schema.json)
 
+Automatic Training Dataset preparation and its Plan use:
+
+[`schemas/training_dataset_preparation_output.schema.json`](../schemas/training_dataset_preparation_output.schema.json)
+
+[`schemas/dataset_partition_plan.schema.json`](../schemas/dataset_partition_plan.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -351,6 +357,36 @@ three-way overlap, directed membership coverage, and unseen-player compliance.
 It contains no samples, recommendations, simulations, profiles, or models. See
 [Dataset partition policies](dataset_partition_policies.md) and
 [`dataset_partition_audit.schema.json`](../schemas/dataset_partition_audit.schema.json).
+
+Automatic Training Dataset preparation produces the separate root-selected
+branch:
+
+```json
+{
+  "input_file": "examples/training_dataset_preparation_known_opponent.json",
+  "training_dataset_preparation_summary": {
+    "preparation_version": 1,
+    "plan": {},
+    "training_dataset_input": {},
+    "partition_audit": {}
+  }
+}
+```
+
+Those are the exact four result fields. Mode `known_opponent` derives Plan
+algorithm `temporal_known_opponent_v1`; `unseen_player` derives
+`component_balanced_unseen_player_v1`. For status `complete`, the nested
+`training_dataset_input` is a losslessly reusable existing version-1 Training
+Dataset, and `partition_audit` exactly matches the Plan audit. Plan and concise
+CLI output contain no cards, but the complete wrapper intentionally contains all
+source cards inside the nested reusable dataset.
+
+For status `unavailable`, the command still succeeds. The Plan contains the
+explicit reason but no assignments, partition summaries, temporal audit, or
+partition audit; both wrapper fields `training_dataset_input` and
+`partition_audit` are null. There is no partial or fallback result. See
+[Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md)
+and [`training_dataset_preparation_output.schema.json`](../schemas/training_dataset_preparation_output.schema.json).
 
 Opponent-statistics input produces a separate stable branch:
 

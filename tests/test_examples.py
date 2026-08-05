@@ -19,6 +19,7 @@ from skat_ai.input_loader import (
     load_opponent_statistics_from_json,
     load_position_from_json,
     load_training_dataset_from_json,
+    load_training_dataset_preparation_request_from_json,
 )
 from skat_ai.multi_step_simulation import (
     prepare_state_for_player_action,
@@ -66,6 +67,9 @@ def get_position_example_json_files() -> list[Path]:
             "training_dataset_partition_audit.json",
             "training_dataset_shortened_opponent_workflows.json",
             "training_dataset_variable_length.json",
+            "training_dataset_preparation_known_opponent.json",
+            "training_dataset_preparation_unseen_player.json",
+            "training_dataset_preparation_unavailable.json",
             "fixed_three_player_historical_list_mixed.json",
             "fixed_three_player_historical_list_all_passed.json",
             "fixed_three_player_historical_list_comparison.json",
@@ -76,12 +80,12 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 67
-    assert len(SCENARIOS[:-3]) == 64
+    assert len(SCENARIOS) == 70
+    assert len(SCENARIOS[:-3]) == 67
     assert tuple(scenario.name for scenario in SCENARIOS[-3:]) == (
-        "fixed_three_player_historical_list_mixed",
-        "fixed_three_player_historical_list_all_passed",
-        "fixed_three_player_historical_list_comparison",
+        "training_dataset_preparation_known_opponent",
+        "training_dataset_preparation_unseen_player",
+        "training_dataset_preparation_unavailable",
     )
 
 
@@ -127,6 +131,16 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
                 "shortened-opponent-workflows-example",
                 "variable-length-historical-decisions",
             }
+            continue
+        if example_file.name in {
+            "training_dataset_preparation_known_opponent.json",
+            "training_dataset_preparation_unseen_player.json",
+            "training_dataset_preparation_unavailable.json",
+        }:
+            request = load_training_dataset_preparation_request_from_json(
+                str(example_file)
+            )
+            assert request.preparation_version == 1
             continue
         if example_file.name in {
             "historical_opponent_statistics.json",

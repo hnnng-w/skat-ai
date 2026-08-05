@@ -50,6 +50,10 @@ from skat_ai.recommendation_workflow import (
 )
 from skat_ai.side_ownership import normalize_declarer_player
 from skat_ai.training_dataset import TrainingDatasetInput, build_training_dataset_input
+from skat_ai.training_dataset_preparation import (
+    TrainingDatasetPreparationRequest,
+    build_training_dataset_preparation_request,
+)
 from skat_ai.turn_phase import normalize_turn_phase_for_position
 
 
@@ -95,6 +99,14 @@ def get_input_workflow(data: dict[str, Any]) -> str:
                 "simulation, recommendation, or settlement fields."
             )
         return "opponent_statistics"
+
+    if "training_dataset_preparation_input" in data:
+        if set(data) != {"training_dataset_preparation_input"}:
+            raise ValueError(
+                "training_dataset_preparation_input cannot be combined with any other "
+                "workflow or position-analysis fields."
+            )
+        return "training_dataset_preparation"
 
     if "training_dataset_input" in data:
         if set(data) != {"training_dataset_input"}:
@@ -147,6 +159,21 @@ def load_training_dataset_from_json(file_path: str) -> TrainingDatasetInput:
     if not isinstance(training_data, dict):
         raise ValueError("training_dataset_input must be an object.")
     return build_training_dataset_input(training_data)
+
+
+def load_training_dataset_preparation_request_from_json(
+    file_path: str,
+) -> TrainingDatasetPreparationRequest:
+    """Loads one strict unpartitioned automatic Dataset preparation request."""
+    data = load_json_object(file_path)
+    if get_input_workflow(data) != "training_dataset_preparation":
+        raise ValueError(
+            "Input file does not contain training_dataset_preparation_input."
+        )
+    request_data = data["training_dataset_preparation_input"]
+    if not isinstance(request_data, dict):
+        raise ValueError("training_dataset_preparation_input must be an object.")
+    return build_training_dataset_preparation_request(request_data)
 
 
 def load_opponent_statistics_from_json(file_path: str) -> OpponentStatisticsInput:

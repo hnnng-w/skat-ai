@@ -1,15 +1,17 @@
 # Automatic dataset preparation contracts
 
-Issue #131 defines the internal version-1 contracts used before a partitioned
-Training Dataset exists. Issues #132 and #133 add deterministic assignment
+Issue #131 defines the version-1 contracts used before a partitioned Training
+Dataset exists. Issues #132 and #133 add deterministic assignment
 generation for `temporal_known_opponent_v1` and
 `component_balanced_unseen_player_v1`; caller-supplied complete plans remain
 supported.
-The contracts add no public workflow, generate no samples, and train no model.
+Issue #134 exposes fixed mode-derived generation and materialization through a
+strict public JSON and CLI workflow. The contracts generate no samples, train no
+model, and run no automatic evaluation.
 
 ## Versions and fixed values
 
-The internal preparation version and partition-plan version are both `1`.
+The preparation version and partition-Plan version are both `1`.
 `record_count` is the only version-1 balance basis. The existing Training Dataset
 schema, feature-generation, target, partition-policy, and partition-audit
 versions remain unchanged.
@@ -35,6 +37,13 @@ One request contains the preparation version, dataset ID and version, feature-
 generation version, `actual_card_played` target, partition mode, non-boolean
 integer base seed, explicit partition weights, and a non-empty ordered tuple of
 unpartitioned Records.
+
+The public root field is `training_dataset_preparation_input`, and the loader
+reports workflow identifier `training_dataset_preparation`. The request contains
+no `algorithm` field: mode `known_opponent` always dispatches to
+`temporal_known_opponent_v1`, and mode `unseen_player` always dispatches to
+`component_balanced_unseen_player_v1`. There are no algorithm overrides, default
+weights, CLI weights, or fallback settings.
 
 Each source Record contains only:
 
@@ -211,11 +220,49 @@ conversion retains the established `record_id:decision_index` sample identities.
 
 Plan serialization includes fingerprints, assignments, summaries, temporal
 proof, and the existing partition audit. It contains no Historical Game card
-data and no derived seed or tie key. No public schema, input root, output branch,
-CLI option, example, or generated-output scenario is registered.
+data and no derived seed or tie key. Concise CLI output is also card-free.
+
+## Public result and CLI
+
+The root output field is `training_dataset_preparation_summary`. Its exact result
+fields are:
+
+```text
+preparation_version
+plan
+training_dataset_input
+partition_audit
+```
+
+A complete Plan materializes a losslessly reusable existing version-1 Training
+Dataset and exposes the matching audit both in the Plan and at result level. The
+complete wrapper necessarily retains source cards inside the nested dataset
+because every source Historical Game Record is preserved unchanged except for
+the added partition. The Plan itself and human-readable CLI output remain
+card-free.
+
+An unavailable Plan is a successful result. It retains the explicit reason but
+has no assignments, partition summaries, temporal audit, or partition audit;
+the result-level `training_dataset_input` and `partition_audit` are both null.
+There is no partial or best-effort Plan and no fallback.
+
+The root-selected CLI accepts only `--input`, `--output`, and `--quiet`:
+
+```powershell
+python main.py --input examples/training_dataset_preparation_known_opponent.json
+python main.py --input examples/training_dataset_preparation_unseen_player.json
+python main.py --input examples/training_dataset_preparation_unavailable.json
+```
+
+The strict Draft 2020-12 schemas are:
+
+* [`schemas/training_dataset_preparation.schema.json`](../schemas/training_dataset_preparation.schema.json)
+* [`schemas/dataset_partition_plan.schema.json`](../schemas/dataset_partition_plan.schema.json)
+* [`schemas/training_dataset_preparation_output.schema.json`](../schemas/training_dataset_preparation_output.schema.json)
 
 ## Remaining work
 
-All public preparation workflows remain unimplemented. Version 1 does not
-provide global assignment optimization, guaranteed ratios, Sample-count or
-Player-count balancing, component splitting, or model training.
+Version 1 provides no additional preparation algorithms, algorithm overrides,
+fallback or partial Plans, default weights, global assignment optimization,
+guaranteed ratios, Sample-count or Player-count balancing, component splitting,
+model training, or automatic evaluation.

@@ -119,6 +119,7 @@ from skat_ai.input_loader import (
     load_opponent_statistics_from_json,
     load_position_from_json,
     load_training_dataset_from_json,
+    load_training_dataset_preparation_request_from_json,
 )
 from skat_ai.input_validation import MAX_SAMPLE_COUNT
 from skat_ai.live_opponent_profile_binding import (
@@ -187,6 +188,12 @@ from skat_ai.search_budget_profiles import (
 )
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 from skat_ai.training_dataset import build_training_dataset_summary
+from skat_ai.training_dataset_preparation import TrainingDatasetPreparationRequest
+from skat_ai.training_dataset_preparation_workflow import (
+    TrainingDatasetPreparationResult,
+    build_serializable_training_dataset_preparation_result,
+    build_training_dataset_preparation_result,
+)
 
 IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
     "Immediate analysis is unavailable because the local player is not next."
@@ -1758,6 +1765,69 @@ def print_training_dataset_result(result: dict[str, Any]) -> None:
         )
 
 
+def print_training_dataset_preparation_result(
+    request: TrainingDatasetPreparationRequest,
+    preparation_result: TrainingDatasetPreparationResult,
+) -> None:
+    """Prints concise card-free evidence for one automatic preparation result."""
+    plan = preparation_result.plan
+    weights = plan.requested_partition_weights
+    print("Automatic Training Dataset Preparation")
+    print(f"Dataset identity: {request.dataset_id}, version {request.dataset_version}")
+    print("Mode:", plan.mode)
+    print("Algorithm:", plan.algorithm)
+    print("Status:", plan.status)
+    if plan.status == "unavailable":
+        print("Unavailable reason:", plan.unavailable_reason)
+    print(
+        "Source Record and Sample Counts:",
+        f"{plan.source_record_count} records, {plan.source_sample_count} samples",
+    )
+    print(
+        "Requested weights:",
+        f"train {weights.train}, validation {weights.validation}, test {weights.test}",
+    )
+    print("Plan fingerprint:", plan.plan_fingerprint)
+    if plan.status == "unavailable":
+        print("Materialized Dataset: not created")
+        return
+
+    for summary in plan.partition_summaries:
+        print(
+            f"{summary.partition.title()} summary:",
+            f"{summary.record_count} records, {summary.sample_count} samples, "
+            f"{summary.distinct_player_count} players",
+        )
+    assert plan.partition_audit is not None
+    audit = plan.partition_audit
+    print("Audit evidence:", audit.compliance_status)
+    if plan.mode == "known_opponent":
+        assert plan.temporal_audit is not None
+        boundaries = "; ".join(
+            f"{boundary.partition} {boundary.minimum_played_at} to "
+            f"{boundary.maximum_played_at}"
+            for boundary in plan.temporal_audit.partition_boundaries
+        )
+        print("Temporal boundaries:", boundaries)
+        print(
+            "Train Player coverage:",
+            f"{len(plan.temporal_audit.train_player_ids)} Train players; "
+            f"Validation complete {plan.temporal_audit.validation_train_coverage_complete}; "
+            f"Test complete {plan.temporal_audit.test_train_coverage_complete}",
+        )
+    else:
+        compliance = audit.unseen_player_compliance
+        overlaps = audit.overlap_summary
+        print("Disjointness compliance:", compliance["player_disjoint"])
+        print(
+            "Overlap counts:",
+            f"train-validation {overlaps['train_validation']['player_count']}, "
+            f"train-test {overlaps['train_test']['player_count']}, "
+            f"validation-test {overlaps['validation_test']['player_count']}",
+        )
+    print("Materialized Dataset status: created and reusable")
+
+
 def print_bounded_search_evaluation_result(result: dict[str, Any]) -> None:
     """Prints a concise bounded-Search dataset evaluation summary."""
     summary = result["bounded_search_evaluation_summary"]
@@ -2691,6 +2761,33 @@ def run_json_training_dataset_conversion(
         print("Output file written:", output_path)
 
 
+def run_json_training_dataset_preparation(
+    file_path: str,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Runs one mode-derived automatic Dataset preparation workflow."""
+    request = load_training_dataset_preparation_request_from_json(file_path)
+    preparation_result = build_training_dataset_preparation_result(request)
+    result = {
+        "input_file": str(file_path),
+        "training_dataset_preparation_summary": (
+            build_serializable_training_dataset_preparation_result(
+                request,
+                preparation_result,
+            )
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if quiet:
+        return
+    print_training_dataset_preparation_result(request, preparation_result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
 def run_json_bounded_search_evaluation(
     file_path: str,
     *,
@@ -2904,8 +3001,8 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Analyze a Skat position, replay a historical game, expose a complete "
-            "historical 36-position list or independent-list comparison, convert a "
-            "training dataset, or normalize opponent statistics from JSON."
+            "historical 36-position list or independent-list comparison, prepare or "
+            "convert a training dataset, or normalize opponent statistics from JSON."
         ),
         epilog=(
             "Examples:\n"
@@ -2922,6 +3019,8 @@ def parse_arguments() -> argparse.Namespace:
             "  python main.py --input "
             "examples/fixed_three_player_historical_list_comparison.json\n"
             "  python main.py --input examples/training_dataset_normal_play.json\n"
+            "  python main.py --input "
+            "examples/training_dataset_preparation_known_opponent.json\n"
             "  python main.py --input examples/opponent_statistics.json"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -2932,8 +3031,8 @@ def parse_arguments() -> argparse.Namespace:
         default="input_position.json",
         help=(
             "Read position-analysis, historical-game, historical-list, "
-            "historical-list-comparison, training-dataset, or opponent-statistics "
-            "input from this JSON file. "
+            "historical-list-comparison, training-dataset-preparation, training-dataset, "
+            "or opponent-statistics input from this JSON file. "
             "Default: input_position.json."
         ),
     )
@@ -3631,6 +3730,60 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         )
 
 
+def validate_training_dataset_preparation_cli_arguments(
+    args: argparse.Namespace,
+) -> None:
+    """Rejects every preparation option except input, output, and quiet output."""
+    incompatible_options = {
+        "--samples": args.samples is not None,
+        "--seed": args.seed is not None,
+        "--opponent-strategy": args.opponent_strategy is not None,
+        "--audit-dataset-partitions": args.audit_dataset_partitions,
+        "--dataset-partition-mode": args.dataset_partition_mode is not None,
+        "--aggregate-opponent-statistics": args.aggregate_opponent_statistics,
+        "--opponent-statistics-partition": args.opponent_statistics_partition is not None,
+        "--opponent-statistics-before": args.opponent_statistics_before is not None,
+        "--export-opponent-statistics": args.export_opponent_statistics is not None,
+        "--evaluate-opponent-policy-profiles": args.evaluate_opponent_policy_profiles,
+        "--profile-source-partition": args.profile_source_partition is not None,
+        "--profile-evaluation-partition": args.profile_evaluation_partition is not None,
+        "--historical-decision-snapshots": args.historical_decision_snapshots,
+        "--historical-game-review": args.historical_game_review,
+        "--historical-search-review": args.historical_search_review,
+        "--historical-replay-coaching": args.historical_replay_coaching,
+        "--search-seed": args.search_seed is not None,
+        "--search-budget-profile": args.search_budget_profile is not None,
+        "--evaluate-bounded-search": args.evaluate_bounded_search,
+        "--search-evaluation-partition": args.search_evaluation_partition is not None,
+        "--search-evaluation-max-decisions": args.search_evaluation_max_decisions is not None,
+        "--multi-step": args.multi_step is not None,
+        "--card-policy": args.card_policy is not None,
+        "--expected-value-samples": args.expected_value_samples is not None,
+        "--strict-context": args.strict_context,
+        "--compare-policies": args.compare_policies,
+        "--comparison-only": args.comparison_only,
+        "--opponent-policy-preset": args.opponent_policy_preset is not None,
+        "--opponent-lead-policy": args.opponent_lead_policy is not None,
+        "--opponent-response-policy": args.opponent_response_policy is not None,
+        "--use-profile-presets": args.use_profile_presets,
+        "--opponent-statistics-file": args.opponent_statistics_file is not None,
+        "--left-opponent-player-id": args.left_opponent_player_id is not None,
+        "--right-opponent-player-id": args.right_opponent_player_id is not None,
+        "--left-opponent-lead-policy": args.left_opponent_lead_policy is not None,
+        "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
+        "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
+        "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
+    }
+    supplied_options = [
+        option for option, was_supplied in incompatible_options.items() if was_supplied
+    ]
+    if supplied_options:
+        raise CliUsageError(
+            "Training-dataset-preparation inputs accept only --input, --output, "
+            f"and --quiet; unsupported options: {', '.join(supplied_options)}."
+        )
+
+
 def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None:
     """Rejects every option except input, output, and quiet output."""
     incompatible_options = {
@@ -3745,7 +3898,10 @@ def main() -> int:
     try:
         input_data = load_json_object(args.input)
         workflow = get_input_workflow(input_data)
-        validate_cli_arguments(args, workflow=workflow)
+        if workflow == "training_dataset_preparation":
+            validate_training_dataset_preparation_cli_arguments(args)
+        else:
+            validate_cli_arguments(args, workflow=workflow)
         if workflow == "fixed_three_player_historical_list_comparison":
             validate_fixed_three_player_historical_list_cli_arguments(args)
             run_json_fixed_three_player_historical_list_comparison(
@@ -3763,6 +3919,12 @@ def main() -> int:
         elif workflow == "opponent_statistics":
             validate_opponent_statistics_cli_arguments(args)
             run_json_opponent_statistics_conversion(
+                file_path=args.input,
+                output_path=args.output,
+                quiet=args.quiet,
+            )
+        elif workflow == "training_dataset_preparation":
+            run_json_training_dataset_preparation(
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,

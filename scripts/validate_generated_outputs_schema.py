@@ -72,6 +72,13 @@ HISTORICAL_OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH = (
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
+TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
+DATASET_PARTITION_PLAN_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "dataset_partition_plan.schema.json"
+)
+TRAINING_DATASET_PREPARATION_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "training_dataset_preparation_output.schema.json"
+)
 OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "opponent_statistics_output.schema.json"
 )
@@ -2914,6 +2921,106 @@ def check_fixed_three_player_historical_list_comparison(
     return errors
 
 
+def _check_training_dataset_preparation(
+    result: dict[str, Any],
+    *,
+    mode: str,
+    algorithm: str,
+    status: str,
+) -> list[str]:
+    errors = []
+    if set(result) != {"input_file", "training_dataset_preparation_summary"}:
+        errors.append("expected isolated training_dataset_preparation_summary output")
+        return errors
+    summary = result["training_dataset_preparation_summary"]
+    if set(summary) != {
+        "preparation_version",
+        "plan",
+        "training_dataset_input",
+        "partition_audit",
+    }:
+        errors.append("expected exact four-field preparation result")
+        return errors
+    plan = summary["plan"]
+    if (plan["mode"], plan["algorithm"], plan["status"]) != (
+        mode,
+        algorithm,
+        status,
+    ):
+        errors.append("expected mode-compatible preparation Plan")
+    if len(plan["plan_fingerprint"]) != 64:
+        errors.append("expected SHA-256 Plan fingerprint")
+    forbidden_plan_terms = (
+        '"historical_game"',
+        '"initial_hand"',
+        '"components"',
+        '"candidates"',
+        '"derived_seed"',
+        '"tie_key"',
+    )
+    serialized_plan = json.dumps(plan)
+    if any(term in serialized_plan for term in forbidden_plan_terms):
+        errors.append("Plan crossed the card-free or private-information boundary")
+    if status == "complete":
+        if summary["training_dataset_input"] is None or summary["partition_audit"] is None:
+            errors.append("complete preparation must materialize Dataset and audit")
+        if len(plan["assignments"]) != plan["source_record_count"]:
+            errors.append("complete preparation must assign every source Record")
+        if [row["partition"] for row in plan["partition_summaries"]] != [
+            "train",
+            "validation",
+            "test",
+        ]:
+            errors.append("complete preparation summaries must use canonical order")
+        if mode == "known_opponent" and plan["temporal_audit"] is None:
+            errors.append("complete Known-opponent preparation requires temporal audit")
+        if mode == "unseen_player" and plan["temporal_audit"] is not None:
+            errors.append("complete unseen-player preparation must omit temporal audit")
+    else:
+        if summary["training_dataset_input"] is not None or summary["partition_audit"] is not None:
+            errors.append("unavailable preparation must not materialize Dataset or audit")
+        if plan["assignments"] or plan["partition_summaries"]:
+            errors.append("unavailable preparation must not expose partial Plan data")
+    return errors
+
+
+def check_training_dataset_preparation_known_opponent(
+    result: dict[str, Any],
+) -> list[str]:
+    return _check_training_dataset_preparation(
+        result,
+        mode="known_opponent",
+        algorithm="temporal_known_opponent_v1",
+        status="complete",
+    )
+
+
+def check_training_dataset_preparation_unseen_player(
+    result: dict[str, Any],
+) -> list[str]:
+    return _check_training_dataset_preparation(
+        result,
+        mode="unseen_player",
+        algorithm="component_balanced_unseen_player_v1",
+        status="complete",
+    )
+
+
+def check_training_dataset_preparation_unavailable(
+    result: dict[str, Any],
+) -> list[str]:
+    errors = _check_training_dataset_preparation(
+        result,
+        mode="known_opponent",
+        algorithm="temporal_known_opponent_v1",
+        status="unavailable",
+    )
+    plan = result["training_dataset_preparation_summary"]["plan"]
+    if plan["unavailable_reason"] != "missing_played_at":
+        errors.append("expected stable missing_played_at unavailable reason")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -3670,6 +3777,39 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="training_dataset_preparation_known_opponent",
+        input_path=(
+            PROJECT_ROOT / "examples" / "training_dataset_preparation_known_opponent.json"
+        ),
+        branch="complete temporal Known-opponent automatic Dataset preparation",
+        cli_args=("--quiet",),
+        check_output=check_training_dataset_preparation_known_opponent,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="training_dataset_preparation_unseen_player",
+        input_path=(
+            PROJECT_ROOT / "examples" / "training_dataset_preparation_unseen_player.json"
+        ),
+        branch="complete player-disjoint unseen-player automatic Dataset preparation",
+        cli_args=("--quiet",),
+        check_output=check_training_dataset_preparation_unseen_player,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="training_dataset_preparation_unavailable",
+        input_path=(
+            PROJECT_ROOT / "examples" / "training_dataset_preparation_unavailable.json"
+        ),
+        branch="valid unavailable automatic Dataset preparation",
+        cli_args=("--quiet",),
+        check_output=check_training_dataset_preparation_unavailable,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -3726,6 +3866,11 @@ def validate_generated_outputs() -> list[str]:
         HISTORICAL_OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH
     )
     training_dataset_output_schema = load_json_file(TRAINING_DATASET_OUTPUT_SCHEMA_PATH)
+    training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
+    dataset_partition_plan_schema = load_json_file(DATASET_PARTITION_PLAN_SCHEMA_PATH)
+    training_dataset_preparation_output_schema = load_json_file(
+        TRAINING_DATASET_PREPARATION_OUTPUT_SCHEMA_PATH
+    )
     opponent_statistics_output_schema = load_json_file(OPPONENT_STATISTICS_OUTPUT_SCHEMA_PATH)
     opponent_statistics_input_schema = load_json_file(OPPONENT_STATISTICS_INPUT_SCHEMA_PATH)
     historical_opponent_statistics_aggregation_schema = load_json_file(
@@ -3864,6 +4009,18 @@ def validate_generated_outputs() -> list[str]:
                 Resource.from_contents(training_dataset_output_schema),
             ),
             (
+                training_dataset_schema["$id"],
+                Resource.from_contents(training_dataset_schema),
+            ),
+            (
+                dataset_partition_plan_schema["$id"],
+                Resource.from_contents(dataset_partition_plan_schema),
+            ),
+            (
+                training_dataset_preparation_output_schema["$id"],
+                Resource.from_contents(training_dataset_preparation_output_schema),
+            ),
+            (
                 opponent_statistics_output_schema["$id"],
                 Resource.from_contents(opponent_statistics_output_schema),
             ),
@@ -3970,6 +4127,10 @@ def validate_generated_outputs() -> list[str]:
         ]
     )
     validator = Draft202012Validator(schema, registry=registry)
+    training_dataset_input_validator = Draft202012Validator(
+        training_dataset_schema,
+        registry=registry,
+    )
     opponent_statistics_input_validator = Draft202012Validator(opponent_statistics_input_schema)
     errors = []
 
@@ -4009,6 +4170,24 @@ def validate_generated_outputs() -> list[str]:
                 ]
                 if branch_errors:
                     return branch_errors
+            preparation_summary = data.get("training_dataset_preparation_summary")
+            if (
+                preparation_summary is not None
+                and preparation_summary["training_dataset_input"] is not None
+            ):
+                nested_errors = list(
+                    training_dataset_input_validator.iter_errors(
+                        preparation_summary["training_dataset_input"]
+                    )
+                )
+                if nested_errors:
+                    return [
+                        format_validation_error(
+                            scenario,
+                            output_path,
+                            nested_errors[0],
+                        )
+                    ]
             if scenario.export_opponent_statistics:
                 export_path = output_path.with_suffix(".export.json")
                 if not export_path.exists():

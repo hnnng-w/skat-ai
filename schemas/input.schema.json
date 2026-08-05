@@ -28,6 +28,7 @@
       "not": {
         "anyOf": [
           {"required": ["historical_game_input"]},
+          {"required": ["training_dataset_preparation_input"]},
           {"required": ["training_dataset_input"]},
           {"required": ["opponent_statistics_input"]},
           {"required": ["fixed_three_player_historical_list_input"]},
@@ -40,6 +41,15 @@
       "properties": {
         "historical_game_input": {
           "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": ["training_dataset_preparation_input"],
+      "properties": {
+        "training_dataset_preparation_input": {
+          "$ref": "https://example.local/skat-ai/training_dataset_preparation.schema.json"
         }
       },
       "additionalProperties": false
@@ -476,6 +486,9 @@
   "properties": {
     "historical_game_input": {
       "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+    },
+    "training_dataset_preparation_input": {
+      "$ref": "https://example.local/skat-ai/training_dataset_preparation.schema.json"
     },
     "training_dataset_input": {
       "$ref": "https://example.local/skat-ai/training_dataset.schema.json"

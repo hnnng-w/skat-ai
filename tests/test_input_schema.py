@@ -44,6 +44,9 @@ HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_open_card_throw.schema.json"
 )
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
+TRAINING_DATASET_PREPARATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "training_dataset_preparation.schema.json"
+)
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
 )
@@ -127,6 +130,10 @@ with HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH.open(
     HISTORICAL_OPEN_CARD_THROW_SCHEMA = json.load(historical_open_card_throw_file)
 with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
     TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
+with TRAINING_DATASET_PREPARATION_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as preparation_schema_file:
+    TRAINING_DATASET_PREPARATION_SCHEMA = json.load(preparation_schema_file)
 with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as policy_file:
     DATASET_PARTITION_POLICY_SCHEMA = json.load(policy_file)
 with OPPONENT_STATISTICS_SCHEMA_PATH.open("r", encoding="utf-8") as statistics_schema_file:
@@ -200,6 +207,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             TRAINING_DATASET_SCHEMA["$id"],
             Resource.from_contents(TRAINING_DATASET_SCHEMA),
+        ),
+        (
+            TRAINING_DATASET_PREPARATION_SCHEMA["$id"],
+            Resource.from_contents(TRAINING_DATASET_PREPARATION_SCHEMA),
         ),
         (
             DATASET_PARTITION_POLICY_SCHEMA["$id"],

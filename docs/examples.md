@@ -29,7 +29,9 @@ scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
 baseline remains evidence for 59 scenarios and 4,075 pytest tests. The historical
 published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
 tests. Issue #130 appends three public historical-list scenarios to the unchanged
-64-scenario matrix, so the current development matrix validates exactly 67.
+64-scenario matrix. Issue #134 leaves those 67 scenarios unchanged and appends
+three automatic Training Dataset preparation scenarios, so the current
+development matrix validates exactly 70.
 The check script validates:
 
 * Ruff checks
@@ -258,6 +260,19 @@ Audit exact stable-player overlap without generating samples:
 python main.py --input examples/training_dataset_partition_audit.json --audit-dataset-partitions --dataset-partition-mode known_opponent
 ```
 
+Run complete Known-opponent and unseen-player preparation, then the successful
+unavailable boundary:
+
+```powershell
+python main.py --input examples/training_dataset_preparation_known_opponent.json
+python main.py --input examples/training_dataset_preparation_unseen_player.json
+python main.py --input examples/training_dataset_preparation_unavailable.json
+```
+
+These root-selected workflows accept only `--input`, `--output`, and `--quiet`.
+Mode derives the algorithm; there is no algorithm field, default weight, CLI
+override, or fallback.
+
 Aggregate exact reusable player statistics from the same two-game container and
 export a standalone statistics input:
 
@@ -462,7 +477,8 @@ contains no progression or Entry Facts and makes no series, rating, skill,
 winner, official cross-list ranking, or recommendation claim.
 
 The three generated scenarios are appended after the previous unchanged 64 and
-bring the matrix to exactly 67 outputs.
+bring the Issue #130 matrix stage to exactly 67 outputs. Issue #134 preserves
+those scenarios and adds three preparation outputs, as described below.
 
 ## Training-dataset example
 
@@ -473,6 +489,9 @@ bring the matrix to exactly 67 outputs.
 | `historical_opponent_policy_evaluation_dataset.json` | One earlier train source and one later validation target with repeated stable players in changed seats for rolling behavioral evaluation. |
 | `training_dataset_partition_audit.json` | One timestamped normal-completion record in each partition, with the same exact stable players changing seats and no declared policy, for report-only or requested policy auditing. |
 | `training_dataset_shortened_opponent_workflows.json` | Known-opponent dataset with an earlier normal source, an earlier zero-play concession source, and a later 14-decision concession target for mixed aggregation, export, and rolling evaluation. |
+| `training_dataset_preparation_known_opponent.json` | Three timestamped zero-play Records producing one complete `temporal_known_opponent_v1` Plan, reusable version-1 dataset, and compliant audit. |
+| `training_dataset_preparation_unseen_player.json` | Three Player-disjoint zero-play components producing one complete `component_balanced_unseen_player_v1` Plan, reusable version-1 dataset, and compliant audit. |
+| `training_dataset_preparation_unavailable.json` | One Known-opponent Record without `played_at`, producing successful `missing_played_at` unavailability with null dataset/audit and no partial Plan. |
 
 This separate workflow runs historical validation and snapshot generation but
 does not run recommendations, review, or simulation. Its generated-output
@@ -483,6 +502,14 @@ Each game contributes one sample per actual play; normal completion contributes
 event prerequisites. Aggregation reuses the
 dataset container but emits no samples, recommendations, review, or policy
 application.
+
+The three preparation examples use root `training_dataset_preparation_input` and
+workflow identifier `training_dataset_preparation`. Output uses
+`training_dataset_preparation_summary` with exactly `preparation_version`,
+`plan`, `training_dataset_input`, and `partition_audit`. Plan and CLI output are
+card-free. Complete output retains source cards only inside the nested losslessly
+reusable Training Dataset. Preparation does not generate samples, train a model,
+or automatically evaluate one.
 
 The separate `--evaluate-bounded-search` mode does run Search and an independent
 Immediate baseline over selected dataset records. It defaults to validation and
@@ -547,7 +574,9 @@ terminal defender concession. The previous 59 scenarios are unchanged.
 Three Issue #124 scenarios then add normal Grand, Null, and shortened Replay
 Coaching, bringing the published matrix to 64. Three Issue #130 scenarios append
 the mixed list, all-passed list, and independent comparison, bringing the current
-development matrix to 67 without changing the previous scenarios.
+development matrix at that stage to 67. Three Issue #134 scenarios append
+complete Known-opponent, complete unseen-player, and unavailable preparation
+without changing those prior 67, bringing current development to 70.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

@@ -4,22 +4,20 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable release is `v0.11.0`. It validates 64 deterministic
-generated-output scenarios and passes 4,392 pytest tests. GitHub Releases is
-authoritative for publication status. Issues #118 through #124 complete the
-functional milestone, and Issue #125 completed release preparation. The active
-next planning milestone is `v0.12.0`; its provisional direction is 36-game list
-aggregation and automatic dataset preparation. Issues #127 through #130
-implement the internal source, cumulative aggregation, and independent completed-
-list comparison contracts plus strict public JSON/schema/CLI integration. Their
-three appended scenarios bring the current development matrix to 67 while the
-published baseline remains 64. Issue #131 adds internal preparation and supplied
-split-plan version-1 contracts, Issue #132 adds deterministic temporal Known-
-opponent assignment, and Issue #133 adds deterministic Player-disjoint unseen-
-player assignment, without public integration or another scenario. Public
-preparation remains open. The historical
-published `v0.10.0` baseline remains evidence for 59
-scenarios and 4,075 pytest tests.
+The current published stable release and package version are `v0.11.0`. It
+validates 64 deterministic generated-output scenarios and passes 4,392 pytest
+tests. GitHub Releases is authoritative for publication status. Issues #118
+through #124 complete the functional milestone, and Issue #125 completed release
+preparation. The functional `v0.12.0` milestone is complete through Issue #134
+and pending release preparation. Issues #127 through #130 expose fixed-three-
+player historical-list contracts through strict JSON/schema/CLI integration.
+Issues #131 through #133 add retained version-1 preparation contracts and the
+deterministic temporal Known-opponent and Player-disjoint unseen-player
+generators. Issue #134 exposes fixed mode dispatch, complete or explicit
+unavailable preparation results, strict schemas, CLI, and three examples. The
+prior 67 scenarios are unchanged; the current development matrix is 70 while the
+published baseline remains 64. The historical published `v0.10.0` baseline
+remains evidence for 59 scenarios and 4,075 pytest tests.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -39,7 +37,7 @@ must not be presented as official-rule requirements.
 | Statistics derived from historical player data | Reproducible exact aggregates computed from selected timestamped supported historical dataset games for a stable case-sensitive player identity, with per-player source provenance and reusable export. | Bounded aggregation differs from manually supplied values and learned parameters; it does not weight or merge sources, manage multiple captures, or apply a policy automatically. |
 | Rule-based player or opponent profile | Explicit fields and deterministic rules that select or parameterize explainable behavior. | It is not learned from data, even when its input statistics were historically derived. |
 | Rolling opponent-policy evaluation | A strict game-start as-of comparison of an acting player's observed cards with an actionable deterministic profile policy and the fixed `simple_lowest` baseline. | Preferred-card and exact-card matches measure behavioral imitation only, not strategic strength, optimality, recommendation quality, statistical significance, or unseen-player generalization. |
-| Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. Internal version-1 preparation validates complete supplied temporal or player-disjoint plans, generates deterministic temporal Known-opponent and Player-connected unseen-player assignments, and losslessly materializes complete plans. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions. Unseen-player balancing is Record-count-based local optimization without a global ratio guarantee; public preparation is not automatic. |
+| Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. Public version-1 preparation derives one fixed mode-specific algorithm, validates complete temporal or player-disjoint plans, generates deterministic assignments, and losslessly materializes complete plans. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions. Preparation has no algorithm override, fallback, partial Plan, default weights, global optimization, ratio guarantee, Sample- or Player-count balancing, or component splitting. |
 | Evidence-constrained hidden-card inference | Exact compatible left/right/hypothetical-skat assignments narrowed only by local and authorized public ownership plus confirmed legal failure to follow an effective category. | It is structural decision-time inference, not behavioral, Bayesian, calibrated, learned, tactically weighted, or proof of the actual hidden deal. |
 | Learned opponent model | A versioned artifact whose behavior or parameters were fit from data and are used during inference. | It requires separate training, evaluation, deployment, fallback, and explainability decisions. |
 | Training a machine-learning model | Running a reproducible process that fits model parameters from an approved training dataset and evaluates them on separated data. | It is distinct from storing historical games, generating labels, calculating statistics, or running rule-based simulation. |
@@ -90,6 +88,13 @@ The following directions are required for `v1.0.0`:
 * Preserve optional known-opponent and unseen-player dataset policies, exact
   stable-player overlap audits, and strict declared unseen-player disjointness.
   This bounded requirement is implemented.
+* Preserve bounded public automatic Training Dataset preparation. Root
+  `training_dataset_preparation_input` dispatches `known_opponent` to
+  `temporal_known_opponent_v1` and `unseen_player` to
+  `component_balanced_unseen_player_v1`. Complete results losslessly materialize
+  the existing version-1 dataset and audit; unavailable results succeed with
+  explicit null dataset/audit and no partial Plan. This bounded requirement is
+  implemented without model training or automatic evaluation.
 * Add stronger search or solver functionality with documented information,
   quality, determinism, and latency contracts. Version-1 information, private
   exact complete-world state, deterministic legal transition, eligibility,
@@ -192,7 +197,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 now exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Tactical motifs, cross-game coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
 | Complete-game historical representation | A versioned schema and runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, skat pickup/discards or Hand state, every play, structured claims/concessions and approved additional end reasons, final result, and settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. |
-| Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. Internal version-1 unpartitioned requests add explicit weights, split-safe facts, deterministic fingerprints/seeds, complete/unavailable supplied plans, strict temporal or player-disjoint proof, exact Record-count arithmetic, lossless materialization, exact temporal Known-opponent assignment generation, and deterministic locally optimized whole-component unseen-player assignment without samples or public schema changes. |
+| Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. Public version-1 unpartitioned requests add explicit weights, split-safe facts, deterministic fingerprints/seeds, complete/unavailable Plans, strict temporal or player-disjoint proof, exact Record-count arithmetic, lossless materialization, exact temporal Known-opponent assignment generation, and deterministic locally optimized whole-component unseen-player assignment. Strict root input/output schemas, fixed mode dispatch, file-only CLI options, three examples, and complete/unavailable generated scenarios cover the bounded workflow without generating samples, training a model, or automatically evaluating it. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
@@ -202,6 +207,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
 | Profile confidence and behavioral evaluation | Accepted profile fields, exact or estimated evidence scopes, heuristic confidence, activation boundaries, conflict rules, and exact behavioral influence are documented and tested at every boundary. Rolling evaluation uses strict game-start as-of history and reports preferred/exact behavioral matching without strategic, optimality, significance, or unseen-player claims. |
 | Dataset partition policies | Optional known-opponent and unseen-player intent remains backward-compatible; exact membership, pairwise/three-way overlap, directed known-opponent coverage, and strict declared unseen-player disjointness are deterministic and schema-valid. |
+| Automatic Training Dataset preparation | Root `training_dataset_preparation_input` selects workflow `training_dataset_preparation`; mode alone selects `temporal_known_opponent_v1` or `component_balanced_unseen_player_v1`. Complete output under `training_dataset_preparation_summary` losslessly materializes the existing version-1 dataset and a matching audit. Unavailable output succeeds with an explicit reason, null dataset/audit, and no partial assignments or summaries. The request has no algorithm field or default weights; the CLI accepts only `--input`, `--output`, and `--quiet`; Plan and CLI output are card-free while the complete nested reusable dataset retains source cards. |
 | List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-position lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. Contracts version `1` supply the immutable played/passed representation, rotation, settlement-derived Entry Facts, cumulative totals, one standings snapshot per position, final standings, exact external-lot application, and independent completed-list comparison with one reference, stable-ID alignment, all fourteen final player-total deltas, and resolved-only rank movement. Strict root input/output schemas, runtime validation, concise CLI output, exactly three examples, recursive privacy checks, one-pass source execution, and three appended generated-output scenarios complete the bounded public workflow. It adds no series rollup, ratings, winner analysis, tournament management, or official reporting. |
 | Interactive input and session capture | Supported live and retrospective sessions can be entered interactively, validated incrementally, resumed or completed without hidden state, and serialized to the same documented information-safe records. |
 | Stable installed interface | A versioned public library API and installed CLI/package entry point have documented compatibility guarantees, installation tests, stable error behavior, and no dependence on running repository-root `main.py`. |
@@ -226,12 +232,14 @@ versioned provenance-aware training/evaluation records use that same actual-play
 cardinality.
 Training-data representation supports normal completion and all five shortened kinds
 with one sample per actual play. Optional partition intent, exact overlap audits,
-and strict declared unseen-player disjointness are implemented. Internal complete
-and unavailable plan validation and lossless materialization are also
-implemented; temporal Known-opponent and Player-connected unseen-player
-assignment are also implemented. Unseen-player optimization is local rather than
-global, and public preparation remains absent. General automatic splitting and
-unseen-player model evaluation are not v1 requirements. Bounded
+and strict declared unseen-player disjointness are implemented. Public complete
+and unavailable Plan handling, lossless materialization, temporal Known-opponent
+assignment, and Player-connected unseen-player assignment are also implemented.
+Unseen-player optimization is local rather than global. Additional algorithms,
+algorithm overrides, fallback or partial Plans, guaranteed ratios, Sample- or
+Player-count balancing, component splitting, model training, and automatic
+evaluation remain absent. General automatic splitting and unseen-player model
+evaluation are not v1 requirements. Bounded
 declared-Ouvert recommendation analysis is implemented; approved later end
 reasons remain open. Historical statistics and rolling policy evaluation support
 normal completion and all five shortened terminal reasons with game-level

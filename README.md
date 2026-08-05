@@ -452,6 +452,28 @@ policy enforces player-disjoint partitions. Datasets without policy metadata
 remain valid with unspecified intent. See
 [Dataset partition policies](docs/dataset_partition_policies.md).
 
+Automatically prepare a reusable partitioned version-1 Training Dataset from
+unpartitioned Records:
+
+```powershell
+python main.py --input examples/training_dataset_preparation_known_opponent.json
+python main.py --input examples/training_dataset_preparation_unseen_player.json
+python main.py --input examples/training_dataset_preparation_unavailable.json
+```
+
+The root `training_dataset_preparation_input` selects the separate
+`training_dataset_preparation` workflow. Mode `known_opponent` dispatches to
+`temporal_known_opponent_v1`; mode `unseen_player` dispatches to
+`component_balanced_unseen_player_v1`. The request has no algorithm selector,
+default weights, CLI overrides, or fallback. A complete Plan materializes a
+losslessly reusable existing version-1 `training_dataset_input` and its audit. An
+unavailable Plan is still a successful result and returns explicit null dataset
+and audit values without partial assignments or summaries. Only `--input`,
+`--output`, and `--quiet` are accepted. Plan data and concise CLI output are
+card-free; a complete structured output necessarily retains source cards inside
+the nested reusable dataset. See [Automatic dataset preparation
+contracts](docs/automatic_dataset_preparation_contracts.md).
+
 Training-dataset inputs form a separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted for normal sample conversion. The same
 input can instead act as the versioned multi-game container for exact historical
@@ -574,6 +596,9 @@ Detailed documentation is split into topic-specific files:
 * [Historical opponent profiles](docs/historical_opponent_profiles.md)
 * [Training data](docs/training_data.md)
 * [Dataset partition policies](docs/dataset_partition_policies.md)
+* [Automatic dataset preparation contracts](docs/automatic_dataset_preparation_contracts.md)
+* [Temporal Known-opponent dataset splits](docs/temporal_known_opponent_dataset_splits.md)
+* [Player-disjoint unseen-player dataset splits](docs/player_disjoint_unseen_player_dataset_splits.md)
 * [Opponent statistics](docs/opponent_statistics.md)
 * [Historical opponent statistics](docs/historical_opponent_statistics.md)
 * [Rolling opponent-policy evaluation](docs/opponent_policy_evaluation.md)
@@ -600,6 +625,9 @@ Detailed documentation is split into topic-specific files:
 * [Training dataset output schema](schemas/training_dataset_output.schema.json)
 * [Dataset partition policy schema](schemas/dataset_partition_policy.schema.json)
 * [Dataset partition audit schema](schemas/dataset_partition_audit.schema.json)
+* [Training Dataset preparation input schema](schemas/training_dataset_preparation.schema.json)
+* [Dataset partition Plan schema](schemas/dataset_partition_plan.schema.json)
+* [Training Dataset preparation output schema](schemas/training_dataset_preparation_output.schema.json)
 * [Opponent statistics input schema](schemas/opponent_statistics.schema.json)
 * [Opponent statistics output schema](schemas/opponent_statistics_output.schema.json)
 * [Historical opponent statistics aggregation schema](schemas/historical_opponent_statistics_aggregation.schema.json)
@@ -665,11 +693,12 @@ preparation. Publication was performed manually by the maintainer, and GitHub
 Releases remains authoritative for publication status. The package version is
 `0.11.0`, and Python 3.13 or newer remains required.
 
-Current Issue #130 development exposes the unchanged Issue #127 through #129
-historical-list contracts through strict root-selected JSON workflows, concise
-CLI output, exactly three examples, and three appended generated-output
-scenarios. The development matrix therefore validates 67 scenarios while the
-published `v0.11.0` baseline remains 64.
+Current `v0.12.0` development through Issue #134 exposes the historical-list and
+automatic Training Dataset preparation contracts through strict root-selected
+JSON workflows, concise CLI output, six examples, and six appended generated-
+output scenarios. The prior 67 scenarios are unchanged; the development matrix
+therefore validates 70 scenarios while the published `v0.11.0` baseline remains
+64. The functional milestone is complete pending release preparation.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -750,8 +779,9 @@ replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
 Remaining work includes stronger information-set or policy search, tactical
-motif detection and cross-game Coaching, approved settlement nuance,
-automatic dataset preparation, field-level live provenance, interactive input
+motif detection and cross-game Coaching, approved settlement nuance, additional
+dataset-preparation algorithms or overrides, global optimization, guaranteed
+ratios, Sample- or Player-count balancing, component splitting, field-level live provenance, interactive input
 and session capture, and a stable installed library and CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
@@ -761,11 +791,12 @@ model or model-training workflow is included. The product supports fixed
 three-player tables only; four-player tables are excluded, and complete official
 rule coverage is not claimed.
 
-The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation. Issues #127 through
-#130 now complete the bounded historical-list source, aggregation, comparison,
-and public JSON/CLI workflow. Automatic dataset preparation and the remaining
-issue split are not yet defined.
+The functional `v0.12.0` milestone is complete through Issue #134 and pending
+release preparation. Issues #127 through #130 complete the bounded historical-
+list source, aggregation, comparison, and public JSON/CLI workflow. Issues #131
+through #133 complete the retained preparation contracts and mode-specific
+generators; Issue #134 exposes the fixed mode dispatch through strict JSON,
+schemas, CLI, three examples, and three appended generated-output scenarios.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

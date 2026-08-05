@@ -1,12 +1,13 @@
 # Player-disjoint unseen-player dataset splits
 
-`component_balanced_unseen_player_v1` is the internal deterministic assignment
+`component_balanced_unseen_player_v1` is the deterministic assignment
 generator for a version-1 preparation request whose mode is `unseen_player`. Its
 entry point is
 `generate_component_balanced_unseen_player_dataset_partition_plan(request)`.
-It returns the existing complete or unavailable Dataset Partition Plan and adds
-no package-root API, public JSON root, schema, CLI option, example, or generated
-scenario.
+It returns the existing complete or unavailable Dataset Partition Plan. Issue
+#134 exposes it only through public mode-derived workflow
+`training_dataset_preparation`: root `training_dataset_preparation_input` selects
+`unseen_player`, not an algorithm field or CLI override.
 
 ## Information boundary
 
@@ -170,6 +171,9 @@ strict objective descent terminates without a timeout or fallback. The generator
 does not perform exponential exhaustive production allocation and makes no hard
 latency, global-optimality, or ratio guarantee.
 
-Public preparation schemas, CLI integration, examples, generated-output
-scenarios, general repartitioning, Sample-count balancing, and model training
-remain open or separate work.
+Public complete results losslessly materialize the existing version-1 dataset and
+audit; unavailable results succeed with null dataset/audit and no partial Plan.
+The CLI accepts only `--input`, `--output`, and `--quiet`. Additional algorithms,
+algorithm overrides, fallback, general repartitioning, global optimization,
+ratio guarantees, Sample- or Player-count balancing, component splitting, model
+training, and automatic evaluation remain open or separate work.

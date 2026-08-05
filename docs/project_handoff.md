@@ -28,12 +28,15 @@ The project focuses on:
 * live and time-safe historical profile application
 * rolling opponent-policy evaluation
 * dataset partition policies and stable-player overlap audits
-* internal unpartitioned dataset-preparation requests, deterministic split-plan
+* public unpartitioned dataset-preparation requests, deterministic split-plan
   proofs, strict supplied-assignment validation, and lossless materialization
 * exact deterministic temporal Known-opponent assignment generation over parsed
   time groups with complete Train player coverage and Record-count optimization
 * deterministic Player-connected unseen-player assignment with component
   identities, non-empty greedy placement, and strict local move/swap improvement
+* root-selected automatic Training Dataset preparation with fixed mode dispatch,
+  complete or explicit unavailable results, strict schemas, concise CLI output,
+  three examples, and generated-output coverage
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
 * immutable version-1 normative settlement and approved claim-boundary matrix
@@ -350,6 +353,8 @@ Implemented:
 * strict standalone version-1 bounded-search aggregate result schema
 * strict flat post-game Search, Historical Search Review, Historical Replay Coaching, and bounded-Search evaluation schemas
 * strict historical-list source, request, aggregation, and comparison schemas
+* strict Training Dataset preparation request, partition Plan, and preparation
+  output schemas
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
@@ -359,9 +364,10 @@ scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
 release baseline remains 59 scenarios and 4,075 tests, and the historical
 published `v0.9.0` baseline remains 52 scenarios and 3,558 tests.
 
-The current Issue #130 development matrix appends three historical-list
-scenarios and validates exactly 67 outputs without changing the published
-baseline.
+Issue #130 appends three historical-list scenarios. Issue #134 preserves those
+67 scenarios and appends three automatic Training Dataset preparation scenarios,
+so the current development matrix validates exactly 70 outputs without changing
+the published baseline.
 
 ### Live-vs-post-game information enforcement
 
@@ -634,6 +640,7 @@ Implemented:
 * `temporal_known_opponent_split.py`
 * `dataset_partition_objective.py`
 * `player_disjoint_unseen_player_split.py`
+* `training_dataset_preparation_workflow.py`
 * `historical_opponent_statistics.py`
 * `historical_opponent_profile_binding.py`
 * `historical_opponent_profile_application.py`
@@ -755,14 +762,15 @@ Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
 #125 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
 
-Current `v0.12.0` development through Issue #133 implements the immutable
+Current `v0.12.0` development through Issue #134 implements the immutable
 historical-list source, cumulative aggregation, independent comparison, and
 strict public JSON/schema/CLI workflow, plus internal version-1 unpartitioned
 dataset-preparation and supplied split-plan contracts plus deterministic
 temporal Known-opponent and Player-disjoint unseen-player assignment generators.
-Issues #131 through #133 append no
-scenario, so the development matrix remains 67 while the published baseline
-remains 64.
+Issue #134 adds the root-selected public preparation workflow, strict schemas,
+CLI, and three examples. The prior 67 scenarios are unchanged and the development
+matrix is 70 while the published baseline remains 64. The functional `v0.12.0`
+milestone is complete pending release preparation.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -925,6 +933,17 @@ Completed implementation scope:
   concise CLI output, three examples, and privacy-safe generated-output coverage.
   Series aggregation, ratings, tournament management, and official reporting
   remain outside this bounded workflow.
+* Automatic Training Dataset preparation now derives the fixed
+  `temporal_known_opponent_v1` or
+  `component_balanced_unseen_player_v1` algorithm from mode. A complete result
+  losslessly materializes the existing version-1 dataset and audit; an
+  unavailable result succeeds with explicit null dataset/audit and no partial
+  Plan. The request has no algorithm field or default weights, the CLI has no
+  overrides or fallback and accepts only file options, and Plan/CLI presentation
+  is card-free. The complete nested reusable dataset retains source cards.
+  Additional algorithms, algorithm overrides, fallback or partial Plans, global
+  optimization, ratio guarantees, Sample- or Player-count balancing, component
+  splitting, model training, and automatic evaluation remain unsupported.
 * Replay Coaching has a public version-1 one-game report with information-safe
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
@@ -937,26 +956,21 @@ Completed implementation scope:
 
 ## Next recommended action
 
-The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation. Issues #127 through
-#130 now implement the version-1 historical-list source, cumulative aggregation,
-independent completed-list comparison, and public JSON/schema/CLI workflow.
-Issue #131 adds internal unpartitioned source Records, explicit weights, split-
-safe facts, deterministic fingerprints and seed helpers, complete/unavailable
-plan validation, strict temporal and player-disjoint proof, and lossless
-materialization. Issue #132 adds the exact deterministic temporal Known-opponent
-generator with parsed-instant grouping, exhaustive chronological cuts, complete
-Train coverage, integer Record-count scoring, tie-only seed use, source-order
-independence, and one-plan materialization. Issue #133 adds exact transitive
-Player-connected components, dedicated selection identities, deterministic
-greedy placement, and strict whole-component move/swap improvement. Public
-preparation work stays open.
+Prepare the completed functional `v0.12.0` milestone for release. Issues #127
+through #130 provide the public historical-list workflow; Issues #131 through
+#133 provide the retained preparation contracts and fixed mode-specific
+generators; Issue #134 exposes automatic preparation under root
+`training_dataset_preparation_input`, output
+`training_dataset_preparation_summary`, strict schemas, concise CLI, three
+examples, and three appended scenarios. Release preparation must preserve the
+published `v0.11.0` baseline until the maintainer publishes a new release.
 
-For the next dataset-preparation work, inspect the retained internal generators
-and decide the separate public workflow without weakening their information
-boundaries or plan proofs. Tactical motifs, cross-game Coaching, ratings, causal
-attribution, broader Search, general claims, and settlement completeness remain
-separate open work.
+Future dataset-preparation work remains narrower: additional algorithms,
+algorithm overrides, fallback or partial Plans, global optimization, guaranteed
+ratios, Sample- or Player-count balancing, component splitting, model training,
+and automatic evaluation require separate scope. Tactical motifs, cross-game
+Coaching, ratings, causal attribution, broader Search, general claims, and
+settlement completeness also remain separate open work.
 
 ## Open future topics
 

@@ -37,6 +37,9 @@ HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_open_card_throw.schema.json"
 )
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
+TRAINING_DATASET_PREPARATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "training_dataset_preparation.schema.json"
+)
 OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
 FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list.schema.json"
@@ -127,6 +130,9 @@ def validate_example_files() -> list[str]:
         HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH
     )
     training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
+    training_dataset_preparation_schema = load_json_file(
+        TRAINING_DATASET_PREPARATION_SCHEMA_PATH
+    )
     opponent_statistics_schema = load_json_file(OPPONENT_STATISTICS_SCHEMA_PATH)
     historical_list_schema = load_json_file(FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_PATH)
     historical_list_input_schema = load_json_file(
@@ -185,6 +191,10 @@ def validate_example_files() -> list[str]:
             (
                 training_dataset_schema["$id"],
                 Resource.from_contents(training_dataset_schema),
+            ),
+            (
+                training_dataset_preparation_schema["$id"],
+                Resource.from_contents(training_dataset_preparation_schema),
             ),
             (
                 opponent_statistics_schema["$id"],

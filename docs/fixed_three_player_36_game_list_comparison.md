@@ -187,8 +187,9 @@ deltas remain available.
 
 ## Remaining scope
 
-Automatic dataset preparation remains open. Formal series aggregation,
-tournament management, official reporting, ratings, and progression-position
+Automatic Training Dataset preparation is now a separate root-selected workflow
+and does not consume or change this comparison contract. Formal series
+aggregation, tournament management, official reporting, ratings, and progression-position
 comparison are not part of this comparison contract. The public comparison is
 not a series, does not aggregate cross-list totals or averages, and declares no
 series winner or official cross-list ranking.

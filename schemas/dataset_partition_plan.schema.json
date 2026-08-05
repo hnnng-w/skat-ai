@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/dataset_partition_plan.schema.json",
+  "title": "skat-ai automatic dataset partition plan version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "plan_version",
+    "algorithm",
+    "mode",
+    "status",
+    "unavailable_reason",
+    "source_identity_fingerprint",
+    "source_content_fingerprint",
+    "base_random_seed",
+    "balance_basis",
+    "requested_partition_weights",
+    "source_record_count",
+    "source_sample_count",
+    "assignments",
+    "partition_summaries",
+    "temporal_audit",
+    "partition_audit",
+    "plan_fingerprint"
+  ],
+  "properties": {
+    "plan_version": {"const": 1},
+    "algorithm": {
+      "enum": [
+        "temporal_known_opponent_v1",
+        "component_balanced_unseen_player_v1"
+      ]
+    },
+    "mode": {"enum": ["known_opponent", "unseen_player"]},
+    "status": {"enum": ["complete", "unavailable"]},
+    "unavailable_reason": {
+      "oneOf": [
+        {
+          "enum": [
+            "missing_played_at",
+            "insufficient_time_groups",
+            "known_opponent_train_coverage_unsatisfied",
+            "insufficient_player_components",
+            "component_distribution_infeasible",
+            "non_empty_partition_requirement_unsatisfied"
+          ]
+        },
+        {"type": "null"}
+      ]
+    },
+    "source_identity_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "source_content_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "base_random_seed": {"type": "integer"},
+    "balance_basis": {"const": "record_count"},
+    "requested_partition_weights": {"$ref": "#/$defs/partition_weights"},
+    "source_record_count": {"type": "integer", "minimum": 1},
+    "source_sample_count": {"type": "integer", "minimum": 0},
+    "assignments": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/assignment"}
+    },
+    "partition_summaries": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/partition_summary"}
+    },
+    "temporal_audit": {
+      "oneOf": [
+        {"$ref": "#/$defs/known_opponent_temporal_audit"},
+        {"type": "null"}
+      ]
+    },
+    "partition_audit": {
+      "oneOf": [
+        {
+          "$ref": "https://example.local/skat-ai/dataset_partition_audit.schema.json"
+        },
+        {"type": "null"}
+      ]
+    },
+    "plan_fingerprint": {"$ref": "#/$defs/fingerprint"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"mode": {"const": "known_opponent"}}},
+      "then": {
+        "properties": {
+          "algorithm": {"const": "temporal_known_opponent_v1"},
+          "unavailable_reason": {
+            "oneOf": [
+              {
+                "enum": [
+                  "missing_played_at",
+                  "insufficient_time_groups",
+                  "known_opponent_train_coverage_unsatisfied",
+                  "non_empty_partition_requirement_unsatisfied"
+                ]
+              },
+              {"type": "null"}
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "algorithm": {"const": "component_balanced_unseen_player_v1"},
+          "unavailable_reason": {
+            "oneOf": [
+              {
+                "enum": [
+                  "insufficient_player_components",
+                  "component_distribution_infeasible",
+                  "non_empty_partition_requirement_unsatisfied"
+                ]
+              },
+              {"type": "null"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "complete"}}},
+      "then": {
+        "properties": {
+          "unavailable_reason": {"type": "null"},
+          "assignments": {"minItems": 3},
+          "partition_summaries": {
+            "minItems": 3,
+            "maxItems": 3,
+            "prefixItems": [
+              {"properties": {"partition": {"const": "train"}}},
+              {"properties": {"partition": {"const": "validation"}}},
+              {"properties": {"partition": {"const": "test"}}}
+            ]
+          },
+          "partition_audit": {
+            "$ref": "https://example.local/skat-ai/dataset_partition_audit.schema.json"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "unavailable_reason": {"type": "string"},
+          "assignments": {"maxItems": 0},
+          "partition_summaries": {"maxItems": 0},
+          "temporal_audit": {"type": "null"},
+          "partition_audit": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "complete"},
+          "mode": {"const": "known_opponent"}
+        }
+      },
+      "then": {
+        "properties": {
+          "temporal_audit": {"$ref": "#/$defs/known_opponent_temporal_audit"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "complete"},
+          "mode": {"const": "unseen_player"}
+        }
+      },
+      "then": {"properties": {"temporal_audit": {"type": "null"}}}
+    }
+  ],
+  "$defs": {
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "count": {"type": "integer", "minimum": 0},
+    "partition": {"enum": ["train", "validation", "test"]},
+    "identifier_array": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "partition_weights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train", "validation", "test"],
+      "properties": {
+        "train": {"type": "integer", "minimum": 1},
+        "validation": {"type": "integer", "minimum": 1},
+        "test": {"type": "integer", "minimum": 1}
+      }
+    },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "partition"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/identifier"},
+        "partition": {"$ref": "#/$defs/partition"}
+      }
+    },
+    "partition_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "partition",
+        "requested_weight",
+        "record_count",
+        "sample_count",
+        "distinct_player_count",
+        "player_ids",
+        "target_record_count_numerator",
+        "target_record_count_denominator",
+        "record_count_deviation_numerator"
+      ],
+      "properties": {
+        "partition": {"$ref": "#/$defs/partition"},
+        "requested_weight": {"type": "integer", "minimum": 1},
+        "record_count": {"type": "integer", "minimum": 1},
+        "sample_count": {"$ref": "#/$defs/count"},
+        "distinct_player_count": {"type": "integer", "minimum": 1},
+        "player_ids": {"$ref": "#/$defs/identifier_array"},
+        "target_record_count_numerator": {"type": "integer", "minimum": 1},
+        "target_record_count_denominator": {"type": "integer", "minimum": 3},
+        "record_count_deviation_numerator": {"type": "integer"}
+      }
+    },
+    "temporal_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "partition",
+        "minimum_played_at",
+        "maximum_played_at",
+        "time_group_count"
+      ],
+      "properties": {
+        "partition": {"$ref": "#/$defs/partition"},
+        "minimum_played_at": {"type": "string", "format": "date-time"},
+        "maximum_played_at": {"type": "string", "format": "date-time"},
+        "time_group_count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "known_opponent_temporal_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "partition_boundaries",
+        "train_player_ids",
+        "validation_player_ids",
+        "test_player_ids",
+        "validation_covered_player_ids",
+        "validation_uncovered_player_ids",
+        "test_covered_player_ids",
+        "test_uncovered_player_ids",
+        "all_played_at_present",
+        "time_group_count",
+        "strict_partition_order",
+        "equal_timestamp_groups_preserved",
+        "validation_train_coverage_complete",
+        "test_train_coverage_complete"
+      ],
+      "properties": {
+        "partition_boundaries": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {"properties": {"partition": {"const": "train"}}},
+            {"properties": {"partition": {"const": "validation"}}},
+            {"properties": {"partition": {"const": "test"}}}
+          ],
+          "items": {"$ref": "#/$defs/temporal_boundary"}
+        },
+        "train_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "validation_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "test_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "validation_covered_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "validation_uncovered_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "test_covered_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "test_uncovered_player_ids": {"$ref": "#/$defs/identifier_array"},
+        "all_played_at_present": {"const": true},
+        "time_group_count": {"type": "integer", "minimum": 3},
+        "strict_partition_order": {"const": true},
+        "equal_timestamp_groups_preserved": {"const": true},
+        "validation_train_coverage_complete": {"const": true},
+        "test_train_coverage_complete": {"const": true}
+      }
+    }
+  }
+}

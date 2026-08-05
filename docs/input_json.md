@@ -46,6 +46,10 @@ Training/evaluation datasets use:
 
 [`schemas/training_dataset.schema.json`](../schemas/training_dataset.schema.json)
 
+Automatic Training Dataset preparation uses:
+
+[`schemas/training_dataset_preparation.schema.json`](../schemas/training_dataset_preparation.schema.json)
+
 Optional partition policy uses
 [`schemas/dataset_partition_policy.schema.json`](../schemas/dataset_partition_policy.schema.json).
 
@@ -113,6 +117,7 @@ Python validation covers Skat-specific rules such as:
 * stable historical player/seat references and complete 32-card deals
 * historical pickup/discard ownership, final playable hands, all normal plays or an exact shortened prefix, follow obligations, winners, points, matadors, and settlement
 * training dataset versions, optional partition policy, unpadded identities, RFC 3339 provenance, duplicate game/source detection, partition leakage, and declared unseen-player disjointness
+* automatic preparation version, unpartitioned Records, positive explicit partition weights, mode-specific requirements, and duplicate source identities
 * opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, optional exact-count reconciliation, historical aggregation provenance, and duplicate player IDs
 * historical opponent-statistics canonical partition selection, required source timestamps, strict cutoff, stable identity/label aggregation, and settlement-based exact counts
 * historical-list identities, canonical table places, exactly 36 rotating positions, chronology, settlement-derived contributions, lot applicability, and independent comparison-source reconciliation
@@ -123,11 +128,12 @@ For the validation-layer overview and schema limitations, see:
 
 ## Input workflows
 
-The public schema has six mutually exclusive branches:
+The public schema has seven mutually exclusive branches:
 
 * the existing flat position-analysis input described below
 * a normal-completion or explicitly supported shortened historical game under `historical_game_input`
 * a versioned training/evaluation dataset under `training_dataset_input`
+* an automatic Training Dataset preparation request under `training_dataset_preparation_input`
 * versioned external opponent statistics under `opponent_statistics_input`
 * one complete fixed-three-player historical list under `fixed_three_player_historical_list_input`
 * two or more independent complete lists under `fixed_three_player_historical_list_comparison_input`
@@ -229,6 +235,45 @@ complete ordered membership and overlap without producing samples. Its optional
 `--dataset-partition-mode` accepts `report_only`, `known_opponent`, or
 `unseen_player`; a requested policy cannot contradict declared metadata. See
 [Dataset partition policies](dataset_partition_policies.md).
+
+An automatic preparation file contains only its preparation branch:
+
+```json
+{
+  "training_dataset_preparation_input": {
+    "preparation_version": 1,
+    "dataset_id": "prepared-games-2026",
+    "dataset_version": "1",
+    "feature_generation_version": 1,
+    "target": "actual_card_played",
+    "mode": "known_opponent",
+    "base_random_seed": 42,
+    "partition_weights": {
+      "train": 3,
+      "validation": 1,
+      "test": 1
+    },
+    "records": []
+  }
+}
+```
+
+The public schema requires a non-empty `records` array. Each Record contains only
+`record_id`, `provenance`, and one complete supported `historical_game`; it has no
+`partition`. The request has no `algorithm` field. Mode is the complete dispatch
+contract:
+
+| `mode` | Derived algorithm |
+| --- | --- |
+| `known_opponent` | `temporal_known_opponent_v1` |
+| `unseen_player` | `component_balanced_unseen_player_v1` |
+
+Weights are explicit positive integers. There are no default weights,
+percentages, normalization, algorithm overrides, CLI overrides, or fallback.
+Only `--input`, `--output`, and `--quiet` are accepted. The root selects workflow
+identifier `training_dataset_preparation`; no preparation-specific CLI flag is
+used. See [Automatic dataset preparation
+contracts](automatic_dataset_preparation_contracts.md).
 
 With `--aggregate-opponent-statistics`, this same branch is reused only as the
 versioned multi-game container. Every partition-selected game then requires

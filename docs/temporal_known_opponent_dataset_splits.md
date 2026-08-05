@@ -1,12 +1,13 @@
 # Temporal Known-opponent dataset splits
 
-`temporal_known_opponent_v1` is the internal deterministic assignment generator
+`temporal_known_opponent_v1` is the deterministic assignment generator
 for a version-1 preparation request whose mode is `known_opponent`. Its entry
 point is
 `generate_temporal_known_opponent_dataset_partition_plan(request)`. It returns
-one existing complete or unavailable Dataset Partition Plan and exposes no
-package-root API, public JSON root, schema, CLI option, example, or generated
-scenario.
+one existing complete or unavailable Dataset Partition Plan. Issue #134 exposes
+it only through public mode-derived workflow `training_dataset_preparation`: root
+`training_dataset_preparation_input` selects `known_opponent`, not an algorithm
+field or CLI override.
 
 ## Information boundary
 
@@ -174,7 +175,11 @@ The exact boundary scan is `O(G^2)` lightweight candidate scoring with cumulativ
 Record Counts and cumulative/suffix Player sets. There is no timeout, sampled
 candidate subset, fallback, partial result, or elapsed-time guarantee.
 
-Player-disjoint unseen-player component construction and assignment are now the
-separate `component_balanced_unseen_player_v1` internal generator. Public
-automatic-preparation workflows remain open. See
+Player-disjoint unseen-player component construction and assignment are the
+separate `component_balanced_unseen_player_v1` generator. Complete public results
+losslessly materialize the existing version-1 dataset and audit; unavailable
+results succeed with null dataset/audit and no partial Plan. The CLI accepts only
+`--input`, `--output`, and `--quiet`. No fallback, additional algorithm, global
+optimization, ratio guarantee, Sample- or Player-count balancing, component
+splitting, model training, or automatic evaluation is added. See
 [Player-disjoint unseen-player dataset splits](player_disjoint_unseen_player_dataset_splits.md).

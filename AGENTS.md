@@ -144,9 +144,11 @@ milestone, and Issue #125 completed release preparation. Publication was
 performed manually by the maintainer, and GitHub Releases remains authoritative
 for publication status.
 
-The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation; its final issue split
-is not defined.
+The functional `v0.12.0` milestone is complete through Issue #134 and is pending
+release preparation. It adds fixed-three-player 36-game list aggregation and a
+bounded public automatic Training Dataset preparation workflow. The current
+development matrix validates 70 deterministic generated-output scenarios; the
+published `v0.11.0` baseline remains 64 scenarios and 4,392 pytest tests.
 
 Major completed areas include:
 
@@ -184,6 +186,7 @@ Major completed areas include:
 * exact historical opponent-statistics aggregation and reusable export
 * rolling known-opponent behavioral policy evaluation
 * known-opponent and unseen-player dataset policies with overlap audits
+* public mode-derived automatic Training Dataset preparation with complete or explicit unavailable results, lossless version-1 dataset materialization, partition audits, strict schemas, CLI, examples, and generated-output coverage
 * structured declarer and defender concessions, accepted declarer-card exposure, bounded defender open play, and open-card throwing
 * continued play with exact public hands after declarer-card exposure or defender open play
 * exact-prefix historical records for all five supported shortened terminal events
@@ -209,8 +212,10 @@ Major completed areas include:
 Current limitations include general and specific-trick claim verification,
 defender-open-play proof beyond five unresolved tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
-incomplete settlement nuance, incomplete automatic dataset preparation,
-incomplete field-level live provenance, heuristic rule-based recommendations and
+incomplete settlement nuance, no additional preparation algorithms, algorithm
+overrides, fallback or partial plans, global optimization, ratio guarantees,
+Sample- or Player-count balancing, or component splitting, incomplete field-level
+live provenance, heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Search remains bounded late-game determinization subject to Strategy
 Fusion, not an optimal imperfect-information policy or complete-contract Search;

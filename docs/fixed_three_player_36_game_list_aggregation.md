@@ -151,8 +151,10 @@ state without player-quality, skill, rating, or cross-list claims.
 
 The following remain open:
 
-* automatic dataset preparation;
 * series aggregation and standings;
 * tournament management and official federation reporting.
+
+Automatic Training Dataset preparation is now a separate root-selected workflow
+and does not consume or change this historical-list aggregation contract.
 
 Four-player tables remain unconditionally out of scope.

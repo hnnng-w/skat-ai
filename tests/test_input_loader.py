@@ -22,6 +22,7 @@ from skat_ai.input_loader import (
     load_historical_game_from_json,
     load_opponent_statistics_from_json,
     load_training_dataset_from_json,
+    load_training_dataset_preparation_request_from_json,
 )
 
 
@@ -62,6 +63,26 @@ def test_training_dataset_input_cannot_be_combined_with_other_workflows() -> Non
             {
                 "training_dataset_input": {},
                 "historical_game_input": {},
+            }
+        )
+
+
+def test_load_training_dataset_preparation_request_and_detect_exclusive_workflow() -> None:
+    request = load_training_dataset_preparation_request_from_json(
+        "examples/training_dataset_preparation_known_opponent.json"
+    )
+
+    assert request.preparation_version == 1
+    assert request.mode == "known_opponent"
+    assert not hasattr(request.records[0], "partition")
+    assert get_input_workflow({"training_dataset_preparation_input": {}}) == (
+        "training_dataset_preparation"
+    )
+    with pytest.raises(ValueError, match="cannot be combined"):
+        get_input_workflow(
+            {
+                "training_dataset_preparation_input": {},
+                "training_dataset_input": {},
             }
         )
 
