@@ -123,6 +123,9 @@ Implemented:
   snapshot for every historical-list position
 * Final SkWO standings with shared unresolved-tie ranks and optional exact
   external-lot application
+* Internal immutable version-1 comparison of two or more independent completed
+  lists with one reference, stable-ID alignment, final count and player-total
+  deltas, resolved-only rank movement, and no progression or series aggregation
 
 ### Metadata and information control
 
@@ -314,7 +317,7 @@ Implemented:
 
 * Performance rating is partially implemented for fixed three-player single-game declarer rating and bounded list-aware summaries.
 * The complete historical 36-position contracts now provide internal cumulative
-  aggregation, progression, and final standings; independent-list comparison and
+  aggregation, progression, final standings, and independent-list comparison;
   public historical-list workflows are not implemented.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
@@ -442,8 +445,8 @@ implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, public fixed-three-player historical-list
-integration and completed-list comparison, remaining automatic dataset
-preparation, field-level live provenance, interactive live and retrospective
+integration, remaining automatic dataset preparation, field-level live
+provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
 interface. General claim verification and historical end reasons outside the
 supported bounded set also remain incomplete. Structured concessions and
@@ -491,10 +494,11 @@ attribution, and stronger Search remain outside this bounded result.
 The active next planning milestone is `v0.12.0`. Its provisional direction is
 36-game list aggregation and automatic dataset preparation. Issue #127 adds
 internal list contract version `1` for all 36 ordered positions and passed
-deals, and Issue #128 adds internal cumulative totals, progression, final
-standings, and exact external-lot application. Public list workflows,
-independent-list comparison, automatic dataset preparation, and the remaining
-issue split are still open.
+deals, Issue #128 adds internal cumulative totals, progression, final standings,
+and exact external-lot application, and Issue #129 adds independent completed-
+list comparison without series aggregation. Public list workflows, automatic
+dataset preparation, and the
+remaining issue split are still open.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

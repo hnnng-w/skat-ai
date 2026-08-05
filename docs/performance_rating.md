@@ -75,9 +75,11 @@ Current assumptions:
 * Internal aggregation version `1` now adds immutable cumulative player totals,
   one provisional standings snapshot per position, final standings, unresolved
   ties, and optional exact external-lot application.
-* Independent-list comparison, public historical-list workflows, multi-list
-  rollups, full tournament aggregation, and official report formats are not
-  implemented yet.
+* Internal comparison version `1` aligns stable players across two or more
+  independent completed lists, compares final counts and player totals, and
+  exposes comparison-minus-reference deltas with honest unresolved-rank status.
+* Public historical-list workflows, multi-list rollups, full tournament
+  aggregation, and official report formats are not implemented yet.
 
 Implemented rating points:
 
@@ -285,8 +287,11 @@ uses complete historical settlement and the same performance helpers to derive
 non-cumulative facts for all three fixed participants. Its
 [aggregation layer](fixed_three_player_36_game_list_aggregation.md) adds
 cumulative totals, progression, and final standings while preserving Played Game
-and Passed Deal counts separately. Neither contract adds a public input mode or
-changes any input or output described above.
+and Passed Deal counts separately. The separate
+[comparison layer](fixed_three_player_36_game_list_comparison.md) compares final
+facts from independent completed lists without progression matching or series
+aggregation. None of these internal contracts adds a public input mode or changes
+any input or output described above.
 
 ## Fixed three-player standings input
 
@@ -463,7 +468,9 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * The strict internal 36-position historical-list contracts include Passed Deal
   facts, cumulative full-list aggregation, progression, standings, unresolved
   ties, and optional exact external-lot application.
-* Independent-list comparison, public historical-list workflows, multi-list
-  rollups, full tournament aggregation, and official federation report formats
-  are not implemented yet.
+* Internal independent-list comparison version `1` preserves one reference,
+  stable-ID alignment, source order, count and player-total deltas, and resolved-
+  only rank movement without producing series totals or standings.
+* Public historical-list workflows, multi-list rollups, full tournament
+  aggregation, and official federation report formats are not implemented yet.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.

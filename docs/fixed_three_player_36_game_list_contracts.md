@@ -185,6 +185,8 @@ The implementation lives in:
 * `fixed_three_player_list_rotation.py`;
 * `fixed_three_player_list_contribution.py`;
 * `fixed_three_player_historical_list_aggregation.py`;
+* `fixed_three_player_historical_list_comparison.py`;
+* `fixed_three_player_historical_list_comparison_summary.py`;
 * `fixed_three_player_historical_list_progression.py`;
 * `fixed_three_player_historical_list_standings.py`;
 * `fixed_three_player_historical_list_totals.py`.
@@ -196,9 +198,10 @@ remain unchanged and do not accept `passed_deal`.
 
 ## Remaining scope
 
-The following remain open after source and aggregation contract version `1`:
+The source and aggregation contracts now feed the separate internal
+[independent-list comparison contract](fixed_three_player_36_game_list_comparison.md).
+The following remain open:
 
-* comparison across independent completed lists;
 * series or tournament state;
 * public workflows, schemas, CLI, and examples;
 * automatic dataset preparation.

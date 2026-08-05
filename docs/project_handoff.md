@@ -38,6 +38,7 @@ The project focuses on:
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
   progression, SkWO standings, optional external-lot application,
+  strict retained-aggregation validation, independent completed-list comparison,
   reconciliation, and deterministic privacy-safe serialization
 
 The project is not a machine-learning model or a full official tournament
@@ -314,10 +315,12 @@ Implemented:
 * internal immutable cumulative totals, one provisional standings snapshot per
   historical-list position, final SkWO standings, unresolved ties, and optional
   exact external-lot application
+* internal immutable comparison of two or more independent completed lists with
+  one fixed reference, stable-ID alignment, final count and player-total deltas,
+  resolved-only rank movement, and privacy-safe serialization
 
 Not implemented:
 
-* comparison across independent completed historical lists
 * public historical-list input, output, schema, CLI, and examples
 * series aggregation
 * tournament aggregation
@@ -580,6 +583,8 @@ Implemented:
 * `fixed_three_player_list_rotation.py`
 * `fixed_three_player_list_contribution.py`
 * `fixed_three_player_historical_list_aggregation.py`
+* `fixed_three_player_historical_list_comparison.py`
+* `fixed_three_player_historical_list_comparison_summary.py`
 * `fixed_three_player_historical_list_progression.py`
 * `fixed_three_player_historical_list_standings.py`
 * `fixed_three_player_historical_list_totals.py`
@@ -675,6 +680,7 @@ Main documentation files:
 * `docs/performance_rating.md`
 * `docs/fixed_three_player_36_game_list_contracts.md`
 * `docs/fixed_three_player_36_game_list_aggregation.md`
+* `docs/fixed_three_player_36_game_list_comparison.md`
 * `docs/examples.md`
 * `docs/historical_games.md`
 * `docs/historical_declarer_card_exposure_continuation.md`
@@ -876,8 +882,9 @@ Completed implementation scope:
   selection remains outside it.
 * The immutable fixed-three-player 36-position historical-list contracts now
   include Passed Deals, cumulative aggregation, progression, final SkWO
-  standings, unresolved ties, and exact external-lot application. Independent-
-  list comparison and public workflows remain open.
+  standings, unresolved ties, exact external-lot application, and independent-
+  list comparison with one reference and no series rollup. Public workflows
+  remain open.
 * Replay Coaching has a public version-1 one-game report with information-safe
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
@@ -891,15 +898,15 @@ Completed implementation scope:
 ## Next recommended action
 
 The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation. Issues #127 and #128
-implement the internal version-1 historical-list source and cumulative
-aggregation contracts. Public workflow design, comparison across independent
-completed lists, and the remaining issue split stay open.
+36-game list aggregation and automatic dataset preparation. Issues #127 through
+#129 implement the internal version-1 historical-list source, cumulative
+aggregation, and independent completed-list comparison contracts. Public
+workflow design, automatic dataset preparation, and the remaining issue split
+stay open.
 
 For the next list step, preserve the existing list-performance inputs, standings
 ordering and tie behavior, and the explicit no-public-workflow boundary while
-separately deciding public integration and completed-list comparison. For
-automatic dataset preparation, inspect
+separately deciding public integration. For automatic dataset preparation, inspect
 the existing dataset policies, automatic Known-opponent and player-disjoint split
 generation, deterministic seed requirements, and identity, temporal, source, and
 partition leakage controls. Tactical motifs, cross-game Coaching, ratings, causal

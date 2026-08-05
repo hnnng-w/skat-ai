@@ -6,6 +6,11 @@ It adds cumulative totals, one progression snapshot per position, and final SkWO
 standings without adding a public input, output, schema, CLI workflow, or
 package-root API.
 
+Completed aggregation values can be passed to the separate internal
+[independent-list comparison contract](fixed_three_player_36_game_list_comparison.md).
+That layer compares every later list independently with the first source and does
+not aggregate lists or compare progression positions.
+
 ## Stable contract
 
 The aggregation layer defines:
@@ -124,6 +129,11 @@ Deterministic internal serializers cover player totals, standings rows,
 progression snapshots, and the final aggregation. Snapshot entry facts reuse the
 existing safe entry-fact serializer.
 
+A reusable strict internal aggregation validator reconstructs every cumulative
+prefix from retained Entry Facts, verifies all provisional and final standings,
+and rejects structurally or arithmetically forged frozen aggregations before
+comparison.
+
 Aggregation serialization does not include source historical records, hands,
 Skat, discards, tricks, private ownership, or Search state. The serializers are
 internal and are not registered in a public schema or output field.
@@ -132,7 +142,6 @@ internal and are not registered in a public schema or output field.
 
 The following remain open:
 
-* comparison across independent completed lists;
 * public historical-list input and output;
 * public schemas, CLI integration, examples, and generated scenarios;
 * automatic dataset preparation;
