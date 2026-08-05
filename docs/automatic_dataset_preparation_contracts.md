@@ -1,8 +1,10 @@
 # Automatic dataset preparation contracts
 
 Issue #131 defines the internal version-1 contracts used before a partitioned
-Training Dataset exists. Issue #132 adds deterministic assignment generation for
-`temporal_known_opponent_v1`; caller-supplied complete plans remain supported.
+Training Dataset exists. Issues #132 and #133 add deterministic assignment
+generation for `temporal_known_opponent_v1` and
+`component_balanced_unseen_player_v1`; caller-supplied complete plans remain
+supported.
 The contracts add no public workflow, generate no samples, and train no model.
 
 ## Versions and fixed values
@@ -20,10 +22,12 @@ The reserved supplied-plan algorithms are:
 The reserved SHA-256 seed domains are
 `dataset_known_opponent_split_v1` and `dataset_unseen_player_split_v1`.
 
-`generate_temporal_known_opponent_dataset_partition_plan(request)` now implements
-the first reserved algorithm. It requires `known_opponent`, accepts no extra
+`generate_temporal_known_opponent_dataset_partition_plan(request)` implements
+the first reserved algorithm.
+`generate_component_balanced_unseen_player_dataset_partition_plan(request)`
+implements the second. Each requires its matching mode, accepts no extra
 settings, RNG, or assignments, and returns the existing complete or unavailable
-plan union. The unseen-player algorithm remains reserved but unimplemented.
+plan union.
 
 ## Preparation request
 
@@ -89,6 +93,10 @@ values built from canonical JSON, never Python `hash()`:
 * `source_content_fingerprint` covers the exact canonical request identity,
   provenance, and Historical Game source content. It proves that a plan belongs
   to the exact source request while remaining order-independent.
+* The dedicated unseen-player selection fingerprint covers only preparation
+  version, dataset ID/version, algorithm, and sorted Record, Game, and stable
+  Player identities. It excludes timestamps, provenance, labels, Sample Counts,
+  and game content and is used only for unseen-player tie keys.
 
 The mode-specific partition-seed and stable-item tie-key helpers use the reserved
 domain, base seed, source identity fingerprint, and a fixed purpose marker. The
@@ -185,6 +193,14 @@ canonical Record/Game order while assignments and materialized Records retain
 request order. See
 [Temporal Known-opponent dataset splits](temporal_known_opponent_dataset_splits.md).
 
+The unseen-player generator builds exact transitive shared-Player components,
+orders them by descending Record Count and dedicated tie keys, creates one
+non-empty greedy allocation, and repeatedly accepts the best strict whole-
+component move or swap until locally optimal. It invokes the final builder once
+with reused facts and canonical audit ordering. See
+[Player-disjoint unseen-player dataset
+splits](player_disjoint_unseen_player_dataset_splits.md).
+
 Materialization accepts only a validated complete plan. It preserves source
 order, Record IDs, Game IDs, provenance, complete Historical Game Records,
 zero-sample Records, dataset and feature versions, and target, and adds only the
@@ -200,7 +216,6 @@ CLI option, example, or generated-output scenario is registered.
 
 ## Remaining work
 
-Player-component construction, unseen-player assignment generation, component
-balancing, unseen-player ratio optimization, and all public preparation
-workflows remain unimplemented. Version 1 does not provide Sample-count
-balancing or ratio guarantees.
+All public preparation workflows remain unimplemented. Version 1 does not
+provide global assignment optimization, guaranteed ratios, Sample-count or
+Player-count balancing, component splitting, or model training.

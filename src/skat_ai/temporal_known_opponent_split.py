@@ -2,6 +2,7 @@ import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+from skat_ai.dataset_partition_objective import build_record_count_objective
 from skat_ai.dataset_partition_plan import (
     TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
     CompleteDatasetPartitionPlan,
@@ -77,9 +78,7 @@ def _build_time_groups(
                 )
             ),
             player_ids=frozenset(
-                player_id
-                for fact in grouped_facts
-                for player_id in fact.player_ids
+                player_id for fact in grouped_facts for player_id in fact.player_ids
             ),
         )
         for instant, grouped_facts in sorted(facts_by_instant.items())
@@ -94,19 +93,12 @@ def _build_record_count_objective(
     source_count: int,
     weights: DatasetPartitionWeights,
 ) -> tuple[int, int, int, int, int]:
-    total_weight = weights.total_weight
-    deviations = (
-        train_count * total_weight - source_count * weights.train,
-        validation_count * total_weight - source_count * weights.validation,
-        test_count * total_weight - source_count * weights.test,
-    )
-    absolute_deviations = tuple(abs(deviation) for deviation in deviations)
-    return (
-        sum(absolute_deviations),
-        max(absolute_deviations),
-        absolute_deviations[0],
-        absolute_deviations[1],
-        absolute_deviations[2],
+    return build_record_count_objective(
+        train_count=train_count,
+        validation_count=validation_count,
+        test_count=test_count,
+        source_count=source_count,
+        weights=weights,
     )
 
 
@@ -119,12 +111,8 @@ def _enumerate_valid_candidates(
     cumulative_record_counts = [0]
     cumulative_player_ids: list[frozenset[str]] = [frozenset()]
     for group in groups:
-        cumulative_record_counts.append(
-            cumulative_record_counts[-1] + group.record_count
-        )
-        cumulative_player_ids.append(
-            cumulative_player_ids[-1] | group.player_ids
-        )
+        cumulative_record_counts.append(cumulative_record_counts[-1] + group.record_count)
+        cumulative_player_ids.append(cumulative_player_ids[-1] | group.player_ids)
 
     suffix_player_ids: list[frozenset[str]] = [frozenset()] * (group_count + 1)
     for group_index in range(group_count - 1, -1, -1):
@@ -139,9 +127,7 @@ def _enumerate_valid_candidates(
             continue
         train_count = cumulative_record_counts[train_cut]
         for validation_cut in range(train_cut + 1, group_count):
-            validation_count = (
-                cumulative_record_counts[validation_cut] - train_count
-            )
+            validation_count = cumulative_record_counts[validation_cut] - train_count
             test_count = source_count - cumulative_record_counts[validation_cut]
             candidates.append(
                 _Candidate(
@@ -157,12 +143,8 @@ def _enumerate_valid_candidates(
                         source_count=source_count,
                         weights=weights,
                     ),
-                    train_boundary_utc=groups[
-                        train_cut - 1
-                    ].canonical_played_at,
-                    validation_boundary_utc=groups[
-                        validation_cut - 1
-                    ].canonical_played_at,
+                    train_boundary_utc=groups[train_cut - 1].canonical_played_at,
+                    validation_boundary_utc=groups[validation_cut - 1].canonical_played_at,
                 )
             )
     return tuple(candidates)
@@ -189,9 +171,7 @@ def _select_candidate(
         return None
     best_objective = min(candidate.objective for candidate in candidates)
     tied_candidates = tuple(
-        candidate
-        for candidate in candidates
-        if candidate.objective == best_objective
+        candidate for candidate in candidates if candidate.objective == best_objective
     )
     if len(tied_candidates) == 1:
         return tied_candidates[0]
@@ -259,9 +239,7 @@ def generate_temporal_known_opponent_dataset_partition_plan(
     if not isinstance(request, TrainingDatasetPreparationRequest):
         raise ValueError("request must be a TrainingDatasetPreparationRequest value.")
     if request.mode != "known_opponent":
-        raise ValueError(
-            "temporal_known_opponent_v1 requires request.mode 'known_opponent'."
-        )
+        raise ValueError("temporal_known_opponent_v1 requires request.mode 'known_opponent'.")
     try:
         validated_request = build_training_dataset_preparation_request(
             build_serializable_training_dataset_preparation_request(request)

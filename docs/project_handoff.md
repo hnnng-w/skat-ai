@@ -32,6 +32,8 @@ The project focuses on:
   proofs, strict supplied-assignment validation, and lossless materialization
 * exact deterministic temporal Known-opponent assignment generation over parsed
   time groups with complete Train player coverage and Record-count optimization
+* deterministic Player-connected unseen-player assignment with component
+  identities, non-empty greedy placement, and strict local move/swap improvement
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
 * immutable version-1 normative settlement and approved claim-boundary matrix
@@ -630,6 +632,8 @@ Implemented:
 * `dataset_preparation_identity.py`
 * `dataset_partition_plan.py`
 * `temporal_known_opponent_split.py`
+* `dataset_partition_objective.py`
+* `player_disjoint_unseen_player_split.py`
 * `historical_opponent_statistics.py`
 * `historical_opponent_profile_binding.py`
 * `historical_opponent_profile_application.py`
@@ -719,6 +723,7 @@ Main documentation files:
 * `docs/dataset_partition_policies.md`
 * `docs/automatic_dataset_preparation_contracts.md`
 * `docs/temporal_known_opponent_dataset_splits.md`
+* `docs/player_disjoint_unseen_player_dataset_splits.md`
 * `docs/opponent_statistics.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
@@ -750,11 +755,12 @@ Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
 #125 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
 
-Current `v0.12.0` development through Issue #132 implements the immutable
+Current `v0.12.0` development through Issue #133 implements the immutable
 historical-list source, cumulative aggregation, independent comparison, and
 strict public JSON/schema/CLI workflow, plus internal version-1 unpartitioned
-dataset-preparation and supplied split-plan contracts and the deterministic
-temporal Known-opponent assignment generator. Issues #131 and #132 append no
+dataset-preparation and supplied split-plan contracts plus deterministic
+temporal Known-opponent and Player-disjoint unseen-player assignment generators.
+Issues #131 through #133 append no
 scenario, so the development matrix remains 67 while the published baseline
 remains 64.
 
@@ -941,14 +947,14 @@ plan validation, strict temporal and player-disjoint proof, and lossless
 materialization. Issue #132 adds the exact deterministic temporal Known-opponent
 generator with parsed-instant grouping, exhaustive chronological cuts, complete
 Train coverage, integer Record-count scoring, tie-only seed use, source-order
-independence, and one-plan materialization. Unseen-player assignment and all
-public preparation work stay open.
+independence, and one-plan materialization. Issue #133 adds exact transitive
+Player-connected components, dedicated selection identities, deterministic
+greedy placement, and strict whole-component move/swap improvement. Public
+preparation work stays open.
 
-For the next dataset-preparation work, inspect the version-1 contracts and add
-player-component construction and unseen-player assignment without using card,
-label, outcome, sample-count, or profile data. Public workflow design remains
-separate. Tactical motifs,
-cross-game Coaching, ratings, causal
+For the next dataset-preparation work, inspect the retained internal generators
+and decide the separate public workflow without weakening their information
+boundaries or plan proofs. Tactical motifs, cross-game Coaching, ratings, causal
 attribution, broader Search, general claims, and settlement completeness remain
 separate open work.
 

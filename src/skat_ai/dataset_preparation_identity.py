@@ -43,9 +43,7 @@ def _canonical_source_identity_record(record: Any) -> dict[str, Any]:
             else None
         ),
         "played_at": record.historical_game.played_at,
-        "player_ids": sorted(
-            player.player_id for player in record.historical_game.players
-        ),
+        "player_ids": sorted(player.player_id for player in record.historical_game.players),
     }
 
 
@@ -74,12 +72,8 @@ def build_source_content_fingerprint(request: Any) -> str:
         (
             {
                 "record_id": record.record_id,
-                "provenance": build_serializable_training_provenance(
-                    record.provenance
-                ),
-                "historical_game": build_serializable_historical_record(
-                    record.historical_game
-                ),
+                "provenance": build_serializable_training_provenance(record.provenance),
+                "historical_game": build_serializable_historical_record(record.historical_game),
             }
             for record in request.records
         ),
@@ -98,20 +92,43 @@ def build_source_content_fingerprint(request: Any) -> str:
     )
 
 
+def build_unseen_player_selection_fingerprint(
+    request: Any,
+    source_facts: tuple[Any, ...],
+) -> str:
+    """Fingerprints only identities allowed to select an unseen-player split."""
+    player_ids_by_record = sorted(
+        (
+            {
+                "record_id": fact.record_id,
+                "player_ids": sorted(fact.player_ids),
+            }
+            for fact in source_facts
+        ),
+        key=lambda value: value["record_id"],
+    )
+    return _sha256_fingerprint(
+        {
+            "preparation_version": request.preparation_version,
+            "dataset_id": request.dataset_id,
+            "dataset_version": request.dataset_version,
+            "algorithm": "component_balanced_unseen_player_v1",
+            "record_ids": sorted(fact.record_id for fact in source_facts),
+            "historical_game_ids": sorted(fact.historical_game_id for fact in source_facts),
+            "player_ids_by_record": player_ids_by_record,
+        }
+    )
+
+
 def _validate_seed_inputs(
     mode: str,
     base_random_seed: int,
     source_identity_fingerprint: str,
 ) -> str:
     if mode not in DATASET_PARTITION_POLICY_MODES:
-        raise ValueError(
-            "mode must be one of "
-            f"{list(DATASET_PARTITION_POLICY_MODES)}."
-        )
+        raise ValueError(f"mode must be one of {list(DATASET_PARTITION_POLICY_MODES)}.")
     if isinstance(base_random_seed, bool) or not isinstance(base_random_seed, int):
-        raise ValueError(
-            "base_random_seed must be an integer and must not be a boolean."
-        )
+        raise ValueError("base_random_seed must be an integer and must not be a boolean.")
     if (
         not isinstance(source_identity_fingerprint, str)
         or len(source_identity_fingerprint) != 64
@@ -129,12 +146,9 @@ def derive_dataset_partition_seed(
     source_identity_fingerprint: str,
 ) -> int:
     """Derives one process-stable mode-specific partition seed."""
-    domain = _validate_seed_inputs(
-        mode, base_random_seed, source_identity_fingerprint
-    )
+    domain = _validate_seed_inputs(mode, base_random_seed, source_identity_fingerprint)
     material = (
-        f"skat-ai\0{base_random_seed}\0{domain}\0"
-        f"{source_identity_fingerprint}\0partition"
+        f"skat-ai\0{base_random_seed}\0{domain}\0{source_identity_fingerprint}\0partition"
     ).encode()
     return int.from_bytes(hashlib.sha256(material).digest()[:8], "big")
 
@@ -146,17 +160,13 @@ def derive_dataset_partition_tie_break_key(
     stable_item_identity: str,
 ) -> int:
     """Derives one stable-item key without source order or private game data."""
-    domain = _validate_seed_inputs(
-        mode, base_random_seed, source_identity_fingerprint
-    )
+    domain = _validate_seed_inputs(mode, base_random_seed, source_identity_fingerprint)
     if (
         not isinstance(stable_item_identity, str)
         or not stable_item_identity
         or stable_item_identity != stable_item_identity.strip()
     ):
-        raise ValueError(
-            "stable_item_identity must be a non-empty, non-padded string."
-        )
+        raise ValueError("stable_item_identity must be a non-empty, non-padded string.")
     material = (
         f"skat-ai\0{base_random_seed}\0{domain}\0"
         f"{source_identity_fingerprint}\0item\0{stable_item_identity}"

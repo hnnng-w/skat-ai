@@ -61,9 +61,7 @@ class DatasetPartitionWeights:
             ("test", self.test),
         ):
             if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
-                raise ValueError(
-                    f"partition_weights.{field_name} must be a positive integer."
-                )
+                raise ValueError(f"partition_weights.{field_name} must be a positive integer.")
 
     @property
     def total_weight(self) -> int:
@@ -214,14 +212,11 @@ def build_training_dataset_preparation_request(
         f"{field_name}.feature_generation_version",
     )
     if data["target"] != TRAINING_TARGET:
-        raise ValueError(
-            f"{field_name}.target must currently equal '{TRAINING_TARGET}'."
-        )
+        raise ValueError(f"{field_name}.target must currently equal '{TRAINING_TARGET}'.")
     mode = data["mode"]
     if mode not in DATASET_PARTITION_POLICY_MODES:
         raise ValueError(
-            f"{field_name}.mode must be one of "
-            f"{list(DATASET_PARTITION_POLICY_MODES)}."
+            f"{field_name}.mode must be one of {list(DATASET_PARTITION_POLICY_MODES)}."
         )
     base_random_seed = data["base_random_seed"]
     if isinstance(base_random_seed, bool) or not isinstance(base_random_seed, int):
@@ -246,9 +241,7 @@ def build_training_dataset_preparation_request(
         target=TRAINING_TARGET,
         mode=mode,
         base_random_seed=base_random_seed,
-        partition_weights=build_dataset_partition_weights(
-            data["partition_weights"]
-        ),
+        partition_weights=build_dataset_partition_weights(data["partition_weights"]),
         records=records,
     )
 
@@ -285,10 +278,7 @@ def build_dataset_preparation_source_facts(
                 source_identity=source_identity,
                 played_at=record.historical_game.played_at,
                 player_ids=tuple(
-                    sorted(
-                        player.player_id
-                        for player in record.historical_game.players
-                    )
+                    sorted(player.player_id for player in record.historical_game.players)
                 ),
                 sample_count=sample_count,
                 zero_sample=sample_count == 0,
@@ -313,9 +303,7 @@ def build_serializable_unpartitioned_training_record(
     return {
         "record_id": record.record_id,
         "provenance": build_serializable_training_provenance(record.provenance),
-        "historical_game": build_serializable_historical_record(
-            record.historical_game
-        ),
+        "historical_game": build_serializable_historical_record(record.historical_game),
     }
 
 
@@ -334,8 +322,7 @@ def build_serializable_training_dataset_preparation_request(
             request.partition_weights
         ),
         "records": [
-            build_serializable_unpartitioned_training_record(record)
-            for record in request.records
+            build_serializable_unpartitioned_training_record(record) for record in request.records
         ],
     }
 
@@ -395,6 +382,7 @@ def materialize_prepared_training_dataset(
 ) -> PreparedTrainingDataset:
     """Adds only validated partitions and reuses version-1 dataset validation."""
     from skat_ai.dataset_partition_plan import (
+        COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
         TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
         validate_dataset_partition_plan,
     )
@@ -403,22 +391,16 @@ def materialize_prepared_training_dataset(
     if plan.status != "complete":
         raise ValueError("Only a complete dataset partition plan may be materialized.")
     assignments_by_record_id = {
-        assignment.record_id: assignment.partition
-        for assignment in plan.assignments
+        assignment.record_id: assignment.partition for assignment in plan.assignments
     }
-    dataset = _build_materialized_training_dataset(
-        request, assignments_by_record_id
-    )
+    dataset = _build_materialized_training_dataset(request, assignments_by_record_id)
     if (
         dataset.dataset_id != request.dataset_id
         or dataset.dataset_version != request.dataset_version
-        or dataset.feature_generation_version
-        != request.feature_generation_version
+        or dataset.feature_generation_version != request.feature_generation_version
         or dataset.target != request.target
     ):
-        raise ValueError(
-            "Materialized Training Dataset metadata does not match the request."
-        )
+        raise ValueError("Materialized Training Dataset metadata does not match the request.")
     for source_record, materialized_record in zip(
         request.records,
         dataset.records,
@@ -434,15 +416,11 @@ def materialize_prepared_training_dataset(
                 "losslessly preserve its source Record."
             )
     audit = audit_training_dataset_partitions(dataset, request.mode)
-    serialized_plan_audit = build_serializable_dataset_partition_audit(
-        plan.partition_audit
-    )
-    serialized_materialized_audit = build_serializable_dataset_partition_audit(
-        audit
-    )
-    if (
-        serialized_materialized_audit != serialized_plan_audit
-        and plan.algorithm == TEMPORAL_KNOWN_OPPONENT_ALGORITHM
+    serialized_plan_audit = build_serializable_dataset_partition_audit(plan.partition_audit)
+    serialized_materialized_audit = build_serializable_dataset_partition_audit(audit)
+    if serialized_materialized_audit != serialized_plan_audit and plan.algorithm in (
+        TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
+        COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
     ):
         serialized_materialized_audit = build_serializable_dataset_partition_audit(
             audit_training_dataset_partitions(
@@ -452,9 +430,7 @@ def materialize_prepared_training_dataset(
             )
         )
     if serialized_materialized_audit != serialized_plan_audit:
-        raise ValueError(
-            "Materialized dataset partition audit does not match the validated plan."
-        )
+        raise ValueError("Materialized dataset partition audit does not match the validated plan.")
     return PreparedTrainingDataset(
         preparation_version=request.preparation_version,
         plan=plan,
@@ -477,7 +453,5 @@ def build_serializable_prepared_training_dataset(
         "training_dataset_input": build_serializable_training_dataset_input(
             prepared.training_dataset_input
         ),
-        "partition_audit": build_serializable_dataset_partition_audit(
-            prepared.partition_audit
-        ),
+        "partition_audit": build_serializable_dataset_partition_audit(prepared.partition_audit),
     }

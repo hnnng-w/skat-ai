@@ -31,9 +31,7 @@ DATASET_PARTITION_PLAN_VERSION = 1
 DATASET_PARTITION_BALANCE_BASIS = "record_count"
 
 TEMPORAL_KNOWN_OPPONENT_ALGORITHM = "temporal_known_opponent_v1"
-COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM = (
-    "component_balanced_unseen_player_v1"
-)
+COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM = "component_balanced_unseen_player_v1"
 DATASET_PARTITION_PLAN_ALGORITHMS = (
     TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
     COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
@@ -74,6 +72,10 @@ _UNAVAILABLE_REASON_MODES = {
         "unseen_player",
     ),
 }
+_SOURCE_ORDER_INDEPENDENT_GENERATED_ALGORITHMS = (
+    TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
+    COMPONENT_BALANCED_UNSEEN_PLAYER_ALGORITHM,
+)
 
 
 @dataclass(frozen=True)
@@ -91,10 +93,7 @@ class DatasetPartitionAssignment:
         ):
             raise ValueError("record_id must be a non-empty, non-padded string.")
         if self.partition not in CANONICAL_DATASET_PARTITIONS:
-            raise ValueError(
-                "partition must be one of "
-                f"{list(CANONICAL_DATASET_PARTITIONS)}."
-            )
+            raise ValueError(f"partition must be one of {list(CANONICAL_DATASET_PARTITIONS)}.")
 
 
 @dataclass(frozen=True)
@@ -180,15 +179,11 @@ def _validate_algorithm_mode(
     algorithm: str,
 ) -> None:
     if algorithm not in DATASET_PARTITION_PLAN_ALGORITHMS:
-        raise ValueError(
-            "algorithm must be one of "
-            f"{list(DATASET_PARTITION_PLAN_ALGORITHMS)}."
-        )
+        raise ValueError(f"algorithm must be one of {list(DATASET_PARTITION_PLAN_ALGORITHMS)}.")
     expected_mode = _ALGORITHM_MODES[algorithm]
     if request.mode != expected_mode:
         raise ValueError(
-            f"Algorithm '{algorithm}' requires mode '{expected_mode}', got "
-            f"'{request.mode}'."
+            f"Algorithm '{algorithm}' requires mode '{expected_mode}', got '{request.mode}'."
         )
 
 
@@ -198,13 +193,8 @@ def _normalize_assignments(
 ) -> tuple[DatasetPartitionAssignment, ...]:
     if not isinstance(assignments, tuple):
         raise ValueError("assignments must be an immutable tuple.")
-    if any(
-        not isinstance(assignment, DatasetPartitionAssignment)
-        for assignment in assignments
-    ):
-        raise ValueError(
-            "assignments must contain only DatasetPartitionAssignment values."
-        )
+    if any(not isinstance(assignment, DatasetPartitionAssignment) for assignment in assignments):
+        raise ValueError("assignments must contain only DatasetPartitionAssignment values.")
     assignments_by_record_id: dict[str, DatasetPartitionAssignment] = {}
     for assignment in assignments:
         if assignment.record_id in assignments_by_record_id:
@@ -222,19 +212,13 @@ def _normalize_assignments(
             f"Missing record IDs: {missing_record_ids}. Unknown record IDs: "
             f"{unknown_record_ids}."
         )
-    return tuple(
-        assignments_by_record_id[record.record_id]
-        for record in request.records
-    )
+    return tuple(assignments_by_record_id[record.record_id] for record in request.records)
 
 
 def _assignment_lookup(
     assignments: tuple[DatasetPartitionAssignment, ...],
 ) -> dict[str, str]:
-    return {
-        assignment.record_id: assignment.partition
-        for assignment in assignments
-    }
+    return {assignment.record_id: assignment.partition for assignment in assignments}
 
 
 def _require_non_empty_partitions(
@@ -259,9 +243,7 @@ def _canonical_instant(value: datetime) -> str:
 
 def _freeze_json_value(value: Any) -> Any:
     if isinstance(value, Mapping):
-        return MappingProxyType(
-            {key: _freeze_json_value(item) for key, item in value.items()}
-        )
+        return MappingProxyType({key: _freeze_json_value(item) for key, item in value.items()})
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_json_value(item) for item in value)
     return value
@@ -284,12 +266,8 @@ def _freeze_partition_audit(
         partition_summary=_freeze_json_value(audit.partition_summary),
         player_summary=_freeze_json_value(audit.player_summary),
         overlap_summary=_freeze_json_value(audit.overlap_summary),
-        known_opponent_coverage=_freeze_json_value(
-            audit.known_opponent_coverage
-        ),
-        unseen_player_compliance=_freeze_json_value(
-            audit.unseen_player_compliance
-        ),
+        known_opponent_coverage=_freeze_json_value(audit.known_opponent_coverage),
+        unseen_player_compliance=_freeze_json_value(audit.unseen_player_compliance),
         players=tuple(_freeze_json_value(player) for player in audit.players),
     )
 
@@ -322,27 +300,16 @@ def _build_known_opponent_temporal_audit(
         instant_partitions.setdefault(instant, set()).add(partition)
 
     split_instants = [
-        instant
-        for instant, partitions in instant_partitions.items()
-        if len(partitions) > 1
+        instant for instant, partitions in instant_partitions.items() if len(partitions) > 1
     ]
     if split_instants:
         raise ValueError(
-            "Equal historical_game.played_at time groups must not be split across "
-            "partitions."
+            "Equal historical_game.played_at time groups must not be split across partitions."
         )
-    if not max(partition_instants["train"]) < min(
-        partition_instants["validation"]
-    ):
-        raise ValueError(
-            "A complete known_opponent plan requires max(train) < min(validation)."
-        )
-    if not max(partition_instants["validation"]) < min(
-        partition_instants["test"]
-    ):
-        raise ValueError(
-            "A complete known_opponent plan requires max(validation) < min(test)."
-        )
+    if not max(partition_instants["train"]) < min(partition_instants["validation"]):
+        raise ValueError("A complete known_opponent plan requires max(train) < min(validation).")
+    if not max(partition_instants["validation"]) < min(partition_instants["test"]):
+        raise ValueError("A complete known_opponent plan requires max(validation) < min(test).")
 
     train_players = partition_player_ids["train"]
     validation_players = partition_player_ids["validation"]
@@ -360,12 +327,8 @@ def _build_known_opponent_temporal_audit(
     boundaries = tuple(
         DatasetTemporalPartitionBoundary(
             partition=partition,
-            minimum_played_at=_canonical_instant(
-                min(partition_instants[partition])
-            ),
-            maximum_played_at=_canonical_instant(
-                max(partition_instants[partition])
-            ),
+            minimum_played_at=_canonical_instant(min(partition_instants[partition])),
+            maximum_played_at=_canonical_instant(max(partition_instants[partition])),
             time_group_count=len(set(partition_instants[partition])),
         )
         for partition in CANONICAL_DATASET_PARTITIONS
@@ -402,18 +365,8 @@ def _build_partition_summaries(
     total_weight = request.partition_weights.total_weight
     summaries = []
     for partition in CANONICAL_DATASET_PARTITIONS:
-        selected = [
-            fact
-            for fact in facts
-            if assignments_by_record_id[fact.record_id] == partition
-        ]
-        player_ids = sorted(
-            {
-                player_id
-                for fact in selected
-                for player_id in fact.player_ids
-            }
-        )
+        selected = [fact for fact in facts if assignments_by_record_id[fact.record_id] == partition]
+        player_ids = sorted({player_id for fact in selected for player_id in fact.player_ids})
         record_count = len(selected)
         target_numerator = len(facts) * weight_by_partition[partition]
         summaries.append(
@@ -426,9 +379,7 @@ def _build_partition_summaries(
                 player_ids=tuple(player_ids),
                 target_record_count_numerator=target_numerator,
                 target_record_count_denominator=total_weight,
-                record_count_deviation_numerator=(
-                    record_count * total_weight - target_numerator
-                ),
+                record_count_deviation_numerator=(record_count * total_weight - target_numerator),
             )
         )
     return tuple(summaries)
@@ -464,9 +415,7 @@ def _fingerprint_plan_values(
         "unavailable_reason": unavailable_reason,
         "source_content_fingerprint": source_content_fingerprint,
         "base_random_seed": base_random_seed,
-        "requested_partition_weights": build_serializable_dataset_partition_weights(
-            weights
-        ),
+        "requested_partition_weights": build_serializable_dataset_partition_weights(weights),
         "assignments": canonical_assignments,
     }
     canonical_bytes = json.dumps(
@@ -526,9 +475,7 @@ def _build_complete_plan(
         else audit_training_dataset_partitions(dataset, request.mode)
     )
     if partition_audit.compliance_status != "compliant":
-        raise ValueError(
-            "A complete partition plan must pass the existing partition audit."
-        )
+        raise ValueError("A complete partition plan must pass the existing partition audit.")
     temporal_audit = (
         _build_known_opponent_temporal_audit(facts, normalized_assignments)
         if request.mode == "known_opponent"
@@ -560,9 +507,7 @@ def _build_complete_plan(
         source_record_count=len(facts),
         source_sample_count=sum(fact.sample_count for fact in facts),
         assignments=normalized_assignments,
-        partition_summaries=_build_partition_summaries(
-            request, facts, normalized_assignments
-        ),
+        partition_summaries=_build_partition_summaries(request, facts, normalized_assignments),
         temporal_audit=temporal_audit,
         partition_audit=_freeze_partition_audit(partition_audit),
         plan_fingerprint=plan_fingerprint,
@@ -610,13 +555,11 @@ def _build_unavailable_plan(
     _validate_algorithm_mode(request, algorithm)
     if unavailable_reason not in DATASET_PARTITION_UNAVAILABLE_REASONS:
         raise ValueError(
-            "unavailable_reason must be one of "
-            f"{list(DATASET_PARTITION_UNAVAILABLE_REASONS)}."
+            f"unavailable_reason must be one of {list(DATASET_PARTITION_UNAVAILABLE_REASONS)}."
         )
     if request.mode not in _UNAVAILABLE_REASON_MODES[unavailable_reason]:
         raise ValueError(
-            f"Unavailable reason '{unavailable_reason}' is not valid for mode "
-            f"'{request.mode}'."
+            f"Unavailable reason '{unavailable_reason}' is not valid for mode '{request.mode}'."
         )
     facts = (
         source_facts
@@ -701,7 +644,7 @@ def validate_dataset_partition_plan(
             algorithm=plan.algorithm,
             assignments=plan.assignments,
         )
-        if plan != expected and plan.algorithm == TEMPORAL_KNOWN_OPPONENT_ALGORITHM:
+        if plan != expected and plan.algorithm in _SOURCE_ORDER_INDEPENDENT_GENERATED_ALGORITHMS:
             expected = _build_complete_plan(
                 request,
                 algorithm=plan.algorithm,
@@ -710,9 +653,7 @@ def validate_dataset_partition_plan(
             )
     elif plan.status == "unavailable":
         if not isinstance(plan, UnavailableDatasetPartitionPlan):
-            raise ValueError(
-                "An unavailable plan must use UnavailableDatasetPartitionPlan."
-            )
+            raise ValueError("An unavailable plan must use UnavailableDatasetPartitionPlan.")
         if plan.unavailable_reason is None:
             raise ValueError("An unavailable plan requires unavailable_reason.")
         expected = _build_unavailable_plan(
@@ -721,9 +662,7 @@ def validate_dataset_partition_plan(
             unavailable_reason=plan.unavailable_reason,
         )
     else:
-        raise ValueError(
-            f"plan.status must be one of {list(DATASET_PARTITION_PLAN_STATUSES)}."
-        )
+        raise ValueError(f"plan.status must be one of {list(DATASET_PARTITION_PLAN_STATUSES)}.")
     if plan != expected:
         raise ValueError(
             "Dataset partition plan fields do not match the request, assignments, "
@@ -772,23 +711,15 @@ def build_serializable_known_opponent_temporal_audit(
         "train_player_ids": list(audit.train_player_ids),
         "validation_player_ids": list(audit.validation_player_ids),
         "test_player_ids": list(audit.test_player_ids),
-        "validation_covered_player_ids": list(
-            audit.validation_covered_player_ids
-        ),
-        "validation_uncovered_player_ids": list(
-            audit.validation_uncovered_player_ids
-        ),
+        "validation_covered_player_ids": list(audit.validation_covered_player_ids),
+        "validation_uncovered_player_ids": list(audit.validation_uncovered_player_ids),
         "test_covered_player_ids": list(audit.test_covered_player_ids),
         "test_uncovered_player_ids": list(audit.test_uncovered_player_ids),
         "all_played_at_present": audit.all_played_at_present,
         "time_group_count": audit.time_group_count,
         "strict_partition_order": audit.strict_partition_order,
-        "equal_timestamp_groups_preserved": (
-            audit.equal_timestamp_groups_preserved
-        ),
-        "validation_train_coverage_complete": (
-            audit.validation_train_coverage_complete
-        ),
+        "equal_timestamp_groups_preserved": (audit.equal_timestamp_groups_preserved),
+        "validation_train_coverage_complete": (audit.validation_train_coverage_complete),
         "test_train_coverage_complete": audit.test_train_coverage_complete,
     }
 

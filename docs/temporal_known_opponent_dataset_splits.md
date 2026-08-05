@@ -174,5 +174,7 @@ The exact boundary scan is `O(G^2)` lightweight candidate scoring with cumulativ
 Record Counts and cumulative/suffix Player sets. There is no timeout, sampled
 candidate subset, fallback, partial result, or elapsed-time guarantee.
 
-Unseen-player component construction, assignment, and balancing remain
-unimplemented. Public automatic-preparation workflows also remain open.
+Player-disjoint unseen-player component construction and assignment are now the
+separate `component_balanced_unseen_player_v1` internal generator. Public
+automatic-preparation workflows remain open. See
+[Player-disjoint unseen-player dataset splits](player_disjoint_unseen_player_dataset_splits.md).

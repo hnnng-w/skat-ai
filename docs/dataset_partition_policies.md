@@ -80,8 +80,11 @@ inspectable without weakening declared-policy validation.
 The internal `component_balanced_unseen_player_v1` supplied-plan validator adds
 the non-empty three-partition requirement and then reuses declared-policy loading
 and this existing overlap audit. Whole zero-sample Records and transitive shared-
-player groups participate fully. The algorithm name is reserved; component
-construction and assignment are not implemented.
+player groups participate fully. The internal generator now constructs exact
+transitive Player-connected Record components, requires at least three, creates
+one deterministic non-empty greedy Record-count allocation, and applies strict
+whole-component move/swap improvement. See
+[Player-disjoint unseen-player dataset splits](player_disjoint_unseen_player_dataset_splits.md).
 
 ## Audit workflow
 
@@ -116,9 +119,9 @@ automatic splitting, balancing, record movement, unseen-player profile
 prediction, machine-learning training, and model generalization evaluation
 remain unsupported. Internal
 preparation contracts now validate explicit weights and complete or unavailable
-plans and generate temporal Known-opponent assignments. Player-component
-construction, unseen-player assignment, component balancing, general
-repartitioning, and public preparation remain unsupported. See
+plans and generate temporal Known-opponent and component-balanced unseen-player
+assignments. General repartitioning, global optimization, Sample-count balancing,
+and public preparation remain unsupported. See
 [Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md).
 
 Historical opponent-statistics aggregation and rolling opponent-policy
