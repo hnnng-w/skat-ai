@@ -1,9 +1,9 @@
 # Automatic dataset preparation contracts
 
 Issue #131 defines the internal version-1 contracts used before a partitioned
-Training Dataset exists. These contracts validate caller-supplied complete split
-plans or record why a complete plan is unavailable. They do not choose
-assignments, add a public workflow, generate samples, or train a model.
+Training Dataset exists. Issue #132 adds deterministic assignment generation for
+`temporal_known_opponent_v1`; caller-supplied complete plans remain supported.
+The contracts add no public workflow, generate no samples, and train no model.
 
 ## Versions and fixed values
 
@@ -19,6 +19,11 @@ The reserved supplied-plan algorithms are:
 
 The reserved SHA-256 seed domains are
 `dataset_known_opponent_split_v1` and `dataset_unseen_player_split_v1`.
+
+`generate_temporal_known_opponent_dataset_partition_plan(request)` now implements
+the first reserved algorithm. It requires `known_opponent`, accepts no extra
+settings, RNG, or assignments, and returns the existing complete or unavailable
+plan union. The unseen-player algorithm remains reserved but unimplemented.
 
 ## Preparation request
 
@@ -172,6 +177,14 @@ disjointness, both applicable audits, all status fields, and the plan
 fingerprint. The builder validates assignments supplied by its caller; it does
 not generate them.
 
+The temporal generator instead builds facts once, scans every chronological
+two-cut group boundary with complete Train player coverage, selects the exact
+best Record-count objective, and invokes the complete builder once with the
+winning assignments and reused facts. Its generated partition audit uses stable
+canonical Record/Game order while assignments and materialized Records retain
+request order. See
+[Temporal Known-opponent dataset splits](temporal_known_opponent_dataset_splits.md).
+
 Materialization accepts only a validated complete plan. It preserves source
 order, Record IDs, Game IDs, provenance, complete Historical Game Records,
 zero-sample Records, dataset and feature versions, and target, and adds only the
@@ -187,6 +200,7 @@ CLI option, example, or generated-output scenario is registered.
 
 ## Remaining work
 
-The temporal-cut selector, Known-opponent assignment generator, player-component
-construction, unseen-player assignment generator, component balancing, ratio
-optimization, and all public preparation workflows remain unimplemented.
+Player-component construction, unseen-player assignment generation, component
+balancing, unseen-player ratio optimization, and all public preparation
+workflows remain unimplemented. Version 1 does not provide Sample-count
+balancing or ratio guarantees.

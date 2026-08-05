@@ -250,6 +250,10 @@ Implemented:
   validation, reasoned unavailable plans, exact Record-count target arithmetic,
   strict Known-opponent temporal coverage, strict unseen-player disjointness,
   existing-audit reuse, and lossless version-1 dataset materialization
+* Exact deterministic `temporal_known_opponent_v1` assignment generation with
+  parsed-instant groups, exhaustive contiguous two-cut scanning, complete Train
+  player coverage, integer Record-count optimization, tie-only seed semantics,
+  source-order-independent proofs, and one final plan construction
 
 ### Validation and documentation
 
@@ -318,8 +322,9 @@ Implemented:
   profiles. Search remains bounded late-game determinization, sampled quality is
   not calibrated, and measured performance provides no latency guarantee.
 * Complete supplied Known-opponent and unseen-player plans can be validated and
-  materialized, but temporal-cut selection, player-component construction, both
-  assignment generators, balancing/optimization, repartitioning, and a public
+  materialized, and temporal Known-opponent assignment is generated internally.
+  Player-component construction, unseen-player assignment, component balancing,
+  Sample-count balancing, ratio guarantees, general repartitioning, and a public
   preparation workflow are not implemented.
 * Replay Coaching now has public version-1 evidence, impact, prioritization, one-
   game cross-decision patterns, deterministic actionable recommendations, strict
@@ -381,12 +386,12 @@ Coaching evidence and impact, deterministic Key Decisions and both Turning Point
 types, one-game patterns, deterministic recommendations, complete report
 composition, and the opt-in public JSON/schema/CLI workflow.
 
-Current `v0.12.0` development through Issue #131 exposes the fixed-three-player
+Current `v0.12.0` development through Issue #132 exposes the fixed-three-player
 historical-list source, cumulative aggregation, and independent comparison
 through strict JSON/schema/CLI workflows and adds internal dataset-preparation
-and deterministic supplied split-plan contracts. Issue #131 adds no public
-scenario, so the development matrix remains 67 while the published `v0.11.0`
-baseline remains 64.
+and deterministic supplied split-plan contracts plus temporal Known-opponent
+assignment generation. Issues #131 and #132 add no public scenario, so the
+development matrix remains 67 while the published `v0.11.0` baseline remains 64.
 
 ### v0.10.0: Information-safe bounded Search across compatible worlds
 
@@ -465,8 +470,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, remaining dataset assignment generators
-and public preparation decisions,
+remaining approved settlement nuance, unseen-player dataset assignment and
+public preparation decisions,
 field-level live
 provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
@@ -523,7 +528,9 @@ contracts through strict root-selected JSON, schemas, CLI output, exactly three
 examples, and exactly three appended generated-output scenarios. Issue #131 adds
 the internal version-1 source, weight, fact, fingerprint, seed, complete/
 unavailable plan, validation, audit-reuse, and materialization contracts without
-adding either assignment generator or public workflow.
+adding a public workflow. Issue #132 adds the deterministic temporal Known-
+opponent generator without public integration; unseen-player assignment remains
+open.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

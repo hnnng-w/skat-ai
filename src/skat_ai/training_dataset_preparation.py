@@ -394,7 +394,10 @@ def materialize_prepared_training_dataset(
     plan: Any,
 ) -> PreparedTrainingDataset:
     """Adds only validated partitions and reuses version-1 dataset validation."""
-    from skat_ai.dataset_partition_plan import validate_dataset_partition_plan
+    from skat_ai.dataset_partition_plan import (
+        TEMPORAL_KNOWN_OPPONENT_ALGORITHM,
+        validate_dataset_partition_plan,
+    )
 
     validate_dataset_partition_plan(request, plan)
     if plan.status != "complete":
@@ -431,9 +434,24 @@ def materialize_prepared_training_dataset(
                 "losslessly preserve its source Record."
             )
     audit = audit_training_dataset_partitions(dataset, request.mode)
-    if build_serializable_dataset_partition_audit(
+    serialized_plan_audit = build_serializable_dataset_partition_audit(
+        plan.partition_audit
+    )
+    serialized_materialized_audit = build_serializable_dataset_partition_audit(
         audit
-    ) != build_serializable_dataset_partition_audit(plan.partition_audit):
+    )
+    if (
+        serialized_materialized_audit != serialized_plan_audit
+        and plan.algorithm == TEMPORAL_KNOWN_OPPONENT_ALGORITHM
+    ):
+        serialized_materialized_audit = build_serializable_dataset_partition_audit(
+            audit_training_dataset_partitions(
+                dataset,
+                request.mode,
+                canonical_source_order=True,
+            )
+        )
+    if serialized_materialized_audit != serialized_plan_audit:
         raise ValueError(
             "Materialized dataset partition audit does not match the validated plan."
         )

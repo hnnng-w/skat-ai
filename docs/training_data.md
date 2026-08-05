@@ -51,12 +51,14 @@ The workflow is mutually exclusive with position analysis,
 `historical_game_input`, list-performance inputs, impossible-Null settlement,
 profiles, and opponent-policy settings.
 
-Issue #131 also defines a separate internal version-1 preparation request whose
-Records do not yet contain `partition`. It requires explicit positive integer
-Train/Validation/Test weights and validates caller-supplied complete split plans.
+Issues #131 and #132 define a separate internal version-1 preparation request
+whose Records do not yet contain `partition`. It requires explicit positive
+integer Train/Validation/Test weights, validates caller-supplied complete split
+plans, and can generate the exact deterministic temporal Known-opponent plan.
 It is not a public input root and does not change the partitioned
 `training_dataset_input` shown above. See
-[Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md).
+[Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md)
+and [Temporal Known-opponent dataset splits](temporal_known_opponent_dataset_splits.md).
 
 ## Records and provenance
 
@@ -113,6 +115,8 @@ zero-sample Records, feature version, and target, then adds only `partition` and
 the existing version-1 policy. Materialization reuses this dataset validator and
 the existing partition audit. It does not generate samples; later ordinary
 conversion therefore retains the same `record_id:decision_index` identities.
+The temporal generator balances Record Count, not Sample Count. A zero-sample
+Record remains an indivisible assignment and full Player-membership unit.
 
 ## Sample generation
 

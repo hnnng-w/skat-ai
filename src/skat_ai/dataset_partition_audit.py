@@ -249,13 +249,28 @@ def _build_unseen_player_compliance(
 def audit_training_dataset_partitions(
     dataset: TrainingDatasetInput,
     mode: DatasetPartitionAuditMode,
+    *,
+    canonical_source_order: bool = False,
 ) -> DatasetPartitionAudit:
     """Audits exact stable-player overlap without replaying or sampling games."""
     if mode not in DATASET_PARTITION_AUDIT_MODES:
         raise ValueError(
             f"Dataset partition audit mode must be one of {list(DATASET_PARTITION_AUDIT_MODES)}."
         )
-    memberships = collect_player_partition_memberships(dataset.records)
+    membership_records = (
+        tuple(
+            sorted(
+                dataset.records,
+                key=lambda record: (
+                    record.record_id,
+                    record.historical_game.game_id,
+                ),
+            )
+        )
+        if canonical_source_order
+        else dataset.records
+    )
+    memberships = collect_player_partition_memberships(membership_records)
     partition_summary = _build_partition_summary(dataset, memberships)
     overlap_summary = _build_overlap_summary(memberships)
     unseen_compliance = _build_unseen_player_compliance(

@@ -500,16 +500,31 @@ def _build_complete_plan(
     *,
     algorithm: str,
     assignments: tuple[DatasetPartitionAssignment, ...],
+    source_facts: tuple[DatasetPreparationSourceFact, ...] | None = None,
+    source_order_independent_audit: bool = False,
 ) -> CompleteDatasetPartitionPlan:
     _validate_algorithm_mode(request, algorithm)
     normalized_assignments = _normalize_assignments(request, assignments)
     _require_non_empty_partitions(normalized_assignments)
-    facts = build_dataset_preparation_source_facts(request)
+    facts = (
+        source_facts
+        if source_facts is not None
+        else build_dataset_preparation_source_facts(request)
+    )
     assignments_by_record_id = _assignment_lookup(normalized_assignments)
     dataset = _build_materialized_training_dataset(
-        request, assignments_by_record_id
+        request,
+        assignments_by_record_id,
     )
-    partition_audit = audit_training_dataset_partitions(dataset, request.mode)
+    partition_audit = (
+        audit_training_dataset_partitions(
+            dataset,
+            request.mode,
+            canonical_source_order=True,
+        )
+        if source_order_independent_audit
+        else audit_training_dataset_partitions(dataset, request.mode)
+    )
     if partition_audit.compliance_status != "compliant":
         raise ValueError(
             "A complete partition plan must pass the existing partition audit."
@@ -568,11 +583,29 @@ def build_complete_dataset_partition_plan(
     )
 
 
+def _build_complete_dataset_partition_plan_from_source_facts(
+    request: TrainingDatasetPreparationRequest,
+    *,
+    algorithm: str,
+    assignments: tuple[DatasetPartitionAssignment, ...],
+    source_facts: tuple[DatasetPreparationSourceFact, ...],
+) -> CompleteDatasetPartitionPlan:
+    """Builds one complete plan without replaying already-derived source facts."""
+    return _build_complete_plan(
+        request,
+        algorithm=algorithm,
+        assignments=assignments,
+        source_facts=source_facts,
+        source_order_independent_audit=True,
+    )
+
+
 def _build_unavailable_plan(
     request: TrainingDatasetPreparationRequest,
     *,
     algorithm: str,
     unavailable_reason: str,
+    source_facts: tuple[DatasetPreparationSourceFact, ...] | None = None,
 ) -> UnavailableDatasetPartitionPlan:
     _validate_algorithm_mode(request, algorithm)
     if unavailable_reason not in DATASET_PARTITION_UNAVAILABLE_REASONS:
@@ -585,7 +618,11 @@ def _build_unavailable_plan(
             f"Unavailable reason '{unavailable_reason}' is not valid for mode "
             f"'{request.mode}'."
         )
-    facts = build_dataset_preparation_source_facts(request)
+    facts = (
+        source_facts
+        if source_facts is not None
+        else build_dataset_preparation_source_facts(request)
+    )
     source_content_fingerprint = build_source_content_fingerprint(request)
     empty_assignments: tuple[DatasetPartitionAssignment, ...] = ()
     return UnavailableDatasetPartitionPlan(
@@ -633,6 +670,22 @@ def build_unavailable_dataset_partition_plan(
     )
 
 
+def _build_unavailable_dataset_partition_plan_from_source_facts(
+    request: TrainingDatasetPreparationRequest,
+    *,
+    algorithm: str,
+    unavailable_reason: str,
+    source_facts: tuple[DatasetPreparationSourceFact, ...],
+) -> UnavailableDatasetPartitionPlan:
+    """Builds one unavailable plan without replaying already-derived source facts."""
+    return _build_unavailable_plan(
+        request,
+        algorithm=algorithm,
+        unavailable_reason=unavailable_reason,
+        source_facts=source_facts,
+    )
+
+
 def validate_dataset_partition_plan(
     request: TrainingDatasetPreparationRequest,
     plan: DatasetPartitionPlan,
@@ -648,6 +701,13 @@ def validate_dataset_partition_plan(
             algorithm=plan.algorithm,
             assignments=plan.assignments,
         )
+        if plan != expected and plan.algorithm == TEMPORAL_KNOWN_OPPONENT_ALGORITHM:
+            expected = _build_complete_plan(
+                request,
+                algorithm=plan.algorithm,
+                assignments=plan.assignments,
+                source_order_independent_audit=True,
+            )
     elif plan.status == "unavailable":
         if not isinstance(plan, UnavailableDatasetPartitionPlan):
             raise ValueError(

@@ -57,6 +57,13 @@ instant groups, non-empty strict Train/Validation/Test time blocks, and complete
 Train membership coverage for every Validation and Test player. Its temporal
 audit does not change or replace the membership-only public audit.
 
+The internal generator now parses and groups equal instants, evaluates every
+contiguous chronological two-cut boundary, rejects candidates without complete
+Train coverage, and selects the exact best weighted Record-count objective.
+Deterministic seed-derived keys apply only after all Record-count metrics tie.
+Zero-sample Records contribute membership normally. See
+[Temporal Known-opponent dataset splits](temporal_known_opponent_dataset_splits.md).
+
 ## Unseen players
 
 `unseen_player` requires every stable player to occur in exactly one of `train`,
@@ -104,12 +111,14 @@ canonical `train`, `validation`, `test` partition order.
 
 Audit mode does not replay games to generate samples, aggregate statistics, run
 rolling evaluation, review historical decisions, recommend cards, simulate
-play, train a model, modify records, or repartition data. Automatic splitting,
-balancing, record movement, unseen-player profile prediction, machine-learning
-training, and model generalization evaluation remain unsupported. Internal
+play, train a model, modify records, or repartition data. Public or general
+automatic splitting, balancing, record movement, unseen-player profile
+prediction, machine-learning training, and model generalization evaluation
+remain unsupported. Internal
 preparation contracts now validate explicit weights and complete or unavailable
-plans, but automatic temporal cuts, component construction, assignment,
-balancing, repartitioning, and public preparation remain unsupported. See
+plans and generate temporal Known-opponent assignments. Player-component
+construction, unseen-player assignment, component balancing, general
+repartitioning, and public preparation remain unsupported. See
 [Automatic dataset preparation contracts](automatic_dataset_preparation_contracts.md).
 
 Historical opponent-statistics aggregation and rolling opponent-policy
