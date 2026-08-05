@@ -9,8 +9,10 @@ generated-output scenarios and passes 4,392 pytest tests. GitHub Releases is
 authoritative for publication status. Issues #118 through #124 complete the
 functional milestone, and Issue #125 completed release preparation. The active
 next planning milestone is `v0.12.0`; its provisional direction is 36-game list
-aggregation and automatic dataset preparation, and its final issue split is not
-defined. The historical published `v0.10.0` baseline remains evidence for 59
+aggregation and automatic dataset preparation. Issues #127 and #128 implement
+the internal source and cumulative aggregation contracts; public integration,
+completed-list comparison, automatic dataset preparation, and the final issue
+split remain open. The historical published `v0.10.0` baseline remains evidence for 59
 scenarios and 4,075 pytest tests.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
@@ -112,7 +114,10 @@ The following directions are required for `v1.0.0`:
   6.3.1 performance formulas and tie handling. Internal contract version `1`
   now validates all 36 ordered played or passed positions, fixed identities,
   rotation, historical settlement extraction, and non-cumulative contribution
-  facts. Cumulative aggregation and standings integration remain open.
+  facts. Internal aggregation version `1` adds cumulative player totals, one
+  provisional standings snapshot per position, final standings, unresolved
+  ties, and optional exact external-lot application. Public workflow integration
+  and comparison across completed lists remain open.
 * Support interactive live and retrospective input and session capture.
 * Provide a stable library API and installed CLI/package interface.
 * Support all final declared Suit, Grand, and Null variants in the approved v1.0
@@ -185,7 +190,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
 | Profile confidence and behavioral evaluation | Accepted profile fields, exact or estimated evidence scopes, heuristic confidence, activation boundaries, conflict rules, and exact behavioral influence are documented and tested at every boundary. Rolling evaluation uses strict game-start as-of history and reports preferred/exact behavioral matching without strategic, optimality, significance, or unseen-player claims. |
 | Dataset partition policies | Optional known-opponent and unseen-player intent remains backward-compatible; exact membership, pairwise/three-way overlap, directed known-opponent coverage, and strict declared unseen-player disjointness are deterministic and schema-valid. |
-| List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-game lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. Internal contract version `1` now supplies the immutable 36-position played/passed representation, rotation, settlement-derived entry facts, and per-entry reconciliation, but cumulative aggregation and standings from that contract remain open. |
+| List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-game lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. Internal contracts version `1` now supply the immutable 36-position played/passed representation, rotation, settlement-derived entry facts, cumulative totals, one standings snapshot per position, final standings, and exact external-lot application. Public historical-list integration and independent completed-list comparison remain open. |
 | Interactive input and session capture | Supported live and retrospective sessions can be entered interactively, validated incrementally, resumed or completed without hidden state, and serialized to the same documented information-safe records. |
 | Stable installed interface | A versioned public library API and installed CLI/package entry point have documented compatibility guarantees, installation tests, stable error behavior, and no dependence on running repository-root `main.py`. |
 | Examples | Examples cover each supported contract family, live/post-game boundary, complete historical record, training/evaluation record, claim/concession, overbid including impossible Null, rule-based profile, list aggregation, and standings; every example passes schema and semantic validation. |

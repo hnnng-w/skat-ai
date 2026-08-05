@@ -1,9 +1,10 @@
 # Fixed-three-player 36-game list contracts
 
-This document defines internal contract version `1` for one complete ordered
-fixed-three-player historical list. It is an aggregation foundation, not a
-public input, output, schema, CLI workflow, standings calculation, or official
-list format.
+This document defines internal source contract version `1` for one complete
+ordered fixed-three-player historical list. It is the source foundation for the
+separate internal
+[36-position aggregation contract](fixed_three_player_36_game_list_aggregation.md),
+not a public input, output, schema, CLI workflow, or official list format.
 
 ## Rule and product ownership
 
@@ -168,8 +169,9 @@ player, played-plus-passed cardinality, played and passed role counts, exactly
 two `+40` contributions for each declarer loss, zero passed-deal bonuses, and all
 per-entry performance totals.
 
-Facts remain non-cumulative. Version `1` does not calculate full-list totals,
-progression, standings, ranks, or lots.
+Facts remain non-cumulative. The separate internal aggregation layer immutably
+adds these facts into cumulative totals, 36 progression snapshots, and final
+standings without changing this source schema version or fact contract.
 
 ## Serialization and boundary
 
@@ -181,7 +183,11 @@ The implementation lives in:
 
 * `fixed_three_player_historical_list.py`;
 * `fixed_three_player_list_rotation.py`;
-* `fixed_three_player_list_contribution.py`.
+* `fixed_three_player_list_contribution.py`;
+* `fixed_three_player_historical_list_aggregation.py`;
+* `fixed_three_player_historical_list_progression.py`;
+* `fixed_three_player_historical_list_standings.py`;
+* `fixed_three_player_historical_list_totals.py`.
 
 No package-root stable API, public schema, CLI option, example, generated
 scenario, or public output field is added. Existing `list_performance_input`,
@@ -190,10 +196,8 @@ remain unchanged and do not accept `passed_deal`.
 
 ## Remaining scope
 
-The following remain open after contract version `1`:
+The following remain open after source and aggregation contract version `1`:
 
-* cumulative 36-position aggregation and progression;
-* standings and lot application from this historical list;
 * comparison across independent completed lists;
 * series or tournament state;
 * public workflows, schemas, CLI, and examples;

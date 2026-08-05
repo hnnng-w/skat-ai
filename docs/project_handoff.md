@@ -36,7 +36,9 @@ The project focuses on:
 * complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
 * internal immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
-  per-entry contribution facts, reconciliation, and deterministic serialization
+  per-entry contribution facts, cumulative player totals, 36-position
+  progression, SkWO standings, optional external-lot application,
+  reconciliation, and deterministic privacy-safe serialization
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -309,11 +311,14 @@ Implemented:
 * strict internal 36-position historical-list representation with fixed stable
   participants, passed deals, rotation, timestamp auditing, and non-cumulative
   contribution facts
+* internal immutable cumulative totals, one provisional standings snapshot per
+  historical-list position, final SkWO standings, unresolved ties, and optional
+  exact external-lot application
 
 Not implemented:
 
-* cumulative aggregation and progression from the internal historical-list contract
-* standings from the internal historical-list contract
+* comparison across independent completed historical lists
+* public historical-list input, output, schema, CLI, and examples
 * series aggregation
 * tournament aggregation
 * official federation report formats
@@ -574,6 +579,10 @@ Implemented:
 * `fixed_three_player_historical_list.py`
 * `fixed_three_player_list_rotation.py`
 * `fixed_three_player_list_contribution.py`
+* `fixed_three_player_historical_list_aggregation.py`
+* `fixed_three_player_historical_list_progression.py`
+* `fixed_three_player_historical_list_standings.py`
+* `fixed_three_player_historical_list_totals.py`
 
 ### Historical games and datasets
 
@@ -664,6 +673,8 @@ Main documentation files:
 * `docs/game_end.md`
 * `docs/overbid.md`
 * `docs/performance_rating.md`
+* `docs/fixed_three_player_36_game_list_contracts.md`
+* `docs/fixed_three_player_36_game_list_aggregation.md`
 * `docs/examples.md`
 * `docs/historical_games.md`
 * `docs/historical_declarer_card_exposure_continuation.md`
@@ -863,10 +874,10 @@ Completed implementation scope:
   Multi-Step and Policy Comparison, flat post-game review, Historical Search
   Review, and bounded dataset evaluation are connected. Overbid Null replacement
   selection remains outside it.
-* The immutable fixed-three-player 36-position historical-list and passed-deal
-  contracts are implemented internally. Cumulative aggregation, progression,
-  standings from those records, independent-list comparison, and public
-  workflows remain open.
+* The immutable fixed-three-player 36-position historical-list contracts now
+  include Passed Deals, cumulative aggregation, progression, final SkWO
+  standings, unresolved ties, and exact external-lot application. Independent-
+  list comparison and public workflows remain open.
 * Replay Coaching has a public version-1 one-game report with information-safe
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
@@ -880,15 +891,15 @@ Completed implementation scope:
 ## Next recommended action
 
 The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation. Issue #127
-implements the version-1 historical-list contract foundation; cumulative
-aggregation and the remaining issue split stay open.
+36-game list aggregation and automatic dataset preparation. Issues #127 and #128
+implement the internal version-1 historical-list source and cumulative
+aggregation contracts. Public workflow design, comparison across independent
+completed lists, and the remaining issue split stay open.
 
-For the next list step, build on the internal 36-position facts while preserving
-the existing list-performance inputs, standings ordering and tie behavior, and
-the explicit no-public-workflow boundary. Cumulative totals, progression,
-standings integration, and comparison across independent completed lists remain
-separate. For automatic dataset preparation, inspect
+For the next list step, preserve the existing list-performance inputs, standings
+ordering and tie behavior, and the explicit no-public-workflow boundary while
+separately deciding public integration and completed-list comparison. For
+automatic dataset preparation, inspect
 the existing dataset policies, automatic Known-opponent and player-disjoint split
 generation, deterministic seed requirements, and identity, temporal, source, and
 partition leakage controls. Tactical motifs, cross-game Coaching, ratings, causal
