@@ -37,7 +37,9 @@
           {"required": ["historical_opponent_statistics_aggregation_summary"]},
             {"required": ["rolling_opponent_policy_evaluation_summary"]},
             {"required": ["dataset_partition_audit_summary"]},
-            {"required": ["bounded_search_evaluation_summary"]}
+            {"required": ["bounded_search_evaluation_summary"]},
+            {"required": ["fixed_three_player_historical_list_summary"]},
+            {"required": ["fixed_three_player_historical_list_comparison_summary"]}
         ]
       }
     },
@@ -125,6 +127,29 @@
         "input_file": {"type": "string"},
         "bounded_search_evaluation_summary": {
           "$ref": "https://example.local/skat-ai/bounded_search_evaluation.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": ["input_file", "fixed_three_player_historical_list_summary"],
+      "properties": {
+        "input_file": {"type": "string"},
+        "fixed_three_player_historical_list_summary": {
+          "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_aggregation.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": [
+        "input_file",
+        "fixed_three_player_historical_list_comparison_summary"
+      ],
+      "properties": {
+        "input_file": {"type": "string"},
+        "fixed_three_player_historical_list_comparison_summary": {
+          "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_comparison.schema.json"
         }
       },
       "additionalProperties": false
@@ -342,6 +367,12 @@
     },
     "bounded_search_evaluation_summary": {
       "$ref": "https://example.local/skat-ai/bounded_search_evaluation.schema.json"
+    },
+    "fixed_three_player_historical_list_summary": {
+      "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_aggregation.schema.json"
+    },
+    "fixed_three_player_historical_list_comparison_summary": {
+      "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_comparison.schema.json"
     },
     "position": {
       "type": "object",

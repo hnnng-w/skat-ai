@@ -26,15 +26,13 @@ The input schema is located at:
 schemas/input.schema.json
 ```
 
-Its alternative `historical_game_input`, `training_dataset_input`, and
-`opponent_statistics_input` branches reference focused versioned schemas. The
-validation script registers `schemas/historical_game.schema.json`,
-`schemas/training_dataset.schema.json`,
-`schemas/dataset_partition_policy.schema.json`, and
-`schemas/opponent_statistics.schema.json`, and
-`schemas/game_shortening.schema.json`, and
-`schemas/game_continuation.schema.json` locally; it does not fetch schema
-definitions over the network.
+Its alternative `historical_game_input`, `training_dataset_input`,
+`opponent_statistics_input`, `fixed_three_player_historical_list_input`, and
+`fixed_three_player_historical_list_comparison_input` branches reference focused
+versioned schemas. The
+validation script registers the focused historical, shortening, continuation,
+training-dataset, partition-policy, opponent-statistics, and all five fixed-list
+schemas locally; it does not fetch schema definitions over the network.
 
 It validates example input files in `examples/`.
 
@@ -84,6 +82,7 @@ The input schema checks things such as:
 * complete historical-game player, deal, declaration, discard, normal or shortened trick shapes, and one optional continuation before normal completion or one terminal shortening
 * training dataset versions, record/provenance shapes, partition values, optional partition policy, and target
 * opponent-statistics versions, identity, external or historical provenance, complete percentage fields, optional exact counts, and `0..100` bounds
+* strict fixed-list request versions, canonical three-place players, exactly 36 Played Game or Passed Deal entries, explicit nullable lots, and comparison arrays of at least two sources
 
 Runtime input validation mirrors selected public schema bounds and shapes so
 direct Python callers receive stable `ValueError` failures for malformed public
@@ -158,6 +157,8 @@ The output schema checks the main output structure, including:
 * the separate versioned `rolling_opponent_policy_evaluation_summary` branch through its strict focused schema
 * the separate versioned `dataset_partition_audit_summary` branch through its strict focused schema
 * the separate versioned `bounded_search_evaluation_summary` branch through its strict focused schema
+* the complete versioned `fixed_three_player_historical_list_summary` branch through its strict focused aggregation schema
+* the compact versioned `fixed_three_player_historical_list_comparison_summary` branch through its strict focused comparison schema
 
 The published stable `v0.11.0` generated-output matrix covers 64 deterministic
 scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
@@ -168,6 +169,12 @@ scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
 checks the example JSON files, while generated-output validation checks the
 production JSON output emitted from those inputs.
+
+The current Issue #130 development matrix appends three deterministic list
+scenarios to those unchanged 64 and therefore validates 67 outputs: mixed list
+with an applied lot, all-Passed-Deal list with an unresolved three-player tie,
+and compact independent comparison with changed table places, disjoint Game IDs,
+different Passed Deal counts, and resolved ranks.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
@@ -277,6 +284,18 @@ outcome, and limitation shapes. Runtime validation remains authoritative for
 cross-object identity and count reconciliation, one-pass Search/Immediate reuse,
 recursive private-field rejection, Null wording, and non-causal/non-rating
 claims.
+
+The five fixed-list schemas are separate strict Draft 2020-12 resources and are
+registered locally with no network resolution. The source schema references the
+existing Historical Game schema; request schemas reference the source rather
+than duplicating it; root input and output schemas reference all new standalone
+contracts. Aggregation output recursively rejects unknown fields across Entry
+Facts, contributions, cumulative totals, progression, and standings. Comparison
+output recursively rejects unknown fields across compact sources, all fourteen
+deltas, rank status, and nullable rank fields, and references aggregation player
+totals rather than duplicating that shape. Python remains authoritative for
+identity, rotation, chronology, settlement, tie, independence, alignment,
+arithmetic, and relational reconciliation.
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

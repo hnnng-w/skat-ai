@@ -1,10 +1,11 @@
 # Requirements traceability
 
-This document is the authoritative audit of rule and product support in the
-published `v0.11.0` baseline. It preserves the published `v0.10.0` release
-baseline as historical evidence and does not claim complete compliance with the
-official rules. `v0.11.0` is the latest stable GitHub Release, and GitHub Releases
-is authoritative for publication status.
+This document is the authoritative audit of current rule and product support.
+It preserves the published `v0.11.0` and `v0.10.0` release baselines as historical
+evidence and does not claim complete compliance with the official rules.
+`v0.11.0` is the latest stable GitHub Release, and GitHub Releases is authoritative
+for publication status; explicitly identified Issue #130 additions are current
+development rather than published-release claims.
 
 ## Normative sources
 
@@ -24,15 +25,21 @@ official game rules. Fixed three-player operation is a product constraint;
 SkWO permits three-player tables in section 6.1.1 but does not define a
 software product limited to them.
 
-Rule references below are section numbers from the November 2022 PDF. The audit
-reflects the current `v0.11.0` package baseline and was verified against source
-modules, schemas, examples, validation scripts, and focused tests. Issues #118
+Rule references below are section numbers from the November 2022 PDF. Published
+baseline facts were verified against source modules, schemas, examples,
+validation scripts, and focused tests. Issues #118
 through #124 complete that functional milestone, and Issue #125 completed release
 preparation. The published baseline validates 64 deterministic generated-output
 scenarios and passes 4,392 pytest tests. The published `v0.10.0` baseline remains
 historical evidence for 59 scenarios and 4,075 pytest tests; the
 published `v0.9.0` baseline remains historical evidence for 52 scenarios and
 3,558 tests.
+
+Current `v0.12.0` development through Issue #130 exposes the Issue #127 through
+#129 fixed-three-player historical-list contracts through strict JSON, schemas,
+CLI output, examples, and generated-output validation. Its three appended
+scenarios bring the development matrix to 67 while the published `v0.11.0`
+baseline remains unchanged.
 
 ## Status vocabulary
 
@@ -97,8 +104,8 @@ performance scoring.
 
 | Requirement | Source | Rule section | Current status | Current implementation | Required input or information | Known limitation | Required validation or tests | Target milestone | Required before v1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Fixed three-player list performance | SkWO | 6.1.1-6.1.5; 6.3.1 | `partially_supported` | Implements game points plus 50 per own win, minus 50 per own loss, and 40 per other declarer loss from totals, contributions, local results, or explicit standings games. Internal historical-list contracts version 1 additionally validate exactly 36 ordered played or passed positions, three fixed identities, rotation, settlement-derived contributions, cumulative player totals, 36 progression snapshots, complete reconciliation, and deterministic privacy-safe serialization. Internal comparison version 1 validates two or more independent completed aggregations, aligns the same players by stable ID, preserves the first source as reference, reports comparison-minus-reference final count and player-total deltas, and compares ranks only when both sources are final. | One player's totals/contributions, three identified players and declarer results, one internal complete historical-list contract, or at least two internal completed aggregations with unique list IDs and disjoint Played Game IDs. | A public historical-list workflow is not represented; comparison adds no progression matching, cross-list totals, series standings, ratings, or winner. | Retain every existing input-mode formula; test exact historical identities, all endings, Passed Deal zero-score progression, cumulative invariants, source-fact single derivation, old-path equivalence, independent-oracle agreement, source independence, participant reconciliation, final deltas, rank availability, and serialization privacy. | v1.0 | Yes |
-| Standings | SkWO | 6.3.1 | `partially_supported` | Produces exactly three standings rows ordered by total performance points, own wins, own losses, then an optional externally executed lot; unresolved ties use shared ranks and explicit `lot_required` status. The internal historical-list aggregation produces provisional standings after every position and final standings after position 36. Independent-list comparison reports rank movement only between two resolved final rankings and preserves four explicit availability statuses. | Three player identities and supplied game outcomes/scores, internal cumulative historical-list totals, or two completed independent aggregations; optional exact tied-player `lot_order` for final standings. | Table/input order is presentation-only, the engine does not execute a random lot or infer ranks from unresolved ties, and public historical-list integration and official reporting remain unsupported. | Retain ordering, shared-rank, exact lot-group validation, old-path equivalence, resolved and unresolved comparison status, schemas, CLI, and generated-output tests. | v1.0 | Yes |
+| Fixed three-player list performance | SkWO | 6.1.1-6.1.5; 6.3.1 | `supported` | Implements game points plus 50 per own win, minus 50 per own loss, and 40 per other declarer loss from totals, contributions, local results, or explicit standings games. Historical-list contract version 1 validates exactly 36 ordered Played Game or Passed Deal positions, three fixed identities, rotation, settlement-derived contributions, cumulative player totals, 36 progression snapshots, complete reconciliation, and deterministic privacy-safe serialization. The strict public root workflow builds and aggregates one source exactly once. Public comparison validates two or more independent sources, aligns the same players by stable ID, preserves the first source as reference, reports comparison-minus-reference final count and all fourteen player-total deltas, and compares ranks only when both sources are final. | One player's totals/contributions, three identified players and declarer results, one complete public historical-list request, or at least two public independent source requests with unique list IDs and disjoint Played Game IDs. | Comparison adds no progression matching, cross-list totals, series standings, ratings, winner, recommendation, tournament management, or official reporting. | Retain every existing input-mode formula; test exact historical identities, all endings, Passed Deal zero-score progression, cumulative invariants, source-fact single derivation, old-path equivalence, independent-oracle agreement, one-pass source execution, source independence, participant reconciliation, final deltas, rank availability, strict schemas, CLI isolation, exact examples/scenarios, and recursive serialization privacy. | v1.0 bounded requirement complete | Yes |
+| Standings | SkWO | 6.3.1 | `supported` | Produces exactly three standings rows ordered by total performance points, own wins, own losses, then an optional externally executed lot; unresolved ties use shared ranks and explicit `lot_required` status. Public historical-list aggregation produces provisional standings after every position and final standings after position 36. Public independent-list comparison reports rank movement only between two resolved final rankings and preserves four explicit availability statuses. | Three player identities and supplied game outcomes/scores, one complete public historical-list request, or two or more independent source requests; optional exact tied-player `lot_order` for final standings. | Table/input order is presentation-only, the engine does not execute a random lot or infer ranks from unresolved ties, and official reporting remains unsupported. | Retain ordering, shared-rank, exact lot-group validation, old-path equivalence, resolved and unresolved comparison status, schemas, CLI, generated-output, and privacy tests. | v1.0 bounded requirement complete | Yes |
 | Series aggregation | SkWO | 4.2(c); 5.4; 6.1.3-6.1.4; 6.2.4 | `partially_supported` | Already aggregated values may be labeled list or series totals. | Pre-aggregated totals. | No dedicated series identity, list membership, multi-list rollup, seating, corrections, or series-level standings. | Preserve bounded summaries; formal series aggregation is not required for the intended product. | Not required | No |
 | Tournament aggregation | SkWO | 1.1-1.6; 2.3-2.4; 3.1-3.4; 4.1-4.5; 5.1-5.5 | `not_supported` | No tournament model exists. | Event plan, participants, series, tables, officials, results, and accounting data. | Governance and procedural requirements are broader than score aggregation. | No implementation gate; tournament management is not required for the intended product. | Not required | No |
 | Official reporting | SkWO | 4.5; 6.2.1-6.2.7; 6.4.1-6.4.3 | `not_supported` | General JSON and CLI reports exist, but no official list or federation report format. | List entries, running totals, signatures/approvals, corrections, submission, and retention metadata. | SkWO prescribes duties but no official digital interchange or layout in this PDF. | No implementation gate; official federation report formats are not required for the intended product. | Not required | No |
@@ -188,7 +195,7 @@ complete-game retrospective analysis remains `partially_supported`.
 | Rolling opponent-policy evaluation | skat-ai product | Not applicable | `supported` | A dedicated known-opponent workflow builds strict game-start as-of profiles from every supported source reason, evaluates each actual zero-through-30 target card against ordered policy-equivalent preferred candidates and exact choices, retains zero-decision targets, and reports baseline, actionable-only paired, participant coverage, and bounded breakdown metrics. | Timestamped supported source and target games with stable player overlap, disjoint partition names, and unspecified or `known_opponent` dataset intent. | Behavioral matching does not predict terminal events or measure strategic strength, recommendation quality, optimal play, unseen-player generalization, or statistical significance. | Retain temporal/target exclusion, identity and seat remapping, prefix parity, event isolation, participant coverage, baseline, preferred/exact matching, actionable pairing, zero decisions, reconciliation, schema, CLI, and isolation tests. | v1.0 bounded requirement complete | Yes |
 | Learned opponent models | skat-ai product | Not applicable | `not_supported` | No learned model exists; current profiles and policies are deterministic and rule-based. | Approved historical features, model artifact, versioning, and inference contract. | Training, evaluation, deployment, fallback, and explainability details are not designed. | Define separate post-v1.0 acceptance criteria before implementation. | Post-v1.0 | No |
 | Machine-learning model training | skat-ai product | Not applicable | `not_supported` | No training pipeline exists. | Approved dataset, target, evaluation protocol, reproducibility, and artifact policy. | Historical training-data representation does not itself authorize model training. | Define separate post-v1.0 card-decision model acceptance criteria before implementation. | Post-v1.0 | No |
-| Generated-output validation | skat-ai product | Not applicable | `supported` | `validate_generated_outputs_schema.py` generates, semantically checks, and schema-validates 64 deterministic CLI scenarios for the current `v0.11.0` package baseline. The published `v0.10.0` release baseline remains 59; two Issue #119 additions cover both continuation kinds before different terminal shortenings, and three Issue #124 additions cover normal Grand, Null, and shortened Replay Coaching. | Repository examples/fixtures, schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; the published `v0.9.0` baseline remains historical evidence for 52 scenarios. | Keep the count and scenario list explicit; add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
+| Generated-output validation | skat-ai product | Not applicable | `supported` | `validate_generated_outputs_schema.py` generates, semantically checks, and schema-validates 67 deterministic CLI scenarios in current development. The published `v0.11.0` package baseline remains 64 and the published `v0.10.0` release baseline remains 59. Two Issue #119 additions cover both continuation kinds before different terminal shortenings, three Issue #124 additions cover normal Grand, Null, and shortened Replay Coaching, and three Issue #130 additions cover mixed list, unresolved all-passed list, and resolved independent comparison. | Repository examples/fixtures, schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; published release counts remain historical evidence and are not rewritten by development additions. | Keep the count and scenario list explicit; add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
 | Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and GitHub Actions run Ruff, input schema validation, generated-output validation, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance. | Require clean local and CI checks, synchronized docs/schemas, and human-controlled release actions. | v1.0 | Yes |
 
 ## Interpretations and unresolved rule questions
@@ -213,13 +220,14 @@ complete-game retrospective analysis remains `partially_supported`.
 * SkWO 6.3.1 standings use total performance points, more own wins, fewer own
   losses, then lot. The engine represents an unresolved lot explicitly or
   records an externally executed result; it does not perform a random lot.
-* The internal historical-list contract treats exactly 36 positions as its
+* The historical-list contract treats exactly 36 positions as its
   version-1 product boundary. Passed deals advance rotation but contribute zero;
   aggregation version `1` now builds cumulative totals, all 36 progression
   snapshots, and final standings from those facts. Comparison version `1` uses
   one fixed reference for independent completed lists, preserves unresolved lots,
-  and adds no progression matching or series aggregation. Public integration
-  remains open.
+  and adds no progression matching or series aggregation. Issue #130 exposes
+  those retained contracts through strict root-selected JSON, schemas, concise
+  CLI output, examples, and generated-output validation.
 * SkWO defines list, event, signature, correction, submission, and retention
   duties, but the November 2022 PDF does not prescribe an official digital file
   format. Any such format needs a named external authority and conformance

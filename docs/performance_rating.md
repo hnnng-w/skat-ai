@@ -78,8 +78,11 @@ Current assumptions:
 * Internal comparison version `1` aligns stable players across two or more
   independent completed lists, compares final counts and player totals, and
   exposes comparison-minus-reference deltas with honest unresolved-rank status.
-* Public historical-list workflows, multi-list rollups, full tournament
-  aggregation, and official report formats are not implemented yet.
+* Public version-1 historical-list aggregation and independent-list comparison
+  workflows expose those existing internal calculations through strict JSON and
+  the repository-root CLI.
+* Multi-list rollups, series standings, full tournament aggregation, and
+  official report formats are not implemented.
 
 Implemented rating points:
 
@@ -281,7 +284,7 @@ Analysis-result-derived summaries use the same field set with
 
 `list_performance_summary` is independent from `final_settlement_summary` and does not change `performance_rating_summary`.
 
-The separate internal
+The separate
 [fixed-three-player 36-game list contract](fixed_three_player_36_game_list_contracts.md)
 uses complete historical settlement and the same performance helpers to derive
 non-cumulative facts for all three fixed participants. Its
@@ -290,8 +293,18 @@ cumulative totals, progression, and final standings while preserving Played Game
 and Passed Deal counts separately. The separate
 [comparison layer](fixed_three_player_36_game_list_comparison.md) compares final
 facts from independent completed lists without progression matching or series
-aggregation. None of these internal contracts adds a public input mode or changes
-any input or output described above.
+aggregation. Issue #130 exposes the complete aggregation under
+`fixed_three_player_historical_list_input` and the compact comparison under
+`fixed_three_player_historical_list_comparison_input`. These are separate root
+workflows and do not change any legacy input or output described above.
+
+Each list source requires exactly three canonical table-place players, exactly
+36 Played Game or Passed Deal positions, and an explicit nullable external
+`lot_order`. The list workflow emits the complete existing aggregation. The
+comparison workflow requires at least two sources, uses the first as reference,
+preserves source order, and emits comparison-minus-reference facts without
+progression or cross-list aggregation. Both workflows accept only `--input`,
+`--output`, and `--quiet`.
 
 ## Fixed three-player standings input
 
@@ -471,6 +484,9 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * Internal independent-list comparison version `1` preserves one reference,
   stable-ID alignment, source order, count and player-total deltas, and resolved-
   only rank movement without producing series totals or standings.
-* Public historical-list workflows, multi-list rollups, full tournament
-  aggregation, and official federation report formats are not implemented yet.
+* Public historical-list aggregation and compact independent-list comparison are
+  implemented with strict schemas, deterministic CLI output, and privacy-safe
+  generated examples.
+* Multi-list rollups, series standings, a series winner, ratings, full tournament
+  aggregation, and official federation report formats are not implemented.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.

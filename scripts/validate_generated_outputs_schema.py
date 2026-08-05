@@ -141,6 +141,12 @@ HISTORICAL_REPLAY_COACHING_SCHEMA_PATH = (
 BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
 )
+FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_aggregation.schema.json"
+)
+FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_comparison.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -2783,6 +2789,131 @@ def check_bounded_search_evaluation(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _find_forbidden_list_output_key(value: Any) -> str | None:
+    forbidden_keys = {
+        "historical_game",
+        "record",
+        "hand",
+        "initial_hand",
+        "skat",
+        "discarded_cards",
+        "tricks",
+        "plays",
+        "remaining_hands",
+        "ownership",
+        "search_state",
+        "proof_state",
+    }
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if key in forbidden_keys:
+                return key
+            found = _find_forbidden_list_output_key(child)
+            if found is not None:
+                return found
+    elif isinstance(value, list):
+        for child in value:
+            found = _find_forbidden_list_output_key(child)
+            if found is not None:
+                return found
+    return None
+
+
+def check_fixed_three_player_historical_list_mixed(data: dict[str, Any]) -> list[str]:
+    summary = data.get("fixed_three_player_historical_list_summary")
+    if not isinstance(summary, dict):
+        return ["expected fixed_three_player_historical_list_summary"]
+    errors = []
+    if set(data) != {"input_file", "fixed_three_player_historical_list_summary"}:
+        errors.append("expected isolated historical-list root output")
+    if (summary["entry_count"], summary["round_count"]) != (36, 12):
+        errors.append("expected 36 positions and twelve rounds")
+    if (summary["played_game_count"], summary["passed_deal_count"]) != (1, 35):
+        errors.append("expected one Played Game and 35 Passed Deals")
+    if len(summary["progression"]) != 36 or len(summary["final_standings"]) != 3:
+        errors.append("expected complete progression and final standings")
+    if summary["applied_lot_order"] != ["player-a", "player-c"]:
+        errors.append("expected the supplied external lot")
+    forbidden = _find_forbidden_list_output_key(summary)
+    if forbidden is not None:
+        errors.append(f"unexpected private list-output key: {forbidden}")
+    return errors
+
+
+def check_fixed_three_player_historical_list_all_passed(
+    data: dict[str, Any],
+) -> list[str]:
+    errors = check_fixed_three_player_historical_list_mixed(data)
+    summary = data["fixed_three_player_historical_list_summary"]
+    errors = [
+        error
+        for error in errors
+        if error
+        not in {
+            "expected one Played Game and 35 Passed Deals",
+            "expected the supplied external lot",
+        }
+    ]
+    if (summary["played_game_count"], summary["passed_deal_count"]) != (0, 36):
+        errors.append("expected all 36 positions to be Passed Deals")
+    if summary["ranking_status"] != "lot_required":
+        errors.append("expected unresolved all-player tie")
+    if summary["lot_required_player_ids"] != ["player-a", "player-b", "player-c"]:
+        errors.append("expected all three players in the required lot")
+    return errors
+
+
+def check_fixed_three_player_historical_list_comparison(
+    data: dict[str, Any],
+) -> list[str]:
+    summary = data.get("fixed_three_player_historical_list_comparison_summary")
+    if not isinstance(summary, dict):
+        return ["expected fixed_three_player_historical_list_comparison_summary"]
+    errors = []
+    if set(data) != {
+        "input_file",
+        "fixed_three_player_historical_list_comparison_summary",
+    }:
+        errors.append("expected isolated historical-list comparison root output")
+    if summary["list_count"] != 2 or len(summary["source_lists"]) != 2:
+        errors.append("expected two ordered source lists")
+    if summary["reference_list_id"] != "comparison-reference-001":
+        errors.append("expected the first source as reference")
+    pairwise = summary["comparisons"][0]
+    if (pairwise["played_game_count_delta"], pairwise["passed_deal_count_delta"]) != (
+        1,
+        -1,
+    ):
+        errors.append("expected Played Game and Passed Deal count deltas")
+    expected_delta_fields = {
+        "list_entry_count",
+        "played_game_count",
+        "passed_deal_count",
+        "declarer_game_count",
+        "defender_game_count",
+        "own_games_won",
+        "own_games_lost",
+        "defender_games_won",
+        "defender_games_lost",
+        "other_players_lost_games",
+        "player_game_points",
+        "own_game_bonus_points",
+        "opponent_loss_bonus_points",
+        "total_performance_points",
+    }
+    for player in pairwise["player_comparisons"]:
+        if set(player["deltas"]) != expected_delta_fields:
+            errors.append("expected all 14 player-total delta fields")
+        if player["rank_comparison_status"] != "available":
+            errors.append("expected resolved rank comparison")
+    if "progression" in json.dumps(summary) or "entry_fact" in json.dumps(summary):
+        errors.append("compact comparison must not expose progression or Entry Facts")
+    forbidden = _find_forbidden_list_output_key(summary)
+    if forbidden is not None:
+        errors.append(f"unexpected private comparison-output key: {forbidden}")
+    return errors
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -3502,6 +3633,43 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="fixed_three_player_historical_list_mixed",
+        input_path=(
+            PROJECT_ROOT / "examples" / "fixed_three_player_historical_list_mixed.json"
+        ),
+        branch="complete historical 36-position list with an applied external lot",
+        cli_args=("--quiet",),
+        check_output=check_fixed_three_player_historical_list_mixed,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="fixed_three_player_historical_list_all_passed",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "fixed_three_player_historical_list_all_passed.json"
+        ),
+        branch="all-Passed-Deal historical list with an unresolved three-player tie",
+        cli_args=("--quiet",),
+        check_output=check_fixed_three_player_historical_list_all_passed,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="fixed_three_player_historical_list_comparison",
+        input_path=(
+            PROJECT_ROOT
+            / "examples"
+            / "fixed_three_player_historical_list_comparison.json"
+        ),
+        branch="compact comparison of two independent completed historical lists",
+        cli_args=("--quiet",),
+        check_output=check_fixed_three_player_historical_list_comparison,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -3604,6 +3772,12 @@ def validate_generated_outputs() -> list[str]:
     )
     bounded_search_evaluation_schema = load_json_file(
         BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH
+    )
+    historical_list_aggregation_schema = load_json_file(
+        FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH
+    )
+    historical_list_comparison_schema = load_json_file(
+        FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH
     )
     registry = Registry().with_resources(
         [
@@ -3784,6 +3958,14 @@ def validate_generated_outputs() -> list[str]:
             (
                 bounded_search_evaluation_schema["$id"],
                 Resource.from_contents(bounded_search_evaluation_schema),
+            ),
+            (
+                historical_list_aggregation_schema["$id"],
+                Resource.from_contents(historical_list_aggregation_schema),
+            ),
+            (
+                historical_list_comparison_schema["$id"],
+                Resource.from_contents(historical_list_comparison_schema),
             ),
         ]
     )

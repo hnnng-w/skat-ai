@@ -29,7 +29,9 @@
         "anyOf": [
           {"required": ["historical_game_input"]},
           {"required": ["training_dataset_input"]},
-          {"required": ["opponent_statistics_input"]}
+          {"required": ["opponent_statistics_input"]},
+          {"required": ["fixed_three_player_historical_list_input"]},
+          {"required": ["fixed_three_player_historical_list_comparison_input"]}
         ]
       }
     },
@@ -56,6 +58,24 @@
       "properties": {
         "opponent_statistics_input": {
           "$ref": "https://example.local/skat-ai/opponent_statistics.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": ["fixed_three_player_historical_list_input"],
+      "properties": {
+        "fixed_three_player_historical_list_input": {
+          "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_input.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "required": ["fixed_three_player_historical_list_comparison_input"],
+      "properties": {
+        "fixed_three_player_historical_list_comparison_input": {
+          "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_comparison_input.schema.json"
         }
       },
       "additionalProperties": false
@@ -462,6 +482,12 @@
     },
     "opponent_statistics_input": {
       "$ref": "https://example.local/skat-ai/opponent_statistics.schema.json"
+    },
+    "fixed_three_player_historical_list_input": {
+      "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_input.schema.json"
+    },
+    "fixed_three_player_historical_list_comparison_input": {
+      "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_comparison_input.schema.json"
     },
     "game_type": {
       "type": "string",

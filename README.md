@@ -69,6 +69,8 @@ official Skat rules arbitration.
 * Bounded impossible Null settlement with an externally supplied Suit or Grand replacement
 * Partial fixed-three-player SkWO-style performance rating
 * SkWO 6.3.1 shared ranks for unresolved standings ties and optional external lot order
+* Public fixed-three-player historical 36-position list aggregation with Played Games, Passed Deals, progression, final standings, and optional external lot application
+* Compact comparison of two or more independent completed lists with one reference, final deltas, and resolved-only rank movement
 * Versioned complete historical-game records for normal play and five supported shortened terminal events
 * Two timed non-terminal historical continuation events with exact public-hand boundaries
 * Bounded historical chains with at most one continuation followed by normal completion or one supported terminal shortening
@@ -183,6 +185,21 @@ Run analysis with a specific input file:
 ```powershell
 python main.py --input examples/grand_second_position.json
 ```
+
+Aggregate one complete fixed-three-player historical list or compare independent
+completed lists. The JSON root selects the workflow; there is no list-specific
+CLI flag:
+
+```powershell
+python main.py --input examples/fixed_three_player_historical_list_mixed.json
+python main.py --input examples/fixed_three_player_historical_list_all_passed.json
+python main.py --input examples/fixed_three_player_historical_list_comparison.json
+```
+
+These workflows accept only `--input`, `--output`, and `--quiet`. Single-list
+output retains all 36 privacy-safe progression Entry Facts and final standings.
+Comparison output is compact: it retains source summaries and final deltas but no
+progression, Historical Game Records, series rollup, ratings, or winner claim.
 
 The existing Immediate expected-value recommendation remains the default. JSON
 input may explicitly select `immediate_expected_value`, strict `bounded_search`,
@@ -435,7 +452,7 @@ policy enforces player-disjoint partitions. Datasets without policy metadata
 remain valid with unspecified intent. See
 [Dataset partition policies](docs/dataset_partition_policies.md).
 
-Training-dataset inputs form a third separate workflow. Only `--input`,
+Training-dataset inputs form a separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted for normal sample conversion. The same
 input can instead act as the versioned multi-game container for exact historical
 opponent-statistics aggregation:
@@ -478,7 +495,7 @@ opponent statistics:
 python main.py --input examples/opponent_statistics.json
 ```
 
-Opponent-statistics inputs form a fourth separate workflow. Only `--input`,
+Opponent-statistics inputs form a separate workflow. Only `--input`,
 `--output`, and `--quiet` are accepted. Public values use percentage points;
 canonical profile rates use `0..1`. When optional exact counts are absent, they
 are not inferred; role evidence may instead be exposed as an unrounded estimate.
@@ -561,6 +578,9 @@ Detailed documentation is split into topic-specific files:
 * [Historical opponent statistics](docs/historical_opponent_statistics.md)
 * [Rolling opponent-policy evaluation](docs/opponent_policy_evaluation.md)
 * [Shortened historical opponent workflows](docs/shortened_historical_opponent_workflows.md)
+* [Fixed-three-player historical-list contracts](docs/fixed_three_player_36_game_list_contracts.md)
+* [Fixed-three-player historical-list aggregation](docs/fixed_three_player_36_game_list_aggregation.md)
+* [Fixed-three-player historical-list comparison](docs/fixed_three_player_36_game_list_comparison.md)
 * [Opponent profile derivation](docs/opponent_profile_derivation.md)
 * [Live opponent profiles](docs/live_opponent_profiles.md)
 * [Historical-game schema](schemas/historical_game.schema.json)
@@ -584,6 +604,11 @@ Detailed documentation is split into topic-specific files:
 * [Opponent statistics output schema](schemas/opponent_statistics_output.schema.json)
 * [Historical opponent statistics aggregation schema](schemas/historical_opponent_statistics_aggregation.schema.json)
 * [Rolling opponent-policy evaluation schema](schemas/rolling_opponent_policy_evaluation.schema.json)
+* [Fixed-three-player historical-list schema](schemas/fixed_three_player_historical_list.schema.json)
+* [Fixed-three-player historical-list request schema](schemas/fixed_three_player_historical_list_input.schema.json)
+* [Fixed-three-player historical-list comparison request schema](schemas/fixed_three_player_historical_list_comparison_input.schema.json)
+* [Fixed-three-player historical-list aggregation schema](schemas/fixed_three_player_historical_list_aggregation.schema.json)
+* [Fixed-three-player historical-list comparison schema](schemas/fixed_three_player_historical_list_comparison.schema.json)
 * [Opponent profile derivation schema](schemas/opponent_profile_derivation.schema.json)
 * [Live opponent profile application schema](schemas/opponent_profile_application.schema.json)
 * [Output JSON](docs/output_json.md)
@@ -639,6 +664,12 @@ generated-output scenarios, and passes 4,392 pytest tests. Issues #118 through
 preparation. Publication was performed manually by the maintainer, and GitHub
 Releases remains authoritative for publication status. The package version is
 `0.11.0`, and Python 3.13 or newer remains required.
+
+Current Issue #130 development exposes the unchanged Issue #127 through #129
+historical-list contracts through strict root-selected JSON workflows, concise
+CLI output, exactly three examples, and three appended generated-output
+scenarios. The development matrix therefore validates 67 scenarios while the
+published `v0.11.0` baseline remains 64.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -720,7 +751,6 @@ opt-in, so existing omitted-method workflows require no migration.
 
 Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance,
-fixed-three-player 36-game list aggregation,
 automatic dataset preparation, field-level live provenance, interactive input
 and session capture, and a stable installed library and CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
@@ -732,8 +762,10 @@ three-player tables only; four-player tables are excluded, and complete official
 rule coverage is not claimed.
 
 The active next planning milestone is `v0.12.0`. Its provisional direction is
-36-game list aggregation and automatic dataset preparation. Its final issue split
-is not yet defined.
+36-game list aggregation and automatic dataset preparation. Issues #127 through
+#130 now complete the bounded historical-list source, aggregation, comparison,
+and public JSON/CLI workflow. Automatic dataset preparation and the remaining
+issue split are not yet defined.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

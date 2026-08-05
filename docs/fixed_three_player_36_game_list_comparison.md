@@ -1,10 +1,10 @@
 # Fixed-three-player 36-game list comparison
 
-This document defines internal comparison contract version `1` for two or more
+This document defines comparison contract version `1` for two or more
 independent completed
 [fixed-three-player 36-position historical-list aggregations](fixed_three_player_36_game_list_aggregation.md).
-It adds no public input, output, schema, CLI workflow, example, generated
-scenario, or package-root API.
+Issue #130 exposes the unchanged compact comparison through public JSON, schema,
+CLI, example, and generated-output validation. It adds no package-root API.
 
 ## Stable contract
 
@@ -169,11 +169,26 @@ and the overall result.
 
 They do not serialize progression, Entry Facts, Historical Game Records, hands,
 Skat, discards, tricks, ownership, or Search state. No public schema is
-registered.
+duplicated inside the root output schema: the strict Draft 2020-12 contract is
+`schemas/fixed_three_player_historical_list_comparison.schema.json`.
+
+The root request field is
+`fixed_three_player_historical_list_comparison_input`. Its version-1 `lists`
+array requires at least two ordinary list-analysis sources, preserves order, and
+uses the first as reference. Each source requires its own explicit nullable
+`lot_order`. The root output is
+`fixed_three_player_historical_list_comparison_summary` with `input_file`.
+
+The CLI prints compact source summaries, one section for each non-reference
+list, the four list-count deltas, all fourteen player-total deltas, both table
+places, exact rank status, and resolved rank-position change. Positive rank
+movement means movement toward rank 1. Unresolved ranks remain null while metric
+deltas remain available.
 
 ## Remaining scope
 
-Public historical-list input and output, schemas, CLI integration, examples,
-generated scenarios, and automatic dataset preparation remain open. Formal
-series aggregation, tournament management, official reporting, ratings, and
-progression-position comparison are not part of this comparison contract.
+Automatic dataset preparation remains open. Formal series aggregation,
+tournament management, official reporting, ratings, and progression-position
+comparison are not part of this comparison contract. The public comparison is
+not a series, does not aggregate cross-list totals or averages, and declares no
+series winner or official cross-list ranking.

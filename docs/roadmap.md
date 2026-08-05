@@ -115,17 +115,21 @@ Implemented:
 * Single-rated-player list performance summaries from already aggregated totals, normalized contributions, and local analysis results
 * Explicit fixed three-player list standings output
 * SkWO 6.3.1 shared ranks for unresolved ties and optional external lot order
-* Internal immutable version-1 fixed-three-player 36-position historical-list
+* Immutable version-1 fixed-three-player 36-position historical-list
   contracts with fixed stable identities, dedicated passed deals, dealer and
   historical-seat rotation, optional timestamp auditing, settlement-derived
   non-cumulative contributions, reconciliation, and deterministic serialization
-* Internal immutable cumulative player totals and one provisional standings
+* Immutable cumulative player totals and one provisional standings
   snapshot for every historical-list position
 * Final SkWO standings with shared unresolved-tie ranks and optional exact
   external-lot application
-* Internal immutable version-1 comparison of two or more independent completed
+* Immutable version-1 comparison of two or more independent completed
   lists with one reference, stable-ID alignment, final count and player-total
   deltas, resolved-only rank movement, and no progression or series aggregation
+* Strict public source, request, aggregation, and comparison schemas with
+  root-selected JSON and concise CLI workflows
+* Three bounded examples and generated-output scenarios covering applied lot,
+  unresolved all-passed tie, and resolved independent comparison
 
 ### Metadata and information control
 
@@ -316,9 +320,9 @@ Implemented:
 ### Performance rating
 
 * Performance rating is partially implemented for fixed three-player single-game declarer rating and bounded list-aware summaries.
-* The complete historical 36-position contracts now provide internal cumulative
-  aggregation, progression, final standings, and independent-list comparison;
-  public historical-list workflows are not implemented.
+* The complete historical 36-position contracts provide cumulative aggregation,
+  progression, final standings, and independent-list comparison through strict
+  public JSON/schema/CLI workflows.
 * `rating_score` currently equals `declarer_rating_score`.
 * Counterparty points are exposed separately and are not aggregated into the declarer's rating score.
 * Formal series aggregation, tournament management, and official federation report formats are not required product workflows.
@@ -366,6 +370,11 @@ continuation-before-shortening historical chain, information-safe Replay
 Coaching evidence and impact, deterministic Key Decisions and both Turning Point
 types, one-game patterns, deterministic recommendations, complete report
 composition, and the opt-in public JSON/schema/CLI workflow.
+
+Current `v0.12.0` development through Issue #130 exposes the fixed-three-player
+historical-list source, cumulative aggregation, and independent comparison
+through strict JSON/schema/CLI workflows. Its three appended scenarios bring the
+development matrix to 67 while the published `v0.11.0` baseline remains 64.
 
 ### v0.10.0: Information-safe bounded Search across compatible worlds
 
@@ -444,8 +453,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, public fixed-three-player historical-list
-integration, remaining automatic dataset preparation, field-level live
+remaining approved settlement nuance, remaining automatic dataset preparation,
+field-level live
 provenance, interactive live and retrospective
 input/session capture, and a stable library API and installed CLI/package
 interface. General claim verification and historical end reasons outside the
@@ -496,9 +505,10 @@ The active next planning milestone is `v0.12.0`. Its provisional direction is
 internal list contract version `1` for all 36 ordered positions and passed
 deals, Issue #128 adds internal cumulative totals, progression, final standings,
 and exact external-lot application, and Issue #129 adds independent completed-
-list comparison without series aggregation. Public list workflows, automatic
-dataset preparation, and the
-remaining issue split are still open.
+list comparison without series aggregation. Issue #130 exposes those retained
+contracts through strict root-selected JSON, schemas, CLI output, exactly three
+examples, and exactly three appended generated-output scenarios. Automatic
+dataset preparation and the remaining issue split are still open.
 Later milestone numbers remain planning containers rather than fixed
 contractual releases.
 

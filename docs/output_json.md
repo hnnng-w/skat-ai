@@ -76,6 +76,12 @@ Retrospective bounded-Search output additionally uses:
 
 [`schemas/bounded_search_evaluation.schema.json`](../schemas/bounded_search_evaluation.schema.json)
 
+Complete historical-list aggregation and compact independent-list comparison use:
+
+[`schemas/fixed_three_player_historical_list_aggregation.schema.json`](../schemas/fixed_three_player_historical_list_aggregation.schema.json)
+
+[`schemas/fixed_three_player_historical_list_comparison.schema.json`](../schemas/fixed_three_player_historical_list_comparison.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -448,6 +454,51 @@ reason, consent, final winner, settlement, unresolved points, or remaining
 cards. See
 [Rolling opponent-policy evaluation](opponent_policy_evaluation.md) and
 [`rolling_opponent_policy_evaluation.schema.json`](../schemas/rolling_opponent_policy_evaluation.schema.json).
+
+## Fixed-three-player historical lists
+
+Single-list input produces exactly:
+
+```json
+{
+  "input_file": "examples/fixed_three_player_historical_list_mixed.json",
+  "fixed_three_player_historical_list_summary": {}
+}
+```
+
+The summary is the complete existing aggregation serialization: version and
+fixed basis, source version and list ID, 36 positions, twelve rounds, Played
+Game and Passed Deal counts, declarer result counts, exactly three final player
+totals, one progression snapshot per position, ranking status, tied and
+lot-required IDs, nullable applied lot, and exactly three final standings. Every
+snapshot retains one privacy-safe Entry Fact, three cumulative totals, three
+provisional standings, and tied IDs. Passed Deal game, end, declarer, and
+settlement fields remain null.
+
+Comparison input produces exactly:
+
+```json
+{
+  "input_file": "examples/fixed_three_player_historical_list_comparison.json",
+  "fixed_three_player_historical_list_comparison_summary": {}
+}
+```
+
+The compact result preserves the first reference, source order, exactly three
+reference-ordered player IDs, one compact summary per source, and one pairwise
+comparison per non-reference list. Pairwise list-count and all fourteen player-
+total deltas are `comparison - reference`. Table places are retained for each
+source. `rank_position_change = reference_rank - comparison_rank`, so a positive
+value means movement toward rank 1. Rank status is exactly `available`,
+`reference_lot_required`, `comparison_lot_required`, or `both_lot_required`.
+When unresolved, all rank fields are null while metric deltas remain present.
+
+Neither output echoes the source list or a Historical Game Record. Public list
+output excludes hands, Skat identities, discards, trick cards, private ownership,
+Search state, and proof state. Comparison additionally excludes progression and
+Entry Facts. The output is descriptive list analysis, not a series, rating,
+winner analysis, official cross-list ranking, player-skill claim, or list
+recommendation.
 
 ## Position top-level fields
 

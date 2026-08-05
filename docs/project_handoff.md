@@ -34,12 +34,14 @@ The project focuses on:
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * deterministic Replay Coaching Key Decisions, Turning Points, one-game patterns, and actionable recommendations
 * complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
-* internal immutable version-1 fixed-three-player 36-position historical-list
+* public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
   progression, SkWO standings, optional external-lot application,
   strict retained-aggregation validation, independent completed-list comparison,
-  reconciliation, and deterministic privacy-safe serialization
+  reconciliation, deterministic privacy-safe serialization, strict schemas,
+  root-selected JSON workflows, concise CLI output, examples, and generated-
+  output coverage
 
 The project is not a machine-learning model or a full official tournament
 system. It has one bounded exact-state perfect-information solver, but not a
@@ -318,10 +320,15 @@ Implemented:
 * internal immutable comparison of two or more independent completed lists with
   one fixed reference, stable-ID alignment, final count and player-total deltas,
   resolved-only rank movement, and privacy-safe serialization
+* public strict JSON request and output schemas for one complete list or two or
+  more independent lists
+* root-selected CLI execution with only `--input`, `--output`, and `--quiet`,
+  full single-list progression, and compact comparison presentation
+* three bounded examples and generated-output scenarios for applied lot,
+  unresolved all-passed tie, and resolved independent comparison
 
 Not implemented:
 
-* public historical-list input, output, schema, CLI, and examples
 * series aggregation
 * tournament aggregation
 * official federation report formats
@@ -336,6 +343,7 @@ Implemented:
 * strict version-1 hidden-card inference summary schema
 * strict standalone version-1 bounded-search aggregate result schema
 * strict flat post-game Search, Historical Search Review, Historical Replay Coaching, and bounded-Search evaluation schemas
+* strict historical-list source, request, aggregation, and comparison schemas
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
@@ -344,6 +352,10 @@ The published `v0.11.0` baseline covers 64 deterministic generated-output
 scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
 release baseline remains 59 scenarios and 4,075 tests, and the historical
 published `v0.9.0` baseline remains 52 scenarios and 3,558 tests.
+
+The current Issue #130 development matrix appends three historical-list
+scenarios and validates exactly 67 outputs without changing the published
+baseline.
 
 ### Live-vs-post-game information enforcement
 
@@ -580,6 +592,7 @@ Implemented:
 * `settlement_normative_matrix.py`
 * `performance_rating.py`
 * `fixed_three_player_historical_list.py`
+* `fixed_three_player_historical_list_request.py`
 * `fixed_three_player_list_rotation.py`
 * `fixed_three_player_list_contribution.py`
 * `fixed_three_player_historical_list_aggregation.py`
@@ -726,6 +739,11 @@ The latest stable GitHub Release points to commit `cfd28e5`. It requires Python
 Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
 #125 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
+
+Current `v0.12.0` development through Issue #130 implements the immutable
+historical-list source, cumulative aggregation, independent comparison, and
+strict public JSON/schema/CLI workflow. It appends three generated scenarios,
+bringing the development matrix to 67 while the published baseline remains 64.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -884,7 +902,10 @@ Completed implementation scope:
   include Passed Deals, cumulative aggregation, progression, final SkWO
   standings, unresolved ties, exact external-lot application, and independent-
   list comparison with one reference and no series rollup. Public workflows
-  remain open.
+  now expose the retained contracts through strict schemas, root-selected JSON,
+  concise CLI output, three examples, and privacy-safe generated-output coverage.
+  Series aggregation, ratings, tournament management, and official reporting
+  remain outside this bounded workflow.
 * Replay Coaching has a public version-1 one-game report with information-safe
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
@@ -899,14 +920,11 @@ Completed implementation scope:
 
 The active next planning milestone is `v0.12.0`. Its provisional direction is
 36-game list aggregation and automatic dataset preparation. Issues #127 through
-#129 implement the internal version-1 historical-list source, cumulative
-aggregation, and independent completed-list comparison contracts. Public
-workflow design, automatic dataset preparation, and the remaining issue split
-stay open.
+#130 now implement the version-1 historical-list source, cumulative aggregation,
+independent completed-list comparison, and public JSON/schema/CLI workflow.
+Automatic dataset preparation and the remaining issue split stay open.
 
-For the next list step, preserve the existing list-performance inputs, standings
-ordering and tie behavior, and the explicit no-public-workflow boundary while
-separately deciding public integration. For automatic dataset preparation, inspect
+For automatic dataset preparation, inspect
 the existing dataset policies, automatic Known-opponent and player-disjoint split
 generation, deterministic seed requirements, and identity, temporal, source, and
 partition leakage controls. Tactical motifs, cross-game Coaching, ratings, causal

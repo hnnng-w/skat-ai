@@ -28,7 +28,8 @@ The published stable `v0.11.0` baseline covers 64 deterministic generated-output
 scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
 baseline remains evidence for 59 scenarios and 4,075 pytest tests. The historical
 published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
-tests.
+tests. Issue #130 appends three public historical-list scenarios to the unchanged
+64-scenario matrix, so the current development matrix validates exactly 67.
 The check script validates:
 
 * Ruff checks
@@ -109,6 +110,23 @@ Validate and summarize a complete normally played historical game:
 ```powershell
 python main.py --input examples/historical_grand_normal_completion.json
 ```
+
+Aggregate a mixed fixed-three-player historical 36-position list or inspect an
+all-Passed-Deal unresolved tie:
+
+```powershell
+python main.py --input examples/fixed_three_player_historical_list_mixed.json
+python main.py --input examples/fixed_three_player_historical_list_all_passed.json
+```
+
+Compare two independent completed lists with the first as reference:
+
+```powershell
+python main.py --input examples/fixed_three_player_historical_list_comparison.json
+```
+
+These root-selected workflows accept only `--input`, `--output`, and `--quiet`.
+They add no list-specific CLI flag.
 
 Validate a historical Grand prefix ending in declarer concession:
 
@@ -428,6 +446,24 @@ recommendation, and defender-open-play continuation before declarer concession.
 The two chain examples keep the continuation summary
 separate from the reason-specific terminal summary and retain schema versions `1`.
 
+## Historical-list examples
+
+| File | Purpose |
+| ---- | ------- |
+| `fixed_three_player_historical_list_mixed.json` | One Played Game and 35 Passed Deals with a valid applied two-player external lot. |
+| `fixed_three_player_historical_list_all_passed.json` | 36 Passed Deals with a three-player unresolved tie and explicit null lot. |
+| `fixed_three_player_historical_list_comparison.json` | Two independent sources with changed table places, disjoint Played Game IDs, different Passed Deal counts, resolved ranks, and comparison-minus-reference deltas. |
+
+Every source contains exactly 36 positions and uses mostly Passed Deals to keep
+the fixtures bounded. Public output includes privacy-safe Entry Facts only in the
+single-list progression. It never echoes Historical Game Records, hands, Skat,
+discards, trick cards, ownership, Search state, or proof state. Comparison output
+contains no progression or Entry Facts and makes no series, rating, skill,
+winner, official cross-list ranking, or recommendation claim.
+
+The three generated scenarios are appended after the previous unchanged 64 and
+bring the matrix to exactly 67 outputs.
+
 ## Training-dataset example
 
 | File | Purpose |
@@ -489,8 +525,8 @@ strict as-of construction, variable target cardinality, participant coverage,
 and baseline/profile reconciliation without exposing terminal-event details.
 The focused audit scenario uses `known_opponent`, verifies complete deterministic
 membership, three-way overlap, directed coverage, unseen-player violations, and
-the absence of samples or analysis products. Generated-output validation
-therefore covers 64 scenarios, including the two explicit flat live Search method
+the absence of samples or analysis products. The published `v0.11.0` generated-
+output matrix therefore covers 64 scenarios, including the two explicit flat live Search method
 branches, variable-length training data,
 all five historical shortened kinds, declared-Ouvert historical review, both flat ongoing public-hand
 continuations, both timed historical continuations, bounded exact defender-open-
@@ -509,7 +545,9 @@ Two Issue #119 scenarios cover defender continuation followed by terminal
 declarer concession and immediate declarer-exposure continuation followed by
 terminal defender concession. The previous 59 scenarios are unchanged.
 Three Issue #124 scenarios then add normal Grand, Null, and shortened Replay
-Coaching, bringing the matrix to 64.
+Coaching, bringing the published matrix to 64. Three Issue #130 scenarios append
+the mixed list, all-passed list, and independent comparison, bringing the current
+development matrix to 67 without changing the previous scenarios.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -936,6 +974,9 @@ separate
 `bounded_search_evaluation_summary` branch.
 Training-dataset aggregation instead uses
 `historical_opponent_statistics_aggregation_summary`.
+Fixed-three-player historical-list roots instead use the mutually exclusive
+`fixed_three_player_historical_list_summary` or
+`fixed_three_player_historical_list_comparison_summary` branch.
 
 For detailed output field descriptions, see:
 

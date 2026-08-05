@@ -9,6 +9,12 @@ from skat_ai.analysis_metadata import (
 from skat_ai.declarer_concession import (
     DeclarerConcession,
 )
+from skat_ai.fixed_three_player_historical_list_request import (
+    FixedThreePlayerHistoricalListAnalysisRequest,
+    FixedThreePlayerHistoricalListComparisonRequest,
+    build_fixed_three_player_historical_list_analysis_request,
+    build_fixed_three_player_historical_list_comparison_request,
+)
 from skat_ai.game_continuation import (
     GameContinuation,
 )
@@ -65,6 +71,22 @@ def load_json_object(file_path: str) -> dict[str, Any]:
 
 def get_input_workflow(data: dict[str, Any]) -> str:
     """Returns the public workflow selected by one top-level input object."""
+    if "fixed_three_player_historical_list_comparison_input" in data:
+        if set(data) != {"fixed_three_player_historical_list_comparison_input"}:
+            raise ValueError(
+                "fixed_three_player_historical_list_comparison_input cannot be combined "
+                "with any other workflow or position-analysis fields."
+            )
+        return "fixed_three_player_historical_list_comparison"
+
+    if "fixed_three_player_historical_list_input" in data:
+        if set(data) != {"fixed_three_player_historical_list_input"}:
+            raise ValueError(
+                "fixed_three_player_historical_list_input cannot be combined with any "
+                "other workflow or position-analysis fields."
+            )
+        return "fixed_three_player_historical_list"
+
     if "opponent_statistics_input" in data:
         if set(data) != {"opponent_statistics_input"}:
             raise ValueError(
@@ -136,6 +158,30 @@ def load_opponent_statistics_from_json(file_path: str) -> OpponentStatisticsInpu
     if not isinstance(statistics_data, dict):
         raise ValueError("opponent_statistics_input must be an object.")
     return build_opponent_statistics_input(statistics_data)
+
+
+def load_fixed_three_player_historical_list_request_from_json(
+    file_path: str,
+) -> FixedThreePlayerHistoricalListAnalysisRequest:
+    """Loads one versioned public fixed-three-player historical-list request."""
+    data = load_json_object(file_path)
+    if get_input_workflow(data) != "fixed_three_player_historical_list":
+        raise ValueError("Input file does not contain fixed_three_player_historical_list_input.")
+    request_data = data["fixed_three_player_historical_list_input"]
+    return build_fixed_three_player_historical_list_analysis_request(request_data)
+
+
+def load_fixed_three_player_historical_list_comparison_request_from_json(
+    file_path: str,
+) -> FixedThreePlayerHistoricalListComparisonRequest:
+    """Loads one ordered public independent-list comparison request."""
+    data = load_json_object(file_path)
+    if get_input_workflow(data) != "fixed_three_player_historical_list_comparison":
+        raise ValueError(
+            "Input file does not contain fixed_three_player_historical_list_comparison_input."
+        )
+    request_data = data["fixed_three_player_historical_list_comparison_input"]
+    return build_fixed_three_player_historical_list_comparison_request(request_data)
 
 
 def build_game_state_from_input(data: dict[str, Any]) -> GameState:

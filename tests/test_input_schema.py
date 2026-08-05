@@ -48,6 +48,17 @@ DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
 )
 OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
+FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list.schema.json"
+)
+FIXED_THREE_PLAYER_HISTORICAL_LIST_INPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_input.schema.json"
+)
+FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_INPUT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "fixed_three_player_historical_list_comparison_input.schema.json"
+)
 GAME_SHORTENING_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "game_shortening.schema.json"
 DEFENDER_OPEN_PLAY_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "defender_open_play.schema.json"
 OPEN_CARD_THROW_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "open_card_throw.schema.json"
@@ -120,6 +131,16 @@ with DATASET_PARTITION_POLICY_SCHEMA_PATH.open("r", encoding="utf-8") as policy_
     DATASET_PARTITION_POLICY_SCHEMA = json.load(policy_file)
 with OPPONENT_STATISTICS_SCHEMA_PATH.open("r", encoding="utf-8") as statistics_schema_file:
     OPPONENT_STATISTICS_SCHEMA = json.load(statistics_schema_file)
+with FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA = json.load(file)
+with FIXED_THREE_PLAYER_HISTORICAL_LIST_INPUT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    FIXED_THREE_PLAYER_HISTORICAL_LIST_INPUT_SCHEMA = json.load(file)
+with FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_INPUT_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_INPUT_SCHEMA = json.load(file)
 with GAME_SHORTENING_SCHEMA_PATH.open("r", encoding="utf-8") as game_shortening_file:
     GAME_SHORTENING_SCHEMA = json.load(game_shortening_file)
 with DEFENDER_OPEN_PLAY_SCHEMA_PATH.open("r", encoding="utf-8") as defender_open_play_file:
@@ -187,6 +208,20 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             OPPONENT_STATISTICS_SCHEMA["$id"],
             Resource.from_contents(OPPONENT_STATISTICS_SCHEMA),
+        ),
+        (
+            FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA["$id"],
+            Resource.from_contents(FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA),
+        ),
+        (
+            FIXED_THREE_PLAYER_HISTORICAL_LIST_INPUT_SCHEMA["$id"],
+            Resource.from_contents(FIXED_THREE_PLAYER_HISTORICAL_LIST_INPUT_SCHEMA),
+        ),
+        (
+            FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_INPUT_SCHEMA["$id"],
+            Resource.from_contents(
+                FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_INPUT_SCHEMA
+            ),
         ),
         (
             GAME_SHORTENING_SCHEMA["$id"],

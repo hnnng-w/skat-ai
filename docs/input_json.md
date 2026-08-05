@@ -53,6 +53,16 @@ External opponent-statistics records use:
 
 [`schemas/opponent_statistics.schema.json`](../schemas/opponent_statistics.schema.json)
 
+Fixed-three-player historical 36-position lists and requests use:
+
+[`schemas/fixed_three_player_historical_list.schema.json`](../schemas/fixed_three_player_historical_list.schema.json)
+
+[`schemas/fixed_three_player_historical_list_input.schema.json`](../schemas/fixed_three_player_historical_list_input.schema.json)
+
+Independent-list comparison requests use:
+
+[`schemas/fixed_three_player_historical_list_comparison_input.schema.json`](../schemas/fixed_three_player_historical_list_comparison_input.schema.json)
+
 The schema is intended as a documentation and validation aid.
 
 Example files can be validated against the schema with:
@@ -105,6 +115,7 @@ Python validation covers Skat-specific rules such as:
 * training dataset versions, optional partition policy, unpadded identities, RFC 3339 provenance, duplicate game/source detection, partition leakage, and declared unseen-player disjointness
 * opponent-statistics identity/provenance, finite percentages, rounded-value consistency, zero-role rules, optional exact-count reconciliation, historical aggregation provenance, and duplicate player IDs
 * historical opponent-statistics canonical partition selection, required source timestamps, strict cutoff, stable identity/label aggregation, and settlement-based exact counts
+* historical-list identities, canonical table places, exactly 36 rotating positions, chronology, settlement-derived contributions, lot applicability, and independent comparison-source reconciliation
 
 For the validation-layer overview and schema limitations, see:
 
@@ -112,12 +123,14 @@ For the validation-layer overview and schema limitations, see:
 
 ## Input workflows
 
-The public schema has four mutually exclusive branches:
+The public schema has six mutually exclusive branches:
 
 * the existing flat position-analysis input described below
 * a normal-completion or explicitly supported shortened historical game under `historical_game_input`
 * a versioned training/evaluation dataset under `training_dataset_input`
 * versioned external opponent statistics under `opponent_statistics_input`
+* one complete fixed-three-player historical list under `fixed_three_player_historical_list_input`
+* two or more independent complete lists under `fixed_three_player_historical_list_comparison_input`
 
 A historical-game file contains no position fields, simulation settings,
 `actual_card_played`, profiles, policies, list inputs, or impossible-Null
@@ -273,6 +286,71 @@ estimates and scoped heuristic confidence. See
 [Opponent statistics](opponent_statistics.md) for all denominator and
 consistency definitions. The derived preset is not applied, and this branch
 cannot be combined with existing manually supplied position profiles.
+
+## Fixed-three-player historical-list workflows
+
+The single-list root request is:
+
+```json
+{
+  "fixed_three_player_historical_list_input": {
+    "schema_version": 1,
+    "historical_list": {
+      "schema_version": 1,
+      "list_id": "list-001",
+      "players": [],
+      "entries": []
+    },
+    "lot_order": null
+  }
+}
+```
+
+`players` contains exactly three stable participants in canonical `place_1`,
+`place_2`, `place_3` order. `entries` contains exactly 36 authoritative
+positions. A strict `played_game` entry contains only `entry_id`, `entry_kind`,
+and one existing Historical Game Record. A strict `passed_deal` entry contains
+only `entry_id`, `entry_kind`, and required nullable RFC 3339 `played_at`.
+Passed Deals advance rotation but have no game, declarer, result, or settlement.
+
+The request-level `lot_order` is required even when null. A non-null value is an
+external two- or three-player order for the exact final unresolved tie group;
+the engine does not execute a random lot. Runtime validation remains
+authoritative for identities, labels, rotating seats, timestamp order,
+historical settlement, tie membership, and lot applicability.
+
+The comparison root request is:
+
+```json
+{
+  "fixed_three_player_historical_list_comparison_input": {
+    "schema_version": 1,
+    "lists": [
+      {
+        "schema_version": 1,
+        "historical_list": {},
+        "lot_order": null
+      },
+      {
+        "schema_version": 1,
+        "historical_list": {},
+        "lot_order": null
+      }
+    ]
+  }
+}
+```
+
+At least two sources are required. Array order is authoritative and the first
+source is the reference. Each source is built and aggregated exactly once.
+Source list IDs must be unique, Played Game IDs must be disjoint across sources,
+and every source must contain the same stable player IDs; table places may
+change. The result is an independent comparison, not a cross-list aggregation
+or series.
+
+No new CLI flag selects either workflow. The JSON root field selects it, and
+only `--input`, `--output`, and `--quiet` are valid. Analysis, Search, review,
+simulation, profile, dataset, and policy options are rejected.
 
 ## Minimal position input
 

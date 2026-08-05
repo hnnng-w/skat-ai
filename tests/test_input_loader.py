@@ -17,6 +17,8 @@ from skat_ai.input_loader import (
     get_recommendation_method_configuration_from_input,
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
+    load_fixed_three_player_historical_list_comparison_request_from_json,
+    load_fixed_three_player_historical_list_request_from_json,
     load_historical_game_from_json,
     load_opponent_statistics_from_json,
     load_training_dataset_from_json,
@@ -84,6 +86,45 @@ def test_opponent_statistics_input_cannot_be_combined_with_other_workflows() -> 
                 "training_dataset_input": {},
             }
         )
+
+
+def test_load_fixed_three_player_historical_list_requests_from_json() -> None:
+    request = load_fixed_three_player_historical_list_request_from_json(
+        "examples/fixed_three_player_historical_list_mixed.json"
+    )
+    comparison = load_fixed_three_player_historical_list_comparison_request_from_json(
+        "examples/fixed_three_player_historical_list_comparison.json"
+    )
+
+    assert request.historical_list.list_id == "public-list-mixed-001"
+    assert request.lot_order == ("player-a", "player-c")
+    assert tuple(source.historical_list.list_id for source in comparison.lists) == (
+        "comparison-reference-001",
+        "comparison-source-002",
+    )
+
+
+@pytest.mark.parametrize(
+    ("root_field", "workflow"),
+    [
+        (
+            "fixed_three_player_historical_list_input",
+            "fixed_three_player_historical_list",
+        ),
+        (
+            "fixed_three_player_historical_list_comparison_input",
+            "fixed_three_player_historical_list_comparison",
+        ),
+    ],
+)
+def test_fixed_three_player_historical_list_workflow_detection_and_exclusivity(
+    root_field: str,
+    workflow: str,
+) -> None:
+    assert get_input_workflow({root_field: {}}) == workflow
+
+    with pytest.raises(ValueError, match="cannot be combined"):
+        get_input_workflow({root_field: {}, "historical_game_input": {}})
 
 
 def test_build_game_state_from_input() -> None:

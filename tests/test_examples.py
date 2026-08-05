@@ -13,6 +13,8 @@ from skat_ai.input_loader import (
     get_opponent_policy_settings_from_input,
     get_right_opponent_policy_settings_from_input,
     get_simulation_settings_from_input,
+    load_fixed_three_player_historical_list_comparison_request_from_json,
+    load_fixed_three_player_historical_list_request_from_json,
     load_historical_game_from_json,
     load_opponent_statistics_from_json,
     load_position_from_json,
@@ -64,6 +66,9 @@ def get_position_example_json_files() -> list[Path]:
             "training_dataset_partition_audit.json",
             "training_dataset_shortened_opponent_workflows.json",
             "training_dataset_variable_length.json",
+            "fixed_three_player_historical_list_mixed.json",
+            "fixed_three_player_historical_list_all_passed.json",
+            "fixed_three_player_historical_list_comparison.json",
         }
     ]
 
@@ -71,7 +76,13 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 64
+    assert len(SCENARIOS) == 67
+    assert len(SCENARIOS[:-3]) == 64
+    assert tuple(scenario.name for scenario in SCENARIOS[-3:]) == (
+        "fixed_three_player_historical_list_mixed",
+        "fixed_three_player_historical_list_all_passed",
+        "fixed_three_player_historical_list_comparison",
+    )
 
 
 def test_examples_folder_contains_json_files() -> None:
@@ -123,6 +134,23 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
         }:
             statistics_input = load_opponent_statistics_from_json(str(example_file))
             assert len(statistics_input.records) == 2
+            continue
+        if example_file.name in {
+            "fixed_three_player_historical_list_mixed.json",
+            "fixed_three_player_historical_list_all_passed.json",
+        }:
+            request = load_fixed_three_player_historical_list_request_from_json(
+                str(example_file)
+            )
+            assert len(request.historical_list.entries) == 36
+            continue
+        if example_file.name == "fixed_three_player_historical_list_comparison.json":
+            request = (
+                load_fixed_three_player_historical_list_comparison_request_from_json(
+                    str(example_file)
+                )
+            )
+            assert len(request.lists) == 2
             continue
 
         data = load_position_from_json(str(example_file))

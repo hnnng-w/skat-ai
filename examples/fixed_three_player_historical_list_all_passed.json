@@ -1,0 +1,53 @@
+{
+  "fixed_three_player_historical_list_input": {
+    "schema_version": 1,
+    "historical_list": {
+      "schema_version": 1,
+      "list_id": "public-list-all-passed-001",
+      "players": [
+        {"player_id": "player-a", "player_label": "Alice", "table_place": "place_1"},
+        {"player_id": "player-b", "table_place": "place_2"},
+        {"player_id": "player-c", "player_label": "Carol", "table_place": "place_3"}
+      ],
+      "entries": [
+        {"entry_id": "passed-entry-01", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-02", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-03", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-04", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-05", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-06", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-07", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-08", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-09", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-10", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-11", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-12", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-13", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-14", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-15", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-16", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-17", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-18", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-19", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-20", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-21", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-22", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-23", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-24", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-25", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-26", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-27", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-28", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-29", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-30", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-31", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-32", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-33", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-34", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-35", "entry_kind": "passed_deal", "played_at": null},
+        {"entry_id": "passed-entry-36", "entry_kind": "passed_deal", "played_at": null}
+      ]
+    },
+    "lot_order": null
+  }
+}

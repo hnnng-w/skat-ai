@@ -1,12 +1,12 @@
 # Fixed-three-player 36-game list aggregation
 
-This document defines internal aggregation contract version `1` for one validated
+This document defines aggregation contract version `1` for one validated
 [fixed-three-player 36-position historical list](fixed_three_player_36_game_list_contracts.md).
 It adds cumulative totals, one progression snapshot per position, and final SkWO
-standings without adding a public input, output, schema, CLI workflow, or
-package-root API.
+standings. Issue #130 exposes this unchanged aggregation through public JSON,
+schema, examples, and the repository-root CLI without adding a package-root API.
 
-Completed aggregation values can be passed to the separate internal
+Completed aggregation values can be passed to the separate versioned
 [independent-list comparison contract](fixed_three_player_36_game_list_comparison.md).
 That layer compares every later list independently with the first source and does
 not aggregate lists or compare progression positions.
@@ -136,14 +136,21 @@ comparison.
 
 Aggregation serialization does not include source historical records, hands,
 Skat, discards, tricks, private ownership, or Search state. The serializers are
-internal and are not registered in a public schema or output field.
+validated by the strict Draft 2020-12 schema
+`schemas/fixed_three_player_historical_list_aggregation.schema.json` and emitted
+under `fixed_three_player_historical_list_summary` with sibling `input_file`.
+The schema fixes 36 Entry Facts, 36 progression snapshots, three totals and
+provisional standings per snapshot, three final standings, nullable Passed Deal
+fields, ranking status, tied IDs, required-lot IDs, and applied lot order.
+
+The CLI prints complete final standings and exactly the twelve round-end
+snapshots at entries `3, 6, ..., 36`. It describes performance facts and tie
+state without player-quality, skill, rating, or cross-list claims.
 
 ## Remaining scope
 
 The following remain open:
 
-* public historical-list input and output;
-* public schemas, CLI integration, examples, and generated scenarios;
 * automatic dataset preparation;
 * series aggregation and standings;
 * tournament management and official federation reporting.

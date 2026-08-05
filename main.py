@@ -49,6 +49,16 @@ from skat_ai.effective_opponent_policy import (
     build_effective_opponent_policy_settings,
 )
 from skat_ai.final_settlement import build_final_settlement_summary
+from skat_ai.fixed_three_player_historical_list_aggregation import (
+    build_fixed_three_player_historical_list_aggregation,
+    build_serializable_fixed_three_player_historical_list_aggregation,
+)
+from skat_ai.fixed_three_player_historical_list_comparison import (
+    build_fixed_three_player_historical_list_comparison,
+)
+from skat_ai.fixed_three_player_historical_list_comparison_summary import (
+    build_serializable_fixed_three_player_historical_list_comparison,
+)
 from skat_ai.game_continuation import (
     build_game_continuation_summary,
     resolve_game_continuation,
@@ -102,6 +112,8 @@ from skat_ai.input_loader import (
     get_profile_preset_settings_from_input,
     get_recommendation_method_configuration_from_input,
     get_simulation_settings_from_input,
+    load_fixed_three_player_historical_list_comparison_request_from_json,
+    load_fixed_three_player_historical_list_request_from_json,
     load_historical_game_from_json,
     load_json_object,
     load_opponent_statistics_from_json,
@@ -1581,6 +1593,154 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
             )
 
 
+def _format_list_player_identity(player_id: str, player_label: str | None) -> str:
+    return player_id if player_label is None else f"{player_id} ({player_label})"
+
+
+def print_fixed_three_player_historical_list_result(result: dict[str, Any]) -> None:
+    """Prints complete final facts and round-end progression for one list."""
+    summary = result["fixed_three_player_historical_list_summary"]
+    print("Fixed three-player historical list summary")
+    print("List ID:", summary["list_id"])
+    print(f"Positions: {summary['entry_count']}; rounds: {summary['round_count']}")
+    print(
+        "Entries:",
+        f"{summary['played_game_count']} Played Games; "
+        f"{summary['passed_deal_count']} Passed Deals",
+    )
+    print(
+        "Declarer results:",
+        f"{summary['declarer_win_count']} wins; "
+        f"{summary['declarer_loss_count']} losses",
+    )
+    print("Ranking status:", summary["ranking_status"])
+    if summary["ranking_status"] == "lot_required":
+        print(
+            "Unresolved tie; external lot required:",
+            ", ".join(summary["lot_required_player_ids"]),
+        )
+    elif summary["applied_lot_order"] is not None:
+        print("Applied external lot:", ", ".join(summary["applied_lot_order"]))
+    else:
+        print("External lot: not required")
+
+    print("Final standings")
+    for standing in summary["final_standings"]:
+        totals = standing["player_totals"]
+        print(
+            f"Rank {standing['rank']}: "
+            f"{_format_list_player_identity(totals['player_id'], totals['player_label'])}; "
+            f"table place {totals['table_place']}; "
+            f"total performance points {totals['total_performance_points']}; "
+            f"game points {totals['player_game_points']}; "
+            f"own-game bonus {totals['own_game_bonus_points']}; "
+            f"opponent-loss bonus {totals['opponent_loss_bonus_points']}; "
+            f"own wins {totals['own_games_won']}; own losses {totals['own_games_lost']}; "
+            f"Played Games {totals['played_game_count']}; "
+            f"Passed Deals {totals['passed_deal_count']}."
+        )
+
+    print("Round-end progression")
+    for snapshot in summary["progression"][2::3]:
+        standings_text = ", ".join(
+            f"rank {standing['rank']} {standing['player_totals']['player_id']} "
+            f"{standing['player_totals']['total_performance_points']}"
+            for standing in snapshot["provisional_standings"]
+        )
+        print(
+            f"Entry {snapshot['entry_fact']['entry_number']} "
+            f"(round {snapshot['entry_fact']['round_number']}): {standings_text}."
+        )
+
+
+def _print_comparison_source_summary(summary: dict[str, Any]) -> None:
+    print(
+        f"Source list {summary['list_id']}: {summary['entry_count']} positions, "
+        f"{summary['played_game_count']} Played Games, "
+        f"{summary['passed_deal_count']} Passed Deals, "
+        f"{summary['declarer_win_count']} declarer wins, "
+        f"{summary['declarer_loss_count']} declarer losses; "
+        f"ranking status {summary['ranking_status']}."
+    )
+    for standing in summary["final_standings"]:
+        print(
+            f"  Rank {standing['rank']}: "
+            f"{_format_list_player_identity(standing['player_id'], standing['player_label'])}; "
+            f"table place {standing['table_place']}; "
+            f"total performance points {standing['total_performance_points']}; "
+            f"own wins {standing['own_games_won']}; own losses {standing['own_games_lost']}."
+        )
+
+
+def print_fixed_three_player_historical_list_comparison_result(
+    result: dict[str, Any],
+) -> None:
+    """Prints compact independent-list sources and comparison-minus-reference deltas."""
+    summary = result["fixed_three_player_historical_list_comparison_summary"]
+    print("Fixed three-player historical list comparison")
+    print("Reference list:", summary["reference_list_id"])
+    print("Source-list count:", summary["list_count"])
+    print("Source summaries")
+    for source in summary["source_lists"]:
+        _print_comparison_source_summary(source)
+
+    delta_labels = (
+        ("list_entry_count", "list entries"),
+        ("played_game_count", "Played Games"),
+        ("passed_deal_count", "Passed Deals"),
+        ("declarer_game_count", "declarer games"),
+        ("defender_game_count", "defender games"),
+        ("own_games_won", "own wins"),
+        ("own_games_lost", "own losses"),
+        ("defender_games_won", "defender wins"),
+        ("defender_games_lost", "defender losses"),
+        ("other_players_lost_games", "other-player losses"),
+        ("player_game_points", "game points"),
+        ("own_game_bonus_points", "own-game bonus"),
+        ("opponent_loss_bonus_points", "opponent-loss bonus"),
+        ("total_performance_points", "total performance points"),
+    )
+    for comparison in summary["comparisons"]:
+        print(
+            f"Comparison list {comparison['comparison_list_id']} against "
+            f"{comparison['reference_list_id']}"
+        )
+        print(
+            "List-count deltas (comparison - reference): "
+            f"Played Games {comparison['played_game_count_delta']:+d}; "
+            f"Passed Deals {comparison['passed_deal_count_delta']:+d}; "
+            f"declarer wins {comparison['declarer_win_count_delta']:+d}; "
+            f"declarer losses {comparison['declarer_loss_count_delta']:+d}."
+        )
+        for player in comparison["player_comparisons"]:
+            identity = _format_list_player_identity(
+                player["player_id"],
+                player["player_label"],
+            )
+            print(
+                f"Player {identity}: "
+                f"reference table place {player['reference_table_place']}; "
+                f"comparison table place {player['comparison_table_place']}."
+            )
+            print(
+                "  Metric deltas (comparison - reference): "
+                + "; ".join(
+                    f"{label} {player['deltas'][field_name]:+d}"
+                    for field_name, label in delta_labels
+                )
+                + "."
+            )
+            print("  Rank status:", player["rank_comparison_status"])
+            if player["rank_comparison_status"] == "available":
+                print(
+                    f"  Reference rank {player['reference_rank']}; "
+                    f"comparison rank {player['comparison_rank']}; "
+                    f"rank-position change {player['rank_position_change']:+d}."
+                )
+            else:
+                print("  Rank-position change: unavailable while a lot remains unresolved.")
+
+
 def print_training_dataset_result(result: dict[str, Any]) -> None:
     """Prints a concise training-dataset conversion summary."""
     summary = result["training_dataset_summary"]
@@ -2659,6 +2819,66 @@ def run_json_historical_opponent_statistics_aggregation(
         print("Exported opponent statistics to", f"{export_path}.")
 
 
+def run_json_fixed_three_player_historical_list_analysis(
+    file_path: str,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Runs one complete historical 36-position list aggregation."""
+    request = load_fixed_three_player_historical_list_request_from_json(file_path)
+    aggregation = build_fixed_three_player_historical_list_aggregation(
+        request.historical_list,
+        lot_order=None if request.lot_order is None else list(request.lot_order),
+    )
+    result = {
+        "input_file": str(file_path),
+        "fixed_three_player_historical_list_summary": (
+            build_serializable_fixed_three_player_historical_list_aggregation(aggregation)
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if quiet:
+        return
+    print_fixed_three_player_historical_list_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
+def run_json_fixed_three_player_historical_list_comparison(
+    file_path: str,
+    output_path: str | None = None,
+    quiet: bool = False,
+) -> None:
+    """Aggregates each ordered source once and compares it with the first source."""
+    request = load_fixed_three_player_historical_list_comparison_request_from_json(
+        file_path
+    )
+    aggregations = tuple(
+        build_fixed_three_player_historical_list_aggregation(
+            source.historical_list,
+            lot_order=None if source.lot_order is None else list(source.lot_order),
+        )
+        for source in request.lists
+    )
+    comparison = build_fixed_three_player_historical_list_comparison(aggregations)
+    result = {
+        "input_file": str(file_path),
+        "fixed_three_player_historical_list_comparison_summary": (
+            build_serializable_fixed_three_player_historical_list_comparison(comparison)
+        ),
+    }
+    if output_path is not None:
+        write_analysis_result_to_json(output_path=output_path, result=result)
+    if quiet:
+        return
+    print_fixed_three_player_historical_list_comparison_result(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+
+
 def run_json_opponent_statistics_conversion(
     file_path: str,
     output_path: str | None = None,
@@ -2683,8 +2903,9 @@ def run_json_opponent_statistics_conversion(
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Analyze a Skat position, replay a historical game, convert a training "
-            "dataset, or normalize opponent statistics from JSON."
+            "Analyze a Skat position, replay a historical game, expose a complete "
+            "historical 36-position list or independent-list comparison, convert a "
+            "training dataset, or normalize opponent statistics from JSON."
         ),
         epilog=(
             "Examples:\n"
@@ -2697,6 +2918,9 @@ def parse_arguments() -> argparse.Namespace:
             "  python main.py --input examples/grand_second_position.json "
             "--multi-step 1 --compare-policies --comparison-only\n"
             "  python main.py --input examples/historical_grand_normal_completion.json\n"
+            "  python main.py --input examples/fixed_three_player_historical_list_mixed.json\n"
+            "  python main.py --input "
+            "examples/fixed_three_player_historical_list_comparison.json\n"
             "  python main.py --input examples/training_dataset_normal_play.json\n"
             "  python main.py --input examples/opponent_statistics.json"
         ),
@@ -2707,8 +2931,9 @@ def parse_arguments() -> argparse.Namespace:
         "--input",
         default="input_position.json",
         help=(
-            "Read position-analysis, historical-game, training-dataset, or "
-            "opponent-statistics input from this JSON file. "
+            "Read position-analysis, historical-game, historical-list, "
+            "historical-list-comparison, training-dataset, or opponent-statistics "
+            "input from this JSON file. "
             "Default: input_position.json."
         ),
     )
@@ -3460,6 +3685,60 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         )
 
 
+def validate_fixed_three_player_historical_list_cli_arguments(
+    args: argparse.Namespace,
+) -> None:
+    """Rejects every option except input, output, and quiet output for list workflows."""
+    incompatible_options = {
+        "--samples": args.samples is not None,
+        "--seed": args.seed is not None,
+        "--opponent-strategy": args.opponent_strategy is not None,
+        "--audit-dataset-partitions": args.audit_dataset_partitions,
+        "--dataset-partition-mode": args.dataset_partition_mode is not None,
+        "--aggregate-opponent-statistics": args.aggregate_opponent_statistics,
+        "--opponent-statistics-partition": args.opponent_statistics_partition is not None,
+        "--opponent-statistics-before": args.opponent_statistics_before is not None,
+        "--export-opponent-statistics": args.export_opponent_statistics is not None,
+        "--evaluate-opponent-policy-profiles": args.evaluate_opponent_policy_profiles,
+        "--profile-source-partition": args.profile_source_partition is not None,
+        "--profile-evaluation-partition": args.profile_evaluation_partition is not None,
+        "--historical-decision-snapshots": args.historical_decision_snapshots,
+        "--historical-game-review": args.historical_game_review,
+        "--historical-search-review": args.historical_search_review,
+        "--historical-replay-coaching": args.historical_replay_coaching,
+        "--search-seed": args.search_seed is not None,
+        "--search-budget-profile": args.search_budget_profile is not None,
+        "--evaluate-bounded-search": args.evaluate_bounded_search,
+        "--search-evaluation-partition": args.search_evaluation_partition is not None,
+        "--search-evaluation-max-decisions": args.search_evaluation_max_decisions is not None,
+        "--multi-step": args.multi_step is not None,
+        "--card-policy": args.card_policy is not None,
+        "--expected-value-samples": args.expected_value_samples is not None,
+        "--strict-context": args.strict_context,
+        "--compare-policies": args.compare_policies,
+        "--comparison-only": args.comparison_only,
+        "--opponent-policy-preset": args.opponent_policy_preset is not None,
+        "--opponent-lead-policy": args.opponent_lead_policy is not None,
+        "--opponent-response-policy": args.opponent_response_policy is not None,
+        "--use-profile-presets": args.use_profile_presets,
+        "--opponent-statistics-file": args.opponent_statistics_file is not None,
+        "--left-opponent-player-id": args.left_opponent_player_id is not None,
+        "--right-opponent-player-id": args.right_opponent_player_id is not None,
+        "--left-opponent-lead-policy": args.left_opponent_lead_policy is not None,
+        "--left-opponent-response-policy": args.left_opponent_response_policy is not None,
+        "--right-opponent-lead-policy": args.right_opponent_lead_policy is not None,
+        "--right-opponent-response-policy": args.right_opponent_response_policy is not None,
+    }
+    supplied_options = [
+        option for option, was_supplied in incompatible_options.items() if was_supplied
+    ]
+    if supplied_options:
+        raise CliUsageError(
+            "Fixed-three-player historical-list inputs accept only --input, --output, "
+            f"and --quiet; unsupported options: {', '.join(supplied_options)}."
+        )
+
+
 def main() -> int:
     args = parse_arguments()
 
@@ -3467,7 +3746,21 @@ def main() -> int:
         input_data = load_json_object(args.input)
         workflow = get_input_workflow(input_data)
         validate_cli_arguments(args, workflow=workflow)
-        if workflow == "opponent_statistics":
+        if workflow == "fixed_three_player_historical_list_comparison":
+            validate_fixed_three_player_historical_list_cli_arguments(args)
+            run_json_fixed_three_player_historical_list_comparison(
+                file_path=args.input,
+                output_path=args.output,
+                quiet=args.quiet,
+            )
+        elif workflow == "fixed_three_player_historical_list":
+            validate_fixed_three_player_historical_list_cli_arguments(args)
+            run_json_fixed_three_player_historical_list_analysis(
+                file_path=args.input,
+                output_path=args.output,
+                quiet=args.quiet,
+            )
+        elif workflow == "opponent_statistics":
             validate_opponent_statistics_cli_arguments(args)
             run_json_opponent_statistics_conversion(
                 file_path=args.input,

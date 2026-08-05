@@ -38,6 +38,17 @@ HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH = (
 )
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 OPPONENT_STATISTICS_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "opponent_statistics.schema.json"
+FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list.schema.json"
+)
+FIXED_THREE_PLAYER_HISTORICAL_LIST_INPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_input.schema.json"
+)
+FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_INPUT_SCHEMA_PATH = (
+    PROJECT_ROOT
+    / "schemas"
+    / "fixed_three_player_historical_list_comparison_input.schema.json"
+)
 DATASET_PARTITION_POLICY_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "dataset_partition_policy.schema.json"
 )
@@ -117,6 +128,13 @@ def validate_example_files() -> list[str]:
     )
     training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
     opponent_statistics_schema = load_json_file(OPPONENT_STATISTICS_SCHEMA_PATH)
+    historical_list_schema = load_json_file(FIXED_THREE_PLAYER_HISTORICAL_LIST_SCHEMA_PATH)
+    historical_list_input_schema = load_json_file(
+        FIXED_THREE_PLAYER_HISTORICAL_LIST_INPUT_SCHEMA_PATH
+    )
+    historical_list_comparison_input_schema = load_json_file(
+        FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_INPUT_SCHEMA_PATH
+    )
     dataset_partition_policy_schema = load_json_file(DATASET_PARTITION_POLICY_SCHEMA_PATH)
     game_shortening_schema = load_json_file(GAME_SHORTENING_SCHEMA_PATH)
     defender_open_play_schema = load_json_file(DEFENDER_OPEN_PLAY_SCHEMA_PATH)
@@ -171,6 +189,18 @@ def validate_example_files() -> list[str]:
             (
                 opponent_statistics_schema["$id"],
                 Resource.from_contents(opponent_statistics_schema),
+            ),
+            (
+                historical_list_schema["$id"],
+                Resource.from_contents(historical_list_schema),
+            ),
+            (
+                historical_list_input_schema["$id"],
+                Resource.from_contents(historical_list_input_schema),
+            ),
+            (
+                historical_list_comparison_input_schema["$id"],
+                Resource.from_contents(historical_list_comparison_input_schema),
             ),
             (
                 dataset_partition_policy_schema["$id"],

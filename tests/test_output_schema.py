@@ -168,6 +168,12 @@ HISTORICAL_REPLAY_COACHING_SCHEMA_PATH = (
 BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
 )
+FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_aggregation.schema.json"
+)
+FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_comparison.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -275,6 +281,14 @@ with HISTORICAL_REPLAY_COACHING_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_REPLAY_COACHING_SCHEMA = json.load(file)
 with BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     BOUNDED_SEARCH_EVALUATION_SCHEMA = json.load(file)
+with FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA = json.load(file)
+with FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -458,6 +472,16 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             BOUNDED_SEARCH_EVALUATION_SCHEMA["$id"],
             Resource.from_contents(BOUNDED_SEARCH_EVALUATION_SCHEMA),
+        ),
+        (
+            FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA["$id"],
+            Resource.from_contents(
+                FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA
+            ),
+        ),
+        (
+            FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA["$id"],
+            Resource.from_contents(FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA),
         ),
     ]
 )

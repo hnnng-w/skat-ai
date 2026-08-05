@@ -1,10 +1,11 @@
 # Fixed-three-player 36-game list contracts
 
-This document defines internal source contract version `1` for one complete
+This document defines source contract version `1` for one complete
 ordered fixed-three-player historical list. It is the source foundation for the
-separate internal
+separate
 [36-position aggregation contract](fixed_three_player_36_game_list_aggregation.md),
-not a public input, output, schema, CLI workflow, or official list format.
+and is exposed through the public JSON and CLI workflow added in Issue #130. It
+is not an official list format.
 
 ## Rule and product ownership
 
@@ -175,9 +176,18 @@ standings without changing this source schema version or fact contract.
 
 ## Serialization and boundary
 
-Internal serializers preserve player, entry, historical seat, and contribution
+Internal source serializers preserve player, entry, historical seat, and contribution
 order and retain nullable passed-deal fact fields. Canonical serialization can be
 built again into an equivalent immutable list.
+
+The public root field `fixed_three_player_historical_list_input` wraps the source
+under `historical_list`, requires request `schema_version: 1`, and requires an
+explicit `lot_order` that is null or a two/three-player external order. The
+standalone strict schemas are
+`schemas/fixed_three_player_historical_list.schema.json` and
+`schemas/fixed_three_player_historical_list_input.schema.json`. Runtime
+validation remains authoritative for stable identities, labels, seat rotation,
+timestamps, settlement, and exact lot-group membership.
 
 The implementation lives in:
 
@@ -191,17 +201,19 @@ The implementation lives in:
 * `fixed_three_player_historical_list_standings.py`;
 * `fixed_three_player_historical_list_totals.py`.
 
-No package-root stable API, public schema, CLI option, example, generated
-scenario, or public output field is added. Existing `list_performance_input`,
+Issue #130 adds no CLI flag: the root JSON field selects the workflow, and only
+`--input`, `--output`, and `--quiet` are accepted. Public output is the complete
+existing aggregation serialization under
+`fixed_three_player_historical_list_summary`; it does not echo this source list
+or any Historical Game Record. Existing `list_performance_input`,
 `list_game_contributions`, `list_analysis_results`, and `list_standings_input`
 remain unchanged and do not accept `passed_deal`.
 
 ## Remaining scope
 
-The source and aggregation contracts now feed the separate internal
+The source and aggregation contracts also feed the public versioned
 [independent-list comparison contract](fixed_three_player_36_game_list_comparison.md).
 The following remain open:
 
 * series or tournament state;
-* public workflows, schemas, CLI, and examples;
 * automatic dataset preparation.
