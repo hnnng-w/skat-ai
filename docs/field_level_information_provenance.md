@@ -22,6 +22,8 @@ Issue #141 adds Package resources, typing and version metadata, and distribution
 validation without changing that provenance boundary. Built and cleanly
 installed distributions expose no provenance option, Result field, schema, or
 public provenance name.
+Issue #142 adds installed, module, and Legacy CLI parity without adding a
+Provenance option, output, Schema, export, propagation, or public name.
 
 ## Contract identity
 

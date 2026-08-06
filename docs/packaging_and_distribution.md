@@ -1,9 +1,8 @@
 # Packaging and distribution
 
 This document defines the installation-ready Package artifacts introduced by
-Issue #141. It covers the library distribution only. The repository-root legacy
-CLI remains supported, but no installed command or `python -m skat_ai` entry
-point is provided yet.
+Issue #141 and the installed interfaces added by Issue #142. The repository-root
+Legacy CLI remains supported through at least `v1.0.0`.
 
 ## Build metadata
 
@@ -25,10 +24,35 @@ The Package name remains `skat-ai`, the Package version remains `0.12.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
 dependency. The `dev` extra includes `build`, pytest, and Ruff.
 
+The project declares exactly one Console Script:
+
+```toml
+[project.scripts]
+skat-ai = "skat_ai.cli:main"
+```
+
 The project does not use `setup.py`, repository `setup.cfg`, non-Package
-`data-files`, Console Scripts, GUI Scripts, authors, classifiers, publication
-URLs, or license metadata. Setuptools may generate backend-owned compatibility
-metadata inside an sdist; `pyproject.toml` remains authoritative.
+`data-files`, GUI Scripts, a second Console Script, authors, classifiers,
+publication URLs, or license metadata. Setuptools may generate backend-owned
+compatibility metadata inside an sdist; `pyproject.toml` remains authoritative.
+
+## Installed entry points
+
+The three supported forms are:
+
+```text
+skat-ai
+python -m skat_ai
+python main.py
+```
+
+The first two are installed Package interfaces. `skat_ai/__main__.py` delegates
+module execution to the same `skat_ai.cli:main` implementation. Root `main.py`
+is a repository-only Legacy facade and is not installed. All three share option,
+validation, Application execution, JSON, presentation, error, and Exit Code
+semantics. Help changes only its command identity and examples: installed and
+module help uses generic caller paths, while Legacy help may use repository
+`examples/...` paths. See [Installed CLI](installed_cli.md).
 
 ## Building artifacts
 
@@ -131,15 +155,19 @@ Wheel inspection verifies:
 * every `skat_ai` Python module;
 * `py.typed` and all 61 byte-identical schema resources;
 * a valid pure-Python Wheel and RECORD;
-* absence of repository tests, examples, generated outputs, root `main.py`, and
-  installed scripts.
+* exact `skat-ai = skat_ai.cli:main` Console Script metadata and
+  `skat_ai/__main__.py`;
+* absence of repository tests, examples, generated outputs, root `main.py`, a
+  second Console Script, GUI Script, or script payload.
 
 sdist inspection verifies:
 
 * `pyproject.toml`, `README.md`, Package sources, `py.typed`, and every schema
   resource;
 * build and core metadata sufficient to build and install the same Package;
-* absence of a source-authored `setup.py` and any declared installed CLI.
+* exact Console Script metadata and `src/skat_ai/__main__.py`;
+* absence of a source-authored `setup.py`, root `main.py`, a second command, and
+  any GUI Script.
 
 For each artifact, the script creates a separate clean virtual environment,
 installs from an external working directory with `PYTHONPATH` removed, and
@@ -153,8 +181,13 @@ verifies:
 * Root input/output references resolve locally with output validation enabled;
 * `parse_request()` and `execute_document()` run a compact copied existing
   Opponent Statistics Root example;
-* no Console Script, GUI Script, `skat_ai.__main__`, or installed root `main`
-  module exists.
+* `skat-ai --help`, `skat-ai --version`, `python -m skat_ai --help`, and
+  `python -m skat_ai --version` succeed with no repository or `PYTHONPATH`;
+* installed and module CLI quiet JSON exactly matches the Public API Root result;
+* a valid unavailable Dataset Preparation Result remains successful;
+* one unknown option returns usage Code `2` and one missing input returns expected
+  failure Code `1`;
+* no GUI Script, second Console Script, or installed root `main` module exists.
 
 Wheel and sdist smoke Results must be equal.
 
@@ -171,12 +204,14 @@ The complete local check runs, in fail-fast order:
 
 GitHub Actions retains Python 3.13 and the Editable `.[dev]` installation, then
 runs the same parity and distribution scripts in addition to the existing Ruff,
-schema, generated-output, and pytest gates. No CI step uploads or publishes an
-artifact.
+schema, generated-output, and pytest gates. Installed CLI checks reuse the same
+Wheel/sdist build and two clean environments; no duplicate build or distribution
+step exists. No CI step uploads or publishes an artifact.
 
 ## Remaining boundaries
 
-Issue #141 does not add the installed `skat-ai` command, `python -m skat_ai`, a
-public schema-resource API, a new workflow, a Provenance field, or Package
-publication. The Package license decision also remains unresolved, so no license
-metadata is declared. Publication and all release actions remain human-controlled.
+Issue #142 adds the installed `skat-ai` command and `python -m skat_ai` without a
+public schema-resource API, new workflow, Root-output metadata, a Provenance
+field, Package-version change, or Package publication. The Package license
+decision remains unresolved, so no license metadata is declared. Publication and
+all release actions remain human-controlled.

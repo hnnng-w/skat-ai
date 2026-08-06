@@ -31,9 +31,9 @@ Implemented:
   artifact inspection, and separate clean-install public-API smoke tests
 
 The executable facade is available from source, Editable, Wheel, and sdist
-installations. Installed CLI entry points, public provenance exports, and
-workflow provenance propagation remain open. Internal Application extraction is
-covered separately below.
+installations. Installed CLI entry points are implemented separately below.
+Public provenance exports and workflow provenance propagation remain open.
+Internal Application extraction is covered separately below.
 
 ### Application orchestration foundation
 
@@ -54,9 +54,30 @@ Implemented:
 * Stable public facade reuse without changes to Root schemas, examples,
   scenarios, or Package version
 
-Installed CLI entry points and all field-provenance propagation and output remain
-open. See
+Installed CLI entry points consume this Application layer directly. All field-
+provenance propagation and output remain open. See
 [Application orchestration](application_orchestration.md).
+
+### Installed CLI foundation
+
+Implemented:
+
+* Installed CLI contract version `1`
+* Exact `skat-ai = skat_ai.cli:main` Console Script and no GUI Script or alias
+* `python -m skat_ai` through the same Package-owned implementation
+* Legacy `python main.py` compatibility facade through at least `v1.0.0`
+* One canonical parser preserving every option and adding only `--version`
+* Invocation-specific help with generic installed paths and repository Legacy
+  examples
+* Direct internal Application execution with unchanged JSON, presentation,
+  quiet mode, output/export behavior, errors, and Exit Codes
+* Exact installed/module/Legacy/Application/Public API parity for all seven Root
+  workflows and representative submodes
+* Exact Wheel and sdist metadata plus clean-install command validation in the
+  existing two distribution environments
+
+No Package version, Schema, example, generated scenario, Provenance contract, or
+publication behavior changes. See [Installed CLI](installed_cli.md).
 
 ### Field-level provenance contract foundation
 
@@ -392,6 +413,9 @@ Implemented:
 * Root-selected automatic Training Dataset preparation with only `--input`,
   `--output`, and `--quiet`, concise card-free Plan presentation, and no
   algorithm or weight override
+* Installed, module, and Legacy invocation parity through one Package-owned CLI
+* Exact `--version`, command-specific help, unchanged output and error behavior,
+  and clean-install command validation
 
 ## Current known limitations
 
@@ -401,8 +425,8 @@ Implemented:
   perfect-information solver, not a full or general hidden-information solver.
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
-* The public Python API executes all seven Root workflows in memory from source,
-  Editable, Wheel, and sdist installations; an installed CLI is not yet present.
+* The public Python API and installed CLI execute all seven Root workflows from
+  source, Editable, Wheel, and sdist installations.
 * Full official settlement nuance coverage is not complete.
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
 * The engine verifies only bounded ISkO 4.4.5 defender rest-trick claims; no general claim-verification protocol exists.
@@ -588,10 +612,10 @@ implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, field-level live provenance propagation
-and adversarial workflow enforcement, interactive live and retrospective
-input/session capture, and a stable installed CLI interface. The executable
-public facade, internal Application layer, and installable library distributions
-are implemented. API contract
+and adversarial workflow enforcement, and interactive live and retrospective
+input/session capture. The executable public facade, internal Application layer,
+installable library distributions, and stable installed CLI interface are
+implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
 metadata, and stable public errors are implemented. General claim verification
 and historical end reasons outside the
@@ -674,8 +698,11 @@ immutable options, public results and artifacts, lazy schema validation, stable
 error translation, and all-seven-workflow parity. Issue #141 adds Setuptools
 metadata, Package Resource schemas, typing and version metadata, Wheel/sdist and
 clean-install validation, and local/CI gates without an installed CLI or
-publication. Provenance remains separate. Later milestone numbers remain planning
-containers rather than fixed contractual releases.
+publication. Issue #142 adds the exact installed Console Script, module entry
+point, Package-owned canonical CLI, Legacy facade, version output, and clean-
+install CLI/API parity without publication. Provenance remains separate. Later
+milestone numbers remain planning containers rather than fixed contractual
+releases.
 
 ## Open technical cleanup
 

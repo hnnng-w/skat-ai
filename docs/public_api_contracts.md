@@ -11,9 +11,10 @@ skat_ai.api.v1
 
 The public facade parses and executes all seven Root workflows through the Issue
 #139 internal Application layer. Packaged schemas support Editable, Wheel, and
-sdist installations without adding a workflow-specific helper, installed CLI,
-or public schema API. Issue #138 remains a separate internal field-provenance
-contract foundation and adds no public provenance type or field.
+sdist installations without adding a workflow-specific helper or public schema
+API. Issue #142 adds Package CLI entry points as a separate transport contract;
+it adds no public API export. Issue #138 remains a separate internal field-
+provenance contract foundation and adds no public provenance type or field.
 
 ## Public namespaces
 
@@ -254,9 +255,11 @@ stable `code`, and nullable `path`. Its deterministic `to_dict()` has exactly
 Unrelated Domain code is not broadly migrated. The executable facade translates
 only raw `ValueError` and `OSError` that cross its public boundary.
 
-## Legacy CLI
+## CLI compatibility
 
-Root `python main.py` remains supported through at least `v1.0.0`.
+Installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`
+share one Package-owned CLI implementation. Root `python main.py` remains
+supported through at least `v1.0.0`.
 `main.CliUsageError` is an exact compatibility alias for
 `SkatAICliUsageError`. Existing catches, messages, prefixes, patch points, and
 argument validation remain unchanged.
@@ -296,7 +299,6 @@ absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
 
 The following remain open for later `v0.13.0` issues:
 
-* installed `skat-ai` and `python -m skat_ai` CLIs;
 * field-level provenance propagation and workflow-level leakage enforcement;
 * any additive public provenance API, schemas, or output integration.
 
@@ -305,5 +307,7 @@ Root workflows, legacy CLI transport parity, and auxiliary artifacts are
 implemented by Issue #139. Issue #140 exposes them through the stable public
 facade without adding transport I/O or provenance. Issue #141 adds distribution
 metadata, private Package Resource schemas, `py.typed`, Package version export,
-and Wheel/sdist clean-install gates without changing the API facade exports or
-adding an installed CLI. See [Packaging and distribution](packaging_and_distribution.md).
+and Wheel/sdist clean-install gates without changing the API facade exports.
+Issue #142 adds the installed and module CLI transports without changing this
+Public API surface. See [Installed CLI](installed_cli.md) and
+[Packaging and distribution](packaging_and_distribution.md).

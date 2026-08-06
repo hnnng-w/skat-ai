@@ -18,6 +18,8 @@ Issue #140 adds the stable `skat_ai.api.v1` facade over this boundary without
 making Application contracts public.
 Issue #141 packages that facade and its private Schema resources without moving
 build, resource, metadata, or installation concerns into Application.
+Issue #142 adds Package-owned installed and module CLI transports that construct
+these same Application options and execute this dispatcher directly.
 
 ## Contracts
 
@@ -139,11 +141,12 @@ Domain construction, workflow execution, and deterministic serialization. No-I/O
 means transport I/O is outside this layer; it does not mean validation-free or
 computation-free execution.
 
-## Legacy CLI boundary
+## CLI boundary
 
-Repository-root `main.py` remains the legacy transport adapter. It owns argument
-parsing, file loading, output writing, human-readable presentation, Exit Codes,
-and expected CLI-error handling. Its existing wrapper names remain available.
+The Package-owned CLI owns argument parsing, file loading, output writing, human-
+readable presentation, Exit Codes, and expected CLI-error handling. Installed
+`skat-ai` and module `python -m skat_ai` use it directly. Repository-root
+`main.py` remains a thin Legacy facade with its existing wrapper names.
 
 Those wrappers now translate CLI selections into immutable Application options,
 inject already loaded Opponent Statistics where requested, execute the generic
@@ -152,8 +155,8 @@ JSON and human-readable behavior. Internal dependency seams retain established
 Root-module monkeypatch behavior. Focused parity coverage compares Application
 Position output with the legacy wrapper output.
 
-This extraction does not create an installed CLI and does not make `main.py` a
-public Python API.
+The installed CLI remains a transport interface and does not make `main.py` or
+CLI functions part of the Public Python API.
 
 ## Public API and provenance boundaries
 
@@ -185,16 +188,19 @@ Packaging does not change this boundary. Clean Wheel and sdist smoke tests call
 the public facade, which delegates to the same Application handlers and preserves
 the same Root Results and artifacts. Application still performs no Package
 Resource discovery and imports no repository-root `main.py`.
+The same clean environments also compare installed/module CLI Root JSON with the
+Public API result.
 
 ## Remaining work
 
 The following remain separate follow-up scopes:
 
-* installed `skat-ai` and `python -m skat_ai` entry points;
 * public error translation across existing Domain failures;
 * all field-level provenance propagation, enforcement, schemas, API exposure,
   output integration, and CLI presentation.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue
-#141. See [Packaging and distribution](packaging_and_distribution.md).
+#141. Installed and module entry points are implemented by Issue #142. See
+[Installed CLI](installed_cli.md) and
+[Packaging and distribution](packaging_and_distribution.md).

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import configparser
 import csv
 import hashlib
 import io
@@ -23,9 +24,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PACKAGE_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai"
 SCHEMA_DIRECTORY = PROJECT_ROOT / "schemas"
 SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "opponent_statistics.json"
+UNAVAILABLE_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "training_dataset_preparation_unavailable.json"
+)
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.12.0"
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
+CONSOLE_SCRIPT_NAME = "skat-ai"
+CONSOLE_SCRIPT_TARGET = "skat_ai.cli:main"
 
 
 class DistributionValidationError(RuntimeError):
@@ -246,6 +252,26 @@ def _validate_wheel_record(archive: zipfile.ZipFile, names: set[str], record_nam
     _require(recorded_names == names, "Wheel RECORD does not list every archive member.")
 
 
+def _parse_entry_points(content: str, *, artifact_name: str) -> dict[str, dict[str, str]]:
+    parser = configparser.ConfigParser(interpolation=None)
+    parser.optionxform = str
+    try:
+        parser.read_string(content)
+    except configparser.Error as error:
+        raise DistributionValidationError(
+            f"{artifact_name} entry-point metadata is invalid: {error}"
+        ) from error
+    return {section: dict(parser.items(section)) for section in parser.sections()}
+
+
+def _validate_entry_points(content: str, *, artifact_name: str) -> None:
+    _require(
+        _parse_entry_points(content, artifact_name=artifact_name)
+        == {"console_scripts": {CONSOLE_SCRIPT_NAME: CONSOLE_SCRIPT_TARGET}},
+        f"{artifact_name} must declare exactly one skat-ai Console Script and no GUI Script.",
+    )
+
+
 def _inspect_wheel(
     wheel_path: Path,
     expected_schemas: dict[str, bytes],
@@ -303,15 +329,17 @@ def _inspect_wheel(
             "Wheel contains repository-only test, example, or generated-output files.",
         )
         _require("main.py" not in names, "Wheel contains the repository Root main.py.")
+        _require("skat_ai/__main__.py" in names, "Wheel is missing skat_ai/__main__.py.")
         _require(
             not any(".data/scripts/" in name for name in names),
             "Wheel contains an installed script payload.",
         )
         entry_points_name = f"{dist_info}/entry_points.txt"
-        if entry_points_name in names:
-            entry_points = archive.read(entry_points_name).decode("utf-8")
-            _require("console_scripts" not in entry_points, "Wheel declares a Console Script.")
-            _require("gui_scripts" not in entry_points, "Wheel declares a GUI Script.")
+        _require(entry_points_name in names, "Wheel is missing entry_points.txt.")
+        _validate_entry_points(
+            archive.read(entry_points_name).decode("utf-8"),
+            artifact_name="Wheel",
+        )
 
         return metadata
 
@@ -360,7 +388,11 @@ def _inspect_sdist(
         archived_pyproject = tomllib.loads(
             _tar_bytes(archive, members[f"{root}/pyproject.toml"]).decode("utf-8")
         )
-        _require("scripts" not in archived_pyproject["project"], "sdist declares a Console Script.")
+        _require(
+            archived_pyproject["project"].get("scripts")
+            == {CONSOLE_SCRIPT_NAME: CONSOLE_SCRIPT_TARGET},
+            "sdist does not declare the exact skat-ai Console Script.",
+        )
         _require("gui-scripts" not in archived_pyproject["project"], "sdist declares a GUI Script.")
         _require(
             archived_pyproject["build-system"]
@@ -392,6 +424,11 @@ def _inspect_sdist(
         }
         _validate_schema_payload(schema_payload, expected_schemas, artifact_name="sdist")
         _require(f"{root}/setup.py" not in names, "sdist contains setup.py.")
+        _require(f"{root}/main.py" not in names, "sdist contains the repository Root main.py.")
+        _require(
+            f"{root}/src/skat_ai/__main__.py" in names,
+            "sdist is missing src/skat_ai/__main__.py.",
+        )
         return metadata
 
 
@@ -440,26 +477,35 @@ request = parse_request(document)
 execution = execute_document(
     document,
     options=ExecutionOptionsV1(validate_output=True),
-    input_reference="distribution-smoke.json",
+    input_reference="opponent_statistics.json",
 )
 serialized = serialize_result(execution)
 assert request.workflow.value == "opponent_statistics"
 assert serialized["document"]["opponent_statistics_summary"]["record_count"] == 2
 assert serialized["warnings"] == []
 assert serialized["artifacts"] == []
+installed_cli_document = json.loads((cwd / "installed-cli-result.json").read_text(encoding="utf-8"))
+module_cli_document = json.loads((cwd / "module-cli-result.json").read_text(encoding="utf-8"))
+assert installed_cli_document == module_cli_document == serialized["document"]
+unavailable_document = json.loads((cwd / "unavailable-result.json").read_text(encoding="utf-8"))
+assert (
+    unavailable_document["training_dataset_preparation_summary"]["plan"]["status"]
+    == "unavailable"
+)
 
 distribution = importlib.metadata.distribution("skat-ai")
 assert distribution.version == "0.12.0"
 assert skat_ai.__version__ == "0.12.0"
-assert not [
-    entry
+entry_points = [
+    (entry.group, entry.name, entry.value)
     for entry in distribution.entry_points
     if entry.group in {"console_scripts", "gui_scripts"}
 ]
+assert entry_points == [("console_scripts", "skat-ai", "skat_ai.cli:main")]
 marker = importlib.resources.files(skat_ai).joinpath("py.typed")
 assert marker.is_file() and marker.read_bytes() == b""
 assert Path(distribution.locate_file("skat_ai/py.typed")).is_file()
-assert importlib.util.find_spec("skat_ai.__main__") is None
+assert importlib.util.find_spec("skat_ai.__main__") is not None
 assert importlib.util.find_spec("main") is None
 
 site_roots = {
@@ -488,6 +534,8 @@ print(json.dumps({
     "semantic": {
         "request": request.to_dict(),
         "execution": serialized,
+        "cli_document": installed_cli_document,
+        "unavailable_document": unavailable_document,
     },
     "schema_names": resource_names,
     "schema_ids": schema_ids,
@@ -504,6 +552,35 @@ def _venv_python(environment_directory: Path) -> Path:
     return environment_directory / "bin" / "python"
 
 
+def _venv_console_script(environment_directory: Path) -> Path:
+    if os.name == "nt":
+        return environment_directory / "Scripts" / "skat-ai.exe"
+    return environment_directory / "bin" / "skat-ai"
+
+
+def _run_cli_check(
+    command: list[str],
+    *,
+    cwd: Path,
+    environment: dict[str, str],
+    expected_returncode: int,
+) -> subprocess.CompletedProcess[str]:
+    completed = subprocess.run(
+        command,
+        cwd=cwd,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    _require(
+        completed.returncode == expected_returncode,
+        f"CLI command returned {completed.returncode}, expected {expected_returncode}: "
+        f"{' '.join(command)}\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}",
+    )
+    return completed
+
+
 def _install_and_smoke(
     artifact: Path,
     *,
@@ -514,6 +591,7 @@ def _install_and_smoke(
     environment_directory = temporary_root / f"venv-{label}"
     venv.EnvBuilder(with_pip=True, clear=True).create(environment_directory)
     python = _venv_python(environment_directory)
+    console_script = _venv_console_script(environment_directory)
     consumer_directory = temporary_root / f"consumer-{label}"
     consumer_directory.mkdir()
     expected_schema_directory = consumer_directory / "expected_schemas"
@@ -523,6 +601,13 @@ def _install_and_smoke(
     document = json.loads(SMOKE_EXAMPLE.read_text(encoding="utf-8"))
     (consumer_directory / "opponent_statistics.json").write_text(
         json.dumps(document, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    unavailable_document = json.loads(
+        UNAVAILABLE_SMOKE_EXAMPLE.read_text(encoding="utf-8")
+    )
+    (consumer_directory / "unavailable.json").write_text(
+        json.dumps(unavailable_document, separators=(",", ":")),
         encoding="utf-8",
     )
 
@@ -539,6 +624,102 @@ def _install_and_smoke(
         cwd=consumer_directory,
         environment=environment,
     )
+    _require(console_script.is_file(), f"{label} did not install the skat-ai command.")
+
+    installed_prefix = [str(console_script)]
+    module_prefix = [str(python), "-m", "skat_ai"]
+    for prefix, command_name in (
+        (installed_prefix, "skat-ai"),
+        (module_prefix, "python -m skat_ai"),
+    ):
+        help_result = _run_cli_check(
+            [*prefix, "--help"],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(not help_result.stderr, f"{label} {command_name} --help wrote stderr.")
+        _require(
+            f"usage: {command_name}" in help_result.stdout,
+            f"{label} {command_name} --help used the wrong command identity.",
+        )
+        _require(
+            "examples/" not in help_result.stdout,
+            f"{label} {command_name} --help implies repository examples are installed.",
+        )
+        version_result = _run_cli_check(
+            [*prefix, "--version"],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            version_result.stdout == "skat-ai 0.12.0\n" and not version_result.stderr,
+            f"{label} {command_name} --version output changed.",
+        )
+
+    for prefix, output_name in (
+        (installed_prefix, "installed-cli-result.json"),
+        (module_prefix, "module-cli-result.json"),
+    ):
+        completed = _run_cli_check(
+            [
+                *prefix,
+                "--input",
+                "opponent_statistics.json",
+                "--output",
+                output_name,
+                "--quiet",
+            ],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not completed.stdout and not completed.stderr,
+            f"{label} quiet CLI workflow produced output.",
+        )
+
+    unavailable_result = _run_cli_check(
+        [
+            *installed_prefix,
+            "--input",
+            "unavailable.json",
+            "--output",
+            "unavailable-result.json",
+            "--quiet",
+        ],
+        cwd=consumer_directory,
+        environment=environment,
+        expected_returncode=0,
+    )
+    _require(
+        not unavailable_result.stdout and not unavailable_result.stderr,
+        f"{label} unavailable Result was not a quiet success.",
+    )
+    unknown_result = _run_cli_check(
+        [*installed_prefix, "--not-an-option"],
+        cwd=consumer_directory,
+        environment=environment,
+        expected_returncode=2,
+    )
+    _require(
+        not unknown_result.stdout
+        and "usage: skat-ai" in unknown_result.stderr
+        and "unrecognized arguments" in unknown_result.stderr,
+        f"{label} unknown-option usage behavior changed.",
+    )
+    missing_result = _run_cli_check(
+        [*module_prefix, "--input", "missing.json"],
+        cwd=consumer_directory,
+        environment=environment,
+        expected_returncode=1,
+    )
+    _require(
+        not missing_result.stdout and "Error: Input file not found:" in missing_result.stderr,
+        f"{label} missing-input failure behavior changed.",
+    )
+
     smoke_environment = environment.copy()
     smoke_environment["SKAT_AI_REPOSITORY_ROOT"] = str(PROJECT_ROOT)
     completed = _run(

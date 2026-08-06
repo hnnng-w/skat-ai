@@ -77,7 +77,7 @@ The full check covers:
 * packaged-schema filename and byte parity
 * input JSON schema validation
 * generated output JSON schema validation
-* Wheel, sdist, and clean-install distribution validation
+* Wheel, sdist, and clean-install API/installed/module CLI validation
 * pytest regression tests
 
 ## Useful focused checks
@@ -126,6 +126,7 @@ Before larger changes, read the relevant documentation:
 * `docs/input_json.md`
 * `docs/output_json.md`
 * `docs/application_orchestration.md`
+* `docs/installed_cli.md`
 * `docs/examples.md`
 * `docs/schema_validation.md`
 * `docs/requirements_traceability.md`
@@ -164,8 +165,10 @@ schema validation, stable boundary-error translation, and all-seven-workflow
 Application parity. Issue #141 adds explicit Setuptools build metadata, Package
 Resource schemas, schema synchronization and parity, `py.typed`, Package
 `__version__`, one Wheel and one sdist, artifact inspection, clean-install API
-smoke validation, and local/CI distribution gates. The installed CLI remains
-open. Issue #138 adds the internal version-
+smoke validation, and local/CI distribution gates. Issue #142 adds installed CLI
+contract version `1`, the exact `skat-ai` Console Script, `python -m skat_ai`, a
+Package-owned canonical CLI, the Legacy Root compatibility facade, `--version`,
+and clean-install CLI/API parity. Issue #138 adds the internal version-
 1 field-level provenance language, immutable sidecar ledgers, RFC 6901 paths,
 coverage and dependency validation, Information Use Context, public redaction,
 and safe serialization. Workflow propagation and public provenance integration
@@ -235,6 +238,7 @@ Major completed areas include:
 * internal Application orchestration version 1 with immutable contracts and options, seven in-memory workflow handlers, five isolated Training Dataset operations, injected Opponent Statistics, auxiliary artifacts, no-I/O dispatch, and legacy CLI transport parity
 * executable public Python API version 1 with immutable direct options, all-seven-workflow execution, separate artifacts, lazy Package Resource schema validation, and stable boundary errors
 * installation-ready Setuptools Wheel and sdist artifacts with byte-identical packaged schemas, typing metadata, Package version export, and clean-install validation
+* Package-owned installed and module CLI entry points with canonical parsing, direct Application execution, Legacy Root compatibility, and clean Wheel/sdist command validation
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -251,9 +255,8 @@ exact world counts do not identify the real deal, sampled ownership is not
 calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
-attribution, player ratings, complete field-level information provenance, interactive
-input/session capture, and a stable installed CLI interface remain
-open before `v1.0.0`.
+attribution, player ratings, complete field-level information provenance, and
+interactive input/session capture remain open before `v1.0.0`.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.
 

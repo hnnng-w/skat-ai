@@ -61,6 +61,9 @@ The project focuses on:
 * installation-ready Setuptools packaging with private byte-identical Schema
   resources, `py.typed`, Package `__version__`, one Wheel and one sdist,
   artifact inspection, and separate clean-install public-API smoke tests
+* installed CLI contract version `1` with the exact `skat-ai` Console Script,
+  `python -m skat_ai`, a Package-owned canonical parser and transport, Legacy
+  Root compatibility, and clean-install CLI/API parity
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -149,7 +152,8 @@ Issue #140 extends this foundation with `parse_request`, `execute`,
 direct immutable workflow options, lazy Root schema validation, and stable
 boundary-error translation. Issue #141 adds installable Wheel and sdist
 artifacts, private Package Resource schemas, typing and Package version metadata,
-and clean-install validation. An installed CLI remains open. Field-level provenance has a separate
+and clean-install validation. Issue #142 adds the installed and module CLI entry
+points without changing Public API exports. Field-level provenance has a separate
 internal contract foundation, but no workflow propagation, output, or public
 provenance export. See [Public API contracts](public_api_contracts.md) and
 [Public Python API v1](public_python_api_v1.md).
@@ -169,14 +173,16 @@ Implemented by Issue #139 for `v0.13.0`:
   and Historical Game execution with the existing binding and temporal rules
 * one optional `opponent_statistics_input` auxiliary export artifact, separate
   from the primary result and without a transport path
-* repository-root `main.py` retained as the file/CLI/printing transport boundary
-  with existing wrapper names and JSON behavior preserved
+* Package-owned CLI transport over the Application layer, with repository-root
+  `main.py` retained as a compatibility facade preserving wrapper names, patches,
+  and JSON behavior
 * an internal boundary consumed by the Issue #140 public facade
 
 The public facade now exposes generic parse, execute, execute-document, and
 serialization functions without exporting these Application types. Workflow-
-specific execution helpers remain absent. Installed entry points, broader Domain
-error migration, and all field-provenance propagation and output remain open. See
+specific execution helpers remain absent. Installed entry points are implemented
+by Issue #142; broader Domain error migration and all field-provenance propagation
+and output remain open. See
 [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
@@ -630,6 +636,10 @@ Implemented:
 * complete historical-game validation and summary output
 * optional historical decision snapshot and complete-review flags
 * separate versioned training-dataset conversion workflow
+* installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`
+  invocation forms over one canonical Package parser and transport
+* exact `--version` output, invocation-specific help, unchanged Exit Codes, and
+  clean-install CLI/API parity
 
 ## Current important modules
 
@@ -677,16 +687,17 @@ Implemented:
 * `application/simple_workflows.py`
   * transport-free preparation, statistics, list, and comparison handlers
 
-### Entry point
+### CLI entry points
 
-* `main.py`
-
-  * CLI entry point
-  * analysis orchestration
-  * output construction
-  * multi-step execution
-  * policy comparison
-  * human-readable output
+* `cli/execution.py`
+  * canonical parser, CLI-only validation, Application options, file transport,
+    human-readable presentation, and Exit Codes
+* `cli/__init__.py`
+  * exact `skat_ai.cli:main` Console Script target
+* `__main__.py`
+  * `python -m skat_ai` delegation
+* repository-root `main.py`
+  * Legacy compatibility facade and Root monkeypatch adapter through `v1.0.0`
 
 ### Input and validation
 
@@ -838,6 +849,7 @@ Main documentation files:
 * `docs/input_json.md`
 * `docs/public_api_contracts.md`
 * `docs/public_python_api_v1.md`
+* `docs/installed_cli.md`
 * `docs/packaging_and_distribution.md`
 * `docs/application_orchestration.md`
 * `docs/field_level_information_provenance.md`
@@ -952,6 +964,12 @@ Wheel and sdist inspection, separate clean installations, external-working-
 directory API smoke tests, and local/CI distribution gates. It changes no
 Package version, Root schema meaning, workflow, generated scenario, legacy CLI,
 or provenance output, and it does not publish an artifact.
+
+Issue #142 adds installed CLI contract version `1`, the exact `skat-ai` Console
+Script, `python -m skat_ai`, one Package-owned canonical implementation, the
+Legacy Root facade, `--version`, and Wheel/sdist clean-install CLI/API parity. It
+changes no Package version, Root schema, example, generated scenario, Provenance
+output, or publication state.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -1103,6 +1121,8 @@ Completed implementation scope:
   options, separate artifacts, and stable boundary errors
 * installation-ready Wheel and sdist artifacts with synchronized schemas,
   `py.typed`, Package version metadata, and clean-install validation
+* installed and module CLI entry points with canonical Package execution, Legacy
+  compatibility, unchanged Root JSON, and clean-install Public API parity
 * internal field-level provenance contract version 1 with immutable sidecar
   ledgers, RFC 6901 paths, coverage and dependency audits, context-use policy,
   public redaction, and safe serialization
@@ -1146,9 +1166,9 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Interactive live or retrospective input and a stable installed CLI interface
-  are not implemented. The public executable facade and reusable internal
-  Application layer work from source, Editable, Wheel, and sdist installations.
+* Interactive live or retrospective input is not implemented. The installed CLI,
+  public executable facade, and reusable internal Application layer work from
+  source, Editable, Wheel, and sdist installations.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -1158,13 +1178,12 @@ Completed implementation scope:
 
 Continue the approved `v0.13.0` sequence after the Issue #137 public contracts,
 Issue #138 field-provenance foundation, Issue #139 internal Application
-orchestration, Issue #140 executable public facade, and Issue #141 distribution
-packaging. Provenance propagation
+orchestration, Issue #140 executable public facade, Issue #141 distribution
+packaging, and Issue #142 installed CLI. Provenance propagation
 should use the internal sidecar language at Application workflow boundaries
-without changing existing specialized contracts. Installed CLI entry points,
-public provenance integration, and workflow-level leakage enforcement remain
-separate follow-up scopes. Package publication and license selection also remain
-human decisions outside Issue #141.
+without changing existing specialized contracts. Public provenance integration
+and workflow-level leakage enforcement remain separate follow-up scopes. Package
+publication and license selection also remain human decisions.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

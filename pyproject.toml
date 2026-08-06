@@ -12,6 +12,9 @@ dependencies = [
     "jsonschema>=4.0.0",
 ]
 
+[project.scripts]
+skat-ai = "skat_ai.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "build>=1.2.2",

@@ -25,6 +25,7 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["readme"] == "README.md"
     assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
+    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert pyproject["project"]["optional-dependencies"]["dev"] == [
         "build>=1.2.2",
         "pytest>=9.0.0",
@@ -43,7 +44,6 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
         "classifiers",
         "gui-scripts",
         "license",
-        "scripts",
         "urls",
     ):
         assert forbidden not in pyproject["project"]

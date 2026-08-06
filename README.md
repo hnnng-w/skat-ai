@@ -134,7 +134,7 @@ official Skat rules arbitration.
 * Input JSON schema validation
 * Output JSON schema validation
 * Generated-output schema validation for selected examples
-* Packaged-schema byte parity and Wheel/sdist clean-install validation
+* Packaged-schema byte parity and Wheel/sdist clean-install API/CLI validation
 * Pytest regression coverage
 * Ruff checks
 * Combined project check script
@@ -159,11 +159,13 @@ official Skat rules arbitration.
   Schemas, and clean-install validation
 
 The facade executes already loaded Root documents without caller transport I/O
-and preserves legacy Root JSON output. Its lazy schema backend uses packaged
-resources and works from source, Editable, Wheel, and sdist installations. An
-installed CLI remains open; repository-root `main.py` is still the only CLI.
-Field-level provenance has an internal contract foundation but is not propagated
-or emitted by Application or public workflows. See
+and preserves Root JSON output. Its lazy schema backend uses packaged resources
+and works from source, Editable, Wheel, and sdist installations. Installed CLI
+contract version `1` adds the exact `skat-ai` Console Script and
+`python -m skat_ai`; repository-root `main.py` remains a compatible Legacy
+facade over the same Package implementation. Field-level provenance has an
+internal contract foundation but is not propagated or emitted by Application,
+public, or CLI workflows. See
 [Public Python API v1](docs/public_python_api_v1.md) and
 [Application orchestration](docs/application_orchestration.md).
 
@@ -210,6 +212,17 @@ python -m build
 See [Packaging and distribution](docs/packaging_and_distribution.md) for Package
 Data, schema synchronization, clean-install validation, and current boundaries.
 
+The installation exposes both Package CLI forms:
+
+```powershell
+skat-ai --help
+python -m skat_ai --help
+```
+
+See [Installed CLI](docs/installed_cli.md) for invocation identities, output,
+errors, compatibility, and clean-install validation. Repository examples are not
+installed as Package Data.
+
 ## Usage
 
 Parse and execute an already loaded Root JSON document:
@@ -237,8 +250,13 @@ compatibility, errors, and normal Result states, and
 Show available CLI options and common command examples:
 
 ```powershell
+skat-ai --help
+python -m skat_ai --help
 python main.py --help
 ```
+
+The first two commands are installed Package interfaces. `python main.py` is the
+Legacy repository interface and remains compatible through at least `v1.0.0`.
 
 Run the default analysis from the repository root. This reads the root
 `input_position.json` quick-start fixture:
@@ -620,6 +638,7 @@ Detailed documentation is split into topic-specific files:
 * [Input JSON](docs/input_json.md)
 * [Public API contracts](docs/public_api_contracts.md)
 * [Public Python API v1](docs/public_python_api_v1.md)
+* [Installed CLI](docs/installed_cli.md)
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
@@ -853,8 +872,7 @@ Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, field-level live
-provenance propagation, interactive input and session capture, and a stable
-installed CLI interface. General
+provenance propagation, and interactive input and session capture. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -879,8 +897,11 @@ internal all-seven-workflow Application orchestration. Issue #140 adds the
 executable public facade, direct immutable options, public results and artifacts,
 lazy schema validation, and stable boundary errors. Issue #141 adds explicit
 Setuptools build metadata, byte-identical packaged Schema resources, `py.typed`,
-Package `__version__`, Wheel/sdist inspection, and clean installation gates. An
-installed CLI, public provenance exports, and provenance propagation remain open.
+Package `__version__`, Wheel/sdist inspection, and clean installation gates.
+Issue #142 adds installed CLI contract version `1`, the exact `skat-ai` Console
+Script, `python -m skat_ai`, a Package-owned canonical implementation, Legacy
+Root compatibility, and clean-install CLI/API parity. Public provenance exports
+and provenance propagation remain open.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

@@ -383,7 +383,7 @@ def test_normal_result_states_are_canonical_and_remain_results() -> None:
         assert result.to_dict()["document"]["status"] == state
 
 
-def test_packaging_adds_only_the_package_root_version_export() -> None:
+def test_packaging_and_cli_add_no_public_api_exports() -> None:
     forbidden = {
         "get_schema",
         "load_schema",
@@ -395,9 +395,12 @@ def test_packaging_adds_only_the_package_root_version_export() -> None:
     assert forbidden.isdisjoint(api_v1.__all__)
     assert all(not hasattr(api_v1, name) for name in forbidden)
     assert skat_ai.__version__ == "0.12.0"
-    assert importlib.util.find_spec("skat_ai.__main__") is None
+    assert importlib.util.find_spec("skat_ai.__main__") is not None
     assert pyproject["build-system"]["build-backend"] == "setuptools.build_meta"
-    assert "scripts" not in pyproject["project"]
+    assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
+    assert "gui-scripts" not in pyproject["project"]
+    assert "main" not in api_v1.__all__
+    assert "run_cli" not in api_v1.__all__
     assert (PROJECT_ROOT / "src" / "skat_ai" / "py.typed").is_file()
 
 

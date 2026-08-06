@@ -126,6 +126,7 @@ def test_cli_help_exits_zero_and_lists_important_options() -> None:
     assert "Examples:" in completed_process.stdout
 
     for option in [
+        "--version",
         "--input",
         "--output",
         "--quiet",

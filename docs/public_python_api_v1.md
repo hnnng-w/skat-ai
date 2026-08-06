@@ -255,14 +255,17 @@ or printing. Callers provide already loaded documents and decide whether and
 where to persist serialized results or artifacts. Lazy schema-resource reads are
 validation resources, not caller transport I/O.
 
-The repository-root `main.py` remains the legacy CLI transport adapter and keeps
-its existing JSON, output-file, printing, and Exit Code behavior.
+The Package-owned CLI directly consumes the same Application layer and keeps its
+file, printing, and Exit Code behavior outside this no-I/O facade. Installed
+`skat-ai`, module `python -m skat_ai`, and Legacy `python main.py` preserve Root
+JSON parity; the CLI does not call this Public API as an intermediate layer.
 
 ## Current boundaries
 
 The facade adds no workflow-specific helper functions, public Domain dataclasses,
-field-level provenance, installed entry points, or `python -m skat_ai`. Issue
-#141 adds private Package Resources, build-system metadata, Package Data,
-`py.typed`, Package-Root `__version__`, and Wheel/sdist validation without a
-Package version change. See
+or field-level provenance. Issue #141 adds private Package Resources, build-
+system metadata, Package Data, `py.typed`, Package-Root `__version__`, and
+Wheel/sdist validation without a Package version change. Issue #142 adds a
+separate installed CLI contract without adding API options or exports. See
+[Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).
