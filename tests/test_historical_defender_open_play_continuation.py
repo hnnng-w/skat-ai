@@ -563,6 +563,6 @@ def test_continuation_never_invokes_exact_rest_trick_proof(
     assert "historical_game_end_summary" not in summary
 
 
-def test_package_version_is_0_11_0() -> None:
+def test_package_version_is_0_12_0() -> None:
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.11.0"' in pyproject
+    assert 'version = "0.12.0"' in pyproject

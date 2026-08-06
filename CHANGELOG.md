@@ -1,5 +1,119 @@
 # Changelog
 
+## v0.12.0
+
+**Release theme: Fixed-three-player historical lists and deterministic dataset preparation**
+
+### Historical 36-position list contracts
+
+* Add the immutable version-1 product contract for exactly three fixed stable
+  participants, 36 authoritative ordered positions, and twelve rounds, with no
+  participant replacement or four-player support (Issue #127).
+* Represent every position as `played_game` or `passed_deal`. Passed Deals have
+  no declarer or settlement, produce zero score and role counts, are not Defender
+  Games, and still advance dealer rotation while fixed table places map to
+  rotating historical seats (Issue #127).
+* Preserve authoritative entry-array order and support optional timestamp audit
+  without presenting the 36-position product boundary as a direct official-rule
+  requirement.
+
+### Aggregation, standings, and independent comparison
+
+* Add immutable per-entry contributions, cumulative Player totals, all 36
+  progression snapshots, provisional standings, and final standings with the
+  existing SkWO performance components (Issue #128).
+* Rank by performance points, own wins, own losses, then an exact externally
+  executed lot. Preserve shared competition ranks and `lot_required` for
+  unresolved ties; never generate a random lot, and let a valid lot change only
+  tied ordering and ranks (Issue #128).
+* Compare independent completed lists by stable Player ID, using the first list
+  as reference, permitting changed table places, requiring disjoint Played Game
+  IDs, and reporting `comparison - reference` deltas (Issue #129).
+* Report rank changes only when both rankings are final and retain explicit
+  unresolved-lot statuses. Add no progression-position comparison, combined
+  totals, averages, series standings, series winner, rating, or recommendation
+  (Issue #129).
+
+### Public historical-list workflows
+
+* Add root-selected `fixed_three_player_historical_list_input` and
+  `fixed_three_player_historical_list_comparison_input` workflows with outputs
+  `fixed_three_player_historical_list_summary` and
+  `fixed_three_player_historical_list_comparison_summary` (Issue #130).
+* Accept only `--input`, `--output`, and `--quiet`; retain explicit JSON lot
+  input, complete JSON progression, twelve concise round-end CLI rows, and
+  descriptive comparison CLI output (Issue #130).
+* Add strict standalone schemas and three deterministic scenarios without
+  changing existing list-performance inputs (Issue #130).
+
+### Automatic Dataset preparation contracts
+
+* Add version-1 unpartitioned source Records, explicit positive integer weights
+  with no default ratio, split-safe source facts, identity/content fingerprints,
+  and deterministic SHA-256 seed domains (Issue #131).
+* Assign whole Records, preserve Zero-sample Records, use Record Count as the
+  primary balance basis and Sample Count only as diagnostics, and return only
+  `complete` or stable-reason `unavailable` Plans with no partial or fallback
+  Plan (Issue #131).
+* Losslessly materialize complete Plans into the existing
+  `TrainingDatasetInput`, adding only `partition` while retaining the current
+  Dataset, Feature Generation, and Partition Policy versions (Issue #131).
+
+### Deterministic Known-opponent and unseen-player splits
+
+* Add `temporal_known_opponent_v1` with required Historical Game timestamps,
+  parsed-instant equal-time groups, three contiguous chronological blocks,
+  exhaustive two-cut evaluation, complete Train Player coverage for Validation
+  and Test, an exact Record-count objective, tie-only seed use, source-order-
+  independent mapping, request-order materialization, and stable unavailable-
+  reason precedence (Issue #132).
+* Add `component_balanced_unseen_player_v1` with direct and transitive Player-
+  connected components, Zero-sample connectivity, at least three components,
+  deterministic largest-component-first ordering, non-empty greedy placement,
+  strict component moves and swaps, and exact Player disjointness (Issue #133).
+* Keep unseen-player optimization local to the declared move/swap neighborhood.
+  Add no global-optimality or exact-ratio guarantee, Sample- or Player-count
+  balancing, or component splitting (Issue #133).
+
+### Public Dataset-preparation workflow
+
+* Add root `training_dataset_preparation_input`, fixed mode dispatch with no
+  public algorithm override, explicit seed and weights, and output
+  `training_dataset_preparation_summary` (Issue #134).
+* Call exactly one generator, materialize complete Plans only, treat unavailable
+  Plans as successful results, and provide no fallback, automatic evaluation, or
+  model training (Issue #134).
+* Add strict request, Plan, and output schemas plus three deterministic
+  preparation scenarios. Complete output contains a reusable nested
+  `training_dataset_input` (Issue #134).
+
+### Information safety, determinism, and compatibility
+
+* The Dataset Partition Plan and concise CLI output contain no Historical Game
+  card data. A complete JSON output intentionally contains the exact source
+  Historical Game Records inside the nested reusable `training_dataset_input`.
+  Only `partition` is added. Unavailable output contains no materialized
+  Historical Games.
+* Preserve existing workflows, manually partitioned Datasets, Dataset audit
+  semantics, Search, Replay Coaching, Historical Game workflows, Opponent
+  Statistics, and list-performance inputs. No migration is required when the new
+  Root workflows are omitted.
+* Preserve all contract, schema, Dataset, Feature Generation, Partition Policy,
+  Plan, fixed-list, Search, Replay Coaching, and budget-profile versions.
+* Keep explicit boundaries: no formal series or tournament management, official
+  federation reports, arbitrary list sizes, participant replacement, four-player
+  tables, or random lot; no globally optimal unseen-player split, exact ratio
+  guarantee, Sample- or Player-count balancing, or component splitting; and no
+  model training or automatic evaluation. Broader Search, claims, settlement,
+  provenance, stable API, installed CLI, and interactive-session gaps remain.
+
+### Validation
+
+* Validate 70 deterministic generated-output scenarios, including three public
+  historical-list and three automatic Dataset-preparation scenarios.
+* Pass the complete pytest suite together with Ruff, input/example schema
+  validation, and generated-output schema validation on Python 3.13.
+
 ## v0.11.0
 
 **Release theme: Information-safe Replay Coaching and structured historical outcomes**

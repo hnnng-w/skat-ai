@@ -773,6 +773,6 @@ def test_rolling_uses_exposure_as_one_source_and_only_actual_target_plays(
     assert "accept" not in serialized_decisions
 
 
-def test_package_version_is_0_11_0() -> None:
+def test_package_version_is_0_12_0() -> None:
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.11.0"' in pyproject
+    assert 'version = "0.12.0"' in pyproject

@@ -384,6 +384,21 @@ Implemented:
 
 ## Release baselines
 
+### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
+
+The `v0.12.0` package baseline is complete through functional Issues #127 through
+#134 and release-preparation Issue #135. It validates 70 deterministic generated-
+output scenarios and requires Python 3.13 or newer. It has not yet been tagged or
+published; publication remains a manual maintainer action, and GitHub Releases
+remains authoritative.
+
+The milestone exposes fixed-three-player historical-list source, cumulative
+aggregation, and independent comparison through strict JSON/schema/CLI workflows.
+It also exposes bounded automatic Training Dataset preparation through fixed
+mode dispatch, complete or explicit unavailable results, strict schemas, CLI,
+and three examples. The prior 67 scenarios remain unchanged; the three Issue
+#134 scenarios bring the package matrix to 70.
+
 ### v0.11.0: Information-safe Replay Coaching and structured historical outcomes
 
 The published `v0.11.0` milestone is complete. Issues #118 through #124 complete
@@ -398,15 +413,6 @@ continuation-before-shortening historical chain, information-safe Replay
 Coaching evidence and impact, deterministic Key Decisions and both Turning Point
 types, one-game patterns, deterministic recommendations, complete report
 composition, and the opt-in public JSON/schema/CLI workflow.
-
-Current `v0.12.0` development through Issue #134 exposes the fixed-three-player
-historical-list source, cumulative aggregation, and independent comparison
-through strict JSON/schema/CLI workflows and exposes bounded automatic Training
-Dataset preparation through fixed mode dispatch, complete or explicit
-unavailable results, strict schemas, CLI, and three examples. The prior 67
-scenarios are unchanged; three Issue #134 scenarios bring the development matrix
-to 70 while the published `v0.11.0` baseline remains 64. The functional milestone
-is complete pending release preparation.
 
 ### v0.10.0: Information-safe bounded Search across compatible worlds
 
@@ -531,8 +537,7 @@ delivers public one-game Replay Coaching through schema, CLI, examples, and
 generated-output coverage. Tactical motifs, cross-game Coaching, ratings, causal
 attribution, and stronger Search remain outside this bounded result.
 
-The functional `v0.12.0` milestone is complete pending release preparation.
-Issue #127 adds
+The `v0.12.0` package milestone is complete. Issue #127 adds
 internal list contract version `1` for all 36 ordered positions and passed
 deals, Issue #128 adds internal cumulative totals, progression, final standings,
 and exact external-lot application, and Issue #129 adds independent completed-
@@ -550,8 +555,13 @@ appended generated-output scenarios. Complete results materialize the existing
 version-1 dataset and audit; unavailable results succeed with null dataset/audit
 and no partial Plan. No new algorithm, algorithm override, fallback, default
 weight, balancing guarantee, model training, or automatic evaluation is added.
-Later milestone numbers remain planning containers rather than fixed
-contractual releases.
+Issue #135 prepares package metadata and release documentation while leaving
+manual tag and GitHub Release publication to the maintainer.
+
+The next provisional planning milestone is `v0.13.0`, directed at stable API,
+packaging, and field-level information provenance. Its final issue sequence and
+architecture are not yet defined. Later milestone numbers remain planning
+containers rather than fixed contractual releases.
 
 ## Open technical cleanup
 
@@ -567,8 +577,9 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current published `v0.11.0` baseline, historical release
-evidence, the authoritative publication state shown by GitHub Releases,
+should distinguish the current `v0.12.0` package baseline, the published
+`v0.11.0` release, historical release evidence, the authoritative publication
+state shown by GitHub Releases,
 requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

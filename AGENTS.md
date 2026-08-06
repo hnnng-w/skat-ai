@@ -132,23 +132,21 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current published stable release is `v0.11.0`, with release theme
-"Information-safe Replay Coaching and structured historical outcomes" and GitHub
-Release title "v0.11.0 — Information-safe Replay Coaching and structured
-historical outcomes". It points to commit `cfd28e5`; the package version is
-`0.11.0`, and the Python requirement remains `>=3.13`.
+The package baseline is `v0.12.0`, with release theme "Fixed-three-player
+historical lists and deterministic dataset preparation" and intended GitHub
+Release title "v0.12.0 — Fixed-three-player historical lists and deterministic
+dataset preparation". The package version is `0.12.0`, the Python requirement
+remains `>=3.13`, and the baseline validates 70 deterministic generated-output
+scenarios. Issues #127 through #134 complete the functional milestone, and Issue
+#135 prepares release metadata and documentation.
 
-The published baseline validates 64 deterministic generated-output scenarios and
-passes 4,392 pytest tests. Issues #118 through #124 complete the functional
-milestone, and Issue #125 completed release preparation. Publication was
-performed manually by the maintainer, and GitHub Releases remains authoritative
-for publication status.
-
-The functional `v0.12.0` milestone is complete through Issue #134 and is pending
-release preparation. It adds fixed-three-player 36-game list aggregation and a
-bounded public automatic Training Dataset preparation workflow. The current
-development matrix validates 70 deterministic generated-output scenarios; the
-published `v0.11.0` baseline remains 64 scenarios and 4,392 pytest tests.
+`v0.12.0` has not yet been tagged or published. The current published stable
+release remains `v0.11.0`, with release theme "Information-safe Replay Coaching
+and structured historical outcomes". It points to commit `cfd28e5`, validates 64
+deterministic generated-output scenarios, and passes 4,392 pytest tests. Issues
+#118 through #124 complete that functional milestone, and Issue #125 completed
+release preparation. Publication actions are performed manually by the
+maintainer, and GitHub Releases remains authoritative for publication status.
 
 Major completed areas include:
 
@@ -207,6 +205,8 @@ Major completed areas include:
 * immutable Search budget profiles, strict-improvement and convergence fixtures, and measured reference performance
 * immutable 61-case normative settlement matrix and bounded continuation-before-shortening historical chains
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
+* fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
+* deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -223,9 +223,9 @@ exact world counts do not identify the real deal, sampled ownership is not
 calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
-attribution, player ratings, fixed-three-player 36-game list aggregation,
-interactive input/session capture, and a stable installed library and CLI
-interface remain open before `v1.0.0`.
+attribution, player ratings, field-level information provenance, interactive
+input/session capture, and a stable installed library and CLI interface remain
+open before `v1.0.0`.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.
 

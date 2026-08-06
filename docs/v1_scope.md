@@ -4,20 +4,18 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable release and package version are `v0.11.0`. It
-validates 64 deterministic generated-output scenarios and passes 4,392 pytest
-tests. GitHub Releases is authoritative for publication status. Issues #118
-through #124 complete the functional milestone, and Issue #125 completed release
-preparation. The functional `v0.12.0` milestone is complete through Issue #134
-and pending release preparation. Issues #127 through #130 expose fixed-three-
-player historical-list contracts through strict JSON/schema/CLI integration.
-Issues #131 through #133 add retained version-1 preparation contracts and the
-deterministic temporal Known-opponent and Player-disjoint unseen-player
-generators. Issue #134 exposes fixed mode dispatch, complete or explicit
-unavailable preparation results, strict schemas, CLI, and three examples. The
-prior 67 scenarios are unchanged; the current development matrix is 70 while the
-published baseline remains 64. The historical published `v0.10.0` baseline
-remains evidence for 59 scenarios and 4,075 pytest tests.
+The package baseline is `v0.12.0`, and the package version is `0.12.0`. It
+validates 70 deterministic generated-output scenarios and requires Python 3.13
+or newer. Issues #127 through #134 complete the functional milestone, and Issue
+#135 prepares release metadata and documentation. `v0.12.0` has not yet been
+tagged or published.
+
+The current published stable release remains `v0.11.0`. It validates 64
+deterministic generated-output scenarios and passes 4,392 pytest tests. Issues
+#118 through #124 complete that functional milestone, and Issue #125 completed
+release preparation. GitHub Releases is authoritative for publication status.
+The historical published `v0.10.0` baseline remains evidence for 59 scenarios
+and 4,075 pytest tests.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,

@@ -619,6 +619,6 @@ def test_event_never_invokes_exact_rest_trick_proof(monkeypatch) -> None:
         assert forbidden not in event
 
 
-def test_package_version_is_0_11_0() -> None:
+def test_package_version_is_0_12_0() -> None:
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.11.0"' in pyproject
+    assert 'version = "0.12.0"' in pyproject

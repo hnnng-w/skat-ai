@@ -683,27 +683,25 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current published stable release is `v0.11.0`, with release theme
-"Information-safe Replay Coaching and structured historical outcomes" and GitHub
-Release title "v0.11.0 — Information-safe Replay Coaching and structured
-historical outcomes". It points to commit `cfd28e5`, validates 64 deterministic
-generated-output scenarios, and passes 4,392 pytest tests. Issues #118 through
-#124 complete the functional milestone, and Issue #125 completed release
-preparation. Publication was performed manually by the maintainer, and GitHub
-Releases remains authoritative for publication status. The package version is
-`0.11.0`, and Python 3.13 or newer remains required.
+The package baseline is `v0.12.0`, with release theme "Fixed-three-player
+historical lists and deterministic dataset preparation" and intended GitHub
+Release title "v0.12.0 — Fixed-three-player historical lists and deterministic
+dataset preparation". Issues #127 through #134 complete the functional milestone,
+and Issue #135 prepares release metadata and documentation. The package validates
+70 deterministic generated-output scenarios and requires Python 3.13 or newer.
 
-Current `v0.12.0` development through Issue #134 exposes the historical-list and
-automatic Training Dataset preparation contracts through strict root-selected
-JSON workflows, concise CLI output, six examples, and six appended generated-
-output scenarios. The prior 67 scenarios are unchanged; the development matrix
-therefore validates 70 scenarios while the published `v0.11.0` baseline remains
-64. The functional milestone is complete pending release preparation.
+`v0.12.0` has not yet been tagged or published. The current published stable
+release remains `v0.11.0`, with release theme "Information-safe Replay Coaching
+and structured historical outcomes". It points to commit `cfd28e5`, validates 64
+deterministic generated-output scenarios, and passes 4,392 pytest tests. Issues
+#118 through #124 complete that functional milestone, and Issue #125 completed
+release preparation. Publication actions are performed manually by the
+maintainer, and GitHub Releases remains authoritative for publication status.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
 
-The `v0.11.0` package baseline adds an immutable 61-case normative settlement
+The historical `v0.11.0` package baseline adds an immutable 61-case normative settlement
 matrix and the bounded historical sequence of at most one continuation followed
 by normal completion or one supported terminal shortening. Existing terminal
 adjudicators remain authoritative. Direct, bounded, compatibility-only legacy,
@@ -791,12 +789,15 @@ model or model-training workflow is included. The product supports fixed
 three-player tables only; four-player tables are excluded, and complete official
 rule coverage is not claimed.
 
-The functional `v0.12.0` milestone is complete through Issue #134 and pending
-release preparation. Issues #127 through #130 complete the bounded historical-
-list source, aggregation, comparison, and public JSON/CLI workflow. Issues #131
-through #133 complete the retained preparation contracts and mode-specific
-generators; Issue #134 exposes the fixed mode dispatch through strict JSON,
-schemas, CLI, three examples, and three appended generated-output scenarios.
+The `v0.12.0` package baseline implements the bounded historical-list source,
+aggregation, comparison, and public JSON/CLI workflow from Issues #127 through
+#130. Issues #131 through #133 implement the retained preparation contracts and
+mode-specific generators; Issue #134 exposes fixed mode dispatch through strict
+JSON, schemas, CLI, three examples, and three appended generated-output
+scenarios. Issue #135 prepares the release candidate for manual maintainer
+publication. The next provisional planning milestone is `v0.13.0`, directed at
+stable API, packaging, and field-level information provenance; its final issue
+sequence and architecture are not yet defined.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

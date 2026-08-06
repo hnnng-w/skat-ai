@@ -24,14 +24,15 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The published stable `v0.11.0` baseline covers 64 deterministic generated-output
-scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
-baseline remains evidence for 59 scenarios and 4,075 pytest tests. The historical
-published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
-tests. Issue #130 appends three public historical-list scenarios to the unchanged
-64-scenario matrix. Issue #134 leaves those 67 scenarios unchanged and appends
-three automatic Training Dataset preparation scenarios, so the current
-development matrix validates exactly 70.
+The `v0.12.0` package baseline covers 70 deterministic generated-output
+scenarios. It is pending manual publication; the published stable `v0.11.0`
+baseline remains evidence for 64 scenarios and 4,392 pytest tests. The historical
+published `v0.10.0` baseline remains evidence for 59 scenarios and 4,075 pytest
+tests. The historical published `v0.9.0` baseline covers 52 deterministic
+scenarios and 3,558 pytest tests. Issue #130 appends three public historical-list
+scenarios to the unchanged 64-scenario matrix. Issue #134 leaves those 67
+scenarios unchanged and appends three automatic Training Dataset preparation
+scenarios, so the `v0.12.0` package baseline validates exactly 70.
 The check script validates:
 
 * Ruff checks
@@ -572,11 +573,11 @@ Two Issue #119 scenarios cover defender continuation followed by terminal
 declarer concession and immediate declarer-exposure continuation followed by
 terminal defender concession. The previous 59 scenarios are unchanged.
 Three Issue #124 scenarios then add normal Grand, Null, and shortened Replay
-Coaching, bringing the published matrix to 64. Three Issue #130 scenarios append
-the mixed list, all-passed list, and independent comparison, bringing the current
-development matrix at that stage to 67. Three Issue #134 scenarios append
+Coaching, bringing the published `v0.11.0` matrix to 64. Three Issue #130 scenarios append
+the mixed list, all-passed list, and independent comparison, bringing the
+`v0.12.0` milestone matrix at that stage to 67. Three Issue #134 scenarios append
 complete Known-opponent, complete unseen-player, and unavailable preparation
-without changing those prior 67, bringing current development to 70.
+without changing those prior 67, bringing the `v0.12.0` package baseline to 70.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

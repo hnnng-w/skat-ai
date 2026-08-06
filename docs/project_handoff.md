@@ -359,15 +359,16 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-The published `v0.11.0` baseline covers 64 deterministic generated-output
-scenarios and passes 4,392 pytest tests. The historical published `v0.10.0`
+The `v0.12.0` package baseline covers 70 deterministic generated-output
+scenarios and is pending manual publication. The published `v0.11.0` baseline
+remains historical evidence for 64 scenarios and 4,392 pytest tests. The historical published `v0.10.0`
 release baseline remains 59 scenarios and 4,075 tests, and the historical
 published `v0.9.0` baseline remains 52 scenarios and 3,558 tests.
 
 Issue #130 appends three historical-list scenarios. Issue #134 preserves those
 67 scenarios and appends three automatic Training Dataset preparation scenarios,
-so the current development matrix validates exactly 70 outputs without changing
-the published baseline.
+so the `v0.12.0` package baseline validates exactly 70 outputs without changing
+the historical published baselines.
 
 ### Live-vs-post-game information enforcement
 
@@ -746,12 +747,23 @@ Main documentation files:
 
 Current published stable release: `v0.11.0`.
 
-Current package version: `0.11.0`.
+Current package version: `0.12.0`.
 
-Published release theme: "Information-safe Replay Coaching and structured
+Current package baseline: `v0.12.0`.
+
+Package release theme: "Fixed-three-player historical lists and deterministic
+dataset preparation".
+
+Intended GitHub Release title: "v0.12.0 — Fixed-three-player historical lists
+and deterministic dataset preparation".
+
+`v0.12.0` has not yet been tagged or published. Publication is a manual
+maintainer action, and GitHub Releases remains authoritative.
+
+Published `v0.11.0` release theme: "Information-safe Replay Coaching and structured
 historical outcomes".
 
-GitHub Release title: "v0.11.0 — Information-safe Replay Coaching and
+Published GitHub Release title: "v0.11.0 — Information-safe Replay Coaching and
 structured historical outcomes".
 
 The latest stable GitHub Release points to commit `cfd28e5`. It requires Python
@@ -762,15 +774,15 @@ Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
 #125 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
 
-Current `v0.12.0` development through Issue #134 implements the immutable
+The `v0.12.0` package baseline implements the immutable
 historical-list source, cumulative aggregation, independent comparison, and
 strict public JSON/schema/CLI workflow, plus internal version-1 unpartitioned
 dataset-preparation and supplied split-plan contracts plus deterministic
 temporal Known-opponent and Player-disjoint unseen-player assignment generators.
 Issue #134 adds the root-selected public preparation workflow, strict schemas,
-CLI, and three examples. The prior 67 scenarios are unchanged and the development
-matrix is 70 while the published baseline remains 64. The functional `v0.12.0`
-milestone is complete pending release preparation.
+CLI, and three examples. The prior 67 scenarios are unchanged, and the package
+baseline validates 70 while the published `v0.11.0` baseline remains 64. Issue
+#135 prepares release metadata and documentation before manual publication.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -884,7 +896,7 @@ publication.
 
 ## Current implementation baseline
 
-**Published v0.11.0: Information-safe Replay Coaching and structured historical outcomes**
+**Package v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation**
 
 Completed implementation scope:
 
@@ -909,6 +921,12 @@ Completed implementation scope:
 * information-safe one-game Replay Coaching evidence, impact, Key Decisions,
   both Turning Point types, patterns, deterministic recommendations, complete
   report, public JSON/schema/CLI, examples, and generated-output coverage
+* fixed-three-player 36-position historical-list source, aggregation,
+  progression, standings, exact external lots, independent comparison, and
+  strict public JSON/schema/CLI workflows
+* deterministic automatic Training Dataset preparation with fixed mode dispatch,
+  complete or unavailable Plans, temporal Known-opponent and Player-disjoint
+  unseen-player assignment, and lossless existing-dataset materialization
 
 ## Current high-priority limitations
 
@@ -956,14 +974,14 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Prepare the completed functional `v0.12.0` milestone for release. Issues #127
-through #130 provide the public historical-list workflow; Issues #131 through
-#133 provide the retained preparation contracts and fixed mode-specific
-generators; Issue #134 exposes automatic preparation under root
-`training_dataset_preparation_input`, output
-`training_dataset_preparation_summary`, strict schemas, concise CLI, three
-examples, and three appended scenarios. Release preparation must preserve the
-published `v0.11.0` baseline until the maintainer publishes a new release.
+The maintainer can complete manual `v0.12.0` publication after reviewing the
+release candidate and validation evidence. Until then, the package baseline is
+`v0.12.0`, the published release remains `v0.11.0`, and GitHub Releases remains
+authoritative.
+
+The next provisional planning milestone is `v0.13.0`, directed at stable API,
+packaging, and field-level information provenance. Its final issue sequence and
+architecture are not yet defined.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed
