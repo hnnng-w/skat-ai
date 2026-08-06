@@ -18,6 +18,10 @@ this boundary. Issue #140 adds executable public facade contracts and functions,
 but no provenance option, value, Result field, or export. Application invocations,
 injected Opponent Statistics, results, and auxiliary artifacts do not construct,
 carry, propagate, redact, or emit a field-provenance ledger.
+Issue #141 adds Package resources, typing and version metadata, and distribution
+validation without changing that provenance boundary. Built and cleanly
+installed distributions expose no provenance option, Result field, schema, or
+public provenance name.
 
 ## Contract identity
 

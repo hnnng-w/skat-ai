@@ -49,6 +49,39 @@ The project check script also runs this validation:
 .\scripts\check.ps1
 ```
 
+## Packaged schema resources
+
+The repository `schemas/` directory remains authoritative. Every one of its 61
+`*.schema.json` files is mirrored byte-for-byte into the private Package Resource
+namespace:
+
+```text
+src/skat_ai/schema_resources/
+```
+
+Synchronize or check that mirror with:
+
+```powershell
+python scripts/sync_packaged_schemas.py
+python scripts/sync_packaged_schemas.py --check
+```
+
+Check mode validates exact filename-set and byte parity and never modifies
+files. The full local check and CI run it before Root/example validation.
+
+The public Python API loads only the packaged mirror at runtime through
+`importlib.resources`. Loading remains lazy and does not depend on the current
+working directory, repository-root path derivation, or concrete filesystem
+paths. All packaged schemas are registered locally by unique non-empty `$id`;
+unregistered retrieval is rejected, so reference resolution does not use the
+network. Draft 2020-12, input `FormatChecker`, deterministic first-error
+selection, and canonical RFC 6901 paths are unchanged.
+
+Wheel and sdist inspection plus separate clean installations verify exact source,
+archive, and installed-resource filename and byte parity, UTF-8 and JSON
+validity, unchanged `$id` values, and Root input/output local-reference
+resolution. See [Packaging and distribution](packaging_and_distribution.md).
+
 The input schema checks things such as:
 
 * required top-level input fields

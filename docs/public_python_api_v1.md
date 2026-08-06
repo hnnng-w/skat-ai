@@ -217,15 +217,16 @@ Normal workflow states remain successful Results, including `complete`,
 ## Schema validation
 
 Schema resources are read lazily. Importing `skat_ai` or `skat_ai.api.v1` does
-not read a schema. The current backend locates the repository `schemas/`
-directory relative to the facade module, not the current working directory. It
-uses Draft 2020-12, preloads local schemas into a registry, and rejects all
-unregistered resolution instead of performing network access.
+not read a schema. The backend uses `importlib.resources` and the private
+`skat_ai.schema_resources` Package, independent of both the current working
+directory and a repository checkout. It uses Draft 2020-12, preloads packaged
+local schemas into a registry, and rejects all unregistered resolution instead
+of performing network access.
 
 The facade validates:
 
-* every Root input through `schemas/input.schema.json`;
-* every Root output through `schemas/output.schema.json` by default;
+* every Root input through packaged `input.schema.json`;
+* every Root output through packaged `output.schema.json` by default;
 * every reusable auxiliary artifact as a Root input by default.
 
 `validate_output=False` skips only post-execution output and artifact schema
@@ -234,9 +235,9 @@ run. The first schema failure is selected deterministically and reports an RFC
 6901 JSON Pointer, with the empty string representing the Root.
 
 Document failures use `SkatAISchemaError`, missing resources use
-`SkatAIResourceError`, and invalid repository schemas use
-`SkatAIInvariantError`. The later packaging work must replace this source/editable
-filesystem backend with Package Resources without changing the public facade.
+`SkatAIResourceError`, and invalid packaged schemas use
+`SkatAIInvariantError`. The Package Resource mirror is checked for exact filename
+and byte parity with authoritative repository schemas.
 
 ## Error boundary
 
@@ -259,9 +260,9 @@ its existing JSON, output-file, printing, and Exit Code behavior.
 
 ## Current boundaries
 
-This issue does not add workflow-specific helper functions, public Domain
-dataclasses, field-level provenance, installed entry points, `python -m skat_ai`,
-Package Resources, build-system metadata, Package Data, `py.typed`, Package
-`__version__`, Wheel or sdist validation, or a Package version change. The
-facade currently works from a source or editable checkout where repository
-schemas are present.
+The facade adds no workflow-specific helper functions, public Domain dataclasses,
+field-level provenance, installed entry points, or `python -m skat_ai`. Issue
+#141 adds private Package Resources, build-system metadata, Package Data,
+`py.typed`, Package-Root `__version__`, and Wheel/sdist validation without a
+Package version change. See
+[Packaging and distribution](packaging_and_distribution.md).

@@ -1,0 +1,857 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_search_review.schema.json",
+  "title": "skat-ai historical bounded search review summary version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "analysis_method",
+    "information_policy",
+    "source_game_id",
+    "game_end_reason",
+    "settings",
+    "decision_counts",
+    "status_counts",
+    "coverage",
+    "search_vs_immediate_agreement",
+    "quality_gate",
+    "actual_card_agreement",
+    "search_aggregate_quality",
+    "performance",
+    "breakdowns",
+    "decisions"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "analysis_method": {"const": "bounded_search_with_immediate_baseline"},
+    "information_policy": {"const": "decision_time"},
+    "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+    "game_end_reason": {"$ref": "#/$defs/game_end_reason"},
+    "settings": {"$ref": "#/$defs/settings"},
+    "decision_counts": {"$ref": "#/$defs/decision_counts"},
+    "status_counts": {"$ref": "#/$defs/status_counts"},
+    "coverage": {"$ref": "#/$defs/coverage"},
+    "search_vs_immediate_agreement": {
+      "$ref": "#/$defs/search_vs_immediate_agreement"
+    },
+    "quality_gate": {"$ref": "#/$defs/quality_gate"},
+    "actual_card_agreement": {"$ref": "#/$defs/actual_card_agreement"},
+    "search_aggregate_quality": {"$ref": "#/$defs/search_aggregate_quality"},
+    "performance": {"$ref": "#/$defs/performance"},
+    "breakdowns": {"$ref": "#/$defs/historical_breakdowns"},
+    "decisions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision"},
+      "maxItems": 30
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "nullable_card": {
+      "oneOf": [
+        {"$ref": "#/$defs/card"},
+        {"type": "null"}
+      ]
+    },
+    "game_type": {
+      "type": "string",
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "game_end_reason": {
+      "type": "string",
+      "enum": [
+        "normal_completion",
+        "declarer_concession",
+        "defender_concession",
+        "declarer_card_exposure",
+        "defender_open_play",
+        "open_card_throw"
+      ]
+    },
+    "search_status": {
+      "type": "string",
+      "enum": ["complete", "partial", "timeout", "unavailable"]
+    },
+    "world_coverage": {
+      "type": "string",
+      "enum": [
+        "none",
+        "single_exact_world",
+        "all_compatible_worlds",
+        "sampled_compatible_worlds"
+      ]
+    },
+    "partition": {
+      "type": "string",
+      "enum": ["train", "validation", "test"]
+    },
+    "count": {"type": "integer", "minimum": 0},
+    "nullable_rate": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "nullable_rank": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "maximum": 32
+    },
+    "nullable_rate_gap": {
+      "type": ["number", "null"],
+      "minimum": -1,
+      "maximum": 1
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_search_seed",
+        "search_budget_profile",
+        "requested_budget",
+        "immediate_sample_count",
+        "immediate_base_random_seed"
+      ],
+      "properties": {
+        "base_search_seed": {"type": "integer"},
+        "search_budget_profile": {
+          "type": "string",
+          "enum": ["interactive_v1", "historical_review_v1", "evaluation_v1"]
+        },
+        "requested_budget": {
+          "$ref": "https://example.local/skat-ai/bounded_search_result.schema.json#/$defs/requested_budget"
+        },
+        "immediate_sample_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "immediate_base_random_seed": {"type": ["integer", "null"]}
+      }
+    },
+    "analysis_report_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card",
+        "win_rate",
+        "average_trick_points",
+        "average_points_won",
+        "average_points_lost",
+        "expected_point_swing",
+        "is_recommended"
+      ],
+      "properties": {
+        "card": {"$ref": "#/$defs/card"},
+        "win_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "average_trick_points": {"type": "number", "minimum": 0, "maximum": 32},
+        "average_points_won": {"type": "number", "minimum": 0, "maximum": 32},
+        "average_points_lost": {"type": "number", "minimum": 0, "maximum": 32},
+        "expected_point_swing": {"type": "number", "minimum": -32, "maximum": 32},
+        "is_recommended": {"type": "boolean"}
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["card", "reason"],
+      "properties": {
+        "card": {"$ref": "#/$defs/card"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "immediate_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "effective_random_seed",
+        "legal_cards",
+        "recommendation",
+        "analysis_report"
+      ],
+      "properties": {
+        "effective_random_seed": {"type": ["integer", "null"]},
+        "legal_cards": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/card"},
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "recommendation": {"$ref": "#/$defs/recommendation"},
+        "analysis_report": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/analysis_report_item"},
+          "minItems": 1,
+          "maxItems": 10
+        }
+      }
+    },
+    "search_aggregate_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "local_contract_success_count",
+        "local_contract_success_rate",
+        "mean_local_side_game_score",
+        "mean_local_side_card_point_margin"
+      ],
+      "properties": {
+        "local_contract_success_count": {"$ref": "#/$defs/count"},
+        "local_contract_success_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mean_local_side_game_score": {"type": "number"},
+        "mean_local_side_card_point_margin": {
+          "type": ["number", "null"],
+          "minimum": -120,
+          "maximum": 120
+        }
+      }
+    },
+    "nullable_search_aggregate_metrics": {
+      "oneOf": [
+        {"$ref": "#/$defs/search_aggregate_metrics"},
+        {"type": "null"}
+      ]
+    },
+    "search_actual_card_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_available",
+        "unavailable_reason",
+        "actual_card",
+        "search_recommended_card",
+        "actual_card_rank",
+        "recommended_card_rank",
+        "actual_card_is_best_aggregate",
+        "actual_card_is_aggregate_equivalent_to_recommendation",
+        "strictly_better_card_count",
+        "completed_world_count",
+        "comparison_basis",
+        "actual_card_metrics",
+        "recommended_card_metrics",
+        "contract_success_rate_gap",
+        "mean_local_side_game_score_gap",
+        "mean_local_side_card_point_margin_gap"
+      ],
+      "properties": {
+        "is_available": {"type": "boolean"},
+        "unavailable_reason": {
+          "type": ["string", "null"],
+          "enum": [
+            null,
+            "no_completed_search_worlds",
+            "actual_card_not_provided",
+            "actual_card_not_in_search_candidates",
+            "search_card_not_available"
+          ]
+        },
+        "actual_card": {"$ref": "#/$defs/nullable_card"},
+        "search_recommended_card": {"$ref": "#/$defs/nullable_card"},
+        "actual_card_rank": {"$ref": "#/$defs/nullable_rank"},
+        "recommended_card_rank": {"$ref": "#/$defs/nullable_rank"},
+        "actual_card_is_best_aggregate": {"type": ["boolean", "null"]},
+        "actual_card_is_aggregate_equivalent_to_recommendation": {
+          "type": ["boolean", "null"]
+        },
+        "strictly_better_card_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 31
+        },
+        "completed_world_count": {"$ref": "#/$defs/count"},
+        "comparison_basis": {
+          "type": ["string", "null"],
+          "enum": [
+            null,
+            "all_compatible_worlds",
+            "sampled_compatible_worlds",
+            "completed_common_prefix"
+          ]
+        },
+        "actual_card_metrics": {
+          "$ref": "#/$defs/nullable_search_aggregate_metrics"
+        },
+        "recommended_card_metrics": {
+          "$ref": "#/$defs/nullable_search_aggregate_metrics"
+        },
+        "contract_success_rate_gap": {"$ref": "#/$defs/nullable_rate_gap"},
+        "mean_local_side_game_score_gap": {"type": ["number", "null"]},
+        "mean_local_side_card_point_margin_gap": {
+          "type": ["number", "null"],
+          "minimum": -240,
+          "maximum": 240
+        }
+      },
+      "if": {
+        "properties": {"is_available": {"const": true}},
+        "required": ["is_available"]
+      },
+      "then": {
+        "properties": {
+          "unavailable_reason": {"type": "null"},
+          "actual_card": {"$ref": "#/$defs/card"},
+          "search_recommended_card": {"$ref": "#/$defs/card"},
+          "actual_card_rank": {"type": "integer"},
+          "recommended_card_rank": {"type": "integer"},
+          "actual_card_is_best_aggregate": {"type": "boolean"},
+          "actual_card_is_aggregate_equivalent_to_recommendation": {
+            "type": "boolean"
+          },
+          "strictly_better_card_count": {"type": "integer"},
+          "completed_world_count": {"minimum": 1},
+          "comparison_basis": {"type": "string"},
+          "actual_card_metrics": {"$ref": "#/$defs/search_aggregate_metrics"},
+          "recommended_card_metrics": {
+            "$ref": "#/$defs/search_aggregate_metrics"
+          },
+          "contract_success_rate_gap": {"type": "number"},
+          "mean_local_side_game_score_gap": {"type": "number"}
+        }
+      },
+      "else": {
+        "properties": {
+          "unavailable_reason": {"type": "string"},
+          "actual_card_rank": {"type": "null"},
+          "recommended_card_rank": {"type": "null"},
+          "actual_card_is_best_aggregate": {"type": "null"},
+          "actual_card_is_aggregate_equivalent_to_recommendation": {
+            "type": "null"
+          },
+          "strictly_better_card_count": {"type": "null"},
+          "actual_card_metrics": {"type": "null"},
+          "recommended_card_metrics": {"type": "null"},
+          "contract_success_rate_gap": {"type": "null"},
+          "mean_local_side_game_score_gap": {"type": "null"},
+          "mean_local_side_card_point_margin_gap": {"type": "null"}
+        }
+      }
+    },
+    "search_vs_immediate_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_available",
+        "unavailable_reason",
+        "search_card",
+        "immediate_card",
+        "same_recommended_card",
+        "search_rank_of_immediate_card",
+        "immediate_rank_of_search_card",
+        "search_aggregate_relation",
+        "search_contract_success_rate_advantage",
+        "search_mean_game_score_advantage",
+        "search_mean_card_point_margin_advantage"
+      ],
+      "properties": {
+        "is_available": {"type": "boolean"},
+        "unavailable_reason": {
+          "type": ["string", "null"],
+          "enum": [
+            null,
+            "no_completed_search_worlds",
+            "search_card_not_available",
+            "immediate_card_not_provided",
+            "immediate_analysis_report_not_available",
+            "immediate_card_not_in_search_candidates",
+            "search_card_not_in_immediate_analysis_report",
+            "immediate_card_not_in_immediate_analysis_report"
+          ]
+        },
+        "search_card": {"$ref": "#/$defs/nullable_card"},
+        "immediate_card": {"$ref": "#/$defs/nullable_card"},
+        "same_recommended_card": {"type": ["boolean", "null"]},
+        "search_rank_of_immediate_card": {"$ref": "#/$defs/nullable_rank"},
+        "immediate_rank_of_search_card": {"$ref": "#/$defs/nullable_rank"},
+        "search_aggregate_relation": {
+          "type": "string",
+          "enum": ["search_better", "aggregate_equivalent", "not_available"]
+        },
+        "search_contract_success_rate_advantage": {
+          "$ref": "#/$defs/nullable_rate_gap"
+        },
+        "search_mean_game_score_advantage": {"type": ["number", "null"]},
+        "search_mean_card_point_margin_advantage": {
+          "type": ["number", "null"],
+          "minimum": -240,
+          "maximum": 240
+        }
+      },
+      "if": {
+        "properties": {"is_available": {"const": true}},
+        "required": ["is_available"]
+      },
+      "then": {
+        "properties": {
+          "unavailable_reason": {"type": "null"},
+          "search_card": {"$ref": "#/$defs/card"},
+          "immediate_card": {"$ref": "#/$defs/card"},
+          "same_recommended_card": {"type": "boolean"},
+          "search_rank_of_immediate_card": {"type": "integer"},
+          "immediate_rank_of_search_card": {"type": "integer"},
+          "search_aggregate_relation": {
+            "enum": ["search_better", "aggregate_equivalent"]
+          },
+          "search_contract_success_rate_advantage": {"type": "number"},
+          "search_mean_game_score_advantage": {"type": "number"}
+        }
+      },
+      "else": {
+        "properties": {
+          "unavailable_reason": {"type": "string"},
+          "same_recommended_card": {"type": "null"},
+          "search_rank_of_immediate_card": {"type": "null"},
+          "immediate_rank_of_search_card": {"type": "null"},
+          "search_aggregate_relation": {"const": "not_available"},
+          "search_contract_success_rate_advantage": {"type": "null"},
+          "search_mean_game_score_advantage": {"type": "null"},
+          "search_mean_card_point_margin_advantage": {"type": "null"}
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_game_id",
+        "decision_index",
+        "trick_number",
+        "play_index",
+        "acting_player_id",
+        "acting_seat",
+        "acting_side",
+        "game_type",
+        "local_side",
+        "root_seat",
+        "remaining_tricks",
+        "actual_card",
+        "immediate_baseline",
+        "bounded_search_result",
+        "search_actual_card_comparison",
+        "search_vs_immediate_comparison"
+      ],
+      "properties": {
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "source_played_at": {"type": "string", "format": "date-time"},
+        "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
+        "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
+        "play_index": {"type": "integer", "minimum": 1, "maximum": 3},
+        "acting_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "acting_seat": {
+          "type": "string",
+          "enum": ["forehand", "middlehand", "rearhand"]
+        },
+        "acting_side": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "local_side": {
+          "type": "string",
+          "enum": ["declarer", "defenders"]
+        },
+        "root_seat": {
+          "type": "string",
+          "enum": ["lead", "second", "third"]
+        },
+        "remaining_tricks": {"type": "integer", "minimum": 1, "maximum": 10},
+        "actual_card": {"$ref": "#/$defs/card"},
+        "immediate_baseline": {"$ref": "#/$defs/immediate_baseline"},
+        "bounded_search_result": {
+          "$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"
+        },
+        "search_actual_card_comparison": {
+          "$ref": "#/$defs/search_actual_card_comparison"
+        },
+        "search_vs_immediate_comparison": {
+          "$ref": "#/$defs/search_vs_immediate_comparison"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"game_type": {"const": "null"}},
+            "required": ["game_type"]
+          },
+          "then": {
+            "properties": {
+              "search_actual_card_comparison": {
+                "properties": {
+                  "actual_card_metrics": {
+                    "properties": {
+                      "mean_local_side_card_point_margin": {"type": "null"}
+                    }
+                  },
+                  "recommended_card_metrics": {
+                    "properties": {
+                      "mean_local_side_card_point_margin": {"type": "null"}
+                    }
+                  },
+                  "mean_local_side_card_point_margin_gap": {"type": "null"}
+                }
+              },
+              "search_vs_immediate_comparison": {
+                "properties": {
+                  "search_mean_card_point_margin_advantage": {"type": "null"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "game_type": {"not": {"const": "null"}},
+              "search_actual_card_comparison": {
+                "properties": {"is_available": {"const": true}},
+                "required": ["is_available"]
+              }
+            },
+            "required": ["game_type", "search_actual_card_comparison"]
+          },
+          "then": {
+            "properties": {
+              "search_actual_card_comparison": {
+                "properties": {
+                  "actual_card_metrics": {
+                    "properties": {
+                      "mean_local_side_card_point_margin": {"type": "number"}
+                    }
+                  },
+                  "recommended_card_metrics": {
+                    "properties": {
+                      "mean_local_side_card_point_margin": {"type": "number"}
+                    }
+                  },
+                  "mean_local_side_card_point_margin_gap": {"type": "number"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "game_type": {"not": {"const": "null"}},
+              "search_vs_immediate_comparison": {
+                "properties": {"is_available": {"const": true}},
+                "required": ["is_available"]
+              }
+            },
+            "required": ["game_type", "search_vs_immediate_comparison"]
+          },
+          "then": {
+            "properties": {
+              "search_vs_immediate_comparison": {
+                "properties": {
+                  "search_mean_card_point_margin_advantage": {"type": "number"}
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "decision_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_count",
+        "search_attempted_count",
+        "search_available_decision_count",
+        "search_unavailable_decision_count",
+        "search_recommendation_count",
+        "no_search_recommendation_count"
+      ],
+      "properties": {
+        "decision_count": {"$ref": "#/$defs/count"},
+        "search_attempted_count": {"$ref": "#/$defs/count"},
+        "search_available_decision_count": {"$ref": "#/$defs/count"},
+        "search_unavailable_decision_count": {"$ref": "#/$defs/count"},
+        "search_recommendation_count": {"$ref": "#/$defs/count"},
+        "no_search_recommendation_count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "status_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["complete", "partial", "timeout", "unavailable"],
+      "properties": {
+        "complete": {"$ref": "#/$defs/count"},
+        "partial": {"$ref": "#/$defs/count"},
+        "timeout": {"$ref": "#/$defs/count"},
+        "unavailable": {"$ref": "#/$defs/count"}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exact_coverage_decision_count",
+        "sampled_coverage_decision_count",
+        "no_coverage_decision_count"
+      ],
+      "properties": {
+        "exact_coverage_decision_count": {"$ref": "#/$defs/count"},
+        "sampled_coverage_decision_count": {"$ref": "#/$defs/count"},
+        "no_coverage_decision_count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "search_vs_immediate_agreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comparable_decision_count",
+        "same_recommended_card_count",
+        "different_recommended_card_count",
+        "same_recommended_card_rate"
+      ],
+      "properties": {
+        "comparable_decision_count": {"$ref": "#/$defs/count"},
+        "same_recommended_card_count": {"$ref": "#/$defs/count"},
+        "different_recommended_card_count": {"$ref": "#/$defs/count"},
+        "same_recommended_card_rate": {"$ref": "#/$defs/nullable_rate"}
+      }
+    },
+    "quality_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comparable_decision_count",
+        "search_not_worse_count",
+        "search_strictly_better_count",
+        "search_equivalent_count",
+        "quality_violation_count",
+        "quality_gate_passed"
+      ],
+      "properties": {
+        "comparable_decision_count": {"$ref": "#/$defs/count"},
+        "search_not_worse_count": {"$ref": "#/$defs/count"},
+        "search_strictly_better_count": {"$ref": "#/$defs/count"},
+        "search_equivalent_count": {"$ref": "#/$defs/count"},
+        "quality_violation_count": {"$ref": "#/$defs/count"},
+        "quality_gate_passed": {"type": "boolean"}
+      }
+    },
+    "actual_card_agreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comparable_decision_count",
+        "actual_top_1_count",
+        "actual_top_1_rate",
+        "actual_top_3_count",
+        "actual_top_3_rate"
+      ],
+      "properties": {
+        "comparable_decision_count": {"$ref": "#/$defs/count"},
+        "actual_top_1_count": {"$ref": "#/$defs/count"},
+        "actual_top_1_rate": {"$ref": "#/$defs/nullable_rate"},
+        "actual_top_3_count": {"$ref": "#/$defs/count"},
+        "actual_top_3_rate": {"$ref": "#/$defs/nullable_rate"}
+      }
+    },
+    "unavailable_reason_counts": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {"$ref": "#/$defs/count"}
+      },
+      "additionalProperties": false
+    },
+    "search_aggregate_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "search_better",
+        "aggregate_equivalent",
+        "not_available",
+        "unavailable_reason_counts"
+      ],
+      "properties": {
+        "search_better": {"$ref": "#/$defs/count"},
+        "aggregate_equivalent": {"$ref": "#/$defs/count"},
+        "not_available": {"$ref": "#/$defs/count"},
+        "unavailable_reason_counts": {"$ref": "#/$defs/unavailable_reason_counts"}
+      }
+    },
+    "performance_metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "mean", "p50", "p95", "max"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "mean": {"type": ["number", "null"], "minimum": 0},
+        "p50": {"type": ["integer", "null"], "minimum": 0},
+        "p95": {"type": ["integer", "null"], "minimum": 0},
+        "max": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "performance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nodes_expanded",
+        "selected_world_count",
+        "completed_world_count",
+        "sampled_world_count",
+        "depth_reached",
+        "wall_clock_elapsed_ms",
+        "fallback_count"
+      ],
+      "properties": {
+        "nodes_expanded": {"$ref": "#/$defs/performance_metric"},
+        "selected_world_count": {"$ref": "#/$defs/performance_metric"},
+        "completed_world_count": {"$ref": "#/$defs/performance_metric"},
+        "sampled_world_count": {"$ref": "#/$defs/performance_metric"},
+        "depth_reached": {"$ref": "#/$defs/performance_metric"},
+        "wall_clock_elapsed_ms": {"$ref": "#/$defs/performance_metric"},
+        "fallback_count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_counts",
+        "status_counts",
+        "coverage",
+        "search_vs_immediate_agreement",
+        "quality_gate",
+        "actual_card_agreement",
+        "search_aggregate_quality",
+        "performance"
+      ],
+      "properties": {
+        "decision_counts": {"$ref": "#/$defs/decision_counts"},
+        "status_counts": {"$ref": "#/$defs/status_counts"},
+        "coverage": {"$ref": "#/$defs/coverage"},
+        "search_vs_immediate_agreement": {
+          "$ref": "#/$defs/search_vs_immediate_agreement"
+        },
+        "quality_gate": {"$ref": "#/$defs/quality_gate"},
+        "actual_card_agreement": {"$ref": "#/$defs/actual_card_agreement"},
+        "search_aggregate_quality": {"$ref": "#/$defs/search_aggregate_quality"},
+        "performance": {"$ref": "#/$defs/performance"}
+      }
+    },
+    "game_type_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_type", "metrics"],
+      "properties": {
+        "game_type": {"$ref": "#/$defs/game_type"},
+        "metrics": {"$ref": "#/$defs/metrics"}
+      }
+    },
+    "local_side_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local_side", "metrics"],
+      "properties": {
+        "local_side": {"enum": ["declarer", "defenders"]},
+        "metrics": {"$ref": "#/$defs/metrics"}
+      }
+    },
+    "root_seat_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_seat", "metrics"],
+      "properties": {
+        "root_seat": {"enum": ["lead", "second", "third"]},
+        "metrics": {"$ref": "#/$defs/metrics"}
+      }
+    },
+    "remaining_tricks_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["remaining_tricks", "metrics"],
+      "properties": {
+        "remaining_tricks": {"type": "integer", "minimum": 1, "maximum": 10},
+        "metrics": {"$ref": "#/$defs/metrics"}
+      }
+    },
+    "status_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["search_status", "metrics"],
+      "properties": {
+        "search_status": {"$ref": "#/$defs/search_status"},
+        "metrics": {"$ref": "#/$defs/metrics"}
+      }
+    },
+    "coverage_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["search_coverage", "metrics"],
+      "properties": {
+        "search_coverage": {"$ref": "#/$defs/world_coverage"},
+        "metrics": {"$ref": "#/$defs/metrics"}
+      }
+    },
+    "partition_breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["partition", "metrics"],
+      "properties": {
+        "partition": {"$ref": "#/$defs/partition"},
+        "metrics": {"$ref": "#/$defs/metrics"}
+      }
+    },
+    "historical_breakdowns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "by_game_type",
+        "by_local_side",
+        "by_root_seat",
+        "by_remaining_tricks",
+        "by_status",
+        "by_coverage"
+      ],
+      "properties": {
+        "by_game_type": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/game_type_breakdown"},
+          "maxItems": 6
+        },
+        "by_local_side": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/local_side_breakdown"},
+          "maxItems": 2
+        },
+        "by_root_seat": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/root_seat_breakdown"},
+          "maxItems": 3
+        },
+        "by_remaining_tricks": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/remaining_tricks_breakdown"},
+          "maxItems": 10
+        },
+        "by_status": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/status_breakdown"},
+          "maxItems": 4
+        },
+        "by_coverage": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/coverage_breakdown"},
+          "maxItems": 4
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_game_events_output.schema.json",
+  "title": "skat-ai historical non-terminal game-events summary version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_count", "events"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "event_count": {"const": 1},
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "oneOf": [
+          {"$ref": "#/$defs/defender_open_play_continuation"},
+          {
+            "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure_continuation_event_output.schema.json"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "defender_open_play_continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_index",
+        "kind",
+        "rule_sections",
+        "after_play_count",
+        "after_completed_trick_count",
+        "event_during_incomplete_trick",
+        "next_player_id",
+        "declarer_player_id",
+        "exposing_defender_player_id",
+        "non_exposing_defender_player_id",
+        "exposed_cards",
+        "exposed_card_count",
+        "card_reconciliation",
+        "declarer_response",
+        "cards_returned_to_hand",
+        "hand_physically_open",
+        "visibility_scope",
+        "rest_trick_claim",
+        "rest_trick_claim_status",
+        "continued_play_effect",
+        "first_affected_decision_index",
+        "actual_plays_after_event",
+        "exact_proof_applied",
+        "game_end_applied",
+        "settlement_applied",
+        "final_game_end_reason",
+        "final_outcome_source"
+      ],
+      "properties": {
+        "event_index": {"const": 1},
+        "kind": {"const": "defender_open_play_continuation"},
+        "rule_sections": {
+          "const": ["4.4.5", "4.1.6"]
+        },
+        "after_play_count": {"type": "integer", "minimum": 0, "maximum": 29},
+        "after_completed_trick_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "event_during_incomplete_trick": {"type": "boolean"},
+        "next_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "exposing_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "non_exposing_defender_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "exposed_cards": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/card"},
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "exposed_card_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "card_reconciliation": {"const": "confirmed"},
+        "declarer_response": {"const": "request_continued_play"},
+        "cards_returned_to_hand": {"const": true},
+        "hand_physically_open": {"const": false},
+        "visibility_scope": {"const": "all_players"},
+        "rest_trick_claim": {"const": "all_remaining_tricks"},
+        "rest_trick_claim_status": {
+          "const": "not_adjudicated_due_to_continued_play"
+        },
+        "continued_play_effect": {"const": "open_play_consequence_disregarded"},
+        "first_affected_decision_index": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "actual_plays_after_event": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        },
+        "exact_proof_applied": {"const": false},
+        "game_end_applied": {"const": false},
+        "settlement_applied": {"const": false},
+        "final_game_end_reason": {
+          "enum": [
+            "normal_completion",
+            "declarer_concession",
+            "defender_concession",
+            "declarer_card_exposure",
+            "defender_open_play",
+            "open_card_throw"
+          ]
+        },
+        "final_outcome_source": {
+          "enum": ["actual_continued_play", "subsequent_terminal_shortening"]
+        }
+      }
+    }
+  }
+}

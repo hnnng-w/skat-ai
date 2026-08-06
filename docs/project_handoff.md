@@ -56,7 +56,11 @@ The project focuses on:
   Training Dataset operations; and legacy CLI transport parity
 * executable public Python API version `1` with immutable direct workflow
   options, all-seven-workflow Application execution, separate artifacts, lazy
-  local schema validation, stable boundary errors, and no caller transport I/O
+  Package Resource schema validation, stable boundary errors, and no caller
+  transport I/O
+* installation-ready Setuptools packaging with private byte-identical Schema
+  resources, `py.typed`, Package `__version__`, one Wheel and one sdist,
+  artifact inspection, and separate clean-install public-API smoke tests
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -90,8 +94,10 @@ The standard check command is:
 The project check currently covers:
 
 * Ruff checks
+* packaged-schema filename and byte parity
 * input JSON schema validation
 * generated output JSON schema validation
+* Wheel, sdist, and clean-install distribution validation
 * pytest regression tests
 
 ## Important assumptions
@@ -141,8 +147,9 @@ Implemented by Issue #137 for `v0.13.0`:
 Issue #140 extends this foundation with `parse_request`, `execute`,
 `execute_document`, `serialize_result`, public execution artifacts and results,
 direct immutable workflow options, lazy Root schema validation, and stable
-boundary-error translation. Packaging, an installed CLI, Package Resource
-schemas, and typing metadata remain open. Field-level provenance has a separate
+boundary-error translation. Issue #141 adds installable Wheel and sdist
+artifacts, private Package Resource schemas, typing and Package version metadata,
+and clean-install validation. An installed CLI remains open. Field-level provenance has a separate
 internal contract foundation, but no workflow propagation, output, or public
 provenance export. See [Public API contracts](public_api_contracts.md) and
 [Public Python API v1](public_python_api_v1.md).
@@ -168,9 +175,8 @@ Implemented by Issue #139 for `v0.13.0`:
 
 The public facade now exposes generic parse, execute, execute-document, and
 serialization functions without exporting these Application types. Workflow-
-specific execution helpers remain absent. Packaging, installed entry points,
-Package Resource schemas, typing metadata, broader Domain error migration, and
-all field-provenance propagation and output remain open. See
+specific execution helpers remain absent. Installed entry points, broader Domain
+error migration, and all field-provenance propagation and output remain open. See
 [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
@@ -636,8 +642,10 @@ Implemented:
   * Request parsing and verification, workflow-option translation, one-pass
     Application execution, artifact conversion, and stable boundary errors
 * `api/v1/schema_validation.py`
-  * lazy source/editable Draft 2020-12 Root schema validation with local-only
+  * lazy Package Resource Draft 2020-12 Root schema validation with local-only
     resolution and deterministic RFC 6901 errors
+* `_version.py`
+  * installed Package version lookup and source-only fallback
 * `errors.py`
   * stable errors, error codes, serialization, warning category, and Exit Codes
 
@@ -830,6 +838,7 @@ Main documentation files:
 * `docs/input_json.md`
 * `docs/public_api_contracts.md`
 * `docs/public_python_api_v1.md`
+* `docs/packaging_and_distribution.md`
 * `docs/application_orchestration.md`
 * `docs/field_level_information_provenance.md`
 * `docs/output_json.md`
@@ -932,10 +941,17 @@ generated scenario. Workflow propagation remains open.
 Issue #139 adds internal Application orchestration version `1` for all seven Root
 workflows, five isolated Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI parity. Issue #140 adds the
-executable public facade over that boundary, lazy source/editable Root schema
+executable public facade over that boundary, lazy Root schema
 validation, direct immutable options, public artifacts and execution results,
 and stable boundary errors. Neither issue changes Package version, Root schemas,
 examples, generated scenarios, or provenance output.
+
+Issue #141 adds explicit Setuptools build metadata, private Package Resource
+schemas with exact authoritative parity, `py.typed`, Package-Root `__version__`,
+Wheel and sdist inspection, separate clean installations, external-working-
+directory API smoke tests, and local/CI distribution gates. It changes no
+Package version, Root schema meaning, workflow, generated scenario, legacy CLI,
+or provenance output, and it does not publish an artifact.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -1083,8 +1099,10 @@ Completed implementation scope:
 * stable public API contract version 1 with immutable JSON documents,
   compatibility metadata, stable errors, and legacy CLI compatibility
 * internal all-seven-workflow Application orchestration and executable public
-  Python facade with lazy source/editable schema validation, direct immutable
+  Python facade with lazy Package Resource schema validation, direct immutable
   options, separate artifacts, and stable boundary errors
+* installation-ready Wheel and sdist artifacts with synchronized schemas,
+  `py.typed`, Package version metadata, and clean-install validation
 * internal field-level provenance contract version 1 with immutable sidecar
   ledgers, RFC 6901 paths, coverage and dependency audits, context-use policy,
   public redaction, and safe serialization
@@ -1128,9 +1146,9 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Interactive live or retrospective input and a stable installed package and CLI
-  interface are not implemented. The public executable facade and reusable
-  internal Application layer are implemented for source/editable use.
+* Interactive live or retrospective input and a stable installed CLI interface
+  are not implemented. The public executable facade and reusable internal
+  Application layer work from source, Editable, Wheel, and sdist installations.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -1140,12 +1158,13 @@ Completed implementation scope:
 
 Continue the approved `v0.13.0` sequence after the Issue #137 public contracts,
 Issue #138 field-provenance foundation, Issue #139 internal Application
-orchestration, and Issue #140 executable public facade. Provenance propagation
+orchestration, Issue #140 executable public facade, and Issue #141 distribution
+packaging. Provenance propagation
 should use the internal sidecar language at Application workflow boundaries
-without changing existing specialized contracts. Packaging, Package Resource
-schemas, typing metadata, installed CLI entry points, public provenance
-integration, and workflow-level leakage enforcement remain separate follow-up
-scopes.
+without changing existing specialized contracts. Installed CLI entry points,
+public provenance integration, and workflow-level leakage enforcement remain
+separate follow-up scopes. Package publication and license selection also remain
+human decisions outside Issue #141.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

@@ -4,6 +4,7 @@ from dataclasses import FrozenInstanceError, fields
 from pathlib import Path
 
 import pytest
+from jsonschema import FormatChecker
 
 import main as main_module
 import skat_ai.api.v1.execution as facade_module
@@ -197,6 +198,15 @@ def test_parse_request_reports_deterministic_rfc6901_schema_path() -> None:
         paths.append(caught.value.path)
 
     assert paths == ["/sample_count", "/sample_count"]
+
+
+def test_packaged_validators_retain_input_format_checker_only() -> None:
+    schema_validation_module._validator_for.cache_clear()
+    input_validator = schema_validation_module._validator_for("input.schema.json")
+    output_validator = schema_validation_module._validator_for("output.schema.json")
+
+    assert isinstance(input_validator.format_checker, FormatChecker)
+    assert output_validator.format_checker is None
 
 
 def test_execute_revalidates_direct_requests_and_rejects_forged_workflow() -> None:
@@ -695,24 +705,32 @@ def test_every_normal_result_state_passes_through_execution(
     assert result.result.document["status"] == state
 
 
-def test_schema_resources_are_lazy_cwd_independent_and_local_only(
+def test_schema_resources_are_lazy_cwd_and_repository_schema_independent(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
     schema_validation_module._validator_for.cache_clear()
+    authoritative_schema_directory = PROJECT_ROOT / "schemas"
+    real_open = Path.open
+
+    def reject_authoritative_schema_read(path, *args, **kwargs):
+        if Path(path).resolve().is_relative_to(authoritative_schema_directory):
+            raise AssertionError("Runtime validation read the authoritative schema directory.")
+        return real_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", reject_authoritative_schema_read)
     monkeypatch.chdir(tmp_path)
     result = execute_document(load_example("opponent_statistics.json"))
 
     assert result.result.workflow is WorkflowV1.OPPONENT_STATISTICS
 
 
-def test_missing_and_invalid_repository_schemas_use_stable_errors(
+def test_missing_invalid_and_unresolvable_packaged_schemas_use_stable_errors(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
-    original_directory = schema_validation_module._schema_directory
     missing = tmp_path / "missing"
-    monkeypatch.setattr(schema_validation_module, "_schema_directory", lambda: missing)
+    monkeypatch.setattr(schema_validation_module, "_schema_resource_root", lambda: missing)
     schema_validation_module._validator_for.cache_clear()
     with pytest.raises(SkatAIResourceError):
         parse_request(load_example("opponent_statistics.json"))
@@ -729,7 +747,7 @@ def test_missing_and_invalid_repository_schemas_use_stable_errors(
         ),
         encoding="utf-8",
     )
-    monkeypatch.setattr(schema_validation_module, "_schema_directory", lambda: invalid)
+    monkeypatch.setattr(schema_validation_module, "_schema_resource_root", lambda: invalid)
     schema_validation_module._validator_for.cache_clear()
     with pytest.raises(SkatAIInvariantError):
         parse_request(load_example("opponent_statistics.json"))
@@ -746,12 +764,55 @@ def test_missing_and_invalid_repository_schemas_use_stable_errors(
         ),
         encoding="utf-8",
     )
-    monkeypatch.setattr(schema_validation_module, "_schema_directory", lambda: unresolved)
+    monkeypatch.setattr(schema_validation_module, "_schema_resource_root", lambda: unresolved)
     schema_validation_module._validator_for.cache_clear()
     with pytest.raises(SkatAIResourceError, match="unavailable"):
         parse_request(load_example("opponent_statistics.json"))
+    schema_validation_module._validator_for.cache_clear()
 
-    monkeypatch.setattr(schema_validation_module, "_schema_directory", original_directory)
+
+@pytest.mark.parametrize(
+    ("content", "additional_content", "match"),
+    [
+        (b"{", None, "not valid JSON"),
+        (b"\xff", None, "not valid UTF-8"),
+        (b"[]", None, "JSON object"),
+        (
+            b'{"$schema":"https://json-schema.org/draft/2020-12/schema"}',
+            None,
+            "non-empty \\$id",
+        ),
+        (
+            b'{"$schema":"https://json-schema.org/draft/2020-12/schema",'
+            b'"$id":"https://example.local/duplicate"}',
+            b'{"$schema":"https://json-schema.org/draft/2020-12/schema",'
+            b'"$id":"https://example.local/duplicate"}',
+            "duplicated",
+        ),
+    ],
+)
+def test_malformed_packaged_schema_resources_are_invariant_errors(
+    monkeypatch,
+    tmp_path: Path,
+    content: bytes,
+    additional_content: bytes | None,
+    match: str,
+) -> None:
+    resource_root = tmp_path / "resources"
+    resource_root.mkdir()
+    (resource_root / "input.schema.json").write_bytes(content)
+    if additional_content is not None:
+        (resource_root / "other.schema.json").write_bytes(additional_content)
+    monkeypatch.setattr(
+        schema_validation_module,
+        "_schema_resource_root",
+        lambda: resource_root,
+    )
+    schema_validation_module._validator_for.cache_clear()
+
+    with pytest.raises(SkatAIInvariantError, match=match):
+        parse_request(load_example("opponent_statistics.json"))
+
     schema_validation_module._validator_for.cache_clear()
 
 

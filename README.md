@@ -134,6 +134,7 @@ official Skat rules arbitration.
 * Input JSON schema validation
 * Output JSON schema validation
 * Generated-output schema validation for selected examples
+* Packaged-schema byte parity and Wheel/sdist clean-install validation
 * Pytest regression coverage
 * Ruff checks
 * Combined project check script
@@ -145,20 +146,22 @@ official Skat rules arbitration.
 * Recursively immutable JSON `RequestDocumentV1` and `ResultDocumentV1` wrappers
 * Immutable `ExecutionOptionsV1`, compatibility policy, and API-version metadata
 * Stable public errors, error codes, serialization, and CLI Exit Code constants
-* Minimal Package-Root exports: only `api` and `errors`
+* Minimal Package-Root exports: `api`, `errors`, and `__version__`
 * Internal Application orchestration version `1` with immutable invocations,
   options, results, external documents, and auxiliary artifacts
 * Generic no-I/O dispatch for all seven Root workflows, including five isolated
   Training Dataset operations and optional injected Opponent Statistics
 * Executable `parse_request`, `execute`, `execute_document`, and
   `serialize_result` facade functions for all seven workflows
-* Lazy local Root input, Root output, and artifact schema validation with stable
-  public boundary errors
+* Lazy Package Resource Root input, Root output, and artifact schema validation
+  with stable public boundary errors
+* Setuptools Wheel and sdist builds with `py.typed`, packaged byte-identical JSON
+  Schemas, and clean-install validation
 
 The facade executes already loaded Root documents without caller transport I/O
-and preserves legacy Root JSON output. Its current lazy schema backend requires a
-source or editable checkout with the repository `schemas/` directory. Packaging,
-Package Resource schemas, an installed CLI, and typing metadata remain open.
+and preserves legacy Root JSON output. Its lazy schema backend uses packaged
+resources and works from source, Editable, Wheel, and sdist installations. An
+installed CLI remains open; repository-root `main.py` is still the only CLI.
 Field-level provenance has an internal contract foundation but is not propagated
 or emitted by Application or public workflows. See
 [Public Python API v1](docs/public_python_api_v1.md) and
@@ -173,6 +176,7 @@ or emitted by Application or public workflows. See
   * `jsonschema`
 * Development dependencies from `.[dev]`, including:
 
+  * `build`
   * `pytest`
   * `ruff`
 
@@ -196,6 +200,15 @@ Run the combined check script:
 ```powershell
 .\scripts\check.ps1
 ```
+
+Build one Wheel and one sdist without publishing them:
+
+```powershell
+python -m build
+```
+
+See [Packaging and distribution](docs/packaging_and_distribution.md) for Package
+Data, schema synchronization, clean-install validation, and current boundaries.
 
 ## Usage
 
@@ -607,6 +620,7 @@ Detailed documentation is split into topic-specific files:
 * [Input JSON](docs/input_json.md)
 * [Public API contracts](docs/public_api_contracts.md)
 * [Public Python API v1](docs/public_python_api_v1.md)
+* [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
 * [Input JSON schema](schemas/input.schema.json)
@@ -839,9 +853,8 @@ Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, field-level live
-provenance propagation, interactive input
-and session capture, and a stable installed package
-and CLI interface. General
+provenance propagation, interactive input and session capture, and a stable
+installed CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -864,9 +877,10 @@ contract foundation with RFC 6901 paths, immutable sidecar ledgers, coverage,
 dependency, context-use, redaction, and serialization contracts. Issue #139 adds
 internal all-seven-workflow Application orchestration. Issue #140 adds the
 executable public facade, direct immutable options, public results and artifacts,
-lazy source/editable schema validation, and stable boundary errors. Packaging,
-an installed CLI, Package Resource schemas, typing metadata, public provenance
-exports, and provenance propagation remain open.
+lazy schema validation, and stable boundary errors. Issue #141 adds explicit
+Setuptools build metadata, byte-identical packaged Schema resources, `py.typed`,
+Package `__version__`, Wheel/sdist inspection, and clean installation gates. An
+installed CLI, public provenance exports, and provenance propagation remain open.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

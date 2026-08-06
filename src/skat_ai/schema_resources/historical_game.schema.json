@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_game.schema.json",
+  "title": "skat-ai historical game input version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "game_id",
+    "players",
+    "skat",
+    "declarer_player_id",
+    "declaration",
+    "discarded_cards",
+    "game_end_reason",
+    "tricks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "game_id": {
+      "$ref": "#/$defs/stable_identifier"
+    },
+    "played_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "players": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/player"
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "skat": {
+      "$ref": "#/$defs/two_cards"
+    },
+    "declarer_player_id": {
+      "$ref": "#/$defs/stable_identifier"
+    },
+    "declaration": {
+      "$ref": "#/$defs/declaration"
+    },
+    "discarded_cards": {
+      "$ref": "#/$defs/card_array",
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "game_end_reason": {
+      "enum": [
+        "normal_completion",
+        "declarer_concession",
+        "defender_concession",
+        "declarer_card_exposure",
+        "defender_open_play",
+        "open_card_throw"
+      ]
+    },
+    "game_end": {
+      "$ref": "https://example.local/skat-ai/historical_game_end.schema.json"
+    },
+    "game_events": {
+      "type": "array",
+      "items": {
+        "$ref": "https://example.local/skat-ai/historical_game_event.schema.json"
+      },
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "tricks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/trick"
+      },
+      "minItems": 0,
+      "maxItems": 10
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "normal_completion"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "tricks": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/complete_trick"},
+            "minItems": 10,
+            "maxItems": 10
+          }
+        },
+        "not": {"required": ["game_end"]}
+      },
+      "else": {"required": ["game_end"]}
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "declarer_concession"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_declarer_concession.schema.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "defender_concession"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_defender_concession.schema.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "declarer_card_exposure"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure.schema.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "defender_open_play"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_defender_open_play.schema.json"
+          },
+          "tricks": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/trick"},
+            "minItems": 5,
+            "maxItems": 10
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"game_end_reason": {"const": "open_card_throw"}},
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_open_card_throw.schema.json"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "card_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/card"
+      }
+    },
+    "ten_cards": {
+      "$ref": "#/$defs/card_array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "two_cards": {
+      "$ref": "#/$defs/card_array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "seat", "initial_hand"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "player_label": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "seat": {
+          "type": "string",
+          "enum": ["forehand", "middlehand", "rearhand"]
+        },
+        "initial_hand": {
+          "$ref": "#/$defs/ten_cards"
+        }
+      }
+    },
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_type", "bid_value"],
+      "properties": {
+        "game_type": {
+          "type": "string",
+          "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+        },
+        "hand_game": {
+          "type": "boolean"
+        },
+        "ouvert": {
+          "type": "boolean"
+        },
+        "schneider_announced": {
+          "type": "boolean"
+        },
+        "schwarz_announced": {
+          "type": "boolean"
+        },
+        "matadors": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 11
+        },
+        "bid_value": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {
+                "const": "grand"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "matadors": {
+                "maximum": 4
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {
+                "const": "null"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {"required": ["matadors"]},
+                {"required": ["schneider_announced"]},
+                {"required": ["schwarz_announced"]}
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["game_type"],
+            "properties": {
+              "game_type": {
+                "enum": ["clubs", "spades", "hearts", "diamonds", "grand"]
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["schneider_announced", "hand_game"],
+                  "properties": {
+                    "schneider_announced": {"const": true},
+                    "hand_game": {"const": false}
+                  }
+                },
+                {
+                  "required": ["schwarz_announced", "schneider_announced"],
+                  "properties": {
+                    "schwarz_announced": {"const": true},
+                    "schneider_announced": {"const": false}
+                  }
+                },
+                {
+                  "required": ["schwarz_announced", "hand_game"],
+                  "properties": {
+                    "schwarz_announced": {"const": true},
+                    "hand_game": {"const": false}
+                  }
+                },
+                {
+                  "required": ["ouvert", "schwarz_announced"],
+                  "properties": {
+                    "ouvert": {"const": true},
+                    "schwarz_announced": {"const": false}
+                  }
+                },
+                {
+                  "required": ["ouvert", "schneider_announced"],
+                  "properties": {
+                    "ouvert": {"const": true},
+                    "schneider_announced": {"const": false}
+                  }
+                },
+                {
+                  "required": ["ouvert", "hand_game"],
+                  "properties": {
+                    "ouvert": {"const": true},
+                    "hand_game": {"const": false}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "trick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trick_number", "leader_player_id", "plays"],
+      "properties": {
+        "trick_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "leader_player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "plays": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/play"
+          },
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true
+        }
+      }
+    },
+    "complete_trick": {
+      "allOf": [
+        {"$ref": "#/$defs/trick"},
+        {
+          "properties": {
+            "plays": {"minItems": 3, "maxItems": 3}
+          }
+        }
+      ]
+    },
+    "play": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "card"],
+      "properties": {
+        "player_id": {
+          "$ref": "#/$defs/stable_identifier"
+        },
+        "card": {
+          "$ref": "#/$defs/card"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_game_end.schema.json",
+  "title": "skat-ai historical game-end event version 1",
+  "oneOf": [
+    {
+      "$ref": "https://example.local/skat-ai/historical_declarer_concession.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_defender_concession.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_declarer_card_exposure.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_defender_open_play.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_open_card_throw.schema.json"
+    }
+  ]
+}

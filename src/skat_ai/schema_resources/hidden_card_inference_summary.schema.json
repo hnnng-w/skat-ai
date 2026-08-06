@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/hidden_card_inference_summary.schema.json",
+  "title": "Hidden-card inference summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "information_cutoff",
+    "mode",
+    "compatible_world_model",
+    "compatible_world_count",
+    "constraints_applied",
+    "provenance_status",
+    "confirmed_void_evidence_count",
+    "exact_public_hand_count",
+    "hypothetical_skat_size",
+    "confidence_basis",
+    "confidence_is_calibrated",
+    "confidence_thresholds",
+    "evidence",
+    "confirmed_voids",
+    "ownership_estimates",
+    "behavioral_inference_applied",
+    "future_information_used",
+    "actual_hidden_hands_emitted",
+    "privacy_flags"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "information_cutoff": {"const": "current_decision"},
+    "mode": {"const": "exact_evidence_constrained"},
+    "compatible_world_model": {"const": "uniform_labeled_assignments"},
+    "compatible_world_count": {"type": "integer", "minimum": 1},
+    "constraints_applied": {"const": true},
+    "provenance_status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "partially_available_missing_play_provenance"
+      ]
+    },
+    "confirmed_void_evidence_count": {"type": "integer", "minimum": 1},
+    "exact_public_hand_count": {"type": "integer", "minimum": 0, "maximum": 3},
+    "hypothetical_skat_size": {"type": "integer", "minimum": 0},
+    "confidence_basis": {"const": "compatible_world_ownership_concentration"},
+    "confidence_is_calibrated": {"const": false},
+    "confidence_thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["high_min_probability", "medium_min_probability"],
+      "properties": {
+        "high_min_probability": {"const": 0.85},
+        "medium_min_probability": {"const": 0.65}
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"$ref": "#/$defs/evidence"}
+    },
+    "confirmed_voids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/player_constraints"}
+    },
+    "ownership_estimates": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/ownership_estimate"},
+      "maxItems": 32
+    },
+    "behavioral_inference_applied": {"const": false},
+    "future_information_used": {"const": false},
+    "actual_hidden_hands_emitted": {"const": false},
+    "privacy_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sampled_hands_emitted",
+        "sampled_hypothetical_skat_emitted",
+        "coherent_root_ownership_emitted",
+        "actual_historical_hidden_hands_emitted",
+        "dynamic_programming_tables_emitted"
+      ],
+      "properties": {
+        "sampled_hands_emitted": {"const": false},
+        "sampled_hypothetical_skat_emitted": {"const": false},
+        "coherent_root_ownership_emitted": {"const": false},
+        "actual_historical_hidden_hands_emitted": {"const": false},
+        "dynamic_programming_tables_emitted": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "player": {
+      "type": "string",
+      "enum": ["me", "left", "right", "skat"]
+    },
+    "effective_category": {
+      "type": "string",
+      "enum": ["clubs", "spades", "hearts", "diamonds", "trump"]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_type",
+        "player",
+        "effective_category",
+        "cards",
+        "confidence",
+        "source_trick_number",
+        "source_play_index",
+        "source"
+      ],
+      "properties": {
+        "evidence_type": {
+          "type": "string",
+          "enum": [
+            "local_exact_hand",
+            "exact_public_hand",
+            "known_skat",
+            "public_played_card_owner",
+            "failed_to_follow"
+          ]
+        },
+        "player": {"$ref": "#/$defs/player"},
+        "effective_category": {
+          "oneOf": [
+            {"$ref": "#/$defs/effective_category"},
+            {"type": "null"}
+          ]
+        },
+        "cards": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/card"},
+          "uniqueItems": true
+        },
+        "confidence": {"const": "confirmed"},
+        "source_trick_number": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 10
+        },
+        "source_play_index": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 3
+        },
+        "source": {"type": "string", "minLength": 1}
+      }
+    },
+    "player_constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player", "forbidden_effective_categories"],
+      "properties": {
+        "player": {
+          "type": "string",
+          "enum": ["me", "left", "right"]
+        },
+        "forbidden_effective_categories": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/effective_category"}
+        }
+      }
+    },
+    "owner": {
+      "type": "string",
+      "enum": ["left", "right", "skat"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["confirmed", "high", "medium", "low"]
+    },
+    "ownership_estimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card",
+        "possible_owners",
+        "ownership_probability",
+        "most_likely_owner",
+        "confidence",
+        "exact_owner_confirmed"
+      ],
+      "properties": {
+        "card": {"$ref": "#/$defs/card"},
+        "possible_owners": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/owner"}
+        },
+        "ownership_probability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["left", "right", "skat"],
+          "properties": {
+            "left": {"type": "number", "minimum": 0, "maximum": 1},
+            "right": {"type": "number", "minimum": 0, "maximum": 1},
+            "skat": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "most_likely_owner": {"$ref": "#/$defs/owner"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "exact_owner_confirmed": {"type": "boolean"}
+      }
+    }
+  }
+}

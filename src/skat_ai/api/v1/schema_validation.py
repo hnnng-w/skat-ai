@@ -1,7 +1,8 @@
 import json
 from collections.abc import Iterable
 from functools import lru_cache
-from pathlib import Path
+from importlib import resources
+from importlib.resources.abc import Traversable
 from typing import Any
 
 from skat_ai.errors import (
@@ -14,27 +15,33 @@ _INPUT_SCHEMA_NAME = "input.schema.json"
 _OUTPUT_SCHEMA_NAME = "output.schema.json"
 
 
-def _schema_directory() -> Path:
-    return Path(__file__).parents[4] / "schemas"
+def _schema_resource_root() -> Traversable:
+    from skat_ai import schema_resources
 
-
-def _read_schema(path: Path) -> dict[str, Any]:
     try:
-        with path.open("r", encoding="utf-8") as schema_file:
-            schema = json.load(schema_file)
+        return resources.files(schema_resources)
+    except (ModuleNotFoundError, OSError, TypeError) as error:
+        raise SkatAIResourceError(str(error)) from error
+
+
+def _read_schema(resource: Traversable) -> dict[str, Any]:
+    try:
+        content = resource.read_bytes().decode("utf-8")
     except OSError as error:
         raise SkatAIResourceError(str(error)) from error
-    except json.JSONDecodeError as error:
-        raise SkatAIInvariantError(
-            f"Repository schema {path.name!r} is not valid JSON: {error}."
-        ) from error
     except UnicodeDecodeError as error:
         raise SkatAIInvariantError(
-            f"Repository schema {path.name!r} is not valid UTF-8: {error}."
+            f"Packaged schema {resource.name!r} is not valid UTF-8: {error}."
+        ) from error
+    try:
+        schema = json.loads(content)
+    except json.JSONDecodeError as error:
+        raise SkatAIInvariantError(
+            f"Packaged schema {resource.name!r} is not valid JSON: {error}."
         ) from error
     if not isinstance(schema, dict):
         raise SkatAIInvariantError(
-            f"Repository schema {path.name!r} must contain a JSON object."
+            f"Packaged schema {resource.name!r} must contain a JSON object."
         )
     return schema
 
@@ -53,50 +60,54 @@ def _validator_for(schema_name: str):
     from referencing.exceptions import CannotDetermineSpecification
     from referencing.jsonschema import UnknownDialect
 
-    schema_directory = _schema_directory()
-    root_path = schema_directory / schema_name
-    schemas: list[tuple[Path, dict[str, Any]]] = []
+    resource_root = _schema_resource_root()
     try:
-        schema_paths = sorted(schema_directory.glob("*.schema.json"))
+        schema_resources = sorted(
+            (
+                resource
+                for resource in resource_root.iterdir()
+                if resource.name.endswith(".schema.json") and resource.is_file()
+            ),
+            key=lambda resource: resource.name,
+        )
     except OSError as error:
         raise SkatAIResourceError(str(error)) from error
-    if root_path not in schema_paths:
-        _read_schema(root_path)
-    for path in schema_paths:
-        schemas.append((path, _read_schema(path)))
+    if schema_name not in {resource.name for resource in schema_resources}:
+        raise SkatAIResourceError(f"Schema resource not found: {schema_name!r}.")
+    schemas = [(resource, _read_schema(resource)) for resource in schema_resources]
 
-    resources = []
+    registry_resources = []
     schema_ids: set[str] = set()
     root_schema: dict[str, Any] | None = None
-    for path, schema in schemas:
+    for resource, schema in schemas:
         try:
             Draft202012Validator.check_schema(schema)
         except SchemaError as error:
             raise SkatAIInvariantError(
-                f"Repository schema {path.name!r} is invalid: {error.message}"
+                f"Packaged schema {resource.name!r} is invalid: {error.message}"
             ) from error
         schema_id = schema.get("$id")
         if not isinstance(schema_id, str) or not schema_id:
             raise SkatAIInvariantError(
-                f"Repository schema {path.name!r} requires a non-empty $id."
+                f"Packaged schema {resource.name!r} requires a non-empty $id."
             )
         if schema_id in schema_ids:
-            raise SkatAIInvariantError(
-                f"Repository schema $id {schema_id!r} is duplicated."
-            )
+            raise SkatAIInvariantError(f"Packaged schema $id {schema_id!r} is duplicated.")
         schema_ids.add(schema_id)
         try:
-            resources.append((schema_id, Resource.from_contents(schema)))
+            registry_resources.append((schema_id, Resource.from_contents(schema)))
         except (CannotDetermineSpecification, UnknownDialect) as error:
             raise SkatAIInvariantError(
-                f"Repository schema {path.name!r} has no supported specification."
+                f"Packaged schema {resource.name!r} has no supported specification."
             ) from error
-        if path == root_path:
+        if resource.name == schema_name:
             root_schema = schema
 
     if root_schema is None:
-        raise SkatAIResourceError(f"Schema resource not found: {root_path}")
-    registry = Registry(retrieve=_reject_schema_retrieval).with_resources(resources)
+        raise SkatAIResourceError(f"Schema resource not found: {schema_name!r}.")
+    registry = Registry(retrieve=_reject_schema_retrieval).with_resources(
+        registry_resources
+    )
     format_checker = FormatChecker() if schema_name == _INPUT_SCHEMA_NAME else None
     return Draft202012Validator(
         root_schema,
@@ -136,7 +147,7 @@ def _validate_document(document: object, *, schema_name: str) -> None:
         errors = sorted(validator.iter_errors(document), key=_error_sort_key)
     except Unresolvable as error:
         raise SkatAIResourceError(
-            f"Repository schema resource is unavailable: {error}"
+            f"Packaged schema resource is unavailable: {error}"
         ) from error
     if errors:
         error = errors[0]

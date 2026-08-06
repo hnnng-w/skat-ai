@@ -6,6 +6,14 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+Write-Host "Running packaged schema parity check..."
+python scripts/sync_packaged_schemas.py --check
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Packaged schema parity check failed."
+    exit $LASTEXITCODE
+}
+
 Write-Host "Running JSON schema validation..."
 python scripts/validate_examples_schema.py
 
@@ -19,6 +27,14 @@ python scripts/validate_generated_outputs_schema.py
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Generated output schema validation failed."
+    exit $LASTEXITCODE
+}
+
+Write-Host "Running distribution artifact validation..."
+python scripts/validate_distribution_artifacts.py
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Distribution artifact validation failed."
     exit $LASTEXITCODE
 }
 

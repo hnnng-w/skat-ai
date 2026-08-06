@@ -82,7 +82,7 @@ WORKFLOWS = (
 
 
 def test_public_namespaces_have_exact_export_surfaces() -> None:
-    assert skat_ai.__all__ == ("api", "errors")
+    assert skat_ai.__all__ == ("api", "errors", "__version__")
     assert skat_ai.api.__all__ == ("v1",)
     assert api_v1.__all__ == (*CONTRACT_EXPORTS, *ERROR_EXPORTS)
     assert skat_ai.errors.__all__ == ERROR_EXPORTS
@@ -95,10 +95,10 @@ def test_public_namespaces_have_exact_export_surfaces() -> None:
 
 def test_package_import_loads_only_public_contract_modules() -> None:
     command = (
-        "from pathlib import Path\n"
-        "Path.open = lambda *args, **kwargs: (_ for _ in ()).throw("
-        "AssertionError('package import read a file'))\n"
-        "import json, sys, skat_ai\n"
+        "import importlib.resources, json, sys\n"
+        "importlib.resources.files = lambda *args, **kwargs: (_ for _ in ()).throw("
+        "AssertionError('package import loaded schema resources'))\n"
+        "import skat_ai\n"
         "print(json.dumps(sorted(name for name in sys.modules "
         "if name == 'skat_ai' or name.startswith('skat_ai.'))))\n"
     )
@@ -114,6 +114,7 @@ def test_package_import_loads_only_public_contract_modules() -> None:
     assert completed.returncode == 0, completed.stderr
     assert json.loads(completed.stdout) == [
         "skat_ai",
+        "skat_ai._version",
         "skat_ai.api",
         "skat_ai.api.v1",
         "skat_ai.api.v1.contracts",
@@ -382,7 +383,7 @@ def test_normal_result_states_are_canonical_and_remain_results() -> None:
         assert result.to_dict()["document"]["status"] == state
 
 
-def test_executable_facade_adds_no_schema_helpers_package_version_or_packaging() -> None:
+def test_packaging_adds_only_the_package_root_version_export() -> None:
     forbidden = {
         "get_schema",
         "load_schema",
@@ -393,11 +394,11 @@ def test_executable_facade_adds_no_schema_helpers_package_version_or_packaging()
 
     assert forbidden.isdisjoint(api_v1.__all__)
     assert all(not hasattr(api_v1, name) for name in forbidden)
-    assert not hasattr(skat_ai, "__version__")
+    assert skat_ai.__version__ == "0.12.0"
     assert importlib.util.find_spec("skat_ai.__main__") is None
-    assert "build-system" not in pyproject
+    assert pyproject["build-system"]["build-backend"] == "setuptools.build_meta"
     assert "scripts" not in pyproject["project"]
-    assert not (PROJECT_ROOT / "src" / "skat_ai" / "py.typed").exists()
+    assert (PROJECT_ROOT / "src" / "skat_ai" / "py.typed").is_file()
 
 
 def test_jsonschema_is_runtime_dependency_and_dev_tools_remain_optional() -> None:
@@ -405,6 +406,7 @@ def test_jsonschema_is_runtime_dependency_and_dev_tools_remain_optional() -> Non
 
     assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
     assert pyproject["project"]["optional-dependencies"]["dev"] == [
+        "build>=1.2.2",
         "pytest>=9.0.0",
         "ruff>=0.14.0",
     ]

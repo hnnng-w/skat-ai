@@ -9,7 +9,7 @@ This document tracks completed areas, known limitations, and planned improvement
 Implemented:
 
 * Public API contract version `1` under `skat_ai.api.v1`
-* Minimal Package-Root exports limited to `api` and `errors`
+* Minimal Package-Root exports limited to `api`, `errors`, and `__version__`
 * Exact canonical seven-workflow `WorkflowV1` contract
 * Frozen, slotted, keyword-only Request, Result, execution-option,
   compatibility-policy, and API-version contracts
@@ -21,13 +21,19 @@ Implemented:
   and `serialize_result` facade
 * Direct immutable workflow options, paired external Opponent Statistics,
   separate public artifacts, and flattened deterministic execution results
-* Lazy local-only Root input/output/artifact schema validation with RFC 6901
-  errors and stable boundary translation
+* Lazy Package Resource Root input/output/artifact schema validation with RFC
+  6901 errors and stable boundary translation
+* Explicit Setuptools build metadata, `skat_ai*` discovery, Package Data, and the
+  unchanged `0.12.0` distribution version
+* Byte-identical private Schema resources with deterministic synchronization and
+  local/CI parity checks
+* PEP 561 `py.typed`, Package-Root version metadata, one Wheel and one sdist,
+  artifact inspection, and separate clean-install public-API smoke tests
 
-The executable facade is available for source and editable use. Packaging,
-installed CLI entry points, Package Resource schemas, a typing marker, public
-provenance exports, and workflow provenance propagation remain open. Internal
-Application extraction is covered separately below.
+The executable facade is available from source, Editable, Wheel, and sdist
+installations. Installed CLI entry points, public provenance exports, and
+workflow provenance propagation remain open. Internal Application extraction is
+covered separately below.
 
 ### Application orchestration foundation
 
@@ -48,8 +54,8 @@ Implemented:
 * Stable public facade reuse without changes to Root schemas, examples,
   scenarios, or Package version
 
-Packaging, installed CLI entry points, Package Resource schemas, typing metadata,
-and all field-provenance propagation and output remain open. See
+Installed CLI entry points and all field-provenance propagation and output remain
+open. See
 [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
@@ -353,7 +359,8 @@ Implemented:
   preparation output schemas
 * Input example schema validation
 * Generated-output schema validation
-* Full check script with Ruff, input schema validation, generated-output validation, and pytest
+* Full check script with Ruff, packaged-schema parity, input schema validation,
+  generated-output validation, distribution validation, and pytest
 * Topic-specific documentation split into `docs/`
 * Project handoff documentation
 * Authoritative requirements traceability and testable `v1.0.0` scope
@@ -394,8 +401,8 @@ Implemented:
   perfect-information solver, not a full or general hidden-information solver.
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
-* The public Python API executes all seven Root workflows in memory, but its
-  current schema backend requires a source or editable checkout.
+* The public Python API executes all seven Root workflows in memory from source,
+  Editable, Wheel, and sdist installations; an installed CLI is not yet present.
 * Full official settlement nuance coverage is not complete.
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
 * The engine verifies only bounded ISkO 4.4.5 defender rest-trick claims; no general claim-verification protocol exists.
@@ -581,10 +588,10 @@ implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, field-level live provenance propagation
-and adversarial workflow enforcement, interactive
-live and retrospective input/session capture, and a stable installed CLI/package
-interface. The executable public facade and internal Application layer are
-implemented. API contract
+and adversarial workflow enforcement, interactive live and retrospective
+input/session capture, and a stable installed CLI interface. The executable
+public facade, internal Application layer, and installable library distributions
+are implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
 metadata, and stable public errors are implemented. General claim verification
 and historical end reasons outside the
@@ -663,9 +670,11 @@ Application extraction with immutable orchestration version `1` contracts, all
 seven no-I/O handlers, five Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI transport parity. Public API
 exports remain unchanged. Issue #140 adds the executable public facade, direct
-immutable options, public results and artifacts, lazy source/editable schema
-validation, stable error translation, and all-seven-workflow parity. Packaging
-and provenance remain separate. Later milestone numbers remain planning
+immutable options, public results and artifacts, lazy schema validation, stable
+error translation, and all-seven-workflow parity. Issue #141 adds Setuptools
+metadata, Package Resource schemas, typing and version metadata, Wheel/sdist and
+clean-install validation, and local/CI gates without an installed CLI or
+publication. Provenance remains separate. Later milestone numbers remain planning
 containers rather than fixed contractual releases.
 
 ## Open technical cleanup

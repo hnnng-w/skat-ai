@@ -16,6 +16,8 @@ The Application layer executes existing workflows from already loaded in-memory
 Root documents. It remains an internal boundary under `skat_ai.application`.
 Issue #140 adds the stable `skat_ai.api.v1` facade over this boundary without
 making Application contracts public.
+Issue #141 packages that facade and its private Schema resources without moving
+build, resource, metadata, or installation concerns into Application.
 
 ## Contracts
 
@@ -179,14 +181,20 @@ documents, results, and artifacts currently carry no provenance sidecar. All
 workflow-level provenance propagation and all public provenance output remain
 open.
 
+Packaging does not change this boundary. Clean Wheel and sdist smoke tests call
+the public facade, which delegates to the same Application handlers and preserves
+the same Root Results and artifacts. Application still performs no Package
+Resource discovery and imports no repository-root `main.py`.
+
 ## Remaining work
 
 The following remain separate follow-up scopes:
 
-* Package and distribution metadata work;
 * installed `skat-ai` and `python -m skat_ai` entry points;
-* Package Resource schemas;
-* `py.typed` and supported typing metadata;
 * public error translation across existing Domain failures;
 * all field-level provenance propagation, enforcement, schemas, API exposure,
   output integration, and CLI presentation.
+
+Package and distribution metadata, private Package Resource schemas, `py.typed`,
+Package `__version__`, and clean Wheel/sdist validation are implemented by Issue
+#141. See [Packaging and distribution](packaging_and_distribution.md).

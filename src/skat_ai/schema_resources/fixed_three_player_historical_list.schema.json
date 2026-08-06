@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/fixed_three_player_historical_list.schema.json",
+  "title": "skat-ai fixed-three-player historical 36-position list version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "list_id", "players", "entries"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "list_id": {"$ref": "#/$defs/stable_identifier"},
+    "players": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {"$ref": "#/$defs/place_1_player"},
+        {"$ref": "#/$defs/place_2_player"},
+        {"$ref": "#/$defs/place_3_player"}
+      ],
+      "items": false
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 36,
+      "maxItems": 36,
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player_id", "table_place"],
+      "properties": {
+        "player_id": {"$ref": "#/$defs/stable_identifier"},
+        "player_label": {
+          "oneOf": [
+            {"$ref": "#/$defs/stable_identifier"},
+            {"type": "null"}
+          ]
+        },
+        "table_place": {"enum": ["place_1", "place_2", "place_3"]}
+      }
+    },
+    "place_1_player": {
+      "allOf": [
+        {"$ref": "#/$defs/player"},
+        {"properties": {"table_place": {"const": "place_1"}}}
+      ]
+    },
+    "place_2_player": {
+      "allOf": [
+        {"$ref": "#/$defs/player"},
+        {"properties": {"table_place": {"const": "place_2"}}}
+      ]
+    },
+    "place_3_player": {
+      "allOf": [
+        {"$ref": "#/$defs/player"},
+        {"properties": {"table_place": {"const": "place_3"}}}
+      ]
+    },
+    "entry": {
+      "oneOf": [
+        {"$ref": "#/$defs/played_game_entry"},
+        {"$ref": "#/$defs/passed_deal_entry"}
+      ]
+    },
+    "played_game_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry_id", "entry_kind", "historical_game"],
+      "properties": {
+        "entry_id": {"$ref": "#/$defs/stable_identifier"},
+        "entry_kind": {"const": "played_game"},
+        "historical_game": {
+          "$ref": "https://example.local/skat-ai/historical_game.schema.json"
+        }
+      }
+    },
+    "passed_deal_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry_id", "entry_kind", "played_at"],
+      "properties": {
+        "entry_id": {"$ref": "#/$defs/stable_identifier"},
+        "entry_kind": {"const": "passed_deal"},
+        "played_at": {
+          "oneOf": [
+            {"type": "string", "format": "date-time"},
+            {"type": "null"}
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/opponent_profile_derivation.schema.json",
+  "title": "skat-ai opponent profile derivation version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_derivation_version",
+    "confidence",
+    "signals",
+    "classification",
+    "recommended_policy_preset",
+    "actionable_policy_preset",
+    "derivation_status",
+    "decisive_signal_codes",
+    "explanations"
+  ],
+  "properties": {
+    "profile_derivation_version": {"const": 1},
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall", "declarer", "defender"],
+      "properties": {
+        "overall": {"$ref": "#/$defs/confidence_result"},
+        "declarer": {"$ref": "#/$defs/confidence_result"},
+        "defender": {"$ref": "#/$defs/confidence_result"}
+      }
+    },
+    "signals": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/signal"},
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "classification": {"$ref": "#/$defs/classification"},
+    "recommended_policy_preset": {"$ref": "#/$defs/policy_preset"},
+    "actionable_policy_preset": {
+      "oneOf": [
+        {"$ref": "#/$defs/policy_preset"},
+        {"type": "null"}
+      ]
+    },
+    "derivation_status": {
+      "type": "string",
+      "enum": ["actionable", "insufficient_confidence", "neutral", "insufficient_data"]
+    },
+    "decisive_signal_codes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/signal_code"},
+      "uniqueItems": true
+    },
+    "explanations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "confidence_level": {
+      "type": "string",
+      "enum": ["unknown", "low", "medium", "high"]
+    },
+    "evidence_kind": {
+      "type": "string",
+      "enum": ["exact", "estimated_from_rate", "estimated_from_complement", "unavailable"]
+    },
+    "confidence_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "evidence_count", "evidence_kind"],
+      "properties": {
+        "level": {"$ref": "#/$defs/confidence_level"},
+        "evidence_count": {"type": ["number", "null"], "minimum": 0},
+        "evidence_kind": {"$ref": "#/$defs/evidence_kind"}
+      }
+    },
+    "signal_code": {
+      "type": "string",
+      "enum": ["frequent_declarer", "grand_oriented", "hand_oriented", "reliable_defender"]
+    },
+    "signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "source_field",
+        "observed_value",
+        "comparison_operator",
+        "threshold",
+        "confidence_scope",
+        "confidence_level",
+        "value_threshold_matched",
+        "actionable",
+        "reason_code"
+      ],
+      "properties": {
+        "code": {"$ref": "#/$defs/signal_code"},
+        "source_field": {
+          "type": "string",
+          "enum": ["solo_rate", "grand_rate", "hand_game_rate", "defender_win_rate"]
+        },
+        "observed_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "comparison_operator": {"const": ">="},
+        "threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "confidence_scope": {"type": "string", "enum": ["overall", "declarer", "defender"]},
+        "confidence_level": {"$ref": "#/$defs/confidence_level"},
+        "value_threshold_matched": {"type": "boolean"},
+        "actionable": {"type": "boolean"},
+        "reason_code": {
+          "type": "string",
+          "enum": [
+            "threshold_matched",
+            "threshold_not_matched",
+            "value_unavailable",
+            "insufficient_confidence"
+          ]
+        }
+      }
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["aggressive", "cautious_defender", "neutral"]
+    },
+    "policy_preset": {
+      "type": "string",
+      "enum": ["aggressive_points", "cautious_defender", "simple_lowest"]
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/defender_concession_output.schema.json",
+  "title": "skat-ai defender concession output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "rule_sections",
+    "conceding_player",
+    "concession_form",
+    "liable_party",
+    "joint_liability",
+    "decision_state_before_concession",
+    "adjudicated_winner",
+    "winner_basis",
+    "remaining_points_assigned",
+    "continued_play_requested",
+    "settlement_level_policy"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "defender_concession"},
+    "rule_sections": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "prefixItems": [
+        {"const": "4.4.3"},
+        {"enum": ["4.1.3", "4.1.4"]}
+      ],
+      "items": {"const": "4.1.5"}
+    },
+    "conceding_player": {
+      "type": "string",
+      "enum": ["me", "left", "right"]
+    },
+    "concession_form": {
+      "type": "string",
+      "enum": ["explicit_verbal", "adjudicated_unambiguous_conduct"]
+    },
+    "liable_party": {"const": "defenders"},
+    "joint_liability": {"const": true},
+    "decision_state_before_concession": {
+      "type": "string",
+      "enum": ["undecided", "declarer_already_won", "defenders_already_won"]
+    },
+    "adjudicated_winner": {
+      "type": "string",
+      "enum": ["declarer", "defenders"]
+    },
+    "winner_basis": {
+      "type": "string",
+      "enum": ["defender_concession", "preexisting_game_decision"]
+    },
+    "remaining_points_assigned": {"const": false},
+    "continued_play_requested": {"const": false},
+    "settlement_level_policy": {
+      "type": "string",
+      "enum": [
+        "declared_or_mandatory_value_without_optional_achieved_levels",
+        "secured_observed_levels_only"
+      ]
+    }
+  },
+  "$defs": {
+    "settlement_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_end_kind",
+        "outcome_source",
+        "winner_basis",
+        "decision_state_before_game_end",
+        "mandatory_level_awarded",
+        "mandatory_level_source",
+        "achieved_schneider_applied",
+        "achieved_schwarz_applied",
+        "overbid_required_value_applied"
+      ],
+      "properties": {
+        "game_end_kind": {"const": "defender_concession"},
+        "outcome_source": {
+          "type": "string",
+          "enum": ["adjudicated", "preexisting_game_decision"]
+        },
+        "winner_basis": {
+          "type": "string",
+          "enum": ["defender_concession", "preexisting_game_decision"]
+        },
+        "decision_state_before_game_end": {
+          "type": "string",
+          "enum": ["undecided", "declarer_already_won", "defenders_already_won"]
+        },
+        "mandatory_level_awarded": {"type": "boolean"},
+        "mandatory_level_source": {
+          "type": ["string", "null"],
+          "enum": [
+            "declared_announcement",
+            "overbid_requirement",
+            "declared_announcement_and_overbid_requirement",
+            null
+          ]
+        },
+        "achieved_schneider_applied": {"type": "boolean"},
+        "achieved_schwarz_applied": {"type": "boolean"},
+        "overbid_required_value_applied": {"type": "boolean"}
+      }
+    }
+  }
+}

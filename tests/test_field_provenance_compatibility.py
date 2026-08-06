@@ -12,7 +12,7 @@ from skat_ai.training_dataset import TrainingProvenance
 
 
 def test_field_provenance_is_not_exported_through_public_namespaces() -> None:
-    assert skat_ai.__all__ == ("api", "errors")
+    assert skat_ai.__all__ == ("api", "errors", "__version__")
     assert skat_ai.api.__all__ == ("v1",)
     assert "FieldProvenanceEntry" not in api_v1.__all__
     assert "FieldProvenanceLedger" not in api_v1.__all__

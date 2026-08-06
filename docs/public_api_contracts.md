@@ -1,17 +1,19 @@
 # Public API contracts
 
-This document defines the public Python contract introduced by Issue #137 and
-extended with executable facade contracts by Issue #140. The API contract
-version is `1`, and its stable versioned namespace is:
+This document defines the public Python contract introduced by Issue #137,
+extended with executable facade contracts by Issue #140, and made available from
+built distributions by Issue #141. The API contract version is `1`, and its
+stable versioned namespace is:
 
 ```text
 skat_ai.api.v1
 ```
 
-The public facade now parses and executes all seven Root workflows through the
-Issue #139 internal Application layer. It adds no workflow-specific helper,
-installed CLI, or packaged schema. Issue #138 remains a separate internal field-
-provenance contract foundation and adds no public provenance type or field.
+The public facade parses and executes all seven Root workflows through the Issue
+#139 internal Application layer. Packaged schemas support Editable, Wheel, and
+sdist installations without adding a workflow-specific helper, installed CLI,
+or public schema API. Issue #138 remains a separate internal field-provenance
+contract foundation and adds no public provenance type or field.
 
 ## Public namespaces
 
@@ -25,7 +27,8 @@ skat_ai.errors
 ```
 
 Only names listed by each namespace's exact `__all__` are stable. The Package
-Root exports only `api` and `errors`, and `skat_ai.api` exports only `v1`.
+Root exports only `api`, `errors`, and `__version__`, and `skat_ai.api` exports
+only `v1`.
 Technical importability does not make any other `skat_ai.*` module public.
 Direct imports from workflow, Domain, builder, serializer, schema-loader, or
 other internal modules have no compatibility guarantee.
@@ -154,16 +157,17 @@ explicit parse-then-execute results. `serialize_result` returns a fresh mutable
 flattened envelope and rejects wrong input types with
 `SkatAISerializationError`.
 
-The facade validates Root input through `schemas/input.schema.json`, Root output
-through `schemas/output.schema.json`, and reusable artifacts through the Root
-input schema. Validation is lazy, current-working-directory independent, local-
-only, deterministic, and reports RFC 6901 paths. Document failures use
+The facade validates Root input through packaged `input.schema.json`, Root output
+through packaged `output.schema.json`, and reusable artifacts through the Root
+input schema. Validation is lazy, current-working-directory and repository-root
+independent, local-only, deterministic, and reports RFC 6901 paths. Document
+failures use
 `SkatAISchemaError`, missing resources use `SkatAIResourceError`, and invalid
-repository schemas use `SkatAIInvariantError`.
-
-The current schema backend reads repository files relative to the source module.
-It supports source and editable use only. A later packaging issue must migrate to
-Package Resources without changing these facade contracts.
+packaged schemas use `SkatAIInvariantError`. The backend uses
+`importlib.resources` and the private `skat_ai.schema_resources` Package, with no
+network retrieval or concrete filesystem-path requirement. The authoritative
+repository `schemas/` files and packaged resources have exact filename and byte
+parity.
 
 Existing `SkatAIError` instances pass through unchanged. Raw boundary
 `ValueError` becomes `SkatAIValidationError`, and raw boundary `OSError` becomes
@@ -277,14 +281,21 @@ after `v1.0.0` requires a documented replacement, a migration note, and a prior
 release that emits `SkatAIDeprecationWarning`. Internal imports receive no such
 guarantee. No deprecation warning is emitted now.
 
+## Package Version
+
+`skat_ai.__version__` reports installed distribution metadata from
+`importlib.metadata.version("skat-ai")`. Installed and Editable distributions
+report `0.12.0`; a source-only environment without distribution metadata may
+report `0+unknown`. The fallback reads no repository file.
+
+This additive Package-Root export does not change `skat_ai.api.__all__`,
+`skat_ai.api.v1.__all__`, or `skat_ai.errors.__all__`. Package version remains
+absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
+
 ## Remaining Work
 
 The following remain open for later `v0.13.0` issues:
 
-* Package-version metadata export;
-* build metadata plus Wheel and sdist validation;
-* Package Resource schemas;
-* `py.typed`;
 * installed `skat-ai` and `python -m skat_ai` CLIs;
 * field-level provenance propagation and workflow-level leakage enforcement;
 * any additive public provenance API, schemas, or output integration.
@@ -292,4 +303,7 @@ The following remain open for later `v0.13.0` issues:
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are
 implemented by Issue #139. Issue #140 exposes them through the stable public
-facade without adding transport I/O, packaging, or provenance.
+facade without adding transport I/O or provenance. Issue #141 adds distribution
+metadata, private Package Resource schemas, `py.typed`, Package version export,
+and Wheel/sdist clean-install gates without changing the API facade exports or
+adding an installed CLI. See [Packaging and distribution](packaging_and_distribution.md).

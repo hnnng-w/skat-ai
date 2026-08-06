@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/exact_rest_trick_proof.schema.json",
+  "title": "skat-ai exact defender rest-trick proof output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "proof_complete",
+    "quantifier_policy",
+    "evaluated_state_count",
+    "memoized_state_count",
+    "counterexample_found"
+  ],
+  "properties": {
+    "status": {"type": "string", "enum": ["valid", "invalid"]},
+    "proof_complete": {"const": true},
+    "quantifier_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exposing_defender", "declarer", "non_exposing_defender"],
+      "properties": {
+        "exposing_defender": {"const": "exists_legal_strategy"},
+        "declarer": {"const": "all_legal_plays"},
+        "non_exposing_defender": {"const": "all_legal_plays"}
+      }
+    },
+    "evaluated_state_count": {"type": "integer", "minimum": 1},
+    "memoized_state_count": {"type": "integer", "minimum": 1},
+    "counterexample_found": {"type": "boolean"},
+    "successful_line": {"$ref": "#/$defs/proof_line"},
+    "counterexample_line": {"$ref": "#/$defs/proof_line"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "valid"}}},
+      "then": {
+        "required": ["successful_line"],
+        "properties": {"counterexample_found": {"const": false}},
+        "not": {"required": ["counterexample_line"]}
+      },
+      "else": {
+        "required": ["counterexample_line"],
+        "properties": {"counterexample_found": {"const": true}},
+        "not": {"required": ["successful_line"]}
+      }
+    }
+  ],
+  "$defs": {
+    "player": {"type": "string", "enum": ["me", "left", "right"]},
+    "card": {
+      "type": "string",
+      "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"
+    },
+    "proof_line": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["player", "card", "card_visibility", "trick_winner"],
+        "properties": {
+          "player": {"$ref": "#/$defs/player"},
+          "card": {"oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]},
+          "card_visibility": {
+            "type": "string",
+            "enum": ["exposed", "private_evidence_redacted"]
+          },
+          "trick_winner": {
+            "type": ["string", "null"],
+            "enum": ["me", "left", "right", null]
+          }
+        }
+      }
+    }
+  }
+}
