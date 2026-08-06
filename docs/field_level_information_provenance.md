@@ -14,9 +14,10 @@ propagate ledgers at actual workflow boundaries before provenance can enforce a
 complete live-information policy end to end.
 
 Issue #139 adds internal Application orchestration version `1` without changing
-this boundary. Application invocations, injected Opponent Statistics, results,
-and auxiliary artifacts do not construct, carry, propagate, redact, or emit a
-field-provenance ledger. Public API exports remain unchanged.
+this boundary. Issue #140 adds executable public facade contracts and functions,
+but no provenance option, value, Result field, or export. Application invocations,
+injected Opponent Statistics, results, and auxiliary artifacts do not construct,
+carry, propagate, redact, or emit a field-provenance ledger.
 
 ## Contract identity
 
@@ -424,7 +425,7 @@ The following remain open:
 * Training Dataset and Dataset Preparation provenance;
 * historical-list provenance;
 * Opponent Statistics and profile provenance;
-* public API exposure;
+* any additive public provenance API exposure;
 * public schemas and output integration;
 * CLI presentation;
 * adversarial workflow-level leakage enforcement.

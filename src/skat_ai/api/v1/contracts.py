@@ -11,6 +11,8 @@ PUBLIC_API_CONTRACT_VERSION = 1
 PUBLIC_API_NAMESPACE = "skat_ai.api.v1"
 PUBLIC_API_COMPATIBILITY_POLICY = "additive_until_v1_0"
 LEGACY_MAIN_COMPATIBILITY_TARGET = "v1.0.0"
+DEFAULT_INPUT_REFERENCE_V1 = "memory://skat-ai/request"
+EXECUTION_ARTIFACT_NAMES_V1 = ("opponent_statistics_input",)
 
 NORMAL_RESULT_STATES_V1 = (
     "complete",
@@ -65,17 +67,31 @@ def _freeze_json_value(value: object, *, path: str) -> object:
     )
 
 
-def _freeze_json_object(document: object) -> Mapping[str, object]:
+def _freeze_json_object(
+    document: object,
+    *,
+    path: str = "document",
+) -> Mapping[str, object]:
     if not isinstance(document, Mapping):
-        raise SkatAIValidationError(
-            "document root must be an object.",
-            path="document",
+        message = (
+            "document root must be an object."
+            if path == "document"
+            else f"{path} must be an object."
         )
-    frozen = _freeze_json_value(document, path="document")
-    if not isinstance(frozen, Mapping):
         raise SkatAIValidationError(
-            "document root must be an object.",
-            path="document",
+            message,
+            path=path,
+        )
+    frozen = _freeze_json_value(document, path=path)
+    if not isinstance(frozen, Mapping):
+        message = (
+            "document root must be an object."
+            if path == "document"
+            else f"{path} must be an object."
+        )
+        raise SkatAIValidationError(
+            message,
+            path=path,
         )
     return frozen
 
@@ -128,9 +144,12 @@ class RequestDocumentV1:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class ExecutionOptionsV1:
-    """Version-1 placeholder for future workflow execution options."""
+    """Public non-transport options for one version-1 execution."""
 
     validate_output: bool = True
+    workflow_options: Mapping[str, object] = field(default_factory=dict)
+    opponent_statistics_document: Mapping[str, object] | None = None
+    opponent_statistics_reference: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.validate_output, bool):
@@ -138,6 +157,49 @@ class ExecutionOptionsV1:
                 "validate_output must be a boolean.",
                 path="validate_output",
             )
+        object.__setattr__(
+            self,
+            "workflow_options",
+            _freeze_json_object(self.workflow_options, path="workflow_options"),
+        )
+        has_document = self.opponent_statistics_document is not None
+        has_reference = self.opponent_statistics_reference is not None
+        if has_document != has_reference:
+            raise SkatAIValidationError(
+                "opponent_statistics_document and opponent_statistics_reference "
+                "must be supplied together.",
+                path="opponent_statistics_document",
+            )
+        if has_reference and (
+            not isinstance(self.opponent_statistics_reference, str)
+            or not self.opponent_statistics_reference
+        ):
+            raise SkatAIValidationError(
+                "opponent_statistics_reference must be a non-empty string.",
+                path="opponent_statistics_reference",
+            )
+        if has_document:
+            object.__setattr__(
+                self,
+                "opponent_statistics_document",
+                _freeze_json_object(
+                    self.opponent_statistics_document,
+                    path="opponent_statistics_document",
+                ),
+            )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns a fresh deterministic execution-option representation."""
+        return {
+            "validate_output": self.validate_output,
+            "workflow_options": _thaw_json_value(self.workflow_options),
+            "opponent_statistics_document": (
+                None
+                if self.opponent_statistics_document is None
+                else _thaw_json_value(self.opponent_statistics_document)
+            ),
+            "opponent_statistics_reference": self.opponent_statistics_reference,
+        }
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -173,6 +235,75 @@ class ResultDocumentV1:
             "workflow": self.workflow.value,
             "document": _thaw_json_value(self.document),
             "warnings": list(self.warnings),
+        }
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class ExecutionArtifactV1:
+    """One immutable public auxiliary execution artifact."""
+
+    name: str
+    document: Mapping[str, object]
+
+    def __post_init__(self) -> None:
+        if self.name not in EXECUTION_ARTIFACT_NAMES_V1:
+            raise SkatAIValidationError(
+                f"name must be one of {EXECUTION_ARTIFACT_NAMES_V1}.",
+                path="name",
+            )
+        object.__setattr__(self, "document", _freeze_json_object(self.document))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns a fresh deterministic artifact representation."""
+        return {
+            "name": self.name,
+            "document": _thaw_json_value(self.document),
+        }
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class ExecutionResultV1:
+    """One immutable public execution result and its auxiliary artifacts."""
+
+    api_contract_version: int = PUBLIC_API_CONTRACT_VERSION
+    result: ResultDocumentV1
+    artifacts: tuple[ExecutionArtifactV1, ...] = ()
+
+    def __post_init__(self) -> None:
+        _validate_api_contract_version(self.api_contract_version)
+        if not isinstance(self.result, ResultDocumentV1):
+            raise SkatAIValidationError(
+                "result must be a ResultDocumentV1.",
+                path="result",
+            )
+        if isinstance(self.artifacts, list):
+            object.__setattr__(self, "artifacts", tuple(self.artifacts))
+        elif not isinstance(self.artifacts, tuple):
+            raise SkatAIValidationError(
+                "artifacts must be an ordered artifact sequence.",
+                path="artifacts",
+            )
+        if any(not isinstance(artifact, ExecutionArtifactV1) for artifact in self.artifacts):
+            raise SkatAIValidationError(
+                "artifacts must contain only ExecutionArtifactV1 values.",
+                path="artifacts",
+            )
+        names = tuple(artifact.name for artifact in self.artifacts)
+        if len(names) != len(set(names)):
+            raise SkatAIValidationError(
+                "artifacts must not contain duplicate names.",
+                path="artifacts",
+            )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns a fresh mutable flattened public execution envelope."""
+        result = self.result.to_dict()
+        return {
+            "api_contract_version": self.api_contract_version,
+            "workflow": result["workflow"],
+            "document": result["document"],
+            "warnings": result["warnings"],
+            "artifacts": [artifact.to_dict() for artifact in self.artifacts],
         }
 
 

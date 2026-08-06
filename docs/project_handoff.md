@@ -54,6 +54,9 @@ The project focuses on:
   workflow options, injected external documents, results, and auxiliary
   artifacts; generic no-I/O dispatch for all seven Root workflows; five isolated
   Training Dataset operations; and legacy CLI transport parity
+* executable public Python API version `1` with immutable direct workflow
+  options, all-seven-workflow Application execution, separate artifacts, lazy
+  local schema validation, stable boundary errors, and no caller transport I/O
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -135,12 +138,14 @@ Implemented by Issue #137 for `v0.13.0`:
 * stable CLI Exit Code constants and exact `main.CliUsageError` compatibility alias
 * additive compatibility and future deprecation policy through `v1.0.0`
 
-The public API does not execute workflows yet. Internal Application
-orchestration is now implemented, but public parse/execute facade functions,
-packaging, an installed CLI, schema resources, and typing metadata remain open.
-Field-level provenance has a separate internal contract foundation, but no
-workflow propagation, output, or public API export. See
-[Public API contracts](public_api_contracts.md).
+Issue #140 extends this foundation with `parse_request`, `execute`,
+`execute_document`, `serialize_result`, public execution artifacts and results,
+direct immutable workflow options, lazy Root schema validation, and stable
+boundary-error translation. Packaging, an installed CLI, Package Resource
+schemas, and typing metadata remain open. Field-level provenance has a separate
+internal contract foundation, but no workflow propagation, output, or public
+provenance export. See [Public API contracts](public_api_contracts.md) and
+[Public Python API v1](public_python_api_v1.md).
 
 ### Application orchestration foundation
 
@@ -159,12 +164,13 @@ Implemented by Issue #139 for `v0.13.0`:
   from the primary result and without a transport path
 * repository-root `main.py` retained as the file/CLI/printing transport boundary
   with existing wrapper names and JSON behavior preserved
-* unchanged `skat_ai.api.v1` exports
+* an internal boundary consumed by the Issue #140 public facade
 
-Public `parse_request`, `execute`, `execute_document`, and workflow-specific
-execution helpers remain absent. Packaging, installed entry points, Package
-Resource schemas, typing metadata, broad public error translation, and all
-field-provenance propagation and output remain open. See
+The public facade now exposes generic parse, execute, execute-document, and
+serialization functions without exporting these Application types. Workflow-
+specific execution helpers remain absent. Packaging, installed entry points,
+Package Resource schemas, typing metadata, broader Domain error migration, and
+all field-provenance propagation and output remain open. See
 [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
@@ -624,7 +630,14 @@ Implemented:
 ### Public API contracts
 
 * `api/v1/contracts.py`
-  * API constants, workflows, immutable documents, options, policy, and version info
+  * API constants, workflows, immutable documents, options, public execution
+    results and artifacts, policy, and version info
+* `api/v1/execution.py`
+  * Request parsing and verification, workflow-option translation, one-pass
+    Application execution, artifact conversion, and stable boundary errors
+* `api/v1/schema_validation.py`
+  * lazy source/editable Draft 2020-12 Root schema validation with local-only
+    resolution and deterministic RFC 6901 errors
 * `errors.py`
   * stable errors, error codes, serialization, warning category, and Exit Codes
 
@@ -816,6 +829,7 @@ Main documentation files:
 * `docs/architecture.md`
 * `docs/input_json.md`
 * `docs/public_api_contracts.md`
+* `docs/public_python_api_v1.md`
 * `docs/application_orchestration.md`
 * `docs/field_level_information_provenance.md`
 * `docs/output_json.md`
@@ -914,6 +928,14 @@ immutable sidecar ledger, deterministic coverage and dependency validation,
 Information Use Context, public redaction, and safe serialization. It changes no
 Package version, public API export, schema, workflow output, CLI, example, or
 generated scenario. Workflow propagation remains open.
+
+Issue #139 adds internal Application orchestration version `1` for all seven Root
+workflows, five isolated Training Dataset operations, injected Opponent
+Statistics, auxiliary artifacts, and legacy CLI parity. Issue #140 adds the
+executable public facade over that boundary, lazy source/editable Root schema
+validation, direct immutable options, public artifacts and execution results,
+and stable boundary errors. Neither issue changes Package version, Root schemas,
+examples, generated scenarios, or provenance output.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -1060,6 +1082,9 @@ Completed implementation scope:
   unseen-player assignment, and lossless existing-dataset materialization
 * stable public API contract version 1 with immutable JSON documents,
   compatibility metadata, stable errors, and legacy CLI compatibility
+* internal all-seven-workflow Application orchestration and executable public
+  Python facade with lazy source/editable schema validation, direct immutable
+  options, separate artifacts, and stable boundary errors
 * internal field-level provenance contract version 1 with immutable sidecar
   ledgers, RFC 6901 paths, coverage and dependency audits, context-use policy,
   public redaction, and safe serialization
@@ -1103,9 +1128,9 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Interactive live or retrospective input, public executable Library API
-  functions, and a stable installed package and CLI interface are not
-  implemented. The reusable internal Application layer is implemented.
+* Interactive live or retrospective input and a stable installed package and CLI
+  interface are not implemented. The public executable facade and reusable
+  internal Application layer are implemented for source/editable use.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -1113,14 +1138,14 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Continue the approved `v0.13.0` sequence after the Issue #137 public API, Issue
-#138 field-provenance, and Issue #139 internal Application orchestration
-foundations. A future executable public API facade should reuse the public
-documents, errors, and internal generic dispatcher. Provenance propagation should
-use the internal sidecar language at Application workflow boundaries without
-changing existing specialized contracts. Packaging, Package Resource schemas,
-typing metadata, installed CLI entry points, public provenance integration, and
-workflow-level leakage enforcement remain separate follow-up scopes.
+Continue the approved `v0.13.0` sequence after the Issue #137 public contracts,
+Issue #138 field-provenance foundation, Issue #139 internal Application
+orchestration, and Issue #140 executable public facade. Provenance propagation
+should use the internal sidecar language at Application workflow boundaries
+without changing existing specialized contracts. Packaging, Package Resource
+schemas, typing metadata, installed CLI entry points, public provenance
+integration, and workflow-level leakage enforcement remain separate follow-up
+scopes.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

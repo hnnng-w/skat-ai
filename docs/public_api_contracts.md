@@ -1,18 +1,17 @@
 # Public API contracts
 
-This document defines the public Python contract foundation introduced by Issue
-#137. The API contract version is `1`, and its stable versioned namespace is:
+This document defines the public Python contract introduced by Issue #137 and
+extended with executable facade contracts by Issue #140. The API contract
+version is `1`, and its stable versioned namespace is:
 
 ```text
 skat_ai.api.v1
 ```
 
-This public foundation does not execute workflows. It adds no `execute`,
-`parse_request`, `execute_document`, workflow-specific helper, installed CLI,
-or packaged schema. Issue #138 adds a separate internal field-provenance
-contract foundation. Issue #139 adds separate internal Application orchestration
-for all seven workflows, but neither internal foundation adds a type or function
-to this public namespace.
+The public facade now parses and executes all seven Root workflows through the
+Issue #139 internal Application layer. It adds no workflow-specific helper,
+installed CLI, or packaged schema. Issue #138 remains a separate internal field-
+provenance contract foundation and adds no public provenance type or field.
 
 ## Public namespaces
 
@@ -35,14 +34,15 @@ The internal version-1 field-level provenance language is documented in
 [Field-level information provenance](field_level_information_provenance.md).
 Its sidecar ledgers, coverage audits, Information Use Context, redaction, and
 serialization remain internal until later workflow propagation and public-
-surface work is proven. The exact Issue #137 export snapshots are unchanged.
+surface work is proven. Issue #140 adds facade exports without adding provenance
+exports.
 
 The internal Application orchestration contract is documented in
 [Application orchestration](application_orchestration.md). It consumes
-`RequestDocumentV1` and produces `ResultDocumentV1` internally, but direct
-`skat_ai.application` imports have no public compatibility guarantee. Its generic
-dispatcher, workflow options, injected documents, and artifacts do not change
-the exact Issue #137 export snapshots.
+`RequestDocumentV1` and produces `ResultDocumentV1`; the public facade is the
+stable adapter over that boundary. Direct `skat_ai.application` imports have no
+public compatibility guarantee. Its generic dispatcher, workflow options,
+injected documents, and artifacts remain internal.
 
 ## Version And Policy Constants
 
@@ -53,6 +53,8 @@ PUBLIC_API_CONTRACT_VERSION = 1
 PUBLIC_API_NAMESPACE = skat_ai.api.v1
 PUBLIC_API_COMPATIBILITY_POLICY = additive_until_v1_0
 LEGACY_MAIN_COMPATIBILITY_TARGET = v1.0.0
+DEFAULT_INPUT_REFERENCE_V1 = memory://skat-ai/request
+EXECUTION_ARTIFACT_NAMES_V1 = (opponent_statistics_input,)
 ```
 
 Package version, API contract version, JSON-schema versions, and Domain contract
@@ -102,16 +104,71 @@ stored arrays use tuples. Non-string keys, arbitrary Python objects, and NaN or
 positive or negative infinity are rejected. `to_dict()` returns a fresh mutable
 JSON-compatible representation of the complete wrapper.
 
-`ExecutionOptionsV1` is a frozen, slotted, keyword-only public placeholder with one
-boolean field:
+`ExecutionOptionsV1` is a frozen, slotted, keyword-only public value with:
 
 ```text
 validate_output = true
+workflow_options = {}
+opponent_statistics_document = null
+opponent_statistics_reference = null
 ```
 
-It describes later post-execution output-schema validation. It does not disable
-semantic input validation. It is not consumed by a public execution function and
-remains separate from the internal `ApplicationExecutionOptions` contract.
+Its JSON documents and arrays are copied and stored recursively immutably.
+`to_dict()` returns a fresh deterministic mutable representation. Opponent
+Statistics document and reference values must be supplied together. No transport
+or provenance option is accepted. `validate_output=false` disables only post-
+execution Root output and artifact schema validation; Root input and Application
+semantic validation always run.
+
+The direct `workflow_options` keys map to the matching internal Position,
+Historical Game, or Training Dataset Application option contract. The four
+simple workflows require an empty object. Unknown, cross-workflow, transport,
+invalid-type, and semantically incompatible values are rejected. Internal
+Application types are not public exports. The complete key list is documented in
+[Public Python API v1](public_python_api_v1.md).
+
+`ExecutionArtifactV1` contains one recognized artifact `name` and one immutable
+Root input `document`. Version 1 supports only `opponent_statistics_input`.
+`ExecutionResultV1` contains API contract version `1`, one existing
+`ResultDocumentV1`, and an ordered immutable artifact tuple. Duplicate artifact
+names are rejected. Its deterministic flattened serialization contains
+`api_contract_version`, `workflow`, `document`, `warnings`, and `artifacts`.
+
+## Executable Facade
+
+The additive public functions are:
+
+```text
+parse_request
+execute
+execute_document
+serialize_result
+```
+
+`parse_request` validates the Root input schema, detects the Root workflow, and
+returns an immutable defensive Request without execution. `execute` revalidates
+directly constructed Requests, including API version and wrapper workflow
+identity, translates public options, and executes the Application exactly once.
+`execute_document` avoids duplicate Root validation and detection while matching
+explicit parse-then-execute results. `serialize_result` returns a fresh mutable
+flattened envelope and rejects wrong input types with
+`SkatAISerializationError`.
+
+The facade validates Root input through `schemas/input.schema.json`, Root output
+through `schemas/output.schema.json`, and reusable artifacts through the Root
+input schema. Validation is lazy, current-working-directory independent, local-
+only, deterministic, and reports RFC 6901 paths. Document failures use
+`SkatAISchemaError`, missing resources use `SkatAIResourceError`, and invalid
+repository schemas use `SkatAIInvariantError`.
+
+The current schema backend reads repository files relative to the source module.
+It supports source and editable use only. A later packaging issue must migrate to
+Package Resources without changing these facade contracts.
+
+Existing `SkatAIError` instances pass through unchanged. Raw boundary
+`ValueError` becomes `SkatAIValidationError`, and raw boundary `OSError` becomes
+`SkatAIResourceError`, preserving message and cause without inventing a path.
+Unexpected exceptions are not caught.
 
 ## Compatibility Metadata
 
@@ -190,9 +247,8 @@ stable `code`, and nullable `path`. Its deterministic `to_dict()` has exactly
 | `SkatAIInvariantError` | `invariant_error` |
 | `SkatAICliUsageError` | `cli_usage_error` |
 
-This issue does not migrate unrelated existing raw Domain exceptions. Later
-executable API work will define where existing failures are translated into
-these public boundary types.
+Unrelated Domain code is not broadly migrated. The executable facade translates
+only raw `ValueError` and `OSError` that cross its public boundary.
 
 ## Legacy CLI
 
@@ -225,7 +281,6 @@ guarantee. No deprecation warning is emitted now.
 
 The following remain open for later `v0.13.0` issues:
 
-* public request parsing and executable Python API facade functions;
 * Package-version metadata export;
 * build metadata plus Wheel and sdist validation;
 * Package Resource schemas;
@@ -236,4 +291,5 @@ The following remain open for later `v0.13.0` issues:
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are
-implemented by Issue #139. They do not make the public facade executable.
+implemented by Issue #139. Issue #140 exposes them through the stable public
+facade without adding transport I/O, packaging, or provenance.

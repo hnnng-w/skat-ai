@@ -13,9 +13,9 @@ JSON-schema versions, field-provenance version, and other Domain contract
 versions.
 
 The Application layer executes existing workflows from already loaded in-memory
-Root documents. It is an internal boundary under `skat_ai.application`, not an
-additive public `skat_ai.api.v1` facade. The exact public API exports introduced
-by Issue #137 remain unchanged.
+Root documents. It remains an internal boundary under `skat_ai.application`.
+Issue #140 adds the stable `skat_ai.api.v1` facade over this boundary without
+making Application contracts public.
 
 ## Contracts
 
@@ -155,20 +155,23 @@ public Python API.
 
 ## Public API and provenance boundaries
 
-No `skat_ai.api.v1` export changes in Issue #139. In particular, the following
-public functions remain absent:
+Issue #140 exposes these additive public facade functions:
 
 ```text
 parse_request
 execute
 execute_document
-workflow-specific public execution helpers
+serialize_result
 ```
 
+The facade schema-validates and immutably wraps Root input, translates direct
+public workflow options into these internal option contracts, constructs one
+Invocation, and executes this dispatcher exactly once. It converts the existing
+Result and artifacts into public contracts without changing the Root document.
 Direct imports from `skat_ai.application` remain internal and have no public API
-compatibility guarantee. Existing public errors are reused at the Application
-boundary where implemented, but broad Domain-exception translation remains work
-for the future public facade.
+compatibility guarantee. The public boundary preserves `SkatAIError`, translates
+raw `ValueError` and `OSError`, and does not broadly migrate Domain exceptions.
+No workflow-specific public helper is added.
 
 Application orchestration does not construct, propagate, enforce, redact, or
 emit a field-level provenance ledger. `ApplicationInvocation`, injected external
@@ -180,7 +183,6 @@ open.
 
 The following remain separate follow-up scopes:
 
-* public request parsing and executable public API functions;
 * Package and distribution metadata work;
 * installed `skat-ai` and `python -m skat_ai` entry points;
 * Package Resource schemas;

@@ -150,23 +150,31 @@ official Skat rules arbitration.
   options, results, external documents, and auxiliary artifacts
 * Generic no-I/O dispatch for all seven Root workflows, including five isolated
   Training Dataset operations and optional injected Opponent Statistics
+* Executable `parse_request`, `execute`, `execute_document`, and
+  `serialize_result` facade functions for all seven workflows
+* Lazy local Root input, Root output, and artifact schema validation with stable
+  public boundary errors
 
-The public Python API still cannot execute workflows. The new Application layer
-is internal, and the exact `skat_ai.api.v1` exports remain unchanged. Public
-parse/execute functions, packaging, an installed CLI, packaged schemas, and
-typing metadata remain open. Field-level provenance has an internal contract
-foundation but is not propagated or emitted by Application or public workflows.
-See [Application orchestration](docs/application_orchestration.md).
+The facade executes already loaded Root documents without caller transport I/O
+and preserves legacy Root JSON output. Its current lazy schema backend requires a
+source or editable checkout with the repository `schemas/` directory. Packaging,
+Package Resource schemas, an installed CLI, and typing metadata remain open.
+Field-level provenance has an internal contract foundation but is not propagated
+or emitted by Application or public workflows. See
+[Public Python API v1](docs/public_python_api_v1.md) and
+[Application orchestration](docs/application_orchestration.md).
 
 ## Requirements
 
 * Python 3.13 or newer
 * PowerShell for helper scripts on Windows
+* Runtime dependency:
+
+  * `jsonschema`
 * Development dependencies from `.[dev]`, including:
 
   * `pytest`
   * `ruff`
-  * `jsonschema`
 
 ## Installation
 
@@ -191,21 +199,27 @@ Run the combined check script:
 
 ## Usage
 
-Inspect the versioned Python contract or wrap a JSON document without executing
-it:
+Parse and execute an already loaded Root JSON document:
 
 ```python
-from skat_ai.api.v1 import RequestDocumentV1, WorkflowV1, get_api_version_info_v1
+import json
+from pathlib import Path
 
-version_info = get_api_version_info_v1()
-request = RequestDocumentV1(
-    workflow=WorkflowV1.POSITION_ANALYSIS,
-    document={"game_type": "grand"},
+from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, serialize_result
+
+document = json.loads(Path("examples/grand_second_position.json").read_text())
+result = execute_document(
+    document,
+    options=ExecutionOptionsV1(
+        workflow_options={"sample_count_override": 20},
+    ),
 )
+serialized = serialize_result(result)
 ```
 
 See [Public API contracts](docs/public_api_contracts.md) for exports,
-compatibility, errors, normal Result states, and current non-goals.
+compatibility, errors, and normal Result states, and
+[Public Python API v1](docs/public_python_api_v1.md) for executable facade usage.
 
 Show available CLI options and common command examples:
 
@@ -592,6 +606,7 @@ Detailed documentation is split into topic-specific files:
 
 * [Input JSON](docs/input_json.md)
 * [Public API contracts](docs/public_api_contracts.md)
+* [Public Python API v1](docs/public_python_api_v1.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
 * [Input JSON schema](schemas/input.schema.json)
@@ -825,7 +840,7 @@ motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, field-level live
 provenance propagation, interactive input
-and session capture, an executable Library API, and a stable installed package
+and session capture, and a stable installed package
 and CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
@@ -846,9 +861,12 @@ API contract version `1`, exact public exports, immutable JSON Request and Resul
 wrappers, compatibility metadata, stable public errors, and unchanged legacy
 Root CLI behavior. Issue #138 adds the internal version-1 field-provenance
 contract foundation with RFC 6901 paths, immutable sidecar ledgers, coverage,
-dependency, context-use, redaction, and serialization contracts. Neither issue
-adds workflow execution, packaging, an installed CLI, schema resources, typing
-metadata, public provenance exports, or provenance propagation.
+dependency, context-use, redaction, and serialization contracts. Issue #139 adds
+internal all-seven-workflow Application orchestration. Issue #140 adds the
+executable public facade, direct immutable options, public results and artifacts,
+lazy source/editable schema validation, and stable boundary errors. Packaging,
+an installed CLI, Package Resource schemas, typing metadata, public provenance
+exports, and provenance propagation remain open.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

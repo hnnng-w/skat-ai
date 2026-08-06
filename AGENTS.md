@@ -156,8 +156,11 @@ errors, Exit Code constants, and the legacy CLI-error alias. Issue #139 adds
 internal Application orchestration version `1`, immutable invocation, option,
 result, external-document, and artifact contracts, no-I/O dispatch for all seven
 Root workflows, legacy CLI transport parity, and unchanged public API exports.
-Public executable API functions, packaging, an installed CLI, schema resources,
-and typing metadata remain open. Issue #138 adds the internal version-
+Issue #140 adds the executable public Python API v1 facade, direct immutable
+workflow options, public execution results and artifacts, lazy source/editable
+schema validation, stable boundary-error translation, and all-seven-workflow
+Application parity. Packaging, an installed CLI, Package Resource schemas, and
+typing metadata remain open. Issue #138 adds the internal version-
 1 field-level provenance language, immutable sidecar ledgers, RFC 6901 paths,
 coverage and dependency validation, Information Use Context, public redaction,
 and safe serialization. Workflow propagation and public provenance integration
@@ -225,6 +228,7 @@ Major completed areas include:
 * stable public API contract version 1 with exact exports, immutable JSON Request and Result wrappers, compatibility metadata, public errors, and legacy Root CLI compatibility
 * internal field-level information provenance contract version 1 with immutable sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, context-use policy, public redaction, and safe serialization
 * internal Application orchestration version 1 with immutable contracts and options, seven in-memory workflow handlers, five isolated Training Dataset operations, injected Opponent Statistics, auxiliary artifacts, no-I/O dispatch, and legacy CLI transport parity
+* executable public Python API version 1 with immutable direct options, all-seven-workflow execution, separate artifacts, lazy local schema validation, and stable boundary errors
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -242,8 +246,7 @@ calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
 attribution, player ratings, complete field-level information provenance, interactive
-input/session capture, an executable Library API, and a stable installed package
-and CLI interface remain
+input/session capture, and a stable installed package and CLI interface remain
 open before `v1.0.0`.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.

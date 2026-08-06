@@ -17,11 +17,17 @@ Implemented:
 * Stable public error hierarchy, codes, deterministic serialization, and built-in catch compatibility
 * Stable CLI Exit Code constants and exact legacy `main.CliUsageError` alias
 * Additive compatibility, internal-import, version-independence, and future deprecation policies
+* Executable all-seven-workflow `parse_request`, `execute`, `execute_document`,
+  and `serialize_result` facade
+* Direct immutable workflow options, paired external Opponent Statistics,
+  separate public artifacts, and flattened deterministic execution results
+* Lazy local-only Root input/output/artifact schema validation with RFC 6901
+  errors and stable boundary translation
 
-This public foundation has no public workflow execution functions, packaging,
-installed CLI, schema resources, typing marker, public provenance exports, or
-workflow provenance propagation. Internal Application extraction is now covered
-separately below.
+The executable facade is available for source and editable use. Packaging,
+installed CLI entry points, Package Resource schemas, a typing marker, public
+provenance exports, and workflow provenance propagation remain open. Internal
+Application extraction is covered separately below.
 
 ### Application orchestration foundation
 
@@ -39,11 +45,12 @@ Implemented:
   primary result and without a transport path
 * Legacy Root CLI retained as the argument/file/output/presentation boundary with
   existing wrapper names and JSON parity
-* Unchanged public API exports, schemas, examples, scenarios, and Package version
+* Stable public facade reuse without changes to Root schemas, examples,
+  scenarios, or Package version
 
-Public parse/execute functions, packaging, installed CLI entry points, Package
-Resource schemas, typing metadata, and all field-provenance propagation and
-output remain open. See [Application orchestration](application_orchestration.md).
+Packaging, installed CLI entry points, Package Resource schemas, typing metadata,
+and all field-provenance propagation and output remain open. See
+[Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
 
@@ -352,6 +359,8 @@ Implemented:
 * Authoritative requirements traceability and testable `v1.0.0` scope
 * Version-1 settlement normative matrix and table-driven runtime-kind coverage
 * Exact public API export, immutable-document, compatibility, error, and legacy CLI tests
+* Focused public facade parsing, schema, option mapping, all-workflow execution,
+  artifacts, parity, no-I/O, error translation, and normal-state tests
 * Focused field-provenance constants, JSON Pointer, immutable-value, coverage,
   dependency, temporal, Information Use Context, redaction, serialization,
   Confidence-separation, and compatibility tests
@@ -385,8 +394,8 @@ Implemented:
   perfect-information solver, not a full or general hidden-information solver.
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
-* The internal Application layer executes all seven Root workflows in memory,
-  but no public Python API function parses or executes a workflow yet.
+* The public Python API executes all seven Root workflows in memory, but its
+  current schema backend requires a source or editable checkout.
 * Full official settlement nuance coverage is not complete.
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
 * The engine verifies only bounded ISkO 4.4.5 defender rest-trick claims; no general claim-verification protocol exists.
@@ -573,8 +582,8 @@ implementation details, and testable completion gates.
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, field-level live provenance propagation
 and adversarial workflow enforcement, interactive
-live and retrospective input/session capture, an executable public Library API,
-and a stable installed CLI/package interface. The internal Application layer is
+live and retrospective input/session capture, and a stable installed CLI/package
+interface. The executable public facade and internal Application layer are
 implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
 metadata, and stable public errors are implemented. General claim verification
@@ -646,17 +655,18 @@ baseline validates 70 generated outputs and passes 4,762 pytest tests.
 The active implementation milestone is `v0.13.0`. Issue #137 provides its first
 foundation through stable API contract version `1`, exact public exports,
 immutable JSON documents, compatibility metadata, stable errors, and unchanged
-legacy Root CLI behavior. Public executable API functions, packaging, installed
-CLI entry points, schema resources, typing metadata, and public API completion
-remain open. Issue #138 adds the internal field-provenance
+legacy Root CLI behavior. Issue #138 adds the internal field-provenance
 language, immutable sidecar ledger, coverage and dependency validation,
 Information Use Context, public redaction, and safe serialization. Provenance
 propagation and public integration remain open. Issue #139 completes internal
 Application extraction with immutable orchestration version `1` contracts, all
 seven no-I/O handlers, five Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI transport parity. Public API
-exports remain unchanged. Later milestone numbers remain planning containers
-rather than fixed contractual releases.
+exports remain unchanged. Issue #140 adds the executable public facade, direct
+immutable options, public results and artifacts, lazy source/editable schema
+validation, stable error translation, and all-seven-workflow parity. Packaging
+and provenance remain separate. Later milestone numbers remain planning
+containers rather than fixed contractual releases.
 
 ## Open technical cleanup
 

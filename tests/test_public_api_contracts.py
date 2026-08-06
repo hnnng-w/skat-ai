@@ -13,6 +13,8 @@ import skat_ai.api
 import skat_ai.api.v1 as api_v1
 import skat_ai.errors
 from skat_ai.api.v1 import (
+    DEFAULT_INPUT_REFERENCE_V1,
+    EXECUTION_ARTIFACT_NAMES_V1,
     LEGACY_MAIN_COMPATIBILITY_TARGET,
     NORMAL_RESULT_STATES_V1,
     PUBLIC_API_COMPATIBILITY_POLICY,
@@ -52,13 +54,21 @@ CONTRACT_EXPORTS = (
     "PUBLIC_API_COMPATIBILITY_POLICY",
     "LEGACY_MAIN_COMPATIBILITY_TARGET",
     "NORMAL_RESULT_STATES_V1",
+    "DEFAULT_INPUT_REFERENCE_V1",
+    "EXECUTION_ARTIFACT_NAMES_V1",
     "WorkflowV1",
     "RequestDocumentV1",
     "ExecutionOptionsV1",
     "ResultDocumentV1",
+    "ExecutionArtifactV1",
+    "ExecutionResultV1",
     "CompatibilityPolicyV1",
     "ApiVersionInfoV1",
     "get_api_version_info_v1",
+    "parse_request",
+    "execute",
+    "execute_document",
+    "serialize_result",
 )
 WORKFLOWS = (
     "position_analysis",
@@ -107,6 +117,8 @@ def test_package_import_loads_only_public_contract_modules() -> None:
         "skat_ai.api",
         "skat_ai.api.v1",
         "skat_ai.api.v1.contracts",
+        "skat_ai.api.v1.execution",
+        "skat_ai.api.v1.schema_validation",
         "skat_ai.errors",
     ]
 
@@ -118,6 +130,8 @@ def test_api_constants_are_exact_and_independent_from_package_version() -> None:
     assert PUBLIC_API_NAMESPACE == "skat_ai.api.v1"
     assert PUBLIC_API_COMPATIBILITY_POLICY == "additive_until_v1_0"
     assert LEGACY_MAIN_COMPATIBILITY_TARGET == "v1.0.0"
+    assert DEFAULT_INPUT_REFERENCE_V1 == "memory://skat-ai/request"
+    assert EXECUTION_ARTIFACT_NAMES_V1 == ("opponent_statistics_input",)
     assert pyproject["project"]["version"] == "0.12.0"
     assert str(PUBLIC_API_CONTRACT_VERSION) != pyproject["project"]["version"]
 
@@ -275,7 +289,12 @@ def test_execution_options_are_keyword_only_frozen_and_boolean() -> None:
     assert ExecutionOptionsV1().validate_output is True
     assert ExecutionOptionsV1(validate_output=True).validate_output is True
     assert ExecutionOptionsV1(validate_output=False).validate_output is False
-    assert [field.name for field in fields(ExecutionOptionsV1)] == ["validate_output"]
+    assert [field.name for field in fields(ExecutionOptionsV1)] == [
+        "validate_output",
+        "workflow_options",
+        "opponent_statistics_document",
+        "opponent_statistics_reference",
+    ]
     assert not hasattr(ExecutionOptionsV1(), "provenance")
 
     with pytest.raises(SkatAIValidationError, match="boolean"):
@@ -363,12 +382,8 @@ def test_normal_result_states_are_canonical_and_remain_results() -> None:
         assert result.to_dict()["document"]["status"] == state
 
 
-def test_no_executable_facade_package_version_or_packaging_is_added() -> None:
+def test_executable_facade_adds_no_schema_helpers_package_version_or_packaging() -> None:
     forbidden = {
-        "parse_request",
-        "execute",
-        "execute_document",
-        "serialize_result",
         "get_schema",
         "load_schema",
         "list_schemas",
@@ -383,3 +398,13 @@ def test_no_executable_facade_package_version_or_packaging_is_added() -> None:
     assert "build-system" not in pyproject
     assert "scripts" not in pyproject["project"]
     assert not (PROJECT_ROOT / "src" / "skat_ai" / "py.typed").exists()
+
+
+def test_jsonschema_is_runtime_dependency_and_dev_tools_remain_optional() -> None:
+    pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
+    assert pyproject["project"]["optional-dependencies"]["dev"] == [
+        "pytest>=9.0.0",
+        "ruff>=0.14.0",
+    ]

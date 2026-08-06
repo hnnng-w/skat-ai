@@ -24,9 +24,12 @@ errors and Exit Codes, and unchanged legacy Root CLI behavior. Issue #139 adds
 internal Application orchestration version `1`, immutable invocation and option
 contracts, generic no-I/O dispatch for all seven Root workflows, all five
 Training Dataset operations, injected Opponent Statistics, auxiliary artifacts,
-and legacy CLI transport parity. Public API exports remain unchanged. Public
-parse/execute functions, packaging, installed CLI entry points, schema resources,
-and typing metadata remain open. Issue #138 adds the internal
+and legacy CLI transport parity. Issue #140 adds public `parse_request`,
+`execute`, `execute_document`, and `serialize_result`; direct immutable options;
+public execution results and artifacts; lazy source/editable schema validation;
+stable boundary errors; and no-I/O execution parity for all seven workflows.
+Packaging, installed CLI entry points, Package Resource schemas, and typing
+metadata remain open. Issue #138 adds the internal
 field-level provenance contract version `1`, immutable sidecar ledgers, RFC 6901
 paths, coverage and dependency validation, Information Use Context, public
 redaction, and safe serialization. Workflow propagation, public provenance
@@ -156,9 +159,11 @@ The following directions are required for `v1.0.0`:
   contract version `1`, immutable JSON documents, compatibility metadata, stable
   errors, and legacy Root CLI compatibility are implemented. Internal Application
   orchestration version `1` now executes all seven Root workflows from immutable
-  in-memory invocations and keeps transport in the legacy CLI adapter. Public
-  parse/execute functions, Package/distribution metadata, installed entry points,
-  packaged schemas, and typing metadata remain open.
+  in-memory invocations and keeps transport in the legacy CLI adapter. The public
+  facade now parses and executes those workflows from already loaded documents,
+  validates Root input/output and artifacts, and exposes artifacts separately.
+  Package/distribution metadata, installed entry points, Package Resource schemas,
+  and typing metadata remain open.
 * Support all final declared Suit, Grand, and Null variants in the approved v1.0
   contract, including valid dependencies, matadors, Hand, Schneider, Schwarz,
   Ouvert, game end, and final settlement.
@@ -232,7 +237,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Automatic Training Dataset preparation | Root `training_dataset_preparation_input` selects workflow `training_dataset_preparation`; mode alone selects `temporal_known_opponent_v1` or `component_balanced_unseen_player_v1`. Complete output under `training_dataset_preparation_summary` losslessly materializes the existing version-1 dataset and a matching audit. Unavailable output succeeds with an explicit reason, null dataset/audit, and no partial assignments or summaries. The request has no algorithm field or default weights; the CLI accepts only `--input`, `--output`, and `--quiet`; Plan and CLI output are card-free while the complete nested reusable dataset retains source cards. |
 | List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-position lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. Contracts version `1` supply the immutable played/passed representation, rotation, settlement-derived Entry Facts, cumulative totals, one standings snapshot per position, final standings, exact external-lot application, and independent completed-list comparison with one reference, stable-ID alignment, all fourteen final player-total deltas, and resolved-only rank movement. Strict root input/output schemas, runtime validation, concise CLI output, exactly three examples, recursive privacy checks, one-pass source execution, and three appended generated-output scenarios complete the bounded public workflow. It adds no series rollup, ratings, winner analysis, tournament management, or official reporting. |
 | Interactive input and session capture | Supported live and retrospective sessions can be entered interactively, validated incrementally, resumed or completed without hidden state, and serialized to the same documented information-safe records. |
-| Stable installed interface | API contract version `1` now provides documented public namespaces, exact exports, workflows, immutable JSON documents, compatibility/version metadata, normal Result states, stable errors/codes, and legacy Root CLI compatibility. Internal Application orchestration version `1` provides immutable workflow options, generic no-I/O execution for all seven Root workflows, injected documents, auxiliary artifacts, and legacy CLI transport parity without changing public exports. Completion still requires public parse/execute functions, an installed CLI/package entry point, Package Resource schemas, typing metadata, distribution and clean-install tests, and no dependency on running repository-root `main.py`. |
+| Stable installed interface | API contract version `1` now provides documented public namespaces, additive exact exports, workflows, immutable JSON documents, direct execution options, public results and artifacts, compatibility/version metadata, normal Result states, stable errors/codes, and legacy Root CLI compatibility. The public facade validates, parses, and executes all seven Root workflows through internal Application orchestration without caller transport I/O or a dependency on repository-root `main.py`. Completion still requires an installed CLI/package entry point, Package Resource schemas replacing the source/editable backend, typing metadata, and distribution and clean-install tests. |
 | Examples | Examples cover each supported contract family, live/post-game boundary, complete historical record, training/evaluation record, claim/concession, overbid including impossible Null, rule-based profile, list aggregation, and standings; every example passes schema and semantic validation. |
 | Generated-output validation | The deterministic scenario matrix covers every stable top-level output branch and representative unavailable/incomplete/error boundaries; the documented scenario count equals the executable matrix count. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, installation succeeds on Python 3.13, and the full check passes there without a version matrix. |

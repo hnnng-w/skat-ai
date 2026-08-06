@@ -17,7 +17,8 @@ def test_field_provenance_is_not_exported_through_public_namespaces() -> None:
     assert "FieldProvenanceEntry" not in api_v1.__all__
     assert "FieldProvenanceLedger" not in api_v1.__all__
     assert "InformationUseContext" not in api_v1.__all__
-    assert "execute" not in api_v1.__all__
+    assert "execute" in api_v1.__all__
+    assert "provenance" not in {field.name for field in fields(api_v1.ExecutionOptionsV1)}
     assert "FieldProvenanceEntry" not in skat_ai.errors.__all__
 
 
