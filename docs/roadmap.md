@@ -18,9 +18,32 @@ Implemented:
 * Stable CLI Exit Code constants and exact legacy `main.CliUsageError` alias
 * Additive compatibility, internal-import, version-independence, and future deprecation policies
 
-This foundation has no workflow execution functions, Application extraction,
-packaging, installed CLI, schema resources, typing marker, public provenance
-exports, or workflow provenance propagation.
+This public foundation has no public workflow execution functions, packaging,
+installed CLI, schema resources, typing marker, public provenance exports, or
+workflow provenance propagation. Internal Application extraction is now covered
+separately below.
+
+### Application orchestration foundation
+
+Implemented:
+
+* Internal Application orchestration contract version `1` with a caller-supplied
+  input-reference policy
+* Frozen, slotted, keyword-only invocations, workflow options, external
+  documents, results, and auxiliary artifacts with defensive JSON immutability
+* Generic transport-free dispatch across all seven canonical Root workflows
+* Exactly five isolated Training Dataset operations
+* Optional already-loaded Opponent Statistics injection for Position Analysis
+  and Historical Game execution
+* Optional `opponent_statistics_input` auxiliary export artifact kept outside the
+  primary result and without a transport path
+* Legacy Root CLI retained as the argument/file/output/presentation boundary with
+  existing wrapper names and JSON parity
+* Unchanged public API exports, schemas, examples, scenarios, and Package version
+
+Public parse/execute functions, packaging, installed CLI entry points, Package
+Resource schemas, typing metadata, and all field-provenance propagation and
+output remain open. See [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
 
@@ -362,7 +385,8 @@ Implemented:
   perfect-information solver, not a full or general hidden-information solver.
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
-* The public API contract foundation exists, but no public Python function executes a workflow yet.
+* The internal Application layer executes all seven Root workflows in memory,
+  but no public Python API function parses or executes a workflow yet.
 * Full official settlement nuance coverage is not complete.
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
 * The engine verifies only bounded ISkO 4.4.5 defender rest-trick claims; no general claim-verification protocol exists.
@@ -549,8 +573,9 @@ implementation details, and testable completion gates.
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, field-level live provenance propagation
 and adversarial workflow enforcement, interactive
-live and retrospective input/session capture, executable Library API and
-Application layers, and a stable installed CLI/package interface. API contract
+live and retrospective input/session capture, an executable public Library API,
+and a stable installed CLI/package interface. The internal Application layer is
+implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
 metadata, and stable public errors are implemented. General claim verification
 and historical end reasons outside the
@@ -621,13 +646,17 @@ baseline validates 70 generated outputs and passes 4,762 pytest tests.
 The active implementation milestone is `v0.13.0`. Issue #137 provides its first
 foundation through stable API contract version `1`, exact public exports,
 immutable JSON documents, compatibility metadata, stable errors, and unchanged
-legacy Root CLI behavior. Application extraction, executable API functions,
-packaging, installed CLI entry points, schema resources, typing metadata, and
-public API completion remain open. Issue #138 adds the internal field-provenance
+legacy Root CLI behavior. Public executable API functions, packaging, installed
+CLI entry points, schema resources, typing metadata, and public API completion
+remain open. Issue #138 adds the internal field-provenance
 language, immutable sidecar ledger, coverage and dependency validation,
 Information Use Context, public redaction, and safe serialization. Provenance
-propagation and public integration remain open. Later milestone numbers remain
-planning containers rather than fixed contractual releases.
+propagation and public integration remain open. Issue #139 completes internal
+Application extraction with immutable orchestration version `1` contracts, all
+seven no-I/O handlers, five Training Dataset operations, injected Opponent
+Statistics, auxiliary artifacts, and legacy CLI transport parity. Public API
+exports remain unchanged. Later milestone numbers remain planning containers
+rather than fixed contractual releases.
 
 ## Open technical cleanup
 

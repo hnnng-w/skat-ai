@@ -50,6 +50,10 @@ The project focuses on:
   immutable sidecar ledgers, exact/subtree coverage audits, dependency and
   temporal validation, Information Use Context, public redaction, and safe
   deterministic serialization
+* internal Application orchestration version `1` with immutable invocations,
+  workflow options, injected external documents, results, and auxiliary
+  artifacts; generic no-I/O dispatch for all seven Root workflows; five isolated
+  Training Dataset operations; and legacy CLI transport parity
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -131,11 +135,37 @@ Implemented by Issue #137 for `v0.13.0`:
 * stable CLI Exit Code constants and exact `main.CliUsageError` compatibility alias
 * additive compatibility and future deprecation policy through `v1.0.0`
 
-The API does not execute workflows yet. Application orchestration, executable
-facade functions, packaging, an installed CLI, schema resources, and typing
-metadata remain open. Field-level provenance now has a separate internal
-contract foundation, but no workflow propagation or public API export. See
+The public API does not execute workflows yet. Internal Application
+orchestration is now implemented, but public parse/execute facade functions,
+packaging, an installed CLI, schema resources, and typing metadata remain open.
+Field-level provenance has a separate internal contract foundation, but no
+workflow propagation, output, or public API export. See
 [Public API contracts](public_api_contracts.md).
+
+### Application orchestration foundation
+
+Implemented by Issue #139 for `v0.13.0`:
+
+* orchestration contract version `1` with caller-supplied input references
+* frozen, slotted, keyword-only invocation, workflow-option, external-document,
+  result, and auxiliary-artifact values with defensive JSON immutability
+* one generic no-I/O dispatcher for all seven canonical Root workflows
+* exactly five isolated Training Dataset operations: summary, partition audit,
+  rolling Opponent Policy evaluation, bounded-Search evaluation, and historical
+  Opponent Statistics aggregation
+* optional already-loaded Opponent Statistics injection for Position Analysis
+  and Historical Game execution with the existing binding and temporal rules
+* one optional `opponent_statistics_input` auxiliary export artifact, separate
+  from the primary result and without a transport path
+* repository-root `main.py` retained as the file/CLI/printing transport boundary
+  with existing wrapper names and JSON behavior preserved
+* unchanged `skat_ai.api.v1` exports
+
+Public `parse_request`, `execute`, `execute_document`, and workflow-specific
+execution helpers remain absent. Packaging, installed entry points, Package
+Resource schemas, typing metadata, broad public error translation, and all
+field-provenance propagation and output remain open. See
+[Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
 
@@ -608,6 +638,24 @@ Implemented:
 * `field_provenance_policy.py`
   * Information Use Context, use validation, and engine-private public redaction
 
+### Application orchestration
+
+* `application/contracts.py`
+  * orchestration version, immutable invocations, workflow options, injected
+    documents, results, and auxiliary artifacts
+* `application/execution.py`
+  * workflow-option validation and generic seven-handler dispatch
+* `application/position_workflow.py`
+  * transport-free Position Analysis, Multi-Step, Policy Comparison, and live
+    Opponent Statistics application
+* `application/historical_game_workflow.py`
+  * transport-free Historical Game, review, Search, Coaching, and time-safe
+    Opponent Statistics application
+* `application/training_dataset_workflow.py`
+  * five isolated Training Dataset operations and optional export artifact
+* `application/simple_workflows.py`
+  * transport-free preparation, statistics, list, and comparison handlers
+
 ### Entry point
 
 * `main.py`
@@ -768,6 +816,7 @@ Main documentation files:
 * `docs/architecture.md`
 * `docs/input_json.md`
 * `docs/public_api_contracts.md`
+* `docs/application_orchestration.md`
 * `docs/field_level_information_provenance.md`
 * `docs/output_json.md`
 * `docs/schema_validation.md`
@@ -1054,8 +1103,9 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Interactive live or retrospective input, executable Library API functions, and
-  a stable installed package and CLI interface are not implemented.
+* Interactive live or retrospective input, public executable Library API
+  functions, and a stable installed package and CLI interface are not
+  implemented. The reusable internal Application layer is implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -1063,14 +1113,14 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Continue the approved `v0.13.0` sequence after the Issue #137 public API and
-Issue #138 field-provenance contract foundations. Reusable Application
-orchestration and an executable API facade should reuse the public documents and
-errors without moving existing workflow implementations prematurely. Provenance
-propagation should use the internal sidecar language without changing existing
-specialized contracts. Packaging, Package Resource schemas, typing metadata,
-installed CLI entry points, public provenance integration, and workflow-level
-leakage enforcement remain separate follow-up scopes.
+Continue the approved `v0.13.0` sequence after the Issue #137 public API, Issue
+#138 field-provenance, and Issue #139 internal Application orchestration
+foundations. A future executable public API facade should reuse the public
+documents, errors, and internal generic dispatcher. Provenance propagation should
+use the internal sidecar language at Application workflow boundaries without
+changing existing specialized contracts. Packaging, Package Resource schemas,
+typing metadata, installed CLI entry points, public provenance integration, and
+workflow-level leakage enforcement remain separate follow-up scopes.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

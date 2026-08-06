@@ -3,20 +3,38 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from skat_ai.analysis_metadata import build_serializable_analysis_metadata
 from skat_ai.analysis_report import (
     build_card_analysis_report,
     build_strategic_summary,
     format_card_analysis_report,
 )
+from skat_ai.application.contracts import (
+    ApplicationExecutionOptions,
+    ApplicationExternalDocuments,
+    HistoricalGameApplicationOptions,
+    PositionAnalysisApplicationOptions,
+    TrainingDatasetApplicationOptions,
+)
+from skat_ai.application.execution import (
+    ApplicationWorkflowDependencies,
+    build_application_invocation,
+    execute_application_invocation,
+)
+from skat_ai.application.historical_game_workflow import (
+    HistoricalGameWorkflowDependencies,
+)
+from skat_ai.application.position_workflow import (
+    PositionWorkflowDependencies,
+    build_position_analysis_result,
+)
+from skat_ai.application.simple_workflows import SimpleWorkflowDependencies
+from skat_ai.application.training_dataset_workflow import (
+    TrainingDatasetWorkflowDependencies,
+)
 from skat_ai.bounded_search_evaluation import (
     DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS,
     evaluate_bounded_search_dataset,
 )
-from skat_ai.bounded_search_post_game_review import (
-    build_bounded_search_post_game_review_summary,
-)
-from skat_ai.bounded_search_result import build_serializable_bounded_search_result
 from skat_ai.card_selection import (
     SEARCH_AWARE_MULTI_STEP_POLICIES,
     VALID_MULTI_STEP_POLICIES,
@@ -25,24 +43,6 @@ from skat_ai.dataset_partition_audit import (
     audit_training_dataset_partitions,
     build_serializable_dataset_partition_audit,
     resolve_dataset_partition_audit_mode,
-)
-from skat_ai.declarer_card_exposure import (
-    DeclarerCardExposure,
-    adjudicate_accepted_declarer_card_exposure,
-    build_declarer_exposed_card_evidence,
-)
-from skat_ai.declarer_concession import (
-    adjudicate_declarer_concession,
-    build_declarer_card_count_evidence,
-)
-from skat_ai.defender_concession import (
-    DefenderConcession,
-    adjudicate_defender_concession,
-)
-from skat_ai.defender_open_play import (
-    DefenderOpenPlay,
-    adjudicate_defender_open_play,
-    validate_defender_open_play_context,
 )
 from skat_ai.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
@@ -53,132 +53,46 @@ from skat_ai.errors import (
     CLI_EXIT_CODE_SUCCESS,
     CLI_EXIT_CODE_USAGE,
     SkatAICliUsageError,
+    SkatAIWorkflowError,
 )
-from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.fixed_three_player_historical_list_aggregation import (
     build_fixed_three_player_historical_list_aggregation,
-    build_serializable_fixed_three_player_historical_list_aggregation,
 )
 from skat_ai.fixed_three_player_historical_list_comparison import (
     build_fixed_three_player_historical_list_comparison,
 )
-from skat_ai.fixed_three_player_historical_list_comparison_summary import (
-    build_serializable_fixed_three_player_historical_list_comparison,
-)
-from skat_ai.game_continuation import (
-    build_game_continuation_summary,
-    resolve_game_continuation,
-)
-from skat_ai.game_declaration import build_serializable_game_declaration
-from skat_ai.game_end import apply_remaining_points_assignment
-from skat_ai.game_history import build_score_summary
-from skat_ai.game_result import build_game_result_summary_from_score_summary
-from skat_ai.game_value import build_game_value_summary
-from skat_ai.hidden_card_inference import (
-    build_hidden_card_inference_model,
-    build_hidden_card_inference_summary,
-)
-from skat_ai.historical_decision_snapshot import (
-    build_historical_decision_snapshots,
-    build_serializable_historical_decision_snapshot_summary,
-)
-from skat_ai.historical_game import build_historical_game_summary
+from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
 from skat_ai.historical_game_review import build_historical_game_review_summary
-from skat_ai.historical_opponent_profile_binding import (
-    HistoricalOpponentProfileBindings,
-    resolve_historical_opponent_profile_bindings,
-)
 from skat_ai.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
     build_exportable_opponent_statistics_input,
     build_historical_opponent_statistics_aggregation_summary,
 )
 from skat_ai.historical_search_review import build_historical_search_review_summary
-from skat_ai.impossible_null_settlement import (
-    build_impossible_null_settlement_summary,
-    build_serializable_impossible_null_settlement_summary,
-)
-from skat_ai.information_policy import build_information_policy_summary
-from skat_ai.information_view import build_local_analysis_input
 from skat_ai.input_loader import (
-    build_game_state_from_input,
-    build_local_game_state_from_input,
-    get_actual_card_played_from_input,
-    get_analysis_metadata_from_input,
-    get_game_continuation_from_input,
-    get_game_declaration_from_input,
-    get_game_shortening_from_input,
-    get_impossible_null_settlement_from_input,
     get_input_workflow,
-    get_list_analysis_results_from_input,
-    get_list_game_contributions_from_input,
-    get_list_performance_input_from_input,
-    get_list_standings_input_from_input,
-    get_performance_rating_system_from_input,
-    get_profile_preset_settings_from_input,
-    get_recommendation_method_configuration_from_input,
-    get_simulation_settings_from_input,
-    load_fixed_three_player_historical_list_comparison_request_from_json,
-    load_fixed_three_player_historical_list_request_from_json,
-    load_historical_game_from_json,
     load_json_object,
     load_opponent_statistics_from_json,
     load_position_from_json,
-    load_training_dataset_from_json,
-    load_training_dataset_preparation_request_from_json,
 )
 from skat_ai.input_validation import MAX_SAMPLE_COUNT
-from skat_ai.live_opponent_profile_binding import (
-    LiveOpponentProfileBindings,
-    resolve_live_opponent_profile_bindings,
-)
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_expected_objective_utility
-from skat_ai.open_card_throw import (
-    OpenCardThrow,
-    adjudicate_open_card_throw,
-    resolve_open_card_throw_context,
-)
 from skat_ai.opponent_policy import VALID_OPPONENT_CARD_POLICIES
-from skat_ai.opponent_profile_application import (
-    EffectiveLiveOpponentProfiles,
-    build_opponent_profile_application_summary,
-    select_effective_live_opponent_profiles,
-)
+from skat_ai.opponent_profile_application import EffectiveLiveOpponentProfiles
 from skat_ai.opponent_statistics import (
     build_opponent_statistics_summary,
     build_serializable_opponent_statistics_input,
 )
 from skat_ai.output_writer import write_analysis_result_to_json
-from skat_ai.ouvert_simulation import (
-    build_declared_ouvert_public_hand_constraint,
-    resolve_effective_public_hand_constraints,
-)
-from skat_ai.overbid import build_overbid_summary
-from skat_ai.performance_rating import (
-    build_list_performance_summary,
-    build_list_performance_summary_from_analysis_results,
-    build_list_performance_summary_from_game_contributions,
-    build_list_standings_summary,
-    build_performance_rating_summary,
-)
 from skat_ai.policy_comparison import compare_multi_step_policies
-from skat_ai.post_game_review import build_post_game_review_summary
 from skat_ai.recommendation_workflow import (
-    IMMEDIATE_EXPECTED_VALUE_METHOD,
     SEARCH_RECOMMENDATION_METHODS,
     RecommendationMethodConfiguration,
-    build_recommendation_method_summary,
-    build_serializable_bounded_search_settings,
-    execute_recommendation_workflow,
 )
 from skat_ai.recommender import recommend_card_by_expected_value
 from skat_ai.replay_coaching_report import (
     build_historical_replay_coaching_public_summaries,
-)
-from skat_ai.result_serialization import (
-    build_serializable_multi_step_result,
-    build_serializable_policy_comparison_result,
 )
 from skat_ai.rolling_opponent_policy_evaluation import (
     DEFAULT_EVALUATION_PARTITIONS,
@@ -186,7 +100,6 @@ from skat_ai.rolling_opponent_policy_evaluation import (
     build_serializable_rolling_opponent_policy_evaluation,
     evaluate_rolling_opponent_policy_predictions,
 )
-from skat_ai.rules import get_legal_cards
 from skat_ai.search_budget_profiles import (
     EVALUATION_SEARCH_BUDGET_PROFILE,
     HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
@@ -215,8 +128,100 @@ POST_GAME_REVIEW_UNAVAILABLE_REASON_TEXT = {
     ),
 }
 
+# These names remain module-level compatibility patch points through v1.0.0.
+_LEGACY_PATCH_POINT_FUNCTIONS = (
+    aggregate_historical_opponent_statistics,
+    build_opponent_statistics_summary,
+    build_training_dataset_summary,
+    evaluate_rolling_opponent_policy_predictions,
+    load_opponent_statistics_from_json,
+)
+
 
 CliUsageError = SkatAICliUsageError
+
+
+def build_legacy_application_dependencies() -> ApplicationWorkflowDependencies:
+    """Preserves established Root-module monkeypatch seams for CLI adapters."""
+    return ApplicationWorkflowDependencies(
+        position=PositionWorkflowDependencies(
+            immediate_recommender=recommend_card_by_expected_value,
+            report_builder=build_card_analysis_report,
+            strategic_summary_builder=build_strategic_summary,
+            unavailable_summary_builder=build_unavailable_strategic_summary,
+            multi_step_simulator=simulate_multiple_steps,
+            policy_comparator=compare_multi_step_policies,
+        ),
+        historical_game=HistoricalGameWorkflowDependencies(
+            build_snapshots=build_historical_decision_snapshots,
+            build_immediate_review=build_historical_game_review_summary,
+            build_search_review=build_historical_search_review_summary,
+            build_replay_coaching=build_historical_replay_coaching_public_summaries,
+        ),
+        training_dataset=TrainingDatasetWorkflowDependencies(
+            build_summary=build_training_dataset_summary,
+            resolve_partition_audit_mode=resolve_dataset_partition_audit_mode,
+            audit_partitions=audit_training_dataset_partitions,
+            serialize_partition_audit=build_serializable_dataset_partition_audit,
+            evaluate_rolling=evaluate_rolling_opponent_policy_predictions,
+            serialize_rolling=(
+                build_serializable_rolling_opponent_policy_evaluation
+            ),
+            evaluate_bounded_search=evaluate_bounded_search_dataset,
+            aggregate_statistics=aggregate_historical_opponent_statistics,
+            build_aggregation_summary=(
+                build_historical_opponent_statistics_aggregation_summary
+            ),
+            build_export_input=build_exportable_opponent_statistics_input,
+            serialize_export_input=build_serializable_opponent_statistics_input,
+        ),
+        simple=SimpleWorkflowDependencies(
+            build_preparation_result=build_training_dataset_preparation_result,
+            serialize_preparation_result=(
+                build_serializable_training_dataset_preparation_result
+            ),
+            build_statistics_summary=build_opponent_statistics_summary,
+            build_list_aggregation=(
+                build_fixed_three_player_historical_list_aggregation
+            ),
+            build_list_comparison=(
+                build_fixed_three_player_historical_list_comparison
+            ),
+        ),
+    )
+
+
+def execute_legacy_application(
+    root_document: dict[str, Any],
+    *,
+    input_reference: str,
+    options: ApplicationExecutionOptions | None = None,
+    external_documents: ApplicationExternalDocuments | None = None,
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    """Executes one Root document and thaws its result and artifacts for transport."""
+    invocation = build_application_invocation(
+        root_document,
+        input_reference=input_reference,
+        options=options,
+        external_documents=external_documents,
+    )
+    execution = execute_application_invocation(
+        invocation,
+        dependencies=build_legacy_application_dependencies(),
+    )
+    result = execution.result.to_dict()["document"]
+    if not isinstance(result, dict):
+        raise ValueError("Application result document must be an object.")
+    artifacts = {artifact.name: artifact.to_dict() for artifact in execution.artifacts}
+    return result, artifacts
+
+
+def load_external_opponent_statistics_document(
+    file_path: str,
+) -> dict[str, Any]:
+    """Loads one external statistics file through the established CLI seam."""
+    statistics_input = load_opponent_statistics_from_json(file_path)
+    return build_serializable_opponent_statistics_input(statistics_input)
 
 
 def get_immediate_unavailable_reason(
@@ -394,387 +399,34 @@ def build_analysis_result(
     Builds the full analysis result as a structured dictionary.
     """
     data = load_position_from_json(file_path)
-    local_data = build_local_analysis_input(data)
-    state = build_game_state_from_input(local_data)
-    settings = get_simulation_settings_from_input(data)
-    recommendation_configuration = get_recommendation_method_configuration_from_input(data)
-    analysis_metadata = get_analysis_metadata_from_input(data)
-    if effective_opponent_policy_settings is None:
-        effective_opponent_policy_settings = build_effective_opponent_policy_settings_for_analysis(
-            data=data,
-            analysis_metadata=analysis_metadata,
+    return build_position_analysis_result(
+        data,
+        input_reference=file_path,
+        options=PositionAnalysisApplicationOptions(
+            sample_count_override=sample_count_override,
+            random_seed_override=random_seed_override,
+            opponent_strategy_override=opponent_strategy_override,
+            left_opponent_lead_policy_override=(
+                left_opponent_lead_policy_override
+            ),
+            left_opponent_response_policy_override=(
+                left_opponent_response_policy_override
+            ),
+            right_opponent_lead_policy_override=(
+                right_opponent_lead_policy_override
+            ),
+            right_opponent_response_policy_override=(
+                right_opponent_response_policy_override
+            ),
             opponent_policy_preset_override=opponent_policy_preset_override,
             opponent_lead_policy_override=opponent_lead_policy_override,
             opponent_response_policy_override=opponent_response_policy_override,
             use_profile_presets_override=use_profile_presets_override,
-            left_opponent_lead_policy_override=left_opponent_lead_policy_override,
-            left_opponent_response_policy_override=left_opponent_response_policy_override,
-            right_opponent_lead_policy_override=right_opponent_lead_policy_override,
-            right_opponent_response_policy_override=right_opponent_response_policy_override,
-        )
-    opponent_response_policy_by_player = (
-        effective_opponent_policy_settings.immediate_response_policy_by_player
+        ),
+        effective_opponent_policy_settings=effective_opponent_policy_settings,
+        opponent_profile_application_summary=opponent_profile_application_summary,
+        dependencies=build_legacy_application_dependencies().position,
     )
-    actual_card_played = get_actual_card_played_from_input(data)
-    game_shortening = get_game_shortening_from_input(data)
-    game_continuation = get_game_continuation_from_input(data)
-    continuation_context = (
-        resolve_game_continuation(data, game_continuation)
-        if game_continuation is not None
-        else None
-    )
-    declared_ouvert_constraint = build_declared_ouvert_public_hand_constraint(data)
-    public_hand_constraints = resolve_effective_public_hand_constraints(
-        tuple(
-            constraint
-            for constraint in (
-                declared_ouvert_constraint,
-                (
-                    continuation_context.public_hand_constraint
-                    if continuation_context is not None
-                    else None
-                ),
-            )
-            if constraint is not None
-        )
-    )
-    game_declaration = get_game_declaration_from_input(
-        data if game_shortening is not None else local_data
-    )
-    impossible_null_selection = get_impossible_null_settlement_from_input(data)
-    performance_rating_system = get_performance_rating_system_from_input(data)
-    list_performance_input = get_list_performance_input_from_input(data)
-    list_game_contributions = get_list_game_contributions_from_input(data)
-    list_analysis_results = get_list_analysis_results_from_input(data)
-    list_standings_input = get_list_standings_input_from_input(data)
-    game_value_summary = build_game_value_summary(game_declaration)
-    impossible_null_summary = (
-        build_impossible_null_settlement_summary(
-            selection=impossible_null_selection,
-            original_declaration=game_declaration,
-        )
-        if impossible_null_selection is not None
-        else None
-    )
-    serializable_impossible_null_summary = build_serializable_impossible_null_settlement_summary(
-        impossible_null_summary
-    )
-    overbid_summary = build_overbid_summary(
-        game_value_summary=game_value_summary,
-        bid_value=game_declaration.bid_value,
-        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
-        impossible_null_settlement=serializable_impossible_null_summary,
-    )
-    opponent_policy_settings = build_global_opponent_policy_settings(
-        effective_opponent_policy_settings
-    )
-    left_opponent_policy_settings = build_left_opponent_policy_settings(
-        effective_opponent_policy_settings
-    )
-    right_opponent_policy_settings = build_right_opponent_policy_settings(
-        effective_opponent_policy_settings
-    )
-    profile_preset_settings = get_profile_preset_settings_from_input(data)
-
-    settings = apply_cli_overrides(
-        settings=settings,
-        sample_count=sample_count_override,
-        random_seed=random_seed_override,
-        opponent_strategy=opponent_strategy_override,
-    )
-
-    profile_preset_settings = apply_profile_preset_cli_overrides(
-        profile_preset_settings=profile_preset_settings,
-        use_profile_presets=use_profile_presets_override,
-    )
-
-    immediate_unavailable_reason = get_immediate_unavailable_reason(
-        state_next_player=state.next_player,
-        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
-        has_game_shortening=game_shortening is not None,
-    )
-
-    recommendation_workflow = execute_recommendation_workflow(
-        configuration=recommendation_configuration,
-        state=state,
-        declaration=game_declaration,
-        left_hand_size=settings["left_hand_size"],
-        right_hand_size=settings["right_hand_size"],
-        sample_count=settings["sample_count"],
-        immediate_random_seed=settings["random_seed"],
-        use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-        opponent_response_policy_by_player=opponent_response_policy_by_player,
-        public_hand_constraints=public_hand_constraints,
-        skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
-        immediate_unavailable_reason=immediate_unavailable_reason,
-        legal_cards_builder=get_legal_cards,
-        hidden_model_builder=build_hidden_card_inference_model,
-        immediate_recommender=recommend_card_by_expected_value,
-        report_builder=build_card_analysis_report,
-        summary_builder=build_strategic_summary,
-        unavailable_summary_builder=build_unavailable_strategic_summary,
-    )
-    legal_cards = list(recommendation_workflow.legal_cards)
-    recommended_card = recommendation_workflow.recommendation_card
-    reason = recommendation_workflow.recommendation_reason
-    report = list(recommendation_workflow.analysis_report)
-    strategic_summary = recommendation_workflow.strategic_summary
-    hidden_card_inference_model = recommendation_workflow.hidden_card_inference_model
-
-    bounded_search_post_game_review_summary = None
-    immediate_review_report = report
-    if (
-        recommendation_configuration.requested_method in SEARCH_RECOMMENDATION_METHODS
-        and analysis_metadata.strategic_metadata.analysis_mode == "post_game_review"
-        and actual_card_played is not None
-    ):
-        immediate_baseline = execute_recommendation_workflow(
-            configuration=RecommendationMethodConfiguration(
-                explicitly_supplied=True,
-                requested_method=IMMEDIATE_EXPECTED_VALUE_METHOD,
-            ),
-            state=state,
-            declaration=game_declaration,
-            left_hand_size=settings["left_hand_size"],
-            right_hand_size=settings["right_hand_size"],
-            sample_count=settings["sample_count"],
-            immediate_random_seed=settings["random_seed"],
-            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-            opponent_response_policy_by_player=opponent_response_policy_by_player,
-            public_hand_constraints=public_hand_constraints,
-            skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
-            immediate_unavailable_reason=immediate_unavailable_reason,
-            legal_cards_builder=get_legal_cards,
-            hidden_model_builder=build_hidden_card_inference_model,
-            immediate_recommender=recommend_card_by_expected_value,
-            report_builder=build_card_analysis_report,
-            summary_builder=build_strategic_summary,
-            unavailable_summary_builder=build_unavailable_strategic_summary,
-        )
-        immediate_review_report = list(immediate_baseline.analysis_report)
-        if recommendation_workflow.bounded_search_result is None:
-            raise ValueError("Post-game Search review requires a bounded Search result.")
-        bounded_search_post_game_review_summary = (
-            build_bounded_search_post_game_review_summary(
-                search_result=recommendation_workflow.bounded_search_result,
-                actual_card=actual_card_played,
-                immediate_card=immediate_baseline.recommendation_card,
-                immediate_analysis_report=immediate_review_report,
-                game_type=state.game_type,
-                player_role=state.player_role,
-            )
-        )
-
-    post_game_review_summary = build_post_game_review_summary(
-        actual_card_played=actual_card_played,
-        analysis_report=immediate_review_report,
-        game_type=state.game_type,
-        player_role=state.player_role,
-        game_value=game_value_summary["game_value"],
-    )
-
-    score_summary = build_score_summary(state)
-    game_result_summary = build_game_result_summary_from_score_summary(
-        score_summary=score_summary,
-        game_type=state.game_type,
-        completed_tricks=state.completed_tricks,
-        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
-    )
-    game_shortening_summary = None
-    if isinstance(game_shortening, DefenderConcession):
-        adjudication = adjudicate_defender_concession(
-            game_shortening=game_shortening,
-            game_result_summary=game_result_summary,
-            game_value_summary=game_value_summary,
-            overbid_summary=overbid_summary,
-            completed_tricks=state.completed_tricks,
-        )
-        adjusted_game_result_summary = adjudication.game_result_summary
-        game_shortening_summary = adjudication.game_shortening_summary
-    elif isinstance(game_shortening, DefenderOpenPlay):
-        adjudication = adjudicate_defender_open_play(
-            game_shortening=game_shortening,
-            context=validate_defender_open_play_context(data, game_shortening),
-            game_result_summary=game_result_summary,
-            game_value_summary=game_value_summary,
-            overbid_summary=overbid_summary,
-            completed_tricks=state.completed_tricks,
-        )
-        adjusted_game_result_summary = adjudication.game_result_summary
-        game_shortening_summary = adjudication.game_shortening_summary
-    elif isinstance(game_shortening, DeclarerCardExposure):
-        adjudication = adjudicate_accepted_declarer_card_exposure(
-            game_shortening=game_shortening,
-            game_result_summary=game_result_summary,
-            game_value_summary=game_value_summary,
-            overbid_summary=overbid_summary,
-            completed_tricks=state.completed_tricks,
-            card_evidence=build_declarer_exposed_card_evidence(data),
-        )
-        adjusted_game_result_summary = adjudication.game_result_summary
-        game_shortening_summary = adjudication.game_shortening_summary
-    elif isinstance(game_shortening, OpenCardThrow):
-        adjudication = adjudicate_open_card_throw(
-            game_shortening=game_shortening,
-            context=resolve_open_card_throw_context(data, game_shortening),
-            game_result_summary=game_result_summary,
-            game_value_summary=game_value_summary,
-            overbid_summary=overbid_summary,
-            completed_tricks=state.completed_tricks,
-        )
-        adjusted_game_result_summary = adjudication.game_result_summary
-        game_shortening_summary = adjudication.game_shortening_summary
-    elif game_shortening is not None:
-        adjudication = adjudicate_declarer_concession(
-            game_shortening=game_shortening,
-            game_result_summary=game_result_summary,
-            game_value_summary=game_value_summary,
-            overbid_summary=overbid_summary,
-            evidence=build_declarer_card_count_evidence(data),
-        )
-        adjusted_game_result_summary = adjudication.game_result_summary
-        game_shortening_summary = adjudication.game_shortening_summary
-    else:
-        adjusted_game_result_summary = apply_remaining_points_assignment(
-            game_result_summary=game_result_summary,
-            game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
-        )
-    final_settlement_summary = build_final_settlement_summary(
-        game_value_summary=game_value_summary,
-        game_result_summary=adjusted_game_result_summary,
-        overbid_summary=overbid_summary,
-        completed_tricks=state.completed_tricks,
-        impossible_null_settlement=serializable_impossible_null_summary,
-    )
-    performance_rating_summary = build_performance_rating_summary(
-        final_settlement_summary=final_settlement_summary,
-        rating_system=performance_rating_system,
-    )
-    list_performance_summary = None
-    list_standings_summary = None
-    if list_performance_input is not None:
-        list_performance_summary = build_list_performance_summary(
-            list_performance_input=list_performance_input,
-            rating_system=performance_rating_system,
-        )
-    elif list_game_contributions is not None:
-        list_performance_summary = build_list_performance_summary_from_game_contributions(
-            game_contributions=list_game_contributions,
-            rating_system=performance_rating_system,
-        )
-    elif list_analysis_results is not None:
-        list_performance_summary = build_list_performance_summary_from_analysis_results(
-            analysis_results=list_analysis_results,
-            rating_system=performance_rating_system,
-        )
-    elif list_standings_input is not None:
-        list_standings_summary = build_list_standings_summary(
-            list_standings_input=list_standings_input,
-            rating_system=performance_rating_system,
-        )
-    information_policy_summary = build_information_policy_summary(
-        analysis_mode=analysis_metadata.strategic_metadata.analysis_mode,
-        skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
-        game_end_reason=analysis_metadata.strategic_metadata.game_end_reason,
-        public_hand_constraints=public_hand_constraints,
-    )
-
-    result = {
-        "input_file": str(file_path),
-        "position": {
-            "game_type": state.game_type,
-            "player_role": state.player_role,
-            "player_position": state.player_position,
-            "declarer_player": state.declarer_player,
-            "trick_leader": state.trick_leader,
-            "hand": (
-                state.hand
-                if (
-                    not isinstance(game_shortening, DefenderOpenPlay)
-                    or game_shortening.exposing_defender == "me"
-                )
-                and (
-                    not isinstance(game_shortening, OpenCardThrow)
-                    or game_shortening.throwing_player == "me"
-                )
-                else []
-            ),
-            "current_trick": state.current_trick,
-            "played_cards": state.played_cards,
-            "completed_tricks": state.completed_tricks,
-            "declarer_points": state.declarer_points,
-            "defender_points": state.defender_points,
-            "next_player": state.next_player,
-            "skat": state.skat,
-        },
-        "settings": settings,
-        "opponent_policy_settings": opponent_policy_settings,
-        "left_opponent_policy_settings": left_opponent_policy_settings,
-        "right_opponent_policy_settings": right_opponent_policy_settings,
-        "profile_preset_settings": profile_preset_settings,
-        "analysis_metadata": build_serializable_analysis_metadata(analysis_metadata),
-        "information_policy_summary": information_policy_summary,
-        "post_game_review_summary": post_game_review_summary,
-        "game_declaration": build_serializable_game_declaration(game_declaration),
-        "game_value_summary": game_value_summary,
-        "overbid_summary": overbid_summary,
-        "legal_cards": legal_cards,
-        "analysis_report": report,
-        "strategic_summary": strategic_summary,
-        "score_summary": score_summary,
-        "game_result_summary": game_result_summary,
-        "adjusted_game_result_summary": adjusted_game_result_summary,
-        "final_settlement_summary": final_settlement_summary,
-        "performance_rating_summary": performance_rating_summary,
-        "recommendation": {
-            "card": recommended_card,
-            "reason": reason,
-        },
-    }
-
-    if recommendation_configuration.explicitly_supplied:
-        settings["recommendation_method"] = recommendation_configuration.requested_method
-        settings["bounded_search_settings"] = build_serializable_bounded_search_settings(
-            recommendation_configuration
-        )
-        result["recommendation_method_summary"] = build_recommendation_method_summary(
-            recommendation_workflow
-        )
-        result["bounded_search_result"] = (
-            build_serializable_bounded_search_result(
-                recommendation_workflow.bounded_search_result
-            )
-            if recommendation_workflow.bounded_search_result is not None
-            else None
-        )
-
-    if bounded_search_post_game_review_summary is not None:
-        result["bounded_search_post_game_review_summary"] = (
-            bounded_search_post_game_review_summary
-        )
-
-    if list_performance_summary is not None:
-        result["list_performance_summary"] = list_performance_summary
-
-    if list_standings_summary is not None:
-        result["list_standings_summary"] = list_standings_summary
-
-    if game_shortening_summary is not None:
-        result["game_shortening_summary"] = game_shortening_summary
-
-    if continuation_context is not None:
-        result["game_continuation_summary"] = build_game_continuation_summary(continuation_context)
-
-    if opponent_profile_application_summary is not None:
-        result["opponent_profile_application_summary"] = opponent_profile_application_summary
-
-    hidden_card_inference_summary = build_hidden_card_inference_summary(
-        hidden_card_inference_model
-    )
-    if hidden_card_inference_summary is not None:
-        result["hidden_card_inference_summary"] = hidden_card_inference_summary
-
-    return result
 
 
 def format_decision_factors(summary: dict[str, object]) -> str:
@@ -1833,6 +1485,77 @@ def print_training_dataset_preparation_result(
     print("Materialized Dataset status: created and reusable")
 
 
+def print_training_dataset_preparation_application_result(
+    root_document: dict[str, Any],
+    result: dict[str, Any],
+) -> None:
+    """Prints the existing preparation wording from an Application result."""
+    request = root_document["training_dataset_preparation_input"]
+    summary = result["training_dataset_preparation_summary"]
+    plan = summary["plan"]
+    weights = plan["requested_partition_weights"]
+    print("Automatic Training Dataset Preparation")
+    print(
+        f"Dataset identity: {request['dataset_id']}, "
+        f"version {request['dataset_version']}"
+    )
+    print("Mode:", plan["mode"])
+    print("Algorithm:", plan["algorithm"])
+    print("Status:", plan["status"])
+    if plan["status"] == "unavailable":
+        print("Unavailable reason:", plan["unavailable_reason"])
+    print(
+        "Source Record and Sample Counts:",
+        f"{plan['source_record_count']} records, "
+        f"{plan['source_sample_count']} samples",
+    )
+    print(
+        "Requested weights:",
+        f"train {weights['train']}, validation {weights['validation']}, "
+        f"test {weights['test']}",
+    )
+    print("Plan fingerprint:", plan["plan_fingerprint"])
+    if plan["status"] == "unavailable":
+        print("Materialized Dataset: not created")
+        return
+    for partition_summary in plan["partition_summaries"]:
+        print(
+            f"{partition_summary['partition'].title()} summary:",
+            f"{partition_summary['record_count']} records, "
+            f"{partition_summary['sample_count']} samples, "
+            f"{partition_summary['distinct_player_count']} players",
+        )
+    audit = plan["partition_audit"]
+    print("Audit evidence:", audit["compliance_status"])
+    if plan["mode"] == "known_opponent":
+        temporal_audit = plan["temporal_audit"]
+        boundaries = "; ".join(
+            f"{boundary['partition']} {boundary['minimum_played_at']} to "
+            f"{boundary['maximum_played_at']}"
+            for boundary in temporal_audit["partition_boundaries"]
+        )
+        print("Temporal boundaries:", boundaries)
+        print(
+            "Train Player coverage:",
+            f"{len(temporal_audit['train_player_ids'])} Train players; "
+            "Validation complete "
+            f"{temporal_audit['validation_train_coverage_complete']}; "
+            f"Test complete {temporal_audit['test_train_coverage_complete']}",
+        )
+    else:
+        compliance = audit["unseen_player_compliance"]
+        overlaps = audit["overlap_summary"]
+        print("Disjointness compliance:", compliance["player_disjoint"])
+        print(
+            "Overlap counts:",
+            f"train-validation {overlaps['train_validation']['player_count']}, "
+            f"train-test {overlaps['train_test']['player_count']}, "
+            "validation-test "
+            f"{overlaps['validation_test']['player_count']}",
+        )
+    print("Materialized Dataset status: created and reusable")
+
+
 def print_bounded_search_evaluation_result(result: dict[str, Any]) -> None:
     """Prints a concise bounded-Search dataset evaluation summary."""
     summary = result["bounded_search_evaluation_summary"]
@@ -2160,21 +1883,43 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
 
         decision = step.get("recommendation_decision")
         if decision is not None:
-            search = decision.bounded_search_result
-            consumed = search.consumed_budget
-            print("Requested recommendation method:", decision.requested_method)
-            print("Effective recommendation method:", decision.effective_method)
-            print("Search status:", search.status)
-            print("Search stop reason:", search.stop_reason)
+            if isinstance(decision, dict):
+                search = decision["bounded_search_result"]
+                consumed = search["consumed_budget"]
+                requested_method = decision["requested_method"]
+                effective_method = decision["effective_method"]
+                search_status = search["status"]
+                search_stop_reason = search["stop_reason"]
+                completed_world_count = consumed["completed_world_count"]
+                selected_world_count = consumed["selected_world_count"]
+                fallback_used = decision["fallback_used"]
+                fallback_method = decision["fallback_method"]
+                recommendation_card = decision["recommendation_card"]
+            else:
+                search = decision.bounded_search_result
+                consumed = search.consumed_budget
+                requested_method = decision.requested_method
+                effective_method = decision.effective_method
+                search_status = search.status
+                search_stop_reason = search.stop_reason
+                completed_world_count = consumed.completed_world_count
+                selected_world_count = consumed.selected_world_count
+                fallback_used = decision.fallback_used
+                fallback_method = decision.fallback_method
+                recommendation_card = decision.recommendation_card
+            print("Requested recommendation method:", requested_method)
+            print("Effective recommendation method:", effective_method)
+            print("Search status:", search_status)
+            print("Search stop reason:", search_stop_reason)
             print(
                 "Search completed worlds:",
-                f"{consumed.completed_world_count} of {consumed.selected_world_count}",
+                f"{completed_world_count} of {selected_world_count}",
             )
-            if decision.fallback_used:
-                print("Fallback method:", decision.fallback_method)
-                print("Fallback chosen card:", decision.recommendation_card)
+            if fallback_used:
+                print("Fallback method:", fallback_method)
+                print("Fallback chosen card:", recommendation_card)
             else:
-                print("Search chosen card:", decision.recommendation_card)
+                print("Search chosen card:", recommendation_card)
 
         if opponent_lead_result is not None:
             print("Opponent lead player:", opponent_lead_result["leader"])
@@ -2196,27 +1941,52 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
 
     stopped_decision = result.get("stopped_recommendation_decision")
     if stopped_decision is not None:
-        search = stopped_decision.bounded_search_result
-        consumed = search.consumed_budget
+        if isinstance(stopped_decision, dict):
+            search = stopped_decision["bounded_search_result"]
+            consumed = search["consumed_budget"]
+            step_index = stopped_decision["step_index"]
+            requested_method = stopped_decision["requested_method"]
+            effective_method = stopped_decision["effective_method"]
+            search_status = search["status"]
+            search_stop_reason = search["stop_reason"]
+            completed_world_count = consumed["completed_world_count"]
+            selected_world_count = consumed["selected_world_count"]
+        else:
+            search = stopped_decision.bounded_search_result
+            consumed = search.consumed_budget
+            step_index = stopped_decision.step_index
+            requested_method = stopped_decision.requested_method
+            effective_method = stopped_decision.effective_method
+            search_status = search.status
+            search_stop_reason = search.stop_reason
+            completed_world_count = consumed.completed_world_count
+            selected_world_count = consumed.selected_world_count
         print()
-        print("Stopped recommendation decision:", stopped_decision.step_index)
-        print("Requested recommendation method:", stopped_decision.requested_method)
-        print("Effective recommendation method:", stopped_decision.effective_method)
-        print("Search status:", search.status)
-        print("Search stop reason:", search.stop_reason)
+        print("Stopped recommendation decision:", step_index)
+        print("Requested recommendation method:", requested_method)
+        print("Effective recommendation method:", effective_method)
+        print("Search status:", search_status)
+        print("Search stop reason:", search_stop_reason)
         print(
             "Search completed worlds:",
-            f"{consumed.completed_world_count} of {consumed.selected_world_count}",
+            f"{completed_world_count} of {selected_world_count}",
         )
         print("No local recommendation was available; no local card was executed.")
 
     print()
     print("Final state")
-    print("Remaining hand:", final_state.hand)
-    print("Completed tricks:", final_state.completed_tricks)
-    print("Declarer points:", final_state.declarer_points)
-    print("Defender points:", final_state.defender_points)
-    print("Next player:", final_state.next_player)
+    if isinstance(final_state, dict):
+        print("Remaining hand:", final_state["hand"])
+        print("Completed tricks:", final_state["completed_tricks"])
+        print("Declarer points:", final_state["declarer_points"])
+        print("Defender points:", final_state["defender_points"])
+        print("Next player:", final_state["next_player"])
+    else:
+        print("Remaining hand:", final_state.hand)
+        print("Completed tricks:", final_state.completed_tricks)
+        print("Declarer points:", final_state.declarer_points)
+        print("Defender points:", final_state.defender_points)
+        print("Next player:", final_state.next_player)
 
 
 def print_policy_comparison_result(result: dict[str, Any]) -> None:
@@ -2377,36 +2147,6 @@ def run_json_position_analysis(
             "Open card throw cannot be combined with opponent-statistics or "
             "live profile-binding options."
         )
-    analysis_metadata = get_analysis_metadata_from_input(position_data)
-    recommendation_configuration = (
-        get_recommendation_method_configuration_from_input(position_data)
-    )
-    game_continuation = get_game_continuation_from_input(position_data)
-    continuation_context = (
-        resolve_game_continuation(
-            position_data,
-            game_continuation,
-        )
-        if game_continuation is not None
-        else None
-    )
-    declared_ouvert_constraint = build_declared_ouvert_public_hand_constraint(
-        position_data
-    )
-    public_hand_constraints = resolve_effective_public_hand_constraints(
-        tuple(
-            constraint
-            for constraint in (
-                declared_ouvert_constraint,
-                (
-                    continuation_context.public_hand_constraint
-                    if continuation_context is not None
-                    else None
-                ),
-            )
-            if constraint is not None
-        )
-    )
     validate_live_opponent_profile_options(
         position_data=position_data,
         opponent_statistics_file=opponent_statistics_file,
@@ -2414,194 +2154,68 @@ def run_json_position_analysis(
         right_opponent_player_id=right_opponent_player_id,
         use_profile_presets_override=use_profile_presets_override,
     )
-    bindings: LiveOpponentProfileBindings | None = None
-    effective_live_profiles: EffectiveLiveOpponentProfiles | None = None
+    external_documents = None
     if opponent_statistics_file is not None:
-        statistics_input = load_opponent_statistics_from_json(opponent_statistics_file)
-        statistics_summary = build_opponent_statistics_summary(statistics_input)
-        bindings = resolve_live_opponent_profile_bindings(
-            statistics_summary,
-            left_player_id=left_opponent_player_id,
-            right_player_id=right_opponent_player_id,
-        )
-        effective_live_profiles = select_effective_live_opponent_profiles(
-            data=position_data,
-            manual_left_profile=analysis_metadata.left_player_profile,
-            manual_right_profile=analysis_metadata.right_player_profile,
-            bindings=bindings,
-        )
-    effective_opponent_policy_settings = build_effective_opponent_policy_settings_for_analysis(
-        data=position_data,
-        analysis_metadata=analysis_metadata,
-        opponent_policy_preset_override=opponent_policy_preset_override,
-        opponent_lead_policy_override=opponent_lead_policy_override,
-        opponent_response_policy_override=opponent_response_policy_override,
-        use_profile_presets_override=use_profile_presets_override,
-        left_opponent_lead_policy_override=left_opponent_lead_policy_override,
-        left_opponent_response_policy_override=left_opponent_response_policy_override,
-        right_opponent_lead_policy_override=right_opponent_lead_policy_override,
-        right_opponent_response_policy_override=right_opponent_response_policy_override,
-        effective_live_profiles=effective_live_profiles,
-    )
-    opponent_profile_application_summary = None
-    if (
-        opponent_statistics_file is not None
-        and bindings is not None
-        and effective_live_profiles is not None
-    ):
-        opponent_profile_application_summary = build_opponent_profile_application_summary(
-            statistics_input_file=opponent_statistics_file,
-            use_profile_presets=True,
-            bindings=bindings,
-            effective_profiles=effective_live_profiles,
-            effective_settings=effective_opponent_policy_settings,
-        )
-
-    result = build_analysis_result(
-        file_path=file_path,
-        sample_count_override=sample_count_override,
-        random_seed_override=random_seed_override,
-        opponent_strategy_override=opponent_strategy_override,
-        left_opponent_lead_policy_override=left_opponent_lead_policy_override,
-        left_opponent_response_policy_override=left_opponent_response_policy_override,
-        right_opponent_lead_policy_override=right_opponent_lead_policy_override,
-        right_opponent_response_policy_override=right_opponent_response_policy_override,
-        opponent_policy_preset_override=opponent_policy_preset_override,
-        opponent_lead_policy_override=opponent_lead_policy_override,
-        opponent_response_policy_override=opponent_response_policy_override,
-        use_profile_presets_override=use_profile_presets_override,
-        effective_opponent_policy_settings=effective_opponent_policy_settings,
-        opponent_profile_application_summary=(opponent_profile_application_summary),
-    )
-
-    multi_step_result_to_print = None
-    policy_comparison_result_to_print = None
-
-    if multi_step_count is not None:
-        state = build_local_game_state_from_input(position_data)
-        game_declaration = get_game_declaration_from_input(
-            build_local_analysis_input(position_data)
-        )
-        effective_card_selection_policy = resolve_multi_step_card_selection_policy(
-            card_selection_policy,
-            recommendation_configuration,
-        )
-        settings = get_simulation_settings_from_input(position_data)
-        opponent_policy_settings = build_global_opponent_policy_settings(
-            effective_opponent_policy_settings
-        )
-        left_opponent_policy_settings = build_left_opponent_policy_settings(
-            effective_opponent_policy_settings
-        )
-        right_opponent_policy_settings = build_right_opponent_policy_settings(
-            effective_opponent_policy_settings
-        )
-
-        profile_preset_settings = get_profile_preset_settings_from_input(position_data)
-        profile_preset_settings = apply_profile_preset_cli_overrides(
-            profile_preset_settings=profile_preset_settings,
-            use_profile_presets=use_profile_presets_override,
-        )
-
-        settings = apply_cli_overrides(
-            settings=settings,
-            sample_count=sample_count_override,
-            random_seed=random_seed_override,
-            opponent_strategy=opponent_strategy_override,
-        )
-
-        result["opponent_policy_settings"] = opponent_policy_settings
-        result["left_opponent_policy_settings"] = left_opponent_policy_settings
-        result["right_opponent_policy_settings"] = right_opponent_policy_settings
-
-        multi_step_result = simulate_multiple_steps(
-            state=state,
-            left_hand_size=settings["left_hand_size"],
-            right_hand_size=settings["right_hand_size"],
-            step_count=multi_step_count,
-            random_seed=settings["random_seed"],
-            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
-            card_selection_policy=effective_card_selection_policy,
-            expected_value_sample_count=expected_value_sample_count,
-            strict_context=strict_context,
-            strategic_metadata=analysis_metadata.strategic_metadata,
-            opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
-            opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
-            left_opponent_policy_settings=left_opponent_policy_settings,
-            right_opponent_policy_settings=right_opponent_policy_settings,
-            opponent_response_policy_by_player=(
-                effective_opponent_policy_settings.immediate_response_policy_by_player
+        external_documents = ApplicationExternalDocuments(
+            opponent_statistics_document=load_external_opponent_statistics_document(
+                opponent_statistics_file
             ),
-            public_hand_constraints=public_hand_constraints,
-            game_declaration=game_declaration,
-            recommendation_configuration=(
-                recommendation_configuration
-                if effective_card_selection_policy in SEARCH_AWARE_MULTI_STEP_POLICIES
-                else None
-            ),
+            opponent_statistics_reference=opponent_statistics_file,
         )
-
-        result["multi_step_result"] = build_serializable_multi_step_result(multi_step_result)
-        result["profile_preset_settings"] = profile_preset_settings
-
-        if not comparison_only:
-            multi_step_result_to_print = multi_step_result
-
-        if compare_policies:
-            policy_comparison_result = compare_multi_step_policies(
-                state=state,
-                left_hand_size=settings["left_hand_size"],
-                right_hand_size=settings["right_hand_size"],
-                step_count=multi_step_count,
-                random_seed=settings["random_seed"],
-                use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+    result, _artifacts = execute_legacy_application(
+        position_data,
+        input_reference=file_path,
+        options=ApplicationExecutionOptions(
+            position_analysis=PositionAnalysisApplicationOptions(
+                sample_count_override=sample_count_override,
+                random_seed_override=random_seed_override,
+                opponent_strategy_override=opponent_strategy_override,
+                left_opponent_lead_policy_override=(
+                    left_opponent_lead_policy_override
+                ),
+                left_opponent_response_policy_override=(
+                    left_opponent_response_policy_override
+                ),
+                right_opponent_lead_policy_override=(
+                    right_opponent_lead_policy_override
+                ),
+                right_opponent_response_policy_override=(
+                    right_opponent_response_policy_override
+                ),
+                multi_step_count=multi_step_count,
+                card_selection_policy=card_selection_policy,
                 expected_value_sample_count=expected_value_sample_count,
                 strict_context=strict_context,
-                strategic_metadata=analysis_metadata.strategic_metadata,
-                opponent_lead_policy=opponent_policy_settings["opponent_lead_policy"],
-                opponent_response_policy=opponent_policy_settings["opponent_response_policy"],
-                left_opponent_policy_settings=left_opponent_policy_settings,
-                right_opponent_policy_settings=right_opponent_policy_settings,
-                opponent_response_policy_by_player=(
-                    effective_opponent_policy_settings.immediate_response_policy_by_player
+                compare_policies=compare_policies,
+                comparison_only=comparison_only,
+                opponent_policy_preset_override=(
+                    opponent_policy_preset_override
                 ),
-                public_hand_constraints=public_hand_constraints,
-                game_declaration=game_declaration,
-                recommendation_configuration=(
-                    recommendation_configuration
-                    if recommendation_configuration.requested_method
-                    in SEARCH_RECOMMENDATION_METHODS
-                    else None
+                opponent_lead_policy_override=opponent_lead_policy_override,
+                opponent_response_policy_override=(
+                    opponent_response_policy_override
                 ),
+                use_profile_presets_override=use_profile_presets_override,
+                left_opponent_player_id=left_opponent_player_id,
+                right_opponent_player_id=right_opponent_player_id,
             )
-
-            result["policy_comparison_result"] = build_serializable_policy_comparison_result(
-                policy_comparison_result
-            )
-
-            policy_comparison_result_to_print = policy_comparison_result
-
+        ),
+        external_documents=external_documents,
+    )
     if output_path is not None:
-        write_analysis_result_to_json(
-            output_path=output_path,
-            result=result,
-        )
-
+        write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
         return
-
     if not comparison_only:
         print_analysis_result(result)
-
-    if multi_step_result_to_print is not None:
-        print_multi_step_result(multi_step_result_to_print)
-
-    if policy_comparison_result_to_print is not None:
-        print_policy_comparison_result(policy_comparison_result_to_print)
-
+    if multi_step_count is not None and not comparison_only:
+        print_multi_step_result(result["multi_step_result"])
+    if compare_policies:
+        print_policy_comparison_result(result["policy_comparison_result"])
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_historical_game_analysis(
@@ -2626,112 +2240,60 @@ def run_json_historical_game_analysis(
     right_opponent_response_policy_override: str | None = None,
 ) -> None:
     """Runs the complete historical-game workflow."""
-    record = load_historical_game_from_json(file_path)
-    historical_game_summary = build_historical_game_summary(record)
-    opponent_profile_bindings: HistoricalOpponentProfileBindings | None = None
+    root_document = load_json_object(file_path)
+    external_documents = None
     if opponent_statistics_file is not None:
-        statistics_input = load_opponent_statistics_from_json(opponent_statistics_file)
-        opponent_profile_bindings = resolve_historical_opponent_profile_bindings(
-            record,
-            statistics_input,
-            statistics_input_file=opponent_statistics_file,
-        )
-    snapshot_summary = None
-    if (
-        historical_decision_snapshots
-        or historical_game_review
-        or historical_search_review
-        or historical_replay_coaching
-    ):
-        snapshot_summary = build_historical_decision_snapshots(historical_game_summary)
-    if historical_decision_snapshots:
-        if snapshot_summary is None:
-            raise ValueError("Historical decision snapshots were not generated.")
-        historical_game_summary["decision_snapshot_summary"] = (
-            build_serializable_historical_decision_snapshot_summary(snapshot_summary)
-        )
-    if historical_game_review:
-        if snapshot_summary is None:
-            raise ValueError("Historical decision snapshots were not generated.")
-        historical_game_summary["historical_game_review_summary"] = (
-            build_historical_game_review_summary(
-                snapshot_summary=snapshot_summary,
-                historical_record=record,
-                sample_count=(
-                    sample_count
-                    if sample_count is not None
-                    else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
-                ),
-                base_random_seed=base_random_seed,
-                opponent_profile_bindings=opponent_profile_bindings,
-                opponent_policy_preset_override=opponent_policy_preset_override,
-                opponent_lead_policy_override=opponent_lead_policy_override,
-                opponent_response_policy_override=opponent_response_policy_override,
-                left_opponent_lead_policy_override=(left_opponent_lead_policy_override),
-                left_opponent_response_policy_override=(left_opponent_response_policy_override),
-                right_opponent_lead_policy_override=(right_opponent_lead_policy_override),
-                right_opponent_response_policy_override=(right_opponent_response_policy_override),
-            )
-        )
-    if historical_replay_coaching:
-        if snapshot_summary is None:
-            raise ValueError("Historical decision snapshots were not generated.")
-        if search_seed is None:
-            raise ValueError("Historical Replay Coaching requires an explicit Search seed.")
-        public_summaries = build_historical_replay_coaching_public_summaries(
-            snapshot_summary=snapshot_summary,
-            historical_record=record,
-            base_search_seed=search_seed,
-            search_budget_profile=search_budget_profile,
-            immediate_sample_count=(
-                sample_count
-                if sample_count is not None
-                else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+        external_documents = ApplicationExternalDocuments(
+            opponent_statistics_document=load_external_opponent_statistics_document(
+                opponent_statistics_file
             ),
-            immediate_base_random_seed=base_random_seed,
+            opponent_statistics_reference=opponent_statistics_file,
         )
-        historical_game_summary["historical_replay_coaching_summary"] = (
-            public_summaries["historical_replay_coaching_summary"]
-        )
-        if historical_search_review:
-            historical_game_summary["historical_search_review_summary"] = (
-                public_summaries["historical_search_review_summary"]
-            )
-    elif historical_search_review:
-        if snapshot_summary is None:
-            raise ValueError("Historical decision snapshots were not generated.")
-        if search_seed is None:
-            raise ValueError("Historical Search Review requires an explicit Search seed.")
-        historical_game_summary["historical_search_review_summary"] = (
-            build_historical_search_review_summary(
-                snapshot_summary=snapshot_summary,
-                historical_record=record,
-                base_search_seed=search_seed,
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
+        options=ApplicationExecutionOptions(
+            historical_game=HistoricalGameApplicationOptions(
+                decision_snapshots=historical_decision_snapshots,
+                immediate_review=historical_game_review,
+                search_review=historical_search_review,
+                replay_coaching=historical_replay_coaching,
+                search_seed=search_seed,
                 search_budget_profile=search_budget_profile,
-                immediate_sample_count=(
-                    sample_count
-                    if sample_count is not None
-                    else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
-                ),
+                immediate_sample_count=sample_count,
                 immediate_base_random_seed=base_random_seed,
+                opponent_policy_preset_override=(
+                    opponent_policy_preset_override
+                ),
+                opponent_lead_policy_override=opponent_lead_policy_override,
+                opponent_response_policy_override=(
+                    opponent_response_policy_override
+                ),
+                left_opponent_lead_policy_override=(
+                    left_opponent_lead_policy_override
+                ),
+                left_opponent_response_policy_override=(
+                    left_opponent_response_policy_override
+                ),
+                right_opponent_lead_policy_override=(
+                    right_opponent_lead_policy_override
+                ),
+                right_opponent_response_policy_override=(
+                    right_opponent_response_policy_override
+                ),
+                use_profile_presets_override=(
+                    opponent_statistics_file is not None
+                ),
             )
-        )
-    result = {
-        "input_file": str(file_path),
-        "historical_game_summary": historical_game_summary,
-    }
-    if opponent_profile_bindings is not None:
-        result["historical_opponent_profile_application_summary"] = (
-            opponent_profile_bindings.application_summary
-        )
-
+        ),
+        external_documents=external_documents,
+    )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
-
     if quiet:
         return
-
     print_historical_game_result(result)
+    historical_game_summary = result["historical_game_summary"]
     if historical_search_review:
         print_historical_search_review_result(
             historical_game_summary["historical_search_review_summary"]
@@ -2743,6 +2305,7 @@ def run_json_historical_game_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_training_dataset_conversion(
@@ -2751,11 +2314,14 @@ def run_json_training_dataset_conversion(
     quiet: bool = False,
 ) -> None:
     """Runs deterministic training-dataset validation and sample generation."""
-    dataset = load_training_dataset_from_json(file_path)
-    result = {
-        "input_file": str(file_path),
-        "training_dataset_summary": build_training_dataset_summary(dataset),
-    }
+    root_document = load_json_object(file_path)
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
+        options=ApplicationExecutionOptions(
+            training_dataset=TrainingDatasetApplicationOptions(operation="summary")
+        ),
+    )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
@@ -2764,6 +2330,7 @@ def run_json_training_dataset_conversion(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_training_dataset_preparation(
@@ -2772,25 +2339,20 @@ def run_json_training_dataset_preparation(
     quiet: bool = False,
 ) -> None:
     """Runs one mode-derived automatic Dataset preparation workflow."""
-    request = load_training_dataset_preparation_request_from_json(file_path)
-    preparation_result = build_training_dataset_preparation_result(request)
-    result = {
-        "input_file": str(file_path),
-        "training_dataset_preparation_summary": (
-            build_serializable_training_dataset_preparation_result(
-                request,
-                preparation_result,
-            )
-        ),
-    }
+    root_document = load_json_object(file_path)
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
+    )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
         return
-    print_training_dataset_preparation_result(request, preparation_result)
+    print_training_dataset_preparation_application_result(root_document, result)
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_bounded_search_evaluation(
@@ -2804,17 +2366,20 @@ def run_json_bounded_search_evaluation(
     quiet: bool = False,
 ) -> None:
     """Runs deterministic bounded-Search evaluation on selected dataset records."""
-    dataset = load_training_dataset_from_json(file_path)
-    result = {
-        "input_file": str(file_path),
-        "bounded_search_evaluation_summary": evaluate_bounded_search_dataset(
-            dataset,
-            base_search_seed=search_seed,
-            partitions=partitions,
-            search_budget_profile=search_budget_profile,
-            max_decisions=max_decisions,
+    root_document = load_json_object(file_path)
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
+        options=ApplicationExecutionOptions(
+            training_dataset=TrainingDatasetApplicationOptions(
+                operation="bounded_search_evaluation",
+                bounded_search_seed=search_seed,
+                bounded_search_partitions=partitions,
+                bounded_search_budget_profile=search_budget_profile,
+                bounded_search_max_decisions=max_decisions,
+            )
         ),
-    }
+    )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
@@ -2823,6 +2388,7 @@ def run_json_bounded_search_evaluation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_dataset_partition_audit(
@@ -2832,16 +2398,24 @@ def run_json_dataset_partition_audit(
     quiet: bool = False,
 ) -> None:
     """Audits training-dataset player overlap without generating samples."""
-    dataset = load_training_dataset_from_json(file_path)
+    root_document = load_json_object(file_path)
     try:
-        effective_mode = resolve_dataset_partition_audit_mode(dataset, requested_mode)
-    except ValueError as error:
+        result, _artifacts = execute_legacy_application(
+            root_document,
+            input_reference=file_path,
+            options=ApplicationExecutionOptions(
+                training_dataset=TrainingDatasetApplicationOptions(
+                    operation="partition_audit",
+                    partition_audit_mode=requested_mode,
+                )
+            ),
+        )
+    except (SkatAIWorkflowError, ValueError) as error:
+        if not isinstance(error, SkatAIWorkflowError) and (
+            "contradicts declared partition policy" not in str(error)
+        ):
+            raise
         raise CliUsageError(str(error)) from error
-    audit = audit_training_dataset_partitions(dataset, effective_mode)
-    result = {
-        "input_file": str(file_path),
-        "dataset_partition_audit_summary": (build_serializable_dataset_partition_audit(audit)),
-    }
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
@@ -2850,6 +2424,7 @@ def run_json_dataset_partition_audit(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_rolling_opponent_policy_evaluation(
@@ -2860,18 +2435,18 @@ def run_json_rolling_opponent_policy_evaluation(
     quiet: bool = False,
 ) -> None:
     """Runs rolling profile-derived behavioral policy evaluation."""
-    dataset = load_training_dataset_from_json(file_path)
-    evaluation = evaluate_rolling_opponent_policy_predictions(
-        dataset,
-        source_partitions=source_partitions,
-        evaluation_partitions=evaluation_partitions,
-    )
-    result = {
-        "input_file": str(file_path),
-        "rolling_opponent_policy_evaluation_summary": (
-            build_serializable_rolling_opponent_policy_evaluation(evaluation)
+    root_document = load_json_object(file_path)
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
+        options=ApplicationExecutionOptions(
+            training_dataset=TrainingDatasetApplicationOptions(
+                operation="rolling_opponent_policy_evaluation",
+                rolling_source_partitions=source_partitions,
+                rolling_evaluation_partitions=evaluation_partitions,
+            )
         ),
-    }
+    )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
@@ -2880,6 +2455,7 @@ def run_json_rolling_opponent_policy_evaluation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_historical_opponent_statistics_aggregation(
@@ -2891,25 +2467,25 @@ def run_json_historical_opponent_statistics_aggregation(
     quiet: bool = False,
 ) -> None:
     """Aggregates historical statistics without generating training samples."""
-    dataset = load_training_dataset_from_json(file_path)
-    aggregation = aggregate_historical_opponent_statistics(
-        dataset,
-        included_partitions=included_partitions,
-        before=before,
-    )
-    result = {
-        "input_file": str(file_path),
-        "historical_opponent_statistics_aggregation_summary": (
-            build_historical_opponent_statistics_aggregation_summary(aggregation)
+    root_document = load_json_object(file_path)
+    result, artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
+        options=ApplicationExecutionOptions(
+            training_dataset=TrainingDatasetApplicationOptions(
+                operation="historical_opponent_statistics_aggregation",
+                aggregation_included_partitions=included_partitions,
+                aggregation_before=before,
+                export_opponent_statistics=export_path is not None,
+            )
         ),
-    }
+    )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if export_path is not None:
-        export_input = build_exportable_opponent_statistics_input(aggregation)
         write_analysis_result_to_json(
             output_path=export_path,
-            result=build_serializable_opponent_statistics_input(export_input),
+            result=artifacts["opponent_statistics_input"],
         )
     if quiet:
         return
@@ -2919,6 +2495,7 @@ def run_json_historical_opponent_statistics_aggregation(
         print("Output file written:", output_path)
     if export_path is not None:
         print("Exported opponent statistics to", f"{export_path}.")
+    return
 
 
 def run_json_fixed_three_player_historical_list_analysis(
@@ -2927,17 +2504,11 @@ def run_json_fixed_three_player_historical_list_analysis(
     quiet: bool = False,
 ) -> None:
     """Runs one complete historical 36-position list aggregation."""
-    request = load_fixed_three_player_historical_list_request_from_json(file_path)
-    aggregation = build_fixed_three_player_historical_list_aggregation(
-        request.historical_list,
-        lot_order=None if request.lot_order is None else list(request.lot_order),
+    root_document = load_json_object(file_path)
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
     )
-    result = {
-        "input_file": str(file_path),
-        "fixed_three_player_historical_list_summary": (
-            build_serializable_fixed_three_player_historical_list_aggregation(aggregation)
-        ),
-    }
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
@@ -2946,6 +2517,7 @@ def run_json_fixed_three_player_historical_list_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_fixed_three_player_historical_list_comparison(
@@ -2954,23 +2526,11 @@ def run_json_fixed_three_player_historical_list_comparison(
     quiet: bool = False,
 ) -> None:
     """Aggregates each ordered source once and compares it with the first source."""
-    request = load_fixed_three_player_historical_list_comparison_request_from_json(
-        file_path
+    root_document = load_json_object(file_path)
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
     )
-    aggregations = tuple(
-        build_fixed_three_player_historical_list_aggregation(
-            source.historical_list,
-            lot_order=None if source.lot_order is None else list(source.lot_order),
-        )
-        for source in request.lists
-    )
-    comparison = build_fixed_three_player_historical_list_comparison(aggregations)
-    result = {
-        "input_file": str(file_path),
-        "fixed_three_player_historical_list_comparison_summary": (
-            build_serializable_fixed_three_player_historical_list_comparison(comparison)
-        ),
-    }
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
@@ -2979,6 +2539,7 @@ def run_json_fixed_three_player_historical_list_comparison(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def run_json_opponent_statistics_conversion(
@@ -2987,11 +2548,11 @@ def run_json_opponent_statistics_conversion(
     quiet: bool = False,
 ) -> None:
     """Runs deterministic external opponent-statistics validation and normalization."""
-    statistics_input = load_opponent_statistics_from_json(file_path)
-    result = {
-        "input_file": str(file_path),
-        "opponent_statistics_summary": build_opponent_statistics_summary(statistics_input),
-    }
+    root_document = load_json_object(file_path)
+    result, _artifacts = execute_legacy_application(
+        root_document,
+        input_reference=file_path,
+    )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
     if quiet:
@@ -3000,6 +2561,7 @@ def run_json_opponent_statistics_conversion(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    return
 
 
 def parse_arguments() -> argparse.Namespace:

@@ -131,17 +131,27 @@ def load_position_from_json(file_path: str) -> dict[str, Any]:
     """
     Loads and validates a position configuration from a JSON file.
     """
-    data = load_json_object(file_path)
+    return build_position_from_document(load_json_object(file_path))
 
+
+def build_position_from_document(data: dict[str, Any]) -> dict[str, Any]:
+    """Validates one in-memory Position Analysis Root document."""
     validate_position_input(data)
-
     return data
 
 
 def load_historical_game_from_json(file_path: str) -> HistoricalGameRecord:
     """Loads and validates a complete historical-game input file."""
-    data = load_json_object(file_path)
-    if get_input_workflow(data) != "historical_game":
+    return build_historical_game_from_document(load_json_object(file_path))
+
+
+def build_historical_game_from_document(
+    data: dict[str, Any],
+    *,
+    validate_workflow: bool = True,
+) -> HistoricalGameRecord:
+    """Builds one Historical Game record from an in-memory Root document."""
+    if validate_workflow and get_input_workflow(data) != "historical_game":
         raise ValueError("Input file does not contain historical_game_input.")
 
     historical_data = data["historical_game_input"]
@@ -152,8 +162,16 @@ def load_historical_game_from_json(file_path: str) -> HistoricalGameRecord:
 
 def load_training_dataset_from_json(file_path: str) -> TrainingDatasetInput:
     """Loads and validates a versioned training-dataset input file."""
-    data = load_json_object(file_path)
-    if get_input_workflow(data) != "training_dataset":
+    return build_training_dataset_from_document(load_json_object(file_path))
+
+
+def build_training_dataset_from_document(
+    data: dict[str, Any],
+    *,
+    validate_workflow: bool = True,
+) -> TrainingDatasetInput:
+    """Builds one Training Dataset from an in-memory Root document."""
+    if validate_workflow and get_input_workflow(data) != "training_dataset":
         raise ValueError("Input file does not contain training_dataset_input.")
     training_data = data["training_dataset_input"]
     if not isinstance(training_data, dict):
@@ -165,8 +183,18 @@ def load_training_dataset_preparation_request_from_json(
     file_path: str,
 ) -> TrainingDatasetPreparationRequest:
     """Loads one strict unpartitioned automatic Dataset preparation request."""
-    data = load_json_object(file_path)
-    if get_input_workflow(data) != "training_dataset_preparation":
+    return build_training_dataset_preparation_request_from_document(
+        load_json_object(file_path)
+    )
+
+
+def build_training_dataset_preparation_request_from_document(
+    data: dict[str, Any],
+    *,
+    validate_workflow: bool = True,
+) -> TrainingDatasetPreparationRequest:
+    """Builds one automatic Dataset preparation request from a Root document."""
+    if validate_workflow and get_input_workflow(data) != "training_dataset_preparation":
         raise ValueError(
             "Input file does not contain training_dataset_preparation_input."
         )
@@ -178,8 +206,16 @@ def load_training_dataset_preparation_request_from_json(
 
 def load_opponent_statistics_from_json(file_path: str) -> OpponentStatisticsInput:
     """Loads and validates a versioned opponent-statistics input file."""
-    data = load_json_object(file_path)
-    if get_input_workflow(data) != "opponent_statistics":
+    return build_opponent_statistics_from_document(load_json_object(file_path))
+
+
+def build_opponent_statistics_from_document(
+    data: dict[str, Any],
+    *,
+    validate_workflow: bool = True,
+) -> OpponentStatisticsInput:
+    """Builds one Opponent Statistics input from an in-memory Root document."""
+    if validate_workflow and get_input_workflow(data) != "opponent_statistics":
         raise ValueError("Input file does not contain opponent_statistics_input.")
     statistics_data = data["opponent_statistics_input"]
     if not isinstance(statistics_data, dict):
@@ -191,8 +227,18 @@ def load_fixed_three_player_historical_list_request_from_json(
     file_path: str,
 ) -> FixedThreePlayerHistoricalListAnalysisRequest:
     """Loads one versioned public fixed-three-player historical-list request."""
-    data = load_json_object(file_path)
-    if get_input_workflow(data) != "fixed_three_player_historical_list":
+    return build_fixed_three_player_historical_list_request_from_document(
+        load_json_object(file_path)
+    )
+
+
+def build_fixed_three_player_historical_list_request_from_document(
+    data: dict[str, Any],
+    *,
+    validate_workflow: bool = True,
+) -> FixedThreePlayerHistoricalListAnalysisRequest:
+    """Builds one historical-list request from an in-memory Root document."""
+    if validate_workflow and get_input_workflow(data) != "fixed_three_player_historical_list":
         raise ValueError("Input file does not contain fixed_three_player_historical_list_input.")
     request_data = data["fixed_three_player_historical_list_input"]
     return build_fixed_three_player_historical_list_analysis_request(request_data)
@@ -202,8 +248,21 @@ def load_fixed_three_player_historical_list_comparison_request_from_json(
     file_path: str,
 ) -> FixedThreePlayerHistoricalListComparisonRequest:
     """Loads one ordered public independent-list comparison request."""
-    data = load_json_object(file_path)
-    if get_input_workflow(data) != "fixed_three_player_historical_list_comparison":
+    return build_fixed_three_player_historical_list_comparison_request_from_document(
+        load_json_object(file_path)
+    )
+
+
+def build_fixed_three_player_historical_list_comparison_request_from_document(
+    data: dict[str, Any],
+    *,
+    validate_workflow: bool = True,
+) -> FixedThreePlayerHistoricalListComparisonRequest:
+    """Builds one independent-list comparison request from a Root document."""
+    if (
+        validate_workflow
+        and get_input_workflow(data) != "fixed_three_player_historical_list_comparison"
+    ):
         raise ValueError(
             "Input file does not contain fixed_three_player_historical_list_comparison_input."
         )

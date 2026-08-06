@@ -123,6 +123,7 @@ Before larger changes, read the relevant documentation:
 * `docs/architecture.md`
 * `docs/input_json.md`
 * `docs/output_json.md`
+* `docs/application_orchestration.md`
 * `docs/examples.md`
 * `docs/schema_validation.md`
 * `docs/requirements_traceability.md`
@@ -151,9 +152,12 @@ tests. Issues #118 through #124 complete that functional milestone, and Issue
 The active implementation milestone is `v0.13.0`. Issue #137 establishes public
 API contract version `1`, the stable `skat_ai.api.v1` and `skat_ai.errors`
 namespaces, immutable JSON document wrappers, compatibility metadata, stable
-errors, Exit Code constants, and the legacy CLI-error alias. Reusable Application
-orchestration, executable API functions, packaging, an installed CLI, schema
-resources, and typing metadata remain open. Issue #138 adds the internal version-
+errors, Exit Code constants, and the legacy CLI-error alias. Issue #139 adds
+internal Application orchestration version `1`, immutable invocation, option,
+result, external-document, and artifact contracts, no-I/O dispatch for all seven
+Root workflows, legacy CLI transport parity, and unchanged public API exports.
+Public executable API functions, packaging, an installed CLI, schema resources,
+and typing metadata remain open. Issue #138 adds the internal version-
 1 field-level provenance language, immutable sidecar ledgers, RFC 6901 paths,
 coverage and dependency validation, Information Use Context, public redaction,
 and safe serialization. Workflow propagation and public provenance integration
@@ -220,6 +224,7 @@ Major completed areas include:
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
 * stable public API contract version 1 with exact exports, immutable JSON Request and Result wrappers, compatibility metadata, public errors, and legacy Root CLI compatibility
 * internal field-level information provenance contract version 1 with immutable sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, context-use policy, public redaction, and safe serialization
+* internal Application orchestration version 1 with immutable contracts and options, seven in-memory workflow handlers, five isolated Training Dataset operations, injected Opponent Statistics, auxiliary artifacts, no-I/O dispatch, and legacy CLI transport parity
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,

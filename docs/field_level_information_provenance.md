@@ -13,6 +13,11 @@ generated scenario, specialized provenance contract, or public API export. Later
 propagate ledgers at actual workflow boundaries before provenance can enforce a
 complete live-information policy end to end.
 
+Issue #139 adds internal Application orchestration version `1` without changing
+this boundary. Application invocations, injected Opponent Statistics, results,
+and auxiliary artifacts do not construct, carry, propagate, redact, or emit a
+field-provenance ledger. Public API exports remain unchanged.
+
 ## Contract identity
 
 The contract constants are:
@@ -423,6 +428,9 @@ The following remain open:
 * public schemas and output integration;
 * CLI presentation;
 * adversarial workflow-level leakage enforcement.
+
+The internal Application boundary is now a future propagation point, not
+evidence of workflow provenance coverage.
 
 Until those tasks are complete, the shared contract is a tested internal
 foundation rather than a claim of complete field-level provenance.

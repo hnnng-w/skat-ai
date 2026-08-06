@@ -7,10 +7,12 @@ This document defines the public Python contract foundation introduced by Issue
 skat_ai.api.v1
 ```
 
-This foundation does not execute workflows. It adds no `execute`,
+This public foundation does not execute workflows. It adds no `execute`,
 `parse_request`, `execute_document`, workflow-specific helper, installed CLI,
 or packaged schema. Issue #138 adds a separate internal field-provenance
-contract foundation, but no provenance type or function is exported here.
+contract foundation. Issue #139 adds separate internal Application orchestration
+for all seven workflows, but neither internal foundation adds a type or function
+to this public namespace.
 
 ## Public namespaces
 
@@ -34,6 +36,13 @@ The internal version-1 field-level provenance language is documented in
 Its sidecar ledgers, coverage audits, Information Use Context, redaction, and
 serialization remain internal until later workflow propagation and public-
 surface work is proven. The exact Issue #137 export snapshots are unchanged.
+
+The internal Application orchestration contract is documented in
+[Application orchestration](application_orchestration.md). It consumes
+`RequestDocumentV1` and produces `ResultDocumentV1` internally, but direct
+`skat_ai.application` imports have no public compatibility guarantee. Its generic
+dispatcher, workflow options, injected documents, and artifacts do not change
+the exact Issue #137 export snapshots.
 
 ## Version And Policy Constants
 
@@ -93,7 +102,7 @@ stored arrays use tuples. Non-string keys, arbitrary Python objects, and NaN or
 positive or negative infinity are rejected. `to_dict()` returns a fresh mutable
 JSON-compatible representation of the complete wrapper.
 
-`ExecutionOptionsV1` is a frozen, slotted, keyword-only placeholder with one
+`ExecutionOptionsV1` is a frozen, slotted, keyword-only public placeholder with one
 boolean field:
 
 ```text
@@ -101,7 +110,8 @@ validate_output = true
 ```
 
 It describes later post-execution output-schema validation. It does not disable
-semantic input validation and is not consumed by an execution function yet.
+semantic input validation. It is not consumed by a public execution function and
+remains separate from the internal `ApplicationExecutionOptions` contract.
 
 ## Compatibility Metadata
 
@@ -215,8 +225,7 @@ guarantee. No deprecation warning is emitted now.
 
 The following remain open for later `v0.13.0` issues:
 
-* reusable Application orchestration;
-* executable Python API facade;
+* public request parsing and executable Python API facade functions;
 * Package-version metadata export;
 * build metadata plus Wheel and sdist validation;
 * Package Resource schemas;
@@ -224,3 +233,7 @@ The following remain open for later `v0.13.0` issues:
 * installed `skat-ai` and `python -m skat_ai` CLIs;
 * field-level provenance propagation and workflow-level leakage enforcement;
 * any additive public provenance API, schemas, or output integration.
+
+Internal Application orchestration version `1`, no-I/O execution for all seven
+Root workflows, legacy CLI transport parity, and auxiliary artifacts are
+implemented by Issue #139. They do not make the public facade executable.

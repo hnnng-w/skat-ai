@@ -146,12 +146,17 @@ official Skat rules arbitration.
 * Immutable `ExecutionOptionsV1`, compatibility policy, and API-version metadata
 * Stable public errors, error codes, serialization, and CLI Exit Code constants
 * Minimal Package-Root exports: only `api` and `errors`
+* Internal Application orchestration version `1` with immutable invocations,
+  options, results, external documents, and auxiliary artifacts
+* Generic no-I/O dispatch for all seven Root workflows, including five isolated
+  Training Dataset operations and optional injected Opponent Statistics
 
-This is a contract foundation only. The Python API cannot execute workflows yet;
-Application orchestration, executable facade functions, packaging, an installed
-CLI, packaged schemas, and typing metadata remain open. Field-level provenance
-has an internal contract foundation but is not exported or propagated through
-public workflows.
+The public Python API still cannot execute workflows. The new Application layer
+is internal, and the exact `skat_ai.api.v1` exports remain unchanged. Public
+parse/execute functions, packaging, an installed CLI, packaged schemas, and
+typing metadata remain open. Field-level provenance has an internal contract
+foundation but is not propagated or emitted by Application or public workflows.
+See [Application orchestration](docs/application_orchestration.md).
 
 ## Requirements
 
@@ -587,6 +592,7 @@ Detailed documentation is split into topic-specific files:
 
 * [Input JSON](docs/input_json.md)
 * [Public API contracts](docs/public_api_contracts.md)
+* [Application orchestration](docs/application_orchestration.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
 * [Input JSON schema](schemas/input.schema.json)
 * [Declarer concessions](docs/declarer_concessions.md)
