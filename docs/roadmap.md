@@ -386,11 +386,11 @@ Implemented:
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
-The `v0.12.0` package baseline is complete through functional Issues #127 through
-#134 and release-preparation Issue #135. It validates 70 deterministic generated-
-output scenarios and requires Python 3.13 or newer. It has not yet been tagged or
-published; publication remains a manual maintainer action, and GitHub Releases
-remains authoritative.
+The published `v0.12.0` milestone is complete through functional Issues #127
+through #134 and release-preparation Issue #135. The release points to commit
+`bbf955e`, validates 70 deterministic generated-output scenarios, passes 4,762
+pytest tests, and requires Python 3.13 or newer. Publication was performed
+manually by the maintainer, and GitHub Releases remains authoritative.
 
 The milestone exposes fixed-three-player historical-list source, cumulative
 aggregation, and independent comparison through strict JSON/schema/CLI workflows.
@@ -401,12 +401,13 @@ and three examples. The prior 67 scenarios remain unchanged; the three Issue
 
 ### v0.11.0: Information-safe Replay Coaching and structured historical outcomes
 
-The published `v0.11.0` milestone is complete. Issues #118 through #124 complete
-the functional milestone, and Issue #125 completed release preparation. The
-latest stable GitHub Release points to commit `cfd28e5`, validates 64
+The historical published `v0.11.0` milestone is complete. Issues #118 through
+#124 complete the functional milestone, and Issue #125 completed release
+preparation. The release points to commit `cfd28e5`, validates 64
 deterministic generated-output scenarios, and passes 4,392 pytest tests.
 Publication was performed manually by the maintainer, and GitHub Releases remains
 authoritative for publication status.
+Issue #126 synchronized the historical publication status.
 
 The milestone provides the immutable 61-case settlement matrix, one bounded
 continuation-before-shortening historical chain, information-safe Replay
@@ -420,6 +421,7 @@ The historical published `v0.10.0` release completed Issues #107 through #115 as
 its functional milestone. Issue #116 completed release preparation, followed by
 manual maintainer publication. The release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
+Issue #117 synchronized the historical publication status.
 
 The milestone provides bounded-Search contracts, immutable exact state, Suit,
 Grand, and all four normal non-overbid Null solving, compatible-world counting
@@ -537,7 +539,7 @@ delivers public one-game Replay Coaching through schema, CLI, examples, and
 generated-output coverage. Tactical motifs, cross-game Coaching, ratings, causal
 attribution, and stronger Search remain outside this bounded result.
 
-The `v0.12.0` package milestone is complete. Issue #127 adds
+The published `v0.12.0` milestone is complete. Issue #127 adds
 internal list contract version `1` for all 36 ordered positions and passed
 deals, Issue #128 adds internal cumulative totals, progression, final standings,
 and exact external-lot application, and Issue #129 adds independent completed-
@@ -555,13 +557,14 @@ appended generated-output scenarios. Complete results materialize the existing
 version-1 dataset and audit; unavailable results succeed with null dataset/audit
 and no partial Plan. No new algorithm, algorithm override, fallback, default
 weight, balancing guarantee, model training, or automatic evaluation is added.
-Issue #135 prepares package metadata and release documentation while leaving
-manual tag and GitHub Release publication to the maintainer.
+Issue #135 completed package metadata and release-documentation preparation
+before the maintainer's manual publication at commit `bbf955e`. The published
+baseline validates 70 generated outputs and passes 4,762 pytest tests.
 
-The next provisional planning milestone is `v0.13.0`, directed at stable API,
-packaging, and field-level information provenance. Its final issue sequence and
-architecture are not yet defined. Later milestone numbers remain planning
-containers rather than fixed contractual releases.
+The active next planning milestone is `v0.13.0`, with the provisional direction
+of stable API, packaging, and field-level information provenance. Its final issue
+split and architecture are not yet defined. Later milestone numbers remain
+planning containers rather than fixed contractual releases.
 
 ## Open technical cleanup
 
@@ -577,9 +580,10 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current `v0.12.0` package baseline, the published
-`v0.11.0` release, historical release evidence, the authoritative publication
-state shown by GitHub Releases,
+should distinguish the current published `v0.12.0` baseline, the historical
+published `v0.11.0` release and older release evidence, the authoritative
+publication state shown by GitHub Releases, the active `v0.13.0` planning
+milestone,
 requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

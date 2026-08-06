@@ -4,18 +4,22 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The package baseline is `v0.12.0`, and the package version is `0.12.0`. It
-validates 70 deterministic generated-output scenarios and requires Python 3.13
-or newer. Issues #127 through #134 complete the functional milestone, and Issue
-#135 prepares release metadata and documentation. `v0.12.0` has not yet been
-tagged or published.
+The current published stable release and package baseline are `v0.12.0`, and the
+package version is `0.12.0`. The release points to commit `bbf955e`, validates 70
+deterministic generated-output scenarios, passes 4,762 pytest tests, and requires
+Python 3.13 or newer. Issues #127 through #134 complete the functional milestone,
+and Issue #135 completed release preparation. Publication was performed manually
+by the maintainer, and GitHub Releases is authoritative for publication status.
 
-The current published stable release remains `v0.11.0`. It validates 64
-deterministic generated-output scenarios and passes 4,392 pytest tests. Issues
-#118 through #124 complete that functional milestone, and Issue #125 completed
-release preparation. GitHub Releases is authoritative for publication status.
-The historical published `v0.10.0` baseline remains evidence for 59 scenarios
-and 4,075 pytest tests.
+The historical published `v0.11.0` baseline validates 64 deterministic generated-
+output scenarios and passes 4,392 pytest tests. Issues #118 through #124 complete
+that functional milestone, and Issue #125 completed release preparation. The
+historical published `v0.10.0` baseline remains evidence for 59 scenarios and
+4,075 pytest tests.
+
+The active next planning milestone is `v0.13.0`, with the provisional direction
+of stable API, packaging, and field-level information provenance. Its final issue
+split and architecture remain undecided.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,

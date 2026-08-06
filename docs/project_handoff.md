@@ -359,9 +359,9 @@ Implemented:
 * generated output schema validation
 * schema validation documentation
 
-The `v0.12.0` package baseline covers 70 deterministic generated-output
-scenarios and is pending manual publication. The published `v0.11.0` baseline
-remains historical evidence for 64 scenarios and 4,392 pytest tests. The historical published `v0.10.0`
+The published `v0.12.0` baseline covers 70 deterministic generated-output
+scenarios and 4,762 pytest tests. The published `v0.11.0` baseline remains
+historical evidence for 64 scenarios and 4,392 pytest tests. The historical published `v0.10.0`
 release baseline remains 59 scenarios and 4,075 tests, and the historical
 published `v0.9.0` baseline remains 52 scenarios and 3,558 tests.
 
@@ -745,30 +745,35 @@ Main documentation files:
 
 ## Release status
 
-Current published stable release: `v0.11.0`.
+Current published stable release: `v0.12.0`.
 
 Current package version: `0.12.0`.
 
 Current package baseline: `v0.12.0`.
 
-Package release theme: "Fixed-three-player historical lists and deterministic
+Published release theme: "Fixed-three-player historical lists and deterministic
 dataset preparation".
 
-Intended GitHub Release title: "v0.12.0 — Fixed-three-player historical lists
+Published GitHub Release title: "v0.12.0 — Fixed-three-player historical lists
 and deterministic dataset preparation".
 
-`v0.12.0` has not yet been tagged or published. Publication is a manual
-maintainer action, and GitHub Releases remains authoritative.
+Published release commit: `bbf955e`.
 
-Published `v0.11.0` release theme: "Information-safe Replay Coaching and structured
-historical outcomes".
+The published baseline requires Python `>=3.13`, validates 70 deterministic
+generated-output scenarios, and passes 4,762 pytest tests.
 
-Published GitHub Release title: "v0.11.0 — Information-safe Replay Coaching and
-structured historical outcomes".
+Issues #127 through #134 complete the functional milestone, and Issue #135
+completed release preparation. Publication was performed manually by the
+maintainer, and GitHub Releases remains authoritative.
 
-The latest stable GitHub Release points to commit `cfd28e5`. It requires Python
-`>=3.13`, validates 64 deterministic generated-output scenarios, and passes
-4,392 pytest tests.
+Historical published `v0.11.0` release theme: "Information-safe Replay Coaching
+and structured historical outcomes".
+
+Historical GitHub Release title: "v0.11.0 — Information-safe Replay Coaching
+and structured historical outcomes".
+
+The historical release points to commit `cfd28e5`, validates 64 deterministic
+generated-output scenarios, and passes 4,392 pytest tests.
 
 Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
 #125 completed release preparation. Publication was performed manually by the
@@ -780,15 +785,16 @@ strict public JSON/schema/CLI workflow, plus internal version-1 unpartitioned
 dataset-preparation and supplied split-plan contracts plus deterministic
 temporal Known-opponent and Player-disjoint unseen-player assignment generators.
 Issue #134 adds the root-selected public preparation workflow, strict schemas,
-CLI, and three examples. The prior 67 scenarios are unchanged, and the package
-baseline validates 70 while the published `v0.11.0` baseline remains 64. Issue
-#135 prepares release metadata and documentation before manual publication.
+CLI, and three examples. The prior 67 scenarios are unchanged, and the current
+published baseline validates 70 while the historical published `v0.11.0`
+baseline remains 64. Issue #135 completed release preparation before manual
+maintainer publication.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
 
-The historical published `v0.9.0` baseline validates 52 deterministic generated-
-output scenarios and passes 3,558 pytest tests.
+The historical published `v0.9.0` release points to commit `0679760`, validates
+52 deterministic generated-output scenarios, and passes 3,558 pytest tests.
 
 The `v0.3.0` stabilization issues #40 through #46 are complete:
 
@@ -896,7 +902,7 @@ publication.
 
 ## Current implementation baseline
 
-**Package v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation**
+**Published v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation**
 
 Completed implementation scope:
 
@@ -974,14 +980,28 @@ Completed implementation scope:
 
 ## Next recommended action
 
-The maintainer can complete manual `v0.12.0` publication after reviewing the
-release candidate and validation evidence. Until then, the package baseline is
-`v0.12.0`, the published release remains `v0.11.0`, and GitHub Releases remains
-authoritative.
+Conduct a focused repository analysis for the active `v0.13.0` planning
+milestone before opening implementation issues. Its provisional direction is
+stable API, packaging, and field-level information provenance. The analysis
+should inventory:
 
-The next provisional planning milestone is `v0.13.0`, directed at stable API,
-packaging, and field-level information provenance. Its final issue sequence and
-architecture are not yet defined.
+* current package-root exports, internal versus public modules, candidate public
+  request and result types, and builder and serializer boundaries
+* current error, validation, and unavailable-result contracts, plus candidates
+  for a stable Python API and stable error hierarchy
+* the current `main.py` and installed-CLI state, and the potential installed CLI
+  contract
+* wheel, sdist, editable-install, and package-data behavior
+* compatibility and deprecation expectations
+* existing information-policy and provenance metadata, fields that currently
+  lack provenance, and required provenance propagation across every workflow
+* adversarial field-level information-leakage tests
+
+Use that evidence to propose a closed provisional issue sequence for maintainer
+review. Do not finalize the issue split, public Python API, exported modules,
+request or result hierarchy, error hierarchy, deprecation policy, installed CLI
+command, package-data strategy, provenance model or schema, migration rules, or
+implementation architecture during this publication synchronization.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

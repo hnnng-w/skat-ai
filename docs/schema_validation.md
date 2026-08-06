@@ -165,9 +165,11 @@ The output schema checks the main output structure, including:
 * the complete versioned `fixed_three_player_historical_list_summary` branch through its strict focused aggregation schema
 * the compact versioned `fixed_three_player_historical_list_comparison_summary` branch through its strict focused comparison schema
 
-The `v0.12.0` package baseline covers 70 deterministic generated-output
-scenarios and is pending manual publication. The published stable `v0.11.0`
-baseline remains evidence for 64 scenarios and 4,392 pytest tests. The historical
+The published stable `v0.12.0` baseline at commit `bbf955e` covers 70
+deterministic generated-output scenarios and passes 4,762 pytest tests. Issue
+#135 completed release preparation before manual maintainer publication. The
+historical published `v0.11.0` baseline remains evidence for 64 scenarios and
+4,392 pytest tests. The historical
 published `v0.10.0` baseline passes 4,075 pytest tests and covers 59 scenarios.
 The historical published `v0.9.0` baseline passes 3,558 pytest tests and covers
 52 scenarios. Position scenarios use CLI settings such as `--samples 20` and
@@ -183,8 +185,8 @@ player tie, and compact independent comparison with changed table places,
 disjoint Game IDs, different Passed Deal counts, and resolved ranks. Issue #134
 preserves those 67 scenarios and appends complete Known-opponent, complete unseen-
 player, and successful unavailable automatic preparation. The `v0.12.0` package
-baseline therefore validates 70 outputs while the published `v0.11.0` baseline
-remains 64.
+matrix therefore validates 70 outputs while the historical published `v0.11.0`
+baseline remains 64.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON

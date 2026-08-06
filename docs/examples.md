@@ -24,15 +24,17 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The `v0.12.0` package baseline covers 70 deterministic generated-output
-scenarios. It is pending manual publication; the published stable `v0.11.0`
-baseline remains evidence for 64 scenarios and 4,392 pytest tests. The historical
+The published stable `v0.12.0` baseline at commit `bbf955e` covers 70
+deterministic generated-output scenarios and passes 4,762 pytest tests. Issue
+#135 completed release preparation before manual maintainer publication. The
+historical published `v0.11.0` baseline remains evidence for 64 scenarios and
+4,392 pytest tests. The historical
 published `v0.10.0` baseline remains evidence for 59 scenarios and 4,075 pytest
 tests. The historical published `v0.9.0` baseline covers 52 deterministic
 scenarios and 3,558 pytest tests. Issue #130 appends three public historical-list
 scenarios to the unchanged 64-scenario matrix. Issue #134 leaves those 67
 scenarios unchanged and appends three automatic Training Dataset preparation
-scenarios, so the `v0.12.0` package baseline validates exactly 70.
+scenarios, so the published `v0.12.0` baseline validates exactly 70.
 The check script validates:
 
 * Ruff checks
@@ -577,7 +579,7 @@ Coaching, bringing the published `v0.11.0` matrix to 64. Three Issue #130 scenar
 the mixed list, all-passed list, and independent comparison, bringing the
 `v0.12.0` milestone matrix at that stage to 67. Three Issue #134 scenarios append
 complete Known-opponent, complete unseen-player, and unavailable preparation
-without changing those prior 67, bringing the `v0.12.0` package baseline to 70.
+without changing those prior 67, bringing the published `v0.12.0` baseline to 70.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

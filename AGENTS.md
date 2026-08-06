@@ -132,21 +132,25 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The package baseline is `v0.12.0`, with release theme "Fixed-three-player
-historical lists and deterministic dataset preparation" and intended GitHub
+The current published stable release is `v0.12.0`, with release theme "Fixed-
+three-player historical lists and deterministic dataset preparation" and GitHub
 Release title "v0.12.0 — Fixed-three-player historical lists and deterministic
-dataset preparation". The package version is `0.12.0`, the Python requirement
-remains `>=3.13`, and the baseline validates 70 deterministic generated-output
-scenarios. Issues #127 through #134 complete the functional milestone, and Issue
-#135 prepares release metadata and documentation.
-
-`v0.12.0` has not yet been tagged or published. The current published stable
-release remains `v0.11.0`, with release theme "Information-safe Replay Coaching
-and structured historical outcomes". It points to commit `cfd28e5`, validates 64
-deterministic generated-output scenarios, and passes 4,392 pytest tests. Issues
-#118 through #124 complete that functional milestone, and Issue #125 completed
-release preparation. Publication actions are performed manually by the
+dataset preparation". It points to commit `bbf955e`. The package version is
+`0.12.0`, the Python requirement remains `>=3.13`, and the published baseline
+validates 70 deterministic generated-output scenarios and passes 4,762 pytest
+tests. Issues #127 through #134 complete the functional milestone, and Issue #135
+completed release preparation. Publication was performed manually by the
 maintainer, and GitHub Releases remains authoritative for publication status.
+
+The historical published `v0.11.0` release, with release theme "Information-safe
+Replay Coaching and structured historical outcomes", points to commit `cfd28e5`,
+validates 64 deterministic generated-output scenarios, and passes 4,392 pytest
+tests. Issues #118 through #124 complete that functional milestone, and Issue
+#125 completed release preparation.
+
+The active next planning milestone is `v0.13.0`, with the provisional direction
+of stable API, packaging, and field-level information provenance. Its final issue
+split and implementation architecture remain undecided.
 
 Major completed areas include:
 

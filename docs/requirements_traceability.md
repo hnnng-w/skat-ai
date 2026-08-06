@@ -1,11 +1,11 @@
 # Requirements traceability
 
 This document is the authoritative audit of current rule and product support.
-It preserves the published `v0.11.0` and `v0.10.0` release baselines as historical
-evidence and does not claim complete compliance with the official rules. The
-package baseline is `v0.12.0`, and the package version is `0.12.0`; the latest
-stable GitHub Release remains `v0.11.0`. `v0.12.0` has not yet been tagged or
-published, publication is a manual maintainer action, and GitHub Releases is
+It preserves the published `v0.11.0`, `v0.10.0`, and `v0.9.0` release baselines
+as historical evidence and does not claim complete compliance with the official
+rules. The current published stable release and package baseline are `v0.12.0`,
+the package version is `0.12.0`, and the release points to commit `bbf955e`.
+Publication was performed manually by the maintainer, and GitHub Releases is
 authoritative.
 
 ## Normative sources
@@ -28,13 +28,15 @@ software product limited to them.
 
 Rule references below are section numbers from the November 2022 PDF. Published
 baseline facts were verified against source modules, schemas, examples,
-validation scripts, and focused tests. Issues #118
-through #124 complete that functional milestone, and Issue #125 completed release
-preparation. The published baseline validates 64 deterministic generated-output
-scenarios and passes 4,392 pytest tests. The published `v0.10.0` baseline remains
-historical evidence for 59 scenarios and 4,075 pytest tests; the
-published `v0.9.0` baseline remains historical evidence for 52 scenarios and
-3,558 tests.
+validation scripts, and focused tests. Issues #127 through #134 complete the
+`v0.12.0` functional milestone, and Issue #135 completed release preparation.
+The published baseline validates 70 deterministic generated-output scenarios and
+passes 4,762 pytest tests. The historical published `v0.11.0` baseline remains
+evidence for 64 scenarios and 4,392 pytest tests; Issues #118 through #124
+complete that functional milestone, and Issue #125 completed release
+preparation. The published `v0.10.0` baseline remains historical evidence for 59
+scenarios and 4,075 pytest tests; the published `v0.9.0` baseline remains
+historical evidence for 52 scenarios and 3,558 tests.
 
 The `v0.12.0` package baseline exposes the Issue #127 through #129 fixed-three-
 player historical-list contracts and the automatic Training Dataset preparation
@@ -44,8 +46,10 @@ output validation. Issue #130 appends three historical-list scenarios. Issues
 and deterministic mode-specific generators. Issue #134 adds fixed public mode
 dispatch, complete or explicit unavailable output, and three preparation
 scenarios. The prior 67 scenarios are unchanged, and the package matrix is 70.
-Issue #135 prepares release metadata and documentation without changing product
-behavior.
+Issue #135 completed release metadata and documentation without changing product
+behavior. The active next planning milestone is `v0.13.0`, with the provisional
+direction of stable API, packaging, and field-level information provenance; its
+final issue split and architecture remain undecided.
 
 ## Status vocabulary
 
@@ -217,7 +221,7 @@ training, and automatic evaluation remain unsupported.
 | Rolling opponent-policy evaluation | skat-ai product | Not applicable | `supported` | A dedicated known-opponent workflow builds strict game-start as-of profiles from every supported source reason, evaluates each actual zero-through-30 target card against ordered policy-equivalent preferred candidates and exact choices, retains zero-decision targets, and reports baseline, actionable-only paired, participant coverage, and bounded breakdown metrics. | Timestamped supported source and target games with stable player overlap, disjoint partition names, and unspecified or `known_opponent` dataset intent. | Behavioral matching does not predict terminal events or measure strategic strength, recommendation quality, optimal play, unseen-player generalization, or statistical significance. | Retain temporal/target exclusion, identity and seat remapping, prefix parity, event isolation, participant coverage, baseline, preferred/exact matching, actionable pairing, zero decisions, reconciliation, schema, CLI, and isolation tests. | v1.0 bounded requirement complete | Yes |
 | Learned opponent models | skat-ai product | Not applicable | `not_supported` | No learned model exists; current profiles and policies are deterministic and rule-based. | Approved historical features, model artifact, versioning, and inference contract. | Training, evaluation, deployment, fallback, and explainability details are not designed. | Define separate post-v1.0 acceptance criteria before implementation. | Post-v1.0 | No |
 | Machine-learning model training | skat-ai product | Not applicable | `not_supported` | No training pipeline exists. | Approved dataset, target, evaluation protocol, reproducibility, and artifact policy. | Historical training-data representation does not itself authorize model training. | Define separate post-v1.0 card-decision model acceptance criteria before implementation. | Post-v1.0 | No |
-| Generated-output validation | skat-ai product | Not applicable | `supported` | `validate_generated_outputs_schema.py` generates, semantically checks, and schema-validates 70 deterministic CLI scenarios in the `v0.12.0` package baseline. The published `v0.11.0` release baseline remains 64 and the published `v0.10.0` release baseline remains 59. Two Issue #119 additions cover both continuation kinds before different terminal shortenings, three Issue #124 additions cover normal Grand, Null, and shortened Replay Coaching, three Issue #130 additions cover mixed list, unresolved all-passed list, and resolved independent comparison, and three Issue #134 additions cover complete Known-opponent, complete unseen-player, and unavailable preparation. The prior 67 scenarios are unchanged. | Repository examples/fixtures, schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; published release counts remain historical evidence and are not rewritten by package additions. | Keep the count and scenario list explicit; add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
+| Generated-output validation | skat-ai product | Not applicable | `supported` | `validate_generated_outputs_schema.py` generates, semantically checks, and schema-validates 70 deterministic CLI scenarios in the published `v0.12.0` baseline. The historical published `v0.11.0` release baseline remains 64 and the published `v0.10.0` release baseline remains 59. Two Issue #119 additions cover both continuation kinds before different terminal shortenings, three Issue #124 additions cover normal Grand, Null, and shortened Replay Coaching, three Issue #130 additions cover mixed list, unresolved all-passed list, and resolved independent comparison, and three Issue #134 additions cover complete Known-opponent, complete unseen-player, and unavailable preparation. The prior 67 scenarios are unchanged. | Repository examples/fixtures, schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; published release counts remain historical evidence and are not rewritten by package additions. | Keep the count and scenario list explicit; add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
 | Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and GitHub Actions run Ruff, input schema validation, generated-output validation, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance. | Require clean local and CI checks, synchronized docs/schemas, and human-controlled release actions. | v1.0 | Yes |
 
 ## Interpretations and unresolved rule questions
