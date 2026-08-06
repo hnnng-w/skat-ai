@@ -100,6 +100,10 @@ official Skat rules arbitration.
 * Rule-authorized all-player public-hand constraints for bounded exposure continuations
 * Rule-authorized exact current declarer hands for declared Ouvert
 * Private exact defender-open-play proof evidence with only the exposing defender's cards emitted
+* Internal version-1 field-level provenance language with immutable sidecar
+  ledgers, RFC 6901 paths, deterministic coverage auditing, dependency and
+  temporal validation, Information Use Context, public redaction, and safe
+  serialization
 
 ### Post-game review
 
@@ -145,7 +149,9 @@ official Skat rules arbitration.
 
 This is a contract foundation only. The Python API cannot execute workflows yet;
 Application orchestration, executable facade functions, packaging, an installed
-CLI, packaged schemas, typing metadata, and field-level provenance remain open.
+CLI, packaged schemas, and typing metadata remain open. Field-level provenance
+has an internal contract foundation but is not exported or propagated through
+public workflows.
 
 ## Requirements
 
@@ -581,6 +587,7 @@ Detailed documentation is split into topic-specific files:
 
 * [Input JSON](docs/input_json.md)
 * [Public API contracts](docs/public_api_contracts.md)
+* [Field-level information provenance](docs/field_level_information_provenance.md)
 * [Input JSON schema](schemas/input.schema.json)
 * [Declarer concessions](docs/declarer_concessions.md)
 * [Defender concessions](docs/defender_concessions.md)
@@ -810,7 +817,8 @@ opt-in, so existing omitted-method workflows require no migration.
 Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
-ratios, Sample- or Player-count balancing, component splitting, field-level live provenance, interactive input
+ratios, Sample- or Player-count balancing, component splitting, field-level live
+provenance propagation, interactive input
 and session capture, an executable Library API, and a stable installed package
 and CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
@@ -830,8 +838,11 @@ scenarios. Issue #135 completed release preparation before manual maintainer
 publication. Issue #137 is the first implemented `v0.13.0` foundation: it adds
 API contract version `1`, exact public exports, immutable JSON Request and Result
 wrappers, compatibility metadata, stable public errors, and unchanged legacy
-Root CLI behavior. It does not add workflow execution, packaging, an installed
-CLI, schema resources, typing metadata, or provenance.
+Root CLI behavior. Issue #138 adds the internal version-1 field-provenance
+contract foundation with RFC 6901 paths, immutable sidecar ledgers, coverage,
+dependency, context-use, redaction, and serialization contracts. Neither issue
+adds workflow execution, packaging, an installed CLI, schema resources, typing
+metadata, public provenance exports, or provenance propagation.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

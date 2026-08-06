@@ -19,7 +19,34 @@ Implemented:
 * Additive compatibility, internal-import, version-independence, and future deprecation policies
 
 This foundation has no workflow execution functions, Application extraction,
-packaging, installed CLI, schema resources, typing marker, or provenance.
+packaging, installed CLI, schema resources, typing marker, public provenance
+exports, or workflow provenance propagation.
+
+### Field-level provenance contract foundation
+
+Implemented:
+
+* Internal field-provenance contract version `1`, independent of Package, API,
+  schema, and other Domain versions
+* Canonical RFC 6901 JSON Pointer helpers with Root, object, array, escape, and
+  strict resolution behavior
+* Frozen, slotted source references, field/subtree entries, exemptions, sidecar
+  ledgers, coverage summaries, and Information Use Context values
+* Complete, partial-legacy, and unavailable ledger status relationships
+* Deterministic JSON-leaf enumeration, exact/subtree coverage auditing, and
+  missing, orphaned, and overlapping-path detection
+* Same-document dependency validation, deterministic cycle detection, and
+  coarse availability monotonicity
+* Visibility- and availability-aware use validation with stable information-
+  policy errors
+* Pure engine-private public redaction and deterministic public-safe serialization
+* Explicit Confidence separation and unchanged specialized provenance contracts
+
+This foundation does not construct or emit ledgers in existing workflows.
+Propagation across live analysis, simulation, Search, Historical Review, Replay
+Coaching, Datasets, historical lists, and Opponent workflows remains open, as do
+public API exposure, schemas, output integration, CLI presentation, and
+adversarial workflow-level leakage enforcement.
 
 ### Core analysis
 
@@ -162,6 +189,9 @@ Implemented:
 * Rejection of post-game-only information in `live_decision`
 * Requirement that ended game reasons use `post_game_review`
 * Version-1 privacy-safe hidden-card inference summaries with explicit non-behavioral, non-calibrated, no-future-information flags
+* Internal version-1 field-provenance sidecar language with deterministic
+  coverage, dependency, temporal, context-use, redaction, and serialization
+  contracts
 
 ### Opponent modeling
 
@@ -299,6 +329,9 @@ Implemented:
 * Authoritative requirements traceability and testable `v1.0.0` scope
 * Version-1 settlement normative matrix and table-driven runtime-kind coverage
 * Exact public API export, immutable-document, compatibility, error, and legacy CLI tests
+* Focused field-provenance constants, JSON Pointer, immutable-value, coverage,
+  dependency, temporal, Information Use Context, redaction, serialization,
+  Confidence-separation, and compatibility tests
 
 ### CLI and workflow usability
 
@@ -339,7 +372,9 @@ Implemented:
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Historical records support normal completion and all five terminal shortenings with at most one optional timed defender-open-play or declarer-card-exposure continuation. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons are not represented there.
 * Historical corrected play and isolated or specific-trick claims remain incomplete; unlimited proof, simultaneous throws, and arbitrary event streams are outside `v0.11.0`; general settlement coverage is incomplete.
-* General live position inputs do not provide complete field-level provenance.
+* General live position inputs do not provide complete field-level provenance
+  propagation. The internal shared contract foundation is not attached to a
+  workflow or public output.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Version-1 bounded-search contracts, direct exact-world and compatible-world
   Suit/Grand/Null Minimax, and private deterministic compatible-world selection
@@ -512,7 +547,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, field-level live provenance, interactive
+remaining approved settlement nuance, field-level live provenance propagation
+and adversarial workflow enforcement, interactive
 live and retrospective input/session capture, executable Library API and
 Application layers, and a stable installed CLI/package interface. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
@@ -587,8 +623,11 @@ foundation through stable API contract version `1`, exact public exports,
 immutable JSON documents, compatibility metadata, stable errors, and unchanged
 legacy Root CLI behavior. Application extraction, executable API functions,
 packaging, installed CLI entry points, schema resources, typing metadata, and
-field-level provenance remain open. Later milestone numbers remain planning
-containers rather than fixed contractual releases.
+public API completion remain open. Issue #138 adds the internal field-provenance
+language, immutable sidecar ledger, coverage and dependency validation,
+Information Use Context, public redaction, and safe serialization. Provenance
+propagation and public integration remain open. Later milestone numbers remain
+planning containers rather than fixed contractual releases.
 
 ## Open technical cleanup
 

@@ -9,7 +9,8 @@ skat_ai.api.v1
 
 This foundation does not execute workflows. It adds no `execute`,
 `parse_request`, `execute_document`, workflow-specific helper, installed CLI,
-packaged schema, or provenance contract.
+or packaged schema. Issue #138 adds a separate internal field-provenance
+contract foundation, but no provenance type or function is exported here.
 
 ## Public namespaces
 
@@ -27,6 +28,12 @@ Root exports only `api` and `errors`, and `skat_ai.api` exports only `v1`.
 Technical importability does not make any other `skat_ai.*` module public.
 Direct imports from workflow, Domain, builder, serializer, schema-loader, or
 other internal modules have no compatibility guarantee.
+
+The internal version-1 field-level provenance language is documented in
+[Field-level information provenance](field_level_information_provenance.md).
+Its sidecar ledgers, coverage audits, Information Use Context, redaction, and
+serialization remain internal until later workflow propagation and public-
+surface work is proven. The exact Issue #137 export snapshots are unchanged.
 
 ## Version And Policy Constants
 
@@ -215,4 +222,5 @@ The following remain open for later `v0.13.0` issues:
 * Package Resource schemas;
 * `py.typed`;
 * installed `skat-ai` and `python -m skat_ai` CLIs;
-* field-level provenance contracts, propagation, and leakage enforcement.
+* field-level provenance propagation and workflow-level leakage enforcement;
+* any additive public provenance API, schemas, or output integration.

@@ -22,7 +22,11 @@ API contract version `1`, exact stable namespaces and exports, immutable JSON
 Request and Result wrappers, compatibility and version metadata, stable public
 errors and Exit Codes, and unchanged legacy Root CLI behavior. Executable API
 functions, Application orchestration, packaging, installed CLI entry points,
-schema resources, typing metadata, and field-level provenance remain open.
+schema resources, and typing metadata remain open. Issue #138 adds the internal
+field-level provenance contract version `1`, immutable sidecar ledgers, RFC 6901
+paths, coverage and dependency validation, Information Use Context, public
+redaction, and safe serialization. Workflow propagation, public provenance
+integration, and adversarial end-to-end leakage enforcement remain open.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -54,7 +58,10 @@ The following directions are required for `v1.0.0`:
 * Analyze live game situations at fixed three-player tables.
 * Enforce field-level live-information provenance across inputs, analysis,
   simulation, recommendations, and output. The current broad live/post-game
-  boundary is only partial support for this requirement.
+  boundary is only partial support for this requirement. The shared internal
+  version-1 provenance language now defines paths, entries, ledgers, coverage,
+  dependencies, context use, redaction, and serialization, but no existing
+  workflow constructs or propagates a ledger.
 * Support retrospective single-decision review and complete-game coaching
   without future-information leakage into reconstructed decisions. Bounded
   variable-cardinality review exists for supported endings. Public Replay
@@ -202,7 +209,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Rules and settlement coverage | Every ISkO row marked required before v1.0 in the traceability matrix is `supported`, or has an explicitly approved bounded interpretation; a normative table-driven suite covers winning, losing, achieved/announced levels, overbid, impossible Null, claim, concession, and incomplete-evidence outcomes. |
 | Supported contract variants | Input validation accepts every legal Suit, Grand, Null, Hand, and ouvert variant in the documented v1 contract; rejects every documented illegal modifier dependency; and produces tested game values and settlement for each accepted variant. |
 | Live-position analysis | Every canonical three-player turn phase is either analyzed when the local player acts or advances through a documented opponent-preparation path; unsupported states fail explicitly without mutating the supplied position. |
-| Live information control | A documented field-level provenance policy rejects or redacts every post-game-only or opponent-private fact in live mode across loading, matador inference, simulation, recommendation, review, and serialization; adversarial regression fixtures prove no future event or post-game skat changes a live result. |
+| Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Completion still requires propagation that rejects or redacts every post-game-only or opponent-private fact in live mode across loading, matador inference, simulation, recommendation, review, and serialization; adversarial regression fixtures must prove no future event or post-game skat changes a live result. |
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 now exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Tactical motifs, cross-game coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
 | Complete-game historical representation | A versioned schema and runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, skat pickup/discards or Hand state, every play, structured claims/concessions and approved additional end reasons, final result, and settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. |

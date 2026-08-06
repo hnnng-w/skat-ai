@@ -46,6 +46,10 @@ The project focuses on:
 * stable public API contract version `1` with exact namespaces and exports,
   immutable JSON Request and Result wrappers, compatibility/version metadata,
   stable errors and Exit Codes, and unchanged legacy Root CLI behavior
+* internal field-level provenance contract version `1` with RFC 6901 paths,
+  immutable sidecar ledgers, exact/subtree coverage audits, dependency and
+  temporal validation, Information Use Context, public redaction, and safe
+  deterministic serialization
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -128,9 +132,29 @@ Implemented by Issue #137 for `v0.13.0`:
 * additive compatibility and future deprecation policy through `v1.0.0`
 
 The API does not execute workflows yet. Application orchestration, executable
-facade functions, packaging, an installed CLI, schema resources, typing metadata,
-and field-level provenance remain open. See
+facade functions, packaging, an installed CLI, schema resources, and typing
+metadata remain open. Field-level provenance now has a separate internal
+contract foundation, but no workflow propagation or public API export. See
 [Public API contracts](public_api_contracts.md).
+
+### Field-level provenance contract foundation
+
+Implemented by Issue #138 for `v0.13.0`:
+
+* canonical RFC 6901 JSON Pointer escaping, parsing, construction, and resolution
+* frozen, slotted entries, source references, exemptions, ledgers, coverage
+  summaries, and Information Use Context values
+* exact-field and current-subtree coverage with deterministic JSON-leaf auditing
+* complete, partial-legacy, and unavailable ledger status invariants
+* same-ledger dependency, cycle, and coarse temporal monotonicity validation
+* visibility- and availability-aware context-use validation
+* pure engine-private public redaction and safe deterministic serialization
+* explicit separation of provenance from existing Confidence contracts
+
+No existing workflow constructs or emits a ledger yet. Public API exposure,
+schemas, output fields, CLI presentation, and adversarial workflow-level leakage
+enforcement remain open. See
+[Field-level information provenance](field_level_information_provenance.md).
 
 ### Core rules and simulation
 
@@ -574,6 +598,16 @@ Implemented:
 * `errors.py`
   * stable errors, error codes, serialization, warning category, and Exit Codes
 
+### Field-level provenance
+
+* `field_provenance.py`
+  * immutable entries, source references, exemptions and ledgers, RFC 6901
+    helpers, dependencies, temporal validation, and serialization
+* `field_provenance_coverage.py`
+  * deterministic JSON-leaf enumeration and exact/subtree coverage auditing
+* `field_provenance_policy.py`
+  * Information Use Context, use validation, and engine-private public redaction
+
 ### Entry point
 
 * `main.py`
@@ -734,6 +768,7 @@ Main documentation files:
 * `docs/architecture.md`
 * `docs/input_json.md`
 * `docs/public_api_contracts.md`
+* `docs/field_level_information_provenance.md`
 * `docs/output_json.md`
 * `docs/schema_validation.md`
 * `docs/scoring.md`
@@ -824,6 +859,12 @@ version `1`, exact public exports, immutable JSON Request and Result wrappers,
 compatibility metadata, stable errors, and unchanged legacy Root CLI behavior.
 It changes no Package version, schema, workflow execution, example, or generated
 scenario.
+
+Issue #138 adds the internal version-1 field-level provenance language,
+immutable sidecar ledger, deterministic coverage and dependency validation,
+Information Use Context, public redaction, and safe serialization. It changes no
+Package version, public API export, schema, workflow output, CLI, example, or
+generated scenario. Workflow propagation remains open.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -970,13 +1011,17 @@ Completed implementation scope:
   unseen-player assignment, and lossless existing-dataset materialization
 * stable public API contract version 1 with immutable JSON documents,
   compatibility metadata, stable errors, and legacy CLI compatibility
+* internal field-level provenance contract version 1 with immutable sidecar
+  ledgers, RFC 6901 paths, coverage and dependency audits, context-use policy,
+  public redaction, and safe serialization
 
 ## Current high-priority limitations
 
 * Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
-* General live position input lacks complete field-level provenance.
+* General live position input lacks complete field-level provenance propagation;
+  the shared internal contract foundation is not attached to workflows.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
   general stronger search remain incomplete. Compatible-world Minimax now
@@ -1018,12 +1063,14 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Continue the approved `v0.13.0` sequence after the Issue #137 contract
-foundation. Reusable Application orchestration and an executable API facade
-should reuse these public documents and errors without moving existing workflow
-implementations prematurely. Packaging, Package Resource schemas, typing
-metadata, installed CLI entry points, and field-level provenance remain separate
-follow-up scopes.
+Continue the approved `v0.13.0` sequence after the Issue #137 public API and
+Issue #138 field-provenance contract foundations. Reusable Application
+orchestration and an executable API facade should reuse the public documents and
+errors without moving existing workflow implementations prematurely. Provenance
+propagation should use the internal sidecar language without changing existing
+specialized contracts. Packaging, Package Resource schemas, typing metadata,
+installed CLI entry points, public provenance integration, and workflow-level
+leakage enforcement remain separate follow-up scopes.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

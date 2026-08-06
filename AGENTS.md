@@ -153,7 +153,11 @@ API contract version `1`, the stable `skat_ai.api.v1` and `skat_ai.errors`
 namespaces, immutable JSON document wrappers, compatibility metadata, stable
 errors, Exit Code constants, and the legacy CLI-error alias. Reusable Application
 orchestration, executable API functions, packaging, an installed CLI, schema
-resources, typing metadata, and field-level provenance remain open.
+resources, and typing metadata remain open. Issue #138 adds the internal version-
+1 field-level provenance language, immutable sidecar ledgers, RFC 6901 paths,
+coverage and dependency validation, Information Use Context, public redaction,
+and safe serialization. Workflow propagation and public provenance integration
+remain open.
 
 Major completed areas include:
 
@@ -215,6 +219,7 @@ Major completed areas include:
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
 * stable public API contract version 1 with exact exports, immutable JSON Request and Result wrappers, compatibility metadata, public errors, and legacy Root CLI compatibility
+* internal field-level information provenance contract version 1 with immutable sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, context-use policy, public redaction, and safe serialization
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -222,8 +227,8 @@ defender-open-play proof beyond five unresolved tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,
-Sample- or Player-count balancing, or component splitting, incomplete field-level
-live provenance, heuristic rule-based recommendations and
+Sample- or Player-count balancing, or component splitting, incomplete workflow-
+level field-provenance propagation, heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Search remains bounded late-game determinization subject to Strategy
 Fusion, not an optimal imperfect-information policy or complete-contract Search;
@@ -231,7 +236,7 @@ exact world counts do not identify the real deal, sampled ownership is not
 calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
-attribution, player ratings, field-level information provenance, interactive
+attribution, player ratings, complete field-level information provenance, interactive
 input/session capture, an executable Library API, and a stable installed package
 and CLI interface remain
 open before `v1.0.0`.
