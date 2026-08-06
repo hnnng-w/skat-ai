@@ -148,9 +148,12 @@ validates 64 deterministic generated-output scenarios, and passes 4,392 pytest
 tests. Issues #118 through #124 complete that functional milestone, and Issue
 #125 completed release preparation.
 
-The active next planning milestone is `v0.13.0`, with the provisional direction
-of stable API, packaging, and field-level information provenance. Its final issue
-split and implementation architecture remain undecided.
+The active implementation milestone is `v0.13.0`. Issue #137 establishes public
+API contract version `1`, the stable `skat_ai.api.v1` and `skat_ai.errors`
+namespaces, immutable JSON document wrappers, compatibility metadata, stable
+errors, Exit Code constants, and the legacy CLI-error alias. Reusable Application
+orchestration, executable API functions, packaging, an installed CLI, schema
+resources, typing metadata, and field-level provenance remain open.
 
 Major completed areas include:
 
@@ -211,6 +214,7 @@ Major completed areas include:
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
+* stable public API contract version 1 with exact exports, immutable JSON Request and Result wrappers, compatibility metadata, public errors, and legacy Root CLI compatibility
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -228,7 +232,8 @@ calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
 attribution, player ratings, field-level information provenance, interactive
-input/session capture, and a stable installed library and CLI interface remain
+input/session capture, an executable Library API, and a stable installed package
+and CLI interface remain
 open before `v1.0.0`.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.

@@ -134,6 +134,19 @@ official Skat rules arbitration.
 * Ruff checks
 * Combined project check script
 
+### Public Python API contracts
+
+* Stable API contract version `1` under `skat_ai.api.v1`
+* Exact seven-value Root `WorkflowV1` contract
+* Recursively immutable JSON `RequestDocumentV1` and `ResultDocumentV1` wrappers
+* Immutable `ExecutionOptionsV1`, compatibility policy, and API-version metadata
+* Stable public errors, error codes, serialization, and CLI Exit Code constants
+* Minimal Package-Root exports: only `api` and `errors`
+
+This is a contract foundation only. The Python API cannot execute workflows yet;
+Application orchestration, executable facade functions, packaging, an installed
+CLI, packaged schemas, typing metadata, and field-level provenance remain open.
+
 ## Requirements
 
 * Python 3.13 or newer
@@ -166,6 +179,22 @@ Run the combined check script:
 ```
 
 ## Usage
+
+Inspect the versioned Python contract or wrap a JSON document without executing
+it:
+
+```python
+from skat_ai.api.v1 import RequestDocumentV1, WorkflowV1, get_api_version_info_v1
+
+version_info = get_api_version_info_v1()
+request = RequestDocumentV1(
+    workflow=WorkflowV1.POSITION_ANALYSIS,
+    document={"game_type": "grand"},
+)
+```
+
+See [Public API contracts](docs/public_api_contracts.md) for exports,
+compatibility, errors, normal Result states, and current non-goals.
 
 Show available CLI options and common command examples:
 
@@ -551,6 +580,7 @@ For a concise walkthrough of common CLI workflows, see [Examples documentation](
 Detailed documentation is split into topic-specific files:
 
 * [Input JSON](docs/input_json.md)
+* [Public API contracts](docs/public_api_contracts.md)
 * [Input JSON schema](schemas/input.schema.json)
 * [Declarer concessions](docs/declarer_concessions.md)
 * [Defender concessions](docs/defender_concessions.md)
@@ -781,7 +811,8 @@ Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, field-level live provenance, interactive input
-and session capture, and a stable installed library and CLI interface. General
+and session capture, an executable Library API, and a stable installed package
+and CLI interface. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -796,9 +827,11 @@ aggregation, comparison, and public JSON/CLI workflow from Issues #127 through
 mode-specific generators; Issue #134 exposes fixed mode dispatch through strict
 JSON, schemas, CLI, three examples, and three appended generated-output
 scenarios. Issue #135 completed release preparation before manual maintainer
-publication. The active next planning milestone is `v0.13.0`, with the
-provisional direction of stable API, packaging, and field-level information
-provenance; its final issue sequence and architecture are not yet defined.
+publication. Issue #137 is the first implemented `v0.13.0` foundation: it adds
+API contract version `1`, exact public exports, immutable JSON Request and Result
+wrappers, compatibility metadata, stable public errors, and unchanged legacy
+Root CLI behavior. It does not add workflow execution, packaging, an installed
+CLI, schema resources, typing metadata, or provenance.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

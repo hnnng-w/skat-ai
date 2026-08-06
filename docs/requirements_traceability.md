@@ -47,9 +47,12 @@ and deterministic mode-specific generators. Issue #134 adds fixed public mode
 dispatch, complete or explicit unavailable output, and three preparation
 scenarios. The prior 67 scenarios are unchanged, and the package matrix is 70.
 Issue #135 completed release metadata and documentation without changing product
-behavior. The active next planning milestone is `v0.13.0`, with the provisional
-direction of stable API, packaging, and field-level information provenance; its
-final issue split and architecture remain undecided.
+behavior. The active implementation milestone is `v0.13.0`. Issue #137 adds
+public API contract version `1`, exact stable namespaces and exports, immutable
+JSON document wrappers, compatibility metadata, stable errors and Exit Codes,
+and unchanged legacy Root CLI behavior. Executable API functions, Application
+orchestration, packaging, installed CLI entry points, schema resources, typing
+metadata, and field-level provenance remain open.
 
 ## Status vocabulary
 
@@ -201,6 +204,7 @@ training, and automatic evaluation remain unsupported.
 
 | Requirement | Source | Rule section | Current status | Current implementation | Required input or information | Known limitation | Required validation or tests | Target milestone | Required before v1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Stable public Python contract | skat-ai product | Not applicable | `partially_supported` | API contract version `1` defines `skat_ai.api.v1`, `skat_ai.errors`, exact Package/API exports, seven Root workflows, immutable Request/Result JSON documents, execution options, compatibility and version metadata, normal Result states, public errors and codes, Exit Codes, deprecation category, and legacy `main.CliUsageError` compatibility. Package, API, schema, and Domain versions remain independent. | JSON-compatible object documents and one exact `WorkflowV1` value; no execution input is consumed yet. | The API cannot execute a workflow. Application orchestration, executable facade functions, Package metadata/resources, distribution builds, installed CLI, typing metadata, and field-level provenance are absent. Existing raw Domain exceptions are not broadly migrated. | Retain exact namespace/export snapshots, recursive immutability and defensive-copy tests, workflow parity, metadata, normal-state, hierarchy/code/serialization, built-in catch, legacy CLI wording/Exit Code, no-premature-facade, no-packaging, unchanged schema, and 70-output regressions. | v0.13.0 foundation implemented; installed interface remains open | Yes |
 | Live information boundaries | skat-ai product | Not applicable | `partially_supported` | Existing live enforcement is unchanged. Declared Ouvert and both continuation branches authorize only their exact current public hands. Accepted 4.4.5 proof hands remain private; other hands, hidden skat, future cards, and proof state remain unavailable. | Explicit mode, visibility, end reason, perspective, verifiable public history, valid declared-Ouvert exact hand, validated continuation or exact post-game adjudication, or normal-play historical replay. | General position input still trusts supplied context and has no field-level provenance model. | Retain rejection/redaction, declared-Ouvert and both continuation public-hand exceptions, hidden proof evidence, future-information, and post-game leakage tests. | v1.0 | Yes |
 | Retrospective information | skat-ai product | Not applicable | `partially_supported` | Post-game mode permits known skat and ended states; every supported historical terminal record reconstructs each actual decision from its decision-time snapshot, including exact declared-Ouvert and continuation ownership without future leakage. | Post-game mode and supplied retrospective facts, or a validated historical snapshot. | Legacy position review still lacks complete event provenance. | Test complete-history retrospective facts separately from live facts and legacy partial positions. | v1.0 | Yes |
 | Immediate simulation | skat-ai product | Not applicable | `supported` | Monte Carlo analysis samples unseen cards, evaluates legal responses with deterministic seeds, and fixes every resolved declared-Ouvert or continuation public hand exactly to its owner with a common seeded unknown-world sequence across Ouvert candidates. | Valid position, hand sizes, sample count, seed, policies, and optional public-hand constraints. | It estimates immediate trick outcomes, not complete-contract expected value or perfect-information play. | Retain legality, reproducibility, perspective, point, Null-objective, side-ownership, declared-Ouvert, continuation, and two-public-hand tests. | v1.0 | Yes |

@@ -4,6 +4,23 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
+### Public API contract foundation
+
+Implemented:
+
+* Public API contract version `1` under `skat_ai.api.v1`
+* Minimal Package-Root exports limited to `api` and `errors`
+* Exact canonical seven-workflow `WorkflowV1` contract
+* Frozen, slotted, keyword-only Request, Result, execution-option,
+  compatibility-policy, and API-version contracts
+* Recursive defensive immutable JSON storage with fresh mutable serialization
+* Stable public error hierarchy, codes, deterministic serialization, and built-in catch compatibility
+* Stable CLI Exit Code constants and exact legacy `main.CliUsageError` alias
+* Additive compatibility, internal-import, version-independence, and future deprecation policies
+
+This foundation has no workflow execution functions, Application extraction,
+packaging, installed CLI, schema resources, typing marker, or provenance.
+
 ### Core analysis
 
 Implemented:
@@ -281,6 +298,7 @@ Implemented:
 * Project handoff documentation
 * Authoritative requirements traceability and testable `v1.0.0` scope
 * Version-1 settlement normative matrix and table-driven runtime-kind coverage
+* Exact public API export, immutable-document, compatibility, error, and legacy CLI tests
 
 ### CLI and workflow usability
 
@@ -311,6 +329,7 @@ Implemented:
   perfect-information solver, not a full or general hidden-information solver.
 * The engine is not a complete official tournament system.
 * The engine focuses on analysis and simulation, not on training a machine-learning model.
+* The public API contract foundation exists, but no public Python function executes a workflow yet.
 * Full official settlement nuance coverage is not complete.
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
 * The engine verifies only bounded ISkO 4.4.5 defender rest-trick claims; no general claim-verification protocol exists.
@@ -494,9 +513,11 @@ implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, field-level live provenance, interactive
-live and retrospective
-input/session capture, and a stable library API and installed CLI/package
-interface. General claim verification and historical end reasons outside the
+live and retrospective input/session capture, executable Library API and
+Application layers, and a stable installed CLI/package interface. API contract
+version `1`, exact public namespaces, immutable document wrappers, compatibility
+metadata, and stable public errors are implemented. General claim verification
+and historical end reasons outside the
 supported bounded set also remain incomplete. Structured concessions and
 exposures, bounded defender open play, open-card throwing, supported historical
 terminal and continuation events, variable-length workflows, Ouvert-aware
@@ -561,10 +582,13 @@ Issue #135 completed package metadata and release-documentation preparation
 before the maintainer's manual publication at commit `bbf955e`. The published
 baseline validates 70 generated outputs and passes 4,762 pytest tests.
 
-The active next planning milestone is `v0.13.0`, with the provisional direction
-of stable API, packaging, and field-level information provenance. Its final issue
-split and architecture are not yet defined. Later milestone numbers remain
-planning containers rather than fixed contractual releases.
+The active implementation milestone is `v0.13.0`. Issue #137 provides its first
+foundation through stable API contract version `1`, exact public exports,
+immutable JSON documents, compatibility metadata, stable errors, and unchanged
+legacy Root CLI behavior. Application extraction, executable API functions,
+packaging, installed CLI entry points, schema resources, typing metadata, and
+field-level provenance remain open. Later milestone numbers remain planning
+containers rather than fixed contractual releases.
 
 ## Open technical cleanup
 

@@ -48,6 +48,12 @@ from skat_ai.effective_opponent_policy import (
     EffectiveOpponentPolicySettings,
     build_effective_opponent_policy_settings,
 )
+from skat_ai.errors import (
+    CLI_EXIT_CODE_FAILURE,
+    CLI_EXIT_CODE_SUCCESS,
+    CLI_EXIT_CODE_USAGE,
+    SkatAICliUsageError,
+)
 from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.fixed_three_player_historical_list_aggregation import (
     build_fixed_three_player_historical_list_aggregation,
@@ -210,8 +216,7 @@ POST_GAME_REVIEW_UNAVAILABLE_REASON_TEXT = {
 }
 
 
-class CliUsageError(ValueError):
-    """Raised when parsed CLI arguments form an invalid invocation."""
+CliUsageError = SkatAICliUsageError
 
 
 def get_immediate_unavailable_reason(
@@ -4055,12 +4060,12 @@ def main() -> int:
             )
     except CliUsageError as error:
         print(f"CLI error: {error}", file=sys.stderr)
-        return 2
+        return CLI_EXIT_CODE_USAGE
     except (ValueError, OSError) as error:
         print(f"Error: {error}", file=sys.stderr)
-        return 1
+        return CLI_EXIT_CODE_FAILURE
 
-    return 0
+    return CLI_EXIT_CODE_SUCCESS
 
 
 if __name__ == "__main__":

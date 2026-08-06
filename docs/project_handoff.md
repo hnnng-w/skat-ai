@@ -43,6 +43,9 @@ The project focuses on:
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * deterministic Replay Coaching Key Decisions, Turning Points, one-game patterns, and actionable recommendations
 * complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
+* stable public API contract version `1` with exact namespaces and exports,
+  immutable JSON Request and Result wrappers, compatibility/version metadata,
+  stable errors and Exit Codes, and unchanged legacy Root CLI behavior
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -110,6 +113,24 @@ The project separates live decision analysis from post-game review.
 `post_game_review` is intended for completed or retrospectively analyzed games.
 
 ## Major completed milestones
+
+### Public API contract foundation
+
+Implemented by Issue #137 for `v0.13.0`:
+
+* stable `skat_ai.api.v1` and `skat_ai.errors` namespaces
+* Package-Root exports limited to `api` and `errors`
+* the exact seven-value string `WorkflowV1` contract
+* recursively immutable, defensively copied Request and Result JSON documents
+* immutable execution options, compatibility policy, and API-version metadata
+* stable public error hierarchy, class-defined codes, and deterministic error serialization
+* stable CLI Exit Code constants and exact `main.CliUsageError` compatibility alias
+* additive compatibility and future deprecation policy through `v1.0.0`
+
+The API does not execute workflows yet. Application orchestration, executable
+facade functions, packaging, an installed CLI, schema resources, typing metadata,
+and field-level provenance remain open. See
+[Public API contracts](public_api_contracts.md).
 
 ### Core rules and simulation
 
@@ -546,6 +567,13 @@ Implemented:
 
 ## Current important modules
 
+### Public API contracts
+
+* `api/v1/contracts.py`
+  * API constants, workflows, immutable documents, options, policy, and version info
+* `errors.py`
+  * stable errors, error codes, serialization, warning category, and Exit Codes
+
 ### Entry point
 
 * `main.py`
@@ -705,6 +733,7 @@ Main documentation files:
 * `README.md`
 * `docs/architecture.md`
 * `docs/input_json.md`
+* `docs/public_api_contracts.md`
 * `docs/output_json.md`
 * `docs/schema_validation.md`
 * `docs/scoring.md`
@@ -789,6 +818,12 @@ CLI, and three examples. The prior 67 scenarios are unchanged, and the current
 published baseline validates 70 while the historical published `v0.11.0`
 baseline remains 64. Issue #135 completed release preparation before manual
 maintainer publication.
+
+Issue #137 is the first implemented `v0.13.0` foundation. It adds API contract
+version `1`, exact public exports, immutable JSON Request and Result wrappers,
+compatibility metadata, stable errors, and unchanged legacy Root CLI behavior.
+It changes no Package version, schema, workflow execution, example, or generated
+scenario.
 
 The historical published `v0.10.0` release points to commit `b4c8738`, validates
 59 deterministic generated-output scenarios, and passes 4,075 pytest tests.
@@ -933,6 +968,8 @@ Completed implementation scope:
 * deterministic automatic Training Dataset preparation with fixed mode dispatch,
   complete or unavailable Plans, temporal Known-opponent and Player-disjoint
   unseen-player assignment, and lossless existing-dataset materialization
+* stable public API contract version 1 with immutable JSON documents,
+  compatibility metadata, stable errors, and legacy CLI compatibility
 
 ## Current high-priority limitations
 
@@ -972,7 +1009,8 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Interactive live or retrospective input and a stable installed CLI/library interface are not implemented.
+* Interactive live or retrospective input, executable Library API functions, and
+  a stable installed package and CLI interface are not implemented.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -980,28 +1018,12 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Conduct a focused repository analysis for the active `v0.13.0` planning
-milestone before opening implementation issues. Its provisional direction is
-stable API, packaging, and field-level information provenance. The analysis
-should inventory:
-
-* current package-root exports, internal versus public modules, candidate public
-  request and result types, and builder and serializer boundaries
-* current error, validation, and unavailable-result contracts, plus candidates
-  for a stable Python API and stable error hierarchy
-* the current `main.py` and installed-CLI state, and the potential installed CLI
-  contract
-* wheel, sdist, editable-install, and package-data behavior
-* compatibility and deprecation expectations
-* existing information-policy and provenance metadata, fields that currently
-  lack provenance, and required provenance propagation across every workflow
-* adversarial field-level information-leakage tests
-
-Use that evidence to propose a closed provisional issue sequence for maintainer
-review. Do not finalize the issue split, public Python API, exported modules,
-request or result hierarchy, error hierarchy, deprecation policy, installed CLI
-command, package-data strategy, provenance model or schema, migration rules, or
-implementation architecture during this publication synchronization.
+Continue the approved `v0.13.0` sequence after the Issue #137 contract
+foundation. Reusable Application orchestration and an executable API facade
+should reuse these public documents and errors without moving existing workflow
+implementations prematurely. Packaging, Package Resource schemas, typing
+metadata, installed CLI entry points, and field-level provenance remain separate
+follow-up scopes.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed
