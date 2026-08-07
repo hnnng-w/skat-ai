@@ -7,7 +7,7 @@ field-provenance language and Application sidecar contracts.
 Issue #146 propagation remains internal. Issue #147 uses these complete Root
 Result ledgers as the source for bounded public-safe exposure through API, Root
 JSON, strict Schema, CLI, and generated-output scenarios. Package version remains
-`0.12.0`.
+independent and is currently `0.13.0`.
 
 ## Contract identity
 
@@ -163,7 +163,7 @@ one mapped Root Result attachment, applies the existing public redaction helper,
 and recomputes complete coverage against the Root Result without its sidecar.
 It does not expose the rest of `ApplicationExecutionResult.provenance`.
 
-The active repository now has 62 Schema resources and 77 deterministic
+The `v0.13.0` package baseline has 62 Schema resources and 77 deterministic
 generated-output scenarios. The seven appended scenarios cover one public
 Result mapping per Root workflow; the Training Dataset scenario also covers its
 actual export artifact. Published `v0.12.0` facts remain 70 scenarios and 4,762

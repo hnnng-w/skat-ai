@@ -20,7 +20,7 @@ Package Data is declared for:
 * `skat_ai/py.typed`;
 * every `skat_ai.schema_resources/*.schema.json` resource.
 
-The Package name remains `skat-ai`, the Package version remains `0.12.0`, the
+The Package name remains `skat-ai`, the Package version is `0.13.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
 dependency. The `dev` extra includes `build`, pytest, and Ruff.
 
@@ -80,7 +80,7 @@ the check finishes. It does not publish either artifact.
 
 ## Schema resources
 
-The 61 files under repository `schemas/` remain the authoritative JSON Schemas.
+The 62 files under repository `schemas/` remain the authoritative JSON Schemas.
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
@@ -138,7 +138,7 @@ distributions resolve it through:
 importlib.metadata.version("skat-ai")
 ```
 
-The current value is `0.12.0`. A source-only environment without installed
+The current value is `0.13.0`. A source-only environment without installed
 distribution metadata returns `0+unknown` without reading `pyproject.toml` or
 another repository file. Package version remains independent of API contract,
 Application, Schema, Provenance, and Domain versions. It is not added to API
@@ -153,7 +153,7 @@ Wheel inspection verifies:
 
 * valid core metadata and the declared runtime and development dependencies;
 * every `skat_ai` Python module;
-* `py.typed` and all 61 byte-identical schema resources;
+* `py.typed` and all 62 byte-identical schema resources;
 * a valid pure-Python Wheel and RECORD;
 * exact `skat-ai = skat_ai.cli:main` Console Script metadata and
   `skat_ai/__main__.py`;
@@ -174,7 +174,7 @@ installs from an external working directory with `PYTHONPATH` removed, and
 verifies:
 
 * imports resolve from that environment's `site-packages`;
-* `skat_ai.__version__ == "0.12.0"`;
+* `skat_ai.__version__ == "0.13.0"`;
 * `py.typed` is locatable;
 * every installed schema has exact repository filename and byte parity, valid
   UTF-8 and JSON, and its unchanged `$id`;
@@ -210,8 +210,9 @@ step exists. No CI step uploads or publishes an artifact.
 
 ## Remaining boundaries
 
-Issue #142 adds the installed `skat-ai` command and `python -m skat_ai` without a
-public schema-resource API, new workflow, Root-output metadata, a Provenance
-field, Package-version change, or Package publication. The Package license
-decision remains unresolved, so no license metadata is declared. Publication and
-all release actions remain human-controlled.
+Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without a
+public schema-resource API, new workflow, Root-output metadata, Provenance field,
+Package-version change, or Package publication. Issue #147 subsequently added
+opt-in bounded public Provenance without publication. The Package license
+decision remains unresolved, so no license metadata is declared. Package and
+release publication remain human-controlled.

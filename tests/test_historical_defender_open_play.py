@@ -504,6 +504,6 @@ def test_rolling_uses_one_source_game_and_only_actual_target_card_decisions() ->
         assert forbidden not in serialized
 
 
-def test_package_version_is_0_12_0() -> None:
+def test_package_version_is_0_13_0() -> None:
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.12.0"' in pyproject
+    assert 'version = "0.13.0"' in pyproject

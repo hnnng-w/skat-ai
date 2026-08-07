@@ -498,11 +498,12 @@ published `v0.9.0` baseline remains 52 scenarios and 3,558 tests.
 
 Issue #130 appends three historical-list scenarios. Issue #134 preserves those
 67 scenarios and appends three automatic Training Dataset preparation scenarios,
-so the `v0.12.0` package baseline validates exactly 70 outputs without changing
+so the published `v0.12.0` package baseline validates exactly 70 outputs without changing
 the historical published baselines.
 Issue #147 preserves those 70 published scenarios and appends seven public
-field-provenance scenarios, one per Root workflow. The active repository has 62
-schemas and 77 generated-output scenarios; the published `v0.12.0` facts remain
+field-provenance scenarios, one per Root workflow. The `v0.13.0` package baseline
+has 62 schemas and 77 generated-output scenarios, while the published `v0.12.0`
+facts remain
 70 scenarios and 4,762 tests.
 
 ### Live-vs-post-game information enforcement
@@ -983,9 +984,18 @@ Main documentation files:
 
 Current published stable release: `v0.12.0`.
 
-Current package version: `0.12.0`.
+Current package version: `0.13.0`.
 
-Current package baseline: `v0.12.0`.
+Current package baseline: `v0.13.0`.
+
+Package release theme: "Stable API, installable tooling, and public field
+provenance".
+
+Intended GitHub Release title: "v0.13.0 — Stable API, installable tooling, and
+public field provenance".
+
+`v0.13.0` has not yet been tagged or published. Publication is a manual
+maintainer action, and GitHub Releases remains authoritative.
 
 Published release theme: "Fixed-three-player historical lists and deterministic
 dataset preparation".
@@ -1015,7 +1025,7 @@ Issues #118 through #124 complete the functional `v0.11.0` milestone, and Issue
 #125 completed release preparation. Publication was performed manually by the
 maintainer. GitHub Releases is the authoritative publication record.
 
-The `v0.12.0` package baseline implements the immutable
+The published `v0.12.0` package baseline implements the immutable
 historical-list source, cumulative aggregation, independent comparison, and
 strict public JSON/schema/CLI workflow, plus internal version-1 unpartitioned
 dataset-preparation and supplied split-plan contracts plus deterministic
@@ -1075,10 +1085,12 @@ explicit Result mappings, and the actual `opponent_statistics_input` to
 is followed by complete recomputed coverage. Public API
 `ExecutionOptionsV1.include_provenance` defaults to false, while all three CLI
 forms accept `--include-provenance` with concise or quiet behavior. The strict
-Schema raises the active resource count to 62; seven append-only scenarios raise
-the active matrix to 77. Package version and published `v0.12.0` evidence remain
-unchanged. The `v0.13.0` functional milestone is complete pending release
-preparation.
+Schema raises the package-candidate resource count to 62; seven append-only
+scenarios raise the package-candidate matrix to 77. Package version and
+published `v0.12.0` evidence remain
+unchanged at the Issue #147 boundary. Issue #148 sets Package version `0.13.0`
+and prepares release metadata and current-state documentation without product
+behavior changes.
 
 Issue #139 adds internal Application orchestration version `1` for all seven Root
 workflows, five isolated Training Dataset operations, injected Opponent
@@ -1213,7 +1225,7 @@ publication.
 
 ## Current implementation baseline
 
-**Published v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation**
+**Package v0.13.0: Stable API, installable tooling, and public field provenance**
 
 Completed implementation scope:
 
@@ -1320,11 +1332,17 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Prepare the `v0.13.0` release after Issues #137 through #147 completed the
-functional milestone. Issue #147 supplies the bounded public Result and actual-
-artifact provenance contract; broader end-to-end field-level enforcement remains
-a pre-`v1.0.0` follow-up. Package publication and license selection remain human
-decisions.
+The maintainer can complete manual `v0.13.0` publication after reviewing the
+release candidate and validation evidence. Until then, the package baseline is
+`v0.13.0`, the published release remains `v0.12.0`, and GitHub Releases remains
+authoritative. Broader end-to-end field-level enforcement remains a pre-`v1.0.0`
+follow-up, and Package publication and license selection remain human decisions.
+
+The next provisional planning milestone is `v0.14.0`, directed at interactive
+live and retrospective session capture. Its final issue sequence, Session
+Schema, persistence model, Undo contract, UI technology, and implementation
+architecture are not defined. Online-platform adapters, browser extensions, and
+website scraping remain outside this provisional milestone.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

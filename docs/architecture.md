@@ -110,8 +110,10 @@ The project is not a machine-learning model. Its behavior is based on Skat rules
 Live and retrospective provenance is retained as an internal Application
 sidecar. Existing workflow values are observed through optional hooks; analysis,
 Search, Snapshot, and Coaching stages are not rerun. Public API and CLI adapters
-ignore the sidecar, so Root JSON, Schemas, examples, and generated scenarios do
-not expose field-level provenance.
+omit it by default. Explicit provenance opt-in selects only one redacted complete
+Root Result attachment plus artifacts actually returned, recomputes complete
+coverage, and exposes the strict public sidecar through Root JSON. Consumed-input,
+decision, intermediate-stage, and unredacted attachments remain internal.
 
 ## Main entry point
 

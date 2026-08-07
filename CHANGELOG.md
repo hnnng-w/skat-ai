@@ -1,5 +1,95 @@
 # Changelog
 
+## v0.13.0
+
+**Release theme: Stable API, installable tooling, and public field provenance**
+
+### Stable public API and compatibility contracts
+
+* Add stable API contract version `1` under `skat_ai.api.v1`, exact public
+  exports, recursively immutable Request and Result documents, compatibility
+  metadata, normal Result states, stable public errors and codes, and CLI Exit
+  Code constants (Issue #137).
+* Guarantee additive public compatibility through `v1.0.0` while keeping direct
+  internal imports unsupported and Package, API, Schema, Application,
+  Provenance, and Domain versions independent (Issue #137).
+
+### Reusable Application orchestration and executable facade
+
+* Add internal Application orchestration version `1` with immutable invocations,
+  options, injected external documents, Results, and auxiliary artifacts, plus
+  transport-free handlers for all seven Root workflows (Issue #139).
+* Add executable public `parse_request`, `execute`, `execute_document`, and
+  `serialize_result` functions with immutable workflow options and artifacts,
+  mandatory input validation, default output validation, no caller file or
+  terminal I/O, and stable boundary-error translation (Issue #140).
+
+### Packaging, Schema Resources, and installed CLI
+
+* Add explicit Setuptools PEP 517 metadata, one Wheel and one sdist, 62
+  byte-identical Schemas loaded through `importlib.resources`, `py.typed`,
+  Package `__version__`, artifact inspection, and separate clean-install API
+  validation (Issue #141).
+* Add installed CLI contract version `1`, the exact `skat-ai = skat_ai.cli:main`
+  Console Script, `python -m skat_ai`, and one canonical Package-owned CLI while
+  preserving Legacy `python main.py`, stable help, `--version`, errors, and Exit
+  Codes (Issue #142).
+* Run the same packaged-Schema, Wheel/sdist, clean-install API, installed CLI,
+  and module CLI gates locally and in CI without publishing a Package or
+  artifact (Issues #141 and #142).
+
+### Field-level Provenance contracts and internal propagation
+
+* Add internal field-Provenance contract version `1` with RFC 6901 paths,
+  immutable Ledgers, Origins, Visibility, Availability, Derivation, dependency
+  and temporal validation, Information Use Context, redaction, exact Coverage,
+  deterministic serialization, and explicit separation from Confidence (Issue
+  #138).
+* Propagate retained, information-safe provenance through live Position
+  Analysis, Immediate, Search, inference, Multi-Step, and Policy Comparison;
+  flat retrospective review; Historical Snapshots, Search Review, and Replay
+  Coaching; and Dataset, Preparation, Opponent, Profile, list, and comparison
+  workflows (Issues #143 through #145).
+* Complete non-legacy internal Position and Historical Result provenance so all
+  seven Root workflows have complete internal Root Result Ledgers without
+  rerunning established workflow stages (Issue #146).
+
+### Public Provenance integration
+
+* Add public field-Provenance version `1`, immutable attachments, artifacts, and
+  bundles, seven explicit Root Result mappings, and the actual
+  `opponent_statistics_input` artifact mapping (Issue #147).
+* Add default-false Public API and `skat-ai`, module, and Legacy CLI opt-in; the
+  optional Root `field_provenance` covers one complete redacted Root Result plus
+  artifacts actually returned (Issue #147).
+* Add strict public Schema validation, existing-helper redaction, complete
+  post-redaction Coverage, and seven append-only generated-output scenarios,
+  including the actual Training Dataset export artifact (Issue #147).
+
+### Information safety, determinism, and compatibility
+
+* Preserve unchanged Root output when Provenance is omitted. Public Provenance
+  exposes no consumed-input, decision, intermediate-stage, unredacted, or full
+  internal Application attachments and adds no Confidence or optimality claim.
+* Preserve all API, Application, installed CLI, internal and public Provenance,
+  Schema, Search, Dataset, list, Replay Coaching, Settlement, and budget-profile
+  contract versions while changing only the Package version to `0.13.0`.
+* Retain explicit limitations for broader end-to-end Provenance enforcement,
+  Confidence integration, interactive Sessions, broader Search and Strategy
+  Fusion, general and specific-trick Claims, Settlement completeness, tactical
+  and cross-game Coaching, Ratings, model training, online-platform adapters,
+  complete official-rule coverage, and four-player tables.
+
+### Validation
+
+* Validate 62 authoritative and packaged Schemas with exact filename and byte
+  parity and 77 deterministic generated outputs, including seven opt-in public
+  Provenance scenarios.
+* Validate Wheel and sdist metadata, Package Resources, clean installations,
+  Public API execution, all CLI version forms, Root JSON parity, normal
+  unavailable Results, provenance opt-in, Ruff, and the complete pytest suite on
+  Python 3.13.
+
 ## v0.12.0
 
 **Release theme: Fixed-three-player historical lists and deterministic dataset preparation**

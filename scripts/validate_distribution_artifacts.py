@@ -28,7 +28,7 @@ UNAVAILABLE_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "training_dataset_preparation_unavailable.json"
 )
 PACKAGE_NAME = "skat-ai"
-PACKAGE_VERSION = "0.12.0"
+PACKAGE_VERSION = "0.13.0"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 62
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CONSOLE_SCRIPT_NAME = "skat-ai"
@@ -528,8 +528,8 @@ assert unavailable_document["field_provenance"]["result"]["ledger"]["status"] ==
 )
 
 distribution = importlib.metadata.distribution("skat-ai")
-assert distribution.version == "0.12.0"
-assert skat_ai.__version__ == "0.12.0"
+assert distribution.version == "0.13.0"
+assert skat_ai.__version__ == "0.13.0"
 entry_points = [
     (entry.group, entry.name, entry.value)
     for entry in distribution.entry_points
@@ -689,7 +689,7 @@ def _install_and_smoke(
             expected_returncode=0,
         )
         _require(
-            version_result.stdout == "skat-ai 0.12.0\n" and not version_result.stderr,
+            version_result.stdout == "skat-ai 0.13.0\n" and not version_result.stderr,
             f"{label} {command_name} --version output changed.",
         )
 

@@ -4,12 +4,18 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable release and package baseline are `v0.12.0`, and the
-package version is `0.12.0`. The release points to commit `bbf955e`, validates 70
-deterministic generated-output scenarios, passes 4,762 pytest tests, and requires
-Python 3.13 or newer. Issues #127 through #134 complete the functional milestone,
-and Issue #135 completed release preparation. Publication was performed manually
-by the maintainer, and GitHub Releases is authoritative for publication status.
+The package baseline is `v0.13.0`, and the package version is `0.13.0`. It
+contains 62 schemas, validates 77 deterministic generated-output scenarios, and
+requires Python 3.13 or newer. Issues #137 through #147 complete the functional
+milestone, and Issue #148 prepares release metadata and documentation. It has not
+yet been tagged or published.
+
+The current published stable release remains `v0.12.0`. It points to commit
+`bbf955e`, validates 70 deterministic generated-output scenarios, and passes
+4,762 pytest tests. Issues #127 through #134 complete the functional milestone,
+and Issue #135 completed release preparation. Publication actions are performed
+manually by the maintainer, and GitHub Releases is authoritative for publication
+status.
 
 The historical published `v0.11.0` baseline validates 64 deterministic generated-
 output scenarios and passes 4,392 pytest tests. Issues #118 through #124 complete
@@ -17,7 +23,7 @@ that functional milestone, and Issue #125 completed release preparation. The
 historical published `v0.10.0` baseline remains evidence for 59 scenarios and
 4,075 pytest tests.
 
-The active implementation milestone is `v0.13.0`. Issue #137 establishes public
+The `v0.13.0` package baseline establishes public
 API contract version `1`, exact stable namespaces and exports, immutable JSON
 Request and Result wrappers, compatibility and version metadata, stable public
 errors and Exit Codes, and unchanged legacy Root CLI behavior. Issue #139 adds
@@ -47,10 +53,15 @@ base Historical bundles. Issue #147 adds bounded public field-provenance version
 `1`, immutable attachments/artifacts/bundles, seven explicit Root Result
 mappings, the actual Opponent Statistics export-artifact mapping, existing-
 helper redaction, complete recomputed coverage, default-false API and all-three-
-form CLI opt-in, and strict Schema. The active repository has 62 schemas and 77
-generated-output scenarios; the seven additions are append-only and do not
-rewrite the published `v0.12.0` facts. The `v0.13.0` functional milestone is
-complete pending release preparation.
+form CLI opt-in, and strict Schema. The `v0.13.0` package baseline has 62 schemas
+and 77 generated-output scenarios; the seven additions are append-only and do
+not rewrite the published `v0.12.0` facts.
+
+The next provisional planning milestone is `v0.14.0`, directed at interactive
+live and retrospective session capture. Its final issue sequence, Session
+Schema, persistence model, Undo contract, UI technology, and implementation
+architecture are not defined. Online-platform adapters, browser extensions, and
+website scraping remain outside this provisional milestone.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -272,7 +283,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Interactive input and session capture | Supported live and retrospective sessions can be entered interactively, validated incrementally, resumed or completed without hidden state, and serialized to the same documented information-safe records. |
 | Stable installed interface | API contract version `1` provides documented public namespaces, additive exact exports, workflows, immutable JSON documents, direct execution options, public results and artifacts, compatibility/version metadata, normal Result states, stable errors/codes, and Legacy compatibility. Public field-provenance version `1` adds immutable types, default-false opt-in, typed Result access, and an unchanged flattened envelope. The facade executes all seven workflows without caller transport I/O. Installed, module, and Legacy CLI forms share `--include-provenance`, concise and quiet behavior, JSON parity, errors, and Exit Codes. Wheel/sdist environments verify 62 packaged schemas and API/CLI provenance parity. No publication is implied. |
 | Examples | Examples cover each supported contract family, live/post-game boundary, complete historical record, training/evaluation record, claim/concession, overbid including impossible Null, rule-based profile, list aggregation, and standings; every example passes schema and semantic validation. |
-| Generated-output validation | The deterministic scenario matrix covers every stable top-level output branch and representative unavailable/incomplete/error boundaries; the active count is 77, including seven append-only provenance scenarios, while published `v0.12.0` evidence remains 70. |
+| Generated-output validation | The deterministic `v0.13.0` package matrix covers every stable top-level output branch and representative unavailable/incomplete/error boundary; its count is 77, including seven append-only provenance scenarios, while published `v0.12.0` evidence remains 70. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
 | Regression testing | Ruff, packaged-schema parity, input example schema validation, generated-output schema validation, distribution build and clean-install API/installed/module CLI validation, and the complete pytest suite all pass locally and in GitHub Actions from a clean checkout of the release candidate. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |

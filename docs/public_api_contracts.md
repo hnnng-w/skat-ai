@@ -75,7 +75,7 @@ PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES = (
 
 Package version, API contract version, JSON-schema versions, and Domain contract
 versions are independent dimensions. The current Package version remains
-`0.12.0`; API contract version `1` is not derived from it. A Package release does
+`0.13.0`; API contract version `1` is not derived from it. A Package release does
 not automatically increment the API contract, and an API change does not
 silently rewrite JSON-schema or Domain versions. `ApiVersionInfoV1` intentionally
 contains no Package version.
@@ -319,7 +319,7 @@ guarantee. No deprecation warning is emitted now.
 
 `skat_ai.__version__` reports installed distribution metadata from
 `importlib.metadata.version("skat-ai")`. Installed and Editable distributions
-report `0.12.0`; a source-only environment without distribution metadata may
+report `0.13.0`; a source-only environment without distribution metadata may
 report `0+unknown`. The fallback reads no repository file.
 
 This additive Package-Root export does not change `skat_ai.api.__all__`,

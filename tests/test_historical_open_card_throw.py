@@ -440,6 +440,6 @@ def test_zero_play_partition_statistics_export_and_rolling_remain_game_weighted(
     assert rolling["target_games"][0]["decisions"] == []
 
 
-def test_package_version_is_0_12_0() -> None:
+def test_package_version_is_0_13_0() -> None:
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.12.0"' in pyproject
+    assert 'version = "0.13.0"' in pyproject

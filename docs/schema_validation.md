@@ -200,16 +200,16 @@ The output schema checks the main output structure, including:
 * optional Root `field_provenance` for every output branch through the strict
   version-1 public field-provenance schema
 
-The published stable `v0.12.0` baseline at commit `bbf955e` covers 70
-deterministic generated-output scenarios and passes 4,762 pytest tests. Issue
-#135 completed release preparation before manual maintainer publication. The
-historical published `v0.11.0` baseline remains evidence for 64 scenarios and
-4,392 pytest tests. The historical
-published `v0.10.0` baseline passes 4,075 pytest tests and covers 59 scenarios.
-The historical published `v0.9.0` baseline passes 3,558 pytest tests and covers
-52 scenarios. The active post-Issue-#147 matrix validates 77 deterministic
+The `v0.13.0` package baseline contains 62 schemas and validates 77 deterministic
 outputs: the published 70 remain unchanged, followed by seven append-only public
-field-provenance scenarios. Position scenarios use CLI settings such as
+field-provenance scenarios. Issue #148 prepares release metadata and
+documentation before manual publication. The published stable `v0.12.0`
+baseline at commit `bbf955e` remains evidence for 70 scenarios and 4,762 pytest
+tests; Issue #135 completed its release preparation. The historical published
+`v0.11.0` baseline remains evidence for 64 scenarios and 4,392 pytest tests. The
+historical published `v0.10.0` baseline passes 4,075 pytest tests and covers 59
+scenarios. The historical published `v0.9.0` baseline passes 3,558 pytest tests
+and covers 52 scenarios. Position scenarios use CLI settings such as
 `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
@@ -221,18 +221,18 @@ mixed list with an applied lot, all-Passed-Deal list with an unresolved three-
 player tie, and compact independent comparison with changed table places,
 disjoint Game IDs, different Passed Deal counts, and resolved ranks. Issue #134
 preserves those 67 scenarios and appends complete Known-opponent, complete unseen-
-player, and successful unavailable automatic preparation. The `v0.12.0` package
-matrix therefore validates 70 outputs while the historical published `v0.11.0`
-baseline remains 64.
+player, and successful unavailable automatic preparation. The published
+`v0.12.0` package matrix therefore validates 70 outputs while the historical
+published `v0.11.0` baseline remains 64.
 
 Issue #147 preserves all 70 published `v0.12.0` scenarios and appends exactly
 seven provenance-enabled scenarios, one for each Root workflow: Position
 Analysis, Historical Game, Training Dataset, Training Dataset Preparation,
 Opponent Statistics, fixed-three-player Historical List, and Historical List
 Comparison. The Training Dataset scenario also verifies the actual
-`opponent_statistics_input` artifact attachment. The active matrix is therefore
-77; the historical published `v0.12.0` evidence remains 70 scenarios and 4,762
-pytest tests.
+`opponent_statistics_input` artifact attachment. The `v0.13.0` package matrix
+therefore has 77 scenarios; the historical published `v0.12.0`
+evidence remains 70 scenarios and 4,762 pytest tests.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON

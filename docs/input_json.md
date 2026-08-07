@@ -270,9 +270,10 @@ contract:
 
 Weights are explicit positive integers. There are no default weights,
 percentages, normalization, algorithm overrides, CLI overrides, or fallback.
-Only `--input`, `--output`, and `--quiet` are accepted. The root selects workflow
-identifier `training_dataset_preparation`; no preparation-specific CLI flag is
-used. See [Automatic dataset preparation
+Only `--input`, `--output`, `--quiet`, and the cross-workflow
+`--include-provenance` option are accepted. The root selects workflow identifier
+`training_dataset_preparation`; no preparation-specific CLI flag is used. See
+[Automatic dataset preparation
 contracts](automatic_dataset_preparation_contracts.md).
 
 With `--aggregate-opponent-statistics`, this same branch is reused only as the
@@ -394,8 +395,9 @@ change. The result is an independent comparison, not a cross-list aggregation
 or series.
 
 No new CLI flag selects either workflow. The JSON root field selects it, and
-only `--input`, `--output`, and `--quiet` are valid. Analysis, Search, review,
-simulation, profile, dataset, and policy options are rejected.
+only `--input`, `--output`, `--quiet`, and the cross-workflow
+`--include-provenance` option are valid. Analysis, Search, review, simulation,
+profile, dataset, and policy options are rejected.
 
 ## Minimal position input
 

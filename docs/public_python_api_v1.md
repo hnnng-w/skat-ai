@@ -298,7 +298,7 @@ exact declared public document and must remain complete. See
 Issue #141 adds private Package Resources, build-
 system metadata, Package Data, `py.typed`, Package-Root `__version__`, and
 Wheel/sdist validation without a Package version change. Issue #142 adds a
-separate installed CLI contract. Package version remains `0.12.0`. Broader
+separate installed CLI contract. The current Package version is `0.13.0`. Broader
 field-level enforcement and Confidence integration are not implied. See
 [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).

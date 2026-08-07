@@ -24,7 +24,7 @@ Implemented:
 * Lazy Package Resource Root input/output/artifact schema validation with RFC
   6901 errors and stable boundary translation
 * Explicit Setuptools build metadata, `skat_ai*` discovery, Package Data, and the
-  unchanged `0.12.0` distribution version
+  current `0.13.0` Package version
 * Byte-identical private Schema resources with deterministic synchronization and
   local/CI parity checks
 * PEP 561 `py.typed`, Package-Root version metadata, one Wheel and one sdist,
@@ -553,6 +553,27 @@ Implemented:
 
 ## Release baselines
 
+### v0.13.0: Stable API, installable tooling, and public field provenance
+
+The `v0.13.0` package baseline is complete through functional Issues #137
+through #147 and release-preparation Issue #148. It contains 62 schemas,
+validates 77 deterministic generated-output scenarios, and requires Python 3.13
+or newer. It has not yet been tagged or published; publication remains a manual
+maintainer action, and GitHub Releases remains authoritative.
+
+The milestone provides stable API contract version `1`, reusable Application
+orchestration version `1`, the executable public facade, Setuptools Wheel and
+sdist artifacts, Package Resource schemas, typing and version metadata,
+installed/module/Legacy CLI parity, complete internal Root Result provenance for
+all seven workflows, and bounded opt-in public Root Result and actual-artifact
+provenance. Default Root output remains unchanged when provenance is omitted.
+
+The next provisional planning milestone is `v0.14.0`, directed at interactive
+live and retrospective session capture. Its final issue sequence, Session
+Schema, persistence model, Undo contract, UI technology, and implementation
+architecture are not defined. Online-platform adapters, browser extensions, and
+website scraping remain outside this provisional milestone.
+
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
 The published `v0.12.0` milestone is complete through functional Issues #127
@@ -737,8 +758,8 @@ Issue #135 completed package metadata and release-documentation preparation
 before the maintainer's manual publication at commit `bbf955e`. The published
 baseline validates 70 generated outputs and passes 4,762 pytest tests.
 
-The active implementation milestone is `v0.13.0`. Issue #137 provides its first
-foundation through stable API contract version `1`, exact public exports,
+The `v0.13.0` package baseline includes the foundation from Issue #137 through
+stable API contract version `1`, exact public exports,
 immutable JSON documents, compatibility metadata, stable errors, and unchanged
 legacy Root CLI behavior. Issue #138 adds the internal field-provenance
 language, immutable sidecar ledger, coverage and dependency validation,
@@ -762,11 +783,12 @@ metadata, Package Resource schemas, typing and version metadata, Wheel/sdist and
 clean-install validation, and local/CI gates without an installed CLI or
 publication. Issue #142 adds the exact installed Console Script, module entry
 point, Package-owned canonical CLI, Legacy facade, version output, and clean-
-install CLI/API parity without publication. The active repository has 62 schemas
+install CLI/API parity without publication. The package baseline has 62 schemas
 and 77 generated-output scenarios; published `v0.12.0` facts remain 70 scenarios
-and 4,762 tests. The `v0.13.0` functional milestone is complete pending release
-preparation. Later milestone numbers remain planning containers rather than
-fixed contractual releases.
+and 4,762 tests. Issue #148 prepares Package version `0.13.0`, release metadata,
+and current-state documentation without product behavior changes. Later
+milestone numbers remain planning containers rather than fixed contractual
+releases.
 
 ## Open technical cleanup
 
@@ -782,10 +804,9 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current published `v0.12.0` baseline, the historical
-published `v0.11.0` release and older release evidence, the authoritative
-publication state shown by GitHub Releases, the active `v0.13.0` planning
-milestone,
+should distinguish the `v0.13.0` package baseline, the current published
+`v0.12.0` release and older release evidence, the authoritative publication
+state shown by GitHub Releases, the provisional `v0.14.0` planning milestone,
 requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

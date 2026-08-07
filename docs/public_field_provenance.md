@@ -11,7 +11,7 @@ The contract version is:
 PUBLIC_FIELD_PROVENANCE_VERSION = 1
 ```
 
-This version is independent of Package version `0.12.0`, Public API contract
+This version is independent of Package version `0.13.0`, Public API contract
 version `1`, Application orchestration version `1`, internal field-provenance
 version `1`, JSON Schema versions, and Domain contract versions.
 
@@ -273,12 +273,12 @@ requires that entry to match the artifact actually returned.
 branch and constrains the sidecar workflow to the selected branch. The repository
 and Package Resource mirrors now contain 62 active schemas.
 
-The active generated-output matrix has 77 deterministic scenarios. The original
-70 published `v0.12.0` scenarios remain unchanged, and seven append-only Issue
-#147 scenarios cover one provenance-enabled Result for every Root workflow. The
-Training Dataset scenario also covers the actual `opponent_statistics_input`
-artifact mapping. The published `v0.12.0` historical facts remain 70 scenarios
-and 4,762 pytest tests.
+The `v0.13.0` package baseline has 77 deterministic generated-output scenarios.
+The original 70 published `v0.12.0` scenarios remain unchanged, and seven
+append-only Issue #147 scenarios cover one provenance-enabled Result for every
+Root workflow. The Training Dataset scenario also covers the actual
+`opponent_statistics_input` artifact mapping. The published `v0.12.0` historical
+facts remain 70 scenarios and 4,762 pytest tests.
 
 ## Boundaries
 
@@ -293,8 +293,7 @@ Existing Hidden-card Confidence, Profile confidence, Replay Coaching evidence,
 Search exactness, and specialized source-provenance contracts remain separate.
 
 Issue #147 completes the bounded public Root Result and actual-artifact exposure
-planned for the `v0.13.0` functional milestone, which is complete pending release
-preparation. Broader field-level information
+in the `v0.13.0` package baseline. Broader field-level information
 enforcement across loading and every internal boundary remains incomplete before
 `v1.0.0`; this public sidecar must not be described as complete end-to-end
 provenance for the product.
