@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from skat_ai.analysis_report import build_card_analysis_report_from_values
 from skat_ai.effective_opponent_policy import (
@@ -24,6 +26,7 @@ from skat_ai.historical_opponent_profile_binding import (
     HistoricalOpponentProfileBindings,
 )
 from skat_ai.historical_snapshot_adapter import (
+    HistoricalSnapshotPosition,
     build_position_from_historical_snapshot,
 )
 from skat_ai.input_validation import MAX_SAMPLE_COUNT, validate_positive_integer_maximum
@@ -41,6 +44,11 @@ from skat_ai.public_hand_constraint import (
 )
 from skat_ai.recommender import recommend_card_by_expected_value
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+
+if TYPE_CHECKING:
+    from skat_ai.historical_review_provenance import (
+        HistoricalReviewProvenanceCollector,
+    )
 
 HISTORICAL_GAME_REVIEW_SCHEMA_VERSION = 1
 HISTORICAL_GAME_REVIEW_ANALYSIS_METHOD = "immediate_expected_value"
@@ -61,6 +69,19 @@ class HistoricalGameReviewSettings:
     sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
     base_random_seed: int | None = None
     opponent_policy_mode: Literal["default", "external_profiles"] = "default"
+
+
+@dataclass(frozen=True)
+class HistoricalImmediateDecisionPreActualAnalysis:
+    """Retained Immediate values produced before the observed card is read."""
+
+    position: HistoricalSnapshotPosition
+    effective_random_seed: int | None
+    recommended_card: str
+    recommendation_reason: str
+    analysis_report: tuple[dict[str, Any], ...]
+    hidden_card_inference_summary: dict[str, Any] | None
+    opponent_profile_application: dict[str, Any] | None
 
 
 def _build_empty_quality_counts() -> dict[str, int]:
@@ -85,14 +106,14 @@ def _build_decision_identity(
     return result
 
 
-def _build_reviewed_decision(
+def _build_reviewed_decision_pre_actual_analysis(
     snapshot: HistoricalDecisionSnapshot,
     historical_record: HistoricalGameRecord,
     sample_count: int,
     effective_random_seed: int | None,
     opponent_response_policy_by_player: dict[str, str] | None = None,
     opponent_profile_application: dict[str, Any] | None = None,
-) -> dict[str, Any]:
+) -> HistoricalImmediateDecisionPreActualAnalysis:
     position = build_position_from_historical_snapshot(
         snapshot=snapshot,
         historical_record=historical_record,
@@ -109,10 +130,10 @@ def _build_reviewed_decision(
             left_hand_size=position.left_hand_size,
             right_hand_size=position.right_hand_size,
             sample_count=sample_count,
-                random_seed=effective_random_seed,
-                opponent_response_policy_by_player=opponent_response_policy_by_player,
-                public_hand_constraints=position.public_hand_constraints,
-            )
+            random_seed=effective_random_seed,
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=position.public_hand_constraints,
+        )
     )
     analysis_report = build_card_analysis_report_from_values(
         state=position.state,
@@ -123,6 +144,62 @@ def _build_reviewed_decision(
     ]
     if len(recommended_rows) != 1 or recommended_rows[0]["card"] != recommended_card:
         raise ValueError("Historical recommendation and analysis report are inconsistent.")
+
+    inference_summary = build_hidden_card_inference_summary(
+        hidden_card_inference_model
+    )
+    return HistoricalImmediateDecisionPreActualAnalysis(
+        position=position,
+        effective_random_seed=effective_random_seed,
+        recommended_card=recommended_card,
+        recommendation_reason=recommendation_reason,
+        analysis_report=tuple(dict(row) for row in analysis_report),
+        hidden_card_inference_summary=inference_summary,
+        opponent_profile_application=(
+            dict(opponent_profile_application)
+            if opponent_profile_application is not None
+            else None
+        ),
+    )
+
+
+def _build_reviewed_decision(
+    snapshot: HistoricalDecisionSnapshot,
+    historical_record: HistoricalGameRecord,
+    sample_count: int,
+    effective_random_seed: int | None,
+    opponent_response_policy_by_player: dict[str, str] | None = None,
+    opponent_profile_application: dict[str, Any] | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
+) -> dict[str, Any]:
+    pre_actual = _build_reviewed_decision_pre_actual_analysis(
+        snapshot=snapshot,
+        historical_record=historical_record,
+        sample_count=sample_count,
+        effective_random_seed=effective_random_seed,
+        opponent_response_policy_by_player=opponent_response_policy_by_player,
+        opponent_profile_application=opponent_profile_application,
+    )
+    position = pre_actual.position
+    analysis_report = [dict(row) for row in pre_actual.analysis_report]
+    if provenance_collector is not None:
+        provenance_collector.capture_immediate_analysis(
+            snapshot=snapshot,
+            document={
+                "legal_cards": list(position.legal_cards),
+                "recommendation": {
+                    "card": pre_actual.recommended_card,
+                    "reason": pre_actual.recommendation_reason,
+                },
+                "analysis_report": analysis_report,
+                "hidden_card_inference_summary": (
+                    pre_actual.hidden_card_inference_summary
+                ),
+                "opponent_profile_application": (
+                    pre_actual.opponent_profile_application
+                ),
+            },
+        )
 
     game_value = (
         get_null_game_value(position.game_declaration)
@@ -143,25 +220,34 @@ def _build_reviewed_decision(
         "effective_random_seed": effective_random_seed,
         "legal_cards": list(position.legal_cards),
         "recommendation": {
-            "card": recommended_card,
-            "reason": recommendation_reason,
+            "card": pre_actual.recommended_card,
+            "reason": pre_actual.recommendation_reason,
         },
         "analysis_report": analysis_report,
         "post_game_review_summary": post_game_review_summary,
     }
-    if opponent_profile_application is not None:
-        result["opponent_profile_application"] = opponent_profile_application
-    inference_summary = build_hidden_card_inference_summary(
-        hidden_card_inference_model
-    )
-    if inference_summary is not None:
-        result["hidden_card_inference_summary"] = inference_summary
+    if pre_actual.opponent_profile_application is not None:
+        result["opponent_profile_application"] = (
+            pre_actual.opponent_profile_application
+        )
+    if pre_actual.hidden_card_inference_summary is not None:
+        result["hidden_card_inference_summary"] = (
+            pre_actual.hidden_card_inference_summary
+        )
     if any(
         constraint.source == DECLARED_OUVERT_SOURCE
         for constraint in position.public_hand_constraints
     ):
         result["public_hand_constraints"] = build_serializable_public_hand_constraints(
             position.public_hand_constraints
+        )
+    if provenance_collector is not None:
+        provenance_collector.capture_immediate_assessment(
+            snapshot=snapshot,
+            document={
+                "actual_card_played": snapshot.actual_card_played,
+                "post_game_review_summary": post_game_review_summary,
+            },
         )
     return result
 
@@ -304,6 +390,7 @@ def build_historical_game_review_summary(
     left_opponent_response_policy_override: str | None = None,
     right_opponent_lead_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> dict[str, Any]:
     """Evaluates all historical decisions through the immediate review pipeline."""
     cardinality = snapshot_summary.cardinality
@@ -359,6 +446,30 @@ def build_historical_game_review_summary(
                     ),
                 )
             )
+            if provenance_collector is not None:
+                provenance_collector.capture_profile_application(
+                    snapshot=snapshot,
+                    external_profile_application=opponent_profile_application,
+                    effective_opponent_policies={
+                        "global_lead_policy": (
+                            effective_policy_settings.global_lead_policy
+                        ),
+                        "global_response_policy": (
+                            effective_policy_settings.global_response_policy
+                        ),
+                        "left_lead_policy": effective_policy_settings.left_lead_policy,
+                        "left_response_policy": (
+                            effective_policy_settings.left_response_policy
+                        ),
+                        "right_lead_policy": effective_policy_settings.right_lead_policy,
+                        "right_response_policy": (
+                            effective_policy_settings.right_response_policy
+                        ),
+                        "immediate_response_policy_by_player": (
+                            effective_policy_settings.immediate_response_policy_by_player
+                        ),
+                    },
+                )
         decision = _build_reviewed_decision(
             snapshot=snapshot,
             historical_record=historical_record,
@@ -370,6 +481,7 @@ def build_historical_game_review_summary(
                 else None
             ),
             opponent_profile_application=opponent_profile_application,
+            provenance_collector=provenance_collector,
         )
         decisions.append(decision)
 

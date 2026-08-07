@@ -91,6 +91,25 @@ participant-based and decision breakdowns remain actor-based.
 
 The project is not a machine-learning model. Its behavior is based on Skat rules, deterministic helpers, and simulation.
 
+## Information provenance
+
+| File | Purpose |
+| --- | --- |
+| `src/skat_ai/field_provenance.py` | Shared immutable field-level provenance language, dependencies, and serialization. |
+| `src/skat_ai/field_provenance_coverage.py` | Deterministic JSON-leaf coverage auditing. |
+| `src/skat_ai/field_provenance_policy.py` | Information Use Context validation and public redaction. |
+| `src/skat_ai/live_analysis_provenance.py` | Live Position decision collection and partial-legacy Result mapping. |
+| `src/skat_ai/retrospective_review_provenance.py` | Flat retrospective stage separation and shared complete-attachment construction. |
+| `src/skat_ai/historical_review_provenance.py` | Historical decision, review-summary, Coaching, and partial-legacy Result collection. |
+| `src/skat_ai/replay_coaching_provenance.py` | Replay Coaching evidence, assessment, prioritization, guidance, and report mapping. |
+| `src/skat_ai/application/provenance.py` | Immutable attachments and canonical per-workflow bundle ordering. |
+
+Live and retrospective provenance is retained as an internal Application
+sidecar. Existing workflow values are observed through optional hooks; analysis,
+Search, Snapshot, and Coaching stages are not rerun. Public API and CLI adapters
+ignore the sidecar, so Root JSON, Schemas, examples, and generated scenarios do
+not expose field-level provenance.
+
 ## Main entry point
 
 | File      | Purpose                                                                                                                           |

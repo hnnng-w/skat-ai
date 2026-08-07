@@ -300,7 +300,8 @@ absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
 
 The following remain open for later `v0.13.0` issues:
 
-* retrospective and non-Position provenance propagation;
+* Dataset, Dataset Preparation, list, general Opponent, and complete non-legacy
+  Result provenance propagation;
 * any additive public provenance API, schemas, or output integration.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
@@ -311,5 +312,7 @@ metadata, private Package Resource schemas, `py.typed`, Package version export,
 and Wheel/sdist clean-install gates without changing the API facade exports.
 Issue #142 adds the installed and module CLI transports without changing this
 Public API surface. Issue #143 adds internal live Position enforcement without
-changing it. See [Installed CLI](installed_cli.md) and
+changing it. Issue #144 adds internal retrospective Position, Historical Review,
+Historical Search Review, and Replay Coaching propagation without changing it.
+See [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).

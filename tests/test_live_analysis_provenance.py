@@ -617,9 +617,21 @@ def test_external_profile_reference_is_engine_private_and_publicly_redactable(
     assert construction_counts == {"input": 1, "summary": 1}
 
 
-def test_post_game_defender_open_play_proof_creates_no_live_bundle() -> None:
+def test_post_game_defender_open_play_proof_creates_only_safe_retrospective_bundle() -> None:
     execution = _execute(_load("defender_open_play.json"))
-    assert execution.provenance is None
+    assert execution.provenance is not None
+    assert [attachment.name for attachment in execution.provenance.attachments] == [
+        "flat_retrospective/input",
+        "flat_retrospective/analysis",
+        "position_result",
+    ]
+    serialized = json.dumps(
+        [attachment.document_to_dict() for attachment in execution.provenance.attachments],
+        sort_keys=True,
+    )
+    assert "accepted_defender_open_play_proof" not in serialized
+    assert "private_evidence_redacted" in serialized
+    assert "proof_internals" not in serialized
 
 
 def test_context_use_is_enforced_before_analysis_and_simulation(monkeypatch) -> None:

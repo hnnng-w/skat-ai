@@ -32,14 +32,14 @@ def _validate_identifier(value: object, *, path: str) -> str:
 
 def _attachment_sort_key(
     attachment: ApplicationProvenanceAttachment,
-) -> tuple[int, int, int, str]:
+) -> tuple[int, int, int, int, str]:
     name = attachment.name
     if name == "flat_decision":
-        return (0, 0, 0, name)
+        return (0, 0, 0, 0, name)
     if name.startswith("multi_step_decision/"):
         suffix = name.removeprefix("multi_step_decision/")
         if suffix.isascii() and suffix.isdecimal():
-            return (1, int(suffix), 0, name)
+            return (1, int(suffix), 0, 0, name)
     if name.startswith("policy_comparison_decision/"):
         parts = name.split("/")
         if (
@@ -49,10 +49,38 @@ def _attachment_sort_key(
             and parts[3].isascii()
             and parts[3].isdecimal()
         ):
-            return (2, int(parts[1]), int(parts[3]), name)
+            return (2, int(parts[1]), int(parts[3]), 0, name)
+    if name.startswith("flat_retrospective/"):
+        stage = name.removeprefix("flat_retrospective/")
+        stage_order = {"input": 0, "analysis": 1, "assessment": 2}
+        if stage in stage_order:
+            return (3, 0, stage_order[stage], 0, name)
+    if name.startswith("historical_decision/"):
+        parts = name.split("/")
+        stage_order = {"input": 0, "analysis": 1, "assessment": 2}
+        if (
+            len(parts) == 3
+            and parts[1].isascii()
+            and parts[1].isdecimal()
+            and int(parts[1]) > 0
+            and parts[2] in stage_order
+        ):
+            return (4, int(parts[1]), stage_order[parts[2]], 0, name)
+    aggregate_order = {
+        "historical_snapshot_summary": 5,
+        "historical_immediate_review_summary": 6,
+        "historical_search_review_summary": 7,
+        "replay_coaching/prioritization": 8,
+        "replay_coaching/guidance": 9,
+        "replay_coaching/report": 10,
+    }
+    if name in aggregate_order:
+        return (aggregate_order[name], 0, 0, 0, name)
     if name == "position_result":
-        return (3, 0, 0, name)
-    return (4, 0, 0, name)
+        return (11, 0, 0, 0, name)
+    if name == "historical_game_result":
+        return (12, 0, 0, 0, name)
+    return (13, 0, 0, 0, name)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

@@ -123,6 +123,13 @@ from skat_ai.simulation_provenance import build_safe_selection_settings
 
 if TYPE_CHECKING:
     from skat_ai.live_analysis_provenance import LiveAnalysisProvenanceCollector
+    from skat_ai.retrospective_review_provenance import (
+        FlatRetrospectiveProvenanceCollector,
+    )
+
+    PositionProvenanceCollector = (
+        LiveAnalysisProvenanceCollector | FlatRetrospectiveProvenanceCollector
+    )
 
 IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
     "Immediate analysis is unavailable because the local player is not next."
@@ -289,7 +296,7 @@ def _build_position_analysis_result(
     options: PositionAnalysisApplicationOptions,
     effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
     opponent_profile_application_summary: dict[str, Any] | None = None,
-    provenance_collector: LiveAnalysisProvenanceCollector | None = None,
+    provenance_collector: PositionProvenanceCollector | None = None,
     dependencies: PositionWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     local_data = build_local_analysis_input(data)
@@ -468,6 +475,13 @@ def _build_position_analysis_result(
             unavailable_summary_builder=dependencies.unavailable_summary_builder,
         )
         immediate_review_report = list(immediate_baseline.analysis_report)
+        retain_baseline = getattr(
+            provenance_collector,
+            "retain_flat_immediate_baseline",
+            None,
+        )
+        if retain_baseline is not None:
+            retain_baseline(immediate_baseline)
         if recommendation_workflow.bounded_search_result is None:
             raise ValueError(
                 "Post-game Search review requires a bounded Search result."
@@ -490,6 +504,19 @@ def _build_position_analysis_result(
         player_role=state.player_role,
         game_value=game_value_summary["game_value"],
     )
+    retain_assessment = getattr(
+        provenance_collector,
+        "retain_flat_retrospective_assessment",
+        None,
+    )
+    if retain_assessment is not None:
+        retain_assessment(
+            actual_card_played=actual_card_played,
+            post_game_review_summary=post_game_review_summary,
+            bounded_search_post_game_review_summary=(
+                bounded_search_post_game_review_summary
+            ),
+        )
     score_summary = build_score_summary(state)
     game_result_summary = build_game_result_summary_from_score_summary(
         score_summary=score_summary,
@@ -765,7 +792,7 @@ def execute_position_analysis_workflow(
     options: PositionAnalysisApplicationOptions,
     opponent_statistics_document: dict[str, Any] | None = None,
     opponent_statistics_reference: str | None = None,
-    provenance_collector: LiveAnalysisProvenanceCollector | None = None,
+    provenance_collector: PositionProvenanceCollector | None = None,
     dependencies: PositionWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Executes all selected Position Analysis sub-workflows without transport I/O."""
@@ -885,6 +912,13 @@ def execute_position_analysis_workflow(
         get_profile_preset_settings_from_input(data),
         options,
     )
+    from skat_ai.live_analysis_provenance import LiveAnalysisProvenanceCollector
+
+    live_provenance_collector = (
+        provenance_collector
+        if isinstance(provenance_collector, LiveAnalysisProvenanceCollector)
+        else None
+    )
     result["opponent_policy_settings"] = opponent_policy_settings
     result["left_opponent_policy_settings"] = left_policy_settings
     result["right_opponent_policy_settings"] = right_policy_settings
@@ -916,13 +950,13 @@ def execute_position_analysis_workflow(
             else None
         ),
         decision_provenance_hook=(
-            provenance_collector.capture_multi_step_decision
-            if provenance_collector is not None
+            live_provenance_collector.capture_multi_step_decision
+            if live_provenance_collector is not None
             else None
         ),
     )
-    if provenance_collector is not None:
-        provenance_collector.retain_multi_step_result(multi_step_result)
+    if live_provenance_collector is not None:
+        live_provenance_collector.retain_multi_step_result(multi_step_result)
     result["multi_step_result"] = build_serializable_multi_step_result(
         multi_step_result
     )
@@ -958,13 +992,13 @@ def execute_position_analysis_workflow(
                 else None
             ),
             decision_provenance_hook=(
-                provenance_collector.capture_policy_comparison_decision
-                if provenance_collector is not None
+                live_provenance_collector.capture_policy_comparison_decision
+                if live_provenance_collector is not None
                 else None
             ),
             recommendation_decision_observer=(
-                provenance_collector.retain_policy_comparison_recommendation_decision
-                if provenance_collector is not None
+                live_provenance_collector.retain_policy_comparison_recommendation_decision
+                if live_provenance_collector is not None
                 else None
             ),
         )

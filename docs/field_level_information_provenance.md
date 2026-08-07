@@ -4,27 +4,31 @@ This document defines the internal version-1 field-level information provenance
 language introduced by Issue #138.
 
 Issue #138 defines the shared provenance language. Issue #143 applies it
-internally to live Position Analysis without exposing a public provenance field.
+internally to live Position Analysis, and Issue #144 applies it to retrospective
+Position Analysis, Historical Review, Historical Search Review, and Replay
+Coaching. Neither issue exposes a public provenance field.
 
-This foundation changes no existing input, output, schema, CLI, example,
-generated scenario, specialized provenance contract, or public API export. Later work must construct and
-propagate ledgers at actual workflow boundaries before provenance can enforce a
-complete live-information policy end to end.
+This foundation and its current workflow propagation change no existing input,
+output, schema, CLI, example, generated scenario, specialized provenance
+contract, or public API export. Remaining work must propagate ledgers through
+the still-untracked workflow and Result boundaries before provenance can enforce
+a complete information policy end to end.
 
 Issue #139 adds internal Application orchestration version `1` without changing
-this boundary. Issue #140 adds executable public facade contracts and functions,
-but no provenance option, value, Result field, or export. Application invocations,
-injected Opponent Statistics, results, and auxiliary artifacts do not construct,
-carry, propagate, redact, or emit a field-provenance ledger.
+the public boundary. Issue #140 adds executable public facade contracts and
+functions, but no provenance option, value, Result field, or export. The facade
+does not carry, redact, or emit an Application field-provenance bundle.
 Issue #141 adds Package resources, typing and version metadata, and distribution
 validation without changing that provenance boundary. Built and cleanly
 installed distributions expose no provenance option, Result field, schema, or
 public provenance name.
 Issue #142 adds installed, module, and Legacy CLI parity without adding a
 Provenance option, output, Schema, export, propagation, or public name.
-Issue #143 adds internal live decision and Position Result attachments while the
-same public boundary remains unchanged. See
-[Live analysis provenance](live_analysis_provenance.md).
+Issue #143 adds internal live decision and Position Result attachments. Issue
+#144 adds internal retained-stage retrospective attachments and selected
+Position/Historical Result propagation while the same public boundary remains
+unchanged. See [Live analysis provenance](live_analysis_provenance.md) and
+[Retrospective review provenance](retrospective_review_provenance.md).
 
 ## Contract identity
 
@@ -397,10 +401,10 @@ Replay Coaching evidence semantics remain unchanged. A confirmed inference may
 still have derived provenance, and a direct source may have a separate
 uncertainty contract.
 
-## Future mapping guidance
+## Workflow mapping guidance
 
-The shared vocabulary is intended to support these later mappings without
-changing the existing specialized contracts now:
+The shared vocabulary supports these mappings without changing the existing
+specialized contracts:
 
 | Existing or future field | Intended shared provenance |
 | --- | --- |
@@ -425,15 +429,17 @@ and unchanged.
 
 The following remain open:
 
-* Historical Review and Replay Coaching provenance;
 * Training Dataset and Dataset Preparation provenance;
 * historical-list provenance;
-* Opponent Statistics and profile provenance;
+* general Opponent Statistics workflow provenance;
 * any additive public provenance API exposure;
 * public schemas and output integration;
 * CLI presentation;
-* adversarial enforcement outside live Position Analysis.
+* broader adversarial enforcement outside implemented live and retrospective
+  Application workflows.
 
-The internal Application boundary now carries live Position provenance only.
-This is not a claim of complete field-level provenance for retrospective or
-other workflows and adds no public provenance contract.
+The internal Application boundary now carries live and retrospective Position,
+Historical Review, Historical Search Review, Replay Coaching, and selected
+Result provenance. This is not a claim of complete field-level provenance for
+Dataset, list, general Opponent, or all Result fields and adds no public
+provenance contract.

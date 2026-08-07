@@ -887,6 +887,7 @@ def build_live_position_result_provenance_attachment(
     result: Mapping[str, object],
     *,
     search_entries_by_path: Mapping[str, FieldProvenanceEntry] | None = None,
+    additional_entries_by_path: Mapping[str, FieldProvenanceEntry] | None = None,
     external_reference: str | None = None,
 ) -> ApplicationProvenanceAttachment:
     """Builds all-leaf partial-legacy provenance for the exact Position Result."""
@@ -898,8 +899,13 @@ def build_live_position_result_provenance_attachment(
     tokens_by_path = {path: parse_json_pointer(path) for path in leaf_paths}
     visible_dependencies = _visible_position_dependencies(leaf_paths)
     profile_dependencies = _profile_dependencies_by_side(result, leaf_paths)
+    registered_additional_entries = dict(additional_entries_by_path or {})
+    tracked_additional_paths = tuple(registered_additional_entries)
     present_legacy_paths = tuple(
-        path for path in _LEGACY_RESULT_PATHS if path.removeprefix("/") in result
+        path
+        for path in _LEGACY_RESULT_PATHS
+        if path.removeprefix("/") in result
+        and not any(_is_at_or_below(entry_path, path) for entry_path in tracked_additional_paths)
     )
     exemptions = tuple(
         FieldProvenanceExemption(
@@ -910,13 +916,20 @@ def build_live_position_result_provenance_attachment(
         for path in present_legacy_paths
     )
     registered_search_entries = dict(search_entries_by_path or {})
-    for registered_path, registered_entry in registered_search_entries.items():
+    registered_entries = {**registered_search_entries}
+    for additional_path, additional_entry in registered_additional_entries.items():
+        if additional_path in registered_entries:
+            raise ValueError(
+                f"Duplicate registered Position Result provenance path: {additional_path}"
+            )
+        registered_entries[additional_path] = additional_entry
+    for registered_path, registered_entry in registered_entries.items():
         if registered_entry.field_path != registered_path:
             raise ValueError(
-                "Registered Search provenance key and entry path must match: "
+                "Registered provenance key and entry path must match: "
                 f"{registered_path}"
             )
-    missing_registered_paths = sorted(set(registered_search_entries) - leaf_path_set)
+    missing_registered_paths = sorted(set(registered_entries) - leaf_path_set)
     if missing_registered_paths:
         raise ValueError(
             "Registered Search provenance paths are absent from the Position Result: "
@@ -927,7 +940,7 @@ def build_live_position_result_provenance_attachment(
     for path in leaf_paths:
         if any(_is_at_or_below(path, legacy_path) for legacy_path in present_legacy_paths):
             continue
-        registered = registered_search_entries.get(path)
+        registered = registered_entries.get(path)
         if registered is not None:
             entries.append(registered)
             consumed_registered_paths.add(path)
@@ -949,7 +962,7 @@ def build_live_position_result_provenance_attachment(
             )
         )
     unused_registered_paths = sorted(
-        set(registered_search_entries) - consumed_registered_paths
+        set(registered_entries) - consumed_registered_paths
     )
     if unused_registered_paths:
         raise ValueError(

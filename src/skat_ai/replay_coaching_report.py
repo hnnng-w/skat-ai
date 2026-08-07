@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from dataclasses import InitVar, dataclass
 from types import MappingProxyType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.bounded_search_result import build_serializable_bounded_search_result
 from skat_ai.historical_decision_snapshot import HistoricalDecisionSnapshotSummary
@@ -51,6 +53,11 @@ from skat_ai.retrospective_search_comparison import (
 )
 from skat_ai.search_budget_profiles import HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+
+if TYPE_CHECKING:
+    from skat_ai.historical_review_provenance import (
+        HistoricalReviewProvenanceCollector,
+    )
 
 REPLAY_COACHING_REPORT_VERSION = 1
 REPLAY_COACHING_REPORT_METHOD = "historical_replay_coaching_v1"
@@ -407,6 +414,7 @@ class HistoricalReplayCoachingAnalysis:
 def build_replay_coaching_report(
     historical_record: HistoricalGameRecord,
     coaching_analysis: HistoricalSearchReviewCoachingAnalysis,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> ReplayCoachingReport:
     """Composes a report after all decision coaching artifacts already exist."""
     _validate_source_review(historical_record, coaching_analysis)
@@ -421,7 +429,7 @@ def build_replay_coaching_report(
     limitations = _build_report_limitations(coaching_analysis)
     # Final outcome context is intentionally attached after all coaching derivation.
     outcome_context = build_replay_coaching_outcome_context(historical_record)
-    return ReplayCoachingReport(
+    report = ReplayCoachingReport(
         report_version=REPLAY_COACHING_REPORT_VERSION,
         report_method=REPLAY_COACHING_REPORT_METHOD,
         information_policy=REPLAY_COACHING_INFORMATION_POLICY,
@@ -443,6 +451,9 @@ def build_replay_coaching_report(
         historical_record=historical_record,
         coaching_analysis=coaching_analysis,
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_report(report)
+    return report
 
 
 def build_historical_replay_coaching_analysis(
@@ -452,6 +463,7 @@ def build_historical_replay_coaching_analysis(
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     immediate_base_random_seed: int | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> HistoricalReplayCoachingAnalysis:
     """Runs one existing review pass, then composes its complete internal report."""
     coaching = build_historical_search_review_coaching_analysis(
@@ -461,8 +473,13 @@ def build_historical_replay_coaching_analysis(
         search_budget_profile,
         immediate_sample_count,
         immediate_base_random_seed,
+        provenance_collector,
     )
-    report = build_replay_coaching_report(historical_record, coaching)
+    report = build_replay_coaching_report(
+        historical_record,
+        coaching,
+        provenance_collector,
+    )
     return HistoricalReplayCoachingAnalysis(
         public_review_summary=coaching.public_review_summary,
         assessments=coaching.assessments,
@@ -530,6 +547,7 @@ def build_historical_replay_coaching_public_summaries(
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     immediate_base_random_seed: int | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Builds both public summaries from one validated Replay Coaching analysis."""
     analysis = build_historical_replay_coaching_analysis(
@@ -539,6 +557,7 @@ def build_historical_replay_coaching_public_summaries(
         search_budget_profile=search_budget_profile,
         immediate_sample_count=immediate_sample_count,
         immediate_base_random_seed=immediate_base_random_seed,
+        provenance_collector=provenance_collector,
     )
     search_review = _thaw_json_value(analysis.public_review_summary)
     replay_coaching = build_serializable_replay_coaching_report(analysis.report)

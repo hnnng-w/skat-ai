@@ -144,5 +144,6 @@ remain required. The local full check and CI invoke that validator once.
 Issue #142 adds no workflow, Root field, Schema, example, generated scenario,
 interactive session, license metadata, Package-version change, publication, or
 upload. Issue #143 adds internal live Position provenance, but all CLI forms
-intentionally ignore that bundle. There is no Provenance option, output, Schema,
-artifact, export, or terminal section.
+intentionally ignore that bundle. Issue #144 adds internal retrospective
+Position and Historical provenance under the same boundary. There is no
+Provenance option, output, Schema, artifact, export, or terminal section.

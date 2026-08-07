@@ -54,6 +54,10 @@ The project focuses on:
   pre-selection decision ledgers across Immediate, Search, inference,
   Multi-Step, and Policy Comparison plus an all-leaf partial-legacy Position
   Result ledger
+* internal retrospective and Replay Coaching provenance version `1` with
+  separated pre-actual and post-actual flat Position and Historical decision
+  stages, complete requested review/report ledgers, and an all-leaf partial-
+  legacy Historical Result ledger
 * internal Application orchestration version `1` with immutable invocations,
   workflow options, injected external documents, results, and auxiliary
   artifacts; generic no-I/O dispatch for all seven Root workflows; five isolated
@@ -158,8 +162,9 @@ boundary-error translation. Issue #141 adds installable Wheel and sdist
 artifacts, private Package Resource schemas, typing and Package version metadata,
 and clean-install validation. Issue #142 adds the installed and module CLI entry
 points without changing Public API exports. Field-level provenance now propagates
-internally through live Position Application execution, but has no public output
-or export. See [Public API contracts](public_api_contracts.md) and
+internally through live and retrospective Position and Historical Application
+execution, but has no public output or export. See
+[Public API contracts](public_api_contracts.md) and
 [Public Python API v1](public_python_api_v1.md).
 
 ### Application orchestration foundation
@@ -181,14 +186,14 @@ Implemented by Issue #139 for `v0.13.0`:
   `main.py` retained as a compatibility facade preserving wrapper names, patches,
   and JSON behavior
 * an internal boundary consumed by the Issue #140 public facade
-* optional internal Issue #143 live Position provenance attachments ignored by
-  public and CLI adapters
+* optional internal Issue #143 live Position and Issue #144 retrospective
+  Position/Historical provenance attachments ignored by public and CLI adapters
 
 The public facade now exposes generic parse, execute, execute-document, and
 serialization functions without exporting these Application types. Workflow-
 specific execution helpers remain absent. Installed entry points are implemented
-by Issue #142; broader Domain error migration and retrospective, non-Position,
-and public provenance remain open. See
+by Issue #142; broader Domain error migration and Dataset, list, general
+Opponent, complete non-legacy Result, and public provenance remain open. See
 [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
@@ -206,10 +211,15 @@ Implemented by Issue #138 for `v0.13.0`:
 * explicit separation of provenance from existing Confidence contracts
 
 Issue #143 constructs complete live decision ledgers and one partial-legacy
-Position Result ledger inside Application execution. Public API exposure,
-schemas, output fields, CLI presentation, and non-live workflow propagation
-remain open. See [Field-level information provenance](field_level_information_provenance.md)
-and [Live analysis provenance](live_analysis_provenance.md).
+Position Result ledger inside Application execution. Issue #144 extends internal
+propagation through flat retrospective Position Analysis, Historical Review,
+Historical Search Review, Replay Coaching, and selected Position/Historical
+Result branches. Public API exposure, schemas, output fields, CLI presentation,
+Dataset, list, general Opponent, and complete non-legacy Result propagation
+remain open. See
+[Field-level information provenance](field_level_information_provenance.md),
+[Live analysis provenance](live_analysis_provenance.md), and
+[Retrospective review provenance](retrospective_review_provenance.md).
 
 ### Core rules and simulation
 
@@ -678,6 +688,15 @@ Implemented:
 * `live_analysis_provenance.py`
   * complete decision documents, live Result mapping, deterministic collection,
     and Application bundle construction
+* `retrospective_review_provenance.py`
+  * flat review stage separation, complete attachment construction, privacy
+    validation, and nested Search mapping
+* `historical_review_provenance.py`
+  * Historical decision, aggregate review, Coaching, and partial-legacy Root
+    Result collection
+* `replay_coaching_provenance.py`
+  * retained evidence, assessment, prioritization, guidance, and complete report
+    provenance
 * `search_provenance.py`
   * complete aggregate-only Search Result provenance for every status
 * `simulation_provenance.py`
@@ -972,6 +991,13 @@ live Position selection, aggregate-only Search and structural inference mapping,
 and exact partial-legacy Position Result coverage. It changes no Package version,
 public API export, Root output, schema, CLI, example, or generated scenario.
 
+Issue #144 adds retrospective-review and Replay Coaching provenance version `1`,
+separates pre-actual and post-actual Position/Historical stages, reuses retained
+Immediate and Search values, covers requested review and report summaries, and
+adds exact partial-legacy Historical Result coverage. It changes no Package
+version, public API export, Root output, schema, CLI, example, or generated
+scenario.
+
 Issue #139 adds internal Application orchestration version `1` for all seven Root
 workflows, five isolated Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI parity. Issue #140 adds the
@@ -1150,14 +1176,18 @@ Completed implementation scope:
   public redaction, and safe serialization
 * internal live Position provenance with complete flat and simulated decision
   ledgers and an all-leaf partial-legacy Result ledger
+* internal retrospective provenance across flat Position review, Historical
+  Snapshots, Immediate and Search Review, Replay Coaching, and selected all-leaf
+  partial-legacy Position/Historical Result branches
 
 ## Current high-priority limitations
 
 * Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
-* Live Position Application execution has internal provenance, but retrospective,
-  non-Position, complete non-legacy Result, and public integration remain open.
+* Live and retrospective Position plus Historical Review/Coaching Application
+  execution have internal provenance. Dataset, list, general Opponent, complete
+  non-legacy Result, and public integration remain open.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
   general stronger search remain incomplete. Compatible-world Minimax now
@@ -1203,9 +1233,11 @@ Completed implementation scope:
 Continue the approved `v0.13.0` sequence after the Issue #137 public contracts,
 Issue #138 field-provenance foundation, Issue #139 internal Application
 orchestration, Issue #140 executable public facade, Issue #141 distribution
-packaging, Issue #142 installed CLI, and Issue #143 live Position provenance.
-Retrospective, non-Position, and public provenance remain separate follow-up
-scopes. Package publication and license selection also remain human decisions.
+packaging, Issue #142 installed CLI, Issue #143 live Position provenance, and
+Issue #144 retrospective Position/Historical/Coaching provenance. Dataset,
+Dataset Preparation, list, general Opponent, complete non-legacy Result, and
+public provenance remain separate follow-up scopes. Package publication and
+license selection also remain human decisions.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

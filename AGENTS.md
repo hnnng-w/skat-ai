@@ -174,7 +174,11 @@ coverage and dependency validation, Information Use Context, public redaction,
 and safe serialization. Issue #143 adds internal Application provenance bundles,
 complete live decision ledgers, Immediate, Search, inference, Multi-Step, and
 Policy Comparison propagation, and an all-leaf partial-legacy Position Result
-ledger. Public and retrospective provenance integration remain open.
+ledger. Issue #144 extends internal provenance through flat retrospective
+Position Analysis, Historical Snapshots, Immediate and Search Review, Replay
+Coaching, and an all-leaf partial-legacy Historical Result ledger. Public,
+Dataset, Dataset Preparation, list, general Opponent, and complete non-legacy
+Result provenance integration remain open.
 
 Major completed areas include:
 
@@ -243,6 +247,9 @@ Major completed areas include:
 * Package-owned installed and module CLI entry points with canonical parsing, direct Application execution, Legacy Root compatibility, and clean Wheel/sdist command validation
 * internal live Position provenance enforcement across Immediate, Search,
   Hidden-card inference, Multi-Step, and Policy Comparison without public output
+* internal retrospective provenance enforcement across flat post-game Position
+  Analysis, Historical Review and Search Review, Replay Coaching, and selected
+  Position/Historical Result branches without public output
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -250,8 +257,8 @@ defender-open-play proof beyond five unresolved tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,
-Sample- or Player-count balancing, or component splitting, incomplete retrospective,
-non-Position, and public field-provenance integration, heuristic rule-based recommendations and
+Sample- or Player-count balancing, or component splitting, incomplete non-
+Position, complete-Result, and public field-provenance integration, heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Search remains bounded late-game determinization subject to Strategy
 Fusion, not an optimal imperfect-information policy or complete-contract Search;

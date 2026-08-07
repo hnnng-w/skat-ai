@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import hashlib
 import math
 from collections.abc import Mapping
 from dataclasses import InitVar, dataclass
 from types import MappingProxyType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.analysis_report import build_card_analysis_report_from_values
 from skat_ai.bounded_search_information import (
@@ -61,6 +63,11 @@ from skat_ai.search_budget_profiles import (
     get_search_budget_profile,
 )
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+
+if TYPE_CHECKING:
+    from skat_ai.historical_review_provenance import (
+        HistoricalReviewProvenanceCollector,
+    )
 
 HISTORICAL_SEARCH_REVIEW_SCHEMA_VERSION = 1
 HISTORICAL_SEARCH_REVIEW_ANALYSIS_METHOD = (
@@ -455,6 +462,7 @@ def build_historical_search_decision_internal_result(
     settings: HistoricalSearchReviewSettings,
     *,
     stable_game_identity: str | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> HistoricalSearchDecisionInternalResult:
     """Builds one public review row and retains its existing assessment."""
     analysis = build_historical_search_decision_pre_actual_analysis(
@@ -463,10 +471,20 @@ def build_historical_search_decision_internal_result(
         settings,
         stable_game_identity=stable_game_identity,
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_search_analysis(
+            snapshot=snapshot,
+            analysis=analysis,
+        )
     attachment = attach_historical_search_decision_retrospective_assessment(
         snapshot,
         analysis,
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_search_assessment(
+            snapshot=snapshot,
+            attachment=attachment,
+        )
     evidence = analysis.decision_time_evidence
     public_review = {
         **_decision_identity(snapshot),
@@ -510,6 +528,7 @@ def build_historical_search_decision_review(
     settings: HistoricalSearchReviewSettings,
     *,
     stable_game_identity: str | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> dict[str, Any]:
     """Builds the unchanged public review row."""
     result = build_historical_search_decision_internal_result(
@@ -517,6 +536,7 @@ def build_historical_search_decision_review(
         historical_record,
         settings,
         stable_game_identity=stable_game_identity,
+        provenance_collector=provenance_collector,
     )
     return _thaw_json_value(result.public_review)
 
@@ -769,6 +789,7 @@ def build_historical_search_review_internal_result(
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     immediate_base_random_seed: int | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> HistoricalSearchReviewInternalResult:
     """Evaluates one review while retaining chronological assessments."""
     cardinality = snapshot_summary.cardinality
@@ -795,6 +816,7 @@ def build_historical_search_review_internal_result(
             historical_record,
             settings,
             stable_game_identity=historical_record.game_id,
+            provenance_collector=provenance_collector,
         )
         for snapshot in snapshot_summary.snapshots
     ]
@@ -833,6 +855,7 @@ def build_historical_search_review_summary(
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     immediate_base_random_seed: int | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> dict[str, Any]:
     """Evaluates every decision and returns the unchanged public summary."""
     result = build_historical_search_review_internal_result(
@@ -842,6 +865,7 @@ def build_historical_search_review_summary(
         search_budget_profile,
         immediate_sample_count,
         immediate_base_random_seed,
+        provenance_collector,
     )
     return _thaw_json_value(result.public_review_summary)
 
@@ -853,6 +877,7 @@ def build_historical_search_review_coaching_analysis(
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
     immediate_base_random_seed: int | None = None,
+    provenance_collector: HistoricalReviewProvenanceCollector | None = None,
 ) -> HistoricalSearchReviewCoachingAnalysis:
     """Retains internal coaching artifacts from exactly one Search Review pass."""
     review = build_historical_search_review_internal_result(
@@ -862,15 +887,20 @@ def build_historical_search_review_coaching_analysis(
         search_budget_profile,
         immediate_sample_count,
         immediate_base_random_seed,
+        provenance_collector,
     )
     prioritization = build_replay_coaching_prioritization_result(
         historical_record, review.assessments
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_prioritization(prioritization)
     guidance = build_replay_coaching_guidance(
         historical_record,
         review.assessments,
         prioritization,
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_guidance(guidance)
     return HistoricalSearchReviewCoachingAnalysis(
         public_review_summary=review.public_review_summary,
         assessments=review.assessments,

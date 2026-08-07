@@ -458,13 +458,19 @@ def _position_handler(
     options = invocation.options.position_analysis
     if options is None:
         raise SkatAIInvariantError("Position handler received no Position options.")
-    from skat_ai.live_analysis_provenance import LiveAnalysisProvenanceCollector
+    analysis_mode = root.get("analysis_mode", "live_decision")
+    if analysis_mode == "live_decision":
+        from skat_ai.live_analysis_provenance import LiveAnalysisProvenanceCollector
 
-    provenance_collector = (
-        LiveAnalysisProvenanceCollector()
-        if root.get("analysis_mode", "live_decision") == "live_decision"
-        else None
-    )
+        provenance_collector = LiveAnalysisProvenanceCollector()
+    elif analysis_mode == "post_game_review":
+        from skat_ai.retrospective_review_provenance import (
+            FlatRetrospectiveProvenanceCollector,
+        )
+
+        provenance_collector = FlatRetrospectiveProvenanceCollector()
+    else:
+        provenance_collector = None
     result = execute_position_analysis_workflow(
         root,
         input_reference=invocation.input_reference,
@@ -505,22 +511,44 @@ def _historical_handler(
         raise SkatAIInvariantError(
             "Historical handler received no Historical options."
         )
-    return (
-        execute_historical_game_workflow(
-            root,
-            input_reference=invocation.input_reference,
-            options=options,
-            opponent_statistics_document=(
-                invocation.external_documents.opponent_statistics_to_dict()
-            ),
-            opponent_statistics_reference=(
-                invocation.external_documents.opponent_statistics_reference
-            ),
-            dependencies=dependencies.historical_game,
-        ),
-        (),
-        None,
+    needs_provenance = any(
+        (
+            options.decision_snapshots,
+            options.immediate_review,
+            options.search_review,
+            options.replay_coaching,
+        )
     )
+    provenance_collector = None
+    if needs_provenance:
+        from skat_ai.historical_review_provenance import (
+            HistoricalReviewProvenanceCollector,
+        )
+
+        provenance_collector = HistoricalReviewProvenanceCollector(
+            external_reference=(
+                invocation.external_documents.opponent_statistics_reference
+            )
+        )
+    result = execute_historical_game_workflow(
+        root,
+        input_reference=invocation.input_reference,
+        options=options,
+        opponent_statistics_document=(
+            invocation.external_documents.opponent_statistics_to_dict()
+        ),
+        opponent_statistics_reference=(
+            invocation.external_documents.opponent_statistics_reference
+        ),
+        provenance_collector=provenance_collector,
+        dependencies=dependencies.historical_game,
+    )
+    provenance = (
+        provenance_collector.build_bundle(result)
+        if provenance_collector is not None
+        else None
+    )
+    return (result, (), provenance)
 
 
 def _training_dataset_handler(

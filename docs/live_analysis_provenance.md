@@ -20,8 +20,9 @@ matching Coverage Summary, and its Information Use Context.
 Position workflow identity, and canonical unique attachments.
 
 `ApplicationExecutionResult.provenance` is optional and defaults to `None`. A
-live Position Application execution attaches one bundle. Retrospective Position
-Analysis and every other Application workflow retain `None`.
+live or retrospective Position Application execution attaches one bundle.
+Historical Review Application execution also attaches a bundle as documented in
+[Retrospective review provenance](retrospective_review_provenance.md).
 
 The canonical live attachment order is:
 
@@ -174,7 +175,6 @@ section for Provenance.
 
 The following remain open:
 
-* retrospective Position, Historical Review, and Replay Coaching provenance;
 * Dataset, list, Opponent Statistics, and other non-Position workflow provenance;
 * complete non-legacy provenance for retrospective, settlement, rating, list,
   and terminal Position Result branches;

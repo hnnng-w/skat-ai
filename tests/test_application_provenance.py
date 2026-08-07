@@ -19,6 +19,10 @@ from skat_ai.live_analysis_provenance import (
     LIVE_ANALYSIS_PROVENANCE_VERSION,
     build_live_decision_provenance_attachment,
 )
+from skat_ai.replay_coaching_provenance import REPLAY_COACHING_PROVENANCE_VERSION
+from skat_ai.retrospective_review_provenance import (
+    RETROSPECTIVE_REVIEW_PROVENANCE_VERSION,
+)
 from skat_ai.strategic_metadata import StrategicMetadata
 
 
@@ -54,6 +58,8 @@ def _attachment(name: str = "flat_decision") -> ApplicationProvenanceAttachment:
 def test_application_provenance_contracts_are_versioned_and_exact() -> None:
     assert APPLICATION_PROVENANCE_VERSION == 1
     assert LIVE_ANALYSIS_PROVENANCE_VERSION == 1
+    assert RETROSPECTIVE_REVIEW_PROVENANCE_VERSION == 1
+    assert REPLAY_COACHING_PROVENANCE_VERSION == 1
     assert tuple(field.name for field in fields(ApplicationProvenanceAttachment)) == (
         "name",
         "document_role",
@@ -113,6 +119,42 @@ def test_bundle_canonicalizes_names_and_rejects_duplicates() -> None:
             workflow=WorkflowV1.POSITION_ANALYSIS,
             attachments=(attachments[0], attachments[0]),
         )
+
+
+def test_bundle_orders_retrospective_historical_and_coaching_attachments() -> None:
+    bundle = ApplicationProvenanceBundle(
+        workflow=WorkflowV1.HISTORICAL_GAME,
+        attachments=[
+            _attachment("historical_game_result"),
+            _attachment("replay_coaching/report"),
+            _attachment("historical_decision/10/assessment"),
+            _attachment("historical_search_review_summary"),
+            _attachment("historical_decision/2/analysis"),
+            _attachment("replay_coaching/guidance"),
+            _attachment("historical_snapshot_summary"),
+            _attachment("historical_decision/2/input"),
+            _attachment("replay_coaching/prioritization"),
+            _attachment("historical_immediate_review_summary"),
+            _attachment("historical_decision/2/assessment"),
+            _attachment("historical_decision/10/input"),
+            _attachment("historical_decision/10/analysis"),
+        ],
+    )
+    assert [attachment.name for attachment in bundle.attachments] == [
+        "historical_decision/2/input",
+        "historical_decision/2/analysis",
+        "historical_decision/2/assessment",
+        "historical_decision/10/input",
+        "historical_decision/10/analysis",
+        "historical_decision/10/assessment",
+        "historical_snapshot_summary",
+        "historical_immediate_review_summary",
+        "historical_search_review_summary",
+        "replay_coaching/prioritization",
+        "replay_coaching/guidance",
+        "replay_coaching/report",
+        "historical_game_result",
+    ]
 
 
 def test_application_result_defaults_to_no_provenance_and_validates_workflow() -> None:
