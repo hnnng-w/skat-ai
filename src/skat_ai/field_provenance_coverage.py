@@ -200,6 +200,7 @@ def _path_is_at_or_below(path: str, ancestor: str) -> bool:
 def _resolve_covered_leaf_paths(
     document: object,
     leaf_paths: tuple[str, ...],
+    leaf_path_set: frozenset[str],
     field_path: str,
     coverage_kind: str,
 ) -> tuple[str, ...] | None:
@@ -208,7 +209,7 @@ def _resolve_covered_leaf_paths(
     except SkatAIValidationError:
         return None
     if coverage_kind == "field":
-        return (field_path,) if field_path in leaf_paths else None
+        return (field_path,) if field_path in leaf_path_set else None
     covered = tuple(
         leaf_path
         for leaf_path in leaf_paths
@@ -228,6 +229,7 @@ def build_field_provenance_coverage_summary(
             path="ledger",
         )
     leaf_paths = enumerate_json_leaf_paths(document)
+    leaf_path_set = frozenset(leaf_paths)
     coverage_count = {path: 0 for path in leaf_paths}
     provenanced_paths: set[str] = set()
     exempted_paths: set[str] = set()
@@ -238,6 +240,7 @@ def build_field_provenance_coverage_summary(
         covered = _resolve_covered_leaf_paths(
             document,
             leaf_paths,
+            leaf_path_set,
             entry.field_path,
             entry.coverage_kind,
         )
@@ -252,6 +255,7 @@ def build_field_provenance_coverage_summary(
         covered = _resolve_covered_leaf_paths(
             document,
             leaf_paths,
+            leaf_path_set,
             exemption.field_path,
             exemption.coverage_kind,
         )

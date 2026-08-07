@@ -299,6 +299,7 @@ def test_search_repeats_with_public_counts_fresh_budget_and_separate_seeds(
     world = _world(state, ("C7", "S7"), ("C8", "S8"))
     configuration = _configuration()
     calls = []
+    provenance_calls = []
 
     def fake_workflow(**kwargs):
         calls.append(kwargs)
@@ -320,9 +321,14 @@ def test_search_repeats_with_public_counts_fresh_budget_and_separate_seeds(
         recommendation_configuration=configuration,
         initial_hidden_world=world,
         strict_context=True,
+        decision_provenance_hook=lambda **kwargs: provenance_calls.append(kwargs),
     )
 
     assert len(calls) == 2
+    assert len(provenance_calls) == 2
+    assert [call["decision_index"] for call in provenance_calls] == [0, 1]
+    assert all(call["selection_method"] == "bounded_search" for call in provenance_calls)
+    assert all("random_seed" not in repr(call) for call in provenance_calls)
     assert [(call["left_hand_size"], call["right_hand_size"]) for call in calls] == [
         (2, 2),
         (1, 1),
@@ -659,6 +665,7 @@ def test_real_search_multi_step_and_comparison_append_contract() -> None:
     declaration = get_game_declaration_from_input(data)
     metadata = get_analysis_metadata_from_input(data).strategic_metadata
     state = build_local_game_state_from_input(data)
+    observed_comparison_decisions = []
 
     result = simulate_multiple_steps(
         state=state,
@@ -680,6 +687,11 @@ def test_real_search_multi_step_and_comparison_append_contract() -> None:
         strategic_metadata=metadata,
         game_declaration=declaration,
         recommendation_configuration=configuration,
+        recommendation_decision_observer=(
+            lambda policy, decision: observed_comparison_decisions.append(
+                (policy, decision)
+            )
+        ),
     )
 
     assert result["steps"][0]["recommendation_decision"].recommendation_card == "D7"
@@ -693,6 +705,11 @@ def test_real_search_multi_step_and_comparison_append_contract() -> None:
     assert search_row["eligible_for_recommendation"] is True
     assert search_row["search_decision_diagnostics"][0]["recommendation_card"] == "D7"
     assert search_row["recommendation_summary"]["search_recommendations_used"] == 1
+    assert len(observed_comparison_decisions) == 1
+    assert observed_comparison_decisions[0][0] == "bounded_search"
+    assert observed_comparison_decisions[0][1].bounded_search_result.search_method == (
+        "compatible_world_minimax_v1"
+    )
 
     tampered = deepcopy(result)
     tampered["steps"][0]["candidate_card"] = "C7"

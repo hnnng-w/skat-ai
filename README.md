@@ -104,6 +104,9 @@ official Skat rules arbitration.
   ledgers, RFC 6901 paths, deterministic coverage auditing, dependency and
   temporal validation, Information Use Context, public redaction, and safe
   serialization
+* Internal version-1 live Position provenance with complete pre-selection
+  decision ledgers and Immediate, Search, inference, Multi-Step, Policy
+  Comparison, and partial-legacy Position Result propagation
 
 ### Post-game review
 
@@ -163,9 +166,9 @@ and preserves Root JSON output. Its lazy schema backend uses packaged resources
 and works from source, Editable, Wheel, and sdist installations. Installed CLI
 contract version `1` adds the exact `skat-ai` Console Script and
 `python -m skat_ai`; repository-root `main.py` remains a compatible Legacy
-facade over the same Package implementation. Field-level provenance has an
-internal contract foundation but is not propagated or emitted by Application,
-public, or CLI workflows. See
+facade over the same Package implementation. Field-level provenance is
+internally enforced and attached for live Position Application execution, but
+is not exposed by the public API, Root JSON, schemas, or CLI. See
 [Public Python API v1](docs/public_python_api_v1.md) and
 [Application orchestration](docs/application_orchestration.md).
 
@@ -642,6 +645,7 @@ Detailed documentation is split into topic-specific files:
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
+* [Live analysis provenance](docs/live_analysis_provenance.md)
 * [Input JSON schema](schemas/input.schema.json)
 * [Declarer concessions](docs/declarer_concessions.md)
 * [Defender concessions](docs/defender_concessions.md)
@@ -871,8 +875,8 @@ opt-in, so existing omitted-method workflows require no migration.
 Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
-ratios, Sample- or Player-count balancing, component splitting, field-level live
-provenance propagation, and interactive input and session capture. General
+ratios, Sample- or Player-count balancing, component splitting, retrospective
+and public provenance integration, and interactive input and session capture. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -900,8 +904,11 @@ Setuptools build metadata, byte-identical packaged Schema resources, `py.typed`,
 Package `__version__`, Wheel/sdist inspection, and clean installation gates.
 Issue #142 adds installed CLI contract version `1`, the exact `skat-ai` Console
 Script, `python -m skat_ai`, a Package-owned canonical implementation, Legacy
-Root compatibility, and clean-install CLI/API parity. Public provenance exports
-and provenance propagation remain open.
+Root compatibility, and clean-install CLI/API parity. Issue #143 adds internal
+live Position provenance enforcement across Immediate, Search, Hidden-card
+inference, Multi-Step, and Policy Comparison while preserving every public
+surface. Retrospective, non-Position, and public provenance integration remain
+open.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

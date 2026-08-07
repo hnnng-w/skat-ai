@@ -32,7 +32,8 @@ Implemented:
 
 The executable facade is available from source, Editable, Wheel, and sdist
 installations. Installed CLI entry points are implemented separately below.
-Public provenance exports and workflow provenance propagation remain open.
+Internal live Position provenance propagation is implemented. Public,
+retrospective, and non-Position provenance remain open.
 Internal Application extraction is covered separately below.
 
 ### Application orchestration foundation
@@ -53,9 +54,11 @@ Implemented:
   existing wrapper names and JSON parity
 * Stable public facade reuse without changes to Root schemas, examples,
   scenarios, or Package version
+* Optional internal live Position provenance bundles with complete decision
+  attachments and an exact partial-legacy Position Result attachment
 
-Installed CLI entry points consume this Application layer directly. All field-
-provenance propagation and output remain open. See
+Installed CLI entry points consume this Application layer directly. They ignore
+the internal live Position bundle; public provenance output remains open. See
 [Application orchestration](application_orchestration.md).
 
 ### Installed CLI foundation
@@ -99,11 +102,12 @@ Implemented:
 * Pure engine-private public redaction and deterministic public-safe serialization
 * Explicit Confidence separation and unchanged specialized provenance contracts
 
-This foundation does not construct or emit ledgers in existing workflows.
-Propagation across live analysis, simulation, Search, Historical Review, Replay
-Coaching, Datasets, historical lists, and Opponent workflows remains open, as do
-public API exposure, schemas, output integration, CLI presentation, and
-adversarial workflow-level leakage enforcement.
+Issue #143 now constructs complete internal ledgers for flat and simulated live
+Position decisions, propagates Immediate, Search, inference, Multi-Step, and
+Policy Comparison provenance, and accounts for every Position Result leaf with
+a partial-legacy ledger. Historical Review, Replay Coaching, Datasets,
+historical lists, Opponent workflows, public API exposure, schemas, Root output,
+and CLI presentation remain open.
 
 ### Core analysis
 
@@ -436,9 +440,9 @@ Implemented:
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Historical records support normal completion and all five terminal shortenings with at most one optional timed defender-open-play or declarer-card-exposure continuation. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons are not represented there.
 * Historical corrected play and isolated or specific-trick claims remain incomplete; unlimited proof, simultaneous throws, and arbitrary event streams are outside `v0.11.0`; general settlement coverage is incomplete.
-* General live position inputs do not provide complete field-level provenance
-  propagation. The internal shared contract foundation is not attached to a
-  workflow or public output.
+* Live Position Application execution has internal decision and Result
+  provenance, but retrospective and non-Position workflows and every public
+  output remain unintegrated.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Version-1 bounded-search contracts, direct exact-world and compatible-world
   Suit/Grand/Null Minimax, and private deterministic compatible-world selection
@@ -611,9 +615,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, field-level live provenance propagation
-and adversarial workflow enforcement, and interactive live and retrospective
-input/session capture. The executable public facade, internal Application layer,
+remaining approved settlement nuance, retrospective and public provenance
+integration, and interactive live and retrospective input/session capture. The executable public facade, internal Application layer,
 installable library distributions, and stable installed CLI interface are
 implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
@@ -688,8 +691,9 @@ foundation through stable API contract version `1`, exact public exports,
 immutable JSON documents, compatibility metadata, stable errors, and unchanged
 legacy Root CLI behavior. Issue #138 adds the internal field-provenance
 language, immutable sidecar ledger, coverage and dependency validation,
-Information Use Context, public redaction, and safe serialization. Provenance
-propagation and public integration remain open. Issue #139 completes internal
+Information Use Context, public redaction, and safe serialization. Issue #143
+adds internal live Position propagation and adversarial enforcement while
+retrospective, non-Position, and public integration remain open. Issue #139 completes internal
 Application extraction with immutable orchestration version `1` contracts, all
 seven no-I/O handlers, five Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI transport parity. Public API
@@ -700,7 +704,7 @@ metadata, Package Resource schemas, typing and version metadata, Wheel/sdist and
 clean-install validation, and local/CI gates without an installed CLI or
 publication. Issue #142 adds the exact installed Console Script, module entry
 point, Package-owned canonical CLI, Legacy facade, version output, and clean-
-install CLI/API parity without publication. Provenance remains separate. Later
+install CLI/API parity without publication. Public provenance remains separate. Later
 milestone numbers remain planning containers rather than fixed contractual
 releases.
 

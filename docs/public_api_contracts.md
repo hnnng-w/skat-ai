@@ -14,7 +14,8 @@ The public facade parses and executes all seven Root workflows through the Issue
 sdist installations without adding a workflow-specific helper or public schema
 API. Issue #142 adds Package CLI entry points as a separate transport contract;
 it adds no public API export. Issue #138 remains a separate internal field-
-provenance contract foundation and adds no public provenance type or field.
+provenance contract foundation, and Issue #143 applies it to internal live
+Position execution. Neither adds a public provenance type or field.
 
 ## Public namespaces
 
@@ -37,9 +38,9 @@ other internal modules have no compatibility guarantee.
 The internal version-1 field-level provenance language is documented in
 [Field-level information provenance](field_level_information_provenance.md).
 Its sidecar ledgers, coverage audits, Information Use Context, redaction, and
-serialization remain internal until later workflow propagation and public-
-surface work is proven. Issue #140 adds facade exports without adding provenance
-exports.
+live Position propagation remain internal. Issue #140 adds facade exports
+without adding provenance exports, and the Issue #143 Application bundle is
+intentionally ignored by public Result conversion.
 
 The internal Application orchestration contract is documented in
 [Application orchestration](application_orchestration.md). It consumes
@@ -299,7 +300,7 @@ absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
 
 The following remain open for later `v0.13.0` issues:
 
-* field-level provenance propagation and workflow-level leakage enforcement;
+* retrospective and non-Position provenance propagation;
 * any additive public provenance API, schemas, or output integration.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
@@ -309,5 +310,6 @@ facade without adding transport I/O or provenance. Issue #141 adds distribution
 metadata, private Package Resource schemas, `py.typed`, Package version export,
 and Wheel/sdist clean-install gates without changing the API facade exports.
 Issue #142 adds the installed and module CLI transports without changing this
-Public API surface. See [Installed CLI](installed_cli.md) and
+Public API surface. Issue #143 adds internal live Position enforcement without
+changing it. See [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).

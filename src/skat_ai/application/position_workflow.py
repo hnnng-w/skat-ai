@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.analysis_metadata import build_serializable_analysis_metadata
 from skat_ai.analysis_report import build_card_analysis_report, build_strategic_summary
@@ -117,6 +119,10 @@ from skat_ai.result_serialization import (
     build_serializable_policy_comparison_result,
 )
 from skat_ai.rules import get_legal_cards
+from skat_ai.simulation_provenance import build_safe_selection_settings
+
+if TYPE_CHECKING:
+    from skat_ai.live_analysis_provenance import LiveAnalysisProvenanceCollector
 
 IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
     "Immediate analysis is unavailable because the local player is not next."
@@ -283,6 +289,7 @@ def _build_position_analysis_result(
     options: PositionAnalysisApplicationOptions,
     effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
     opponent_profile_application_summary: dict[str, Any] | None = None,
+    provenance_collector: LiveAnalysisProvenanceCollector | None = None,
     dependencies: PositionWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     local_data = build_local_analysis_input(data)
@@ -374,6 +381,30 @@ def _build_position_analysis_result(
         has_game_shortening=game_shortening is not None,
     )
 
+    if provenance_collector is not None:
+        provenance_collector.capture_flat_decision(
+            state=state,
+            left_hand_size=settings["left_hand_size"],
+            right_hand_size=settings["right_hand_size"],
+            public_hand_constraints=public_hand_constraints,
+            strategic_metadata=analysis_metadata.strategic_metadata,
+            game_declaration=game_declaration,
+            decision_index=0,
+            selection_method=recommendation_configuration.requested_method,
+            selection_settings=build_safe_selection_settings(
+                sample_count=settings["sample_count"],
+                use_basic_opponent_strategy=settings[
+                    "use_basic_opponent_strategy"
+                ],
+                opponent_response_policy_by_player=(
+                    opponent_response_policy_by_player
+                ),
+                requested_search_budget=(
+                    recommendation_configuration.requested_search_budget
+                ),
+            ),
+        )
+
     recommendation_workflow = execute_recommendation_workflow(
         configuration=recommendation_configuration,
         state=state,
@@ -394,6 +425,10 @@ def _build_position_analysis_result(
         summary_builder=dependencies.strategic_summary_builder,
         unavailable_summary_builder=dependencies.unavailable_summary_builder,
     )
+    if provenance_collector is not None:
+        provenance_collector.retain_flat_recommendation_result(
+            recommendation_workflow
+        )
     legal_cards = list(recommendation_workflow.legal_cards)
     recommended_card = recommendation_workflow.recommendation_card
     reason = recommendation_workflow.recommendation_reason
@@ -730,6 +765,7 @@ def execute_position_analysis_workflow(
     options: PositionAnalysisApplicationOptions,
     opponent_statistics_document: dict[str, Any] | None = None,
     opponent_statistics_reference: str | None = None,
+    provenance_collector: LiveAnalysisProvenanceCollector | None = None,
     dependencies: PositionWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Executes all selected Position Analysis sub-workflows without transport I/O."""
@@ -827,6 +863,7 @@ def execute_position_analysis_workflow(
         options=options,
         effective_opponent_policy_settings=effective_settings,
         opponent_profile_application_summary=profile_summary,
+        provenance_collector=provenance_collector,
         dependencies=dependencies,
     )
     if options.multi_step_count is None:
@@ -878,7 +915,14 @@ def execute_position_analysis_workflow(
             if effective_card_policy in SEARCH_AWARE_MULTI_STEP_POLICIES
             else None
         ),
+        decision_provenance_hook=(
+            provenance_collector.capture_multi_step_decision
+            if provenance_collector is not None
+            else None
+        ),
     )
+    if provenance_collector is not None:
+        provenance_collector.retain_multi_step_result(multi_step_result)
     result["multi_step_result"] = build_serializable_multi_step_result(
         multi_step_result
     )
@@ -911,6 +955,16 @@ def execute_position_analysis_workflow(
                 recommendation_configuration
                 if recommendation_configuration.requested_method
                 in SEARCH_RECOMMENDATION_METHODS
+                else None
+            ),
+            decision_provenance_hook=(
+                provenance_collector.capture_policy_comparison_decision
+                if provenance_collector is not None
+                else None
+            ),
+            recommendation_decision_observer=(
+                provenance_collector.retain_policy_comparison_recommendation_decision
+                if provenance_collector is not None
                 else None
             ),
         )

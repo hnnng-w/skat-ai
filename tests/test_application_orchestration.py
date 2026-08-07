@@ -146,6 +146,10 @@ def test_all_seven_root_workflow_handlers_execute_in_memory(
     assert result["document"]["input_file"] == "caller-reference"
     assert expected_result_key in result["document"]
     assert execution.artifacts == ()
+    if expected_workflow is WorkflowV1.POSITION_ANALYSIS:
+        assert execution.provenance is not None
+    else:
+        assert execution.provenance is None
 
 
 def test_invocation_builder_selects_root_workflow_once(monkeypatch) -> None:

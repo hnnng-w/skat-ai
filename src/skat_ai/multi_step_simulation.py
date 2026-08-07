@@ -56,6 +56,10 @@ from skat_ai.simulation_context import (
     update_public_hand_constraints,
     validate_simulation_context,
 )
+from skat_ai.simulation_provenance import (
+    DecisionProvenanceHook,
+    build_safe_selection_settings,
+)
 from skat_ai.simulation_step import simulate_and_advance_once
 from skat_ai.strategic_metadata import StrategicMetadata
 
@@ -224,6 +228,7 @@ def simulate_multiple_steps(
     initial_hidden_card_inference_model: HiddenCardInferenceModel | None = None,
     game_declaration: GameDeclaration | None = None,
     recommendation_configuration: RecommendationMethodConfiguration | None = None,
+    decision_provenance_hook: DecisionProvenanceHook | None = None,
 ) -> dict[str, Any]:
     """
     Simulates multiple sequential player-action steps.
@@ -240,6 +245,12 @@ def simulate_multiple_steps(
         recommendation_configuration,
         strategic_metadata,
     )
+    if decision_provenance_hook is not None and (
+        strategic_metadata is None or game_declaration is None
+    ):
+        raise ValueError(
+            "Decision Provenance requires live strategic metadata and a game declaration."
+        )
 
     root_seed = derive_simulation_child_seed(random_seed, "root_world")
     opponent_action_seed = derive_simulation_child_seed(
@@ -389,6 +400,31 @@ def simulate_multiple_steps(
             or len(prepared_world.right_hand) != prepared_right_hand_size
         ):
             raise ValueError("Prepared public and coherent-world hand sizes disagree.")
+        if decision_provenance_hook is not None:
+            assert strategic_metadata is not None
+            assert game_declaration is not None
+            decision_provenance_hook(
+                state=prepared_state,
+                left_hand_size=prepared_left_hand_size,
+                right_hand_size=prepared_right_hand_size,
+                public_hand_constraints=prepared_constraints,
+                strategic_metadata=strategic_metadata,
+                game_declaration=game_declaration,
+                decision_index=step_index,
+                selection_method=card_selection_policy,
+                selection_settings=build_safe_selection_settings(
+                    sample_count=expected_value_sample_count,
+                    use_basic_opponent_strategy=use_basic_opponent_strategy,
+                    opponent_response_policy_by_player=(
+                        opponent_response_policy_by_player or {}
+                    ),
+                    requested_search_budget=(
+                        recommendation_configuration.requested_search_budget
+                        if recommendation_configuration is not None
+                        else None
+                    ),
+                ),
+            )
         prepared_inference_model = build_hidden_card_inference_model(
             prepared_state,
             prepared_left_hand_size,

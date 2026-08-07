@@ -263,7 +263,8 @@ JSON parity; the CLI does not call this Public API as an intermediate layer.
 ## Current boundaries
 
 The facade adds no workflow-specific helper functions, public Domain dataclasses,
-or field-level provenance. Issue #141 adds private Package Resources, build-
+or field-level provenance. It intentionally ignores the Issue #143 internal live
+Position Application bundle. Issue #141 adds private Package Resources, build-
 system metadata, Package Data, `py.typed`, Package-Root `__version__`, and
 Wheel/sdist validation without a Package version change. Issue #142 adds a
 separate installed CLI contract without adding API options or exports. See

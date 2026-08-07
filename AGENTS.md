@@ -171,8 +171,10 @@ Package-owned canonical CLI, the Legacy Root compatibility facade, `--version`,
 and clean-install CLI/API parity. Issue #138 adds the internal version-
 1 field-level provenance language, immutable sidecar ledgers, RFC 6901 paths,
 coverage and dependency validation, Information Use Context, public redaction,
-and safe serialization. Workflow propagation and public provenance integration
-remain open.
+and safe serialization. Issue #143 adds internal Application provenance bundles,
+complete live decision ledgers, Immediate, Search, inference, Multi-Step, and
+Policy Comparison propagation, and an all-leaf partial-legacy Position Result
+ledger. Public and retrospective provenance integration remain open.
 
 Major completed areas include:
 
@@ -239,6 +241,8 @@ Major completed areas include:
 * executable public Python API version 1 with immutable direct options, all-seven-workflow execution, separate artifacts, lazy Package Resource schema validation, and stable boundary errors
 * installation-ready Setuptools Wheel and sdist artifacts with byte-identical packaged schemas, typing metadata, Package version export, and clean-install validation
 * Package-owned installed and module CLI entry points with canonical parsing, direct Application execution, Legacy Root compatibility, and clean Wheel/sdist command validation
+* internal live Position provenance enforcement across Immediate, Search,
+  Hidden-card inference, Multi-Step, and Policy Comparison without public output
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -246,8 +250,8 @@ defender-open-play proof beyond five unresolved tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,
-Sample- or Player-count balancing, or component splitting, incomplete workflow-
-level field-provenance propagation, heuristic rule-based recommendations and
+Sample- or Player-count balancing, or component splitting, incomplete retrospective,
+non-Position, and public field-provenance integration, heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Search remains bounded late-game determinization subject to Strategy
 Fusion, not an optimal imperfect-information policy or complete-contract Search;

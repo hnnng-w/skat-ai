@@ -3,10 +3,8 @@
 This document defines the internal version-1 field-level information provenance
 language introduced by Issue #138.
 
-This issue defines the shared provenance language.
-
-It does not yet claim complete provenance coverage for any existing public
-workflow.
+Issue #138 defines the shared provenance language. Issue #143 applies it
+internally to live Position Analysis without exposing a public provenance field.
 
 This foundation changes no existing input, output, schema, CLI, example,
 generated scenario, specialized provenance contract, or public API export. Later work must construct and
@@ -24,6 +22,9 @@ installed distributions expose no provenance option, Result field, schema, or
 public provenance name.
 Issue #142 adds installed, module, and Legacy CLI parity without adding a
 Provenance option, output, Schema, export, propagation, or public name.
+Issue #143 adds internal live decision and Position Result attachments while the
+same public boundary remains unchanged. See
+[Live analysis provenance](live_analysis_provenance.md).
 
 ## Contract identity
 
@@ -424,9 +425,6 @@ and unchanged.
 
 The following remain open:
 
-* live-analysis ledger construction and propagation;
-* Multi-Step and Policy Comparison provenance;
-* Search provenance;
 * Historical Review and Replay Coaching provenance;
 * Training Dataset and Dataset Preparation provenance;
 * historical-list provenance;
@@ -434,10 +432,8 @@ The following remain open:
 * any additive public provenance API exposure;
 * public schemas and output integration;
 * CLI presentation;
-* adversarial workflow-level leakage enforcement.
+* adversarial enforcement outside live Position Analysis.
 
-The internal Application boundary is now a future propagation point, not
-evidence of workflow provenance coverage.
-
-Until those tasks are complete, the shared contract is a tested internal
-foundation rather than a claim of complete field-level provenance.
+The internal Application boundary now carries live Position provenance only.
+This is not a claim of complete field-level provenance for retrospective or
+other workflows and adds no public provenance contract.

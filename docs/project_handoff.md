@@ -50,6 +50,10 @@ The project focuses on:
   immutable sidecar ledgers, exact/subtree coverage audits, dependency and
   temporal validation, Information Use Context, public redaction, and safe
   deterministic serialization
+* internal Application and live-analysis provenance version `1` with complete
+  pre-selection decision ledgers across Immediate, Search, inference,
+  Multi-Step, and Policy Comparison plus an all-leaf partial-legacy Position
+  Result ledger
 * internal Application orchestration version `1` with immutable invocations,
   workflow options, injected external documents, results, and auxiliary
   artifacts; generic no-I/O dispatch for all seven Root workflows; five isolated
@@ -153,9 +157,9 @@ direct immutable workflow options, lazy Root schema validation, and stable
 boundary-error translation. Issue #141 adds installable Wheel and sdist
 artifacts, private Package Resource schemas, typing and Package version metadata,
 and clean-install validation. Issue #142 adds the installed and module CLI entry
-points without changing Public API exports. Field-level provenance has a separate
-internal contract foundation, but no workflow propagation, output, or public
-provenance export. See [Public API contracts](public_api_contracts.md) and
+points without changing Public API exports. Field-level provenance now propagates
+internally through live Position Application execution, but has no public output
+or export. See [Public API contracts](public_api_contracts.md) and
 [Public Python API v1](public_python_api_v1.md).
 
 ### Application orchestration foundation
@@ -177,12 +181,14 @@ Implemented by Issue #139 for `v0.13.0`:
   `main.py` retained as a compatibility facade preserving wrapper names, patches,
   and JSON behavior
 * an internal boundary consumed by the Issue #140 public facade
+* optional internal Issue #143 live Position provenance attachments ignored by
+  public and CLI adapters
 
 The public facade now exposes generic parse, execute, execute-document, and
 serialization functions without exporting these Application types. Workflow-
 specific execution helpers remain absent. Installed entry points are implemented
-by Issue #142; broader Domain error migration and all field-provenance propagation
-and output remain open. See
+by Issue #142; broader Domain error migration and retrospective, non-Position,
+and public provenance remain open. See
 [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
@@ -199,10 +205,11 @@ Implemented by Issue #138 for `v0.13.0`:
 * pure engine-private public redaction and safe deterministic serialization
 * explicit separation of provenance from existing Confidence contracts
 
-No existing workflow constructs or emits a ledger yet. Public API exposure,
-schemas, output fields, CLI presentation, and adversarial workflow-level leakage
-enforcement remain open. See
-[Field-level information provenance](field_level_information_provenance.md).
+Issue #143 constructs complete live decision ledgers and one partial-legacy
+Position Result ledger inside Application execution. Public API exposure,
+schemas, output fields, CLI presentation, and non-live workflow propagation
+remain open. See [Field-level information provenance](field_level_information_provenance.md)
+and [Live analysis provenance](live_analysis_provenance.md).
 
 ### Core rules and simulation
 
@@ -668,12 +675,21 @@ Implemented:
   * deterministic JSON-leaf enumeration and exact/subtree coverage auditing
 * `field_provenance_policy.py`
   * Information Use Context, use validation, and engine-private public redaction
+* `live_analysis_provenance.py`
+  * complete decision documents, live Result mapping, deterministic collection,
+    and Application bundle construction
+* `search_provenance.py`
+  * complete aggregate-only Search Result provenance for every status
+* `simulation_provenance.py`
+  * public/local decision-hook contract and seed-free selection settings
 
 ### Application orchestration
 
 * `application/contracts.py`
   * orchestration version, immutable invocations, workflow options, injected
-    documents, results, and auxiliary artifacts
+    documents, results, optional provenance, and auxiliary artifacts
+* `application/provenance.py`
+  * immutable matching attachments and canonical Application bundles
 * `application/execution.py`
   * workflow-option validation and generic seven-handler dispatch
 * `application/position_workflow.py`
@@ -948,7 +964,13 @@ Issue #138 adds the internal version-1 field-level provenance language,
 immutable sidecar ledger, deterministic coverage and dependency validation,
 Information Use Context, public redaction, and safe serialization. It changes no
 Package version, public API export, schema, workflow output, CLI, example, or
-generated scenario. Workflow propagation remains open.
+generated scenario. Broader workflow and public propagation remain open.
+
+Issue #143 adds internal Application provenance version `1` and live-analysis
+provenance version `1`, complete decision-time enforcement for flat and simulated
+live Position selection, aggregate-only Search and structural inference mapping,
+and exact partial-legacy Position Result coverage. It changes no Package version,
+public API export, Root output, schema, CLI, example, or generated scenario.
 
 Issue #139 adds internal Application orchestration version `1` for all seven Root
 workflows, five isolated Training Dataset operations, injected Opponent
@@ -1126,14 +1148,16 @@ Completed implementation scope:
 * internal field-level provenance contract version 1 with immutable sidecar
   ledgers, RFC 6901 paths, coverage and dependency audits, context-use policy,
   public redaction, and safe serialization
+* internal live Position provenance with complete flat and simulated decision
+  ledgers and an all-leaf partial-legacy Result ledger
 
 ## Current high-priority limitations
 
 * Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
-* General live position input lacks complete field-level provenance propagation;
-  the shared internal contract foundation is not attached to workflows.
+* Live Position Application execution has internal provenance, but retrospective,
+  non-Position, complete non-legacy Result, and public integration remain open.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
   general stronger search remain incomplete. Compatible-world Minimax now
@@ -1179,11 +1203,9 @@ Completed implementation scope:
 Continue the approved `v0.13.0` sequence after the Issue #137 public contracts,
 Issue #138 field-provenance foundation, Issue #139 internal Application
 orchestration, Issue #140 executable public facade, Issue #141 distribution
-packaging, and Issue #142 installed CLI. Provenance propagation
-should use the internal sidecar language at Application workflow boundaries
-without changing existing specialized contracts. Public provenance integration
-and workflow-level leakage enforcement remain separate follow-up scopes. Package
-publication and license selection also remain human decisions.
+packaging, Issue #142 installed CLI, and Issue #143 live Position provenance.
+Retrospective, non-Position, and public provenance remain separate follow-up
+scopes. Package publication and license selection also remain human decisions.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

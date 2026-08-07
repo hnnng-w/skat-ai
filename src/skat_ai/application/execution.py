@@ -23,6 +23,7 @@ from skat_ai.application.position_workflow import (
     PositionWorkflowDependencies,
     execute_position_analysis_workflow,
 )
+from skat_ai.application.provenance import ApplicationProvenanceBundle
 from skat_ai.application.simple_workflows import (
     SimpleWorkflowDependencies,
     execute_fixed_three_player_historical_list_comparison_workflow,
@@ -449,32 +450,56 @@ def _position_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
-) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
+) -> tuple[
+    dict[str, Any],
+    tuple[ApplicationArtifact, ...],
+    ApplicationProvenanceBundle | None,
+]:
     options = invocation.options.position_analysis
     if options is None:
         raise SkatAIInvariantError("Position handler received no Position options.")
-    return (
-        execute_position_analysis_workflow(
-            root,
-            input_reference=invocation.input_reference,
-            options=options,
-            opponent_statistics_document=(
-                invocation.external_documents.opponent_statistics_to_dict()
-            ),
-            opponent_statistics_reference=(
+    from skat_ai.live_analysis_provenance import LiveAnalysisProvenanceCollector
+
+    provenance_collector = (
+        LiveAnalysisProvenanceCollector()
+        if root.get("analysis_mode", "live_decision") == "live_decision"
+        else None
+    )
+    result = execute_position_analysis_workflow(
+        root,
+        input_reference=invocation.input_reference,
+        options=options,
+        opponent_statistics_document=(
+            invocation.external_documents.opponent_statistics_to_dict()
+        ),
+        opponent_statistics_reference=(
+            invocation.external_documents.opponent_statistics_reference
+        ),
+        provenance_collector=provenance_collector,
+        dependencies=dependencies.position,
+    )
+    provenance = (
+        provenance_collector.build_bundle(
+            result,
+            external_reference=(
                 invocation.external_documents.opponent_statistics_reference
             ),
-            dependencies=dependencies.position,
-        ),
-        (),
+        )
+        if provenance_collector is not None
+        else None
     )
+    return (result, (), provenance)
 
 
 def _historical_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
-) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
+) -> tuple[
+    dict[str, Any],
+    tuple[ApplicationArtifact, ...],
+    ApplicationProvenanceBundle | None,
+]:
     options = invocation.options.historical_game
     if options is None:
         raise SkatAIInvariantError(
@@ -494,6 +519,7 @@ def _historical_handler(
             dependencies=dependencies.historical_game,
         ),
         (),
+        None,
     )
 
 
@@ -501,25 +527,34 @@ def _training_dataset_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     _dependencies: ApplicationWorkflowDependencies,
-) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
+) -> tuple[
+    dict[str, Any],
+    tuple[ApplicationArtifact, ...],
+    ApplicationProvenanceBundle | None,
+]:
     options = invocation.options.training_dataset
     if options is None:
         raise SkatAIInvariantError(
             "Training Dataset handler received no Training Dataset options."
         )
-    return execute_training_dataset_workflow(
+    result, artifacts = execute_training_dataset_workflow(
         root,
         input_reference=invocation.input_reference,
         options=options,
         dependencies=_dependencies.training_dataset,
     )
+    return result, artifacts, None
 
 
 def _preparation_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     _dependencies: ApplicationWorkflowDependencies,
-) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
+) -> tuple[
+    dict[str, Any],
+    tuple[ApplicationArtifact, ...],
+    ApplicationProvenanceBundle | None,
+]:
     return (
         execute_training_dataset_preparation_workflow(
             root,
@@ -527,6 +562,7 @@ def _preparation_handler(
             dependencies=_dependencies.simple,
         ),
         (),
+        None,
     )
 
 
@@ -534,7 +570,11 @@ def _statistics_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     _dependencies: ApplicationWorkflowDependencies,
-) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
+) -> tuple[
+    dict[str, Any],
+    tuple[ApplicationArtifact, ...],
+    ApplicationProvenanceBundle | None,
+]:
     return (
         execute_opponent_statistics_workflow(
             root,
@@ -542,6 +582,7 @@ def _statistics_handler(
             dependencies=_dependencies.simple,
         ),
         (),
+        None,
     )
 
 
@@ -549,7 +590,11 @@ def _list_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
-) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
+) -> tuple[
+    dict[str, Any],
+    tuple[ApplicationArtifact, ...],
+    ApplicationProvenanceBundle | None,
+]:
     return (
         execute_fixed_three_player_historical_list_workflow(
             root,
@@ -557,6 +602,7 @@ def _list_handler(
             dependencies=dependencies.simple,
         ),
         (),
+        None,
     )
 
 
@@ -564,7 +610,11 @@ def _comparison_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
-) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
+) -> tuple[
+    dict[str, Any],
+    tuple[ApplicationArtifact, ...],
+    ApplicationProvenanceBundle | None,
+]:
     return (
         execute_fixed_three_player_historical_list_comparison_workflow(
             root,
@@ -572,12 +622,17 @@ def _comparison_handler(
             dependencies=dependencies.simple,
         ),
         (),
+        None,
     )
 
 
 _Handler = Callable[
     [dict[str, Any], ApplicationInvocation, ApplicationWorkflowDependencies],
-    tuple[dict[str, Any], tuple[ApplicationArtifact, ...]],
+    tuple[
+        dict[str, Any],
+        tuple[ApplicationArtifact, ...],
+        ApplicationProvenanceBundle | None,
+    ],
 ]
 
 _HANDLERS: dict[WorkflowV1, _Handler] = {
@@ -610,7 +665,7 @@ def execute_application_invocation(
     request_data = invocation.request.to_dict()["document"]
     if not isinstance(request_data, dict):
         raise SkatAIInvariantError("RequestDocumentV1 did not thaw to an object.")
-    result_document, artifacts = handler(
+    result_document, artifacts, provenance = handler(
         request_data,
         invocation,
         dependencies or ApplicationWorkflowDependencies(),
@@ -626,4 +681,5 @@ def execute_application_invocation(
         orchestration_version=APPLICATION_ORCHESTRATION_VERSION,
         result=result,
         artifacts=artifacts,
+        provenance=provenance,
     )

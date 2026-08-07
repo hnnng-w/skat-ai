@@ -20,6 +20,8 @@ Issue #141 packages that facade and its private Schema resources without moving
 build, resource, metadata, or installation concerns into Application.
 Issue #142 adds Package-owned installed and module CLI transports that construct
 these same Application options and execute this dispatcher directly.
+Issue #143 adds an internal optional live Position provenance sidecar without
+changing the orchestration version or public Result document.
 
 ## Contracts
 
@@ -35,9 +37,13 @@ The main contract values are frozen, slotted, keyword-only dataclasses:
   document and its non-empty caller-supplied reference. The document and
   reference must be supplied together.
 * `ApplicationExecutionResult` contains orchestration version `1`, one immutable
-  `ResultDocumentV1`, and an ordered immutable tuple of auxiliary artifacts.
+  `ResultDocumentV1`, an ordered immutable tuple of auxiliary artifacts, and an
+  optional internal `ApplicationProvenanceBundle`.
 * `ApplicationArtifact` contains one recognized artifact name and one immutable
   JSON object document.
+* `ApplicationProvenanceAttachment` and `ApplicationProvenanceBundle` retain
+  immutable matching live decision and Position Result sidecars under
+  Application provenance version `1`.
 
 Construction defensively copies JSON documents and option sequences. Stored
 objects use immutable mappings and stored arrays use tuples. Artifact and
@@ -178,11 +184,13 @@ compatibility guarantee. The public boundary preserves `SkatAIError`, translates
 raw `ValueError` and `OSError`, and does not broadly migrate Domain exceptions.
 No workflow-specific public helper is added.
 
-Application orchestration does not construct, propagate, enforce, redact, or
-emit a field-level provenance ledger. `ApplicationInvocation`, injected external
-documents, results, and artifacts currently carry no provenance sidecar. All
-workflow-level provenance propagation and all public provenance output remain
-open.
+Live Position Application execution constructs and enforces complete decision
+ledgers before flat, Multi-Step, and Policy Comparison local selections, then
+attaches an all-leaf partial-legacy ledger for the exact Position Result.
+Retrospective Position and all non-Position workflows retain `provenance=None`.
+The facade and CLI intentionally ignore the internal bundle, so all public
+provenance output remains open. See
+[Live analysis provenance](live_analysis_provenance.md).
 
 Packaging does not change this boundary. Clean Wheel and sdist smoke tests call
 the public facade, which delegates to the same Application handlers and preserves
@@ -196,8 +204,9 @@ Public API result.
 The following remain separate follow-up scopes:
 
 * public error translation across existing Domain failures;
-* all field-level provenance propagation, enforcement, schemas, API exposure,
-  output integration, and CLI presentation.
+* retrospective and non-Position field-level provenance propagation;
+* all public provenance schemas, API exposure, Root output integration, and CLI
+  presentation.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue

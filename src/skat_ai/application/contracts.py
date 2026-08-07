@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.api.v1.contracts import RequestDocumentV1, ResultDocumentV1
 from skat_ai.bounded_search_evaluation import DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS
@@ -16,6 +18,9 @@ from skat_ai.search_budget_profiles import (
     HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
 )
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+
+if TYPE_CHECKING:
+    from skat_ai.application.provenance import ApplicationProvenanceBundle
 
 APPLICATION_ORCHESTRATION_VERSION = 1
 APPLICATION_INPUT_REFERENCE_POLICY = "caller_supplied"
@@ -409,6 +414,7 @@ class ApplicationExecutionResult:
     orchestration_version: int = APPLICATION_ORCHESTRATION_VERSION
     result: ResultDocumentV1
     artifacts: tuple[ApplicationArtifact, ...] = ()
+    provenance: ApplicationProvenanceBundle | None = None
 
     def __post_init__(self) -> None:
         if (
@@ -433,3 +439,16 @@ class ApplicationExecutionResult:
         names = tuple(artifact.name for artifact in self.artifacts)
         if len(names) != len(set(names)):
             raise _validation_error("must not contain duplicate artifact names.", "artifacts")
+        if self.provenance is not None:
+            from skat_ai.application.provenance import ApplicationProvenanceBundle
+
+            if not isinstance(self.provenance, ApplicationProvenanceBundle):
+                raise _validation_error(
+                    "must be an ApplicationProvenanceBundle or None.",
+                    "provenance",
+                )
+            if self.provenance.workflow is not self.result.workflow:
+                raise _validation_error(
+                    "workflow must match the Application Result workflow.",
+                    "provenance",
+                )

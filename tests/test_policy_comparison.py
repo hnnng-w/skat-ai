@@ -639,6 +639,9 @@ def test_compare_multi_step_policies_returns_opponent_policy_settings() -> None:
 def test_compare_multi_step_policies_threads_response_policy_map(monkeypatch) -> None:
     calls = []
 
+    def decision_hook(**_kwargs):
+        return None
+
     def fake_simulate_multiple_steps(**kwargs):
         calls.append(kwargs.copy())
 
@@ -677,6 +680,7 @@ def test_compare_multi_step_policies_threads_response_policy_map(monkeypatch) ->
         policies=["first_legal", "highest_point"],
         random_seed=42,
         opponent_response_policy_by_player={"left": "highest_point"},
+        decision_provenance_hook=decision_hook,
     )
 
     assert result["policies"] == ["first_legal", "highest_point"]
@@ -688,3 +692,4 @@ def test_compare_multi_step_policies_threads_response_policy_map(monkeypatch) ->
         call["opponent_response_policy_by_player"] == {"left": "highest_point"}
         for call in calls
     )
+    assert all(call["decision_provenance_hook"] is decision_hook for call in calls)

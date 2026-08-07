@@ -27,6 +27,10 @@ from skat_ai.recommendation_workflow import (
     SEARCH_RECOMMENDATION_METHODS,
     RecommendationMethodConfiguration,
 )
+from skat_ai.simulation_provenance import (
+    DecisionProvenanceHook,
+    RecommendationDecisionObserver,
+)
 from skat_ai.strategic_metadata import StrategicMetadata
 
 
@@ -49,6 +53,8 @@ def compare_multi_step_policies(
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
     game_declaration: GameDeclaration | None = None,
     recommendation_configuration: RecommendationMethodConfiguration | None = None,
+    decision_provenance_hook: DecisionProvenanceHook | None = None,
+    recommendation_decision_observer: RecommendationDecisionObserver | None = None,
 ) -> dict[str, Any]:
     """
     Compares multiple card-selection policies on the same multi-step setup.
@@ -125,10 +131,11 @@ def compare_multi_step_policies(
                 shared_initial_hidden_world
             ),
             initial_hidden_card_inference_model=shared_inference_model,
-            game_declaration=(game_declaration if policy == search_policy else None),
+            game_declaration=game_declaration,
             recommendation_configuration=(
                 recommendation_configuration if policy == search_policy else None
             ),
+            decision_provenance_hook=decision_provenance_hook,
         )
 
         summary = multi_step_result["summary"]
@@ -174,6 +181,9 @@ def compare_multi_step_policies(
             stopped = multi_step_result.get("stopped_recommendation_decision")
             if stopped is not None:
                 decisions.append(stopped)
+            if recommendation_decision_observer is not None:
+                for decision in decisions:
+                    recommendation_decision_observer(policy, decision)
             policy_result["search_decision_diagnostics"] = [
                 build_compact_search_decision_diagnostic(decision)
                 for decision in decisions
