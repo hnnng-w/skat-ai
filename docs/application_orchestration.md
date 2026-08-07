@@ -36,6 +36,12 @@ provenance. It selects only one exact Root Result attachment and attachments for
 artifacts actually returned; Application contracts and orchestration version
 remain unchanged.
 
+Issue #150 adds a separate internal Session authoring contract before
+Application. It does not add an eighth handler, invoke this dispatcher, export a
+Root Request, or change orchestration version `1`. Later Position/Historical
+export will adapt validated Session State into the existing handlers rather than
+turn Session authoring into an Engine-analysis workflow.
+
 ## Contracts
 
 The main contract values are frozen, slotted, keyword-only dataclasses:
@@ -236,7 +242,9 @@ The following remain separate follow-up scopes:
 
 * public error translation across existing Domain failures;
 * broader field-level enforcement outside the implemented Application and
-  bounded public Root Result/actual-artifact boundaries.
+  bounded public Root Result/actual-artifact boundaries;
+* validated Session-to-Position and Session-to-Historical export after actual
+  Session Command transitions exist.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue

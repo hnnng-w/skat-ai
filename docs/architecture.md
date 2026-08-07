@@ -6,6 +6,20 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
+Issue #150 adds a separate internal authoring and control-plane contract before
+the existing Engine workflows:
+
+```text
+Session Commands
+    -> immutable accepted Session State
+    -> validation and export readiness
+    -> later Position or Historical export
+```
+
+Only the immutable Session language and structural relationships are
+implemented. No Command application, phase advancement, Engine export,
+persistence, Public API, CLI Session command, or UI exists yet.
+
 The position-analysis flow is:
 
 1. Load and validate JSON input.
@@ -166,6 +180,20 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/opponent_profile_derivation.py` | Typed versioned evidence, scoped confidence, signal, classification, and explanation derivation. |
 | `src/skat_ai/rolling_opponent_policy_evaluation.py` | Strict rolling as-of profile construction, snapshot policy prediction, metrics, breakdowns, and reconciliation. |
 | `src/skat_ai/rfc3339.py` | Shared offset-aware RFC 3339 parsing for preserved timestamp text and instant comparison. |
+
+## Interactive Sessions
+
+| File | Purpose |
+| --- | --- |
+| `src/skat_ai/session_commands.py` | Version-1 typed caller-fact Commands, immutable event/end payloads, and allowed-phase metadata. |
+| `src/skat_ai/session_contracts.py` | Stable three-Player identity, Capture Modes, phases, accepted Command records, authoritative Log, and immutable Session State. |
+| `src/skat_ai/session_validation.py` | Diagnostics, Position/Historical readiness, valid-incomplete status, and Transition Result invariants. |
+
+Session State contains no `GameState`, Search World, cache, random stream,
+analysis Result, generated timestamp, or path. It reuses Historical seats,
+`GameDeclaration`, Card notation, RFC 3339 parsing, continuation kinds,
+Historical end reasons, and RFC 6901 paths without running replay or analysis.
+See [Interactive session contracts](interactive_session_contracts.md).
 
 Validation is split between JSON Schema and Python validation:
 
@@ -612,6 +640,8 @@ Important regression areas:
 * left/right opponent policy behavior
 * schema validation
 * exact hidden-card evidence, contradictions, DP counts and marginals, uniform sampling, workflow sharing, historical leakage control, and output privacy
+* immutable Session Players, Commands, Logs, revisions, mode relationships,
+  Diagnostics, readiness, Transition Results, serialization, and public-boundary compatibility
 
 ## Validation layers
 

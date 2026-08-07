@@ -60,6 +60,11 @@ The implementation is split across:
 These modules are internal. They are not exported from `skat_ai`, `skat_ai.api`,
 `skat_ai.api.v1`, or `skat_ai.errors`.
 
+Issue #150's separate internal Session contracts reuse canonical RFC 6901 paths
+for validation Diagnostics but do not produce or propagate field Provenance.
+Session Command, State, transition, and export Provenance remains later work and
+does not change this contract version.
+
 ## Sidecar design
 
 Provenance is an immutable sidecar ledger for a JSON-compatible document. It
@@ -444,4 +449,5 @@ publishes only one redacted Root Result ledger plus actual-artifact ledgers.
 Broader adversarial enforcement outside implemented Application boundaries and
 complete field-level enforcement across every load, decision, intermediate, and
 serialization boundary remain open before `v1.0.0`. Confidence integration is
-not part of the provenance contract.
+not part of the provenance contract. Session Provenance propagation also remains
+open after the Issue #150 contract-only foundation.

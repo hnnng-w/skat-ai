@@ -79,6 +79,10 @@ The project focuses on:
 * installed CLI contract version `1` with the exact `skat-ai` Console Script,
   `python -m skat_ai`, a Package-owned canonical parser and transport, Legacy
   Root compatibility, and clean-install CLI/API parity
+* internal Session and Command contract version `1` with fixed stable Players,
+  Live and Retrospective Capture Modes, phases, typed Commands, an authoritative
+  accepted revision Log, Diagnostics, export readiness, Transition Result
+  semantics, and deterministic serialization
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -209,6 +213,27 @@ specific execution helpers remain absent. Installed entry points are implemented
 by Issue #142; broader Domain error migration and end-to-end field-level
 enforcement remain open. See
 [Application orchestration](application_orchestration.md).
+
+### Interactive Session contract foundation
+
+Implemented by Issue #150 for the active `v0.14.0` milestone:
+
+* independent internal Session and Command version `1`
+* exactly three stable Players with canonical Historical seats
+* Live and Retrospective Capture Modes with one-way explicit promotion
+* setup, deal, declaration, Skat/discard, play, and ended phases
+* nine immutable typed Commands with exact allowed-phase metadata
+* an authoritative contiguous accepted Command Log and linear revisions
+* structural Live hand-entry protection before promotion
+* canonical validation Diagnostics and Position/Historical export readiness
+* valid-incomplete Session status and applied, rejected, and revision-conflict
+  Transition Result constructor semantics
+* recursively immutable caller JSON and fresh deterministic serialization
+
+No Command application, phase advancement, capture workflow, Engine export,
+Undo, persistence, Public API, Provenance propagation, Schema, CLI Session
+Assistant, example, generated output, or UI is implemented. See
+[Interactive session contracts](interactive_session_contracts.md).
 
 ### Field-level provenance contract foundation
 
@@ -806,6 +831,15 @@ Implemented:
   * live-vs-post-game information policy rules
   * information policy output summary
 
+### Interactive Session contracts
+
+* `session_commands.py`
+  * typed caller-fact Commands and exact allowed-phase metadata
+* `session_contracts.py`
+  * Player identity, Modes, phases, accepted Log records, and immutable State
+* `session_validation.py`
+  * Diagnostics, export readiness, validation status, and Transition Results
+
 ### Game state and rules
 
 * `game_state.py`
@@ -939,6 +973,7 @@ Main documentation files:
 * `docs/installed_cli.md`
 * `docs/packaging_and_distribution.md`
 * `docs/application_orchestration.md`
+* `docs/interactive_session_contracts.md`
 * `docs/field_level_information_provenance.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
@@ -1287,6 +1322,9 @@ Completed implementation scope:
 * bounded opt-in public Root Result and actual-artifact field provenance with
   immutable API values, strict Schema, installed/module/Legacy CLI parity,
   existing-helper redaction, and complete recomputed coverage
+* immutable internal Session and Command version-1 contracts with stable seated
+  Players, Modes, phases, typed Commands, accepted revisions, Diagnostics,
+  readiness, Transition Results, and deterministic serialization
 
 ## Current high-priority limitations
 
@@ -1330,9 +1368,11 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Interactive live or retrospective input is not implemented. The installed CLI,
-  public executable facade, and reusable internal Application layer work from
-  source, Editable, Wheel, and sdist installations.
+* Immutable internal Live and Retrospective Session contracts are implemented,
+  but actual Command application, phase advancement, capture, export, Undo,
+  persistence, Public API, Provenance, CLI Session commands, Schemas, and UI are
+  not. The installed CLI, public executable facade, and reusable internal
+  Application layer continue to execute only the seven existing Root workflows.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -1340,34 +1380,10 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Perform a focused repository analysis for the active `v0.14.0` planning
-milestone and its provisional interactive live and retrospective session-capture
-direction. The analysis should cover:
-
-* current live Position and Historical Game input models
-* current Public API and Application boundaries
-* current installed and Legacy CLI flow
-* current state-transition helpers
-* candidate versioned Session State boundaries without selecting a final Schema
-* incremental Deal, Declaration, Skat, discard, and trick entry
-* live-decision and retrospective capture paths
-* correction and Undo requirements without selecting a final model
-* validation after every edit
-* deterministic persistence, save, and resume expectations
-* export into the existing Root and Public API contracts
-* Information Policy and Provenance propagation
-* privacy and future-information leakage constraints
-* crash-safe persistence expectations
-* CLI assistant and simple local-interface options without selecting UI
-  technology
-* focused tests and deterministic Generated-output strategy
-* a closed provisional Issue sequence for maintainer review
-
-The analysis must leave the final Issue decomposition, Session State Schema,
-persistence format, correction or Undo model, UI technology, and implementation
-architecture undecided. Online-platform adapters, browser extensions, and
-website scraping remain outside this provisional milestone. Package-index
-publication and license selection remain human decisions.
+Implement Issue #151's actual immutable Command transitions over the Issue #150
+contracts. It should enforce allowed phases, incremental rule and information
+policy, derived phase advancement, and unchanged-state failure semantics without
+adding export, Undo, persistence, Public API, CLI, Schema, or UI scope.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

@@ -59,11 +59,12 @@ form CLI opt-in, and strict Schema. The published `v0.13.0` baseline has 62
 schemas and 77 generated-output scenarios; the seven additions are append-only
 and do not rewrite the historical published `v0.12.0` facts.
 
-The active next planning milestone is `v0.14.0`, with the provisional direction
-of interactive live and retrospective session capture. Its final issue sequence,
-Session Schema, persistence model, Undo contract, UI technology, and
-implementation architecture are not defined. Online-platform adapters, browser
-extensions, and website scraping remain outside this provisional milestone.
+The active `v0.14.0` milestone targets interactive Live and Retrospective Session
+capture. Issue #150 implements the immutable internal Session contract
+foundation, not executable capture. Command application, phase advancement,
+export, Undo, persistence, Public API, Provenance propagation, Schemas, CLI, and
+UI remain open. Online-platform adapters, browser extensions, and website
+scraping remain outside this bounded milestone.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -86,6 +87,7 @@ must not be presented as official-rule requirements.
 | Dataset partition policy | Optional declared `known_opponent` or `unseen_player` intent plus exact stable-player membership and overlap auditing. Public version-1 preparation derives one fixed mode-specific algorithm, validates complete temporal or player-disjoint plans, generates deterministic assignments, and losslessly materializes complete plans. | Known-opponent evaluation intentionally permits player overlap; declared unseen-player datasets require player-disjoint partitions. Preparation has no algorithm override, fallback, partial Plan, default weights, global optimization, ratio guarantee, Sample- or Player-count balancing, or component splitting. |
 | Evidence-constrained hidden-card inference | Exact compatible left/right/hypothetical-skat assignments narrowed only by local and authorized public ownership plus confirmed legal failure to follow an effective category. | It is structural decision-time inference, not behavioral, Bayesian, calibrated, learned, tactically weighted, or proof of the actual hidden deal. |
 | Public field provenance | Opt-in version-1 provenance for one complete redacted Root Result and artifacts actually returned, with exact declared document scopes and recomputed coverage. | It does not expose consumed inputs, decisions, intermediate stages, unredacted internals, Confidence, or complete end-to-end product provenance. |
+| Interactive Session draft | Immutable internal authoring State with exactly three stable seated Players, Live or Retrospective Mode, phase, accepted typed Command Log, linear revision, validation Diagnostics, and Position/Historical readiness. | Issue #150 defines contracts and Transition Result semantics only; it does not apply Commands, advance phases, export Engine requests, persist, Undo, or expose a Public API or CLI. |
 | Learned opponent model | A versioned artifact whose behavior or parameters were fit from data and are used during inference. | It requires separate training, evaluation, deployment, fallback, and explainability decisions. |
 | Training a machine-learning model | Running a reproducible process that fits model parameters from an approved training dataset and evaluates them on separated data. | It is distinct from storing historical games, generating labels, calculating statistics, or running rule-based simulation. |
 
@@ -195,7 +197,12 @@ The following directions are required for `v1.0.0`:
   three bounded examples, and generated-output coverage. The public workflow is
   functionally complete; series aggregation, ratings, winner analysis,
   tournament management, and official reporting remain outside it.
-* Support interactive live and retrospective input and session capture.
+* Support interactive live and retrospective input and Session capture. Issue
+  #150 establishes internal Session and Command version `1`, stable Players,
+  Modes, phases, typed Commands, accepted Log authority, linear revisions,
+  Diagnostics, readiness, valid-incomplete State, and Transition Result
+  semantics. Actual transitions, capture, export, Undo, persistence, Public API,
+  Provenance, Schemas, CLI, and UI remain open.
 * Provide a stable library API and installed CLI/package interface. Public API
   contract version `1`, immutable JSON documents, compatibility metadata, stable
   errors, and legacy Root CLI compatibility are implemented. Internal Application
@@ -282,7 +289,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Dataset partition policies | Optional known-opponent and unseen-player intent remains backward-compatible; exact membership, pairwise/three-way overlap, directed known-opponent coverage, and strict declared unseen-player disjointness are deterministic and schema-valid. |
 | Automatic Training Dataset preparation | Root `training_dataset_preparation_input` selects workflow `training_dataset_preparation`; mode alone selects `temporal_known_opponent_v1` or `component_balanced_unseen_player_v1`. Complete output under `training_dataset_preparation_summary` losslessly materializes the existing version-1 dataset and a matching audit. Unavailable output succeeds with an explicit reason, null dataset/audit, and no partial assignments or summaries. The request has no algorithm field or default weights; the CLI accepts only `--input`, `--output`, `--quiet`, and the cross-workflow `--include-provenance` option; Plan and CLI output are card-free while the complete nested reusable dataset retains source cards. |
 | List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-position lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. Contracts version `1` supply the immutable played/passed representation, rotation, settlement-derived Entry Facts, cumulative totals, one standings snapshot per position, final standings, exact external-lot application, and independent completed-list comparison with one reference, stable-ID alignment, all fourteen final player-total deltas, and resolved-only rank movement. Strict root input/output schemas, runtime validation, concise CLI output, exactly three examples, recursive privacy checks, one-pass source execution, and three appended generated-output scenarios complete the bounded public workflow. It adds no series rollup, ratings, winner analysis, tournament management, or official reporting. |
-| Interactive input and session capture | Supported live and retrospective sessions can be entered interactively, validated incrementally, resumed or completed without hidden state, and serialized to the same documented information-safe records. |
+| Interactive input and session capture | Internal Session and Command version `1` already define exactly three stable seated Players, Live/Retrospective Modes, phases, typed Commands, authoritative accepted linear revisions, Diagnostics, readiness, valid-incomplete State, Transition Result semantics, and deterministic serialization. Completion still requires actual Command application, incremental validation and phase advancement, Position/Historical export, Decision checkpoints, Undo/correction, persistence/resume, Public API, Provenance, Schemas, CLI Session Assistant, and end-to-end live/retrospective capture tests. |
 | Stable installed interface | API contract version `1` provides documented public namespaces, additive exact exports, workflows, immutable JSON documents, direct execution options, public results and artifacts, compatibility/version metadata, normal Result states, stable errors/codes, and Legacy compatibility. Public field-provenance version `1` adds immutable types, default-false opt-in, typed Result access, and an unchanged flattened envelope. The facade executes all seven workflows without caller transport I/O. Installed, module, and Legacy CLI forms share `--include-provenance`, concise and quiet behavior, JSON parity, errors, and Exit Codes. Wheel/sdist environments verify 62 packaged schemas and API/CLI provenance parity. No Package-index publication is implied. |
 | Examples | Examples cover each supported contract family, live/post-game boundary, complete historical record, training/evaluation record, claim/concession, overbid including impossible Null, rule-based profile, list aggregation, and standings; every example passes schema and semantic validation. |
 | Generated-output validation | The deterministic published `v0.13.0` matrix covers every stable top-level output branch and representative unavailable/incomplete/error boundary; its count is 77, including seven append-only provenance scenarios, while historical published `v0.12.0` evidence remains 70. |

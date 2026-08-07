@@ -4,6 +4,28 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
+### Interactive Session contract foundation
+
+Implemented by Issue #150 for the active `v0.14.0` milestone:
+
+* Internal Session and Command version `1` with independent policy identifiers
+* Exactly three stable Players in canonical Historical seat order
+* Live and Retrospective Capture Modes with explicit one-way promotion
+* Canonical setup-through-ended phases and immutable allowed-phase metadata
+* Nine typed caller-fact Commands and recursively immutable event/end payloads
+* Authoritative accepted Command Log with contiguous linear revisions
+* Structural pre-promotion Live hand protection
+* Canonical Diagnostics, Position/Historical export readiness, valid-incomplete
+  status, and Transition Result constructor semantics
+* Deterministic fresh JSON-compatible serialization without generated identity,
+  time, environment, or path data
+
+This does not execute Commands or interactive capture. Phase advancement,
+incremental rule enforcement, exports, Decision checkpoints, Undo, correction,
+persistence, Public API, Session Provenance, Schemas, CLI Session Assistant,
+examples, generated outputs, and UI remain open. See
+[Interactive session contracts](interactive_session_contracts.md).
+
 ### Public API contract foundation
 
 Implemented:
@@ -570,11 +592,11 @@ installed/module/Legacy CLI parity, complete internal Root Result provenance for
 all seven workflows, and bounded opt-in public Root Result and actual-artifact
 provenance. Default Root output remains unchanged when provenance is omitted.
 
-The active next planning milestone is `v0.14.0`, with the provisional direction
-of interactive live and retrospective session capture. Its final issue sequence,
-Session Schema, persistence model, Undo contract, UI technology, and
-implementation architecture are not defined. Online-platform adapters, browser
-extensions, and website scraping remain outside this provisional milestone.
+The active `v0.14.0` milestone targets interactive Live and Retrospective Session
+capture. Issue #150 implements the internal contract foundation but no executable
+capture. Command application, export, Undo, persistence, Public API, Provenance,
+Schema, CLI, and UI work remains. Online-platform adapters, browser extensions,
+and website scraping remain outside this bounded milestone.
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
@@ -688,8 +710,9 @@ implementation details, and testable completion gates.
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, broader field-level provenance
 enforcement, and
-interactive live and retrospective input/
-session capture. The executable public facade, internal Application layer,
+    executable interactive live and retrospective Session capture. The immutable
+    internal Session contract foundation now exists. The executable public
+    facade, internal Application layer,
 installable library distributions, and stable installed CLI interface are
 implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
@@ -810,7 +833,7 @@ Recommended cleanup areas:
 Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.13.0` baseline, historical
 `v0.12.0` and older Release evidence, the authoritative publication state shown
-by GitHub Releases, the active `v0.14.0` planning milestone and its provisional
-direction, requirements explicitly required
+by GitHub Releases, the active `v0.14.0` development milestone and its implemented
+Issue #150 Session contract foundation, requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.
