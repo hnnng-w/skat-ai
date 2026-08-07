@@ -3,13 +3,15 @@
 This document is the authoritative audit of current rule and product support.
 It preserves the published `v0.12.0`, `v0.11.0`, `v0.10.0`, and `v0.9.0`
 release baselines as historical evidence and does not claim complete compliance
-with the official rules. The package baseline is `v0.13.0`, the package version
-is `0.13.0`, and the baseline contains 62 schemas and validates 77 deterministic
-generated-output scenarios. Issues #137 through #147 complete the functional
-milestone, and Issue #148 prepares release metadata and documentation.
-`v0.13.0` has not yet been tagged or published. The current published stable
-release remains `v0.12.0` at commit `bbf955e`; publication actions are performed
-manually by the maintainer, and GitHub Releases is authoritative.
+with the official rules. The current published stable GitHub Release is
+`v0.13.0` at commit `abd1ad3`. The Package version is `0.13.0`, the Python
+requirement is `>=3.13`, Public API contract version `1` remains current, and the
+published baseline contains 62 authoritative Schemas, 62 Packaged Schema
+Resources, 77 deterministic generated-output scenarios, and 5,399 passing
+pytest tests. Issues #137 through #147 complete the functional milestone, and
+Issue #148 completed Release preparation. Publication was performed manually by
+the maintainer. GitHub Releases is authoritative; no Package-index or PyPI
+publication is claimed.
 
 ## Normative sources
 
@@ -33,7 +35,8 @@ Rule references below are section numbers from the November 2022 PDF. Published
 baseline facts were verified against source modules, schemas, examples,
 validation scripts, and focused tests. Issues #127 through #134 complete the
 `v0.12.0` functional milestone, and Issue #135 completed release preparation.
-The published baseline validates 70 deterministic generated-output scenarios and
+Issue #136 synchronized the historical publication status. That historical
+published baseline validates 70 deterministic generated-output scenarios and
 passes 4,762 pytest tests. The historical published `v0.11.0` baseline remains
 evidence for 64 scenarios and 4,392 pytest tests; Issues #118 through #124
 complete that functional milestone, and Issue #125 completed release
@@ -65,9 +68,9 @@ Package Resource schemas with authoritative byte parity, typing and Package
 version metadata, Wheel/sdist artifact inspection, separate clean installations,
 and local/CI distribution gates. Issue #142 adds installed CLI contract version
 `1`, the exact Console Script and module entry point, one canonical Package CLI,
-Legacy compatibility, and clean-install CLI/API parity. Publication and a license
-decision remain open. Issue #138 adds the internal
-version-1 field-level provenance language, immutable sidecar ledgers, RFC 6901
+Legacy compatibility, and clean-install CLI/API parity. A license decision
+remains open; no Package-index publication is claimed. Issue #138 adds the
+internal version-1 field-level provenance language, immutable sidecar ledgers, RFC 6901
 paths, deterministic coverage and dependency validation, Information Use
 Context, public redaction, and safe serialization. Issue #143 adds internal live
 Position propagation and adversarial enforcement. Issue #144 adds internal flat
@@ -81,16 +84,17 @@ bounded public Root Result and actual-artifact provenance version `1`, immutable
 public attachments/artifacts/bundles, seven explicit Result mappings, the
 `opponent_statistics_input` artifact mapping, existing-helper redaction,
 complete recomputed coverage, default-false API and all-three-form CLI opt-in,
-and strict Schema. The `v0.13.0` package baseline has 62 schemas and 77
-generated-output scenarios. The seven provenance scenarios are append-only, so the published
-`v0.12.0` facts remain 70 scenarios and 4,762 tests. Issue #148 changes only the
-Package version, current release documentation, and matching assertions.
+and strict Schema. The published `v0.13.0` baseline has 62 schemas and 77
+generated-output scenarios. The seven provenance scenarios are append-only, so
+the historical published `v0.12.0` facts remain 70 scenarios and 4,762 tests.
+Issue #148 completed Release preparation by changing only the Package version,
+current Release documentation, and matching assertions.
 
-The next provisional planning milestone is `v0.14.0`, directed at interactive
-live and retrospective session capture. Its final issue sequence, Session
-Schema, persistence model, Undo contract, UI technology, and implementation
-architecture are not defined. Online-platform adapters, browser extensions, and
-website scraping remain outside this provisional milestone.
+The active next planning milestone is `v0.14.0`, with the provisional direction
+of interactive live and retrospective session capture. Its final issue sequence,
+Session Schema, persistence model, Undo contract, UI technology, and
+implementation architecture are not defined. Online-platform adapters, browser
+extensions, and website scraping remain outside this provisional milestone.
 
 ## Status vocabulary
 
@@ -328,13 +332,13 @@ API `ExecutionOptionsV1.include_provenance` defaults to false,
 `ExecutionResultV1.field_provenance` is typed while its flattened envelope stays
 unchanged, and installed/module/Legacy CLIs share `--include-provenance` with
 concise and quiet behavior. Strict `field_provenance.schema.json` raises the
-package-candidate Schema count to 62. Seven append-only scenarios raise the
-package-candidate matrix to 77 without rewriting the published 70-scenario
+eventual `v0.13.0` Schema count to 62. Seven append-only scenarios raise the
+eventual `v0.13.0` matrix to 77 without rewriting the published 70-scenario
 `v0.12.0` evidence. Confidence contracts remain separate.
 
 | Requirement | Source | Rule section | Current status | Current implementation | Required input or information | Known limitation | Required validation or tests | Target milestone | Required before v1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines the stable namespaces, seven Root workflows, immutable documents and options, public Results and artifacts, errors, compatibility metadata, and flattened envelope. Issue #147 adds immutable public field-provenance types, default-false `include_provenance`, typed `ExecutionResultV1.field_provenance`, Root `field_provenance`, and unchanged envelope keys. Installed, module, and Legacy forms share `--include-provenance`, concise summary, quiet behavior, and Root JSON parity. Package, API, Application, CLI, Schema, Provenance, and Domain versions remain independent. | A Root JSON file and optional CLI transport paths, or one already loaded JSON-compatible Root object or immutable Request with matching options and optional paired Opponent Statistics. | Broader Domain-error migration, license selection, publication, interactive sessions, and end-to-end field enforcement remain absent. | Retain exact exports, immutable contracts, all seven workflows, default omission and opt-in parity, concise/quiet CLI output, errors and normal unavailable states, Legacy seams, 62-schema package parity, and 77 generated outputs without changing the 70-scenario published baseline. | v0.13.0 bounded release scope complete | Yes |
+| Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines the stable namespaces, seven Root workflows, immutable documents and options, public Results and artifacts, errors, compatibility metadata, and flattened envelope. Issue #147 adds immutable public field-provenance types, default-false `include_provenance`, typed `ExecutionResultV1.field_provenance`, Root `field_provenance`, and unchanged envelope keys. Installed, module, and Legacy forms share `--include-provenance`, concise summary, quiet behavior, and Root JSON parity. Package, API, Application, CLI, Schema, Provenance, and Domain versions remain independent. | A Root JSON file and optional CLI transport paths, or one already loaded JSON-compatible Root object or immutable Request with matching options and optional paired Opponent Statistics. | Broader Domain-error migration, license selection, Package-index publication, interactive sessions, and end-to-end field enforcement remain absent. | Retain exact exports, immutable contracts, all seven workflows, default omission and opt-in parity, concise/quiet CLI output, errors and normal unavailable states, Legacy seams, 62-schema package parity, and 77 generated outputs without changing the historical 70-scenario `v0.12.0` baseline. | v0.13.0 bounded release scope complete | Yes |
 | Field-level information provenance | skat-ai product | Not applicable | `partially_supported` | Internal contract version `1` defines RFC 6901 paths, immutable ledgers, exact coverage, dependencies, Information Use Context, redaction, serialization, and Confidence separation. All seven workflows have complete non-legacy Root Result ledgers. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts, uses scopes `root_result_without_field_provenance` and `artifact_document`, and requires complete recomputed coverage. | A supported Application invocation with matching retained sidecars; public exposure additionally requires API or CLI opt-in. | Public consumed-input, decision, intermediate-stage, and unredacted attachments are intentionally absent. Broader loading and end-to-end field enforcement remain incomplete; Confidence and specialized source provenance remain separate. | Retain internal enforcement plus public immutable types, seven Result mappings, actual-artifact mapping, redaction and coverage recomputation, strict Schema, default omission, API/CLI parity, privacy rejection, and 77 generated outputs. | v0.13.0 bounded public contract complete; broader v1.0 enforcement open | Yes |
 | Live information boundaries | skat-ai product | Not applicable | `partially_supported` | Existing broad enforcement remains, and live Position Application execution validates complete pre-selection decision ledgers and attaches a complete exact Result ledger. Declared Ouvert and both continuation branches authorize only their exact current public hands. Issue #147 can expose the redacted complete `position_result` with recomputed coverage. Accepted 4.4.5 proof hands, other hands, hidden skat, future cards, private worlds, and derived seeds remain unavailable. | Explicit mode, local perspective, verifiable public history, valid declared-Ouvert or continuation public hands, effective seed-free settings, and the exact Application Result. | General position input still trusts supplied context. The public sidecar covers the final Root Result, not every load or decision boundary. | Retain decision-time enforcement, all-leaf accounting, dependency rejection/redaction, Ouvert and continuation exceptions, hidden proof evidence, post-game and private-world leakage, public Result opt-in, determinism, and call counts. | v1.0 | Yes |
 | Retrospective information | skat-ai product | Not applicable | `supported` | Post-game mode permits known skat and ended states; every supported historical terminal record reconstructs each actual decision from its decision-time snapshot without future leakage. Internal retained-stage provenance separates decision input and analysis from actual-card assessment and final Outcome Context. Public opt-in can expose the redacted complete Position or Historical Root Result ledger without exposing those internal stages. | Post-game mode and supplied retrospective facts, or a validated historical snapshot, plus an Application provenance bundle for field-level auditing. | Public decision and retrospective-stage ledgers remain internal; Root Result exposure does not make final outcome decision-time evidence. | Retain complete-history versus decision-time separation, 0-30 cardinality, continuation boundaries, actual/future/outcome isolation, redaction, strict public Result coverage, and default-output compatibility. | v1.0 bounded requirement complete | Yes |
@@ -356,8 +360,8 @@ package-candidate matrix to 77 without rewriting the published 70-scenario
 | Rolling opponent-policy evaluation | skat-ai product | Not applicable | `supported` | A dedicated known-opponent workflow builds strict game-start as-of profiles from every supported source reason, evaluates each actual zero-through-30 target card against ordered policy-equivalent preferred candidates and exact choices, retains zero-decision targets, and reports baseline, actionable-only paired, participant coverage, and bounded breakdown metrics. | Timestamped supported source and target games with stable player overlap, disjoint partition names, and unspecified or `known_opponent` dataset intent. | Behavioral matching does not predict terminal events or measure strategic strength, recommendation quality, optimal play, unseen-player generalization, or statistical significance. | Retain temporal/target exclusion, identity and seat remapping, prefix parity, event isolation, participant coverage, baseline, preferred/exact matching, actionable pairing, zero decisions, reconciliation, schema, CLI, and isolation tests. | v1.0 bounded requirement complete | Yes |
 | Learned opponent models | skat-ai product | Not applicable | `not_supported` | No learned model exists; current profiles and policies are deterministic and rule-based. | Approved historical features, model artifact, versioning, and inference contract. | Training, evaluation, deployment, fallback, and explainability details are not designed. | Define separate post-v1.0 acceptance criteria before implementation. | Post-v1.0 | No |
 | Machine-learning model training | skat-ai product | Not applicable | `not_supported` | No training pipeline exists. | Approved dataset, target, evaluation protocol, reproducibility, and artifact policy. | Historical training-data representation does not itself authorize model training. | Define separate post-v1.0 card-decision model acceptance criteria before implementation. | Post-v1.0 | No |
-| Generated-output validation | skat-ai product | Not applicable | `supported` | The `v0.13.0` package matrix generates, semantically checks, and schema-validates 77 deterministic CLI scenarios. The published `v0.12.0` baseline remains 70, historical `v0.11.0` remains 64, and historical `v0.10.0` remains 59. Issue #147 appends seven provenance scenarios, one per Root workflow, without modifying the first 70; the Training Dataset scenario also validates the actual export-artifact mapping. | Repository examples/fixtures, 62 schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; current additions do not rewrite published release evidence. | Keep current and published counts explicit; retain append-only provenance coverage and add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
-| Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and GitHub Actions run Ruff, 62-schema packaged parity, input validation, 77-scenario generated-output validation, Wheel/sdist archive and clean-install API/installed/module CLI validation including provenance opt-in, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance; artifacts are validated but not published. | Require clean local and CI checks, synchronized docs/schemas, exact entry metadata, installed/module/Legacy/API provenance parity, and human-controlled publication and release actions. | v1.0 | Yes |
+| Generated-output validation | skat-ai product | Not applicable | `supported` | The published `v0.13.0` matrix generates, semantically checks, and schema-validates 77 deterministic CLI scenarios. The historical published `v0.12.0` baseline remains 70, historical `v0.11.0` remains 64, and historical `v0.10.0` remains 59. Issue #147 appends seven provenance scenarios, one per Root workflow, without modifying the first 70; the Training Dataset scenario also validates the actual export-artifact mapping. | Repository examples/fixtures, 62 schemas, and deterministic CLI settings. | The matrix is representative rather than exhaustive; append-only additions do not rewrite historical published Release evidence. | Keep current and historical published counts explicit; retain append-only provenance coverage and add a deterministic scenario for each new stable user-facing branch. | v1.0 | Yes |
+| Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and GitHub Actions run Ruff, 62-schema packaged parity, input validation, 77-scenario generated-output validation, Wheel/sdist archive and clean-install API/installed/module CLI validation including provenance opt-in, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance; distribution artifacts are validated but no Package-index publication is claimed. | Require clean local and CI checks, synchronized docs/schemas, exact entry metadata, installed/module/Legacy/API provenance parity, and human-controlled publication and Release actions. | v1.0 | Yes |
 
 ## Interpretations and unresolved rule questions
 

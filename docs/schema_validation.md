@@ -200,13 +200,17 @@ The output schema checks the main output structure, including:
 * optional Root `field_provenance` for every output branch through the strict
   version-1 public field-provenance schema
 
-The `v0.13.0` package baseline contains 62 schemas and validates 77 deterministic
-outputs: the published 70 remain unchanged, followed by seven append-only public
-field-provenance scenarios. Issue #148 prepares release metadata and
-documentation before manual publication. The published stable `v0.12.0`
-baseline at commit `bbf955e` remains evidence for 70 scenarios and 4,762 pytest
-tests; Issue #135 completed its release preparation. The historical published
-`v0.11.0` baseline remains evidence for 64 scenarios and 4,392 pytest tests. The
+The published `v0.13.0` baseline at commit `abd1ad3` contains 62 authoritative
+Schemas and 62 Packaged Schema Resources and validates 77 deterministic outputs:
+the 70 historical published `v0.12.0` scenarios remain unchanged, followed by
+seven append-only public field-provenance scenarios. It passes 5,399 pytest
+tests. Issue #148 completed Release preparation before manual maintainer
+publication. GitHub Releases remains authoritative; no Package-index or PyPI
+publication is claimed.
+The historical published `v0.12.0` baseline at commit `bbf955e` remains evidence
+for 70 scenarios and 4,762 pytest tests; Issue #135 completed its release
+preparation. The historical published `v0.11.0` baseline remains evidence for 64
+scenarios and 4,392 pytest tests. The
 historical published `v0.10.0` baseline passes 4,075 pytest tests and covers 59
 scenarios. The historical published `v0.9.0` baseline passes 3,558 pytest tests
 and covers 52 scenarios. Position scenarios use CLI settings such as
@@ -230,7 +234,7 @@ seven provenance-enabled scenarios, one for each Root workflow: Position
 Analysis, Historical Game, Training Dataset, Training Dataset Preparation,
 Opponent Statistics, fixed-three-player Historical List, and Historical List
 Comparison. The Training Dataset scenario also verifies the actual
-`opponent_statistics_input` artifact attachment. The `v0.13.0` package matrix
+`opponent_statistics_input` artifact attachment. The published `v0.13.0` matrix
 therefore has 77 scenarios; the historical published `v0.12.0`
 evidence remains 70 scenarios and 4,762 pytest tests.
 

@@ -24,15 +24,18 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The `v0.13.0` package baseline contains 62 schemas and validates 77 deterministic
-generated-output scenarios. Issue #147 leaves the 70 published scenarios
-unchanged and appends seven public field-provenance scenarios, one per Root
-workflow. Issue #148 prepares release metadata and documentation before manual
-publication. The published stable `v0.12.0` baseline at commit `bbf955e` remains
-evidence for 70 scenarios and 4,762 pytest tests; Issue #135 completed its release
-preparation. The historical published `v0.11.0` baseline remains evidence for 64
-scenarios and 4,392 pytest tests. The historical published `v0.10.0` baseline
-remains evidence for 59 scenarios and 4,075 pytest tests. The historical
+The published `v0.13.0` baseline at commit `abd1ad3` contains 62 authoritative
+Schemas and 62 Packaged Schema Resources, validates 77 deterministic generated-
+output scenarios, and passes 5,399 pytest tests. Issue #147 leaves the 70 historical published
+`v0.12.0` scenarios unchanged and appends seven public field-provenance
+scenarios, one per Root workflow. Issue #148 completed Release preparation before
+manual maintainer publication. GitHub Releases remains authoritative; no
+Package-index or PyPI publication is claimed. The historical published `v0.12.0`
+baseline at commit `bbf955e` remains evidence for 70 scenarios and 4,762 pytest
+tests; Issue #135 completed its release preparation. The historical published
+`v0.11.0` baseline remains evidence for 64 scenarios and 4,392 pytest tests. The
+historical published `v0.10.0` baseline remains evidence for 59 scenarios and
+4,075 pytest tests. The historical
 published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
 tests.
 
@@ -599,9 +602,9 @@ without changing those prior 67, bringing the published `v0.12.0` baseline to 70
 Seven Issue #147 scenarios then append public provenance for Position Analysis,
 Historical Game, Training Dataset, Training Dataset Preparation, Opponent
 Statistics, Historical List, and Historical List Comparison. They reuse existing
-fixtures, keep the first 70 scenarios unchanged, and bring the `v0.13.0` package
-matrix to 77. The Training Dataset scenario also covers actual export-artifact
-provenance.
+fixtures, keep the first 70 scenarios unchanged, and bring the published
+`v0.13.0` matrix to 77. The Training Dataset scenario also covers actual export-
+artifact provenance.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

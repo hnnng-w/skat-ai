@@ -982,35 +982,43 @@ Main documentation files:
 
 ## Release status
 
-Current published stable release: `v0.12.0`.
+Current published stable GitHub Release: `v0.13.0`.
 
 Current package version: `0.13.0`.
 
-Current package baseline: `v0.13.0`.
+Current published baseline: `v0.13.0`.
 
-Package release theme: "Stable API, installable tooling, and public field
+Published Release theme: "Stable API, installable tooling, and public field
 provenance".
 
-Intended GitHub Release title: "v0.13.0 — Stable API, installable tooling, and
+Published GitHub Release title: "v0.13.0 — Stable API, installable tooling, and
 public field provenance".
 
-`v0.13.0` has not yet been tagged or published. Publication is a manual
-maintainer action, and GitHub Releases remains authoritative.
+Published Release commit: `abd1ad3`.
 
-Published release theme: "Fixed-three-player historical lists and deterministic
-dataset preparation".
+The Package requires Python `>=3.13` and retains Public API contract version
+`1`. The published baseline contains 62 authoritative Schemas and 62 Packaged
+Schema Resources, validates 77 deterministic generated-output scenarios, and
+passes 5,399 pytest tests. Issues #137 through #147 complete the functional
+milestone, and Issue #148 completed Release preparation. Publication was
+performed manually by the maintainer. GitHub Releases remains authoritative;
+no Package-index or PyPI publication is claimed.
 
-Published GitHub Release title: "v0.12.0 — Fixed-three-player historical lists
+Historical published `v0.12.0` Release theme: "Fixed-three-player historical
+lists and deterministic dataset preparation".
+
+Historical GitHub Release title: "v0.12.0 — Fixed-three-player historical lists
 and deterministic dataset preparation".
 
-Published release commit: `bbf955e`.
+Historical Release commit: `bbf955e`.
 
-The published baseline requires Python `>=3.13`, validates 70 deterministic
-generated-output scenarios, and passes 4,762 pytest tests.
+The historical published baseline requires Python `>=3.13`, validates 70
+deterministic generated-output scenarios, and passes 4,762 pytest tests.
 
 Issues #127 through #134 complete the functional milestone, and Issue #135
 completed release preparation. Publication was performed manually by the
-maintainer, and GitHub Releases remains authoritative.
+maintainer, and GitHub Releases remains authoritative. Issue #136 synchronized
+the historical publication status.
 
 Historical published `v0.11.0` release theme: "Information-safe Replay Coaching
 and structured historical outcomes".
@@ -1031,10 +1039,10 @@ strict public JSON/schema/CLI workflow, plus internal version-1 unpartitioned
 dataset-preparation and supplied split-plan contracts plus deterministic
 temporal Known-opponent and Player-disjoint unseen-player assignment generators.
 Issue #134 adds the root-selected public preparation workflow, strict schemas,
-CLI, and three examples. The prior 67 scenarios are unchanged, and the current
-published baseline validates 70 while the historical published `v0.11.0`
-baseline remains 64. Issue #135 completed release preparation before manual
-maintainer publication.
+CLI, and three examples. The prior 67 scenarios are unchanged, and that
+historical published baseline validates 70 while the historical published
+`v0.11.0` baseline remains 64. Issue #135 completed release preparation before
+manual maintainer publication.
 
 Issue #137 is the first implemented `v0.13.0` foundation. It adds API contract
 version `1`, exact public exports, immutable JSON Request and Result wrappers,
@@ -1085,12 +1093,12 @@ explicit Result mappings, and the actual `opponent_statistics_input` to
 is followed by complete recomputed coverage. Public API
 `ExecutionOptionsV1.include_provenance` defaults to false, while all three CLI
 forms accept `--include-provenance` with concise or quiet behavior. The strict
-Schema raises the package-candidate resource count to 62; seven append-only
-scenarios raise the package-candidate matrix to 77. Package version and
+Schema raises the eventual `v0.13.0` resource count to 62; seven append-only
+scenarios raise the eventual `v0.13.0` matrix to 77. Package version and
 published `v0.12.0` evidence remain
 unchanged at the Issue #147 boundary. Issue #148 sets Package version `0.13.0`
-and prepares release metadata and current-state documentation without product
-behavior changes.
+and completes Release metadata and current-state documentation preparation
+without product behavior changes.
 
 Issue #139 adds internal Application orchestration version `1` for all seven Root
 workflows, five isolated Training Dataset operations, injected Opponent
@@ -1225,7 +1233,7 @@ publication.
 
 ## Current implementation baseline
 
-**Package v0.13.0: Stable API, installable tooling, and public field provenance**
+**Published v0.13.0: Stable API, installable tooling, and public field provenance**
 
 Completed implementation scope:
 
@@ -1332,17 +1340,34 @@ Completed implementation scope:
 
 ## Next recommended action
 
-The maintainer can complete manual `v0.13.0` publication after reviewing the
-release candidate and validation evidence. Until then, the package baseline is
-`v0.13.0`, the published release remains `v0.12.0`, and GitHub Releases remains
-authoritative. Broader end-to-end field-level enforcement remains a pre-`v1.0.0`
-follow-up, and Package publication and license selection remain human decisions.
+Perform a focused repository analysis for the active `v0.14.0` planning
+milestone and its provisional interactive live and retrospective session-capture
+direction. The analysis should cover:
 
-The next provisional planning milestone is `v0.14.0`, directed at interactive
-live and retrospective session capture. Its final issue sequence, Session
-Schema, persistence model, Undo contract, UI technology, and implementation
-architecture are not defined. Online-platform adapters, browser extensions, and
-website scraping remain outside this provisional milestone.
+* current live Position and Historical Game input models
+* current Public API and Application boundaries
+* current installed and Legacy CLI flow
+* current state-transition helpers
+* candidate versioned Session State boundaries without selecting a final Schema
+* incremental Deal, Declaration, Skat, discard, and trick entry
+* live-decision and retrospective capture paths
+* correction and Undo requirements without selecting a final model
+* validation after every edit
+* deterministic persistence, save, and resume expectations
+* export into the existing Root and Public API contracts
+* Information Policy and Provenance propagation
+* privacy and future-information leakage constraints
+* crash-safe persistence expectations
+* CLI assistant and simple local-interface options without selecting UI
+  technology
+* focused tests and deterministic Generated-output strategy
+* a closed provisional Issue sequence for maintainer review
+
+The analysis must leave the final Issue decomposition, Session State Schema,
+persistence format, correction or Undo model, UI technology, and implementation
+architecture undecided. Online-platform adapters, browser extensions, and
+website scraping remain outside this provisional milestone. Package-index
+publication and license selection remain human decisions.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

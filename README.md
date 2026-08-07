@@ -821,23 +821,26 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The package baseline is `v0.13.0`, with release theme "Stable API, installable
-tooling, and public field provenance" and intended GitHub Release title
-"v0.13.0 — Stable API, installable tooling, and public field provenance". The
-package version is `0.13.0`, requires Python 3.13 or newer, contains 62 schemas,
-and validates 77 deterministic generated-output scenarios. Issues #137 through
-#147 complete the functional milestone, and Issue #148 prepares release metadata
-and documentation.
+The current published stable GitHub Release is `v0.13.0`, with release theme
+"Stable API, installable tooling, and public field provenance" and GitHub
+Release title "v0.13.0 — Stable API, installable tooling, and public field
+provenance". It points to commit `abd1ad3`. The Package version is `0.13.0`; the
+Package requires Python 3.13 or newer, retains Public API contract version `1`,
+contains 62 authoritative Schemas and 62 Packaged Schema Resources, validates 77
+deterministic generated-output scenarios, and passes 5,399 pytest tests. Issues
+#137 through #147 complete the functional milestone, and Issue #148 completed Release preparation.
+Publication was performed manually by the maintainer. GitHub Releases remains
+authoritative for publication status; no Package-index or PyPI publication is
+claimed.
 
-`v0.13.0` has not yet been tagged or published. The current published stable
-release remains `v0.12.0`, with release theme "Fixed-three-player historical
-lists and deterministic dataset preparation" and GitHub Release title
+The historical published `v0.12.0` release has release theme
+"Fixed-three-player historical lists and deterministic dataset preparation" and
+GitHub Release title
 "v0.12.0 — Fixed-three-player historical lists and deterministic dataset
 preparation". It points to commit `bbf955e`, validates 70 deterministic
 generated-output scenarios, and passes 4,762 pytest tests. Issues #127 through
 #134 complete the functional milestone, and Issue #135 completed release
-preparation. Publication actions are performed manually by the maintainer, and
-GitHub Releases remains authoritative for publication status.
+preparation. Issue #136 synchronized the historical publication status.
 
 The historical published `v0.11.0` release, with release theme "Information-safe
 Replay Coaching and structured historical outcomes", points to commit `cfd28e5`,
@@ -972,18 +975,18 @@ private-proof-safe dependencies. Issue #147 adds public field-provenance contrac
 version `1`, immutable public attachments/artifacts/bundles, seven explicit Root
 Result mappings, one actual-artifact mapping, opt-in Public API and all-three-
 form CLI transport, strict `field_provenance.schema.json`, and seven append-only
-generated-output scenarios. The `v0.13.0` package matrix has 77 scenarios and 62
-schemas. Together, Issues #137 through #147 define the package baseline
-with 77 scenarios and 62 schemas; the published `v0.12.0` facts remain 70
-scenarios and 4,762 pytest tests. Issue #148 prepares the release candidate for
-manual maintainer publication. Broader end-to-end field-level enforcement
-remains incomplete before `v1.0.0`.
+generated-output scenarios. The published `v0.13.0` release matrix has 77
+scenarios and 62 schemas. Together, Issues #137 through #147 define the
+published baseline with 77 scenarios and 62 schemas; the historical published
+`v0.12.0` facts remain 70 scenarios and 4,762 pytest tests. Issue #148 completed Release preparation before
+manual maintainer publication at commit `abd1ad3`. Broader end-to-end field-level
+enforcement remains incomplete before `v1.0.0`.
 
-The next provisional planning milestone is `v0.14.0`, directed at interactive
-live and retrospective session capture. Its final issue sequence, Session
-Schema, persistence model, Undo contract, UI technology, and implementation
-architecture are not defined. Online-platform adapters, browser extensions, and
-website scraping remain outside this provisional milestone.
+The active next planning milestone is `v0.14.0`, with the provisional direction
+of interactive live and retrospective session capture. Its final issue sequence,
+Session Schema, persistence model, Undo contract, UI technology, and
+implementation architecture are not defined. Online-platform adapters, browser
+extensions, and website scraping remain outside this provisional milestone.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

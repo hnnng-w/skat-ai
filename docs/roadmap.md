@@ -555,11 +555,13 @@ Implemented:
 
 ### v0.13.0: Stable API, installable tooling, and public field provenance
 
-The `v0.13.0` package baseline is complete through functional Issues #137
-through #147 and release-preparation Issue #148. It contains 62 schemas,
-validates 77 deterministic generated-output scenarios, and requires Python 3.13
-or newer. It has not yet been tagged or published; publication remains a manual
-maintainer action, and GitHub Releases remains authoritative.
+The published `v0.13.0` milestone is complete through functional Issues #137
+through #147. Issue #148 completed Release preparation. The Release points to
+commit `abd1ad3`, contains 62 authoritative Schemas and 62 Packaged Schema
+Resources, validates 77 deterministic generated-output scenarios, passes 5,399
+pytest tests, and requires Python 3.13 or newer. Publication was performed
+manually by the maintainer, and GitHub Releases remains authoritative. No
+Package-index or PyPI publication is claimed.
 
 The milestone provides stable API contract version `1`, reusable Application
 orchestration version `1`, the executable public facade, Setuptools Wheel and
@@ -568,11 +570,11 @@ installed/module/Legacy CLI parity, complete internal Root Result provenance for
 all seven workflows, and bounded opt-in public Root Result and actual-artifact
 provenance. Default Root output remains unchanged when provenance is omitted.
 
-The next provisional planning milestone is `v0.14.0`, directed at interactive
-live and retrospective session capture. Its final issue sequence, Session
-Schema, persistence model, Undo contract, UI technology, and implementation
-architecture are not defined. Online-platform adapters, browser extensions, and
-website scraping remain outside this provisional milestone.
+The active next planning milestone is `v0.14.0`, with the provisional direction
+of interactive live and retrospective session capture. Its final issue sequence,
+Session Schema, persistence model, Undo contract, UI technology, and
+implementation architecture are not defined. Online-platform adapters, browser
+extensions, and website scraping remain outside this provisional milestone.
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
@@ -580,7 +582,8 @@ The published `v0.12.0` milestone is complete through functional Issues #127
 through #134 and release-preparation Issue #135. The release points to commit
 `bbf955e`, validates 70 deterministic generated-output scenarios, passes 4,762
 pytest tests, and requires Python 3.13 or newer. Publication was performed
-manually by the maintainer, and GitHub Releases remains authoritative.
+manually by the maintainer, and GitHub Releases remains authoritative. Issue
+#136 synchronized the historical publication status.
 
 The milestone exposes fixed-three-player historical-list source, cumulative
 aggregation, and independent comparison through strict JSON/schema/CLI workflows.
@@ -783,10 +786,11 @@ metadata, Package Resource schemas, typing and version metadata, Wheel/sdist and
 clean-install validation, and local/CI gates without an installed CLI or
 publication. Issue #142 adds the exact installed Console Script, module entry
 point, Package-owned canonical CLI, Legacy facade, version output, and clean-
-install CLI/API parity without publication. The package baseline has 62 schemas
-and 77 generated-output scenarios; published `v0.12.0` facts remain 70 scenarios
-and 4,762 tests. Issue #148 prepares Package version `0.13.0`, release metadata,
-and current-state documentation without product behavior changes. Later
+install CLI/API parity without publication. The published `v0.13.0` baseline has
+62 schemas and 77 generated-output scenarios; published `v0.12.0` facts remain
+70 scenarios and 4,762 tests. Issue #148 set Package version `0.13.0` and
+completed Release metadata and current-state documentation preparation without
+product behavior changes before manual publication at commit `abd1ad3`. Later
 milestone numbers remain planning containers rather than fixed contractual
 releases.
 
@@ -804,9 +808,9 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the `v0.13.0` package baseline, the current published
-`v0.12.0` release and older release evidence, the authoritative publication
-state shown by GitHub Releases, the provisional `v0.14.0` planning milestone,
-requirements explicitly required
+should distinguish the current published `v0.13.0` baseline, historical
+`v0.12.0` and older Release evidence, the authoritative publication state shown
+by GitHub Releases, the active `v0.14.0` planning milestone and its provisional
+direction, requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.
