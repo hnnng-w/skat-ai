@@ -175,7 +175,7 @@ official Skat rules arbitration.
 * Setuptools Wheel and sdist builds with `py.typed`, packaged byte-identical JSON
   Schemas, and clean-install validation
 
-### Interactive Session contract foundation
+### Interactive Session contract and transition foundation
 
 * Internal Session and Command contract version `1`
 * Exactly three stable Players with canonical forehand, middlehand, and rearhand seats
@@ -184,11 +184,17 @@ official Skat rules arbitration.
 * Linear revisions, validation Diagnostics, Position/Historical export readiness,
   and applied/rejected/revision-conflict Result semantics
 * Deterministic internal serialization with no generated IDs or timestamps
+* Internal transition engine and projection version `1` with canonical revision-
+  zero creation, full accepted-Log replay, atomic Command application, monotonic
+  phase advancement, and forged-State detection
+* Incremental Deal, Declaration, Skat/Discard, Play, trick, continuation,
+  Game-end, promotion, information-policy, and readiness validation
 
-This is a contract foundation only. Command application, phase advancement,
-Engine export, Undo, persistence, Public API, CLI Session commands, Schemas, and
-interactive UI are not implemented. See [Interactive session
-contracts](docs/interactive_session_contracts.md).
+The internal Command layer is executable, but Engine Request export, Decision
+checkpoints, Undo/correction, persistence, Public API, Session Provenance, CLI
+Session commands, Schemas, examples, generated outputs, and interactive UI are
+not implemented. See [Interactive session contracts](docs/interactive_session_contracts.md)
+and [Incremental Session transitions](docs/incremental_session_transitions.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -699,6 +705,7 @@ Detailed documentation is split into topic-specific files:
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Interactive session contracts](docs/interactive_session_contracts.md)
+* [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
 * [Public field provenance](docs/public_field_provenance.md)
 * [Live analysis provenance](docs/live_analysis_provenance.md)
@@ -946,8 +953,8 @@ Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
-level provenance enforcement, and executable interactive Session capture beyond
-the internal Issue #150 contract foundation. General
+level provenance enforcement, and end-to-end interactive Session capture beyond
+the internal Issue #150 and #151 contract and transition foundation. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -999,14 +1006,15 @@ manual maintainer publication at commit `abd1ad3`. Broader end-to-end field-leve
 enforcement remains incomplete before `v1.0.0`.
 
 The active `v0.14.0` milestone begins with Issue #150's immutable internal
-Session contract foundation: Session and Command version `1`, stable Players,
-Capture Modes, phases, typed Commands, an authoritative accepted Log, linear
-revisions, Diagnostics, export readiness, and Transition Result semantics.
-Interactive capture is not executable yet. Command application, phase
-advancement, exports, Undo, persistence, Public API, Provenance, CLI Session
-commands, Schemas, examples, generated outputs, and UI remain open. Online-
-platform adapters, browser extensions, and website scraping remain outside this
-bounded milestone.
+Session contract foundation and Issue #151's deterministic transition engine.
+Session and Command version `1`, transition and projection version `1`, stable
+Players, Capture Modes, typed Commands, an authoritative accepted Log, full
+replay, atomic application, monotonic phases, incremental validation, Diagnostics,
+and export readiness now exist. Engine Request exports, Decision checkpoints,
+Undo/correction, persistence, Public API, Provenance, CLI Session commands,
+Schemas, examples, generated outputs, and UI remain open. Online-platform
+adapters, browser extensions, and website scraping remain outside this bounded
+milestone.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

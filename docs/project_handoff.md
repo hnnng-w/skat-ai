@@ -83,6 +83,10 @@ The project focuses on:
   Live and Retrospective Capture Modes, phases, typed Commands, an authoritative
   accepted revision Log, Diagnostics, export readiness, Transition Result
   semantics, and deterministic serialization
+* internal Session transition and projection version `1` with canonical
+  revision-zero creation, full accepted-Log replay, atomic application and
+  rejection, monotonic phases, incremental rule/information validation, trick,
+  continuation, and end derivation, promotion, and forged-State detection
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -214,7 +218,7 @@ by Issue #142; broader Domain error migration and end-to-end field-level
 enforcement remain open. See
 [Application orchestration](application_orchestration.md).
 
-### Interactive Session contract foundation
+### Interactive Session contract and transition foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -230,10 +234,26 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
   Transition Result constructor semantics
 * recursively immutable caller JSON and fresh deterministic serialization
 
-No Command application, phase advancement, capture workflow, Engine export,
-Undo, persistence, Public API, Provenance propagation, Schema, CLI Session
-Assistant, example, generated output, or UI is implemented. See
-[Interactive session contracts](interactive_session_contracts.md).
+Implemented by Issue #151:
+
+* transition-engine and projection version `1` with replay policy
+  `full_accepted_log_before_apply`
+* canonical revision-zero State creation with computed Validation
+* frozen accepted-fact projection with canonical Player and Card ordering
+* deterministic full accepted-Log replay and stored-State equality checks
+* revision-conflict precedence and exact unchanged-State atomic rejection
+* monotonic phase advancement from Deal through explicit Game End
+* incremental metadata, Deal, Declaration, Skat/Discard, Play, ownership,
+  legal-card, trick, continuation, terminal-shape, and promotion validation
+* Position and Historical readiness recomputation without Request export
+* forged revision, Mode, phase, Validation, duplicate Card, illegal Play, and
+  invalid accepted event/end rejection through `SkatAIInvariantError`
+
+No Engine Request export, Decision checkpoint, Undo/correction, persistence,
+Public API, Provenance propagation, Schema, CLI Session Assistant, example,
+generated output, end-to-end capture, or UI is implemented. See
+[Interactive session contracts](interactive_session_contracts.md) and
+[Incremental Session transitions](incremental_session_transitions.md).
 
 ### Field-level provenance contract foundation
 
@@ -839,6 +859,13 @@ Implemented:
   * Player identity, Modes, phases, accepted Log records, and immutable State
 * `session_validation.py`
   * Diagnostics, export readiness, validation status, and Transition Results
+* `session_projection.py`
+  * immutable accepted-fact projection and deterministic internal serialization
+* `session_incremental_validation.py`
+  * one-Command phase/rule/information validation and readiness computation
+* `session_transitions.py`
+  * revision-zero creation, accepted-Log replay, conflicts, atomic append, and
+    forged-State detection
 
 ### Game state and rules
 
@@ -974,6 +1001,7 @@ Main documentation files:
 * `docs/packaging_and_distribution.md`
 * `docs/application_orchestration.md`
 * `docs/interactive_session_contracts.md`
+* `docs/incremental_session_transitions.md`
 * `docs/field_level_information_provenance.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
@@ -1325,6 +1353,9 @@ Completed implementation scope:
 * immutable internal Session and Command version-1 contracts with stable seated
   Players, Modes, phases, typed Commands, accepted revisions, Diagnostics,
   readiness, Transition Results, and deterministic serialization
+* executable internal Session transition/projection version 1 with revision-zero
+  creation, full accepted-Log replay, atomic application, monotonic phases,
+  incremental validation, and forged-State rejection
 
 ## Current high-priority limitations
 
@@ -1368,9 +1399,11 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Immutable internal Live and Retrospective Session contracts are implemented,
-  but actual Command application, phase advancement, capture, export, Undo,
-  persistence, Public API, Provenance, CLI Session commands, Schemas, and UI are
+* Immutable internal Live and Retrospective Session contracts plus deterministic
+  Command application, replay, phase advancement, projection, incremental
+  validation, and readiness are implemented. Engine Request export, Decision
+  checkpoints, Undo/correction, persistence, Public API, Provenance, CLI Session
+  commands, Schemas, examples/generated output, end-to-end capture, and UI are
   not. The installed CLI, public executable facade, and reusable internal
   Application layer continue to execute only the seven existing Root workflows.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -1380,10 +1413,10 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement Issue #151's actual immutable Command transitions over the Issue #150
-contracts. It should enforce allowed phases, incremental rule and information
-policy, derived phase advancement, and unchanged-state failure semantics without
-adding export, Undo, persistence, Public API, CLI, Schema, or UI scope.
+Implement the next bounded `v0.14.0` Session layer over Issues #150 and #151.
+Engine Request export and Decision checkpoints remain the nearest open contract
+areas; Undo/correction, persistence, Public API, Provenance, Schemas, CLI, and UI
+must remain separately scoped.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

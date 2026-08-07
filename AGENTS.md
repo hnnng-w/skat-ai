@@ -30,7 +30,8 @@ The project focuses on:
 * rolling opponent-policy evaluation
 * dataset partition policies and stable-player overlap audits
 * immutable internal interactive Live and Retrospective Session contracts,
-  typed Commands, accepted revision Logs, validation, and export readiness
+  typed Commands, accepted revision Logs, deterministic transitions and replay,
+  incremental validation, projections, and export readiness
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -209,11 +210,14 @@ The active development milestone is `v0.14.0`, with the direction of interactive
 live and retrospective Session capture. Issue #150 establishes internal Session
 contract and Command version `1`, stable Players and seats, Capture Modes,
 phases, an authoritative accepted Command Log, linear revisions, Diagnostics,
-export readiness, and Transition Result semantics. It does not apply Commands or
-provide executable capture. Session Schemas, persistence and resume, Undo and
-correction, Public API, Provenance propagation, CLI, examples, generated output,
-and UI technology remain open. Online-platform adapters, browser extensions,
-and website scraping remain outside this bounded milestone.
+export readiness, and Transition Result semantics. Issue #151 adds deterministic
+revision-zero creation, accepted-Log replay, immutable projection, atomic Command
+application, phase advancement, incremental rule and information-policy
+validation, trick/event/end derivation, promotion, and Position/Historical
+readiness. Request exports, checkpoints, persistence and resume, Undo and
+correction, Public API, Provenance propagation, Session Schemas, CLI, examples,
+generated output, and UI technology remain open. Online-platform adapters,
+browser extensions, and website scraping remain outside this bounded milestone.
 
 Major completed areas include:
 
@@ -296,6 +300,9 @@ Major completed areas include:
 * immutable internal version-1 Session and Command contracts for Live and
   Retrospective authoring, including fixed Players, Capture Modes, phases,
   accepted revision Logs, Diagnostics, readiness, and Transition Results
+* deterministic internal Session transition engine and projection version `1`
+  with revision-zero creation, full accepted-Log replay, atomic rejection,
+  monotonic phases, incremental Deal-through-end validation, and export readiness
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -314,9 +321,9 @@ calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
 attribution, player ratings, complete field-level information provenance, and
-executable interactive Session capture remain open before `v1.0.0`. The internal
-Session contract foundation exists, but command application, export, Undo,
-persistence, Public API, CLI, and UI do not.
+end-to-end interactive Session capture remain open before `v1.0.0`. Internal
+Command application and incremental validation exist, but Engine Request export,
+checkpoints, Undo, persistence, Public API, Provenance, CLI, and UI do not.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.
 

@@ -4,7 +4,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
-### Interactive Session contract foundation
+### Interactive Session contract and transition foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -19,12 +19,21 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
   status, and Transition Result constructor semantics
 * Deterministic fresh JSON-compatible serialization without generated identity,
   time, environment, or path data
+* Transition-engine and projection version `1` with full accepted-Log replay
+* Canonical revision-zero creation and computed initial Validation
+* Atomic Command application, revision-conflict precedence, and exact unchanged-
+  State rejection
+* Monotonic phase advancement and incremental Deal, Declaration, Skat/Discard,
+  Play, ownership, legal-card, trick, continuation, Game-end, promotion, and
+  information-policy validation
+* Position and Historical readiness recomputation plus forged-State detection
 
-This does not execute Commands or interactive capture. Phase advancement,
-incremental rule enforcement, exports, Decision checkpoints, Undo, correction,
-persistence, Public API, Session Provenance, Schemas, CLI Session Assistant,
-examples, generated outputs, and UI remain open. See
-[Interactive session contracts](interactive_session_contracts.md).
+Issue #151 executes the internal Commands but does not export Engine Requests or
+provide end-to-end capture. Decision checkpoints, Undo, correction, persistence,
+Public API, Session Provenance, Schemas, CLI Session Assistant, examples,
+generated outputs, and UI remain open. See
+[Interactive session contracts](interactive_session_contracts.md) and
+[Incremental Session transitions](incremental_session_transitions.md).
 
 ### Public API contract foundation
 
@@ -463,6 +472,10 @@ Implemented:
 * Focused public field-provenance API/CLI parity, seven Result mappings, actual-
   artifact mapping, privacy rejection, complete recomputed coverage, and seven
   appended generated-output scenarios
+* Focused Session revision-zero, conflict, atomic rejection, metadata, phase,
+  Live/Retrospective Deal, Declaration, Matador, Skat/Discard, ownership,
+  Bedienpflicht, trick, continuation, Game-end, promotion, readiness,
+  deterministic replay, forged-State, and execution-count tests
 
 ### CLI and workflow usability
 
@@ -593,10 +606,12 @@ all seven workflows, and bounded opt-in public Root Result and actual-artifact
 provenance. Default Root output remains unchanged when provenance is omitted.
 
 The active `v0.14.0` milestone targets interactive Live and Retrospective Session
-capture. Issue #150 implements the internal contract foundation but no executable
-capture. Command application, export, Undo, persistence, Public API, Provenance,
-Schema, CLI, and UI work remains. Online-platform adapters, browser extensions,
-and website scraping remain outside this bounded milestone.
+capture. Issue #150 implements the internal contract foundation, and Issue #151
+implements deterministic internal Command application and incremental
+validation. Engine Request export, Decision checkpoints, Undo/correction,
+persistence, Public API, Provenance, Schema, CLI, examples/generated output, and
+UI work remains. Online-platform adapters, browser extensions, and website
+scraping remain outside this bounded milestone.
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
@@ -710,8 +725,9 @@ implementation details, and testable completion gates.
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, broader field-level provenance
 enforcement, and
-    executable interactive live and retrospective Session capture. The immutable
-    internal Session contract foundation now exists. The executable public
+    end-to-end interactive live and retrospective Session capture. The immutable
+    internal Session contract and deterministic transition foundation now exist.
+    The executable public
     facade, internal Application layer,
 installable library distributions, and stable installed CLI interface are
 implemented. API contract
@@ -834,6 +850,6 @@ Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.13.0` baseline, historical
 `v0.12.0` and older Release evidence, the authoritative publication state shown
 by GitHub Releases, the active `v0.14.0` development milestone and its implemented
-Issue #150 Session contract foundation, requirements explicitly required
+Issue #150 Session contracts and Issue #151 transition foundation, requirements explicitly required
 for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

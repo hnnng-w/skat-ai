@@ -16,9 +16,11 @@ Session Commands
     -> later Position or Historical export
 ```
 
-Only the immutable Session language and structural relationships are
-implemented. No Command application, phase advancement, Engine export,
-persistence, Public API, CLI Session command, or UI exists yet.
+The immutable Session language, deterministic accepted-Log replay, frozen
+projection, atomic Command application, monotonic phase advancement, and
+incremental validation are implemented. No Engine Request export, Decision
+checkpoint, Undo/correction, persistence, Public API, Session Provenance, CLI
+Session command, Schema, or UI exists yet.
 
 The position-analysis flow is:
 
@@ -188,12 +190,17 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/session_commands.py` | Version-1 typed caller-fact Commands, immutable event/end payloads, and allowed-phase metadata. |
 | `src/skat_ai/session_contracts.py` | Stable three-Player identity, Capture Modes, phases, accepted Command records, authoritative Log, and immutable Session State. |
 | `src/skat_ai/session_validation.py` | Diagnostics, Position/Historical readiness, valid-incomplete status, and Transition Result invariants. |
+| `src/skat_ai/session_projection.py` | Frozen canonical accepted-fact projection and deterministic internal serialization. |
+| `src/skat_ai/session_incremental_validation.py` | One-Command phase, rule, ownership, information-policy, event/end, and readiness validation. |
+| `src/skat_ai/session_transitions.py` | Revision-zero creation, full accepted-Log replay, forged-State checks, conflicts, atomic append, and Transition Results. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
 analysis Result, generated timestamp, or path. It reuses Historical seats,
 `GameDeclaration`, Card notation, RFC 3339 parsing, continuation kinds,
-Historical end reasons, and RFC 6901 paths without running replay or analysis.
-See [Interactive session contracts](interactive_session_contracts.md).
+Historical end reasons, legal-card/trick helpers, and RFC 6901 paths without
+running analysis or adjudication. See
+[Interactive session contracts](interactive_session_contracts.md) and
+[Incremental Session transitions](incremental_session_transitions.md).
 
 Validation is split between JSON Schema and Python validation:
 
@@ -641,7 +648,11 @@ Important regression areas:
 * schema validation
 * exact hidden-card evidence, contradictions, DP counts and marginals, uniform sampling, workflow sharing, historical leakage control, and output privacy
 * immutable Session Players, Commands, Logs, revisions, mode relationships,
-  Diagnostics, readiness, Transition Results, serialization, and public-boundary compatibility
+  Diagnostics, readiness, Transition Results, serialization, revision-zero
+  creation, full replay, conflicts, atomic rejection, phase advancement,
+  incremental rule/information validation, trick/event/end derivation,
+  promotion, forged-State rejection, execution counts, and public-boundary
+  compatibility
 
 ## Validation layers
 

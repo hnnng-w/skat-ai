@@ -37,11 +37,12 @@ Technical importability does not make any other `skat_ai.*` module public.
 Direct imports from workflow, Domain, builder, serializer, schema-loader, or
 other internal modules have no compatibility guarantee.
 
-Issue #150's Session and Command version-1 values remain internal under
-`skat_ai.session_*`. They add no public Session type, function, Root workflow,
-Request/Result field, or option. The exact public export surfaces in this
-document are unchanged. See [Interactive session
-contracts](interactive_session_contracts.md).
+Issues #150 and #151 Session contracts, projection, replay, incremental
+validation, and Command application remain internal under `skat_ai.session_*`.
+They add no public Session type, function, Root workflow, Request/Result field,
+or option. The exact public export surfaces in this document are unchanged. See
+[Interactive session contracts](interactive_session_contracts.md) and
+[Incremental Session transitions](incremental_session_transitions.md).
 
 The internal version-1 field-level provenance language is documented in
 [Field-level information provenance](field_level_information_provenance.md).
@@ -340,8 +341,10 @@ and intermediate-stage attachments remain open before `v1.0.0`. Provenance does
 not integrate or replace existing Confidence contracts.
 
 The internal interactive Session contract foundation is implemented by Issue
-#150. Actual transitions, Engine exports, persistence, and a Public Session API
-remain later work; no version-1 public export changes at this boundary.
+#150, and deterministic transitions plus incremental validation are implemented
+by Issue #151. Engine Request exports, Decision checkpoints, persistence, and a
+Public Session API remain later work; no version-1 public export changes at this
+boundary.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

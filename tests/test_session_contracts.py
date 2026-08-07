@@ -340,8 +340,7 @@ def test_allowed_phase_policy_is_exact_immutable_and_has_no_phase_command() -> N
     }
     assert tuple(SESSION_COMMAND_ALLOWED_PHASES) == SESSION_COMMAND_KINDS
     assert all(
-        "phase" not in {item.name for item in fields(command)}
-        for command in _all_commands()
+        "phase" not in {item.name for item in fields(command)} for command in _all_commands()
     )
     with pytest.raises(TypeError):
         SESSION_COMMAND_ALLOWED_PHASES["record_play"] = ("ended",)
@@ -1059,9 +1058,7 @@ def test_validation_readiness_must_exactly_reconcile_with_export_blockers() -> N
             valid_incomplete=True,
             game_complete=False,
             position_export=_readiness("position_analysis"),
-            historical_export=_readiness(
-                "historical_game", "unavailable", ("export_unavailable",)
-            ),
+            historical_export=_readiness("historical_game", "unavailable", ("export_unavailable",)),
             diagnostics=(blocker,),
         )
     with pytest.raises(ValueError, match="historical_export"):
@@ -1072,9 +1069,7 @@ def test_validation_readiness_must_exactly_reconcile_with_export_blockers() -> N
             valid_incomplete=True,
             game_complete=False,
             position_export=_readiness("position_analysis"),
-            historical_export=_readiness(
-                "historical_game", "unavailable", ("export_unavailable",)
-            ),
+            historical_export=_readiness("historical_game", "unavailable", ("export_unavailable",)),
             diagnostics=(),
         )
 
@@ -1096,11 +1091,7 @@ def test_applied_transition_requires_increment_final_record_and_no_blocker() -> 
         {"expected_revision": 1},
         {"current_revision": 0},
         {"state": _state()},
-        {
-            "diagnostics": (
-                _diagnostic(blocks_command=True),
-            )
-        },
+        {"diagnostics": (_diagnostic(blocks_command=True),)},
     ):
         kwargs = {
             "status": "applied",
@@ -1199,9 +1190,7 @@ def test_transition_expected_revision_must_equal_command_header() -> None:
                     ),
                 )
             ),
-            diagnostics=(
-                _diagnostic(code="revision_conflict", blocks_command=True),
-            ),
+            diagnostics=(_diagnostic(code="revision_conflict", blocks_command=True),),
         )
 
 
@@ -1293,12 +1282,22 @@ def test_session_state_serialization_has_exact_fields_and_immutable_nested_value
         state.phase = "deal"
 
 
-def test_no_transition_application_export_parser_or_persistence_surface_exists() -> None:
+def test_no_unversioned_transition_export_parser_or_persistence_surface_exists() -> None:
     import skat_ai.session_commands as commands
     import skat_ai.session_contracts as contracts
+    import skat_ai.session_incremental_validation as incremental_validation
+    import skat_ai.session_projection as projection
+    import skat_ai.session_transitions as transitions
     import skat_ai.session_validation as validation
 
-    for module in (commands, contracts, validation):
+    for module in (
+        commands,
+        contracts,
+        incremental_validation,
+        projection,
+        transitions,
+        validation,
+    ):
         assert not hasattr(module, "apply_session_command")
         assert not hasattr(module, "export_session")
         assert not hasattr(module, "parse_session")

@@ -1,9 +1,10 @@
 # Interactive session contracts
 
 Issue #150 begins the `v0.14.0` interactive-capture milestone with an internal,
-immutable contract foundation. It defines the language that later transition,
-export, persistence, Public API, and CLI layers may consume. It does not make
-interactive Session capture executable.
+immutable contract foundation. Issue #151 makes that language executable through
+deterministic internal transitions and incremental validation. Engine Request
+export, checkpoints, Undo/correction, persistence, Public API, Provenance,
+Schemas, CLI, and end-to-end interactive capture remain later layers.
 
 ## Contract identity
 
@@ -12,6 +13,9 @@ The independent internal versions are:
 ```text
 SESSION_CONTRACT_VERSION = 1
 SESSION_COMMAND_VERSION = 1
+SESSION_TRANSITION_ENGINE_VERSION = 1
+SESSION_PROJECTION_VERSION = 1
+SESSION_REPLAY_POLICY = full_accepted_log_before_apply
 ```
 
 They do not derive from Package version `0.13.0`, Public API version `1`,
@@ -45,9 +49,11 @@ Session Commands
     -> Historical Game export
 ```
 
-Only the contract values and structural relationships in the first two lines
-exist. There is no command-application function, phase-advancement engine,
-Position exporter, Historical exporter, parser, persistence loader, or Session
+The first three lines are implemented internally: Commands are applied atomically,
+the full accepted Log can be replayed into an immutable projection, phases and
+Validation are recomputed, and both export targets receive normal readiness
+status. There is no Position exporter, Historical exporter, Decision checkpoint,
+Undo/correction layer, parser, persistence loader, Public Session API, or Session
 Root workflow.
 
 `GameState` remains the mutable local analysis and simulation value.
@@ -121,9 +127,9 @@ optional metadata. `deal` represents incremental authorized card entry.
 Hand Games require no Discards. `play` represents public Plays and supported
 events. `ended` represents normal completion or one supported terminal end.
 
-Normal command application will advance phases monotonically. No Command sets a
-phase, and Issue #150 does not implement phase advancement. A future Undo may
-move the active head to an earlier linear revision; version 1 has no branching.
+Issue #151 Command application advances phases monotonically. No Command sets a
+phase. A future Undo may move the active head to an earlier linear revision;
+version 1 has no branching or active-head movement.
 
 ## Commands
 
@@ -166,7 +172,7 @@ The immutable allowed-phase metadata is:
 | `set_game_end` | `play` |
 | `promote_to_retrospective` | every phase |
 
-Issue #151 will enforce this metadata during actual transitions.
+Issue #151 enforces this metadata before Command-specific validation.
 
 ## State and accepted Log
 
@@ -195,31 +201,27 @@ and has no duplicates or gaps. State revision equals accepted Log length;
 revision `0` has an empty Log. Rejected Commands and revision conflicts are not
 new accepted records.
 
-State performs only structural validation. It checks declared Player references,
-promotion and Mode relationships, and accepted revision continuity. Before
-promotion, a Live Player-hand Command may target only the local Player. After
-promotion, or in an initially Retrospective Session, every declared Player may
-be targeted structurally.
-
-State does not validate complete Deal cardinality, cross-Command Card identity,
-actual ownership, legal play, Turn Order, phase progression, Declaration
-readiness, or Game-end adjudication.
+State construction retains the Issue #150 structural checks for Player
+references, promotion and Mode relationships, revision continuity, and Live
+hand-entry protection. Issue #151 deliberately keeps derived projection data out
+of State and replays the authoritative Log to validate Deal cardinality, cross-
+Command Card identity, known ownership, legal play, Turn Order, phase
+progression, Declaration readiness, continuation chronology, and Game-end shape.
+It does not adjudicate an ending.
 
 ## Information policy
 
-Before Live promotion, later transitions must permit only the local concrete
+Before Live promotion, transitions permit only the local concrete
 initial hand, forbid concrete opponent hands and actual hidden ownership, accept
 concrete Skat only when legitimately known, and accept public Plays or authorized
 public hands. Search, inference, simulation, or recommendation output can never
 be recorded as actual ownership.
 
-Retrospective capture may record exact three hands, exact Skat, Discards, and
-exact Plays. Later validation and export must reconcile those facts with exact
-ownership and legal replay. Complete private facts remain post-game-only for
-Engine export.
-
-Issue #150 structurally enforces the pre-promotion Player-hand restriction and
-documents the remaining rules. Issue #151 owns stateful enforcement.
+Retrospective capture records exact three hands, exact Skat, Discards, and exact
+Plays. Incremental validation reconciles those facts with exact ownership and
+legal replay. Complete private facts remain post-game-only for a later Engine
+export. Promotion preserves every existing fact and phase while switching future
+requirements to Retrospective rules.
 
 ## Diagnostics and readiness
 
@@ -259,8 +261,9 @@ ordered Diagnostics. `valid_incomplete` means structurally valid and not game
 complete. Game completeness is equivalent to phase `ended`. A structurally
 invalid Session has both exports unavailable, Historical export requires a
 complete game, and export reason codes exactly reconcile with blocking
-Diagnostics. Issue #150 validates supplied values but does not calculate
-readiness from a command projection.
+Diagnostics. Issue #151 recomputes these values from the accepted projection at
+revision zero and after every accepted Command. State Diagnostics describe only
+current export blockers and never retain a rejected Command's Diagnostics.
 
 ## Transition results
 
@@ -286,8 +289,17 @@ accepted record, and contains exactly one blocking `revision_conflict`
 Diagnostic. This result can describe a stale retry even when an equal Command
 was accepted at an earlier revision.
 
-These are constructor semantics only. No `apply_session_command()` function
-exists yet.
+Issue #151 implements the versioned internal
+`apply_session_command_v1(state, command)` function. It replays the prior Log
+once, handles revision conflicts before candidate semantics, applies at most one
+candidate, and returns these existing Result values. The unversioned name remains
+absent.
+
+`create_session_state_v1()` builds the canonical revision-zero State.
+`replay_session_state_v1()` replays the full accepted Log and requires the
+derived Capture Mode, phase, revision, and Validation to equal stored State.
+Forged or semantically invalid accepted State raises `SkatAIInvariantError`.
+Normal next-Command rejection is not an exception.
 
 ## Serialization
 
@@ -300,6 +312,13 @@ Serialization includes no Python class-name protocol field, generated identity,
 generated timestamp, environment value, or filesystem path. There is no Session
 Schema or persistence loader.
 
+The separate frozen `SessionProjectionV1` retains metadata, canonical initial
+and remaining known hands, known Skat, Declarer, Declaration, Discards,
+chronological Plays, completed and incomplete trick state, next Player, optional
+continuation and shrinking exact public hand, optional Game End, and Play count.
+Unknown private hands are absent. Projection serialization is internal and is not
+added to `SessionStateV1`.
+
 ## Boundaries and remaining work
 
 Session contracts are internal. They are not exported from `skat_ai`,
@@ -307,9 +326,10 @@ Session contracts are internal. They are not exported from `skat_ai`,
 Public API functions, installed/module/Legacy CLI, 62 Schemas, examples, and 77
 generated-output scenarios are unchanged. Package version remains `0.13.0`.
 
-Remaining `v0.14.0` work includes actual Command application, phase advancement,
-incremental rule and information-policy enforcement, live and retrospective
-capture, Position and Historical exports, Decision checkpoints, Undo and
-correction, persistence and resume, Public Session API, Session Provenance,
-Session Schemas, CLI Session Assistant, examples, generated outputs, and any
-later local interface. No UI technology or platform integration is selected.
+Remaining `v0.14.0` work includes Position and Historical Request exports,
+Decision checkpoints, Undo and correction, persistence and resume, Public
+Session API, Session Provenance, Session Schemas, CLI Session Assistant,
+examples, generated outputs, end-to-end capture, and any later local interface.
+No UI technology or platform integration is selected. See
+[Incremental Session transitions](incremental_session_transitions.md) for the
+implemented transition and validation boundary.
