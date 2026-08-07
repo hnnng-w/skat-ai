@@ -209,6 +209,12 @@ or any Historical Game Record. Existing `list_performance_input`,
 `list_game_contributions`, `list_analysis_results`, and `list_standings_input`
 remain unchanged and do not accept `passed_deal`.
 
+Issue #145 adds internal complete validated-input, 36 Entry Fact, aggregation,
+and Root Result ledgers. Played Entry references retain only source list, Entry,
+and Game identity; Passed Deals have no Historical Game or Settlement reference.
+Public input and output remain unchanged. See
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
+
 ## Remaining scope
 
 The source and aggregation contracts also feed the public versioned

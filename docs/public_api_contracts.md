@@ -300,8 +300,7 @@ absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
 
 The following remain open for later `v0.13.0` issues:
 
-* Dataset, Dataset Preparation, list, general Opponent, and complete non-legacy
-  Result provenance propagation;
+* complete non-legacy Position and base Historical Result provenance;
 * any additive public provenance API, schemas, or output integration.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
@@ -314,5 +313,7 @@ Issue #142 adds the installed and module CLI transports without changing this
 Public API surface. Issue #143 adds internal live Position enforcement without
 changing it. Issue #144 adds internal retrospective Position, Historical Review,
 Historical Search Review, and Replay Coaching propagation without changing it.
+Issue #145 adds internal Dataset, Preparation, Opponent, Profile, list, and
+comparison propagation without changing it.
 See [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).

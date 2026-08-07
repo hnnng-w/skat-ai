@@ -176,9 +176,11 @@ complete live decision ledgers, Immediate, Search, inference, Multi-Step, and
 Policy Comparison propagation, and an all-leaf partial-legacy Position Result
 ledger. Issue #144 extends internal provenance through flat retrospective
 Position Analysis, Historical Snapshots, Immediate and Search Review, Replay
-Coaching, and an all-leaf partial-legacy Historical Result ledger. Public,
-Dataset, Dataset Preparation, list, general Opponent, and complete non-legacy
-Result provenance integration remain open.
+Coaching, and an all-leaf partial-legacy Historical Result ledger. Issue #145
+adds internal Dataset, Preparation, Opponent, Profile,
+historical-list, and comparison provenance with complete non-legacy Root Result
+ledgers. Public and complete non-legacy Position/base Historical Result
+provenance integration remain open.
 
 Major completed areas include:
 
@@ -250,6 +252,9 @@ Major completed areas include:
 * internal retrospective provenance enforcement across flat post-game Position
   Analysis, Historical Review and Search Review, Replay Coaching, and selected
   Position/Historical Result branches without public output
+* internal Dataset, Preparation, Opponent, Profile, historical-list, and
+  comparison provenance with complete non-legacy Root Result ledgers and no
+  public output
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -257,8 +262,9 @@ defender-open-play proof beyond five unresolved tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,
-Sample- or Player-count balancing, or component splitting, incomplete non-
-Position, complete-Result, and public field-provenance integration, heuristic rule-based recommendations and
+Sample- or Player-count balancing, or component splitting, incomplete
+Position/base Historical Result and public field-provenance integration,
+heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Search remains bounded late-game determinization subject to Strategy
 Fusion, not an optimal imperfect-information policy or complete-contract Search;

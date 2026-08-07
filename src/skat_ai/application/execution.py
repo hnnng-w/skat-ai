@@ -565,13 +565,19 @@ def _training_dataset_handler(
         raise SkatAIInvariantError(
             "Training Dataset handler received no Training Dataset options."
         )
+    from skat_ai.training_dataset_provenance import (
+        TrainingDatasetProvenanceCollector,
+    )
+
+    provenance_collector = TrainingDatasetProvenanceCollector(options)
     result, artifacts = execute_training_dataset_workflow(
         root,
         input_reference=invocation.input_reference,
         options=options,
+        provenance_collector=provenance_collector,
         dependencies=_dependencies.training_dataset,
     )
-    return result, artifacts, None
+    return result, artifacts, provenance_collector.build_bundle(result, artifacts)
 
 
 def _preparation_handler(
@@ -583,15 +589,18 @@ def _preparation_handler(
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
 ]:
-    return (
-        execute_training_dataset_preparation_workflow(
-            root,
-            input_reference=invocation.input_reference,
-            dependencies=_dependencies.simple,
-        ),
-        (),
-        None,
+    from skat_ai.dataset_preparation_provenance import (
+        DatasetPreparationProvenanceCollector,
     )
+
+    provenance_collector = DatasetPreparationProvenanceCollector()
+    result = execute_training_dataset_preparation_workflow(
+        root,
+        input_reference=invocation.input_reference,
+        provenance_collector=provenance_collector,
+        dependencies=_dependencies.simple,
+    )
+    return result, (), provenance_collector.build_bundle(result)
 
 
 def _statistics_handler(
@@ -603,15 +612,18 @@ def _statistics_handler(
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
 ]:
-    return (
-        execute_opponent_statistics_workflow(
-            root,
-            input_reference=invocation.input_reference,
-            dependencies=_dependencies.simple,
-        ),
-        (),
-        None,
+    from skat_ai.opponent_workflow_provenance import (
+        OpponentWorkflowProvenanceCollector,
     )
+
+    provenance_collector = OpponentWorkflowProvenanceCollector()
+    result = execute_opponent_statistics_workflow(
+        root,
+        input_reference=invocation.input_reference,
+        provenance_collector=provenance_collector,
+        dependencies=_dependencies.simple,
+    )
+    return result, (), provenance_collector.build_bundle(result)
 
 
 def _list_handler(
@@ -623,15 +635,16 @@ def _list_handler(
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
 ]:
-    return (
-        execute_fixed_three_player_historical_list_workflow(
-            root,
-            input_reference=invocation.input_reference,
-            dependencies=dependencies.simple,
-        ),
-        (),
-        None,
+    from skat_ai.historical_list_provenance import HistoricalListProvenanceCollector
+
+    provenance_collector = HistoricalListProvenanceCollector()
+    result = execute_fixed_three_player_historical_list_workflow(
+        root,
+        input_reference=invocation.input_reference,
+        provenance_collector=provenance_collector,
+        dependencies=dependencies.simple,
     )
+    return result, (), provenance_collector.build_bundle(result)
 
 
 def _comparison_handler(
@@ -643,15 +656,18 @@ def _comparison_handler(
     tuple[ApplicationArtifact, ...],
     ApplicationProvenanceBundle | None,
 ]:
-    return (
-        execute_fixed_three_player_historical_list_comparison_workflow(
-            root,
-            input_reference=invocation.input_reference,
-            dependencies=dependencies.simple,
-        ),
-        (),
-        None,
+    from skat_ai.historical_list_provenance import (
+        HistoricalListComparisonProvenanceCollector,
     )
+
+    provenance_collector = HistoricalListComparisonProvenanceCollector()
+    result = execute_fixed_three_player_historical_list_comparison_workflow(
+        root,
+        input_reference=invocation.input_reference,
+        provenance_collector=provenance_collector,
+        dependencies=dependencies.simple,
+    )
+    return result, (), provenance_collector.build_bundle(result)
 
 
 _Handler = Callable[

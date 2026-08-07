@@ -51,6 +51,7 @@ def execute_training_dataset_preparation_workflow(
     root_document: dict[str, Any],
     *,
     input_reference: str,
+    provenance_collector: Any = None,
     dependencies: SimpleWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Executes automatic Training Dataset Preparation without transport I/O."""
@@ -59,6 +60,8 @@ def execute_training_dataset_preparation_workflow(
         validate_workflow=False,
     )
     preparation_result = dependencies.build_preparation_result(request)
+    if provenance_collector is not None:
+        provenance_collector.capture(request, preparation_result)
     return {
         "input_file": input_reference,
         "training_dataset_preparation_summary": (
@@ -74,6 +77,7 @@ def execute_opponent_statistics_workflow(
     root_document: dict[str, Any],
     *,
     input_reference: str,
+    provenance_collector: Any = None,
     dependencies: SimpleWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Normalizes one Opponent Statistics document without transport I/O."""
@@ -81,6 +85,8 @@ def execute_opponent_statistics_workflow(
         root_document,
         validate_workflow=False,
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_input(statistics_input)
     return {
         "input_file": input_reference,
         "opponent_statistics_summary": dependencies.build_statistics_summary(
@@ -93,6 +99,7 @@ def execute_fixed_three_player_historical_list_workflow(
     root_document: dict[str, Any],
     *,
     input_reference: str,
+    provenance_collector: Any = None,
     dependencies: SimpleWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Aggregates one complete historical 36-position list."""
@@ -104,6 +111,8 @@ def execute_fixed_three_player_historical_list_workflow(
         request.historical_list,
         lot_order=None if request.lot_order is None else list(request.lot_order),
     )
+    if provenance_collector is not None:
+        provenance_collector.capture(request, aggregation)
     return {
         "input_file": input_reference,
         "fixed_three_player_historical_list_summary": (
@@ -118,6 +127,7 @@ def execute_fixed_three_player_historical_list_comparison_workflow(
     root_document: dict[str, Any],
     *,
     input_reference: str,
+    provenance_collector: Any = None,
     dependencies: SimpleWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Aggregates each source once and compares it with the first source."""
@@ -125,6 +135,8 @@ def execute_fixed_three_player_historical_list_comparison_workflow(
         root_document,
         validate_workflow=False,
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_request(request)
     aggregations = tuple(
         dependencies.build_list_aggregation(
             source.historical_list,

@@ -34,8 +34,10 @@ The executable facade is available from source, Editable, Wheel, and sdist
 installations. Installed CLI entry points are implemented separately below.
 Internal live Position provenance propagation is implemented. Internal
 retrospective Position, Historical Review, Historical Search Review, and Replay
-Coaching propagation is also implemented. Dataset, list, general Opponent,
-complete non-legacy Result, and public provenance remain open.
+Coaching propagation is also implemented. Dataset, Preparation, Opponent,
+Profile, historical-list, and comparison propagation is implemented with
+complete non-legacy Root ledgers. Complete non-legacy Position/base Historical
+Result and public provenance remain open.
 Internal Application extraction is covered separately below.
 
 ### Application orchestration foundation
@@ -61,6 +63,8 @@ Implemented:
 * Optional internal retrospective Position and Historical provenance bundles
   with retained decision stages, requested aggregate reviews, Replay Coaching,
   and an exact partial-legacy Historical Result attachment
+* Internal Dataset, Preparation, Opponent, Profile, historical-list, and
+  comparison bundles with complete exact Root Result attachments
 
 Installed CLI entry points consume this Application layer directly. They ignore
 the internal live and retrospective bundles; public provenance output remains
@@ -114,9 +118,10 @@ Policy Comparison provenance, and accounts for every Position Result leaf with
 a partial-legacy ledger. Issue #144 extends internal retained-stage propagation
 through flat retrospective Position Analysis, Historical Snapshots, Immediate
 and Search Review, Replay Coaching, and selected Position/Historical Result
-branches. Datasets, historical lists, general Opponent workflows, complete non-
-legacy Results, public API exposure, schemas, Root output, and CLI presentation
-remain open.
+branches. Issue #145 adds all Dataset operations, Preparation, Opponent, Profile,
+historical-list, comparison, and complete non-legacy Root workflow ledgers.
+Complete non-legacy Position/base Historical Results, public API exposure,
+schemas, Root output, and CLI presentation remain open.
 
 ### Core analysis
 
@@ -411,6 +416,11 @@ Implemented:
 * Focused retrospective provenance ordering, cardinality, temporal isolation,
   Search-status, continuation, external-profile, redaction, no-rerun, and public-
   boundary tests
+* Focused Dataset/list/opponent provenance constants, ordering, all-workflow
+  bundles, Feature/Target separation, audit isolation, rolling/Search stages,
+  split restrictions, materialization, Profile derivation, 36 Entry Facts,
+  progression prefix safety, external lots, comparison deltas, redaction,
+  call-count, and public-boundary tests
 
 ### CLI and workflow usability
 
@@ -455,9 +465,10 @@ Implemented:
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Historical records support normal completion and all five terminal shortenings with at most one optional timed defender-open-play or declarer-card-exposure continuation. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons are not represented there.
 * Historical corrected play and isolated or specific-trick claims remain incomplete; unlimited proof, simultaneous throws, and arbitrary event streams are outside `v0.11.0`; general settlement coverage is incomplete.
-* Live and retrospective Position plus Historical Review/Coaching Application
-  execution have internal provenance. Dataset, list, general Opponent, complete
-  non-legacy Result, and every public output remain unintegrated.
+* Dataset, Preparation, Opponent, Profile, list, comparison, live Position, and
+  retrospective Review/Coaching execution have internal provenance. Complete
+  non-legacy Position/base Historical Result and every public output remain
+  unintegrated.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Version-1 bounded-search contracts, direct exact-world and compatible-world
   Suit/Grand/Null Minimax, and private deterministic compatible-world selection
@@ -710,8 +721,10 @@ language, immutable sidecar ledger, coverage and dependency validation,
 Information Use Context, public redaction, and safe serialization. Issue #143
 adds internal live Position propagation and adversarial enforcement. Issue #144
 adds internal retrospective Position, Historical Review, Historical Search
-Review, and Replay Coaching propagation. Dataset, list, general Opponent,
-complete non-legacy Result, and public integration remain open. Issue #139 completes internal
+Review, and Replay Coaching propagation. Issue #145 adds Dataset, Preparation,
+Opponent, Profile, historical-list, and comparison propagation with complete
+Root ledgers. Complete non-legacy Position/base Historical Result and public
+integration remain open. Issue #139 completes internal
 Application extraction with immutable orchestration version `1` contracts, all
 seven no-I/O handlers, five Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI transport parity. Public API

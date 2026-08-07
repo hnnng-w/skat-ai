@@ -25,6 +25,9 @@ changing the orchestration version or public Result document.
 Issue #144 extends that sidecar through retrospective Position Analysis,
 Historical Review, Historical Search Review, and Replay Coaching without
 changing the orchestration version or public Result document.
+Issue #145 extends it through all five Training Dataset operations, automatic
+Dataset Preparation, Opponent Statistics and Profiles, historical-list
+aggregation, and independent-list comparison under the same boundary.
 
 ## Contracts
 
@@ -45,8 +48,9 @@ The main contract values are frozen, slotted, keyword-only dataclasses:
 * `ApplicationArtifact` contains one recognized artifact name and one immutable
   JSON object document.
 * `ApplicationProvenanceAttachment` and `ApplicationProvenanceBundle` retain
-  immutable matching live and retrospective decision, aggregate review, and
-  Position/Historical Result sidecars under Application provenance version `1`.
+  immutable matching live, retrospective, Dataset, Preparation, Opponent,
+  Profile, list, comparison, and Root Result sidecars under Application
+  provenance version `1`.
 
 Construction defensively copies JSON documents and option sequences. Stored
 objects use immutable mappings and stored arrays use tuples. Artifact and
@@ -194,11 +198,15 @@ Retrospective Position execution separates pre-actual input and analysis from
 actual-card assessment. Historical execution attaches decision-time inputs,
 retained Immediate/Search analysis, post-actual assessment, requested aggregate
 summaries, Replay Coaching stages, and an all-leaf partial-legacy Historical
-Result ledger. Other workflows retain `provenance=None`.
+Result ledger. Dataset, Preparation, Opponent, list, and comparison execution
+attach complete non-legacy input, retained-stage, aggregate, and exact Root
+Result ledgers. A Historical execution with no selected review operation retains
+`provenance=None`.
 The facade and CLI intentionally ignore the internal bundle, so all public
 provenance output remains open. See
-[Live analysis provenance](live_analysis_provenance.md) and
-[Retrospective review provenance](retrospective_review_provenance.md).
+[Live analysis provenance](live_analysis_provenance.md),
+[Retrospective review provenance](retrospective_review_provenance.md), and
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
 
 Packaging does not change this boundary. Clean Wheel and sdist smoke tests call
 the public facade, which delegates to the same Application handlers and preserves
@@ -212,8 +220,6 @@ Public API result.
 The following remain separate follow-up scopes:
 
 * public error translation across existing Domain failures;
-* Dataset, Dataset Preparation, list, and general Opponent field-level
-  provenance propagation;
 * complete non-legacy Position and Historical Result provenance;
 * all public provenance schemas, API exposure, Root output integration, and CLI
   presentation.

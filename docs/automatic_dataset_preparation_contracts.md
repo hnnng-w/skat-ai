@@ -260,6 +260,14 @@ The strict Draft 2020-12 schemas are:
 * [`schemas/dataset_partition_plan.schema.json`](../schemas/dataset_partition_plan.schema.json)
 * [`schemas/training_dataset_preparation_output.schema.json`](../schemas/training_dataset_preparation_output.schema.json)
 
+Issue #145 adds internal complete request, split-safe source-fact, Plan,
+materialization, and Root Result ledgers. Known-opponent assignment provenance is
+time-aware; unseen-player assignment provenance cannot use timestamps, source
+provenance, Sample Counts, cards, outcomes, Settlement, labels, or notes. Only a
+materialized Record's `partition` is newly derived. This changes no public Plan,
+Dataset, Schema, or CLI contract. See
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
+
 ## Remaining work
 
 Version 1 provides no additional preparation algorithms, algorithm overrides,

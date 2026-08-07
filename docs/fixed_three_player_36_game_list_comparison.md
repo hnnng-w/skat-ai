@@ -185,6 +185,12 @@ places, exact rank status, and resolved rank-position change. Positive rank
 movement means movement toward rank 1. Unresolved ranks remain null while metric
 deltas remain available.
 
+Issue #145 adds internal complete ordered-source, pairwise-comparison, and Root
+Result ledgers. Stable Player IDs align rows, all deltas retain their existing
+direction, and unresolved-lot statuses retain nullable rank fields. No series,
+average, winner, rating, or recommendation is added. See
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
+
 ## Remaining scope
 
 Automatic Training Dataset preparation is now a separate root-selected workflow

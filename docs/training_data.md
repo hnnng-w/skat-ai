@@ -346,3 +346,13 @@ Normal targets contribute 30 decisions and shortened targets contribute their
 actual zero through 29 decisions without padding. Target participant coverage
 always includes all three stable IDs.
 See [Rolling opponent-policy evaluation](opponent_policy_evaluation.md).
+
+## Internal field provenance
+
+Issue #145 adds internal complete field-level provenance for Dataset input and
+Records, decision-time Feature Views, retrospective Targets, summary conversion,
+all partition-audit modes, rolling evaluation, bounded-Search evaluation,
+historical Opponent Statistics aggregation, and the optional export artifact.
+Zero-sample Records receive no artificial sample attachment. Public Dataset JSON,
+Schemas, CLI output, and examples remain unchanged. See
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).

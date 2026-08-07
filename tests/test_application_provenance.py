@@ -9,21 +9,27 @@ from skat_ai.application import (
     ApplicationProvenanceAttachment,
     ApplicationProvenanceBundle,
 )
+from skat_ai.dataset_preparation_provenance import (
+    DATASET_PREPARATION_PROVENANCE_VERSION,
+)
 from skat_ai.errors import SkatAIValidationError
 from skat_ai.field_provenance_coverage import (
     build_field_provenance_coverage_summary,
 )
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
+from skat_ai.historical_list_provenance import HISTORICAL_LIST_PROVENANCE_VERSION
 from skat_ai.live_analysis_provenance import (
     LIVE_ANALYSIS_PROVENANCE_VERSION,
     build_live_decision_provenance_attachment,
 )
+from skat_ai.opponent_workflow_provenance import OPPONENT_WORKFLOW_PROVENANCE_VERSION
 from skat_ai.replay_coaching_provenance import REPLAY_COACHING_PROVENANCE_VERSION
 from skat_ai.retrospective_review_provenance import (
     RETROSPECTIVE_REVIEW_PROVENANCE_VERSION,
 )
 from skat_ai.strategic_metadata import StrategicMetadata
+from skat_ai.training_dataset_provenance import TRAINING_DATASET_PROVENANCE_VERSION
 
 
 def _attachment(name: str = "flat_decision") -> ApplicationProvenanceAttachment:
@@ -60,6 +66,10 @@ def test_application_provenance_contracts_are_versioned_and_exact() -> None:
     assert LIVE_ANALYSIS_PROVENANCE_VERSION == 1
     assert RETROSPECTIVE_REVIEW_PROVENANCE_VERSION == 1
     assert REPLAY_COACHING_PROVENANCE_VERSION == 1
+    assert TRAINING_DATASET_PROVENANCE_VERSION == 1
+    assert DATASET_PREPARATION_PROVENANCE_VERSION == 1
+    assert OPPONENT_WORKFLOW_PROVENANCE_VERSION == 1
+    assert HISTORICAL_LIST_PROVENANCE_VERSION == 1
     assert tuple(field.name for field in fields(ApplicationProvenanceAttachment)) == (
         "name",
         "document_role",
@@ -154,6 +164,51 @@ def test_bundle_orders_retrospective_historical_and_coaching_attachments() -> No
         "replay_coaching/guidance",
         "replay_coaching/report",
         "historical_game_result",
+    ]
+
+
+def test_bundle_orders_dataset_preparation_opponent_and_list_families() -> None:
+    bundle = ApplicationProvenanceBundle(
+        workflow=WorkflowV1.TRAINING_DATASET,
+        attachments=[
+            _attachment("historical_list_comparison_result"),
+            _attachment("historical_list_comparison/pair/10"),
+            _attachment("historical_list_comparison/pair/2"),
+            _attachment("historical_list/entry/10"),
+            _attachment("historical_list/entry/2"),
+            _attachment("opponent_statistics/profile/10"),
+            _attachment("opponent_statistics/profile/2"),
+            _attachment("dataset_preparation/source/10"),
+            _attachment("dataset_preparation/source/2"),
+            _attachment("training_dataset_result"),
+            _attachment("training_dataset/search/1/10/actual"),
+            _attachment("training_dataset/search/1/2/search"),
+            _attachment("training_dataset/sample/1/10/target"),
+            _attachment("training_dataset/sample/1/2/feature"),
+            _attachment("training_dataset/record/10"),
+            _attachment("training_dataset/record/2"),
+            _attachment("training_dataset/input"),
+        ],
+    )
+
+    assert [attachment.name for attachment in bundle.attachments] == [
+        "training_dataset/input",
+        "training_dataset/record/2",
+        "training_dataset/record/10",
+        "training_dataset/sample/1/2/feature",
+        "training_dataset/sample/1/10/target",
+        "training_dataset/search/1/2/search",
+        "training_dataset/search/1/10/actual",
+        "training_dataset_result",
+        "dataset_preparation/source/2",
+        "dataset_preparation/source/10",
+        "opponent_statistics/profile/2",
+        "opponent_statistics/profile/10",
+        "historical_list/entry/2",
+        "historical_list/entry/10",
+        "historical_list_comparison/pair/2",
+        "historical_list_comparison/pair/10",
+        "historical_list_comparison_result",
     ]
 
 

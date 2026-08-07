@@ -487,6 +487,9 @@ This can happen when required settlement inputs are missing, such as incomplete 
 * Public historical-list aggregation and compact independent-list comparison are
   implemented with strict schemas, deterministic CLI output, and privacy-safe
   generated examples.
+* Issue #145 adds internal complete Entry, aggregation, standings, external-lot,
+  comparison, and Root Result provenance without changing scoring or public
+  output. See [Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
 * Multi-list rollups, series standings, a series winner, ratings, full tournament
   aggregation, and official federation report formats are not implemented.
 * Four-player table performance rating is not modeled because the project currently assumes a fixed three-player table.

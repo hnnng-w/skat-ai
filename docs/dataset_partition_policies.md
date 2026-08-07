@@ -23,6 +23,13 @@ records. The event does not change record identity or participant membership.
 Membership remains record- and participant-based, so zero-sample records still
 participate fully in overlap and coverage checks.
 
+Issue #145 adds an internal complete audit Ledger derived only from Dataset
+identity, Record/Game identity, partitions, stable Player IDs, declared policy,
+and requested audit mode. Cards, outcomes, Settlement, Features, and Targets do
+not drive audit provenance. It also constrains automatic split-assignment
+provenance as documented in
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
+
 ## Leakage and overlap
 
 Record leakage and player overlap are different concepts. Duplicate record IDs,

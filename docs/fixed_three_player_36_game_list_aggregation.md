@@ -147,6 +147,12 @@ The CLI prints complete final standings and exactly the twelve round-end
 snapshots at entries `3, 6, ..., 36`. It describes performance facts and tie
 state without player-quality, skill, rating, or cross-list claims.
 
+Issue #145 adds internal complete aggregation provenance. Every progression
+snapshot depends only on its current and earlier Entries. External lots affect
+only final tied order, ranks, and lot state; they never affect progression or
+Player metrics, and no random lot provenance exists. See
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
+
 ## Remaining scope
 
 The following remain open:

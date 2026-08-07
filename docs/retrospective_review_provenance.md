@@ -202,11 +202,11 @@ unchanged.
 
 The following remain open:
 
-* Training Dataset and Dataset Preparation field-level propagation;
-* historical-list field-level propagation;
-* general Opponent Statistics workflow field-level propagation;
 * complete non-legacy Position and Historical Result ledgers;
 * any additive public provenance API, Root output, Schema, artifact, example, or
   CLI presentation;
-* broader adversarial enforcement outside the implemented live and
-  retrospective Application workflows.
+* broader adversarial enforcement outside implemented Application workflows.
+
+Issue #145 implements the former Dataset, Preparation, Opponent, Profile, list,
+and comparison propagation scopes. See
+[Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).

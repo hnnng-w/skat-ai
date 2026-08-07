@@ -65,6 +65,7 @@ def execute_training_dataset_workflow(
     *,
     input_reference: str,
     options: TrainingDatasetApplicationOptions,
+    provenance_collector: Any = None,
     dependencies: TrainingDatasetWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> tuple[dict[str, Any], tuple[ApplicationArtifact, ...]]:
     """Builds one Dataset and executes exactly one selected operation."""
@@ -72,6 +73,8 @@ def execute_training_dataset_workflow(
         root_document,
         validate_workflow=False,
     )
+    if provenance_collector is not None:
+        provenance_collector.capture_dataset(dataset)
     artifacts: tuple[ApplicationArtifact, ...] = ()
 
     if options.operation == "summary":

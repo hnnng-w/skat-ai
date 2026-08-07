@@ -80,7 +80,81 @@ def _attachment_sort_key(
         return (11, 0, 0, 0, name)
     if name == "historical_game_result":
         return (12, 0, 0, 0, name)
-    return (13, 0, 0, 0, name)
+    fixed_names = {
+        "training_dataset/input": 13,
+        "training_dataset/summary": 18,
+        "training_dataset/partition_audit": 18,
+        "training_dataset/rolling_evaluation": 18,
+        "training_dataset/bounded_search_evaluation": 18,
+        "training_dataset/opponent_statistics_aggregation": 18,
+        "training_dataset/opponent_statistics_input": 19,
+        "training_dataset_result": 20,
+        "dataset_preparation/input": 21,
+        "dataset_preparation/plan": 23,
+        "dataset_preparation/materialized_dataset": 24,
+        "dataset_preparation_result": 25,
+        "opponent_statistics/input": 26,
+        "opponent_statistics/summary": 29,
+        "opponent_statistics_result": 30,
+        "historical_list/input": 31,
+        "historical_list/aggregation": 33,
+        "historical_list_result": 34,
+        "historical_list_comparison/input": 35,
+        "historical_list_comparison_result": 38,
+    }
+    if name in fixed_names:
+        return (fixed_names[name], 0, 0, 0, name)
+    numeric_families = {
+        "training_dataset/record": 14,
+        "dataset_preparation/source": 22,
+        "opponent_statistics/record": 27,
+        "opponent_statistics/profile": 28,
+        "historical_list/entry": 32,
+        "historical_list_comparison/source": 36,
+        "historical_list_comparison/pair": 37,
+    }
+    for prefix, order in numeric_families.items():
+        parts = name.split("/")
+        if (
+            parts[:-1] == prefix.split("/")
+            and parts[-1].isascii()
+            and parts[-1].isdecimal()
+        ):
+            return (order, int(parts[-1]), 0, 0, name)
+    staged_families = {
+        "sample": (15, {"feature": 0, "target": 1}),
+        "rolling": (16, {"prediction": 0, "actual": 1}),
+        "search": (
+            17,
+            {
+                "input": 0,
+                "immediate": 1,
+                "search": 2,
+                "comparison": 3,
+                "actual": 4,
+                "retrospective": 5,
+            },
+        ),
+    }
+    parts = name.split("/")
+    if len(parts) == 5 and parts[0] == "training_dataset":
+        family = staged_families.get(parts[1])
+        if (
+            family is not None
+            and parts[2].isascii()
+            and parts[2].isdecimal()
+            and parts[3].isascii()
+            and parts[3].isdecimal()
+            and parts[4] in family[1]
+        ):
+            return (
+                family[0],
+                int(parts[2]),
+                int(parts[3]),
+                family[1][parts[4]],
+                name,
+            )
+    return (39, 0, 0, 0, name)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
