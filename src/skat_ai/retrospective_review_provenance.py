@@ -513,6 +513,7 @@ class FlatRetrospectiveProvenanceCollector:
         result: Mapping[str, object],
         *,
         external_reference: str | None,
+        source_document: Mapping[str, object] | None = None,
     ) -> ApplicationProvenanceBundle:
         if self._input_attachment is None:
             raise SkatAIInformationPolicyError(
@@ -542,6 +543,7 @@ class FlatRetrospectiveProvenanceCollector:
                 entry.field_path: entry for entry in search_entries
             },
             external_reference=external_reference,
+            source_document=source_document,
             additional_entries_by_path={
                 entry.field_path: entry for entry in retrospective_entries
             },

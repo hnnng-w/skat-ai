@@ -490,6 +490,7 @@ def _position_handler(
             external_reference=(
                 invocation.external_documents.opponent_statistics_reference
             ),
+            source_document=root,
         )
         if provenance_collector is not None
         else None
@@ -511,25 +512,15 @@ def _historical_handler(
         raise SkatAIInvariantError(
             "Historical handler received no Historical options."
         )
-    needs_provenance = any(
-        (
-            options.decision_snapshots,
-            options.immediate_review,
-            options.search_review,
-            options.replay_coaching,
+    from skat_ai.historical_review_provenance import (
+        HistoricalReviewProvenanceCollector,
+    )
+
+    provenance_collector = HistoricalReviewProvenanceCollector(
+        external_reference=(
+            invocation.external_documents.opponent_statistics_reference
         )
     )
-    provenance_collector = None
-    if needs_provenance:
-        from skat_ai.historical_review_provenance import (
-            HistoricalReviewProvenanceCollector,
-        )
-
-        provenance_collector = HistoricalReviewProvenanceCollector(
-            external_reference=(
-                invocation.external_documents.opponent_statistics_reference
-            )
-        )
     result = execute_historical_game_workflow(
         root,
         input_reference=invocation.input_reference,
@@ -543,10 +534,9 @@ def _historical_handler(
         provenance_collector=provenance_collector,
         dependencies=dependencies.historical_game,
     )
-    provenance = (
-        provenance_collector.build_bundle(result)
-        if provenance_collector is not None
-        else None
+    provenance = provenance_collector.build_bundle(
+        result,
+        source_document=root,
     )
     return (result, (), provenance)
 

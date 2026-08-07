@@ -146,10 +146,11 @@ def test_all_seven_root_workflow_handlers_execute_in_memory(
     assert result["document"]["input_file"] == "caller-reference"
     assert expected_result_key in result["document"]
     assert execution.artifacts == ()
+    assert execution.provenance is not None
     if expected_workflow is WorkflowV1.HISTORICAL_GAME:
-        assert execution.provenance is None
-    else:
-        assert execution.provenance is not None
+        assert [item.name for item in execution.provenance.attachments] == [
+            "historical_game_result"
+        ]
 
 
 def test_invocation_builder_selects_root_workflow_once(monkeypatch) -> None:

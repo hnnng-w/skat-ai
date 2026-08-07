@@ -102,14 +102,11 @@ def test_snapshot_inputs_use_acting_player_perspective_and_separate_actual_cards
     ) == ("retrospective_attachment", "after_actual_play", 1)
     root = execution.provenance.attachments[-1]
     assert root.name == "historical_game_result"
-    assert root.ledger.status == "partial_legacy"
+    assert root.ledger.status == "complete"
+    assert root.ledger.exemptions == ()
+    assert root.ledger.limitations == ()
+    assert root.coverage_summary.provenance_complete is True
     assert root.coverage_summary.all_paths_accounted_for is True
-    assert not any(
-        exemption.field_path.startswith(
-            "/historical_game_summary/decision_snapshot_summary/"
-        )
-        for exemption in root.ledger.exemptions
-    )
 
 
 def test_immediate_review_retains_one_analysis_and_assessment_per_decision() -> None:

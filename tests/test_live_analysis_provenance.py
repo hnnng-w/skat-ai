@@ -80,7 +80,7 @@ def _flat(execution):
     return execution.provenance.attachments[0]
 
 
-def test_live_application_attaches_complete_decision_and_partial_result_ledgers() -> None:
+def test_live_application_attaches_complete_decision_and_result_ledgers() -> None:
     execution = _execute(_load("grand_second_position.json"))
     assert execution.provenance is not None
     flat, result = execution.provenance.attachments
@@ -91,8 +91,10 @@ def test_live_application_attaches_complete_decision_and_partial_result_ledgers(
     assert flat.coverage_summary.provenance_complete is True
     assert result.name == "position_result"
     assert result.document_role == "result"
-    assert result.ledger.status == "partial_legacy"
-    assert result.ledger.limitations == ("legacy_untracked_fields",)
+    assert result.ledger.status == "complete"
+    assert result.ledger.exemptions == ()
+    assert result.ledger.limitations == ()
+    assert result.coverage_summary.provenance_complete is True
     assert result.coverage_summary.all_paths_accounted_for is True
     assert result.coverage_summary.uncovered_paths == ()
     assert result.document_to_dict() == execution.result.to_dict()["document"]

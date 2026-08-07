@@ -36,6 +36,11 @@ from skat_ai.game_state import GameState
 from skat_ai.information_view import is_skat_visible_to_local_player
 from skat_ai.multi_step_recommendation import MultiStepRecommendationDecision
 from skat_ai.ouvert_simulation import resolve_effective_public_hand_constraints
+from skat_ai.position_result_provenance import (
+    POSITION_RESULT_KEYS,
+    build_position_result_branch_entry,
+    validate_position_result_provenance_dependencies,
+)
 from skat_ai.public_hand_constraint import (
     DECLARED_OUVERT_SOURCE,
     DECLARER_EXPOSURE_CONTINUATION_SOURCE,
@@ -57,57 +62,6 @@ from skat_ai.search_provenance import build_bounded_search_provenance_entries
 from skat_ai.strategic_metadata import StrategicMetadata, validate_strategic_metadata
 
 LIVE_ANALYSIS_PROVENANCE_VERSION = 1
-
-_LEGACY_RESULT_PATHS = (
-    "/post_game_review_summary",
-    "/bounded_search_post_game_review_summary",
-    "/game_value_summary",
-    "/overbid_summary",
-    "/score_summary",
-    "/game_result_summary",
-    "/adjusted_game_result_summary",
-    "/final_settlement_summary",
-    "/performance_rating_summary",
-    "/list_performance_summary",
-    "/list_standings_summary",
-    "/game_shortening_summary",
-)
-
-_TRACKED_RESULT_KEYS = {
-    "input_file",
-    "position",
-    "settings",
-    "opponent_policy_settings",
-    "left_opponent_policy_settings",
-    "right_opponent_policy_settings",
-    "profile_preset_settings",
-    "analysis_metadata",
-    "information_policy_summary",
-    "post_game_review_summary",
-    "game_declaration",
-    "game_value_summary",
-    "overbid_summary",
-    "legal_cards",
-    "analysis_report",
-    "strategic_summary",
-    "score_summary",
-    "game_result_summary",
-    "adjusted_game_result_summary",
-    "final_settlement_summary",
-    "performance_rating_summary",
-    "recommendation",
-    "recommendation_method_summary",
-    "bounded_search_result",
-    "bounded_search_post_game_review_summary",
-    "list_performance_summary",
-    "list_standings_summary",
-    "game_shortening_summary",
-    "game_continuation_summary",
-    "opponent_profile_application_summary",
-    "hidden_card_inference_summary",
-    "multi_step_result",
-    "policy_comparison_result",
-}
 
 
 def _reference(
@@ -889,9 +843,10 @@ def build_live_position_result_provenance_attachment(
     search_entries_by_path: Mapping[str, FieldProvenanceEntry] | None = None,
     additional_entries_by_path: Mapping[str, FieldProvenanceEntry] | None = None,
     external_reference: str | None = None,
+    source_document: Mapping[str, object] | None = None,
 ) -> ApplicationProvenanceAttachment:
-    """Builds all-leaf partial-legacy provenance for the exact Position Result."""
-    unknown_keys = sorted(set(result) - _TRACKED_RESULT_KEYS)
+    """Builds complete all-leaf provenance for the exact Position Result."""
+    unknown_keys = sorted(set(result) - POSITION_RESULT_KEYS)
     if unknown_keys:
         raise ValueError(f"Untracked live Position Result keys: {unknown_keys}")
     leaf_paths = enumerate_json_leaf_paths(result)
@@ -900,21 +855,6 @@ def build_live_position_result_provenance_attachment(
     visible_dependencies = _visible_position_dependencies(leaf_paths)
     profile_dependencies = _profile_dependencies_by_side(result, leaf_paths)
     registered_additional_entries = dict(additional_entries_by_path or {})
-    tracked_additional_paths = tuple(registered_additional_entries)
-    present_legacy_paths = tuple(
-        path
-        for path in _LEGACY_RESULT_PATHS
-        if path.removeprefix("/") in result
-        and not any(_is_at_or_below(entry_path, path) for entry_path in tracked_additional_paths)
-    )
-    exemptions = tuple(
-        FieldProvenanceExemption(
-            field_path=path,
-            coverage_kind="subtree",
-            reason="legacy_untracked",
-        )
-        for path in present_legacy_paths
-    )
     registered_search_entries = dict(search_entries_by_path or {})
     registered_entries = {**registered_search_entries}
     for additional_path, additional_entry in registered_additional_entries.items():
@@ -938,12 +878,20 @@ def build_live_position_result_provenance_attachment(
     entries = []
     consumed_registered_paths: set[str] = set()
     for path in leaf_paths:
-        if any(_is_at_or_below(path, legacy_path) for legacy_path in present_legacy_paths):
-            continue
         registered = registered_entries.get(path)
         if registered is not None:
             entries.append(registered)
             consumed_registered_paths.add(path)
+            continue
+        branch_entry = build_position_result_branch_entry(
+            path=path,
+            tokens=tokens_by_path[path],
+            result=result,
+            leaf_paths=leaf_paths,
+            source_document=source_document,
+        )
+        if branch_entry is not None:
+            entries.append(branch_entry)
             continue
         entries.append(
             _generic_result_entry(
@@ -970,11 +918,12 @@ def build_live_position_result_provenance_attachment(
             f"{unused_registered_paths}"
         )
     ledger = FieldProvenanceLedger(
-        status="partial_legacy",
+        status="complete",
         entries=tuple(entries),
-        exemptions=exemptions,
-        limitations=("legacy_untracked_fields",),
+        exemptions=(),
+        limitations=(),
     )
+    validate_position_result_provenance_dependencies(ledger.entries)
     coverage = build_field_provenance_coverage_summary(result, ledger)
     context = InformationUseContext(
         workflow="position_analysis",
@@ -1206,12 +1155,14 @@ class LiveAnalysisProvenanceCollector:
         result: Mapping[str, object],
         *,
         external_reference: str | None,
+        source_document: Mapping[str, object] | None = None,
     ) -> ApplicationProvenanceBundle:
         self._register_policy_search_diagnostics(result)
         result_attachment = build_live_position_result_provenance_attachment(
             result,
             search_entries_by_path=self._search_entries_by_path,
             external_reference=external_reference,
+            source_document=source_document,
         )
         return ApplicationProvenanceBundle(
             workflow=WorkflowV1.POSITION_ANALYSIS,

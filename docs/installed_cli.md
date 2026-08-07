@@ -147,5 +147,7 @@ upload. Issue #143 adds internal live Position provenance, but all CLI forms
 intentionally ignore that bundle. Issue #144 adds internal retrospective
 Position and Historical provenance under the same boundary. Issue #145 adds
 internal Dataset, Preparation, Opponent, Profile, list, and comparison
-provenance under that boundary. There is no
+provenance under that boundary. Issue #146 completes internal Position and
+Historical Result ledgers, so all seven Root workflows have complete internal
+Result provenance. Every CLI form still ignores it. There is no
 Provenance option, output, Schema, artifact, export, or terminal section.

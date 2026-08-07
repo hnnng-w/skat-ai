@@ -265,7 +265,9 @@ JSON parity; the CLI does not call this Public API as an intermediate layer.
 The facade adds no workflow-specific helper functions, public Domain dataclasses,
 or field-level provenance. It intentionally ignores the Issue #143 internal live
 Position, Issue #144 retrospective Position/Historical, and Issue #145 Dataset,
-Preparation, Opponent, Profile, list, and comparison Application bundles.
+Preparation, Opponent, Profile, list, and comparison Application bundles, plus
+the Issue #146 complete Position and Historical Result ledgers. See
+[Complete Result provenance](complete_result_provenance.md).
 Issue #141 adds private Package Resources, build-
 system metadata, Package Data, `py.typed`, Package-Root `__version__`, and
 Wheel/sdist validation without a Package version change. Issue #142 adds a

@@ -9,18 +9,14 @@ from skat_ai.application.provenance import (
 )
 from skat_ai.field_provenance import (
     FieldProvenanceEntry,
-    FieldProvenanceExemption,
-    FieldProvenanceLedger,
-    parse_json_pointer,
-)
-from skat_ai.field_provenance_coverage import (
-    build_field_provenance_coverage_summary,
-    enumerate_json_leaf_paths,
 )
 from skat_ai.field_provenance_policy import InformationUseContext
 from skat_ai.historical_decision_snapshot import (
     HistoricalDecisionSnapshot,
     HistoricalDecisionSnapshotSummary,
+)
+from skat_ai.historical_result_provenance import (
+    build_historical_game_result_attachment as _build_complete_historical_game_result_attachment,
 )
 from skat_ai.historical_search_review import (
     HistoricalSearchDecisionPreActualAnalysis,
@@ -390,138 +386,17 @@ def build_historical_summary_attachment(
     )
 
 
-def _root_tracked_branch(path: str) -> str | None:
-    branches = (
-        "/historical_game_summary/decision_snapshot_summary",
-        "/historical_game_summary/historical_game_review_summary",
-        "/historical_game_summary/historical_search_review_summary",
-        "/historical_game_summary/historical_replay_coaching_summary",
-        "/historical_opponent_profile_application_summary",
-    )
-    return next(
-        (branch for branch in branches if path == branch or path.startswith(f"{branch}/")),
-        None,
-    )
-
-
 def build_historical_game_result_attachment(
     result: Mapping[str, object],
     *,
     external_reference: str | None,
+    source_document: Mapping[str, object] | None = None,
 ) -> ApplicationProvenanceAttachment:
-    """Accounts for every Root leaf while tracking selected retrospective branches."""
-    leaf_paths = enumerate_json_leaf_paths(result)
-    entries: list[FieldProvenanceEntry] = []
-    exemptions: list[FieldProvenanceExemption] = []
-    max_decision_index = 0
-    for path in leaf_paths:
-        tokens = parse_json_pointer(path)
-        branch = _root_tracked_branch(path)
-        if path == "/input_file":
-            entries.append(
-                _entry(
-                    path,
-                    origin="caller_supplied",
-                    visibility="public",
-                    available_from="request_start",
-                    derivation="direct",
-                    decision_index=None,
-                    perspective_player_id=None,
-                    source_references=(_reference("request", "application_input_reference"),),
-                )
-            )
-        elif branch is None:
-            exemptions.append(
-                FieldProvenanceExemption(
-                    field_path=path,
-                    coverage_kind="field",
-                    reason="legacy_untracked",
-                )
-            )
-        else:
-            if "/snapshots/" in path or "/decisions/" in path:
-                for token_index, token in enumerate(tokens):
-                    if token in {"snapshots", "decisions"} and token_index + 1 < len(tokens):
-                        row_index = tokens[token_index + 1]
-                        if row_index.isdecimal():
-                            rows_path = "/" + "/".join(tokens[: token_index + 1])
-                            rows = result
-                            for row_token in parse_json_pointer(rows_path):
-                                rows = rows[row_token]
-                            row = rows[int(row_index)]
-                            max_decision_index = max(
-                                max_decision_index,
-                                int(row.get("decision_index", 0)),
-                            )
-                        break
-            is_actual = tokens[-1] in {"actual_card", "actual_card_played"}
-            if branch == "/historical_opponent_profile_application_summary":
-                origin = "external_source"
-                availability = "current_decision"
-                derivation = "validated"
-                references = (
-                    (_reference(
-                        "external_record",
-                        external_reference,
-                        visibility="engine_private",
-                    ),)
-                    if external_reference is not None
-                    else (_reference("algorithm", "historical_profile_application"),)
-                )
-                decision_index = max_decision_index
-            elif branch.endswith("historical_replay_coaching_summary"):
-                if "/outcome_context/" in path:
-                    origin = "rule_derived"
-                    availability = "game_end"
-                    derivation = "deterministic_rule"
-                    decision_index = None
-                else:
-                    origin = "heuristic_analysis"
-                    availability = "offline_review"
-                    derivation = "heuristic"
-                    decision_index = None
-                references = (_reference("algorithm", "historical_replay_coaching_v1"),)
-            else:
-                origin = "retrospective_attachment" if is_actual else "historical_aggregation"
-                availability = "after_actual_play" if is_actual else "offline_review"
-                derivation = "retrospective" if is_actual else "deterministic_rule"
-                references = (_reference("aggregate", "historical_review_summary"),)
-                decision_index = max_decision_index if is_actual else None
-            entries.append(
-                _entry(
-                    path,
-                    origin=origin,
-                    visibility=(
-                        "post_game_only"
-                        if availability == "game_end"
-                        else "public"
-                    ),
-                    available_from=availability,
-                    derivation=derivation,
-                    decision_index=decision_index,
-                    perspective_player_id=None,
-                    source_references=references,
-                )
-            )
-    ledger = FieldProvenanceLedger(
-        status="partial_legacy",
-        entries=tuple(entries),
-        exemptions=tuple(exemptions),
-        limitations=("legacy_untracked_fields",),
-    )
-    coverage = build_field_provenance_coverage_summary(result, ledger)
-    return ApplicationProvenanceAttachment(
-        name="historical_game_result",
-        document_role="result",
-        document=result,
-        ledger=ledger,
-        coverage_summary=coverage,
-        information_use_context=_historical_context(
-            stage="engine_internal",
-            decision_index=max_decision_index,
-            player_id=None,
-            side=None,
-        ),
+    """Builds complete provenance while preserving the historical import seam."""
+    return _build_complete_historical_game_result_attachment(
+        result,
+        source_document=source_document,
+        external_reference=external_reference,
     )
 
 
@@ -829,6 +704,8 @@ class HistoricalReviewProvenanceCollector:
     def build_bundle(
         self,
         result: Mapping[str, object],
+        *,
+        source_document: Mapping[str, object] | None = None,
     ) -> ApplicationProvenanceBundle:
         attachments: list[ApplicationProvenanceAttachment] = []
         for decision_index in sorted(self._snapshots):
@@ -842,6 +719,7 @@ class HistoricalReviewProvenanceCollector:
             build_historical_game_result_attachment(
                 result,
                 external_reference=self._external_reference,
+                source_document=source_document,
             )
         )
         return ApplicationProvenanceBundle(

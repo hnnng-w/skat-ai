@@ -88,8 +88,8 @@ When an actual card is present, the assessment attachment introduces it together
 with the existing Immediate and optional Search post-game summaries. The exact
 Position Result receives matching non-legacy entries for
 `post_game_review_summary` and
-`bounded_search_post_game_review_summary`; unrelated legacy Result branches keep
-the existing explicit exemptions.
+`bounded_search_post_game_review_summary`; Issue #146 adds complete non-legacy
+provenance for every other current Result branch.
 
 Changing only the actual card or later result cannot change the retained input
 or decision-time analysis attachment. A retrospective request without an actual
@@ -169,19 +169,18 @@ does not make final outcome evidence causal input to Coaching guidance.
 
 ## Result ledgers
 
-The flat workflow continues to use the all-leaf partial-legacy
-`position_result` ledger. Issue #144 adds concrete entries for its retrospective
-review branches.
+The flat workflow uses a complete all-leaf `position_result` ledger. The Issue
+#144 retrospective review entries remain unchanged beside the Issue #146
+Declaration, scoring, Result, Settlement, Performance, list, ending, and
+continuation mappings.
 
-Historical Game execution now attaches `historical_game_result`. It accounts for
-every exact Root Result leaf with `partial_legacy` status. Snapshot, Immediate
-Review, Search Review, Replay Coaching, and historical profile-application
-branches receive normal entries. Other existing Historical Result branches keep
-explicit `legacy_untracked` exemptions and the
-`legacy_untracked_fields` limitation.
-
-This is complete coverage accounting, not a claim that every Historical Result
-field has non-legacy provenance.
+Every Historical Game execution attaches a complete `historical_game_result`.
+Base execution without review options has a bundle containing only that Result.
+Snapshot, Immediate Review, Search Review, Replay Coaching, and historical
+profile-application entries remain unchanged when selected. Canonical record,
+replay, points, Result, Value, Overbid, Settlement, events, and terminal endings
+use complete non-legacy mappings described in
+[Complete Result provenance](complete_result_provenance.md).
 
 ## Privacy and determinism
 
@@ -202,7 +201,6 @@ unchanged.
 
 The following remain open:
 
-* complete non-legacy Position and Historical Result ledgers;
 * any additive public provenance API, Root output, Schema, artifact, example, or
   CLI presentation;
 * broader adversarial enforcement outside implemented Application workflows.

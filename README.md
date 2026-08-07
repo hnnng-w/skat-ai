@@ -106,13 +106,16 @@ official Skat rules arbitration.
   serialization
 * Internal version-1 live Position provenance with complete pre-selection
   decision ledgers and Immediate, Search, inference, Multi-Step, Policy
-  Comparison, and partial-legacy Position Result propagation
+  Comparison propagation
 * Internal version-1 retrospective provenance across flat post-game Position
-  Analysis, Historical Snapshots, Immediate and Search Review, Replay Coaching,
-  and partial-legacy Position and Historical Result ledgers
+  Analysis, Historical Snapshots, Immediate and Search Review, and Replay
+  Coaching
 * Internal version-1 Dataset, Preparation, Opponent, Profile, historical-list,
   and independent-list comparison provenance with complete non-legacy Root
   Result ledgers
+* Internal version-1 complete Position and Historical Result provenance covering
+  Declaration, Value, Overbid, scoring, Results, Settlement, Performance, lists,
+  endings, continuations, canonical Historical records, replay, and points
 
 ### Post-game review
 
@@ -175,10 +178,12 @@ contract version `1` adds the exact `skat-ai` Console Script and
 facade over the same Package implementation. Field-level provenance is
 internally enforced and attached for live and retrospective Position and
 Historical execution and for Dataset, Preparation, Opponent, Profile, list, and
-comparison workflows, but is not exposed by the public API, Root JSON, schemas,
-or CLI. See
+comparison workflows. All seven Root workflows have complete internal Result
+ledgers, but provenance is not exposed by the public API, Root JSON, schemas, or
+CLI. See
 [Public Python API v1](docs/public_python_api_v1.md) and
-[Application orchestration](docs/application_orchestration.md).
+[Application orchestration](docs/application_orchestration.md), and
+[Complete Result provenance](docs/complete_result_provenance.md).
 
 ## Requirements
 
@@ -656,6 +661,7 @@ Detailed documentation is split into topic-specific files:
 * [Live analysis provenance](docs/live_analysis_provenance.md)
 * [Retrospective review provenance](docs/retrospective_review_provenance.md)
 * [Dataset, list, and opponent provenance](docs/dataset_list_and_opponent_provenance.md)
+* [Complete Result provenance](docs/complete_result_provenance.md)
 * [Input JSON schema](schemas/input.schema.json)
 * [Declarer concessions](docs/declarer_concessions.md)
 * [Defender concessions](docs/defender_concessions.md)
@@ -885,8 +891,8 @@ opt-in, so existing omitted-method workflows require no migration.
 Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
-ratios, Sample- or Player-count balancing, component splitting, remaining non-
-legacy Position/base Historical Result and public provenance integration, and
+ratios, Sample- or Player-count balancing, component splitting, public
+provenance integration, and
 interactive input and session capture. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
@@ -925,7 +931,9 @@ Issue #145 propagates complete internal field provenance through all five
 Training Dataset operations, automatic Dataset Preparation, Opponent Statistics
 and Profiles, fixed-three-player list aggregation, and independent-list
 comparison, with complete non-legacy Root ledgers. Complete non-legacy Position
-and base Historical Result ledgers and public provenance integration remain open.
+and base Historical Result ledgers are completed by Issue #146 from retained
+workflow values, including scoring, Settlement, endings, Historical replay, and
+private-proof-safe dependencies. Public provenance integration remains open.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

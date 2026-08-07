@@ -113,6 +113,15 @@ For the validation-layer overview and schema limitations, see:
 
 [Schema validation documentation](schema_validation.md)
 
+## Field-level provenance boundary
+
+Issue #146 completes the internal `position_result` and
+`historical_game_result` sidecar ledgers. A base Historical execution without
+review options now also has an internal result-only provenance bundle. These
+sidecars are not serialized: no `provenance` field is added, and every Root
+output shape and Schema remains unchanged. See
+[Complete Result provenance](complete_result_provenance.md).
+
 ## Output workflows
 
 Position analysis retains the existing top-level result. Supported historical

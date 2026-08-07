@@ -21,7 +21,7 @@ Position workflow identity, and canonical unique attachments.
 
 `ApplicationExecutionResult.provenance` is optional and defaults to `None`. A
 live or retrospective Position Application execution attaches one bundle.
-Historical Review Application execution also attaches a bundle as documented in
+Every Historical Application execution also attaches a bundle as documented in
 [Retrospective review provenance](retrospective_review_provenance.md).
 
 The canonical live attachment order is:
@@ -137,20 +137,22 @@ The final `position_result` attachment retains the exact current Root Position
 output and an all-leaf ledger with:
 
 ```text
-status = partial_legacy
-limitation = legacy_untracked_fields
+status = complete
+limitations = ()
 ```
 
-Every leaf is accounted for exactly once. Critical live paths use normal
-provenance entries, including Position and local visibility, settings, effective
+Every leaf is covered exactly once by non-legacy provenance. Existing live paths
+remain mapped, including Position and local visibility, settings, effective
 policies, Analysis Metadata, Information Policy, declaration, legal cards,
 Immediate analysis, recommendation routing, Search, Hidden-card inference,
 external profile application, Multi-Step, Policy Comparison, and live
-continuation summaries.
-
-Explicit legacy exemptions are limited to existing retrospective, settlement,
-rating, list, and terminal branches. Unknown top-level Position Result fields,
-uncovered leaves, orphaned declarations, and overlapping coverage are rejected.
+continuation summaries. Issue #146 adds retained-value mappings for Game
+Declaration inference and defaults, Game Value, Overbid, score, raw and adjusted
+Game Results, final Settlement, Performance Rating, list Performance, list
+standings, every structured terminal ending, and both non-terminal
+continuations. Unknown top-level Position Result fields, uncovered leaves,
+orphaned declarations, and overlapping coverage are rejected. See
+[Complete Result provenance](complete_result_provenance.md).
 
 External Opponent Statistics are not embedded in provenance. Existing profile
 application output retains the supplied opaque reference, while internal source
@@ -175,8 +177,6 @@ section for Provenance.
 
 The following remain open:
 
-* Dataset, list, Opponent Statistics, and other non-Position workflow provenance;
-* complete non-legacy provenance for retrospective, settlement, rating, list,
-  and terminal Position Result branches;
 * public API and Root-output integration, schemas, artifacts, and CLI
-  presentation.
+  presentation;
+* broader enforcement outside implemented Application boundaries.

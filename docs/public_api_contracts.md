@@ -15,7 +15,9 @@ sdist installations without adding a workflow-specific helper or public schema
 API. Issue #142 adds Package CLI entry points as a separate transport contract;
 it adds no public API export. Issue #138 remains a separate internal field-
 provenance contract foundation, and Issue #143 applies it to internal live
-Position execution. Neither adds a public provenance type or field.
+Position execution. Issues #144 through #146 extend it through retrospective,
+Dataset/list/opponent, and complete Position/Historical Result propagation. None
+adds a public provenance type or field.
 
 ## Public namespaces
 
@@ -38,9 +40,10 @@ other internal modules have no compatibility guarantee.
 The internal version-1 field-level provenance language is documented in
 [Field-level information provenance](field_level_information_provenance.md).
 Its sidecar ledgers, coverage audits, Information Use Context, redaction, and
-live Position propagation remain internal. Issue #140 adds facade exports
-without adding provenance exports, and the Issue #143 Application bundle is
-intentionally ignored by public Result conversion.
+all-seven-workflow complete Root Result propagation remain internal. Issue #140
+adds facade exports without adding provenance exports, and the complete
+Application bundles are intentionally ignored by public Result conversion. See
+[Complete Result provenance](complete_result_provenance.md).
 
 The internal Application orchestration contract is documented in
 [Application orchestration](application_orchestration.md). It consumes
@@ -298,10 +301,7 @@ absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
 
 ## Remaining Work
 
-The following remain open for later `v0.13.0` issues:
-
-* complete non-legacy Position and base Historical Result provenance;
-* any additive public provenance API, schemas, or output integration.
+Any additive public provenance API, schemas, or output integration remains open.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are
@@ -314,6 +314,7 @@ Public API surface. Issue #143 adds internal live Position enforcement without
 changing it. Issue #144 adds internal retrospective Position, Historical Review,
 Historical Search Review, and Replay Coaching propagation without changing it.
 Issue #145 adds internal Dataset, Preparation, Opponent, Profile, list, and
-comparison propagation without changing it.
+comparison propagation without changing it. Issue #146 completes internal
+Position and Historical Result provenance without changing it.
 See [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).

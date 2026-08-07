@@ -37,7 +37,7 @@ retrospective Position, Historical Review, Historical Search Review, and Replay
 Coaching propagation is also implemented. Dataset, Preparation, Opponent,
 Profile, historical-list, and comparison propagation is implemented with
 complete non-legacy Root ledgers. Complete non-legacy Position/base Historical
-Result and public provenance remain open.
+Result propagation is also implemented; public provenance remains open.
 Internal Application extraction is covered separately below.
 
 ### Application orchestration foundation
@@ -59,10 +59,10 @@ Implemented:
 * Stable public facade reuse without changes to Root schemas, examples,
   scenarios, or Package version
 * Optional internal live Position provenance bundles with complete decision
-  attachments and an exact partial-legacy Position Result attachment
+  attachments and an exact complete Position Result attachment
 * Optional internal retrospective Position and Historical provenance bundles
   with retained decision stages, requested aggregate reviews, Replay Coaching,
-  and an exact partial-legacy Historical Result attachment
+  and an exact complete Historical Result attachment
 * Internal Dataset, Preparation, Opponent, Profile, historical-list, and
   comparison bundles with complete exact Root Result attachments
 
@@ -120,8 +120,8 @@ through flat retrospective Position Analysis, Historical Snapshots, Immediate
 and Search Review, Replay Coaching, and selected Position/Historical Result
 branches. Issue #145 adds all Dataset operations, Preparation, Opponent, Profile,
 historical-list, comparison, and complete non-legacy Root workflow ledgers.
-Complete non-legacy Position/base Historical Results, public API exposure,
-schemas, Root output, and CLI presentation remain open.
+Issue #146 subsequently completes the Position/base Historical Result ledgers.
+Public API exposure, schemas, Root output, and CLI presentation remain open.
 
 ### Core analysis
 
@@ -421,6 +421,10 @@ Implemented:
   split restrictions, materialization, Profile derivation, 36 Entry Facts,
   progression prefix safety, external lots, comparison deltas, redaction,
   call-count, and public-boundary tests
+* Focused complete Result provenance tests across Declaration, Value, Overbid,
+  score, raw/adjusted Results, Settlement, Performance, lists, every Position
+  ending and continuation, canonical Historical replay, all terminal/event
+  combinations, dependency rejection, redaction, determinism, and call counts
 
 ### CLI and workflow usability
 
@@ -465,10 +469,9 @@ Implemented:
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Historical records support normal completion and all five terminal shortenings with at most one optional timed defender-open-play or declarer-card-exposure continuation. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons are not represented there.
 * Historical corrected play and isolated or specific-trick claims remain incomplete; unlimited proof, simultaneous throws, and arbitrary event streams are outside `v0.11.0`; general settlement coverage is incomplete.
-* Dataset, Preparation, Opponent, Profile, list, comparison, live Position, and
-  retrospective Review/Coaching execution have internal provenance. Complete
-  non-legacy Position/base Historical Result and every public output remain
-  unintegrated.
+* Dataset, Preparation, Opponent, Profile, list, comparison, live Position,
+  retrospective Review/Coaching, and complete Position/Historical Root Results
+  have internal provenance. Every public output remains unintegrated.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Version-1 bounded-search contracts, direct exact-world and compatible-world
   Suit/Grand/Null Minimax, and private deterministic compatible-world selection
@@ -641,8 +644,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, remaining non-Position, complete-Result,
-and public provenance integration, and interactive live and retrospective input/
+remaining approved settlement nuance, public provenance integration, and
+interactive live and retrospective input/
 session capture. The executable public facade, internal Application layer,
 installable library distributions, and stable installed CLI interface are
 implemented. API contract
@@ -723,8 +726,8 @@ adds internal live Position propagation and adversarial enforcement. Issue #144
 adds internal retrospective Position, Historical Review, Historical Search
 Review, and Replay Coaching propagation. Issue #145 adds Dataset, Preparation,
 Opponent, Profile, historical-list, and comparison propagation with complete
-Root ledgers. Complete non-legacy Position/base Historical Result and public
-integration remain open. Issue #139 completes internal
+Root ledgers. Issue #146 completes non-legacy Position/base Historical Result
+propagation. Public integration remains open. Issue #139 completes internal
 Application extraction with immutable orchestration version `1` contracts, all
 seven no-I/O handlers, five Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI transport parity. Public API

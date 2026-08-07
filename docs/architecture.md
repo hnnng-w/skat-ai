@@ -98,10 +98,13 @@ The project is not a machine-learning model. Its behavior is based on Skat rules
 | `src/skat_ai/field_provenance.py` | Shared immutable field-level provenance language, dependencies, and serialization. |
 | `src/skat_ai/field_provenance_coverage.py` | Deterministic JSON-leaf coverage auditing. |
 | `src/skat_ai/field_provenance_policy.py` | Information Use Context validation and public redaction. |
-| `src/skat_ai/live_analysis_provenance.py` | Live Position decision collection and partial-legacy Result mapping. |
+| `src/skat_ai/live_analysis_provenance.py` | Live Position decision collection and complete Result attachment orchestration. |
 | `src/skat_ai/retrospective_review_provenance.py` | Flat retrospective stage separation and shared complete-attachment construction. |
-| `src/skat_ai/historical_review_provenance.py` | Historical decision, review-summary, Coaching, and partial-legacy Result collection. |
+| `src/skat_ai/historical_review_provenance.py` | Historical decision, review-summary, Coaching, and complete Result attachment orchestration. |
 | `src/skat_ai/replay_coaching_provenance.py` | Replay Coaching evidence, assessment, prioritization, guidance, and report mapping. |
+| `src/skat_ai/position_result_provenance.py` | Complete Position Root Result mapping and dependency enforcement. |
+| `src/skat_ai/historical_result_provenance.py` | Complete Historical Root Result mapping and dependency enforcement. |
+| `src/skat_ai/settlement_result_provenance.py` | Shared retained Settlement Result entry construction. |
 | `src/skat_ai/application/provenance.py` | Immutable attachments and canonical per-workflow bundle ordering. |
 
 Live and retrospective provenance is retained as an internal Application

@@ -57,7 +57,8 @@ historical_list_comparison_result
 ```
 
 They attach the exact existing Root Result and are last in their workflow. The
-Position and base Historical Game Result statuses remain unchanged.
+Position and base Historical Game Result statuses were completed subsequently by
+Issue #146. See [Complete Result provenance](complete_result_provenance.md).
 
 ## Attachment order
 
@@ -310,7 +311,6 @@ comparison executions.
 
 The following remain open:
 
-* complete non-legacy Position and base Historical Game Result ledgers;
 * additive public provenance API design;
 * public provenance Schemas and Root output integration;
 * CLI presentation or export;

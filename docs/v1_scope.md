@@ -41,8 +41,9 @@ propagation and adversarial enforcement. Issue #144 implements internal flat
 retrospective Position, Historical Review, Historical Search Review, Replay
 Coaching, and selected Position/Historical Result propagation. Issue #145 adds
 Dataset, Preparation, Opponent, Profile, historical-list, and comparison
-propagation with complete non-legacy Root ledgers. Complete non-legacy
-Position/base Historical Result and public integration remain open.
+propagation with complete non-legacy Root ledgers. Issue #146 completes non-
+legacy Position and Historical Root Result provenance, including result-only
+base Historical bundles. Public provenance integration remains open.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -78,12 +79,13 @@ The following directions are required for `v1.0.0`:
   shared version-1 language defines paths, entries, ledgers, coverage,
   dependencies, context use, redaction, and serialization. Live Position
   Application execution now enforces complete flat and simulated decision
-  ledgers and attaches an all-leaf partial-legacy Result ledger. Retrospective
+  ledgers and attaches a complete non-legacy exact Result ledger. Retrospective
   Position and Historical execution now separates decision-time input/analysis
   from actual-card assessment and covers requested review and Coaching stages.
   Dataset, Preparation, Opponent, Profile, list, and comparison execution now has
-  complete internal workflow and Root ledgers. Complete non-legacy Position/base
-  Historical Result and public propagation remain open.
+  complete internal workflow and Root ledgers. Historical execution now also has
+  complete non-legacy exact Root Result coverage, including result-only base
+  execution. Public propagation remains open.
 * Support retrospective single-decision review and complete-game coaching
   without future-information leakage into reconstructed decisions. Bounded
   variable-cardinality review exists for supported endings. Public Replay
@@ -238,7 +240,7 @@ milestone is complete, but the stronger-search gate is not closed.
 | Rules and settlement coverage | Every ISkO row marked required before v1.0 in the traceability matrix is `supported`, or has an explicitly approved bounded interpretation; a normative table-driven suite covers winning, losing, achieved/announced levels, overbid, impossible Null, claim, concession, and incomplete-evidence outcomes. |
 | Supported contract variants | Input validation accepts every legal Suit, Grand, Null, Hand, and ouvert variant in the documented v1 contract; rejects every documented illegal modifier dependency; and produces tested game values and settlement for each accepted variant. |
 | Live-position analysis | Every canonical three-player turn phase is either analyzed when the local player acts or advances through a documented opponent-preparation path; unsupported states fail explicitly without mutating the supplied position. |
-| Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Application and live-analysis propagation version `1` enforce complete live Position decision ledgers across Immediate, Search, inference, Multi-Step, and Policy Comparison and attach an all-leaf partial-legacy Position Result ledger. Retrospective-review and Replay Coaching propagation version `1` separate decision-time input/analysis from actual-card assessment across flat Position, Historical Review/Search, and Coaching and attach selected all-leaf partial-legacy Position/Historical Result entries. Dataset/list/opponent propagation version `1` adds information-restricted complete Dataset, Preparation, Opponent, Profile, historical-list, comparison, and exact Root workflow ledgers. Completion still requires complete non-legacy Position/base Historical Result and public propagation plus broader loading, matador, review, and serialization enforcement. |
+| Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Application and live-analysis propagation version `1` enforce complete live Position decision ledgers across Immediate, Search, inference, Multi-Step, and Policy Comparison and attach a complete non-legacy exact Position Result ledger. Retrospective-review and Replay Coaching propagation version `1` separate decision-time input/analysis from actual-card assessment across flat Position, Historical Review/Search, and Coaching. Dataset/list/opponent propagation version `1` adds information-restricted complete Dataset, Preparation, Opponent, Profile, historical-list, comparison, and exact Root workflow ledgers. Complete Historical Root Result propagation version `1` covers retained Declaration, Value, Overbid, score, Result, Settlement, Performance, list, replay, event, and ending values, including result-only base Historical execution. Completion still requires public propagation plus broader loading, matador, review, and serialization enforcement. |
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 now exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Tactical motifs, cross-game coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
 | Complete-game historical representation | A versioned schema and runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, skat pickup/discards or Hand state, every play, structured claims/concessions and approved additional end reasons, final result, and settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. |

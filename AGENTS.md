@@ -179,8 +179,10 @@ Position Analysis, Historical Snapshots, Immediate and Search Review, Replay
 Coaching, and an all-leaf partial-legacy Historical Result ledger. Issue #145
 adds internal Dataset, Preparation, Opponent, Profile,
 historical-list, and comparison provenance with complete non-legacy Root Result
-ledgers. Public and complete non-legacy Position/base Historical Result
-provenance integration remain open.
+ledgers. Issue #146 completes the remaining non-legacy Position and Historical
+Result ledgers from retained Declaration, Value, Overbid, score, Result,
+Settlement, Performance, list, ending, continuation, canonical record, replay,
+and point values. Public provenance integration remains open.
 
 Major completed areas include:
 
@@ -255,6 +257,8 @@ Major completed areas include:
 * internal Dataset, Preparation, Opponent, Profile, historical-list, and
   comparison provenance with complete non-legacy Root Result ledgers and no
   public output
+* complete internal non-legacy Position and Historical Root Result provenance,
+  including base Historical execution without review options
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -262,8 +266,8 @@ defender-open-play proof beyond five unresolved tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,
-Sample- or Player-count balancing, or component splitting, incomplete
-Position/base Historical Result and public field-provenance integration,
+Sample- or Player-count balancing, or component splitting, incomplete public
+field-provenance integration,
 heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Search remains bounded late-game determinization subject to Strategy
