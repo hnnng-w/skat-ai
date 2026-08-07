@@ -52,6 +52,10 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
 
 
 def test_packaged_schema_mirror_has_exact_filename_byte_and_id_parity() -> None:
+    from scripts.validate_distribution_artifacts import (
+        EXPECTED_SCHEMA_RESOURCE_COUNT,
+    )
+
     authoritative = {
         path.name: path.read_bytes() for path in sorted(SCHEMA_DIRECTORY.glob("*.schema.json"))
     }
@@ -60,7 +64,8 @@ def test_packaged_schema_mirror_has_exact_filename_byte_and_id_parity() -> None:
         for path in sorted(PACKAGED_SCHEMA_DIRECTORY.glob("*.schema.json"))
     }
 
-    assert len(authoritative) == 61
+    assert EXPECTED_SCHEMA_RESOURCE_COUNT == 62
+    assert len(authoritative) == EXPECTED_SCHEMA_RESOURCE_COUNT
     assert packaged == authoritative
     schema_ids = []
     for name, content in packaged.items():

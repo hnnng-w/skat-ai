@@ -88,6 +88,10 @@ Automatic Training Dataset preparation and its Plan use:
 
 [`schemas/dataset_partition_plan.schema.json`](../schemas/dataset_partition_plan.schema.json)
 
+Opt-in public field provenance uses:
+
+[`schemas/field_provenance.schema.json`](../schemas/field_provenance.schema.json)
+
 The schema is intended as a documentation and validation aid. It checks the main output structure, important summary fields, and stable optional branch structures such as Multi-Step and policy-comparison results.
 
 Generated outputs for selected examples can be validated against the schema with:
@@ -115,12 +119,32 @@ For the validation-layer overview and schema limitations, see:
 
 ## Field-level provenance boundary
 
-Issue #146 completes the internal `position_result` and
-`historical_game_result` sidecar ledgers. A base Historical execution without
-review options now also has an internal result-only provenance bundle. These
-sidecars are not serialized: no `provenance` field is added, and every Root
-output shape and Schema remains unchanged. See
-[Complete Result provenance](complete_result_provenance.md).
+Issue #147 adds optional Root `field_provenance` for all seven workflows. It is
+omitted by default and included only through Public API
+`ExecutionOptionsV1(include_provenance=True)` or CLI `--include-provenance`.
+
+The sidecar contains version `1`, the Root workflow, redaction policy, exactly one
+mapped Result attachment, and provenance for artifacts actually returned. The
+Result scope is `root_result_without_field_provenance`; artifact scope is
+`artifact_document`. Public conversion uses the existing engine-private
+redaction helper and recomputes complete coverage against the exact declared
+document. It rejects uncovered, orphaned, overlapping, legacy, unavailable, or
+unredacted output.
+
+The public bundle does not contain consumed-input, decision, retrospective-
+stage, aggregate-stage, or other internal Application attachments. It does not
+expose hidden ownership, private proof or Search state, private seeds, caches,
+branches, or Principal Variations. Provenance remains separate from Confidence,
+quality, calibration, and optimality contracts.
+
+The Training Dataset aggregation artifact maps public artifact name
+`opponent_statistics_input` to attachment
+`training_dataset/opponent_statistics_input`; the separate export JSON remains
+unchanged and contains no nested sidecar. See
+[Public field provenance](public_field_provenance.md) for all seven Result
+mappings, strict fields, API/CLI examples, and limitations, and
+[Complete Result provenance](complete_result_provenance.md) for the internal
+source ledgers.
 
 ## Output workflows
 
@@ -581,6 +605,7 @@ Typical top-level fields include:
 | `left_opponent_policy_settings`  | Normalized policy settings for the left opponent.           |
 | `right_opponent_policy_settings` | Normalized policy settings for the right opponent.          |
 | `opponent_profile_application_summary` | Optional live external-profile binding, precedence, and effective-policy summary. |
+| `field_provenance`               | Optional version-1 public-safe provenance for the exact Root Result without this field and for actual artifacts. |
 
 `profile_preset_settings` is emitted in production output and is required by
 the output schema.

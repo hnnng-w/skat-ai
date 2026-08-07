@@ -80,13 +80,95 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 70
-    assert len(SCENARIOS[:-3]) == 67
-    assert tuple(scenario.name for scenario in SCENARIOS[-3:]) == (
+    assert len(SCENARIOS) == 77
+    assert tuple(scenario.name for scenario in SCENARIOS[:70]) == (
+        "normal_local_live",
+        "quiet_json_output",
+        "complete_bounded_search",
+        "auto_bounded_search_fallback",
+        "bounded_search_post_game_review",
+        "search_aware_multi_step",
+        "search_inclusive_policy_comparison",
+        "local_live_multi_step_two_steps",
+        "opponent_turn_left_multi_step_preparation",
+        "completed_game_immediate_unavailable",
+        "post_game_available_nested_suit_declaration",
+        "post_game_null_objective_review",
+        "post_game_defender_perspective_review",
+        "multi_step_partial_trick_right_response",
+        "multi_step_unsupported_phase",
+        "policy_comparison",
+        "coherent_hidden_world_policy_comparison",
+        "grand_hidden_card_inference",
+        "comparison_only_policy_comparison",
+        "side_specific_opponent_policies",
+        "side_specific_opponent_policy_multi_step",
+        "claim_remaining_tricks_settlement",
+        "structured_declarer_concession",
+        "structured_defender_concession",
+        "accepted_declarer_card_exposure",
+        "defender_open_play",
+        "open_card_throw",
+        "declarer_card_exposure_continuation",
+        "defender_open_play_continuation",
+        "overbid_settlement",
+        "impossible_null_settlement",
+        "list_performance_summary",
+        "list_game_contributions_summary",
+        "list_analysis_results_summary",
+        "list_standings_summary",
+        "late_game_history_heavy_live",
+        "defender_known_to_declarer_local_view",
+        "historical_grand_normal_completion",
+        "historical_grand_declarer_concession",
+        "historical_grand_defender_concession",
+        "historical_grand_declarer_card_exposure",
+        "historical_grand_defender_open_play",
+        "historical_grand_open_card_throw",
+        "historical_grand_decision_snapshots",
+        "historical_grand_defender_open_play_continuation_snapshots",
+        "historical_grand_declarer_card_exposure_continuation_snapshots",
+        "historical_defender_continuation_then_declarer_concession",
+        "historical_declarer_continuation_then_defender_concession",
+        "historical_grand_game_review",
+        "historical_grand_search_review",
+        "historical_grand_ouvert_review",
+        "historical_grand_opponent_profile_review",
+        "training_dataset_normal_play",
+        "bounded_search_dataset_evaluation",
+        "training_dataset_variable_length",
+        "historical_opponent_statistics_aggregation",
+        "rolling_opponent_policy_evaluation",
+        "rolling_shortened_opponent_policy_evaluation",
+        "dataset_partition_audit",
+        "opponent_statistics",
+        "live_external_opponent_profiles",
+        "historical_grand_replay_coaching",
+        "historical_null_replay_coaching",
+        "historical_shortened_replay_coaching",
+        "fixed_three_player_historical_list_mixed",
+        "fixed_three_player_historical_list_all_passed",
+        "fixed_three_player_historical_list_comparison",
         "training_dataset_preparation_known_opponent",
         "training_dataset_preparation_unseen_player",
         "training_dataset_preparation_unavailable",
     )
+    assert tuple(scenario.name for scenario in SCENARIOS[67:70]) == (
+        "training_dataset_preparation_known_opponent",
+        "training_dataset_preparation_unseen_player",
+        "training_dataset_preparation_unavailable",
+    )
+    assert tuple(scenario.name for scenario in SCENARIOS[70:]) == (
+        "field_provenance_position_analysis",
+        "field_provenance_historical_game",
+        "field_provenance_training_dataset",
+        "field_provenance_training_dataset_preparation",
+        "field_provenance_opponent_statistics",
+        "field_provenance_fixed_three_player_historical_list",
+        "field_provenance_fixed_three_player_historical_list_comparison",
+    )
+    assert all(not scenario.include_provenance for scenario in SCENARIOS[:70])
+    assert all(scenario.include_provenance for scenario in SCENARIOS[70:])
 
 
 def test_examples_folder_contains_json_files() -> None:

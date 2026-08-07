@@ -8,31 +8,27 @@ internally to live Position Analysis, Issue #144 applies it to retrospective
 Position Analysis, Historical Review, Historical Search Review, and Replay
 Coaching, and Issue #145 applies it to Dataset, Preparation, Opponent, Profile,
 historical-list, and comparison workflows. Issue #146 completes internal
-Position and Historical Root Result provenance. None exposes a public
-provenance field.
+Position and Historical Root Result provenance. Issue #147 exposes the bounded
+public-safe Root Result and actual-artifact subset described in
+[Public field provenance](public_field_provenance.md).
 
-This foundation and its current workflow propagation change no existing input,
-output, schema, CLI, example, generated scenario, specialized provenance
-contract, or public API export. All seven Root workflows now have complete
-internal Result ledgers; a public contract and broader end-to-end enforcement
-remain separate work.
+All seven Root workflows have complete internal Result ledgers. Public exposure
+is opt-in and intentionally narrower than those internal bundles: it selects one
+exact Root Result attachment plus attachments for artifacts actually returned,
+not consumed inputs, decisions, or intermediate stages. Broader end-to-end
+field-level enforcement remains separate work before `v1.0.0`.
 
-Issue #139 adds internal Application orchestration version `1` without changing
-the public boundary. Issue #140 adds executable public facade contracts and
-functions, but no provenance option, value, Result field, or export. The facade
-does not carry, redact, or emit an Application field-provenance bundle.
-Issue #141 adds Package resources, typing and version metadata, and distribution
-validation without changing that provenance boundary. Built and cleanly
-installed distributions expose no provenance option, Result field, schema, or
-public provenance name.
-Issue #142 adds installed, module, and Legacy CLI parity without adding a
-Provenance option, output, Schema, export, propagation, or public name.
+Issue #139 adds internal Application orchestration version `1`; Issue #140 adds
+the executable public facade; Issues #141 and #142 add packaged resources,
+distributions, and installed/module/Legacy CLI parity.
 Issue #143 adds internal live decision and Position Result attachments. Issue
 #144 adds internal retained-stage retrospective attachments and selected
 Position/Historical Result propagation. Issue #145 adds complete non-legacy Root
 ledgers for the five remaining Root workflows while the same public boundary
 remains unchanged. Issue #146 completes the Position and Historical Result
-ledgers from retained workflow values. See
+ledgers from retained workflow values. Issue #147 adds public API types, the
+default-false execution option, Root `field_provenance`, strict Schema, and CLI
+flag without changing the internal contract version. See
 [Complete Result provenance](complete_result_provenance.md),
 [Live analysis provenance](live_analysis_provenance.md),
 [Retrospective review provenance](retrospective_review_provenance.md), and
@@ -395,7 +391,11 @@ reference, and rejects unresolved dependency paths, with
 private details must invoke the redaction helper first. An already-safe ledger
 can be serialized directly.
 
-No public JSON Schema is defined by this foundation.
+Issue #147 reuses this redaction and serialization behavior for the strict public
+`field_provenance.schema.json` contract. Public conversion redacts first and then
+recomputes coverage against the exact Root Result without `field_provenance` or
+the exact actual artifact. It fails if complete coverage is not preserved. See
+[Public field provenance](public_field_provenance.md).
 
 ## Confidence separation
 
@@ -435,15 +435,13 @@ and unchanged.
 
 ## Remaining work
 
-The following remain open:
-
-* any additive public provenance API exposure;
-* public schemas and output integration;
-* CLI presentation;
-* broader adversarial enforcement outside implemented Application workflows.
-
-The internal Application boundary now carries live and retrospective Position,
+The internal Application boundary carries live and retrospective Position,
 Historical Review, Historical Search Review, Replay Coaching, Dataset,
 Preparation, Opponent, Profile, list, comparison, and complete Result
-provenance. Every Root Result ledger is complete and non-legacy. This adds no
-public provenance contract.
+provenance. Every Root Result ledger is complete and non-legacy. Issue #147
+publishes only one redacted Root Result ledger plus actual-artifact ledgers.
+
+Broader adversarial enforcement outside implemented Application boundaries and
+complete field-level enforcement across every load, decision, intermediate, and
+serialization boundary remain open before `v1.0.0`. Confidence integration is
+not part of the provenance contract.

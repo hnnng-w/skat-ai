@@ -35,6 +35,9 @@ scenarios and 3,558 pytest tests. Issue #130 appends three public historical-lis
 scenarios to the unchanged 64-scenario matrix. Issue #134 leaves those 67
 scenarios unchanged and appends three automatic Training Dataset preparation
 scenarios, so the published `v0.12.0` baseline validates exactly 70.
+Issue #147 leaves those 70 published scenarios unchanged and appends seven
+public field-provenance scenarios, one per Root workflow. The active matrix is
+77; the published `v0.12.0` facts remain 70 scenarios and 4,762 pytest tests.
 The check script validates:
 
 * Ruff checks
@@ -110,6 +113,18 @@ python main.py --input examples/grand_second_position.json --output outputs/resu
 
 The `--quiet` flag suppresses successful human-readable stdout output, including the output-file confirmation. Expected errors still go to `stderr`.
 
+Write public-safe Root Result provenance and print its concise aggregate summary:
+
+```powershell
+python main.py --input examples/opponent_statistics.json --include-provenance --output outputs/opponent-statistics-with-provenance.json
+```
+
+Retain the same JSON sidecar while suppressing successful stdout:
+
+```powershell
+python main.py --input examples/opponent_statistics.json --include-provenance --output outputs/opponent-statistics-with-provenance.json --quiet
+```
+
 Validate and summarize a complete normally played historical game:
 
 ```powershell
@@ -130,8 +145,9 @@ Compare two independent completed lists with the first as reference:
 python main.py --input examples/fixed_three_player_historical_list_comparison.json
 ```
 
-These root-selected workflows accept only `--input`, `--output`, and `--quiet`.
-They add no list-specific CLI flag.
+These root-selected workflows accept only `--input`, `--output`, `--quiet`, and
+the cross-workflow `--include-provenance` option. They add no list-specific CLI
+flag.
 
 Validate a historical Grand prefix ending in declarer concession:
 
@@ -272,9 +288,9 @@ python main.py --input examples/training_dataset_preparation_unseen_player.json
 python main.py --input examples/training_dataset_preparation_unavailable.json
 ```
 
-These root-selected workflows accept only `--input`, `--output`, and `--quiet`.
-Mode derives the algorithm; there is no algorithm field, default weight, CLI
-override, or fallback.
+These root-selected workflows accept only `--input`, `--output`, `--quiet`, and
+the cross-workflow `--include-provenance` option. Mode derives the algorithm;
+there is no algorithm field, default weight, CLI override, or fallback.
 
 Aggregate exact reusable player statistics from the same two-game container and
 export a standalone statistics input:
@@ -580,6 +596,11 @@ the mixed list, all-passed list, and independent comparison, bringing the
 `v0.12.0` milestone matrix at that stage to 67. Three Issue #134 scenarios append
 complete Known-opponent, complete unseen-player, and unavailable preparation
 without changing those prior 67, bringing the published `v0.12.0` baseline to 70.
+Seven Issue #147 scenarios then append public provenance for Position Analysis,
+Historical Game, Training Dataset, Training Dataset Preparation, Opponent
+Statistics, Historical List, and Historical List Comparison. They reuse existing
+fixtures, keep the first 70 scenarios unchanged, and bring the active matrix to
+77. The Training Dataset scenario also covers actual export-artifact provenance.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -996,6 +1017,7 @@ Generated outputs may include:
 * `multi_step_result`, if multi-step simulation is requested
 * `policy_comparison_result`, if policy comparison is requested
 * `hidden_card_inference_summary`, when confirmed attributed failure-to-follow evidence is available
+* `field_provenance`, only when `--include-provenance` is supplied
 
 Complete historical and training-dataset inputs instead use the mutually
 exclusive `historical_game_summary` and `training_dataset_summary` branches.
@@ -1014,3 +1036,4 @@ For detailed output field descriptions, see:
 
 * [Output JSON documentation](output_json.md)
 * [Hidden-card inference](hidden_card_inference.md)
+* [Public field provenance](public_field_provenance.md)

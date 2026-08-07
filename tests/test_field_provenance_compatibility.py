@@ -11,7 +11,7 @@ from skat_ai.replay_coaching_evidence import DecisionTimeReplayCoachingEvidence
 from skat_ai.training_dataset import TrainingProvenance
 
 
-def test_field_provenance_is_not_exported_through_public_namespaces() -> None:
+def test_only_public_field_provenance_wrappers_are_exported() -> None:
     assert skat_ai.__all__ == ("api", "errors", "__version__")
     assert skat_ai.api.__all__ == ("v1",)
     assert "FieldProvenanceEntry" not in api_v1.__all__
@@ -19,7 +19,15 @@ def test_field_provenance_is_not_exported_through_public_namespaces() -> None:
     assert "InformationUseContext" not in api_v1.__all__
     assert "execute" in api_v1.__all__
     assert "provenance" not in {field.name for field in fields(api_v1.ExecutionOptionsV1)}
-    assert "provenance" not in {field.name for field in fields(api_v1.ExecutionResultV1)}
+    assert "include_provenance" in {
+        field.name for field in fields(api_v1.ExecutionOptionsV1)
+    }
+    assert "field_provenance" in {
+        field.name for field in fields(api_v1.ExecutionResultV1)
+    }
+    assert "FieldProvenanceAttachmentV1" in api_v1.__all__
+    assert "FieldProvenanceArtifactV1" in api_v1.__all__
+    assert "FieldProvenanceBundleV1" in api_v1.__all__
     assert "ApplicationProvenanceBundle" not in api_v1.__all__
     assert "FieldProvenanceEntry" not in skat_ai.errors.__all__
 

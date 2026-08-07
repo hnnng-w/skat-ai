@@ -16,8 +16,8 @@ API. Issue #142 adds Package CLI entry points as a separate transport contract;
 it adds no public API export. Issue #138 remains a separate internal field-
 provenance contract foundation, and Issue #143 applies it to internal live
 Position execution. Issues #144 through #146 extend it through retrospective,
-Dataset/list/opponent, and complete Position/Historical Result propagation. None
-adds a public provenance type or field.
+Dataset/list/opponent, and complete Position/Historical Result propagation. Issue
+#147 adds bounded opt-in public Root Result and actual-artifact provenance.
 
 ## Public namespaces
 
@@ -40,10 +40,12 @@ other internal modules have no compatibility guarantee.
 The internal version-1 field-level provenance language is documented in
 [Field-level information provenance](field_level_information_provenance.md).
 Its sidecar ledgers, coverage audits, Information Use Context, redaction, and
-all-seven-workflow complete Root Result propagation remain internal. Issue #140
-adds facade exports without adding provenance exports, and the complete
-Application bundles are intentionally ignored by public Result conversion. See
-[Complete Result provenance](complete_result_provenance.md).
+all-seven-workflow complete Root Result propagation remain internal. Issue #147
+selects only one mapped Root Result plus actual artifacts, applies the existing
+redaction helper, and recomputes complete public coverage. It does not expose
+consumed-input, decision, intermediate-stage, or unredacted Application
+attachments. See [Complete Result provenance](complete_result_provenance.md) and
+[Public field provenance](public_field_provenance.md).
 
 The internal Application orchestration contract is documented in
 [Application orchestration](application_orchestration.md). It consumes
@@ -63,6 +65,12 @@ PUBLIC_API_COMPATIBILITY_POLICY = additive_until_v1_0
 LEGACY_MAIN_COMPATIBILITY_TARGET = v1.0.0
 DEFAULT_INPUT_REFERENCE_V1 = memory://skat-ai/request
 EXECUTION_ARTIFACT_NAMES_V1 = (opponent_statistics_input,)
+PUBLIC_FIELD_PROVENANCE_VERSION = 1
+PUBLIC_FIELD_PROVENANCE_ROOT_FIELD = field_provenance
+PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES = (
+    root_result_without_field_provenance,
+    artifact_document,
+)
 ```
 
 Package version, API contract version, JSON-schema versions, and Domain contract
@@ -116,6 +124,7 @@ JSON-compatible representation of the complete wrapper.
 
 ```text
 validate_output = true
+include_provenance = false
 workflow_options = {}
 opponent_statistics_document = null
 opponent_statistics_reference = null
@@ -124,7 +133,8 @@ opponent_statistics_reference = null
 Its JSON documents and arrays are copied and stored recursively immutably.
 `to_dict()` returns a fresh deterministic mutable representation. Opponent
 Statistics document and reference values must be supplied together. No transport
-or provenance option is accepted. `validate_output=false` disables only post-
+option is accepted. `include_provenance` is a strict boolean and defaults to
+`false`. `validate_output=false` disables only post-
 execution Root output and artifact schema validation; Root input and Application
 semantic validation always run.
 
@@ -138,9 +148,20 @@ Application types are not public exports. The complete key list is documented in
 `ExecutionArtifactV1` contains one recognized artifact `name` and one immutable
 Root input `document`. Version 1 supports only `opponent_statistics_input`.
 `ExecutionResultV1` contains API contract version `1`, one existing
-`ResultDocumentV1`, and an ordered immutable artifact tuple. Duplicate artifact
-names are rejected. Its deterministic flattened serialization contains
+`ResultDocumentV1`, an ordered immutable artifact tuple, and typed nullable
+`field_provenance: FieldProvenanceBundleV1 | None`. When present, the typed value
+must equal Root `document.field_provenance` and use the same workflow. Duplicate
+artifact names are rejected. Its deterministic flattened serialization remains
+unchanged and contains
 `api_contract_version`, `workflow`, `document`, `warnings`, and `artifacts`.
+
+The public provenance values are immutable
+`FieldProvenanceAttachmentV1`, `FieldProvenanceArtifactV1`, and
+`FieldProvenanceBundleV1`. The bundle has one Result attachment and provenance
+only for artifacts actually returned. The seven workflow-to-Result mappings and
+the `opponent_statistics_input` to
+`training_dataset/opponent_statistics_input` mapping are authoritative in
+[Public field provenance](public_field_provenance.md).
 
 ## Executable Facade
 
@@ -164,7 +185,9 @@ flattened envelope and rejects wrong input types with
 
 The facade validates Root input through packaged `input.schema.json`, Root output
 through packaged `output.schema.json`, and reusable artifacts through the Root
-input schema. Validation is lazy, current-working-directory and repository-root
+input schema. Provenance-enabled output additionally follows strict packaged
+`field_provenance.schema.json`. Validation is lazy, current-working-directory
+and repository-root
 independent, local-only, deterministic, and reports RFC 6901 paths. Document
 failures use
 `SkatAISchemaError`, missing resources use `SkatAIResourceError`, and invalid
@@ -264,6 +287,10 @@ only raw `ValueError` and `OSError` that cross its public boundary.
 Installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`
 share one Package-owned CLI implementation. Root `python main.py` remains
 supported through at least `v1.0.0`.
+All three accept `--include-provenance`; without it, Root output remains
+unchanged. With it, JSON includes the public sidecar, non-quiet output adds only
+a concise aggregate provenance summary, and `--quiet` suppresses that summary
+without removing the JSON field.
 `main.CliUsageError` is an exact compatibility alias for
 `SkatAICliUsageError`. Existing catches, messages, prefixes, patch points, and
 argument validation remain unchanged.
@@ -301,7 +328,10 @@ absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
 
 ## Remaining Work
 
-Any additive public provenance API, schemas, or output integration remains open.
+Issue #147 implements bounded public Root Result and actual-artifact provenance.
+Broader field-level enforcement and public exposure of consumed-input, decision,
+and intermediate-stage attachments remain open before `v1.0.0`. Provenance does
+not integrate or replace existing Confidence contracts.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are
@@ -315,6 +345,8 @@ changing it. Issue #144 adds internal retrospective Position, Historical Review,
 Historical Search Review, and Replay Coaching propagation without changing it.
 Issue #145 adds internal Dataset, Preparation, Opponent, Profile, list, and
 comparison propagation without changing it. Issue #146 completes internal
-Position and Historical Result provenance without changing it.
+Position and Historical Result provenance. Issue #147 adds the bounded public
+types, option, Root field, strict Schema, and CLI transport while preserving the
+flattened API envelope and default output.
 See [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).

@@ -17,10 +17,11 @@ These versions are independent of the Package, Public API, Application
 orchestration, Root Schema, Historical Review, Search, and Replay Coaching
 contract versions.
 
-This work changes no Root input or output field, JSON Schema, example,
-generated-output scenario, CLI option or presentation, Public Python API export,
-Package version, or distribution contract. The Public API and every CLI
-transport intentionally discard the internal Application provenance bundle.
+Issue #144 itself changed no public boundary. Issue #147 now exposes only the
+redacted complete `position_result` or `historical_game_result` attachment under
+the opt-in Root `field_provenance` field. The decision input, decision-time
+analysis, actual-card assessment, aggregate review, and Replay Coaching stage
+attachments documented below remain internal.
 
 ## Retained-stage model
 
@@ -197,13 +198,17 @@ was removed. Existing Confidence, Coaching impact, specialized provenance
 status, Search exactness, and profile confidence contracts remain separate and
 unchanged.
 
+Issue #147 applies that existing redaction to the selected Root Result ledger,
+recomputes complete coverage for the exact public Result without its sidecar,
+and rejects incomplete or unredacted output. It does not expose the retained
+stage attachments above. See [Public field provenance](public_field_provenance.md).
+
 ## Remaining work
 
-The following remain open:
-
-* any additive public provenance API, Root output, Schema, artifact, example, or
-  CLI presentation;
-* broader adversarial enforcement outside implemented Application workflows.
+The bounded public Root Result API, output, Schema, examples, and CLI
+presentation are implemented by Issue #147. Public decision- and stage-level
+attachments and broader adversarial enforcement outside implemented Application
+workflows remain open.
 
 Issue #145 implements the former Dataset, Preparation, Opponent, Profile, list,
 and comparison propagation scopes. See

@@ -127,6 +127,7 @@ Before larger changes, read the relevant documentation:
 * `docs/output_json.md`
 * `docs/application_orchestration.md`
 * `docs/installed_cli.md`
+* `docs/public_field_provenance.md`
 * `docs/examples.md`
 * `docs/schema_validation.md`
 * `docs/requirements_traceability.md`
@@ -182,7 +183,15 @@ historical-list, and comparison provenance with complete non-legacy Root Result
 ledgers. Issue #146 completes the remaining non-legacy Position and Historical
 Result ledgers from retained Declaration, Value, Overbid, score, Result,
 Settlement, Performance, list, ending, continuation, canonical record, replay,
-and point values. Public provenance integration remains open.
+and point values. Issue #147 adds bounded public field-provenance contract
+version `1`, immutable attachments/artifacts/bundles, seven explicit Root Result
+mappings, the actual
+`opponent_statistics_input` artifact mapping, complete post-redaction coverage,
+default-false Public API and all-three-form CLI opt-in, strict Schema, and seven
+append-only generated-output scenarios. The active repository has 62 schemas and
+77 generated-output scenarios, while the published `v0.12.0` facts remain 70
+scenarios and 4,762 tests. The `v0.13.0` functional milestone is complete pending
+release preparation.
 
 Major completed areas include:
 
@@ -259,6 +268,9 @@ Major completed areas include:
   public output
 * complete internal non-legacy Position and Historical Root Result provenance,
   including base Historical execution without review options
+* bounded opt-in public Root Result and actual-artifact field provenance with
+  immutable public API values, strict Schema, CLI parity, redaction, and complete
+  recomputed coverage
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -266,8 +278,8 @@ defender-open-play proof beyond five unresolved tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,
-Sample- or Player-count balancing, or component splitting, incomplete public
-field-provenance integration,
+Sample- or Player-count balancing, or component splitting, incomplete broader
+field-level provenance enforcement,
 heuristic rule-based recommendations and
 opponent behavior, and structural rather than calibrated or tactical hidden-card
 inference. Search remains bounded late-game determinization subject to Strategy

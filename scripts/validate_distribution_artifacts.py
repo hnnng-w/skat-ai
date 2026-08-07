@@ -29,6 +29,7 @@ UNAVAILABLE_SMOKE_EXAMPLE = (
 )
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.12.0"
+EXPECTED_SCHEMA_RESOURCE_COUNT = 62
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CONSOLE_SCRIPT_NAME = "skat-ai"
 CONSOLE_SCRIPT_TARGET = "skat_ai.cli:main"
@@ -458,6 +459,7 @@ resource_names = sorted(
 )
 expected_names = sorted(path.name for path in expected_schema_root.glob("*.schema.json"))
 assert resource_names == expected_names
+assert len(resource_names) == 62
 
 schema_ids = []
 schema_digest = hashlib.sha256()
@@ -474,9 +476,17 @@ for name in resource_names:
 assert len(schema_ids) == len(set(schema_ids))
 
 request = parse_request(document)
-execution = execute_document(
+default_execution = execute_document(
     document,
     options=ExecutionOptionsV1(validate_output=True),
+    input_reference="opponent_statistics.json",
+)
+default_serialized = serialize_result(default_execution)
+assert default_execution.field_provenance is None
+assert "field_provenance" not in default_serialized["document"]
+execution = execute_document(
+    document,
+    options=ExecutionOptionsV1(validate_output=True, include_provenance=True),
     input_reference="opponent_statistics.json",
 )
 serialized = serialize_result(execution)
@@ -484,13 +494,37 @@ assert request.workflow.value == "opponent_statistics"
 assert serialized["document"]["opponent_statistics_summary"]["record_count"] == 2
 assert serialized["warnings"] == []
 assert serialized["artifacts"] == []
+assert execution.field_provenance is not None
+assert serialized["document"]["field_provenance"] == execution.field_provenance.to_dict()
+assert execution.field_provenance.workflow.value == "opponent_statistics"
+assert execution.field_provenance.result.attachment_name == "opponent_statistics_result"
+assert execution.field_provenance.result.ledger["status"] == "complete"
+assert execution.field_provenance.result.coverage_summary["provenance_complete"] is True
+assert execution.field_provenance.artifacts == ()
 installed_cli_document = json.loads((cwd / "installed-cli-result.json").read_text(encoding="utf-8"))
 module_cli_document = json.loads((cwd / "module-cli-result.json").read_text(encoding="utf-8"))
 assert installed_cli_document == module_cli_document == serialized["document"]
+installed_cli_default = json.loads(
+    (cwd / "installed-cli-default.json").read_text(encoding="utf-8")
+)
+module_cli_default = json.loads(
+    (cwd / "module-cli-default.json").read_text(encoding="utf-8")
+)
+assert installed_cli_default == module_cli_default == default_serialized["document"]
+assert "field_provenance" not in installed_cli_default
+stripped_cli_document = dict(installed_cli_document)
+stripped_cli_document.pop("field_provenance")
+assert stripped_cli_document == installed_cli_default
 unavailable_document = json.loads((cwd / "unavailable-result.json").read_text(encoding="utf-8"))
 assert (
     unavailable_document["training_dataset_preparation_summary"]["plan"]["status"]
     == "unavailable"
+)
+assert unavailable_document["field_provenance"]["workflow"] == (
+    "training_dataset_preparation"
+)
+assert unavailable_document["field_provenance"]["result"]["ledger"]["status"] == (
+    "complete"
 )
 
 distribution = importlib.metadata.distribution("skat-ai")
@@ -535,6 +569,7 @@ print(json.dumps({
         "request": request.to_dict(),
         "execution": serialized,
         "cli_document": installed_cli_document,
+        "default_cli_document": installed_cli_default,
         "unavailable_document": unavailable_document,
     },
     "schema_names": resource_names,
@@ -658,17 +693,39 @@ def _install_and_smoke(
             f"{label} {command_name} --version output changed.",
         )
 
-    for prefix, output_name in (
-        (installed_prefix, "installed-cli-result.json"),
-        (module_prefix, "module-cli-result.json"),
+    for prefix, default_output_name, provenance_output_name in (
+        (
+            installed_prefix,
+            "installed-cli-default.json",
+            "installed-cli-result.json",
+        ),
+        (
+            module_prefix,
+            "module-cli-default.json",
+            "module-cli-result.json",
+        ),
     ):
-        completed = _run_cli_check(
+        default_completed = _run_cli_check(
             [
                 *prefix,
                 "--input",
                 "opponent_statistics.json",
                 "--output",
-                output_name,
+                default_output_name,
+                "--quiet",
+            ],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        provenance_completed = _run_cli_check(
+            [
+                *prefix,
+                "--input",
+                "opponent_statistics.json",
+                "--output",
+                provenance_output_name,
+                "--include-provenance",
                 "--quiet",
             ],
             cwd=consumer_directory,
@@ -676,7 +733,10 @@ def _install_and_smoke(
             expected_returncode=0,
         )
         _require(
-            not completed.stdout and not completed.stderr,
+            not default_completed.stdout
+            and not default_completed.stderr
+            and not provenance_completed.stdout
+            and not provenance_completed.stderr,
             f"{label} quiet CLI workflow produced output.",
         )
 
@@ -687,6 +747,7 @@ def _install_and_smoke(
             "unavailable.json",
             "--output",
             "unavailable-result.json",
+            "--include-provenance",
             "--quiet",
         ],
         cwd=consumer_directory,
@@ -741,7 +802,11 @@ def validate_distribution_artifacts() -> None:
     before_snapshot = _repository_artifact_snapshot()
     expected_schemas = _expected_schema_bytes()
     expected_modules = _expected_module_names()
-    _require(bool(expected_schemas), "No authoritative schemas were found.")
+    _require(
+        len(expected_schemas) == EXPECTED_SCHEMA_RESOURCE_COUNT,
+        f"Expected {EXPECTED_SCHEMA_RESOURCE_COUNT} authoritative schemas, "
+        f"found {len(expected_schemas)}.",
+    )
 
     with tempfile.TemporaryDirectory(prefix="skat-ai-distribution-") as temporary_name:
         temporary_root = Path(temporary_name).resolve()

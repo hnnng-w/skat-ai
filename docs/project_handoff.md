@@ -62,6 +62,9 @@ The project focuses on:
 * internal complete Result provenance version `1` for Position and Historical
   execution, including Declaration, scoring, Settlement, endings,
   continuations, canonical Historical records, replay, and points
+* bounded public field-provenance contract version `1` with immutable public
+  attachments, artifact mappings, bundles, seven explicit Root Result mappings,
+  complete post-redaction coverage, and opt-in API/CLI Root output
 * internal Application orchestration version `1` with immutable invocations,
   workflow options, injected external documents, results, and auxiliary
   artifacts; generic no-I/O dispatch for all seven Root workflows; five isolated
@@ -168,9 +171,11 @@ and clean-install validation. Issue #142 adds the installed and module CLI entry
 points without changing Public API exports. Field-level provenance now propagates
 internally through live and retrospective Position/Historical execution and all
 Dataset, Preparation, Opponent, Profile, list, and comparison Root workflows,
-but has no public output or export. See
+and Issue #147 exposes the bounded redacted Root Result plus actual-artifact
+subset. See
 [Public API contracts](public_api_contracts.md) and
-[Public Python API v1](public_python_api_v1.md).
+[Public Python API v1](public_python_api_v1.md), and
+[Public field provenance](public_field_provenance.md).
 
 ### Application orchestration foundation
 
@@ -193,12 +198,16 @@ Implemented by Issue #139 for `v0.13.0`:
 * an internal boundary consumed by the Issue #140 public facade
 * internal Issue #143 live Position, Issue #144 retrospective
   Position/Historical, Issue #145 Dataset/list/opponent, and Issue #146 complete
-  Result provenance attachments ignored by public and CLI adapters
+  Result provenance attachments
+* Issue #147 public conversion selecting only one redacted Root Result plus
+  artifacts actually returned, without exposing consumed-input, decision,
+  intermediate-stage, or unredacted attachments
 
 The public facade now exposes generic parse, execute, execute-document, and
 serialization functions without exporting these Application types. Workflow-
 specific execution helpers remain absent. Installed entry points are implemented
-by Issue #142; broader Domain error migration and public provenance remain open. See
+by Issue #142; broader Domain error migration and end-to-end field-level
+enforcement remain open. See
 [Application orchestration](application_orchestration.md).
 
 ### Field-level provenance contract foundation
@@ -221,14 +230,15 @@ propagation through flat retrospective Position Analysis, Historical Review,
 Historical Search Review, Replay Coaching, and selected Position/Historical
 Result branches. Issue #145 adds all five Training Dataset operations, automatic
 Preparation, Opponent Statistics and Profiles, historical-list aggregation, and
-independent-list comparison with complete non-legacy Root ledgers. Public API
-exposure, schemas, output fields, and CLI presentation remain open. Issue #146
-completes Position/base Historical Result propagation. See
+independent-list comparison with complete non-legacy Root ledgers. Issue #146
+completes Position/base Historical Result propagation. Issue #147 adds public
+exposure only for the complete redacted Root Result and actual artifacts. See
 [Field-level information provenance](field_level_information_provenance.md),
 [Live analysis provenance](live_analysis_provenance.md),
 [Retrospective review provenance](retrospective_review_provenance.md), and
 [Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md),
-and [Complete Result provenance](complete_result_provenance.md).
+[Complete Result provenance](complete_result_provenance.md), and
+[Public field provenance](public_field_provenance.md).
 
 ### Core rules and simulation
 
@@ -450,8 +460,9 @@ Implemented:
   resolved-only rank movement, and privacy-safe serialization
 * public strict JSON request and output schemas for one complete list or two or
   more independent lists
-* root-selected CLI execution with only `--input`, `--output`, and `--quiet`,
-  full single-list progression, and compact comparison presentation
+* root-selected CLI execution with only `--input`, `--output`, `--quiet`, and the
+  cross-workflow `--include-provenance` option, full single-list progression, and
+  compact comparison presentation
 * three bounded examples and generated-output scenarios for applied lot,
   unresolved all-passed tie, and resolved independent comparison
 
@@ -474,6 +485,7 @@ Implemented:
 * strict historical-list source, request, aggregation, and comparison schemas
 * strict Training Dataset preparation request, partition Plan, and preparation
   output schemas
+* strict public field-provenance schema referenced from every Root output branch
 * input example schema validation
 * generated output schema validation
 * schema validation documentation
@@ -488,6 +500,10 @@ Issue #130 appends three historical-list scenarios. Issue #134 preserves those
 67 scenarios and appends three automatic Training Dataset preparation scenarios,
 so the `v0.12.0` package baseline validates exactly 70 outputs without changing
 the historical published baselines.
+Issue #147 preserves those 70 published scenarios and appends seven public
+field-provenance scenarios, one per Root workflow. The active repository has 62
+schemas and 77 generated-output scenarios; the published `v0.12.0` facts remain
+70 scenarios and 4,762 tests.
 
 ### Live-vs-post-game information enforcement
 
@@ -676,7 +692,11 @@ Implemented:
     results and artifacts, policy, and version info
 * `api/v1/execution.py`
   * Request parsing and verification, workflow-option translation, one-pass
-    Application execution, artifact conversion, and stable boundary errors
+    Application execution, artifact and optional public-provenance conversion,
+    and stable boundary errors
+* `api/v1/provenance.py`
+  * public version, Root field and scopes, immutable attachment/artifact/bundle
+    values, seven Result mappings, and strict public invariants
 * `api/v1/schema_validation.py`
   * lazy Package Resource Draft 2020-12 Root schema validation with local-only
     resolution and deterministic RFC 6901 errors
@@ -729,6 +749,9 @@ Implemented:
 * `historical_list_provenance.py`
   * 36 Entry Facts, prefix-safe progression, standings, external lot,
     independent comparison, and complete Root provenance
+* `public_field_provenance.py`
+  * bounded Result/artifact selection, existing-helper redaction, complete
+    recomputed coverage, and Root sidecar attachment
 
 ### Application orchestration
 
@@ -916,6 +939,7 @@ Main documentation files:
 * `docs/packaging_and_distribution.md`
 * `docs/application_orchestration.md`
 * `docs/field_level_information_provenance.md`
+* `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
 * `docs/output_json.md`
 * `docs/schema_validation.md`
@@ -1012,7 +1036,8 @@ Issue #138 adds the internal version-1 field-level provenance language,
 immutable sidecar ledger, deterministic coverage and dependency validation,
 Information Use Context, public redaction, and safe serialization. It changes no
 Package version, public API export, schema, workflow output, CLI, example, or
-generated scenario. Broader workflow and public propagation remain open.
+generated scenario. Subsequent Issues #143 through #147 add the bounded workflow
+and public propagation described below.
 
 Issue #143 adds internal Application provenance version `1` and live-analysis
 provenance version `1`, complete decision-time enforcement for flat and simulated
@@ -1041,6 +1066,19 @@ forward-only scoring, Result, Settlement, Performance, list, replay, event, and
 terminal dependencies with private-proof-safe redaction. It changes no Package
 version, public API export, Root output, Schema, CLI, example, generated
 scenario, or established workflow call count.
+
+Issue #147 adds public field-provenance version `1`, Root field
+`field_provenance`, document scopes `root_result_without_field_provenance` and
+`artifact_document`, immutable public attachment/artifact/bundle contracts, seven
+explicit Result mappings, and the actual `opponent_statistics_input` to
+`training_dataset/opponent_statistics_input` mapping. Existing-helper redaction
+is followed by complete recomputed coverage. Public API
+`ExecutionOptionsV1.include_provenance` defaults to false, while all three CLI
+forms accept `--include-provenance` with concise or quiet behavior. The strict
+Schema raises the active resource count to 62; seven append-only scenarios raise
+the active matrix to 77. Package version and published `v0.12.0` evidence remain
+unchanged. The `v0.13.0` functional milestone is complete pending release
+preparation.
 
 Issue #139 adds internal Application orchestration version `1` for all seven Root
 workflows, five isolated Training Dataset operations, injected Opponent
@@ -1214,7 +1252,7 @@ Completed implementation scope:
 * installation-ready Wheel and sdist artifacts with synchronized schemas,
   `py.typed`, Package version metadata, and clean-install validation
 * installed and module CLI entry points with canonical Package execution, Legacy
-  compatibility, unchanged Root JSON, and clean-install Public API parity
+  compatibility, unchanged default Root JSON, and clean-install Public API parity
 * internal field-level provenance contract version 1 with immutable sidecar
   ledgers, RFC 6901 paths, coverage and dependency audits, context-use policy,
   public redaction, and safe serialization
@@ -1226,6 +1264,9 @@ Completed implementation scope:
   comparison provenance with complete non-legacy Root Result ledgers
 * complete non-legacy Position and Historical Root Result provenance, including
   base Historical execution without review options
+* bounded opt-in public Root Result and actual-artifact field provenance with
+  immutable API values, strict Schema, installed/module/Legacy CLI parity,
+  existing-helper redaction, and complete recomputed coverage
 
 ## Current high-priority limitations
 
@@ -1233,7 +1274,9 @@ Completed implementation scope:
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
 * General claim verification, concession disputes, and approved settlement completeness remain incomplete.
 * All seven Root workflows have complete internal Root Result provenance,
-  including base Historical execution. Public integration remains open.
+  including base Historical execution. Bounded public Result and actual-artifact
+  exposure is implemented, but consumed-input, decision, intermediate-stage,
+  unredacted, and broader end-to-end enforcement remain unavailable.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
   general stronger search remain incomplete. Compatible-world Minimax now
@@ -1256,9 +1299,10 @@ Completed implementation scope:
   `component_balanced_unseen_player_v1` algorithm from mode. A complete result
   losslessly materializes the existing version-1 dataset and audit; an
   unavailable result succeeds with explicit null dataset/audit and no partial
-  Plan. The request has no algorithm field or default weights, the CLI has no
-  overrides or fallback and accepts only file options, and Plan/CLI presentation
-  is card-free. The complete nested reusable dataset retains source cards.
+  Plan. The request has no algorithm field or default weights, and the CLI has no
+  algorithm overrides or fallback. Its transport options and cross-workflow
+  provenance opt-in do not affect assignment. Plan/CLI presentation is card-free.
+  The complete nested reusable dataset retains source cards.
   Additional algorithms, algorithm overrides, fallback or partial Plans, global
   optimization, ratio guarantees, Sample- or Player-count balancing, component
   splitting, model training, and automatic evaluation remain unsupported.
@@ -1276,14 +1320,11 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Continue the approved `v0.13.0` sequence after the Issue #137 public contracts,
-Issue #138 field-provenance foundation, Issue #139 internal Application
-orchestration, Issue #140 executable public facade, Issue #141 distribution
-packaging, Issue #142 installed CLI, Issue #143 live Position provenance, and
-Issue #144 retrospective Position/Historical/Coaching provenance, and Issue #145
-Dataset/list/opponent provenance, and Issue #146 complete Position/Historical
-Result provenance. Public provenance remains a separate follow-up scope. Package
-publication and license selection also remain human decisions.
+Prepare the `v0.13.0` release after Issues #137 through #147 completed the
+functional milestone. Issue #147 supplies the bounded public Result and actual-
+artifact provenance contract; broader end-to-end field-level enforcement remains
+a pre-`v1.0.0` follow-up. Package publication and license selection remain human
+decisions.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

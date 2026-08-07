@@ -116,6 +116,9 @@ official Skat rules arbitration.
 * Internal version-1 complete Position and Historical Result provenance covering
   Declaration, Value, Overbid, scoring, Results, Settlement, Performance, lists,
   endings, continuations, canonical Historical records, replay, and points
+* Opt-in public field-provenance version `1` for one complete redacted Root Result
+  plus artifacts actually returned, with recomputed exact-document coverage and
+  no consumed-input, decision, intermediate-stage, or unredacted exposure
 
 ### Post-game review
 
@@ -167,23 +170,28 @@ official Skat rules arbitration.
   `serialize_result` facade functions for all seven workflows
 * Lazy Package Resource Root input, Root output, and artifact schema validation
   with stable public boundary errors
+* Immutable public field-provenance attachments, artifacts, and bundles with
+  seven explicit Result mappings and default-false execution opt-in
 * Setuptools Wheel and sdist builds with `py.typed`, packaged byte-identical JSON
   Schemas, and clean-install validation
 
 The facade executes already loaded Root documents without caller transport I/O
-and preserves Root JSON output. Its lazy schema backend uses packaged resources
-and works from source, Editable, Wheel, and sdist installations. Installed CLI
+and preserves Root JSON output by default. Its lazy schema backend uses packaged
+resources and works from source, Editable, Wheel, and sdist installations. Installed CLI
 contract version `1` adds the exact `skat-ai` Console Script and
 `python -m skat_ai`; repository-root `main.py` remains a compatible Legacy
 facade over the same Package implementation. Field-level provenance is
 internally enforced and attached for live and retrospective Position and
 Historical execution and for Dataset, Preparation, Opponent, Profile, list, and
 comparison workflows. All seven Root workflows have complete internal Result
-ledgers, but provenance is not exposed by the public API, Root JSON, schemas, or
-CLI. See
-[Public Python API v1](docs/public_python_api_v1.md) and
-[Application orchestration](docs/application_orchestration.md), and
-[Complete Result provenance](docs/complete_result_provenance.md).
+ledgers. Issue #147 additively exposes only the mapped Root Result and actual
+artifacts through Public API `include_provenance=True`, Root
+`field_provenance`, strict Schema, and CLI `--include-provenance`. Broader end-
+to-end field-level enforcement remains incomplete. See
+[Public Python API v1](docs/public_python_api_v1.md),
+[Application orchestration](docs/application_orchestration.md),
+[Complete Result provenance](docs/complete_result_provenance.md), and
+[Public field provenance](docs/public_field_provenance.md).
 
 ## Requirements
 
@@ -253,6 +261,7 @@ document = json.loads(Path("examples/grand_second_position.json").read_text())
 result = execute_document(
     document,
     options=ExecutionOptionsV1(
+        include_provenance=True,
         workflow_options={"sample_count_override": 20},
     ),
 )
@@ -297,7 +306,8 @@ python main.py --input examples/fixed_three_player_historical_list_all_passed.js
 python main.py --input examples/fixed_three_player_historical_list_comparison.json
 ```
 
-These workflows accept only `--input`, `--output`, and `--quiet`. Single-list
+These workflows accept only `--input`, `--output`, `--quiet`, and
+`--include-provenance`. Single-list
 output retains all 36 privacy-safe progression Entry Facts and final standings.
 Comparison output is compact: it retains source summaries and final deltas but no
 progression, Historical Game Records, series rollup, ratings, or winner claim.
@@ -414,6 +424,19 @@ Write output to JSON:
 ```powershell
 python main.py --input examples/grand_second_position.json --output outputs/result.json
 ```
+
+Add the bounded public-safe field-provenance sidecar through any supported CLI
+form:
+
+```powershell
+skat-ai --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+python -m skat_ai --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+python main.py --input examples/grand_second_position.json --include-provenance --output outputs/result.json
+```
+
+Without `--quiet`, all forms append one concise aggregate Field Provenance
+section. With `--quiet`, the section is suppressed while the JSON sidecar is
+still written.
 
 Suppress successful human-readable stdout output for automation-friendly JSON runs:
 
@@ -570,13 +593,15 @@ default weights, CLI overrides, or fallback. A complete Plan materializes a
 losslessly reusable existing version-1 `training_dataset_input` and its audit. An
 unavailable Plan is still a successful result and returns explicit null dataset
 and audit values without partial assignments or summaries. Only `--input`,
-`--output`, and `--quiet` are accepted. Plan data and concise CLI output are
+`--output`, `--quiet`, and `--include-provenance` are accepted. Plan data and
+concise CLI output are
 card-free; a complete structured output necessarily retains source cards inside
 the nested reusable dataset. See [Automatic dataset preparation
 contracts](docs/automatic_dataset_preparation_contracts.md).
 
-Training-dataset inputs form a separate workflow. Only `--input`,
-`--output`, and `--quiet` are accepted for normal sample conversion. The same
+Training-dataset inputs form a separate workflow. Only `--input`, `--output`,
+`--quiet`, and `--include-provenance` are accepted for normal sample conversion.
+The same
 input can instead act as the versioned multi-game container for exact historical
 opponent-statistics aggregation:
 
@@ -618,8 +643,9 @@ opponent statistics:
 python main.py --input examples/opponent_statistics.json
 ```
 
-Opponent-statistics inputs form a separate workflow. Only `--input`,
-`--output`, and `--quiet` are accepted. Public values use percentage points;
+Opponent-statistics inputs form a separate workflow. Only `--input`, `--output`,
+`--quiet`, and `--include-provenance` are accepted. Public values use percentage
+points;
 canonical profile rates use `0..1`. When optional exact counts are absent, they
 are not inferred; role evidence may instead be exposed as an unrounded estimate.
 The standalone conversion does not run analysis.
@@ -658,6 +684,7 @@ Detailed documentation is split into topic-specific files:
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
+* [Public field provenance](docs/public_field_provenance.md)
 * [Live analysis provenance](docs/live_analysis_provenance.md)
 * [Retrospective review provenance](docs/retrospective_review_provenance.md)
 * [Dataset, list, and opponent provenance](docs/dataset_list_and_opponent_provenance.md)
@@ -891,8 +918,8 @@ opt-in, so existing omitted-method workflows require no migration.
 Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
-ratios, Sample- or Player-count balancing, component splitting, public
-provenance integration, and
+ratios, Sample- or Player-count balancing, component splitting, broader field-
+level provenance enforcement, and
 interactive input and session capture. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
@@ -933,7 +960,15 @@ and Profiles, fixed-three-player list aggregation, and independent-list
 comparison, with complete non-legacy Root ledgers. Complete non-legacy Position
 and base Historical Result ledgers are completed by Issue #146 from retained
 workflow values, including scoring, Settlement, endings, Historical replay, and
-private-proof-safe dependencies. Public provenance integration remains open.
+private-proof-safe dependencies. Issue #147 adds public field-provenance contract
+version `1`, immutable public attachments/artifacts/bundles, seven explicit Root
+Result mappings, one actual-artifact mapping, opt-in Public API and all-three-
+form CLI transport, strict `field_provenance.schema.json`, and seven append-only
+generated-output scenarios. The active matrix now has 77 scenarios and 62
+schemas; the published `v0.12.0` facts remain 70 scenarios and 4,762 pytest
+tests. The `v0.13.0` functional milestone is complete pending release
+preparation. Broader end-to-end field-level enforcement remains incomplete
+before `v1.0.0`.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

@@ -8,6 +8,7 @@ from skat_ai.api.v1.contracts import (
     ExecutionOptionsV1,
     ExecutionResultV1,
     RequestDocumentV1,
+    ResultDocumentV1,
     WorkflowV1,
 )
 from skat_ai.api.v1.schema_validation import (
@@ -122,6 +123,11 @@ def _detect_workflow(document: Mapping[str, object]) -> WorkflowV1:
 
 
 def _parse_request(document: object) -> RequestDocumentV1:
+    if isinstance(document, Mapping) and "field_provenance" in document:
+        raise SkatAISchemaError(
+            "field_provenance is an output-only Root field.",
+            path="/field_provenance",
+        )
     validate_input_document(document)
     if not isinstance(document, Mapping):
         raise SkatAISchemaError("Root document must be an object.", path="")
@@ -292,9 +298,23 @@ def _execute_verified_request(
         ExecutionArtifactV1(name=artifact.name, document=artifact.to_dict())
         for artifact in application_result.artifacts
     )
+    public_provenance = None
+    result = application_result.result
+    if execution_options.include_provenance:
+        from skat_ai.public_field_provenance import attach_public_field_provenance
+
+        enriched_document, public_provenance = attach_public_field_provenance(
+            application_result
+        )
+        result = ResultDocumentV1(
+            workflow=application_result.result.workflow,
+            document=enriched_document,
+            warnings=application_result.result.warnings,
+        )
     execution_result = ExecutionResultV1(
-        result=application_result.result,
+        result=result,
         artifacts=artifacts,
+        field_provenance=public_provenance,
     )
     if execution_options.validate_output:
         serialized = execution_result.to_dict()

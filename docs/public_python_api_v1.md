@@ -7,8 +7,9 @@ skat_ai.api.v1
 ```
 
 It accepts the same Root JSON documents as the legacy repository CLI, executes
-the existing internal Application layer, and returns the unchanged Root output
-document inside immutable public contracts. It performs no caller transport I/O.
+the existing internal Application layer, and returns the Root output document
+inside immutable public contracts. Output is unchanged by default; an explicit
+option adds bounded public field provenance. It performs no caller transport I/O.
 
 ## Public functions
 
@@ -65,10 +66,13 @@ document = {
 result = execute_document(
     document,
     options=ExecutionOptionsV1(
+        include_provenance=True,
         workflow_options={"sample_count_override": 10},
     ),
 )
 serialized = serialize_result(result)
+assert result.field_provenance is not None
+assert serialized["document"]["field_provenance"] == result.field_provenance.to_dict()
 json.dumps(serialized)
 ```
 
@@ -77,6 +81,8 @@ json.dumps(serialized)
 ```text
 DEFAULT_INPUT_REFERENCE_V1 = memory://skat-ai/request
 EXECUTION_ARTIFACT_NAMES_V1 = (opponent_statistics_input,)
+PUBLIC_FIELD_PROVENANCE_VERSION = 1
+PUBLIC_FIELD_PROVENANCE_ROOT_FIELD = field_provenance
 ```
 
 The input reference is opaque descriptive metadata. The facade never resolves,
@@ -90,14 +96,16 @@ recursively immutable. Its deterministic `to_dict()` returns fresh mutable JSON:
 
 ```text
 validate_output = true
+include_provenance = false
 workflow_options = {}
 opponent_statistics_document = null
 opponent_statistics_reference = null
 ```
 
 The Opponent Statistics document and reference must be supplied together. No
-transport path, output destination, quiet mode, provenance ledger, or provenance
-option is accepted.
+transport path, output destination, or quiet mode is accepted.
+`include_provenance` is a strict boolean. Its default `False` preserves the prior
+Root document; `True` adds one public-safe Root `field_provenance` sidecar.
 
 `workflow_options` is one direct object. Its exact Position Analysis keys are:
 
@@ -195,9 +203,11 @@ It is returned only when historical Opponent Statistics aggregation requests a
 reusable export. It remains separate from the primary Root result and has no
 output path.
 
-`ExecutionResultV1` contains one existing `ResultDocumentV1` plus an ordered
-artifact tuple. Duplicate artifact names are rejected. `to_dict()` and
-`serialize_result()` produce:
+`ExecutionResultV1` contains one existing `ResultDocumentV1`, an ordered artifact
+tuple, and `field_provenance: FieldProvenanceBundleV1 | None`. Duplicate artifact
+names are rejected. When provenance is requested, the typed bundle must equal
+`result.document["field_provenance"]`; otherwise both are absent.
+`to_dict()` and `serialize_result()` still produce the same flattened envelope:
 
 ```text
 api_contract_version
@@ -208,7 +218,18 @@ artifacts
 ```
 
 `document` is the unchanged Root output. Each artifact entry contains `name` and
-its complete reusable Root input `document`.
+its complete reusable Root input `document`. With provenance opt-in, `document`
+contains the additive Root `field_provenance` field; no sixth envelope field is
+added.
+
+The stable public provenance exports are
+`FieldProvenanceAttachmentV1`, `FieldProvenanceArtifactV1`, and
+`FieldProvenanceBundleV1`. The bundle contains one explicitly mapped Root Result
+attachment plus only artifacts actually returned. Current artifact provenance
+maps `opponent_statistics_input` to
+`training_dataset/opponent_statistics_input`. See
+[Public field provenance](public_field_provenance.md) for exact fields, all seven
+Result mappings, document scopes, redaction, and coverage requirements.
 
 Normal workflow states remain successful Results, including `complete`,
 `partial`, `timeout`, `unavailable`, `final`, `lot_required`, and
@@ -228,6 +249,10 @@ The facade validates:
 * every Root input through packaged `input.schema.json`;
 * every Root output through packaged `output.schema.json` by default;
 * every reusable auxiliary artifact as a Root input by default.
+
+Provenance-enabled Root output is validated through the strict referenced
+`field_provenance.schema.json`. The repository and packaged mirrors contain 62
+active Schema resources.
 
 `validate_output=False` skips only post-execution output and artifact schema
 validation. Input schema validation and Application semantic validation always
@@ -262,15 +287,18 @@ JSON parity; the CLI does not call this Public API as an intermediate layer.
 
 ## Current boundaries
 
-The facade adds no workflow-specific helper functions, public Domain dataclasses,
-or field-level provenance. It intentionally ignores the Issue #143 internal live
-Position, Issue #144 retrospective Position/Historical, and Issue #145 Dataset,
-Preparation, Opponent, Profile, list, and comparison Application bundles, plus
-the Issue #146 complete Position and Historical Result ledgers. See
-[Complete Result provenance](complete_result_provenance.md).
+The facade adds no workflow-specific helper functions or public Domain
+dataclasses. Issue #147 exposes only the redacted complete Root Result attachment
+and actual-artifact attachments from the Issue #143 through #146 internal
+bundles. It does not expose consumed-input, decision, retrospective-stage,
+aggregate-stage, or unredacted attachments. Coverage is recomputed against each
+exact declared public document and must remain complete. See
+[Complete Result provenance](complete_result_provenance.md) and
+[Public field provenance](public_field_provenance.md).
 Issue #141 adds private Package Resources, build-
 system metadata, Package Data, `py.typed`, Package-Root `__version__`, and
 Wheel/sdist validation without a Package version change. Issue #142 adds a
-separate installed CLI contract without adding API options or exports. See
+separate installed CLI contract. Package version remains `0.12.0`. Broader
+field-level enforcement and Confidence integration are not implied. See
 [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).

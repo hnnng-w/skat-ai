@@ -12,6 +12,9 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
+from skat_ai.field_provenance import parse_json_pointer, resolve_json_pointer
+from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
 HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
@@ -154,6 +157,9 @@ FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH = (
 FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_comparison.schema.json"
 )
+FIELD_PROVENANCE_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "field_provenance.schema.json"
+)
 DEFAULT_SAMPLE_COUNT = "20"
 DEFAULT_RANDOM_SEED = "42"
 
@@ -175,6 +181,7 @@ class Scenario:
     expect_quiet_stdout: bool = False
     include_position_overrides: bool = True
     export_opponent_statistics: bool = False
+    include_provenance: bool = False
 
 
 def load_json_file(file_path: Path) -> dict[str, Any]:
@@ -261,6 +268,8 @@ def run_analysis(
                 str(output_path.with_suffix(".export.json")),
             ]
         )
+    if scenario.include_provenance:
+        command.append("--include-provenance")
     command.extend(scenario.cli_args)
 
     completed_process = subprocess.run(
@@ -304,6 +313,16 @@ def run_analysis(
                 ),
             )
         ]
+    if scenario.expect_quiet_stdout and completed_process.stderr != "":
+        return [
+            format_scenario_error(
+                scenario=scenario,
+                message=(
+                    "expected quiet workflow to suppress successful stderr.\n"
+                    f"{format_process_output(completed_process)}"
+                ),
+            )
+        ]
 
     return []
 
@@ -337,6 +356,227 @@ def validate_output_file(
             key=lambda validation_error: list(validation_error.absolute_path),
         )
     ]
+
+
+_PROVENANCE_RESULT_ATTACHMENTS = {
+    "position_analysis": "position_result",
+    "historical_game": "historical_game_result",
+    "training_dataset": "training_dataset_result",
+    "training_dataset_preparation": "dataset_preparation_result",
+    "opponent_statistics": "opponent_statistics_result",
+    "fixed_three_player_historical_list": "historical_list_result",
+    "fixed_three_player_historical_list_comparison": (
+        "historical_list_comparison_result"
+    ),
+}
+
+
+def _output_workflow(data: dict[str, Any]) -> str:
+    if "historical_game_summary" in data:
+        return "historical_game"
+    if "training_dataset_preparation_summary" in data:
+        return "training_dataset_preparation"
+    if "opponent_statistics_summary" in data:
+        return "opponent_statistics"
+    if "fixed_three_player_historical_list_summary" in data:
+        return "fixed_three_player_historical_list"
+    if "fixed_three_player_historical_list_comparison_summary" in data:
+        return "fixed_three_player_historical_list_comparison"
+    if any(
+        name in data
+        for name in (
+            "training_dataset_summary",
+            "historical_opponent_statistics_aggregation_summary",
+            "rolling_opponent_policy_evaluation_summary",
+            "dataset_partition_audit_summary",
+            "bounded_search_evaluation_summary",
+        )
+    ):
+        return "training_dataset"
+    return "position_analysis"
+
+
+def _is_at_or_below(path: str, ancestor: str) -> bool:
+    path_tokens = parse_json_pointer(path)
+    ancestor_tokens = parse_json_pointer(ancestor)
+    return path_tokens[: len(ancestor_tokens)] == ancestor_tokens
+
+
+def _covered_leaf_paths(
+    document: dict[str, Any],
+    leaf_paths: tuple[str, ...],
+    declaration: dict[str, Any],
+) -> tuple[str, ...] | None:
+    path = declaration["field_path"]
+    try:
+        resolve_json_pointer(document, path)
+    except ValueError:
+        return None
+    if declaration["coverage_kind"] == "field":
+        return (path,) if path in leaf_paths else None
+    covered = tuple(leaf for leaf in leaf_paths if _is_at_or_below(leaf, path))
+    return covered or None
+
+
+def _check_public_attachment_semantics(
+    attachment: dict[str, Any],
+    *,
+    document: dict[str, Any],
+    workflow: str,
+    attachment_name: str,
+    document_scope: str,
+) -> list[str]:
+    errors = []
+    if attachment["attachment_name"] != attachment_name:
+        errors.append(f"expected Result attachment {attachment_name}")
+    if attachment["document_role"] != "result":
+        errors.append("expected only result-role public provenance")
+    if attachment["document_scope"] != document_scope:
+        errors.append(f"expected public document scope {document_scope}")
+    if attachment["information_use_context"]["workflow"] != workflow:
+        errors.append("expected attachment context workflow to match Root workflow")
+
+    ledger = attachment["ledger"]
+    if ledger["status"] != "complete":
+        errors.append("expected complete public provenance ledger")
+    if any(
+        limitation != "private_dependencies_redacted"
+        for limitation in ledger["limitations"]
+    ):
+        errors.append("public provenance contains a non-redaction limitation")
+    if any(
+        exemption["reason"] == "legacy_untracked"
+        for exemption in ledger["exemptions"]
+    ):
+        errors.append("public provenance contains a legacy exemption")
+    if any(
+        entry["visibility"] == "engine_private"
+        or any(
+            reference["visibility"] == "engine_private"
+            for reference in entry["source_references"]
+        )
+        for entry in ledger["entries"]
+    ):
+        errors.append("public provenance contains engine-private detail")
+    entry_paths = {entry["field_path"] for entry in ledger["entries"]}
+    if any(
+        dependency not in entry_paths
+        for entry in ledger["entries"]
+        for dependency in entry["dependency_paths"]
+    ):
+        errors.append("public provenance contains an unresolved dependency")
+
+    leaf_paths = enumerate_json_leaf_paths(document)
+    coverage_count = {path: 0 for path in leaf_paths}
+    provenanced_paths: set[str] = set()
+    exempted_paths: set[str] = set()
+    orphaned_entries = []
+    orphaned_exemptions = []
+    declarations = [
+        *(
+            (entry, provenanced_paths, orphaned_entries)
+            for entry in ledger["entries"]
+        ),
+        *(
+            (exemption, exempted_paths, orphaned_exemptions)
+            for exemption in ledger["exemptions"]
+        ),
+    ]
+    for declaration, covered_paths, orphaned in declarations:
+        covered = _covered_leaf_paths(document, leaf_paths, declaration)
+        if covered is None:
+            orphaned.append(declaration["field_path"])
+            continue
+        for path in covered:
+            coverage_count[path] += 1
+            covered_paths.add(path)
+    uncovered = sorted(path for path, count in coverage_count.items() if count == 0)
+    overlapping = sorted(path for path, count in coverage_count.items() if count > 1)
+    expected_summary = {
+        "leaf_path_count": len(leaf_paths),
+        "provenanced_path_count": len(provenanced_paths),
+        "exempted_path_count": len(exempted_paths),
+        "uncovered_paths": uncovered,
+        "orphaned_entry_paths": sorted(orphaned_entries),
+        "orphaned_exemption_paths": sorted(orphaned_exemptions),
+        "overlapping_paths": overlapping,
+        "all_paths_accounted_for": not uncovered and not overlapping,
+        "provenance_complete": (
+            not uncovered
+            and not overlapping
+            and not orphaned_entries
+            and not orphaned_exemptions
+        ),
+    }
+    if attachment["coverage_summary"] != expected_summary:
+        errors.append("public Coverage Summary does not match the exact document")
+    if not expected_summary["provenance_complete"]:
+        errors.append("public provenance does not completely cover the exact document")
+    return errors
+
+
+def check_public_field_provenance(
+    data: dict[str, Any],
+    scenario: Scenario,
+    artifact_document: dict[str, Any] | None,
+) -> list[str]:
+    bundle = data.get("field_provenance")
+    if not scenario.include_provenance:
+        return [] if bundle is None else ["unexpected field_provenance in default output"]
+    if not isinstance(bundle, dict):
+        return ["expected field_provenance for provenance-enabled output"]
+    workflow = _output_workflow(data)
+    errors = []
+    if bundle["workflow"] != workflow:
+        errors.append("public provenance workflow does not match output branch")
+    if bundle["provenance_version"] != 1:
+        errors.append("expected public field provenance version 1")
+    if bundle["redaction_policy"] != "omit_engine_private_details":
+        errors.append("expected public engine-private redaction policy")
+    root_document = dict(data)
+    root_document.pop("field_provenance")
+    errors.extend(
+        _check_public_attachment_semantics(
+            bundle["result"],
+            document=root_document,
+            workflow=workflow,
+            attachment_name=_PROVENANCE_RESULT_ATTACHMENTS[workflow],
+            document_scope="root_result_without_field_provenance",
+        )
+    )
+    if scenario.name == "field_provenance_position_analysis" and (
+        "private_dependencies_redacted"
+        not in bundle["result"]["ledger"]["limitations"]
+    ):
+        errors.append("expected the Position provenance scenario to exercise redaction")
+    expected_artifact_count = 1 if artifact_document is not None else 0
+    if len(bundle["artifacts"]) != expected_artifact_count:
+        errors.append("public artifact provenance does not match actual artifacts")
+    if artifact_document is not None and len(bundle["artifacts"]) == 1:
+        artifact = bundle["artifacts"][0]
+        if artifact["artifact_name"] != "opponent_statistics_input":
+            errors.append("unexpected public artifact provenance name")
+        errors.extend(
+            _check_public_attachment_semantics(
+                artifact["attachment"],
+                document=artifact_document,
+                workflow=workflow,
+                attachment_name="training_dataset/opponent_statistics_input",
+                document_scope="artifact_document",
+            )
+        )
+    serialized = json.dumps(bundle, sort_keys=True).lower()
+    for forbidden in (
+        "defender_open_play_exact_proof_v1",
+        "historical_remaining_card_reconstruction_v1",
+        "principal_variation",
+        "exact_search_state",
+        "private_seed",
+        "private_hand",
+    ):
+        if forbidden in serialized:
+            errors.append(f"public provenance exposed private detail {forbidden}")
+    return errors
 
 
 def check_normal_local_live(data: dict[str, Any]) -> list[str]:
@@ -3810,6 +4050,81 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="field_provenance_position_analysis",
+        input_path=PROJECT_ROOT / "examples" / "defender_open_play.json",
+        branch="public field provenance for Position Analysis",
+        cli_args=("--quiet",),
+        check_output=check_defender_open_play,
+        expect_quiet_stdout=True,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="field_provenance_historical_game",
+        input_path=PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json",
+        branch="public field provenance for Historical Game",
+        cli_args=("--quiet",),
+        check_output=check_historical_declarer_concession,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="field_provenance_training_dataset",
+        input_path=PROJECT_ROOT / "examples" / "training_dataset_variable_length.json",
+        branch="public Result and actual Artifact field provenance for Training Dataset",
+        cli_args=("--aggregate-opponent-statistics", "--quiet"),
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        export_opponent_statistics=True,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="field_provenance_training_dataset_preparation",
+        input_path=(
+            PROJECT_ROOT / "examples" / "training_dataset_preparation_unavailable.json"
+        ),
+        branch="public field provenance for a valid unavailable Dataset Preparation Result",
+        cli_args=("--quiet",),
+        check_output=check_training_dataset_preparation_unavailable,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="field_provenance_opponent_statistics",
+        input_path=PROJECT_ROOT / "examples" / "opponent_statistics.json",
+        branch="public field provenance for Opponent Statistics",
+        cli_args=("--quiet",),
+        check_output=check_opponent_statistics,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="field_provenance_fixed_three_player_historical_list",
+        input_path=(
+            PROJECT_ROOT / "examples" / "fixed_three_player_historical_list_all_passed.json"
+        ),
+        branch="public field provenance for a fixed-three-player Historical List",
+        cli_args=("--quiet",),
+        check_output=check_fixed_three_player_historical_list_all_passed,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="field_provenance_fixed_three_player_historical_list_comparison",
+        input_path=(
+            PROJECT_ROOT / "examples" / "fixed_three_player_historical_list_comparison.json"
+        ),
+        branch="public field provenance for Historical List Comparison",
+        cli_args=("--quiet",),
+        check_output=check_fixed_three_player_historical_list_comparison,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
 )
 
 
@@ -3924,6 +4239,7 @@ def validate_generated_outputs() -> list[str]:
     historical_list_comparison_schema = load_json_file(
         FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH
     )
+    field_provenance_schema = load_json_file(FIELD_PROVENANCE_SCHEMA_PATH)
     registry = Registry().with_resources(
         [
             (
@@ -4124,6 +4440,10 @@ def validate_generated_outputs() -> list[str]:
                 historical_list_comparison_schema["$id"],
                 Resource.from_contents(historical_list_comparison_schema),
             ),
+            (
+                field_provenance_schema["$id"],
+                Resource.from_contents(field_provenance_schema),
+            ),
         ]
     )
     validator = Draft202012Validator(schema, registry=registry)
@@ -4163,10 +4483,12 @@ def validate_generated_outputs() -> list[str]:
                     )
                 ]
 
+            branch_data = dict(data)
+            branch_data.pop("field_provenance", None)
             if scenario.check_output is not None:
                 branch_errors = [
                     format_scenario_error(scenario=scenario, message=error)
-                    for error in scenario.check_output(data)
+                    for error in scenario.check_output(branch_data)
                 ]
                 if branch_errors:
                     return branch_errors
@@ -4188,6 +4510,7 @@ def validate_generated_outputs() -> list[str]:
                             nested_errors[0],
                         )
                     ]
+            export_data = None
             if scenario.export_opponent_statistics:
                 export_path = output_path.with_suffix(".export.json")
                 if not export_path.exists():
@@ -4218,6 +4541,16 @@ def validate_generated_outputs() -> list[str]:
                             export_errors[0],
                         )
                     ]
+            provenance_errors = [
+                format_scenario_error(scenario=scenario, message=error)
+                for error in check_public_field_provenance(
+                    data,
+                    scenario,
+                    export_data,
+                )
+            ]
+            if provenance_errors:
+                return provenance_errors
 
     return errors
 

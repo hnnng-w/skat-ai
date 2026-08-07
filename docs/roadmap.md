@@ -29,6 +29,9 @@ Implemented:
   local/CI parity checks
 * PEP 561 `py.typed`, Package-Root version metadata, one Wheel and one sdist,
   artifact inspection, and separate clean-install public-API smoke tests
+* Public field-provenance version `1` with immutable attachment/artifact/bundle
+  contracts, seven explicit Result mappings, default-false opt-in, and unchanged
+  flattened execution envelope
 
 The executable facade is available from source, Editable, Wheel, and sdist
 installations. Installed CLI entry points are implemented separately below.
@@ -37,7 +40,8 @@ retrospective Position, Historical Review, Historical Search Review, and Replay
 Coaching propagation is also implemented. Dataset, Preparation, Opponent,
 Profile, historical-list, and comparison propagation is implemented with
 complete non-legacy Root ledgers. Complete non-legacy Position/base Historical
-Result propagation is also implemented; public provenance remains open.
+Result propagation is also implemented. Bounded public Root Result and actual-
+artifact exposure is implemented; broader enforcement remains open.
 Internal Application extraction is covered separately below.
 
 ### Application orchestration foundation
@@ -66,9 +70,9 @@ Implemented:
 * Internal Dataset, Preparation, Opponent, Profile, historical-list, and
   comparison bundles with complete exact Root Result attachments
 
-Installed CLI entry points consume this Application layer directly. They ignore
-the internal live and retrospective bundles; public provenance output remains
-open. See
+Installed CLI entry points consume this Application layer directly. By default
+they omit internal bundles; `--include-provenance` selects only one redacted Root
+Result plus artifacts actually returned. See
 [Application orchestration](application_orchestration.md).
 
 ### Installed CLI foundation
@@ -79,7 +83,8 @@ Implemented:
 * Exact `skat-ai = skat_ai.cli:main` Console Script and no GUI Script or alias
 * `python -m skat_ai` through the same Package-owned implementation
 * Legacy `python main.py` compatibility facade through at least `v1.0.0`
-* One canonical parser preserving every option and adding only `--version`
+* One canonical parser preserving every option, with `--version` from Issue #142
+  and cross-form `--include-provenance` from Issue #147
 * Invocation-specific help with generic installed paths and repository Legacy
   examples
 * Direct internal Application execution with unchanged JSON, presentation,
@@ -89,8 +94,10 @@ Implemented:
 * Exact Wheel and sdist metadata plus clean-install command validation in the
   existing two distribution environments
 
-No Package version, Schema, example, generated scenario, Provenance contract, or
-publication behavior changes. See [Installed CLI](installed_cli.md).
+Issue #142 itself changed no Package version, Schema, example, generated
+scenario, Provenance contract, or publication behavior. Issue #147 adds the
+cross-form provenance flag without a Package-version or publication change. See
+[Installed CLI](installed_cli.md).
 
 ### Field-level provenance contract foundation
 
@@ -121,7 +128,9 @@ and Search Review, Replay Coaching, and selected Position/Historical Result
 branches. Issue #145 adds all Dataset operations, Preparation, Opponent, Profile,
 historical-list, comparison, and complete non-legacy Root workflow ledgers.
 Issue #146 subsequently completes the Position/base Historical Result ledgers.
-Public API exposure, schemas, Root output, and CLI presentation remain open.
+Issue #147 adds bounded public API exposure, strict Schema, Root output, and CLI
+presentation for one complete redacted Result plus actual artifacts. Public
+decision/intermediate attachments and broader enforcement remain open.
 
 ### Core analysis
 
@@ -267,6 +276,9 @@ Implemented:
 * Internal version-1 field-provenance sidecar language with deterministic
   coverage, dependency, temporal, context-use, redaction, and serialization
   contracts
+* Opt-in public version-1 Result and actual-artifact provenance with complete
+  post-redaction exact-document coverage and no unredacted or intermediate
+  attachment exposure
 
 ### Opponent modeling
 
@@ -399,6 +411,7 @@ Implemented:
 * Focused strict flat post-game Search, Historical Search Review, Historical Replay Coaching, and bounded-Search evaluation schemas
 * Strict automatic Training Dataset preparation request, partition Plan, and
   preparation output schemas
+* Strict public field-provenance Schema referenced from every Root output branch
 * Input example schema validation
 * Generated-output schema validation
 * Full check script with Ruff, packaged-schema parity, input schema validation,
@@ -425,6 +438,9 @@ Implemented:
   score, raw/adjusted Results, Settlement, Performance, lists, every Position
   ending and continuation, canonical Historical replay, all terminal/event
   combinations, dependency rejection, redaction, determinism, and call counts
+* Focused public field-provenance API/CLI parity, seven Result mappings, actual-
+  artifact mapping, privacy rejection, complete recomputed coverage, and seven
+  appended generated-output scenarios
 
 ### CLI and workflow usability
 
@@ -444,8 +460,8 @@ Implemented:
 * `--historical-replay-coaching` with shared Search/Immediate settings and optional combined Search Review output
 * `--evaluate-bounded-search` with repeatable partition selection and optional global decision cap
 * Root-selected automatic Training Dataset preparation with only `--input`,
-  `--output`, and `--quiet`, concise card-free Plan presentation, and no
-  algorithm or weight override
+  `--output`, `--quiet`, and the cross-workflow `--include-provenance` option,
+  concise card-free Plan presentation, and no algorithm or weight override
 * Installed, module, and Legacy invocation parity through one Package-owned CLI
 * Exact `--version`, command-specific help, unchanged output and error behavior,
   and clean-install command validation
@@ -471,7 +487,9 @@ Implemented:
 * Historical corrected play and isolated or specific-trick claims remain incomplete; unlimited proof, simultaneous throws, and arbitrary event streams are outside `v0.11.0`; general settlement coverage is incomplete.
 * Dataset, Preparation, Opponent, Profile, list, comparison, live Position,
   retrospective Review/Coaching, and complete Position/Historical Root Results
-  have internal provenance. Every public output remains unintegrated.
+  have internal provenance. Public output exposes only the bounded redacted Root
+  Result plus actual artifacts; decision/intermediate and end-to-end provenance
+  remains incomplete.
 * A coherent Multi-Step root is one compatible hypothetical execution world, not proof of the real deal or exhaustive search. Hidden-card inference is bounded to confirmed structural decision-time evidence and does not infer tactics or actual ownership.
 * Version-1 bounded-search contracts, direct exact-world and compatible-world
   Suit/Grand/Null Minimax, and private deterministic compatible-world selection
@@ -644,7 +662,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, public provenance integration, and
+remaining approved settlement nuance, broader field-level provenance
+enforcement, and
 interactive live and retrospective input/
 session capture. The executable public facade, internal Application layer,
 installable library distributions, and stable installed CLI interface are
@@ -707,8 +726,10 @@ unavailable plan, validation, audit-reuse, and materialization contracts. Issue
 deterministic Player-connected unseen-player assignment with greedy placement and
 strict local improvement. Issue #134 exposes those contracts through the root-selected
 `training_dataset_preparation` workflow, strict request/Plan/output schemas,
-only `--input`/`--output`/`--quiet`, exactly three examples, and exactly three
-appended generated-output scenarios. Complete results materialize the existing
+exactly three examples, and exactly three appended generated-output scenarios.
+Its original CLI accepted only `--input`/`--output`/`--quiet`; Issue #147 later
+adds the cross-workflow `--include-provenance` option without an algorithm
+override. Complete results materialize the existing
 version-1 dataset and audit; unavailable results succeed with null dataset/audit
 and no partial Plan. No new algorithm, algorithm override, fallback, default
 weight, balancing guarantee, model training, or automatic evaluation is added.
@@ -727,20 +748,25 @@ adds internal retrospective Position, Historical Review, Historical Search
 Review, and Replay Coaching propagation. Issue #145 adds Dataset, Preparation,
 Opponent, Profile, historical-list, and comparison propagation with complete
 Root ledgers. Issue #146 completes non-legacy Position/base Historical Result
-propagation. Public integration remains open. Issue #139 completes internal
+propagation. Issue #147 adds bounded public Root Result and actual-artifact
+provenance, strict Schema, API/CLI opt-in, and seven append-only scenarios. Issue
+#139 completes internal
 Application extraction with immutable orchestration version `1` contracts, all
 seven no-I/O handlers, five Training Dataset operations, injected Opponent
 Statistics, auxiliary artifacts, and legacy CLI transport parity. Public API
-exports remain unchanged. Issue #140 adds the executable public facade, direct
-immutable options, public results and artifacts, lazy schema validation, stable
-error translation, and all-seven-workflow parity. Issue #141 adds Setuptools
+exports remained unchanged at that issue boundary. Issue #140 adds the
+executable public facade, direct immutable options, public results and artifacts,
+lazy schema validation, stable error translation, and all-seven-workflow parity.
+Issue #141 adds Setuptools
 metadata, Package Resource schemas, typing and version metadata, Wheel/sdist and
 clean-install validation, and local/CI gates without an installed CLI or
 publication. Issue #142 adds the exact installed Console Script, module entry
 point, Package-owned canonical CLI, Legacy facade, version output, and clean-
-install CLI/API parity without publication. Public provenance remains separate. Later
-milestone numbers remain planning containers rather than fixed contractual
-releases.
+install CLI/API parity without publication. The active repository has 62 schemas
+and 77 generated-output scenarios; published `v0.12.0` facts remain 70 scenarios
+and 4,762 tests. The `v0.13.0` functional milestone is complete pending release
+preparation. Later milestone numbers remain planning containers rather than
+fixed contractual releases.
 
 ## Open technical cleanup
 

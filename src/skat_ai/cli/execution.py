@@ -281,6 +281,7 @@ def execute_legacy_application(
     input_reference: str,
     options: ApplicationExecutionOptions | None = None,
     external_documents: ApplicationExternalDocuments | None = None,
+    include_provenance: bool = False,
 ) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     """Executes one Root document and thaws its result and artifacts for transport."""
     invocation = build_application_invocation(
@@ -293,11 +294,44 @@ def execute_legacy_application(
         invocation,
         dependencies=build_legacy_application_dependencies(),
     )
-    result = execution.result.to_dict()["document"]
+    if include_provenance:
+        from skat_ai.api.v1.schema_validation import validate_output_document
+        from skat_ai.public_field_provenance import attach_public_field_provenance
+
+        result, _public_provenance = attach_public_field_provenance(execution)
+        validate_output_document(result)
+    else:
+        result = execution.result.to_dict()["document"]
     if not isinstance(result, dict):
         raise ValueError("Application result document must be an object.")
     artifacts = {artifact.name: artifact.to_dict() for artifact in execution.artifacts}
     return result, artifacts
+
+
+def print_field_provenance_summary(result: dict[str, Any]) -> None:
+    """Prints aggregate public provenance status without field-level detail."""
+    bundle = result.get("field_provenance")
+    if not isinstance(bundle, dict):
+        return
+    result_attachment = bundle["result"]
+    coverage = result_attachment["coverage_summary"]
+    attachments = [
+        result_attachment,
+        *[artifact["attachment"] for artifact in bundle["artifacts"]],
+    ]
+    redacted = any(
+        "private_dependencies_redacted" in attachment["ledger"]["limitations"]
+        for attachment in attachments
+    )
+    covered = coverage["provenanced_path_count"] + coverage["exempted_path_count"]
+    print()
+    print("Field Provenance")
+    print("Version:", bundle["provenance_version"])
+    print("Status:", result_attachment["ledger"]["status"])
+    print("Result attachment:", result_attachment["attachment_name"])
+    print("Covered leaves:", f"{covered}/{coverage['leaf_path_count']}")
+    print("Private dependencies redacted:", "yes" if redacted else "no")
+    print("Artifact attachment count:", len(bundle["artifacts"]))
 
 
 def load_external_opponent_statistics_document(
@@ -2205,6 +2239,7 @@ def run_json_position_analysis(
     left_opponent_player_id: str | None = None,
     right_opponent_player_id: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     if comparison_only and not compare_policies:
         raise ValueError("comparison_only requires compare_policies to be enabled.")
@@ -2289,6 +2324,7 @@ def run_json_position_analysis(
             )
         ),
         external_documents=external_documents,
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2303,6 +2339,7 @@ def run_json_position_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2326,6 +2363,7 @@ def run_json_historical_game_analysis(
     left_opponent_response_policy_override: str | None = None,
     right_opponent_lead_policy_override: str | None = None,
     right_opponent_response_policy_override: str | None = None,
+    include_provenance: bool = False,
 ) -> None:
     """Runs the complete historical-game workflow."""
     root_document = load_json_object(file_path)
@@ -2375,6 +2413,7 @@ def run_json_historical_game_analysis(
             )
         ),
         external_documents=external_documents,
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2393,6 +2432,7 @@ def run_json_historical_game_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2400,6 +2440,7 @@ def run_json_training_dataset_conversion(
     file_path: str,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Runs deterministic training-dataset validation and sample generation."""
     root_document = load_json_object(file_path)
@@ -2409,6 +2450,7 @@ def run_json_training_dataset_conversion(
         options=ApplicationExecutionOptions(
             training_dataset=TrainingDatasetApplicationOptions(operation="summary")
         ),
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2418,6 +2460,7 @@ def run_json_training_dataset_conversion(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2425,12 +2468,14 @@ def run_json_training_dataset_preparation(
     file_path: str,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Runs one mode-derived automatic Dataset preparation workflow."""
     root_document = load_json_object(file_path)
     result, _artifacts = execute_legacy_application(
         root_document,
         input_reference=file_path,
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2440,6 +2485,7 @@ def run_json_training_dataset_preparation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2452,6 +2498,7 @@ def run_json_bounded_search_evaluation(
     max_decisions: int | None = None,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Runs deterministic bounded-Search evaluation on selected dataset records."""
     root_document = load_json_object(file_path)
@@ -2467,6 +2514,7 @@ def run_json_bounded_search_evaluation(
                 bounded_search_max_decisions=max_decisions,
             )
         ),
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2476,6 +2524,7 @@ def run_json_bounded_search_evaluation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2484,6 +2533,7 @@ def run_json_dataset_partition_audit(
     requested_mode: str | None = None,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Audits training-dataset player overlap without generating samples."""
     root_document = load_json_object(file_path)
@@ -2497,6 +2547,7 @@ def run_json_dataset_partition_audit(
                     partition_audit_mode=requested_mode,
                 )
             ),
+            include_provenance=include_provenance,
         )
     except (SkatAIWorkflowError, ValueError) as error:
         if not isinstance(error, SkatAIWorkflowError) and (
@@ -2512,6 +2563,7 @@ def run_json_dataset_partition_audit(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2521,6 +2573,7 @@ def run_json_rolling_opponent_policy_evaluation(
     evaluation_partitions: tuple[str, ...] = DEFAULT_EVALUATION_PARTITIONS,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Runs rolling profile-derived behavioral policy evaluation."""
     root_document = load_json_object(file_path)
@@ -2534,6 +2587,7 @@ def run_json_rolling_opponent_policy_evaluation(
                 rolling_evaluation_partitions=evaluation_partitions,
             )
         ),
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2543,6 +2597,7 @@ def run_json_rolling_opponent_policy_evaluation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2553,6 +2608,7 @@ def run_json_historical_opponent_statistics_aggregation(
     output_path: str | None = None,
     export_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Aggregates historical statistics without generating training samples."""
     root_document = load_json_object(file_path)
@@ -2567,6 +2623,7 @@ def run_json_historical_opponent_statistics_aggregation(
                 export_opponent_statistics=export_path is not None,
             )
         ),
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2583,6 +2640,7 @@ def run_json_historical_opponent_statistics_aggregation(
         print("Output file written:", output_path)
     if export_path is not None:
         print("Exported opponent statistics to", f"{export_path}.")
+    print_field_provenance_summary(result)
     return
 
 
@@ -2590,12 +2648,14 @@ def run_json_fixed_three_player_historical_list_analysis(
     file_path: str,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Runs one complete historical 36-position list aggregation."""
     root_document = load_json_object(file_path)
     result, _artifacts = execute_legacy_application(
         root_document,
         input_reference=file_path,
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2605,6 +2665,7 @@ def run_json_fixed_three_player_historical_list_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2612,12 +2673,14 @@ def run_json_fixed_three_player_historical_list_comparison(
     file_path: str,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Aggregates each ordered source once and compares it with the first source."""
     root_document = load_json_object(file_path)
     result, _artifacts = execute_legacy_application(
         root_document,
         input_reference=file_path,
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2627,6 +2690,7 @@ def run_json_fixed_three_player_historical_list_comparison(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2634,12 +2698,14 @@ def run_json_opponent_statistics_conversion(
     file_path: str,
     output_path: str | None = None,
     quiet: bool = False,
+    include_provenance: bool = False,
 ) -> None:
     """Runs deterministic external opponent-statistics validation and normalization."""
     root_document = load_json_object(file_path)
     result, _artifacts = execute_legacy_application(
         root_document,
         input_reference=file_path,
+        include_provenance=include_provenance,
     )
     if output_path is not None:
         write_analysis_result_to_json(output_path=output_path, result=result)
@@ -2649,6 +2715,7 @@ def run_json_opponent_statistics_conversion(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
+    print_field_provenance_summary(result)
     return
 
 
@@ -2769,6 +2836,12 @@ def build_argument_parser(
         "--quiet",
         action="store_true",
         help="Suppress successful human-readable stdout output.",
+    )
+
+    parser.add_argument(
+        "--include-provenance",
+        action="store_true",
+        help="Include a public-safe field-provenance sidecar in Root JSON output.",
     )
 
     parser.add_argument(
@@ -3442,7 +3515,7 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
 def validate_training_dataset_preparation_cli_arguments(
     args: argparse.Namespace,
 ) -> None:
-    """Rejects every preparation option except input, output, and quiet output."""
+    """Allows only transport and public-provenance options for preparation."""
     incompatible_options = {
         "--samples": args.samples is not None,
         "--seed": args.seed is not None,
@@ -3489,12 +3562,13 @@ def validate_training_dataset_preparation_cli_arguments(
     if supplied_options:
         raise CliUsageError(
             "Training-dataset-preparation inputs accept only --input, --output, "
-            f"and --quiet; unsupported options: {', '.join(supplied_options)}."
+            "--quiet, and --include-provenance; unsupported options: "
+            f"{', '.join(supplied_options)}."
         )
 
 
 def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None:
-    """Rejects every option except input, output, and quiet output."""
+    """Allows only transport and public-provenance options for statistics."""
     incompatible_options = {
         "--samples": args.samples is not None,
         "--seed": args.seed is not None,
@@ -3550,7 +3624,7 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
 def validate_fixed_three_player_historical_list_cli_arguments(
     args: argparse.Namespace,
 ) -> None:
-    """Rejects every option except input, output, and quiet output for list workflows."""
+    """Allows only transport and public-provenance options for list workflows."""
     incompatible_options = {
         "--samples": args.samples is not None,
         "--seed": args.seed is not None,
@@ -3597,7 +3671,8 @@ def validate_fixed_three_player_historical_list_cli_arguments(
     if supplied_options:
         raise CliUsageError(
             "Fixed-three-player historical-list inputs accept only --input, --output, "
-            f"and --quiet; unsupported options: {', '.join(supplied_options)}."
+            "--quiet, and --include-provenance; unsupported options: "
+            f"{', '.join(supplied_options)}."
         )
 
 
@@ -3629,6 +3704,7 @@ def _run_cli(
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
+                include_provenance=args.include_provenance,
             )
         elif workflow == "fixed_three_player_historical_list":
             _legacy_patch_value(
@@ -3638,6 +3714,7 @@ def _run_cli(
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
+                include_provenance=args.include_provenance,
             )
         elif workflow == "opponent_statistics":
             _legacy_patch_value("validate_opponent_statistics_cli_arguments")(args)
@@ -3645,12 +3722,14 @@ def _run_cli(
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
+                include_provenance=args.include_provenance,
             )
         elif workflow == "training_dataset_preparation":
             _legacy_patch_value("run_json_training_dataset_preparation")(
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
+                include_provenance=args.include_provenance,
             )
         elif workflow == "training_dataset":
             _legacy_patch_value("validate_training_dataset_cli_arguments")(args)
@@ -3669,6 +3748,7 @@ def _run_cli(
                     max_decisions=args.search_evaluation_max_decisions,
                     output_path=args.output,
                     quiet=args.quiet,
+                    include_provenance=args.include_provenance,
                 )
             elif args.audit_dataset_partitions:
                 _legacy_patch_value("run_json_dataset_partition_audit")(
@@ -3676,6 +3756,7 @@ def _run_cli(
                     requested_mode=args.dataset_partition_mode,
                     output_path=args.output,
                     quiet=args.quiet,
+                    include_provenance=args.include_provenance,
                 )
             elif args.evaluate_opponent_policy_profiles:
                 _legacy_patch_value("run_json_rolling_opponent_policy_evaluation")(
@@ -3688,6 +3769,7 @@ def _run_cli(
                     ),
                     output_path=args.output,
                     quiet=args.quiet,
+                    include_provenance=args.include_provenance,
                 )
             elif args.aggregate_opponent_statistics:
                 _legacy_patch_value(
@@ -3703,12 +3785,14 @@ def _run_cli(
                     output_path=args.output,
                     export_path=args.export_opponent_statistics,
                     quiet=args.quiet,
+                    include_provenance=args.include_provenance,
                 )
             else:
                 _legacy_patch_value("run_json_training_dataset_conversion")(
                     file_path=args.input,
                     output_path=args.output,
                     quiet=args.quiet,
+                    include_provenance=args.include_provenance,
                 )
         elif workflow == "historical_game":
             _legacy_patch_value("validate_historical_game_cli_arguments")(args)
@@ -3716,6 +3800,7 @@ def _run_cli(
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
+                include_provenance=args.include_provenance,
                 historical_decision_snapshots=args.historical_decision_snapshots,
                 historical_game_review=args.historical_game_review,
                 historical_search_review=args.historical_search_review,
@@ -3777,6 +3862,7 @@ def _run_cli(
                 left_opponent_player_id=args.left_opponent_player_id,
                 right_opponent_player_id=args.right_opponent_player_id,
                 quiet=args.quiet,
+                include_provenance=args.include_provenance,
             )
     except CliUsageError as error:
         print(f"CLI error: {error}", file=sys.stderr)

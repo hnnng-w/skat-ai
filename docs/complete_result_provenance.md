@@ -4,9 +4,10 @@ Issue #146 completes the remaining internal Root Result-ledger boundary for
 Position Analysis and Historical Game execution. It uses the unchanged shared
 field-provenance language and Application sidecar contracts.
 
-This propagation is internal. It adds no public API option, Result field,
-artifact, Root JSON field, Schema, CLI option or section, example, generated
-scenario, or generated output. Package version remains `0.12.0`.
+Issue #146 propagation remains internal. Issue #147 uses these complete Root
+Result ledgers as the source for bounded public-safe exposure through API, Root
+JSON, strict Schema, CLI, and generated-output scenarios. Package version remains
+`0.12.0`.
 
 ## Contract identity
 
@@ -156,17 +157,22 @@ Rating, list, ending-adjudication, exact-proof, Historical replay, Search,
 Review, or Coaching calls. Equal retained inputs and Results produce equal
 ledgers and attachment order.
 
-Public Python API and all CLI adapters continue to ignore
-`ApplicationExecutionResult.provenance`. The exact Root JSON, 61 Schema
-resources, examples, 70 generated-output scenarios, Wheel, and sdist contracts
-remain unchanged.
+By default, Public Python API and CLI execution still omit provenance. With
+`include_provenance=True` or `--include-provenance`, Issue #147 selects exactly
+one mapped Root Result attachment, applies the existing public redaction helper,
+and recomputes complete coverage against the Root Result without its sidecar.
+It does not expose the rest of `ApplicationExecutionResult.provenance`.
+
+The active repository now has 62 Schema resources and 77 deterministic
+generated-output scenarios. The seven appended scenarios cover one public
+Result mapping per Root workflow; the Training Dataset scenario also covers its
+actual export artifact. Published `v0.12.0` facts remain 70 scenarios and 4,762
+pytest tests.
 
 ## Remaining work
 
-The following remain open:
-
-* any additive public provenance API contract;
-* public provenance Schemas, Root fields, and artifacts;
-* CLI presentation or export;
-* broader end-to-end information-policy enforcement outside the implemented
-  Application boundaries.
+Issue #147 implements the bounded public Root Result and actual-artifact
+contract. Public consumed-input, decision, intermediate-stage, and unredacted
+Application attachments remain unavailable. Broader end-to-end information-
+policy enforcement outside implemented Application boundaries remains open
+before `v1.0.0`.

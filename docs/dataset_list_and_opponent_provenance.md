@@ -6,9 +6,11 @@ fixed-three-player historical-list workflows. It uses the unchanged shared
 version-1 language and Application sidecar contracts defined in
 [Field-level information provenance](field_level_information_provenance.md).
 
-This propagation is internal. It adds no Root field, public API option or Result,
-Schema, CLI option or section, public artifact, example, or generated scenario.
-Public API and CLI adapters continue to ignore `ApplicationExecutionResult.provenance`.
+Issue #145 propagation remains internal. Issue #147 now selects each workflow's
+exact complete Root Result attachment for bounded opt-in public output and, when
+actually returned, the Training Dataset Opponent Statistics export attachment.
+All consumed-input, Record, Feature, Target, prediction, Search, Plan, Profile,
+Entry, progression, and comparison-stage attachments remain internal.
 
 ## Contract identity
 
@@ -106,8 +108,10 @@ historical_list_comparison_result
 ```
 
 The optional `training_dataset/opponent_statistics_input` attachment describes
-the already returned auxiliary artifact. The artifact remains separate from the
-Root Result.
+the already returned auxiliary artifact. Issue #147 maps public artifact name
+`opponent_statistics_input` to this attachment with scope `artifact_document`.
+The artifact remains separate from the Root Result, and the exported document
+itself has no nested `field_provenance` field.
 
 ## Training Dataset
 
@@ -309,9 +313,9 @@ comparison executions.
 
 ## Remaining work
 
-The following remain open:
-
-* additive public provenance API design;
-* public provenance Schemas and Root output integration;
-* CLI presentation or export;
-* broader end-to-end policy enforcement at any still-unintegrated boundary.
+Issue #147 implements the bounded public API, strict Schema, Root Result field,
+CLI presentation, and actual-artifact mapping. Public exposure of the detailed
+internal stages documented above and broader end-to-end policy enforcement at
+still-unintegrated boundaries remain open. Existing Profile Confidence is
+covered only as an ordinary Result field and is not integrated into the
+field-provenance language.

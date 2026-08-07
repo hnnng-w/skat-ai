@@ -51,7 +51,7 @@ The project check script also runs this validation:
 
 ## Packaged schema resources
 
-The repository `schemas/` directory remains authoritative. Every one of its 61
+The repository `schemas/` directory remains authoritative. Every one of its 62
 `*.schema.json` files is mirrored byte-for-byte into the private Package Resource
 namespace:
 
@@ -197,6 +197,8 @@ The output schema checks the main output structure, including:
 * the separate versioned `bounded_search_evaluation_summary` branch through its strict focused schema
 * the complete versioned `fixed_three_player_historical_list_summary` branch through its strict focused aggregation schema
 * the compact versioned `fixed_three_player_historical_list_comparison_summary` branch through its strict focused comparison schema
+* optional Root `field_provenance` for every output branch through the strict
+  version-1 public field-provenance schema
 
 The published stable `v0.12.0` baseline at commit `bbf955e` covers 70
 deterministic generated-output scenarios and passes 4,762 pytest tests. Issue
@@ -205,8 +207,10 @@ historical published `v0.11.0` baseline remains evidence for 64 scenarios and
 4,392 pytest tests. The historical
 published `v0.10.0` baseline passes 4,075 pytest tests and covers 59 scenarios.
 The historical published `v0.9.0` baseline passes 3,558 pytest tests and covers
-52 scenarios. Position scenarios use CLI settings such as `--samples 20` and
-`--seed 42`, plus
+52 scenarios. The active post-Issue-#147 matrix validates 77 deterministic
+outputs: the published 70 remain unchanged, followed by seven append-only public
+field-provenance scenarios. Position scenarios use CLI settings such as
+`--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
 including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
 checks the example JSON files, while generated-output validation checks the
@@ -220,6 +224,15 @@ preserves those 67 scenarios and appends complete Known-opponent, complete unsee
 player, and successful unavailable automatic preparation. The `v0.12.0` package
 matrix therefore validates 70 outputs while the historical published `v0.11.0`
 baseline remains 64.
+
+Issue #147 preserves all 70 published `v0.12.0` scenarios and appends exactly
+seven provenance-enabled scenarios, one for each Root workflow: Position
+Analysis, Historical Game, Training Dataset, Training Dataset Preparation,
+Opponent Statistics, fixed-three-player Historical List, and Historical List
+Comparison. The Training Dataset scenario also verifies the actual
+`opponent_statistics_input` artifact attachment. The active matrix is therefore
+77; the historical published `v0.12.0` evidence remains 70 scenarios and 4,762
+pytest tests.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
@@ -354,6 +367,22 @@ complete/unavailable shapes, and nullability. Python remains authoritative for
 generation, lossless source preservation, fingerprint and count reconciliation,
 audit equality, card-free Plan presentation, and the successful unavailable
 boundary.
+
+`schemas/field_provenance.schema.json` is a separate strict Draft 2020-12
+resource referenced from every Root output branch. It fixes public provenance
+version `1`, Root field `field_provenance`, redaction policy
+`omit_engine_private_details`, document scopes
+`root_result_without_field_provenance` and `artifact_document`, all seven
+workflow-to-Result attachment mappings, and the
+`opponent_statistics_input` to
+`training_dataset/opponent_statistics_input` artifact mapping. It recursively
+rejects unknown fields and engine-private visibility, permits only complete
+ledgers and non-legacy exemptions, requires complete empty-error coverage, and
+allows provenance only for artifacts actually returned. Runtime conversion
+remains authoritative for exact attachment/document identity, existing-helper
+redaction, recomputed coverage, retained dependency resolution, and omission of
+consumed-input, decision, intermediate-stage, and unredacted attachments. See
+[Public field provenance](public_field_provenance.md).
 
 The output schema is intentionally not a fully strict representation of every
 nested analysis detail, but stable branch contracts such as

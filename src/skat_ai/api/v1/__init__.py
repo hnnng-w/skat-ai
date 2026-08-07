@@ -22,6 +22,14 @@ from skat_ai.api.v1.execution import (
     parse_request,
     serialize_result,
 )
+from skat_ai.api.v1.provenance import (
+    PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES,
+    PUBLIC_FIELD_PROVENANCE_ROOT_FIELD,
+    PUBLIC_FIELD_PROVENANCE_VERSION,
+    FieldProvenanceArtifactV1,
+    FieldProvenanceAttachmentV1,
+    FieldProvenanceBundleV1,
+)
 from skat_ai.errors import (
     CLI_EXIT_CODE_FAILURE,
     CLI_EXIT_CODE_SUCCESS,
@@ -59,6 +67,12 @@ __all__ = (
     "execute",
     "execute_document",
     "serialize_result",
+    "PUBLIC_FIELD_PROVENANCE_VERSION",
+    "PUBLIC_FIELD_PROVENANCE_ROOT_FIELD",
+    "PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES",
+    "FieldProvenanceAttachmentV1",
+    "FieldProvenanceArtifactV1",
+    "FieldProvenanceBundleV1",
     "CLI_EXIT_CODE_SUCCESS",
     "CLI_EXIT_CODE_FAILURE",
     "CLI_EXIT_CODE_USAGE",

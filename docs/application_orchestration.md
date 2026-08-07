@@ -31,6 +31,10 @@ aggregation, and independent-list comparison under the same boundary.
 Issue #146 completes Position and Historical Root Result provenance and makes
 the base Historical bundle non-null without changing the orchestration version
 or public Result document.
+Issue #147 adds a separate public conversion layer over retained Application
+provenance. It selects only one exact Root Result attachment and attachments for
+artifacts actually returned; Application contracts and orchestration version
+remain unchanged.
 
 ## Contracts
 
@@ -188,7 +192,9 @@ serialize_result
 The facade schema-validates and immutably wraps Root input, translates direct
 public workflow options into these internal option contracts, constructs one
 Invocation, and executes this dispatcher exactly once. It converts the existing
-Result and artifacts into public contracts without changing the Root document.
+Result and artifacts into public contracts. Default execution preserves the Root
+document; Issue #147 can add the bounded public sidecar after Application
+execution.
 Direct imports from `skat_ai.application` remain internal and have no public API
 compatibility guarantee. The public boundary preserves `SkatAIError`, translates
 raw `ValueError` and `OSError`, and does not broadly migrate Domain exceptions.
@@ -206,12 +212,16 @@ attach complete non-legacy input, retained-stage, aggregate, and exact Root
 Result ledgers. A Historical execution with no selected review operation has a
 bundle containing only `historical_game_result`; it does not create artificial
 Snapshot, Review, Search, or Coaching attachments.
-The facade and CLI intentionally ignore the internal bundle, so all public
-provenance output remains open. See
+By default, the facade and CLI omit the internal bundle. Issue #147 adds an
+explicit opt-in conversion that uses the existing redaction helper, recomputes
+complete coverage, and publishes only the mapped Root Result plus actual
+artifacts under Root `field_provenance`. It never publishes consumed-input,
+decision, intermediate-stage, or unredacted attachments. See
 [Live analysis provenance](live_analysis_provenance.md),
 [Retrospective review provenance](retrospective_review_provenance.md), and
 [Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md),
-and [Complete Result provenance](complete_result_provenance.md).
+[Complete Result provenance](complete_result_provenance.md), and
+[Public field provenance](public_field_provenance.md).
 
 Packaging does not change this boundary. Clean Wheel and sdist smoke tests call
 the public facade, which delegates to the same Application handlers and preserves
@@ -225,8 +235,8 @@ Public API result.
 The following remain separate follow-up scopes:
 
 * public error translation across existing Domain failures;
-* all public provenance schemas, API exposure, Root output integration, and CLI
-  presentation.
+* broader field-level enforcement outside the implemented Application and
+  bounded public Root Result/actual-artifact boundaries.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue

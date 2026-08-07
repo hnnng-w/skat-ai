@@ -168,15 +168,17 @@ of coherent private ownership and later path mutation. Provenance construction
 does not add calls to Immediate recommendation, Search, Hidden-card inference,
 Multi-Step, Policy Comparison, or external profile construction.
 
-The bundle is internal. The public Python facade and all CLI transports
-intentionally ignore it. There is no public export, execution option, Result
-field, artifact, Root JSON field, Schema, example, generated scenario, or CLI
-section for Provenance.
+The complete bundle remains internal. Issue #147 can select the exact
+`position_result` attachment, redact it with the existing helper, recompute
+complete coverage over the Root Result without its sidecar, and expose it under
+the opt-in Root `field_provenance` field. Consumed-input and flat, Multi-Step,
+and Policy Comparison decision attachments remain internal. See
+[Public field provenance](public_field_provenance.md).
 
 ## Remaining work
 
-The following remain open:
-
-* public API and Root-output integration, schemas, artifacts, and CLI
-  presentation;
-* broader enforcement outside implemented Application boundaries.
+The bounded public Root Result contract, strict Schema, API option, and CLI
+presentation are implemented by Issue #147. Broader enforcement outside
+implemented Application boundaries and public exposure of decision-level
+attachments remain open; the current sidecar is not complete end-to-end live
+provenance.

@@ -94,6 +94,10 @@ def build_application_invocation(
     """Builds one immutable invocation from a caller-supplied Root document."""
     if not isinstance(root_document, Mapping):
         raise SkatAIWorkflowError("Root document must be an object.")
+    if "field_provenance" in root_document:
+        raise SkatAIWorkflowError(
+            "field_provenance is an output-only Root field."
+        )
     workflow_name = get_input_workflow(dict(root_document))
     try:
         workflow = WorkflowV1(workflow_name)
@@ -407,6 +411,10 @@ def validate_application_invocation(invocation: ApplicationInvocation) -> None:
     """Validates workflow and non-transport option compatibility."""
     if not isinstance(invocation, ApplicationInvocation):
         raise SkatAIWorkflowError("invocation must be an ApplicationInvocation.")
+    if "field_provenance" in invocation.request.document:
+        raise SkatAIWorkflowError(
+            "field_provenance is an output-only Root field."
+        )
     workflow = invocation.request.workflow
     options = invocation.options
     configured = {

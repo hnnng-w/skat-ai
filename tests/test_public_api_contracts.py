@@ -20,6 +20,9 @@ from skat_ai.api.v1 import (
     PUBLIC_API_COMPATIBILITY_POLICY,
     PUBLIC_API_CONTRACT_VERSION,
     PUBLIC_API_NAMESPACE,
+    PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES,
+    PUBLIC_FIELD_PROVENANCE_ROOT_FIELD,
+    PUBLIC_FIELD_PROVENANCE_VERSION,
     ApiVersionInfoV1,
     CompatibilityPolicyV1,
     ExecutionOptionsV1,
@@ -69,6 +72,12 @@ CONTRACT_EXPORTS = (
     "execute",
     "execute_document",
     "serialize_result",
+    "PUBLIC_FIELD_PROVENANCE_VERSION",
+    "PUBLIC_FIELD_PROVENANCE_ROOT_FIELD",
+    "PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES",
+    "FieldProvenanceAttachmentV1",
+    "FieldProvenanceArtifactV1",
+    "FieldProvenanceBundleV1",
 )
 WORKFLOWS = (
     "position_analysis",
@@ -119,6 +128,7 @@ def test_package_import_loads_only_public_contract_modules() -> None:
         "skat_ai.api.v1",
         "skat_ai.api.v1.contracts",
         "skat_ai.api.v1.execution",
+        "skat_ai.api.v1.provenance",
         "skat_ai.api.v1.schema_validation",
         "skat_ai.errors",
     ]
@@ -133,6 +143,12 @@ def test_api_constants_are_exact_and_independent_from_package_version() -> None:
     assert LEGACY_MAIN_COMPATIBILITY_TARGET == "v1.0.0"
     assert DEFAULT_INPUT_REFERENCE_V1 == "memory://skat-ai/request"
     assert EXECUTION_ARTIFACT_NAMES_V1 == ("opponent_statistics_input",)
+    assert PUBLIC_FIELD_PROVENANCE_VERSION == 1
+    assert PUBLIC_FIELD_PROVENANCE_ROOT_FIELD == "field_provenance"
+    assert PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES == (
+        "root_result_without_field_provenance",
+        "artifact_document",
+    )
     assert pyproject["project"]["version"] == "0.12.0"
     assert str(PUBLIC_API_CONTRACT_VERSION) != pyproject["project"]["version"]
 
@@ -290,8 +306,11 @@ def test_execution_options_are_keyword_only_frozen_and_boolean() -> None:
     assert ExecutionOptionsV1().validate_output is True
     assert ExecutionOptionsV1(validate_output=True).validate_output is True
     assert ExecutionOptionsV1(validate_output=False).validate_output is False
+    assert ExecutionOptionsV1().include_provenance is False
+    assert ExecutionOptionsV1(include_provenance=True).include_provenance is True
     assert [field.name for field in fields(ExecutionOptionsV1)] == [
         "validate_output",
+        "include_provenance",
         "workflow_options",
         "opponent_statistics_document",
         "opponent_statistics_reference",
@@ -300,6 +319,8 @@ def test_execution_options_are_keyword_only_frozen_and_boolean() -> None:
 
     with pytest.raises(SkatAIValidationError, match="boolean"):
         ExecutionOptionsV1(validate_output=1)
+    with pytest.raises(SkatAIValidationError, match="boolean"):
+        ExecutionOptionsV1(include_provenance=1)
     with pytest.raises(FrozenInstanceError):
         options = ExecutionOptionsV1()
         options.validate_output = False

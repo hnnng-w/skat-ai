@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
 from types import MappingProxyType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from skat_ai.errors import SkatAIValidationError
+
+if TYPE_CHECKING:
+    from skat_ai.api.v1.provenance import FieldProvenanceBundleV1
 
 PUBLIC_API_CONTRACT_VERSION = 1
 PUBLIC_API_NAMESPACE = "skat_ai.api.v1"
@@ -147,6 +152,7 @@ class ExecutionOptionsV1:
     """Public non-transport options for one version-1 execution."""
 
     validate_output: bool = True
+    include_provenance: bool = False
     workflow_options: Mapping[str, object] = field(default_factory=dict)
     opponent_statistics_document: Mapping[str, object] | None = None
     opponent_statistics_reference: str | None = None
@@ -156,6 +162,11 @@ class ExecutionOptionsV1:
             raise SkatAIValidationError(
                 "validate_output must be a boolean.",
                 path="validate_output",
+            )
+        if not isinstance(self.include_provenance, bool):
+            raise SkatAIValidationError(
+                "include_provenance must be a boolean.",
+                path="include_provenance",
             )
         object.__setattr__(
             self,
@@ -192,6 +203,7 @@ class ExecutionOptionsV1:
         """Returns a fresh deterministic execution-option representation."""
         return {
             "validate_output": self.validate_output,
+            "include_provenance": self.include_provenance,
             "workflow_options": _thaw_json_value(self.workflow_options),
             "opponent_statistics_document": (
                 None
@@ -268,6 +280,7 @@ class ExecutionResultV1:
     api_contract_version: int = PUBLIC_API_CONTRACT_VERSION
     result: ResultDocumentV1
     artifacts: tuple[ExecutionArtifactV1, ...] = ()
+    field_provenance: FieldProvenanceBundleV1 | None = None
 
     def __post_init__(self) -> None:
         _validate_api_contract_version(self.api_contract_version)
@@ -293,6 +306,46 @@ class ExecutionResultV1:
             raise SkatAIValidationError(
                 "artifacts must not contain duplicate names.",
                 path="artifacts",
+            )
+        from skat_ai.api.v1.provenance import (
+            PUBLIC_FIELD_PROVENANCE_ROOT_FIELD,
+            FieldProvenanceBundleV1,
+        )
+
+        has_serialized_sidecar = (
+            PUBLIC_FIELD_PROVENANCE_ROOT_FIELD in self.result.document
+        )
+        serialized_sidecar = self.result.document.get(PUBLIC_FIELD_PROVENANCE_ROOT_FIELD)
+        if self.field_provenance is None:
+            if has_serialized_sidecar:
+                raise SkatAIValidationError(
+                    "Result document field_provenance requires typed field_provenance.",
+                    path="field_provenance",
+                )
+        elif not isinstance(self.field_provenance, FieldProvenanceBundleV1):
+            raise SkatAIValidationError(
+                "field_provenance must be a FieldProvenanceBundleV1 or None.",
+                path="field_provenance",
+            )
+        elif self.field_provenance.workflow is not self.result.workflow:
+            raise SkatAIValidationError(
+                "field_provenance workflow must match the Result workflow.",
+                path="field_provenance.workflow",
+            )
+        elif tuple(artifact.name for artifact in self.artifacts) != tuple(
+            artifact.artifact_name for artifact in self.field_provenance.artifacts
+        ):
+            raise SkatAIValidationError(
+                "field_provenance artifacts must match actual execution artifacts.",
+                path="field_provenance.artifacts",
+            )
+        elif serialized_sidecar != _freeze_json_object(
+            self.field_provenance.to_dict(),
+            path="field_provenance",
+        ):
+            raise SkatAIValidationError(
+                "Typed and serialized field_provenance must be equal.",
+                path="field_provenance",
             )
 
     def to_dict(self) -> dict[str, Any]:

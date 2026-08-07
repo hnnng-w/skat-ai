@@ -10,6 +10,7 @@ import main as main_module
 import skat_ai.api.v1.execution as facade_module
 import skat_ai.api.v1.schema_validation as schema_validation_module
 import skat_ai.application as application_module
+import skat_ai.public_field_provenance as public_provenance_module
 from skat_ai.api.v1 import (
     DEFAULT_INPUT_REFERENCE_V1,
     EXECUTION_ARTIFACT_NAMES_V1,
@@ -103,6 +104,7 @@ def test_execution_options_are_recursive_defensive_immutable_and_deterministic()
     statistics = load_example("opponent_statistics.json")
     options = ExecutionOptionsV1(
         validate_output=False,
+        include_provenance=True,
         workflow_options=workflow_options,
         opponent_statistics_document=statistics,
         opponent_statistics_reference="descriptive:statistics",
@@ -114,6 +116,7 @@ def test_execution_options_are_recursive_defensive_immutable_and_deterministic()
     assert len(options.opponent_statistics_document["opponent_statistics_input"]["records"]) == 2
     assert options.to_dict() == {
         "validate_output": False,
+        "include_provenance": True,
         "workflow_options": {"rolling_source_partitions": ["train"]},
         "opponent_statistics_document": load_example("opponent_statistics.json"),
         "opponent_statistics_reference": "descriptive:statistics",
@@ -150,6 +153,7 @@ def test_public_execution_contracts_are_frozen_defensive_and_flattened() -> None
 
     assert EXECUTION_ARTIFACT_NAMES_V1 == ("opponent_statistics_input",)
     assert result.artifacts == (artifact,)
+    assert result.field_provenance is None
     assert result.to_dict() == {
         "api_contract_version": 1,
         "workflow": "training_dataset",
@@ -198,6 +202,22 @@ def test_parse_request_reports_deterministic_rfc6901_schema_path() -> None:
         paths.append(caught.value.path)
 
     assert paths == ["/sample_count", "/sample_count"]
+
+
+def test_output_only_field_provenance_is_rejected_from_root_input() -> None:
+    invalid = load_example("grand_second_position.json")
+    invalid["field_provenance"] = {"forged": True}
+
+    with pytest.raises(SkatAISchemaError, match="output-only") as caught:
+        parse_request(invalid)
+    assert caught.value.path == "/field_provenance"
+
+    request = RequestDocumentV1(
+        workflow=WorkflowV1.POSITION_ANALYSIS,
+        document=invalid,
+    )
+    with pytest.raises(SkatAIWorkflowError, match="output-only"):
+        execute(request)
 
 
 def test_packaged_validators_retain_input_format_checker_only() -> None:
@@ -261,6 +281,7 @@ def test_all_seven_public_executions_match_application_results(
 
     assert public.result == application.result
     assert public.artifacts == ()
+    assert public.field_provenance is None
     assert public.result.document["input_file"] == reference
     assert result_key in public.result.document
 
@@ -595,6 +616,7 @@ def test_execute_document_validates_and_detects_once_and_matches_explicit_path(
     monkeypatch.setattr(facade_module, "_detect_workflow", counted_detect)
     monkeypatch.setattr(application_module, "execute_application_invocation", counted_execute)
     options = ExecutionOptionsV1(
+        include_provenance=True,
         workflow_options={"sample_count_override": 1, "random_seed_override": 42}
     )
     convenient = execute_document(document, options=options, input_reference="same")
@@ -609,6 +631,26 @@ def test_execute_document_validates_and_detects_once_and_matches_explicit_path(
         input_reference="same",
     )
     assert convenient == explicit
+
+
+def test_default_execution_performs_no_public_provenance_work(monkeypatch) -> None:
+    def unexpected_builder(_execution):
+        raise AssertionError("Default execution attempted public provenance work.")
+
+    monkeypatch.setattr(
+        public_provenance_module,
+        "attach_public_field_provenance",
+        unexpected_builder,
+    )
+    result = execute_document(load_example("opponent_statistics.json"))
+
+    assert result.field_provenance is None
+    assert "field_provenance" not in result.result.document
+    with pytest.raises(AssertionError, match="attempted public provenance"):
+        execute_document(
+            load_example("opponent_statistics.json"),
+            options=ExecutionOptionsV1(include_provenance=True),
+        )
 
 
 def test_serialization_is_fresh_deterministic_and_type_checked() -> None:

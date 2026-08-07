@@ -75,6 +75,7 @@ EXPECTED_OPTION_STRINGS = (
     ("--opponent-strategy",),
     ("--output",),
     ("--quiet",),
+    ("--include-provenance",),
     ("--audit-dataset-partitions",),
     ("--dataset-partition-mode",),
     ("--aggregate-opponent-statistics",),
@@ -230,6 +231,7 @@ def test_parser_action_contract_is_exactly_equal_for_all_invocation_styles() -> 
         "opponent_strategy",
         "output",
         "quiet",
+        "include_provenance",
         "audit_dataset_partitions",
         "dataset_partition_mode",
         "aggregate_opponent_statistics",
@@ -281,7 +283,14 @@ def test_help_is_invocation_specific_without_changing_options() -> None:
     assert "examples/grand_second_position.json" not in installed
     assert "examples/grand_second_position.json" not in module
     assert "python main.py --input examples/grand_second_position.json" in legacy
-    for option in ("--version", "--input", "--output", "--quiet", "--multi-step"):
+    for option in (
+        "--version",
+        "--input",
+        "--output",
+        "--quiet",
+        "--include-provenance",
+        "--multi-step",
+    ):
         assert option in installed and option in module and option in legacy
 
 
@@ -384,6 +393,163 @@ def test_all_seven_cli_forms_match_application_and_public_api(
         assert installed_document["training_dataset_preparation_summary"]["plan"][
             "status"
         ] == "unavailable"
+
+
+@pytest.mark.parametrize(
+    ("example_name", "cli_options", "workflow_options", "workflow"),
+    WORKFLOW_CASES,
+)
+def test_all_seven_provenance_outputs_match_public_installed_module_and_legacy(
+    example_name: str,
+    cli_options: tuple[str, ...],
+    workflow_options: dict[str, object],
+    workflow: str,
+    tmp_path: Path,
+    capsys,
+) -> None:
+    input_path = EXAMPLES / example_name
+    paths = {
+        "installed": tmp_path / "installed-provenance.json",
+        "module": tmp_path / "module-provenance.json",
+        "legacy": tmp_path / "legacy-provenance.json",
+    }
+    common = [
+        "--input",
+        str(input_path),
+        *cli_options,
+        "--include-provenance",
+        "--quiet",
+        "--output",
+    ]
+
+    assert cli.run_cli([*common, str(paths["installed"])]) == 0
+    assert capsys.readouterr().out == ""
+    module = _run_subprocess(
+        [sys.executable, "-m", "skat_ai"],
+        [*common, str(paths["module"])],
+    )
+    legacy = _run_subprocess(
+        [sys.executable, str(PROJECT_ROOT / "main.py")],
+        [*common, str(paths["legacy"])],
+    )
+    assert module.returncode == legacy.returncode == 0
+    assert module.stdout == module.stderr == legacy.stdout == legacy.stderr == ""
+
+    documents = [json.loads(path.read_text(encoding="utf-8")) for path in paths.values()]
+    public = execute_document(
+        _load_example(example_name),
+        options=ExecutionOptionsV1(
+            include_provenance=True,
+            workflow_options=workflow_options,
+        ),
+        input_reference=str(input_path),
+    )
+    public_document = public.result.to_dict()["document"]
+
+    assert documents[0] == documents[1] == documents[2] == public_document
+    assert public.field_provenance is not None
+    assert documents[0]["field_provenance"] == public.field_provenance.to_dict()
+    assert documents[0]["field_provenance"]["workflow"] == workflow
+
+
+def test_provenance_summary_is_concise_and_quiet_retains_json(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    input_path = EXAMPLES / "opponent_statistics.json"
+    output_path = tmp_path / "summary.json"
+    args = [
+        "--input",
+        str(input_path),
+        "--output",
+        str(output_path),
+        "--include-provenance",
+    ]
+
+    assert cli.run_cli(args) == 0
+    output = capsys.readouterr()
+    document = json.loads(output_path.read_text(encoding="utf-8"))
+    coverage = document["field_provenance"]["result"]["coverage_summary"]
+    covered = coverage["provenanced_path_count"] + coverage["exempted_path_count"]
+    expected_section = (
+        "Field Provenance\n"
+        "Version: 1\n"
+        "Status: complete\n"
+        "Result attachment: opponent_statistics_result\n"
+        f"Covered leaves: {covered}/{coverage['leaf_path_count']}\n"
+        "Private dependencies redacted: no\n"
+        "Artifact attachment count: 0\n"
+    )
+    assert output.err == ""
+    assert output.out.endswith(expected_section)
+    emitted_section = "Field Provenance\n" + output.out.rsplit(
+        "Field Provenance\n", maxsplit=1
+    )[1]
+    assert emitted_section == expected_section
+    for forbidden in ("field_path", "reference_id", "player_id", "cards"):
+        assert forbidden not in emitted_section
+
+    module = _run_subprocess([sys.executable, "-m", "skat_ai"], args)
+    legacy = _run_subprocess(
+        [sys.executable, str(PROJECT_ROOT / "main.py")],
+        args,
+    )
+    assert module.returncode == legacy.returncode == 0
+    assert module.stdout == legacy.stdout == output.out
+    assert module.stderr == legacy.stderr == ""
+
+    quiet_path = tmp_path / "quiet-summary.json"
+    assert cli.run_cli([*args, "--output", str(quiet_path), "--quiet"]) == 0
+    quiet = capsys.readouterr()
+    assert quiet.out == quiet.err == ""
+    assert "field_provenance" in json.loads(quiet_path.read_text(encoding="utf-8"))
+
+
+def test_cli_rejects_output_only_field_provenance_in_root_input(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    source = _load_example("grand_second_position.json")
+    source["field_provenance"] = {"forged": True}
+    input_path = tmp_path / "forged-input.json"
+    input_path.write_text(json.dumps(source), encoding="utf-8")
+
+    assert cli.run_cli(["--input", str(input_path), "--quiet"]) == 1
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "field_provenance is an output-only Root field" in output.err
+
+
+def test_provenance_artifact_sidecar_preserves_export_document(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    input_path = EXAMPLES / "training_dataset_variable_length.json"
+    output_path = tmp_path / "aggregation.json"
+    export_path = tmp_path / "statistics.json"
+    args = [
+        "--input",
+        str(input_path),
+        "--aggregate-opponent-statistics",
+        "--export-opponent-statistics",
+        str(export_path),
+        "--output",
+        str(output_path),
+        "--include-provenance",
+        "--quiet",
+    ]
+
+    assert cli.run_cli(args) == 0
+    assert capsys.readouterr().out == ""
+    result = json.loads(output_path.read_text(encoding="utf-8"))
+    exported = json.loads(export_path.read_text(encoding="utf-8"))
+    artifacts = result["field_provenance"]["artifacts"]
+
+    assert len(artifacts) == 1
+    assert artifacts[0]["artifact_name"] == "opponent_statistics_input"
+    assert artifacts[0]["attachment"]["document_scope"] == "artifact_document"
+    assert set(exported) == {"opponent_statistics_input"}
+    assert "field_provenance" not in exported
 
 
 def test_human_readable_output_and_confirmation_match_module_and_legacy(

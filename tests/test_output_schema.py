@@ -181,6 +181,9 @@ FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH = (
 FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_comparison.schema.json"
 )
+FIELD_PROVENANCE_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "field_provenance.schema.json"
+)
 
 
 def load_output_schema() -> dict:
@@ -304,6 +307,8 @@ with FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA_PATH.open(
     "r", encoding="utf-8"
 ) as file:
     FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA = json.load(file)
+with FIELD_PROVENANCE_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    FIELD_PROVENANCE_SCHEMA = json.load(file)
 
 OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
     [
@@ -509,6 +514,10 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA["$id"],
             Resource.from_contents(FIXED_THREE_PLAYER_HISTORICAL_LIST_COMPARISON_SCHEMA),
+        ),
+        (
+            FIELD_PROVENANCE_SCHEMA["$id"],
+            Resource.from_contents(FIELD_PROVENANCE_SCHEMA),
         ),
     ]
 )

@@ -29,6 +29,14 @@
         "right_opponent_policy_settings",
         "profile_preset_settings"
       ],
+      "properties": {
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "position_analysis"}}}
+          ]
+        }
+      },
       "not": {
         "anyOf": [
           {"required": ["historical_game_summary"]},
@@ -55,6 +63,12 @@
         },
         "historical_opponent_profile_application_summary": {
           "$ref": "https://example.local/skat-ai/historical_opponent_profile_application.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "historical_game"}}}
+          ]
         }
       },
       "additionalProperties": false
@@ -67,6 +81,16 @@
         },
         "training_dataset_preparation_summary": {
           "$ref": "https://example.local/skat-ai/training_dataset_preparation_output.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {
+              "properties": {
+                "workflow": {"const": "training_dataset_preparation"}
+              }
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -79,6 +103,12 @@
         },
         "training_dataset_summary": {
           "$ref": "https://example.local/skat-ai/training_dataset_output.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "training_dataset"}}}
+          ]
         }
       },
       "additionalProperties": false
@@ -91,6 +121,12 @@
         },
         "opponent_statistics_summary": {
           "$ref": "https://example.local/skat-ai/opponent_statistics_output.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "opponent_statistics"}}}
+          ]
         }
       },
       "additionalProperties": false
@@ -106,6 +142,12 @@
         },
         "historical_opponent_statistics_aggregation_summary": {
           "$ref": "https://example.local/skat-ai/historical_opponent_statistics_aggregation.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "training_dataset"}}}
+          ]
         }
       },
       "additionalProperties": false
@@ -118,6 +160,12 @@
         },
         "rolling_opponent_policy_evaluation_summary": {
           "$ref": "https://example.local/skat-ai/rolling_opponent_policy_evaluation.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "training_dataset"}}}
+          ]
         }
       },
       "additionalProperties": false
@@ -130,6 +178,12 @@
         },
         "dataset_partition_audit_summary": {
           "$ref": "https://example.local/skat-ai/dataset_partition_audit.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "training_dataset"}}}
+          ]
         }
       },
       "additionalProperties": false
@@ -140,6 +194,12 @@
         "input_file": {"type": "string"},
         "bounded_search_evaluation_summary": {
           "$ref": "https://example.local/skat-ai/bounded_search_evaluation.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "training_dataset"}}}
+          ]
         }
       },
       "additionalProperties": false
@@ -150,6 +210,16 @@
         "input_file": {"type": "string"},
         "fixed_three_player_historical_list_summary": {
           "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_aggregation.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {
+              "properties": {
+                "workflow": {"const": "fixed_three_player_historical_list"}
+              }
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -163,6 +233,18 @@
         "input_file": {"type": "string"},
         "fixed_three_player_historical_list_comparison_summary": {
           "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_comparison.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {
+              "properties": {
+                "workflow": {
+                  "const": "fixed_three_player_historical_list_comparison"
+                }
+              }
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -357,6 +439,9 @@
     }
   ],
   "properties": {
+    "field_provenance": {
+      "$ref": "https://example.local/skat-ai/field_provenance.schema.json"
+    },
     "input_file": {
       "type": "string"
     },

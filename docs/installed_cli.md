@@ -13,6 +13,9 @@ python main.py
 root `python main.py` is the Legacy compatibility interface and remains supported
 through at least `v1.0.0`.
 
+Issue #147 adds the same optional `--include-provenance` transport flag to all
+three forms. The Package version remains `0.12.0`.
+
 ## Installation
 
 An Editable, Wheel, or sdist installation exposes exactly one Console Script:
@@ -59,8 +62,8 @@ focused `examples/...` commands.
 
 All three forms share one canonical parser and the same option names, aliases,
 destinations, actions, defaults, choices, repeatability, and semantic validation.
-`--version` is the only option added by Issue #142. The full current option list
-is available through `--help`.
+Issue #142 added `--version`; Issue #147 adds `--include-provenance`. The full
+current option list is available through `--help`.
 
 The CLI preserves this transport sequence:
 
@@ -71,10 +74,11 @@ The CLI preserves this transport sequence:
 5. Load optional external Opponent Statistics.
 6. Construct internal Application options.
 7. Execute the Application directly.
-8. Write requested Root output.
-9. Write a requested auxiliary Opponent Statistics export.
-10. Print human-readable output unless `--quiet` is supplied.
-11. Print file confirmations unless `--quiet` is supplied.
+8. Optionally attach bounded public-safe field provenance.
+9. Write requested Root output.
+10. Write a requested auxiliary Opponent Statistics export.
+11. Print human-readable output unless `--quiet` is supplied.
+12. Print file confirmations unless `--quiet` is supplied.
 
 The CLI does not execute `skat_ai.api.v1` as an intermediate layer. It uses the
 same internal Application orchestration as the Public Python API while retaining
@@ -87,16 +91,27 @@ Use caller-owned paths with either installed form:
 ```powershell
 skat-ai --input position.json
 python -m skat_ai --input historical-game.json --output result.json --quiet
+skat-ai --input position.json --include-provenance --output result.json
 ```
 
 Without `--quiet`, successful workflows preserve the existing human-readable
-headings, labels, ordering, and privacy boundaries. `--output` writes the
-unchanged Root JSON document. `--quiet` suppresses successful human-readable
+headings, labels, ordering, and privacy boundaries. By default, `--output` writes
+the unchanged Root JSON document. `--quiet` suppresses successful human-readable
 output and file confirmations but does not suppress errors.
+
+`--include-provenance` adds Root `field_provenance` for every Root workflow.
+Without `--quiet`, the CLI prints only a concise aggregate section with version,
+status, Result attachment, covered/total leaves, whether private dependencies
+were redacted, and artifact attachment count. It does not print ledger entries,
+field paths, references, cards, or Player IDs. With `--quiet`, the section is
+suppressed while the JSON sidecar is still written.
 
 Historical Opponent Statistics aggregation may write its separate reusable
 artifact with `--export-opponent-statistics`. The auxiliary JSON remains outside
 the primary Root output and uses the existing `opponent_statistics_input` shape.
+When provenance is requested, the Root sidecar maps that actual artifact to
+`training_dataset/opponent_statistics_input` with scope `artifact_document`; the
+separate export document itself remains unchanged and has no nested sidecar.
 
 ## Errors and Exit Codes
 
@@ -125,10 +140,10 @@ formatters, Exit Code constants, `CliUsageError` alias, callable signatures, and
 established monkeypatch seams. A patched Root seam affects Legacy execution but
 does not require the installed Package CLI to import Root `main.py`.
 
-The Package Root, `skat_ai.api`, `skat_ai.api.v1`, and `skat_ai.errors` export
-surfaces are unchanged. CLI functions and installed-CLI constants are internal
-and are not stable Public Python API exports. Root JSON, Public API behavior,
-Schemas, examples, and generated scenarios are unchanged.
+CLI functions and installed-CLI constants remain internal and are not stable
+Public Python API exports. Issue #147 additively extends `skat_ai.api.v1`, Root
+JSON Schema, and generated scenarios while preserving default Root JSON and the
+flattened Public API envelope.
 
 ## Distribution validation
 
@@ -136,18 +151,16 @@ The existing single distribution validator builds one Wheel and one sdist. Its
 two existing clean environments verify exact Console Script metadata, module
 entry-point inclusion, Root-main exclusion, help, version, successful Root JSON
 parity, one unavailable Result, one usage failure, one expected resource failure,
-and exact CLI/Public API output parity. All 61 Schema Resources and `py.typed`
-remain required. The local full check and CI invoke that validator once.
+and exact CLI/Public API output parity, including provenance opt-in and quiet
+behavior. All 62 Schema Resources and `py.typed` remain required. The local full
+check and CI invoke that validator once.
 
 ## Boundaries
 
-Issue #142 adds no workflow, Root field, Schema, example, generated scenario,
-interactive session, license metadata, Package-version change, publication, or
-upload. Issue #143 adds internal live Position provenance, but all CLI forms
-intentionally ignore that bundle. Issue #144 adds internal retrospective
-Position and Historical provenance under the same boundary. Issue #145 adds
-internal Dataset, Preparation, Opponent, Profile, list, and comparison
-provenance under that boundary. Issue #146 completes internal Position and
-Historical Result ledgers, so all seven Root workflows have complete internal
-Result provenance. Every CLI form still ignores it. There is no
-Provenance option, output, Schema, artifact, export, or terminal section.
+Issue #142 adds no workflow, interactive session, license metadata, Package-
+version change, publication, or upload. Issues #143 through #146 provide the
+complete internal Result ledgers. Issue #147 exposes only one redacted Result
+attachment plus actual-artifact attachments through `--include-provenance`, the
+strict public Schema, and a concise terminal section. Consumed-input, decision,
+intermediate-stage, and unredacted Application attachments remain unavailable.
+See [Public field provenance](public_field_provenance.md).
