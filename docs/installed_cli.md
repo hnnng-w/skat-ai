@@ -16,11 +16,12 @@ through at least `v1.0.0`.
 Issue #147 adds the same optional `--include-provenance` transport flag to all
 three forms. The Package version is `0.13.0`.
 
-Issues #150 through #152 add internal Session contracts, replay, projection,
-incremental validation, Command application, and canonical Retrospective
-Historical Request construction only. They add no Session command, option,
-assistant, prompt, file transport, persistence behavior, automatic execution,
-Console Script, or invocation form; all CLI contracts below remain unchanged.
+Issues #150 through #153 add internal Session contracts, replay, projection,
+incremental validation, Command application, canonical Retrospective Historical
+and information-safe Position Request construction, and pre-Play Decision
+Checkpoints only. They add no CLI Session command, option, assistant, prompt,
+file transport, persistence behavior, automatic execution, Console Script, or
+invocation form; all CLI contracts below remain unchanged.
 
 ## Installation
 
@@ -169,6 +170,7 @@ complete internal Result ledgers. Issue #147 exposes only one redacted Result
 attachment plus actual-artifact attachments through `--include-provenance`, the
 strict public Schema, and a concise terminal section. Consumed-input, decision,
 intermediate-stage, and unredacted Application attachments remain unavailable.
-The internal Session foundation from Issues #150 through #152 does not make
-interactive capture or Session export available through any CLI form.
+The internal Session foundation from Issues #150 through #153 does not make
+interactive capture, Request export, or Checkpoints available through any CLI
+form.
 See [Public field provenance](public_field_provenance.md).

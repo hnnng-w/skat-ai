@@ -10,6 +10,7 @@ from skat_ai.session_commands import (
     RecordSessionPlayCommandV1,
     SessionCommandV1,
     SetSessionDeclarerCommandV1,
+    SetSessionPublicHandCommandV1,
     is_session_command_v1,
     serialize_session_command_v1,
 )
@@ -175,6 +176,11 @@ def _validate_log_player_references(
         elif isinstance(command, RecordSessionPlayCommandV1):
             if command.player_id not in player_ids:
                 raise ValueError("Play Commands must reference a declared Session Player.")
+        elif isinstance(command, SetSessionPublicHandCommandV1):
+            if command.player_id not in player_ids:
+                raise ValueError(
+                    "Public-hand Commands must reference a declared Session Player."
+                )
         elif isinstance(command, PromoteSessionToRetrospectiveCommandV1):
             promotion_count += 1
             promoted = True

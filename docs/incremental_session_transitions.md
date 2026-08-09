@@ -5,7 +5,9 @@ adds deterministic revision-zero creation, accepted-Log replay, immutable
 projection, atomic Command application, incremental rule validation, and export
 readiness calculation. It does not export an Engine Request or add a public
 Session workflow. Issue #152 separately consumes its replay and Historical
-readiness boundary to construct an internal canonical Historical Request.
+readiness boundary to construct an internal canonical Historical Request. Issue
+#153 consumes Position readiness to construct an existing flat Position Request
+and a separately frozen pre-Play Checkpoint without workflow execution.
 
 ## Contract identity
 
@@ -60,7 +62,8 @@ retains only accepted caller facts and deterministic rule derivations:
 * known Skat, Declarer, Declaration, and Discards;
 * chronological Plays;
 * completed tricks, an optional incomplete trick, and next Player;
-* at most one typed continuation event and its shrinking exact public hand;
+* at most one typed continuation event and owner-keyed shrinking exact public
+  hands, including a separately accepted declared-Ouvert hand;
 * Game End reason and typed terminal object;
 * played-card count.
 
@@ -179,6 +182,13 @@ Play validation enforces:
 An unknown Live opponent hand remains absent. The transition checks only public
 facts and does not reject a Play merely because Bedienpflicht cannot be proved.
 
+One `set_public_hand` Command may record the exact current Declarer hand when an
+ongoing Declaration is Ouvert. It is accepted only during Play, uses source
+`declared_ouvert`, requires the exact remaining-card count, rejects conflicts
+with every known/public hand and unavailable Card, and shrinks with later
+Declarer Plays. It may coexist with a continuation public hand owned by another
+Player.
+
 Completed tricks reuse `get_trick_winner()` and `get_trick_points()` to derive
 winner Player, winner side, points, and next leader. Incomplete-trick and next-
 Player state are derived after every Play. Score, Result, Value, Overbid, and
@@ -213,7 +223,8 @@ Diagnostics describe current export blockers, never earlier rejected Commands.
 
 Position readiness requires phase `play`, a local Player who is next, complete
 Declarer and Declaration, an exact non-empty local playable hand, valid current
-trick state, and no Game End.
+trick state, and no Game End. If an opponent is the Ouvert Declarer, readiness
+also requires that Declarer's exact current public hand.
 
 Historical readiness requires Retrospective Mode, phase `ended`, stable Game ID,
 exact 32-card Deal, complete Declarer and Declaration, valid Hand/Discard state,
@@ -222,7 +233,7 @@ either normal 30-Play completion or one supported terminal ending.
 
 Readiness is a normal available/unavailable status. Issue #151 itself exports
 neither Request. Issue #152 now uses Historical readiness as an exact gate;
-Position readiness still has no Request exporter.
+Issue #153 uses Position readiness as an information-safe exact gate.
 
 ## Performance and boundaries
 
@@ -235,8 +246,11 @@ Package/Public API exports, all seven Root workflows, Application orchestration,
 installed/module/Legacy CLI, 62 Schemas, examples, and 77 generated outputs are
 unchanged. One Historical export performs one replay, no builder call when
 unavailable, or one provisional build, one canonical serialization, and one
-canonical rebuild when available. It runs no analysis or execution. Decision
-checkpoints, Live Position Request export, Undo/correction, persistence, Public
-Session API, Session Provenance, Session Schemas, CLI Session Assistant,
-examples, generated outputs, and UI remain later work. See
-[Retrospective Session export](retrospective_session_export.md).
+canonical rebuild when available. One Position export performs one replay and no
+builder call when unavailable or one existing Position build when available. A
+Checkpoint builder performs one replay and reconstructs the expected Request
+without executing analysis. Undo/correction, persistence, Public Session API,
+Session Provenance, Session Schemas, CLI Session Assistant, examples, generated
+outputs, automatic Checkpoint collection, and UI remain later work. See
+[Retrospective Session export](retrospective_session_export.md) and
+[Session Position export and Decision checkpoints](live_session_position_export.md).

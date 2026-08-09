@@ -60,13 +60,14 @@ The implementation is split across:
 These modules are internal. They are not exported from `skat_ai`, `skat_ai.api`,
 `skat_ai.api.v1`, or `skat_ai.errors`.
 
-Issues #150 through #152 separate internal Session contracts, projection,
-replay, incremental validation, transitions, and canonical Retrospective
-Historical Request export. They reuse canonical RFC 6901 paths for Diagnostics
-but do not produce or propagate field Provenance. Neither the Session export
-result nor its Root Request carries a Provenance sidecar. Session Command, State,
-projection, transition, checkpoint, and export Provenance remains later work and
-does not change this contract version.
+Issues #150 through #153 separate internal Session contracts, projection,
+replay, incremental validation, transitions, canonical Retrospective Historical
+and information-safe Position Request export, and immutable pre-Play Decision
+Checkpoints. They reuse canonical RFC 6901 paths for Diagnostics but do not
+produce or propagate field Provenance. Session export Results, Requests, and
+Checkpoints carry no Provenance sidecar. Session Command, State, projection,
+transition, checkpoint, and export Provenance remains later work and does not
+change this contract version.
 
 ## Sidecar design
 
@@ -453,5 +454,6 @@ Broader adversarial enforcement outside implemented Application boundaries and
 complete field-level enforcement across every load, decision, intermediate, and
 serialization boundary remain open before `v1.0.0`. Confidence integration is
 not part of the provenance contract. Session Provenance propagation also remains
-open after the Issue #150 contract, Issue #151 transition foundation, and Issue
-#152 internal Historical exporter.
+open after the Issue #150 contract, Issue #151 transition foundation, Issue #152
+internal Historical exporter, and Issue #153 Position exporter and Decision
+Checkpoints.

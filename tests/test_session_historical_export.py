@@ -105,6 +105,44 @@ def _blocking_diagnostic(
     )
 
 
+def _position_request() -> RequestDocumentV1:
+    return RequestDocumentV1(
+        workflow=WorkflowV1.POSITION_ANALYSIS,
+        document={
+            "game_type": "grand",
+            "player_role": "declarer",
+            "declarer_player": "me",
+            "player_position": "forehand",
+            "trick_leader": "me",
+            "hand": ["CA"],
+            "current_trick": [],
+            "played_cards": [],
+            "completed_tricks": [],
+            "declarer_points": 0,
+            "defender_points": 0,
+            "next_player": "me",
+            "skat": [],
+            "skat_visibility": "unknown",
+            "left_hand_size": 1,
+            "right_hand_size": 1,
+            "sample_count": 1,
+            "random_seed": 0,
+            "use_basic_opponent_strategy": True,
+            "analysis_mode": "live_decision",
+            "game_end_reason": "not_ended",
+            "game_declaration": {
+                "game_type": "grand",
+                "hand_game": True,
+                "ouvert": False,
+                "schneider_announced": False,
+                "schwarz_announced": False,
+                "matadors": None,
+                "bid_value": 24,
+            },
+        },
+    )
+
+
 def _late_promoted_normal_session(data: dict) -> SessionStateV1:
     local_player_id = data["players"][0]["player_id"]
     state = create_session_state_v1(
@@ -314,19 +352,16 @@ def test_export_contract_available_and_unavailable_invariants_are_exact() -> Non
                 **values,
             )
 
-    position_request = RequestDocumentV1(
-        workflow=WorkflowV1.POSITION_ANALYSIS,
-        document={},
+    position_request = _position_request()
+    position_available = SessionRequestExportV1(
+        session_id="session-152",
+        source_revision=0,
+        target="position_analysis",
+        status="available",
+        request=position_request,
+        diagnostics=(),
     )
-    with pytest.raises(ValueError, match="target"):
-        SessionRequestExportV1(
-            session_id="session-152",
-            source_revision=0,
-            target="position_analysis",
-            status="available",
-            request=position_request,
-            diagnostics=(),
-        )
+    assert position_available.request is position_request
     with pytest.raises(ValueError, match="workflow"):
         SessionRequestExportV1(
             session_id="session-152",

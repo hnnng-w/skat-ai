@@ -113,7 +113,11 @@ def _declaration_from_data(data: dict) -> GameDeclaration:
     )
 
 
-def _retrospective_before_play(data: dict) -> SessionStateV1:
+def _retrospective_before_play(
+    data: dict,
+    *,
+    local_player_id: str | None = None,
+) -> SessionStateV1:
     players = tuple(
         SessionPlayerV1(
             player_id=player["player_id"],
@@ -126,6 +130,7 @@ def _retrospective_before_play(data: dict) -> SessionStateV1:
         session_id=f"session-{data['game_id']}",
         players=players,
         capture_mode="retrospective",
+        local_player_id=local_player_id,
     )
     state = _metadata(
         state,

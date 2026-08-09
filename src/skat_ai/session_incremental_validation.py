@@ -40,6 +40,7 @@ from skat_ai.session_commands import (
     SetSessionGameEndCommandV1,
     SetSessionGameEventCommandV1,
     SetSessionGameMetadataCommandV1,
+    SetSessionPublicHandCommandV1,
     is_session_command_v1,
 )
 from skat_ai.session_projection import (
@@ -818,6 +819,82 @@ def _validate_complete_current_hand(
     return None
 
 
+def _merge_exact_public_hand(
+    projection: SessionProjectionV1,
+    *,
+    owner_player_id: str,
+    cards: tuple[str, ...],
+) -> tuple[SessionProjectedHandV1, ...]:
+    public_hands = _hands_to_dict(projection.exact_public_hands)
+    public_hands[owner_player_id] = list(cards)
+    return _ordered_hands(projection, public_hands)
+
+
+def _apply_public_hand(
+    projection: SessionProjectionV1,
+    command: SetSessionPublicHandCommandV1,
+) -> SessionProjectionApplicationV1:
+    if projection.declared_ouvert_public_hand_set:
+        return _rejected(
+            "event_sequence_violation",
+            "/command/source",
+            "A Session may accept at most one declared-Ouvert public-hand Command.",
+        )
+    if command.player_id not in projection.player_ids:
+        return _rejected(
+            "player_reference_violation",
+            "/command/player_id",
+            "player_id must reference a Session Player.",
+        )
+    if projection.declarer_player_id is None or projection.declaration is None:
+        return _rejected(
+            "missing_required_value",
+            "/command/cards",
+            "A public hand requires a complete Declarer and Declaration.",
+        )
+    if not projection.declaration.ouvert:
+        return _rejected(
+            "declaration_violation",
+            "/command/source",
+            "declared_ouvert requires an ongoing Ouvert Declaration.",
+        )
+    if command.player_id != projection.declarer_player_id:
+        return _rejected(
+            "player_reference_violation",
+            "/command/player_id",
+            "The declared-Ouvert public hand must belong to the stable Declarer.",
+        )
+    if projection.game_end_reason is not None:
+        return _rejected(
+            "game_end_violation",
+            "/command/cards",
+            "A public hand cannot be recorded after Game End.",
+        )
+    diagnostic = _validate_complete_current_hand(
+        projection,
+        owner_player_id=command.player_id,
+        cards=command.cards,
+        path="/command/cards",
+        require_count=True,
+    )
+    if diagnostic is not None:
+        return SessionProjectionApplicationV1(
+            projection=None,
+            diagnostics=(diagnostic,),
+        )
+    return _applied(
+        replace(
+            projection,
+            exact_public_hands=_merge_exact_public_hand(
+                projection,
+                owner_player_id=command.player_id,
+                cards=command.cards,
+            ),
+            declared_ouvert_public_hand_set=True,
+        )
+    )
+
+
 def _apply_game_event(
     projection: SessionProjectionV1,
     command: SetSessionGameEventCommandV1,
@@ -886,7 +963,11 @@ def _apply_game_event(
         replace(
             projection,
             continuation_event=event,
-            exact_public_hands=((owner_player_id, cards),),
+            exact_public_hands=_merge_exact_public_hand(
+                projection,
+                owner_player_id=owner_player_id,
+                cards=cards,
+            ),
         )
     )
 
@@ -1061,7 +1142,9 @@ def apply_session_command_to_projection_v1(
         return _apply_game_event(projection, command)
     if isinstance(command, SetSessionGameEndCommandV1):
         return _apply_game_end(projection, command)
-    return _apply_promotion(projection, command)
+    if isinstance(command, PromoteSessionToRetrospectiveCommandV1):
+        return _apply_promotion(projection, command)
+    return _apply_public_hand(projection, command)
 
 
 def _export_diagnostic(
@@ -1218,6 +1301,32 @@ def build_session_validation_result_v1(
                 position=True,
             )
         )
+    if (
+        projection.local_player_id is not None
+        and projection.declarer_player_id is not None
+        and projection.declaration is not None
+        and projection.declaration.ouvert
+        and projection.declarer_player_id != projection.local_player_id
+    ):
+        declarer_cards = projection.public_hand_for(projection.declarer_player_id)
+        if declarer_cards is None:
+            declarer_cards = projection.remaining_hand_for(
+                projection.declarer_player_id
+            )
+        expected_count = 10 - sum(
+            player_id == projection.declarer_player_id
+            for player_id, _ in projection.plays
+        )
+        if declarer_cards is None or len(declarer_cards) != expected_count:
+            diagnostics.append(
+                _export_diagnostic(
+                    "missing_required_value",
+                    "/exact_public_hands",
+                    "Opponent-declarer Ouvert Position export requires the exact "
+                    "current public Declarer hand.",
+                    position=True,
+                )
+            )
 
     if projection.capture_mode != "retrospective":
         diagnostics.append(

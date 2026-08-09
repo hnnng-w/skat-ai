@@ -13,7 +13,7 @@ the existing Engine workflows:
 Session Commands
     -> immutable accepted Session State
     -> validation and export readiness
-    -> later Position export
+    -> canonical Position Request export and optional Decision Checkpoint
     -> canonical Historical Game Request export
 ```
 
@@ -21,9 +21,11 @@ The immutable Session language, deterministic accepted-Log replay, frozen
 projection, atomic Command application, monotonic phase advancement, and
 incremental validation are implemented. Historical-ready Retrospective Sessions
 also map through the existing Historical builder and canonical serializer into
-an immutable Request without executing it. No Live Position Request export,
-Decision checkpoint, Undo/correction, persistence, Public API, Session
-Provenance, CLI Session command, Schema, or UI exists yet.
+an immutable Request without executing it. Position-ready Sessions map through
+the existing flat Position builder into an information-safe immutable Request,
+and an available export can be frozen as a replay-verified pre-Play Checkpoint.
+No Undo/correction, persistence, Public API, Session Provenance, CLI Session
+command, Schema, or UI exists yet.
 
 The position-analysis flow is:
 
@@ -48,6 +50,13 @@ and emits `historical_game_summary`.
 A ready Retrospective Session can now construct that existing Root input through
 the internal Issue #152 exporter. Historical workflow execution remains a
 separate explicit API, Application, or CLI action.
+One Position-ready Live or Retrospective Session can construct the existing flat
+Position Root input through the internal Issue #153 exporter. It maps stable
+Players to the local `me`/`left`/`right` perspective, emits only decision-visible
+Skat, Matador, Ouvert, and continuation facts, validates through the existing
+Position builder, and does not execute analysis. A separate Issue #153 builder
+verifies and freezes that exact export with source revision and decision
+metadata before the local Play.
 When requested, the flow derives one pre-play decision snapshot per actual
 supplied play from that
 validated replay result. Historical review adapts each snapshot independently
@@ -201,6 +210,8 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/session_transitions.py` | Revision-zero creation, full accepted-Log replay, forged-State checks, conflicts, atomic append, and Transition Results. |
 | `src/skat_ai/session_export_contracts.py` | Immutable version-1 available/unavailable Request export result and policy invariants. |
 | `src/skat_ai/session_historical_export.py` | One-replay Historical readiness gate, exact projection mapping, canonical builder round trip, and immutable existing Root Request construction. |
+| `src/skat_ai/session_position_export.py` | Immutable analysis options, one-replay Position readiness gate, stable-to-relative information-safe mapping, existing builder validation, and immutable Root Request construction. |
+| `src/skat_ai/session_decision_checkpoint.py` | Immutable local pre-Play metadata and replay-verified frozen Position Request construction. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
 analysis Result, generated timestamp, or path. It reuses Historical seats,
@@ -210,7 +221,9 @@ running analysis or adjudication. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Incremental Session transitions](incremental_session_transitions.md). See
 [Retrospective Session export](retrospective_session_export.md) for the separate
-internal no-execution export boundary.
+internal no-execution Historical boundary and
+[Session Position export and Decision checkpoints](live_session_position_export.md)
+for the information-safe Position boundary.
 
 Validation is split between JSON Schema and Python validation:
 

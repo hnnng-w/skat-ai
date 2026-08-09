@@ -4,8 +4,10 @@ Issue #150 begins the `v0.14.0` interactive-capture milestone with an internal,
 immutable contract foundation. Issue #151 makes that language executable through
 deterministic internal transitions and incremental validation. Issue #152 exports
 Historical-ready Retrospective Sessions to canonical existing Historical Game
-Requests. Live Position export, checkpoints, Undo/correction, persistence,
-Public API, Provenance, Schemas, CLI, and end-to-end capture remain later layers.
+Requests. Issue #153 adds information-safe Position Request export, declared-
+Ouvert public-hand capture, and immutable pre-Play Decision Checkpoints.
+Undo/correction, persistence, Public API, Provenance, Schemas, CLI, and end-to-end
+capture remain later layers.
 
 ## Contract identity
 
@@ -20,6 +22,11 @@ SESSION_REPLAY_POLICY = full_accepted_log_before_apply
 SESSION_REQUEST_EXPORT_VERSION = 1
 SESSION_REQUEST_EXPORT_POLICY = existing_root_request_contract
 SESSION_HISTORICAL_EXPORT_POLICY = exact_ready_retrospective_state
+SESSION_POSITION_EXPORT_OPTIONS_VERSION = 1
+SESSION_POSITION_EXPORT_POLICY = information_safe_ready_local_decision
+SESSION_DECISION_CHECKPOINT_VERSION = 1
+SESSION_DECISION_CHECKPOINT_POLICY = frozen_pre_play_request
+SESSION_DECISION_INFORMATION_CUTOFF = before_local_play
 ```
 
 They do not derive from Package version `0.13.0`, Public API version `1`,
@@ -49,16 +56,16 @@ The intended flow is:
 Session Commands
     -> immutable accepted Session State
     -> validation and export readiness
-    -> later Position Analysis export
+    -> canonical Position Analysis Request export and optional Checkpoint
     -> canonical Historical Game Request export
 ```
 
 Commands are applied atomically, the full accepted Log can be replayed into an
 immutable projection, phases and Validation are recomputed, and both export
-targets receive normal readiness status. Issue #152 implements only the
-Historical exporter. There is no Position exporter, Decision checkpoint,
-Undo/correction layer, parser, persistence loader, Public Session API, or Session
-Root workflow.
+targets receive normal readiness status. Issues #152 and #153 implement the
+Historical and Position exporters; Issue #153 can freeze an available local pre-
+Play Position export as a Decision Checkpoint. There is no Undo/correction layer,
+parser, persistence loader, Public Session API, or Session Root workflow.
 
 `GameState` remains the mutable local analysis and simulation value.
 `HistoricalGameRecord` remains the strict immutable final historical contract.
@@ -155,6 +162,7 @@ The closed version-1 union is, in canonical order:
 | `set_game_event` | One recursively immutable JSON object using an existing declarer-card-exposure or defender-open-play continuation kind. |
 | `set_game_end` | One existing supported Historical end reason and a recursively immutable terminal JSON object, or normal completion with null details. |
 | `promote_to_retrospective` | No payload. |
+| `set_public_hand` | Source `declared_ouvert`, one stable Declarer Player ID, and the exact canonical current public Card array. |
 
 Card notation, Declaration dependencies, RFC 3339 parsing, continuation-kind
 names, and Historical Game-end reason names reuse existing contracts. Event and
@@ -175,6 +183,7 @@ The immutable allowed-phase metadata is:
 | `set_game_event` | `play` |
 | `set_game_end` | `play` |
 | `promote_to_retrospective` | every phase |
+| `set_public_hand` | `play` |
 
 Issue #151 enforces this metadata before Command-specific validation.
 
@@ -220,6 +229,12 @@ initial hand, forbid concrete opponent hands and actual hidden ownership, accept
 concrete Skat only when legitimately known, and accept public Plays or authorized
 public hands. Search, inference, simulation, or recommendation output can never
 be recorded as actual ownership.
+
+Issue #153 permits one narrow `declared_ouvert` public-hand Command during Play.
+It requires the exact current Declarer hand, validates remaining-card count and
+ownership conflicts, and cannot introduce an arbitrary private opponent hand.
+Declared-Ouvert and continuation public hands coexist by stable owner and shrink
+only when that owner Plays.
 
 Retrospective capture records exact three hands, exact Skat, Discards, and exact
 Plays. Incremental validation reconciles those facts with exact ownership and
@@ -319,7 +334,8 @@ Schema or persistence loader.
 The separate frozen `SessionProjectionV1` retains metadata, canonical initial
 and remaining known hands, known Skat, Declarer, Declaration, Discards,
 chronological Plays, completed and incomplete trick state, next Player, optional
-continuation and shrinking exact public hand, optional Game End, and Play count.
+continuation, owner-keyed shrinking exact public hands, the accepted declared-
+Ouvert public-hand marker, optional Game End, and Play count.
 Unknown private hands are absent. Projection serialization is internal and is not
 added to `SessionStateV1`.
 
@@ -336,8 +352,13 @@ Historical builder while unavailable, and constructs but does not execute the
 existing `RequestDocumentV1`. See
 [Retrospective Session export](retrospective_session_export.md).
 
-Remaining `v0.14.0` work includes Live Position Request export, Decision
-checkpoints, Undo and correction, persistence and resume, Public Session API,
-Session Provenance, Session Schemas, CLI Session Assistant, examples, generated
-outputs, end-to-end capture, and any later local interface. No UI technology or
-platform integration is selected. See [Incremental Session transitions](incremental_session_transitions.md).
+Information-safe Position Request export and immutable pre-Play Decision
+Checkpoints are also implemented without workflow execution. See
+[Session Position export and Decision checkpoints](live_session_position_export.md).
+
+Remaining `v0.14.0` work includes Undo and correction, persistence and resume,
+Session-triggered analysis, actual-card Checkpoint attachment, Public Session
+API, Session Provenance, Session Schemas, CLI Session Assistant, examples,
+generated outputs, automatic Checkpoint collection, end-to-end capture, and any
+later local interface. No UI technology or platform integration is selected.
+See [Incremental Session transitions](incremental_session_transitions.md).

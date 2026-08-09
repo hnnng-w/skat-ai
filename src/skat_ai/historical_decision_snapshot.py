@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from skat_ai.deck import get_full_deck
 from skat_ai.historical_decision_cardinality import (
     HistoricalDecisionCardinality,
     derive_historical_decision_cardinality,
 )
-from skat_ai.matador_inference import infer_matadors_from_known_ownership
+from skat_ai.matador_inference import infer_visible_matadors_for_decision
 from skat_ai.rules import get_legal_cards
 
 HISTORICAL_DECISION_SNAPSHOT_SCHEMA_VERSION = 1
@@ -239,42 +238,24 @@ def _infer_visible_matadors(
     current_trick: tuple[HistoricalSnapshotPlay, ...],
     public_exposed_cards: tuple[HistoricalSnapshotExposedCards, ...],
 ) -> int | None:
-    if game_type == "null":
-        return None
-
-    declarer_owned_cards = []
-    non_declarer_owned_cards = []
-    public_plays = [
-        *(play for trick in completed_tricks for play in trick.plays),
-        *current_trick,
-    ]
-    for play in public_plays:
-        if play.player_id == declarer_player_id:
-            declarer_owned_cards.append(play.card)
-        else:
-            non_declarer_owned_cards.append(play.card)
-
-    if acting_player_id == declarer_player_id:
-        declarer_owned_cards.extend(own_hand)
-        declarer_owned_cards.extend(known_skat_cards)
-        if not hand_game:
-            declarer_owned_set = set(declarer_owned_cards)
-            non_declarer_owned_cards = [
-                card for card in get_full_deck() if card not in declarer_owned_set
-            ]
-    else:
-        non_declarer_owned_cards.extend(own_hand)
-
-    for exposure in public_exposed_cards:
-        if exposure.player_id == declarer_player_id:
-            declarer_owned_cards.extend(exposure.cards)
-        else:
-            non_declarer_owned_cards.extend(exposure.cards)
-
-    return infer_matadors_from_known_ownership(
+    return infer_visible_matadors_for_decision(
         game_type=game_type,
-        declarer_owned_cards=declarer_owned_cards,
-        non_declarer_owned_cards=non_declarer_owned_cards,
+        hand_game=hand_game,
+        acting_player_id=acting_player_id,
+        declarer_player_id=declarer_player_id,
+        own_hand=own_hand,
+        known_skat_cards=known_skat_cards,
+        public_plays=tuple(
+            (play.player_id, play.card)
+            for play in (
+                *(play for trick in completed_tricks for play in trick.plays),
+                *current_trick,
+            )
+        ),
+        public_hands=tuple(
+            (exposure.player_id, exposure.cards)
+            for exposure in public_exposed_cards
+        ),
     )
 
 

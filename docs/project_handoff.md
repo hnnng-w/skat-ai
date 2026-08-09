@@ -91,6 +91,12 @@ The project focuses on:
   unavailable Results, exact Retrospective Historical readiness gating,
   canonical Historical mapping and round trip, and immutable existing Root
   Request construction without workflow execution
+* internal information-safe Session Position export with immutable explicit
+  analysis options, stable-to-relative mapping, declared-Ouvert and continuation
+  public hands, existing Position validation, and no workflow execution
+* immutable internal pre-Play Decision Checkpoints with replay-verified source
+  revision, actor/seat/index metadata, relative Player map, and frozen existing
+  Position Request
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -222,7 +228,7 @@ by Issue #142; broader Domain error migration and end-to-end field-level
 enforcement remain open. See
 [Application orchestration](application_orchestration.md).
 
-### Interactive Session contract, transition, and Historical export foundation
+### Interactive Session contract, Request export, and Checkpoint foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -230,7 +236,7 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
 * exactly three stable Players with canonical Historical seats
 * Live and Retrospective Capture Modes with one-way explicit promotion
 * setup, deal, declaration, Skat/discard, play, and ended phases
-* nine immutable typed Commands with exact allowed-phase metadata
+* nine initial immutable typed Commands with exact allowed-phase metadata
 * an authoritative contiguous accepted Command Log and linear revisions
 * structural Live hand-entry protection before promotion
 * canonical validation Diagnostics and Position/Historical export readiness
@@ -268,11 +274,31 @@ Implemented by Issue #152:
 * normal completion, every supported terminal ending, both continuation events,
   and every supported continuation/end chain without analysis or execution
 
-Live Position Request export, Decision checkpoints, Undo/correction,
+Implemented by Issue #153:
+
+* immutable Position Export Options version `1` with explicit Immediate/Search
+  settings and existing recommendation-configuration validation
+* one-replay information-safe Position readiness gate with no builder call while
+  unavailable and one existing Position build while available
+* exact stable-to-relative mapping of local hand, trick state, points, hand
+  sizes, decision-visible Skat and Matadors, and authorized public hands
+* appended `set_public_hand` Command with sole source `declared_ouvert`, exact
+  current Declarer-hand validation, owner-aware coexistence, and shrinking
+* generalized `SessionRequestExportV1` invariants for Position and Historical
+  targets without changing its version
+* immutable Decision Checkpoint version `1` with exact source identity/revision,
+  Capture Mode, decision/trick/play indexes, actor/seat, information cutoff,
+  relative map, and frozen Position Request
+* replay and expected-Request equality verification without analysis,
+  Application, Public API, transport, or workflow execution
+
+Session-triggered analysis, actual-card Checkpoint attachment, Undo/correction,
 persistence, Public API, Provenance propagation, Schema, CLI Session Assistant,
-example, generated output, end-to-end capture, and UI are not implemented. See
+example, generated output, automatic Checkpoint collection, end-to-end capture,
+and UI are not implemented. See
 [Interactive session contracts](interactive_session_contracts.md) and
-[Retrospective Session export](retrospective_session_export.md).
+[Retrospective Session export](retrospective_session_export.md), and
+[Session Position export and Decision checkpoints](live_session_position_export.md).
 
 ### Field-level provenance contract foundation
 
@@ -1429,11 +1455,13 @@ Completed implementation scope:
   broader Search, and causal attribution remain unimplemented.
 * Immutable internal Live and Retrospective Session contracts plus deterministic
   Command application, replay, phase advancement, projection, incremental
-  validation, readiness, and canonical Retrospective Historical Request export
-  are implemented. Live Position Request export, Decision checkpoints,
-  Undo/correction, persistence, Public API, Provenance, CLI Session commands,
-  Schemas, examples/generated output, end-to-end capture, and UI are not. The
-  exporter executes no workflow; the installed CLI, public executable facade,
+  validation, readiness, canonical Retrospective Historical and information-safe
+  Position Request exports, declared-Ouvert public-hand capture, and immutable
+  pre-Play Decision Checkpoints are implemented. Session-triggered analysis,
+  actual-card Checkpoint attachment, Undo/correction, persistence, Public API,
+  Provenance, CLI Session commands, Schemas, examples/generated output,
+  automatic Checkpoint collection, end-to-end capture, and UI are not.
+  The exporters execute no workflow; the installed CLI, public executable facade,
   and reusable internal Application layer continue to execute only the seven
   existing Root workflows.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -1443,10 +1471,10 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement the next bounded `v0.14.0` Session layer over Issues #150 through #152.
-Live Position Request export and Decision checkpoints remain the nearest open
-contract areas; Undo/correction, persistence, Public API, Provenance, Schemas,
-CLI, and UI must remain separately scoped.
+Implement the next bounded `v0.14.0` Session layer over Issues #150 through #153.
+Undo/correction and persistence/resume remain the nearest open contract areas;
+Public API, Provenance, Schemas, CLI, automatic Checkpoint collection, end-to-end
+capture, and UI must remain separately scoped.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

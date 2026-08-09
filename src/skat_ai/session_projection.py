@@ -181,6 +181,7 @@ class SessionProjectionV1:
     next_player_id: str | None
     continuation_event: HistoricalGameEvent | None
     exact_public_hands: tuple[SessionProjectedHandV1, ...]
+    declared_ouvert_public_hand_set: bool
     game_end_reason: str | None
     game_end: HistoricalGameEnd | None
     played_card_count: int
@@ -229,6 +230,8 @@ class SessionProjectionV1:
             field_name="exact_public_hands",
             player_ids=player_ids,
         )
+        if not isinstance(self.declared_ouvert_public_hand_set, bool):
+            raise ValueError("declared_ouvert_public_hand_set must be a boolean.")
         known_skat = _canonicalize_cards(self.known_skat, "known_skat")
         discarded_cards = _canonicalize_cards(self.discarded_cards, "discarded_cards")
         plays = _canonicalize_plays(self.plays, player_ids=player_ids)
@@ -343,6 +346,7 @@ class SessionProjectionV1:
                 {"player_id": player_id, "cards": list(cards)}
                 for player_id, cards in self.exact_public_hands
             ],
+            "declared_ouvert_public_hand_set": self.declared_ouvert_public_hand_set,
             "game_end_reason": self.game_end_reason,
             "game_end": (
                 None
@@ -382,6 +386,7 @@ def create_empty_session_projection_v1(
         next_player_id=None,
         continuation_event=None,
         exact_public_hands=(),
+        declared_ouvert_public_hand_set=False,
         game_end_reason=None,
         game_end=None,
         played_card_count=0,

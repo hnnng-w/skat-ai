@@ -218,9 +218,13 @@ validation, trick/event/end derivation, promotion, and Position/Historical
 readiness. Issue #152 adds immutable available/unavailable Session Request
 Export version `1`, exact ready-Retrospective projection mapping, canonical
 Historical builder round trip, and internal `RequestDocumentV1` construction.
-Live Position Request export, checkpoints, persistence and resume, Undo and
-correction, Public API, Provenance propagation, Session Schemas, CLI, examples,
-generated output, and UI technology remain open. Online-platform adapters,
+Issue #153 adds immutable Position Export Options version `1`, information-safe
+one-replay Position Request export, declared-Ouvert public-hand capture, existing
+Position builder validation, and immutable replay-verified pre-Play Decision
+Checkpoints. Session-triggered analysis, actual-card Checkpoint attachment,
+persistence and resume, Undo and correction, Public API, Provenance propagation,
+Session Schemas, CLI, examples, generated output, automatic Checkpoint
+collection, and UI technology remain open. Online-platform adapters,
 browser extensions, and website scraping remain outside this bounded milestone.
 
 Major completed areas include:
@@ -311,6 +315,12 @@ Major completed areas include:
   Results, one-replay Historical readiness gating, exact projection mapping,
   canonical Historical validation and round trip, and immutable existing Root
   Request construction without workflow execution
+* internal information-safe Session Position Request export with immutable
+  explicit analysis options, stable-to-relative mapping, declared-Ouvert and
+  continuation public hands, and existing Position validation without execution
+* immutable internal pre-Play Decision Checkpoints with replay-verified source
+  revision, actor/seat/index metadata, relative Player map, and frozen existing
+  Position Request
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -330,9 +340,10 @@ activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
 attribution, player ratings, complete field-level information provenance, and
 end-to-end interactive Session capture remain open before `v1.0.0`. Internal
-Command application, incremental validation, and Retrospective Historical
-Request export exist, but Live Position Request export, checkpoints, Undo,
-persistence, Public API, Provenance, CLI, and UI do not.
+Command application, incremental validation, Retrospective Historical and
+information-safe Position Request export, declared-Ouvert public-hand capture,
+and pre-Play Decision Checkpoints exist, but Undo, persistence, Public API,
+Provenance, CLI, automatic Checkpoint collection, and UI do not.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.
 

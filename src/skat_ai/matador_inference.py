@@ -1,3 +1,4 @@
+from skat_ai.deck import get_full_deck
 from skat_ai.rules import get_trump_suit
 from skat_ai.side_ownership import VALID_CONCRETE_PLAYERS
 
@@ -133,6 +134,59 @@ def infer_matadors_from_known_ownership(
         return matadors
 
     return matadors
+
+
+def infer_visible_matadors_for_decision(
+    *,
+    game_type: str,
+    hand_game: bool,
+    acting_player_id: str,
+    declarer_player_id: str,
+    own_hand: list[str] | tuple[str, ...],
+    known_skat_cards: list[str] | tuple[str, ...],
+    public_plays: list[tuple[str, str]] | tuple[tuple[str, str], ...],
+    public_hands: (
+        list[tuple[str, tuple[str, ...]]] | tuple[tuple[str, tuple[str, ...]], ...]
+    ),
+) -> int | None:
+    """Infers only Matadors visible before one local decision."""
+    if game_type == "null":
+        return None
+
+    declarer_owned_cards: list[str] = []
+    non_declarer_owned_cards: list[str] = []
+    for player_id, card in public_plays:
+        target = (
+            declarer_owned_cards
+            if player_id == declarer_player_id
+            else non_declarer_owned_cards
+        )
+        target.append(card)
+
+    if acting_player_id == declarer_player_id:
+        declarer_owned_cards.extend(own_hand)
+        declarer_owned_cards.extend(known_skat_cards)
+        if not hand_game:
+            declarer_owned_set = set(declarer_owned_cards)
+            non_declarer_owned_cards = [
+                card for card in get_full_deck() if card not in declarer_owned_set
+            ]
+    else:
+        non_declarer_owned_cards.extend(own_hand)
+
+    for player_id, cards in public_hands:
+        target = (
+            declarer_owned_cards
+            if player_id == declarer_player_id
+            else non_declarer_owned_cards
+        )
+        target.extend(cards)
+
+    return infer_matadors_from_known_ownership(
+        game_type=game_type,
+        declarer_owned_cards=declarer_owned_cards,
+        non_declarer_owned_cards=non_declarer_owned_cards,
+    )
 
 
 def get_completed_trick_ownership_cards_for_declarer(

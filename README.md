@@ -175,7 +175,7 @@ official Skat rules arbitration.
 * Setuptools Wheel and sdist builds with `py.typed`, packaged byte-identical JSON
   Schemas, and clean-install validation
 
-### Interactive Session contract, transitions, and Historical export
+### Interactive Session contracts, Request exports, and Decision checkpoints
 
 * Internal Session and Command contract version `1`
 * Exactly three stable Players with canonical forehand, middlehand, and rearhand seats
@@ -193,15 +193,26 @@ official Skat rules arbitration.
   Results and exact one-replay Historical readiness gating
 * Exact Retrospective projection mapping through the existing Historical builder,
   canonical serialization and rebuild, and immutable `RequestDocumentV1`
+* Internal Position Export Options version `1` and information-safe one-replay
+  export to the existing flat Position Analysis `RequestDocumentV1`
+* Stable-to-relative Player mapping, decision-visible Matadors, legitimate Skat
+  visibility, and declared-Ouvert or continuation public-hand mapping
+* Appended `set_public_hand` Command for the exact current declared-Ouvert
+  Declarer hand, with owner-aware coexistence and shrinking
+* Immutable replay-verified pre-Play Decision Checkpoint version `1` with source
+  revision, actor, seat, decision/trick/play indexes, relative map, and frozen
+  Position Request
 
-The internal Command layer and Historical-ready Retrospective Request export are
-executable, but Live Position Request export, Decision checkpoints,
-Undo/correction, persistence, Public API, Session Provenance, CLI Session
-commands, Schemas, examples, generated outputs, and interactive UI are not
-implemented. The exporter constructs but does not execute the existing
-Historical workflow. See [Interactive session contracts](docs/interactive_session_contracts.md),
-[Incremental Session transitions](docs/incremental_session_transitions.md), and
-[Retrospective Session export](docs/retrospective_session_export.md).
+The internal Command layer, both ready-Session Request exporters, and Decision
+Checkpoint builder are executable, but Session-triggered analysis, actual-card
+Checkpoint attachment, Undo/correction, persistence, Public API, Session
+Provenance, CLI Session commands, Schemas, examples, generated outputs,
+automatic Checkpoint collection, and interactive UI are not implemented. The
+exporters construct but do not execute the existing Position or Historical
+workflow. See [Interactive session contracts](docs/interactive_session_contracts.md),
+[Incremental Session transitions](docs/incremental_session_transitions.md),
+[Retrospective Session export](docs/retrospective_session_export.md), and
+[Session Position export and Decision checkpoints](docs/live_session_position_export.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -962,8 +973,8 @@ motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
 level provenance enforcement, and end-to-end interactive Session capture beyond
-the internal Issue #150 through #152 contract, transition, and Retrospective
-Historical export foundation. General
+the internal Issue #150 through #153 contract, transition, Request-export, and
+Decision-Checkpoint foundation. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -1015,17 +1026,20 @@ manual maintainer publication at commit `abd1ad3`. Broader end-to-end field-leve
 enforcement remains incomplete before `v1.0.0`.
 
 The active `v0.14.0` milestone begins with Issue #150's immutable internal
-Session contract foundation, Issue #151's deterministic transition engine, and
-Issue #152's canonical Retrospective Historical Request export.
+Session contract foundation, Issue #151's deterministic transition engine,
+Issue #152's canonical Retrospective Historical Request export, and Issue #153's
+information-safe Position Request export and Decision Checkpoints.
 Session and Command version `1`, transition and projection version `1`, stable
 Players, Capture Modes, typed Commands, an authoritative accepted Log, full
 replay, atomic application, monotonic phases, incremental validation, Diagnostics,
-export readiness, immutable export Results, exact Historical mapping, and
-canonical Request construction now exist. Live Position Request export, Decision
-checkpoints, Undo/correction, persistence, Public API, Provenance, CLI Session
-commands, Schemas, examples, generated outputs, and UI remain open. Online-platform
-adapters, browser extensions, and website scraping remain outside this bounded
-milestone.
+export readiness, immutable export Results, exact Historical and information-safe
+Position mapping, declared-Ouvert public-hand capture, canonical Request
+construction, and frozen local pre-Play Checkpoints now exist. Undo/correction,
+persistence, Session-triggered analysis, actual-card Checkpoint attachment,
+Public API, Provenance, CLI Session commands, Schemas, examples, generated
+outputs, automatic Checkpoint collection, and UI remain open. Online-
+platform adapters, browser extensions, and website scraping remain outside this
+bounded milestone.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

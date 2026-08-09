@@ -26,6 +26,7 @@ from skat_ai.historical_game_end import (
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_OPEN_CARD_THROW,
 )
+from skat_ai.public_hand_constraint import canonicalize_cards
 from skat_ai.rfc3339 import parse_rfc3339_datetime
 
 SESSION_COMMAND_VERSION = 1
@@ -40,7 +41,9 @@ SESSION_COMMAND_KINDS = (
     "set_game_event",
     "set_game_end",
     "promote_to_retrospective",
+    "set_public_hand",
 )
+SESSION_PUBLIC_HAND_SOURCES = ("declared_ouvert",)
 SESSION_DEAL_DESTINATIONS = ("player_hand", "skat")
 SESSION_GAME_EVENT_KINDS = (
     HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_KIND,
@@ -84,6 +87,7 @@ SESSION_COMMAND_ALLOWED_PHASES = MappingProxyType(
             "play",
             "ended",
         ),
+        "set_public_hand": ("play",),
     }
 )
 
@@ -409,6 +413,48 @@ class PromoteSessionToRetrospectiveCommandV1:
         }
 
 
+@dataclass(frozen=True, slots=True, kw_only=True)
+class SetSessionPublicHandCommandV1:
+    """Records one exact declared-Ouvert current public hand."""
+
+    command_version: int = SESSION_COMMAND_VERSION
+    kind: str = field(init=False, default="set_public_hand")
+    expected_revision: int
+    source: str
+    player_id: str
+    cards: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        _validate_command_header(self.command_version, self.expected_revision)
+        if self.source not in SESSION_PUBLIC_HAND_SOURCES:
+            raise ValueError(
+                f"source must be one of {list(SESSION_PUBLIC_HAND_SOURCES)}."
+            )
+        _require_player_identifier(self.player_id, "player_id")
+        if isinstance(self.cards, (str, bytes)) or not isinstance(
+            self.cards, (list, tuple)
+        ):
+            raise ValueError("cards must be an ordered Card array.")
+        cards = tuple(self.cards)
+        if not cards:
+            raise ValueError("cards must contain at least one Card.")
+        for card in cards:
+            _require_card(card, "cards")
+        if len(cards) != len(set(cards)):
+            raise ValueError("cards must not contain duplicate Cards.")
+        object.__setattr__(self, "cards", canonicalize_cards(cards))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "command_version": self.command_version,
+            "kind": self.kind,
+            "expected_revision": self.expected_revision,
+            "source": self.source,
+            "player_id": self.player_id,
+            "cards": list(self.cards),
+        }
+
+
 type SessionCommandV1 = (
     SetSessionGameMetadataCommandV1
     | RecordSessionDealtCardCommandV1
@@ -419,6 +465,7 @@ type SessionCommandV1 = (
     | SetSessionGameEventCommandV1
     | SetSessionGameEndCommandV1
     | PromoteSessionToRetrospectiveCommandV1
+    | SetSessionPublicHandCommandV1
 )
 
 SESSION_COMMAND_TYPES = (
@@ -431,6 +478,7 @@ SESSION_COMMAND_TYPES = (
     SetSessionGameEventCommandV1,
     SetSessionGameEndCommandV1,
     PromoteSessionToRetrospectiveCommandV1,
+    SetSessionPublicHandCommandV1,
 )
 
 

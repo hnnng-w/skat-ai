@@ -18,7 +18,39 @@ SESSION_EXPORT_STATUSES = (
     "unavailable",
 )
 
+_POSITION_TARGET = "position_analysis"
 _HISTORICAL_TARGET = "historical_game"
+_EXPORT_TARGETS = (_POSITION_TARGET, _HISTORICAL_TARGET)
+_POSITION_REQUIRED_FIELDS = {
+    "game_type",
+    "player_role",
+    "declarer_player",
+    "player_position",
+    "trick_leader",
+    "hand",
+    "current_trick",
+    "played_cards",
+    "completed_tricks",
+    "declarer_points",
+    "defender_points",
+    "next_player",
+    "skat",
+    "skat_visibility",
+    "left_hand_size",
+    "right_hand_size",
+    "sample_count",
+    "random_seed",
+    "use_basic_opponent_strategy",
+    "analysis_mode",
+    "game_end_reason",
+    "game_declaration",
+}
+_POSITION_OPTIONAL_FIELDS = {
+    "public_declarer_cards",
+    "game_continuation",
+    "recommendation_method",
+    "bounded_search_settings",
+}
 _SEVERITY_ORDER = {
     severity: index for index, severity in enumerate(SESSION_DIAGNOSTIC_SEVERITIES)
 }
@@ -87,8 +119,8 @@ class SessionRequestExportV1:
             )
         _require_identifier(self.session_id, "session_id")
         _require_non_negative_integer(self.source_revision, "source_revision")
-        if self.target != _HISTORICAL_TARGET:
-            raise ValueError(f"target must equal {_HISTORICAL_TARGET!r}.")
+        if self.target not in _EXPORT_TARGETS:
+            raise ValueError(f"target must be one of {list(_EXPORT_TARGETS)}.")
         if self.status not in SESSION_EXPORT_STATUSES:
             raise ValueError(f"status must be one of {list(SESSION_EXPORT_STATUSES)}.")
 
@@ -98,13 +130,29 @@ class SessionRequestExportV1:
                 raise ValueError("An available Session export requires one RequestDocumentV1.")
             if diagnostics:
                 raise ValueError("An available Session export requires no diagnostics.")
-            if self.request.workflow is not WorkflowV1.HISTORICAL_GAME:
-                raise ValueError("The Request workflow must match the Session export target.")
-            if set(self.request.document) != {"historical_game_input"}:
-                raise ValueError(
-                    "A Historical Session export Request must contain exactly "
-                    "historical_game_input."
-                )
+            if self.target == _POSITION_TARGET:
+                if self.request.workflow is not WorkflowV1.POSITION_ANALYSIS:
+                    raise ValueError(
+                        "The Request workflow must match the Session export target."
+                    )
+                root_fields = set(self.request.document)
+                if not _POSITION_REQUIRED_FIELDS <= root_fields or not root_fields <= (
+                    _POSITION_REQUIRED_FIELDS | _POSITION_OPTIONAL_FIELDS
+                ):
+                    raise ValueError(
+                        "A Position Session export Request must contain only the "
+                        "complete flat Position document."
+                    )
+            else:
+                if self.request.workflow is not WorkflowV1.HISTORICAL_GAME:
+                    raise ValueError(
+                        "The Request workflow must match the Session export target."
+                    )
+                if set(self.request.document) != {"historical_game_input"}:
+                    raise ValueError(
+                        "A Historical Session export Request must contain exactly "
+                        "historical_game_input."
+                    )
         else:
             if self.request is not None:
                 raise ValueError("An unavailable Session export must not contain a Request.")
@@ -112,7 +160,17 @@ class SessionRequestExportV1:
                 raise ValueError(
                     "An unavailable Session export requires target-blocking diagnostics."
                 )
-            if any(not diagnostic.blocks_historical_export for diagnostic in diagnostics):
+            if self.target == _POSITION_TARGET:
+                has_wrong_target = any(
+                    not diagnostic.blocks_position_export
+                    for diagnostic in diagnostics
+                )
+            else:
+                has_wrong_target = any(
+                    not diagnostic.blocks_historical_export
+                    for diagnostic in diagnostics
+                )
+            if has_wrong_target:
                 raise ValueError(
                     "Unavailable Session export diagnostics must all block the target."
                 )

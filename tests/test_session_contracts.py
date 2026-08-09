@@ -25,6 +25,7 @@ from skat_ai.session_commands import (
     SESSION_DEAL_DESTINATIONS,
     SESSION_GAME_END_REASONS,
     SESSION_GAME_EVENT_KINDS,
+    SESSION_PUBLIC_HAND_SOURCES,
     PromoteSessionToRetrospectiveCommandV1,
     RecordSessionDealtCardCommandV1,
     RecordSessionDiscardCommandV1,
@@ -34,6 +35,7 @@ from skat_ai.session_commands import (
     SetSessionGameEndCommandV1,
     SetSessionGameEventCommandV1,
     SetSessionGameMetadataCommandV1,
+    SetSessionPublicHandCommandV1,
 )
 from skat_ai.session_contracts import (
     SESSION_CAPTURE_MODES,
@@ -271,6 +273,12 @@ def _all_commands(expected_revision: int = 0) -> tuple[object, ...]:
         PromoteSessionToRetrospectiveCommandV1(
             expected_revision=expected_revision,
         ),
+        SetSessionPublicHandCommandV1(
+            expected_revision=expected_revision,
+            source="declared_ouvert",
+            player_id="player-b",
+            cards=["S10", "SA"],
+        ),
     )
 
 
@@ -304,7 +312,9 @@ def test_session_constants_policies_and_canonical_orders_are_exact() -> None:
         "set_game_event",
         "set_game_end",
         "promote_to_retrospective",
+        "set_public_hand",
     )
+    assert SESSION_PUBLIC_HAND_SOURCES == ("declared_ouvert",)
     assert SESSION_DEAL_DESTINATIONS == ("player_hand", "skat")
     assert SESSION_STATE_POLICY == "command_log_authoritative"
     assert SESSION_REVISION_POLICY == "linear_append_only"
@@ -337,6 +347,7 @@ def test_allowed_phase_policy_is_exact_immutable_and_has_no_phase_command() -> N
         "set_game_event": ("play",),
         "set_game_end": ("play",),
         "promote_to_retrospective": SESSION_PHASES,
+        "set_public_hand": ("play",),
     }
     assert tuple(SESSION_COMMAND_ALLOWED_PHASES) == SESSION_COMMAND_KINDS
     assert all(

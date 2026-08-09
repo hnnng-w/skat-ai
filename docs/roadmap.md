@@ -4,7 +4,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
-### Interactive Session contract, transition, and Historical export foundation
+### Interactive Session contract, Request export, and Checkpoint foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -12,7 +12,8 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
 * Exactly three stable Players in canonical Historical seat order
 * Live and Retrospective Capture Modes with explicit one-way promotion
 * Canonical setup-through-ended phases and immutable allowed-phase metadata
-* Nine typed caller-fact Commands and recursively immutable event/end payloads
+* Ten typed caller-fact Commands and recursively immutable event/end payloads,
+  including narrow declared-Ouvert current-public-hand capture
 * Authoritative accepted Command Log with contiguous linear revisions
 * Structural pre-promotion Live hand protection
 * Canonical Diagnostics, Position/Historical export readiness, valid-incomplete
@@ -35,14 +36,25 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
   canonical serialization and rebuild, and immutable `RequestDocumentV1`
 * Normal completion, all five terminal endings, both continuation events, and all
   supported continuation/end chains without workflow execution
+* Position Export Options version `1` with existing recommendation-configuration
+  validation and immutable explicit analysis settings
+* One-replay Position readiness gating, stable-to-relative information-safe
+  mapping, and existing flat Position builder validation without execution
+* Decision-visible Skat and Matadors plus owner-aware declared-Ouvert and
+  continuation public-hand coexistence and shrinking
+* Frozen pre-Play Decision Checkpoint version `1` with replay-verified source
+  revision, actor/seat/index metadata, relative map, and Position Request
 
 Issue #151 executes the internal Commands but does not itself export an Engine
 Request. Issue #152 adds only canonical Retrospective Historical Request export.
-Live Position Request export, Decision checkpoints, Undo, correction,
-persistence, Public API, Session Provenance, Schemas, CLI Session Assistant,
-examples, generated outputs, and UI remain open. See
+Issue #153 adds information-safe Position Request export, declared-Ouvert public-
+hand capture, and immutable Decision Checkpoints. Session-triggered analysis,
+actual-card Checkpoint attachment, Undo, correction, persistence, Public API,
+Session Provenance, Schemas, CLI Session Assistant, examples, generated outputs,
+automatic Checkpoint collection, and UI remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
-[Retrospective Session export](retrospective_session_export.md).
+[Retrospective Session export](retrospective_session_export.md), and
+[Session Position export and Decision checkpoints](live_session_position_export.md).
 
 ### Public API contract foundation
 
@@ -622,11 +634,14 @@ The active `v0.14.0` milestone targets interactive Live and Retrospective Sessio
 capture. Issue #150 implements the internal contract foundation, and Issue #151
 implements deterministic internal Command application and incremental
 validation. Issue #152 implements internal canonical Retrospective Historical
-Request export without workflow execution. Live Position Request export,
-Decision checkpoints, Undo/correction, persistence, Public API, Provenance,
-Schema, CLI, examples/generated output, and UI work remains. Online-platform
-adapters, browser extensions, and website scraping remain outside this bounded
-milestone.
+Request export without workflow execution. Issue #153 implements internal
+information-safe Position Request export, declared-Ouvert public-hand capture,
+and immutable pre-Play Decision Checkpoints without workflow execution.
+Session-triggered analysis, actual-card Checkpoint attachment, Undo/correction,
+persistence, Public API, Provenance, Schema, CLI, examples/generated output,
+automatic Checkpoint collection, and UI work remains.
+Online-platform adapters, browser extensions, and website scraping remain
+outside this bounded milestone.
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
@@ -864,6 +879,6 @@ should distinguish the current published `v0.13.0` baseline, historical
 `v0.12.0` and older Release evidence, the authoritative publication state shown
 by GitHub Releases, the active `v0.14.0` development milestone and its implemented
 Issue #150 Session contracts, Issue #151 transition foundation, and Issue #152
-Retrospective Historical Request export, requirements explicitly required for
-`v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
-exclusions.
+Retrospective Historical Request export, and Issue #153 Position export and
+Decision Checkpoints, requirements explicitly required for `v1.0.0`, planned
+post-v1.0 work, not-required workflows, and unconditional exclusions.

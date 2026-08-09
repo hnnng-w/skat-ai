@@ -33,11 +33,13 @@ request
 diagnostics
 ```
 
-An `available` result has target `historical_game`, exactly one immutable
-`RequestDocumentV1`, and no Diagnostics. An `unavailable` result has no Request
-and retains only the current canonical Diagnostics that block Historical export.
-Unavailability is a normal result, not an exception. Serialization is
-deterministic and returns fresh JSON-compatible values.
+For this exporter, an `available` result has target `historical_game`, exactly
+one immutable `RequestDocumentV1`, and no Diagnostics. An `unavailable` result
+has no Request and retains only the current canonical Diagnostics that block
+Historical export. Unavailability is a normal result, not an exception.
+Serialization is deterministic and returns fresh JSON-compatible values. Issue
+#153 generalizes the same result contract for target `position_analysis` with
+matching workflow, document-shape, and target-blocking-Diagnostic invariants.
 
 Session identity and source revision remain in the export result. They are not
 added to `historical_game_input`.
@@ -181,7 +183,9 @@ output scenarios remain unchanged.
 
 ## Remaining work
 
-Live Position Request export, Decision checkpoints, Undo/correction,
-persistence/resume, Public Session API, Session Provenance, Session Schemas, CLI
-Session Assistant, examples, generated outputs, end-to-end capture, and UI work
-remain separate scopes.
+Position Request export and Decision checkpoints are implemented separately by
+Issue #153. Undo/correction, persistence/resume, Public Session API, Session
+Provenance, Session Schemas, CLI Session Assistant, examples, generated outputs,
+automatic Checkpoint collection, end-to-end capture, and UI work remain separate
+scopes. See
+[Session Position export and Decision checkpoints](live_session_position_export.md).
