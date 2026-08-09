@@ -87,6 +87,10 @@ The project focuses on:
   revision-zero creation, full accepted-Log replay, atomic application and
   rejection, monotonic phases, incremental rule/information validation, trick,
   continuation, and end derivation, promotion, and forged-State detection
+* internal Session Request Export version `1` with immutable available or
+  unavailable Results, exact Retrospective Historical readiness gating,
+  canonical Historical mapping and round trip, and immutable existing Root
+  Request construction without workflow execution
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -218,7 +222,7 @@ by Issue #142; broader Domain error migration and end-to-end field-level
 enforcement remain open. See
 [Application orchestration](application_orchestration.md).
 
-### Interactive Session contract and transition foundation
+### Interactive Session contract, transition, and Historical export foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -249,11 +253,26 @@ Implemented by Issue #151:
 * forged revision, Mode, phase, Validation, duplicate Card, illegal Play, and
   invalid accepted event/end rejection through `SkatAIInvariantError`
 
-No Engine Request export, Decision checkpoint, Undo/correction, persistence,
-Public API, Provenance propagation, Schema, CLI Session Assistant, example,
-generated output, end-to-end capture, or UI is implemented. See
+Implemented by Issue #152:
+
+* independent Session Request Export version `1` with policies
+  `existing_root_request_contract` and `exact_ready_retrospective_state`
+* frozen available/unavailable `SessionRequestExportV1` with one optional
+  existing `RequestDocumentV1`
+* one accepted-Log replay and exact Historical readiness gate, with no builder
+  call or partial Request when unavailable
+* exact initial Player hands, Skat, metadata, Declaration, Discard, Play, trick,
+  continuation, and Game-end mapping from the replayed projection
+* existing Historical builder validation, canonical serialization and rebuild,
+  immutable Root wrapping, equality verification, and deterministic output
+* normal completion, every supported terminal ending, both continuation events,
+  and every supported continuation/end chain without analysis or execution
+
+Live Position Request export, Decision checkpoints, Undo/correction,
+persistence, Public API, Provenance propagation, Schema, CLI Session Assistant,
+example, generated output, end-to-end capture, and UI are not implemented. See
 [Interactive session contracts](interactive_session_contracts.md) and
-[Incremental Session transitions](incremental_session_transitions.md).
+[Retrospective Session export](retrospective_session_export.md).
 
 ### Field-level provenance contract foundation
 
@@ -866,6 +885,11 @@ Implemented:
 * `session_transitions.py`
   * revision-zero creation, accepted-Log replay, conflicts, atomic append, and
     forged-State detection
+* `session_export_contracts.py`
+  * immutable available/unavailable Request export contract and policies
+* `session_historical_export.py`
+  * one-replay readiness gate, exact Historical mapping, canonical round trip,
+    and immutable existing Root Request construction
 
 ### Game state and rules
 
@@ -1002,6 +1026,7 @@ Main documentation files:
 * `docs/application_orchestration.md`
 * `docs/interactive_session_contracts.md`
 * `docs/incremental_session_transitions.md`
+* `docs/retrospective_session_export.md`
 * `docs/field_level_information_provenance.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
@@ -1356,6 +1381,9 @@ Completed implementation scope:
 * executable internal Session transition/projection version 1 with revision-zero
   creation, full accepted-Log replay, atomic application, monotonic phases,
   incremental validation, and forged-State rejection
+* internal Session Request Export version 1 with immutable available/unavailable
+  Results, exact ready-Retrospective Historical mapping, canonical builder round
+  trip, and existing immutable Request construction without workflow execution
 
 ## Current high-priority limitations
 
@@ -1401,11 +1429,13 @@ Completed implementation scope:
   broader Search, and causal attribution remain unimplemented.
 * Immutable internal Live and Retrospective Session contracts plus deterministic
   Command application, replay, phase advancement, projection, incremental
-  validation, and readiness are implemented. Engine Request export, Decision
-  checkpoints, Undo/correction, persistence, Public API, Provenance, CLI Session
-  commands, Schemas, examples/generated output, end-to-end capture, and UI are
-  not. The installed CLI, public executable facade, and reusable internal
-  Application layer continue to execute only the seven existing Root workflows.
+  validation, readiness, and canonical Retrospective Historical Request export
+  are implemented. Live Position Request export, Decision checkpoints,
+  Undo/correction, persistence, Public API, Provenance, CLI Session commands,
+  Schemas, examples/generated output, end-to-end capture, and UI are not. The
+  exporter executes no workflow; the installed CLI, public executable facade,
+  and reusable internal Application layer continue to execute only the seven
+  existing Root workflows.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -1413,10 +1443,10 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement the next bounded `v0.14.0` Session layer over Issues #150 and #151.
-Engine Request export and Decision checkpoints remain the nearest open contract
-areas; Undo/correction, persistence, Public API, Provenance, Schemas, CLI, and UI
-must remain separately scoped.
+Implement the next bounded `v0.14.0` Session layer over Issues #150 through #152.
+Live Position Request export and Decision checkpoints remain the nearest open
+contract areas; Undo/correction, persistence, Public API, Provenance, Schemas,
+CLI, and UI must remain separately scoped.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

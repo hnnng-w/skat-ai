@@ -2,9 +2,10 @@
 
 Issue #150 begins the `v0.14.0` interactive-capture milestone with an internal,
 immutable contract foundation. Issue #151 makes that language executable through
-deterministic internal transitions and incremental validation. Engine Request
-export, checkpoints, Undo/correction, persistence, Public API, Provenance,
-Schemas, CLI, and end-to-end interactive capture remain later layers.
+deterministic internal transitions and incremental validation. Issue #152 exports
+Historical-ready Retrospective Sessions to canonical existing Historical Game
+Requests. Live Position export, checkpoints, Undo/correction, persistence,
+Public API, Provenance, Schemas, CLI, and end-to-end capture remain later layers.
 
 ## Contract identity
 
@@ -16,6 +17,9 @@ SESSION_COMMAND_VERSION = 1
 SESSION_TRANSITION_ENGINE_VERSION = 1
 SESSION_PROJECTION_VERSION = 1
 SESSION_REPLAY_POLICY = full_accepted_log_before_apply
+SESSION_REQUEST_EXPORT_VERSION = 1
+SESSION_REQUEST_EXPORT_POLICY = existing_root_request_contract
+SESSION_HISTORICAL_EXPORT_POLICY = exact_ready_retrospective_state
 ```
 
 They do not derive from Package version `0.13.0`, Public API version `1`,
@@ -45,14 +49,14 @@ The intended flow is:
 Session Commands
     -> immutable accepted Session State
     -> validation and export readiness
-    -> Position Analysis export
-    -> Historical Game export
+    -> later Position Analysis export
+    -> canonical Historical Game Request export
 ```
 
-The first three lines are implemented internally: Commands are applied atomically,
-the full accepted Log can be replayed into an immutable projection, phases and
-Validation are recomputed, and both export targets receive normal readiness
-status. There is no Position exporter, Historical exporter, Decision checkpoint,
+Commands are applied atomically, the full accepted Log can be replayed into an
+immutable projection, phases and Validation are recomputed, and both export
+targets receive normal readiness status. Issue #152 implements only the
+Historical exporter. There is no Position exporter, Decision checkpoint,
 Undo/correction layer, parser, persistence loader, Public Session API, or Session
 Root workflow.
 
@@ -219,9 +223,9 @@ be recorded as actual ownership.
 
 Retrospective capture records exact three hands, exact Skat, Discards, and exact
 Plays. Incremental validation reconciles those facts with exact ownership and
-legal replay. Complete private facts remain post-game-only for a later Engine
-export. Promotion preserves every existing fact and phase while switching future
-requirements to Retrospective rules.
+legal replay. Issue #152 exports these facts only after exact Historical
+readiness. Promotion preserves every existing fact and phase while switching
+future requirements to Retrospective rules.
 
 ## Diagnostics and readiness
 
@@ -326,10 +330,14 @@ Session contracts are internal. They are not exported from `skat_ai`,
 Public API functions, installed/module/Legacy CLI, 62 Schemas, examples, and 77
 generated-output scenarios are unchanged. Package version remains `0.13.0`.
 
-Remaining `v0.14.0` work includes Position and Historical Request exports,
-Decision checkpoints, Undo and correction, persistence and resume, Public
-Session API, Session Provenance, Session Schemas, CLI Session Assistant,
-examples, generated outputs, end-to-end capture, and any later local interface.
-No UI technology or platform integration is selected. See
-[Incremental Session transitions](incremental_session_transitions.md) for the
-implemented transition and validation boundary.
+Internal canonical Retrospective Historical Request export is implemented. It
+returns an immutable available/unavailable result, replays once, invokes no
+Historical builder while unavailable, and constructs but does not execute the
+existing `RequestDocumentV1`. See
+[Retrospective Session export](retrospective_session_export.md).
+
+Remaining `v0.14.0` work includes Live Position Request export, Decision
+checkpoints, Undo and correction, persistence and resume, Public Session API,
+Session Provenance, Session Schemas, CLI Session Assistant, examples, generated
+outputs, end-to-end capture, and any later local interface. No UI technology or
+platform integration is selected. See [Incremental Session transitions](incremental_session_transitions.md).

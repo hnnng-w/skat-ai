@@ -4,7 +4,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
-### Interactive Session contract and transition foundation
+### Interactive Session contract, transition, and Historical export foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -27,13 +27,22 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
   Play, ownership, legal-card, trick, continuation, Game-end, promotion, and
   information-policy validation
 * Position and Historical readiness recomputation plus forged-State detection
+* Session Request Export version `1` with exact policies and immutable
+  available/unavailable Results
+* One-replay Historical readiness gating and no Historical builder call while
+  unavailable
+* Exact Retrospective projection mapping through the existing Historical builder,
+  canonical serialization and rebuild, and immutable `RequestDocumentV1`
+* Normal completion, all five terminal endings, both continuation events, and all
+  supported continuation/end chains without workflow execution
 
-Issue #151 executes the internal Commands but does not export Engine Requests or
-provide end-to-end capture. Decision checkpoints, Undo, correction, persistence,
-Public API, Session Provenance, Schemas, CLI Session Assistant, examples,
-generated outputs, and UI remain open. See
+Issue #151 executes the internal Commands but does not itself export an Engine
+Request. Issue #152 adds only canonical Retrospective Historical Request export.
+Live Position Request export, Decision checkpoints, Undo, correction,
+persistence, Public API, Session Provenance, Schemas, CLI Session Assistant,
+examples, generated outputs, and UI remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
-[Incremental Session transitions](incremental_session_transitions.md).
+[Retrospective Session export](retrospective_session_export.md).
 
 ### Public API contract foundation
 
@@ -476,6 +485,10 @@ Implemented:
   Live/Retrospective Deal, Declaration, Matador, Skat/Discard, ownership,
   Bedienpflicht, trick, continuation, Game-end, promotion, readiness,
   deterministic replay, forged-State, and execution-count tests
+* Focused Session export constants, result invariants, unavailable gating,
+  exact Root/Player/Deal/Declaration/Discard/Trick mapping, normal and terminal
+  endings, continuation chains, canonical round trips, immutability, promotion,
+  determinism, no-execution counts, and public-boundary tests
 
 ### CLI and workflow usability
 
@@ -608,10 +621,12 @@ provenance. Default Root output remains unchanged when provenance is omitted.
 The active `v0.14.0` milestone targets interactive Live and Retrospective Session
 capture. Issue #150 implements the internal contract foundation, and Issue #151
 implements deterministic internal Command application and incremental
-validation. Engine Request export, Decision checkpoints, Undo/correction,
-persistence, Public API, Provenance, Schema, CLI, examples/generated output, and
-UI work remains. Online-platform adapters, browser extensions, and website
-scraping remain outside this bounded milestone.
+validation. Issue #152 implements internal canonical Retrospective Historical
+Request export without workflow execution. Live Position Request export,
+Decision checkpoints, Undo/correction, persistence, Public API, Provenance,
+Schema, CLI, examples/generated output, and UI work remains. Online-platform
+adapters, browser extensions, and website scraping remain outside this bounded
+milestone.
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
@@ -724,13 +739,11 @@ implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, broader field-level provenance
-enforcement, and
-    end-to-end interactive live and retrospective Session capture. The immutable
-    internal Session contract and deterministic transition foundation now exist.
-    The executable public
-    facade, internal Application layer,
-installable library distributions, and stable installed CLI interface are
-implemented. API contract
+enforcement, and end-to-end interactive live and retrospective Session capture.
+The immutable internal Session contract, deterministic transition foundation,
+and canonical Retrospective Historical Request export now exist. The executable
+public facade, internal Application layer, installable library distributions,
+and stable installed CLI interface are implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
 metadata, and stable public errors are implemented. General claim verification
 and historical end reasons outside the
@@ -850,6 +863,7 @@ Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.13.0` baseline, historical
 `v0.12.0` and older Release evidence, the authoritative publication state shown
 by GitHub Releases, the active `v0.14.0` development milestone and its implemented
-Issue #150 Session contracts and Issue #151 transition foundation, requirements explicitly required
-for `v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
+Issue #150 Session contracts, Issue #151 transition foundation, and Issue #152
+Retrospective Historical Request export, requirements explicitly required for
+`v1.0.0`, planned post-v1.0 work, not-required workflows, and unconditional
 exclusions.

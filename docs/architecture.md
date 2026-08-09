@@ -13,14 +13,17 @@ the existing Engine workflows:
 Session Commands
     -> immutable accepted Session State
     -> validation and export readiness
-    -> later Position or Historical export
+    -> later Position export
+    -> canonical Historical Game Request export
 ```
 
 The immutable Session language, deterministic accepted-Log replay, frozen
 projection, atomic Command application, monotonic phase advancement, and
-incremental validation are implemented. No Engine Request export, Decision
-checkpoint, Undo/correction, persistence, Public API, Session Provenance, CLI
-Session command, Schema, or UI exists yet.
+incremental validation are implemented. Historical-ready Retrospective Sessions
+also map through the existing Historical builder and canonical serializer into
+an immutable Request without executing it. No Live Position Request export,
+Decision checkpoint, Undo/correction, persistence, Public API, Session
+Provenance, CLI Session command, Schema, or UI exists yet.
 
 The position-analysis flow is:
 
@@ -42,6 +45,9 @@ open-card-throw event. Normal completion may contain at most one separate timed 
 defender-open-play or declarer-card-exposure continuation event. It derives
 points and ownership, reuses the declaration/value/overbid/settlement helpers,
 and emits `historical_game_summary`.
+A ready Retrospective Session can now construct that existing Root input through
+the internal Issue #152 exporter. Historical workflow execution remains a
+separate explicit API, Application, or CLI action.
 When requested, the flow derives one pre-play decision snapshot per actual
 supplied play from that
 validated replay result. Historical review adapts each snapshot independently
@@ -193,6 +199,8 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/session_projection.py` | Frozen canonical accepted-fact projection and deterministic internal serialization. |
 | `src/skat_ai/session_incremental_validation.py` | One-Command phase, rule, ownership, information-policy, event/end, and readiness validation. |
 | `src/skat_ai/session_transitions.py` | Revision-zero creation, full accepted-Log replay, forged-State checks, conflicts, atomic append, and Transition Results. |
+| `src/skat_ai/session_export_contracts.py` | Immutable version-1 available/unavailable Request export result and policy invariants. |
+| `src/skat_ai/session_historical_export.py` | One-replay Historical readiness gate, exact projection mapping, canonical builder round trip, and immutable existing Root Request construction. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
 analysis Result, generated timestamp, or path. It reuses Historical seats,
@@ -200,7 +208,9 @@ analysis Result, generated timestamp, or path. It reuses Historical seats,
 Historical end reasons, legal-card/trick helpers, and RFC 6901 paths without
 running analysis or adjudication. See
 [Interactive session contracts](interactive_session_contracts.md) and
-[Incremental Session transitions](incremental_session_transitions.md).
+[Incremental Session transitions](incremental_session_transitions.md). See
+[Retrospective Session export](retrospective_session_export.md) for the separate
+internal no-execution export boundary.
 
 Validation is split between JSON Schema and Python validation:
 
@@ -651,7 +661,9 @@ Important regression areas:
   Diagnostics, readiness, Transition Results, serialization, revision-zero
   creation, full replay, conflicts, atomic rejection, phase advancement,
   incremental rule/information validation, trick/event/end derivation,
-  promotion, forged-State rejection, execution counts, and public-boundary
+  promotion, forged-State rejection, export-result invariants, unavailable
+  gating, exact Historical mapping, all ending/continuation chains, canonical
+  round trips, immutable Requests, execution counts, and public-boundary
   compatibility
 
 ## Validation layers

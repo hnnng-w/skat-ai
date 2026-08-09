@@ -4,7 +4,8 @@ Issue #151 makes the internal version-1 Session Command language executable. It
 adds deterministic revision-zero creation, accepted-Log replay, immutable
 projection, atomic Command application, incremental rule validation, and export
 readiness calculation. It does not export an Engine Request or add a public
-Session workflow.
+Session workflow. Issue #152 separately consumes its replay and Historical
+readiness boundary to construct an internal canonical Historical Request.
 
 ## Contract identity
 
@@ -219,8 +220,9 @@ exact 32-card Deal, complete Declarer and Declaration, valid Hand/Discard state,
 an exact incrementally legal Play prefix, valid continuation/end chronology, and
 either normal 30-Play completion or one supported terminal ending.
 
-Readiness is a normal available/unavailable status. This issue exports neither a
-Position Request nor a Historical Request.
+Readiness is a normal available/unavailable status. Issue #151 itself exports
+neither Request. Issue #152 now uses Historical readiness as an exact gate;
+Position readiness still has no Request exporter.
 
 ## Performance and boundaries
 
@@ -231,6 +233,10 @@ Settlement, Application execution, Public API execution, or history branch.
 
 Package/Public API exports, all seven Root workflows, Application orchestration,
 installed/module/Legacy CLI, 62 Schemas, examples, and 77 generated outputs are
-unchanged. Decision checkpoints, Request export, Undo/correction, persistence,
-Public Session API, Session Provenance, Session Schemas, CLI Session Assistant,
-examples, generated outputs, and UI remain later work.
+unchanged. One Historical export performs one replay, no builder call when
+unavailable, or one provisional build, one canonical serialization, and one
+canonical rebuild when available. It runs no analysis or execution. Decision
+checkpoints, Live Position Request export, Undo/correction, persistence, Public
+Session API, Session Provenance, Session Schemas, CLI Session Assistant,
+examples, generated outputs, and UI remain later work. See
+[Retrospective Session export](retrospective_session_export.md).

@@ -175,7 +175,7 @@ official Skat rules arbitration.
 * Setuptools Wheel and sdist builds with `py.typed`, packaged byte-identical JSON
   Schemas, and clean-install validation
 
-### Interactive Session contract and transition foundation
+### Interactive Session contract, transitions, and Historical export
 
 * Internal Session and Command contract version `1`
 * Exactly three stable Players with canonical forehand, middlehand, and rearhand seats
@@ -189,12 +189,19 @@ official Skat rules arbitration.
   phase advancement, and forged-State detection
 * Incremental Deal, Declaration, Skat/Discard, Play, trick, continuation,
   Game-end, promotion, information-policy, and readiness validation
+* Internal Session Request Export version `1` with normal available/unavailable
+  Results and exact one-replay Historical readiness gating
+* Exact Retrospective projection mapping through the existing Historical builder,
+  canonical serialization and rebuild, and immutable `RequestDocumentV1`
 
-The internal Command layer is executable, but Engine Request export, Decision
-checkpoints, Undo/correction, persistence, Public API, Session Provenance, CLI
-Session commands, Schemas, examples, generated outputs, and interactive UI are
-not implemented. See [Interactive session contracts](docs/interactive_session_contracts.md)
-and [Incremental Session transitions](docs/incremental_session_transitions.md).
+The internal Command layer and Historical-ready Retrospective Request export are
+executable, but Live Position Request export, Decision checkpoints,
+Undo/correction, persistence, Public API, Session Provenance, CLI Session
+commands, Schemas, examples, generated outputs, and interactive UI are not
+implemented. The exporter constructs but does not execute the existing
+Historical workflow. See [Interactive session contracts](docs/interactive_session_contracts.md),
+[Incremental Session transitions](docs/incremental_session_transitions.md), and
+[Retrospective Session export](docs/retrospective_session_export.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -706,6 +713,7 @@ Detailed documentation is split into topic-specific files:
 * [Application orchestration](docs/application_orchestration.md)
 * [Interactive session contracts](docs/interactive_session_contracts.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
+* [Retrospective Session export](docs/retrospective_session_export.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
 * [Public field provenance](docs/public_field_provenance.md)
 * [Live analysis provenance](docs/live_analysis_provenance.md)
@@ -954,7 +962,8 @@ motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
 level provenance enforcement, and end-to-end interactive Session capture beyond
-the internal Issue #150 and #151 contract and transition foundation. General
+the internal Issue #150 through #152 contract, transition, and Retrospective
+Historical export foundation. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -1006,13 +1015,15 @@ manual maintainer publication at commit `abd1ad3`. Broader end-to-end field-leve
 enforcement remains incomplete before `v1.0.0`.
 
 The active `v0.14.0` milestone begins with Issue #150's immutable internal
-Session contract foundation and Issue #151's deterministic transition engine.
+Session contract foundation, Issue #151's deterministic transition engine, and
+Issue #152's canonical Retrospective Historical Request export.
 Session and Command version `1`, transition and projection version `1`, stable
 Players, Capture Modes, typed Commands, an authoritative accepted Log, full
 replay, atomic application, monotonic phases, incremental validation, Diagnostics,
-and export readiness now exist. Engine Request exports, Decision checkpoints,
-Undo/correction, persistence, Public API, Provenance, CLI Session commands,
-Schemas, examples, generated outputs, and UI remain open. Online-platform
+export readiness, immutable export Results, exact Historical mapping, and
+canonical Request construction now exist. Live Position Request export, Decision
+checkpoints, Undo/correction, persistence, Public API, Provenance, CLI Session
+commands, Schemas, examples, generated outputs, and UI remain open. Online-platform
 adapters, browser extensions, and website scraping remain outside this bounded
 milestone.
 
