@@ -4,7 +4,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
-### Interactive Session contract, Request export, and Checkpoint foundation
+### Interactive Session contract, Request export, Checkpoint, and persistence foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -51,18 +51,32 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
   before the first rejected later Command and returns a valid partial State
 * Checkpoint Lineage version `1` with current, ancestor, future, and diverged
   classification from exact accepted-Log prefixes and rebuilt Position Requests
+* Private Session Persistence document version `1` with authoritative accepted-
+  Log State and canonically ordered caller-supplied frozen Decision Checkpoints
+* Domain-separated deterministic State and content fingerprints, strict typed
+  reconstruction, full accepted-Log replay, fingerprint verification, and
+  resume-time Checkpoint Lineage recomputation
+* Optimistic expected-content-fingerprint writes with exact `saved`, `unchanged`,
+  and `conflict` outcomes, including a second pre-replacement conflict check
+* Canonical UTF-8 JSON files written through a durable same-directory temporary
+  file and atomic replacement, with cleanup that preserves the prior target
 
 Issue #151 executes the internal Commands but does not itself export an Engine
 Request. Issue #152 adds only canonical Retrospective Historical Request export.
 Issue #153 adds information-safe Position Request export, declared-Ouvert public-
-hand capture, and immutable Decision Checkpoints. Session-triggered analysis,
-actual-card Checkpoint attachment, persistence, Public API,
-Session Provenance, Schemas, CLI Session Assistant, examples, generated outputs,
-automatic Checkpoint collection, and UI remain open. See
+hand capture, and immutable Decision Checkpoints. Issue #154 adds strict-prefix
+Undo, one-command correction, deterministic suffix replay, and Checkpoint
+lineage. Issue #155 adds private deterministic Session persistence and resume,
+including expected-fingerprint stale-write conflict detection and atomic file
+replacement. Session-triggered analysis, actual-card Checkpoint attachment,
+Public API, Session Provenance, Schemas, CLI Session Assistant, examples,
+generated outputs, automatic Checkpoint collection, end-to-end capture, and UI
+remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
-and [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
+[Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),
+and [Session persistence and resume](session_persistence_and_resume.md).
 
 ### Public API contract foundation
 
@@ -509,6 +523,13 @@ Implemented:
   exact Root/Player/Deal/Declaration/Discard/Trick mapping, normal and terminal
   endings, continuation chains, canonical round trips, immutability, promotion,
   determinism, no-execution counts, and public-boundary tests
+* Focused Session Position export, declared-Ouvert public-hand, Decision
+  Checkpoint, Undo/correction, suffix-replay, and lineage tests
+* Focused private Session persistence contract, fingerprint-oracle, strict codec,
+  replay, lineage, canonical-file, optimistic-conflict, and atomic-replacement
+  tests in `tests/test_session_persistence_contracts.py`,
+  `tests/test_session_persistence_codec.py`, and
+  `tests/test_session_persistence.py`
 
 ### CLI and workflow usability
 
@@ -646,10 +667,14 @@ Request export without workflow execution. Issue #153 implements internal
 information-safe Position Request export, declared-Ouvert public-hand capture,
 and immutable pre-Play Decision Checkpoints without workflow execution. Issue
 #154 implements immutable strict-prefix Undo, one-command correction, linear
-suffix replay, valid partial corrected States, and Checkpoint lineage.
-Session-triggered analysis, actual-card Checkpoint attachment, persistence,
-Public API, Provenance, Schema, CLI, examples/generated output,
-automatic Checkpoint collection, and UI work remains.
+suffix replay, valid partial corrected States, and Checkpoint lineage. Issue #155
+implements private deterministic Session persistence/resume, State and content
+fingerprints, strict reconstruction and replay, caller-supplied frozen
+Checkpoints with recomputed lineage, optimistic expected-fingerprint writes,
+canonical files, and atomic same-directory replacement. Session-triggered
+analysis, actual-card Checkpoint attachment, Public API, Provenance, Schemas, CLI,
+examples/generated output, automatic Checkpoint collection, end-to-end capture,
+and UI work remains.
 Online-platform adapters, browser extensions, and website scraping remain
 outside this bounded milestone.
 
@@ -765,8 +790,10 @@ implementation details, and testable completion gates.
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, broader field-level provenance
 enforcement, and end-to-end interactive live and retrospective Session capture.
-The immutable internal Session contract, deterministic transition foundation,
-and canonical Retrospective Historical Request export now exist. The executable
+The immutable internal Session contract, deterministic transition and history-
+edit foundations, canonical Retrospective Historical and information-safe
+Position Request export, replay-verified Decision Checkpoints, and private
+deterministic persistence/resume now exist. The executable
 public facade, internal Application layer, installable library distributions,
 and stable installed CLI interface are implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
@@ -888,8 +915,9 @@ Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.13.0` baseline, historical
 `v0.12.0` and older Release evidence, the authoritative publication state shown
 by GitHub Releases, the active `v0.14.0` development milestone and its implemented
-Issue #150 Session contracts, Issue #151 transition foundation, and Issue #152
-Retrospective Historical Request export, and Issue #153 Position export and
-Decision Checkpoints, and Issue #154 Undo/correction and Checkpoint lineage,
-requirements explicitly required for `v1.0.0`, planned post-v1.0 work,
+Issue #150 Session contracts, Issue #151 transition foundation, Issue #152
+Retrospective Historical Request export, Issue #153 Position export and Decision
+Checkpoints, Issue #154 Undo/correction and Checkpoint lineage, and Issue #155
+private deterministic persistence/resume and stale-write conflict detection;
+requirements explicitly required for `v1.0.0`; planned post-v1.0 work;
 not-required workflows, and unconditional exclusions.

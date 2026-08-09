@@ -5,7 +5,9 @@ the existing flat Position Analysis Root Request. It also adds an immutable
 Checkpoint that freezes and identifies one replay-verified local pre-Play
 Request. Neither operation executes Position Analysis.
 Issue #154 classifies that frozen Checkpoint against immutable edited Session
-histories without changing the export or executing analysis.
+histories without changing the export or executing analysis. Issue #155 can
+persist caller-supplied Checkpoints alongside the unchanged active State and
+strictly Resume both.
 
 ## Contract identity
 
@@ -30,7 +32,8 @@ historical_game
 
 These additions do not change Session, Command, transition, projection,
 Position input, Public API, Application, CLI, Schema, or Provenance versions.
-Package version remains `0.13.0`.
+Package version remains `0.13.0`. Session Persistence version `1` is independent
+of the export-options and Decision-Checkpoint versions.
 
 ## Position export options
 
@@ -178,7 +181,8 @@ Forged identity, revision, options, mapping, or Request content raises
 A Checkpoint is not appended to Session State and is not updated after later
 Play, event, promotion, or other accepted Commands. It has no generated ID,
 timestamp, fingerprint, actual Card, Result, private ownership, Search World,
-Provenance sidecar, or execution output.
+Provenance sidecar, or execution output. Persistence fingerprints belong to the
+separate wrapper document, not to the Checkpoint or State.
 
 ## Checkpoint lineage after history edits
 
@@ -205,6 +209,11 @@ active accepted Log and recomputed readiness. Removed and discarded suffixes do
 not influence that export. See
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
 
+Issue #155 strict Resume independently reconstructs every optional persisted
+Checkpoint and recomputes its `current`, `ancestor`, `future`, or `diverged`
+relationship to the resumed active State. It does not trust or persist a prior
+lineage Result.
+
 ## Boundaries and remaining work
 
 The feature remains internal. It adds no public Session API, eighth Root
@@ -213,10 +222,14 @@ example, generated output, or Package-version change. The seven Root workflows,
 62 authoritative and packaged Schemas, and 77 generated-output scenarios remain
 unchanged.
 
+Persistence Load/Resume does not invoke this exporter or start Position Analysis;
+export itself still performs no file I/O or workflow execution. See
+[Session persistence and Resume](session_persistence_and_resume.md).
+
 Session-triggered Position Analysis, actual-card attachment to Checkpoints,
-persistence/resume, Public Session API, Session Provenance, Session Schemas, CLI
-Session Assistant, examples, generated outputs, automatic Checkpoint collection,
-end-to-end capture, and UI remain separate scopes. See
+Public Session API, Session Provenance, Session Schemas, CLI Session Assistant,
+examples, generated outputs, automatic Checkpoint collection, end-to-end capture,
+and UI remain separate scopes. See
 [Interactive Session contracts](interactive_session_contracts.md),
 [Incremental Session transitions](incremental_session_transitions.md), and
 [Retrospective Session export](retrospective_session_export.md).

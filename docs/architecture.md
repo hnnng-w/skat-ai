@@ -13,6 +13,8 @@ the existing Engine workflows:
 Session Commands
     -> immutable accepted Session State
     -> optional immutable Undo or one-command correction
+    -> optional private persistence document and atomic local save
+    -> strict resume, accepted-Log replay, fingerprint verification, and lineage
     -> validation and export readiness
     -> canonical Position Request export and optional Decision Checkpoint
     -> canonical Historical Game Request export
@@ -28,8 +30,12 @@ and an available export can be frozen as a replay-verified pre-Play Checkpoint.
 The history layer can now reconstruct a strict accepted prefix, replace one
 Command, replay the original suffix through the same validator, stop with a valid
 partial State before the first rejected later Command, and derive Checkpoint
-lineage. No persistence, Public API, Session Provenance, CLI Session command,
-Schema, or UI exists yet.
+lineage. Issue #155 can retain the authoritative State and optional caller-
+supplied frozen Checkpoints in one private version-1 document, strictly resume it,
+recompute lineage, and optimistically save canonical local bytes through same-
+directory atomic replacement. No Public API, Session Provenance, Session Schema,
+CLI persistence command, automatic Checkpoint collection, Session-triggered
+analysis, or capture/UI exists yet.
 
 The position-analysis flow is:
 
@@ -218,9 +224,14 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/session_decision_checkpoint.py` | Immutable local pre-Play metadata and replay-verified frozen Position Request construction. |
 | `src/skat_ai/session_history_contracts.py` | History Edit policies, immutable Undo/Correction contracts, and Checkpoint Lineage relationships. |
 | `src/skat_ai/session_history.py` | Strict-prefix reconstruction, Undo, one-command correction, first-rejection suffix replay, and exact Checkpoint lineage classification. |
+| `src/skat_ai/session_persistence_contracts.py` | Private version-1 persistence, resume, and optimistic write contracts and exact policy constants. |
+| `src/skat_ai/session_persistence_codec.py` | Canonical domain-separated fingerprints, strict typed reconstruction, accepted-Log replay, fingerprint verification, and resumed lineage derivation. |
+| `src/skat_ai/session_persistence.py` | Strict private file loading and canonical optimistic same-directory atomic save transport. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
-analysis Result, generated timestamp, or path. It reuses Historical seats,
+analysis Result, generated timestamp, path, or fingerprint. Persistence paths and
+the State/content fingerprints belong to the separate private persistence
+boundary, not `SessionStateV1`. Session State reuses Historical seats,
 `GameDeclaration`, Card notation, RFC 3339 parsing, continuation kinds,
 Historical end reasons, legal-card/trick helpers, and RFC 6901 paths without
 running analysis or adjudication. See
@@ -231,7 +242,9 @@ internal no-execution Historical boundary and
 [Session Position export and Decision checkpoints](live_session_position_export.md)
 for the information-safe Position boundary, and
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md)
-for immutable linear history editing.
+for immutable linear history editing. See
+[Session persistence and resume](session_persistence_and_resume.md) for private
+local document identity, verification, and atomic save behavior.
 
 Validation is split between JSON Schema and Python validation:
 
@@ -690,6 +703,10 @@ Important regression areas:
   deterministic replayed/discarded suffixes, first-rejection partial States,
   information safety, edited export compatibility, and current/ancestor/future/
   diverged Checkpoint lineage
+* private Session persistence contracts, exact compact canonical SHA-256 domains,
+  strict reconstruction and accepted-Log replay, fingerprint-mismatch rejection,
+  optional Checkpoint canonicalization, recomputed lineage, optimistic conflict
+  outcomes, canonical UTF-8/LF bytes, and atomic-replacement failure cleanup
 
 ## Validation layers
 

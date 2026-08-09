@@ -3,8 +3,10 @@
 Issue #154 adds the internal version-1 history-edit layer around immutable
 Session States. It rewinds one accepted Command Log to a strict prefix, replaces
 one accepted Command and replays the original later suffix, and classifies frozen
-Decision Checkpoints against the resulting linear history. It adds no persistence
-or public Session surface.
+Decision Checkpoints against the resulting linear history. Issue #155 adds a
+separate private persistence wrapper for the resulting active State and optional
+caller-supplied Checkpoints, without changing this history layer or adding a
+public Session surface.
 
 ## Contract identity
 
@@ -24,7 +26,8 @@ SESSION_CHECKPOINT_LINEAGE_VERSION = 1
 History Edit and Checkpoint Lineage versions are independent of the Package,
 Public API, Application, installed CLI, Session, Command, transition, projection,
 Request-export, Position-option, Decision-Checkpoint, Provenance, Schema, and
-other Domain versions. Package version remains `0.13.0`.
+other Domain versions. Package version remains `0.13.0`. Session Persistence
+version `1` is also independent of both versions here.
 
 The canonical Undo statuses are:
 
@@ -62,8 +65,9 @@ Undo may lower the numeric revision. A complete one-for-one correction may keep
 the same numeric revision while changing the accepted Log. Numeric revision is
 therefore not a globally unique history identity. Generation, branch, commit,
 merge, active-head, and fingerprint fields are absent. Persisted content
-fingerprints and cross-process stale-write detection remain separate persistence
-work.
+fingerprints and cross-process stale-write detection belong only to the separate
+persistence wrapper; State remains the authoritative accepted Log and gains no
+persistence field or path.
 
 ## Strict-prefix Undo
 
@@ -100,7 +104,7 @@ expected revision returns exactly one blocking `revision_conflict` Diagnostic.
 Negative and Boolean revision inputs remain contract errors.
 
 Undo is not a Command. It appends no accepted record and stores no removed suffix
-inside the resulting State.
+inside the resulting State. Undo Results and removed suffixes are never persisted.
 
 ## Mode, phase, and readiness recomputation
 
@@ -174,6 +178,7 @@ corrected valid prefix, reports all successfully replayed records, reports the
 failed and remaining records as the exact discarded suffix, identifies the first
 failed original revision, and retains the existing Command-specific blocker
 Diagnostics. Discarded records are not stored in the resulting State.
+Correction Results and replayed or discarded suffix reports are never persisted.
 
 ## Information safety
 
@@ -199,6 +204,8 @@ Version 1 has one active linear Log. Removed and discarded records exist only in
 the operation Result. There is no branch identity, alternate head, merge,
 automatic retry, or stored Redo stack. A caller may retain returned records and
 submit a later explicit operation, but the Session State stores none of them.
+Persistence stores only that active State plus optional caller-supplied frozen
+Checkpoints, never a Result, suffix, or Redo value.
 
 ## Checkpoint lineage
 
@@ -235,6 +242,10 @@ Undo and correction never mutate, delete, rewrite, or attach data to a
 Checkpoint. Its source revision and Request remain frozen. Actual-card and Result
 attachment and automatic Checkpoint collection remain later work.
 
+Strict Resume reconstructs optional persisted Checkpoints and recomputes each
+`current`, `ancestor`, `future`, or `diverged` relationship against the resumed
+active State. Lineage Results themselves are derived and are not persisted.
+
 ## Export compatibility
 
 History edits execute no export automatically and cache no Request. Callers may
@@ -243,6 +254,11 @@ exporter. Each exporter replays that edited State normally and uses its recomput
 readiness. Removed and discarded Commands cannot influence the export because
 they are absent from the active accepted Log. Existing frozen Checkpoints remain
 separate values.
+
+A resumed State is the same `SessionStateV1` and remains compatible with Undo,
+correction, lineage classification, and both exporters. Persistence Load/Resume
+does not automatically run a history operation, export a Request, or execute
+analysis. See [Session persistence and Resume](session_persistence_and_resume.md).
 
 ## Determinism and execution bounds
 
@@ -268,7 +284,7 @@ Schema, example, generated output, or Package-version change. The public boundar
 remains seven Root workflows, 62 authoritative and packaged Schemas, 77 generated
 outputs, and Package version `0.13.0`.
 
-Persistence and resume, persisted fingerprints, cross-process stale-write
-detection, Public Session API, Session Provenance, Session Schemas, actual-card
-Checkpoint attachment, automatic Checkpoint collection, CLI Session commands and
-Assistant, examples, generated outputs, end-to-end capture, and UI remain open.
+Session-triggered analysis, actual-card Checkpoint attachment, Public Session
+API, Session Provenance, Session Schemas, CLI Session commands and Assistant,
+examples, generated outputs, automatic Checkpoint collection, end-to-end capture,
+and UI remain open.

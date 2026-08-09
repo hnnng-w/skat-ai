@@ -9,7 +9,8 @@ readiness boundary to construct an internal canonical Historical Request. Issue
 #153 consumes Position readiness to construct an existing flat Position Request
 and a separately frozen pre-Play Checkpoint without workflow execution.
 Issue #154 wraps these immutable States with deterministic strict-prefix Undo,
-one-command correction, linear suffix replay, and Checkpoint lineage.
+one-command correction, linear suffix replay, and Checkpoint lineage. Issue #155
+adds private persistence and strict Resume around the resulting unchanged State.
 
 ## Contract identity
 
@@ -24,6 +25,8 @@ SESSION_REPLAY_POLICY = full_accepted_log_before_apply
 Existing Session contract version `1` and Command version `1` are unchanged.
 Package version remains `0.13.0`. Public API, Application, CLI, Provenance,
 Schema, Historical Game, and other Domain versions remain independent.
+Session Persistence version `1` is also independent of the transition and
+projection versions.
 
 ## Modules
 
@@ -259,9 +262,20 @@ without executing analysis. One Undo adds at most one prefix reconstruction; one
 correction adds one prefix reconstruction, one replacement, and one linear suffix
 pass that stops before the first rejection; lineage adds at most one prefix and
 expected-Request reconstruction. None uses State-level Command application per
-suffix record. Persistence, Public Session API, Session Provenance, Session
-Schemas, CLI Session Assistant, examples, generated outputs, automatic
-Checkpoint collection, and UI remain later work. See
+suffix record.
+
+Issue #155 persists only the authoritative accepted-Log State plus optional
+caller-supplied frozen Checkpoints. Strict Resume verifies the State and content
+fingerprints, replays that Log, and recomputes Checkpoint lineage; the resumed
+`SessionStateV1` remains compatible with normal Command application, history
+operations, and both exporters. Persistence Load/Resume does not automatically
+export or analyze. See
+[Session persistence and Resume](session_persistence_and_resume.md).
+
+Session-triggered analysis, actual-card Checkpoint attachment, Public Session
+API, Session Provenance, Session Schemas, CLI Session Assistant, examples,
+generated outputs, automatic Checkpoint collection, end-to-end capture, and UI
+remain later work. See
 [Retrospective Session export](retrospective_session_export.md) and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
 and [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).

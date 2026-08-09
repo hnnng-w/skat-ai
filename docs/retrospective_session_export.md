@@ -4,6 +4,7 @@ Issue #152 adds the internal version-1 export from one Historical-ready Session
 to the existing canonical Historical Game Root Request. It constructs a Request
 only. It does not execute the Historical workflow. Issue #154 edited States use
 this same unchanged exporter after readiness is recomputed from their active Log.
+Issue #155 resumed States use it in exactly the same way.
 
 ## Contract identity
 
@@ -18,7 +19,8 @@ SESSION_EXPORT_STATUSES = (available, unavailable)
 
 This version does not change Session, Command, transition, projection,
 Historical Game, Public API, Application, CLI, Schema, or Provenance versions.
-Package version remains `0.13.0`.
+Package version remains `0.13.0`. Session Persistence version `1` is separately
+versioned and does not change this export contract.
 
 ## Immutable export result
 
@@ -191,8 +193,14 @@ discarded records are absent from the edited State and cannot influence later
 Historical export; no history operation executes export automatically. See
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
 
-Persistence/resume, Public Session API, Session
-Provenance, Session Schemas, CLI Session Assistant, examples, generated outputs,
-automatic Checkpoint collection, end-to-end capture, and UI work remain separate
-scopes. See
-[Session Position export and Decision checkpoints](live_session_position_export.md).
+Issue #155 private persistence wraps only the unchanged active State and optional
+caller-supplied Checkpoints. Strict Load/Resume verifies fingerprints and the
+accepted Log and returns a normal resumed `SessionStateV1`; it neither invokes
+this exporter nor executes the Historical workflow. See
+[Session persistence and Resume](session_persistence_and_resume.md).
+
+Session-triggered analysis, actual-card Checkpoint attachment, Public Session
+API, Session Provenance, Session Schemas, CLI Session Assistant, examples,
+generated outputs, automatic Checkpoint collection, end-to-end capture, and UI
+work remain separate scopes. See [Session Position export and Decision
+checkpoints](live_session_position_export.md).

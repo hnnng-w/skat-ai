@@ -175,7 +175,7 @@ official Skat rules arbitration.
 * Setuptools Wheel and sdist builds with `py.typed`, packaged byte-identical JSON
   Schemas, and clean-install validation
 
-### Interactive Session contracts, Request exports, and history editing
+### Interactive Session contracts, Request exports, history editing, and persistence
 
 * Internal Session and Command contract version `1`
 * Exactly three stable Players with canonical forehand, middlehand, and rearhand seats
@@ -211,19 +211,39 @@ official Skat rules arbitration.
 * Derived Checkpoint Lineage version `1` with `current`, `ancestor`, `future`, and
   `diverged` relationships from exact accepted-prefix and Position Request
   reconstruction
+* Internal Session Persistence version `1` with an authoritative accepted-Log
+  State, optional caller-supplied frozen Decision Checkpoints, and recomputed
+  lineage on resume
+* Domain-separated compact canonical SHA-256 State and complete-content
+  fingerprints, including distinct identity for corrected equal-revision Logs
+* Strict private-document reconstruction, accepted-Log replay, canonical round
+  trips, and State/content fingerprint verification
+* Optimistic expected-content-fingerprint `saved`, `unchanged`, and `conflict`
+  results plus canonical pretty UTF-8/LF save bytes and same-directory atomic
+  replacement
 
 The internal Command layer, both ready-Session Request exporters, and Decision
 Checkpoint builder are executable. Internal Undo, correction, suffix replay, and
-Checkpoint lineage are also implemented, but Session-triggered analysis,
-actual-card Checkpoint attachment, persistence, Public API, Session
-Provenance, CLI Session commands, Schemas, examples, generated outputs,
-automatic Checkpoint collection, and interactive UI are not implemented. The
+Checkpoint lineage are also implemented. Internal private persistence can build,
+strictly resume, load, and optimistically save those values, but Session-triggered
+analysis, actual-card Checkpoint attachment, Public API, Session Provenance,
+Session Schemas, CLI persistence, examples, generated outputs, automatic
+Checkpoint collection, and end-to-end capture/UI are not implemented. The
 exporters construct but do not execute the existing Position or Historical
-workflow. See [Interactive session contracts](docs/interactive_session_contracts.md),
+workflow. Session State itself still contains no filesystem path or fingerprint;
+those values belong to the private persistence envelope and save call. See
+[Interactive session contracts](docs/interactive_session_contracts.md),
 [Incremental Session transitions](docs/incremental_session_transitions.md),
 [Retrospective Session export](docs/retrospective_session_export.md),
 [Session Position export and Decision checkpoints](docs/live_session_position_export.md),
-and [Session Undo, correction, and Checkpoint lineage](docs/session_undo_and_correction.md).
+[Session Undo, correction, and Checkpoint lineage](docs/session_undo_and_correction.md),
+and [Session persistence and resume](docs/session_persistence_and_resume.md).
+
+Session persistence files are private local working data. They may contain
+complete retrospective cards and local-private Checkpoint Position Requests,
+receive no public redaction, and make no encryption or access-control claim.
+Their fingerprints provide deterministic content identity and verification, not
+confidentiality or authenticated authorship.
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -738,6 +758,7 @@ Detailed documentation is split into topic-specific files:
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
 * [Session Undo, correction, and Checkpoint lineage](docs/session_undo_and_correction.md)
+* [Session persistence and resume](docs/session_persistence_and_resume.md)
 * [Field-level information provenance](docs/field_level_information_provenance.md)
 * [Public field provenance](docs/public_field_provenance.md)
 * [Live analysis provenance](docs/live_analysis_provenance.md)
@@ -986,8 +1007,8 @@ motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
 level provenance enforcement, and end-to-end interactive Session capture beyond
-the internal Issue #150 through #154 contract, transition, Request-export,
-Decision-Checkpoint, and history-edit foundation. General
+the internal Issue #150 through #155 contract, transition, Request-export,
+Decision-Checkpoint, history-edit, and private persistence foundation. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -1043,16 +1064,21 @@ Session contract foundation, Issue #151's deterministic transition engine,
 Issue #152's canonical Retrospective Historical Request export, and Issue #153's
 information-safe Position Request export and Decision Checkpoints. Issue #154
 adds deterministic strict-prefix Undo, one-command correction, suffix replay,
-partial corrected States, and Checkpoint lineage.
+partial corrected States, and Checkpoint lineage. Issue #155 adds private
+internal Session Persistence version `1`, strict reconstruction/replay and
+fingerprint verification, caller-supplied frozen Checkpoint retention with
+recomputed lineage, optimistic expected-content-fingerprint writes, and canonical
+atomic local file replacement.
 Session and Command version `1`, transition and projection version `1`, stable
 Players, Capture Modes, typed Commands, an authoritative accepted Log, full
 replay, atomic application, monotonic phases, incremental validation, Diagnostics,
 export readiness, immutable export Results, exact Historical and information-safe
 Position mapping, declared-Ouvert public-hand capture, canonical Request
 construction, frozen local pre-Play Checkpoints, and internal history editing now
-exist. Persistence, Session-triggered analysis, actual-card Checkpoint attachment,
-Public API, Provenance, CLI Session commands, Schemas, examples, generated
-outputs, automatic Checkpoint collection, and UI remain open. Online-
+exist. Private persistence and strict resume also exist. Session-triggered
+analysis, actual-card Checkpoint attachment, Public API, Provenance, Session
+Schemas, CLI persistence, examples, generated outputs, automatic Checkpoint
+collection, and end-to-end capture/UI remain open. Online-
 platform adapters, browser extensions, and website scraping remain outside this
 bounded milestone.
 

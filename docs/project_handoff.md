@@ -100,6 +100,10 @@ The project focuses on:
 * internal Session History Edit version `1` with immutable strict-prefix Undo,
   exact removed suffixes, one-command replacement, deterministic first-rejection
   suffix replay, valid partial corrected States, and Checkpoint lineage
+* private deterministic Session Persistence version `1` with authoritative
+  accepted-Log State, caller-supplied frozen Checkpoints, State/content
+  fingerprints, strict replay-verified resume, optimistic conflict detection,
+  canonical files, and atomic same-directory replacement
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -231,7 +235,7 @@ by Issue #142; broader Domain error migration and end-to-end field-level
 enforcement remain open. See
 [Application orchestration](application_orchestration.md).
 
-### Interactive Session contract, Request export, and Checkpoint foundation
+### Interactive Session contract, Request export, Checkpoint, and persistence foundation
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -312,14 +316,32 @@ Implemented by Issue #154:
 * immutable Checkpoint Lineage version `1` with current, ancestor, future, and
   diverged classification from exact prefix and Position Request reconstruction
 
-Session-triggered analysis, actual-card Checkpoint attachment, persistence,
-Public API, Provenance propagation, Schema, CLI Session Assistant, example,
+Implemented by Issue #155:
+
+* private Session Persistence document version `1` with document kind
+  `skat_ai_session`, authoritative accepted-Log State, and caller-supplied frozen
+  Decision Checkpoints in canonical order
+* domain-separated deterministic SHA-256 State and content fingerprints that
+  distinguish corrected same-revision histories and checkpoint-content changes
+* strict exact-field reconstruction of persisted State, Commands, Validation,
+  Position Requests, and Checkpoints, followed by full accepted-Log replay and
+  both fingerprint checks
+* resume-time recomputation of current, ancestor, future, or diverged Checkpoint
+  lineage rather than persisted lineage authority
+* optimistic expected-content-fingerprint writes with normal `saved`,
+  `unchanged`, and `conflict` Results, including a second pre-replacement check
+* canonical UTF-8 JSON files and durable same-directory temporary-file writes
+  completed by atomic replacement, with owned temporary-file cleanup on failure
+
+Session-triggered analysis, actual-card Checkpoint attachment, Public API,
+Provenance propagation, Session Schemas, CLI Session Assistant, examples,
 generated output, automatic Checkpoint collection, end-to-end capture, and UI
 are not implemented. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
-and [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
+[Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),
+and [Session persistence and resume](session_persistence_and_resume.md).
 
 ### Field-level provenance contract foundation
 
@@ -945,6 +967,14 @@ Implemented:
   * immutable History Edit and Checkpoint Lineage versions, policies, and Results
 * `session_history.py`
   * strict-prefix Undo, one-command correction, linear suffix replay, and lineage
+* `session_persistence_contracts.py`
+  * private document, Resume and Write Result contracts, policies, and statuses
+* `session_persistence_codec.py`
+  * State/content fingerprints, strict reconstruction and replay, canonical
+    Checkpoint retention, and lineage recomputation
+* `session_persistence.py`
+  * strict private file loading, canonical expected-fingerprint saves, conflict
+    detection, and atomic same-directory replacement
 
 ### Game state and rules
 
@@ -1084,6 +1114,7 @@ Main documentation files:
 * `docs/retrospective_session_export.md`
 * `docs/live_session_position_export.md`
 * `docs/session_undo_and_correction.md`
+* `docs/session_persistence_and_resume.md`
 * `docs/field_level_information_provenance.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
@@ -1441,6 +1472,15 @@ Completed implementation scope:
 * internal Session Request Export version 1 with immutable available/unavailable
   Results, exact ready-Retrospective Historical mapping, canonical builder round
   trip, and existing immutable Request construction without workflow execution
+* internal information-safe Session Position Request export, declared-Ouvert
+  public-hand capture, and immutable replay-verified pre-Play Decision Checkpoints
+* immutable internal strict-prefix Undo, one-command correction, deterministic
+  first-rejection suffix replay, valid partial corrected States, and Checkpoint
+  lineage
+* private deterministic Session Persistence version 1 with authoritative State,
+  caller-supplied frozen Checkpoints, State/content fingerprints, strict resume,
+  optimistic expected-fingerprint writes, canonical files, and atomic same-
+  directory replacement
 
 ## Current high-priority limitations
 
@@ -1490,8 +1530,11 @@ Completed implementation scope:
   Position Request exports, declared-Ouvert public-hand capture, and immutable
   pre-Play Decision Checkpoints are implemented. Immutable strict-prefix Undo,
   one-command correction, first-rejection suffix replay, valid partial corrected
-  States, and Checkpoint lineage are also implemented. Session-triggered
-  analysis, actual-card Checkpoint attachment, persistence, Public API,
+  States, and Checkpoint lineage are also implemented. Private deterministic
+  persistence now stores the authoritative State and caller-supplied frozen
+  Checkpoints, strictly reconstructs and replays them, recomputes lineage, and
+  uses content-fingerprint conflict checks plus canonical atomic file replacement.
+  Session-triggered analysis, actual-card Checkpoint attachment, Public API,
   Provenance, CLI Session commands, Schemas, examples/generated output,
   automatic Checkpoint collection, end-to-end capture, and UI are not.
   The exporters execute no workflow; the installed CLI, public executable facade,
@@ -1504,12 +1547,13 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement the next bounded `v0.14.0` Session layer over Issues #150 through #154.
-Persistence/resume is the smallest nearest open contract area because it can
-store and restore the now-complete immutable State, Log, history-edit, export,
-and Checkpoint foundations without yet exposing a public workflow. Public API,
-Provenance, Schemas, CLI, automatic Checkpoint collection, end-to-end capture,
-and UI must remain separately scoped.
+Implement the next bounded `v0.14.0` Session layer over Issues #150 through #155.
+Private persistence/resume and expected-fingerprint conflict detection now store
+and strictly restore the immutable State, Log, history-edit, export, and
+Checkpoint foundations. Session-triggered analysis, actual-card Checkpoint
+attachment, Public API, Provenance, Schemas, CLI, examples/generated output,
+automatic Checkpoint collection, end-to-end capture, and UI remain separately
+scoped.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

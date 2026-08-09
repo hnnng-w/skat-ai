@@ -7,8 +7,10 @@ Historical-ready Retrospective Sessions to canonical existing Historical Game
 Requests. Issue #153 adds information-safe Position Request export, declared-
 Ouvert public-hand capture, and immutable pre-Play Decision Checkpoints. Issue
 #154 adds immutable strict-prefix Undo, one-command correction, deterministic
-suffix replay, partial corrected States, and Checkpoint lineage. Persistence,
-Public API, Provenance, Schemas, CLI, and end-to-end capture remain later layers.
+suffix replay, partial corrected States, and Checkpoint lineage. Issue #155 adds
+private internal persistence and strict Resume as a wrapper over these unchanged
+contracts, transitions, exports, and history operations. Public API, Provenance,
+Schemas, CLI, and end-to-end capture remain later layers.
 
 ## Contract identity
 
@@ -43,6 +45,11 @@ Application orchestration version `1`, installed CLI version `1`, Provenance
 versions, Root Schema versions, Historical Game version, or another Domain
 version.
 
+Session Persistence version `1` is independently versioned. It wraps an exact
+`SessionStateV1` and optional caller-supplied frozen Decision Checkpoints; it
+does not add persistence fields or a path to Session State or change any version
+or policy above.
+
 The stable policies are:
 
 ```text
@@ -76,8 +83,9 @@ Historical and Position exporters; Issue #153 can freeze an available local pre-
 Play Position export as a Decision Checkpoint. Issue #154 can derive another
 immutable State from a strict accepted prefix or one replacement plus the valid
 original suffix, and can classify the frozen Checkpoint against that history.
-There is no parser, persistence loader, Public Session API, or Session Root
-workflow.
+Issue #155 can persist the active State and optional Checkpoints, then strictly
+Resume them without changing this flow. There is no Public Session API or
+Session Root workflow.
 
 `GameState` remains the mutable local analysis and simulation value.
 `HistoricalGameRecord` remains the strict immutable final historical contract.
@@ -219,7 +227,9 @@ validation
 
 The caller supplies the stable Session ID. The accepted Command Log is the
 authoritative history; State has no mutable projection, Engine State, Search
-State, cache, random stream, result, generated timestamp, or path.
+State, cache, random stream, result, generated timestamp, persistence
+fingerprint, persistence field, or path. Persistence document identity and the
+caller-selected file path remain outside State.
 
 `SessionCommandRecordV1` pairs resulting positive revision `n` with a Command
 whose expected revision is `n - 1`. An accepted Log begins at `1`, is contiguous,
@@ -354,7 +364,8 @@ replayed and discarded source records. No later source Command is evaluated.
 Every resulting State derives current Capture Mode, phase, Validation, and both
 readiness values from its actual active Log. Removed and discarded records live
 only in operation Results. Undo and correction are not Commands and create no
-branch or stored Redo stack.
+branch or stored Redo stack. Persistence stores none of those Results, suffixes,
+or Redo data: only the active State plus optional caller-supplied Checkpoints.
 
 `classify_session_decision_checkpoint_v1()` reproduces the exact accepted prefix
 and expected Position Request where possible. Its relationships are `current`,
@@ -371,7 +382,8 @@ immutable mappings and tuples with deterministic object-key order.
 
 Serialization includes no Python class-name protocol field, generated identity,
 generated timestamp, environment value, or filesystem path. There is no Session
-Schema or persistence loader.
+Schema. The separate persistence parser and Resume layer do not alter Session
+serialization.
 
 The separate frozen `SessionProjectionV1` retains metadata, canonical initial
 and remaining known hands, known Skat, Declarer, Declaration, Discards,
@@ -395,12 +407,20 @@ existing `RequestDocumentV1`. See
 [Retrospective Session export](retrospective_session_export.md).
 
 Information-safe Position Request export and immutable pre-Play Decision
-Checkpoints are also implemented without workflow execution. See
+Checkpoints are also implemented without file I/O or workflow execution. See
 [Session Position export and Decision checkpoints](live_session_position_export.md).
 
-Remaining `v0.14.0` work includes persistence and resume, Session-triggered
-analysis, actual-card Checkpoint attachment, Public Session
-API, Session Provenance, Session Schemas, CLI Session Assistant, examples,
-generated outputs, automatic Checkpoint collection, end-to-end capture, and any
-later local interface. No UI technology or platform integration is selected.
-See [Incremental Session transitions](incremental_session_transitions.md).
+Issue #155 strict Resume parses the private document, verifies separate State
+and content fingerprints, replays the authoritative accepted Log, and
+recomputes `current`, `ancestor`, `future`, or `diverged` lineage for every
+optional caller-supplied Checkpoint. The resumed State remains an ordinary
+`SessionStateV1` compatible with the unchanged transitions, history operations,
+and both exporters. Persistence Load/Resume neither exports a Request nor starts
+analysis. See [Session persistence and Resume](session_persistence_and_resume.md).
+
+Remaining `v0.14.0` work includes Session-triggered analysis, actual-card
+Checkpoint attachment, Public Session API, Session Provenance, Session Schemas,
+CLI Session Assistant, examples, generated outputs, automatic Checkpoint
+collection, end-to-end capture, and any later local interface. No UI technology
+or platform integration is selected. See
+[Incremental Session transitions](incremental_session_transitions.md).

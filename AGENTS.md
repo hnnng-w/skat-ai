@@ -35,6 +35,9 @@ The project focuses on:
   Retrospective Historical Request export
 * deterministic internal strict-prefix Session Undo, one-command correction,
   first-rejection suffix replay, and Decision Checkpoint lineage
+* private internal Session persistence and resume with canonical fingerprints,
+  strict accepted-Log verification, optimistic conflict detection, and atomic
+  same-directory file replacement
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -132,6 +135,7 @@ Before larger changes, read the relevant documentation:
 * `docs/input_json.md`
 * `docs/output_json.md`
 * `docs/application_orchestration.md`
+* `docs/session_persistence_and_resume.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -226,10 +230,13 @@ Position builder validation, and immutable replay-verified pre-Play Decision
 Checkpoints. Issue #154 adds internal Session History Edit version `1`, immutable
 strict-prefix Undo, one-command correction with deterministic first-rejection
 suffix replay, partial corrected States, and current/ancestor/future/diverged
-Checkpoint lineage. Session-triggered analysis, actual-card Checkpoint attachment,
-persistence and resume, Public API, Provenance propagation,
-Session Schemas, CLI, examples, generated output, automatic Checkpoint
-collection, and UI technology remain open. Online-platform adapters,
+Checkpoint lineage. Issue #155 adds internal Session Persistence version `1`,
+canonical State/content fingerprints, strict reconstruction and replay, optional
+caller-supplied frozen Checkpoints with recomputed lineage, optimistic content-
+fingerprint conflicts, canonical local file load, and atomic save. Session-
+triggered analysis, actual-card Checkpoint attachment, Public API, Provenance
+propagation, Session Schemas, CLI persistence, examples, generated output,
+automatic Checkpoint collection, and capture/UI technology remain open. Online-platform adapters,
 browser extensions, and website scraping remain outside this bounded milestone.
 
 Major completed areas include:
@@ -329,6 +336,10 @@ Major completed areas include:
 * immutable internal Session History Edit version `1` with exact-prefix Undo,
   one-command correction, linear suffix replay, normal partial results, and
   derived Decision Checkpoint lineage
+* internal Session Persistence version `1` with private authoritative-Log
+  documents, optional frozen Checkpoints, domain-separated SHA-256 identity,
+  strict resume, derived lineage, optimistic conflict results, and durable-
+  intent same-directory atomic replacement
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -350,9 +361,11 @@ attribution, player ratings, complete field-level information provenance, and
 end-to-end interactive Session capture remain open before `v1.0.0`. Internal
 Command application, incremental validation, Retrospective Historical and
 information-safe Position Request export, declared-Ouvert public-hand capture,
-pre-Play Decision Checkpoints, Undo, correction, and Checkpoint lineage exist,
-but persistence, Public API, Provenance, CLI, automatic Checkpoint collection,
-and UI do not.
+pre-Play Decision Checkpoints, Undo, correction, Checkpoint lineage, and private
+local persistence/resume exist, but Public API, Provenance, Session Schemas, CLI
+persistence, automatic Checkpoint collection, actual-card attachment, Session-
+triggered analysis, and capture/UI do not. Session State itself contains no path
+or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.
 

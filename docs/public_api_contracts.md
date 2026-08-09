@@ -37,15 +37,20 @@ Technical importability does not make any other `skat_ai.*` module public.
 Direct imports from workflow, Domain, builder, serializer, schema-loader, or
 other internal modules have no compatibility guarantee.
 
-Issues #150 through #154 Session contracts, projection, replay, incremental
+Issues #150 through #155 Session contracts, projection, replay, incremental
 validation, Command application, canonical Retrospective Historical and
 information-safe Position Request export, and pre-Play Decision Checkpoints
 remain internal under `skat_ai.session_*`. The same internal boundary now also
 contains strict-prefix Undo, one-command correction, suffix replay, partial
-corrected States, and Checkpoint lineage. Internal construction and freezing of
-the existing `RequestDocumentV1` adds no public Session type, function, Root
-workflow, Request/Result field, or option. The exact public export surfaces in
-this document are unchanged. See
+corrected States, Checkpoint lineage, and private deterministic persistence and
+strict resume. Persistence reconstructs the authoritative accepted-Log State
+and caller-supplied frozen Checkpoints, verifies separate State and content
+integrity fingerprints, replays the State, and derives Checkpoint lineage. Its
+private document has no public Schema or Provenance Ledger and receives no
+public redaction. Internal Request construction, freezing, persistence, and file
+transport add no public Session type, function, Root workflow, Request/Result
+field, or option. The exact public export surfaces in this document are
+unchanged. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
@@ -354,8 +359,11 @@ without executing them or changing this namespace. Issue #153 constructs
 information-safe Position Requests and immutable pre-Play Decision Checkpoints
 internally without executing analysis. Issue #154 adds internal immutable Undo,
 correction, suffix replay, and Checkpoint lineage without exporting them.
-Persistence and a Public Session API remain later work; no version-1 public
-export changes at this boundary.
+Issue #155 adds private deterministic persistence, optimistic conflict
+detection, atomic file replacement, and strict resume without exporting them. A
+Public Session API, Session Provenance, Session Schemas, CLI integration, and
+automation remain later work; no version-1 public export changes at this
+boundary.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are
