@@ -5,9 +5,10 @@ immutable contract foundation. Issue #151 makes that language executable through
 deterministic internal transitions and incremental validation. Issue #152 exports
 Historical-ready Retrospective Sessions to canonical existing Historical Game
 Requests. Issue #153 adds information-safe Position Request export, declared-
-Ouvert public-hand capture, and immutable pre-Play Decision Checkpoints.
-Undo/correction, persistence, Public API, Provenance, Schemas, CLI, and end-to-end
-capture remain later layers.
+Ouvert public-hand capture, and immutable pre-Play Decision Checkpoints. Issue
+#154 adds immutable strict-prefix Undo, one-command correction, deterministic
+suffix replay, partial corrected States, and Checkpoint lineage. Persistence,
+Public API, Provenance, Schemas, CLI, and end-to-end capture remain later layers.
 
 ## Contract identity
 
@@ -27,6 +28,14 @@ SESSION_POSITION_EXPORT_POLICY = information_safe_ready_local_decision
 SESSION_DECISION_CHECKPOINT_VERSION = 1
 SESSION_DECISION_CHECKPOINT_POLICY = frozen_pre_play_request
 SESSION_DECISION_INFORMATION_CUTOFF = before_local_play
+SESSION_HISTORY_EDIT_VERSION = 1
+SESSION_UNDO_POLICY = immutable_strict_prefix_rewind
+SESSION_CORRECTION_POLICY = replace_one_command_then_replay_suffix
+SESSION_CORRECTION_SUFFIX_POLICY = stop_before_first_rejected_command
+SESSION_HISTORY_STATE_POLICY = accepted_log_length_per_immutable_state
+SESSION_BRANCHING_POLICY = unsupported
+SESSION_REDO_POLICY = caller_retained_suffix_only
+SESSION_CHECKPOINT_LINEAGE_VERSION = 1
 ```
 
 They do not derive from Package version `0.13.0`, Public API version `1`,
@@ -64,8 +73,11 @@ Commands are applied atomically, the full accepted Log can be replayed into an
 immutable projection, phases and Validation are recomputed, and both export
 targets receive normal readiness status. Issues #152 and #153 implement the
 Historical and Position exporters; Issue #153 can freeze an available local pre-
-Play Position export as a Decision Checkpoint. There is no Undo/correction layer,
-parser, persistence loader, Public Session API, or Session Root workflow.
+Play Position export as a Decision Checkpoint. Issue #154 can derive another
+immutable State from a strict accepted prefix or one replacement plus the valid
+original suffix, and can classify the frozen Checkpoint against that history.
+There is no parser, persistence loader, Public Session API, or Session Root
+workflow.
 
 `GameState` remains the mutable local analysis and simulation value.
 `HistoricalGameRecord` remains the strict immutable final historical contract.
@@ -139,8 +151,9 @@ Hand Games require no Discards. `play` represents public Plays and supported
 events. `ended` represents normal completion or one supported terminal end.
 
 Issue #151 Command application advances phases monotonically. No Command sets a
-phase. A future Undo may move the active head to an earlier linear revision;
-version 1 has no branching or active-head movement.
+phase. Issue #154 Undo may derive another immutable State at an earlier accepted
+revision, and correction may rederive a phase from changed accepted facts.
+Version 1 has no mutable active head or branching.
 
 ## Commands
 
@@ -265,6 +278,7 @@ event_sequence_violation
 game_end_violation
 export_unavailable
 revision_conflict
+history_revision_violation
 ```
 
 Diagnostics are unique and ordered by severity, path, code, then message.
@@ -320,6 +334,34 @@ derived Capture Mode, phase, revision, and Validation to equal stored State.
 Forged or semantically invalid accepted State raises `SkatAIInvariantError`.
 Normal next-Command rejection is not an exception.
 
+## History editing and Checkpoint lineage
+
+Session History Edit version `1` keeps one immutable linear accepted Log per
+State. `rewind_session_state_v1()` replay-validates the source once and rebuilds
+an earlier accepted prefix from revision zero. Applied Undo returns the exact
+removed source suffix. A current target is unchanged, a target beyond the source
+is rejected with `history_revision_violation`, and a mismatched expected revision
+returns `revision_conflict` before target-range semantics.
+
+`SessionCommandCorrectionV1` replaces one positive accepted revision with one
+current Command whose expected revision matches that position.
+`correct_session_command_v1()` rebuilds the preceding prefix, applies the
+replacement once, and linearly replays original later Commands. Complete replay
+is `applied`; exact equality is `unchanged`; replacement failure is `rejected`;
+and the first invalid later Command returns a valid `partial` State plus exact
+replayed and discarded source records. No later source Command is evaluated.
+
+Every resulting State derives current Capture Mode, phase, Validation, and both
+readiness values from its actual active Log. Removed and discarded records live
+only in operation Results. Undo and correction are not Commands and create no
+branch or stored Redo stack.
+
+`classify_session_decision_checkpoint_v1()` reproduces the exact accepted prefix
+and expected Position Request where possible. Its relationships are `current`,
+`ancestor`, `future`, and `diverged`. Checkpoints remain separate immutable
+values; no source revision, Request, actual Card, or Result is rewritten. See
+[Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
+
 ## Serialization
 
 Every Session value has deterministic internal `to_dict()` serialization with
@@ -356,8 +398,8 @@ Information-safe Position Request export and immutable pre-Play Decision
 Checkpoints are also implemented without workflow execution. See
 [Session Position export and Decision checkpoints](live_session_position_export.md).
 
-Remaining `v0.14.0` work includes Undo and correction, persistence and resume,
-Session-triggered analysis, actual-card Checkpoint attachment, Public Session
+Remaining `v0.14.0` work includes persistence and resume, Session-triggered
+analysis, actual-card Checkpoint attachment, Public Session
 API, Session Provenance, Session Schemas, CLI Session Assistant, examples,
 generated outputs, automatic Checkpoint collection, end-to-end capture, and any
 later local interface. No UI technology or platform integration is selected.

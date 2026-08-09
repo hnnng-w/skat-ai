@@ -103,8 +103,11 @@ Historical readiness gating, exact canonical Retrospective mapping, existing
 Historical builder round trip, and immutable Request construction. Issue #153
 adds Position Export Options version `1`, information-safe one-replay Position
 Request export, declared-Ouvert public-hand capture, and immutable replay-
-verified pre-Play Decision Checkpoints. Session-triggered analysis, actual-card
-Checkpoint attachment, Undo/correction, persistence, Public API, Provenance,
+verified pre-Play Decision Checkpoints. Issue #154 adds immutable Session History
+Edit and Checkpoint Lineage version `1`, strict-prefix Undo, one-command
+correction, deterministic first-rejection suffix replay, valid partial corrected
+States, and exact current/ancestor/future/diverged lineage. Session-triggered
+analysis, actual-card Checkpoint attachment, persistence, Public API, Provenance,
 Schemas, CLI, examples/generated output, automatic Checkpoint collection, and UI
 remain open. Online-platform adapters, browser extensions, and website scraping
 remain outside this bounded milestone.
@@ -391,6 +394,21 @@ Schema, example, generated scenario, Position input contract, Provenance
 contract, or Package version. The count remains seven Root workflows, 62
 authoritative and packaged Schemas, 77 generated-output scenarios, and Package
 version `0.13.0`.
+
+Issue #154 edits only internal immutable Session history. It adds four exact Undo
+statuses, five exact Correction statuses, four exact Checkpoint relationships,
+revision-conflict precedence, strict-prefix projection replay, replacement at one
+accepted revision, replay of only the original later source suffix, stop-before-
+first-rejection semantics, valid partial corrected States, and exact-prefix plus
+rebuilt-Request lineage classification. Original States, Logs, records, Commands,
+Requests, Checkpoints, and Options remain unchanged; Redo ownership remains with
+the caller. It executes no Root workflow, Application, Public API, CLI, Schema,
+example, generated scenario, or Provenance path and changes no public export or
+Package version. The count remains seven Root workflows, 62 authoritative and
+packaged Schemas, 77 generated-output scenarios, and Package version `0.13.0`.
+In the matrix below, the Interactive Session row's prior Undo/correction
+limitation now means public or end-to-end history editing; the internal version-1
+history edit and lineage boundary is implemented by Issue #154.
 
 | Requirement | Source | Rule section | Current status | Current implementation | Required input or information | Known limitation | Required validation or tests | Target milestone | Required before v1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

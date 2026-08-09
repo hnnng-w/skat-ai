@@ -15,6 +15,7 @@ from skat_ai.session_position_export import (
     _build_relative_player_map,
     _export_replayed_session_position_analysis_request_v1,
 )
+from skat_ai.session_projection import SessionProjectionV1
 from skat_ai.session_transitions import replay_session_state_v1
 
 SESSION_DECISION_CHECKPOINT_VERSION = 1
@@ -200,6 +201,58 @@ def _options_from_request(request: RequestDocumentV1) -> SessionPositionExportOp
     )
 
 
+def _build_replayed_session_decision_checkpoint_v1(
+    *,
+    state: SessionStateV1,
+    projection: SessionProjectionV1,
+    position_export: SessionRequestExportV1,
+) -> SessionDecisionCheckpointV1:
+    """Builds a Checkpoint from an already replay-verified Position export."""
+    if (
+        projection.local_player_id is None
+        or projection.next_player_id != projection.local_player_id
+    ):
+        _raise_checkpoint_invariant(
+            "The local Player is not next in the replayed Session.",
+            path="/next_player_id",
+        )
+    if (
+        position_export.session_id != state.session_id
+        or position_export.source_revision != state.revision
+        or position_export.target != "position_analysis"
+        or position_export.status != "available"
+        or position_export.request is None
+    ):
+        _raise_checkpoint_invariant(
+            "The replayed Position export cannot form a Decision Checkpoint.",
+            path="/request",
+        )
+
+    relative_player_map = _build_relative_player_map(projection)
+    local_player_id = relative_player_map["me"]
+    local_player = next(
+        player for player in projection.players if player.player_id == local_player_id
+    )
+    play_index = (
+        1
+        if projection.incomplete_trick is None
+        else len(projection.incomplete_trick.plays) + 1
+    )
+    return SessionDecisionCheckpointV1(
+        session_id=state.session_id,
+        source_revision=state.revision,
+        source_capture_mode=projection.capture_mode,
+        decision_index=projection.played_card_count + 1,
+        trick_number=len(projection.completed_tricks) + 1,
+        play_index=play_index,
+        acting_player_id=local_player_id,
+        acting_seat=local_player.seat,
+        information_cutoff=SESSION_DECISION_INFORMATION_CUTOFF,
+        relative_player_map=relative_player_map,
+        request=position_export.request,
+    )
+
+
 def build_session_decision_checkpoint_v1(
     *,
     state: SessionStateV1,
@@ -236,14 +289,6 @@ def build_session_decision_checkpoint_v1(
             cause=error,
         )
     projection = replay_session_state_v1(state)
-    if (
-        projection.local_player_id is None
-        or projection.next_player_id != projection.local_player_id
-    ):
-        _raise_checkpoint_invariant(
-            "The local Player is no longer next in the replayed Session.",
-            path="/next_player_id",
-        )
     expected_export = _export_replayed_session_position_analysis_request_v1(
         state=state,
         projection=projection,
@@ -259,27 +304,8 @@ def build_session_decision_checkpoint_v1(
             "Expected Session Position export has no Request.",
             path="/request",
         )
-
-    relative_player_map = _build_relative_player_map(projection)
-    local_player_id = relative_player_map["me"]
-    local_player = next(
-        player for player in projection.players if player.player_id == local_player_id
-    )
-    play_index = (
-        1
-        if projection.incomplete_trick is None
-        else len(projection.incomplete_trick.plays) + 1
-    )
-    return SessionDecisionCheckpointV1(
-        session_id=state.session_id,
-        source_revision=state.revision,
-        source_capture_mode=projection.capture_mode,
-        decision_index=projection.played_card_count + 1,
-        trick_number=len(projection.completed_tricks) + 1,
-        play_index=play_index,
-        acting_player_id=local_player_id,
-        acting_seat=local_player.seat,
-        information_cutoff=SESSION_DECISION_INFORMATION_CUTOFF,
-        relative_player_map=relative_player_map,
-        request=expected_export.request,
+    return _build_replayed_session_decision_checkpoint_v1(
+        state=state,
+        projection=projection,
+        position_export=expected_export,
     )

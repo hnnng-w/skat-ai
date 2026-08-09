@@ -97,6 +97,9 @@ The project focuses on:
 * immutable internal pre-Play Decision Checkpoints with replay-verified source
   revision, actor/seat/index metadata, relative Player map, and frozen existing
   Position Request
+* internal Session History Edit version `1` with immutable strict-prefix Undo,
+  exact removed suffixes, one-command replacement, deterministic first-rejection
+  suffix replay, valid partial corrected States, and Checkpoint lineage
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -292,13 +295,31 @@ Implemented by Issue #153:
 * replay and expected-Request equality verification without analysis,
   Application, Public API, transport, or workflow execution
 
-Session-triggered analysis, actual-card Checkpoint attachment, Undo/correction,
-persistence, Public API, Provenance propagation, Schema, CLI Session Assistant,
-example, generated output, automatic Checkpoint collection, end-to-end capture,
-and UI are not implemented. See
+Implemented by Issue #154:
+
+* independent Session History Edit version `1` with exact Undo, correction,
+  suffix, State, branching, and caller-retained-Redo policies
+* immutable applied/unchanged/rejected/revision-conflict Undo Results with exact
+  removed source suffixes
+* revision-zero prefix reconstruction through the existing projection-level
+  validator and one final Validation calculation
+* immutable one-command Correction Requests and applied/unchanged/partial/
+  rejected/revision-conflict Results
+* deterministic original-suffix replay that stops before the first rejected
+  later Command and returns exact replayed and discarded source records
+* Mode, phase, trick, public-hand, Validation, and export-readiness recomputation
+  from the actual active accepted Log
+* immutable Checkpoint Lineage version `1` with current, ancestor, future, and
+  diverged classification from exact prefix and Position Request reconstruction
+
+Session-triggered analysis, actual-card Checkpoint attachment, persistence,
+Public API, Provenance propagation, Schema, CLI Session Assistant, example,
+generated output, automatic Checkpoint collection, end-to-end capture, and UI
+are not implemented. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
-[Session Position export and Decision checkpoints](live_session_position_export.md).
+[Session Position export and Decision checkpoints](live_session_position_export.md),
+and [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
 
 ### Field-level provenance contract foundation
 
@@ -916,6 +937,14 @@ Implemented:
 * `session_historical_export.py`
   * one-replay readiness gate, exact Historical mapping, canonical round trip,
     and immutable existing Root Request construction
+* `session_position_export.py`
+  * information-safe Position readiness gate and existing Request construction
+* `session_decision_checkpoint.py`
+  * replay-verified immutable local pre-Play Checkpoint construction
+* `session_history_contracts.py`
+  * immutable History Edit and Checkpoint Lineage versions, policies, and Results
+* `session_history.py`
+  * strict-prefix Undo, one-command correction, linear suffix replay, and lineage
 
 ### Game state and rules
 
@@ -1053,6 +1082,8 @@ Main documentation files:
 * `docs/interactive_session_contracts.md`
 * `docs/incremental_session_transitions.md`
 * `docs/retrospective_session_export.md`
+* `docs/live_session_position_export.md`
+* `docs/session_undo_and_correction.md`
 * `docs/field_level_information_provenance.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
@@ -1457,8 +1488,10 @@ Completed implementation scope:
   Command application, replay, phase advancement, projection, incremental
   validation, readiness, canonical Retrospective Historical and information-safe
   Position Request exports, declared-Ouvert public-hand capture, and immutable
-  pre-Play Decision Checkpoints are implemented. Session-triggered analysis,
-  actual-card Checkpoint attachment, Undo/correction, persistence, Public API,
+  pre-Play Decision Checkpoints are implemented. Immutable strict-prefix Undo,
+  one-command correction, first-rejection suffix replay, valid partial corrected
+  States, and Checkpoint lineage are also implemented. Session-triggered
+  analysis, actual-card Checkpoint attachment, persistence, Public API,
   Provenance, CLI Session commands, Schemas, examples/generated output,
   automatic Checkpoint collection, end-to-end capture, and UI are not.
   The exporters execute no workflow; the installed CLI, public executable facade,
@@ -1471,10 +1504,12 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement the next bounded `v0.14.0` Session layer over Issues #150 through #153.
-Undo/correction and persistence/resume remain the nearest open contract areas;
-Public API, Provenance, Schemas, CLI, automatic Checkpoint collection, end-to-end
-capture, and UI must remain separately scoped.
+Implement the next bounded `v0.14.0` Session layer over Issues #150 through #154.
+Persistence/resume is the smallest nearest open contract area because it can
+store and restore the now-complete immutable State, Log, history-edit, export,
+and Checkpoint foundations without yet exposing a public workflow. Public API,
+Provenance, Schemas, CLI, automatic Checkpoint collection, end-to-end capture,
+and UI must remain separately scoped.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

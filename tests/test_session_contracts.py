@@ -909,6 +909,7 @@ def test_diagnostic_registry_and_severities_are_all_constructible() -> None:
         "game_end_violation",
         "export_unavailable",
         "revision_conflict",
+        "history_revision_violation",
     )
     for code in SESSION_DIAGNOSTIC_CODES:
         assert _diagnostic(code=code).code == code

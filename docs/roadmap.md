@@ -44,17 +44,25 @@ Implemented by Issue #150 for the active `v0.14.0` milestone:
   continuation public-hand coexistence and shrinking
 * Frozen pre-Play Decision Checkpoint version `1` with replay-verified source
   revision, actor/seat/index metadata, relative map, and Position Request
+* Session History Edit version `1` with immutable Undo/correction policies,
+  Results, exact source suffix reporting, and caller-retained Redo policy
+* Strict-prefix Undo through projection-level replay and one final Validation
+* One-command replacement plus deterministic original-suffix replay that stops
+  before the first rejected later Command and returns a valid partial State
+* Checkpoint Lineage version `1` with current, ancestor, future, and diverged
+  classification from exact accepted-Log prefixes and rebuilt Position Requests
 
 Issue #151 executes the internal Commands but does not itself export an Engine
 Request. Issue #152 adds only canonical Retrospective Historical Request export.
 Issue #153 adds information-safe Position Request export, declared-Ouvert public-
 hand capture, and immutable Decision Checkpoints. Session-triggered analysis,
-actual-card Checkpoint attachment, Undo, correction, persistence, Public API,
+actual-card Checkpoint attachment, persistence, Public API,
 Session Provenance, Schemas, CLI Session Assistant, examples, generated outputs,
 automatic Checkpoint collection, and UI remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
-[Session Position export and Decision checkpoints](live_session_position_export.md).
+[Session Position export and Decision checkpoints](live_session_position_export.md),
+and [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
 
 ### Public API contract foundation
 
@@ -636,9 +644,11 @@ implements deterministic internal Command application and incremental
 validation. Issue #152 implements internal canonical Retrospective Historical
 Request export without workflow execution. Issue #153 implements internal
 information-safe Position Request export, declared-Ouvert public-hand capture,
-and immutable pre-Play Decision Checkpoints without workflow execution.
-Session-triggered analysis, actual-card Checkpoint attachment, Undo/correction,
-persistence, Public API, Provenance, Schema, CLI, examples/generated output,
+and immutable pre-Play Decision Checkpoints without workflow execution. Issue
+#154 implements immutable strict-prefix Undo, one-command correction, linear
+suffix replay, valid partial corrected States, and Checkpoint lineage.
+Session-triggered analysis, actual-card Checkpoint attachment, persistence,
+Public API, Provenance, Schema, CLI, examples/generated output,
 automatic Checkpoint collection, and UI work remains.
 Online-platform adapters, browser extensions, and website scraping remain
 outside this bounded milestone.
@@ -880,5 +890,6 @@ should distinguish the current published `v0.13.0` baseline, historical
 by GitHub Releases, the active `v0.14.0` development milestone and its implemented
 Issue #150 Session contracts, Issue #151 transition foundation, and Issue #152
 Retrospective Historical Request export, and Issue #153 Position export and
-Decision Checkpoints, requirements explicitly required for `v1.0.0`, planned
-post-v1.0 work, not-required workflows, and unconditional exclusions.
+Decision Checkpoints, and Issue #154 Undo/correction and Checkpoint lineage,
+requirements explicitly required for `v1.0.0`, planned post-v1.0 work,
+not-required workflows, and unconditional exclusions.

@@ -36,11 +36,14 @@ provenance. It selects only one exact Root Result attachment and attachments for
 artifacts actually returned; Application contracts and orchestration version
 remain unchanged.
 
-Issues #150 through #153 add a separate internal Session authoring, transition,
+Issues #150 through #154 add a separate internal Session authoring, transition,
 Request-export, and Decision-Checkpoint layer before Application. It creates,
 replays, validates, and applies Commands, then can construct existing Historical
 or Position `RequestDocumentV1` values outside Application and freeze a local
-pre-Play Position Request as a Checkpoint. It does not build an
+pre-Play Position Request as a Checkpoint. The same internal layer can rewind an
+immutable State, replace one accepted Command with deterministic suffix replay,
+return a valid partial corrected State, and classify Checkpoint lineage. It does
+not build an
 `ApplicationInvocation`, add an eighth handler, invoke this dispatcher, or
 change orchestration version `1`.
 
@@ -246,7 +249,7 @@ The following remain separate follow-up scopes:
 * broader field-level enforcement outside the implemented Application and
   bounded public Root Result/actual-artifact boundaries;
 * public or automatic execution over internal Session Position/Historical
-  Request exports and Decision Checkpoints.
+  Request exports, history edits, and Decision Checkpoints.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue

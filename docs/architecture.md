@@ -12,6 +12,7 @@ the existing Engine workflows:
 ```text
 Session Commands
     -> immutable accepted Session State
+    -> optional immutable Undo or one-command correction
     -> validation and export readiness
     -> canonical Position Request export and optional Decision Checkpoint
     -> canonical Historical Game Request export
@@ -24,8 +25,11 @@ also map through the existing Historical builder and canonical serializer into
 an immutable Request without executing it. Position-ready Sessions map through
 the existing flat Position builder into an information-safe immutable Request,
 and an available export can be frozen as a replay-verified pre-Play Checkpoint.
-No Undo/correction, persistence, Public API, Session Provenance, CLI Session
-command, Schema, or UI exists yet.
+The history layer can now reconstruct a strict accepted prefix, replace one
+Command, replay the original suffix through the same validator, stop with a valid
+partial State before the first rejected later Command, and derive Checkpoint
+lineage. No persistence, Public API, Session Provenance, CLI Session command,
+Schema, or UI exists yet.
 
 The position-analysis flow is:
 
@@ -212,6 +216,8 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/session_historical_export.py` | One-replay Historical readiness gate, exact projection mapping, canonical builder round trip, and immutable existing Root Request construction. |
 | `src/skat_ai/session_position_export.py` | Immutable analysis options, one-replay Position readiness gate, stable-to-relative information-safe mapping, existing builder validation, and immutable Root Request construction. |
 | `src/skat_ai/session_decision_checkpoint.py` | Immutable local pre-Play metadata and replay-verified frozen Position Request construction. |
+| `src/skat_ai/session_history_contracts.py` | History Edit policies, immutable Undo/Correction contracts, and Checkpoint Lineage relationships. |
+| `src/skat_ai/session_history.py` | Strict-prefix reconstruction, Undo, one-command correction, first-rejection suffix replay, and exact Checkpoint lineage classification. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
 analysis Result, generated timestamp, or path. It reuses Historical seats,
@@ -223,7 +229,9 @@ running analysis or adjudication. See
 [Retrospective Session export](retrospective_session_export.md) for the separate
 internal no-execution Historical boundary and
 [Session Position export and Decision checkpoints](live_session_position_export.md)
-for the information-safe Position boundary.
+for the information-safe Position boundary, and
+[Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md)
+for immutable linear history editing.
 
 Validation is split between JSON Schema and Python validation:
 
@@ -678,6 +686,10 @@ Important regression areas:
   gating, exact Historical mapping, all ending/continuation chains, canonical
   round trips, immutable Requests, execution counts, and public-boundary
   compatibility
+* immutable strict-prefix Undo, exact removed suffixes, one-command correction,
+  deterministic replayed/discarded suffixes, first-rejection partial States,
+  information safety, edited export compatibility, and current/ancestor/future/
+  diverged Checkpoint lineage
 
 ## Validation layers
 

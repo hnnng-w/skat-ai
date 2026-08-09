@@ -4,6 +4,8 @@ Issue #153 adds the internal version-1 export from one Position-ready Session to
 the existing flat Position Analysis Root Request. It also adds an immutable
 Checkpoint that freezes and identifies one replay-verified local pre-Play
 Request. Neither operation executes Position Analysis.
+Issue #154 classifies that frozen Checkpoint against immutable edited Session
+histories without changing the export or executing analysis.
 
 ## Contract identity
 
@@ -178,6 +180,31 @@ Play, event, promotion, or other accepted Commands. It has no generated ID,
 timestamp, fingerprint, actual Card, Result, private ownership, Search World,
 Provenance sidecar, or execution output.
 
+## Checkpoint lineage after history edits
+
+Checkpoint Lineage version `1` derives one of:
+
+```text
+current
+ancestor
+future
+diverged
+```
+
+`classify_session_decision_checkpoint_v1()` replay-validates the current State.
+When that State reaches the frozen source revision, it reconstructs the exact
+accepted prefix and expected information-safe Position Request and compares the
+complete expected Checkpoint. Equal revisions reproduce `current`; a later State
+with the same effective prefix is `ancestor`; an earlier State is `future`; and a
+reached but changed prefix is `diverged`.
+
+Undo and correction do not remove or mutate Checkpoint objects, rewrite their
+source revisions or Requests, or attach actual Cards or Results. An edited State
+may be passed explicitly to the existing Position exporter, which uses only its
+active accepted Log and recomputed readiness. Removed and discarded suffixes do
+not influence that export. See
+[Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
+
 ## Boundaries and remaining work
 
 The feature remains internal. It adds no public Session API, eighth Root
@@ -187,9 +214,9 @@ example, generated output, or Package-version change. The seven Root workflows,
 unchanged.
 
 Session-triggered Position Analysis, actual-card attachment to Checkpoints,
-Undo/correction, persistence/resume, Public Session API, Session Provenance,
-Session Schemas, CLI Session Assistant, examples, generated outputs, automatic
-Checkpoint collection, end-to-end capture, and UI remain separate scopes. See
+persistence/resume, Public Session API, Session Provenance, Session Schemas, CLI
+Session Assistant, examples, generated outputs, automatic Checkpoint collection,
+end-to-end capture, and UI remain separate scopes. See
 [Interactive Session contracts](interactive_session_contracts.md),
 [Incremental Session transitions](incremental_session_transitions.md), and
 [Retrospective Session export](retrospective_session_export.md).

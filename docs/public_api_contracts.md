@@ -37,16 +37,19 @@ Technical importability does not make any other `skat_ai.*` module public.
 Direct imports from workflow, Domain, builder, serializer, schema-loader, or
 other internal modules have no compatibility guarantee.
 
-Issues #150 through #153 Session contracts, projection, replay, incremental
+Issues #150 through #154 Session contracts, projection, replay, incremental
 validation, Command application, canonical Retrospective Historical and
 information-safe Position Request export, and pre-Play Decision Checkpoints
-remain internal under `skat_ai.session_*`. Internal construction and freezing of
+remain internal under `skat_ai.session_*`. The same internal boundary now also
+contains strict-prefix Undo, one-command correction, suffix replay, partial
+corrected States, and Checkpoint lineage. Internal construction and freezing of
 the existing `RequestDocumentV1` adds no public Session type, function, Root
 workflow, Request/Result field, or option. The exact public export surfaces in
 this document are unchanged. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
-[Session Position export and Decision checkpoints](live_session_position_export.md).
+[Session Position export and Decision checkpoints](live_session_position_export.md),
+and [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
 
 The internal version-1 field-level provenance language is documented in
 [Field-level information provenance](field_level_information_provenance.md).
@@ -349,8 +352,10 @@ The internal interactive Session contract foundation is implemented by Issue
 by Issue #151. Issue #152 constructs canonical Historical Requests internally
 without executing them or changing this namespace. Issue #153 constructs
 information-safe Position Requests and immutable pre-Play Decision Checkpoints
-internally without executing analysis. Persistence and a Public Session API
-remain later work; no version-1 public export changes at this boundary.
+internally without executing analysis. Issue #154 adds internal immutable Undo,
+correction, suffix replay, and Checkpoint lineage without exporting them.
+Persistence and a Public Session API remain later work; no version-1 public
+export changes at this boundary.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

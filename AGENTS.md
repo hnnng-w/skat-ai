@@ -33,6 +33,8 @@ The project focuses on:
   typed Commands, accepted revision Logs, deterministic transitions and replay,
   incremental validation, projections, export readiness, and canonical internal
   Retrospective Historical Request export
+* deterministic internal strict-prefix Session Undo, one-command correction,
+  first-rejection suffix replay, and Decision Checkpoint lineage
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -221,8 +223,11 @@ Historical builder round trip, and internal `RequestDocumentV1` construction.
 Issue #153 adds immutable Position Export Options version `1`, information-safe
 one-replay Position Request export, declared-Ouvert public-hand capture, existing
 Position builder validation, and immutable replay-verified pre-Play Decision
-Checkpoints. Session-triggered analysis, actual-card Checkpoint attachment,
-persistence and resume, Undo and correction, Public API, Provenance propagation,
+Checkpoints. Issue #154 adds internal Session History Edit version `1`, immutable
+strict-prefix Undo, one-command correction with deterministic first-rejection
+suffix replay, partial corrected States, and current/ancestor/future/diverged
+Checkpoint lineage. Session-triggered analysis, actual-card Checkpoint attachment,
+persistence and resume, Public API, Provenance propagation,
 Session Schemas, CLI, examples, generated output, automatic Checkpoint
 collection, and UI technology remain open. Online-platform adapters,
 browser extensions, and website scraping remain outside this bounded milestone.
@@ -321,6 +326,9 @@ Major completed areas include:
 * immutable internal pre-Play Decision Checkpoints with replay-verified source
   revision, actor/seat/index metadata, relative Player map, and frozen existing
   Position Request
+* immutable internal Session History Edit version `1` with exact-prefix Undo,
+  one-command correction, linear suffix replay, normal partial results, and
+  derived Decision Checkpoint lineage
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -342,8 +350,9 @@ attribution, player ratings, complete field-level information provenance, and
 end-to-end interactive Session capture remain open before `v1.0.0`. Internal
 Command application, incremental validation, Retrospective Historical and
 information-safe Position Request export, declared-Ouvert public-hand capture,
-and pre-Play Decision Checkpoints exist, but Undo, persistence, Public API,
-Provenance, CLI, automatic Checkpoint collection, and UI do not.
+pre-Play Decision Checkpoints, Undo, correction, and Checkpoint lineage exist,
+but persistence, Public API, Provenance, CLI, automatic Checkpoint collection,
+and UI do not.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.
 

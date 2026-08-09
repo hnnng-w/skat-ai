@@ -33,6 +33,7 @@ SESSION_DIAGNOSTIC_CODES = (
     "game_end_violation",
     "export_unavailable",
     "revision_conflict",
+    "history_revision_violation",
 )
 
 _SEVERITY_ORDER = {

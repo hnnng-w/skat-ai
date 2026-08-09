@@ -2,7 +2,8 @@
 
 Issue #152 adds the internal version-1 export from one Historical-ready Session
 to the existing canonical Historical Game Root Request. It constructs a Request
-only. It does not execute the Historical workflow.
+only. It does not execute the Historical workflow. Issue #154 edited States use
+this same unchanged exporter after readiness is recomputed from their active Log.
 
 ## Contract identity
 
@@ -184,7 +185,13 @@ output scenarios remain unchanged.
 ## Remaining work
 
 Position Request export and Decision checkpoints are implemented separately by
-Issue #153. Undo/correction, persistence/resume, Public Session API, Session
+Issue #153. Strict-prefix Undo, one-command correction, suffix replay, and
+Checkpoint lineage are implemented separately by Issue #154. Removed or
+discarded records are absent from the edited State and cannot influence later
+Historical export; no history operation executes export automatically. See
+[Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
+
+Persistence/resume, Public Session API, Session
 Provenance, Session Schemas, CLI Session Assistant, examples, generated outputs,
 automatic Checkpoint collection, end-to-end capture, and UI work remain separate
 scopes. See

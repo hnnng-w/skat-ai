@@ -8,6 +8,8 @@ Session workflow. Issue #152 separately consumes its replay and Historical
 readiness boundary to construct an internal canonical Historical Request. Issue
 #153 consumes Position readiness to construct an existing flat Position Request
 and a separately frozen pre-Play Checkpoint without workflow execution.
+Issue #154 wraps these immutable States with deterministic strict-prefix Undo,
+one-command correction, linear suffix replay, and Checkpoint lineage.
 
 ## Contract identity
 
@@ -133,7 +135,9 @@ play
 
 Metadata and promotion do not change phase. Thirty Plays do not end a Session;
 normal completion remains an explicit `set_game_end` Command. No phase
-regression exists.
+regression exists during normal append. A separate history edit reconstructs
+another immutable State from its actual retained or corrected Log and may
+therefore derive an earlier phase.
 
 ## Deal and Declaration
 
@@ -214,7 +218,9 @@ claim proof, Result, Value, Overbid, and Settlement are not run.
 One explicit `live -> retrospective` promotion is accepted in any phase. It
 preserves local Player, phase, Log, and all recorded facts, and infers nothing.
 Late promotion does not reopen Deal or Declaration phases and may therefore
-remain unavailable for Historical export until future correction support exists.
+remain unavailable for Historical export. Issue #154 correction can replace an
+earlier accepted Command and replay the suffix, but it never infers missing facts
+or bypasses current phase rules.
 
 ## Validation and readiness
 
@@ -249,8 +255,13 @@ unavailable, or one provisional build, one canonical serialization, and one
 canonical rebuild when available. One Position export performs one replay and no
 builder call when unavailable or one existing Position build when available. A
 Checkpoint builder performs one replay and reconstructs the expected Request
-without executing analysis. Undo/correction, persistence, Public Session API,
-Session Provenance, Session Schemas, CLI Session Assistant, examples, generated
-outputs, automatic Checkpoint collection, and UI remain later work. See
+without executing analysis. One Undo adds at most one prefix reconstruction; one
+correction adds one prefix reconstruction, one replacement, and one linear suffix
+pass that stops before the first rejection; lineage adds at most one prefix and
+expected-Request reconstruction. None uses State-level Command application per
+suffix record. Persistence, Public Session API, Session Provenance, Session
+Schemas, CLI Session Assistant, examples, generated outputs, automatic
+Checkpoint collection, and UI remain later work. See
 [Retrospective Session export](retrospective_session_export.md) and
-[Session Position export and Decision checkpoints](live_session_position_export.md).
+[Session Position export and Decision checkpoints](live_session_position_export.md),
+and [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md).
