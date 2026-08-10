@@ -4,15 +4,22 @@ Issue #155 adds internal Session Persistence version `1`. It stores one
 authoritative accepted-Log Session State and optional caller-supplied frozen
 Decision Checkpoints in a private local document, strictly reconstructs and
 replays that content on resume, recomputes Checkpoint Lineage, and provides an
-optimistic atomic file-save boundary. It does not add a public Session surface or
-execute analysis.
+optimistic atomic file-save boundary. It does not execute analysis. Issue #157
+exposes the file boundary through a focused stable public subnamespace without
+changing the persistence document.
 
 Issue #156 exposes only in-memory `build_session_persistence_document()` and
 `resume_session_document()`. Construction preserves canonical Checkpoint order
 and both fingerprints; resume validates the supplied mapping against the packaged
 Session Schema before strict reconstruction, fingerprint verification, replay,
-and lineage recomputation. Neither public operation reads or writes a file or
+and lineage recomputation. Neither in-memory operation reads or writes a file or
 retains a path or timestamp.
+
+Issue #157 adds the separate stable `skat_ai.api.v1.session.files` version-1
+transport over the unchanged low-level Save/Load behavior. It also adds CLI
+automatic Checkpoint collection and optimistic file orchestration. Paths remain
+caller-supplied transport arguments and are not retained in public Results,
+Session State, or the persistence document.
 
 ## Contract identity
 
@@ -40,7 +47,8 @@ versions, Provenance versions, and Schema versions.
 
 Issue #155 changes none of the published `v0.13.0` facts. That published baseline
 remains 62 authoritative and packaged Schemas and 77 generated outputs; the
-active Issue #156 tree has 63 byte-identical authoritative and packaged Schemas.
+active Issue #157 tree has 63 byte-identical authoritative and packaged Schemas
+and 85 generated outputs.
 
 ## Private document
 
@@ -69,9 +77,11 @@ fingerprint. A path is caller-supplied only to file load/save, while fingerprint
 and optimistic-write identity belong only to the separate persistence boundary.
 
 `decision_checkpoints` is optional and defaults to an empty tuple when the caller
-builds a document. Persistence does not collect Checkpoints automatically. Every
-supplied value must be an exact canonical `SessionDecisionCheckpointV1` for the
-same Session ID. Exact duplicates are rejected.
+builds a document. The persistence builder itself does not collect Checkpoints.
+Issue #157 CLI orchestration can collect them before building the replacement
+document. Every supplied value must be an exact canonical
+`SessionDecisionCheckpointV1` for the same Session ID. Exact duplicates are
+rejected.
 
 The builder canonicalizes Checkpoints by:
 
@@ -87,7 +97,9 @@ canonical compact complete Checkpoint bytes
 The array is therefore independent of caller input order, including when two
 different Checkpoints share one source revision. Checkpoints remain frozen and
 retain their source revision, information cutoff, relative Player map, and local-
-private Position Request. Persistence attaches no actual Card or analysis Result.
+private Position Request. Persistence attaches no Decision Observation, actual
+Card, review Request, or analysis Result; those values are derived from the
+active accepted Log when requested.
 
 ## Canonical fingerprints
 
@@ -323,18 +335,29 @@ SHA-256 verification detects content that does not match its stored identities;
 because those identities are unkeyed and can be recomputed, it is not an
 authentication mechanism against a writer who can replace the document.
 
-## Boundaries and remaining work
+## Public file and CLI boundary
 
 The low-level implementation remains under `skat_ai.session_persistence*`.
-`save_session_persistence_file_v1`, `load_session_persistence_file_v1`, and
-`SessionPersistenceWriteResultV1` remain internal and unsupported publicly.
-Issue #156 adds no Package-Root export, eighth Root workflow, Application handler,
-installed/module/Legacy CLI persistence command, example, or generated output.
-Package version remains `0.13.0`.
+`save_session_persistence_file_v1` and `load_session_persistence_file_v1` remain
+private functions. The exact `SessionPersistenceWriteResultV1` type is re-exported
+only from stable `skat_ai.api.v1.session.files`, whose `save_session_file()` and
+`load_session_file()` delegate once and retain no path.
 
-Persistence does not execute Immediate Analysis, bounded Search, hidden-card
-inference, Multi-Step, Policy Comparison, Historical processing, Review,
-Coaching, scoring, Settlement, or any Application workflow. Session-triggered
-analysis, actual-card Checkpoint attachment, automatic Checkpoint collection,
-public file Save/Load, CLI persistence, and end-to-end Live or
-Retrospective capture/UI remain open.
+Installed, module, and Legacy Session CLI mutations load one exact document,
+retain its content fingerprint, perform one operation, build one replacement,
+and save with compare-and-swap. Applied Commands/Undo and applied or partial
+Corrections can persist; rejected, conflicted, and unchanged Session operations
+do not rewrite the file. A Save conflict returns CLI Code `1` and leaves the
+target unchanged. Automatic collection writes the State and canonical
+Checkpoint tuple together but starts no analysis.
+
+Persistence itself does not execute Immediate Analysis, bounded Search, hidden-
+card inference, Multi-Step, Policy Comparison, Historical processing, Review,
+Coaching, scoring, Settlement, or any Application workflow. Explicit CLI
+`analyze`, `review`, and `finalize` export first and then execute the existing
+Application outside persistence; analysis Results are never stored in the
+Session document. There is no eighth Root workflow, default path, backup, merge,
+retry loop, GUI, cloud synchronization, distributed lock, encryption/key
+management, or automatic backup policy. Package version remains `0.13.0` pending
+release preparation. See
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

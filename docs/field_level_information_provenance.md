@@ -34,6 +34,11 @@ flag without changing the internal contract version. See
 [Retrospective review provenance](retrospective_review_provenance.md), and
 [Dataset, list, and opponent provenance](dataset_list_and_opponent_provenance.md).
 
+Issues #156 and #157 add a separate complete Public Session Provenance sidecar
+for all 12 in-memory Session operation values, including accepted-Log Decision
+Observation and Checkpoint review export. This reuses the shared language without
+changing `FIELD_PROVENANCE_VERSION` or widening public Root Result provenance.
+
 ## Contract identity
 
 The contract constants are:
@@ -62,17 +67,26 @@ These modules are internal. They are not exported from `skat_ai`, `skat_ai.api`,
 
 Issues #150 through #155 separate internal Session contracts, projection,
 replay, incremental validation, transitions, canonical Retrospective Historical
-and information-safe Position Request export, and immutable pre-Play Decision
-Checkpoints, plus strict-prefix Undo, one-command correction, suffix replay, and
-Checkpoint lineage, plus private persistence and strict resume. They reuse
-canonical RFC 6901 paths for Diagnostics but do not produce or propagate field
-Provenance. Issue #155 State and content SHA-256 fingerprints provide persistence
-integrity and optimistic-conflict identity; they are not field-level provenance.
-No Provenance Ledger is stored, and private persisted content receives no public
-redaction. Session export Results, Requests, Checkpoints, and persistence values
-carry no Provenance sidecar. Session Command, State, projection, transition,
-history edit, lineage, checkpoint, export, and persistence Provenance remains
-later work and does not change this contract version.
+and information-safe Position Request export, immutable pre-Play Decision
+Checkpoints, strict-prefix Undo, one-command correction, suffix replay,
+Checkpoint lineage, private persistence, and strict resume. Those underlying
+values store no ledger. Issue #156's Public Session wrappers can instead build a
+default-omitted complete sidecar over the exact returned operation value. Issue
+#157 extends that sidecar to `observe_checkpoint` and
+`export_checkpoint_review`: the frozen decision-time Request remains
+`current_decision`, the observed actual Card is a
+`retrospective_attachment`, later private facts stay outside the review Request,
+and provenance construction reruns neither operation.
+
+Issue #157's automatic Checkpoint collection remains an internal derived
+operation and starts no analysis. Explicit Session-triggered Position analysis,
+Checkpoint post-game review, and Historical finalization execute the existing
+Application handlers and therefore retain the existing optional Root Result
+provenance boundary; no eighth Root workflow exists. The stable Public Session
+File API has no Provenance option and retains no path in its Result. State and
+content SHA-256 fingerprints provide persistence integrity and optimistic-
+conflict identity, not field-level provenance or authorship. Private persisted
+content receives no public redaction and stores no Session Provenance ledger.
 
 ## Sidecar design
 
@@ -458,12 +472,17 @@ publishes only one redacted Root Result ledger plus actual-artifact ledgers.
 Broader adversarial enforcement outside implemented Application boundaries and
 complete field-level enforcement across every load, decision, intermediate, and
 serialization boundary remain open before `v1.0.0`. Confidence integration is
-not part of the provenance contract. Issue #156 adds separate public Session
-Provenance version `1`: complete operation-specific ledgers cover exact returned
-Session values, redact engine-private references/dependencies, and recompute
+not part of the provenance contract. Public Session Provenance version `1`
+provides complete operation-specific ledgers for all 12 returned in-memory
+Session values, redacts engine-private references/dependencies, and recomputes
 complete coverage. Live local hands remain concrete-player `local_private`,
 public Plays remain `public`, and complete Retrospective hands/Skat/Discards are
 `post_game_only` at game-end or offline boundaries. Stable source identities
 never embed Command payloads or Cards. Persistence fingerprints remain integrity
-identities, not provenance or authorship. See
+identities, not provenance or authorship. GUI/browser and platform integration,
+cloud synchronization, distributed locking, encryption/key management, and
+automatic backup policy remain separate from provenance. The functional
+`v0.14.0` milestone is complete pending Release preparation; the active tree has
+63 authoritative and packaged Schemas and 85 generated-output scenarios, while
+Package version and the published Release remain `0.13.0` and `v0.13.0`. See
 [Session provenance](session_provenance.md).

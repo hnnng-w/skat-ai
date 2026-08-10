@@ -986,7 +986,7 @@ def test_public_api_cli_schema_output_and_package_boundaries_are_unchanged() -> 
             )
         )
     ) == 63
-    assert len(SCENARIOS) == 77
+    assert len(SCENARIOS) == 85
     pyproject = tomllib.loads(
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )

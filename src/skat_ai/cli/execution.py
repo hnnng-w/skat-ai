@@ -3882,6 +3882,15 @@ def run_cli(
 ) -> int:
     """Runs one argv-capable CLI invocation using the selected command identity."""
     _invocation_command(invocation_style)
+    dispatch_argv = tuple(sys.argv[1:] if argv is None else argv)
+    if dispatch_argv[:1] == ("session",):
+        from skat_ai.cli.session import run_session_cli
+
+        session_argv = dispatch_argv[1:]
+        if legacy_namespace is None:
+            return run_session_cli(session_argv, invocation_style=invocation_style)
+        with legacy_patch_namespace(legacy_namespace):
+            return run_session_cli(session_argv, invocation_style=invocation_style)
     if legacy_namespace is None:
         return _run_cli(argv, invocation_style)
     with legacy_patch_namespace(legacy_namespace):

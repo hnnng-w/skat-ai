@@ -35,6 +35,14 @@ def validate_session_command_document(document: object) -> None:
     _validate_session_definition(document, "session_command")
 
 
+def validate_session_create_document(document: object) -> None:
+    _validate_session_definition(document, "session_create_input")
+
+
+def validate_session_correction_document(document: object) -> None:
+    _validate_session_definition(document, "command_correction")
+
+
 def validate_session_persistence_document(document: Mapping[str, object]) -> None:
     _validate_session_definition(document, "session_persistence_document")
 

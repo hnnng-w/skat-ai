@@ -38,6 +38,10 @@ The project focuses on:
 * private internal Session persistence and resume with canonical fingerprints,
   strict accepted-Log verification, optimistic conflict detection, and atomic
   same-directory file replacement
+* stable public Session and Session file APIs, accepted-Log Decision
+  Observations, isolated Checkpoint review export, automatic exact Checkpoint
+  collection, installed/module/Legacy Session CLI parity, explicit Session-
+  triggered analysis, and phase-aware local Assistant capture
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -138,6 +142,8 @@ Before larger changes, read the relevant documentation:
 * `docs/session_persistence_and_resume.md`
 * `docs/public_session_api_v1.md`
 * `docs/session_provenance.md`
+* `docs/session_decision_observations.md`
+* `docs/session_cli_and_end_to_end_capture.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -236,14 +242,20 @@ Checkpoint lineage. Issue #155 adds internal Session Persistence version `1`,
 canonical State/content fingerprints, strict reconstruction and replay, optional
 caller-supplied frozen Checkpoints with recomputed lineage, optimistic content-
 fingerprint conflicts, canonical local file load, and atomic save. Session-
-triggered analysis, actual-card Checkpoint attachment, public file Save/Load,
-CLI Session commands, examples, generated output, automatic Checkpoint
-collection, and capture/UI technology remain open. Issue #156 adds stable
+triggered analysis and transport are added later by Issue #157. Issue #156 adds stable
 `skat_ai.api.v1.session` version `1`, exact immutable contract re-exports, public
 Command parsing, ten transport-free in-memory operations, one typed Result
 envelope, default-omitted complete redacted Session Provenance, strict standalone
-Session Schema, 63-Schema Package parity, and clean-install validation. Online-platform adapters,
-browser extensions, and website scraping remain outside this bounded milestone.
+Session Schema, 63-Schema Package parity, and clean-install validation. Issue
+#157 adds stable `skat_ai.api.v1.session.files` Save/Load, Decision Observation,
+isolated Checkpoint review export, automatic collection, all 12 Session CLI
+subcommands across installed/module/Legacy invocation, explicit Position and
+Historical execution, the phase-aware Assistant, six examples, and eight
+append-only scenarios. The active total is 85 generated outputs and 63 Schemas.
+The functional `v0.14.0` milestone is complete pending release preparation.
+Online-platform adapters, browser extensions, website scraping, cloud
+synchronization, distributed locking, encryption/key management, and automatic
+backup policy remain open.
 
 Major completed areas include:
 
@@ -350,6 +362,15 @@ Major completed areas include:
   strict Command parsing, ten one-call in-memory operations, typed Results,
   optional complete redacted Session Provenance, a standalone packaged Session
   Schema, and clean-install validation
+* stable public Session file API version `1` with exact Save/Load exports,
+  path-free Results, strict resume, optimistic compare-and-swap, and atomic Save
+* immutable accepted-Log Decision Observation and frozen-request-plus-observed-
+  Card Checkpoint review export with optional complete Session Provenance
+* automatic exact Decision Checkpoint collection with equality deduplication and
+  no automatic analysis
+* installed/module/Legacy 12-subcommand Session CLI parity, explicit Position
+  and Historical execution, phase-aware Assistant, six examples, and eight
+  append-only generated scenarios
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -367,17 +388,15 @@ exact world counts do not identify the real deal, sampled ownership is not
 calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Overbid Null replacement selection,
 information-set Search, tactical motif detection, cross-game Coaching, causal
-attribution, player ratings, complete field-level information provenance, and
-end-to-end interactive Session capture remain open before `v1.0.0`. Internal
-Command application, incremental validation, Retrospective Historical and
-information-safe Position Request export, declared-Ouvert public-hand capture,
-pre-Play Decision Checkpoints, Undo, correction, Checkpoint lineage, public in-
-memory persistence construction/resume, and private local file persistence exist,
-but public file Save/Load, CLI Session commands, automatic Checkpoint collection,
-actual-card attachment, Session-triggered analysis, examples/generated output,
-and capture/UI do not. The active tree has 63 authoritative and byte-identical
-packaged Schemas and 77 generated-output scenarios; the published `v0.13.0`
-baseline remains 62 Schemas and 77 scenarios. Session State itself contains no path
+attribution, player ratings, and complete field-level information provenance
+remain open before `v1.0.0`. End-to-end local Live and Retrospective Session
+capture is implemented through public file Save/Load, automatic Checkpoints,
+accepted-Log actual-card observation, isolated review, explicit analysis, the
+12-subcommand CLI, and Assistant. GUI/browser UI, online-platform adapters,
+cloud synchronization, distributed locking, encryption/key management, and
+automatic backup policy remain open. The active tree has 63 authoritative and
+byte-identical packaged Schemas and 85 generated-output scenarios; the published
+`v0.13.0` baseline remains 62 Schemas and 77 scenarios. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.

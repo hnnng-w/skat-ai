@@ -1,0 +1,307 @@
+{
+  "session_persistence_version": 1,
+  "document_kind": "skat_ai_session",
+  "state_fingerprint": "11acc26419b61691446f7dadd5497b515ed203420356e25d983fe5896b9a4532",
+  "content_fingerprint": "578d091972c4bb6a8b29971d947e0fb03cc6f4424df99655741cc71ec831ebb0",
+  "state": {
+    "session_contract_version": 1,
+    "session_id": "session-live-example",
+    "initial_capture_mode": "live",
+    "capture_mode": "live",
+    "revision": 13,
+    "phase": "play",
+    "players": [
+      {
+        "player_id": "player-a",
+        "player_label": "Alice",
+        "seat": "forehand"
+      },
+      {
+        "player_id": "player-b",
+        "player_label": "Bob",
+        "seat": "middlehand"
+      },
+      {
+        "player_id": "player-c",
+        "player_label": "Carol",
+        "seat": "rearhand"
+      }
+    ],
+    "local_player_id": "player-a",
+    "command_log": [
+      {
+        "revision": 1,
+        "command": {
+          "command_version": 1,
+          "kind": "set_game_metadata",
+          "expected_revision": 0,
+          "game_id": "session-live-example-game",
+          "played_at": "2026-08-10T18:00:00Z"
+        }
+      },
+      {
+        "revision": 2,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 1,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CA"
+        }
+      },
+      {
+        "revision": 3,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 2,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C10"
+        }
+      },
+      {
+        "revision": 4,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 3,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CK"
+        }
+      },
+      {
+        "revision": 5,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 4,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CQ"
+        }
+      },
+      {
+        "revision": 6,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 5,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CJ"
+        }
+      },
+      {
+        "revision": 7,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 6,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C9"
+        }
+      },
+      {
+        "revision": 8,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 7,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C8"
+        }
+      },
+      {
+        "revision": 9,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 8,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C7"
+        }
+      },
+      {
+        "revision": 10,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 9,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "SA"
+        }
+      },
+      {
+        "revision": 11,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 10,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "S10"
+        }
+      },
+      {
+        "revision": 12,
+        "command": {
+          "command_version": 1,
+          "kind": "set_declarer",
+          "expected_revision": 11,
+          "declarer_player_id": "player-a"
+        }
+      },
+      {
+        "revision": 13,
+        "command": {
+          "command_version": 1,
+          "kind": "set_declaration",
+          "expected_revision": 12,
+          "declaration": {
+            "game_type": "grand",
+            "hand_game": true,
+            "ouvert": false,
+            "schneider_announced": false,
+            "schwarz_announced": false,
+            "matadors": null,
+            "bid_value": 24
+          }
+        }
+      }
+    ],
+    "validation": {
+      "session_contract_version": 1,
+      "revision": 13,
+      "phase": "play",
+      "structurally_valid": true,
+      "valid_incomplete": true,
+      "game_complete": false,
+      "position_export": {
+        "target": "position_analysis",
+        "status": "available",
+        "reason_codes": []
+      },
+      "historical_export": {
+        "target": "historical_game",
+        "status": "unavailable",
+        "reason_codes": [
+          "phase_violation",
+          "card_identity_violation",
+          "information_policy_violation",
+          "game_end_violation"
+        ]
+      },
+      "diagnostics": [
+        {
+          "code": "information_policy_violation",
+          "path": "/capture_mode",
+          "message": "Historical export requires Retrospective Mode.",
+          "severity": "info",
+          "blocks_command": false,
+          "blocks_position_export": false,
+          "blocks_historical_export": true
+        },
+        {
+          "code": "game_end_violation",
+          "path": "/game_end_reason",
+          "message": "Historical export requires a valid normal or supported terminal ending.",
+          "severity": "info",
+          "blocks_command": false,
+          "blocks_position_export": false,
+          "blocks_historical_export": true
+        },
+        {
+          "code": "card_identity_violation",
+          "path": "/initial_known_hands",
+          "message": "Historical export requires one exact complete 32-card Deal.",
+          "severity": "info",
+          "blocks_command": false,
+          "blocks_position_export": false,
+          "blocks_historical_export": true
+        },
+        {
+          "code": "phase_violation",
+          "path": "/phase",
+          "message": "Historical export requires phase 'ended'.",
+          "severity": "info",
+          "blocks_command": false,
+          "blocks_position_export": false,
+          "blocks_historical_export": true
+        }
+      ]
+    }
+  },
+  "decision_checkpoints": [
+    {
+      "session_decision_checkpoint_version": 1,
+      "session_id": "session-live-example",
+      "source_revision": 13,
+      "source_capture_mode": "live",
+      "decision_index": 1,
+      "trick_number": 1,
+      "play_index": 1,
+      "acting_player_id": "player-a",
+      "acting_seat": "forehand",
+      "information_cutoff": "before_local_play",
+      "relative_player_map": {
+        "me": "player-a",
+        "left": "player-b",
+        "right": "player-c"
+      },
+      "request": {
+        "api_contract_version": 1,
+        "workflow": "position_analysis",
+        "document": {
+          "analysis_mode": "live_decision",
+          "completed_tricks": [],
+          "current_trick": [],
+          "declarer_player": "me",
+          "declarer_points": 0,
+          "defender_points": 0,
+          "game_declaration": {
+            "bid_value": 24,
+            "game_type": "grand",
+            "hand_game": true,
+            "matadors": null,
+            "ouvert": false,
+            "schneider_announced": false,
+            "schwarz_announced": false
+          },
+          "game_end_reason": "not_ended",
+          "game_type": "grand",
+          "hand": [
+            "CA",
+            "C10",
+            "CK",
+            "CQ",
+            "CJ",
+            "C9",
+            "C8",
+            "C7",
+            "SA",
+            "S10"
+          ],
+          "left_hand_size": 10,
+          "next_player": "me",
+          "played_cards": [],
+          "player_position": "forehand",
+          "player_role": "declarer",
+          "random_seed": 157,
+          "right_hand_size": 10,
+          "sample_count": 1,
+          "skat": [],
+          "skat_visibility": "unknown",
+          "trick_leader": "me",
+          "use_basic_opponent_strategy": true
+        }
+      }
+    }
+  ]
+}

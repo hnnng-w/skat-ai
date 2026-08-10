@@ -18,11 +18,17 @@ from skat_ai.errors import (
     SkatAISerializationError,
     SkatAIValidationError,
 )
+from skat_ai.session_checkpoint_review import (
+    export_session_checkpoint_review_request_v1,
+)
 from skat_ai.session_commands import SessionCommandV1, is_session_command_v1
 from skat_ai.session_contracts import SessionPlayerV1, SessionStateV1
 from skat_ai.session_decision_checkpoint import (
     SessionDecisionCheckpointV1,
     build_session_decision_checkpoint_v1,
+)
+from skat_ai.session_decision_observation import (
+    observe_session_decision_checkpoint_v1,
 )
 from skat_ai.session_export_contracts import SessionRequestExportV1
 from skat_ai.session_historical_export import (
@@ -353,6 +359,56 @@ def resume_session_document(
             options=validated_options,
             source_state=value.document.state,
             retained_inputs={"document": mutable_document},
+        )
+
+    return _at_public_boundary(operation)
+
+
+def observe_session_decision_checkpoint(
+    *,
+    state: SessionStateV1,
+    checkpoint: SessionDecisionCheckpointV1,
+    options: SessionApiOptionsV1 = _DEFAULT_OPTIONS,
+) -> SessionApiResultV1:
+    """Observes one frozen decision from accepted Session history."""
+
+    def operation() -> SessionApiResultV1:
+        validated_options = _require_options(options)
+        value = observe_session_decision_checkpoint_v1(
+            state=state,
+            checkpoint=checkpoint,
+        )
+        return _result(
+            operation="observe_checkpoint",
+            value=value,
+            options=validated_options,
+            source_state=state,
+            retained_inputs={"state": state, "checkpoint": checkpoint},
+        )
+
+    return _at_public_boundary(operation)
+
+
+def export_session_checkpoint_review_request(
+    *,
+    state: SessionStateV1,
+    checkpoint: SessionDecisionCheckpointV1,
+    options: SessionApiOptionsV1 = _DEFAULT_OPTIONS,
+) -> SessionApiResultV1:
+    """Exports one review Request from a frozen decision and observed Card."""
+
+    def operation() -> SessionApiResultV1:
+        validated_options = _require_options(options)
+        value = export_session_checkpoint_review_request_v1(
+            state=state,
+            checkpoint=checkpoint,
+        )
+        return _result(
+            operation="export_checkpoint_review",
+            value=value,
+            options=validated_options,
+            source_state=state,
+            retained_inputs={"state": state, "checkpoint": checkpoint},
         )
 
     return _at_public_boundary(operation)

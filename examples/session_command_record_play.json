@@ -1,0 +1,7 @@
+{
+  "command_version": 1,
+  "kind": "record_play",
+  "expected_revision": 13,
+  "player_id": "player-a",
+  "card": "CA"
+}

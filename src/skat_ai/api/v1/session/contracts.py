@@ -5,11 +5,19 @@ from typing import TYPE_CHECKING, Any
 
 from skat_ai.api.v1.contracts import PUBLIC_API_CONTRACT_VERSION
 from skat_ai.errors import SkatAIValidationError
+from skat_ai.session_checkpoint_review import (
+    SESSION_CHECKPOINT_REVIEW_EXPORT_VERSION,
+    SessionCheckpointReviewExportV1,
+)
 from skat_ai.session_commands import SESSION_COMMAND_VERSION
 from skat_ai.session_contracts import SESSION_CONTRACT_VERSION, SessionStateV1
 from skat_ai.session_decision_checkpoint import (
     SESSION_DECISION_CHECKPOINT_VERSION,
     SessionDecisionCheckpointV1,
+)
+from skat_ai.session_decision_observation import (
+    SESSION_DECISION_OBSERVATION_VERSION,
+    SessionDecisionObservationV1,
 )
 from skat_ai.session_export_contracts import (
     SESSION_REQUEST_EXPORT_VERSION,
@@ -49,6 +57,8 @@ SESSION_API_OPERATIONS = (
     "classify_checkpoint",
     "build_persistence_document",
     "resume_persistence_document",
+    "observe_checkpoint",
+    "export_checkpoint_review",
 )
 
 
@@ -79,6 +89,8 @@ class SessionApiVersionInfoV1:
     history_edit_version: int = SESSION_HISTORY_EDIT_VERSION
     checkpoint_lineage_version: int = SESSION_CHECKPOINT_LINEAGE_VERSION
     persistence_version: int = SESSION_PERSISTENCE_VERSION
+    decision_observation_version: int = SESSION_DECISION_OBSERVATION_VERSION
+    checkpoint_review_export_version: int = SESSION_CHECKPOINT_REVIEW_EXPORT_VERSION
 
     def __post_init__(self) -> None:
         _validate_version(
@@ -132,6 +144,16 @@ class SessionApiVersionInfoV1:
                 SESSION_CHECKPOINT_LINEAGE_VERSION,
             ),
             ("persistence_version", self.persistence_version, SESSION_PERSISTENCE_VERSION),
+            (
+                "decision_observation_version",
+                self.decision_observation_version,
+                SESSION_DECISION_OBSERVATION_VERSION,
+            ),
+            (
+                "checkpoint_review_export_version",
+                self.checkpoint_review_export_version,
+                SESSION_CHECKPOINT_REVIEW_EXPORT_VERSION,
+            ),
         ):
             _validate_version(value, expected, path=path)
 
@@ -151,6 +173,8 @@ class SessionApiVersionInfoV1:
             "history_edit_version": self.history_edit_version,
             "checkpoint_lineage_version": self.checkpoint_lineage_version,
             "persistence_version": self.persistence_version,
+            "decision_observation_version": self.decision_observation_version,
+            "checkpoint_review_export_version": self.checkpoint_review_export_version,
         }
 
 
@@ -196,6 +220,8 @@ _OPERATION_VALUE_TYPES = {
     "classify_checkpoint": SessionCheckpointLineageV1,
     "build_persistence_document": SessionPersistenceDocumentV1,
     "resume_persistence_document": SessionResumeResultV1,
+    "observe_checkpoint": SessionDecisionObservationV1,
+    "export_checkpoint_review": SessionCheckpointReviewExportV1,
 }
 
 

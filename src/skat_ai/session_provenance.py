@@ -45,6 +45,8 @@ _OFFLINE_OPERATIONS = {
     "classify_checkpoint",
     "build_persistence_document",
     "resume_persistence_document",
+    "observe_checkpoint",
+    "export_checkpoint_review",
 }
 _DERIVED_FIELD_NAMES = {
     "capture_mode",
@@ -181,6 +183,20 @@ def _origin_for(
         or "bounded_search_settings" in names
     ):
         return "caller_supplied", "direct"
+    if (
+        operation == "observe_checkpoint"
+        and leaf_name in {"actual_card", "observed_play_revision"}
+        and resolve_json_pointer(document, field_path) is not None
+    ):
+        return "retrospective_attachment", "retrospective"
+    if (
+        operation == "export_checkpoint_review"
+        and leaf_name in {"actual_card", "actual_card_played", "observed_play_revision"}
+        and resolve_json_pointer(document, field_path) is not None
+    ):
+        return "retrospective_attachment", "retrospective"
+    if operation == "export_checkpoint_review" and leaf_name == "analysis_mode":
+        return "rule_derived", "deterministic_rule"
     if "state_fingerprint" in names or "content_fingerprint" in names:
         return "structural_inference", "deterministic_rule"
     if "decision_index" in names or "trick_number" in names or "play_index" in names:
@@ -222,6 +238,7 @@ def _visibility_for(
     field_path: str,
     document: Mapping[str, object],
     state: SessionStateV1,
+    retained_inputs: Mapping[str, object],
 ) -> tuple[str, str | None]:
     tokens = parse_json_pointer(field_path)
     names = set(tokens)
@@ -229,6 +246,11 @@ def _visibility_for(
     if "request" in names and "hand" in names:
         if operation == "build_checkpoint":
             acting_player_id = document.get("acting_player_id")
+            if isinstance(acting_player_id, str):
+                return "local_private", acting_player_id
+        if operation == "export_checkpoint_review":
+            checkpoint = retained_inputs.get("checkpoint")
+            acting_player_id = getattr(checkpoint, "acting_player_id", None)
             if isinstance(acting_player_id, str):
                 return "local_private", acting_player_id
         checkpoint_player_id = _checkpoint_player_id(document, tokens)
@@ -279,6 +301,13 @@ def _checkpoint_player_id(
 def _decision_index(state: SessionStateV1, value: object) -> int:
     if type(value) is SessionDecisionCheckpointV1:
         return value.decision_index
+    decision_index = getattr(value, "decision_index", None)
+    if isinstance(decision_index, int):
+        return decision_index
+    observation = getattr(value, "observation", None)
+    decision_index = getattr(observation, "decision_index", None)
+    if isinstance(decision_index, int):
+        return decision_index
     play_count = sum(
         serialize_session_command_v1(record.command)["kind"] == "record_play"
         for record in state.command_log
@@ -304,6 +333,26 @@ def _availability_for(
 ) -> tuple[str, int | None, int | None]:
     if operation == "create":
         return "request_start", None, None
+    tokens = parse_json_pointer(field_path)
+    leaf_name = tokens[-1] if tokens else ""
+    names = set(tokens)
+    if (
+        operation == "observe_checkpoint"
+        and leaf_name in {"actual_card", "observed_play_revision"}
+        and resolve_json_pointer(document, field_path) is not None
+    ):
+        return "after_actual_play", _decision_index(state, value), None
+    if operation == "export_checkpoint_review":
+        if (
+            leaf_name in {"actual_card", "actual_card_played", "observed_play_revision"}
+            and resolve_json_pointer(document, field_path) is not None
+        ):
+            return "after_actual_play", _decision_index(state, value), None
+        if "request" in names and leaf_name != "analysis_mode":
+            checkpoint = value.observation.decision_index
+            return "current_decision", checkpoint, None
+        if field_path == "/session_id":
+            return "current_decision", value.observation.decision_index, None
     if operation in _OFFLINE_OPERATIONS:
         return "offline_review", None, None
     if operation == "export_historical" or state.phase == "ended":
@@ -336,6 +385,7 @@ def _build_internal_ledger(
             field_path=field_path,
             document=document,
             state=state,
+            retained_inputs=retained_inputs,
         )
         available_from, decision_index, event_index = _availability_for(
             operation=operation,
@@ -391,6 +441,61 @@ def _source_references_for(
     state: SessionStateV1,
     retained_inputs: Mapping[str, object],
 ) -> tuple[FieldProvenanceSourceReference, ...]:
+    checkpoint = retained_inputs.get("checkpoint")
+    if origin == "retrospective_attachment" and operation in {
+        "observe_checkpoint",
+        "export_checkpoint_review",
+    }:
+        checkpoint_revision = getattr(checkpoint, "source_revision", None)
+        acting_player_id = getattr(checkpoint, "acting_player_id", None)
+        if not isinstance(checkpoint_revision, int) or not isinstance(
+            acting_player_id, str
+        ):
+            raise SkatAIInvariantError(
+                "Observed-card Provenance requires the retained Decision Checkpoint.",
+                path="retained_inputs.checkpoint",
+            )
+        observed_revision = next(
+            (
+                record.revision
+                for record in state.command_log[checkpoint_revision:]
+                if getattr(record.command, "kind", None) == "record_play"
+                and getattr(record.command, "player_id", None) == acting_player_id
+            ),
+            state.revision,
+        )
+        source_field = (
+            f"/command_log/{observed_revision - 1}/command/card"
+            if field_path.endswith(("/actual_card", "/actual_card_played"))
+            else f"/command_log/{observed_revision - 1}/revision"
+        )
+        return (
+            FieldProvenanceSourceReference(
+                reference_type="retrospective_observation",
+                reference_id=(
+                    f"session:{state.session_id}:accepted-play:{observed_revision}"
+                ),
+                field_path=source_field,
+                visibility="public",
+            ),
+        )
+    if (
+        operation == "export_checkpoint_review"
+        and field_path.startswith("/request/")
+        and checkpoint is not None
+        and origin not in {"rule_derived", "structural_inference"}
+    ):
+        return (
+            FieldProvenanceSourceReference(
+                reference_type="request",
+                reference_id=(
+                    f"session:{state.session_id}:checkpoint:"
+                    f"{checkpoint.source_revision}"
+                ),
+                field_path=field_path,
+                visibility=visibility,
+            ),
+        )
     if origin in {"rule_derived", "structural_inference"}:
         return (
             FieldProvenanceSourceReference(
@@ -441,6 +546,8 @@ def _dependency_path_for(
         "classify_checkpoint": "/session_id",
         "build_persistence_document": "/state/session_id",
         "resume_persistence_document": "/document/state/session_id",
+        "observe_checkpoint": "/session_id",
+        "export_checkpoint_review": "/session_id",
     }
     dependency_path = dependency_paths[operation]
     if dependency_path == field_path:

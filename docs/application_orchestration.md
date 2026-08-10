@@ -44,15 +44,18 @@ Application and freeze a local pre-Play Position Request as a Checkpoint. The
 same internal layer can rewind an immutable State, replace one accepted Command
 with deterministic suffix replay, return a valid partial corrected State,
 classify Checkpoint lineage, and strictly persist and resume the authoritative
-accepted-Log State plus caller-supplied frozen Checkpoints. It does not build an
-`ApplicationInvocation`, add an eighth workflow or handler, invoke this
-dispatcher, or change orchestration version `1`.
+accepted-Log State plus caller-supplied frozen Checkpoints.
 
-Issue #156 exposes those operations through the separate
-`skat_ai.api.v1.session` namespace without changing this boundary. Session
-wrappers do not create an invocation, invoke a handler, call Root `execute()`, or
-add a workflow. Session Provenance is separate from
-`ApplicationProvenanceBundle` and public Root Result provenance.
+Issue #156 exposes those transport-free operations through the separate
+`skat_ai.api.v1.session` namespace. Issue #157 adds stable Session file
+transport, accepted-Log Decision Observation, frozen-Request Checkpoint review
+export, automatic exact Checkpoint collection, and installed/module/Legacy
+Session CLI orchestration. The Session `analyze` and `review` commands invoke the
+existing Position handler once when their exports are available; `finalize`
+invokes the existing Historical handler once. Export-only and ordinary Session
+operations execute no Application workflow. None of this adds an eighth workflow
+or handler, changes orchestration version `1`, or merges Session Provenance with
+`ApplicationProvenanceBundle` or public Root Result provenance.
 
 ## Contracts
 
@@ -179,9 +182,10 @@ Domain construction, workflow execution, and deterministic serialization. No-I/O
 means transport I/O is outside this layer; it does not mean validation-free or
 computation-free execution.
 
-Issue #155 private Session save/load file I/O remains under the separate
-`skat_ai.session_persistence` boundary. It does not pass through Application,
-execute a workflow, or weaken this no-I/O contract.
+Session persistence file I/O remains under the separate persistence boundary.
+Issue #157's stable `skat_ai.api.v1.session.files` facade delegates Save and Load
+there, and the Session CLI owns caller-selected paths. File transport does not
+pass through Application, execute a workflow, or weaken this no-I/O contract.
 
 ## CLI boundary
 
@@ -199,6 +203,14 @@ Position output with the legacy wrapper output.
 
 The installed CLI remains a transport interface and does not make `main.py` or
 CLI functions part of the Public Python API.
+
+Issue #157 delegates a leading `session` token to one separate Session parser for
+installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`.
+Automatic Checkpoint collection and mutation commands do not execute analysis.
+Only explicit `analyze`, available `review`, and available `finalize` operations
+export an existing Request and call the matching Application handler once. The
+phase-aware Assistant follows the same rule: analysis occurs only after an
+explicit caller action. Existing Root parsing and dispatch remain unchanged.
 
 ## Public API and provenance boundaries
 
@@ -250,7 +262,11 @@ the public facade, which delegates to the same Application handlers and preserve
 the same Root Results and artifacts. Application still performs no Package
 Resource discovery and imports no repository-root `main.py`.
 The same clean environments also compare installed/module CLI Root JSON with the
-Public API result.
+Public API result. Issue #157 extends clean-install coverage through the public
+Session file API, installed/module Session help and file operations, Session-
+triggered Position analysis, Checkpoint observation/review, Retrospective
+finalization, and an injected-I/O Assistant smoke flow. Legacy Session parity is
+checked from the repository checkout.
 
 ## Remaining work
 
@@ -259,9 +275,15 @@ The following remain separate follow-up scopes:
 * public error translation across existing Domain failures;
 * broader field-level enforcement outside the implemented Application and
   bounded public Root Result/actual-artifact boundaries;
-* Session-triggered Position/Historical execution over exported Requests;
-* public file transport, automatic/actual-card Checkpoints, and end-to-end
-  Session capture.
+* GUI or browser UI and direct online-platform adapters;
+* browser extensions, website scraping, and automatic cloud synchronization;
+* distributed locking, encryption/key management, and automatic backup policy;
+* unrelated pre-v1 Search, Claim, Settlement, and Coaching gaps.
+
+Issue #157 completes functional `v0.14.0` Session capture pending separate
+Release preparation. The active tree still has exactly seven Root workflows, 63
+authoritative and packaged Schemas, and 85 generated-output scenarios. Package
+version `0.13.0` and the published `v0.13.0` Release remain unchanged.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue

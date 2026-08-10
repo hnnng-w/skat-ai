@@ -175,7 +175,7 @@ official Skat rules arbitration.
 * Setuptools Wheel and sdist builds with `py.typed`, packaged byte-identical JSON
   Schemas, and clean-install validation
 
-### Interactive Session contracts, Request exports, history editing, and persistence
+### End-to-end Live and Retrospective Session capture
 
 * Internal Session and Command contract version `1`
 * Exactly three stable Players with canonical forehand, middlehand, and rearhand seats
@@ -221,27 +221,43 @@ official Skat rules arbitration.
 * Optimistic expected-content-fingerprint `saved`, `unchanged`, and `conflict`
   results plus canonical pretty UTF-8/LF save bytes and same-directory atomic
   replacement
-* Stable transport-free `skat_ai.api.v1.session` version-1 namespace with exact
+* Stable in-memory `skat_ai.api.v1.session` version-1 namespace with exact
   immutable Session type identity, strict public Command parsing, one-call
-  wrappers for ten in-memory operations, and one immutable Result envelope
+  wrappers for twelve operations, and one immutable Result envelope
 * Default-omitted, opt-in Session Provenance version `1` with complete exact-
   value coverage, engine-private redaction, and recomputed coverage
 * Strict standalone Draft 2020-12 `session.schema.json` mirrored into Package
   Resources, bringing the active authoritative and packaged Schema count to 63
+* Stable `skat_ai.api.v1.session.files` version `1` with path-free Save/Load
+  Results, strict resume, expected-content-fingerprint compare-and-swap, and
+  atomic same-directory replacement
+* Immutable Decision Observation version `1` with explicit observed, pending,
+  future, diverged, and ended-without-play statuses derived from accepted history
+* Frozen-request-plus-observed-Card Checkpoint review export with no later private
+  facts and no interpretation of the Card as an optimal label
+* Automatic exact Checkpoint collection before accepted local Plays and at
+  Position-ready resulting States, with equality deduplication and no automatic
+  analysis
+* Installed/module/Legacy `session` CLI parity with 12 subcommands for creation,
+  status, mutation, history editing, Checkpoints, export, explicit Position and
+  Historical execution, review, and the phase-aware Assistant
+* Six strict Session examples and eight append-only generated scenarios, bringing
+  the active generated-output total to 85 while preserving the previous 77
 
 The stable Python Session API exposes creation, Command application, Undo,
-correction, both Request exports, Checkpoint construction and classification,
-and persistence-document construction/resume entirely in memory. Public Command
-parsing, typed Results, optional complete Session Provenance, and the standalone
-Session Schema are implemented. The exporters construct but do not execute the
-existing Position or Historical workflow, and no Session Root workflow exists.
-Public file Save/Load, CLI Session commands, Session-triggered analysis, actual-
-card attachment, examples/generated outputs, automatic Checkpoint collection,
-and end-to-end capture/UI remain open. Session State itself still contains no
-filesystem path or fingerprint; those values belong to the private persistence
-envelope and internal save call. See
+correction, both Request exports, Checkpoint construction/classification,
+persistence-document construction/resume, Decision Observation, and Checkpoint
+review export. Stable public file Save/Load and the end-to-end Session CLI are
+implemented. Export-only operations still do not execute workflows; explicit
+`analyze`, `review`, and `finalize` invoke the existing Application once when an
+export is available. No Session Root workflow exists. Session State itself still
+contains no filesystem path or fingerprint; those values belong to the private
+persistence envelope and caller-supplied file transport. The functional
+`v0.14.0` milestone is complete pending release preparation. See
 [Public Session API version 1](docs/public_session_api_v1.md),
 [Session provenance](docs/session_provenance.md),
+[Session Decision observations](docs/session_decision_observations.md),
+[Session CLI and end-to-end capture](docs/session_cli_and_end_to_end_capture.md),
 [Interactive session contracts](docs/interactive_session_contracts.md),
 [Incremental Session transitions](docs/incremental_session_transitions.md),
 [Retrospective Session export](docs/retrospective_session_export.md),
@@ -321,6 +337,8 @@ The installation exposes both Package CLI forms:
 ```powershell
 skat-ai --help
 python -m skat_ai --help
+skat-ai session --help
+python -m skat_ai session --help
 ```
 
 See [Installed CLI](docs/installed_cli.md) for invocation identities, output,
@@ -362,6 +380,19 @@ python main.py --help
 
 The first two commands are installed Package interfaces. `python main.py` is the
 Legacy repository interface and remains compatible through at least `v1.0.0`.
+
+Create, inspect, and continue one explicit private Session file:
+
+```powershell
+skat-ai session new --session session.json --input examples/session_create_live.json
+skat-ai session show --session session.json
+skat-ai session assistant --session session.json
+```
+
+The same `session` family is available through `python -m skat_ai` and
+`python main.py`. It has no default path. See
+[Session CLI and end-to-end capture](docs/session_cli_and_end_to_end_capture.md)
+for all 12 subcommands, options, persistence conflicts, privacy, and Exit Codes.
 
 Run the default analysis from the repository root. This reads the root
 `input_position.json` quick-start fixture:
@@ -762,6 +793,8 @@ Detailed documentation is split into topic-specific files:
 * [Public Python API v1](docs/public_python_api_v1.md)
 * [Public Session API version 1](docs/public_session_api_v1.md)
 * [Session provenance](docs/session_provenance.md)
+* [Session Decision observations](docs/session_decision_observations.md)
+* [Session CLI and end-to-end capture](docs/session_cli_and_end_to_end_capture.md)
 * [Installed CLI](docs/installed_cli.md)
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
@@ -1018,9 +1051,9 @@ Remaining work includes stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
-level provenance enforcement, and end-to-end interactive Session capture beyond
-the internal Issue #150 through #155 contract, transition, Request-export,
-Decision-Checkpoint, history-edit, and private persistence foundation. General
+level provenance enforcement, and GUI/browser or online-platform Session
+integration beyond the completed local end-to-end Issue #150 through #157
+capture milestone. General
 and specific-trick claims, defender-open-play proof beyond five unresolved
 tricks, multiple continuation events, arbitrary event streams, and historical
 end reasons outside the supported set remain unsupported. Current
@@ -1092,11 +1125,17 @@ export readiness, immutable export Results, exact Historical and information-saf
 Position mapping, declared-Ouvert public-hand capture, canonical Request
 construction, frozen local pre-Play Checkpoints, and internal history editing now
 exist. Private file persistence and public in-memory persistence construction and
-strict resume also exist. Session-triggered analysis, actual-card Checkpoint
-attachment, public file Save/Load, CLI Session commands, examples, generated
-outputs, automatic Checkpoint collection, and end-to-end capture/UI remain open. Online-
-platform adapters, browser extensions, and website scraping remain outside this
-bounded milestone.
+strict resume also exist. Issue #157 adds the stable public Session file
+namespace, accepted-Log Decision Observation and isolated Checkpoint review
+export, automatic exact Checkpoint collection, all 12 installed/module/Legacy
+Session subcommands, explicit Position/Historical execution, the phase-aware
+Assistant, six examples, and eight append-only scenarios for an active total of
+85. The functional `v0.14.0` milestone is complete pending release preparation.
+The active tree has 63 Schemas; the published `v0.13.0` baseline remains 62
+Schemas and 77 scenarios. GUI/browser UI, online-platform adapters, browser
+extensions, website scraping, cloud synchronization, distributed locking,
+encryption/key management, automatic backups, and unrelated pre-v1 gaps remain
+open.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

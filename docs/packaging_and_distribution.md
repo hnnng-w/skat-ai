@@ -1,8 +1,10 @@
 # Packaging and distribution
 
 This document defines the installation-ready Package artifacts introduced by
-Issue #141 and the installed interfaces added by Issue #142. The repository-root
-Legacy CLI remains supported through at least `v1.0.0`.
+Issue #141, the installed interfaces added by Issue #142, and the Issue #157
+clean-install coverage for stable Session file transport and end-to-end Session
+capture. The repository-root Legacy CLI remains supported through at least
+`v1.0.0`.
 
 ## Build metadata
 
@@ -54,6 +56,14 @@ semantics. Help changes only its command identity and examples: installed and
 module help uses generic caller paths, while Legacy help may use repository
 `examples/...` paths. See [Installed CLI](installed_cli.md).
 
+Issue #157 adds a leading `session` command family to all three forms through the
+same Package-owned implementation and a separate Session parser. Its 12
+subcommands cover file creation/resume, Command application, Undo/correction,
+automatic Checkpoint collection, Request export, explicit Position analysis,
+Checkpoint review, Historical finalization, and the phase-aware Assistant. It
+adds no second Console Script and no eighth Engine Root workflow; explicit
+analysis reuses the existing Position or Historical Application handler once.
+
 ## Building artifacts
 
 Install the Editable development environment:
@@ -80,9 +90,13 @@ the check finishes. It does not publish either artifact.
 
 ## Schema resources
 
-The 63 files under repository `schemas/` are the authoritative JSON Schemas.
-Issue #156 adds strict standalone `session.schema.json`; Wheel and sdist contain
-its byte-identical Package Resource mirror.
+The active 63 files under repository `schemas/` are the authoritative JSON
+Schemas. Issue #156 adds strict standalone `session.schema.json`; Issue #157
+extends that same file for Session creation, file API, observation, and review
+contracts without adding a 64th Schema. Wheel and sdist contain its byte-
+identical Package Resource mirror. The published `v0.13.0` baseline remains at
+62 Schemas; the Package version remains `0.13.0` during active `v0.14.0`
+development.
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
@@ -186,12 +200,24 @@ verifies:
 * `skat-ai --help`, `skat-ai --version`, `python -m skat_ai --help`, and
   `python -m skat_ai --version` succeed with no repository or `PYTHONPATH`;
 * installed and module CLI quiet JSON exactly matches the Public API Root result;
+* `skat_ai.api.v1.session.files` imports and public Session Save/Load preserve
+  strict resume and path-free Results;
+* installed `skat-ai session --help` and module
+  `python -m skat_ai session --help` succeed;
+* Session `new`, `apply`, and `show` operate through a caller-selected file;
+* Session-triggered Position analysis, Checkpoint observation/review, and
+  Retrospective finalization reuse the existing Application workflows;
+* the Session Assistant completes a deterministic smoke flow through injected
+  input/output functions;
+* installed, module, and Public Session API results have parity where
+  applicable;
 * a valid unavailable Dataset Preparation Result remains successful;
 * one unknown option returns usage Code `2` and one missing input returns expected
   failure Code `1`;
 * no GUI Script, second Console Script, or installed root `main` module exists.
 
-Wheel and sdist smoke Results must be equal.
+Wheel and sdist smoke Results must be equal. Legacy Session CLI parity remains a
+repository-checkout gate because root `main.py` is intentionally not installed.
 
 ## Local and CI gates
 
@@ -199,8 +225,8 @@ The complete local check runs, in fail-fast order:
 
 1. Ruff;
 2. packaged-schema parity;
-3. Root and example schema validation;
-4. generated-output validation;
+3. Root and Session example schema validation;
+4. validation of all 85 generated-output scenarios;
 5. distribution artifact and clean-install validation;
 6. pytest.
 
@@ -215,10 +241,14 @@ step exists. No CI step uploads or publishes an artifact.
 Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without a
 public schema-resource API, new workflow, Root-output metadata, Provenance field,
 Package-version change, or Package publication. Issue #147 subsequently added
-opt-in bounded public Provenance without publication. The Package license
-decision remains unresolved, so no license metadata is declared. Package and
-release publication remain human-controlled.
-Clean-install validation imports `skat_ai.api.v1.session` and exercises Session
-create, apply, unavailable export, persistence construction/resume, Result
-serialization, and provenance opt-in. It adds no Console Script, GUI Script, or
-second command. Package version remains `0.13.0`.
+opt-in bounded public Provenance without publication. Issue #157 now completes
+the functional `v0.14.0` Session milestone pending separate Release preparation:
+the active tree has 63 authoritative and packaged Schemas and 85 generated-
+output scenarios, while the previous 77 scenarios remain unchanged.
+
+The published stable Release remains `v0.13.0`, and Package version remains
+`0.13.0`. The Package license decision remains unresolved, so no license metadata
+is declared. Package and release publication remain human-controlled. Session
+file paths are caller-selected; no default directory, second Console Script,
+GUI/browser UI, online-platform adapter, cloud synchronization, distributed
+locking, encryption/key management, or automatic backup policy is added.

@@ -12,12 +12,13 @@ skat_ai.api.v1
 The public facade parses and executes all seven Root workflows through the Issue
 #139 internal Application layer. Packaged schemas support Editable, Wheel, and
 sdist installations without adding a workflow-specific helper or public schema
-API. Issue #142 adds Package CLI entry points as a separate transport contract;
-it adds no public API export. Issue #138 remains a separate internal field-
-provenance contract foundation, and Issue #143 applies it to internal live
-Position execution. Issues #144 through #146 extend it through retrospective,
-Dataset/list/opponent, and complete Position/Historical Result propagation. Issue
-#147 adds bounded opt-in public Root Result and actual-artifact provenance.
+API. Issue #142 adds Package CLI entry points as a separate transport contract.
+Issue #156 adds the stable in-memory Public Session API, and Issue #157 adds its
+independently versioned public file-transport subnamespace plus Decision
+Observation and Checkpoint review-export operations. Issue #138 remains a
+separate internal field-provenance contract foundation, and Issues #143 through
+#147 carry it through complete internal Root Results and bounded opt-in public
+Root Result and actual-artifact provenance.
 
 ## Public namespaces
 
@@ -28,6 +29,7 @@ skat_ai
 skat_ai.api
 skat_ai.api.v1
 skat_ai.api.v1.session
+skat_ai.api.v1.session.files
 skat_ai.errors
 ```
 
@@ -41,14 +43,21 @@ other internal modules have no compatibility guarantee.
 Issue #156 appends only `session` to `skat_ai.api.v1.__all__`; every previous
 export retains exact order and identity, and the Package Root, `skat_ai.api`, and
 error exports remain unchanged. `skat_ai.api.v1.session` re-exports approved
-immutable Session types with exact identity and provides ten transport-free
-operations, strict Command parsing, typed Results, optional complete Session
-Provenance, and standalone Schema validation. Existing public errors cover
-boundary failures; rejected/conflicted/unavailable/unchanged/partial Session
-statuses are normal Results. There is no Session Root workflow, automatic
-analysis, public file Save/Load, or CLI support. See
+immutable Session types with exact identity. Issue #157 preserves its first 52
+exports and appends actual-card Decision Observation, Checkpoint review export,
+and the `files` subnamespace. The in-memory API now provides 12 operations,
+strict Command parsing, typed Results, optional complete Session Provenance, and
+standalone Schema validation. `skat_ai.api.v1.session.files` provides stable
+path-free Save/Load Results while preserving strict resume, optimistic compare-
+and-swap conflicts, and atomic same-directory replacement; it has no Provenance
+option or default path. Existing public errors cover boundary failures, while
+rejected, conflicted, unavailable, unchanged, partial, pending, and diverged
+Session statuses remain normal Results. There is no Session Root workflow or
+automatic analysis after every Command. See
 [Public Session API version 1](public_session_api_v1.md),
 [Session provenance](session_provenance.md),
+[Session Decision observations](session_decision_observations.md),
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md),
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
@@ -303,11 +312,18 @@ only raw `ValueError` and `OSError` that cross its public boundary.
 
 Installed `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py`
 share one Package-owned CLI implementation. Root `python main.py` remains
-supported through at least `v1.0.0`.
-All three accept `--include-provenance`; without it, Root output remains
-unchanged. With it, JSON includes the public sidecar, non-quiet output adds only
-a concise aggregate provenance summary, and `--quiet` suppresses that summary
-without removing the JSON field.
+supported through at least `v1.0.0`. Issue #157 adds the same 12-subcommand
+`session` family to all three forms through a separate parser, including
+automatic exact Checkpoint collection, explicit Position analysis, Checkpoint-
+based post-game review, Historical finalization, and the phase-aware Assistant.
+Those explicit execution commands export a Session Request and invoke an
+existing Application handler once; they add neither an eighth Root workflow nor
+a second Console Script.
+
+Root invocations and applicable Session subcommands accept
+`--include-provenance`. Without it, Root output remains unchanged. With it, JSON
+includes the corresponding public sidecar; `--quiet` suppresses successful
+human-readable summaries without removing the JSON field.
 `main.CliUsageError` is an exact compatibility alias for
 `SkatAICliUsageError`. Existing catches, messages, prefixes, patch points, and
 argument validation remain unchanged.
@@ -341,7 +357,9 @@ report `0+unknown`. The fallback reads no repository file.
 
 This additive Package-Root export does not change `skat_ai.api.__all__`,
 `skat_ai.api.v1.__all__`, or `skat_ai.errors.__all__`. Package version remains
-absent from `ApiVersionInfoV1`, API Results, and Root JSON output.
+absent from `ApiVersionInfoV1`, API Results, and Root JSON output. The published
+stable Release remains `v0.13.0`; the active functional `v0.14.0` milestone is
+complete pending separate Release preparation.
 
 ## Remaining Work
 
@@ -350,19 +368,23 @@ Broader field-level enforcement and public exposure of consumed-input, decision,
 and intermediate-stage attachments remain open before `v1.0.0`. Provenance does
 not integrate or replace existing Confidence contracts.
 
-The internal interactive Session contract foundation is implemented by Issue
-#150, and deterministic transitions plus incremental validation are implemented
-by Issue #151. Issue #152 constructs canonical Historical Requests internally
-without executing them or changing this namespace. Issue #153 constructs
-information-safe Position Requests and immutable pre-Play Decision Checkpoints
-internally without executing analysis. Issue #154 adds internal immutable Undo,
-correction, suffix replay, and Checkpoint lineage without exporting them.
-Issue #155 adds private deterministic persistence, optimistic conflict
-detection, atomic file replacement, and strict resume. Issue #156 exposes the
-bounded in-memory Session surface, provenance, and Schema without changing the
-seven-workflow Root facade. Session-triggered analysis, public file transport,
-CLI integration, automatic/actual-card Checkpoints, capture, and UI remain later
-work.
+Issues #150 through #155 implement the internal Session contracts, deterministic
+transitions, Request export, immutable pre-Play Checkpoints, history editing,
+lineage, and strict persistence. Issue #156 exposes the bounded in-memory Session
+surface, complete optional provenance, and standalone Schema without changing
+the seven-workflow Root facade. Issue #157 adds stable public Session file
+transport, accepted-Log Decision Observation, isolated Checkpoint review export,
+automatic exact Checkpoint collection, installed/module/Legacy CLI parity,
+explicit Session-triggered execution through the existing Application, and the
+Assistant. The active tree has 63 authoritative and packaged Schemas and 85
+generated-output scenarios; Package version `0.13.0` and the published `v0.13.0`
+baseline remain unchanged.
+
+GUI and browser UI, online-platform adapters, browser extensions, website
+scraping, automatic cloud synchronization, distributed locking, encryption and
+key management, and automatic backup policy remain open. Broader end-to-end
+field-level provenance enforcement and unrelated pre-v1 Search, Claim,
+Settlement, and Coaching gaps also remain open.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

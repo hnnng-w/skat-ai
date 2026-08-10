@@ -11,11 +11,14 @@ the existing internal Application layer, and returns the Root output document
 inside immutable public contracts. Output is unchanged by default; an explicit
 option adds bounded public field provenance. It performs no caller transport I/O.
 
-Issue #156 adds a separate additive `skat_ai.api.v1.session` facade. Its Session
-operations do not construct Application invocations or call this Root `execute()`
-facade. Session exports construct existing Root Requests without executing them,
-and public persistence construction/resume is in-memory only. See
-[Public Session API version 1](public_session_api_v1.md).
+Issue #156 adds a separate additive `skat_ai.api.v1.session` facade. Issue #157
+extends it with Decision Observation and Checkpoint review export and adds the
+stable `skat_ai.api.v1.session.files` Save/Load subnamespace. Session API exports
+still construct existing Root Requests without executing them. The separate
+Session CLI may explicitly pass those Requests to the existing Application once;
+that transport does not call this Root public facade as an intermediate layer or
+add a workflow. See [Public Session API version 1](public_session_api_v1.md) and
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
 ## Public functions
 
@@ -257,9 +260,10 @@ The facade validates:
 * every reusable auxiliary artifact as a Root input by default.
 
 Provenance-enabled Root output is validated through the strict referenced
-`field_provenance.schema.json`. Session Commands, persistence mappings, and final
-Session Results use lazy standalone `session.schema.json` validation through the
-same local-only Package Resource registry. The repository and packaged mirrors
+`field_provenance.schema.json`. Session creation input, Commands, persistence and
+file API mappings, Decision Observations, review exports, and final Session
+Results use lazy standalone `session.schema.json` validation through the same
+local-only Package Resource registry. The repository and packaged mirrors
 contain 63 active Schema resources.
 
 `validate_output=False` skips only post-execution output and artifact schema
@@ -289,9 +293,12 @@ where to persist serialized results or artifacts. Lazy schema-resource reads are
 validation resources, not caller transport I/O.
 
 The Package-owned CLI directly consumes the same Application layer and keeps its
-file, printing, and Exit Code behavior outside this no-I/O facade. Installed
+file, printing, and Exit Code behavior outside this no-I/O Root facade. Installed
 `skat-ai`, module `python -m skat_ai`, and Legacy `python main.py` preserve Root
-JSON parity; the CLI does not call this Public API as an intermediate layer.
+JSON parity; the Root CLI does not call this Public API as an intermediate layer.
+The additive Session command family uses the stable Public Session and file APIs
+for Session operations and invokes Application only for explicit `analyze`,
+available `review`, or available `finalize`.
 
 ## Current boundaries
 
@@ -310,3 +317,8 @@ separate installed CLI contract. The current Package version is `0.13.0`. Broade
 field-level enforcement and Confidence integration are not implied. See
 [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).
+
+The active Issue #157 tree has 63 Schemas and 85 generated outputs. The
+published `v0.13.0` baseline remains 62 Schemas and 77 scenarios. The functional
+`v0.14.0` Session milestone is complete pending release preparation; GUI,
+platform, cloud, locking, encryption, and unrelated pre-v1 work remain separate.

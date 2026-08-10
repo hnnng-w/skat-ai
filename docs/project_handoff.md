@@ -104,6 +104,14 @@ The project focuses on:
   accepted-Log State, caller-supplied frozen Checkpoints, State/content
   fingerprints, strict replay-verified resume, optimistic conflict detection,
   canonical files, and atomic same-directory replacement
+* stable Public Session API and Public Session File API version `1` with exact
+  immutable exports, strict Save/Load, path-free Results, and optional complete
+  Session Provenance for in-memory operations
+* accepted-Log Decision Observation, frozen-request-plus-observed-Card review
+  export, automatic exact Checkpoint collection, and review isolation
+* installed/module/Legacy 12-subcommand Session CLI parity, explicit existing
+  Position/Historical Application execution, phase-aware Assistant, six examples,
+  and eight append-only scenarios
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -343,18 +351,38 @@ Implemented by Issue #156:
 * strict standalone `session.schema.json`, 63-Schema Package parity, and clean-
   install Session create/apply/export/persistence/resume validation
 
-Session-triggered analysis, actual-card Checkpoint attachment, public file
-Save/Load, CLI Session Assistant, examples, generated output, automatic
-Checkpoint collection, end-to-end capture, and UI
-are not implemented. See
+Implemented by Issue #157:
+
+* stable `skat_ai.api.v1.session.files` version `1`, exact 12-name exports,
+  path-free typed Save/Load Results, strict resume, and optimistic atomic Save
+* appended `observe_checkpoint` and `export_checkpoint_review` Public Session
+  operations with complete optional Session Provenance
+* first accepted local-Play observation with explicit observed, pending, future,
+  diverged, and ended-without-play statuses
+* frozen-request-plus-observed-Card review export with no later private facts and
+  no automatic analysis
+* automatic exact Position-ready Checkpoint collection and equality
+  deduplication, including source capture before accepted local Plays
+* all 12 Session subcommands across installed, module, and Legacy forms, with
+  optimistic persistence, privacy-safe summaries, and stable Exit Codes
+* explicit Position analysis, Checkpoint review, and Historical finalization
+  through the existing Application once when export is available
+* deterministic phase-aware Assistant, six examples, and eight append-only
+  generated scenarios for an active total of 85
+
+The functional `v0.14.0` milestone is complete pending release preparation. GUI
+or browser UI, platform adapters, cloud synchronization, distributed locking,
+encryption/key management, and automatic backup policy remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),
 and [Session persistence and resume](session_persistence_and_resume.md).
 The dedicated public contracts are documented in
-[Public Session API version 1](public_session_api_v1.md) and
-[Session provenance](session_provenance.md).
+[Public Session API version 1](public_session_api_v1.md),
+[Session provenance](session_provenance.md),
+[Session Decision observations](session_decision_observations.md), and
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
 ### Field-level provenance contract foundation
 
@@ -988,12 +1016,28 @@ Implemented:
 * `session_persistence.py`
   * strict private file loading, canonical expected-fingerprint saves, conflict
     detection, and atomic same-directory replacement
+* `session_decision_observation.py`
+  * accepted-Log actual-card derivation, lineage/status relationships, and
+    deterministic immutable observations
+* `session_checkpoint_review.py`
+  * isolated frozen-request-plus-observed-Card review Request export
+* `session_checkpoint_collection.py`
+  * exact Position-ready Checkpoint collection and equality deduplication
 * `api/v1/session/`
-  * stable contracts, exact re-exports, strict Schema boundaries, and ten
-    transport-free public operation wrappers
+  * stable contracts, exact re-exports, strict Schema boundaries, and twelve
+    public operation wrappers
+* `api/v1/session/files/`
+  * stable Save/Load contracts, path-free Results, strict boundary translation,
+    and standalone Session Schema validation
 * `session_provenance.py`
   * complete operation-value ledgers, public redaction, coverage recomputation,
     and public Session Provenance bundle construction
+* `cli/session.py`
+  * separate Session parser, all 12 subcommands, persistence/CAS, automatic
+    Checkpoints, explicit Application execution, privacy, and Exit Codes
+* `cli/session_assistant.py`
+  * phase-aware prompts, exact typed Commands, per-mutation Save, and injectable
+    input/output functions
 
 ### Game state and rules
 
@@ -1136,6 +1180,8 @@ Main documentation files:
 * `docs/session_persistence_and_resume.md`
 * `docs/public_session_api_v1.md`
 * `docs/session_provenance.md`
+* `docs/session_decision_observations.md`
+* `docs/session_cli_and_end_to_end_capture.md`
 * `docs/field_level_information_provenance.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`
@@ -1502,6 +1548,11 @@ Completed implementation scope:
   caller-supplied frozen Checkpoints, State/content fingerprints, strict resume,
   optimistic expected-fingerprint writes, canonical files, and atomic same-
   directory replacement
+* stable Public Session File API version 1, accepted-Log Decision Observation,
+  isolated Checkpoint review export, and automatic exact Checkpoint collection
+* installed/module/Legacy 12-subcommand Session CLI parity, explicit Position
+  and Historical execution, phase-aware Assistant, six examples, and eight
+  append-only scenarios for an active total of 85
 
 ## Current high-priority limitations
 
@@ -1545,7 +1596,7 @@ Completed implementation scope:
   evidence, impact, prioritization, patterns, recommendations, scope summaries,
   and isolated outcome context. Tactical motif detection, cross-game patterns,
   broader Search, and causal attribution remain unimplemented.
-* Immutable internal Live and Retrospective Session contracts plus deterministic
+* Immutable Live and Retrospective Session contracts plus deterministic
   Command application, replay, phase advancement, projection, incremental
   validation, readiness, canonical Retrospective Historical and information-safe
   Position Request exports, declared-Ouvert public-hand capture, and immutable
@@ -1555,12 +1606,13 @@ Completed implementation scope:
   persistence now stores the authoritative State and caller-supplied frozen
   Checkpoints, strictly reconstructs and replays them, recomputes lineage, and
   uses content-fingerprint conflict checks plus canonical atomic file replacement.
-  Session-triggered analysis, actual-card Checkpoint attachment, Public API,
-  Provenance, CLI Session commands, Schemas, examples/generated output,
-  automatic Checkpoint collection, end-to-end capture, and UI are not.
-  The exporters execute no workflow; the installed CLI, public executable facade,
-  and reusable internal Application layer continue to execute only the seven
-  existing Root workflows.
+  Stable Public Session and file APIs, actual-card Decision Observation, isolated
+  review export, automatic Checkpoint collection, all 12 CLI subcommands,
+  explicit Position/Historical execution, the Assistant, examples, and generated
+  outputs are implemented. Export-only operations execute no workflow, and the
+  reusable Application still has only seven Root workflows. GUI/browser UI,
+  online-platform adapters, cloud synchronization, distributed locking,
+  encryption/key management, and automatic backups remain open.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
@@ -1568,13 +1620,12 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Implement the next bounded `v0.14.0` Session layer over Issues #150 through #155.
-Private persistence/resume and expected-fingerprint conflict detection now store
-and strictly restore the immutable State, Log, history-edit, export, and
-Checkpoint foundations. Session-triggered analysis, actual-card Checkpoint
-attachment, Public API, Provenance, Schemas, CLI, examples/generated output,
-automatic Checkpoint collection, end-to-end capture, and UI remain separately
-scoped.
+Prepare the completed functional `v0.14.0` milestone for release in a separate
+follow-up. Issues #150 through #157 now cover the immutable Session foundation,
+transitions, exports, history editing, persistence, Public API/Provenance/Schema,
+public files, observations/review, automatic Checkpoints, CLI execution,
+Assistant, examples, and 85-scenario end-to-end capture. Do not change the
+published `v0.13.0` facts until manual release preparation and publication.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

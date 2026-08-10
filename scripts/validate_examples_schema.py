@@ -6,8 +6,13 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
+import skat_ai.api.v1.session as session_api
+from skat_ai.errors import SkatAIError
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
+SESSION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "session.schema.json"
+FIELD_PROVENANCE_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "field_provenance.schema.json"
 HISTORICAL_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game.schema.json"
 HISTORICAL_GAME_END_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_end.schema.json"
 HISTORICAL_GAME_EVENT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "historical_game_event.schema.json"
@@ -65,6 +70,15 @@ DEFENDER_OPEN_PLAY_CONTINUATION_SCHEMA_PATH = (
 ROOT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
 EXAMPLES_DIR = PROJECT_ROOT / "examples"
 
+SESSION_EXAMPLE_DEFINITIONS = {
+    "session_create_live.json": "session_create_input",
+    "session_create_retrospective.json": "session_create_input",
+    "session_command_record_play.json": "session_command",
+    "session_correction_record_play.json": "command_correction",
+    "session_live_persistence.json": "session_persistence_document",
+    "session_retrospective_persistence.json": "session_persistence_document",
+}
+
 
 def load_json_file(file_path: Path) -> dict:
     """
@@ -85,7 +99,19 @@ def get_schema_input_files() -> list[Path]:
     """
     Returns all input files covered by input schema validation.
     """
-    return [ROOT_INPUT_PATH, *get_example_files()]
+    return [
+        ROOT_INPUT_PATH,
+        *(
+            path
+            for path in get_example_files()
+            if path.name not in SESSION_EXAMPLE_DEFINITIONS
+        ),
+    ]
+
+
+def get_session_example_files() -> list[Path]:
+    """Returns the exact Session example set in deterministic order."""
+    return [EXAMPLES_DIR / name for name in sorted(SESSION_EXAMPLE_DEFINITIONS)]
 
 
 def format_validation_error(file_path: Path, error) -> str:
@@ -105,6 +131,8 @@ def validate_example_files() -> list[str]:
     Validates all example JSON files against the input JSON schema.
     """
     schema = load_json_file(SCHEMA_PATH)
+    session_schema = load_json_file(SESSION_SCHEMA_PATH)
+    field_provenance_schema = load_json_file(FIELD_PROVENANCE_SCHEMA_PATH)
     historical_schema = load_json_file(HISTORICAL_SCHEMA_PATH)
     historical_game_end_schema = load_json_file(HISTORICAL_GAME_END_SCHEMA_PATH)
     historical_game_event_schema = load_json_file(HISTORICAL_GAME_EVENT_SCHEMA_PATH)
@@ -236,6 +264,12 @@ def validate_example_files() -> list[str]:
                 defender_open_play_continuation_schema["$id"],
                 Resource.from_contents(defender_open_play_continuation_schema),
             ),
+            (schema["$id"], Resource.from_contents(schema)),
+            (session_schema["$id"], Resource.from_contents(session_schema)),
+            (
+                field_provenance_schema["$id"],
+                Resource.from_contents(field_provenance_schema),
+            ),
         ]
     )
     validator = Draft202012Validator(
@@ -246,6 +280,16 @@ def validate_example_files() -> list[str]:
 
     errors = []
 
+    actual_session_names = {
+        path.name for path in EXAMPLES_DIR.glob("session_*.json")
+    }
+    expected_session_names = set(SESSION_EXAMPLE_DEFINITIONS)
+    if actual_session_names != expected_session_names:
+        errors.append(
+            "Session examples must be exactly "
+            f"{sorted(expected_session_names)}; found {sorted(actual_session_names)}."
+        )
+
     for example_file in get_schema_input_files():
         data = load_json_file(example_file)
 
@@ -254,6 +298,44 @@ def validate_example_files() -> list[str]:
             key=lambda validation_error: list(validation_error.absolute_path),
         ):
             errors.append(format_validation_error(example_file, error))
+
+    session_schema_id = session_schema["$id"]
+    for example_file in get_session_example_files():
+        if not example_file.is_file():
+            errors.append(f"Missing Session example: {example_file}")
+            continue
+        data = load_json_file(example_file)
+        definition = SESSION_EXAMPLE_DEFINITIONS[example_file.name]
+        session_validator = Draft202012Validator(
+            {"$ref": f"{session_schema_id}#/$defs/{definition}"},
+            registry=registry,
+            format_checker=FormatChecker(),
+        )
+        validation_errors = sorted(
+            session_validator.iter_errors(data),
+            key=lambda validation_error: list(validation_error.absolute_path),
+        )
+        errors.extend(
+            format_validation_error(example_file, error)
+            for error in validation_errors
+        )
+        if definition != "session_persistence_document" or validation_errors:
+            continue
+        try:
+            resumed = session_api.resume_session_document(data).value
+        except (SkatAIError, TypeError, ValueError) as error:
+            errors.append(
+                f"{example_file}: semantic Session resume failed: {error}"
+            )
+            continue
+        if resumed.document.to_dict() != data:
+            errors.append(
+                f"{example_file}: semantic Session resume changed the persistence document."
+            )
+        if len(resumed.checkpoint_lineage) != len(data["decision_checkpoints"]):
+            errors.append(
+                f"{example_file}: resumed Checkpoint lineage does not match the document."
+            )
 
     return errors
 
@@ -270,7 +352,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print("All root input and example JSON files match schemas/input.schema.json.")
+    print("All root and Session example JSON files match their declared schemas.")
     return 0
 
 

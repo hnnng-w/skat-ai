@@ -184,6 +184,12 @@ timestamp, fingerprint, actual Card, Result, private ownership, Search World,
 Provenance sidecar, or execution output. Persistence fingerprints belong to the
 separate wrapper document, not to the Checkpoint or State.
 
+Issue #157 preserves that immutability. A separate Decision Observation derives
+the first later accepted local Play from the authoritative Log. A separate review
+export copies the frozen Request and adds only post-game-review mode plus that
+observed Card. Neither value mutates the Checkpoint or is persisted. See
+[Session Decision observations](session_decision_observations.md).
+
 ## Checkpoint lineage after history edits
 
 Checkpoint Lineage version `1` derives one of:
@@ -214,26 +220,30 @@ Checkpoint and recomputes its `current`, `ancestor`, `future`, or `diverged`
 relationship to the resumed active State. It does not trust or persist a prior
 lineage Result.
 
-## Boundaries and remaining work
+## Current boundary
 
 Public `export_session_position_request()` returns operation `export_position`
 with the existing `SessionRequestExportV1`; `build_session_decision_checkpoint()`
 and `classify_session_decision_checkpoint()` return the existing Checkpoint and
 lineage values. Each wrapper invokes one internal operation and executes no
 analysis. Optional provenance covers the outer returned operation value; no
-nested Checkpoint sidecar or actual Card is added. There is no eighth Root
-workflow, Application handler, CLI behavior, example, generated output, or
-Package-version change. The active tree has 63 authoritative and packaged
-Schemas, seven Root workflows, and 77 generated-output scenarios.
+nested Checkpoint sidecar or actual Card is added. Issue #157 adds separate
+observation and review-export operation values, public file/CLI orchestration,
+six examples, and eight append-only scenarios. There is no eighth Root workflow
+or Package-version change. The active tree has 63 authoritative and packaged
+Schemas, seven Root workflows, and 85 generated-output scenarios.
 
 Persistence Load/Resume does not invoke this exporter or start Position Analysis;
 export itself still performs no file I/O or workflow execution. See
 [Session persistence and Resume](session_persistence_and_resume.md).
 
-Session-triggered Position Analysis, actual-card attachment to Checkpoints,
-public file Save/Load, CLI Session Assistant, examples, generated outputs,
-automatic Checkpoint collection, end-to-end capture,
-and UI remain separate scopes. See
+The Session CLI now collects or reuses exact Position-ready Checkpoints, including
+the source immediately before an accepted local Play, and can explicitly execute
+Position Analysis or an available Checkpoint review. Equal Checkpoints are
+deduplicated; different Requests at one revision remain valid. Collection alone
+never starts analysis. The functional `v0.14.0` milestone is complete pending
+release preparation; GUI/platform/cloud/encryption work remains open. See
 [Interactive Session contracts](interactive_session_contracts.md),
 [Incremental Session transitions](incremental_session_transitions.md), and
-[Retrospective Session export](retrospective_session_export.md).
+[Retrospective Session export](retrospective_session_export.md), and
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

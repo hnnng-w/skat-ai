@@ -39,6 +39,10 @@ historical published `v0.10.0` baseline remains evidence for 59 scenarios and
 published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
 tests.
 
+The active Issue #157 tree retains those published facts, has 63 authoritative
+and packaged Schemas, and appends eight Session scenarios for a total of 85. The
+functional `v0.14.0` Session milestone is complete pending release preparation.
+
 The check script validates:
 
 * Ruff checks
@@ -59,6 +63,36 @@ Run generated-output schema validation directly:
 ```powershell
 python scripts/validate_generated_outputs_schema.py
 ```
+
+## Session examples
+
+Issue #157 adds exactly six strict Session examples:
+
+| File | Purpose |
+| --- | --- |
+| `session_create_live.json` | Explicit Live Session identity, local Player, and fixed three-player seats. |
+| `session_create_retrospective.json` | Explicit Retrospective Session identity and fixed three-player seats. |
+| `session_command_record_play.json` | One strict expected-revision `record_play` Command. |
+| `session_correction_record_play.json` | One strict one-command correction replacing a recorded Play. |
+| `session_live_persistence.json` | Canonical private Live persistence document with valid State/content fingerprints and frozen Checkpoints. |
+| `session_retrospective_persistence.json` | Canonical private Retrospective persistence document with valid fingerprints and complete capture facts. |
+
+Creation, Command, and correction examples validate against their focused
+definitions in `session.schema.json`. Persistence examples additionally undergo
+strict resume, fingerprint, accepted-Log replay, and Checkpoint-lineage
+validation. They are repository development files, not installed Package Data.
+
+Representative Session CLI use is:
+
+```powershell
+skat-ai session new --session session.json --input examples/session_create_live.json
+skat-ai session show --session session.json
+skat-ai session apply --session session.json --input examples/session_command_record_play.json
+skat-ai session assistant --session session.json
+```
+
+All 12 subcommands and exact options are documented in
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
 ## Workflow walkthroughs
 
@@ -605,6 +639,12 @@ Statistics, Historical List, and Historical List Comparison. They reuse existing
 fixtures, keep the first 70 scenarios unchanged, and bring the published
 `v0.13.0` matrix to 77. The Training Dataset scenario also covers actual export-
 artifact provenance.
+Eight Issue #157 scenarios then append Live creation, apply/resume, analysis with
+automatic Checkpoint, observed-card review, Undo/partial Correction, persistence
+conflict, Retrospective export, and Retrospective finalization. The first 77
+remain unchanged and the active total becomes 85. Session operation JSON uses
+`session.schema.json`; executed Position/Historical output uses
+`output.schema.json`.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 

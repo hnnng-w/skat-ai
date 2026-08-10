@@ -270,8 +270,9 @@ coverage; and permits at most one mapped artifact entry. Runtime conversion also
 requires that entry to match the artifact actually returned.
 
 `schemas/output.schema.json` references that contract from every Root output
-branch and constrains the sidecar workflow to the selected branch. The repository
-and Package Resource mirrors now contain 62 active schemas.
+branch and constrains the sidecar workflow to the selected branch. The published
+`v0.13.0` baseline contains 62 Schemas. The active tree contains 63 because the
+separate standalone Session Schema is packaged byte-identically.
 
 The `v0.13.0` package baseline has 77 deterministic generated-output scenarios.
 The original 70 published `v0.12.0` scenarios remain unchanged, and seven
@@ -279,6 +280,28 @@ append-only Issue #147 scenarios cover one provenance-enabled Result for every
 Root workflow. The Training Dataset scenario also covers the actual
 `opponent_statistics_input` artifact mapping. The published `v0.12.0` historical
 facts remain 70 scenarios and 4,762 pytest tests.
+
+Issue #157 appends eight Session scenarios for an active total of 85 without
+changing any of those 77 published Root scenarios. Session operation provenance
+uses the independent Session Provenance contract, while Session-triggered
+`analyze`, available `review`, and available `finalize` can request this existing
+Root Result sidecar on their Position or Historical output.
+
+## Session distinction
+
+`skat_ai.api.v1.session` has its own default-omitted complete returned-value
+provenance and standalone Schema. Its appended `observe_checkpoint` and
+`export_checkpoint_review` operations preserve the frozen decision-time Request
+and classify the actual Card as `retrospective_attachment`. The stable
+`skat_ai.api.v1.session.files` Save/Load Result has no provenance option and
+retains no path.
+
+The Session CLI `--include-provenance` applies to public Session operation JSON
+or to this existing Root Result provenance when an explicit analysis command
+executes Application. It does not publish persistence fingerprints, file paths,
+complete private Session data, or internal Session ledgers in human-readable
+output. See [Session provenance](session_provenance.md) and
+[Session Decision observations](session_decision_observations.md).
 
 ## Boundaries
 

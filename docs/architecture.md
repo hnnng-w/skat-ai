@@ -19,6 +19,8 @@ Session Commands
     -> validation and export readiness
     -> canonical Position Request export and optional Decision Checkpoint
     -> canonical Historical Game Request export
+    -> optional accepted-Log Decision Observation and isolated review Request
+    -> explicit existing Position or Historical Application execution
     -> strict standalone Session Result Schema validation
 ```
 
@@ -36,12 +38,15 @@ lineage. Issue #155 can retain the authoritative State and optional caller-
 supplied frozen Checkpoints in one private version-1 document, strictly resume it,
 recompute lineage, and optimistically save canonical local bytes through same-
 directory atomic replacement. Issue #156 adds `api/v1/session` as a stable
-transport-free wrapper, `session_provenance.py` for complete redacted returned-
+in-memory wrapper, `session_provenance.py` for complete redacted returned-
 value ledgers, and standalone Package Resource Schema validation. Each public
 operation delegates once to its existing internal function and remains outside
-Application orchestration. CLI Session commands, public file transport,
-automatic Checkpoint collection, Session-triggered analysis, and capture/UI do
-not exist yet.
+Application orchestration. Issue #157 adds stable `api/v1/session/files` Save and
+Load, exact Checkpoint collection, accepted-Log actual-card observation, frozen-
+Request review export, the 12-subcommand Session CLI, explicit existing-
+Application execution, and the phase-aware Assistant. The functional `v0.14.0`
+milestone is complete pending release preparation; there is still no eighth Root
+workflow or persisted analysis Result.
 
 The position-analysis flow is:
 
@@ -65,7 +70,8 @@ points and ownership, reuses the declaration/value/overbid/settlement helpers,
 and emits `historical_game_summary`.
 A ready Retrospective Session can now construct that existing Root input through
 the internal Issue #152 exporter. Historical workflow execution remains a
-separate explicit API, Application, or CLI action.
+separate explicit API, Application, or CLI action. Issue #157 `session finalize`
+performs that explicit Application execution once when export is available.
 One Position-ready Live or Retrospective Session can construct the existing flat
 Position Root input through the internal Issue #153 exporter. It maps stable
 Players to the local `me`/`left`/`right` perspective, emits only decision-visible
@@ -73,6 +79,10 @@ Skat, Matador, Ouvert, and continuation facts, validates through the existing
 Position builder, and does not execute analysis. A separate Issue #153 builder
 verifies and freezes that exact export with source revision and decision
 metadata before the local Play.
+Issue #157 `session analyze` executes that frozen Position Request explicitly.
+`session review` derives the first accepted local Play after a Checkpoint, copies
+the frozen Request, changes only review mode and actual Card, and executes the
+existing Position Application once when available.
 When requested, the flow derives one pre-play decision snapshot per actual
 supplied play from that
 validated replay result. Historical review adapts each snapshot independently
@@ -166,7 +176,7 @@ decision, intermediate-stage, and unredacted attachments remain internal.
 
 | File      | Purpose                                                                                                                           |
 | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `main.py` | CLI entry point, orchestration, output construction, multi-step execution, optional policy comparison, and human-readable output. |
+| `main.py` | Legacy CLI compatibility entry point for unchanged Root parsing and leading-`session` dispatch. |
 
 ## Core rules
 
@@ -233,6 +243,12 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/session_persistence_contracts.py` | Private version-1 persistence, resume, and optimistic write contracts and exact policy constants. |
 | `src/skat_ai/session_persistence_codec.py` | Canonical domain-separated fingerprints, strict typed reconstruction, accepted-Log replay, fingerprint verification, and resumed lineage derivation. |
 | `src/skat_ai/session_persistence.py` | Strict private file loading and canonical optimistic same-directory atomic save transport. |
+| `src/skat_ai/session_decision_observation.py` | Immutable observation statuses and first accepted local-Play derivation from Checkpoint lineage and accepted history. |
+| `src/skat_ai/session_checkpoint_review.py` | Frozen-request-plus-observed-Card post-game-review Request export without execution. |
+| `src/skat_ai/session_checkpoint_collection.py` | Exact Position-ready Checkpoint collection, canonical retention, and equality deduplication without analysis. |
+| `src/skat_ai/api/v1/session/files/` | Stable version-1 public file Save/Load contracts, strict Result validation, and stable error translation. |
+| `src/skat_ai/cli/session.py` | Separate 12-subcommand Session parser, persistence/CAS orchestration, automatic Checkpoints, export, execution, privacy-safe presentation, and Exit Codes. |
+| `src/skat_ai/cli/session_assistant.py` | Deterministic phase-aware prompts, typed Command construction, per-mutation Save, and injectable I/O. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
 analysis Result, generated timestamp, path, or fingerprint. Persistence paths and
@@ -250,7 +266,11 @@ for the information-safe Position boundary, and
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md)
 for immutable linear history editing. See
 [Session persistence and resume](session_persistence_and_resume.md) for private
-local document identity, verification, and atomic save behavior.
+local document identity, verification, and atomic save behavior. See
+[Session Decision observations](session_decision_observations.md) for actual-card
+and review isolation and
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md) for
+public files, automatic collection, execution, and Assistant behavior.
 
 Validation is split between JSON Schema and Python validation:
 
@@ -666,7 +686,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/opponent_profile_derivation.schema.json` | Strict versioned confidence, signal, classification, preset, and explanation output. |
 | `schemas/hidden_card_inference_summary.schema.json` | Strict version-1 compatible-world evidence, marginals, confidence semantics, and privacy flags. |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
-| `schemas/session.schema.json`                  | Strict standalone Public Session API Commands, values, Results, persistence, and optional provenance. |
+| `schemas/session.schema.json`                  | Strict standalone Public Session API Commands, values, Results, creation input, persistence/file transport, observations, review exports, and optional provenance. |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |
 | `scripts/check.ps1`                            | Runs the combined project check.                                         |
@@ -714,6 +734,14 @@ Important regression areas:
   strict reconstruction and accepted-Log replay, fingerprint-mismatch rejection,
   optional Checkpoint canonicalization, recomputed lineage, optimistic conflict
   outcomes, canonical UTF-8/LF bytes, and atomic-replacement failure cleanup
+* public Session file namespace identity, Save/Load Result discrimination,
+  path-free Results, strict load, optimistic conflicts, and one-call delegation
+* Decision Observation statuses/reasons, exact accepted Play revision/Card,
+  frozen Checkpoint immutability, review Request isolation, and complete optional
+  Session Provenance
+* automatic Checkpoint collection/deduplication, all 12 Session subcommands,
+  installed/module/Legacy parity, privacy-safe presentation, Assistant flows,
+  execution counts, six examples, and eight append-only generated scenarios
 
 ## Validation layers
 

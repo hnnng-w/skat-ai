@@ -12,11 +12,16 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
+import skat_ai.api.v1.session as session_api
+import skat_ai.api.v1.session.files as session_files
+from skat_ai.cli.session import run_session_cli
 from skat_ai.field_provenance import parse_json_pointer, resolve_json_pointer
 from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "schemas" / "output.schema.json"
+INPUT_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "input.schema.json"
+SESSION_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "session.schema.json"
 HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_decision_snapshot.schema.json"
 )
@@ -182,6 +187,224 @@ class Scenario:
     include_position_overrides: bool = True
     export_opponent_statistics: bool = False
     include_provenance: bool = False
+    session_orchestration: str | None = None
+    session_output_definition: str | None = None
+
+
+_SESSION_PLAYERS = (
+    session_api.SessionPlayerV1(
+        player_id="player-a",
+        player_label="Alice",
+        seat="forehand",
+    ),
+    session_api.SessionPlayerV1(
+        player_id="player-b",
+        player_label="Bob",
+        seat="middlehand",
+    ),
+    session_api.SessionPlayerV1(
+        player_id="player-c",
+        player_label="Carol",
+        seat="rearhand",
+    ),
+)
+_SESSION_HANDS = {
+    "player-a": ("CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10"),
+    "player-b": ("SK", "SQ", "SJ", "S9", "S8", "S7", "HA", "H10", "HK", "HQ"),
+    "player-c": ("HJ", "H9", "H8", "H7", "DA", "D10", "DK", "DQ", "DJ", "D9"),
+}
+_SESSION_POSITION_OPTIONS = session_api.SessionPositionExportOptionsV1(
+    sample_count=1,
+    random_seed=157,
+    use_basic_opponent_strategy=True,
+    recommendation_method=None,
+    bounded_search_settings=None,
+)
+
+
+def _apply_session_document(
+    state: session_api.SessionStateV1,
+    document: dict[str, object],
+) -> session_api.SessionStateV1:
+    command = session_api.parse_session_command(document)
+    result = session_api.apply_session_command(state, command).value
+    if result.status != "applied":
+        raise RuntimeError(
+            f"Session fixture Command {document['kind']!r} was not applied: "
+            f"{result.to_dict()}"
+        )
+    return result.state
+
+
+def build_live_example_persistence_document() -> session_api.SessionPersistenceDocumentV1:
+    """Builds the canonical Position-ready Live Session example."""
+    state = session_api.create_session(
+        session_id="session-live-example",
+        players=_SESSION_PLAYERS,
+        capture_mode="live",
+        local_player_id="player-a",
+    ).value
+    state = _apply_session_document(
+        state,
+        {
+            "command_version": 1,
+            "kind": "set_game_metadata",
+            "expected_revision": state.revision,
+            "game_id": "session-live-example-game",
+            "played_at": "2026-08-10T18:00:00Z",
+        },
+    )
+    for card in _SESSION_HANDS["player-a"]:
+        state = _apply_session_document(
+            state,
+            {
+                "command_version": 1,
+                "kind": "record_dealt_card",
+                "expected_revision": state.revision,
+                "destination": "player_hand",
+                "player_id": "player-a",
+                "card": card,
+            },
+        )
+    state = _apply_session_document(
+        state,
+        {
+            "command_version": 1,
+            "kind": "set_declarer",
+            "expected_revision": state.revision,
+            "declarer_player_id": "player-a",
+        },
+    )
+    state = _apply_session_document(
+        state,
+        {
+            "command_version": 1,
+            "kind": "set_declaration",
+            "expected_revision": state.revision,
+            "declaration": {
+                "game_type": "grand",
+                "hand_game": True,
+                "ouvert": False,
+                "schneider_announced": False,
+                "schwarz_announced": False,
+                "matadors": None,
+                "bid_value": 24,
+            },
+        },
+    )
+    position_export = session_api.export_session_position_request(
+        state,
+        _SESSION_POSITION_OPTIONS,
+    ).value
+    checkpoint = session_api.build_session_decision_checkpoint(
+        state=state,
+        position_export=position_export,
+    ).value
+    return session_api.build_session_persistence_document(
+        state,
+        decision_checkpoints=(checkpoint,),
+    ).value
+
+
+def build_retrospective_example_persistence_document(
+) -> session_api.SessionPersistenceDocumentV1:
+    """Builds the canonical zero-decision Retrospective Session example."""
+    state = session_api.create_session(
+        session_id="session-retrospective-example",
+        players=_SESSION_PLAYERS,
+        capture_mode="retrospective",
+        local_player_id=None,
+    ).value
+    state = _apply_session_document(
+        state,
+        {
+            "command_version": 1,
+            "kind": "set_game_metadata",
+            "expected_revision": state.revision,
+            "game_id": "session-retrospective-example-game",
+            "played_at": "2026-08-09T18:00:00Z",
+        },
+    )
+    for player in _SESSION_PLAYERS:
+        for card in reversed(_SESSION_HANDS[player.player_id]):
+            state = _apply_session_document(
+                state,
+                {
+                    "command_version": 1,
+                    "kind": "record_dealt_card",
+                    "expected_revision": state.revision,
+                    "destination": "player_hand",
+                    "player_id": player.player_id,
+                    "card": card,
+                },
+            )
+    for card in reversed(("D8", "D7")):
+        state = _apply_session_document(
+            state,
+            {
+                "command_version": 1,
+                "kind": "record_dealt_card",
+                "expected_revision": state.revision,
+                "destination": "skat",
+                "player_id": None,
+                "card": card,
+            },
+        )
+    state = _apply_session_document(
+        state,
+        {
+            "command_version": 1,
+            "kind": "set_declarer",
+            "expected_revision": state.revision,
+            "declarer_player_id": "player-b",
+        },
+    )
+    state = _apply_session_document(
+        state,
+        {
+            "command_version": 1,
+            "kind": "set_declaration",
+            "expected_revision": state.revision,
+            "declaration": {
+                "game_type": "grand",
+                "hand_game": False,
+                "ouvert": False,
+                "schneider_announced": False,
+                "schwarz_announced": False,
+                "matadors": None,
+                "bid_value": 18,
+            },
+        },
+    )
+    for card in ("SK", "SQ"):
+        state = _apply_session_document(
+            state,
+            {
+                "command_version": 1,
+                "kind": "record_discard",
+                "expected_revision": state.revision,
+                "card": card,
+            },
+        )
+    state = _apply_session_document(
+        state,
+        {
+            "command_version": 1,
+            "kind": "set_game_end",
+            "expected_revision": state.revision,
+            "game_end_reason": "declarer_concession",
+            "game_end": {
+                "schema_version": 1,
+                "kind": "declarer_concession",
+                "declarer_hand_cards_remaining": 10,
+                "defender_consent": {
+                    "status": "not_required",
+                    "consenting_defender_player_ids": [],
+                },
+            },
+        },
+    )
+    return session_api.build_session_persistence_document(state).value
 
 
 def load_json_file(file_path: Path) -> dict[str, Any]:
@@ -3261,6 +3484,624 @@ def check_training_dataset_preparation_unavailable(
     return errors
 
 
+def _write_generated_document(file_path: Path, document: dict[str, Any]) -> None:
+    file_path.write_text(
+        json.dumps(document, ensure_ascii=True, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _session_players_from_create(
+    document: dict[str, Any],
+) -> tuple[session_api.SessionPlayerV1, ...]:
+    return tuple(
+        session_api.SessionPlayerV1(
+            player_id=player["player_id"],
+            player_label=player["player_label"],
+            seat=player["seat"],
+        )
+        for player in document["players"]
+    )
+
+
+def _load_example_persistence(
+    file_name: str,
+) -> session_api.SessionPersistenceDocumentV1:
+    source = load_json_file(PROJECT_ROOT / "examples" / file_name)
+    return session_api.resume_session_document(source).value.document
+
+
+def _save_scenario_session(
+    scenario: Scenario,
+    file_path: Path,
+    document: session_api.SessionPersistenceDocumentV1,
+) -> list[str]:
+    saved = session_files.save_session_file(
+        file_path,
+        document,
+        expected_content_fingerprint=None,
+    ).value
+    if saved.status == "saved":
+        return []
+    return [
+        format_scenario_error(
+            scenario,
+            f"expected initial Session persistence status saved, got {saved.status}",
+        )
+    ]
+
+
+def _run_session_command(
+    scenario: Scenario,
+    arguments: list[str],
+) -> list[str]:
+    exit_code = run_session_cli(arguments)
+    if exit_code == 0:
+        return []
+    return [
+        format_scenario_error(
+            scenario,
+            f"Session CLI generation failed with exit code {exit_code}",
+        )
+    ]
+
+
+def _forbidden_position_keys(value: object) -> set[str]:
+    forbidden = {
+        "command_log",
+        "content_fingerprint",
+        "decision_checkpoints",
+        "initial_hand",
+        "opponent_hand",
+        "state_fingerprint",
+    }
+    found: set[str] = set()
+    if isinstance(value, dict):
+        found.update(forbidden.intersection(value))
+        for child in value.values():
+            found.update(_forbidden_position_keys(child))
+    elif isinstance(value, list):
+        for child in value:
+            found.update(_forbidden_position_keys(child))
+    return found
+
+
+def _check_live_fixture(
+    scenario: Scenario,
+    document: session_api.SessionPersistenceDocumentV1,
+) -> list[str]:
+    expected = build_live_example_persistence_document()
+    errors = []
+    if document != expected:
+        errors.append("Live persistence example differs from canonical API construction")
+    if document.state.revision != 13 or document.state.phase != "play":
+        errors.append("expected Position-ready Live revision 13")
+    if len(document.decision_checkpoints) != 1:
+        errors.append("expected one frozen Live Decision Checkpoint")
+    resumed = session_api.resume_session_document(document.to_dict()).value
+    if [lineage.relationship for lineage in resumed.checkpoint_lineage] != ["current"]:
+        errors.append("expected current lineage for the frozen Live Checkpoint")
+    return [format_scenario_error(scenario, error) for error in errors]
+
+
+def _generate_session_live_create(
+    scenario: Scenario,
+    output_path: Path,
+    _temporary_path: Path,
+) -> list[str]:
+    create_document = load_json_file(scenario.input_path)
+    result = session_api.create_session(
+        session_id=create_document["session_id"],
+        players=_session_players_from_create(create_document),
+        capture_mode=create_document["capture_mode"],
+        local_player_id=create_document["local_player_id"],
+        options=session_api.SessionApiOptionsV1(include_provenance=True),
+    )
+    _write_generated_document(
+        output_path,
+        session_api.serialize_session_result(result),
+    )
+    errors = []
+    if result.value.revision != 0 or result.value.phase != "setup":
+        errors.append("expected deterministic revision-zero Session creation")
+    if result.value.validation.position_export.status != "unavailable":
+        errors.append("expected normal unavailable Position status at creation")
+    if result.value.validation.historical_export.status != "unavailable":
+        errors.append("expected normal unavailable Historical status at creation")
+    if result.field_provenance is None:
+        errors.append("expected Session provenance on creation")
+    return [format_scenario_error(scenario, error) for error in errors]
+
+
+def _generate_session_live_apply_and_resume(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    source = _load_example_persistence("session_live_persistence.json")
+    errors = _check_live_fixture(scenario, source)
+    session_path = temporary_path / f"{scenario.name}.session.json"
+    errors.extend(_save_scenario_session(scenario, session_path, source))
+    if errors:
+        return errors
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "apply",
+                "--session",
+                str(session_path),
+                "--input",
+                str(scenario.input_path),
+                "--output",
+                str(output_path),
+                "--samples",
+                "1",
+                "--seed",
+                "157",
+                "--include-provenance",
+                "--quiet",
+            ],
+        )
+    )
+    if errors:
+        return errors
+    resumed = session_files.load_session_file(session_path).value
+    state = resumed.document.state
+    checkpoint = resumed.document.decision_checkpoints[0]
+    observation = session_api.observe_session_decision_checkpoint(
+        state=state,
+        checkpoint=checkpoint,
+        options=session_api.SessionApiOptionsV1(include_provenance=True),
+    )
+    output = load_json_file(output_path)
+    checks = []
+    if output.get("operation") != "apply_command" or output.get("value", {}).get(
+        "status"
+    ) != "applied":
+        checks.append("expected one applied public Session Command Result")
+    if "field_provenance" not in output:
+        checks.append("expected Session provenance on the apply Result")
+    if state.revision != 14 or state.command_log[-1].command.card != "CA":
+        checks.append("expected accepted CA at revision 14 after strict Resume")
+    if resumed.document.decision_checkpoints != source.decision_checkpoints:
+        checks.append("automatic collection did not deduplicate the exact Checkpoint")
+    if [item.relationship for item in resumed.checkpoint_lineage] != ["ancestor"]:
+        checks.append("expected ancestor lineage after the observed Play")
+    if (
+        observation.value.status != "observed"
+        or observation.value.actual_card != "CA"
+        or observation.value.observed_play_revision != 14
+    ):
+        checks.append("expected observed CA at accepted revision 14")
+    if observation.field_provenance is None:
+        checks.append("expected complete observation provenance")
+    return [format_scenario_error(scenario, error) for error in checks]
+
+
+def _generate_session_live_analyze_with_checkpoint(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    source = _load_example_persistence("session_live_persistence.json")
+    session_path = temporary_path / f"{scenario.name}.session.json"
+    errors = _check_live_fixture(scenario, source)
+    errors.extend(_save_scenario_session(scenario, session_path, source))
+    if errors:
+        return errors
+    before = session_path.read_bytes()
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "analyze",
+                "--session",
+                str(session_path),
+                "--output",
+                str(output_path),
+                "--samples",
+                "1",
+                "--seed",
+                "157",
+                "--include-provenance",
+                "--quiet",
+            ],
+        )
+    )
+    if errors:
+        return errors
+    output = load_json_file(output_path)
+    resumed = session_files.load_session_file(session_path).value
+    checks = []
+    if session_path.read_bytes() != before:
+        checks.append("analysis rewrote an already deduplicated Checkpoint file")
+    if resumed.document.decision_checkpoints != source.decision_checkpoints:
+        checks.append("analysis changed the exact frozen Checkpoint")
+    if "field_provenance" not in output:
+        checks.append("expected Root Result provenance on Session-triggered analysis")
+    if output.get("position", {}).get("hand") != list(_SESSION_HANDS["player-a"]):
+        checks.append("analysis did not use the frozen Decision-time local hand")
+    leaked = _forbidden_position_keys(output)
+    if leaked:
+        checks.append(f"Position Result leaked private Session fields: {sorted(leaked)}")
+    return [format_scenario_error(scenario, error) for error in checks]
+
+
+def _generate_session_live_observed_card_review(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    source = _load_example_persistence("session_live_persistence.json")
+    checkpoint = source.decision_checkpoints[0]
+    session_path = temporary_path / f"{scenario.name}.session.json"
+    errors = _save_scenario_session(scenario, session_path, source)
+    if errors:
+        return errors
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "apply",
+                "--session",
+                str(session_path),
+                "--input",
+                str(scenario.input_path),
+                "--samples",
+                "1",
+                "--seed",
+                "157",
+                "--quiet",
+            ],
+        )
+    )
+    if errors:
+        return errors
+    resumed = session_files.load_session_file(session_path).value
+    observation = session_api.observe_session_decision_checkpoint(
+        state=resumed.document.state,
+        checkpoint=resumed.document.decision_checkpoints[0],
+    ).value
+    review_export = session_api.export_session_checkpoint_review_request(
+        state=resumed.document.state,
+        checkpoint=resumed.document.decision_checkpoints[0],
+        options=session_api.SessionApiOptionsV1(include_provenance=True),
+    )
+    frozen = checkpoint.request.to_dict()["document"]
+    expected_review = dict(frozen)
+    expected_review["analysis_mode"] = "post_game_review"
+    expected_review["actual_card_played"] = "CA"
+    before_review = session_path.read_bytes()
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "review",
+                "--session",
+                str(session_path),
+                "--checkpoint-index",
+                "0",
+                "--output",
+                str(output_path),
+                "--quiet",
+            ],
+        )
+    )
+    if errors:
+        return errors
+    output = load_json_file(output_path)
+    checks = []
+    if (
+        observation.status != "observed"
+        or observation.actual_card != "CA"
+        or observation.observed_play_revision != 14
+    ):
+        checks.append("review did not derive the exact observed CA revision")
+    if review_export.value.request.to_dict()["document"] != expected_review:
+        checks.append("review Request was not the frozen Request plus only observed CA")
+    if review_export.field_provenance is None:
+        checks.append("expected Session provenance on review Request export")
+    if source.decision_checkpoints[0] != checkpoint:
+        checks.append("review mutated the frozen Checkpoint")
+    if session_path.read_bytes() != before_review:
+        checks.append("review modified the persisted Session")
+    if output.get("post_game_review_summary", {}).get("actual_card_played") != "CA":
+        checks.append("Engine review Result did not retain observed CA")
+    if output.get("position", {}).get("hand") != frozen["hand"]:
+        checks.append("Engine review did not retain the frozen Decision-time hand")
+    leaked = _forbidden_position_keys(output)
+    if leaked:
+        checks.append(f"review Result leaked private Session fields: {sorted(leaked)}")
+    return [format_scenario_error(scenario, error) for error in checks]
+
+
+def _build_live_correction_source(
+) -> session_api.SessionPersistenceDocumentV1:
+    source = build_live_example_persistence_document()
+    state = source.state
+    for player_id, card in (
+        ("player-a", "CA"),
+        ("player-b", "SJ"),
+        ("player-c", "HJ"),
+        ("player-b", "S9"),
+        ("player-c", "H9"),
+        ("player-a", "SA"),
+    ):
+        state = _apply_session_document(
+            state,
+            {
+                "command_version": 1,
+                "kind": "record_play",
+                "expected_revision": state.revision,
+                "player_id": player_id,
+                "card": card,
+            },
+        )
+    return session_api.build_session_persistence_document(
+        state,
+        decision_checkpoints=source.decision_checkpoints,
+    ).value
+
+
+def _generate_session_undo_and_partial_correction(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    source = _build_live_correction_source()
+    undo_path = temporary_path / f"{scenario.name}.undo.session.json"
+    correction_path = temporary_path / f"{scenario.name}.correct.session.json"
+    errors = _save_scenario_session(scenario, undo_path, source)
+    errors.extend(_save_scenario_session(scenario, correction_path, source))
+    if errors:
+        return errors
+    undo_output = temporary_path / f"{scenario.name}.undo.output.json"
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "undo",
+                "--session",
+                str(undo_path),
+                "--target-revision",
+                "18",
+                "--output",
+                str(undo_output),
+                "--samples",
+                "1",
+                "--seed",
+                "157",
+                "--quiet",
+            ],
+        )
+    )
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "correct",
+                "--session",
+                str(correction_path),
+                "--input",
+                str(scenario.input_path),
+                "--output",
+                str(output_path),
+                "--samples",
+                "1",
+                "--seed",
+                "157",
+                "--quiet",
+            ],
+        )
+    )
+    if errors:
+        return errors
+    undo = load_json_file(undo_output)
+    correction = load_json_file(output_path)
+    resumed_undo = session_files.load_session_file(undo_path).value
+    resumed_correction = session_files.load_session_file(correction_path).value
+    checks = []
+    if undo.get("operation") != "rewind" or undo.get("value", {}).get("status") != "applied":
+        checks.append("expected an applied strict-prefix Undo")
+    if resumed_undo.document.state.revision != 18:
+        checks.append("Undo did not persist the exact target revision")
+    value = correction.get("value", {})
+    if correction.get("operation") != "correct" or value.get("status") != "partial":
+        checks.append("expected a normal partial Correction Result")
+    if value.get("failed_original_revision") != 19:
+        checks.append("expected suffix replay to first fail at original revision 19")
+    if len(value.get("replayed_suffix_records", [])) != 4 or len(
+        value.get("discarded_suffix_records", [])
+    ) != 1:
+        checks.append("partial Correction suffix accounting is not exact")
+    if resumed_correction.document.state.revision != 18:
+        checks.append("partial Correction did not persist its valid partial State")
+    relationships = [
+        item.relationship for item in resumed_correction.checkpoint_lineage
+    ]
+    if relationships != ["ancestor", "current"]:
+        checks.append("partial Correction Checkpoint lineage is not ancestor/current")
+    if len(resumed_correction.document.decision_checkpoints) != 2:
+        checks.append("partial Correction did not retain and collect exact Checkpoints")
+    return [format_scenario_error(scenario, error) for error in checks]
+
+
+def _generate_session_persistence_conflict(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    source = _load_example_persistence("session_live_persistence.json")
+    advanced_state = _apply_session_document(
+        source.state,
+        load_json_file(PROJECT_ROOT / "examples" / "session_command_record_play.json"),
+    )
+    advanced = session_api.build_session_persistence_document(
+        advanced_state,
+        decision_checkpoints=source.decision_checkpoints,
+    ).value
+    session_path = temporary_path / f"{scenario.name}.session.json"
+    errors = _save_scenario_session(scenario, session_path, advanced)
+    if errors:
+        return errors
+    before = session_path.read_bytes()
+    conflict = session_files.save_session_file(
+        session_path,
+        source,
+        expected_content_fingerprint=source.content_fingerprint,
+    )
+    _write_generated_document(
+        output_path,
+        session_files.serialize_session_file_result(conflict),
+    )
+    resumed = session_files.load_session_file(session_path).value
+    checks = []
+    if conflict.value.status != "conflict":
+        checks.append("expected a normal optimistic persistence conflict")
+    if conflict.value.existing_content_fingerprint != advanced.content_fingerprint:
+        checks.append("conflict did not report the exact existing fingerprint")
+    if conflict.value.requested_content_fingerprint != source.content_fingerprint:
+        checks.append("conflict did not report the exact requested fingerprint")
+    if session_path.read_bytes() != before or resumed.document != advanced:
+        checks.append("persistence conflict replaced the target Session")
+    return [format_scenario_error(scenario, error) for error in checks]
+
+
+def _check_retrospective_fixture(
+    scenario: Scenario,
+    document: session_api.SessionPersistenceDocumentV1,
+) -> list[str]:
+    expected = build_retrospective_example_persistence_document()
+    errors = []
+    if document != expected:
+        errors.append("Retrospective persistence example differs from API construction")
+    if document.state.revision != 38 or document.state.phase != "ended":
+        errors.append("expected ended zero-decision Retrospective revision 38")
+    if document.decision_checkpoints:
+        errors.append("Retrospective example unexpectedly retained a Decision Checkpoint")
+    resumed = session_api.resume_session_document(document.to_dict()).value
+    if resumed.checkpoint_lineage:
+        errors.append("Retrospective example unexpectedly derived Checkpoint lineage")
+    return [format_scenario_error(scenario, error) for error in errors]
+
+
+def _generate_session_retrospective_export(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    source = _load_example_persistence("session_retrospective_persistence.json")
+    errors = _check_retrospective_fixture(scenario, source)
+    session_path = temporary_path / f"{scenario.name}.session.json"
+    errors.extend(_save_scenario_session(scenario, session_path, source))
+    if errors:
+        return errors
+    before = session_path.read_bytes()
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "export-historical",
+                "--session",
+                str(session_path),
+                "--output",
+                str(output_path),
+                "--include-provenance",
+                "--quiet",
+            ],
+        )
+    )
+    if errors:
+        return errors
+    output = load_json_file(output_path)
+    request = output.get("value", {}).get("request", {})
+    historical = request.get("document", {}).get("historical_game_input", {})
+    checks = []
+    if output.get("operation") != "export_historical" or output.get("value", {}).get(
+        "status"
+    ) != "available":
+        checks.append("expected an available Historical Session export")
+    if historical.get("game_id") != "session-retrospective-example-game":
+        checks.append("Historical export did not retain the canonical game identity")
+    if historical.get("tricks") != []:
+        checks.append("expected an exact zero-decision Historical export")
+    if "field_provenance" not in output:
+        checks.append("expected Session provenance on Historical export")
+    if session_path.read_bytes() != before:
+        checks.append("Historical export modified the Session file")
+    return [format_scenario_error(scenario, error) for error in checks]
+
+
+def _generate_session_retrospective_finalize(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    source = _load_example_persistence("session_retrospective_persistence.json")
+    session_path = temporary_path / f"{scenario.name}.session.json"
+    errors = _check_retrospective_fixture(scenario, source)
+    errors.extend(_save_scenario_session(scenario, session_path, source))
+    if errors:
+        return errors
+    before = session_path.read_bytes()
+    errors.extend(
+        _run_session_command(
+            scenario,
+            [
+                "finalize",
+                "--session",
+                str(session_path),
+                "--output",
+                str(output_path),
+                "--include-provenance",
+                "--quiet",
+            ],
+        )
+    )
+    if errors:
+        return errors
+    output = load_json_file(output_path)
+    summary = output.get("historical_game_summary", {})
+    checks = []
+    if summary.get("game_id") != "session-retrospective-example-game":
+        checks.append("finalize did not execute the exported Historical game")
+    if summary.get("play_prefix_summary", {}).get("played_card_count") != 0:
+        checks.append("expected deterministic zero-decision Historical execution")
+    if "field_provenance" not in output:
+        checks.append("expected Root Result provenance on Historical finalize")
+    if session_path.read_bytes() != before:
+        checks.append("Historical finalize modified the Session file")
+    return [format_scenario_error(scenario, error) for error in checks]
+
+
+_SESSION_SCENARIO_GENERATORS = {
+    "live_create": _generate_session_live_create,
+    "live_apply_and_resume": _generate_session_live_apply_and_resume,
+    "live_analyze_with_checkpoint": _generate_session_live_analyze_with_checkpoint,
+    "live_observed_card_review": _generate_session_live_observed_card_review,
+    "undo_and_partial_correction": _generate_session_undo_and_partial_correction,
+    "persistence_conflict": _generate_session_persistence_conflict,
+    "retrospective_export": _generate_session_retrospective_export,
+    "retrospective_finalize": _generate_session_retrospective_finalize,
+}
+
+
+def run_session_scenario(
+    scenario: Scenario,
+    output_path: Path,
+    temporary_path: Path,
+) -> list[str]:
+    """Runs one appended deterministic Session orchestration."""
+    if scenario.session_orchestration is None:
+        return [format_scenario_error(scenario, "missing Session orchestration")]
+    return _SESSION_SCENARIO_GENERATORS[scenario.session_orchestration](
+        scenario,
+        output_path,
+        temporary_path,
+    )
+
+
 SCENARIOS = (
     Scenario(
         name="normal_local_live",
@@ -4125,6 +4966,68 @@ SCENARIOS = (
         include_position_overrides=False,
         include_provenance=True,
     ),
+    Scenario(
+        name="session_live_create",
+        input_path=PROJECT_ROOT / "examples" / "session_create_live.json",
+        branch="public Live Session creation with normal unavailable readiness",
+        include_provenance=True,
+        session_orchestration="live_create",
+        session_output_definition="session_api_result",
+    ),
+    Scenario(
+        name="session_live_apply_and_resume",
+        input_path=PROJECT_ROOT / "examples" / "session_command_record_play.json",
+        branch="accepted local Play with automatic Checkpoint deduplication and strict Resume",
+        include_provenance=True,
+        session_orchestration="live_apply_and_resume",
+        session_output_definition="session_api_result",
+    ),
+    Scenario(
+        name="session_live_analyze_with_checkpoint",
+        input_path=PROJECT_ROOT / "examples" / "session_live_persistence.json",
+        branch="Session-triggered Position Analysis with an exact existing Checkpoint",
+        include_provenance=True,
+        session_orchestration="live_analyze_with_checkpoint",
+    ),
+    Scenario(
+        name="session_live_observed_card_review",
+        input_path=PROJECT_ROOT / "examples" / "session_command_record_play.json",
+        branch="observed-card Checkpoint review isolated to the frozen Position Request",
+        session_orchestration="live_observed_card_review",
+    ),
+    Scenario(
+        name="session_undo_and_partial_correction",
+        input_path=PROJECT_ROOT / "examples" / "session_correction_record_play.json",
+        branch="strict-prefix Undo and first-rejection partial Session Correction",
+        session_orchestration="undo_and_partial_correction",
+        session_output_definition="session_api_result",
+    ),
+    Scenario(
+        name="session_persistence_conflict",
+        input_path=PROJECT_ROOT / "examples" / "session_live_persistence.json",
+        branch="optimistic Session persistence conflict without target replacement",
+        session_orchestration="persistence_conflict",
+        session_output_definition="session_file_api_result",
+    ),
+    Scenario(
+        name="session_retrospective_export",
+        input_path=(
+            PROJECT_ROOT / "examples" / "session_retrospective_persistence.json"
+        ),
+        branch="canonical zero-decision Retrospective Historical Request export",
+        include_provenance=True,
+        session_orchestration="retrospective_export",
+        session_output_definition="session_api_result",
+    ),
+    Scenario(
+        name="session_retrospective_finalize",
+        input_path=(
+            PROJECT_ROOT / "examples" / "session_retrospective_persistence.json"
+        ),
+        branch="Session-triggered zero-decision Historical execution",
+        include_provenance=True,
+        session_orchestration="retrospective_finalize",
+    ),
 )
 
 
@@ -4133,6 +5036,8 @@ def validate_generated_outputs() -> list[str]:
     Generates selected example outputs and validates them against the output schema.
     """
     schema = load_json_file(SCHEMA_PATH)
+    input_schema = load_json_file(INPUT_SCHEMA_PATH)
+    session_schema = load_json_file(SESSION_SCHEMA_PATH)
     historical_decision_snapshot_schema = load_json_file(HISTORICAL_DECISION_SNAPSHOT_SCHEMA_PATH)
     historical_game_review_schema = load_json_file(HISTORICAL_GAME_REVIEW_SCHEMA_PATH)
     historical_game_schema = load_json_file(HISTORICAL_GAME_SCHEMA_PATH)
@@ -4444,9 +5349,18 @@ def validate_generated_outputs() -> list[str]:
                 field_provenance_schema["$id"],
                 Resource.from_contents(field_provenance_schema),
             ),
+            (input_schema["$id"], Resource.from_contents(input_schema)),
+            (session_schema["$id"], Resource.from_contents(session_schema)),
         ]
     )
     validator = Draft202012Validator(schema, registry=registry)
+    session_validators = {
+        definition: Draft202012Validator(
+            {"$ref": f"{session_schema['$id']}#/$defs/{definition}"},
+            registry=registry,
+        )
+        for definition in ("session_api_result", "session_file_api_result")
+    }
     training_dataset_input_validator = Draft202012Validator(
         training_dataset_schema,
         registry=registry,
@@ -4457,18 +5371,48 @@ def validate_generated_outputs() -> list[str]:
     with tempfile.TemporaryDirectory() as temporary_directory:
         temporary_path = Path(temporary_directory)
 
-        for scenario in SCENARIOS:
+        for scenario_index, scenario in enumerate(SCENARIOS):
             output_path = temporary_path / f"{scenario.name}.output.json"
 
-            generation_errors = run_analysis(
-                scenario=scenario,
-                output_path=output_path,
-            )
+            if scenario.session_orchestration is None:
+                generation_errors = run_analysis(
+                    scenario=scenario,
+                    output_path=output_path,
+                )
+            else:
+                generation_errors = run_session_scenario(
+                    scenario=scenario,
+                    output_path=output_path,
+                    temporary_path=temporary_path,
+                )
             if generation_errors:
                 return generation_errors
 
+            if scenario.session_orchestration is not None:
+                regeneration_path = temporary_path / "regenerated"
+                regeneration_path.mkdir(exist_ok=True)
+                regenerated_output_path = regeneration_path / output_path.name
+                regeneration_errors = run_session_scenario(
+                    scenario=scenario,
+                    output_path=regenerated_output_path,
+                    temporary_path=regeneration_path,
+                )
+                if regeneration_errors:
+                    return regeneration_errors
+                if regenerated_output_path.read_bytes() != output_path.read_bytes():
+                    return [
+                        format_scenario_error(
+                            scenario,
+                            "Session output bytes changed across deterministic regeneration",
+                        )
+                    ]
+
             data, validation_errors = validate_output_file(
-                validator=validator,
+                validator=(
+                    validator
+                    if scenario.session_output_definition is None
+                    else session_validators[scenario.session_output_definition]
+                ),
                 scenario=scenario,
                 output_path=output_path,
             )
@@ -4482,6 +5426,16 @@ def validate_generated_outputs() -> list[str]:
                         message="generated output could not be parsed",
                     )
                 ]
+            if scenario_index < 77 and (
+                "public_session_api_version" in data
+                or "public_session_file_api_version" in data
+            ):
+                return [
+                    format_scenario_error(
+                        scenario,
+                        "a previous generated output unexpectedly became Session output",
+                    )
+                ]
 
             branch_data = dict(data)
             branch_data.pop("field_provenance", None)
@@ -4492,6 +5446,27 @@ def validate_generated_outputs() -> list[str]:
                 ]
                 if branch_errors:
                     return branch_errors
+            if scenario.session_output_definition is not None:
+                if scenario.check_output is not None:
+                    return [
+                        format_scenario_error(
+                            scenario,
+                            "Session output must not use an Engine branch checker",
+                        )
+                    ]
+                unexpected_engine_fields = sorted(
+                    {"analysis_report", "historical_game_summary", "recommendation"}
+                    & set(data)
+                )
+                if unexpected_engine_fields:
+                    return [
+                        format_scenario_error(
+                            scenario,
+                            "Session-only orchestration unexpectedly executed analysis: "
+                            f"{unexpected_engine_fields}",
+                        )
+                    ]
+                continue
             preparation_summary = data.get("training_dataset_preparation_summary")
             if (
                 preparation_summary is not None
@@ -4567,7 +5542,9 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print(f"Generated {len(SCENARIOS)} outputs match schemas/output.schema.json.")
+    print(
+        f"Generated {len(SCENARIOS)} outputs match the Engine and Session schemas."
+    )
     return 0
 
 

@@ -1,0 +1,12 @@
+{
+  "session_history_edit_version": 1,
+  "expected_revision": 19,
+  "target_revision": 14,
+  "replacement_command": {
+    "command_version": 1,
+    "kind": "record_play",
+    "expected_revision": 13,
+    "player_id": "player-a",
+    "card": "SA"
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Contract identity
 
-The stable, transport-free Session namespace is `skat_ai.api.v1.session`:
+The stable in-memory Session namespace is `skat_ai.api.v1.session`:
 
 ```text
 PUBLIC_SESSION_API_VERSION = 1
@@ -28,11 +28,13 @@ build_checkpoint
 classify_checkpoint
 build_persistence_document
 resume_persistence_document
+observe_checkpoint
+export_checkpoint_review
 ```
 
 ## Stable exports
 
-The exact 52-name surface is:
+The first 52 names remain unchanged and preserve their exact order and identity:
 
 ```text
 PUBLIC_SESSION_API_VERSION
@@ -89,18 +91,32 @@ resume_session_document
 serialize_session_result
 ```
 
+Issue #157 appends these names in exact order:
+
+```text
+SESSION_DECISION_OBSERVATION_VERSION
+SESSION_CHECKPOINT_REVIEW_EXPORT_VERSION
+SessionDecisionObservationV1
+SessionCheckpointReviewExportV1
+observe_session_decision_checkpoint
+export_session_checkpoint_review_request
+files
+```
+
 The exposed domain types are the exact existing frozen internal types, not
 copies or adapters. Type identity is therefore preserved. Projection values,
-low-level validators, persistence codec and fingerprint helpers, file Save/Load,
-`SessionPersistenceWriteResultV1`, temporary-file helpers, and internal ledger
-builders remain internal.
+low-level validators, persistence codec and fingerprint helpers, temporary-file
+helpers, and internal ledger builders remain internal. Stable file transport is
+available only through the appended `files` subnamespace; it does not expose the
+low-level helpers.
 
 ## Versions and options
 
 `SessionApiVersionInfoV1` reports Public API, Public Session API, Session,
 Command, transition, projection, Request Export, Decision Checkpoint, history,
-lineage, and persistence contract versions. Package and Schema versions are
-intentionally absent because those version axes are independent.
+lineage, persistence, Decision Observation, and Checkpoint Review Export
+contract versions. Package and Schema versions are intentionally absent because
+those version axes are independent.
 
 `SessionApiOptionsV1` has two strict booleans:
 
@@ -132,6 +148,8 @@ timestamp. Null provenance is omitted from serialized output.
 | `classify_checkpoint` | `SessionCheckpointLineageV1` |
 | `build_persistence_document` | `SessionPersistenceDocumentV1` |
 | `resume_persistence_document` | `SessionResumeResultV1` |
+| `observe_checkpoint` | `SessionDecisionObservationV1` |
+| `export_checkpoint_review` | `SessionCheckpointReviewExportV1` |
 
 Rejected, conflicted, unavailable, unchanged, and partial domain outcomes are
 normal typed Results, not transport failures.
@@ -146,8 +164,26 @@ invalid fields. It performs no transition.
 Each operation wrapper invokes exactly one corresponding internal operation.
 Position and Historical exports return existing immutable `RequestDocumentV1`
 values without executing Position Analysis, bounded Search, Historical review,
-Application dispatch, or `execute()`. Persistence construction and resume are
-public only in memory. Public file Save/Load remains unavailable.
+Application dispatch, or `execute()`. Persistence construction and resume remain
+in-memory operations. Observation derives the first accepted local Play after a
+frozen Checkpoint; Checkpoint Review Export copies the frozen Request and adds
+only `analysis_mode = post_game_review` and that observed Card. Neither operation
+executes analysis. See
+[Session Decision observations](session_decision_observations.md).
+
+## Public file transport
+
+Issue #157 adds stable `skat_ai.api.v1.session.files` version `1`, with exact
+`save` and `load` operations. `SessionFileApiResultV1` maps Save to the existing
+`SessionPersistenceWriteResultV1` and Load to `SessionResumeResultV1`, retains no
+path, and has no provenance option. Save preserves expected-content-fingerprint
+compare-and-swap and atomic same-directory replacement; Load preserves strict
+UTF-8 parsing, fingerprint verification, replay, and lineage reconstruction.
+
+The file API is independently versioned and exported only as the appended
+`files` module from this namespace. See
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md) for
+its exact 12-name export surface and signatures.
 
 The existing public error hierarchy is reused. Existing `SkatAIError` values
 pass through; public-boundary `ValueError` and `TypeError` become
@@ -157,15 +193,20 @@ use their existing stable error classes.
 ## Schema and boundaries
 
 `schemas/session.schema.json` is a strict Draft 2020-12 standalone contract,
-loaded lazily from Package Resources. It does not add a Session Root workflow:
-`WorkflowV1` remains seven values. Root JSON, all CLI forms, and 77 generated
-outputs remain unchanged. The active tree has 63 authoritative and packaged
-Schemas, while Package version remains `0.13.0`.
+loaded lazily from Package Resources. Issue #157 extends that same Schema for
+creation input, file API values, observations, review exports, and the two
+appended operations. It does not add a Session Root workflow: `WorkflowV1`
+remains seven values. The active tree has 63 authoritative and packaged Schemas,
+85 generated outputs, and Package version `0.13.0`; the published `v0.13.0`
+baseline remains 62 Schemas and 77 scenarios.
 
-The installed, module, and Legacy CLIs do not support Session commands. Session-
-triggered analysis, automatic Checkpoint collection, actual-card attachment,
-public file transport, Session examples/generated outputs, end-to-end capture,
-and UI remain open.
+Installed, module, and Legacy CLIs expose the same 12-subcommand `session`
+family, public file transport, automatic exact Checkpoint collection,
+Checkpoint-based review, explicit Position/Historical execution, and the
+phase-aware Assistant. The functional `v0.14.0` milestone is complete pending
+release preparation. There is still no Session Root workflow, automatic analysis
+after every Command, persisted analysis Result, default path, or GUI/platform
+integration.
 
 See [Session provenance](session_provenance.md) for the optional returned-value
 sidecar.

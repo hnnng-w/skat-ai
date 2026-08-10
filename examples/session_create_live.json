@@ -1,0 +1,22 @@
+{
+  "session_id": "session-live-example",
+  "capture_mode": "live",
+  "local_player_id": "player-a",
+  "players": [
+    {
+      "player_id": "player-a",
+      "player_label": "Alice",
+      "seat": "forehand"
+    },
+    {
+      "player_id": "player-b",
+      "player_label": "Bob",
+      "seat": "middlehand"
+    },
+    {
+      "player_id": "player-c",
+      "player_label": "Carol",
+      "seat": "rearhand"
+    }
+  ]
+}

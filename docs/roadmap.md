@@ -4,7 +4,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ## Completed major areas
 
-### Interactive Session contract, Request export, Checkpoint, and persistence foundation
+### End-to-end Live and Retrospective Session capture
 
 Implemented by Issue #150 for the active `v0.14.0` milestone:
 
@@ -68,24 +68,31 @@ hand capture, and immutable Decision Checkpoints. Issue #154 adds strict-prefix
 Undo, one-command correction, deterministic suffix replay, and Checkpoint
 lineage. Issue #155 adds private deterministic Session persistence and resume,
 including expected-fingerprint stale-write conflict detection and atomic file
-replacement. Session-triggered analysis, actual-card Checkpoint attachment,
-public file Save/Load, CLI Session Assistant, examples, generated outputs,
-automatic Checkpoint collection, end-to-end capture, and UI
-remain open. See
+replacement. Issue #156 adds the stable Public Session API, optional complete
+Session Provenance, standalone Schema, 63-Schema parity, and clean-install
+validation. Issue #157 adds stable public file Save/Load, Decision Observation,
+isolated Checkpoint review export, automatic exact Checkpoint collection, all 12
+installed/module/Legacy Session subcommands, explicit Position/Historical
+execution, the phase-aware Assistant, six examples, and eight append-only
+generated scenarios. The functional `v0.14.0` milestone is complete pending
+release preparation. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),
-and [Session persistence and resume](session_persistence_and_resume.md).
+and [Session persistence and resume](session_persistence_and_resume.md),
+[Session Decision observations](session_decision_observations.md), and
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
 Issue #156 completes the stable `skat_ai.api.v1.session` version-1 namespace,
 exact immutable contract exposure, strict Command parsing, typed Result
 serialization, all ten transport-free in-memory operations, optional complete
 redacted Session Provenance, strict standalone Session Schema, 63-Schema Package
-parity, and clean-install validation. It adds no Root workflow, CLI command,
-Session example, or generated output; Package version remains `0.13.0` and the
-generated-output count remains 77. The published `v0.13.0` baseline remains 62
-Schemas.
+parity, and clean-install validation. Issue #157 appends two public Session
+operations and the `files` module without changing the first 52 exports. Package
+version remains `0.13.0`; the active generated-output count is 85 and the active
+Schema count remains 63. The published `v0.13.0` baseline remains 62 Schemas and
+77 scenarios.
 
 ### Public API contract foundation
 
@@ -176,6 +183,10 @@ Implemented:
   workflows and representative submodes
 * Exact Wheel and sdist metadata plus clean-install command validation in the
   existing two distribution environments
+* Additive 12-subcommand `session` family with installed/module/Legacy parity,
+  one shared parser, no second Console Script, and unchanged Root parsing
+* Explicit caller-selected private persistence paths, optimistic CAS Save,
+  privacy-safe status output, automatic Checkpoints, and Assistant capture
 
 Issue #142 itself changed no Package version, Schema, example, generated
 scenario, Provenance contract, or publication behavior. Issue #147 adds the
@@ -539,6 +550,9 @@ Implemented:
   tests in `tests/test_session_persistence_contracts.py`,
   `tests/test_session_persistence_codec.py`, and
   `tests/test_session_persistence.py`
+* Focused Session file API, Decision Observation, Checkpoint review isolation,
+  automatic collection, all-subcommand CLI parity, Assistant, Schema, example,
+  generated-scenario, and clean-install tests for Issue #157
 
 ### CLI and workflow usability
 
@@ -563,6 +577,11 @@ Implemented:
 * Installed, module, and Legacy invocation parity through one Package-owned CLI
 * Exact `--version`, command-specific help, unchanged output and error behavior,
   and clean-install command validation
+* Additive `session` dispatch with `new`, `show`, `apply`, `undo`, `correct`,
+  `checkpoint`, both exports, `analyze`, `review`, `finalize`, and `assistant`
+* Strict load-operate-compare-and-swap-save persistence, privacy-safe human
+  output, explicit analysis only, and automatic Checkpoint collection without
+  automatic analysis
 
 ## Current known limitations
 
@@ -681,11 +700,15 @@ implements private deterministic Session persistence/resume, State and content
 fingerprints, strict reconstruction and replay, caller-supplied frozen
 Checkpoints with recomputed lineage, optimistic expected-fingerprint writes,
 canonical files, and atomic same-directory replacement. Session-triggered
-analysis, actual-card Checkpoint attachment, Public API, Provenance, Schemas, CLI,
-examples/generated output, automatic Checkpoint collection, end-to-end capture,
-and UI work remains.
-Online-platform adapters, browser extensions, and website scraping remain
-outside this bounded milestone.
+analysis, actual-card observation/review export, Public API, Provenance, Schema,
+and CLI foundations are completed by Issues #156 and #157. Issue #157 also adds
+public file transport, automatic Checkpoints, all 12 CLI subcommands, explicit
+Position/Historical execution, the Assistant, six examples, and eight appended
+scenarios. The active tree has 63 Schemas and 85 scenarios. The functional
+`v0.14.0` milestone is complete pending release preparation.
+GUI/browser UI, online-platform adapters, browser extensions, website scraping,
+cloud synchronization, distributed locking, encryption/key management, and
+automatic backup policy remain open.
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
@@ -797,12 +820,11 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
-remaining approved settlement nuance, broader field-level provenance
-enforcement, and end-to-end interactive live and retrospective Session capture.
-The immutable internal Session contract, deterministic transition and history-
-edit foundations, canonical Retrospective Historical and information-safe
-Position Request export, replay-verified Decision Checkpoints, and private
-deterministic persistence/resume now exist. The executable
+remaining approved settlement nuance, and broader field-level provenance
+enforcement. End-to-end local Live and Retrospective Session capture is complete
+through Issues #150 through #157, including public files, automatic Checkpoints,
+accepted-Log observation, isolated review, explicit analysis, all 12 CLI
+subcommands, and the Assistant. The executable
 public facade, internal Application layer, installable library distributions,
 and stable installed CLI interface are implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
@@ -927,6 +949,9 @@ by GitHub Releases, the active `v0.14.0` development milestone and its implement
 Issue #150 Session contracts, Issue #151 transition foundation, Issue #152
 Retrospective Historical Request export, Issue #153 Position export and Decision
 Checkpoints, Issue #154 Undo/correction and Checkpoint lineage, and Issue #155
-private deterministic persistence/resume and stale-write conflict detection;
+private deterministic persistence/resume and stale-write conflict detection,
+Issue #156 stable Public Session API/Provenance/Schema, and Issue #157 public
+files, observation/review, automatic Checkpoints, CLI/Assistant, examples, and
+85-scenario end-to-end capture; release preparation remains pending;
 requirements explicitly required for `v1.0.0`; planned post-v1.0 work;
 not-required workflows, and unconditional exclusions.

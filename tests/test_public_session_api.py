@@ -80,6 +80,13 @@ SESSION_EXPORTS = (
     "build_session_persistence_document",
     "resume_session_document",
     "serialize_session_result",
+    "SESSION_DECISION_OBSERVATION_VERSION",
+    "SESSION_CHECKPOINT_REVIEW_EXPORT_VERSION",
+    "SessionDecisionObservationV1",
+    "SessionCheckpointReviewExportV1",
+    "observe_session_decision_checkpoint",
+    "export_session_checkpoint_review_request",
+    "files",
 )
 
 
@@ -137,7 +144,7 @@ def _position_options() -> session.SessionPositionExportOptionsV1:
 def test_public_session_namespace_and_version_contract_are_exact() -> None:
     assert api_v1.session is session
     assert session.__all__ == SESSION_EXPORTS
-    assert len(session.__all__) == 52
+    assert len(session.__all__) == 59
     assert session.PUBLIC_SESSION_API_VERSION == 1
     assert session.PUBLIC_SESSION_API_NAMESPACE == "skat_ai.api.v1.session"
     assert session.PUBLIC_SESSION_API_COMPATIBILITY_POLICY == "additive_until_v1_0"
@@ -152,6 +159,8 @@ def test_public_session_namespace_and_version_contract_are_exact() -> None:
         "classify_checkpoint",
         "build_persistence_document",
         "resume_persistence_document",
+        "observe_checkpoint",
+        "export_checkpoint_review",
     )
     assert not hasattr(session, "SessionProjectionV1")
     assert not hasattr(session, "SessionPersistenceWriteResultV1")
@@ -175,6 +184,8 @@ def test_public_session_namespace_and_version_contract_are_exact() -> None:
         "history_edit_version",
         "checkpoint_lineage_version",
         "persistence_version",
+        "decision_observation_version",
+        "checkpoint_review_export_version",
     ]
     assert info.to_dict()["operations"] == list(session.SESSION_API_OPERATIONS)
     with pytest.raises(FrozenInstanceError):

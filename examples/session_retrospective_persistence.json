@@ -1,0 +1,510 @@
+{
+  "session_persistence_version": 1,
+  "document_kind": "skat_ai_session",
+  "state_fingerprint": "295c4bc0bbddd04ba577884899ed28355fcf8b7130ef36f3705e08a8fd548c62",
+  "content_fingerprint": "513574e7fb73d3f38005113f9ae730862e00f9c17353f7d14ff8ea0beab1154e",
+  "state": {
+    "session_contract_version": 1,
+    "session_id": "session-retrospective-example",
+    "initial_capture_mode": "retrospective",
+    "capture_mode": "retrospective",
+    "revision": 38,
+    "phase": "ended",
+    "players": [
+      {
+        "player_id": "player-a",
+        "player_label": "Alice",
+        "seat": "forehand"
+      },
+      {
+        "player_id": "player-b",
+        "player_label": "Bob",
+        "seat": "middlehand"
+      },
+      {
+        "player_id": "player-c",
+        "player_label": "Carol",
+        "seat": "rearhand"
+      }
+    ],
+    "local_player_id": null,
+    "command_log": [
+      {
+        "revision": 1,
+        "command": {
+          "command_version": 1,
+          "kind": "set_game_metadata",
+          "expected_revision": 0,
+          "game_id": "session-retrospective-example-game",
+          "played_at": "2026-08-09T18:00:00Z"
+        }
+      },
+      {
+        "revision": 2,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 1,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "S10"
+        }
+      },
+      {
+        "revision": 3,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 2,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "SA"
+        }
+      },
+      {
+        "revision": 4,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 3,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C7"
+        }
+      },
+      {
+        "revision": 5,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 4,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C8"
+        }
+      },
+      {
+        "revision": 6,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 5,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C9"
+        }
+      },
+      {
+        "revision": 7,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 6,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CJ"
+        }
+      },
+      {
+        "revision": 8,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 7,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CQ"
+        }
+      },
+      {
+        "revision": 9,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 8,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CK"
+        }
+      },
+      {
+        "revision": 10,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 9,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "C10"
+        }
+      },
+      {
+        "revision": 11,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 10,
+          "destination": "player_hand",
+          "player_id": "player-a",
+          "card": "CA"
+        }
+      },
+      {
+        "revision": 12,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 11,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "HQ"
+        }
+      },
+      {
+        "revision": 13,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 12,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "HK"
+        }
+      },
+      {
+        "revision": 14,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 13,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "H10"
+        }
+      },
+      {
+        "revision": 15,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 14,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "HA"
+        }
+      },
+      {
+        "revision": 16,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 15,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "S7"
+        }
+      },
+      {
+        "revision": 17,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 16,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "S8"
+        }
+      },
+      {
+        "revision": 18,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 17,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "S9"
+        }
+      },
+      {
+        "revision": 19,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 18,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "SJ"
+        }
+      },
+      {
+        "revision": 20,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 19,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "SQ"
+        }
+      },
+      {
+        "revision": 21,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 20,
+          "destination": "player_hand",
+          "player_id": "player-b",
+          "card": "SK"
+        }
+      },
+      {
+        "revision": 22,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 21,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "D9"
+        }
+      },
+      {
+        "revision": 23,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 22,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "DJ"
+        }
+      },
+      {
+        "revision": 24,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 23,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "DQ"
+        }
+      },
+      {
+        "revision": 25,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 24,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "DK"
+        }
+      },
+      {
+        "revision": 26,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 25,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "D10"
+        }
+      },
+      {
+        "revision": 27,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 26,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "DA"
+        }
+      },
+      {
+        "revision": 28,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 27,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "H7"
+        }
+      },
+      {
+        "revision": 29,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 28,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "H8"
+        }
+      },
+      {
+        "revision": 30,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 29,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "H9"
+        }
+      },
+      {
+        "revision": 31,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 30,
+          "destination": "player_hand",
+          "player_id": "player-c",
+          "card": "HJ"
+        }
+      },
+      {
+        "revision": 32,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 31,
+          "destination": "skat",
+          "player_id": null,
+          "card": "D7"
+        }
+      },
+      {
+        "revision": 33,
+        "command": {
+          "command_version": 1,
+          "kind": "record_dealt_card",
+          "expected_revision": 32,
+          "destination": "skat",
+          "player_id": null,
+          "card": "D8"
+        }
+      },
+      {
+        "revision": 34,
+        "command": {
+          "command_version": 1,
+          "kind": "set_declarer",
+          "expected_revision": 33,
+          "declarer_player_id": "player-b"
+        }
+      },
+      {
+        "revision": 35,
+        "command": {
+          "command_version": 1,
+          "kind": "set_declaration",
+          "expected_revision": 34,
+          "declaration": {
+            "game_type": "grand",
+            "hand_game": false,
+            "ouvert": false,
+            "schneider_announced": false,
+            "schwarz_announced": false,
+            "matadors": null,
+            "bid_value": 18
+          }
+        }
+      },
+      {
+        "revision": 36,
+        "command": {
+          "command_version": 1,
+          "kind": "record_discard",
+          "expected_revision": 35,
+          "card": "SK"
+        }
+      },
+      {
+        "revision": 37,
+        "command": {
+          "command_version": 1,
+          "kind": "record_discard",
+          "expected_revision": 36,
+          "card": "SQ"
+        }
+      },
+      {
+        "revision": 38,
+        "command": {
+          "command_version": 1,
+          "kind": "set_game_end",
+          "expected_revision": 37,
+          "game_end_reason": "declarer_concession",
+          "game_end": {
+            "declarer_hand_cards_remaining": 10,
+            "defender_consent": {
+              "consenting_defender_player_ids": [],
+              "status": "not_required"
+            },
+            "kind": "declarer_concession",
+            "schema_version": 1
+          }
+        }
+      }
+    ],
+    "validation": {
+      "session_contract_version": 1,
+      "revision": 38,
+      "phase": "ended",
+      "structurally_valid": true,
+      "valid_incomplete": false,
+      "game_complete": true,
+      "position_export": {
+        "target": "position_analysis",
+        "status": "unavailable",
+        "reason_codes": [
+          "missing_required_value",
+          "phase_violation",
+          "game_end_violation"
+        ]
+      },
+      "historical_export": {
+        "target": "historical_game",
+        "status": "available",
+        "reason_codes": []
+      },
+      "diagnostics": [
+        {
+          "code": "game_end_violation",
+          "path": "/game_end_reason",
+          "message": "Position export is unavailable after Game End.",
+          "severity": "info",
+          "blocks_command": false,
+          "blocks_position_export": true,
+          "blocks_historical_export": false
+        },
+        {
+          "code": "missing_required_value",
+          "path": "/local_player_id",
+          "message": "Position export requires a local Player.",
+          "severity": "info",
+          "blocks_command": false,
+          "blocks_position_export": true,
+          "blocks_historical_export": false
+        },
+        {
+          "code": "phase_violation",
+          "path": "/phase",
+          "message": "Position export requires phase 'play'.",
+          "severity": "info",
+          "blocks_command": false,
+          "blocks_position_export": true,
+          "blocks_historical_export": false
+        }
+      ]
+    }
+  },
+  "decision_checkpoints": []
+}

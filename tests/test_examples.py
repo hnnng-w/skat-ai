@@ -1,9 +1,12 @@
+import json
 import random
 from pathlib import Path
 
 import pytest
 
+import skat_ai.api.v1.session as session_api
 from main import build_analysis_result
+from scripts.validate_examples_schema import validate_example_files
 from skat_ai.analysis_report import build_card_analysis_report
 from skat_ai.dataset_partition_audit import audit_training_dataset_partitions
 from skat_ai.historical_game import build_historical_game_summary
@@ -34,6 +37,14 @@ from skat_ai.training_dataset import build_training_dataset_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_PATH = PROJECT_ROOT / "input_position.json"
+SESSION_EXAMPLE_NAMES = {
+    "session_create_live.json",
+    "session_create_retrospective.json",
+    "session_command_record_play.json",
+    "session_correction_record_play.json",
+    "session_live_persistence.json",
+    "session_retrospective_persistence.json",
+}
 
 
 def get_example_json_files() -> list[Path]:
@@ -73,6 +84,7 @@ def get_position_example_json_files() -> list[Path]:
             "fixed_three_player_historical_list_mixed.json",
             "fixed_three_player_historical_list_all_passed.json",
             "fixed_three_player_historical_list_comparison.json",
+            *SESSION_EXAMPLE_NAMES,
         }
     ]
 
@@ -80,7 +92,7 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 77
+    assert len(SCENARIOS) == 85
     assert tuple(scenario.name for scenario in SCENARIOS[:70]) == (
         "normal_local_live",
         "quiet_json_output",
@@ -158,7 +170,7 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
         "training_dataset_preparation_unseen_player",
         "training_dataset_preparation_unavailable",
     )
-    assert tuple(scenario.name for scenario in SCENARIOS[70:]) == (
+    assert tuple(scenario.name for scenario in SCENARIOS[70:77]) == (
         "field_provenance_position_analysis",
         "field_provenance_historical_game",
         "field_provenance_training_dataset",
@@ -167,8 +179,22 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
         "field_provenance_fixed_three_player_historical_list",
         "field_provenance_fixed_three_player_historical_list_comparison",
     )
+    assert tuple(scenario.name for scenario in SCENARIOS[77:]) == (
+        "session_live_create",
+        "session_live_apply_and_resume",
+        "session_live_analyze_with_checkpoint",
+        "session_live_observed_card_review",
+        "session_undo_and_partial_correction",
+        "session_persistence_conflict",
+        "session_retrospective_export",
+        "session_retrospective_finalize",
+    )
     assert all(not scenario.include_provenance for scenario in SCENARIOS[:70])
-    assert all(scenario.include_provenance for scenario in SCENARIOS[70:])
+    assert all(scenario.include_provenance for scenario in SCENARIOS[70:77])
+    assert all(scenario.session_orchestration is None for scenario in SCENARIOS[:77])
+    assert all(
+        scenario.session_orchestration is not None for scenario in SCENARIOS[77:]
+    )
 
 
 def test_examples_folder_contains_json_files() -> None:
@@ -177,10 +203,35 @@ def test_examples_folder_contains_json_files() -> None:
     assert len(example_files) > 0
 
 
+def test_examples_folder_contains_exactly_six_session_examples() -> None:
+    names = {
+        path.name
+        for path in get_example_json_files()
+        if path.name.startswith("session_")
+    }
+
+    assert names == SESSION_EXAMPLE_NAMES
+
+
+def test_root_and_session_examples_match_their_declared_schemas() -> None:
+    assert validate_example_files() == []
+
+
 def test_all_example_json_files_can_be_loaded_and_validated() -> None:
     example_files = get_example_json_files()
 
     for example_file in example_files:
+        if example_file.name in SESSION_EXAMPLE_NAMES:
+            document = json.loads(example_file.read_text(encoding="utf-8"))
+            if example_file.name == "session_command_record_play.json":
+                command = session_api.parse_session_command(document)
+                assert command.kind == "record_play"
+            elif example_file.name.endswith("_persistence.json"):
+                resumed = session_api.resume_session_document(document).value
+                assert resumed.document.to_dict() == document
+                assert len(resumed.document.state_fingerprint) == 64
+                assert len(resumed.document.content_fingerprint) == 64
+            continue
         if example_file.name in {
             "historical_grand_defender_concession.json",
             "historical_grand_declarer_concession.json",

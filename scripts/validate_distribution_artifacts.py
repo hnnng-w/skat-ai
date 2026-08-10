@@ -27,6 +27,9 @@ SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "opponent_statistics.json"
 UNAVAILABLE_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "training_dataset_preparation_unavailable.json"
 )
+HISTORICAL_SESSION_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
+)
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.13.0"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 63
@@ -433,6 +436,211 @@ def _inspect_sdist(
         return metadata
 
 
+SESSION_FIXTURE_PROGRAM = r"""
+import json
+from pathlib import Path
+
+from skat_ai.api.v1 import session
+import skat_ai.api.v1.session.files as session_files
+
+cwd = Path.cwd()
+fast_options = session.SessionApiOptionsV1(validate_output=False)
+players = (
+    session.SessionPlayerV1(
+        player_id="player-a",
+        player_label="Alice",
+        seat="forehand",
+    ),
+    session.SessionPlayerV1(
+        player_id="player-b",
+        player_label="Bob",
+        seat="middlehand",
+    ),
+    session.SessionPlayerV1(
+        player_id="player-c",
+        player_label="Carol",
+        seat="rearhand",
+    ),
+)
+
+
+def apply(state, kind, **values):
+    result = session.apply_session_command(
+        state,
+        {
+            "command_version": 1,
+            "kind": kind,
+            "expected_revision": state.revision,
+            **values,
+        },
+        options=fast_options,
+    )
+    assert result.value.status == "applied", result.value.to_dict()
+    return result.value.state
+
+
+live_state = session.create_session(
+    session_id="distribution-live",
+    players=players,
+    capture_mode="live",
+    local_player_id="player-a",
+    options=fast_options,
+).value
+live_hand = ("CA", "C10", "CK", "CQ", "CJ", "C9", "C8", "C7", "SA", "S10")
+for card in live_hand:
+    live_state = apply(
+        live_state,
+        "record_dealt_card",
+        destination="player_hand",
+        player_id="player-a",
+        card=card,
+    )
+live_state = apply(live_state, "set_declarer", declarer_player_id="player-a")
+live_state = apply(
+    live_state,
+    "set_declaration",
+    declaration={
+        "game_type": "grand",
+        "hand_game": True,
+        "ouvert": False,
+        "schneider_announced": False,
+        "schwarz_announced": False,
+        "matadors": None,
+        "bid_value": 24,
+    },
+)
+position_options = session.SessionPositionExportOptionsV1(
+    sample_count=1,
+    random_seed=0,
+    use_basic_opponent_strategy=True,
+    recommendation_method=None,
+    bounded_search_settings=None,
+)
+position_export = session.export_session_position_request(
+    live_state,
+    position_options,
+    options=fast_options,
+)
+assert position_export.value.status == "available"
+actual_card = position_export.value.request.to_dict()["document"]["hand"][0]
+(cwd / "ready-play.json").write_text(
+    json.dumps(
+        {
+            "command_version": 1,
+            "kind": "record_play",
+            "expected_revision": live_state.revision,
+            "player_id": "player-a",
+            "card": actual_card,
+        },
+        separators=(",", ":"),
+    ),
+    encoding="utf-8",
+)
+live_document = session.build_session_persistence_document(
+    live_state,
+    options=fast_options,
+).value
+live_saved = session_files.save_session_file(
+    cwd / "ready-live.json",
+    live_document,
+    expected_content_fingerprint=None,
+)
+assert live_saved.value.status == "saved"
+live_loaded = session_files.load_session_file(cwd / "ready-live.json")
+assert live_loaded.value.document == live_document
+
+historical = json.loads(
+    (cwd / "historical-session.json").read_text(encoding="utf-8")
+)["historical_game_input"]
+historical_players = tuple(
+    session.SessionPlayerV1(
+        player_id=player["player_id"],
+        player_label=player.get("player_label"),
+        seat=player["seat"],
+    )
+    for player in historical["players"]
+)
+historical_state = session.create_session(
+    session_id="distribution-retrospective",
+    players=historical_players,
+    capture_mode="retrospective",
+    options=fast_options,
+).value
+historical_state = apply(
+    historical_state,
+    "set_game_metadata",
+    game_id=historical["game_id"],
+    played_at=historical["played_at"],
+)
+for player in historical["players"]:
+    for card in reversed(player["initial_hand"]):
+        historical_state = apply(
+            historical_state,
+            "record_dealt_card",
+            destination="player_hand",
+            player_id=player["player_id"],
+            card=card,
+        )
+for card in reversed(historical["skat"]):
+    historical_state = apply(
+        historical_state,
+        "record_dealt_card",
+        destination="skat",
+        player_id=None,
+        card=card,
+    )
+historical_state = apply(
+    historical_state,
+    "set_declarer",
+    declarer_player_id=historical["declarer_player_id"],
+)
+declaration = historical["declaration"]
+historical_state = apply(
+    historical_state,
+    "set_declaration",
+    declaration={
+        "game_type": declaration["game_type"],
+        "hand_game": declaration.get("hand_game", False),
+        "ouvert": declaration.get("ouvert", False),
+        "schneider_announced": declaration.get("schneider_announced", False),
+        "schwarz_announced": declaration.get("schwarz_announced", False),
+        "matadors": declaration.get("matadors"),
+        "bid_value": declaration.get("bid_value"),
+    },
+)
+for card in historical["discarded_cards"]:
+    historical_state = apply(historical_state, "record_discard", card=card)
+for trick in historical["tricks"]:
+    for play in trick["plays"]:
+        historical_state = apply(
+            historical_state,
+            "record_play",
+            player_id=play["player_id"],
+            card=play["card"],
+        )
+historical_state = apply(
+    historical_state,
+    "set_game_end",
+    game_end_reason=historical["game_end_reason"],
+    game_end=historical["game_end"],
+)
+assert historical_state.validation.historical_export.status == "available"
+historical_document = session.build_session_persistence_document(
+    historical_state,
+    options=fast_options,
+).value
+historical_saved = session_files.save_session_file(
+    cwd / "ready-historical.json",
+    historical_document,
+    expected_content_fingerprint=None,
+)
+assert historical_saved.value.status == "saved"
+assert session_files.load_session_file(
+    cwd / "ready-historical.json"
+).value.document == historical_document
+"""
+
+
 SMOKE_PROGRAM = r"""
 import hashlib
 import importlib.metadata
@@ -447,6 +655,22 @@ from pathlib import Path
 import skat_ai
 from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, parse_request, serialize_result
 from skat_ai.api.v1 import session
+import skat_ai.api.v1.session.files as session_files
+from skat_ai.api.v1.session.files.contracts import (
+    SessionFileApiOptionsV1 as ContractSessionFileApiOptionsV1,
+    SessionFileApiResultV1 as ContractSessionFileApiResultV1,
+    SessionFileApiVersionInfoV1 as ContractSessionFileApiVersionInfoV1,
+)
+from skat_ai.api.v1.session.files.execution import (
+    load_session_file as execution_load_session_file,
+    save_session_file as execution_save_session_file,
+    serialize_session_file_result as execution_serialize_session_file_result,
+)
+from skat_ai.cli.session_assistant import run_session_assistant
+from skat_ai.session_persistence_contracts import (
+    SessionPersistenceWriteResultV1 as InternalSessionPersistenceWriteResultV1,
+    SessionResumeResultV1 as InternalSessionResumeResultV1,
+)
 
 cwd = Path.cwd().resolve()
 repository_root = Path(os.environ["SKAT_AI_REPOSITORY_ROOT"]).resolve()
@@ -475,6 +699,45 @@ for name in resource_names:
     schema_digest.update(b"\0")
     schema_digest.update(content)
 assert len(schema_ids) == len(set(schema_ids))
+
+assert session.files is session_files
+assert session_files.__all__ == (
+    "PUBLIC_SESSION_FILE_API_VERSION",
+    "PUBLIC_SESSION_FILE_API_NAMESPACE",
+    "PUBLIC_SESSION_FILE_API_COMPATIBILITY_POLICY",
+    "SESSION_FILE_API_OPERATIONS",
+    "SessionFileApiVersionInfoV1",
+    "SessionFileApiOptionsV1",
+    "SessionFileApiResultV1",
+    "SessionPersistenceWriteResultV1",
+    "get_session_file_api_version_info_v1",
+    "save_session_file",
+    "load_session_file",
+    "serialize_session_file_result",
+)
+assert session_files.SessionFileApiOptionsV1 is ContractSessionFileApiOptionsV1
+assert session_files.SessionFileApiResultV1 is ContractSessionFileApiResultV1
+assert session_files.SessionFileApiVersionInfoV1 is ContractSessionFileApiVersionInfoV1
+assert session_files.SessionPersistenceWriteResultV1 is InternalSessionPersistenceWriteResultV1
+assert session_files.save_session_file is execution_save_session_file
+assert session_files.load_session_file is execution_load_session_file
+assert session_files.serialize_session_file_result is execution_serialize_session_file_result
+file_api_info = session_files.get_session_file_api_version_info_v1()
+assert type(file_api_info) is ContractSessionFileApiVersionInfoV1
+assert file_api_info.public_session_file_api_version == 1
+assert file_api_info.operations == ("save", "load")
+
+api_loaded = session_files.load_session_file(cwd / "ready-live.json")
+assert type(api_loaded) is ContractSessionFileApiResultV1
+assert type(api_loaded.value) is InternalSessionResumeResultV1
+api_unchanged = session_files.save_session_file(
+    cwd / "ready-live.json",
+    api_loaded.value.document,
+    expected_content_fingerprint=api_loaded.value.document.content_fingerprint,
+)
+assert type(api_unchanged.value) is InternalSessionPersistenceWriteResultV1
+assert api_unchanged.value.status == "unchanged"
+assert "path" not in session_files.serialize_session_file_result(api_loaded)
 
 session_players = (
     session.SessionPlayerV1(player_id="p1", player_label="Player 1", seat="forehand"),
@@ -513,6 +776,87 @@ persistence = session.build_session_persistence_document(applied_session.value.s
 resumed_session = session.resume_session_document(persistence.value.to_dict())
 assert resumed_session.value.document == persistence.value
 assert session.serialize_session_result(created_session)["operation"] == "create"
+
+session_new = json.loads((cwd / "session-new.json").read_text(encoding="utf-8"))
+session_apply = json.loads((cwd / "session-apply.json").read_text(encoding="utf-8"))
+installed_session_show = json.loads(
+    (cwd / "installed-session-show.json").read_text(encoding="utf-8")
+)
+module_session_show = json.loads(
+    (cwd / "module-session-show.json").read_text(encoding="utf-8")
+)
+assert session_new["operation"] == "create"
+assert session_new["value"]["revision"] == 0
+assert session_apply["operation"] == "apply_command"
+assert session_apply["value"]["status"] == "applied"
+assert installed_session_show == module_session_show
+assert installed_session_show["operation"] == "load"
+assert installed_session_show["value"]["document"]["state"]["revision"] == 1
+
+installed_session_analysis = json.loads(
+    (cwd / "installed-session-analysis.json").read_text(encoding="utf-8")
+)
+module_session_analysis = json.loads(
+    (cwd / "module-session-analysis.json").read_text(encoding="utf-8")
+)
+assert installed_session_analysis == module_session_analysis
+assert "recommendation" in installed_session_analysis
+ready_play = json.loads((cwd / "ready-play.json").read_text(encoding="utf-8"))
+ready_loaded = session_files.load_session_file(cwd / "ready-live.json")
+assert len(ready_loaded.value.document.decision_checkpoints) == 1
+ready_checkpoint = ready_loaded.value.document.decision_checkpoints[0]
+observation = session.observe_session_decision_checkpoint(
+    state=ready_loaded.value.document.state,
+    checkpoint=ready_checkpoint,
+)
+assert observation.value.status == "observed"
+assert observation.value.actual_card == ready_play["card"]
+review_export = session.export_session_checkpoint_review_request(
+    state=ready_loaded.value.document.state,
+    checkpoint=ready_checkpoint,
+)
+assert review_export.value.status == "available"
+assert review_export.value.observation.actual_card == ready_play["card"]
+session_review = json.loads(
+    (cwd / "session-review.json").read_text(encoding="utf-8")
+)
+assert "post_game_review_summary" in session_review
+session_finalize = json.loads(
+    (cwd / "session-finalize.json").read_text(encoding="utf-8")
+)
+assert "historical_game_summary" in session_finalize
+
+assistant_responses = iter(
+    (
+        "assistant-distribution",
+        "live",
+        "player-a",
+        "player-a",
+        "Local",
+        "player-b",
+        "",
+        "player-c",
+        "",
+        "quit",
+    )
+)
+assistant_output = []
+
+
+def assistant_input(_prompt):
+    return next(assistant_responses)
+
+
+assistant_path = cwd / "assistant-session.json"
+assert run_session_assistant(
+    str(assistant_path),
+    input_fn=assistant_input,
+    output_fn=assistant_output.append,
+) == 0
+assert "Session creation status: saved" in assistant_output
+assert assistant_output[-1] == "Assistant closed."
+assistant_loaded = session_files.load_session_file(assistant_path)
+assert assistant_loaded.value.document.state.session_id == "assistant-distribution"
 
 request = parse_request(document)
 default_execution = execute_document(
@@ -610,6 +954,15 @@ print(json.dumps({
         "cli_document": installed_cli_document,
         "default_cli_document": installed_cli_default,
         "unavailable_document": unavailable_document,
+        "session": {
+            "new": session_new,
+            "apply": session_apply,
+            "show": installed_session_show,
+            "analysis": installed_session_analysis,
+            "observation": session.serialize_session_result(observation),
+            "review": session_review,
+            "finalize": session_finalize,
+        },
     },
     "schema_names": resource_names,
     "schema_ids": schema_ids,
@@ -684,6 +1037,54 @@ def _install_and_smoke(
         json.dumps(unavailable_document, separators=(",", ":")),
         encoding="utf-8",
     )
+    historical_session_document = json.loads(
+        HISTORICAL_SESSION_SMOKE_EXAMPLE.read_text(encoding="utf-8")
+    )
+    (consumer_directory / "historical-session.json").write_text(
+        json.dumps(historical_session_document, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    (consumer_directory / "session-create.json").write_text(
+        json.dumps(
+            {
+                "session_id": "distribution-cli",
+                "capture_mode": "live",
+                "local_player_id": "player-a",
+                "players": [
+                    {
+                        "player_id": "player-a",
+                        "player_label": "Alice",
+                        "seat": "forehand",
+                    },
+                    {
+                        "player_id": "player-b",
+                        "player_label": "Bob",
+                        "seat": "middlehand",
+                    },
+                    {
+                        "player_id": "player-c",
+                        "player_label": "Carol",
+                        "seat": "rearhand",
+                    },
+                ],
+            },
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+    (consumer_directory / "session-command.json").write_text(
+        json.dumps(
+            {
+                "command_version": 1,
+                "kind": "set_game_metadata",
+                "expected_revision": 0,
+                "game_id": "distribution-cli-game",
+                "played_at": None,
+            },
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
 
     environment = _sanitized_environment()
     _run(
@@ -702,6 +1103,13 @@ def _install_and_smoke(
 
     installed_prefix = [str(console_script)]
     module_prefix = [str(python), "-m", "skat_ai"]
+
+    _run(
+        [str(python), "-I", "-c", SESSION_FIXTURE_PROGRAM],
+        cwd=consumer_directory,
+        environment=environment,
+    )
+
     for prefix, command_name in (
         (installed_prefix, "skat-ai"),
         (module_prefix, "python -m skat_ai"),
@@ -721,6 +1129,33 @@ def _install_and_smoke(
             "examples/" not in help_result.stdout,
             f"{label} {command_name} --help implies repository examples are installed.",
         )
+        session_help_result = _run_cli_check(
+            [*prefix, "session", "--help"],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not session_help_result.stderr,
+            f"{label} {command_name} session --help wrote stderr.",
+        )
+        _require(
+            f"usage: {command_name} session" in session_help_result.stdout,
+            f"{label} {command_name} session --help used the wrong command identity.",
+        )
+        for subcommand in (
+            "new",
+            "show",
+            "apply",
+            "analyze",
+            "review",
+            "finalize",
+            "assistant",
+        ):
+            _require(
+                subcommand in session_help_result.stdout,
+                f"{label} {command_name} session --help omits {subcommand!r}.",
+            )
         version_result = _run_cli_check(
             [*prefix, "--version"],
             cwd=consumer_directory,
@@ -777,6 +1212,157 @@ def _install_and_smoke(
             and not provenance_completed.stdout
             and not provenance_completed.stderr,
             f"{label} quiet CLI workflow produced output.",
+        )
+
+    quiet_session_commands = (
+        (
+            [
+                *installed_prefix,
+                "session",
+                "new",
+                "--session",
+                "cli-session.json",
+                "--input",
+                "session-create.json",
+                "--output",
+                "session-new.json",
+                "--quiet",
+            ],
+            "installed Session new",
+        ),
+        (
+            [
+                *module_prefix,
+                "session",
+                "apply",
+                "--session",
+                "cli-session.json",
+                "--input",
+                "session-command.json",
+                "--output",
+                "session-apply.json",
+                "--quiet",
+            ],
+            "module Session apply",
+        ),
+        (
+            [
+                *installed_prefix,
+                "session",
+                "show",
+                "--session",
+                "cli-session.json",
+                "--output",
+                "installed-session-show.json",
+                "--quiet",
+            ],
+            "installed Session show",
+        ),
+        (
+            [
+                *module_prefix,
+                "session",
+                "show",
+                "--session",
+                "cli-session.json",
+                "--output",
+                "module-session-show.json",
+                "--quiet",
+            ],
+            "module Session show",
+        ),
+        (
+            [
+                *installed_prefix,
+                "session",
+                "analyze",
+                "--session",
+                "ready-live.json",
+                "--output",
+                "installed-session-analysis.json",
+                "--samples",
+                "1",
+                "--seed",
+                "0",
+                "--quiet",
+            ],
+            "installed Session analyze",
+        ),
+        (
+            [
+                *module_prefix,
+                "session",
+                "analyze",
+                "--session",
+                "ready-live.json",
+                "--output",
+                "module-session-analysis.json",
+                "--samples",
+                "1",
+                "--seed",
+                "0",
+                "--quiet",
+            ],
+            "module Session analyze",
+        ),
+        (
+            [
+                *installed_prefix,
+                "session",
+                "apply",
+                "--session",
+                "ready-live.json",
+                "--input",
+                "ready-play.json",
+                "--output",
+                "session-play.json",
+                "--samples",
+                "1",
+                "--seed",
+                "0",
+                "--quiet",
+            ],
+            "installed observed-card Session apply",
+        ),
+        (
+            [
+                *module_prefix,
+                "session",
+                "review",
+                "--session",
+                "ready-live.json",
+                "--checkpoint-index",
+                "0",
+                "--output",
+                "session-review.json",
+                "--quiet",
+            ],
+            "module Session review",
+        ),
+        (
+            [
+                *installed_prefix,
+                "session",
+                "finalize",
+                "--session",
+                "ready-historical.json",
+                "--output",
+                "session-finalize.json",
+                "--quiet",
+            ],
+            "installed Session finalize",
+        ),
+    )
+    for command, description in quiet_session_commands:
+        session_completed = _run_cli_check(
+            command,
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not session_completed.stdout and not session_completed.stderr,
+            f"{label} {description} was not a quiet success.",
         )
 
     unavailable_result = _run_cli_check(

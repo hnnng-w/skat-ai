@@ -29,8 +29,9 @@ With `include_provenance=true`, the wrapper:
 7. Validates the complete Result when output validation is enabled.
 
 Provenance inspection never reruns creation, transition, Undo, correction,
-export, Checkpoint work, lineage classification, persistence construction, or
-resume. It covers neither consumed inputs nor itself.
+export, Checkpoint work, lineage classification, persistence construction,
+resume, Decision Observation, or Checkpoint Review Export. It covers neither
+consumed inputs nor itself.
 
 ## Public values
 
@@ -75,6 +76,8 @@ Operation coverage includes:
 | Lineage | Source State relationship to the frozen Checkpoint |
 | Persistence | State, supplied Checkpoints, canonical order, State and content fingerprints |
 | Resume | Supplied document, strict reconstruction, fingerprint/replay verification, recomputed lineage |
+| Observation | Checkpoint, source State, lineage, status/reasons, and accepted observed Play revision/Card when available |
+| Checkpoint review export | Frozen Request, observation, retrospective Card attachment, generated post-game-review Request, status, and Diagnostics |
 
 Origins distinguish caller-supplied, validated-copy, rule-derived, structural-
 inference, historical-replay, public-game-event, and retrospective-attachment
@@ -89,6 +92,13 @@ Position provenance does not reveal private opponent ownership. Private values
 appear only when already present in the returned operation value; the sidecar
 does not widen access or duplicate those values.
 
+For `observe_checkpoint` and `export_checkpoint_review`, the frozen decision-time
+Request remains `current_decision`. The observed actual Card has origin
+`retrospective_attachment` and is available only retrospectively. Review export
+adds that Card to an exact copy of the frozen Request and does not admit later
+private Session facts. See
+[Session Decision observations](session_decision_observations.md).
+
 ## Redaction and exclusions
 
 Public redaction removes engine-private entries, source references, and
@@ -102,4 +112,6 @@ process ID, or removed private identifier/path.
 
 Session Provenance is not a persistence fingerprint, authenticated authorship,
 Confidence, probability, severity, quality, or calibration. Fingerprints remain
-integrity identities. Broader end-to-end field-enforcement work remains open.
+integrity identities. The separate Public Session File API has no provenance
+option; its Result retains no path. Broader end-to-end field-enforcement work
+remains open.

@@ -183,12 +183,13 @@ Public `export_session_historical_request()` wraps this exporter exactly once as
 operation `export_historical`, returning the existing `SessionRequestExportV1`
 with target `historical_game`. Available/unavailable behavior is unchanged and no
 Historical workflow executes. Optional Session Provenance belongs to the outer
-Session Result, not the exported Root Request. No Root workflow, Application
-handler, CLI behavior, example, or generated output is added. The active tree has
-63 authoritative and packaged Schemas, seven Root workflows, and 77 generated-
-output scenarios.
+Session Result, not the exported Root Request. Issue #157 exposes this no-
+execution operation through `session export-historical`; the separate
+`session finalize` command explicitly passes an available Request to the
+existing Historical Application once. The active tree has 63 authoritative and
+packaged Schemas, seven Root workflows, and 85 generated-output scenarios.
 
-## Remaining work
+## Current boundary
 
 Position Request export and Decision checkpoints are implemented separately by
 Issue #153. Strict-prefix Undo, one-command correction, suffix replay, and
@@ -203,8 +204,10 @@ accepted Log and returns a normal resumed `SessionStateV1`; it neither invokes
 this exporter nor executes the Historical workflow. See
 [Session persistence and Resume](session_persistence_and_resume.md).
 
-Session-triggered analysis, actual-card Checkpoint attachment, public file
-Save/Load, CLI Session Assistant, examples, generated outputs, automatic
-Checkpoint collection, end-to-end capture, and UI
-work remain separate scopes. See [Session Position export and Decision
-checkpoints](live_session_position_export.md).
+Issue #157 adds public file Save/Load, CLI export/finalize, automatic Position
+Checkpoints, Decision Observation/review, examples, generated outputs, and end-
+to-end Retrospective capture without changing this exporter. Export itself still
+performs no workflow execution. The functional `v0.14.0` milestone is complete
+pending release preparation; GUI/platform/cloud/encryption work remains open.
+See [Session Position export and Decision checkpoints](live_session_position_export.md)
+and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

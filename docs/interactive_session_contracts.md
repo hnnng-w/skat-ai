@@ -9,8 +9,11 @@ Ouvert public-hand capture, and immutable pre-Play Decision Checkpoints. Issue
 #154 adds immutable strict-prefix Undo, one-command correction, deterministic
 suffix replay, partial corrected States, and Checkpoint lineage. Issue #155 adds
 private internal persistence and strict Resume as a wrapper over these unchanged
-contracts, transitions, exports, and history operations. Public API, Provenance,
-Schemas, CLI, and end-to-end capture remain later layers.
+contracts, transitions, exports, and history operations. Issue #156 adds the
+stable Public Session API, optional Session Provenance, and standalone Schema.
+Issue #157 adds public file transport, automatic Checkpoints, Decision
+Observations and review export, installed/module/Legacy CLI parity, explicit
+Position/Historical execution, and the phase-aware Assistant.
 
 ## Contract identity
 
@@ -74,6 +77,8 @@ Session Commands
     -> validation and export readiness
     -> canonical Position Analysis Request export and optional Checkpoint
     -> canonical Historical Game Request export
+    -> optional observed-card Checkpoint review export
+    -> explicit existing Position or Historical Application execution
 ```
 
 Commands are applied atomically, the full accepted Log can be replayed into an
@@ -86,7 +91,9 @@ original suffix, and can classify the frozen Checkpoint against that history.
 Issue #155 can persist the active State and optional Checkpoints, then strictly
 Resume them without changing this flow. Issue #156 adds Public Session API
 version `1` and independent Session Provenance version `1` over these unchanged
-contracts. There is still no Session Root workflow.
+contracts. Issue #157 adds a separate file API and CLI orchestration without
+changing State, Command, replay, or Request-export versions. There is still no
+Session Root workflow.
 
 `GameState` remains the mutable local analysis and simulation value.
 `HistoricalGameRecord` remains the strict immutable final historical contract.
@@ -382,9 +389,10 @@ JSON-compatible copies. Caller JSON payloads are copied recursively into
 immutable mappings and tuples with deterministic object-key order.
 
 Serialization includes no Python class-name protocol field, generated identity,
-generated timestamp, environment value, or filesystem path. There is no Session
-Schema. The separate persistence parser and Resume layer do not alter Session
-serialization.
+generated timestamp, environment value, or filesystem path. The strict
+standalone Session Schema validates public Commands, values, Results,
+persistence, file transport, observations, and review exports without altering
+Session serialization.
 
 The separate frozen `SessionProjectionV1` retains metadata, canonical initial
 and remaining known hands, known Skat, Declarer, Declaration, Discards,
@@ -394,15 +402,16 @@ Ouvert public-hand marker, optional Game End, and Play count.
 Unknown private hands are absent. Projection serialization is internal and is not
 added to `SessionStateV1`.
 
-## Boundaries and remaining work
+## Current boundary
 
 Approved immutable Session contracts are re-exported with identical type identity
 from `skat_ai.api.v1.session`; `SessionProjectionV1` and low-level helpers remain
 internal. Public operations return a schema-valid `SessionApiResultV1` and may
 attach a separate optional complete provenance sidecar without changing internal
-State serialization. The seven Root workflows, installed/module/Legacy CLI,
-examples, and 77 generated-output scenarios are unchanged. The active tree has
-63 Schemas; Package version remains `0.13.0`.
+State serialization. Issue #157 preserves the seven Root workflows while adding
+installed/module/Legacy Session CLI parity, six Session examples, and eight
+append-only Session scenarios. The active tree has 63 Schemas and 85 generated-
+output scenarios; Package version remains `0.13.0`.
 
 Internal canonical Retrospective Historical Request export is implemented. It
 returns an immutable available/unavailable result, replays once, invokes no
@@ -422,9 +431,13 @@ optional caller-supplied Checkpoint. The resumed State remains an ordinary
 and both exporters. Persistence Load/Resume neither exports a Request nor starts
 analysis. See [Session persistence and Resume](session_persistence_and_resume.md).
 
-Remaining `v0.14.0` work includes Session-triggered analysis, actual-card
-Checkpoint attachment, public file Save/Load, CLI Session Assistant, examples,
-generated outputs, automatic Checkpoint
-collection, end-to-end capture, and any later local interface. No UI technology
-or platform integration is selected. See
-[Incremental Session transitions](incremental_session_transitions.md).
+Issue #157 derives actual Cards from later accepted local Plays without mutating
+Checkpoints, exports isolated post-game-review Requests, collects exact
+Checkpoints automatically, exposes public Save/Load, and provides explicit
+Session-triggered Position/Historical execution and the Assistant. The
+functional `v0.14.0` milestone is complete pending release preparation. GUI or
+browser UI, platform adapters, cloud synchronization, distributed locking,
+encryption/key management, and unrelated pre-v1 gaps remain open. See
+[Incremental Session transitions](incremental_session_transitions.md),
+[Session Decision observations](session_decision_observations.md), and
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

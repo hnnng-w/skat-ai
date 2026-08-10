@@ -276,8 +276,10 @@ def _validate_context_for_value(
     context: Mapping[str, object],
     value: object,
 ) -> None:
+    from skat_ai.session_checkpoint_review import SessionCheckpointReviewExportV1
     from skat_ai.session_contracts import SessionStateV1
     from skat_ai.session_decision_checkpoint import SessionDecisionCheckpointV1
+    from skat_ai.session_decision_observation import SessionDecisionObservationV1
     from skat_ai.session_export_contracts import SessionRequestExportV1
     from skat_ai.session_history_contracts import (
         SessionCheckpointLineageV1,
@@ -323,6 +325,14 @@ def _validate_context_for_value(
     elif type(value) is SessionCheckpointLineageV1:
         expected_session_id = value.session_id
         expected_revision = value.state_revision
+        expected_phase = None
+    elif type(value) is SessionDecisionObservationV1:
+        expected_session_id = value.session_id
+        expected_revision = value.state_revision
+        expected_phase = None
+    elif type(value) is SessionCheckpointReviewExportV1:
+        expected_session_id = value.session_id
+        expected_revision = value.observation_revision
         expected_phase = None
     else:
         raise _validation_error(

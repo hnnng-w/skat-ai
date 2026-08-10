@@ -37,6 +37,52 @@
         "seat": {"enum": ["forehand", "middlehand", "rearhand"]}
       }
     },
+    "session_create_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_id", "capture_mode", "local_player_id", "players"],
+      "properties": {
+        "session_id": {"$ref": "#/$defs/identifier"},
+        "capture_mode": {"$ref": "#/$defs/capture_mode"},
+        "local_player_id": {
+          "oneOf": [{"$ref": "#/$defs/player_identifier"}, {"type": "null"}]
+        },
+        "players": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/session_player"},
+          "allOf": [
+            {
+              "contains": {"properties": {"seat": {"const": "forehand"}}},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"seat": {"const": "middlehand"}}},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"seat": {"const": "rearhand"}}},
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"capture_mode": {"const": "live"}}},
+          "then": {
+            "properties": {
+              "local_player_id": {"$ref": "#/$defs/player_identifier"}
+            }
+          }
+        }
+      ]
+    },
     "set_game_metadata_command": {
       "type": "object",
       "additionalProperties": false,
@@ -415,6 +461,7 @@
         "right_hand_size": {}, "sample_count": {}, "random_seed": {},
         "use_basic_opponent_strategy": {}, "analysis_mode": {},
         "game_end_reason": {}, "game_declaration": {},
+        "actual_card_played": {},
         "public_declarer_cards": {}, "game_continuation": {},
         "recommendation_method": {}, "bounded_search_settings": {}
       },
@@ -682,6 +729,173 @@
         "state_revision": {"$ref": "#/$defs/non_negative_integer"}
       }
     },
+    "decision_observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_decision_observation_version", "status", "session_id",
+        "checkpoint_revision", "state_revision", "decision_index", "lineage",
+        "observed_play_revision", "actual_card", "reason_codes"
+      ],
+      "properties": {
+        "session_decision_observation_version": {"const": 1},
+        "status": {
+          "enum": ["observed", "pending", "future", "diverged", "ended_without_play"]
+        },
+        "session_id": {"$ref": "#/$defs/identifier"},
+        "checkpoint_revision": {"$ref": "#/$defs/non_negative_integer"},
+        "state_revision": {"$ref": "#/$defs/non_negative_integer"},
+        "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
+        "lineage": {"$ref": "#/$defs/checkpoint_lineage"},
+        "observed_play_revision": {
+          "oneOf": [{"$ref": "#/$defs/positive_integer"}, {"type": "null"}]
+        },
+        "actual_card": {
+          "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+        },
+        "reason_codes": {
+          "type": "array",
+          "maxItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "local_play_not_recorded", "state_before_checkpoint",
+              "checkpoint_diverged", "game_ended_before_local_play"
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "observed"}}},
+          "then": {
+            "properties": {
+              "lineage": {"properties": {"relationship": {"const": "ancestor"}}},
+              "observed_play_revision": {"$ref": "#/$defs/positive_integer"},
+              "actual_card": {"$ref": "#/$defs/card"},
+              "reason_codes": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "pending"}}},
+          "then": {
+            "properties": {
+              "lineage": {
+                "properties": {"relationship": {"enum": ["current", "ancestor"]}}
+              },
+              "observed_play_revision": {"type": "null"},
+              "actual_card": {"type": "null"},
+              "reason_codes": {"const": ["local_play_not_recorded"]}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "future"}}},
+          "then": {
+            "properties": {
+              "lineage": {"properties": {"relationship": {"const": "future"}}},
+              "observed_play_revision": {"type": "null"},
+              "actual_card": {"type": "null"},
+              "reason_codes": {"const": ["state_before_checkpoint"]}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "diverged"}}},
+          "then": {
+            "properties": {
+              "lineage": {"properties": {"relationship": {"const": "diverged"}}},
+              "observed_play_revision": {"type": "null"},
+              "actual_card": {"type": "null"},
+              "reason_codes": {"const": ["checkpoint_diverged"]}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "ended_without_play"}}},
+          "then": {
+            "properties": {
+              "lineage": {"properties": {"relationship": {"const": "ancestor"}}},
+              "observed_play_revision": {"type": "null"},
+              "actual_card": {"type": "null"},
+              "reason_codes": {"const": ["game_ended_before_local_play"]}
+            }
+          }
+        }
+      ]
+    },
+    "checkpoint_review_export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_checkpoint_review_export_version", "status", "session_id",
+        "checkpoint_revision", "observation_revision", "observation", "request",
+        "diagnostics"
+      ],
+      "properties": {
+        "session_checkpoint_review_export_version": {"const": 1},
+        "status": {"enum": ["available", "unavailable", "diverged"]},
+        "session_id": {"$ref": "#/$defs/identifier"},
+        "checkpoint_revision": {"$ref": "#/$defs/non_negative_integer"},
+        "observation_revision": {"$ref": "#/$defs/non_negative_integer"},
+        "observation": {"$ref": "#/$defs/decision_observation"},
+        "request": {
+          "oneOf": [{"$ref": "#/$defs/request_document"}, {"type": "null"}]
+        },
+        "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/diagnostic"}}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "available"}}},
+          "then": {
+            "properties": {
+              "observation": {"properties": {"status": {"const": "observed"}}},
+              "request": {
+                "allOf": [
+                  {"$ref": "#/$defs/request_document"},
+                  {
+                    "properties": {
+                      "workflow": {"const": "position_analysis"},
+                      "document": {
+                        "required": ["analysis_mode", "actual_card_played"],
+                        "properties": {
+                          "analysis_mode": {"const": "post_game_review"},
+                          "actual_card_played": {"$ref": "#/$defs/card"}
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "diagnostics": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "unavailable"}}},
+          "then": {
+            "properties": {
+              "observation": {
+                "properties": {
+                  "status": {"enum": ["pending", "future", "ended_without_play"]}
+                }
+              },
+              "request": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "diverged"}}},
+          "then": {
+            "properties": {
+              "observation": {"properties": {"status": {"const": "diverged"}}},
+              "request": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
     "session_persistence_document": {
       "type": "object",
       "additionalProperties": false,
@@ -707,6 +921,113 @@
         "document": {"$ref": "#/$defs/session_persistence_document"},
         "checkpoint_lineage": {"type": "array", "items": {"$ref": "#/$defs/checkpoint_lineage"}}
       }
+    },
+    "session_persistence_write_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_persistence_version", "status", "session_id", "revision",
+        "expected_content_fingerprint", "existing_content_fingerprint",
+        "requested_content_fingerprint"
+      ],
+      "properties": {
+        "session_persistence_version": {"const": 1},
+        "status": {"enum": ["saved", "unchanged", "conflict"]},
+        "session_id": {"$ref": "#/$defs/identifier"},
+        "revision": {"$ref": "#/$defs/non_negative_integer"},
+        "expected_content_fingerprint": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            {"type": "null"}
+          ]
+        },
+        "existing_content_fingerprint": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            {"type": "null"}
+          ]
+        },
+        "requested_content_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "saved"}}},
+          "then": {
+            "allOf": [
+              {
+                "if": {"properties": {"expected_content_fingerprint": {"type": "null"}}},
+                "then": {"properties": {"existing_content_fingerprint": {"type": "null"}}}
+              },
+              {
+                "if": {"properties": {"existing_content_fingerprint": {"type": "null"}}},
+                "then": {"properties": {"expected_content_fingerprint": {"type": "null"}}}
+              }
+            ]
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "unchanged"}}},
+          "then": {
+            "properties": {
+              "expected_content_fingerprint": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "existing_content_fingerprint": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "conflict"}}},
+          "then": {
+            "not": {
+              "properties": {
+                "expected_content_fingerprint": {"type": "null"},
+                "existing_content_fingerprint": {"type": "null"}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "session_file_api_options": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validate_output"],
+      "properties": {
+        "validate_output": {"type": "boolean"}
+      }
+    },
+    "session_file_api_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api_contract_version", "public_session_api_version",
+        "public_session_file_api_version", "operation", "value"
+      ],
+      "properties": {
+        "api_contract_version": {"const": 1},
+        "public_session_api_version": {"const": 1},
+        "public_session_file_api_version": {"const": 1},
+        "operation": {"enum": ["save", "load"]},
+        "value": {}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"operation": {"const": "save"}}},
+          "then": {"properties": {"value": {"$ref": "#/$defs/session_persistence_write_result"}}}
+        },
+        {
+          "if": {"properties": {"operation": {"const": "load"}}},
+          "then": {"properties": {"value": {"$ref": "#/$defs/resume_result"}}}
+        }
+      ]
     },
     "session_provenance_context": {
       "type": "object",
@@ -782,7 +1103,8 @@
       "enum": [
         "create", "apply_command", "rewind", "correct", "export_position",
         "export_historical", "build_checkpoint", "classify_checkpoint",
-        "build_persistence_document", "resume_persistence_document"
+        "build_persistence_document", "resume_persistence_document",
+        "observe_checkpoint", "export_checkpoint_review"
       ]
     },
     "session_api_options": {
@@ -941,6 +1263,34 @@
                 "allOf": [
                   {"$ref": "#/$defs/session_provenance_bundle"},
                   {"properties": {"operation": {"const": "resume_persistence_document"}, "result": {"properties": {"session_context": {"properties": {"operation": {"const": "resume_persistence_document"}}}}}}}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"operation": {"const": "observe_checkpoint"}}},
+          "then": {
+            "properties": {
+              "value": {"$ref": "#/$defs/decision_observation"},
+              "field_provenance": {
+                "allOf": [
+                  {"$ref": "#/$defs/session_provenance_bundle"},
+                  {"properties": {"operation": {"const": "observe_checkpoint"}, "result": {"properties": {"session_context": {"properties": {"operation": {"const": "observe_checkpoint"}}}}}}}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"operation": {"const": "export_checkpoint_review"}}},
+          "then": {
+            "properties": {
+              "value": {"$ref": "#/$defs/checkpoint_review_export"},
+              "field_provenance": {
+                "allOf": [
+                  {"$ref": "#/$defs/session_provenance_bundle"},
+                  {"properties": {"operation": {"const": "export_checkpoint_review"}, "result": {"properties": {"session_context": {"properties": {"operation": {"const": "export_checkpoint_review"}}}}}}}
                 ]
               }
             }

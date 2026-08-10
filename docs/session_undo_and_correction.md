@@ -240,8 +240,9 @@ current or ancestor when the complete effective frozen Checkpoint is exactly
 equal. A correction strictly after it remains ancestor.
 
 Undo and correction never mutate, delete, rewrite, or attach data to a
-Checkpoint. Its source revision and Request remain frozen. Actual-card and Result
-attachment and automatic Checkpoint collection remain later work.
+Checkpoint. Its source revision and Request remain frozen. Issue #157 derives an
+actual-card Decision Observation from the accepted Log and automatically
+collects exact Checkpoints in CLI orchestration without changing this rule.
 
 Strict Resume reconstructs optional persisted Checkpoints and recomputes each
 `current`, `ancestor`, `future`, or `diverged` relationship against the resumed
@@ -280,16 +281,19 @@ not add replay. These operations run no Search, Immediate Analysis, hidden-card 
 Multi-Step, Policy Comparison, Historical workflow, Review, Coaching, scoring,
 Settlement, Application, file I/O, timeout, or background task.
 
-## Boundaries and remaining work
+## Current boundary
 
-The implementation remains under `skat_ai.session_history*` and is exposed only
-through the additive `skat_ai.api.v1.session` namespace. It adds no Package-Root
-export, Root workflow, Application handler, CLI command or option, example,
-generated output, or Package-version change. The active boundary remains seven
-Root workflows, 63 authoritative and packaged Schemas, 77 generated outputs, and
-Package version `0.13.0`.
+The implementation remains under `skat_ai.session_history*` and is exposed
+through the additive `skat_ai.api.v1.session` namespace. Issue #157 adds
+installed/module/Legacy `session undo` and `session correct`, optimistic file
+Save, automatic collection of a newly Position-ready State, lineage display,
+examples, and generated scenarios without changing history semantics. Only
+applied Undo and applied or partial Correction States are saved; unchanged and
+rejected Results do not rewrite the file.
 
-Session-triggered analysis, actual-card Checkpoint attachment, public file
-Save/Load, CLI Session commands and Assistant, examples, generated outputs,
-automatic Checkpoint collection, end-to-end capture,
-and UI remain open.
+The active boundary remains seven Root workflows, 63 authoritative and packaged
+Schemas, 85 generated outputs, and Package version `0.13.0`. The functional
+`v0.14.0` milestone is complete pending release preparation. Automatic Redo,
+branching/merge, arbitrary Log surgery, GUI/platform/cloud/encryption, and
+unrelated pre-v1 gaps remain open. See
+[Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
