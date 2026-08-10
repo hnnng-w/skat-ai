@@ -44,9 +44,10 @@ operation delegates once to its existing internal function and remains outside
 Application orchestration. Issue #157 adds stable `api/v1/session/files` Save and
 Load, exact Checkpoint collection, accepted-Log actual-card observation, frozen-
 Request review export, the 12-subcommand Session CLI, explicit existing-
-Application execution, and the phase-aware Assistant. Issue #158 prepares the
-completed functional `v0.14.0` milestone as an unpublished Package release
-candidate; there is still no eighth Root workflow or persisted analysis Result.
+Application execution, and the phase-aware Assistant. Issue #158 completed
+Release preparation for the functional `v0.14.0` milestone, which the maintainer
+subsequently published manually at commit `d5589f8`; there is still no eighth
+Root workflow or persisted analysis Result.
 
 The position-analysis flow is:
 

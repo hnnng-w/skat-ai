@@ -230,9 +230,9 @@ analysis. Optional provenance covers the outer returned operation value; no
 nested Checkpoint sidecar or actual Card is added. Issue #157 adds separate
 observation and review-export operation values, public file/CLI orchestration,
 six examples, and eight append-only scenarios. There is no eighth Root workflow
-or Issue #157 Package-version change. The `v0.14.0` Package release candidate
-has 63 authoritative and packaged Schemas, seven Root workflows, and 85
-generated-output scenarios.
+or Issue #157 Package-version change. The published `v0.14.0` baseline has 63
+authoritative and packaged Schemas, seven Root workflows, and 85 generated-output
+scenarios.
 
 Persistence Load/Resume does not invoke this exporter or start Position Analysis;
 export itself still performs no file I/O or workflow execution. See
@@ -242,8 +242,8 @@ The Session CLI now collects or reuses exact Position-ready Checkpoints, includi
 the source immediately before an accepted local Play, and can explicitly execute
 Position Analysis or an available Checkpoint review. Equal Checkpoints are
 deduplicated; different Requests at one revision remain valid. Collection alone
-never starts analysis. Issue #158 prepares the completed functional `v0.14.0`
-milestone as an unpublished Package release candidate;
+never starts analysis. Issue #158 completed Release preparation for the
+functional `v0.14.0` milestone before manual maintainer publication;
 GUI/platform/cloud/encryption work remains open. See
 [Interactive Session contracts](interactive_session_contracts.md),
 [Incremental Session transitions](incremental_session_transitions.md), and

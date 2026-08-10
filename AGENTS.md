@@ -155,19 +155,26 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current published stable GitHub Release is `v0.13.0`, with release theme
-"Stable API, installable tooling, and public field provenance" and GitHub
-Release title "v0.13.0 — Stable API, installable tooling, and public field
-provenance". It points to commit `abd1ad3`. The current Package baseline is
-`0.14.0`, while the published `v0.13.0` baseline contains 62 authoritative
-Schemas, 62 Packaged Schema Resources, 77 deterministic generated-output
-scenarios, and 5,399 passing pytest tests. The Python requirement remains
-`>=3.13`, and Public API contract version `1` remains current. Issues #137
-through #147 complete the published functional milestone, Issue #148 completed
-its Release preparation, and Issue #149 synchronized publication status.
-Publication was performed manually by the maintainer. GitHub Releases remains
-authoritative for publication status; no Package-index or PyPI publication is
-claimed.
+The current published stable GitHub Release is `v0.14.0`, with release theme
+"End-to-end Live and Retrospective Session capture" and GitHub Release title
+"v0.14.0 — End-to-end Live and Retrospective Session capture". It points to
+commit `d5589f8`. Package version `0.14.0` requires Python `>=3.13`, retains
+Public API contract version `1` and exactly seven Engine Root workflows, and
+contains 63 authoritative Schemas, 63 Packaged Schema Resources, six Session
+examples, 85 deterministic generated-output scenarios, and 5,892 passing pytest
+tests. Issues #150 through #157 complete the functional milestone, and Issue
+#158 completed Release preparation. Publication was performed manually by the
+maintainer. GitHub Releases remains authoritative for publication status; no
+Package-index or PyPI publication is claimed.
+
+The historical published `v0.13.0` release has release theme "Stable API,
+installable tooling, and public field provenance" and GitHub Release title
+"v0.13.0 — Stable API, installable tooling, and public field provenance". It
+points to commit `abd1ad3`, contains 62 authoritative Schemas and 62 Packaged
+Schema Resources, validates 77 deterministic generated-output scenarios, and
+passes 5,399 pytest tests. Issues #137 through #147 complete its functional
+milestone, Issue #148 completed Release preparation, and Issue #149 synchronized
+its publication status.
 
 The historical published `v0.12.0` release has release theme
 "Fixed-three-player historical lists and deterministic dataset preparation" and
@@ -223,7 +230,7 @@ append-only generated-output scenarios. The published baseline has 62 schemas an
 77 generated-output scenarios, while the historical published `v0.12.0` facts
 remain 70 scenarios and 4,762 tests.
 
-The `v0.14.0` Package milestone has the release theme "End-to-end Live and
+The published `v0.14.0` milestone has the release theme "End-to-end Live and
 Retrospective Session capture". Issue #150 establishes internal Session
 contract and Command version `1`, stable Players and seats, Capture Modes,
 phases, an authoritative accepted Command Log, linear revisions, Diagnostics,
@@ -254,10 +261,10 @@ isolated Checkpoint review export, automatic collection, all 12 Session CLI
 subcommands across installed/module/Legacy invocation, explicit Position and
 Historical execution, the phase-aware Assistant, six examples, and eight
 append-only scenarios. The `v0.14.0` Package baseline has 85 generated outputs
-and 63 authoritative and packaged Schemas. Issue #158 prepares Package version
-`0.14.0` and Release documentation without changing product behavior. The
-Release remains an unpublished candidate until the maintainer manually creates
-the tag and GitHub Release; the published stable Release remains `v0.13.0`.
+and 63 authoritative and packaged Schemas. Issue #158 completed Package version
+`0.14.0` and Release-documentation preparation without changing product
+behavior. The maintainer subsequently published the Release manually at commit
+`d5589f8`.
 Online-platform adapters, browser extensions, website scraping, cloud
 synchronization, distributed locking, encryption/key management, and automatic
 backup policy remain open.
@@ -404,9 +411,10 @@ capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the
 12-subcommand CLI, and Assistant. GUI/browser UI, online-platform adapters,
 cloud synchronization, distributed locking, encryption/key management, and
-automatic backup policy remain open. The `v0.14.0` Package baseline has 63
+automatic backup policy remain open. The published `v0.14.0` baseline has 63
 authoritative and byte-identical packaged Schemas and 85 generated-output
-scenarios; the published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
+scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
+scenarios.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, website, browser integration,

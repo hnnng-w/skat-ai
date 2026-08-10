@@ -186,9 +186,9 @@ Historical workflow executes. Optional Session Provenance belongs to the outer
 Session Result, not the exported Root Request. Issue #157 exposes this no-
 execution operation through `session export-historical`; the separate
 `session finalize` command explicitly passes an available Request to the
-existing Historical Application once. The `v0.14.0` Package release candidate
-has 63 authoritative and packaged Schemas, seven Root workflows, and 85
-generated-output scenarios.
+existing Historical Application once. The published `v0.14.0` baseline has 63
+authoritative and packaged Schemas, seven Root workflows, and 85 generated-output
+scenarios.
 
 ## Current boundary
 
@@ -208,8 +208,8 @@ this exporter nor executes the Historical workflow. See
 Issue #157 adds public file Save/Load, CLI export/finalize, automatic Position
 Checkpoints, Decision Observation/review, examples, generated outputs, and end-
 to-end Retrospective capture without changing this exporter. Export itself still
-performs no workflow execution. Issue #158 prepares the completed functional
-`v0.14.0` milestone as an unpublished Package release candidate;
+performs no workflow execution. Issue #158 completed Release preparation for the
+functional `v0.14.0` milestone before manual maintainer publication;
 GUI/platform/cloud/encryption work remains open.
 See [Session Position export and Decision checkpoints](live_session_position_export.md)
 and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

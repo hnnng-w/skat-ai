@@ -284,9 +284,10 @@ export or analyze. See
 Issue #157 layers public file Save/Load, automatic exact Checkpoint collection,
 accepted-Log actual-card observation, explicit Session-triggered analysis, and a
 phase-aware Assistant over these unchanged transitions. Ordinary mutation and
-Checkpoint collection still execute no analysis. Issue #158 prepares the
-completed functional `v0.14.0` milestone as an unpublished Package release
-candidate; GUI/platform/cloud/encryption work remains open. See
+Checkpoint collection still execute no analysis. Issue #158 completed Release
+preparation for the functional `v0.14.0` milestone, which the maintainer
+subsequently published manually at commit `d5589f8`; GUI/platform/cloud/
+encryption work remains open. See
 [Retrospective Session export](retrospective_session_export.md) and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),

@@ -252,9 +252,8 @@ implemented. Export-only operations still do not execute workflows; explicit
 `analyze`, `review`, and `finalize` invoke the existing Application once when an
 export is available. No Session Root workflow exists. Session State itself still
 contains no filesystem path or fingerprint; those values belong to the private
-persistence envelope and caller-supplied file transport. The `v0.14.0` Package
-baseline is prepared for manual maintainer publication; GitHub Releases still
-identifies `v0.13.0` as the published stable Release. See
+persistence envelope and caller-supplied file transport. These capabilities are
+part of the published stable `v0.14.0` Release. See
 [Public Session API version 1](docs/public_session_api_v1.md),
 [Session provenance](docs/session_provenance.md),
 [Session Decision observations](docs/session_decision_observations.md),
@@ -943,19 +942,26 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
-The current published stable GitHub Release is `v0.13.0`, with release theme
-"Stable API, installable tooling, and public field provenance" and GitHub
-Release title "v0.13.0 — Stable API, installable tooling, and public field
-provenance". It points to commit `abd1ad3`. The current Package baseline is
-`0.14.0`; the published `v0.13.0` baseline requires Python 3.13 or newer, retains
-Public API contract version `1`, contains 62 authoritative Schemas and 62
-Packaged Schema Resources, validates 77 deterministic generated-output
-scenarios, and passes 5,399 pytest tests. Issues #137 through #147 complete the
-published functional milestone, Issue #148 completed Release preparation, and
-Issue #149 synchronized publication status.
-Publication was performed manually by the maintainer. GitHub Releases remains
-authoritative for publication status; no Package-index or PyPI publication is
-claimed.
+The current published stable GitHub Release is `v0.14.0`, with release theme
+"End-to-end Live and Retrospective Session capture" and GitHub Release title
+"v0.14.0 — End-to-end Live and Retrospective Session capture". It points to
+commit `d5589f8`. Package version `0.14.0` requires Python 3.13 or newer, retains
+Public API contract version `1` and exactly seven Root workflows, contains 63
+authoritative Schemas and 63 Packaged Schema Resources, includes six Session
+examples, validates 85 deterministic generated-output scenarios, and passes
+5,892 pytest tests. Issues #150 through #157 complete the functional milestone,
+and Issue #158 completed Release preparation. Publication was performed manually
+by the maintainer. GitHub Releases remains authoritative for publication status;
+no Package-index or PyPI publication is claimed.
+
+The historical published `v0.13.0` release has release theme "Stable API,
+installable tooling, and public field provenance" and GitHub Release title
+"v0.13.0 — Stable API, installable tooling, and public field provenance". It
+points to commit `abd1ad3`, contains 62 authoritative Schemas and 62 Packaged
+Schema Resources, validates 77 deterministic generated-output scenarios, and
+passes 5,399 pytest tests. Issues #137 through #147 complete its functional
+milestone, Issue #148 completed Release preparation, and Issue #149 synchronized
+its publication status.
 
 The historical published `v0.12.0` release has release theme
 "Fixed-three-player historical lists and deterministic dataset preparation" and
@@ -1107,7 +1113,7 @@ published baseline with 77 scenarios and 62 schemas; the historical published
 manual maintainer publication at commit `abd1ad3`. Broader end-to-end field-level
 enforcement remains incomplete before `v1.0.0`.
 
-The `v0.14.0` Package milestone begins with Issue #150's immutable internal
+The published `v0.14.0` milestone begins with Issue #150's immutable internal
 Session contract foundation, Issue #151's deterministic transition engine,
 Issue #152's canonical Retrospective Historical Request export, and Issue #153's
 information-safe Position Request export and Decision Checkpoints. Issue #154
@@ -1133,11 +1139,13 @@ namespace, accepted-Log Decision Observation and isolated Checkpoint review
 export, automatic exact Checkpoint collection, all 12 installed/module/Legacy
 Session subcommands, explicit Position/Historical execution, the phase-aware
 Assistant, six examples, and eight append-only scenarios for a total of 85.
-Issue #158 prepares Package version `0.14.0` under the release theme "End-to-end
-Live and Retrospective Session capture" without changing product behavior. The
-release candidate has 63 Schemas and remains unpublished until manual maintainer
-publication; the published `v0.13.0` baseline remains 62 Schemas and 77
-scenarios. GUI/browser UI, online-platform adapters, browser
+Issue #158 completed Package version `0.14.0` and Release-documentation
+preparation under the release theme "End-to-end Live and Retrospective Session
+capture" without changing product behavior. The maintainer subsequently
+published `v0.14.0` at commit `d5589f8`; its baseline has 63 Schemas, six Session
+examples, 85 generated outputs, and 5,892 passing pytest tests. The historical
+published `v0.13.0` baseline remains 62 Schemas and 77 scenarios. GUI/browser
+UI, online-platform adapters, browser
 extensions, website scraping, cloud synchronization, distributed locking,
 encryption/key management, automatic backups, and unrelated pre-v1 gaps remain
 open.

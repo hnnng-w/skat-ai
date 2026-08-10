@@ -280,12 +280,11 @@ The following remain separate follow-up scopes:
 * distributed locking, encryption/key management, and automatic backup policy;
 * unrelated pre-v1 Search, Claim, Settlement, and Coaching gaps.
 
-Issue #157 completes functional `v0.14.0` Session capture. Issue #158 prepares
-Package version `0.14.0` and Release documentation without changing this
-Application boundary. The Package release candidate still has exactly seven Root
-workflows, 63 authoritative and packaged Schemas, and 85 generated-output
-scenarios. It is not yet published; the published stable Release remains
-`v0.13.0`.
+Issue #157 completes functional `v0.14.0` Session capture. Issue #158 completed
+Package version `0.14.0` and Release-documentation preparation without changing
+this Application boundary. The published `v0.14.0` baseline at commit `d5589f8`
+has exactly seven Root workflows, 63 authoritative and packaged Schemas, and 85
+generated-output scenarios.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue

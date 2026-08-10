@@ -6,7 +6,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ### End-to-end Live and Retrospective Session capture
 
-Implemented by Issue #150 for the `v0.14.0` Package milestone:
+Implemented by Issue #150 for the published `v0.14.0` milestone:
 
 * Internal Session and Command version `1` with independent policy identifiers
 * Exactly three stable Players in canonical Historical seat order
@@ -74,8 +74,8 @@ validation. Issue #157 adds stable public file Save/Load, Decision Observation,
 isolated Checkpoint review export, automatic exact Checkpoint collection, all 12
 installed/module/Legacy Session subcommands, explicit Position/Historical
 execution, the phase-aware Assistant, six examples, and eight append-only
-generated scenarios. Issue #158 prepares the completed functional `v0.14.0`
-milestone as an unpublished Package release candidate. See
+generated scenarios. Issue #158 completed Release preparation, and the
+maintainer subsequently published `v0.14.0` manually at commit `d5589f8`. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
@@ -90,8 +90,9 @@ serialization, all ten transport-free in-memory operations, optional complete
 redacted Session Provenance, strict standalone Session Schema, 63-Schema Package
 parity, and clean-install validation. Issue #157 appends two public Session
 operations and the `files` module without changing the first 52 exports. Package
-version is `0.14.0`; the Package baseline has 85 generated outputs and 63
-Schemas. The published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
+version is `0.14.0`; the published baseline has 85 generated outputs, six
+Session examples, 63 Schemas, and 5,892 passing pytest tests. The historical
+published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
 
 ### Public API contract foundation
 
@@ -671,13 +672,14 @@ Implemented:
 
 ### v0.14.0: End-to-end Live and Retrospective Session capture
 
-The current `v0.14.0` Package release candidate completes functional Issues #150
-through #157. Issue #158 prepares Package version `0.14.0`, the Changelog, and
-current-state documentation without changing product behavior. The baseline
-requires Python 3.13 or newer, retains Public API contract version `1` and seven
-Root workflows, contains 63 authoritative and packaged Schemas, includes six
-strict Session examples, and validates 85 deterministic generated-output
-scenarios, including eight append-only Session scenarios.
+The published `v0.14.0` Release completes functional Issues #150 through #157.
+Issue #158 completed Package version `0.14.0`, Changelog, and current-state
+documentation preparation without changing product behavior. The Release points
+to commit `d5589f8`, requires Python 3.13 or newer, retains Public API contract
+version `1` and seven Root workflows, contains 63 authoritative and packaged
+Schemas, includes six strict Session examples, validates 85 deterministic
+generated-output scenarios, including eight append-only Session scenarios, and
+passes 5,892 pytest tests.
 
 The milestone provides immutable fixed-three-player Live and Retrospective
 Session contracts, deterministic accepted-Log transitions and replay, canonical
@@ -688,10 +690,8 @@ Decision Observation and isolated review, automatic Checkpoints, all 12 Session
 CLI subcommands, explicit existing-Application execution, and the phase-aware
 Assistant.
 
-The release candidate is not yet tagged or published. Manual maintainer
-publication remains required, GitHub Releases remains authoritative, and the
-published stable Release remains `v0.13.0`. No Package-index or PyPI publication
-is claimed.
+Publication was performed manually by the maintainer. GitHub Releases remains
+authoritative, and no Package-index or PyPI publication is claimed.
 
 ### v0.13.0: Stable API, installable tooling, and public field provenance
 
@@ -948,10 +948,11 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current published `v0.13.0` baseline, historical
-`v0.12.0` and older Release evidence, the authoritative publication state shown
-by GitHub Releases, the unpublished `v0.14.0` Package release candidate with
-functional Issues #150 through #157 and release-preparation Issue #158, the 63-
-Schema, six-Session-example, and 85-scenario baseline, requirements explicitly
-required for the next `v1.0.0` planning milestone, planned post-v1.0 work, not-
-required workflows, and unconditional exclusions.
+should distinguish the current published `v0.14.0` baseline, historical
+`v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
+state shown by GitHub Releases, functional Issues #150 through #157 and completed
+release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,
+and 5,892-test baseline, requirements explicitly required for the active next
+`v1.0.0` planning milestone, planned post-v1.0 work, not-required workflows, and
+unconditional exclusions. The final `v1.0.0` Issue split and implementation
+architecture remain undecided pending the focused repository audit.

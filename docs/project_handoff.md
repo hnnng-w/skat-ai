@@ -370,8 +370,9 @@ Implemented by Issue #157:
 * deterministic phase-aware Assistant, six examples, and eight append-only
   generated scenarios for an active total of 85
 
-Issue #158 prepares the completed functional `v0.14.0` milestone as an
-unpublished Package release candidate. GUI or browser UI, platform adapters,
+Issue #158 completed Release preparation for the functional `v0.14.0` milestone,
+which the maintainer subsequently published manually at commit `d5589f8`. GUI
+or browser UI, platform adapters,
 cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
@@ -1226,42 +1227,42 @@ Main documentation files:
 
 ## Release status
 
-Current published stable GitHub Release: `v0.13.0`.
+Current published stable GitHub Release: `v0.14.0`.
 
 Current Package version: `0.14.0`.
 
-Current published baseline: `v0.13.0`.
+Current published baseline: `v0.14.0`.
 
-Current Package release candidate: `v0.14.0`.
+Published Release theme: "End-to-end Live and Retrospective Session capture".
 
-Release-candidate theme: "End-to-end Live and Retrospective Session capture".
-
-Planned GitHub Release title: "v0.14.0 — End-to-end Live and Retrospective
+Published GitHub Release title: "v0.14.0 — End-to-end Live and Retrospective
 Session capture".
 
-Published Release theme: "Stable API, installable tooling, and public field
-provenance".
+Published Release commit: `d5589f8`.
 
-Published GitHub Release title: "v0.13.0 — Stable API, installable tooling, and
+The Package requires Python `>=3.13` and retains Public API contract version `1`
+and exactly seven Root workflows. The published baseline contains 63
+authoritative Schemas and 63 Packaged Schema Resources, includes six Session
+examples, validates 85 deterministic generated-output scenarios, and passes
+5,892 pytest tests. Functional Issues #150 through #157 implement the milestone,
+and Issue #158 completed Release preparation. Publication was performed manually
+by the maintainer. GitHub Releases remains authoritative; no Package-index or
+PyPI publication is claimed.
+
+Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
+and public field provenance".
+
+Historical GitHub Release title: "v0.13.0 — Stable API, installable tooling, and
 public field provenance".
 
-Published Release commit: `abd1ad3`.
+Historical Release commit: `abd1ad3`.
 
-The Package requires Python `>=3.13` and retains Public API contract version
-`1`. The published baseline contains 62 authoritative Schemas and 62 Packaged
-Schema Resources, validates 77 deterministic generated-output scenarios, and
-passes 5,399 pytest tests. Issues #137 through #147 complete the functional
-milestone, Issue #148 completed Release preparation, and Issue #149 synchronized
-publication status. Publication was performed manually by the maintainer. GitHub
-Releases remains authoritative; no Package-index or PyPI publication is claimed.
-
-The `v0.14.0` Package release candidate requires Python `>=3.13`, retains Public
-API contract version `1` and exactly seven Root workflows, contains 63
-authoritative Schemas and 63 Packaged Schema Resources, includes six Session
-examples, and validates 85 deterministic generated-output scenarios. Functional
-Issues #150 through #157 implement the milestone, and Issue #158 prepares the
-Package version and Release documentation. It is not yet tagged or published;
-manual maintainer publication and GitHub Releases remain authoritative.
+The historical published `v0.13.0` baseline requires Python `>=3.13`, retains
+Public API contract version `1`, contains 62 authoritative Schemas and 62
+Packaged Schema Resources, validates 77 deterministic generated-output
+scenarios, and passes 5,399 pytest tests. Issues #137 through #147 complete its
+functional milestone, Issue #148 completed Release preparation, and Issue #149
+synchronized its publication status.
 
 Historical published `v0.12.0` Release theme: "Fixed-three-player historical
 lists and deterministic dataset preparation".
@@ -1492,7 +1493,7 @@ publication.
 
 ## Current implementation baseline
 
-**v0.14.0 Package release candidate: End-to-end Live and Retrospective Session capture**
+**Published v0.14.0 Release: End-to-end Live and Retrospective Session capture**
 
 Completed implementation scope:
 
@@ -1638,22 +1639,33 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Keep the prepared `v0.14.0` Package release candidate unchanged for manual
-maintainer tagging and GitHub Release publication. GitHub Releases remains the
-authoritative publication record, so the published stable Release remains
-`v0.13.0` until that action occurs.
+Begin the active next planning milestone, `v1.0.0`, with a focused repository
+audit. The audit must reconcile every mandatory scope and completion-gate row in
+[v1.0 scope](v1_scope.md) with every current status in [requirements
+traceability](requirements_traceability.md), without assuming a final
+implementation architecture or Issue decomposition.
 
-The next active planning milestone is `v1.0.0`; it is not ready. Begin with a
-separate focused audit of [v1.0 scope](v1_scope.md) and
-[requirements traceability](requirements_traceability.md). Do not assume a final
-Issue sequence or implementation architecture from the `v0.14.0` release task.
+The audit should cover:
 
-Future dataset-preparation work remains narrower: additional algorithms,
-algorithm overrides, fallback or partial Plans, global optimization, guaranteed
-ratios, Sample- or Player-count balancing, component splitting, model training,
-and automatic evaluation require separate scope. Tactical motifs, cross-game
-Coaching, ratings, causal attribution, broader Search, general claims, and
-settlement completeness also remain separate open work.
+* remaining Claims and Settlement gaps;
+* remaining historical end reasons and their evidence boundaries;
+* information-set and complete-contract Search requirements, including current
+  Strategy Fusion limitations;
+* tactical and cross-game Coaching;
+* Player Ratings;
+* broader field-Provenance enforcement plus Provenance and Confidence
+  boundaries;
+* Public API and Schema freeze requirements;
+* compatibility, Deprecation, and migration requirements;
+* performance and latency baselines;
+* installation and distribution evidence;
+* final example and generated-output coverage;
+* remaining documentation and traceability mismatches.
+
+The audit should end with one closed provisional Issue sequence for `v1.0.0`,
+but it must not preselect final Issue titles, count, Release theme,
+implementation architecture, or unresolved product semantics before the audit
+evidence is complete.
 
 ## Open future topics
 

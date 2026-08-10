@@ -94,7 +94,7 @@ The 63 files under repository `schemas/` are the authoritative JSON Schemas.
 Issue #156 adds strict standalone `session.schema.json`; Issue #157 extends that
 same file for Session creation, file API, observation, and review contracts
 without adding a 64th Schema. Wheel and sdist contain its byte-identical Package
-Resource mirror. The `v0.14.0` Package release candidate has 63 Schemas; the
+Resource mirror. The published `v0.14.0` baseline has 63 Schemas; the historical
 published `v0.13.0` baseline remains at 62 Schemas.
 Every `*.schema.json` file is mirrored without transformation into:
 
@@ -241,13 +241,12 @@ Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without
 public schema-resource API, new workflow, Root-output metadata, Provenance field,
 Package-version change, or Package publication. Issue #147 subsequently added
 opt-in bounded public Provenance without publication. Issue #157 completes the
-functional `v0.14.0` Session milestone, and Issue #158 prepares Package version
-`0.14.0` and Release documentation: the release candidate has 63 authoritative
-and packaged Schemas and 85 generated-output scenarios, while the previous 77
-scenarios remain unchanged.
+functional `v0.14.0` Session milestone, and Issue #158 completed Package version
+`0.14.0` and Release-documentation preparation. The published `v0.14.0` baseline
+at commit `d5589f8` has 63 authoritative and packaged Schemas and 85 generated-
+output scenarios, while the historical `v0.13.0` 77 scenarios remain unchanged.
 
-The published stable Release remains `v0.13.0`; `v0.14.0` is not yet tagged or
-published. The Package license decision remains unresolved, so no license
+The Package license decision remains unresolved, so no license
 metadata is declared. Package and release publication remain human-controlled. Session
 file paths are caller-selected; no default directory, second Console Script,
 GUI/browser UI, online-platform adapter, cloud synchronization, distributed

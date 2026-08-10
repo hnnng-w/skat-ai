@@ -24,25 +24,27 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The published `v0.13.0` baseline at commit `abd1ad3` contains 62 authoritative
-Schemas and 62 Packaged Schema Resources, validates 77 deterministic generated-
-output scenarios, and passes 5,399 pytest tests. Issue #147 leaves the 70 historical published
-`v0.12.0` scenarios unchanged and appends seven public field-provenance
-scenarios, one per Root workflow. Issue #148 completed Release preparation before
-manual maintainer publication. GitHub Releases remains authoritative; no
-Package-index or PyPI publication is claimed. The historical published `v0.12.0`
-baseline at commit `bbf955e` remains evidence for 70 scenarios and 4,762 pytest
-tests; Issue #135 completed its release preparation. The historical published
+The published `v0.14.0` baseline at commit `d5589f8` contains 63 authoritative
+Schemas and 63 Packaged Schema Resources, includes six strict Session examples,
+validates 85 deterministic generated-output scenarios, and passes 5,892 pytest
+tests. Issues #150 through #157 complete the functional milestone, and Issue #158
+completed Release preparation before manual maintainer publication. GitHub
+Releases remains authoritative; no Package-index or PyPI publication is claimed.
+
+The historical published `v0.13.0` baseline at commit `abd1ad3` contains 62
+authoritative Schemas and 62 Packaged Schema Resources, validates 77 deterministic
+generated-output scenarios, and passes 5,399 pytest tests. Issue #147 leaves the
+70 historical published `v0.12.0` scenarios unchanged and appends seven public
+field-provenance scenarios, one per Root workflow. Issue #148 completed Release
+preparation, and Issue #149 synchronized publication status. The historical
+published `v0.12.0` baseline at commit `bbf955e` remains evidence for 70
+scenarios and 4,762 pytest tests; Issue #135 completed its release preparation.
+The historical published
 `v0.11.0` baseline remains evidence for 64 scenarios and 4,392 pytest tests. The
 historical published `v0.10.0` baseline remains evidence for 59 scenarios and
 4,075 pytest tests. The historical
 published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
 tests.
-
-The `v0.14.0` Package release candidate retains those published facts, has 63
-authoritative and packaged Schemas, includes six strict Session examples, and
-appends eight Session scenarios for a total of 85. Issue #158 prepares the
-Package and Release documentation without publishing it.
 
 The check script validates:
 
@@ -643,8 +645,8 @@ artifact provenance.
 Eight Issue #157 scenarios then append Live creation, apply/resume, analysis with
 automatic Checkpoint, observed-card review, Undo/partial Correction, persistence
 conflict, Retrospective export, and Retrospective finalization. The first 77
-remain unchanged and the active total becomes 85. Session operation JSON uses
-`session.schema.json`; executed Position/Historical output uses
+remain unchanged and the published `v0.14.0` total is 85. Session operation JSON
+uses `session.schema.json`; executed Position/Historical output uses
 `output.schema.json`.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.

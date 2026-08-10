@@ -21,8 +21,9 @@ Checkpoint, history-edit, persistence, Public API, Provenance, and standalone
 Schema foundations. Issue #157 adds Session CLI contract version `1`, stable
 public file transport, automatic Checkpoint collection, actual-card observation,
 Checkpoint review, explicit Session-triggered Position/Historical execution, and
-a phase-aware Assistant. Issue #158 prepares the completed functional `v0.14.0`
-milestone as an unpublished Package release candidate. See
+a phase-aware Assistant. Issue #158 completed Release preparation for the
+functional `v0.14.0` milestone, which the maintainer subsequently published
+manually at commit `d5589f8`. See
 [Public Session API version 1](public_session_api_v1.md)
 and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 

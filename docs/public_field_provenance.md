@@ -271,8 +271,9 @@ requires that entry to match the artifact actually returned.
 
 `schemas/output.schema.json` references that contract from every Root output
 branch and constrains the sidecar workflow to the selected branch. The published
-`v0.13.0` baseline contains 62 Schemas. The active tree contains 63 because the
-separate standalone Session Schema is packaged byte-identically.
+`v0.14.0` baseline contains 63 Schemas because the separate standalone Session
+Schema is packaged byte-identically. The historical published `v0.13.0` baseline
+contains 62 Schemas.
 
 The `v0.13.0` package baseline has 77 deterministic generated-output scenarios.
 The original 70 published `v0.12.0` scenarios remain unchanged, and seven

@@ -291,9 +291,9 @@ examples, and generated scenarios without changing history semantics. Only
 applied Undo and applied or partial Correction States are saved; unchanged and
 rejected Results do not rewrite the file.
 
-The `v0.14.0` Package release candidate remains bounded to seven Root workflows,
-63 authoritative and packaged Schemas, 85 generated outputs, and Package version
-`0.14.0`. Issue #158 prepares the completed functional milestone without
-publishing it. Automatic Redo, branching/merge, arbitrary Log surgery,
+The published `v0.14.0` baseline remains bounded to seven Root workflows, 63
+authoritative and packaged Schemas, 85 generated outputs, and Package version
+`0.14.0`. Issue #158 completed Release preparation before manual maintainer
+publication. Automatic Redo, branching/merge, arbitrary Log surgery,
 GUI/platform/cloud/encryption, and unrelated pre-v1 gaps remain open. See
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

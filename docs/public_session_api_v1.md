@@ -196,17 +196,17 @@ use their existing stable error classes.
 loaded lazily from Package Resources. Issue #157 extends that same Schema for
 creation input, file API values, observations, review exports, and the two
 appended operations. It does not add a Session Root workflow: `WorkflowV1`
-remains seven values. The `v0.14.0` Package release candidate has 63
-authoritative and packaged Schemas, 85 generated outputs, and Package version
-`0.14.0`; the published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
+remains seven values. The published `v0.14.0` baseline has 63 authoritative and
+packaged Schemas, 85 generated outputs, and Package version `0.14.0`; the
+historical published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
 
 Installed, module, and Legacy CLIs expose the same 12-subcommand `session`
 family, public file transport, automatic exact Checkpoint collection,
 Checkpoint-based review, explicit Position/Historical execution, and the
-phase-aware Assistant. Issue #158 prepares the completed functional `v0.14.0`
-milestone without publishing it. There is still no Session Root workflow, automatic analysis
-after every Command, persisted analysis Result, default path, or GUI/platform
-integration.
+phase-aware Assistant. Issue #158 completed Release preparation before the
+maintainer's manual `v0.14.0` publication. There is still no Session Root
+workflow, automatic analysis after every Command, persisted analysis Result,
+default path, or GUI/platform integration.
 
 See [Session provenance](session_provenance.md) for the optional returned-value
 sidecar.

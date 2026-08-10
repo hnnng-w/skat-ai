@@ -4,15 +4,21 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable GitHub Release is `v0.13.0` at commit `abd1ad3`,
-and the current Package version is `0.14.0`. The published `v0.13.0` baseline
-contains 62 authoritative Schemas and 62 Packaged Schema Resources, validates 77
-deterministic generated-output scenarios, passes 5,399 pytest tests, requires
-Python 3.13 or newer, and retains Public API contract version `1`. Issues #137
-through #147 complete the published functional milestone, Issue #148 completed
-Release preparation, and Issue #149 synchronized publication status. Publication
-was performed manually by the maintainer. GitHub Releases is authoritative; no
-Package-index or PyPI publication is claimed.
+The current published stable GitHub Release is `v0.14.0` at commit `d5589f8`.
+Package version `0.14.0` requires Python 3.13 or newer, retains Public API
+contract version `1` and exactly seven Root workflows, and contains 63
+authoritative Schemas, 63 Packaged Schema Resources, six Session examples, 85
+deterministic generated-output scenarios, and 5,892 passing pytest tests. Issues
+#150 through #157 complete the functional milestone, and Issue #158 completed
+Release preparation. Publication was performed manually by the maintainer.
+GitHub Releases is authoritative; no Package-index or PyPI publication is
+claimed.
+
+The historical published `v0.13.0` baseline at commit `abd1ad3` contains 62
+authoritative Schemas and 62 Packaged Schema Resources, validates 77
+deterministic generated-output scenarios, and passes 5,399 pytest tests. Issues
+#137 through #147 complete its functional milestone, Issue #148 completed Release
+preparation, and Issue #149 synchronized its publication status.
 
 The historical published `v0.12.0` release points to commit `bbf955e`, validates
 70 deterministic generated-output scenarios, and passes
@@ -60,7 +66,7 @@ form CLI opt-in, and strict Schema. The published `v0.13.0` baseline has 62
 schemas and 77 generated-output scenarios; the seven additions are append-only
 and do not rewrite the historical published `v0.12.0` facts.
 
-The `v0.14.0` Package milestone provides interactive Live and Retrospective
+The published `v0.14.0` milestone provides interactive Live and Retrospective
 Session capture. Issue #150 implements the immutable internal Session contract
 foundation. Issue #151 implements deterministic internal Command application,
 full accepted-Log replay, projection, phase advancement, incremental validation,
@@ -89,11 +95,10 @@ accepted-Log Decision Observation, isolated Checkpoint review export, automatic
 exact Checkpoints, all 12 installed/module/Legacy Session CLI subcommands,
 explicit Position/Historical execution, the phase-aware Assistant, six examples,
 and eight append-only scenarios. The `v0.14.0` Package baseline therefore has 63
-Schemas and 85 generated outputs. Issue #158 prepares Package version `0.14.0`
-and Release
-documentation without changing product behavior. The release candidate is not
-yet tagged or published; the published stable Release remains `v0.13.0` and
-publication remains a manual maintainer action. GUI/browser UI, online-platform
+Schemas and 85 generated outputs. Issue #158 completed Package version `0.14.0`
+and Release-documentation preparation without changing product behavior. The
+maintainer subsequently published the Release manually at commit `d5589f8`.
+GUI/browser UI, online-platform
 adapters, browser
 extensions, website scraping, cloud synchronization, distributed locking,
 encryption/key management, and automatic backup policy remain open.
@@ -333,9 +338,10 @@ milestone is complete, but the stronger-search gate is not closed.
 Issues #156 and #157 supersede older rows below that call the Public Session API,
 Session Provenance/Schema, public file transport, automatic/actual-card
 Checkpoints, CLI, examples/generated outputs, or end-to-end local capture absent.
-The `v0.14.0` Package release candidate validates 63 Schemas and 85 generated
-outputs; the published `v0.13.0` baseline remains 62 Schemas and 77 outputs.
-Issue #158 completes release preparation without publishing the Release.
+The published `v0.14.0` baseline validates 63 Schemas, six Session examples, 85
+generated outputs, and 5,892 pytest tests; the historical published `v0.13.0`
+baseline remains 62 Schemas and 77 outputs. Issue #158 completed Release
+preparation before manual maintainer publication.
 GUI/platform/cloud/encryption layers remain open.
 
 | Area | Observable completion condition |
@@ -365,9 +371,9 @@ GUI/platform/cloud/encryption layers remain open.
 | Session history editing | Version-1 contracts and behavior provide four Undo statuses, five Correction statuses, four Checkpoint relationships, strict-prefix reconstruction, exact suffix reporting, valid partial States, and deterministic replay. Public wrappers and CLI Undo/Correction with CAS Save and automatic resulting-State Checkpoints are implemented. Automatic Redo, arbitrary Log surgery, branching, and merge remain open. |
 | Private Session persistence and resume | The private version-1 document/codec/file boundary provides deterministic State/content fingerprints, strict typed reconstruction and accepted-Log replay, canonical Checkpoints, recomputed lineage, canonical UTF-8 files, optimistic outcomes, and atomic replacement. Stable public Save/Load and all-three-form CLI orchestration preserve those semantics and omit paths from Results. Distributed locking, migration, merge/retry, encryption, cloud sync, and automatic backup remain open. |
 | Examples | Examples cover each supported Root contract family and six strict Session creation/Command/correction/persistence documents; every example passes its applicable Schema and semantic validation. |
-| Generated-output validation | The `v0.14.0` Package matrix has 85 scenarios: the published `v0.13.0` first 77 remain unchanged, followed by eight Session scenarios. Historical published `v0.12.0` evidence remains 70. |
+| Generated-output validation | The published `v0.14.0` Package matrix has 85 scenarios: the historical published `v0.13.0` first 77 remain unchanged, followed by eight Session scenarios. Historical published `v0.12.0` evidence remains 70. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
-| Regression testing | Ruff, 63-Schema packaged parity, Root and Session example validation, 85-scenario generated-output validation, distribution build and clean-install API/installed/module Root and Session CLI validation, and the complete pytest suite pass locally and in GitHub Actions from a clean release candidate. |
+| Regression testing | Ruff, 63-Schema packaged parity, Root and Session example validation, 85-scenario generated-output validation, distribution build and clean-install API/installed/module Root and Session CLI validation, and all 5,892 pytest tests pass for the published `v0.14.0` baseline. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 

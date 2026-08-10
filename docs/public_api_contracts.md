@@ -357,9 +357,9 @@ report `0+unknown`. The fallback reads no repository file.
 
 This additive Package-Root export does not change `skat_ai.api.__all__`,
 `skat_ai.api.v1.__all__`, or `skat_ai.errors.__all__`. Package version remains
-absent from `ApiVersionInfoV1`, API Results, and Root JSON output. The published
-stable Release remains `v0.13.0`; Issue #158 prepares the completed functional
-`v0.14.0` milestone as an unpublished Package release candidate.
+absent from `ApiVersionInfoV1`, API Results, and Root JSON output. Issue #158
+completed Release preparation for the functional `v0.14.0` milestone before the
+maintainer's manual publication at commit `d5589f8`.
 
 ## Remaining Work
 
@@ -376,10 +376,10 @@ the seven-workflow Root facade. Issue #157 adds stable public Session file
 transport, accepted-Log Decision Observation, isolated Checkpoint review export,
 automatic exact Checkpoint collection, installed/module/Legacy CLI parity,
 explicit Session-triggered execution through the existing Application, and the
-Assistant. The `v0.14.0` Package release candidate has 63 authoritative and
-packaged Schemas and 85 generated-output scenarios; Package version is `0.14.0`, while the published
-`v0.13.0` baseline remains unchanged. Existing non-Session Root API users require
-no migration.
+Assistant. The published `v0.14.0` baseline has 63 authoritative and packaged
+Schemas and 85 generated-output scenarios; Package version is `0.14.0`, while
+the historical published `v0.13.0` baseline remains unchanged. Existing non-
+Session Root API users require no migration.
 
 GUI and browser UI, online-platform adapters, browser extensions, website
 scraping, automatic cloud synchronization, distributed locking, encryption and

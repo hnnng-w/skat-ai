@@ -318,7 +318,8 @@ field-level enforcement and Confidence integration are not implied. See
 [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).
 
-The `v0.14.0` Package release candidate has 63 Schemas and 85 generated outputs.
-The published `v0.13.0` baseline remains 62 Schemas and 77 scenarios. Issue #158
-prepares the completed functional Session milestone without publishing it; GUI,
-platform, cloud, locking, encryption, and unrelated pre-v1 work remain separate.
+The published `v0.14.0` baseline has 63 Schemas and 85 generated outputs. The
+historical published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
+Issue #158 completed Release preparation before manual maintainer publication;
+GUI, platform, cloud, locking, encryption, and unrelated pre-v1 work remain
+separate.
