@@ -52,7 +52,7 @@ def _reject_schema_retrieval(uri: str):
     raise NoSuchResource(ref=uri)
 
 
-@lru_cache(maxsize=2)
+@lru_cache(maxsize=3)
 def _validator_for(schema_name: str):
     from jsonschema import Draft202012Validator, FormatChecker
     from jsonschema.exceptions import SchemaError

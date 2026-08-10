@@ -11,6 +11,12 @@ the existing internal Application layer, and returns the Root output document
 inside immutable public contracts. Output is unchanged by default; an explicit
 option adds bounded public field provenance. It performs no caller transport I/O.
 
+Issue #156 adds a separate additive `skat_ai.api.v1.session` facade. Its Session
+operations do not construct Application invocations or call this Root `execute()`
+facade. Session exports construct existing Root Requests without executing them,
+and public persistence construction/resume is in-memory only. See
+[Public Session API version 1](public_session_api_v1.md).
+
 ## Public functions
 
 ```python
@@ -251,8 +257,10 @@ The facade validates:
 * every reusable auxiliary artifact as a Root input by default.
 
 Provenance-enabled Root output is validated through the strict referenced
-`field_provenance.schema.json`. The repository and packaged mirrors contain 62
-active Schema resources.
+`field_provenance.schema.json`. Session Commands, persistence mappings, and final
+Session Results use lazy standalone `session.schema.json` validation through the
+same local-only Package Resource registry. The repository and packaged mirrors
+contain 63 active Schema resources.
 
 `validate_output=False` skips only post-execution output and artifact schema
 validation. Input schema validation and Application semantic validation always

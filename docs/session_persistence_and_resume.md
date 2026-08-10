@@ -7,6 +7,13 @@ replays that content on resume, recomputes Checkpoint Lineage, and provides an
 optimistic atomic file-save boundary. It does not add a public Session surface or
 execute analysis.
 
+Issue #156 exposes only in-memory `build_session_persistence_document()` and
+`resume_session_document()`. Construction preserves canonical Checkpoint order
+and both fingerprints; resume validates the supplied mapping against the packaged
+Session Schema before strict reconstruction, fingerprint verification, replay,
+and lineage recomputation. Neither public operation reads or writes a file or
+retains a path or timestamp.
+
 ## Contract identity
 
 The exact constants and policies are:
@@ -31,9 +38,9 @@ CLI contract version `1`, Session and Command version `1`, transition and
 projection version `1`, Request-export versions, Decision-Checkpoint and Lineage
 versions, Provenance versions, and Schema versions.
 
-Issue #155 changes none of the published `v0.13.0` facts. The public boundary
-remains seven Root workflows, 62 authoritative Schemas, 62 byte-identical
-Packaged Schema Resources, and 77 deterministic generated-output scenarios.
+Issue #155 changes none of the published `v0.13.0` facts. That published baseline
+remains 62 authoritative and packaged Schemas and 77 generated outputs; the
+active Issue #156 tree has 63 byte-identical authoritative and packaged Schemas.
 
 ## Private document
 
@@ -304,8 +311,11 @@ contain the complete three hands, Skat, Discards, and Plays as accepted Commands
 Optional Decision Checkpoints contain local-private Position Requests, including
 the acting local hand and other information legitimate at that decision cutoff.
 
-The persistence document has no public redaction step. Public field-provenance
-redaction and Root output privacy contracts do not apply to it. Issue #155 makes
+The persistence document itself has no public redaction step. Optional Session
+Provenance describes the exact returned value and redacts only provenance
+references/dependencies; it neither removes nor widens document content. Public
+Root output privacy contracts do not apply to the document. Fingerprints are
+integrity identities, not provenance or authorship. Issue #155 makes
 no encryption, key management, access-control, secure-deletion, backup,
 synchronization, multi-user storage, or remote-transport claim. Callers are
 responsible for file location, operating-system permissions, copies, and backups.
@@ -315,15 +325,16 @@ authentication mechanism against a writer who can replace the document.
 
 ## Boundaries and remaining work
 
-The implementation remains internal under `skat_ai.session_persistence*`. It adds
-no Package-Root or `skat_ai.api.v1` export, eighth Root workflow, Application
-handler, Public API contract, Provenance propagation, Session Schema, installed/
-module/Legacy CLI persistence command, example, or generated output. Package
-version remains `0.13.0`.
+The low-level implementation remains under `skat_ai.session_persistence*`.
+`save_session_persistence_file_v1`, `load_session_persistence_file_v1`, and
+`SessionPersistenceWriteResultV1` remain internal and unsupported publicly.
+Issue #156 adds no Package-Root export, eighth Root workflow, Application handler,
+installed/module/Legacy CLI persistence command, example, or generated output.
+Package version remains `0.13.0`.
 
 Persistence does not execute Immediate Analysis, bounded Search, hidden-card
 inference, Multi-Step, Policy Comparison, Historical processing, Review,
 Coaching, scoring, Settlement, or any Application workflow. Session-triggered
 analysis, actual-card Checkpoint attachment, automatic Checkpoint collection,
-Public API, Provenance, Schemas, CLI persistence, and end-to-end Live or
+public file Save/Load, CLI persistence, and end-to-end Live or
 Retrospective capture/UI remain open.

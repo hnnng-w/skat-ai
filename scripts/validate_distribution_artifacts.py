@@ -29,7 +29,7 @@ UNAVAILABLE_SMOKE_EXAMPLE = (
 )
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.13.0"
-EXPECTED_SCHEMA_RESOURCE_COUNT = 62
+EXPECTED_SCHEMA_RESOURCE_COUNT = 63
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CONSOLE_SCRIPT_NAME = "skat-ai"
 CONSOLE_SCRIPT_TARGET = "skat_ai.cli:main"
@@ -446,6 +446,7 @@ from pathlib import Path
 
 import skat_ai
 from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, parse_request, serialize_result
+from skat_ai.api.v1 import session
 
 cwd = Path.cwd().resolve()
 repository_root = Path(os.environ["SKAT_AI_REPOSITORY_ROOT"]).resolve()
@@ -459,7 +460,7 @@ resource_names = sorted(
 )
 expected_names = sorted(path.name for path in expected_schema_root.glob("*.schema.json"))
 assert resource_names == expected_names
-assert len(resource_names) == 62
+assert len(resource_names) == 63
 
 schema_ids = []
 schema_digest = hashlib.sha256()
@@ -474,6 +475,44 @@ for name in resource_names:
     schema_digest.update(b"\0")
     schema_digest.update(content)
 assert len(schema_ids) == len(set(schema_ids))
+
+session_players = (
+    session.SessionPlayerV1(player_id="p1", player_label="Player 1", seat="forehand"),
+    session.SessionPlayerV1(player_id="p2", player_label="Player 2", seat="middlehand"),
+    session.SessionPlayerV1(player_id="p3", player_label="Player 3", seat="rearhand"),
+)
+created_session = session.create_session(
+    session_id="distribution-smoke",
+    players=session_players,
+    capture_mode="retrospective",
+    options=session.SessionApiOptionsV1(include_provenance=True),
+)
+assert created_session.field_provenance is not None
+applied_session = session.apply_session_command(
+    created_session.value,
+    {
+        "command_version": 1,
+        "kind": "set_game_metadata",
+        "expected_revision": 0,
+        "game_id": "distribution-smoke-game",
+        "played_at": None,
+    },
+)
+position_export = session.export_session_position_request(
+    applied_session.value.state,
+    session.SessionPositionExportOptionsV1(
+        sample_count=1,
+        random_seed=0,
+        use_basic_opponent_strategy=False,
+        recommendation_method=None,
+        bounded_search_settings=None,
+    ),
+)
+assert position_export.value.status == "unavailable"
+persistence = session.build_session_persistence_document(applied_session.value.state)
+resumed_session = session.resume_session_document(persistence.value.to_dict())
+assert resumed_session.value.document == persistence.value
+assert session.serialize_session_result(created_session)["operation"] == "create"
 
 request = parse_request(document)
 default_execution = execute_document(

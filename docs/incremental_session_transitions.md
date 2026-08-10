@@ -246,14 +246,22 @@ Issue #153 uses Position readiness as an information-safe exact gate.
 
 ## Performance and boundaries
 
+Public `create_session()` and `apply_session_command()` expose revision-zero
+creation and atomic application through `skat_ai.api.v1.session`. Application
+accepts an exact typed Command or one strictly Schema-parsed Command mapping;
+applied, rejected, and revision-conflict outcomes remain normal typed Results.
+Each wrapper calls the existing internal function once. Optional complete
+returned-value provenance and final Session Result Schema validation do not
+replay the transition.
+
 One Command application performs at most one full replay of the prior accepted
 Log and one candidate application. It starts no random stream, timeout,
 background task, Search, Immediate Analysis, Historical Review, Replay Coaching,
 Settlement, Application execution, Public API execution, or history branch.
 
-Package/Public API exports, all seven Root workflows, Application orchestration,
-installed/module/Legacy CLI, 62 Schemas, examples, and 77 generated outputs are
-unchanged. One Historical export performs one replay, no builder call when
+Root Public API exports, all seven Root workflows, Application orchestration,
+installed/module/Legacy CLI, examples, and 77 generated outputs are unchanged.
+The active tree has 63 Schemas. One Historical export performs one replay, no builder call when
 unavailable, or one provisional build, one canonical serialization, and one
 canonical rebuild when available. One Position export performs one replay and no
 builder call when unavailable or one existing Position build when available. A
@@ -272,9 +280,9 @@ operations, and both exporters. Persistence Load/Resume does not automatically
 export or analyze. See
 [Session persistence and Resume](session_persistence_and_resume.md).
 
-Session-triggered analysis, actual-card Checkpoint attachment, Public Session
-API, Session Provenance, Session Schemas, CLI Session Assistant, examples,
-generated outputs, automatic Checkpoint collection, end-to-end capture, and UI
+Session-triggered analysis, actual-card Checkpoint attachment, public file
+Save/Load, CLI Session Assistant, examples, generated outputs, automatic
+Checkpoint collection, end-to-end capture, and UI
 remain later work. See
 [Retrospective Session export](retrospective_session_export.md) and
 [Session Position export and Decision checkpoints](live_session_position_export.md),

@@ -177,12 +177,16 @@ The exporter uses only accepted Session facts, replayed projection values, and
 existing Historical builders and serializers. It does not infer opponent hands,
 Skat, Discards, ownership, events, or endings. Search, hidden-card inference,
 simulation, proof, review, Coaching, score, Result, Value, Overbid, Settlement,
-Provenance, Command application, file I/O, and workflow execution are absent.
+Command application, file I/O, and workflow execution are absent.
 
-The feature remains internal. It adds no public Session API, Root workflow,
-Application handler, CLI behavior, Schema, example, or generated output. The
-seven Root workflows, 62 authoritative and packaged Schemas, and 77 generated-
-output scenarios remain unchanged.
+Public `export_session_historical_request()` wraps this exporter exactly once as
+operation `export_historical`, returning the existing `SessionRequestExportV1`
+with target `historical_game`. Available/unavailable behavior is unchanged and no
+Historical workflow executes. Optional Session Provenance belongs to the outer
+Session Result, not the exported Root Request. No Root workflow, Application
+handler, CLI behavior, example, or generated output is added. The active tree has
+63 authoritative and packaged Schemas, seven Root workflows, and 77 generated-
+output scenarios.
 
 ## Remaining work
 
@@ -199,8 +203,8 @@ accepted Log and returns a normal resumed `SessionStateV1`; it neither invokes
 this exporter nor executes the Historical workflow. See
 [Session persistence and Resume](session_persistence_and_resume.md).
 
-Session-triggered analysis, actual-card Checkpoint attachment, Public Session
-API, Session Provenance, Session Schemas, CLI Session Assistant, examples,
-generated outputs, automatic Checkpoint collection, end-to-end capture, and UI
+Session-triggered analysis, actual-card Checkpoint attachment, public file
+Save/Load, CLI Session Assistant, examples, generated outputs, automatic
+Checkpoint collection, end-to-end capture, and UI
 work remain separate scopes. See [Session Position export and Decision
 checkpoints](live_session_position_export.md).

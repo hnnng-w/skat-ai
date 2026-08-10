@@ -458,8 +458,12 @@ publishes only one redacted Root Result ledger plus actual-artifact ledgers.
 Broader adversarial enforcement outside implemented Application boundaries and
 complete field-level enforcement across every load, decision, intermediate, and
 serialization boundary remain open before `v1.0.0`. Confidence integration is
-not part of the provenance contract. Session Provenance propagation also remains
-open after the Issue #150 contract, Issue #151 transition foundation, Issue #152
-internal Historical exporter, Issue #153 Position exporter and Decision
-Checkpoints, Issue #154 history editing and lineage, and Issue #155 private
-persistence and strict resume.
+not part of the provenance contract. Issue #156 adds separate public Session
+Provenance version `1`: complete operation-specific ledgers cover exact returned
+Session values, redact engine-private references/dependencies, and recompute
+complete coverage. Live local hands remain concrete-player `local_private`,
+public Plays remain `public`, and complete Retrospective hands/Skat/Discards are
+`post_game_only` at game-end or offline boundaries. Stable source identities
+never embed Command payloads or Cards. Persistence fingerprints remain integrity
+identities, not provenance or authorship. See
+[Session provenance](session_provenance.md).

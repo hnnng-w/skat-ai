@@ -21,9 +21,12 @@ incremental validation, Command application, canonical Retrospective Historical
 and information-safe Position Request construction, and pre-Play Decision
 Checkpoints, plus strict-prefix Undo, one-command correction, suffix replay, and
 Checkpoint lineage, plus private deterministic persistence and strict resume.
-Issue #155 adds no CLI Session `save`, `load`, or `resume` command, option, path,
-or workflow. It adds no Session Schema, assistant, prompt, automatic execution,
-Console Script, or invocation form; all CLI contracts below remain unchanged.
+Issue #156 adds a Python-only Public Session API and standalone Schema, but no CLI
+Session create, apply, Undo, correct, export, Checkpoint, persistence, save, load,
+or resume command or option. It adds no Assistant, default path, Session output
+file, prompt, automatic execution, Console Script, or invocation form; all CLI
+contracts below remain unchanged. See
+[Public Session API version 1](public_session_api_v1.md).
 
 ## Installation
 
@@ -161,7 +164,8 @@ two existing clean environments verify exact Console Script metadata, module
 entry-point inclusion, Root-main exclusion, help, version, successful Root JSON
 parity, one unavailable Result, one usage failure, one expected resource failure,
 and exact CLI/Public API output parity, including provenance opt-in and quiet
-behavior. All 62 Schema Resources and `py.typed` remain required. The local full
+behavior. All 63 Schema Resources and `py.typed` remain required. Clean installs
+also exercise the Python-only Session API without changing CLI behavior. The local full
 check and CI invoke that validator once.
 
 ## Boundaries

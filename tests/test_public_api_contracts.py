@@ -93,7 +93,7 @@ WORKFLOWS = (
 def test_public_namespaces_have_exact_export_surfaces() -> None:
     assert skat_ai.__all__ == ("api", "errors", "__version__")
     assert skat_ai.api.__all__ == ("v1",)
-    assert api_v1.__all__ == (*CONTRACT_EXPORTS, *ERROR_EXPORTS)
+    assert api_v1.__all__ == (*CONTRACT_EXPORTS, *ERROR_EXPORTS, "session")
     assert skat_ai.errors.__all__ == ERROR_EXPORTS
 
     for name in api_v1.__all__:

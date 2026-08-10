@@ -48,6 +48,12 @@ accepted-Log State plus caller-supplied frozen Checkpoints. It does not build an
 `ApplicationInvocation`, add an eighth workflow or handler, invoke this
 dispatcher, or change orchestration version `1`.
 
+Issue #156 exposes those operations through the separate
+`skat_ai.api.v1.session` namespace without changing this boundary. Session
+wrappers do not create an invocation, invoke a handler, call Root `execute()`, or
+add a workflow. Session Provenance is separate from
+`ApplicationProvenanceBundle` and public Root Result provenance.
+
 ## Contracts
 
 The main contract values are frozen, slotted, keyword-only dataclasses:
@@ -253,8 +259,9 @@ The following remain separate follow-up scopes:
 * public error translation across existing Domain failures;
 * broader field-level enforcement outside the implemented Application and
   bounded public Root Result/actual-artifact boundaries;
-* public or automatic execution over internal Session Position/Historical
-  Request exports, history edits, Decision Checkpoints, and persisted States.
+* Session-triggered Position/Historical execution over exported Requests;
+* public file transport, automatic/actual-card Checkpoints, and end-to-end
+  Session capture.
 
 Package and distribution metadata, private Package Resource schemas, `py.typed`,
 Package `__version__`, and clean Wheel/sdist validation are implemented by Issue

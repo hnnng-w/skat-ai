@@ -84,8 +84,9 @@ Play Position export as a Decision Checkpoint. Issue #154 can derive another
 immutable State from a strict accepted prefix or one replacement plus the valid
 original suffix, and can classify the frozen Checkpoint against that history.
 Issue #155 can persist the active State and optional Checkpoints, then strictly
-Resume them without changing this flow. There is no Public Session API or
-Session Root workflow.
+Resume them without changing this flow. Issue #156 adds Public Session API
+version `1` and independent Session Provenance version `1` over these unchanged
+contracts. There is still no Session Root workflow.
 
 `GameState` remains the mutable local analysis and simulation value.
 `HistoricalGameRecord` remains the strict immutable final historical contract.
@@ -395,10 +396,13 @@ added to `SessionStateV1`.
 
 ## Boundaries and remaining work
 
-Session contracts are internal. They are not exported from `skat_ai`,
-`skat_ai.api`, `skat_ai.api.v1`, or `skat_ai.errors`. The seven Root workflows,
-Public API functions, installed/module/Legacy CLI, 62 Schemas, examples, and 77
-generated-output scenarios are unchanged. Package version remains `0.13.0`.
+Approved immutable Session contracts are re-exported with identical type identity
+from `skat_ai.api.v1.session`; `SessionProjectionV1` and low-level helpers remain
+internal. Public operations return a schema-valid `SessionApiResultV1` and may
+attach a separate optional complete provenance sidecar without changing internal
+State serialization. The seven Root workflows, installed/module/Legacy CLI,
+examples, and 77 generated-output scenarios are unchanged. The active tree has
+63 Schemas; Package version remains `0.13.0`.
 
 Internal canonical Retrospective Historical Request export is implemented. It
 returns an immutable available/unavailable result, replays once, invokes no
@@ -419,8 +423,8 @@ and both exporters. Persistence Load/Resume neither exports a Request nor starts
 analysis. See [Session persistence and Resume](session_persistence_and_resume.md).
 
 Remaining `v0.14.0` work includes Session-triggered analysis, actual-card
-Checkpoint attachment, Public Session API, Session Provenance, Session Schemas,
-CLI Session Assistant, examples, generated outputs, automatic Checkpoint
+Checkpoint attachment, public file Save/Load, CLI Session Assistant, examples,
+generated outputs, automatic Checkpoint
 collection, end-to-end capture, and any later local interface. No UI technology
 or platform integration is selected. See
 [Incremental Session transitions](incremental_session_transitions.md).

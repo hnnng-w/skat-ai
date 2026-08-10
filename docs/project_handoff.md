@@ -333,15 +333,28 @@ Implemented by Issue #155:
 * canonical UTF-8 JSON files and durable same-directory temporary-file writes
   completed by atomic replacement, with owned temporary-file cleanup on failure
 
-Session-triggered analysis, actual-card Checkpoint attachment, Public API,
-Provenance propagation, Session Schemas, CLI Session Assistant, examples,
-generated output, automatic Checkpoint collection, end-to-end capture, and UI
+Implemented by Issue #156:
+
+* stable `skat_ai.api.v1.session` version-1 namespace with exact immutable type
+  identity, strict public Command parsing, and one typed Result envelope
+* ten one-call in-memory operations covering create/apply, history edits, both
+  exports, Checkpoint construction/classification, and persistence build/resume
+* default-omitted complete redacted Session Provenance over exact returned values
+* strict standalone `session.schema.json`, 63-Schema Package parity, and clean-
+  install Session create/apply/export/persistence/resume validation
+
+Session-triggered analysis, actual-card Checkpoint attachment, public file
+Save/Load, CLI Session Assistant, examples, generated output, automatic
+Checkpoint collection, end-to-end capture, and UI
 are not implemented. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),
 and [Session persistence and resume](session_persistence_and_resume.md).
+The dedicated public contracts are documented in
+[Public Session API version 1](public_session_api_v1.md) and
+[Session provenance](session_provenance.md).
 
 ### Field-level provenance contract foundation
 
@@ -975,6 +988,12 @@ Implemented:
 * `session_persistence.py`
   * strict private file loading, canonical expected-fingerprint saves, conflict
     detection, and atomic same-directory replacement
+* `api/v1/session/`
+  * stable contracts, exact re-exports, strict Schema boundaries, and ten
+    transport-free public operation wrappers
+* `session_provenance.py`
+  * complete operation-value ledgers, public redaction, coverage recomputation,
+    and public Session Provenance bundle construction
 
 ### Game state and rules
 
@@ -1115,6 +1134,8 @@ Main documentation files:
 * `docs/live_session_position_export.md`
 * `docs/session_undo_and_correction.md`
 * `docs/session_persistence_and_resume.md`
+* `docs/public_session_api_v1.md`
+* `docs/session_provenance.md`
 * `docs/field_level_information_provenance.md`
 * `docs/public_field_provenance.md`
 * `docs/complete_result_provenance.md`

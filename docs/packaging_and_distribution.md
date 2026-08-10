@@ -80,7 +80,9 @@ the check finishes. It does not publish either artifact.
 
 ## Schema resources
 
-The 62 files under repository `schemas/` remain the authoritative JSON Schemas.
+The 63 files under repository `schemas/` are the authoritative JSON Schemas.
+Issue #156 adds strict standalone `session.schema.json`; Wheel and sdist contain
+its byte-identical Package Resource mirror.
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
@@ -153,7 +155,7 @@ Wheel inspection verifies:
 
 * valid core metadata and the declared runtime and development dependencies;
 * every `skat_ai` Python module;
-* `py.typed` and all 62 byte-identical schema resources;
+* `py.typed` and all 63 byte-identical schema resources;
 * a valid pure-Python Wheel and RECORD;
 * exact `skat-ai = skat_ai.cli:main` Console Script metadata and
   `skat_ai/__main__.py`;
@@ -216,3 +218,7 @@ Package-version change, or Package publication. Issue #147 subsequently added
 opt-in bounded public Provenance without publication. The Package license
 decision remains unresolved, so no license metadata is declared. Package and
 release publication remain human-controlled.
+Clean-install validation imports `skat_ai.api.v1.session` and exercises Session
+create, apply, unavailable export, persistence construction/resume, Result
+serialization, and provenance opt-in. It adds no Console Script, GUI Script, or
+second command. Package version remains `0.13.0`.

@@ -5,8 +5,9 @@ Session States. It rewinds one accepted Command Log to a strict prefix, replaces
 one accepted Command and replays the original later suffix, and classifies frozen
 Decision Checkpoints against the resulting linear history. Issue #155 adds a
 separate private persistence wrapper for the resulting active State and optional
-caller-supplied Checkpoints, without changing this history layer or adding a
-public Session surface.
+caller-supplied Checkpoints, without changing this history layer. Issue #156 adds
+stable `rewind_session()`, `correct_session_command()`, and
+`classify_session_decision_checkpoint()` wrappers over the existing operations.
 
 ## Contract identity
 
@@ -272,19 +273,23 @@ replacement application, and one linear suffix pass. One lineage classification
 performs at most one source replay, one prefix reconstruction, and one expected-
 Request reconstruction.
 
-These operations run no Search, Immediate Analysis, hidden-card inference,
+Each public wrapper invokes its matching internal history operation exactly once
+and returns the existing Undo, Correction, or lineage value in a Session Result.
+Optional complete provenance and final standalone-Session-Schema validation do
+not add replay. These operations run no Search, Immediate Analysis, hidden-card inference,
 Multi-Step, Policy Comparison, Historical workflow, Review, Coaching, scoring,
-Settlement, Application, Public API, file I/O, timeout, or background task.
+Settlement, Application, file I/O, timeout, or background task.
 
 ## Boundaries and remaining work
 
-The feature is internal under `skat_ai.session_history*`. It adds no Package-Root
-or Public API export, Root workflow, Application handler, CLI command or option,
-Schema, example, generated output, or Package-version change. The public boundary
-remains seven Root workflows, 62 authoritative and packaged Schemas, 77 generated
-outputs, and Package version `0.13.0`.
+The implementation remains under `skat_ai.session_history*` and is exposed only
+through the additive `skat_ai.api.v1.session` namespace. It adds no Package-Root
+export, Root workflow, Application handler, CLI command or option, example,
+generated output, or Package-version change. The active boundary remains seven
+Root workflows, 63 authoritative and packaged Schemas, 77 generated outputs, and
+Package version `0.13.0`.
 
-Session-triggered analysis, actual-card Checkpoint attachment, Public Session
-API, Session Provenance, Session Schemas, CLI Session commands and Assistant,
-examples, generated outputs, automatic Checkpoint collection, end-to-end capture,
+Session-triggered analysis, actual-card Checkpoint attachment, public file
+Save/Load, CLI Session commands and Assistant, examples, generated outputs,
+automatic Checkpoint collection, end-to-end capture,
 and UI remain open.

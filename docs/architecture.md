@@ -11,6 +11,7 @@ the existing Engine workflows:
 
 ```text
 Session Commands
+    -> stable skat_ai.api.v1.session wrapper and optional returned-value provenance
     -> immutable accepted Session State
     -> optional immutable Undo or one-command correction
     -> optional private persistence document and atomic local save
@@ -18,6 +19,7 @@ Session Commands
     -> validation and export readiness
     -> canonical Position Request export and optional Decision Checkpoint
     -> canonical Historical Game Request export
+    -> strict standalone Session Result Schema validation
 ```
 
 The immutable Session language, deterministic accepted-Log replay, frozen
@@ -33,9 +35,13 @@ partial State before the first rejected later Command, and derive Checkpoint
 lineage. Issue #155 can retain the authoritative State and optional caller-
 supplied frozen Checkpoints in one private version-1 document, strictly resume it,
 recompute lineage, and optimistically save canonical local bytes through same-
-directory atomic replacement. No Public API, Session Provenance, Session Schema,
-CLI persistence command, automatic Checkpoint collection, Session-triggered
-analysis, or capture/UI exists yet.
+directory atomic replacement. Issue #156 adds `api/v1/session` as a stable
+transport-free wrapper, `session_provenance.py` for complete redacted returned-
+value ledgers, and standalone Package Resource Schema validation. Each public
+operation delegates once to its existing internal function and remains outside
+Application orchestration. CLI Session commands, public file transport,
+automatic Checkpoint collection, Session-triggered analysis, and capture/UI do
+not exist yet.
 
 The position-analysis flow is:
 
@@ -660,6 +666,7 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/opponent_profile_derivation.schema.json` | Strict versioned confidence, signal, classification, preset, and explanation output. |
 | `schemas/hidden_card_inference_summary.schema.json` | Strict version-1 compatible-world evidence, marginals, confidence semantics, and privacy flags. |
 | `schemas/output.schema.json`                   | Stable output JSON structure.                                            |
+| `schemas/session.schema.json`                  | Strict standalone Public Session API Commands, values, Results, persistence, and optional provenance. |
 | `scripts/validate_examples_schema.py`          | Validates input examples against the input schema.                       |
 | `scripts/validate_generated_outputs_schema.py` | Generates selected outputs and validates them against the output schema. |
 | `scripts/check.ps1`                            | Runs the combined project check.                                         |

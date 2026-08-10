@@ -1369,9 +1369,9 @@ def test_existing_engine_contracts_replay_public_api_cli_and_counts_are_unchange
         for action in cli.build_argument_parser()._actions
         for option in action.option_strings
     )
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 62
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 63
     packaged_schema_directory = PROJECT_ROOT / "src" / "skat_ai" / "schema_resources"
-    assert len(tuple(packaged_schema_directory.glob("*.schema.json"))) == 62
+    assert len(tuple(packaged_schema_directory.glob("*.schema.json"))) == 63
     assert len(SCENARIOS) == 77
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["version"] == "0.13.0"

@@ -200,6 +200,25 @@ The output schema checks the main output structure, including:
 * optional Root `field_provenance` for every output branch through the strict
   version-1 public field-provenance schema
 
+## Standalone Session Schema
+
+Issue #156 adds strict Draft 2020-12 `schemas/session.schema.json`, mirrored byte-
+identically into Package Resources. Its recursively closed definitions cover all
+ten Commands, Players, Command records, Diagnostics, readiness, Validation,
+State, Transition Results, Position Export Options, Request exports, Decision
+Checkpoints, Undo, correction, lineage, persistence/resume, API options/Results,
+and optional Session Provenance.
+
+Public Command mappings and complete Session API Results are validated lazily
+through the local-only registry with deterministic RFC 6901 errors. Exact
+versions, statuses, operation/value discrimination, Command unions, fingerprint
+patterns, and absence of engine-private public provenance are structural Schema
+requirements. Python constructors and replay remain authoritative for semantic
+relationships, coverage/dependencies, fingerprints, Checkpoint reconciliation,
+and operation/value identity. No Session example or generated-output scenario is
+added; Root input/output Schemas and all 77 generated outputs remain unchanged.
+The active tree has 63 authoritative and 63 packaged Schemas.
+
 The published `v0.13.0` baseline at commit `abd1ad3` contains 62 authoritative
 Schemas and 62 Packaged Schema Resources and validates 77 deterministic outputs:
 the 70 historical published `v0.12.0` scenarios remain unchanged, followed by

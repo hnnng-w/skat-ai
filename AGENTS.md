@@ -136,6 +136,8 @@ Before larger changes, read the relevant documentation:
 * `docs/output_json.md`
 * `docs/application_orchestration.md`
 * `docs/session_persistence_and_resume.md`
+* `docs/public_session_api_v1.md`
+* `docs/session_provenance.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -234,9 +236,13 @@ Checkpoint lineage. Issue #155 adds internal Session Persistence version `1`,
 canonical State/content fingerprints, strict reconstruction and replay, optional
 caller-supplied frozen Checkpoints with recomputed lineage, optimistic content-
 fingerprint conflicts, canonical local file load, and atomic save. Session-
-triggered analysis, actual-card Checkpoint attachment, Public API, Provenance
-propagation, Session Schemas, CLI persistence, examples, generated output,
-automatic Checkpoint collection, and capture/UI technology remain open. Online-platform adapters,
+triggered analysis, actual-card Checkpoint attachment, public file Save/Load,
+CLI Session commands, examples, generated output, automatic Checkpoint
+collection, and capture/UI technology remain open. Issue #156 adds stable
+`skat_ai.api.v1.session` version `1`, exact immutable contract re-exports, public
+Command parsing, ten transport-free in-memory operations, one typed Result
+envelope, default-omitted complete redacted Session Provenance, strict standalone
+Session Schema, 63-Schema Package parity, and clean-install validation. Online-platform adapters,
 browser extensions, and website scraping remain outside this bounded milestone.
 
 Major completed areas include:
@@ -340,6 +346,10 @@ Major completed areas include:
   documents, optional frozen Checkpoints, domain-separated SHA-256 identity,
   strict resume, derived lineage, optimistic conflict results, and durable-
   intent same-directory atomic replacement
+* stable public Session API version `1` with exact immutable type identity,
+  strict Command parsing, ten one-call in-memory operations, typed Results,
+  optional complete redacted Session Provenance, a standalone packaged Session
+  Schema, and clean-install validation
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -361,10 +371,13 @@ attribution, player ratings, complete field-level information provenance, and
 end-to-end interactive Session capture remain open before `v1.0.0`. Internal
 Command application, incremental validation, Retrospective Historical and
 information-safe Position Request export, declared-Ouvert public-hand capture,
-pre-Play Decision Checkpoints, Undo, correction, Checkpoint lineage, and private
-local persistence/resume exist, but Public API, Provenance, Session Schemas, CLI
-persistence, automatic Checkpoint collection, actual-card attachment, Session-
-triggered analysis, and capture/UI do not. Session State itself contains no path
+pre-Play Decision Checkpoints, Undo, correction, Checkpoint lineage, public in-
+memory persistence construction/resume, and private local file persistence exist,
+but public file Save/Load, CLI Session commands, automatic Checkpoint collection,
+actual-card attachment, Session-triggered analysis, examples/generated output,
+and capture/UI do not. The active tree has 63 authoritative and byte-identical
+packaged Schemas and 77 generated-output scenarios; the published `v0.13.0`
+baseline remains 62 Schemas and 77 scenarios. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, website, browser integration,
 four-player support, or claim of complete official rule coverage exists.

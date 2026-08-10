@@ -69,14 +69,23 @@ Undo, one-command correction, deterministic suffix replay, and Checkpoint
 lineage. Issue #155 adds private deterministic Session persistence and resume,
 including expected-fingerprint stale-write conflict detection and atomic file
 replacement. Session-triggered analysis, actual-card Checkpoint attachment,
-Public API, Session Provenance, Schemas, CLI Session Assistant, examples,
-generated outputs, automatic Checkpoint collection, end-to-end capture, and UI
+public file Save/Load, CLI Session Assistant, examples, generated outputs,
+automatic Checkpoint collection, end-to-end capture, and UI
 remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),
 and [Session persistence and resume](session_persistence_and_resume.md).
+
+Issue #156 completes the stable `skat_ai.api.v1.session` version-1 namespace,
+exact immutable contract exposure, strict Command parsing, typed Result
+serialization, all ten transport-free in-memory operations, optional complete
+redacted Session Provenance, strict standalone Session Schema, 63-Schema Package
+parity, and clean-install validation. It adds no Root workflow, CLI command,
+Session example, or generated output; Package version remains `0.13.0` and the
+generated-output count remains 77. The published `v0.13.0` baseline remains 62
+Schemas.
 
 ### Public API contract foundation
 

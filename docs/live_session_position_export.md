@@ -216,19 +216,23 @@ lineage Result.
 
 ## Boundaries and remaining work
 
-The feature remains internal. It adds no public Session API, eighth Root
-workflow, Application handler, installed/module/Legacy CLI behavior, Schema,
-example, generated output, or Package-version change. The seven Root workflows,
-62 authoritative and packaged Schemas, and 77 generated-output scenarios remain
-unchanged.
+Public `export_session_position_request()` returns operation `export_position`
+with the existing `SessionRequestExportV1`; `build_session_decision_checkpoint()`
+and `classify_session_decision_checkpoint()` return the existing Checkpoint and
+lineage values. Each wrapper invokes one internal operation and executes no
+analysis. Optional provenance covers the outer returned operation value; no
+nested Checkpoint sidecar or actual Card is added. There is no eighth Root
+workflow, Application handler, CLI behavior, example, generated output, or
+Package-version change. The active tree has 63 authoritative and packaged
+Schemas, seven Root workflows, and 77 generated-output scenarios.
 
 Persistence Load/Resume does not invoke this exporter or start Position Analysis;
 export itself still performs no file I/O or workflow execution. See
 [Session persistence and Resume](session_persistence_and_resume.md).
 
 Session-triggered Position Analysis, actual-card attachment to Checkpoints,
-Public Session API, Session Provenance, Session Schemas, CLI Session Assistant,
-examples, generated outputs, automatic Checkpoint collection, end-to-end capture,
+public file Save/Load, CLI Session Assistant, examples, generated outputs,
+automatic Checkpoint collection, end-to-end capture,
 and UI remain separate scopes. See
 [Interactive Session contracts](interactive_session_contracts.md),
 [Incremental Session transitions](incremental_session_transitions.md), and

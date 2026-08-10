@@ -221,17 +221,27 @@ official Skat rules arbitration.
 * Optimistic expected-content-fingerprint `saved`, `unchanged`, and `conflict`
   results plus canonical pretty UTF-8/LF save bytes and same-directory atomic
   replacement
+* Stable transport-free `skat_ai.api.v1.session` version-1 namespace with exact
+  immutable Session type identity, strict public Command parsing, one-call
+  wrappers for ten in-memory operations, and one immutable Result envelope
+* Default-omitted, opt-in Session Provenance version `1` with complete exact-
+  value coverage, engine-private redaction, and recomputed coverage
+* Strict standalone Draft 2020-12 `session.schema.json` mirrored into Package
+  Resources, bringing the active authoritative and packaged Schema count to 63
 
-The internal Command layer, both ready-Session Request exporters, and Decision
-Checkpoint builder are executable. Internal Undo, correction, suffix replay, and
-Checkpoint lineage are also implemented. Internal private persistence can build,
-strictly resume, load, and optimistically save those values, but Session-triggered
-analysis, actual-card Checkpoint attachment, Public API, Session Provenance,
-Session Schemas, CLI persistence, examples, generated outputs, automatic
-Checkpoint collection, and end-to-end capture/UI are not implemented. The
-exporters construct but do not execute the existing Position or Historical
-workflow. Session State itself still contains no filesystem path or fingerprint;
-those values belong to the private persistence envelope and save call. See
+The stable Python Session API exposes creation, Command application, Undo,
+correction, both Request exports, Checkpoint construction and classification,
+and persistence-document construction/resume entirely in memory. Public Command
+parsing, typed Results, optional complete Session Provenance, and the standalone
+Session Schema are implemented. The exporters construct but do not execute the
+existing Position or Historical workflow, and no Session Root workflow exists.
+Public file Save/Load, CLI Session commands, Session-triggered analysis, actual-
+card attachment, examples/generated outputs, automatic Checkpoint collection,
+and end-to-end capture/UI remain open. Session State itself still contains no
+filesystem path or fingerprint; those values belong to the private persistence
+envelope and internal save call. See
+[Public Session API version 1](docs/public_session_api_v1.md),
+[Session provenance](docs/session_provenance.md),
 [Interactive session contracts](docs/interactive_session_contracts.md),
 [Incremental Session transitions](docs/incremental_session_transitions.md),
 [Retrospective Session export](docs/retrospective_session_export.md),
@@ -750,6 +760,8 @@ Detailed documentation is split into topic-specific files:
 * [Input JSON](docs/input_json.md)
 * [Public API contracts](docs/public_api_contracts.md)
 * [Public Python API v1](docs/public_python_api_v1.md)
+* [Public Session API version 1](docs/public_session_api_v1.md)
+* [Session provenance](docs/session_provenance.md)
 * [Installed CLI](docs/installed_cli.md)
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
@@ -1069,16 +1081,20 @@ internal Session Persistence version `1`, strict reconstruction/replay and
 fingerprint verification, caller-supplied frozen Checkpoint retention with
 recomputed lineage, optimistic expected-content-fingerprint writes, and canonical
 atomic local file replacement.
+Issue #156 adds the stable `skat_ai.api.v1.session` namespace, exact immutable
+contract exports, all ten in-memory operations, public Command parsing, the
+Session Result envelope, optional complete Session Provenance, strict standalone
+Session Schema, 63-Schema Package Resource parity, and clean-install validation.
 Session and Command version `1`, transition and projection version `1`, stable
 Players, Capture Modes, typed Commands, an authoritative accepted Log, full
 replay, atomic application, monotonic phases, incremental validation, Diagnostics,
 export readiness, immutable export Results, exact Historical and information-safe
 Position mapping, declared-Ouvert public-hand capture, canonical Request
 construction, frozen local pre-Play Checkpoints, and internal history editing now
-exist. Private persistence and strict resume also exist. Session-triggered
-analysis, actual-card Checkpoint attachment, Public API, Provenance, Session
-Schemas, CLI persistence, examples, generated outputs, automatic Checkpoint
-collection, and end-to-end capture/UI remain open. Online-
+exist. Private file persistence and public in-memory persistence construction and
+strict resume also exist. Session-triggered analysis, actual-card Checkpoint
+attachment, public file Save/Load, CLI Session commands, examples, generated
+outputs, automatic Checkpoint collection, and end-to-end capture/UI remain open. Online-
 platform adapters, browser extensions, and website scraping remain outside this
 bounded milestone.
 

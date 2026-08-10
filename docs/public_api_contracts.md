@@ -27,6 +27,7 @@ The supported public namespaces are:
 skat_ai
 skat_ai.api
 skat_ai.api.v1
+skat_ai.api.v1.session
 skat_ai.errors
 ```
 
@@ -37,20 +38,17 @@ Technical importability does not make any other `skat_ai.*` module public.
 Direct imports from workflow, Domain, builder, serializer, schema-loader, or
 other internal modules have no compatibility guarantee.
 
-Issues #150 through #155 Session contracts, projection, replay, incremental
-validation, Command application, canonical Retrospective Historical and
-information-safe Position Request export, and pre-Play Decision Checkpoints
-remain internal under `skat_ai.session_*`. The same internal boundary now also
-contains strict-prefix Undo, one-command correction, suffix replay, partial
-corrected States, Checkpoint lineage, and private deterministic persistence and
-strict resume. Persistence reconstructs the authoritative accepted-Log State
-and caller-supplied frozen Checkpoints, verifies separate State and content
-integrity fingerprints, replays the State, and derives Checkpoint lineage. Its
-private document has no public Schema or Provenance Ledger and receives no
-public redaction. Internal Request construction, freezing, persistence, and file
-transport add no public Session type, function, Root workflow, Request/Result
-field, or option. The exact public export surfaces in this document are
-unchanged. See
+Issue #156 appends only `session` to `skat_ai.api.v1.__all__`; every previous
+export retains exact order and identity, and the Package Root, `skat_ai.api`, and
+error exports remain unchanged. `skat_ai.api.v1.session` re-exports approved
+immutable Session types with exact identity and provides ten transport-free
+operations, strict Command parsing, typed Results, optional complete Session
+Provenance, and standalone Schema validation. Existing public errors cover
+boundary failures; rejected/conflicted/unavailable/unchanged/partial Session
+statuses are normal Results. There is no Session Root workflow, automatic
+analysis, public file Save/Load, or CLI support. See
+[Public Session API version 1](public_session_api_v1.md),
+[Session provenance](session_provenance.md),
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
@@ -360,10 +358,11 @@ information-safe Position Requests and immutable pre-Play Decision Checkpoints
 internally without executing analysis. Issue #154 adds internal immutable Undo,
 correction, suffix replay, and Checkpoint lineage without exporting them.
 Issue #155 adds private deterministic persistence, optimistic conflict
-detection, atomic file replacement, and strict resume without exporting them. A
-Public Session API, Session Provenance, Session Schemas, CLI integration, and
-automation remain later work; no version-1 public export changes at this
-boundary.
+detection, atomic file replacement, and strict resume. Issue #156 exposes the
+bounded in-memory Session surface, provenance, and Schema without changing the
+seven-workflow Root facade. Session-triggered analysis, public file transport,
+CLI integration, automatic/actual-card Checkpoints, capture, and UI remain later
+work.
 
 Internal Application orchestration version `1`, no-I/O execution for all seven
 Root workflows, legacy CLI transport parity, and auxiliary artifacts are

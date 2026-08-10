@@ -46,6 +46,14 @@ from skat_ai.errors import (
     SkatAIWorkflowError,
 )
 
+
+def __getattr__(name: str):
+    if name == "session":
+        from importlib import import_module
+
+        return import_module("skat_ai.api.v1.session")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 __all__ = (
     "PUBLIC_API_CONTRACT_VERSION",
     "PUBLIC_API_NAMESPACE",
@@ -86,4 +94,5 @@ __all__ = (
     "SkatAIInvariantError",
     "SkatAICliUsageError",
     "SkatAIDeprecationWarning",
+    "session",
 )
