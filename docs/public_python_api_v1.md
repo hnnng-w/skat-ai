@@ -313,12 +313,12 @@ exact declared public document and must remain complete. See
 Issue #141 adds private Package Resources, build-
 system metadata, Package Data, `py.typed`, Package-Root `__version__`, and
 Wheel/sdist validation without a Package version change. Issue #142 adds a
-separate installed CLI contract. The current Package version is `0.13.0`. Broader
+separate installed CLI contract. The current Package version is `0.14.0`. Broader
 field-level enforcement and Confidence integration are not implied. See
 [Installed CLI](installed_cli.md) and
 [Packaging and distribution](packaging_and_distribution.md).
 
-The active Issue #157 tree has 63 Schemas and 85 generated outputs. The
-published `v0.13.0` baseline remains 62 Schemas and 77 scenarios. The functional
-`v0.14.0` Session milestone is complete pending release preparation; GUI,
+The `v0.14.0` Package release candidate has 63 Schemas and 85 generated outputs.
+The published `v0.13.0` baseline remains 62 Schemas and 77 scenarios. Issue #158
+prepares the completed functional Session milestone without publishing it; GUI,
 platform, cloud, locking, encryption, and unrelated pre-v1 work remain separate.

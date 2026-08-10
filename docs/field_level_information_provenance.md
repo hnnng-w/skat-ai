@@ -482,7 +482,8 @@ never embed Command payloads or Cards. Persistence fingerprints remain integrity
 identities, not provenance or authorship. GUI/browser and platform integration,
 cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain separate from provenance. The functional
-`v0.14.0` milestone is complete pending Release preparation; the active tree has
-63 authoritative and packaged Schemas and 85 generated-output scenarios, while
-Package version and the published Release remain `0.13.0` and `v0.13.0`. See
+`v0.14.0` milestone is complete. Issue #158 prepares Package version `0.14.0`
+and Release documentation; the release candidate has 63 authoritative and
+packaged Schemas and 85 generated-output scenarios, while the published Release
+remains `v0.13.0`. See
 [Session provenance](session_provenance.md).

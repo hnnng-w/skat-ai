@@ -224,10 +224,10 @@ requirements. Python constructors and replay remain authoritative for semantic
 relationships, coverage/dependencies, fingerprints, Checkpoint reconciliation,
 accepted-Log observation, frozen review isolation, and operation/value identity.
 Issue #157 adds six Session examples and appends eight Session scenarios after
-the previous 77, for an active total of 85. Session operation outputs validate
+the previous 77, for a `v0.14.0` Package total of 85. Session operation outputs validate
 against this Schema; Session-triggered Position/Historical Engine Results still
-validate against `output.schema.json`. The active tree has 63 authoritative and
-63 packaged Schemas.
+validate against `output.schema.json`. The `v0.14.0` Package release candidate
+has 63 authoritative and 63 packaged Schemas.
 
 The published `v0.13.0` baseline at commit `abd1ad3` contains 62 authoritative
 Schemas and 62 Packaged Schema Resources and validates 77 deterministic outputs:
@@ -283,7 +283,7 @@ session_retrospective_finalize
 Their semantic checks cover fingerprints, accepted-Log replay, canonical
 Checkpoint equality/lineage/deduplication, observed Card/revision, frozen Request
 isolation, conflict-without-replacement, execution boundaries, and Position
-privacy. The active matrix therefore has 85 scenarios while the published
+privacy. The `v0.14.0` Package matrix therefore has 85 scenarios while the published
 `v0.13.0` facts remain 77.
 
 The scenario matrix is intentionally bounded. It covers representative

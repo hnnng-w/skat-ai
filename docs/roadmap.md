@@ -6,7 +6,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 ### End-to-end Live and Retrospective Session capture
 
-Implemented by Issue #150 for the active `v0.14.0` milestone:
+Implemented by Issue #150 for the `v0.14.0` Package milestone:
 
 * Internal Session and Command version `1` with independent policy identifiers
 * Exactly three stable Players in canonical Historical seat order
@@ -74,8 +74,8 @@ validation. Issue #157 adds stable public file Save/Load, Decision Observation,
 isolated Checkpoint review export, automatic exact Checkpoint collection, all 12
 installed/module/Legacy Session subcommands, explicit Position/Historical
 execution, the phase-aware Assistant, six examples, and eight append-only
-generated scenarios. The functional `v0.14.0` milestone is complete pending
-release preparation. See
+generated scenarios. Issue #158 prepares the completed functional `v0.14.0`
+milestone as an unpublished Package release candidate. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
@@ -90,9 +90,8 @@ serialization, all ten transport-free in-memory operations, optional complete
 redacted Session Provenance, strict standalone Session Schema, 63-Schema Package
 parity, and clean-install validation. Issue #157 appends two public Session
 operations and the `files` module without changing the first 52 exports. Package
-version remains `0.13.0`; the active generated-output count is 85 and the active
-Schema count remains 63. The published `v0.13.0` baseline remains 62 Schemas and
-77 scenarios.
+version is `0.14.0`; the Package baseline has 85 generated outputs and 63
+Schemas. The published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
 
 ### Public API contract foundation
 
@@ -114,7 +113,7 @@ Implemented:
 * Lazy Package Resource Root input/output/artifact schema validation with RFC
   6901 errors and stable boundary translation
 * Explicit Setuptools build metadata, `skat_ai*` discovery, Package Data, and the
-  current `0.13.0` Package version
+  current `0.14.0` Package version
 * Byte-identical private Schema resources with deterministic synchronization and
   local/CI parity checks
 * PEP 561 `py.typed`, Package-Root version metadata, one Wheel and one sdist,
@@ -670,6 +669,30 @@ Implemented:
 
 ## Release baselines
 
+### v0.14.0: End-to-end Live and Retrospective Session capture
+
+The current `v0.14.0` Package release candidate completes functional Issues #150
+through #157. Issue #158 prepares Package version `0.14.0`, the Changelog, and
+current-state documentation without changing product behavior. The baseline
+requires Python 3.13 or newer, retains Public API contract version `1` and seven
+Root workflows, contains 63 authoritative and packaged Schemas, includes six
+strict Session examples, and validates 85 deterministic generated-output
+scenarios, including eight append-only Session scenarios.
+
+The milestone provides immutable fixed-three-player Live and Retrospective
+Session contracts, deterministic accepted-Log transitions and replay, canonical
+Position/Historical Request export, frozen Decision Checkpoints, Undo and
+correction with lineage, strict fingerprinted persistence and optimistic atomic
+Save, stable Public Session and File APIs, complete optional Session Provenance,
+Decision Observation and isolated review, automatic Checkpoints, all 12 Session
+CLI subcommands, explicit existing-Application execution, and the phase-aware
+Assistant.
+
+The release candidate is not yet tagged or published. Manual maintainer
+publication remains required, GitHub Releases remains authoritative, and the
+published stable Release remains `v0.13.0`. No Package-index or PyPI publication
+is claimed.
+
 ### v0.13.0: Stable API, installable tooling, and public field provenance
 
 The published `v0.13.0` milestone is complete through functional Issues #137
@@ -678,7 +701,8 @@ commit `abd1ad3`, contains 62 authoritative Schemas and 62 Packaged Schema
 Resources, validates 77 deterministic generated-output scenarios, passes 5,399
 pytest tests, and requires Python 3.13 or newer. Publication was performed
 manually by the maintainer, and GitHub Releases remains authoritative. No
-Package-index or PyPI publication is claimed.
+Package-index or PyPI publication is claimed. Issue #149 synchronized the
+publication status.
 
 The milestone provides stable API contract version `1`, reusable Application
 orchestration version `1`, the executable public facade, Setuptools Wheel and
@@ -686,29 +710,6 @@ sdist artifacts, Package Resource schemas, typing and version metadata,
 installed/module/Legacy CLI parity, complete internal Root Result provenance for
 all seven workflows, and bounded opt-in public Root Result and actual-artifact
 provenance. Default Root output remains unchanged when provenance is omitted.
-
-The active `v0.14.0` milestone targets interactive Live and Retrospective Session
-capture. Issue #150 implements the internal contract foundation, and Issue #151
-implements deterministic internal Command application and incremental
-validation. Issue #152 implements internal canonical Retrospective Historical
-Request export without workflow execution. Issue #153 implements internal
-information-safe Position Request export, declared-Ouvert public-hand capture,
-and immutable pre-Play Decision Checkpoints without workflow execution. Issue
-#154 implements immutable strict-prefix Undo, one-command correction, linear
-suffix replay, valid partial corrected States, and Checkpoint lineage. Issue #155
-implements private deterministic Session persistence/resume, State and content
-fingerprints, strict reconstruction and replay, caller-supplied frozen
-Checkpoints with recomputed lineage, optimistic expected-fingerprint writes,
-canonical files, and atomic same-directory replacement. Session-triggered
-analysis, actual-card observation/review export, Public API, Provenance, Schema,
-and CLI foundations are completed by Issues #156 and #157. Issue #157 also adds
-public file transport, automatic Checkpoints, all 12 CLI subcommands, explicit
-Position/Historical execution, the Assistant, six examples, and eight appended
-scenarios. The active tree has 63 Schemas and 85 scenarios. The functional
-`v0.14.0` milestone is complete pending release preparation.
-GUI/browser UI, online-platform adapters, browser extensions, website scraping,
-cloud synchronization, distributed locking, encryption/key management, and
-automatic backup policy remain open.
 
 ### v0.12.0: Fixed-three-player historical lists and deterministic dataset preparation
 
@@ -812,12 +813,16 @@ The documented `v0.6.0` issue scope is complete:
 No `v0.6.0` commit, merge, tag, publication, release, or issue-closeout action
 remains pending.
 
-## v1.0 direction
+## Next planning milestone: v1.0.0
 
 The [requirements traceability matrix](requirements_traceability.md) is the
 authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
+
+`v1.0.0` is the next active planning milestone, but it is not ready. A separate
+focused audit of both documents must precede any final Issue sequence or
+implementation architecture.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, and broader field-level provenance
@@ -945,13 +950,8 @@ Recommended cleanup areas:
 Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.13.0` baseline, historical
 `v0.12.0` and older Release evidence, the authoritative publication state shown
-by GitHub Releases, the active `v0.14.0` development milestone and its implemented
-Issue #150 Session contracts, Issue #151 transition foundation, Issue #152
-Retrospective Historical Request export, Issue #153 Position export and Decision
-Checkpoints, Issue #154 Undo/correction and Checkpoint lineage, and Issue #155
-private deterministic persistence/resume and stale-write conflict detection,
-Issue #156 stable Public Session API/Provenance/Schema, and Issue #157 public
-files, observation/review, automatic Checkpoints, CLI/Assistant, examples, and
-85-scenario end-to-end capture; release preparation remains pending;
-requirements explicitly required for `v1.0.0`; planned post-v1.0 work;
-not-required workflows, and unconditional exclusions.
+by GitHub Releases, the unpublished `v0.14.0` Package release candidate with
+functional Issues #150 through #157 and release-preparation Issue #158, the 63-
+Schema, six-Session-example, and 85-scenario baseline, requirements explicitly
+required for the next `v1.0.0` planning milestone, planned post-v1.0 work, not-
+required workflows, and unconditional exclusions.

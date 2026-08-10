@@ -43,7 +43,7 @@ SESSION_REDO_POLICY = caller_retained_suffix_only
 SESSION_CHECKPOINT_LINEAGE_VERSION = 1
 ```
 
-They do not derive from Package version `0.13.0`, Public API version `1`,
+They do not derive from Package version `0.14.0`, Public API version `1`,
 Application orchestration version `1`, installed CLI version `1`, Provenance
 versions, Root Schema versions, Historical Game version, or another Domain
 version.
@@ -410,8 +410,8 @@ internal. Public operations return a schema-valid `SessionApiResultV1` and may
 attach a separate optional complete provenance sidecar without changing internal
 State serialization. Issue #157 preserves the seven Root workflows while adding
 installed/module/Legacy Session CLI parity, six Session examples, and eight
-append-only Session scenarios. The active tree has 63 Schemas and 85 generated-
-output scenarios; Package version remains `0.13.0`.
+append-only Session scenarios. The `v0.14.0` Package release candidate has 63
+Schemas and 85 generated-output scenarios; Package version is `0.14.0`.
 
 Internal canonical Retrospective Historical Request export is implemented. It
 returns an immutable available/unavailable result, replays once, invokes no
@@ -435,8 +435,9 @@ Issue #157 derives actual Cards from later accepted local Plays without mutating
 Checkpoints, exports isolated post-game-review Requests, collects exact
 Checkpoints automatically, exposes public Save/Load, and provides explicit
 Session-triggered Position/Historical execution and the Assistant. The
-functional `v0.14.0` milestone is complete pending release preparation. GUI or
-browser UI, platform adapters, cloud synchronization, distributed locking,
+functional `v0.14.0` milestone is prepared as an unpublished Package release
+candidate by Issue #158. GUI or browser UI, platform adapters, cloud
+synchronization, distributed locking,
 encryption/key management, and unrelated pre-v1 gaps remain open. See
 [Incremental Session transitions](incremental_session_transitions.md),
 [Session Decision observations](session_decision_observations.md), and

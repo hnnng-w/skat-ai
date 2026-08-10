@@ -22,7 +22,7 @@ Package Data is declared for:
 * `skat_ai/py.typed`;
 * every `skat_ai.schema_resources/*.schema.json` resource.
 
-The Package name remains `skat-ai`, the Package version is `0.13.0`, the
+The Package name remains `skat-ai`, the Package version is `0.14.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
 dependency. The `dev` extra includes `build`, pytest, and Ruff.
 
@@ -90,13 +90,12 @@ the check finishes. It does not publish either artifact.
 
 ## Schema resources
 
-The active 63 files under repository `schemas/` are the authoritative JSON
-Schemas. Issue #156 adds strict standalone `session.schema.json`; Issue #157
-extends that same file for Session creation, file API, observation, and review
-contracts without adding a 64th Schema. Wheel and sdist contain its byte-
-identical Package Resource mirror. The published `v0.13.0` baseline remains at
-62 Schemas; the Package version remains `0.13.0` during active `v0.14.0`
-development.
+The 63 files under repository `schemas/` are the authoritative JSON Schemas.
+Issue #156 adds strict standalone `session.schema.json`; Issue #157 extends that
+same file for Session creation, file API, observation, and review contracts
+without adding a 64th Schema. Wheel and sdist contain its byte-identical Package
+Resource mirror. The `v0.14.0` Package release candidate has 63 Schemas; the
+published `v0.13.0` baseline remains at 62 Schemas.
 Every `*.schema.json` file is mirrored without transformation into:
 
 ```text
@@ -154,7 +153,7 @@ distributions resolve it through:
 importlib.metadata.version("skat-ai")
 ```
 
-The current value is `0.13.0`. A source-only environment without installed
+The current value is `0.14.0`. A source-only environment without installed
 distribution metadata returns `0+unknown` without reading `pyproject.toml` or
 another repository file. Package version remains independent of API contract,
 Application, Schema, Provenance, and Domain versions. It is not added to API
@@ -190,7 +189,7 @@ installs from an external working directory with `PYTHONPATH` removed, and
 verifies:
 
 * imports resolve from that environment's `site-packages`;
-* `skat_ai.__version__ == "0.13.0"`;
+* `skat_ai.__version__ == "0.14.0"`;
 * `py.typed` is locatable;
 * every installed schema has exact repository filename and byte parity, valid
   UTF-8 and JSON, and its unchanged `$id`;
@@ -241,14 +240,15 @@ step exists. No CI step uploads or publishes an artifact.
 Issue #142 added the installed `skat-ai` command and `python -m skat_ai` without a
 public schema-resource API, new workflow, Root-output metadata, Provenance field,
 Package-version change, or Package publication. Issue #147 subsequently added
-opt-in bounded public Provenance without publication. Issue #157 now completes
-the functional `v0.14.0` Session milestone pending separate Release preparation:
-the active tree has 63 authoritative and packaged Schemas and 85 generated-
-output scenarios, while the previous 77 scenarios remain unchanged.
+opt-in bounded public Provenance without publication. Issue #157 completes the
+functional `v0.14.0` Session milestone, and Issue #158 prepares Package version
+`0.14.0` and Release documentation: the release candidate has 63 authoritative
+and packaged Schemas and 85 generated-output scenarios, while the previous 77
+scenarios remain unchanged.
 
-The published stable Release remains `v0.13.0`, and Package version remains
-`0.13.0`. The Package license decision remains unresolved, so no license metadata
-is declared. Package and release publication remain human-controlled. Session
+The published stable Release remains `v0.13.0`; `v0.14.0` is not yet tagged or
+published. The Package license decision remains unresolved, so no license
+metadata is declared. Package and release publication remain human-controlled. Session
 file paths are caller-selected; no default directory, second Console Script,
 GUI/browser UI, online-platform adapter, cloud synchronization, distributed
 locking, encryption/key management, or automatic backup policy is added.

@@ -14,15 +14,16 @@ root `python main.py` is the Legacy compatibility interface and remains supporte
 through at least `v1.0.0`.
 
 Issue #147 adds the same optional `--include-provenance` transport flag to all
-three forms. The Package version is `0.13.0`.
+three forms. The Package version is `0.14.0`.
 
 Issues #150 through #156 establish the Session contracts, replay, export,
 Checkpoint, history-edit, persistence, Public API, Provenance, and standalone
 Schema foundations. Issue #157 adds Session CLI contract version `1`, stable
 public file transport, automatic Checkpoint collection, actual-card observation,
 Checkpoint review, explicit Session-triggered Position/Historical execution, and
-a phase-aware Assistant. The functional `v0.14.0` milestone is complete pending
-release preparation. See [Public Session API version 1](public_session_api_v1.md)
+a phase-aware Assistant. Issue #158 prepares the completed functional `v0.14.0`
+milestone as an unpublished Package release candidate. See
+[Public Session API version 1](public_session_api_v1.md)
 and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
 
 ## Installation
@@ -52,7 +53,7 @@ python -m skat_ai --version
 The exact installed version output is:
 
 ```text
-skat-ai 0.13.0
+skat-ai 0.14.0
 ```
 
 The source-only fallback, when distribution metadata is unavailable, is:

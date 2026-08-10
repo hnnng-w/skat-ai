@@ -1,5 +1,90 @@
 # Changelog
 
+## v0.14.0
+
+**Release theme: End-to-end Live and Retrospective Session capture**
+
+### Immutable Session contracts and deterministic transitions
+
+* Add independent Session and Command contract version `1` for exactly three
+  stable seated Players, Live and Retrospective Modes, typed Commands, an
+  authoritative accepted Command Log, linear revisions, Diagnostics, and
+  Position/Historical readiness (Issue #150).
+* Add deterministic revision-zero creation, full accepted-Log replay, immutable
+  projection, atomic application and rejection, monotonic phase advancement,
+  incremental rule and information-policy validation, and forged-State
+  detection (Issue #151).
+
+### Canonical Request export and Decision Checkpoints
+
+* Add immutable available/unavailable canonical Historical Request export from
+  exactly ready Retrospective Sessions through the existing builder and
+  `RequestDocumentV1`, without workflow execution (Issue #152).
+* Add information-safe Position Request export, declared-Ouvert public-hand
+  capture, and frozen replay-verified pre-Play Decision Checkpoints with stable-
+  to-relative Player mapping and decision metadata (Issue #153).
+
+### Undo, correction, and Checkpoint lineage
+
+* Add immutable strict-prefix Undo and one-command correction with deterministic
+  original-suffix replay, stop-before-first-rejection behavior, valid partial
+  corrected States, exact suffix reporting, and `current`, `ancestor`, `future`,
+  or `diverged` Checkpoint lineage (Issue #154).
+
+### Persistence and crash-safe Resume
+
+* Add private Session Persistence version `1` with authoritative accepted-Log
+  State, optional frozen Checkpoints, domain-separated State and content
+  fingerprints, strict reconstruction and replay, recomputed lineage, and
+  canonical Resume (Issue #155).
+* Add optimistic expected-content-fingerprint conflict detection and durable-
+  intent same-directory temporary-file writes followed by atomic replacement,
+  without distributed locking, encryption, cloud synchronization, or automatic
+  backup claims (Issue #155).
+
+### Public Session API, Schema, and Provenance
+
+* Add stable `skat_ai.api.v1.session` version `1` with exact immutable public
+  type identity, strict Command parsing, transport-free in-memory operations,
+  typed Results, and default-omitted complete Session Provenance (Issue #156).
+* Add the strict standalone `session.schema.json` Package Resource while
+  preserving Public API contract version `1`, the seven-value `WorkflowV1`, and
+  every independent Session and Domain contract version (Issue #156).
+
+### Installed Session CLI and end-to-end capture
+
+* Add stable `skat_ai.api.v1.session.files` Save/Load, path-free Results,
+  accepted-Log Decision Observation, isolated frozen-Request Checkpoint review,
+  and automatic exact Checkpoint collection without automatic analysis (Issue
+  #157).
+* Add the separate 12-subcommand `session` parser across `skat-ai`,
+  `python -m skat_ai`, and Legacy `python main.py`, with explicit
+  Position/Historical execution, optimistic persistence, privacy-safe human
+  output, and the strict phase-aware Assistant (Issue #157).
+
+### Information safety, determinism, and compatibility
+
+* Derive observed Cards only from accepted history and build review Requests from
+  the frozen decision-time Request plus that Card, without later private facts,
+  hidden inference, or an optimal-label claim.
+* Keep private Session files unredacted and caller-controlled while omitting
+  paths, fingerprints, complete private hands, and full frozen Requests from
+  normal human output; fingerprints provide identity and verification, not
+  confidentiality, authorship, or Confidence.
+* Preserve all seven Root workflows, Root APIs and parser behavior, one Console
+  Script, Public API contract version `1`, and every existing non-Package
+  contract version. Existing non-Session users require no migration, and direct
+  internal imports remain unsupported.
+
+### Validation
+
+* Validate 63 authoritative and byte-identical packaged Schemas, six strict
+  Session examples, and 85 deterministic generated outputs, including eight
+  appended Session scenarios while preserving the previous 77 scenarios.
+* Validate Python 3.13 packaging metadata, all Root and Session CLI forms, Wheel
+  and sdist clean installations, Public Session APIs, provenance and privacy
+  boundaries, Ruff, and the complete pytest suite.
+
 ## v0.13.0
 
 **Release theme: Stable API, installable tooling, and public field provenance**

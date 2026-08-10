@@ -4,7 +4,8 @@ Issue #157 completes the functional `v0.14.0` Live and Retrospective Session
 capture milestone. It adds stable public Session file transport, one additive
 Session CLI command family, automatic Decision Checkpoint collection,
 Checkpoint-based review, explicit Position and Historical execution, and a
-phase-aware Assistant. Release preparation remains a separate follow-up.
+phase-aware Assistant. Issue #158 prepares Package version `0.14.0` and Release
+documentation without changing this behavior or publishing the Release.
 
 The Session layer still does not add an eighth Engine Root workflow. It exports
 existing Position and Historical Requests and, only for explicit execution
@@ -439,7 +440,7 @@ Save/Load, installed and module Session help, `new`/`apply`/`show`, Session-
 triggered Position analysis, observation/review, Retrospective finalization, and
 an injected-I/O Assistant smoke flow. Legacy parity is validated from the
 repository checkout. There is still exactly one Console Script, and Package
-version remains `0.13.0` pending release preparation.
+version is `0.14.0`.
 
 Issue #157 adds no GUI or browser UI, online-platform adapter, browser extension,
 website scraping, cloud synchronization, distributed lock, collaborative merge,

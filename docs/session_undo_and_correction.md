@@ -27,7 +27,7 @@ SESSION_CHECKPOINT_LINEAGE_VERSION = 1
 History Edit and Checkpoint Lineage versions are independent of the Package,
 Public API, Application, installed CLI, Session, Command, transition, projection,
 Request-export, Position-option, Decision-Checkpoint, Provenance, Schema, and
-other Domain versions. Package version remains `0.13.0`. Session Persistence
+other Domain versions. Package version is `0.14.0`. Session Persistence
 version `1` is also independent of both versions here.
 
 The canonical Undo statuses are:
@@ -291,9 +291,9 @@ examples, and generated scenarios without changing history semantics. Only
 applied Undo and applied or partial Correction States are saved; unchanged and
 rejected Results do not rewrite the file.
 
-The active boundary remains seven Root workflows, 63 authoritative and packaged
-Schemas, 85 generated outputs, and Package version `0.13.0`. The functional
-`v0.14.0` milestone is complete pending release preparation. Automatic Redo,
-branching/merge, arbitrary Log surgery, GUI/platform/cloud/encryption, and
-unrelated pre-v1 gaps remain open. See
+The `v0.14.0` Package release candidate remains bounded to seven Root workflows,
+63 authoritative and packaged Schemas, 85 generated outputs, and Package version
+`0.14.0`. Issue #158 prepares the completed functional milestone without
+publishing it. Automatic Redo, branching/merge, arbitrary Log surgery,
+GUI/platform/cloud/encryption, and unrelated pre-v1 gaps remain open. See
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

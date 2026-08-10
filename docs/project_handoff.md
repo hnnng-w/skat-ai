@@ -245,7 +245,7 @@ enforcement remain open. See
 
 ### Interactive Session contract, Request export, Checkpoint, and persistence foundation
 
-Implemented by Issue #150 for the active `v0.14.0` milestone:
+Implemented by Issue #150 for the `v0.14.0` Package milestone:
 
 * independent internal Session and Command version `1`
 * exactly three stable Players with canonical Historical seats
@@ -370,9 +370,10 @@ Implemented by Issue #157:
 * deterministic phase-aware Assistant, six examples, and eight append-only
   generated scenarios for an active total of 85
 
-The functional `v0.14.0` milestone is complete pending release preparation. GUI
-or browser UI, platform adapters, cloud synchronization, distributed locking,
-encryption/key management, and automatic backup policy remain open. See
+Issue #158 prepares the completed functional `v0.14.0` milestone as an
+unpublished Package release candidate. GUI or browser UI, platform adapters,
+cloud synchronization, distributed locking, encryption/key management, and
+automatic backup policy remain open. See
 [Interactive session contracts](interactive_session_contracts.md) and
 [Retrospective Session export](retrospective_session_export.md), and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
@@ -1227,9 +1228,16 @@ Main documentation files:
 
 Current published stable GitHub Release: `v0.13.0`.
 
-Current package version: `0.13.0`.
+Current Package version: `0.14.0`.
 
 Current published baseline: `v0.13.0`.
+
+Current Package release candidate: `v0.14.0`.
+
+Release-candidate theme: "End-to-end Live and Retrospective Session capture".
+
+Planned GitHub Release title: "v0.14.0 — End-to-end Live and Retrospective
+Session capture".
 
 Published Release theme: "Stable API, installable tooling, and public field
 provenance".
@@ -1243,9 +1251,17 @@ The Package requires Python `>=3.13` and retains Public API contract version
 `1`. The published baseline contains 62 authoritative Schemas and 62 Packaged
 Schema Resources, validates 77 deterministic generated-output scenarios, and
 passes 5,399 pytest tests. Issues #137 through #147 complete the functional
-milestone, and Issue #148 completed Release preparation. Publication was
-performed manually by the maintainer. GitHub Releases remains authoritative;
-no Package-index or PyPI publication is claimed.
+milestone, Issue #148 completed Release preparation, and Issue #149 synchronized
+publication status. Publication was performed manually by the maintainer. GitHub
+Releases remains authoritative; no Package-index or PyPI publication is claimed.
+
+The `v0.14.0` Package release candidate requires Python `>=3.13`, retains Public
+API contract version `1` and exactly seven Root workflows, contains 63
+authoritative Schemas and 63 Packaged Schema Resources, includes six Session
+examples, and validates 85 deterministic generated-output scenarios. Functional
+Issues #150 through #157 implement the milestone, and Issue #158 prepares the
+Package version and Release documentation. It is not yet tagged or published;
+manual maintainer publication and GitHub Releases remain authoritative.
 
 Historical published `v0.12.0` Release theme: "Fixed-three-player historical
 lists and deterministic dataset preparation".
@@ -1476,7 +1492,7 @@ publication.
 
 ## Current implementation baseline
 
-**Published v0.13.0: Stable API, installable tooling, and public field provenance**
+**v0.14.0 Package release candidate: End-to-end Live and Retrospective Session capture**
 
 Completed implementation scope:
 
@@ -1548,8 +1564,10 @@ Completed implementation scope:
   caller-supplied frozen Checkpoints, State/content fingerprints, strict resume,
   optimistic expected-fingerprint writes, canonical files, and atomic same-
   directory replacement
-* stable Public Session File API version 1, accepted-Log Decision Observation,
-  isolated Checkpoint review export, and automatic exact Checkpoint collection
+* stable Public Session API and Public Session File API version 1, exact
+  immutable type identity, accepted-Log Decision Observation, isolated
+  Checkpoint review export, automatic exact Checkpoint collection, and optional
+  complete default-omitted Session Provenance
 * installed/module/Legacy 12-subcommand Session CLI parity, explicit Position
   and Historical execution, phase-aware Assistant, six examples, and eight
   append-only scenarios for an active total of 85
@@ -1620,12 +1638,15 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Prepare the completed functional `v0.14.0` milestone for release in a separate
-follow-up. Issues #150 through #157 now cover the immutable Session foundation,
-transitions, exports, history editing, persistence, Public API/Provenance/Schema,
-public files, observations/review, automatic Checkpoints, CLI execution,
-Assistant, examples, and 85-scenario end-to-end capture. Do not change the
-published `v0.13.0` facts until manual release preparation and publication.
+Keep the prepared `v0.14.0` Package release candidate unchanged for manual
+maintainer tagging and GitHub Release publication. GitHub Releases remains the
+authoritative publication record, so the published stable Release remains
+`v0.13.0` until that action occurs.
+
+The next active planning milestone is `v1.0.0`; it is not ready. Begin with a
+separate focused audit of [v1.0 scope](v1_scope.md) and
+[requirements traceability](requirements_traceability.md). Do not assume a final
+Issue sequence or implementation architecture from the `v0.14.0` release task.
 
 Future dataset-preparation work remains narrower: additional algorithms,
 algorithm overrides, fallback or partial Plans, global optimization, guaranteed

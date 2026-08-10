@@ -39,7 +39,7 @@ SESSION_PERSISTENCE_ENCODING = utf-8
 SESSION_PERSISTENCE_WRITE_STATUSES = (saved, unchanged, conflict)
 ```
 
-Session Persistence version `1` is independent of Package version `0.13.0`,
+Session Persistence version `1` is independent of Package version `0.14.0`,
 Public API contract version `1`, Application orchestration version `1`, installed
 CLI contract version `1`, Session and Command version `1`, transition and
 projection version `1`, Request-export versions, Decision-Checkpoint and Lineage
@@ -47,8 +47,8 @@ versions, Provenance versions, and Schema versions.
 
 Issue #155 changes none of the published `v0.13.0` facts. That published baseline
 remains 62 authoritative and packaged Schemas and 77 generated outputs; the
-active Issue #157 tree has 63 byte-identical authoritative and packaged Schemas
-and 85 generated outputs.
+`v0.14.0` Package release candidate has 63 byte-identical authoritative and
+packaged Schemas and 85 generated outputs.
 
 ## Private document
 
@@ -358,6 +358,7 @@ Coaching, scoring, Settlement, or any Application workflow. Explicit CLI
 Application outside persistence; analysis Results are never stored in the
 Session document. There is no eighth Root workflow, default path, backup, merge,
 retry loop, GUI, cloud synchronization, distributed lock, encryption/key
-management, or automatic backup policy. Package version remains `0.13.0` pending
-release preparation. See
+management, or automatic backup policy. Issue #158 prepares Package version
+`0.14.0` and Release documentation without changing persistence behavior or
+publishing the Release. See
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).

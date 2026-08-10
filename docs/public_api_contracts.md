@@ -100,8 +100,8 @@ PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES = (
 ```
 
 Package version, API contract version, JSON-schema versions, and Domain contract
-versions are independent dimensions. The current Package version remains
-`0.13.0`; API contract version `1` is not derived from it. A Package release does
+versions are independent dimensions. The current Package version is `0.14.0`;
+API contract version `1` is not derived from it. A Package release does
 not automatically increment the API contract, and an API change does not
 silently rewrite JSON-schema or Domain versions. `ApiVersionInfoV1` intentionally
 contains no Package version.
@@ -352,14 +352,14 @@ guarantee. No deprecation warning is emitted now.
 
 `skat_ai.__version__` reports installed distribution metadata from
 `importlib.metadata.version("skat-ai")`. Installed and Editable distributions
-report `0.13.0`; a source-only environment without distribution metadata may
+report `0.14.0`; a source-only environment without distribution metadata may
 report `0+unknown`. The fallback reads no repository file.
 
 This additive Package-Root export does not change `skat_ai.api.__all__`,
 `skat_ai.api.v1.__all__`, or `skat_ai.errors.__all__`. Package version remains
 absent from `ApiVersionInfoV1`, API Results, and Root JSON output. The published
-stable Release remains `v0.13.0`; the active functional `v0.14.0` milestone is
-complete pending separate Release preparation.
+stable Release remains `v0.13.0`; Issue #158 prepares the completed functional
+`v0.14.0` milestone as an unpublished Package release candidate.
 
 ## Remaining Work
 
@@ -376,9 +376,10 @@ the seven-workflow Root facade. Issue #157 adds stable public Session file
 transport, accepted-Log Decision Observation, isolated Checkpoint review export,
 automatic exact Checkpoint collection, installed/module/Legacy CLI parity,
 explicit Session-triggered execution through the existing Application, and the
-Assistant. The active tree has 63 authoritative and packaged Schemas and 85
-generated-output scenarios; Package version `0.13.0` and the published `v0.13.0`
-baseline remain unchanged.
+Assistant. The `v0.14.0` Package release candidate has 63 authoritative and
+packaged Schemas and 85 generated-output scenarios; Package version is `0.14.0`, while the published
+`v0.13.0` baseline remains unchanged. Existing non-Session Root API users require
+no migration.
 
 GUI and browser UI, online-platform adapters, browser extensions, website
 scraping, automatic cloud synchronization, distributed locking, encryption and

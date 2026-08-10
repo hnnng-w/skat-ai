@@ -11,7 +11,7 @@ The contract version is:
 PUBLIC_FIELD_PROVENANCE_VERSION = 1
 ```
 
-This version is independent of Package version `0.13.0`, Public API contract
+This version is independent of Package version `0.14.0`, Public API contract
 version `1`, Application orchestration version `1`, internal field-provenance
 version `1`, JSON Schema versions, and Domain contract versions.
 

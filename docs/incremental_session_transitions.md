@@ -23,7 +23,7 @@ SESSION_REPLAY_POLICY = full_accepted_log_before_apply
 ```
 
 Existing Session contract version `1` and Command version `1` are unchanged.
-Package version remains `0.13.0`. Public API, Application, CLI, Provenance,
+Package version is `0.14.0`. Public API, Application, CLI, Provenance,
 Schema, Historical Game, and other Domain versions remain independent.
 Session Persistence version `1` is also independent of the transition and
 projection versions.
@@ -261,8 +261,8 @@ Settlement, Application execution, Public API execution, or history branch.
 
 Root Public API exports, all seven Root workflows, and Application orchestration
 remain unchanged. Issue #157 adds installed/module/Legacy Session CLI transport,
-six Session examples, and eight append-only scenarios, bringing the active total
-to 85. The active tree has 63 Schemas. One Historical export performs one replay, no builder call when
+six Session examples, and eight append-only scenarios, bringing the `v0.14.0`
+Package baseline to 85 generated outputs and 63 Schemas. One Historical export performs one replay, no builder call when
 unavailable, or one provisional build, one canonical serialization, and one
 canonical rebuild when available. One Position export performs one replay and no
 builder call when unavailable or one existing Position build when available. A
@@ -284,9 +284,9 @@ export or analyze. See
 Issue #157 layers public file Save/Load, automatic exact Checkpoint collection,
 accepted-Log actual-card observation, explicit Session-triggered analysis, and a
 phase-aware Assistant over these unchanged transitions. Ordinary mutation and
-Checkpoint collection still execute no analysis. The functional `v0.14.0`
-milestone is complete pending release preparation; GUI/platform/cloud/encryption
-work remains open. See
+Checkpoint collection still execute no analysis. Issue #158 prepares the
+completed functional `v0.14.0` milestone as an unpublished Package release
+candidate; GUI/platform/cloud/encryption work remains open. See
 [Retrospective Session export](retrospective_session_export.md) and
 [Session Position export and Decision checkpoints](live_session_position_export.md),
 [Session Undo, correction, and Checkpoint lineage](session_undo_and_correction.md),

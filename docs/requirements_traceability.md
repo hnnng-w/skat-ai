@@ -4,13 +4,14 @@ This document is the authoritative audit of current rule and product support.
 It preserves the published `v0.12.0`, `v0.11.0`, `v0.10.0`, and `v0.9.0`
 release baselines as historical evidence and does not claim complete compliance
 with the official rules. The current published stable GitHub Release is
-`v0.13.0` at commit `abd1ad3`. The Package version is `0.13.0`, the Python
-requirement is `>=3.13`, Public API contract version `1` remains current, and the
-published baseline contains 62 authoritative Schemas, 62 Packaged Schema
-Resources, 77 deterministic generated-output scenarios, and 5,399 passing
-pytest tests. Issues #137 through #147 complete the functional milestone, and
-Issue #148 completed Release preparation. Publication was performed manually by
-the maintainer. GitHub Releases is authoritative; no Package-index or PyPI
+`v0.13.0` at commit `abd1ad3`. The current Package version is `0.14.0`, the
+Python requirement is `>=3.13`, and Public API contract version `1` remains
+current. The published `v0.13.0` baseline contains 62 authoritative Schemas, 62
+Packaged Schema Resources, 77 deterministic generated-output scenarios, and
+5,399 passing pytest tests. Issues #137 through #147 complete the published
+functional milestone, Issue #148 completed Release preparation, and Issue #149
+synchronized publication status. Publication was performed manually by the
+maintainer. GitHub Releases is authoritative; no Package-index or PyPI
 publication is claimed.
 
 ## Normative sources
@@ -90,9 +91,9 @@ the historical published `v0.12.0` facts remain 70 scenarios and 4,762 tests.
 Issue #148 completed Release preparation by changing only the Package version,
 current Release documentation, and matching assertions.
 
-The active `v0.14.0` milestone targets interactive Live and Retrospective Session
-capture. Issue #150 implements internal immutable Session and Command version
-`1`, fixed Players and seats, Capture Modes, phases, an authoritative accepted
+The `v0.14.0` Package milestone provides interactive Live and Retrospective
+Session capture. Issue #150 implements internal immutable Session and Command
+version `1`, fixed Players and seats, Capture Modes, phases, an authoritative accepted
 Command Log, linear revisions, Diagnostics, export readiness, and Transition
 Result semantics. Issue #151 adds deterministic revision-zero creation, full
 accepted-Log replay, immutable projection, atomic Command application, monotonic
@@ -119,11 +120,19 @@ public Session file Save/Load, accepted-Log Decision Observation, isolated
 Checkpoint review export, automatic exact Checkpoint collection, all 12
 installed/module/Legacy Session CLI subcommands, explicit Position/Historical
 execution, the phase-aware Assistant, six examples, and eight append-only
-scenarios. The active total is 85 generated outputs and 63 Schemas. The
-functional `v0.14.0` milestone is complete pending release preparation. GUI or
+scenarios. The `v0.14.0` Package baseline therefore has 85 generated outputs and
+63 Schemas. The functional milestone is complete, and Issue #158 prepares
+Package version `0.14.0` and Release documentation without changing product behavior. The
+release candidate is not yet tagged or published; the published stable Release
+remains `v0.13.0` and publication remains a manual maintainer action. GUI or
 browser UI, online-platform adapters, browser extensions, website scraping,
 cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open.
+
+The next active planning milestone is `v1.0.0`; it is not ready. Planning must
+begin with a separate focused audit of this traceability matrix and
+[v1.0 scope](v1_scope.md), without assuming a final Issue sequence or
+implementation architecture.
 
 ## Status vocabulary
 
@@ -439,10 +448,12 @@ strict Command parsing, ten one-call in-memory operations, typed Results,
 optional complete redacted Session Provenance, and strict standalone Session
 Schema. Issue #157 appends two operations, the stable Public Session File API,
 Decision Observation/review, automatic Checkpoints, CLI/Assistant transport,
-explicit Application execution, examples, and scenarios. The active tree has
-seven unchanged Root workflows, 63 authoritative and packaged Schemas, 85
-generated outputs, and Package version `0.13.0`; the published `v0.13.0` baseline
-remains 62 Schemas and 77 scenarios. See
+explicit Application execution, examples, and scenarios. The `v0.14.0` Package
+release candidate has seven unchanged Root workflows, 63 authoritative and
+packaged Schemas, 85 generated outputs, and Package version `0.14.0`; the
+published `v0.13.0` baseline
+remains 62 Schemas and 77 scenarios. Issue #158 prepares that Package baseline
+for manual Release publication. See
 [Session persistence and resume](session_persistence_and_resume.md),
 [Session Decision observations](session_decision_observations.md), and
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
@@ -450,9 +461,9 @@ remains 62 Schemas and 77 scenarios. See
 | Requirement | Source | Rule section | Current status | Current implementation | Required input or information | Known limitation | Required validation or tests | Target milestone | Required before v1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Public Session APIs | skat-ai product | Not applicable | `supported` | Stable `skat_ai.api.v1.session` version `1` preserves the first 52 exports and appends Decision Observation, Checkpoint Review Export, and `files`; twelve one-call in-memory operations, strict Command parsing, typed Results, optional complete returned-value provenance, and standalone Schema validation are implemented. Stable `skat_ai.api.v1.session.files` version `1` exposes exact path-free Save/Load Results over strict persistence. | Existing typed Session values or strict JSON-object Command/persistence mappings; caller-supplied file path and expected fingerprint for Save. | No Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. | Retain exact export order/identity, operation/value pairs, observation/review isolation, file Result discrimination, normal statuses, one-call delegation, default provenance omission, strict Schema, 63-Schema parity, and clean-install execution. | v0.14.0 bounded public interface complete | Yes |
-| Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines seven Root workflows, immutable documents/options/Results/artifacts, errors, compatibility metadata, and provenance opt-in. Installed, module, and Legacy forms preserve Root parity and share the additive 12-subcommand Session parser, explicit paths, privacy-safe summaries, CAS persistence, and stable Exit Codes. Package, API, Application, CLI, Schema, Provenance, and Domain versions remain independent. | A Root JSON file and optional transport paths; or one explicit Session path plus strict creation, Command, or correction documents and operation-specific options. | Broader Domain-error migration, license selection, Package-index publication, GUI/platform/cloud/encryption integration, and end-to-end field enforcement remain open. | Retain exact Root and Session parser behavior, all seven workflows, all 12 Session subcommands, normal statuses, concise/quiet privacy, Legacy seams, active 63-Schema/85-scenario validation, and published `v0.13.0` 62-Schema/77-scenario facts. | v0.14.0 functional interface complete pending release preparation | Yes |
+| Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines seven Root workflows, immutable documents/options/Results/artifacts, errors, compatibility metadata, and provenance opt-in. Installed, module, and Legacy forms preserve Root parity and share the additive 12-subcommand Session parser, explicit paths, privacy-safe summaries, CAS persistence, and stable Exit Codes. Package, API, Application, CLI, Schema, Provenance, and Domain versions remain independent. | A Root JSON file and optional transport paths; or one explicit Session path plus strict creation, Command, or correction documents and operation-specific options. | Broader Domain-error migration, license selection, Package-index publication, GUI/platform/cloud/encryption integration, and end-to-end field enforcement remain open. | Retain exact Root and Session parser behavior, all seven workflows, all 12 Session subcommands, normal statuses, concise/quiet privacy, Legacy seams, 63-Schema/85-scenario validation, and published `v0.13.0` 62-Schema/77-scenario facts. | v0.14.0 Package release candidate complete | Yes |
 | Field-level information provenance | skat-ai product | Not applicable | `partially_supported` | Internal contract version `1` defines RFC 6901 paths, immutable ledgers, exact coverage, dependencies, Information Use Context, redaction, serialization, and Confidence separation. All seven workflows have complete non-legacy Root Result ledgers. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts, uses scopes `root_result_without_field_provenance` and `artifact_document`, and requires complete recomputed coverage. | A supported Application invocation with matching retained sidecars; public exposure additionally requires API or CLI opt-in. | Public consumed-input, decision, intermediate-stage, and unredacted attachments are intentionally absent. Broader loading and end-to-end field enforcement remain incomplete; Confidence and specialized source provenance remain separate. | Retain internal enforcement plus public immutable types, seven Result mappings, actual-artifact mapping, redaction and coverage recomputation, strict Schema, default omission, API/CLI parity, privacy rejection, and 77 generated outputs. | v0.13.0 bounded public contract complete; broader v1.0 enforcement open | Yes |
-| Interactive Session capture | skat-ai product | Not applicable | `supported` | Issues #150 through #156 provide immutable fixed-three-player Session contracts, deterministic transitions/replay, information-safe Position and canonical Historical export, frozen Checkpoints, Undo/correction/lineage, strict persistence, stable Public API/Provenance, and standalone Schema. Issue #157 adds public file transport, accepted-Log actual-card observation, isolated review Requests, automatic exact Checkpoints, all 12 installed/module/Legacy CLI subcommands, explicit Position/Historical execution, Assistant capture, six examples, and eight scenarios. | Caller-supplied Session identity, three seated Players, Mode/local Player, typed expected-revision Commands, explicit file path, and operation-specific Position/Historical options. | The bounded local capture workflow adds no GUI/browser UI, platform adapter, cloud synchronization, distributed lock, collaborative merge, encryption/key management, automatic backup, default path, natural-language interpretation, or eighth Root workflow. | Retain Live information restrictions, Retrospective exact ownership, replay/readiness, history edits, CAS persistence, observation/review isolation, collection deduplication, privacy/Exit Codes, invocation parity, clean installs, six examples, and 85 scenarios. | v0.14.0 functional milestone complete pending release preparation | Yes |
+| Interactive Session capture | skat-ai product | Not applicable | `supported` | Issues #150 through #156 provide immutable fixed-three-player Session contracts, deterministic transitions/replay, information-safe Position and canonical Historical export, frozen Checkpoints, Undo/correction/lineage, strict persistence, stable Public API/Provenance, and standalone Schema. Issue #157 adds public file transport, accepted-Log actual-card observation, isolated review Requests, automatic exact Checkpoints, all 12 installed/module/Legacy CLI subcommands, explicit Position/Historical execution, Assistant capture, six examples, and eight scenarios. | Caller-supplied Session identity, three seated Players, Mode/local Player, typed expected-revision Commands, explicit file path, and operation-specific Position/Historical options. | The bounded local capture workflow adds no GUI/browser UI, platform adapter, cloud synchronization, distributed lock, collaborative merge, encryption/key management, automatic backup, default path, natural-language interpretation, or eighth Root workflow. | Retain Live information restrictions, Retrospective exact ownership, replay/readiness, history edits, CAS persistence, observation/review isolation, collection deduplication, privacy/Exit Codes, invocation parity, clean installs, six examples, and 85 scenarios. | v0.14.0 Package release candidate complete | Yes |
 | Private Session persistence and resume | skat-ai product | Not applicable | `supported` | The immutable version-1 document, strict codec, accepted-Log replay, fingerprints, canonical Checkpoints, recomputed lineage, optimistic `saved`/`unchanged`/`conflict` writes, and same-directory atomic replacement remain authoritative. Issue #157 exposes strict path-free public Save/Load Results and CLI load-operate-CAS-save orchestration without changing the document. | One replay-valid State, optional canonical Checkpoints, explicit existing parent/path, and expected current content fingerprint or null for an expected missing target. | No distributed lock, directory creation, merge/retry, recovery migration, encryption, access control, cloud synchronization, or automatic backup policy. Analysis Results, observations, and review Requests are not persisted. | Retain private contract/codec/file tests plus public file identity, one-call delegation, strict errors, path omission, conflict-without-replacement, and CLI mutation tests. | v0.14.0 bounded persistence scope complete | Yes |
 | Live information boundaries | skat-ai product | Not applicable | `partially_supported` | Existing broad enforcement remains, and live Position Application execution validates complete pre-selection decision ledgers and attaches a complete exact Result ledger. Declared Ouvert and both continuation branches authorize only their exact current public hands. Issue #147 can expose the redacted complete `position_result` with recomputed coverage. Accepted 4.4.5 proof hands, other hands, hidden skat, future cards, private worlds, and derived seeds remain unavailable. | Explicit mode, local perspective, verifiable public history, valid declared-Ouvert or continuation public hands, effective seed-free settings, and the exact Application Result. | General position input still trusts supplied context. The public sidecar covers the final Root Result, not every load or decision boundary. | Retain decision-time enforcement, all-leaf accounting, dependency rejection/redaction, Ouvert and continuation exceptions, hidden proof evidence, post-game and private-world leakage, public Result opt-in, determinism, and call counts. | v1.0 | Yes |
 | Retrospective information | skat-ai product | Not applicable | `supported` | Post-game mode permits known skat and ended states; every supported historical terminal record reconstructs each actual decision from its decision-time snapshot without future leakage. Internal retained-stage provenance separates decision input and analysis from actual-card assessment and final Outcome Context. Public opt-in can expose the redacted complete Position or Historical Root Result ledger without exposing those internal stages. | Post-game mode and supplied retrospective facts, or a validated historical snapshot, plus an Application provenance bundle for field-level auditing. | Public decision and retrospective-stage ledgers remain internal; Root Result exposure does not make final outcome decision-time evidence. | Retain complete-history versus decision-time separation, 0-30 cardinality, continuation boundaries, actual/future/outcome isolation, redaction, strict public Result coverage, and default-output compatibility. | v1.0 bounded requirement complete | Yes |

@@ -39,9 +39,10 @@ historical published `v0.10.0` baseline remains evidence for 59 scenarios and
 published `v0.9.0` baseline covers 52 deterministic scenarios and 3,558 pytest
 tests.
 
-The active Issue #157 tree retains those published facts, has 63 authoritative
-and packaged Schemas, and appends eight Session scenarios for a total of 85. The
-functional `v0.14.0` Session milestone is complete pending release preparation.
+The `v0.14.0` Package release candidate retains those published facts, has 63
+authoritative and packaged Schemas, includes six strict Session examples, and
+appends eight Session scenarios for a total of 85. Issue #158 prepares the
+Package and Release documentation without publishing it.
 
 The check script validates:
 
