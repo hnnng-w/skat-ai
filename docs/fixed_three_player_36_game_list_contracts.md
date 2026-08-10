@@ -223,5 +223,10 @@ The following remain open:
 
 * series or tournament state.
 
+Issue #160's internal `euroskat_36_standard_v1` Match format identity is separate
+from this historical-list source and aggregation workflow. It does not change
+entry rotation, Played Game or Passed Deal semantics, SkWO scoring, standings,
+or comparison, and it adds no ranking or commercial tournament rules.
+
 Automatic Training Dataset preparation is now a separate root-selected workflow
 and does not consume or change this historical-list contract.

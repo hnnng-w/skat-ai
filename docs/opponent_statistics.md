@@ -235,3 +235,10 @@ Mixed historical exports retain the same schema version, percentages,
 derivation thresholds, signals, classifications, and live/historical/rolling
 loader behavior. See
 [Shortened historical opponent workflows](shortened_historical_opponent_workflows.md).
+
+Issue #160 may embed one exact existing immutable `OpponentStatisticsRecord` in
+an internal Match Player Statistics Snapshot. The snapshot adds only its own ID
+and a same-instant observation timestamp, reconciles the record Player ID with
+the Match participant, and reuses this module's serializer. It does not change
+this input contract, derive a profile, merge captures, apply a policy, or add a
+Public Match workflow.

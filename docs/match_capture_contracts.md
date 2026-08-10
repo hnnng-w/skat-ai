@@ -1,0 +1,218 @@
+# Match capture contracts
+
+Issue #160 begins the active `v0.15.0` milestone with internal immutable
+identity and metadata contracts for manual post-game capture of one EuroSkat
+36er Standard Match from a video or manual observation source. These contracts
+do not yet make Match capture executable through a Public API, CLI, persistence
+format, or UI.
+
+## Contract identity
+
+The independent internal versions and policies are:
+
+```text
+MATCH_CAPTURE_CONTRACT_VERSION = 1
+MATCH_SOURCE_METADATA_VERSION = 1
+MEDIA_TIMECODE_VERSION = 1
+MATCH_TOURNAMENT_FORMAT_VERSION = 1
+MATCH_PLAYER_STATISTICS_SNAPSHOT_VERSION = 1
+
+MATCH_TOURNAMENT_FORMAT_REGISTRY_POLICY =
+    append_only_named_format_definitions
+
+MATCH_PERSPECTIVE_POLICY =
+    one_declared_match_player
+```
+
+These values are independent from Package version `0.14.0`, Public API,
+Session, Historical Game, fixed-list, Opponent Statistics, Provenance, and
+Schema versions. Issue #160 changes none of those existing contracts.
+
+## Game platform and media source
+
+`game_platform` describes where the Match was played, for example `EuroSkat`.
+The Match source describes where the observation came from, for example a
+YouTube video. They are separate descriptive values.
+
+A YouTube source stores only caller-supplied evidence:
+
+* the video URL;
+* the video title;
+* an optional channel name;
+* optional Match-level media bounds.
+
+The URL is retained exactly. Validation is limited to a non-empty, non-padded
+absolute HTTP or HTTPS URL. The engine does not verify a YouTube host, issue a
+network request, follow redirects, call an API, parse an embed, download media,
+or scrape a website.
+
+## Media timecodes
+
+`MediaTimecodeV1` contains:
+
+```text
+media_timecode_version
+start_offset_ms
+end_offset_ms
+```
+
+Offsets are strict non-negative integer milliseconds; booleans are not
+integers. The end is nullable and, when present, cannot precede the start. Equal
+bounds are valid. The contract stores no authoritative formatted time string and
+generates no current time. Later Game, Decision, and commentary annotations can
+reuse the same value, but Issue #160 uses it only for optional Match bounds.
+
+## Source metadata
+
+`MatchSourceMetadataV1` preserves explicit nulls and supports these canonical
+source kinds in order:
+
+```text
+youtube_video
+other_video
+manual_observation
+```
+
+| Source kind | URL | Title | Channel | Match timecode |
+| --- | --- | --- | --- | --- |
+| `youtube_video` | Required | Required | Nullable | Nullable |
+| `other_video` | Required | Required | Nullable | Nullable |
+| `manual_observation` | Null | Required | Null | Nullable |
+
+All non-null strings are non-empty and non-padded. Source metadata is
+descriptive only and cannot change rules, Search, scoring, list points,
+Settlement, or analysis behavior.
+
+## Tournament format registry
+
+The immutable version-1 registry contains exactly one executable format:
+
+```text
+format_id = euroskat_36_standard_v1
+provider = EuroSkat
+display_name = 36er Standard
+player_count = 3
+game_count = 36
+```
+
+`get_match_tournament_format_v1()` performs exact-ID lookup and returns the
+canonical frozen object. A `MatchCaptureDefinitionV1` accepts that exact object,
+not a caller-created count override. Registry evolution is append-only: later
+definitions may be appended without renaming or reordering the existing ID.
+
+The format definition includes no ranking, qualification, prize, entry-fee,
+loss-fee, or bonus-program rule. It does not define operational semantics for
+EuroSkat 36er Zocker, 18er Rangliste, or Rocket.
+
+## Player statistics snapshots
+
+`MatchPlayerStatisticsSnapshotV1` contains a caller-supplied stable Snapshot ID,
+an RFC 3339 observation time, and one exact existing immutable
+`OpponentStatisticsRecord`. The snapshot does not duplicate percentage, count,
+or provenance validation.
+
+The observation time and the record's `source.captured_at` must represent the
+same instant; their retained RFC 3339 text may use different offsets. Participant
+reconciliation requires the statistics-record Player ID to equal the Match
+Player ID. Two non-null labels for that Player must agree.
+
+Serialization reuses the existing Opponent Statistics input serializer. It does
+not derive a `PlayerProfile`, merge captures, replace an earlier snapshot, or
+apply a policy. A Player can therefore appear in later Matches with a separate
+immutable snapshot while the earlier Match retains its historical observation.
+
+## Match participants
+
+`MatchParticipantV1` contains:
+
+```text
+player_id
+player_label
+platform_player_id
+table_place
+statistics_snapshot
+```
+
+The Player ID is stable, case-sensitive, non-empty, non-padded, and not the
+relative identity `me`, `left`, or `right`. Label, platform identity, and
+statistics snapshot are nullable. Table places reuse, without duplication, the
+existing canonical order:
+
+```text
+place_1
+place_2
+place_3
+```
+
+A participant stores no hand, historical seat, role, result, Cards, or mutable
+Match state.
+
+## Match definition
+
+`MatchCaptureDefinitionV1` contains:
+
+```text
+match_capture_contract_version
+match_id
+title
+game_platform
+external_match_id
+played_at
+tournament_format
+source
+participants
+perspective_player_id
+```
+
+The Match ID, title, and game platform are required descriptive values. External
+Match ID and RFC 3339 played time are nullable. The definition requires the exact
+canonical supported format, exactly three participants in canonical table-place
+order, unique Player IDs, unique non-null platform Player IDs, and unique
+non-null Snapshot IDs.
+
+It contains no individual Game slots, Cards, hands, Skat, Discards, Plays,
+comments, Decision annotations, progress, standings, Analysis Results, path,
+generated timestamp, or generated identity.
+
+## Perspective semantics
+
+The three identities are deliberately separate:
+
+```text
+application user:
+    not persisted by this contract
+
+perspective player:
+    one exact declared Match participant
+
+match participants:
+    exactly three stable Players
+```
+
+The perspective identifies the Match Player whose hand is visible in the source.
+It does not assert that the person operating the application participated in the
+Match. It is independent from a later Game's Declarer, historical seat, and role,
+and it does not limit which later decisions may receive annotations.
+
+## Deterministic serialization
+
+Every new value has deterministic `to_dict()` serialization with stable field
+order, canonical participant order, explicit new-contract nulls, and fresh
+mutable JSON-compatible containers. Construction defensively copies nested
+source, timecode, participant, snapshot, and statistics values. Serialization
+adds no environment data, filesystem path, current time, generated ID,
+network-derived metadata, or Player Profile.
+
+## Current boundary
+
+All Issue #160 values remain internal. There is still no Match Root workflow,
+Public Match API, Match CLI, Match Schema, example, generated scenario,
+persistence format, local server, or UI. The Package remains `0.14.0` with seven
+Root workflows, 63 authoritative and packaged Schemas, and 85 generated-output
+scenarios.
+
+Later `v0.15.0` work may define observed Games, Game/Decision timecodes,
+annotations and linked responses, Workspace organization, persistence,
+materialization into existing Historical or Session values, Public APIs, and a
+browser UI. YouTube and EuroSkat integration remain absent before `v1.0.0`;
+Issue #160 stores descriptive source metadata only.

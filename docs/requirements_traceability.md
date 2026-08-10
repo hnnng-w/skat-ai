@@ -128,10 +128,13 @@ browser UI, online-platform adapters, browser extensions, website scraping,
 cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open.
 
-The next active planning milestone is `v1.0.0`; it is not ready. Planning must
-begin with a separate focused audit of this traceability matrix and
-[v1.0 scope](v1_scope.md), without assuming a final Issue sequence or
-implementation architecture.
+The active development milestone is `v0.15.0`, targeting usable manual
+post-game capture of one EuroSkat 36er Standard Match from descriptive video
+evidence. Issue #160 begins that milestone with internal immutable Match source,
+timecode, format-registry, participant, optional statistics-snapshot, identity,
+perspective, and serialization contracts. It adds no observed Games,
+persistence, Public API, CLI, Schema, example, generated scenario, or UI.
+`v1.0.0` remains unready after this focused milestone work.
 
 ## Status vocabulary
 
@@ -459,6 +462,7 @@ maintainer's manual publication. See
 
 | Requirement | Source | Rule section | Current status | Current implementation | Required input or information | Known limitation | Required validation or tests | Target milestone | Required before v1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Match Capture identity and metadata | skat-ai product | Not applicable | `partially_supported` | Issue #160 defines internal immutable version-1 Match Capture, Source Metadata, Media Timecode, Tournament Format, Participant, and Player Statistics Snapshot values. The append-only registry executes only `euroskat_36_standard_v1` with provider EuroSkat, display name 36er Standard, three Players, and 36 Games. Source metadata distinguishes game platform from descriptive YouTube/other-video/manual evidence; exactly three fixed-place participants, unique identities, one perspective Player, optional existing Opponent Statistics records, same-instant snapshot time, and deterministic defensive serialization are enforced. | Caller-supplied Match identity/title/platform, optional external ID and played time, one canonical format, one descriptive source, exactly three participants, one perspective Player, and optional validated statistics snapshots. | No observed Games, Cards, Plays, comments, 36 slots, Workspace, persistence, materialization, Public API, CLI, Schema, examples, generated scenarios, browser UI, YouTube integration, or EuroSkat integration exist. Ranking, qualification, prize, fee, and bonus rules are not implemented. | Retain source relationships and no-network behavior, exact registry identity/order, snapshot identity/time reconciliation, fixed-place and perspective relationships, uniqueness, immutability, fresh serialization, unchanged public exports, and unchanged Package/Schema/scenario counts. | v0.15.0 metadata foundation complete; usable capture open | Yes |
 | Public Session APIs | skat-ai product | Not applicable | `supported` | Stable `skat_ai.api.v1.session` version `1` preserves the first 52 exports and appends Decision Observation, Checkpoint Review Export, and `files`; twelve one-call in-memory operations, strict Command parsing, typed Results, optional complete returned-value provenance, and standalone Schema validation are implemented. Stable `skat_ai.api.v1.session.files` version `1` exposes exact path-free Save/Load Results over strict persistence. | Existing typed Session values or strict JSON-object Command/persistence mappings; caller-supplied file path and expected fingerprint for Save. | No Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. | Retain exact export order/identity, operation/value pairs, observation/review isolation, file Result discrimination, normal statuses, one-call delegation, default provenance omission, strict Schema, 63-Schema parity, and clean-install execution. | v0.14.0 bounded public interface complete | Yes |
 | Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines seven Root workflows, immutable documents/options/Results/artifacts, errors, compatibility metadata, and provenance opt-in. Installed, module, and Legacy forms preserve Root parity and share the additive 12-subcommand Session parser, explicit paths, privacy-safe summaries, CAS persistence, and stable Exit Codes. Package, API, Application, CLI, Schema, Provenance, and Domain versions remain independent. | A Root JSON file and optional transport paths; or one explicit Session path plus strict creation, Command, or correction documents and operation-specific options. | Broader Domain-error migration, license selection, Package-index publication, GUI/platform/cloud/encryption integration, and end-to-end field enforcement remain open. | Retain exact Root and Session parser behavior, all seven workflows, all 12 Session subcommands, normal statuses, concise/quiet privacy, Legacy seams, 63-Schema/85-scenario validation, and historical published `v0.13.0` 62-Schema/77-scenario facts. | v0.14.0 published bounded interface complete | Yes |
 | Field-level information provenance | skat-ai product | Not applicable | `partially_supported` | Internal contract version `1` defines RFC 6901 paths, immutable ledgers, exact coverage, dependencies, Information Use Context, redaction, serialization, and Confidence separation. All seven workflows have complete non-legacy Root Result ledgers. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts, uses scopes `root_result_without_field_provenance` and `artifact_document`, and requires complete recomputed coverage. | A supported Application invocation with matching retained sidecars; public exposure additionally requires API or CLI opt-in. | Public consumed-input, decision, intermediate-stage, and unredacted attachments are intentionally absent. Broader loading and end-to-end field enforcement remain incomplete; Confidence and specialized source provenance remain separate. | Retain internal enforcement plus public immutable types, seven Result mappings, actual-artifact mapping, redaction and coverage recomputation, strict Schema, default omission, API/CLI parity, privacy rejection, and 77 generated outputs. | v0.13.0 bounded public contract complete; broader v1.0 enforcement open | Yes |
@@ -517,6 +521,10 @@ maintainer's manual publication. See
   and adds no progression matching or series aggregation. Issue #130 exposes
   those retained contracts through strict root-selected JSON, schemas, concise
   CLI output, examples, and generated-output validation.
+* The Match tournament-format identity `euroskat_36_standard_v1` is a named
+  product capture contract, not an implementation of EuroSkat ranking,
+  qualification, prize, fee, bonus, integration, or broader tournament
+  management rules. Match metadata remains separate from fixed-list aggregation.
 * SkWO defines list, event, signature, correction, submission, and retention
   duties, but the November 2022 PDF does not prescribe an official digital file
   format. Any such format needs a named external authority and conformance

@@ -112,6 +112,10 @@ The project focuses on:
 * installed/module/Legacy 12-subcommand Session CLI parity, explicit existing
   Position/Historical Application execution, phase-aware Assistant, six examples,
   and eight append-only scenarios
+* internal immutable version-1 Match Capture identity and metadata, descriptive
+  video/manual source evidence, reusable millisecond time bounds, one canonical
+  EuroSkat 36er Standard format, exact fixed-place participants, optional
+  existing Opponent Statistics snapshots, and one perspective Match Player
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1215,6 +1219,7 @@ Main documentation files:
 * `docs/temporal_known_opponent_dataset_splits.md`
 * `docs/player_disjoint_unseen_player_dataset_splits.md`
 * `docs/opponent_statistics.md`
+* `docs/match_capture_contracts.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1248,6 +1253,12 @@ examples, validates 85 deterministic generated-output scenarios, and passes
 and Issue #158 completed Release preparation. Publication was performed manually
 by the maintainer. GitHub Releases remains authoritative; no Package-index or
 PyPI publication is claimed.
+
+Active development milestone: `v0.15.0`, targeting usable manual post-game
+capture of one EuroSkat 36er Standard Match from descriptive video evidence.
+Issue #160 implements only the internal immutable Match identity and metadata
+foundation. It preserves Package version `0.14.0`, seven Root workflows, Public
+APIs and CLI, 63 Schemas, and 85 generated outputs.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1493,7 +1504,7 @@ publication.
 
 ## Current implementation baseline
 
-**Published v0.14.0 Release: End-to-end Live and Retrospective Session capture**
+**Current development after published v0.14.0: v0.15.0 Match Capture foundation**
 
 Completed implementation scope:
 
@@ -1572,6 +1583,9 @@ Completed implementation scope:
 * installed/module/Legacy 12-subcommand Session CLI parity, explicit Position
   and Historical execution, phase-aware Assistant, six examples, and eight
   append-only scenarios for an active total of 85
+* internal immutable Match Capture, source metadata, Media Timecode, named
+  tournament-format registry, Match Participant, optional Player Statistics
+  Snapshot, exact perspective, and deterministic serialization contracts
 
 ## Current high-priority limitations
 
@@ -1635,15 +1649,19 @@ Completed implementation scope:
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
+* Match Capture currently contains identity and metadata only. Observed Games,
+  annotations, Workspaces, persistence, materialization, Public API, CLI, and UI
+  remain later `v0.15.0` work; YouTube and EuroSkat integration remain absent.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Begin the active next planning milestone, `v1.0.0`, with a focused repository
-audit. The audit must reconcile every mandatory scope and completion-gate row in
-[v1.0 scope](v1_scope.md) with every current status in [requirements
-traceability](requirements_traceability.md), without assuming a final
-implementation architecture or Issue decomposition.
+Continue the active `v0.15.0` milestone from the Issue #160 internal Match
+metadata foundation toward usable manual EuroSkat 36er Standard post-game
+capture. Observed Games, annotations, Workspace organization, persistence,
+materialization boundaries, Public API, CLI, and UI require separate focused
+contracts and Issues. YouTube and EuroSkat integration are not required before
+`v1.0.0`.
 
 The audit should cover:
 

@@ -271,6 +271,24 @@ receive no public redaction, and make no encryption or access-control claim.
 Their fingerprints provide deterministic content identity and verification, not
 confidentiality or authenticated authorship.
 
+### Match capture metadata foundation
+
+The active `v0.15.0` milestone targets usable manual post-game capture of one
+EuroSkat 36er Standard Match from a video source. Issue #160 adds internal
+immutable version-1 Match source, media-timecode, tournament-format,
+participant, optional Player-statistics snapshot, identity, and perspective
+contracts. `euroskat_36_standard_v1` is the only executable format definition
+and requires exactly three Players and 36 Games.
+
+The game platform and media source are separate: a Match may have game platform
+`EuroSkat` and descriptive source kind `youtube_video`. The source stores the
+caller URL, title, optional channel, and optional Match bounds without any
+YouTube or EuroSkat integration. The perspective is one observed Match Player,
+not the application user. These contracts remain internal and contain no
+observed Games, persistence, Public API, CLI, Schema, example, generated
+scenario, Workspace, or UI. See
+[Match capture contracts](docs/match_capture_contracts.md).
+
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
 resources and works from source, Editable, Wheel, and sdist installations. Installed CLI
@@ -799,6 +817,7 @@ Detailed documentation is split into topic-specific files:
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Interactive session contracts](docs/interactive_session_contracts.md)
+* [Match capture contracts](docs/match_capture_contracts.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -954,6 +973,13 @@ and Issue #158 completed Release preparation. Publication was performed manually
 by the maintainer. GitHub Releases remains authoritative for publication status;
 no Package-index or PyPI publication is claimed.
 
+The active development milestone is `v0.15.0`, targeting usable manual
+post-game capture of one EuroSkat 36er Standard Match from descriptive video
+evidence. Issue #160 provides only the internal immutable Match identity and
+metadata foundation; observed Games, annotations, persistence, Public API, CLI,
+Workspace, and UI remain later milestone work. Package version, Public APIs,
+seven Root workflows, 63 Schemas, and 85 generated outputs remain unchanged.
+
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title
 "v0.13.0 — Stable API, installable tooling, and public field provenance". It
@@ -1056,7 +1082,8 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
-Remaining work includes stronger information-set or policy search, tactical
+Remaining work includes observed Match Games, annotations, persistence, Public
+Match interfaces and UI; stronger information-set or policy search, tactical
 motif detection and cross-game Coaching, approved settlement nuance, additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
@@ -1150,10 +1177,11 @@ extensions, website scraping, cloud synchronization, distributed locking,
 encryption/key management, automatic backups, and unrelated pre-v1 gaps remain
 open.
 
-The next active planning milestone is `v1.0.0`; it is not ready. A separate
-focused audit of [v1.0 scope](docs/v1_scope.md) and the
-[requirements traceability matrix](docs/requirements_traceability.md) should
-precede any final Issue sequence or implementation architecture.
+The active milestone is `v0.15.0` for usable EuroSkat 36er Standard post-game
+capture. Issue #160 establishes its internal metadata contracts without making
+capture executable. `v1.0.0` remains unready after this milestone; its final
+Issue sequence and implementation architecture still require focused scope and
+traceability review.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

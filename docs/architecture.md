@@ -6,6 +6,25 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
+Issue #160 adds an internal Match metadata layer before any future observed-Game
+authoring flow:
+
+```text
+descriptive video or manual source metadata
+    -> immutable media bounds
+    -> exact named tournament-format registry entry
+    -> exactly three fixed-place Match participants
+    -> optional immutable existing Opponent Statistics snapshots
+    -> one declared perspective Match Player
+    -> immutable Match Capture identity
+    -> later observed Games, annotations, persistence, Public API, CLI, and UI
+```
+
+Only the identity and metadata values through Match Capture definition are
+implemented. The game platform is separate from the media source, and the
+perspective Player is separate from the application user. No YouTube or EuroSkat
+integration, workflow execution, or Game materialization occurs in this layer.
+
 Issue #150 adds a separate internal authoring and control-plane contract before
 the existing Engine workflows:
 
@@ -272,6 +291,21 @@ local document identity, verification, and atomic save behavior. See
 and review isolation and
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md) for
 public files, automatic collection, execution, and Assistant behavior.
+
+## Match Capture Metadata
+
+| File | Purpose |
+| --- | --- |
+| `src/skat_ai/match_source_metadata.py` | Version-1 media timecodes and descriptive YouTube, other-video, or manual source metadata without network access. |
+| `src/skat_ai/match_tournament_format.py` | Immutable append-only named-format registry and canonical EuroSkat 36er Standard definition. |
+| `src/skat_ai/match_player_snapshot.py` | Fixed-place Match participants and optional immutable existing Opponent Statistics snapshots. |
+| `src/skat_ai/match_capture_contracts.py` | Exact three-Player Match identity, metadata, canonical format, uniqueness, perspective, and serialization reconciliation. |
+
+The only executable format identity is `euroskat_36_standard_v1`, with provider
+`EuroSkat`, display name `36er Standard`, three Players, and 36 Games. This is a
+named product format contract, not ranking, qualification, prize, fee, bonus,
+integration, or tournament-management behavior. See
+[Match capture contracts](match_capture_contracts.md).
 
 Validation is split between JSON Schema and Python validation:
 
@@ -743,6 +777,10 @@ Important regression areas:
 * automatic Checkpoint collection/deduplication, all 12 Session subcommands,
   installed/module/Legacy parity, privacy-safe presentation, Assistant flows,
   execution counts, six examples, and eight append-only generated scenarios
+* Match source-kind relationships, millisecond bounds, immutable format registry,
+  statistics Snapshot identity/time reconciliation, exact fixed-place
+  participants, perspective relationships, uniqueness, defensive serialization,
+  no-network behavior, and unchanged public/package/count boundaries
 
 ## Validation layers
 

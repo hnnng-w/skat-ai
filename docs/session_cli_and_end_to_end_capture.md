@@ -448,3 +448,8 @@ website scraping, cloud synchronization, distributed lock, collaborative merge,
 encryption or key management, automatic backup policy, default Session directory,
 or natural-language rule inference. Broader provenance, Search, Claim,
 Settlement, and Coaching gaps remain open independently.
+
+Issue #160's internal Match Capture metadata foundation adds no Match subcommand
+and does not alter this 12-subcommand Session CLI. Match persistence, observed
+Games, Session materialization, Public Match APIs, and browser UI remain later
+`v0.15.0` work.

@@ -442,3 +442,8 @@ encryption/key management, and unrelated pre-v1 gaps remain open. See
 [Incremental Session transitions](incremental_session_transitions.md),
 [Session Decision observations](session_decision_observations.md), and
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
+
+Issue #160's Match Capture identity and metadata contracts are a separate
+internal `v0.15.0` layer. They do not embed, create, persist, export, or execute a
+Session and do not change any Session version, Command, Public API, Schema, CLI,
+example, or generated scenario.

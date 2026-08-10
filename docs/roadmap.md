@@ -2,6 +2,30 @@
 
 This document tracks completed areas, known limitations, and planned improvements for `skat-ai`.
 
+## Active milestone: v0.15.0
+
+`v0.15.0` targets usable manual post-game capture of one EuroSkat 36er Standard
+Match from a descriptive video source. Issue #160 establishes the internal
+immutable version-1 foundation:
+
+* Match Capture identity and caller-supplied metadata;
+* millisecond media bounds;
+* `youtube_video`, `other_video`, and `manual_observation` source relationships;
+* an append-only named tournament-format registry;
+* the sole executable `euroskat_36_standard_v1` definition with three Players
+  and 36 Games;
+* exactly three fixed-place Match participants;
+* optional immutable snapshots of existing Opponent Statistics records;
+* one explicit perspective Match Player, separate from the application user;
+* deterministic defensive serialization without network, path, generated ID,
+  or generated time data.
+
+This foundation is internal only. Observed Games, comments and Decision
+annotations, Workspace organization, Match persistence, Historical or Session
+materialization, Public API, CLI, and UI remain later `v0.15.0` work. No YouTube
+or EuroSkat integration, ranking, qualification, prize, fee, or bonus behavior is
+implemented.
+
 ## Completed major areas
 
 ### End-to-end Live and Retrospective Session capture
@@ -813,16 +837,16 @@ The documented `v0.6.0` issue scope is complete:
 No `v0.6.0` commit, merge, tag, publication, release, or issue-closeout action
 remains pending.
 
-## Next planning milestone: v1.0.0
+## Later planning milestone: v1.0.0
 
 The [requirements traceability matrix](requirements_traceability.md) is the
 authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` is the next active planning milestone, but it is not ready. A separate
-focused audit of both documents must precede any final Issue sequence or
-implementation architecture.
+`v1.0.0` remains not ready after the active focused `v0.15.0` Match Capture
+milestone. A separate audit of both documents must precede its final Issue
+sequence or implementation architecture.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, and broader field-level provenance
@@ -948,11 +972,12 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current published `v0.14.0` baseline, historical
+should distinguish the current published `v0.14.0` baseline, active `v0.15.0`
+Match Capture work beginning with internal Issue #160 contracts, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
 release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,
-and 5,892-test baseline, requirements explicitly required for the active next
-`v1.0.0` planning milestone, planned post-v1.0 work, not-required workflows, and
+and 5,892-test published baseline, later `v0.15.0` capture work, requirements
+explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows, and
 unconditional exclusions. The final `v1.0.0` Issue split and implementation
 architecture remain undecided pending the focused repository audit.
