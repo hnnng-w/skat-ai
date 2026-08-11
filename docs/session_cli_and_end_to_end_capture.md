@@ -453,3 +453,9 @@ Issue #160's internal Match Capture metadata foundation adds no Match subcommand
 and does not alter this 12-subcommand Session CLI. Match persistence, observed
 Games, Session materialization, Public Match APIs, and browser UI remain later
 `v0.15.0` work.
+
+Issue #162 modularizes the internal Session transport without changing this
+contract. `skat_ai.cli.session` remains the compatibility facade; focused modules
+own parsing, strict JSON, context/persistence, Checkpoints, handlers, Application
+execution, and presentation. The Assistant now consumes those services directly.
+See [CLI internal architecture](cli_internal_architecture.md).

@@ -36,6 +36,13 @@ Match persistence, Historical or Session materialization, Public API, CLI, and U
 remain later `v0.15.0` work. No YouTube or EuroSkat integration, ranking,
 qualification, prize, fee, or bonus behavior is implemented.
 
+Issue #162 characterizes and modularizes the existing Root and Session CLI
+transport boundaries before those later layers. Compatibility facades preserve
+installed/module/Legacy behavior, while focused modules separate parsing,
+validation, Application adaptation, dispatch, transport, persistence,
+Checkpoints, handlers, and presentation. CLI remains a leaf adapter; this work
+adds no Match CLI, Capture Application, browser server, or UI.
+
 ## Completed major areas
 
 ### End-to-end Live and Retrospective Session capture

@@ -10,7 +10,9 @@ from test_session_transitions import _complete_retrospective_session
 import skat_ai.api.v1.session as session_api
 import skat_ai.api.v1.session.files as session_files
 import skat_ai.cli.session as session_cli
+import skat_ai.cli.session_application as session_application
 import skat_ai.cli.session_assistant as assistant
+import skat_ai.cli.session_checkpoints as session_checkpoints
 
 
 def _input_from(values: list[str]):
@@ -281,8 +283,8 @@ def test_assistant_analyze_persists_checkpoint_before_one_execution(
     output = []
     fake_result = {"recommendation": {"card": "CA"}}
     with patch.object(
-        session_cli,
-        "_execute_position_request",
+        session_application,
+        "execute_position_request",
         return_value=fake_result,
     ) as execution_spy:
         assert assistant.run_session_assistant(
@@ -311,8 +313,8 @@ def test_assistant_conflict_stops_without_retry(tmp_path: Path) -> None:
         requested_content_fingerprint="c" * 64,
     )
     with patch.object(
-        session_cli,
-        "_persist_mutation",
+        session_checkpoints,
+        "persist_mutation",
         return_value=(conflict, ()),
     ) as persistence_spy:
         assert assistant.run_session_assistant(
@@ -375,8 +377,8 @@ def test_assistant_review_and_finalize_execute_without_saving(tmp_path: Path) ->
     review_before = review_path.read_bytes()
     review_output = []
     with patch.object(
-        session_cli,
-        "_execute_position_request",
+        session_application,
+        "execute_position_request",
         return_value={"post_game_review_summary": {"decision_quality": "best"}},
     ) as review_spy:
         assert assistant.run_session_assistant(
@@ -394,8 +396,8 @@ def test_assistant_review_and_finalize_execute_without_saving(tmp_path: Path) ->
     finalize_before = finalize_path.read_bytes()
     finalize_output = []
     with patch.object(
-        session_cli,
-        "_execute_historical_request",
+        session_application,
+        "execute_historical_request",
         return_value={"historical_game_summary": {"winner": "declarer"}},
     ) as finalize_spy:
         assert assistant.run_session_assistant(

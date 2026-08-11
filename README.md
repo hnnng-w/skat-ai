@@ -369,6 +369,10 @@ See [Installed CLI](docs/installed_cli.md) for invocation identities, output,
 errors, compatibility, and clean-install validation. Repository examples are not
 installed as Package Data.
 
+The behavior-preserving internal Root and Session transport split, Legacy patch
+facades, and one-way import boundary are documented in
+[CLI internal architecture](docs/cli_internal_architecture.md).
+
 ## Usage
 
 Parse and execute an already loaded Root JSON document:
@@ -820,6 +824,7 @@ Detailed documentation is split into topic-specific files:
 * [Session Decision observations](docs/session_decision_observations.md)
 * [Session CLI and end-to-end capture](docs/session_cli_and_end_to_end_capture.md)
 * [Installed CLI](docs/installed_cli.md)
+* [CLI internal architecture](docs/cli_internal_architecture.md)
 * [Packaging and distribution](docs/packaging_and_distribution.md)
 * [Application orchestration](docs/application_orchestration.md)
 * [Interactive session contracts](docs/interactive_session_contracts.md)

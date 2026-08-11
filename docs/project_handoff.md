@@ -961,8 +961,13 @@ Implemented:
 ### CLI entry points
 
 * `cli/execution.py`
-  * canonical parser, CLI-only validation, Application options, file transport,
-    human-readable presentation, and Exit Codes
+  * Root compatibility facade preserving established imports and patch seams
+* `cli/root_parser.py`, `cli/root_validation.py`, and `cli/root_dispatch.py`
+  * exact Root parser, CLI-only validation, workflow selection, and Exit Codes
+* `cli/root_compatibility.py` and `cli/root_application.py`
+  * Legacy dependency resolution and one-invocation Application adaptation
+* `cli/root_transport.py` and `cli/presentation/`
+  * file/output transport and pure already-produced-Result presentation
 * `cli/__init__.py`
   * exact `skat_ai.cli:main` Console Script target
 * `__main__.py`
@@ -1043,11 +1048,17 @@ Implemented:
   * complete operation-value ledgers, public redaction, coverage recomputation,
     and public Session Provenance bundle construction
 * `cli/session.py`
-  * separate Session parser, all 12 subcommands, persistence/CAS, automatic
-    Checkpoints, explicit Application execution, privacy, and Exit Codes
+  * Session compatibility facade retaining established constants, functions,
+    helper aliases, and signatures
+* `cli/session_parser.py`, `cli/session_transport.py`, and `cli/session_context.py`
+  * separate parser, strict JSON input, context, and optimistic persistence
+* `cli/session_checkpoints.py` and `cli/session_operations.py`
+  * automatic Checkpoints, all 12 handlers, Save decisions, and dispatch
+* `cli/session_application.py` and `cli/session_presentation.py`
+  * explicit existing-Application execution and privacy-safe output
 * `cli/session_assistant.py`
-  * phase-aware prompts, exact typed Commands, per-mutation Save, and injectable
-    input/output functions
+  * phase-aware prompts over explicit focused services, exact typed Commands,
+    per-mutation Save, and injectable input/output functions
 
 ### Game state and rules
 

@@ -620,6 +620,70 @@ def test_position_export_and_analyze_persist_one_checkpoint_before_execution(
     assert len(persisted.decision_checkpoints) == 1
 
 
+def test_checkpoint_subcommand_collects_and_saves_once_without_analysis(
+    tmp_path: Path,
+) -> None:
+    state = _ready_live_state()
+    session_path = tmp_path / "checkpoint.json"
+    _persist_state(session_path, state)
+    output_path = tmp_path / "checkpoint-output.json"
+    with (
+        patch.object(
+            session_cli,
+            "collect_session_decision_checkpoint_v1",
+            wraps=session_cli.collect_session_decision_checkpoint_v1,
+        ) as collection_spy,
+        patch.object(
+            session_api,
+            "build_session_persistence_document",
+            wraps=session_api.build_session_persistence_document,
+        ) as build_spy,
+        patch.object(
+            session_files,
+            "save_session_file",
+            wraps=session_files.save_session_file,
+        ) as save_spy,
+        patch.object(
+            session_cli,
+            "execute_legacy_application",
+            side_effect=AssertionError("checkpoint ran analysis"),
+        ),
+    ):
+        assert session_cli.run_session_cli(
+            [
+                "checkpoint",
+                "--session",
+                str(session_path),
+                "--output",
+                str(output_path),
+                "--samples",
+                "1",
+                "--quiet",
+            ]
+        ) == 0
+    assert collection_spy.call_count == 1
+    assert build_spy.call_count == 1
+    assert save_spy.call_count == 1
+    assert json.loads(output_path.read_text(encoding="utf-8"))["operation"] == (
+        "build_checkpoint"
+    )
+
+
+def test_assistant_subcommand_delegates_once(monkeypatch) -> None:
+    import skat_ai.cli.session_assistant as assistant_module
+
+    calls = []
+    monkeypatch.setattr(
+        assistant_module,
+        "run_session_assistant",
+        lambda session_path: calls.append(session_path) or 17,
+    )
+    assert session_cli.run_session_cli(
+        ["assistant", "--session", "private-session.json"]
+    ) == 17
+    assert calls == ["private-session.json"]
+
+
 def test_unavailable_exports_execute_nothing_and_write_typed_results(
     tmp_path: Path,
 ) -> None:

@@ -200,9 +200,19 @@ decision, intermediate-stage, and unredacted attachments remain internal.
 
 ## Main entry point
 
-| File      | Purpose                                                                                                                           |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `main.py` | Legacy CLI compatibility entry point for unchanged Root parsing and leading-`session` dispatch. |
+| File | Purpose |
+| --- | --- |
+| `src/skat_ai/cli/execution.py` | Package-owned Root compatibility facade and leading-`session` dispatch. |
+| `src/skat_ai/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
+| `src/skat_ai/__main__.py` | Module invocation delegation. |
+| `main.py` | Thin Legacy compatibility facade and Root monkeypatch adapter. |
+
+Root parsing, validation, Legacy dependency resolution, Application adaptation,
+dispatch, transport, and presentation are separate focused modules. Session
+parsing, strict JSON input, context/persistence, Checkpoints, operations,
+Application adaptation, and presentation are also separate. CLI is a leaf
+transport: Application, Public API, Match, and observed-Game modules do not
+import it. See [CLI internal architecture](cli_internal_architecture.md).
 
 ## Core rules
 
@@ -273,8 +283,15 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/session_checkpoint_review.py` | Frozen-request-plus-observed-Card post-game-review Request export without execution. |
 | `src/skat_ai/session_checkpoint_collection.py` | Exact Position-ready Checkpoint collection, canonical retention, and equality deduplication without analysis. |
 | `src/skat_ai/api/v1/session/files/` | Stable version-1 public file Save/Load contracts, strict Result validation, and stable error translation. |
-| `src/skat_ai/cli/session.py` | Separate 12-subcommand Session parser, persistence/CAS orchestration, automatic Checkpoints, export, execution, privacy-safe presentation, and Exit Codes. |
-| `src/skat_ai/cli/session_assistant.py` | Deterministic phase-aware prompts, typed Command construction, per-mutation Save, and injectable I/O. |
+| `src/skat_ai/cli/session.py` | Compatibility facade for the separate 12-subcommand Session CLI. |
+| `src/skat_ai/cli/session_parser.py` | Session parser and Position export-option mapping. |
+| `src/skat_ai/cli/session_transport.py` | Strict caller-file JSON loading. |
+| `src/skat_ai/cli/session_context.py` | Context, persistence-document, and optimistic Save orchestration. |
+| `src/skat_ai/cli/session_checkpoints.py` | Source/result/correction Checkpoint collection and retention. |
+| `src/skat_ai/cli/session_operations.py` | Twelve handlers, dispatch, and Save/no-Save decisions. |
+| `src/skat_ai/cli/session_application.py` | Existing Position/Historical Application execution without Session file I/O. |
+| `src/skat_ai/cli/session_presentation.py` | Privacy-safe Session and Engine Result transport presentation. |
+| `src/skat_ai/cli/session_assistant.py` | Deterministic phase-aware prompts over explicit focused services. |
 
 Session State contains no `GameState`, Search World, cache, random stream,
 analysis Result, generated timestamp, path, or fingerprint. Persistence paths and
@@ -589,7 +606,7 @@ Issue #22's current heuristic and explainable defender-partnership scope is impl
 ## Left/right opponent policy flow
 
 Opponent policy handling is centralized in `src/skat_ai/effective_opponent_policy.py`.
-`main.py` builds one `EffectiveOpponentPolicySettings` value per analysis invocation
+The Position Application workflow builds one `EffectiveOpponentPolicySettings` value per analysis invocation
 and shares it with immediate analysis, multi-step simulation, and multi-step policy
 comparison.
 

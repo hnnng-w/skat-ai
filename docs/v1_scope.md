@@ -298,7 +298,9 @@ The following directions are required for `v1.0.0`:
   byte-identical Package Resource schemas, typing metadata, and Package version
   metadata. Installed and module CLI entry points now execute all seven workflows
   through the same internal Application layer, while Legacy `python main.py`
-  remains compatible through at least `v1.0.0`.
+  remains compatible through at least `v1.0.0`. Issue #162 modularizes the
+  internal Root and Session transports behind compatibility facades and enforces
+  the leaf-transport import direction without changing the stable interface.
 * Support all final declared Suit, Grand, and Null variants in the approved v1.0
   contract, including valid dependencies, matadors, Hand, Schneider, Schwarz,
   Ouvert, game end, and final settlement.

@@ -215,6 +215,14 @@ formatters, Exit Code constants, `CliUsageError` alias, callable signatures, and
 established monkeypatch seams. A patched Root seam affects Legacy execution but
 does not require the installed Package CLI to import Root `main.py`.
 
+Issue #162 keeps `skat_ai.cli.execution` and `skat_ai.cli.session` as explicit
+compatibility facades while focused internal modules own parsing, validation,
+Application adaptation, dispatch, transport, persistence/Checkpoint
+orchestration, and presentation. The Session Assistant imports those focused
+services rather than facade-private helpers. This changes no command, option,
+output, Exit Code, Console Script, or compatibility version. See
+[CLI internal architecture](cli_internal_architecture.md).
+
 CLI functions and installed-CLI constants remain internal and are not stable
 Public Python API exports. Issue #147 additively extends `skat_ai.api.v1`, Root
 JSON Schema, and generated scenarios while preserving default Root JSON and the

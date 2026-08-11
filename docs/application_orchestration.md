@@ -212,6 +212,15 @@ export an existing Request and call the matching Application handler once. The
 phase-aware Assistant follows the same rule: analysis occurs only after an
 explicit caller action. Existing Root parsing and dispatch remain unchanged.
 
+Issue #162 separates the Package-owned transport into focused Root parser,
+validation, Legacy compatibility, Application-adapter, dispatch, transport, and
+presentation modules. It similarly separates Session parser, strict JSON,
+context/persistence, Checkpoint, handler, Application-adapter, and presentation
+services. `execution.py` and `session.py` remain compatibility facades. The
+Assistant consumes focused services directly rather than private facade helpers.
+Application and Public API modules import no CLI code; CLI remains a leaf
+transport adapter. See [CLI internal architecture](cli_internal_architecture.md).
+
 ## Public API and provenance boundaries
 
 Issue #140 exposes these additive public facade functions:

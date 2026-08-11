@@ -3,19 +3,77 @@ from __future__ import annotations
 import argparse
 import json
 from collections.abc import Callable, Mapping
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import skat_ai.api.v1.session as session_api
 from skat_ai.application.contracts import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
 )
-from skat_ai.cli import session as session_cli
+from skat_ai.cli import (
+    session_application,
+    session_checkpoints,
+    session_context,
+    session_parser,
+)
 from skat_ai.errors import CLI_EXIT_CODE_FAILURE, CLI_EXIT_CODE_SUCCESS, SkatAIError
 from skat_ai.session_commands import SESSION_COMMAND_ALLOWED_PHASES
 
 InputFunction = Callable[[str], str]
 OutputFunction = Callable[[str], None]
+
+
+@dataclass(frozen=True, slots=True)
+class SessionAssistantServices:
+    load_context: Callable[..., Any]
+    create_context: Callable[..., Any]
+    position_export_options: Callable[..., Any]
+    parse_correction_input: Callable[..., Any]
+    collect_source_play_checkpoint: Callable[..., Any]
+    persist_mutation: Callable[..., Any]
+    collect_correction_source_checkpoint: Callable[..., Any]
+    collect_for_analysis: Callable[..., Any]
+    execute_position_request: Callable[..., Any]
+    execute_historical_request: Callable[..., Any]
+    session_input_reference: Callable[..., Any]
+
+
+_active_session_assistant_services: SessionAssistantServices | None = None
+
+
+def _focused_assistant_services() -> SessionAssistantServices:
+    return SessionAssistantServices(
+        load_context=session_context.load_context,
+        create_context=session_context.create_context,
+        position_export_options=session_parser.position_export_options,
+        parse_correction_input=session_context.parse_correction_input,
+        collect_source_play_checkpoint=(
+            session_checkpoints.collect_source_play_checkpoint
+        ),
+        persist_mutation=session_checkpoints.persist_mutation,
+        collect_correction_source_checkpoint=(
+            session_checkpoints.collect_correction_source_checkpoint
+        ),
+        collect_for_analysis=session_checkpoints.collect_for_analysis,
+        execute_position_request=session_application.execute_position_request,
+        execute_historical_request=session_application.execute_historical_request,
+        session_input_reference=session_application.session_input_reference,
+    )
+
+
+@contextmanager
+def session_assistant_services(services: SessionAssistantServices):
+    """Temporarily supplies compatibility services to one Assistant invocation."""
+    global _active_session_assistant_services
+    previous = _active_session_assistant_services
+    _active_session_assistant_services = services
+    try:
+        yield
+    finally:
+        _active_session_assistant_services = previous
 
 _ACTION_ORDER = (
     "metadata",
@@ -117,7 +175,7 @@ def _prompt_creation(input_fn: InputFunction) -> dict[str, object]:
     }
 
 
-def _available_actions(context: session_cli._SessionContext) -> tuple[str, ...]:
+def _available_actions(context: session_context.SessionContext) -> tuple[str, ...]:
     state = context.state
     available = []
     for action in _ACTION_ORDER:
@@ -144,7 +202,7 @@ def _available_actions(context: session_cli._SessionContext) -> tuple[str, ...]:
 
 
 def _show_status(
-    context: session_cli._SessionContext,
+    context: session_context.SessionContext,
     output_fn: OutputFunction,
 ) -> None:
     state = context.state
@@ -267,23 +325,24 @@ def _build_command_document(
 
 def _default_position_args() -> argparse.Namespace:
     return argparse.Namespace(
-        samples=session_cli.DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
+        samples=session_parser.DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT,
         seed=0,
         opponent_strategy="basic",
         recommendation_method=None,
-        search_budget_profile=session_cli.INTERACTIVE_SEARCH_BUDGET_PROFILE,
+        search_budget_profile=session_parser.INTERACTIVE_SEARCH_BUDGET_PROFILE,
     )
 
 
 def _apply_command(
-    context: session_cli._SessionContext,
+    context: session_context.SessionContext,
     document: Mapping[str, object],
     *,
     output_fn: OutputFunction,
+    services: SessionAssistantServices,
 ) -> bool:
     command = session_api.parse_session_command(document)
-    export_options = session_cli._position_export_options(_default_position_args())
-    source_collection = session_cli._collect_source_play_checkpoint(
+    export_options = services.position_export_options(_default_position_args())
+    source_collection = services.collect_source_play_checkpoint(
         context,
         command,
         export_options,
@@ -294,7 +353,7 @@ def _apply_command(
         _emit(output_fn, f"Diagnostic {diagnostic.code}: {diagnostic.message}")
     if result.value.status != "applied":
         return True
-    saved, _collections = session_cli._persist_mutation(
+    saved, _collections = services.persist_mutation(
         context,
         resulting_state=result.value.state,
         source_play_command=command,
@@ -306,10 +365,11 @@ def _apply_command(
 
 
 def _undo(
-    context: session_cli._SessionContext,
+    context: session_context.SessionContext,
     *,
     input_fn: InputFunction,
     output_fn: OutputFunction,
+    services: SessionAssistantServices,
 ) -> bool:
     target_text = input_fn("Target revision: ")
     try:
@@ -324,31 +384,30 @@ def _undo(
     _emit(output_fn, "Undo status:", result.value.status)
     if result.value.status != "applied":
         return True
-    saved, _collections = session_cli._persist_mutation(
+    saved, _collections = services.persist_mutation(
         context,
         resulting_state=result.value.state,
         source_play_command=None,
-        export_options=session_cli._position_export_options(
-            _default_position_args()
-        ),
+        export_options=services.position_export_options(_default_position_args()),
     )
     _emit(output_fn, "Persistence status:", saved.status)
     return saved.status != "conflict"
 
 
 def _correct(
-    context: session_cli._SessionContext,
+    context: session_context.SessionContext,
     *,
     input_fn: InputFunction,
     output_fn: OutputFunction,
+    services: SessionAssistantServices,
 ) -> bool:
     document = _strict_json_object(
         input_fn("Session Command Correction JSON object: "),
         name="Session Command Correction",
     )
-    correction = session_cli._parse_correction_input(document)
-    export_options = session_cli._position_export_options(_default_position_args())
-    source_collection = session_cli._collect_correction_source_checkpoint(
+    correction = services.parse_correction_input(document)
+    export_options = services.position_export_options(_default_position_args())
+    source_collection = services.collect_correction_source_checkpoint(
         context,
         correction,
         export_options,
@@ -367,7 +426,7 @@ def _correct(
     )
     if result.value.status not in {"applied", "partial"}:
         return True
-    saved, _collections = session_cli._persist_mutation(
+    saved, _collections = services.persist_mutation(
         context,
         resulting_state=result.value.state,
         source_play_command=None,
@@ -379,13 +438,17 @@ def _correct(
 
 
 def _checkpoint_or_analyze(
-    context: session_cli._SessionContext,
+    context: session_context.SessionContext,
     *,
     analyze: bool,
     output_fn: OutputFunction,
+    services: SessionAssistantServices,
 ) -> bool:
-    export_options = session_cli._position_export_options(_default_position_args())
-    collection, saved = session_cli._collect_for_analysis(context, export_options)
+    export_options = services.position_export_options(_default_position_args())
+    collection, saved = services.collect_for_analysis(
+        context,
+        export_options,
+    )
     if saved is not None:
         _emit(output_fn, "Persistence status:", saved.status)
         if saved.status == "conflict":
@@ -393,9 +456,9 @@ def _checkpoint_or_analyze(
     _emit(output_fn, "Checkpoint status:", collection.status)
     if not analyze or collection.checkpoint is None:
         return True
-    result = session_cli._execute_position_request(
+    result = services.execute_position_request(
         collection.checkpoint.request,
-        input_reference=session_cli._session_input_reference(context),
+        input_reference=services.session_input_reference(context),
         include_provenance=False,
     )
     recommendation = result.get("recommendation", {})
@@ -406,10 +469,11 @@ def _checkpoint_or_analyze(
 
 
 def _review(
-    context: session_cli._SessionContext,
+    context: session_context.SessionContext,
     *,
     input_fn: InputFunction,
     output_fn: OutputFunction,
+    services: SessionAssistantServices,
 ) -> None:
     index_text = input_fn("Checkpoint index: ")
     try:
@@ -433,9 +497,9 @@ def _review(
         )
     if exported.value.status != "available":
         return
-    result = session_cli._execute_position_request(
+    result = services.execute_position_request(
         exported.value.request,
-        input_reference=session_cli._session_input_reference(context),
+        input_reference=services.session_input_reference(context),
         include_provenance=False,
     )
     summary = result.get("post_game_review_summary", {})
@@ -444,17 +508,18 @@ def _review(
 
 
 def _finalize(
-    context: session_cli._SessionContext,
+    context: session_context.SessionContext,
     *,
     output_fn: OutputFunction,
+    services: SessionAssistantServices,
 ) -> None:
     exported = session_api.export_session_historical_request(context.state)
     _emit(output_fn, "Historical export status:", exported.value.status)
     if exported.value.status != "available":
         return
-    result = session_cli._execute_historical_request(
+    result = services.execute_historical_request(
         exported.value.request,
-        input_reference=session_cli._session_input_reference(context),
+        input_reference=services.session_input_reference(context),
         include_provenance=False,
         options=ApplicationExecutionOptions(
             historical_game=HistoricalGameApplicationOptions()
@@ -473,13 +538,14 @@ def run_session_assistant(
     output_fn: OutputFunction = print,
 ) -> int:
     """Runs one deterministic interactive Session loop with injectable I/O."""
+    services = _active_session_assistant_services or _focused_assistant_services()
     try:
         if Path(session_path).exists():
-            context, _loaded = session_cli._load_context(session_path)
+            context, _loaded = services.load_context(session_path)
             _emit(output_fn, "Session resumed.")
         else:
             _emit(output_fn, "Session file does not exist; enter explicit creation values.")
-            created, context, saved = session_cli._create_context(
+            created, context, saved = services.create_context(
                 session_path,
                 _prompt_creation(input_fn),
                 include_provenance=False,
@@ -511,19 +577,31 @@ def run_session_assistant(
                             input_fn=input_fn,
                         ),
                         output_fn=output_fn,
+                        services=services,
                     ):
                         return CLI_EXIT_CODE_FAILURE
                 elif action == "undo":
-                    if not _undo(context, input_fn=input_fn, output_fn=output_fn):
+                    if not _undo(
+                        context,
+                        input_fn=input_fn,
+                        output_fn=output_fn,
+                        services=services,
+                    ):
                         return CLI_EXIT_CODE_FAILURE
                 elif action == "correct":
-                    if not _correct(context, input_fn=input_fn, output_fn=output_fn):
+                    if not _correct(
+                        context,
+                        input_fn=input_fn,
+                        output_fn=output_fn,
+                        services=services,
+                    ):
                         return CLI_EXIT_CODE_FAILURE
                 elif action == "checkpoint":
                     if not _checkpoint_or_analyze(
                         context,
                         analyze=False,
                         output_fn=output_fn,
+                        services=services,
                     ):
                         return CLI_EXIT_CODE_FAILURE
                 elif action == "analyze":
@@ -531,12 +609,18 @@ def run_session_assistant(
                         context,
                         analyze=True,
                         output_fn=output_fn,
+                        services=services,
                     ):
                         return CLI_EXIT_CODE_FAILURE
                 elif action == "review":
-                    _review(context, input_fn=input_fn, output_fn=output_fn)
+                    _review(
+                        context,
+                        input_fn=input_fn,
+                        output_fn=output_fn,
+                        services=services,
+                    )
                 elif action == "finalize":
-                    _finalize(context, output_fn=output_fn)
+                    _finalize(context, output_fn=output_fn, services=services)
             except (SkatAIError, TypeError, ValueError, OSError) as error:
                 _emit(output_fn, f"Error: {error}")
     except EOFError:
