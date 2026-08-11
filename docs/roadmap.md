@@ -6,7 +6,7 @@ This document tracks completed areas, known limitations, and planned improvement
 
 `v0.15.0` targets usable manual post-game capture of one EuroSkat 36er Standard
 Match from a descriptive video source. Issue #160 establishes the internal
-immutable version-1 foundation:
+immutable version-1 Match metadata foundation:
 
 * Match Capture identity and caller-supplied metadata;
 * millisecond media bounds;
@@ -20,11 +20,21 @@ immutable version-1 foundation:
 * deterministic defensive serialization without network, path, generated ID,
   or generated time data.
 
-This foundation is internal only. Observed Games, comments and Decision
-annotations, Workspace organization, Match persistence, Historical or Session
-materialization, Public API, CLI, and UI remain later `v0.15.0` work. No YouTube
-or EuroSkat integration, ranking, qualification, prize, fee, or bonus behavior is
-implemented.
+Issue #161 adds the internal observed single-Game and commentary foundation:
+
+* exact Match linkage, Match position, historical seats, and perspective;
+* optional perspective initial hand, original Skat, and null-versus-empty
+  Discard evidence;
+* zero through 30 chronological Plays with bounded partial validation;
+* exact complete Suit, Grand, and Null replay from reconstructed playable hands;
+* free-text commentary on any Player Decision and linked later responses;
+* deterministic evidence and reconstruction-capability summaries without hidden
+  completion.
+
+These foundations are internal only. Workspace organization, 36 Game slots,
+Match persistence, Historical or Session materialization, Public API, CLI, and UI
+remain later `v0.15.0` work. No YouTube or EuroSkat integration, ranking,
+qualification, prize, fee, or bonus behavior is implemented.
 
 ## Completed major areas
 
@@ -845,7 +855,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 `v1.0.0` remains not ready after the active focused `v0.15.0` Match Capture
-milestone. A separate audit of both documents must precede its final Issue
+work through the internal Match metadata and observed-Game/commentary
+foundations. A separate audit of both documents must precede its final Issue
 sequence or implementation architecture.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
@@ -973,7 +984,7 @@ Recommended cleanup areas:
 
 Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.14.0` baseline, active `v0.15.0`
-Match Capture work beginning with internal Issue #160 contracts, historical
+Match Capture work through internal Issues #160 and #161, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
 release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,

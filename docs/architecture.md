@@ -6,8 +6,8 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
-Issue #160 adds an internal Match metadata layer before any future observed-Game
-authoring flow:
+Issues #160 and #161 add an internal Match and observed-Game layer before any
+future Workspace or transport flow:
 
 ```text
 descriptive video or manual source metadata
@@ -17,13 +17,19 @@ descriptive video or manual source metadata
     -> optional immutable existing Opponent Statistics snapshots
     -> one declared perspective Match Player
     -> immutable Match Capture identity
-    -> later observed Games, annotations, persistence, Public API, CLI, and UI
+    -> one evidence-aware observed Game with historical seats
+    -> bounded partial or exact complete public Play validation
+    -> free-text Decision commentary and linked later responses
+    -> deterministic evidence and reconstruction capabilities
+    -> later Workspace, persistence, materialization, Public API, CLI, and UI
 ```
 
-Only the identity and metadata values through Match Capture definition are
-implemented. The game platform is separate from the media source, and the
-perspective Player is separate from the application user. No YouTube or EuroSkat
-integration, workflow execution, or Game materialization occurs in this layer.
+The game platform is separate from the media source, and the perspective Player
+is separate from the application user. Observed facts remain distinct from
+derived trace and evidence values: missing original Skat or Discards are not
+completed from the deck complement. No YouTube or EuroSkat integration,
+workflow execution, or Historical, Session, or Dataset materialization occurs in
+this layer.
 
 Issue #150 adds a separate internal authoring and control-plane contract before
 the existing Engine workflows:
@@ -292,7 +298,7 @@ and review isolation and
 [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md) for
 public files, automatic collection, execution, and Assistant behavior.
 
-## Match Capture Metadata
+## Match and Observed-Game Capture
 
 | File | Purpose |
 | --- | --- |
@@ -300,12 +306,17 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_tournament_format.py` | Immutable append-only named-format registry and canonical EuroSkat 36er Standard definition. |
 | `src/skat_ai/match_player_snapshot.py` | Fixed-place Match participants and optional immutable existing Opponent Statistics snapshots. |
 | `src/skat_ai/match_capture_contracts.py` | Exact three-Player Match identity, metadata, canonical format, uniqueness, perspective, and serialization reconciliation. |
+| `src/skat_ai/observed_game_contracts.py` | Match-linked observed Game identity, historical seats, optional Card evidence, complete reconciliation, and serialization. |
+| `src/skat_ai/observed_game_trace.py` | Chronological partial and complete Play validation, Turn Order, existing rule reuse, and derived trace summary. |
+| `src/skat_ai/observed_game_commentary.py` | Authoritative free-text Decision commentary, commentator identity, later response links, and canonical ordering. |
+| `src/skat_ai/observed_game_evidence.py` | Pure retained-fact capability derivation without Request construction or workflow execution. |
 
 The only executable format identity is `euroskat_36_standard_v1`, with provider
 `EuroSkat`, display name `36er Standard`, three Players, and 36 Games. This is a
 named product format contract, not ranking, qualification, prize, fee, bonus,
 integration, or tournament-management behavior. See
-[Match capture contracts](match_capture_contracts.md).
+[Match capture contracts](match_capture_contracts.md) and
+[Observed Game capture contracts](observed_game_capture_contracts.md).
 
 Validation is split between JSON Schema and Python validation:
 

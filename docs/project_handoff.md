@@ -116,6 +116,10 @@ The project focuses on:
   video/manual source evidence, reusable millisecond time bounds, one canonical
   EuroSkat 36er Standard format, exact fixed-place participants, optional
   existing Opponent Statistics snapshots, and one perspective Match Player
+* internal immutable version-1 evidence-aware observed Games, exact historical
+  seats, bounded partial and complete Play validation, free-text commentary on
+  any Player Decision, linked later responses, and deterministic evidence
+  capability summaries without hidden completion
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1256,9 +1260,10 @@ PyPI publication is claimed.
 
 Active development milestone: `v0.15.0`, targeting usable manual post-game
 capture of one EuroSkat 36er Standard Match from descriptive video evidence.
-Issue #160 implements only the internal immutable Match identity and metadata
-foundation. It preserves Package version `0.14.0`, seven Root workflows, Public
-APIs and CLI, 63 Schemas, and 85 generated outputs.
+Issues #160 and #161 implement the internal immutable Match identity/metadata and
+observed single-Game/commentary foundations. They preserve Package version
+`0.14.0`, seven Root workflows, Public APIs and CLI, 63 Schemas, and 85 generated
+outputs.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1586,6 +1591,9 @@ Completed implementation scope:
 * internal immutable Match Capture, source metadata, Media Timecode, named
   tournament-format registry, Match Participant, optional Player Statistics
   Snapshot, exact perspective, and deterministic serialization contracts
+* internal immutable observed Game, chronological Play trace, free-text Decision
+  commentary, linked later response, complete-card reconciliation, and derived
+  evidence-summary contracts
 
 ## Current high-priority limitations
 
@@ -1649,16 +1657,17 @@ Completed implementation scope:
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
-* Match Capture currently contains identity and metadata only. Observed Games,
-  annotations, Workspaces, persistence, materialization, Public API, CLI, and UI
-  remain later `v0.15.0` work; YouTube and EuroSkat integration remain absent.
+* Match Capture contains identity/metadata plus evidence-aware observed Games and
+  free-text Decision commentary. Workspaces, 36 Game slots, persistence,
+  materialization, Public API, CLI, and UI remain later `v0.15.0` work; YouTube
+  and EuroSkat integration remain absent.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Continue the active `v0.15.0` milestone from the Issue #160 internal Match
-metadata foundation toward usable manual EuroSkat 36er Standard post-game
-capture. Observed Games, annotations, Workspace organization, persistence,
+Continue the active `v0.15.0` milestone from the Issue #160 Match metadata and
+Issue #161 observed-Game/commentary foundations toward usable manual EuroSkat
+36er Standard post-game capture. Workspace organization, persistence,
 materialization boundaries, Public API, CLI, and UI require separate focused
 contracts and Issues. YouTube and EuroSkat integration are not required before
 `v1.0.0`.

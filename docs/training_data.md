@@ -20,6 +20,12 @@ relative `public_exposed_cards` feature for the shrinking public hand.
 Declared-Ouvert records expose the exact shrinking declarer hand from decision 1
 through the same feature.
 
+Issue #161 observed-Game evidence summaries may state that perspective or
+all-Player Decision samples are reconstructable. That capability flag does not
+create this version-1 Dataset input or any sample. Observed Games have no Dataset
+materialization in this issue, and free-text commentary is not a version-1
+feature, target, label, category, or quality value.
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:

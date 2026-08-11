@@ -213,3 +213,8 @@ functional `v0.14.0` milestone before manual maintainer publication;
 GUI/platform/cloud/encryption work remains open.
 See [Session Position export and Decision checkpoints](live_session_position_export.md)
 and [Session CLI and end-to-end capture](session_cli_and_end_to_end_capture.md).
+
+Issue #161 observed Games remain outside Session State and this exporter. An
+evidence summary can describe reconstruction capability but does not materialize
+a Session Log or Historical Request. A later explicit materialization contract
+must preserve the existing readiness and canonical Historical builder boundary.

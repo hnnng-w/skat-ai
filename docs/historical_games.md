@@ -25,6 +25,13 @@ The same timestamped dataset container can also evaluate rolling profile-policy
 behavior, but only in its separate sample-free mode; it does not turn one
 historical-game invocation into a recommendation or policy evaluation.
 
+Issue #161 observed Games are a separate internal evidence-capture contract.
+They may retain partial public Plays, optional perspective-only initial Card
+evidence, and free-text commentary, so they are not weakened
+`HistoricalGameRecord` values. No observed Game is materialized into this public
+Historical workflow yet. The complete Historical contract below continues to
+require its full exact Deal, supported ending, Result, and Settlement evidence.
+
 ## Public input
 
 The top-level input contains only `historical_game_input`:

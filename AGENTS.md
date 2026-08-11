@@ -274,9 +274,12 @@ The active development milestone is `v0.15.0`, targeting usable manual post-game
 capture of one EuroSkat 36er Standard Match from descriptive video evidence.
 Issue #160 begins it with internal Match source, timecode, tournament-format,
 participant, optional statistics-snapshot, identity, perspective, and
-deterministic serialization contracts. It adds no observed Games, persistence,
-Public API, CLI, Schema, example, generated scenario, UI, YouTube integration,
-or EuroSkat integration. `v1.0.0` remains unready after this focused milestone.
+deterministic serialization contracts. Issue #161 adds internal evidence-aware
+observed Games, partial and complete Play validation, free-text Decision
+commentary on any Player, linked later responses, and deterministic evidence
+summaries. Persistence, Workspace, materialization, Public API, CLI, Schema,
+example, generated scenario, UI, YouTube integration, and EuroSkat integration
+remain absent. `v1.0.0` remains unready after this focused milestone.
 
 Major completed areas include:
 
@@ -396,6 +399,10 @@ Major completed areas include:
   canonical EuroSkat 36er Standard format, descriptive video/manual sources,
   exact three-Player perspective semantics, and optional historical Player-
   statistics snapshots
+* internal immutable evidence-aware observed Game contracts with exact Match
+  linkage, historical seats, optional perspective hand/original Skat/Discards,
+  bounded partial and complete trace validation, free-text commentary, linked
+  later responses, and deterministic reconstruction-capability summaries
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -423,9 +430,10 @@ automatic backup policy remain open. The published `v0.14.0` baseline has 63
 authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
 scenarios.
-Match Capture currently contains identity and metadata only. Observed Games,
-annotations, Workspaces, persistence, materialization, Public API, CLI, and UI
-remain later `v0.15.0` work; YouTube and EuroSkat integration remain absent.
+Match Capture now contains identity/metadata plus individual evidence-aware
+observed Games and free-text Decision commentary. Workspaces, 36 Game slots,
+persistence, materialization, Public API, CLI, and UI remain later `v0.15.0`
+work; YouTube and EuroSkat integration remain absent.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, website, browser integration,

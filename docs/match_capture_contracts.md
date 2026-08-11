@@ -59,8 +59,9 @@ end_offset_ms
 Offsets are strict non-negative integer milliseconds; booleans are not
 integers. The end is nullable and, when present, cannot precede the start. Equal
 bounds are valid. The contract stores no authoritative formatted time string and
-generates no current time. Later Game, Decision, and commentary annotations can
-reuse the same value, but Issue #160 uses it only for optional Match bounds.
+generates no current time. Issue #161 reuses the same value for optional Game,
+Decision, and commentary bounds and validates known child bounds against their
+known enclosing Game or Match bounds.
 
 ## Source metadata
 
@@ -205,14 +206,16 @@ network-derived metadata, or Player Profile.
 
 ## Current boundary
 
-All Issue #160 values remain internal. There is still no Match Root workflow,
-Public Match API, Match CLI, Match Schema, example, generated scenario,
-persistence format, local server, or UI. The Package remains `0.14.0` with seven
-Root workflows, 63 authoritative and packaged Schemas, and 85 generated-output
-scenarios.
+All Match and observed-Game values remain internal. Issue #161 adds one
+Match-linked observed Game, Game/Decision/commentary timecodes, bounded partial
+and exact complete Play validation, free-text commentary on any Player Decision,
+linked later responses, and deterministic evidence summaries. See
+[Observed Game capture contracts](observed_game_capture_contracts.md).
 
-Later `v0.15.0` work may define observed Games, Game/Decision timecodes,
-annotations and linked responses, Workspace organization, persistence,
-materialization into existing Historical or Session values, Public APIs, and a
-browser UI. YouTube and EuroSkat integration remain absent before `v1.0.0`;
-Issue #160 stores descriptive source metadata only.
+There is still no Match Root workflow, Public Match API, Match CLI, Match Schema,
+example, generated scenario, persistence format, local server, or UI. Workspace
+organization, 36 Game slots, progress, materialization into existing Historical,
+Session, list, report, or Dataset values, and rapid entry remain later work.
+YouTube and EuroSkat integration remain absent. The Package remains `0.14.0`
+with seven Root workflows, 63 authoritative and packaged Schemas, and 85
+generated-output scenarios.

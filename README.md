@@ -271,7 +271,7 @@ receive no public redaction, and make no encryption or access-control claim.
 Their fingerprints provide deterministic content identity and verification, not
 confidentiality or authenticated authorship.
 
-### Match capture metadata foundation
+### Match and observed-Game capture foundation
 
 The active `v0.15.0` milestone targets usable manual post-game capture of one
 EuroSkat 36er Standard Match from a video source. Issue #160 adds internal
@@ -284,10 +284,16 @@ The game platform and media source are separate: a Match may have game platform
 `EuroSkat` and descriptive source kind `youtube_video`. The source stores the
 caller URL, title, optional channel, and optional Match bounds without any
 YouTube or EuroSkat integration. The perspective is one observed Match Player,
-not the application user. These contracts remain internal and contain no
-observed Games, persistence, Public API, CLI, Schema, example, generated
-scenario, Workspace, or UI. See
-[Match capture contracts](docs/match_capture_contracts.md).
+not the application user. Issue #161 adds internal immutable observed-Game,
+chronological Play-trace, free-text Decision commentary, linked later-response,
+and derived evidence-summary contracts. Partial traces validate only provable
+ownership and legal play; complete traces reconstruct all playable hands and
+replay all 30 Decisions. Missing original Skat and Discards remain null.
+
+These contracts remain internal and add no Workspace, persistence,
+materialization, Public API, CLI, Schema, example, generated scenario, or UI.
+See [Match capture contracts](docs/match_capture_contracts.md) and
+[Observed Game capture contracts](docs/observed_game_capture_contracts.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -818,6 +824,7 @@ Detailed documentation is split into topic-specific files:
 * [Application orchestration](docs/application_orchestration.md)
 * [Interactive session contracts](docs/interactive_session_contracts.md)
 * [Match capture contracts](docs/match_capture_contracts.md)
+* [Observed Game capture contracts](docs/observed_game_capture_contracts.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -975,10 +982,13 @@ no Package-index or PyPI publication is claimed.
 
 The active development milestone is `v0.15.0`, targeting usable manual
 post-game capture of one EuroSkat 36er Standard Match from descriptive video
-evidence. Issue #160 provides only the internal immutable Match identity and
-metadata foundation; observed Games, annotations, persistence, Public API, CLI,
-Workspace, and UI remain later milestone work. Package version, Public APIs,
-seven Root workflows, 63 Schemas, and 85 generated outputs remain unchanged.
+evidence. Issue #160 provides the internal immutable Match identity and metadata
+foundation. Issue #161 adds internal evidence-aware observed Games, partial and
+complete Play validation, free-text Decision commentary on any Player, linked
+later responses, and deterministic evidence summaries. Workspace organization,
+persistence, materialization, Public API, CLI, and UI remain later milestone
+work. Package version, Public APIs, seven Root workflows, 63 Schemas, and 85
+generated outputs remain unchanged.
 
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title
@@ -1178,10 +1188,11 @@ encryption/key management, automatic backups, and unrelated pre-v1 gaps remain
 open.
 
 The active milestone is `v0.15.0` for usable EuroSkat 36er Standard post-game
-capture. Issue #160 establishes its internal metadata contracts without making
-capture executable. `v1.0.0` remains unready after this milestone; its final
-Issue sequence and implementation architecture still require focused scope and
-traceability review.
+capture. Issue #160 establishes internal Match metadata, and Issue #161 adds
+internal evidence-aware observed Games and free-text Decision commentary without
+making Match capture executable through persistence, Public API, CLI, or UI.
+`v1.0.0` remains unready after this milestone; its final Issue sequence and
+implementation architecture still require focused scope and traceability review.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
