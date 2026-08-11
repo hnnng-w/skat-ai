@@ -21,6 +21,13 @@ automatic Checkpoint collection and optimistic file orchestration. Paths remain
 caller-supplied transport arguments and are not retained in public Results,
 Session State, or the persistence document.
 
+Issue #163 adds a separate internal Match Workspace persistence boundary. It
+mirrors the strict JSON, optimistic content-fingerprint, and atomic local-file
+model without importing private Session-persistence helpers or changing Session
+documents, fingerprints, Resume, public files, CLI behavior, or versions. Match
+Workspace files are not Session files, and no materialization exists between the
+two boundaries.
+
 ## Contract identity
 
 The exact constants and policies are:

@@ -21,7 +21,9 @@ Arrows point from a consumer toward the lower layer it may import. CLI modules
 are leaf transport adapters. Application, Public API, Match Capture, and
 observed-Game modules do not import CLI modules. A future Capture Application
 service may consume the existing internal Match and observed-Game contracts,
-but that service does not exist yet. A browser transport also does not exist.
+plus the Issue #163 internal Workspace and private persistence boundaries, but
+that service does not exist yet. Workspace modules do not import CLI modules. A
+Match CLI and browser transport also do not exist.
 
 The current Session CLI is a bounded transport adapter over the stable Public
 Session and Public Session File APIs. Available `analyze`, `review`, and
@@ -189,10 +191,11 @@ Focused tests freeze:
 * human, JSON, quiet, provenance, auxiliary export, privacy, Assistant, and EOF
   behavior;
 * import-order safety and the prohibition on Application, Public API, Match, and
-  observed-Game imports from CLI;
+  observed-Game imports from CLI, including the internal Workspace modules;
 * Root presentation isolation from transport and execution dependencies.
 
 Existing distribution checks retain installed/module/Legacy help, version,
 Root/Session execution, one Console Script, Wheel/sdist, and clean-install
 coverage. Package version `0.14.0`, seven Root workflows, 63 authoritative and
 packaged Schemas, and 85 generated-output scenarios remain unchanged.
+Issue #163 adds no parser option, subcommand, transport, or presentation path.

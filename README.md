@@ -271,7 +271,7 @@ receive no public redaction, and make no encryption or access-control claim.
 Their fingerprints provide deterministic content identity and verification, not
 confidentiality or authenticated authorship.
 
-### Match and observed-Game capture foundation
+### Match, observed-Game, and Workspace capture foundation
 
 The active `v0.15.0` milestone targets usable manual post-game capture of one
 EuroSkat 36er Standard Match from a video source. Issue #160 adds internal
@@ -290,10 +290,19 @@ and derived evidence-summary contracts. Partial traces validate only provable
 ownership and legal play; complete traces reconstruct all playable hands and
 replay all 30 Decisions. Missing original Skat and Discards remain null.
 
-These contracts remain internal and add no Workspace, persistence,
-materialization, Public API, CLI, Schema, example, generated scenario, or UI.
-See [Match capture contracts](docs/match_capture_contracts.md) and
-[Observed Game capture contracts](docs/observed_game_capture_contracts.md).
+Issue #163 adds internal persistent EuroSkat 36er Standard Workspaces with
+exactly 36 authoritative Slots, existing Dealer and historical-seat rotation,
+partial observed Games, explicit passed deals, immutable revisioned changes,
+evidence-derived Progress, domain-separated Workspace/content fingerprints,
+strict Resume, and optimistic same-directory atomic Save. Structural `complete`
+means all Slots are classified, not that all evidence is complete.
+
+Workspace files are private local data and receive no public redaction. The
+Workspace layer adds no materialization, Public API, CLI, Schema, example,
+generated scenario, rapid entry, browser server, or UI.
+See [Match capture contracts](docs/match_capture_contracts.md),
+[Observed Game capture contracts](docs/observed_game_capture_contracts.md), and
+[Match Workspace contracts](docs/match_workspace_contracts.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -830,6 +839,7 @@ Detailed documentation is split into topic-specific files:
 * [Interactive session contracts](docs/interactive_session_contracts.md)
 * [Match capture contracts](docs/match_capture_contracts.md)
 * [Observed Game capture contracts](docs/observed_game_capture_contracts.md)
+* [Match Workspace contracts](docs/match_workspace_contracts.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -990,10 +1000,12 @@ post-game capture of one EuroSkat 36er Standard Match from descriptive video
 evidence. Issue #160 provides the internal immutable Match identity and metadata
 foundation. Issue #161 adds internal evidence-aware observed Games, partial and
 complete Play validation, free-text Decision commentary on any Player, linked
-later responses, and deterministic evidence summaries. Workspace organization,
-persistence, materialization, Public API, CLI, and UI remain later milestone
-work. Package version, Public APIs, seven Root workflows, 63 Schemas, and 85
-generated outputs remain unchanged.
+later responses, and deterministic evidence summaries. Issue #163 adds persistent
+internal 36-position Workspaces, exact rotation, passed deals, Progress,
+fingerprints, strict Resume, and optimistic atomic Save. Materialization, rapid
+entry, Public API, CLI, Schema, and UI remain later milestone work. Package
+version, Public APIs, seven Root workflows, 63 Schemas, and 85 generated outputs
+remain unchanged.
 
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title

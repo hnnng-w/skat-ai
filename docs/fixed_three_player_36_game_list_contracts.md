@@ -223,10 +223,13 @@ The following remain open:
 
 * series or tournament state.
 
-Issue #160's internal `euroskat_36_standard_v1` Match format identity is separate
-from this historical-list source and aggregation workflow. It does not change
-entry rotation, Played Game or Passed Deal semantics, SkWO scoring, standings,
-or comparison, and it adds no ranking or commercial tournament rules.
+Issue #163's internal `euroskat_36_standard_v1` Match Workspace is separate from
+this historical-list source and aggregation workflow. It reuses only
+`build_fixed_three_player_list_seat_assignment()` for all 36 positions. Workspace
+empty/observed/passed Slots, media timecodes, revisions, Progress, and private
+persistence do not change list Entry types, Played Game or Passed Deal semantics,
+SkWO scoring, standings, comparison, ranking, or commercial tournament rules.
+No Workspace-to-list materialization exists yet.
 
 Automatic Training Dataset preparation is now a separate root-selected workflow
 and does not consume or change this historical-list contract.

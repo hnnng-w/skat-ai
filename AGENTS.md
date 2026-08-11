@@ -42,6 +42,9 @@ The project focuses on:
   Observations, isolated Checkpoint review export, automatic exact Checkpoint
   collection, installed/module/Legacy Session CLI parity, explicit Session-
   triggered analysis, and phase-aware local Assistant capture
+* private internal persistent EuroSkat 36er Standard Match Workspaces with exact
+  Slots and rotation, passed deals, revisioned changes, Progress, fingerprints,
+  strict Resume, and optimistic atomic local Save
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -145,6 +148,7 @@ Before larger changes, read the relevant documentation:
 * `docs/session_decision_observations.md`
 * `docs/session_cli_and_end_to_end_capture.md`
 * `docs/match_capture_contracts.md`
+* `docs/match_workspace_contracts.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -277,9 +281,11 @@ participant, optional statistics-snapshot, identity, perspective, and
 deterministic serialization contracts. Issue #161 adds internal evidence-aware
 observed Games, partial and complete Play validation, free-text Decision
 commentary on any Player, linked later responses, and deterministic evidence
-summaries. Persistence, Workspace, materialization, Public API, CLI, Schema,
-example, generated scenario, UI, YouTube integration, and EuroSkat integration
-remain absent. `v1.0.0` remains unready after this focused milestone.
+summaries. Issue #163 adds internal persistent 36-position Match Workspaces,
+explicit passed deals, immutable changes, Progress, fingerprints, strict Resume,
+and optimistic atomic local Save. Materialization, Public API, CLI, Schema,
+example, generated scenario, rapid entry, UI, YouTube integration, and EuroSkat
+integration remain absent. `v1.0.0` remains unready after this focused milestone.
 
 Major completed areas include:
 
@@ -403,6 +409,10 @@ Major completed areas include:
   linkage, historical seats, optional perspective hand/original Skat/Discards,
   bounded partial and complete trace validation, free-text commentary, linked
   later responses, and deterministic reconstruction-capability summaries
+* internal immutable EuroSkat 36er Standard Match Workspaces with exact 36-Slot
+  rotation, partial observed Games, passed deals, immutable revisioned changes,
+  evidence-derived Progress, deterministic fingerprints, strict Resume, and
+  optimistic same-directory atomic persistence
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -430,10 +440,10 @@ automatic backup policy remain open. The published `v0.14.0` baseline has 63
 authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
 scenarios.
-Match Capture now contains identity/metadata plus individual evidence-aware
-observed Games and free-text Decision commentary. Workspaces, 36 Game slots,
-persistence, materialization, Public API, CLI, and UI remain later `v0.15.0`
-work; YouTube and EuroSkat integration remain absent.
+Match Capture now contains identity/metadata, individual evidence-aware observed
+Games and commentary, and persistent internal 36-position Workspaces.
+Materialization, rapid entry, Public API, CLI, Schema, and UI remain later
+`v0.15.0` work; YouTube and EuroSkat integration remain absent.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, website, browser integration,

@@ -31,10 +31,21 @@ Issue #161 adds the internal observed single-Game and commentary foundation:
 * deterministic evidence and reconstruction-capability summaries without hidden
   completion.
 
-These foundations are internal only. Workspace organization, 36 Game slots,
-Match persistence, Historical or Session materialization, Public API, CLI, and UI
-remain later `v0.15.0` work. No YouTube or EuroSkat integration, ranking,
-qualification, prize, fee, or bonus behavior is implemented.
+Issue #163 adds the internal persistent Match Workspace foundation:
+
+* exactly 36 authoritative empty, observed-Game, or passed-deal Slots;
+* exact existing Dealer and historical-seat rotation across twelve rounds;
+* partial observed-Game placement and immutable revisioned changes;
+* bounded Match-definition correction and global media-time ordering;
+* deterministic occupancy/evidence Progress without materialization;
+* domain-separated Workspace and content SHA-256 fingerprints;
+* strict nested Resume and private canonical UTF-8 file Load;
+* expected-content-fingerprint conflicts and same-directory atomic Save.
+
+These foundations remain internal. Rapid entry, Historical or Session/list/
+report/Dataset materialization, Public API, Match Schema, CLI, and UI remain later
+`v0.15.0` work. No YouTube or EuroSkat integration, ranking, qualification,
+prize, fee, or bonus behavior is implemented.
 
 Issue #162 characterizes and modularizes the existing Root and Session CLI
 transport boundaries before those later layers. Compatibility facades preserve
@@ -594,6 +605,10 @@ Implemented:
 * Focused Session file API, Decision Observation, Checkpoint review isolation,
   automatic collection, all-subcommand CLI parity, Assistant, Schema, example,
   generated-scenario, and clean-install tests for Issue #157
+* Focused Match Workspace creation, rotation, Slot relationship, immutable
+  change, chronology, Progress, fingerprint, strict nested reconstruction,
+  private Load, optimistic Save, atomic-failure, privacy, and compatibility tests
+  for Issue #163
 
 ### CLI and workflow usability
 

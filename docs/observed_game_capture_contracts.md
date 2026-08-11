@@ -52,8 +52,8 @@ rearhand
 
 The Game Player values contain only `player_id` and `seat`. Match labels,
 platform IDs, statistics snapshots, source URL, title, and channel remain in the
-Match definition and are not copied into each Game. A later Workspace layer must
-validate 36er seat rotation and Game-slot relationships.
+Match definition and are not copied into each Game. Issue #163 Workspace
+validation now enforces 36er seat rotation and Game-Slot relationships.
 
 ## Observed versus derived facts
 
@@ -244,8 +244,10 @@ annotations, and fresh mutable JSON-compatible output.
 
 Issue #161 executes no Search, Immediate Analysis, Review, Coaching, Dataset
 generation, profile derivation, Session operation, Historical construction,
-Settlement, or list aggregation. It adds no persistence, Public Match API, Root
-workflow, Schema, CLI, example, generated scenario, Workspace, rapid-entry
-service, HTTP server, or UI. The Package remains `0.14.0` with seven Root
-workflows, 63 authoritative and packaged Schemas, and 85 generated-output
-scenarios.
+Settlement, or list aggregation. Issue #163 retains these exact observed Games
+inside internal persistent 36-position Workspaces without hidden completion; see
+[Match Workspace contracts](match_workspace_contracts.md). There is still no
+Public Match API, Root workflow, Schema, CLI, example, generated scenario,
+rapid-entry service, HTTP server, UI, or downstream materialization. The Package
+remains `0.14.0` with seven Root workflows, 63 authoritative and packaged
+Schemas, and 85 generated-output scenarios.

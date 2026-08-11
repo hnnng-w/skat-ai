@@ -120,6 +120,10 @@ The project focuses on:
   seats, bounded partial and complete Play validation, free-text commentary on
   any Player Decision, linked later responses, and deterministic evidence
   capability summaries without hidden completion
+* internal immutable version-1 EuroSkat 36er Standard Match Workspaces with
+  exactly 36 Slots, existing rotation, partial observed Games, passed deals,
+  revisioned changes, Progress, fingerprints, strict Resume, and optimistic
+  atomic private persistence
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -995,6 +999,25 @@ Implemented:
   * live-vs-post-game information policy rules
   * information policy output summary
 
+### Match capture and Workspaces
+
+* `match_capture_contracts.py`, `match_source_metadata.py`,
+  `match_tournament_format.py`, and `match_player_snapshot.py`
+  * immutable Match identity, source bounds, canonical format, fixed participants,
+    perspective, and optional Statistics Snapshots
+* `observed_game_contracts.py`, `observed_game_trace.py`,
+  `observed_game_commentary.py`, and `observed_game_evidence.py`
+  * partial and complete observed Games, exact public Play validation,
+    commentary/response links, and derived evidence capabilities
+* `match_workspace_contracts.py` and `match_workspace_rotation.py`
+  * exact 36-Slot Workspace creation/validation and existing fixed-list rotation
+* `match_workspace_operations.py` and `match_workspace_progress.py`
+  * immutable revisioned Slot/definition changes and evidence-derived Progress
+* `match_workspace_persistence_contracts.py`,
+  `match_workspace_persistence_codec.py`, and `match_workspace_persistence.py`
+  * private fingerprinted documents, strict nested Resume, canonical Load, and
+    optimistic same-directory atomic Save
+
 ### Interactive Session contracts
 
 * `session_commands.py`
@@ -1235,6 +1258,8 @@ Main documentation files:
 * `docs/player_disjoint_unseen_player_dataset_splits.md`
 * `docs/opponent_statistics.md`
 * `docs/match_capture_contracts.md`
+* `docs/observed_game_capture_contracts.md`
+* `docs/match_workspace_contracts.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1272,9 +1297,9 @@ PyPI publication is claimed.
 Active development milestone: `v0.15.0`, targeting usable manual post-game
 capture of one EuroSkat 36er Standard Match from descriptive video evidence.
 Issues #160 and #161 implement the internal immutable Match identity/metadata and
-observed single-Game/commentary foundations. They preserve Package version
-`0.14.0`, seven Root workflows, Public APIs and CLI, 63 Schemas, and 85 generated
-outputs.
+observed single-Game/commentary foundations. Issue #163 adds persistent internal
+36-position Workspaces. They preserve Package version `0.14.0`, seven Root
+workflows, Public APIs and CLI, 63 Schemas, and 85 generated outputs.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1668,20 +1693,20 @@ Completed implementation scope:
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
 * No website or browser integration exists.
-* Match Capture contains identity/metadata plus evidence-aware observed Games and
-  free-text Decision commentary. Workspaces, 36 Game slots, persistence,
-  materialization, Public API, CLI, and UI remain later `v0.15.0` work; YouTube
-  and EuroSkat integration remain absent.
+* Match Capture contains identity/metadata, evidence-aware observed Games and
+  commentary, and persistent internal 36-position Workspaces. Materialization,
+  rapid entry, Public API, CLI, Schema, and UI remain later `v0.15.0` work;
+  YouTube and EuroSkat integration remain absent.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Continue the active `v0.15.0` milestone from the Issue #160 Match metadata and
-Issue #161 observed-Game/commentary foundations toward usable manual EuroSkat
-36er Standard post-game capture. Workspace organization, persistence,
-materialization boundaries, Public API, CLI, and UI require separate focused
-contracts and Issues. YouTube and EuroSkat integration are not required before
-`v1.0.0`.
+Continue the active `v0.15.0` milestone from the Issue #160 Match metadata,
+Issue #161 observed-Game/commentary, and Issue #163 persistent Workspace
+foundations toward usable manual EuroSkat 36er Standard post-game capture.
+Rapid entry, materialization boundaries, Public API, CLI, Schema, and UI require
+separate focused contracts and Issues. YouTube and EuroSkat integration are not
+required before `v1.0.0`.
 
 The audit should cover:
 

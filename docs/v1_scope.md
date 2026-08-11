@@ -108,9 +108,11 @@ post-game capture of one EuroSkat 36er Standard Match from descriptive video
 evidence. Issue #160 supplies the internal immutable Match identity and metadata
 foundation. Issue #161 adds internal evidence-aware observed Games, exact public
 Play validation, free-text Decision commentary, linked later responses, and
-derived evidence capabilities. `v1.0.0` remains unready after this focused
-milestone, and its final planning still requires a separate audit of this
-document and [Requirements traceability](requirements_traceability.md).
+derived evidence capabilities. Issue #163 adds persistent internal 36-position
+Workspaces, passed deals, Progress, fingerprints, strict Resume, and optimistic
+atomic local Save. `v1.0.0` remains unready after this focused milestone, and its
+final planning still requires a separate audit of this document and
+[Requirements traceability](requirements_traceability.md).
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,
@@ -136,8 +138,9 @@ must not be presented as official-rule requirements.
 | Public Session API | Stable `skat_ai.api.v1.session` version `1` with exact immutable type identity, twelve one-call operations, strict parsing, typed Results, Decision Observation/review export, in-memory persistence build/resume, and appended stable `files` Save/Load transport. | It adds no Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. |
 | Session Provenance | Default-omitted version-1 complete provenance over exactly one returned Session operation value, with engine-private redaction and recomputed coverage. | It is independent of Root Result provenance and Confidence, does not cover consumed inputs or itself, and does not widen access to private Session values. |
 | Interactive Session capture | Immutable fixed-three-player Live/Retrospective authoring State, accepted typed Log, deterministic replay/transitions, readiness, no-execution Position/Historical export, frozen Checkpoints, accepted-Log observations, isolated review, automatic collection, explicit existing-Application execution, and a phase-aware local Assistant. | Issues #150 through #157 complete the bounded local end-to-end workflow. GUI/browser UI and platform/cloud/encryption concerns remain separate open layers. |
-| Match Capture metadata | Internal immutable Match identity, descriptive media/manual source, reusable millisecond bounds, exact named format, three fixed-place participants, optional historical Opponent Statistics snapshots, and one perspective Match Player. | Issue #160 metadata does not embed Games. Issue #161 is a separate internal observed-Game layer; persistence, Public API, CLI, Workspace, UI, YouTube integration, EuroSkat integration, ranking, qualification, and commercial rules remain absent. |
-| Observed Game capture | Internal immutable Match-linked Game facts, exact historical seats, optional perspective hand/original Skat/Discards, zero through 30 public Plays, free-text commentary on any Player Decision, linked later responses, and deterministic evidence capabilities. | Issue #161 retains observations without hidden completion. It adds no Workspace, persistence, materialization, Public API, CLI, Schema, rapid entry, UI, tactical interpretation, Result, or Settlement. |
+| Match Capture metadata | Internal immutable Match identity, descriptive media/manual source, reusable millisecond bounds, exact named format, three fixed-place participants, optional historical Opponent Statistics snapshots, and one perspective Match Player. | Issue #160 metadata does not embed Games. Issue #161 is the observed-Game layer and Issue #163 is the private Workspace/persistence layer; Public API, CLI, Schema, UI, YouTube integration, EuroSkat integration, ranking, qualification, and commercial rules remain absent. |
+| Observed Game capture | Internal immutable Match-linked Game facts, exact historical seats, optional perspective hand/original Skat/Discards, zero through 30 public Plays, free-text commentary on any Player Decision, linked later responses, and deterministic evidence capabilities. | Issue #161 retains observations without hidden completion. Issue #163 stores those exact values but adds no materialization, Public API, CLI, Schema, rapid entry, UI, tactical interpretation, Result, or Settlement. |
+| Private Match Workspace | Internal immutable exact 36-position EuroSkat Workspace with empty, observed-Game, and passed-deal Slots; fixed rotation; revisions; Progress; fingerprints; strict Resume; and optimistic atomic local files. | Structural completeness differs from evidence completeness. It adds no materialization, Public API, Match Schema, Match CLI, rapid entry, browser UI, distributed lock, retry/merge, cloud, encryption, or automatic backup. See [Match Workspace contracts](match_workspace_contracts.md). |
 | Session History Edit and Checkpoint lineage | Immutable version-1 strict-prefix Undo, one-command replacement with deterministic original-suffix replay, valid partial corrected States, and exact Checkpoint relationships. | Public API and all-three-form CLI exposure are implemented. Automatic Redo, merging, arbitrary Log surgery, and branching remain absent. |
 | Private Session persistence and resume | Immutable private version-1 document containing the authoritative accepted-Log State and canonical frozen Checkpoints, with deterministic fingerprints, strict reconstruction/replay, recomputed lineage, and optimistic atomic writes. | Stable public Save/Load and CLI CAS orchestration are implemented without adding distributed locking, migration, merge/retry, encryption, cloud sync, or automatic backups. See [Session persistence and resume](session_persistence_and_resume.md). |
 | Learned opponent model | A versioned artifact whose behavior or parameters were fit from data and are used during inference. | It requires separate training, evaluation, deployment, fallback, and explainability decisions. |
@@ -282,9 +285,11 @@ The following directions are required for `v1.0.0`:
   Statistics Snapshot, Match identity, perspective, and deterministic
   serialization contracts. Issue #161 adds Match-linked observed Games, optional
   Card evidence, bounded partial and exact complete Play validation, free-text
-  commentary, linked later responses, and evidence summaries. Workspace,
-  persistence, materialization, Public API, CLI, and UI remain open. YouTube and
-  EuroSkat integration are not required before v1.0.
+  commentary, linked later responses, and evidence summaries. Issue #163 adds
+  exactly 36 internal Slots, rotation, passed deals, immutable changes, Progress,
+  fingerprints, strict Resume, and optimistic atomic local persistence.
+  Materialization, rapid entry, Public API, Match Schema, CLI, and UI remain
+  open. YouTube and EuroSkat integration are not required before v1.0.
 * Provide a stable library API and installed CLI/package interface. Public API
   contract version `1`, immutable JSON documents, compatibility metadata, stable
   errors, and legacy Root CLI compatibility are implemented. Internal Application
@@ -363,7 +368,7 @@ GUI/platform/cloud/encryption layers remain open.
 
 | Area | Observable completion condition |
 | --- | --- |
-| Match capture | Internal version-1 metadata contracts retain one caller-supplied Match identity, descriptive YouTube/other-video/manual source, optional Match media bounds, exact `euroskat_36_standard_v1` format, three fixed-place participants, optional same-instant existing Opponent Statistics snapshots, and one perspective Player. Internal observed-Game contracts retain exact per-Game seats, optional Card facts, bounded partial or exact complete public Plays, free-text commentary, linked later responses, and deterministic evidence capabilities without hidden completion. Completion still requires Workspace, persistence, materialization, Public API, CLI, and UI evidence without adding YouTube or EuroSkat integration before v1.0. |
+| Match capture | Internal version-1 metadata contracts retain one caller-supplied Match identity, descriptive YouTube/other-video/manual source, optional Match media bounds, exact `euroskat_36_standard_v1` format, three fixed-place participants, optional same-instant existing Opponent Statistics snapshots, and one perspective Player. Internal observed-Game contracts retain exact per-Game seats, optional Card facts, bounded partial or exact complete public Plays, free-text commentary, linked later responses, and deterministic evidence capabilities without hidden completion. Internal Workspace/persistence contracts add exactly 36 rotated empty/observed/passed Slots, revisions, Progress, fingerprints, strict Resume, and optimistic atomic private files. Completion still requires rapid entry, materialization, Public API, Match Schema, CLI, and UI evidence without adding YouTube or EuroSkat integration before v1.0. |
 | Rules and settlement coverage | Every ISkO row marked required before v1.0 in the traceability matrix is `supported`, or has an explicitly approved bounded interpretation; a normative table-driven suite covers winning, losing, achieved/announced levels, overbid, impossible Null, claim, concession, and incomplete-evidence outcomes. |
 | Supported contract variants | Input validation accepts every legal Suit, Grand, Null, Hand, and ouvert variant in the documented v1 contract; rejects every documented illegal modifier dependency; and produces tested game values and settlement for each accepted variant. |
 | Live-position analysis | Every canonical three-player turn phase is either analyzed when the local player acts or advances through a documented opponent-preparation path; unsupported states fail explicitly without mutating the supplied position. |

@@ -3,8 +3,9 @@
 Issue #160 begins the active `v0.15.0` milestone with internal immutable
 identity and metadata contracts for manual post-game capture of one EuroSkat
 36er Standard Match from a video or manual observation source. These contracts
-do not yet make Match capture executable through a Public API, CLI, persistence
-format, or UI.
+do not themselves make Match capture executable through a Public API, CLI, or
+UI. Issue #163 now persists the unchanged Match definition inside an internal
+36-position Workspace.
 
 ## Contract identity
 
@@ -212,10 +213,14 @@ and exact complete Play validation, free-text commentary on any Player Decision,
 linked later responses, and deterministic evidence summaries. See
 [Observed Game capture contracts](observed_game_capture_contracts.md).
 
+Issue #163 adds exactly 36 internal Workspace Slots, fixed-list rotation, partial
+observed-Game placement, explicit passed deals, immutable revisions, Progress,
+fingerprints, and strict private persistence. See
+[Match Workspace contracts](match_workspace_contracts.md).
+
 There is still no Match Root workflow, Public Match API, Match CLI, Match Schema,
-example, generated scenario, persistence format, local server, or UI. Workspace
-organization, 36 Game slots, progress, materialization into existing Historical,
-Session, list, report, or Dataset values, and rapid entry remain later work.
-YouTube and EuroSkat integration remain absent. The Package remains `0.14.0`
-with seven Root workflows, 63 authoritative and packaged Schemas, and 85
-generated-output scenarios.
+example, generated scenario, rapid-entry service, local server, UI, or
+materialization into existing Historical, Session, list, report, or Dataset
+values. YouTube and EuroSkat integration remain absent. The Package remains
+`0.14.0` with seven Root workflows, 63 authoritative and packaged Schemas, and
+85 generated-output scenarios.
