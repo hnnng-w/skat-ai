@@ -42,17 +42,33 @@ Issue #163 adds the internal persistent Match Workspace foundation:
 * strict nested Resume and private canonical UTF-8 file Load;
 * expected-content-fingerprint conflicts and same-directory atomic Save.
 
-These foundations remain internal. Rapid entry, Historical or Session/list/
-report/Dataset materialization, Public API, Match Schema, CLI, and UI remain later
-`v0.15.0` work. No YouTube or EuroSkat integration, ranking, qualification,
-prize, fee, or bonus behavior is implemented.
+Issue #164 adds the internal transport-free rapid-entry Application foundation:
+
+* immutable Card entries, Position Views, and Capture Results;
+* exact rotation, capture state, current Trick, next Player, blockers, Evidence
+  Summary, and Progress derivation;
+* exact legal perspective choices or bounded observation candidates without
+  hidden completion;
+* deterministic Game and annotation IDs;
+* focused setup updates through complete observed-Game rebuilding;
+* atomic single/batch Play append with automatic Player and Decision derivation;
+* Play truncation with invalid-annotation cleanup;
+* free-text Commentary and later-response-link editing;
+* existing Passed Deal and clear-operation wrappers.
+
+These foundations remain internal. Persistence/autosave orchestration,
+Historical or Session/list/report/Dataset materialization, Public API, Match
+Schema, CLI, browser transport, UI, and Player Statistics application remain
+later `v0.15.0` work. No YouTube or EuroSkat integration, ranking,
+qualification, prize, fee, or bonus behavior is implemented.
 
 Issue #162 characterizes and modularizes the existing Root and Session CLI
 transport boundaries before those later layers. Compatibility facades preserve
 installed/module/Legacy behavior, while focused modules separate parsing,
 validation, Application adaptation, dispatch, transport, persistence,
 Checkpoints, handlers, and presentation. CLI remains a leaf adapter; this work
-adds no Match CLI, Capture Application, browser server, or UI.
+adds no Match CLI, browser server, or UI. Issue #164 supplies the separate
+transport-free Capture Application layer without changing CLI behavior.
 
 ## Completed major areas
 
@@ -609,6 +625,10 @@ Implemented:
   change, chronology, Progress, fingerprint, strict nested reconstruction,
   private Load, optimistic Save, atomic-failure, privacy, and compatibility tests
   for Issue #163
+* Focused Match Capture Application contract, Position View, exact/bounded Card
+  selection, Game/setup update, automatic append, atomic rejection, truncation,
+  annotation cleanup/editing, Passed Deal/clear, revision, no-I/O, architecture,
+  and compatibility tests for Issue #164
 
 ### CLI and workflow usability
 
@@ -877,9 +897,9 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 implementation details, and testable completion gates.
 
 `v1.0.0` remains not ready after the active focused `v0.15.0` Match Capture
-work through the internal Match metadata and observed-Game/commentary
-foundations. A separate audit of both documents must precede its final Issue
-sequence or implementation architecture.
+work through the internal Match metadata, observed-Game/commentary, persistent
+Workspace, and rapid-entry Application foundations. A separate audit of both
+documents must precede its final Issue sequence or implementation architecture.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, and broader field-level provenance
@@ -1006,7 +1026,7 @@ Recommended cleanup areas:
 
 Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.14.0` baseline, active `v0.15.0`
-Match Capture work through internal Issues #160 and #161, historical
+Match Capture work through internal Issues #160, #161, #163, and #164, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
 release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,

@@ -138,6 +138,26 @@ def _build_perspective_playable_hand(
     return tuple(card for card in _FULL_DECK if card in playable)
 
 
+def build_observed_perspective_playable_hand_v1(
+    *,
+    perspective_player_id: str,
+    perspective_initial_hand: tuple[str, ...] | None,
+    declarer_player_id: str | None,
+    declaration: GameDeclaration | None,
+    original_skat: tuple[str, ...] | None,
+    discarded_cards: tuple[str, ...] | None,
+) -> tuple[str, ...] | None:
+    """Exposes the existing exact perspective-hand transformation internally."""
+    return _build_perspective_playable_hand(
+        perspective_player_id=perspective_player_id,
+        perspective_initial_hand=perspective_initial_hand,
+        declarer_player_id=declarer_player_id,
+        declaration=declaration,
+        original_skat=original_skat,
+        discarded_cards=discarded_cards,
+    )
+
+
 def _reconcile_complete_cards(
     *,
     trace,

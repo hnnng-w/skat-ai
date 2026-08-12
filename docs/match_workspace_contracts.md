@@ -6,9 +6,10 @@ container for exactly 36 Match positions. It can retain empty positions, partial
 or complete observed Games, and explicit passed deals without materializing a
 Historical Game, list, report, Dataset, or analysis Result.
 
-The implementation remains internal. It adds no Public Match API, Root workflow,
-Schema, CLI, example, generated scenario, rapid-entry service, browser server,
-or UI.
+The implementation remains internal. Issue #164 now wraps its unchanged
+operations with transport-free rapid-entry Application services. There is still
+no Public Match API, Root workflow, Schema, CLI, example, generated scenario,
+browser server, or UI.
 
 ## Contract identity
 
@@ -328,10 +329,16 @@ write.
 ## Current boundary
 
 Issue #163 adds only the internal Workspace, operations, Progress, fingerprints,
-strict persistence, Resume, Load, and Save layers. Rapid card-entry Application
-services, opponent-statistics application, Historical/list/report/Dataset
-materialization, Public Match API, Match Schema, Match CLI, browser server, and UI
-remain future `v0.15.0` work. YouTube and EuroSkat integration remain absent.
+strict persistence, Resume, Load, and Save layers. Issue #164 adds internal rapid
+card-entry Application services over those unchanged operations. Position Views
+and returned Progress are derived, not persisted, and no Capture operation loads
+or saves a Workspace. See
+[Match Capture Application services](match_capture_application_services.md).
+
+Persistence/autosave orchestration, opponent-statistics application,
+Historical/list/report/Dataset materialization, Public Match API, Match Schema,
+Match CLI, browser server, and UI remain future `v0.15.0` work. YouTube and
+EuroSkat integration remain absent.
 
 Package version `0.14.0`, seven Root workflows, Public APIs and CLI, 63
 authoritative and packaged Schemas, all existing examples, and 85 generated-

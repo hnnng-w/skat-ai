@@ -246,8 +246,13 @@ Issue #161 executes no Search, Immediate Analysis, Review, Coaching, Dataset
 generation, profile derivation, Session operation, Historical construction,
 Settlement, or list aggregation. Issue #163 retains these exact observed Games
 inside internal persistent 36-position Workspaces without hidden completion; see
-[Match Workspace contracts](match_workspace_contracts.md). There is still no
-Public Match API, Root workflow, Schema, CLI, example, generated scenario,
-rapid-entry service, HTTP server, UI, or downstream materialization. The Package
-remains `0.14.0` with seven Root workflows, 63 authoritative and packaged
-Schemas, and 85 generated-output scenarios.
+[Match Workspace contracts](match_workspace_contracts.md). Issue #164 adds
+incremental internal capture operations, but every operation still rebuilds the
+complete candidate through `build_observed_game_record_v1()`; missing hands,
+original Skat, Discards, and ownership remain unknown. See
+[Match Capture Application services](match_capture_application_services.md).
+
+There is still no Public Match API, Root workflow, Schema, CLI, example,
+generated scenario, HTTP/browser transport, UI, or downstream materialization.
+The Package remains `0.14.0` with seven Root workflows, 63 authoritative and
+packaged Schemas, and 85 generated-output scenarios.

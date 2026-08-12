@@ -13,23 +13,24 @@ The intended dependency direction is:
 ```text
 Domain and rules
     <- Application and Public APIs
-        <- future Capture Application services
+        <- Capture Application services
             <- CLI and browser transports
 ```
 
 Arrows point from a consumer toward the lower layer it may import. CLI modules
 are leaf transport adapters. Application, Public API, Match Capture, and
-observed-Game modules do not import CLI modules. A future Capture Application
-service may consume the existing internal Match and observed-Game contracts,
-plus the Issue #163 internal Workspace and private persistence boundaries, but
-that service does not exist yet. Workspace modules do not import CLI modules. A
-Match CLI and browser transport also do not exist.
+observed-Game modules do not import CLI modules. Issue #164 adds the internal
+transport-free Capture Application service over the existing Match,
+observed-Game, Workspace, rotation, rule, evidence, and Progress boundaries. It
+receives an already loaded Workspace and performs no persistence. Workspace and
+Capture modules do not import CLI modules, and CLI modules do not own Capture
+rules. A Match CLI and browser transport do not exist.
 
 The current Session CLI is a bounded transport adapter over the stable Public
 Session and Public Session File APIs. Available `analyze`, `review`, and
 `finalize` operations additionally pass an already exported Request to the
 existing internal Application adapter once. This remains separate from any
-future Match Capture Application boundary.
+Match Capture Application boundary.
 
 ## Entry points
 
@@ -198,4 +199,5 @@ Existing distribution checks retain installed/module/Legacy help, version,
 Root/Session execution, one Console Script, Wheel/sdist, and clean-install
 coverage. Package version `0.14.0`, seven Root workflows, 63 authoritative and
 packaged Schemas, and 85 generated-output scenarios remain unchanged.
-Issue #163 adds no parser option, subcommand, transport, or presentation path.
+Issues #163 and #164 add no parser option, subcommand, transport, or presentation
+path.

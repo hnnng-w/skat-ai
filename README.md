@@ -271,7 +271,7 @@ receive no public redaction, and make no encryption or access-control claim.
 Their fingerprints provide deterministic content identity and verification, not
 confidentiality or authenticated authorship.
 
-### Match, observed-Game, and Workspace capture foundation
+### Match Capture foundation and rapid-entry services
 
 The active `v0.15.0` milestone targets usable manual post-game capture of one
 EuroSkat 36er Standard Match from a video source. Issue #160 adds internal
@@ -297,12 +297,23 @@ evidence-derived Progress, domain-separated Workspace/content fingerprints,
 strict Resume, and optimistic same-directory atomic Save. Structural `complete`
 means all Slots are classified, not that all evidence is complete.
 
+Issue #164 adds internal transport-free rapid-entry Application services over an
+already loaded Workspace. They derive a UI-ready Position View, rotation,
+current Trick, next Player, Play counts, Evidence Summary, and Progress; start
+Games with deterministic IDs; update setup evidence; derive Players and Decision
+indexes while appending one or more Cards atomically; truncate mistaken Play
+suffixes; reconcile free-text commentary and later-response links; and wrap
+passed-deal and clear operations. Selectable Cards are exact legal choices only
+for an exactly known current perspective hand and otherwise bounded observation
+candidates that exclude only proven-unavailable Cards.
+
 Workspace files are private local data and receive no public redaction. The
-Workspace layer adds no materialization, Public API, CLI, Schema, example,
-generated scenario, rapid entry, browser server, or UI.
+Capture foundation adds no autosave orchestration, materialization, Public API,
+CLI, Schema, example, generated scenario, browser server, or UI.
 See [Match capture contracts](docs/match_capture_contracts.md),
-[Observed Game capture contracts](docs/observed_game_capture_contracts.md), and
-[Match Workspace contracts](docs/match_workspace_contracts.md).
+[Observed Game capture contracts](docs/observed_game_capture_contracts.md),
+[Match Workspace contracts](docs/match_workspace_contracts.md), and
+[Match Capture Application services](docs/match_capture_application_services.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -840,6 +851,7 @@ Detailed documentation is split into topic-specific files:
 * [Match capture contracts](docs/match_capture_contracts.md)
 * [Observed Game capture contracts](docs/observed_game_capture_contracts.md)
 * [Match Workspace contracts](docs/match_workspace_contracts.md)
+* [Match Capture Application services](docs/match_capture_application_services.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1002,8 +1014,11 @@ foundation. Issue #161 adds internal evidence-aware observed Games, partial and
 complete Play validation, free-text Decision commentary on any Player, linked
 later responses, and deterministic evidence summaries. Issue #163 adds persistent
 internal 36-position Workspaces, exact rotation, passed deals, Progress,
-fingerprints, strict Resume, and optimistic atomic Save. Materialization, rapid
-entry, Public API, CLI, Schema, and UI remain later milestone work. Package
+fingerprints, strict Resume, and optimistic atomic Save. Issue #164 adds the
+internal transport-free rapid-entry Application foundation, including derived
+Position Views, setup updates, automatic Player/Decision append, truncation, and
+annotation editing. Materialization, autosave orchestration, Public API, CLI,
+Schema, browser transport, and UI remain later milestone work. Package
 version, Public APIs, seven Root workflows, 63 Schemas, and 85 generated outputs
 remain unchanged.
 
@@ -1206,8 +1221,10 @@ open.
 
 The active milestone is `v0.15.0` for usable EuroSkat 36er Standard post-game
 capture. Issue #160 establishes internal Match metadata, and Issue #161 adds
-internal evidence-aware observed Games and free-text Decision commentary without
-making Match capture executable through persistence, Public API, CLI, or UI.
+internal evidence-aware observed Games and free-text Decision commentary. Issue
+#163 adds private persistent Workspaces, and Issue #164 adds transport-free rapid
+entry over those Workspaces. Public Match API, Schema, CLI, browser transport and
+UI, Player Statistics application, and materialization remain open.
 `v1.0.0` remains unready after this milestone; its final Issue sequence and
 implementation architecture still require focused scope and traceability review.
 

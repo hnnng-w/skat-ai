@@ -283,9 +283,13 @@ observed Games, partial and complete Play validation, free-text Decision
 commentary on any Player, linked later responses, and deterministic evidence
 summaries. Issue #163 adds internal persistent 36-position Match Workspaces,
 explicit passed deals, immutable changes, Progress, fingerprints, strict Resume,
-and optimistic atomic local Save. Materialization, Public API, CLI, Schema,
-example, generated scenario, rapid entry, UI, YouTube integration, and EuroSkat
-integration remain absent. `v1.0.0` remains unready after this focused milestone.
+and optimistic atomic local Save. Issue #164 adds internal transport-free rapid-
+entry Application services with UI-ready Position Views, automatic Player and
+Decision derivation, exact or bounded selectable Cards, setup updates, atomic
+Play append, truncation, annotation reconciliation, and passed/clear wrappers.
+Materialization, persistence orchestration, Public API, CLI, Schema, example,
+generated scenario, browser UI, YouTube integration, and EuroSkat integration
+remain absent. `v1.0.0` remains unready after this focused milestone.
 
 Major completed areas include:
 
@@ -413,6 +417,10 @@ Major completed areas include:
   rotation, partial observed Games, passed deals, immutable revisioned changes,
   evidence-derived Progress, deterministic fingerprints, strict Resume, and
   optimistic same-directory atomic persistence
+* internal transport-free Match Capture Application services with immutable
+  Card entries, Position Views and Results, exact/bounded Card selection,
+  deterministic Game/annotation IDs, setup updates, automatic Play derivation,
+  truncation cleanup, annotation editing, and Passed Deal/clear wrappers
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -441,8 +449,9 @@ authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
 scenarios.
 Match Capture now contains identity/metadata, individual evidence-aware observed
-Games and commentary, and persistent internal 36-position Workspaces.
-Materialization, rapid entry, Public API, CLI, Schema, and UI remain later
+Games and commentary, persistent internal 36-position Workspaces, and internal
+transport-free rapid-entry Application services. Materialization, autosave
+orchestration, Public API, CLI, Schema, browser transport, and UI remain later
 `v0.15.0` work; YouTube and EuroSkat integration remain absent.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.

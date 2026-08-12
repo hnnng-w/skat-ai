@@ -6,8 +6,9 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
-Issues #160, #161, and #163 add internal Match, observed-Game, and persistent
-Workspace layers before any future Capture Application or public transport flow:
+Issues #160, #161, #163, and #164 add internal Match, observed-Game, persistent
+Workspace, and transport-free Capture Application layers before any public
+transport flow:
 
 ```text
 descriptive video or manual source metadata
@@ -25,7 +26,10 @@ descriptive video or manual source metadata
     -> exact fixed-list rotation, partial Games, and passed deals
     -> evidence-derived Progress and deterministic fingerprints
     -> strict private Resume and optimistic atomic local Save
-    -> later materialization, Capture Application, Public API, CLI, and UI
+    -> UI-ready Position Views and exact/bounded Card palettes
+    -> automatic Player/Decision append and focused evidence updates
+    -> truncation, annotation reconciliation, and passed/clear wrappers
+    -> later persistence orchestration, materialization, Public API, CLI, and UI
 ```
 
 The game platform is separate from the media source, and the perspective Player
@@ -33,7 +37,8 @@ is separate from the application user. Observed facts remain distinct from
 derived trace and evidence values: missing original Skat or Discards are not
 completed from the deck complement. No YouTube or EuroSkat integration,
 workflow execution, or Historical, Session, list, report, or Dataset
-materialization occurs in these layers.
+materialization occurs in these layers. Capture operations receive an already
+loaded Workspace and perform no file or network I/O.
 
 Issue #150 adds a separate internal authoring and control-plane contract before
 the existing Engine workflows:
@@ -338,14 +343,19 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_workspace_persistence_contracts.py` | Private Workspace document, Resume, optimistic write, and exact policy contracts. |
 | `src/skat_ai/match_workspace_persistence_codec.py` | Domain-separated fingerprints and strict nested Workspace reconstruction. |
 | `src/skat_ai/match_workspace_persistence.py` | Strict private Load and canonical optimistic same-directory atomic Save transport. |
+| `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
+| `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
+| `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
+| `src/skat_ai/match_capture_application.py` | Conflict-first orchestration over existing Workspace operations without persistence or analysis. |
 
 The only executable format identity is `euroskat_36_standard_v1`, with provider
 `EuroSkat`, display name `36er Standard`, three Players, and 36 Games. This is a
 named product format contract, not ranking, qualification, prize, fee, bonus,
 integration, or tournament-management behavior. See
 [Match capture contracts](match_capture_contracts.md),
-[Observed Game capture contracts](observed_game_capture_contracts.md), and
-[Match Workspace contracts](match_workspace_contracts.md).
+[Observed Game capture contracts](observed_game_capture_contracts.md),
+[Match Workspace contracts](match_workspace_contracts.md), and
+[Match Capture Application services](match_capture_application_services.md).
 
 Validation is split between JSON Schema and Python validation:
 
