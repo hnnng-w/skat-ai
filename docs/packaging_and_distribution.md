@@ -20,7 +20,8 @@ Package discovery is rooted at `src/` and explicitly includes `skat_ai*`.
 Package Data is declared for:
 
 * `skat_ai/py.typed`;
-* every `skat_ai.schema_resources/*.schema.json` resource.
+* every `skat_ai.schema_resources/*.schema.json` resource;
+* `skat_ai.capture_web` HTML, CSS, and JavaScript resources.
 
 The Package name remains `skat-ai`, the Package version is `0.14.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
@@ -63,6 +64,8 @@ automatic Checkpoint collection, Request export, explicit Position analysis,
 Checkpoint review, Historical finalization, and the phase-aware Assistant. It
 adds no second Console Script and no eighth Engine Root workflow; explicit
 analysis reuses the existing Position or Historical Application handler once.
+Issue #165 adds leading `capture` dispatch before Session and Root, using the
+same Console Script for the loopback-only one-Workspace browser transport.
 
 ## Building artifacts
 
@@ -141,6 +144,11 @@ The registry:
 
 No schema-loading helper is exported publicly.
 
+The private Capture Web transport also loads its HTML template, CSS, and vanilla
+JavaScript through `importlib.resources`. Assets are lazy, current-working-
+directory independent, locally packaged, and contain no external dependency,
+CDN, font, image, or build-system requirement.
+
 ## Typing and version metadata
 
 `src/skat_ai/py.typed` marks the distribution as typed under PEP 561. It adds no
@@ -169,6 +177,7 @@ Wheel inspection verifies:
 * valid core metadata and the declared runtime and development dependencies;
 * every `skat_ai` Python module;
 * `py.typed` and all 63 byte-identical schema resources;
+* exact Capture Web template, CSS, and JavaScript resource bytes;
 * a valid pure-Python Wheel and RECORD;
 * exact `skat-ai = skat_ai.cli:main` Console Script metadata and
   `skat_ai/__main__.py`;
@@ -178,7 +187,7 @@ Wheel inspection verifies:
 sdist inspection verifies:
 
 * `pyproject.toml`, `README.md`, Package sources, `py.typed`, and every schema
-  resource;
+  and Capture Web resource;
 * build and core metadata sufficient to build and install the same Package;
 * exact Console Script metadata and `src/skat_ai/__main__.py`;
 * absence of a source-authored `setup.py`, root `main.py`, a second command, and
@@ -203,11 +212,17 @@ verifies:
   strict resume and path-free Results;
 * installed `skat-ai session --help` and module
   `python -m skat_ai session --help` succeed;
+* installed `skat-ai capture --help` and module
+  `python -m skat_ai capture --help` succeed;
 * Session `new`, `apply`, and `show` operate through a caller-selected file;
 * Session-triggered Position analysis, Checkpoint observation/review, and
   Retrospective finalization reuse the existing Application workflows;
 * the Session Assistant completes a deterministic smoke flow through injected
   input/output functions;
+* one in-process loopback Capture server performs token bootstrap, renders the
+  absent-Workspace page, creates and persists a Workspace, starts a Game, sets a
+  Declaration, appends one automatically attributed Card, strictly reloads the
+  file, and shuts down cleanly;
 * installed, module, and Public Session API results have parity where
   applicable;
 * a valid unavailable Dataset Preparation Result remains successful;
@@ -249,5 +264,7 @@ output scenarios, while the historical `v0.13.0` 77 scenarios remain unchanged.
 The Package license decision remains unresolved, so no license
 metadata is declared. Package and release publication remain human-controlled. Session
 file paths are caller-selected; no default directory, second Console Script,
-GUI/browser UI, online-platform adapter, cloud synchronization, distributed
-locking, encryption/key management, or automatic backup policy is added.
+remote browser deployment, online-platform adapter, cloud synchronization,
+distributed locking, encryption/key management, or automatic backup policy is
+added. The Issue #165 browser is a private loopback-only local transport; it is
+not a hosted GUI or Public Match API.

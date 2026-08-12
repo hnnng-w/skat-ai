@@ -252,7 +252,11 @@ complete candidate through `build_observed_game_record_v1()`; missing hands,
 original Skat, Discards, and ownership remain unknown. See
 [Match Capture Application services](match_capture_application_services.md).
 
-There is still no Public Match API, Root workflow, Schema, CLI, example,
-generated scenario, HTTP/browser transport, UI, or downstream materialization.
+Issue #165 transports those exact operations through private browser forms and
+autosave without changing any observed-Game value, validation, or serialization.
+See [Local Match Capture interface](local_match_capture_interface.md).
+
+There is still no Public Match API, Root workflow, Match Schema/data workflow,
+example, generated scenario, analysis, or downstream materialization.
 The Package remains `0.14.0` with seven Root workflows, 63 authoritative and
 packaged Schemas, and 85 generated-output scenarios.

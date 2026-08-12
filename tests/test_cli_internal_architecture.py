@@ -540,6 +540,43 @@ def test_application_public_api_match_and_observed_game_do_not_import_cli() -> N
     assert violations == []
 
 
+def test_capture_web_layering_and_execution_boundaries() -> None:
+    capture_root = SOURCE_ROOT / "capture_web"
+    capture_paths = sorted(capture_root.glob("*.py"))
+    imported = {}
+    for path in capture_paths:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        imported[path.name] = tuple(
+            node.module or ""
+            for node in ast.walk(tree)
+            if isinstance(node, ast.ImportFrom)
+        )
+    assert "skat_ai.match_capture_application" in imported["operations.py"]
+    assert all(
+        not any(
+            module == forbidden or module.startswith(f"{forbidden}.")
+            for module in modules
+            for forbidden in (
+                "skat_ai.application",
+                "skat_ai.api",
+                "skat_ai.session",
+                "skat_ai.search",
+                "skat_ai.bounded_search",
+                "skat_ai.replay_coaching",
+            )
+        )
+        for modules in imported.values()
+    )
+    lower_paths = [
+        *sorted((SOURCE_ROOT / "application").rglob("*.py")),
+        *sorted((SOURCE_ROOT / "api").rglob("*.py")),
+        *sorted(SOURCE_ROOT.glob("match_*.py")),
+        *sorted(SOURCE_ROOT.glob("observed_game_*.py")),
+    ]
+    for path in lower_paths:
+        assert "skat_ai.capture_web" not in path.read_text(encoding="utf-8")
+
+
 def test_root_presentation_modules_are_transport_and_execution_free() -> None:
     presentation_root = SOURCE_ROOT / "cli" / "presentation"
     forbidden_modules = {
@@ -585,6 +622,7 @@ def test_focused_cli_modules_do_not_import_compatibility_facades() -> None:
     paths = [
         *sorted((SOURCE_ROOT / "cli").glob("root_*.py")),
         *sorted((SOURCE_ROOT / "cli").glob("session_*.py")),
+        *sorted((SOURCE_ROOT / "cli").glob("capture*.py")),
         *sorted((SOURCE_ROOT / "cli" / "presentation").glob("*.py")),
     ]
     violations = []
@@ -773,6 +811,25 @@ def test_each_root_transport_executes_application_once(
 def test_cli_modules_import_without_circular_imports(module_order: tuple[str, ...]) -> None:
     command = "; ".join(
         ["import importlib", *(f"importlib.import_module({name!r})" for name in module_order)]
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", command],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+
+
+def test_capture_modules_import_without_circular_imports() -> None:
+    command = "; ".join(
+        [
+            "import importlib",
+            "importlib.import_module('skat_ai.cli.capture')",
+            "importlib.import_module('skat_ai.capture_web.server')",
+            "importlib.import_module('skat_ai.cli.execution')",
+        ]
     )
     completed = subprocess.run(
         [sys.executable, "-c", command],

@@ -11,6 +11,7 @@ from scripts import sync_packaged_schemas
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIRECTORY = PROJECT_ROOT / "schemas"
 PACKAGED_SCHEMA_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "schema_resources"
+CAPTURE_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "capture_web"
 
 
 def test_build_metadata_package_discovery_and_package_data_are_explicit() -> None:
@@ -38,6 +39,11 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
     assert pyproject["tool"]["setuptools"]["package-data"] == {
         "skat_ai": ["py.typed"],
         "skat_ai.schema_resources": ["*.schema.json"],
+        "skat_ai.capture_web": [
+            "templates/*.html",
+            "assets/*.css",
+            "assets/*.js",
+        ],
     }
     for forbidden in (
         "authors",
@@ -89,6 +95,27 @@ def test_schema_resource_package_and_typing_marker_are_available() -> None:
     marker = importlib.resources.files(skat_ai).joinpath("py.typed")
     assert marker.is_file()
     assert marker.read_bytes() == b""
+
+
+def test_capture_web_resources_are_local_package_data() -> None:
+    resources = importlib.resources.files("skat_ai.capture_web")
+    expected = {
+        "templates/page.html",
+        "assets/capture.css",
+        "assets/capture.js",
+    }
+    for name in expected:
+        resource = resources.joinpath(name)
+        source = CAPTURE_RESOURCE_DIRECTORY.joinpath(name)
+        assert resource.is_file()
+        assert resource.read_bytes() == source.read_bytes()
+    combined = b"".join(
+        CAPTURE_RESOURCE_DIRECTORY.joinpath(name).read_bytes()
+        for name in sorted(expected)
+    )
+    assert b"https://" not in combined
+    assert b"http://" not in combined
+    assert b"eval(" not in combined
 
 
 def test_schema_sync_check_is_deterministic_and_does_not_modify_files(

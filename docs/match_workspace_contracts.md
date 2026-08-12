@@ -7,9 +7,11 @@ or complete observed Games, and explicit passed deals without materializing a
 Historical Game, list, report, Dataset, or analysis Result.
 
 The implementation remains internal. Issue #164 now wraps its unchanged
-operations with transport-free rapid-entry Application services. There is still
-no Public Match API, Root workflow, Schema, CLI, example, generated scenario,
-browser server, or UI.
+operations with transport-free rapid-entry Application services. Issue #165
+adds the private local browser/Capture CLI and autosave orchestration without
+changing the Workspace contracts or persisted bytes. There is still no Public
+Match API, Root workflow, Match Schema/data workflow, example, or generated
+scenario.
 
 ## Contract identity
 
@@ -335,10 +337,13 @@ and returned Progress are derived, not persisted, and no Capture operation loads
 or saves a Workspace. See
 [Match Capture Application services](match_capture_application_services.md).
 
-Persistence/autosave orchestration, opponent-statistics application,
-Historical/list/report/Dataset materialization, Public Match API, Match Schema,
-Match CLI, browser server, and UI remain future `v0.15.0` work. YouTube and
-EuroSkat integration remain absent.
+Issue #165's leaf transport composes those operations with strict startup Resume,
+one locked explicit-file context, exact-revision changes, content-fingerprint
+CAS Save, unchanged/conflict no-write behavior, and explicit Reload. See
+[Local Match Capture interface](local_match_capture_interface.md).
+Opponent-statistics application, Historical/list/report/Dataset materialization,
+Public Match API, Match Schema/data workflow, and analysis remain future
+`v0.15.0` work. YouTube and EuroSkat integration remain absent.
 
 Package version `0.14.0`, seven Root workflows, Public APIs and CLI, 63
 authoritative and packaged Schemas, all existing examples, and 85 generated-

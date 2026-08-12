@@ -56,19 +56,28 @@ Issue #164 adds the internal transport-free rapid-entry Application foundation:
 * free-text Commentary and later-response-link editing;
 * existing Passed Deal and clear-operation wrappers.
 
-These foundations remain internal. Persistence/autosave orchestration,
-Historical or Session/list/report/Dataset materialization, Public API, Match
-Schema, CLI, browser transport, UI, and Player Statistics application remain
-later `v0.15.0` work. No YouTube or EuroSkat integration, ranking,
+Issue #165 adds the first usable private local no-JSON Match Capture interface:
+
+* leading installed/module/Legacy `capture` dispatch with one Console Script;
+* one explicit Workspace, strict Resume or browser creation, and all 36 Slots;
+* setup, canonical Card, correction, Commentary, Response Link, pass, clear, and
+  metadata forms with automatic Player/Decision derivation;
+* locked exact-revision plus content-fingerprint compare-and-swap autosave;
+* explicit Reload after persistence conflict with no retry or merge;
+* token/same-origin loopback security and packaged progressive local assets.
+
+Historical/list/report/Dataset materialization, Public Match API, Match Schema
+and data workflow, Player Statistics application, and analysis remain later
+`v0.15.0` work. No YouTube or EuroSkat integration, ranking,
 qualification, prize, fee, or bonus behavior is implemented.
 
 Issue #162 characterizes and modularizes the existing Root and Session CLI
 transport boundaries before those later layers. Compatibility facades preserve
 installed/module/Legacy behavior, while focused modules separate parsing,
 validation, Application adaptation, dispatch, transport, persistence,
-Checkpoints, handlers, and presentation. CLI remains a leaf adapter; this work
-adds no Match CLI, browser server, or UI. Issue #164 supplies the separate
-transport-free Capture Application layer without changing CLI behavior.
+Checkpoints, handlers, and presentation. CLI remains a leaf adapter. Issue #164
+supplies the transport-free Capture Application layer; Issue #165 composes it in
+the separate leaf browser/CLI transport without changing Root or Session rules.
 
 ## Completed major areas
 
@@ -629,6 +638,9 @@ Implemented:
   selection, Game/setup update, automatic append, atomic rejection, truncation,
   annotation cleanup/editing, Passed Deal/clear, revision, no-I/O, architecture,
   and compatibility tests for Issue #164
+* Focused Match Capture Web/Protocol/CLI, timecode, context, state, rendering,
+  security, HTTP, no-JavaScript, autosave/conflict, packaging, clean-install, and
+  compatibility tests for Issue #165
 
 ### CLI and workflow usability
 
@@ -658,6 +670,9 @@ Implemented:
 * Strict load-operate-compare-and-swap-save persistence, privacy-safe human
   output, explicit analysis only, and automatic Checkpoint collection without
   automatic analysis
+* Leading `capture` dispatch and private loopback browser for one explicit Match
+  Workspace, with no-JSON creation, rapid Card entry, correction, annotations,
+  optimistic autosave, and explicit conflict Reload
 
 ## Current known limitations
 
@@ -898,8 +913,9 @@ implementation details, and testable completion gates.
 
 `v1.0.0` remains not ready after the active focused `v0.15.0` Match Capture
 work through the internal Match metadata, observed-Game/commentary, persistent
-Workspace, and rapid-entry Application foundations. A separate audit of both
-documents must precede its final Issue sequence or implementation architecture.
+Workspace, rapid-entry Application, and private local browser/autosave transport.
+A separate audit of both documents must precede its final Issue sequence or
+implementation architecture.
 
 Before `v1.0.0`, the project still requires tactical and cross-game Coaching,
 remaining approved settlement nuance, and broader field-level provenance
@@ -923,7 +939,8 @@ is implemented through delegation to the existing terminal cases. Claims,
 Concessions, and Final Settlement remain partially supported.
 
 Full auction modeling, learned opponent profiles, machine-learning card-decision
-models, and platform or browser adapters are planned after `v1.0.0`. Formal
+models, and online-platform, hosted-browser, or browser-extension adapters are
+planned after `v1.0.0`. Formal
 series aggregation, tournament management, and official federation report
 formats are not required. Four-player tables are the only unconditional
 exclusion.

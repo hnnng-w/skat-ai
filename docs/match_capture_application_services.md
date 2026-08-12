@@ -291,7 +291,7 @@ The dependency direction is:
 Domain and rules
     <- Application and Public APIs
         <- Capture Application services
-            <- future CLI and browser transports
+            <- local Capture CLI and browser transport
 ```
 
 Capture services do not import CLI or browser code. CLI modules do not own
@@ -300,10 +300,10 @@ network access, Session operation, Historical construction, Position or
 Historical analysis, Search, Review, Replay Coaching, Dataset generation, list
 aggregation, Opponent Profile derivation, or background work.
 
-The rapid-entry Application foundation is implemented, but usable public or
-browser Match capture remains open. Future work includes persistence/autosave
-orchestration, Public Match API, Match Schema, Match CLI, browser server and UI,
-Player Statistics application, and Historical/Session/list/report/Dataset
-materialization. YouTube and EuroSkat integration remain absent. Package version
+Issue #165 composes these services into the private local loopback browser and
+Capture CLI with optimistic autosave; this does not change the transport-free
+service contract. Future work includes Public Match API, Match Schema/data
+workflow, Player Statistics application, analysis, and Historical/list/report/
+Dataset materialization. YouTube and EuroSkat integration remain absent. Package version
 `0.14.0`, seven Root workflows, 63 authoritative and packaged Schemas, current
 examples, and 85 generated-output scenarios remain unchanged.

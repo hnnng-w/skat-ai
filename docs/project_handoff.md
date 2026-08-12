@@ -129,6 +129,10 @@ The project focuses on:
   selection, deterministic Game/annotation IDs, focused setup updates, automatic
   Play derivation, truncation cleanup, annotation editing, and Passed Deal/clear
   wrappers
+* internal local Match Capture Web, Web Protocol, and Capture CLI version `1`
+  with one explicit Workspace file, loopback token/same-origin protection,
+  no-JSON creation and rapid entry, packaged assets, compare-and-swap autosave,
+  and explicit conflict Reload
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1310,9 +1314,10 @@ capture of one EuroSkat 36er Standard Match from descriptive video evidence.
 Issues #160 and #161 implement the internal immutable Match identity/metadata and
 observed single-Game/commentary foundations. Issue #163 adds persistent internal
 36-position Workspaces. Issue #164 adds internal transport-free rapid-entry
-Application services over those Workspaces. They preserve Package version
-`0.14.0`, seven Root workflows, Public APIs and CLI, 63 Schemas, and 85 generated
-outputs.
+Application services over those Workspaces. Issue #165 adds the private local
+browser/Capture CLI with loopback security and optimistic autosave. They preserve
+Package version `0.14.0`, seven Root workflows, Public APIs, 63 Schemas, and 85
+generated outputs.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1558,7 +1563,7 @@ publication.
 
 ## Current implementation baseline
 
-**Current development after published v0.14.0: v0.15.0 Match Capture foundation**
+**Current development after published v0.14.0: v0.15.0 local Match Capture**
 
 Completed implementation scope:
 
@@ -1650,6 +1655,10 @@ Completed implementation scope:
   UI-ready Position Views, exact/bounded selectable Cards, deterministic IDs,
   setup updates, automatic Player/Decision append, truncation cleanup,
   annotation editing, and Passed Deal/clear wrappers
+* internal version-1 private local Match Capture Web/Protocol/CLI with exact
+  browser state, all 36 positions, setup and Card forms, Play correction,
+  Commentary/Response Links, Passed Deals, metadata correction, token-protected
+  loopback serving, optimistic autosave, and explicit Reload
 
 ## Current high-priority limitations
 
@@ -1712,24 +1721,21 @@ Completed implementation scope:
   encryption/key management, and automatic backups remain open.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
 * No learned model or model-training workflow exists.
-* No website or browser integration exists.
 * Match Capture contains identity/metadata, evidence-aware observed Games and
-  commentary, persistent internal 36-position Workspaces, and transport-free
-  rapid-entry Application services. Persistence/autosave orchestration,
-  materialization, Public API, CLI, Schema, browser transport, UI, and Player
-  Statistics application remain later `v0.15.0` work; YouTube and EuroSkat
-  integration remain absent.
+  commentary, persistent internal 36-position Workspaces, transport-free
+  rapid-entry Application services, and the private local browser/Capture CLI
+  with autosave. Materialization, Public Match API, Match Schema/data workflow,
+  Player Statistics application, and analysis remain later `v0.15.0` work;
+  YouTube and EuroSkat integration remain absent. No hosted website, remote
+  browser deployment, browser extension, or online-platform adapter exists.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Continue the active `v0.15.0` milestone from the Issue #160 Match metadata,
-Issue #161 observed-Game/commentary, Issue #163 persistent Workspace, and Issue
-#164 rapid-entry Application foundations toward usable manual EuroSkat 36er
-Standard post-game capture. Persistence orchestration, materialization
-boundaries, Public API, CLI, Schema, browser transport, UI, and Player Statistics
-application require separate focused contracts and Issues. YouTube and EuroSkat
-integration are not required before `v1.0.0`.
+Continue the active `v0.15.0` milestone from the Issue #160 through #165 usable
+local manual-capture foundation toward materialization boundaries, Public Match
+API and Schema/data workflow, Player Statistics application, and analysis.
+YouTube and EuroSkat integration are not required before `v1.0.0`.
 
 The audit should cover:
 

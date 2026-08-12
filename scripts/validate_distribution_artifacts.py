@@ -34,6 +34,12 @@ PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.14.0"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 63
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
+CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
+CAPTURE_RESOURCE_NAMES = (
+    "templates/page.html",
+    "assets/capture.css",
+    "assets/capture.js",
+)
 CONSOLE_SCRIPT_NAME = "skat-ai"
 CONSOLE_SCRIPT_TARGET = "skat_ai.cli:main"
 
@@ -135,6 +141,14 @@ def _expected_module_names() -> set[str]:
     return {
         path.relative_to(PROJECT_ROOT / "src").as_posix()
         for path in SOURCE_PACKAGE_DIRECTORY.rglob("*.py")
+    }
+
+
+def _expected_capture_resource_bytes() -> dict[str, bytes]:
+    capture_root = SOURCE_PACKAGE_DIRECTORY / "capture_web"
+    return {
+        name: capture_root.joinpath(name).read_bytes()
+        for name in CAPTURE_RESOURCE_NAMES
     }
 
 
@@ -280,6 +294,7 @@ def _inspect_wheel(
     wheel_path: Path,
     expected_schemas: dict[str, bytes],
     expected_modules: set[str],
+    expected_capture_resources: dict[str, bytes],
 ) -> Message:
     with zipfile.ZipFile(wheel_path) as archive:
         names_list = archive.namelist()
@@ -326,6 +341,16 @@ def _inspect_wheel(
             if name.startswith(SCHEMA_RESOURCE_PREFIX) and name.endswith(".schema.json")
         }
         _validate_schema_payload(schema_payload, expected_schemas, artifact_name="Wheel")
+        capture_payload = {
+            name.removeprefix(CAPTURE_RESOURCE_PREFIX): archive.read(name)
+            for name in names
+            if name.startswith(CAPTURE_RESOURCE_PREFIX)
+            and not name.endswith(".py")
+        }
+        _require(
+            capture_payload == expected_capture_resources,
+            "Wheel Capture Web resources differ by filename or bytes.",
+        )
 
         forbidden_prefixes = ("tests/", "examples/", "outputs/", "generated_outputs/")
         _require(
@@ -376,6 +401,7 @@ def _inspect_sdist(
     sdist_path: Path,
     expected_schemas: dict[str, bytes],
     expected_modules: set[str],
+    expected_capture_resources: dict[str, bytes],
 ) -> Message:
     with tarfile.open(sdist_path, "r:gz") as archive:
         root, members = _safe_sdist_members(archive)
@@ -427,6 +453,18 @@ def _inspect_sdist(
             if name.startswith(schema_prefix) and name.endswith(".schema.json")
         }
         _validate_schema_payload(schema_payload, expected_schemas, artifact_name="sdist")
+        capture_prefix = f"{root}/src/{CAPTURE_RESOURCE_PREFIX}"
+        capture_payload = {
+            name.removeprefix(capture_prefix): _tar_bytes(archive, members[name])
+            for name in names
+            if name.startswith(capture_prefix)
+            and not name.endswith(".py")
+            and members[name].isfile()
+        }
+        _require(
+            capture_payload == expected_capture_resources,
+            "sdist Capture Web resources differ by filename or bytes.",
+        )
         _require(f"{root}/setup.py" not in names, "sdist contains setup.py.")
         _require(f"{root}/main.py" not in names, "sdist contains the repository Root main.py.")
         _require(
@@ -643,6 +681,7 @@ assert session_files.load_session_file(
 
 SMOKE_PROGRAM = r"""
 import hashlib
+import http.client
 import importlib.metadata
 import importlib.resources
 import importlib.util
@@ -650,6 +689,7 @@ import json
 import os
 import sys
 import sysconfig
+import threading
 from pathlib import Path
 
 import skat_ai
@@ -667,6 +707,9 @@ from skat_ai.api.v1.session.files.execution import (
     serialize_session_file_result as execution_serialize_session_file_result,
 )
 from skat_ai.cli.session_assistant import run_session_assistant
+from skat_ai.capture_web.context import MatchCaptureWebContextV1
+from skat_ai.capture_web.server import start_match_capture_web_server_v1
+from skat_ai.match_workspace_persistence import load_match_workspace_file_v1
 from skat_ai.session_persistence_contracts import (
     SessionPersistenceWriteResultV1 as InternalSessionPersistenceWriteResultV1,
     SessionResumeResultV1 as InternalSessionResumeResultV1,
@@ -699,6 +742,141 @@ for name in resource_names:
     schema_digest.update(b"\0")
     schema_digest.update(content)
 assert len(schema_ids) == len(set(schema_ids))
+
+capture_resource_root = importlib.resources.files("skat_ai.capture_web")
+capture_resource_names = (
+    "templates/page.html",
+    "assets/capture.css",
+    "assets/capture.js",
+)
+capture_digest = hashlib.sha256()
+for name in capture_resource_names:
+    content = capture_resource_root.joinpath(name).read_bytes()
+    assert content
+    assert b"https://" not in content and b"http://" not in content
+    capture_digest.update(name.encode("utf-8"))
+    capture_digest.update(b"\0")
+    capture_digest.update(content)
+
+capture_path = cwd / "capture-workspace.json"
+capture_context = MatchCaptureWebContextV1.open(capture_path)
+capture_server = start_match_capture_web_server_v1(
+    capture_context,
+    port=0,
+    token="distribution-token",
+)
+capture_thread = threading.Thread(target=capture_server.serve_forever, daemon=True)
+capture_thread.start()
+
+
+def capture_request(method, path, *, headers=None, body=None):
+    connection = http.client.HTTPConnection("127.0.0.1", capture_server.port)
+    connection.request(method, path, headers=headers or {}, body=body)
+    response = connection.getresponse()
+    content = response.read()
+    returned_headers = dict(response.getheaders())
+    connection.close()
+    return response.status, returned_headers, content
+
+
+try:
+    host = f"127.0.0.1:{capture_server.port}"
+    status, headers, content = capture_request(
+        "GET",
+        "/?token=distribution-token",
+        headers={"Host": host},
+    )
+    assert status == 303 and content == b""
+    cookie = headers["Set-Cookie"].split(";", 1)[0]
+    get_headers = {"Host": host, "Cookie": cookie}
+    post_headers = {
+        **get_headers,
+        "Origin": f"http://{host}",
+        "Content-Type": "application/json",
+    }
+    status, _, content = capture_request("GET", "/", headers=get_headers)
+    assert status == 200 and b"Create capture-workspace.json" in content
+
+    create_values = {
+        "match_id": "distribution-match",
+        "title": "Distribution Match",
+        "game_platform": "EuroSkat",
+        "external_match_id": "",
+        "played_at": "",
+        "source_kind": "manual_observation",
+        "source_url": "",
+        "source_title": "Manual capture",
+        "source_channel_name": "",
+        "match_timecode_start": "",
+        "match_timecode_end": "",
+        "player_1_id": "player-a",
+        "player_1_label": "Alice",
+        "player_1_platform_id": "",
+        "player_2_id": "player-b",
+        "player_2_label": "Bob",
+        "player_2_platform_id": "",
+        "player_3_id": "player-c",
+        "player_3_label": "Carol",
+        "player_3_platform_id": "",
+        "perspective_player_id": "player-a",
+    }
+    status, _, content = capture_request(
+        "POST",
+        "/api/v1/create",
+        headers=post_headers,
+        body=json.dumps(create_values).encode("utf-8"),
+    )
+    assert status == 200 and json.loads(content)["status"] == "applied"
+    revision = capture_context.workspace.revision
+
+    def capture_operation(operation, **values):
+        nonlocal_values = {
+            "operation": operation,
+            "match_position": 1,
+            "expected_revision": capture_context.workspace.revision,
+            **values,
+        }
+        status, _, content = capture_request(
+            "POST",
+            "/api/v1/operation",
+            headers=post_headers,
+            body=json.dumps(nonlocal_values).encode("utf-8"),
+        )
+        assert status == 200, content
+        result = json.loads(content)
+        assert result["status"] == "applied", result
+        return result
+
+    capture_operation(
+        "start_game",
+        game_id="",
+        game_timecode_start="",
+        game_timecode_end="",
+    )
+    capture_operation(
+        "set_declaration",
+        declarer_player_id="player-b",
+        game_type="grand",
+        hand_game=False,
+        ouvert=False,
+        schneider_announced=False,
+        schwarz_announced=False,
+        matadors=None,
+        bid_value=24,
+    )
+    capture_operation("append_plays", cards="CA", decision_timecode="")
+    capture_loaded = load_match_workspace_file_v1(capture_path)
+    capture_game = capture_loaded.document.workspace.slots[0].observed_game
+    assert capture_game is not None
+    assert capture_game.declaration.game_type == "grand"
+    assert capture_game.plays[0].decision_index == 1
+    assert capture_game.plays[0].player_id == "player-b"
+    assert capture_game.plays[0].card == "CA"
+    assert capture_loaded.document.workspace.revision == revision + 3
+finally:
+    capture_server.shutdown()
+    capture_server.server_close()
+    capture_thread.join(timeout=5)
 
 assert session.files is session_files
 assert session_files.__all__ == (
@@ -967,6 +1145,8 @@ print(json.dumps({
     "schema_names": resource_names,
     "schema_ids": schema_ids,
     "schema_digest": schema_digest.hexdigest(),
+    "capture_resource_names": capture_resource_names,
+    "capture_resource_digest": capture_digest.hexdigest(),
     "version": skat_ai.__version__,
     "installed_module_count": len(loaded_paths),
 }, sort_keys=True))
@@ -1143,6 +1323,30 @@ def _install_and_smoke(
             f"usage: {command_name} session" in session_help_result.stdout,
             f"{label} {command_name} session --help used the wrong command identity.",
         )
+        capture_help_result = _run_cli_check(
+            [*prefix, "capture", "--help"],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not capture_help_result.stderr,
+            f"{label} {command_name} capture --help wrote stderr.",
+        )
+        _require(
+            f"usage: {command_name} capture" in capture_help_result.stdout,
+            f"{label} {command_name} capture --help used the wrong command identity.",
+        )
+        for option in ("--workspace PATH", "--port INTEGER", "--no-open"):
+            _require(
+                option in capture_help_result.stdout,
+                f"{label} {command_name} capture --help omits {option!r}.",
+            )
+        for forbidden_option in ("--host", "--force", "--daemon"):
+            _require(
+                forbidden_option not in capture_help_result.stdout,
+                f"{label} {command_name} capture --help exposes {forbidden_option!r}.",
+            )
         for subcommand in (
             "new",
             "show",
@@ -1427,6 +1631,7 @@ def validate_distribution_artifacts() -> None:
     before_snapshot = _repository_artifact_snapshot()
     expected_schemas = _expected_schema_bytes()
     expected_modules = _expected_module_names()
+    expected_capture_resources = _expected_capture_resource_bytes()
     _require(
         len(expected_schemas) == EXPECTED_SCHEMA_RESOURCE_COUNT,
         f"Expected {EXPECTED_SCHEMA_RESOURCE_COUNT} authoritative schemas, "
@@ -1465,8 +1670,18 @@ def validate_distribution_artifacts() -> None:
             "Build output contains unexpected artifacts.",
         )
 
-        wheel_metadata = _inspect_wheel(wheels[0], expected_schemas, expected_modules)
-        sdist_metadata = _inspect_sdist(sdists[0], expected_schemas, expected_modules)
+        wheel_metadata = _inspect_wheel(
+            wheels[0],
+            expected_schemas,
+            expected_modules,
+            expected_capture_resources,
+        )
+        sdist_metadata = _inspect_sdist(
+            sdists[0],
+            expected_schemas,
+            expected_modules,
+            expected_capture_resources,
+        )
         _require(
             wheel_metadata["Name"] == sdist_metadata["Name"]
             and wheel_metadata["Version"] == sdist_metadata["Version"],

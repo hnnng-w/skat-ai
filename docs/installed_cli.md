@@ -77,14 +77,27 @@ python -m skat_ai session --help
 python main.py session --help
 ```
 
+Issue #165 adds the separate local Match Capture family with the same parity:
+
+```powershell
+skat-ai capture --workspace MATCH.json
+python -m skat_ai capture --workspace MATCH.json
+python main.py capture --workspace MATCH.json
+```
+
+Its exact options are required `--workspace PATH`, optional `--port INTEGER`
+defaulting to `0`, and `--no-open`. It has no host, remote-bind, force,
+authentication-disable, daemon, default-path, or output-file option.
+
 ## Options and execution
 
 All three forms share canonical parsers and the same option names, aliases,
 destinations, actions, defaults, choices, repeatability, and semantic validation.
 Issue #142 added `--version`; Issue #147 added Root `--include-provenance`;
 Issue #157 delegates a leading `session` token to the separate Session parser.
-Every other invocation preserves the existing Root parser. The full current
-option lists are available through `--help` and `session --help`.
+Issue #165 adds leading `capture` dispatch before Session. Every other invocation
+preserves the existing Root parser. The full current option lists are available
+through `--help`, `session --help`, and `capture --help`.
 
 The CLI preserves this transport sequence:
 
@@ -109,6 +122,12 @@ Session transport is the bounded exception: Session operations use the stable
 Public Session and Public Session File APIs, while explicit `analyze`, `review`,
 and `finalize` export Requests and invoke the same existing Application once.
 This does not add an Engine workflow.
+
+Capture transport is private and internal. It strictly resumes or creates one
+explicit Match Workspace, binds only to `127.0.0.1`, and delegates one browser
+operation at a time to existing Match Capture services followed by optimistic
+atomic Save. It does not execute the Root Application, Public API, Session,
+analysis, or materialization.
 
 ## Input and output
 
@@ -206,6 +225,11 @@ list `lot_required`, Coaching `not_assessable`, rejected or revision-conflict
 Session Commands, unavailable Session exports, unchanged Undo, partial
 Correction, pending observations, and diverged Checkpoints. Session Save
 conflicts, invalid persistence files, and filesystem failures use Code `1`.
+Capture parser misuse uses Code `2`; invalid existing Workspace, missing parent,
+bind, or filesystem failures use Code `1`; a normal `Ctrl+C` shutdown uses Code
+`0`. Browser validation uses HTTP `400`, security rejection `403`, unknown route
+`404`, unsupported method `405`, revision or persistence conflict `409`, request
+limit `413`, and generic internal failure `500`.
 
 ## Compatibility
 
@@ -238,16 +262,23 @@ Issue #157 also verifies the public Session file namespace and Save/Load,
 installed/module Session help, `new`/`apply`/`show`, Position analysis,
 observation/review, Retrospective finalization, and an injected-I/O Assistant
 smoke flow. Legacy Session parity is checked from the repository checkout. No
-second Console Script is installed. The local full check and CI invoke that
-validator once.
+second Console Script is installed. Issue #165 additionally verifies Capture
+resources, installed/module Capture help, loopback token bootstrap, browser
+creation, Game start, Declaration, Card append, strict persistence Resume, and
+clean shutdown. Legacy Capture parity remains a repository-checkout gate. The
+local full check and CI invoke that validator once.
 
 ## Boundaries
 
-Issue #157 changes no Package version, Root workflow, Root parser meaning, second
-Console Script, publication state, or default Session path. Session persistence
+Issue #165 changes no Package version, Root workflow, Root parser meaning,
+second Console Script, publication state, default Session path, Public API,
+Schema, example, or generated scenario. Session persistence
 files and explicit JSON outputs remain private caller-controlled data; concise
 human output does not print complete private hands, full Skat, frozen Requests,
-fingerprints, provenance entries, or file contents by default. GUI/browser UI,
-online-platform integration, cloud synchronization, distributed locking,
+fingerprints, provenance entries, or file contents by default. The Match browser
+is private loopback-only local transport. Session GUI/browser UI, hosted or
+remote browser deployment, online-platform integration, cloud synchronization,
+distributed locking,
 encryption/key management, and automatic backups remain open.
-See [Public field provenance](public_field_provenance.md).
+See [Local Match Capture interface](local_match_capture_interface.md) and
+[Public field provenance](public_field_provenance.md).

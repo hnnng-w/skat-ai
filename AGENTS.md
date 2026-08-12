@@ -45,6 +45,9 @@ The project focuses on:
 * private internal persistent EuroSkat 36er Standard Match Workspaces with exact
   Slots and rotation, passed deals, revisioned changes, Progress, fingerprints,
   strict Resume, and optimistic atomic local Save
+* private loopback-only local Match Capture browser transport with one explicit
+  Workspace file, no-JSON creation and rapid entry, compare-and-swap autosave,
+  explicit conflict Reload, packaged local assets, and Capture CLI parity
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -149,6 +152,7 @@ Before larger changes, read the relevant documentation:
 * `docs/session_cli_and_end_to_end_capture.md`
 * `docs/match_capture_contracts.md`
 * `docs/match_workspace_contracts.md`
+* `docs/local_match_capture_interface.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -287,9 +291,13 @@ and optimistic atomic local Save. Issue #164 adds internal transport-free rapid-
 entry Application services with UI-ready Position Views, automatic Player and
 Decision derivation, exact or bounded selectable Cards, setup updates, atomic
 Play append, truncation, annotation reconciliation, and passed/clear wrappers.
-Materialization, persistence orchestration, Public API, CLI, Schema, example,
-generated scenario, browser UI, YouTube integration, and EuroSkat integration
-remain absent. `v1.0.0` remains unready after this focused milestone.
+Issue #165 adds the private local version-1 Web/Protocol and Capture CLI,
+loopback token and same-origin protection, no-JSON creation and strict Resume,
+the 36-position browser interface, packaged assets, and optimistic autosave with
+explicit conflict Reload. Materialization, Public Match API, Match Schema/data
+workflow, Player Statistics application, analysis, YouTube integration, and
+EuroSkat integration remain absent. `v1.0.0` remains unready after this focused
+milestone.
 
 Major completed areas include:
 
@@ -421,6 +429,10 @@ Major completed areas include:
   Card entries, Position Views and Results, exact/bounded Card selection,
   deterministic Game/annotation IDs, setup updates, automatic Play derivation,
   truncation cleanup, annotation editing, and Passed Deal/clear wrappers
+* internal local Match Capture Web, Protocol, and CLI version `1` with one
+  loopback-only explicit Workspace, browser creation and rapid entry, packaged
+  assets, token/same-origin protection, compare-and-swap autosave, and explicit
+  conflict Reload
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -449,14 +461,16 @@ authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
 scenarios.
 Match Capture now contains identity/metadata, individual evidence-aware observed
-Games and commentary, persistent internal 36-position Workspaces, and internal
-transport-free rapid-entry Application services. Materialization, autosave
-orchestration, Public API, CLI, Schema, browser transport, and UI remain later
-`v0.15.0` work; YouTube and EuroSkat integration remain absent.
+Games and commentary, persistent internal 36-position Workspaces,
+transport-free rapid-entry Application services, and the private local no-JSON
+browser/CLI with autosave. Materialization, Public Match API, Match Schema/data
+workflow, Player Statistics application, and analysis remain later `v0.15.0`
+work; YouTube and EuroSkat integration remain absent.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
-No learned model, model-training workflow, website, browser integration,
-four-player support, or claim of complete official rule coverage exists.
+No learned model, model-training workflow, hosted website, browser extension,
+remote browser deployment, four-player support, or claim of complete official
+rule coverage exists.
 
 ## Important design principles
 

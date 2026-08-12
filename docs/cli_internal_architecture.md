@@ -24,7 +24,9 @@ transport-free Capture Application service over the existing Match,
 observed-Game, Workspace, rotation, rule, evidence, and Progress boundaries. It
 receives an already loaded Workspace and performs no persistence. Workspace and
 Capture modules do not import CLI modules, and CLI modules do not own Capture
-rules. A Match CLI and browser transport do not exist.
+rules. Issue #165 adds the leaf `capture_web` transport and Capture CLI. They
+delegate to Issue #164 services and Workspace persistence without adding rules,
+Application execution, a Root workflow, or a Public API.
 
 The current Session CLI is a bounded transport adapter over the stable Public
 Session and Public Session File APIs. Available `analyze`, `review`, and
@@ -47,8 +49,26 @@ python main.py
 with module invocation identity. Repository-root `main.py` remains a thin
 Legacy compatibility facade and is not included in distributions.
 
-`skat_ai.cli.__all__` remains exactly `("main",)`. A leading `session` token is
-handled before Root parsing and delegates lazily to the separate Session parser.
+`skat_ai.cli.__all__` remains exactly `("main",)`. Leading dispatch precedence
+is `capture`, then `session`, then the existing Root parser. Both command-family
+imports remain lazy.
+
+## Capture CLI and browser transport
+
+`src/skat_ai/cli/capture_parser.py` owns Capture CLI version `1`, the exact
+`capture` command identity, invocation-specific help, required `--workspace`,
+optional `--port`, and `--no-open`. `src/skat_ai/cli/capture.py` owns startup,
+browser opening, interrupt shutdown, and Exit Code translation. It delegates the
+server to the focused Web package and imports no Match Capture rules directly.
+
+The internal `src/skat_ai/capture_web/` package separates independent Web and
+Protocol contracts, transport-only timecodes, the locked one-file context,
+browser-safe state, operation parsing, server rendering, packaged assets,
+security, and Standard Library HTTP lifecycle. Every applied mutation invokes
+one existing operation and at most one CAS Save. Unchanged and revision-conflict
+outcomes do not Save; persistence conflicts retain context and require explicit
+Reload. No Root Application, Session, Search, analysis, materialization, or
+external network path is present.
 
 ## Root CLI modules
 
@@ -197,7 +217,8 @@ Focused tests freeze:
 
 Existing distribution checks retain installed/module/Legacy help, version,
 Root/Session execution, one Console Script, Wheel/sdist, and clean-install
-coverage. Package version `0.14.0`, seven Root workflows, 63 authoritative and
-packaged Schemas, and 85 generated-output scenarios remain unchanged.
-Issues #163 and #164 add no parser option, subcommand, transport, or presentation
-path.
+coverage. Issue #165 adds installed/module Capture help, exact packaged browser
+resources, and one in-process create/start/declare/Card/persist/shutdown smoke
+flow in the same clean environments. Package version `0.14.0`, seven Root
+workflows, 12 Session subcommands, 63 authoritative and packaged Schemas, and 85
+generated-output scenarios remain unchanged.

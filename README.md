@@ -271,7 +271,7 @@ receive no public redaction, and make no encryption or access-control claim.
 Their fingerprints provide deterministic content identity and verification, not
 confidentiality or authenticated authorship.
 
-### Match Capture foundation and rapid-entry services
+### Local Match Capture interface
 
 The active `v0.15.0` milestone targets usable manual post-game capture of one
 EuroSkat 36er Standard Match from a video source. Issue #160 adds internal
@@ -307,13 +307,41 @@ passed-deal and clear operations. Selectable Cards are exact legal choices only
 for an exactly known current perspective hand and otherwise bounded observation
 candidates that exclude only proven-unavailable Cards.
 
-Workspace files are private local data and receive no public redaction. The
-Capture foundation adds no autosave orchestration, materialization, Public API,
-CLI, Schema, example, generated scenario, browser server, or UI.
+Issue #165 adds internal Match Capture Web, Web Protocol, and Capture CLI
+version `1`. Start the private local browser through any supported CLI form:
+
+```powershell
+skat-ai capture --workspace MATCH.json
+python -m skat_ai capture --workspace MATCH.json
+python main.py capture --workspace MATCH.json
+```
+
+The server requires one explicit Workspace file, binds only to `127.0.0.1`,
+strictly resumes a valid existing file, or presents a no-JSON Match-creation
+form while the target is absent. The browser provides the complete 36-position
+overview, setup Card selectors and Declaration forms, exact or bounded Play
+palettes, automatic acting-Player and Decision derivation, atomic Card batches,
+Play truncation, Commentary and Response Links on any Player, Passed Deals,
+clearing, metadata correction, and explicit conflict Reload.
+
+Every accepted mutation uses the exact Workspace revision and retained content
+fingerprint for one compare-and-swap atomic Save before success is shown.
+Unchanged and revision-conflict operations do not write. Persistence conflicts
+perform no retry, merge, or hidden Reload. A random startup token, HttpOnly
+Strict cookie, same-origin mutation checks, Host validation, restrictive browser
+headers, a one-MiB request cap, and allowlisted packaged local assets protect the
+loopback transport. No external network request is made.
+
+Workspace files are private local data and receive no public redaction. Protect
+them accordingly. The browser never displays absolute paths, fingerprints,
+tokens, raw persistence JSON, or stack traces. It adds no materialization,
+Public Match API, Match Schema, Match Root workflow, example, generated scenario,
+analysis, YouTube integration, or EuroSkat integration.
 See [Match capture contracts](docs/match_capture_contracts.md),
 [Observed Game capture contracts](docs/observed_game_capture_contracts.md),
 [Match Workspace contracts](docs/match_workspace_contracts.md), and
-[Match Capture Application services](docs/match_capture_application_services.md).
+[Match Capture Application services](docs/match_capture_application_services.md),
+and [Local Match Capture interface](docs/local_match_capture_interface.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -383,6 +411,8 @@ skat-ai --help
 python -m skat_ai --help
 skat-ai session --help
 python -m skat_ai session --help
+skat-ai capture --help
+python -m skat_ai capture --help
 ```
 
 See [Installed CLI](docs/installed_cli.md) for invocation identities, output,
@@ -441,6 +471,18 @@ The same `session` family is available through `python -m skat_ai` and
 `python main.py`. It has no default path. See
 [Session CLI and end-to-end capture](docs/session_cli_and_end_to_end_capture.md)
 for all 12 subcommands, options, persistence conflicts, privacy, and Exit Codes.
+
+Capture one EuroSkat 36er Standard Match without authoring JSON:
+
+```powershell
+skat-ai capture --workspace MATCH.json
+```
+
+The same `capture` family is available through `python -m skat_ai` and
+`python main.py`. It has no default path and always binds to loopback. See
+[Local Match Capture interface](docs/local_match_capture_interface.md) for
+Workspace creation and Resume, forms, rapid Card entry, autosave, conflicts,
+local security, and privacy.
 
 Run the default analysis from the repository root. This reads the root
 `input_position.json` quick-start fixture:
@@ -852,6 +894,7 @@ Detailed documentation is split into topic-specific files:
 * [Observed Game capture contracts](docs/observed_game_capture_contracts.md)
 * [Match Workspace contracts](docs/match_workspace_contracts.md)
 * [Match Capture Application services](docs/match_capture_application_services.md)
+* [Local Match Capture interface](docs/local_match_capture_interface.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1017,10 +1060,12 @@ internal 36-position Workspaces, exact rotation, passed deals, Progress,
 fingerprints, strict Resume, and optimistic atomic Save. Issue #164 adds the
 internal transport-free rapid-entry Application foundation, including derived
 Position Views, setup updates, automatic Player/Decision append, truncation, and
-annotation editing. Materialization, autosave orchestration, Public API, CLI,
-Schema, browser transport, and UI remain later milestone work. Package
-version, Public APIs, seven Root workflows, 63 Schemas, and 85 generated outputs
-remain unchanged.
+annotation editing. Issue #165 adds the private local no-JSON browser and Capture
+CLI with loopback protection, packaged assets, compare-and-swap autosave, and
+explicit conflict Reload. Materialization, Public Match API, Match Schema/data
+workflow, Player Statistics application, and analysis remain later milestone
+work. Package version, Public APIs, seven Root workflows, 63 Schemas, and 85
+generated outputs remain unchanged.
 
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title
@@ -1223,8 +1268,9 @@ The active milestone is `v0.15.0` for usable EuroSkat 36er Standard post-game
 capture. Issue #160 establishes internal Match metadata, and Issue #161 adds
 internal evidence-aware observed Games and free-text Decision commentary. Issue
 #163 adds private persistent Workspaces, and Issue #164 adds transport-free rapid
-entry over those Workspaces. Public Match API, Schema, CLI, browser transport and
-UI, Player Statistics application, and materialization remain open.
+entry over those Workspaces. Issue #165 adds the private local browser/Capture
+CLI and autosave transport. Public Match API, Match Schema/data workflow, Player
+Statistics application, analysis, and materialization remain open.
 `v1.0.0` remains unready after this milestone; its final Issue sequence and
 implementation architecture still require focused scope and traceability review.
 

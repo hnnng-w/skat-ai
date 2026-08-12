@@ -668,7 +668,9 @@ def test_capture_import_architecture_has_no_transport_persistence_or_analysis_de
             for name in imported
             for prefix in forbidden_prefixes
         ), (module_path, imported)
-    for cli_path in (PROJECT_ROOT / "src" / "skat_ai" / "cli").rglob("*.py"):
+    for cli_path in (PROJECT_ROOT / "src" / "skat_ai" / "cli").glob("*.py"):
+        if cli_path.name in {"capture.py", "capture_parser.py"}:
+            continue
         source = cli_path.read_text(encoding="utf-8")
         assert "match_capture_application" not in source
 

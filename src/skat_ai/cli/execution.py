@@ -54,6 +54,13 @@ def run_cli(
     """Runs one argv-capable CLI invocation using the selected command identity."""
     _invocation_command(invocation_style)
     dispatch_argv = tuple(sys.argv[1:] if argv is None else argv)
+    if dispatch_argv[:1] == ("capture",):
+        from skat_ai.cli.capture import run_capture_cli
+
+        return run_capture_cli(
+            dispatch_argv[1:],
+            invocation_style=invocation_style,
+        )
     if dispatch_argv[:1] == ("session",):
         from skat_ai.cli.session import run_session_cli
 

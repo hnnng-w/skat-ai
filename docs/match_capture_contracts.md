@@ -224,10 +224,13 @@ setup updates, automatic Player/Decision append, truncation, annotation editing,
 and passed/clear wrappers without changing this definition. See
 [Match Capture Application services](match_capture_application_services.md).
 
-There is still no Match Root workflow, Public Match API, Match CLI, Match Schema,
-example, generated scenario, persistence orchestration, Player Statistics
-application, local server, UI, or materialization into existing Historical,
-Session, list, report, or Dataset values. YouTube and EuroSkat integration remain
-absent. The Package remains
+Issue #165 adds private browser creation and bounded metadata correction through
+the local Capture transport without adding fields or versions to this definition.
+See [Local Match Capture interface](local_match_capture_interface.md).
+
+There is still no Match Root workflow, Public Match API, Match Schema/data
+workflow, example, generated scenario, Player Statistics editing/application,
+analysis, or materialization into existing Historical, Session, list, report, or
+Dataset values. YouTube and EuroSkat integration remain absent. The Package remains
 `0.14.0` with seven Root workflows, 63 authoritative and packaged Schemas, and
 85 generated-output scenarios.
