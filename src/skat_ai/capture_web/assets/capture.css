@@ -42,6 +42,20 @@ h1 { margin-bottom: .2rem; font-size: clamp(2rem, 5vw, 4.5rem); line-height: .95
 .form-grid.compact { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .player-grid { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
 fieldset { display: grid; gap: .7rem; border: 1px solid var(--line); }
+.section-heading { max-width: 72rem; margin-bottom: 1rem; }
+.player-statistics { margin: 2rem 0; }
+.statistics-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.statistics-card { min-width: 0; border-top: 5px solid var(--green); }
+.statistics-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.statistics-facts div { min-width: 0; padding: .55rem; background: #f0ecdf; overflow-wrap: anywhere; }
+.statistics-table { font-size: .82rem; }
+.statistics-editor { margin: 1rem 0; padding: .7rem; background: #f0ecdf; border: 1px solid var(--line); }
+.statistics-editor form { margin-top: 1rem; }
+.statistics-fieldset { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.statistics-fieldset legend, .statistics-fieldset p { grid-column: 1 / -1; }
+.temporal-status { padding: .7rem; border-left: 4px solid var(--gold); background: #f7f1df; }
+.temporal-status.status-eligible { border-color: var(--green); background: #e2eddf; }
+.temporal-status.status-captured_not_before_match { border-color: var(--red); }
 .overview { margin: 2rem 0; }
 .round { display: grid; grid-template-columns: 7rem 1fr; gap: .8rem; align-items: center; margin-bottom: .7rem; }
 .round h3 { margin: 0; font-size: 1rem; }
@@ -87,7 +101,7 @@ details > summary { cursor: pointer; font-weight: bold; }
 
 @media (max-width: 900px) {
   .app-header { align-items: start; flex-direction: column; }
-  .form-grid, .player-grid, .setup-grid { grid-template-columns: 1fr; }
+  .form-grid, .player-grid, .setup-grid, .statistics-grid { grid-template-columns: 1fr; }
   .setup-card-selector { grid-template-columns: repeat(2, 1fr); }
   .round { grid-template-columns: 1fr; }
   .round-slots { grid-template-columns: 1fr; }
@@ -100,4 +114,5 @@ details > summary { cursor: pointer; font-weight: bold; }
   .app-header, .workspace-shell, .creation-shell { width: min(100% - 1rem, 1480px); }
   .position-head dl, .card-palette { grid-template-columns: repeat(2, 1fr); }
   .header-stats { flex-wrap: wrap; }
+  .statistics-facts, .statistics-fieldset { grid-template-columns: 1fr; }
 }

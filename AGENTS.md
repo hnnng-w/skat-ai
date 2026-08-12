@@ -48,6 +48,9 @@ The project focuses on:
 * private loopback-only local Match Capture browser transport with one explicit
   Workspace file, no-JSON creation and rapid entry, compare-and-swap autosave,
   explicit conflict Reload, packaged local assets, and Capture CLI parity
+* editable Match-bound Player Statistics Snapshots with deterministic IDs,
+  strict-before-Match eligibility, existing Profile derivation, canonical
+  eligible preparation, and private browser Add, Replace, and Clear forms
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -294,10 +297,12 @@ Play append, truncation, annotation reconciliation, and passed/clear wrappers.
 Issue #165 adds the private local version-1 Web/Protocol and Capture CLI,
 loopback token and same-origin protection, no-JSON creation and strict Resume,
 the 36-position browser interface, packaged assets, and optimistic autosave with
-explicit conflict Reload. Materialization, Public Match API, Match Schema/data
-workflow, Player Statistics application, analysis, YouTube integration, and
-EuroSkat integration remain absent. `v1.0.0` remains unready after this focused
-milestone.
+explicit conflict Reload. Issue #166 adds Match-bound Snapshot editing,
+deterministic IDs, strict-before-Match Context/Preparation, existing Profile
+derivation, and private browser forms without policy application.
+Materialization, Public Match API, Match Schema/data workflow, actual Profile
+application, analysis, YouTube integration, and EuroSkat integration remain
+absent. `v1.0.0` remains unready after this focused milestone.
 
 Major completed areas include:
 
@@ -433,6 +438,9 @@ Major completed areas include:
   loopback-only explicit Workspace, browser creation and rapid entry, packaged
   assets, token/same-origin protection, compare-and-swap autosave, and explicit
   conflict Reload
+* editable Match-bound Player Statistics Snapshots with deterministic IDs,
+  strict-before-Match Context and canonical Preparation, existing normalized
+  Profile derivation, and private browser Add, Replace, and Clear forms
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -463,8 +471,9 @@ scenarios.
 Match Capture now contains identity/metadata, individual evidence-aware observed
 Games and commentary, persistent internal 36-position Workspaces,
 transport-free rapid-entry Application services, and the private local no-JSON
-browser/CLI with autosave. Materialization, Public Match API, Match Schema/data
-workflow, Player Statistics application, and analysis remain later `v0.15.0`
+browser/CLI with autosave. Match-bound Player Statistics editing and time-safe
+Profile preparation are implemented. Materialization, Public Match API, Match
+Schema/data workflow, actual Profile application, and analysis remain later `v0.15.0`
 work; YouTube and EuroSkat integration remain absent.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.

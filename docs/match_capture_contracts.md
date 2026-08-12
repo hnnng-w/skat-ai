@@ -228,9 +228,16 @@ Issue #165 adds private browser creation and bounded metadata correction through
 the local Capture transport without adding fields or versions to this definition.
 See [Local Match Capture interface](local_match_capture_interface.md).
 
+Issue #166 adds deterministic set/clear editing and strict-before-Match Context
+and Preparation over the existing Snapshot field. It reuses existing Statistics
+validation, normalized Profile conversion, Profile derivation, definition
+replacement, and persistence without changing this contract. See
+[Match Player Statistics](match_player_statistics.md).
+
 There is still no Match Root workflow, Public Match API, Match Schema/data
-workflow, example, generated scenario, Player Statistics editing/application,
-analysis, or materialization into existing Historical, Session, list, report, or
-Dataset values. YouTube and EuroSkat integration remain absent. The Package remains
+workflow, example, generated scenario, global Player Statistics history, Profile
+application, analysis, or materialization into existing Historical, Session,
+list, report, or Dataset values. YouTube and EuroSkat integration remain absent.
+The Package remains
 `0.14.0` with seven Root workflows, 63 authoritative and packaged Schemas, and
 85 generated-output scenarios.

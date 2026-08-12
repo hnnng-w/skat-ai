@@ -45,7 +45,7 @@
         body: new URLSearchParams(data),
         credentials: "same-origin",
       });
-      await replacePage(response, true);
+      await replacePage(response, response.ok);
     } catch (_error) {
       if (event.submitter?.name) {
         const hidden = document.createElement("input");

@@ -37,6 +37,8 @@ MATCH_CAPTURE_WEB_OPERATIONS: Final[tuple[str, ...]] = (
     "remove_response_link",
     "mark_passed_deal",
     "clear_position",
+    "set_player_statistics_snapshot",
+    "clear_player_statistics_snapshot",
 )
 
 MATCH_CAPTURE_WEB_RESULT_STATUSES: Final[tuple[str, ...]] = (

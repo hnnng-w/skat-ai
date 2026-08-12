@@ -6,7 +6,7 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
-Issues #160, #161, #163, #164, and #165 add internal Match, observed-Game,
+Issues #160, #161, #163, #164, #165, and #166 add internal Match, observed-Game,
 persistent Workspace, transport-free Capture Application, and private local
 browser transport layers:
 
@@ -31,6 +31,9 @@ descriptive video or manual source metadata
     -> truncation, annotation reconciliation, and passed/clear wrappers
     -> locked one-file compare-and-swap autosave orchestration
     -> loopback-only token/same-origin browser and Capture CLI
+    -> editable Match-bound Statistics snapshots
+    -> strict-before-Match Context and canonical eligible preparation
+    -> existing normalized Profile conversion and derivation without application
     -> later materialization and Public Match API/Schema/data workflow
 ```
 
@@ -335,6 +338,9 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_source_metadata.py` | Version-1 media timecodes and descriptive YouTube, other-video, or manual source metadata without network access. |
 | `src/skat_ai/match_tournament_format.py` | Immutable append-only named-format registry and canonical EuroSkat 36er Standard definition. |
 | `src/skat_ai/match_player_snapshot.py` | Fixed-place Match participants and optional immutable existing Opponent Statistics snapshots. |
+| `src/skat_ai/match_player_statistics_context.py` | Per-participant strict temporal eligibility plus existing normalized Profile conversion and derivation. |
+| `src/skat_ai/match_player_statistics_preparation.py` | Canonical fixed-place eligible Opponent Statistics input without side binding or policy application. |
+| `src/skat_ai/match_player_statistics_updates.py` | Deterministic Snapshot IDs and immutable conflict-first set/clear wrappers over definition replacement. |
 | `src/skat_ai/match_capture_contracts.py` | Exact three-Player Match identity, metadata, canonical format, uniqueness, perspective, and serialization reconciliation. |
 | `src/skat_ai/observed_game_contracts.py` | Match-linked observed Game identity, historical seats, optional Card evidence, complete reconciliation, and serialization. |
 | `src/skat_ai/observed_game_trace.py` | Chronological partial and complete Play validation, Turn Order, existing rule reuse, and derived trace summary. |
@@ -363,7 +369,8 @@ integration, or tournament-management behavior. See
 [Observed Game capture contracts](observed_game_capture_contracts.md),
 [Match Workspace contracts](match_workspace_contracts.md), and
 [Match Capture Application services](match_capture_application_services.md),
-and [Local Match Capture interface](local_match_capture_interface.md).
+[Local Match Capture interface](local_match_capture_interface.md), and
+[Match Player Statistics](match_player_statistics.md).
 
 Validation is split between JSON Schema and Python validation:
 
@@ -839,6 +846,11 @@ Important regression areas:
   statistics Snapshot identity/time reconciliation, exact fixed-place
   participants, perspective relationships, uniqueness, defensive serialization,
   no-network behavior, and unchanged public/package/count boundaries
+* Match Player Statistics versions/policies, absent/eligible/ineligible Contexts,
+  offset-aware strict temporal comparison, canonical Preparation, existing
+  normalization/derivation equality, deterministic IDs, immutable set/clear,
+  complete browser forms/state, historical read-only provenance, autosave and
+  persistence conflicts, metadata-time recomputation, and clean-install capture
 
 ## Validation layers
 

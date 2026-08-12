@@ -239,6 +239,10 @@ loader behavior. See
 Issue #160 may embed one exact existing immutable `OpponentStatisticsRecord` in
 an internal Match Player Statistics Snapshot. The snapshot adds only its own ID
 and a same-instant observation timestamp, reconciles the record Player ID with
-the Match participant, and reuses this module's serializer. It does not change
-this input contract, derive a profile, merge captures, apply a policy, or add a
-Public Match workflow.
+the Match participant, and reuses this module's serializer. Issue #166 browser
+forms construct manual-entry and online-platform records through this module's
+existing parser, while loaded historical aggregations retain their complete
+provenance read-only. Match Context and Preparation reuse this module's exact
+normalization plus the existing Profile derivation without adding thresholds or
+applying a policy. No Opponent Statistics version, schema, percentage, Count,
+provenance, or Public workflow changes.

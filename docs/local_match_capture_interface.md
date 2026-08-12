@@ -32,7 +32,8 @@ The creation form captures Match identity, title, game platform, external Match
 ID, played time, descriptive source metadata and media bounds, three stable
 Players, labels and platform IDs, and one Perspective Player. Form rows map to
 `place_1`, `place_2`, and `place_3`; the Tournament Format is fixed to
-`euroskat_36_standard_v1`. Version 1 creates no Player Statistics Snapshots.
+`euroskat_36_standard_v1`. Initial Player Statistics Snapshots are absent and can
+be added after creation.
 
 Creation builds one revision-zero 36-Slot Workspace and atomically saves it. If
 another process creates the target first, the browser reports a persistence
@@ -55,9 +56,40 @@ The focused metadata form can correct only fields already supported by
 * Player labels and platform Player IDs.
 
 Match ID, Tournament Format, stable Player IDs, table places, Perspective, and
-loaded Statistics Snapshots remain unchanged. Equal content is reported as no
-change and does not write the file. Existing nested timecodes are revalidated by
-the Workspace operation.
+loaded Statistics observations remain retained. Platform-ID and Match-time edits
+leave the Snapshot unchanged. A changed non-null Player label immutably
+reconciles the retained record label under the deterministic ID for that same
+metadata revision. Equal content is reported as no change and does not write the
+file. Existing nested timecodes are revalidated by the Workspace operation.
+
+Changing `played_at` also recomputes every Player Statistics temporal Context and
+the Match-wide Preparation in the returned browser state. It does not mutate a
+Snapshot and does not add a second revision.
+
+## Player Statistics
+
+Issue #166 appends `set_player_statistics_snapshot` and
+`clear_player_statistics_snapshot` after the original 17 Web operations while
+keeping Web Protocol version `1`. Each of the three participant cards supports
+Add, Replace, and confirmed Clear through ordinary HTML forms.
+
+The editor captures an optional Snapshot ID, one shared observed/captured RFC
+3339 instant, manual-entry or online-platform source details, Games played, all
+eight percentages, and either no exact Counts or the complete eight-Count set.
+The server derives Player ID and label from the selected participant and builds
+one exact existing Opponent Statistics record through its authoritative parser.
+It never corrects a submitted value or contacts a platform.
+
+Loaded historical-aggregation Snapshots retain and display their complete source
+read-only. They can be cleared or replaced with a new manual or online Snapshot;
+there is no partial historical provenance editor.
+
+Every retained Snapshot displays temporal status, eligibility, normalized
+Profile, scoped Confidence, Classification, derivation status, recommended and
+actionable presets, and explanations from the existing Profile derivation. Only
+`source.captured_at < match.played_at` is eligible. Missing Match time, equal
+instants including different offsets, and later captures remain descriptive.
+Prepared Profiles are not applied to Match analysis.
 
 ## Timecodes
 
@@ -127,7 +159,8 @@ clear, and Reload operations work through ordinary HTML forms without
 JavaScript. Successful forms use POST/Redirect/GET and retain the selected
 position. Progressive enhancement follows that authoritative response, replaces
 the rendered page fragment, and enhances position navigation; ordinary form
-submission remains the no-JavaScript fallback.
+submission remains the no-JavaScript fallback. Player Statistics forms use the
+same server-authoritative fallback.
 
 ## Commentary and Response Links
 
@@ -203,9 +236,9 @@ APIs, 63 Schemas, existing examples, and 85 generated-output scenarios are
 unchanged.
 
 Version 1 performs no Position or Historical analysis, Search, review, Replay
-Coaching, materialization, list/report/Dataset generation, Player Statistics
-editing or application, YouTube integration, EuroSkat integration, database
+Coaching, materialization, list/report/Dataset generation, Player Profile
+application, YouTube integration, EuroSkat integration, database
 persistence, remote serving, cloud synchronization, encryption, or backup.
 Public Match API, Match Schema, Match JSON/data CLI workflow, Player Statistics
-application, and downstream Historical/list/report/Dataset materialization
+global history, and downstream Historical/list/report/Dataset materialization
 remain future work.

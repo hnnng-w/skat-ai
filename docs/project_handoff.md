@@ -1275,6 +1275,8 @@ Main documentation files:
 * `docs/observed_game_capture_contracts.md`
 * `docs/match_workspace_contracts.md`
 * `docs/match_capture_application_services.md`
+* `docs/local_match_capture_interface.md`
+* `docs/match_player_statistics.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1315,7 +1317,8 @@ Issues #160 and #161 implement the internal immutable Match identity/metadata an
 observed single-Game/commentary foundations. Issue #163 adds persistent internal
 36-position Workspaces. Issue #164 adds internal transport-free rapid-entry
 Application services over those Workspaces. Issue #165 adds the private local
-browser/Capture CLI with loopback security and optimistic autosave. They preserve
+browser/Capture CLI with loopback security and optimistic autosave. Issue #166
+adds Match-bound Snapshot editing and time-safe Profile preparation. They preserve
 Package version `0.14.0`, seven Root workflows, Public APIs, 63 Schemas, and 85
 generated outputs.
 
@@ -1659,6 +1662,10 @@ Completed implementation scope:
   browser state, all 36 positions, setup and Card forms, Play correction,
   Commentary/Response Links, Passed Deals, metadata correction, token-protected
   loopback serving, optimistic autosave, and explicit Reload
+* internal Match Player Statistics Context, Preparation, and Update version `1`
+  with deterministic Snapshot IDs, immutable set/clear, strict-before-Match
+  eligibility, existing normalized Profile derivation, canonical eligible input,
+  browser Add/Replace/Clear, and unchanged optimistic persistence
 
 ## Current high-priority limitations
 
@@ -1724,17 +1731,19 @@ Completed implementation scope:
 * Match Capture contains identity/metadata, evidence-aware observed Games and
   commentary, persistent internal 36-position Workspaces, transport-free
   rapid-entry Application services, and the private local browser/Capture CLI
-  with autosave. Materialization, Public Match API, Match Schema/data workflow,
-  Player Statistics application, and analysis remain later `v0.15.0` work;
+  with autosave. Match-bound Player Statistics editing and time-safe Profile
+  preparation are implemented without policy application. Materialization,
+  Public Match API, Match Schema/data workflow, actual Profile application, and
+  analysis remain later `v0.15.0` work;
   YouTube and EuroSkat integration remain absent. No hosted website, remote
   browser deployment, browser extension, or online-platform adapter exists.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Continue the active `v0.15.0` milestone from the Issue #160 through #165 usable
+Continue the active `v0.15.0` milestone from the Issue #160 through #166 usable
 local manual-capture foundation toward materialization boundaries, Public Match
-API and Schema/data workflow, Player Statistics application, and analysis.
+API and Schema/data workflow, actual Profile application, and analysis.
 YouTube and EuroSkat integration are not required before `v1.0.0`.
 
 The audit should cover:

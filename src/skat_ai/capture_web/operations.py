@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
+from dataclasses import replace
 from typing import Any
 
 from skat_ai.game_declaration import GameDeclaration
@@ -26,7 +27,19 @@ from skat_ai.match_capture_application_contracts import (
     MatchCaptureCardEntryV1,
 )
 from skat_ai.match_capture_contracts import MatchCaptureDefinitionV1
-from skat_ai.match_player_snapshot import MatchParticipantV1
+from skat_ai.match_player_snapshot import (
+    MatchParticipantV1,
+    MatchPlayerStatisticsSnapshotV1,
+)
+from skat_ai.match_player_statistics_preparation import (
+    MatchPlayerStatisticsPreparationV1,
+)
+from skat_ai.match_player_statistics_updates import (
+    MatchPlayerStatisticsUpdateResultV1,
+    build_default_match_player_statistics_snapshot_id_v1,
+    clear_match_player_statistics_snapshot_v1,
+    set_match_player_statistics_snapshot_v1,
+)
 from skat_ai.match_source_metadata import MatchSourceMetadataV1, MediaTimecodeV1
 from skat_ai.match_tournament_format import EUROSKAT_36_STANDARD_V1_FORMAT
 from skat_ai.match_workspace_contracts import (
@@ -37,6 +50,7 @@ from skat_ai.match_workspace_operations import (
     MatchWorkspaceChangeResultV1,
     replace_match_workspace_definition_v1,
 )
+from skat_ai.opponent_statistics import build_opponent_statistics_input
 
 from .context import MatchCaptureWebContextV1
 from .contracts import MATCH_CAPTURE_WEB_OPERATIONS, MatchCaptureWebResultV1
@@ -95,6 +109,18 @@ def _optional_integer(
     if values.get(name, "") in {"", None}:
         return None
     return _integer(values, name, minimum=minimum)
+
+
+def _number(values: Mapping[str, object], name: str) -> int | float:
+    value = values.get(name)
+    if type(value) in {int, float}:
+        return value
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{name} must be a number.")
+    try:
+        return int(value) if re.fullmatch(r"[+-]?\d+", value) else float(value)
+    except ValueError as error:
+        raise ValueError(f"{name} must be a number.") from error
 
 
 def _checked(values: Mapping[str, object], name: str) -> bool:
@@ -218,19 +244,124 @@ def _replacement_definition(
             ),
         ),
         participants=tuple(
-            MatchParticipantV1(
-                player_id=participant.player_id,
-                player_label=_optional_text(values, f"player_{index}_label"),
-                platform_player_id=_optional_text(
-                    values,
-                    f"player_{index}_platform_id",
-                ),
-                table_place=participant.table_place,
-                statistics_snapshot=participant.statistics_snapshot,
-            )
+            _participant_with_metadata(workspace, participant, values, index)
             for index, participant in enumerate(source.participants, start=1)
         ),
         perspective_player_id=source.perspective_player_id,
+    )
+
+
+def _participant_with_metadata(
+    workspace: MatchWorkspaceV1,
+    participant: MatchParticipantV1,
+    values: Mapping[str, object],
+    index: int,
+) -> MatchParticipantV1:
+    player_label = _optional_text(values, f"player_{index}_label")
+    snapshot = participant.statistics_snapshot
+    if (
+        snapshot is not None
+        and player_label is not None
+        and snapshot.statistics_record.player_label is not None
+        and snapshot.statistics_record.player_label != player_label
+    ):
+        snapshot = MatchPlayerStatisticsSnapshotV1(
+            snapshot_id=build_default_match_player_statistics_snapshot_id_v1(
+                workspace,
+                player_id=participant.player_id,
+            ),
+            observed_at=snapshot.observed_at,
+            statistics_record=replace(
+                snapshot.statistics_record,
+                player_label=player_label,
+            ),
+        )
+    return MatchParticipantV1(
+        player_id=participant.player_id,
+        player_label=player_label,
+        platform_player_id=_optional_text(
+            values,
+            f"player_{index}_platform_id",
+        ),
+        table_place=participant.table_place,
+        statistics_snapshot=snapshot,
+    )
+
+
+def _statistics_record(
+    workspace: MatchWorkspaceV1,
+    values: Mapping[str, object],
+):
+    player_id = _text(values, "player_id", required=True)
+    participant = next(
+        (
+            participant
+            for participant in workspace.match_definition.participants
+            if participant.player_id == player_id
+        ),
+        None,
+    )
+    if participant is None:
+        raise ValueError("player_id must reference exactly one Match participant.")
+    source_type = _text(values, "source_type", required=True)
+    if source_type not in {"manual_entry", "online_platform"}:
+        raise ValueError(
+            "Browser-created source_type must be manual_entry or online_platform."
+        )
+    observed_at = _text(values, "observed_at", required=True)
+    source: dict[str, object] = {
+        "source_type": source_type,
+        "source_name": _text(values, "source_name", required=True),
+        "captured_at": observed_at,
+    }
+    source_player_id = _optional_text(values, "source_player_id")
+    if source_player_id is not None:
+        source["source_player_id"] = source_player_id
+    notes = _optional_text(values, "notes")
+    if notes is not None:
+        source["notes"] = notes
+
+    statistic_fields = (
+        "solo_games_played_percent",
+        "solo_games_won_percent",
+        "solo_hand_percent",
+        "suit_games_percent",
+        "grand_games_percent",
+        "null_games_percent",
+        "defender_games_played_percent",
+        "defender_games_won_percent",
+    )
+    count_fields = (
+        "solo_games_played",
+        "solo_games_won",
+        "solo_hand_games",
+        "suit_games",
+        "grand_games",
+        "null_games",
+        "defender_games_played",
+        "defender_games_won",
+    )
+    record: dict[str, object] = {
+        "player_id": participant.player_id,
+        "source": source,
+        "games_played": _integer(values, "games_played", minimum=1),
+        "statistics": {
+            field_name: _number(values, field_name)
+            for field_name in statistic_fields
+        },
+    }
+    if participant.player_label is not None:
+        record["player_label"] = participant.player_label
+    if any(values.get(field_name, "") not in {"", None} for field_name in count_fields):
+        record["exact_counts"] = {
+            field_name: _integer(values, field_name, minimum=0)
+            for field_name in count_fields
+        }
+    return (
+        observed_at,
+        build_opponent_statistics_input(
+            {"schema_version": 1, "records": [record]}
+        ).records[0],
     )
 
 
@@ -421,11 +552,13 @@ def _app_result(
 def _state(
     context: MatchCaptureWebContextV1,
     selected_position: int,
+    statistics_preparation: MatchPlayerStatisticsPreparationV1 | None = None,
 ) -> dict[str, Any]:
     return build_match_capture_web_state_v1(
         context.workspace,
         workspace_filename=context.workspace_filename,
         selected_position=selected_position,
+        statistics_preparation=statistics_preparation,
     )
 
 
@@ -439,13 +572,14 @@ def _result(
     selected_position: int,
     removed_commentary_ids: tuple[str, ...] = (),
     removed_response_link_ids: tuple[str, ...] = (),
+    statistics_preparation: MatchPlayerStatisticsPreparationV1 | None = None,
 ) -> MatchCaptureWebResultV1:
     return MatchCaptureWebResultV1(
         operation=operation,
         status=status,
         http_status=http_status,
         message=message,
-        state=_state(context, selected_position),
+        state=_state(context, selected_position, statistics_preparation),
         removed_commentary_ids=removed_commentary_ids,
         removed_response_link_ids=removed_response_link_ids,
     )
@@ -460,6 +594,7 @@ def _persist_change(
     selected_position: int,
     removed_commentary_ids: tuple[str, ...] = (),
     removed_response_link_ids: tuple[str, ...] = (),
+    statistics_preparation: MatchPlayerStatisticsPreparationV1 | None = None,
 ) -> MatchCaptureWebResultV1:
     if status == "revision_conflict":
         return _result(
@@ -469,6 +604,7 @@ def _persist_change(
             http_status=409,
             message="Workspace revision conflict; no file change occurred.",
             selected_position=selected_position,
+            statistics_preparation=statistics_preparation,
         )
     if status == "unchanged":
         return _result(
@@ -478,6 +614,7 @@ def _persist_change(
             http_status=200,
             message="No change; the Workspace file was not written.",
             selected_position=selected_position,
+            statistics_preparation=statistics_preparation,
         )
     save_status = context.save_candidate(workspace)
     if save_status == "conflict":
@@ -506,6 +643,7 @@ def _persist_change(
         selected_position=selected_position,
         removed_commentary_ids=removed_commentary_ids,
         removed_response_link_ids=removed_response_link_ids,
+        statistics_preparation=statistics_preparation,
     )
 
 
@@ -575,7 +713,11 @@ def apply_match_capture_web_operation_v1(
                 selected_position=position,
             )
         if operation == "update_match_metadata":
-            change: MatchWorkspaceChangeResultV1 | MatchCaptureApplicationResultV1 = (
+            change: (
+                MatchWorkspaceChangeResultV1
+                | MatchCaptureApplicationResultV1
+                | MatchPlayerStatisticsUpdateResultV1
+            ) = (
                 replace_match_workspace_definition_v1(
                     workspace,
                     _replacement_definition(workspace, values),
@@ -586,6 +728,35 @@ def apply_match_capture_web_operation_v1(
             candidate = change.workspace
             removed_commentary_ids: tuple[str, ...] = ()
             removed_response_link_ids: tuple[str, ...] = ()
+            statistics_preparation = None
+        elif operation == "set_player_statistics_snapshot":
+            observed_at, statistics_record = _statistics_record(workspace, values)
+            change = set_match_player_statistics_snapshot_v1(
+                workspace,
+                player_id=_text(values, "player_id", required=True),
+                observed_at=observed_at,
+                statistics_record=statistics_record,
+                expected_revision=expected_revision,
+                snapshot_id=_optional_text(values, "snapshot_id"),
+            )
+            status = change.status
+            candidate = change.workspace_change.workspace
+            removed_commentary_ids = ()
+            removed_response_link_ids = ()
+            statistics_preparation = change.preparation
+        elif operation == "clear_player_statistics_snapshot":
+            if not _checked(values, "confirm_clear_snapshot"):
+                raise ValueError("Clearing a Player Statistics Snapshot requires confirmation.")
+            change = clear_match_player_statistics_snapshot_v1(
+                workspace,
+                player_id=_text(values, "player_id", required=True),
+                expected_revision=expected_revision,
+            )
+            status = change.status
+            candidate = change.workspace_change.workspace
+            removed_commentary_ids = ()
+            removed_response_link_ids = ()
+            statistics_preparation = change.preparation
         else:
             capture_result = _app_result(
                 workspace,
@@ -598,6 +769,7 @@ def apply_match_capture_web_operation_v1(
             candidate = capture_result.workspace_change.workspace
             removed_commentary_ids = capture_result.removed_commentary_ids
             removed_response_link_ids = capture_result.removed_response_link_ids
+            statistics_preparation = None
         return _persist_change(
             context,
             operation=operation,
@@ -606,4 +778,5 @@ def apply_match_capture_web_operation_v1(
             selected_position=position,
             removed_commentary_ids=removed_commentary_ids,
             removed_response_link_ids=removed_response_link_ids,
+            statistics_preparation=statistics_preparation,
         )

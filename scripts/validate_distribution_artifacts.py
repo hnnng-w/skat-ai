@@ -802,7 +802,7 @@ try:
         "title": "Distribution Match",
         "game_platform": "EuroSkat",
         "external_match_id": "",
-        "played_at": "",
+        "played_at": "2026-08-01T18:00:00Z",
         "source_kind": "manual_observation",
         "source_url": "",
         "source_title": "Manual capture",
@@ -848,6 +848,38 @@ try:
         return result
 
     capture_operation(
+        "set_player_statistics_snapshot",
+        player_id="player-a",
+        snapshot_id="",
+        observed_at="2026-07-20T10:00:00Z",
+        source_type="manual_entry",
+        source_name="Distribution smoke profile",
+        source_player_id="",
+        notes="",
+        games_played=127,
+        solo_games_played_percent=31,
+        solo_games_won_percent=58,
+        solo_hand_percent=12,
+        suit_games_percent=61,
+        grand_games_percent=29,
+        null_games_percent=10,
+        defender_games_played_percent=69,
+        defender_games_won_percent=64,
+    )
+    assert capture_context.workspace.match_definition.participants[
+        0
+    ].statistics_snapshot.snapshot_id == (
+        f"distribution-match-player-a-statistics-r{revision + 1}"
+    )
+    capture_operation(
+        "clear_player_statistics_snapshot",
+        player_id="player-a",
+        confirm_clear_snapshot=True,
+    )
+    assert capture_context.workspace.match_definition.participants[
+        0
+    ].statistics_snapshot is None
+    capture_operation(
         "start_game",
         game_id="",
         game_timecode_start="",
@@ -872,7 +904,7 @@ try:
     assert capture_game.plays[0].decision_index == 1
     assert capture_game.plays[0].player_id == "player-b"
     assert capture_game.plays[0].card == "CA"
-    assert capture_loaded.document.workspace.revision == revision + 3
+    assert capture_loaded.document.workspace.revision == revision + 5
 finally:
     capture_server.shutdown()
     capture_server.server_close()

@@ -145,6 +145,203 @@ def _metadata_form(state: dict[str, Any]) -> str:
     """
 
 
+def _statistics_input(
+    name: str,
+    label: str,
+    value: object,
+    *,
+    count: bool = False,
+) -> str:
+    constraints = (
+        ' min="0" step="1"'
+        if count
+        else ' min="0" max="100" step="any" required'
+    )
+    return (
+        f'<label>{_e(label)} <input type="number" name="{_e(name)}"'
+        f'{constraints} value="{_e(value)}"></label>'
+    )
+
+
+def _statistics_form(state: dict[str, Any], player: dict[str, Any]) -> str:
+    snapshot = player["statistics_snapshot"]
+    record = None if snapshot is None else snapshot["statistics_record"]
+    editable = record is not None and record["source"]["source_type"] in {
+        "manual_entry",
+        "online_platform",
+    }
+    form_record = record if editable else None
+    source = {} if form_record is None else form_record["source"]
+    percentages = {} if form_record is None else form_record["statistics"]
+    counts = {} if form_record is None else form_record.get("exact_counts", {})
+    source_type = source.get("source_type", "manual_entry")
+    percentage_fields = (
+        ("solo_games_played_percent", "Solo Games played %"),
+        ("solo_games_won_percent", "Solo Games won %"),
+        ("solo_hand_percent", "Solo Hand %"),
+        ("suit_games_percent", "Suit Games %"),
+        ("grand_games_percent", "Grand Games %"),
+        ("null_games_percent", "Null Games %"),
+        ("defender_games_played_percent", "Defender Games played %"),
+        ("defender_games_won_percent", "Defender Games won %"),
+    )
+    count_fields = (
+        ("solo_games_played", "Solo Games played"),
+        ("solo_games_won", "Solo Games won"),
+        ("solo_hand_games", "Solo Hand Games"),
+        ("suit_games", "Suit Games"),
+        ("grand_games", "Grand Games"),
+        ("null_games", "Null Games"),
+        ("defender_games_played", "Defender Games played"),
+        ("defender_games_won", "Defender Games won"),
+    )
+    return f"""
+      <details class="statistics-editor">
+        <summary>{'Replace Snapshot' if snapshot is not None else 'Add Snapshot'}</summary>
+        <form method="post" action="/api/v1/operation" class="form-grid compact">
+          {_hidden(state, 'set_player_statistics_snapshot')}
+          <input type="hidden" name="player_id" value="{_e(player['player_id'])}">
+          <label>Snapshot ID (optional)
+            <input name="snapshot_id" value="">
+          </label>
+          <label>Observed/captured time (RFC 3339)
+            <input name="observed_at" value="{_e(source.get('captured_at'))}" required>
+          </label>
+          <label>Source type
+            <select name="source_type">
+              <option value="manual_entry"{' selected' if source_type == 'manual_entry' else ''}>Manual entry</option>
+              <option value="online_platform"{' selected' if source_type == 'online_platform' else ''}>Online platform</option>
+            </select>
+          </label>
+          <label>Source name
+            <input name="source_name" value="{_e(source.get('source_name'))}" required>
+          </label>
+          <label>Source Player ID (optional)
+            <input name="source_player_id" value="{_e(source.get('source_player_id'))}">
+          </label>
+          <label>Notes (optional)
+            <input name="notes" value="{_e(source.get('notes'))}">
+          </label>
+          <label>Games played
+            <input type="number" min="1" step="1" name="games_played" value="{_e(None if form_record is None else form_record['games_played'])}" required>
+          </label>
+          <fieldset class="statistics-fieldset">
+            <legend>All eight percentages</legend>
+            {''.join(_statistics_input(name, label, percentages.get(name)) for name, label in percentage_fields)}
+          </fieldset>
+          <fieldset class="statistics-fieldset">
+            <legend>Optional exact Counts</legend>
+            <p>Leave all eight blank, or provide the complete exact Count set.</p>
+            {''.join(_statistics_input(name, label, counts.get(name), count=True) for name, label in count_fields)}
+          </fieldset>
+          <button type="submit">{'Replace Snapshot' if snapshot is not None else 'Add Snapshot'}</button>
+        </form>
+      </details>
+    """
+
+
+def _statistics_card(state: dict[str, Any], player: dict[str, Any]) -> str:
+    snapshot = player["statistics_snapshot"]
+    if snapshot is None:
+        retained = "<p>No Match-bound Snapshot retained.</p>"
+        profile = "<p>No normalized Profile is available.</p>"
+    else:
+        record = snapshot["statistics_record"]
+        source = record["source"]
+        percentages = record["statistics"]
+        counts = record.get("exact_counts")
+        historical = source.get("historical_aggregation")
+        retained = f"""
+          <dl class="statistics-facts">
+            <div><dt>Snapshot ID</dt><dd>{_e(snapshot['snapshot_id'])}</dd></div>
+            <div><dt>Observed at</dt><dd>{_e(snapshot['observed_at'])}</dd></div>
+            <div><dt>Source type</dt><dd>{_e(source['source_type'])}</dd></div>
+            <div><dt>Source name</dt><dd>{_e(source['source_name'])}</dd></div>
+            <div><dt>Source Player ID</dt><dd>{_e(source.get('source_player_id') or 'None')}</dd></div>
+            <div><dt>Games played</dt><dd>{record['games_played']}</dd></div>
+          </dl>
+          {f'<p class="multiline"><strong>Notes:</strong> {_e(source.get("notes"))}</p>' if source.get('notes') else ''}
+          <table class="statistics-table"><thead><tr><th>Statistic</th><th>Percentage</th><th>Exact Count</th></tr></thead>
+            <tbody>
+              {''.join(f'<tr><td>{_e(name.replace("_percent", "").replace("_", " ").title())}</td><td>{_e(value)}</td><td>{_e("None" if counts is None else counts.get({"solo_games_played_percent": "solo_games_played", "solo_games_won_percent": "solo_games_won", "solo_hand_percent": "solo_hand_games", "suit_games_percent": "suit_games", "grand_games_percent": "grand_games", "null_games_percent": "null_games", "defender_games_played_percent": "defender_games_played", "defender_games_won_percent": "defender_games_won"}[name]))}</td></tr>' for name, value in percentages.items())}
+            </tbody>
+          </table>
+          {f'''<div class="historical-provenance">
+            <p><strong>Historical aggregation:</strong> retained read-only.</p>
+            <dl class="statistics-facts">
+              <div><dt>Dataset</dt><dd>{_e(historical["dataset_id"])} version {_e(historical["dataset_version"])}</dd></div>
+              <div><dt>Partitions</dt><dd>{_e(", ".join(historical["included_partitions"]))}</dd></div>
+              <div><dt>First played</dt><dd>{_e(historical["first_played_at"])}</dd></div>
+              <div><dt>Last played</dt><dd>{_e(historical["last_played_at"])}</dd></div>
+              <div><dt>Source record IDs</dt><dd>{_e(", ".join(historical["source_record_ids"]))}</dd></div>
+              <div><dt>Source Game IDs</dt><dd>{_e(", ".join(historical["source_game_ids"]))}</dd></div>
+            </dl>
+          </div>''' if historical is not None else ''}
+        """
+        normalized = player["normalized_profile"]
+        confidence = player["profile_confidence"]
+        profile = f"""
+          <dl class="statistics-facts">
+            <div><dt>Classification</dt><dd>{_e(player['profile_classification'])}</dd></div>
+            <div><dt>Derivation status</dt><dd>{_e(player['profile_derivation_status'])}</dd></div>
+            <div><dt>Recommended preset</dt><dd>{_e(player['recommended_policy_preset'])}</dd></div>
+            <div><dt>Actionable preset</dt><dd>{_e(player['actionable_policy_preset'] or 'None')}</dd></div>
+            <div><dt>Overall confidence</dt><dd>{_e(confidence['overall']['level'])}</dd></div>
+            <div><dt>Declarer confidence</dt><dd>{_e(confidence['declarer']['level'])}</dd></div>
+            <div><dt>Defender confidence</dt><dd>{_e(confidence['defender']['level'])}</dd></div>
+            <div><dt>Solo rate</dt><dd>{_e(normalized['solo_rate'])}</dd></div>
+            <div><dt>Defender rate</dt><dd>{_e(normalized['defender_rate'])}</dd></div>
+          </dl>
+          <ul>{''.join(f'<li>{_e(item)}</li>' for item in player['profile_explanations'])}</ul>
+        """
+    temporal_messages = {
+        "absent": "No Snapshot is available for temporal preparation.",
+        "eligible": "Captured strictly before Match start; eligible for later retrospective Match analysis.",
+        "match_time_unavailable": "Match played time is missing, so safe retrospective application is unavailable.",
+        "captured_not_before_match": "Capture time is equal to or later than Match start; this Snapshot is descriptive only.",
+    }
+    clear_form = (
+        ""
+        if snapshot is None
+        else f"""
+        <form method="post" action="/api/v1/operation" class="inline-form" data-confirm="Clear this Match-bound Player Statistics Snapshot?">
+          {_hidden(state, 'clear_player_statistics_snapshot')}
+          <input type="hidden" name="player_id" value="{_e(player['player_id'])}">
+          <label><input type="checkbox" name="confirm_clear_snapshot" value="true" required> Confirm clear</label>
+          <button type="submit">Clear Snapshot</button>
+        </form>
+        """
+    )
+    return f"""
+      <article class="panel statistics-card">
+        <p class="eyebrow">{_e(player['table_place'])}</p>
+        <h3>{_e(player['player_label'] or player['player_id'])}</h3>
+        {retained}
+        <p class="temporal-status status-{_e(player['statistics_temporal_status'])}">{_e(temporal_messages[player['statistics_temporal_status']])}</p>
+        <h4>Prepared Profile</h4>
+        {profile}
+        {_statistics_form(state, player)}
+        {clear_form}
+      </article>
+    """
+
+
+def _player_statistics(state: dict[str, Any]) -> str:
+    preparation = state["player_statistics_preparation"]
+    return f"""
+      <section class="player-statistics">
+        <div class="section-heading">
+          <p class="eyebrow">Private Match metadata</p>
+          <h2>Player Statistics</h2>
+          <p>Each participant may retain one immutable Match-bound Snapshot. A later Match may retain another Snapshot for the same stable Player.</p>
+          <p>Only captures strictly before Match start enter the canonical eligible input. Missing Match time and equal or later captures remain descriptive. Prepared Profiles are not yet applied to Match analysis.</p>
+          <p><strong>Preparation:</strong> {_e(preparation['status'])}; eligible Players: {_e(', '.join(preparation['eligible_player_ids']) or 'None')}; actionable Profiles: {_e(', '.join(preparation['actionable_player_ids']) or 'None')}.</p>
+        </div>
+        <div class="statistics-grid">{''.join(_statistics_card(state, player) for player in state['participants'])}</div>
+      </section>
+    """
+
+
 def _setup_forms(state: dict[str, Any]) -> str:
     game = state["game"]
     if game is None:
@@ -538,6 +735,7 @@ def _workspace(state: dict[str, Any]) -> str:
         </form>
       </section>
       {_metadata_form(state)}
+      {_player_statistics(state)}
       <section class="overview"><h2>Match overview</h2>{_overview(state)}</section>
       <section class="position-head panel">
         <p class="eyebrow">Round {view['round_number']} | Position {view['match_position']}</p>

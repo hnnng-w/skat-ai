@@ -324,6 +324,16 @@ palettes, automatic acting-Player and Decision derivation, atomic Card batches,
 Play truncation, Commentary and Response Links on any Player, Passed Deals,
 clearing, metadata correction, and explicit conflict Reload.
 
+Issue #166 adds Add, Replace, and Clear forms for one optional Match-bound Player
+Statistics Snapshot per participant. Browser-created records reuse the existing
+Opponent Statistics validator and are limited to manual entry or online-platform
+provenance; loaded historical aggregations remain read-only except for clear or
+replacement. The browser presents source percentages and optional exact Counts,
+the existing normalized Profile and derivation, and strict temporal eligibility.
+Only `captured_at < played_at` enters canonical Match-wide preparation. Missing
+Match time and equal or later captures remain descriptive, and prepared Profiles
+are not yet applied to Match analysis.
+
 Every accepted mutation uses the exact Workspace revision and retained content
 fingerprint for one compare-and-swap atomic Save before success is shown.
 Unchanged and revision-conflict operations do not write. Persistence conflicts
@@ -341,7 +351,8 @@ See [Match capture contracts](docs/match_capture_contracts.md),
 [Observed Game capture contracts](docs/observed_game_capture_contracts.md),
 [Match Workspace contracts](docs/match_workspace_contracts.md), and
 [Match Capture Application services](docs/match_capture_application_services.md),
-and [Local Match Capture interface](docs/local_match_capture_interface.md).
+[Local Match Capture interface](docs/local_match_capture_interface.md), and
+[Match Player Statistics](docs/match_player_statistics.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -895,6 +906,7 @@ Detailed documentation is split into topic-specific files:
 * [Match Workspace contracts](docs/match_workspace_contracts.md)
 * [Match Capture Application services](docs/match_capture_application_services.md)
 * [Local Match Capture interface](docs/local_match_capture_interface.md)
+* [Match Player Statistics](docs/match_player_statistics.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1062,9 +1074,12 @@ internal transport-free rapid-entry Application foundation, including derived
 Position Views, setup updates, automatic Player/Decision append, truncation, and
 annotation editing. Issue #165 adds the private local no-JSON browser and Capture
 CLI with loopback protection, packaged assets, compare-and-swap autosave, and
-explicit conflict Reload. Materialization, Public Match API, Match Schema/data
-workflow, Player Statistics application, and analysis remain later milestone
-work. Package version, Public APIs, seven Root workflows, 63 Schemas, and 85
+explicit conflict Reload. Issue #166 adds editable Match-bound Statistics
+Snapshots, strict-before-Match eligibility, existing normalized Profile
+derivation, and canonical eligible preparation without policy application.
+Materialization, Public Match API, Match Schema/data workflow, actual Player
+Profile application, and analysis remain later milestone work. Package version,
+Public APIs, seven Root workflows, 63 Schemas, and 85
 generated outputs remain unchanged.
 
 The historical published `v0.13.0` release has release theme "Stable API,
@@ -1269,8 +1284,9 @@ capture. Issue #160 establishes internal Match metadata, and Issue #161 adds
 internal evidence-aware observed Games and free-text Decision commentary. Issue
 #163 adds private persistent Workspaces, and Issue #164 adds transport-free rapid
 entry over those Workspaces. Issue #165 adds the private local browser/Capture
-CLI and autosave transport. Public Match API, Match Schema/data workflow, Player
-Statistics application, analysis, and materialization remain open.
+CLI and autosave transport. Issue #166 adds Match-bound Snapshot editing and
+time-safe Profile preparation. Public Match API, Match Schema/data workflow,
+actual Profile application, analysis, and materialization remain open.
 `v1.0.0` remains unready after this milestone; its final Issue sequence and
 implementation architecture still require focused scope and traceability review.
 

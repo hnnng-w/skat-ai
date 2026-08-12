@@ -159,6 +159,8 @@ def test_web_versions_operations_policies_and_result_contract_are_exact() -> Non
         "remove_response_link",
         "mark_passed_deal",
         "clear_position",
+        "set_player_statistics_snapshot",
+        "clear_player_statistics_snapshot",
     )
     assert MATCH_CAPTURE_WEB_WORKSPACE_POLICY == (
         "one_explicit_workspace_file_per_server"
@@ -911,6 +913,48 @@ def test_no_javascript_html_form_creation_game_declaration_card_and_undo(
         _operation_values(context, "truncate_plays", target_play_count="0")
     )
     assert b"No Plays retained." in body
+
+    body = post_operation(
+        _operation_values(
+            context,
+            "set_player_statistics_snapshot",
+            player_id="player-a",
+            snapshot_id="",
+            observed_at="2026-07-20T10:00:00Z",
+            source_type="manual_entry",
+            source_name="Local observation",
+            source_player_id="",
+            notes="",
+            games_played="127",
+            solo_games_played_percent="31",
+            solo_games_won_percent="58",
+            solo_hand_percent="12",
+            suit_games_percent="61",
+            grand_games_percent="29",
+            null_games_percent="10",
+            defender_games_played_percent="69",
+            defender_games_won_percent="64",
+            solo_games_played="",
+            solo_games_won="",
+            solo_hand_games="",
+            suit_games="",
+            grand_games="",
+            null_games="",
+            defender_games_played="",
+            defender_games_won="",
+        )
+    )
+    assert b"Replace Snapshot" in body
+    assert b"Captured strictly before Match start" in body
+    body = post_operation(
+        _operation_values(
+            context,
+            "clear_player_statistics_snapshot",
+            player_id="player-a",
+            confirm_clear_snapshot="true",
+        )
+    )
+    assert b"No Match-bound Snapshot retained" in body
 
     status, _headers, state_body = _request(
         server,

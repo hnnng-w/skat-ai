@@ -118,6 +118,16 @@ def test_capture_web_resources_are_local_package_data() -> None:
     assert b"eval(" not in combined
 
 
+def test_match_player_statistics_modules_are_package_discovered() -> None:
+    import skat_ai.match_player_statistics_context as context_module
+    import skat_ai.match_player_statistics_preparation as preparation_module
+    import skat_ai.match_player_statistics_updates as updates_module
+
+    assert context_module.MATCH_PLAYER_STATISTICS_CONTEXT_VERSION == 1
+    assert preparation_module.MATCH_PLAYER_STATISTICS_PREPARATION_VERSION == 1
+    assert updates_module.MATCH_PLAYER_STATISTICS_UPDATE_VERSION == 1
+
+
 def test_schema_sync_check_is_deterministic_and_does_not_modify_files(
     tmp_path: Path,
     monkeypatch,

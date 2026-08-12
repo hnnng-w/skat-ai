@@ -5,6 +5,10 @@ from typing import Any
 from skat_ai.deck import get_full_deck
 from skat_ai.game_declaration import VALID_DECLARATION_GAME_TYPES
 from skat_ai.match_capture_position_view import build_match_capture_position_view_v1
+from skat_ai.match_player_statistics_preparation import (
+    MatchPlayerStatisticsPreparationV1,
+    build_match_player_statistics_preparation_v1,
+)
 from skat_ai.match_workspace_contracts import MatchWorkspaceV1
 from skat_ai.match_workspace_progress import build_match_workspace_progress_v1
 from skat_ai.match_workspace_rotation import build_match_workspace_position_fact_v1
@@ -34,8 +38,10 @@ def _card_summary(card: str, selectable: set[str]) -> dict[str, Any]:
     }
 
 
-def _participant_summary(participant) -> dict[str, Any]:
+def _participant_summary(participant, context) -> dict[str, Any]:
     snapshot = participant.statistics_snapshot
+    record = None if snapshot is None else snapshot.statistics_record
+    derivation = context.profile_derivation
     return {
         "player_id": participant.player_id,
         "player_label": participant.player_label,
@@ -44,10 +50,50 @@ def _participant_summary(participant) -> dict[str, Any]:
         "statistics_snapshot": (
             None
             if snapshot is None
-            else {
-                "snapshot_id": snapshot.snapshot_id,
-                "observed_at": snapshot.observed_at,
-            }
+            else snapshot.to_dict()
+        ),
+        "statistics_source": None if record is None else snapshot.to_dict()[
+            "statistics_record"
+        ]["source"],
+        "statistics_games_played": None if record is None else record.games_played,
+        "statistics_percentages": (
+            None
+            if record is None
+            else snapshot.to_dict()["statistics_record"]["statistics"]
+        ),
+        "statistics_exact_counts": (
+            None
+            if record is None or record.exact_counts is None
+            else snapshot.to_dict()["statistics_record"]["exact_counts"]
+        ),
+        "statistics_temporal_status": context.temporal_status,
+        "statistics_eligible_for_match_analysis": (
+            context.eligible_for_match_analysis
+        ),
+        "normalized_profile": (
+            None
+            if context.normalized_profile is None
+            else context.to_dict()["normalized_profile"]
+        ),
+        "profile_confidence": (
+            None
+            if derivation is None
+            else context.to_dict()["profile_derivation"]["confidence"]
+        ),
+        "profile_classification": (
+            None if derivation is None else derivation.classification
+        ),
+        "profile_derivation_status": (
+            None if derivation is None else derivation.derivation_status
+        ),
+        "recommended_policy_preset": (
+            None if derivation is None else derivation.recommended_policy_preset
+        ),
+        "actionable_policy_preset": (
+            None if derivation is None else derivation.actionable_policy_preset
+        ),
+        "profile_explanations": (
+            [] if derivation is None else list(derivation.explanations)
         ),
     }
 
@@ -110,6 +156,7 @@ def build_match_capture_web_state_v1(
     *,
     workspace_filename: str,
     selected_position: int = 1,
+    statistics_preparation: MatchPlayerStatisticsPreparationV1 | None = None,
 ) -> dict[str, Any]:
     """Builds deterministic private browser state without paths or fingerprints."""
     if type(selected_position) is not int or not 1 <= selected_position <= 36:
@@ -132,6 +179,33 @@ def build_match_capture_web_state_v1(
         }
 
     definition = workspace.match_definition
+    if statistics_preparation is None:
+        statistics_preparation = build_match_player_statistics_preparation_v1(
+            definition
+        )
+    elif (
+        type(statistics_preparation) is not MatchPlayerStatisticsPreparationV1
+        or statistics_preparation.match_id != definition.match_id
+        or statistics_preparation.match_played_at != definition.played_at
+        or tuple(
+            context.player_id
+            for context in statistics_preparation.participant_contexts
+        )
+        != tuple(participant.player_id for participant in definition.participants)
+        or tuple(
+            context.snapshot_id
+            for context in statistics_preparation.participant_contexts
+        )
+        != tuple(
+            None
+            if participant.statistics_snapshot is None
+            else participant.statistics_snapshot.snapshot_id
+            for participant in definition.participants
+        )
+    ):
+        raise ValueError(
+            "statistics_preparation must describe the supplied Match definition."
+        )
     progress = build_match_workspace_progress_v1(workspace)
     selected_slot = workspace.slots[selected_position - 1]
     view = build_match_capture_position_view_v1(
@@ -176,8 +250,14 @@ def build_match_capture_web_state_v1(
             ),
         },
         "participants": [
-            _participant_summary(participant) for participant in definition.participants
+            _participant_summary(participant, context)
+            for participant, context in zip(
+                definition.participants,
+                statistics_preparation.participant_contexts,
+                strict=True,
+            )
         ],
+        "player_statistics_preparation": statistics_preparation.to_dict(),
         "perspective_player_id": definition.perspective_player_id,
         "workspace_revision": workspace.revision,
         "progress": progress.to_dict(),

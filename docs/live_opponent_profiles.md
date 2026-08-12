@@ -105,3 +105,9 @@ required game-start time and strict older-than comparison. Neither feature adds
 multiple captures, profile persistence, newest-capture selection, source
 weighting or merging, website integration, scraping, learned models,
 machine-learning training, quality evaluation, or new tactical policies.
+
+Issue #166 Match-wide preparation is separate from this live binding. It retains
+eligible stable Players, including the Perspective Player, in canonical table-
+place order and does not bind left/right sides or invoke this resolver. Existing
+live opt-in, explicit IDs, source precedence, absence of an analysis-time
+comparison, and Profile application behavior are unchanged.

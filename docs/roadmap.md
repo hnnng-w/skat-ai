@@ -66,8 +66,22 @@ Issue #165 adds the first usable private local no-JSON Match Capture interface:
 * explicit Reload after persistence conflict with no retry or merge;
 * token/same-origin loopback security and packaged progressive local assets.
 
+Issue #166 adds editable Match-bound Player Statistics preparation:
+
+* one optional immutable Snapshot per participant and separate later-Match
+  Snapshots for the same stable Player;
+* deterministic revision-bound IDs plus immutable set, replace, unchanged,
+  conflict, and clear outcomes over existing definition replacement;
+* existing Opponent Statistics validation, normalized Profile conversion, and
+  explainable Profile derivation without new thresholds;
+* strict `captured_at < played_at` eligibility and canonical fixed-place eligible
+  input preparation, including an eligible Perspective Player;
+* private browser Add, Replace, and Clear forms, read-only historical aggregation
+  presentation, temporal warnings, prepared Profile presentation, and unchanged
+  optimistic autosave.
+
 Historical/list/report/Dataset materialization, Public Match API, Match Schema
-and data workflow, Player Statistics application, and analysis remain later
+and data workflow, actual Profile application, and analysis remain later
 `v0.15.0` work. No YouTube or EuroSkat integration, ranking,
 qualification, prize, fee, or bonus behavior is implemented.
 
@@ -641,6 +655,10 @@ Implemented:
 * Focused Match Capture Web/Protocol/CLI, timecode, context, state, rendering,
   security, HTTP, no-JavaScript, autosave/conflict, packaging, clean-install, and
   compatibility tests for Issue #165
+* Focused Match Player Statistics Context/Preparation/Update, strict temporal
+  eligibility, Profile reuse, deterministic ID, set/clear, browser form/state,
+  historical provenance, autosave/conflict, metadata-time, execution-boundary,
+  packaging, and compatibility tests for Issue #166
 
 ### CLI and workflow usability
 
@@ -913,7 +931,8 @@ implementation details, and testable completion gates.
 
 `v1.0.0` remains not ready after the active focused `v0.15.0` Match Capture
 work through the internal Match metadata, observed-Game/commentary, persistent
-Workspace, rapid-entry Application, and private local browser/autosave transport.
+Workspace, rapid-entry Application, private local browser/autosave transport,
+and Match-bound Statistics editing/time-safe Profile preparation.
 A separate audit of both documents must precede its final Issue sequence or
 implementation architecture.
 
@@ -1043,7 +1062,8 @@ Recommended cleanup areas:
 
 Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.14.0` baseline, active `v0.15.0`
-Match Capture work through internal Issues #160, #161, #163, and #164, historical
+Match Capture work through internal Issues #160, #161, #163, and #164 plus
+private browser/Statistics Issues #165 and #166, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
 release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,

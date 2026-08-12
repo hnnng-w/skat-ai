@@ -58,6 +58,12 @@ including equivalent instants written with different offsets, is rejected.
 Later captures are rejected. There is no tolerance or bypass. Unmatched records
 are ignored and are not temporally compared.
 
+Issue #166 Match Snapshot preparation uses the same strict aware-instant
+relationship to exclude ineligible records while retaining their descriptive
+metadata. It does not execute historical review, remove an acting Player, remap
+stable Players to relative sides, or apply an actionable preset; those remain
+per-Decision responsibilities of this existing historical path.
+
 For `source_type: "historical_games"`, `captured_at` is the matched player's
 latest included source-game `played_at`, not the aggregation's global latest
 game. The same strict comparison therefore rejects an export containing the

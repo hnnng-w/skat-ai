@@ -192,6 +192,13 @@ Every retained observed Game and passed-deal timecode is revalidated against the
 replacement source bounds. Existing observed Games and Slots are otherwise
 unchanged.
 
+Issue #166 set/clear operations rebuild only the selected participant and use
+this same definition replacement exactly once. Applied updates increment
+revision once and preserve all 36 Slots; equal or conflicted updates preserve
+revision. The existing Workspace fingerprint and strict persistence already
+cover complete Snapshots, including historical aggregation provenance, so no
+persistence migration or new field is required.
+
 ## Time ordering
 
 An occupied Slot's effective timecode is its observed Game timecode or passed-
@@ -341,8 +348,11 @@ Issue #165's leaf transport composes those operations with strict startup Resume
 one locked explicit-file context, exact-revision changes, content-fingerprint
 CAS Save, unchanged/conflict no-write behavior, and explicit Reload. See
 [Local Match Capture interface](local_match_capture_interface.md).
-Opponent-statistics application, Historical/list/report/Dataset materialization,
-Public Match API, Match Schema/data workflow, and analysis remain future
+Issue #166 adds Match-bound Snapshot editing and time-safe eligible Statistics
+preparation without applying a Profile. See
+[Match Player Statistics](match_player_statistics.md).
+Profile application, Historical/list/report/Dataset materialization, Public
+Match API, Match Schema/data workflow, and analysis remain future
 `v0.15.0` work. YouTube and EuroSkat integration remain absent.
 
 Package version `0.14.0`, seven Root workflows, Public APIs and CLI, 63

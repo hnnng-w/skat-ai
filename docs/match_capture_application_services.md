@@ -302,8 +302,12 @@ aggregation, Opponent Profile derivation, or background work.
 
 Issue #165 composes these services into the private local loopback browser and
 Capture CLI with optimistic autosave; this does not change the transport-free
-service contract. Future work includes Public Match API, Match Schema/data
-workflow, Player Statistics application, analysis, and Historical/list/report/
-Dataset materialization. YouTube and EuroSkat integration remain absent. Package version
+service contract. Issue #166 adds a separate Match Player Statistics update
+layer that the browser composes alongside, not into, these canonical Capture
+Application operations. These services still perform no Statistics conversion,
+Profile derivation, or Profile application. Future work includes Public Match
+API, Match Schema/data workflow, Profile application, analysis, and Historical/
+list/report/Dataset materialization. YouTube and EuroSkat integration remain
+absent. Package version
 `0.14.0`, seven Root workflows, 63 authoritative and packaged Schemas, current
 examples, and 85 generated-output scenarios remain unchanged.

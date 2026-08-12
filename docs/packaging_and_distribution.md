@@ -220,9 +220,10 @@ verifies:
 * the Session Assistant completes a deterministic smoke flow through injected
   input/output functions;
 * one in-process loopback Capture server performs token bootstrap, renders the
-  absent-Workspace page, creates and persists a Workspace, starts a Game, sets a
-  Declaration, appends one automatically attributed Card, strictly reloads the
-  file, and shuts down cleanly;
+  absent-Workspace page, creates and persists a Workspace, sets and clears one
+  Match-bound Player Statistics Snapshot, starts a Game, sets a Declaration,
+  appends one automatically attributed Card, strictly reloads the file, and
+  shuts down cleanly;
 * installed, module, and Public Session API results have parity where
   applicable;
 * a valid unavailable Dataset Preparation Result remains successful;
