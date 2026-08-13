@@ -213,7 +213,8 @@ caps request bodies at 1 MiB, rejects transfer encoding and path traversal,
 serves only the allowlisted packaged HTML/CSS/JavaScript resources, and emits
 `no-store`, `nosniff`, no-referrer, frame-denial, restrictive Content Security
 Policy, and restrictive Permissions Policy headers. It makes no external
-network request.
+network request. The browser uses no Node.js or external front-end dependency;
+all assets are packaged local resources.
 
 These controls protect the accidental local transport surface; they are not an
 account system, encryption, secure storage, authenticated authorship, remote
@@ -250,9 +251,9 @@ with no retry.
 Authenticated loopback downloads provide exact executed Root Result JSON and,
 from a current materialization report, canonical materialization, Historical
 collection, unpartitioned Training source, historical-list input, and list-
-aggregation JSON. Downloads use fixed local filenames and never accept a server
-path. They may contain private Cards, Results, Statistics, and Profile details
-and receive no public redaction. See
+aggregation JSON. Downloads use deterministic ASCII-safe filenames and never
+accept a server path. They may contain private Cards, Results, Statistics, and
+Profile details and receive no public redaction. See
 [Match analysis and exports](match_analysis_and_exports.md).
 
 ## Source links and private data
@@ -275,9 +276,9 @@ are private local artifacts.
 
 Match Capture Web, Web Protocol, and Capture CLI are independent internal
 version-1 contracts. `capture` is a transport command family, not an eighth Root
-workflow. Package version remains `0.14.0`; the seven Root workflows, Public
-APIs, 63 Schemas, existing examples, and 85 generated-output scenarios are
-unchanged.
+workflow. The prepared Package baseline is `0.15.0`; the seven Root workflows,
+Public APIs, 63 Schemas, six Session examples, and 85 generated-output scenarios
+are unchanged.
 
 Issue #168 exposes explicit private Position/Historical analysis and
 materialization/download controls while preserving the no-automatic-analysis
@@ -287,9 +288,10 @@ communication-aware Dataset workflow, database, remote serving, cloud
 synchronization, encryption, backup, YouTube integration, or EuroSkat
 integration. Commentary and Response Links remain outside Search and Coaching.
 
-Issue #168 completes the functional `v0.15.0` local Match Capture milestone, but
-does not release or publish it. Package version remains `0.14.0`; the published
-stable Release remains `v0.14.0`, and the seven Root workflows, Public APIs, 63
-Schemas, six Session examples, and 85 generated-output scenarios are unchanged.
+Issue #168 completes the functional `v0.15.0` local Match Capture milestone.
+Issue #169 prepares Package/release metadata and documentation without product
+behavior changes. The published stable Release remains `v0.14.0` until manual
+maintainer publication; no `v0.15.0` tag, GitHub Release, Package-index
+publication, or PyPI publication is claimed.
 See [Match review and materialization](match_review_and_materialization.md) and
 [Match analysis and exports](match_analysis_and_exports.md).

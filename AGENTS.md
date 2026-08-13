@@ -175,17 +175,29 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
+The current Package baseline is `0.15.0`, with release theme "Local EuroSkat
+36er Match capture, analysis, and exports" and prepared GitHub Release title
+"v0.15.0 — Local EuroSkat 36er Match capture, analysis, and exports". It
+requires Python `>=3.13`, retains Public API contract version `1` and exactly
+seven Engine Root workflows, and contains 63 authoritative Schemas, 63 Packaged
+Schema Resources, six Session examples, 85 deterministic generated-output
+scenarios, and 6,510 passing pytest tests. Issues #160 through #168 complete the
+functional milestone, and Issue #169 completes Package-version and Release-
+documentation preparation. The maintainer has not yet created the tag or GitHub
+Release. No Package-index or PyPI publication is claimed.
+
 The current published stable GitHub Release is `v0.14.0`, with release theme
 "End-to-end Live and Retrospective Session capture" and GitHub Release title
 "v0.14.0 — End-to-end Live and Retrospective Session capture". It points to
-commit `d5589f8`. Package version `0.14.0` requires Python `>=3.13`, retains
+commit `d5589f8`. That Package version requires Python `>=3.13`, retains
 Public API contract version `1` and exactly seven Engine Root workflows, and
 contains 63 authoritative Schemas, 63 Packaged Schema Resources, six Session
 examples, 85 deterministic generated-output scenarios, and 5,892 passing pytest
 tests. Issues #150 through #157 complete the functional milestone, and Issue
 #158 completed Release preparation. Publication was performed manually by the
-maintainer. GitHub Releases remains authoritative for publication status; no
-Package-index or PyPI publication is claimed.
+maintainer, and Issue #159 synchronized its publication status. GitHub Releases
+remains authoritative for publication status; no Package-index or PyPI
+publication is claimed.
 
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title
@@ -289,9 +301,9 @@ Online-platform adapters, browser extensions, website scraping, cloud
 synchronization, distributed locking, encryption/key management, and automatic
 backup policy remain open.
 
-The functionally complete but unreleased development milestone is `v0.15.0`,
-targeting usable manual post-game capture of one EuroSkat 36er Standard Match
-from descriptive video evidence.
+The prepared current Package milestone is `v0.15.0`, targeting usable manual
+post-game capture of one EuroSkat 36er Standard Match from descriptive video
+evidence.
 Issue #160 begins it with internal Match source, timecode, tournament-format,
 participant, optional statistics-snapshot, identity, perspective, and
 deterministic serialization contracts. Issue #161 adds internal evidence-aware
@@ -317,10 +329,22 @@ Historical execution through the existing Application, eligible relative Profile
 application through existing supported behavior, no-workflow Match
 materialization, ephemeral revision-scoped reports, and authenticated canonical
 loopback downloads. It completes the functional `v0.15.0` local Match Capture
-milestone without a Release, publication, or Package-version change. Public Match
-API, Match Schema/data workflow, global Player Catalog, communication-aware
-Dataset work, database/remote deployment, YouTube integration, and EuroSkat
-integration remain absent. `v1.0.0` remains unready.
+milestone. Issue #169 changes only the Package version, current version
+assertions, Changelog, and release-state documentation in preparation for manual
+publication. The published stable Release remains `v0.14.0`; no `v0.15.0` tag,
+GitHub Release, Package-index publication, or PyPI publication is claimed. Public
+Match API, Match Schema/data workflow, global Player Catalog, communication-
+aware Dataset work, database/remote deployment, YouTube integration, and
+EuroSkat integration remain absent. `v1.0.0` remains unready.
+
+The provisional next planning milestone is `v0.16.0 — Learning-ready behavior
+and communication data`. Candidate directions include canonical Game and Player
+catalogs, multi-Match Player Snapshot history, Commentary and Response export,
+separate behavior, strategy, and communication targets, Dataset version `2`,
+communication-aware annotations, cross-game behavior summaries, evaluation
+baselines, and derived AI tags kept separate from original human text. Its Issue
+split, architecture, Dataset fields, model design, and release date are not
+finalized, and no production model is planned for this milestone.
 
 Major completed areas include:
 
@@ -492,12 +516,13 @@ attribution, player ratings, and complete field-level information provenance
 remain open before `v1.0.0`. End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,
 accepted-Log actual-card observation, isolated review, explicit analysis, the
-12-subcommand CLI, and Assistant. GUI/browser UI, online-platform adapters,
+12-subcommand CLI, and Assistant. Session GUI/browser UI, online-platform adapters,
 cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open. The published `v0.14.0` baseline has 63
 authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
-scenarios.
+scenarios. The current `v0.15.0` Package baseline preserves the 63-Schema,
+six-Session-example, and 85-scenario sets.
 Match Capture now contains identity/metadata, individual evidence-aware observed
 Games and commentary, persistent internal 36-position Workspaces,
 transport-free rapid-entry Application services, and the private local no-JSON

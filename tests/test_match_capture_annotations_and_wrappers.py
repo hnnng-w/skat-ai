@@ -702,7 +702,7 @@ def test_public_cli_package_schema_output_and_persistence_boundaries_are_unchang
     )
     assert len(SCENARIOS) == 85
     with (PROJECT_ROOT / "pyproject.toml").open("rb") as file:
-        assert tomllib.load(file)["project"]["version"] == "0.14.0"
+        assert tomllib.load(file)["project"]["version"] == "0.15.0"
 
     document = build_match_workspace_persistence_document_v1(
         create_match_workspace_v1(_definition())

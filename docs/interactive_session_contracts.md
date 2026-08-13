@@ -411,7 +411,7 @@ attach a separate optional complete provenance sidecar without changing internal
 State serialization. Issue #157 preserves the seven Root workflows while adding
 installed/module/Legacy Session CLI parity, six Session examples, and eight
 append-only Session scenarios. The published `v0.14.0` baseline has 63 Schemas
-and 85 generated-output scenarios; Package version is `0.14.0`.
+and 85 generated-output scenarios; the current Package version is `0.15.0`.
 
 Internal canonical Retrospective Historical Request export is implemented. It
 returns an immutable available/unavailable result, replays once, invokes no
@@ -436,8 +436,8 @@ Checkpoints, exports isolated post-game-review Requests, collects exact
 Checkpoints automatically, exposes public Save/Load, and provides explicit
 Session-triggered Position/Historical execution and the Assistant. Issue #158
 completed Release preparation for the functional `v0.14.0` milestone before the
-maintainer's manual publication at commit `d5589f8`. GUI or browser UI, platform
-adapters, cloud synchronization, distributed locking,
+maintainer's manual publication at commit `d5589f8`. Session GUI or browser UI,
+platform adapters, cloud synchronization, distributed locking,
 encryption/key management, and unrelated pre-v1 gaps remain open. See
 [Incremental Session transitions](incremental_session_transitions.md),
 [Session Decision observations](session_decision_observations.md), and

@@ -151,9 +151,10 @@ opponent bindings. Historical injection requires enabled Immediate Review and
 Profile Presets. Neither path claims that Profiles alter bounded Search,
 Historical Search Review, or Replay Coaching.
 
-Package version remains `0.14.0`. Public exports, seven Root workflows, Capture
-CLI options, the one Console Script, 63 authoritative and packaged Schemas,
-examples, and 85 generated-output scenarios are unchanged. Private browser
+The prepared Package baseline is `0.15.0`. Public exports, seven Root workflows,
+Capture CLI options, the one Console Script, 63 authoritative and packaged
+Schemas, six Session examples, and 85 generated-output scenarios are unchanged.
+Manual GitHub publication remains pending. Private browser
 analysis and authenticated local downloads are implemented; Public Match APIs
 and Schemas, public Match exports, a global Player Catalog, and learned Profiles
 remain future work.

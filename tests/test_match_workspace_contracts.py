@@ -975,7 +975,7 @@ def test_public_api_cli_schema_output_and_package_boundaries_remain_unchanged() 
     )
     assert "match-workspace" not in build_argument_parser().format_help()
     assert "match-workspace" not in build_session_argument_parser().format_help()
-    assert skat_ai.__version__ == "0.14.0"
+    assert skat_ai.__version__ == "0.15.0"
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 63
     assert len(
         tuple(

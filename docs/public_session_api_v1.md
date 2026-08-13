@@ -197,8 +197,9 @@ loaded lazily from Package Resources. Issue #157 extends that same Schema for
 creation input, file API values, observations, review exports, and the two
 appended operations. It does not add a Session Root workflow: `WorkflowV1`
 remains seven values. The published `v0.14.0` baseline has 63 authoritative and
-packaged Schemas, 85 generated outputs, and Package version `0.14.0`; the
-historical published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
+packaged Schemas, 85 generated outputs, and Package version `0.14.0`; the current
+Package version is `0.15.0`, and the historical published `v0.13.0` baseline
+remains 62 Schemas and 77 scenarios.
 
 Installed, module, and Legacy CLIs expose the same 12-subcommand `session`
 family, public file transport, automatic exact Checkpoint collection,

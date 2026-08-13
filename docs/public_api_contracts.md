@@ -100,7 +100,7 @@ PUBLIC_FIELD_PROVENANCE_DOCUMENT_SCOPES = (
 ```
 
 Package version, API contract version, JSON-schema versions, and Domain contract
-versions are independent dimensions. The current Package version is `0.14.0`;
+versions are independent dimensions. The current Package version is `0.15.0`;
 API contract version `1` is not derived from it. A Package release does
 not automatically increment the API contract, and an API change does not
 silently rewrite JSON-schema or Domain versions. `ApiVersionInfoV1` intentionally
@@ -352,7 +352,7 @@ guarantee. No deprecation warning is emitted now.
 
 `skat_ai.__version__` reports installed distribution metadata from
 `importlib.metadata.version("skat-ai")`. Installed and Editable distributions
-report `0.14.0`; a source-only environment without distribution metadata may
+report `0.15.0`; a source-only environment without distribution metadata may
 report `0+unknown`. The fallback reads no repository file.
 
 This additive Package-Root export does not change `skat_ai.api.__all__`,
@@ -377,11 +377,11 @@ transport, accepted-Log Decision Observation, isolated Checkpoint review export,
 automatic exact Checkpoint collection, installed/module/Legacy CLI parity,
 explicit Session-triggered execution through the existing Application, and the
 Assistant. The published `v0.14.0` baseline has 63 authoritative and packaged
-Schemas and 85 generated-output scenarios; Package version is `0.14.0`, while
-the historical published `v0.13.0` baseline remains unchanged. Existing non-
+Schemas and 85 generated-output scenarios; the current Package version is
+`0.15.0`, while the historical published `v0.13.0` baseline remains unchanged. Existing non-
 Session Root API users require no migration.
 
-GUI and browser UI, online-platform adapters, browser extensions, website
+Public Session GUI and browser UI, online-platform adapters, browser extensions, website
 scraping, automatic cloud synchronization, distributed locking, encryption and
 key management, and automatic backup policy remain open. Broader end-to-end
 field-level provenance enforcement and unrelated pre-v1 Search, Claim,

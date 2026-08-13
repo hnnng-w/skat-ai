@@ -30,8 +30,7 @@ DECISION_RESPONSE_LINK_POLICY =
 ```
 
 These versions are independent from Match Capture, Historical Game, Session,
-Dataset, Public API, Schema, and Package versions. Package version remains
-`0.14.0`.
+Dataset, Public API, Schema, and Package versions.
 
 ## Match linkage and Game Players
 
@@ -269,8 +268,10 @@ materialization separately requires original Skat, exact Discards, and complete-
 Deal reconstruction. Commentary and Response Links remain Workspace sidecars.
 See [Match review and materialization](match_review_and_materialization.md).
 
-There is still no Public Match API, Root workflow, Match Schema/data workflow,
-example, generated scenario, browser materialization action, or analysis
-execution.
-The Package remains `0.14.0` with seven Root workflows, 63 authoritative and
-packaged Schemas, and 85 generated-output scenarios.
+Issue #168 can explicitly analyze one safely prepared Decision or one strict
+Historical Game and can present private materialization/download actions without
+changing this observed-Game contract. There is still no Public Match API, Root
+workflow, Match Schema/data workflow, example, generated scenario, or public
+Match export. The prepared Package baseline is `0.15.0`; seven Root workflows,
+63 authoritative and packaged Schemas, six Session examples, and 85 generated-
+output scenarios remain unchanged. Manual publication remains pending.

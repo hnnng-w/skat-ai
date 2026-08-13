@@ -309,7 +309,7 @@ The following remain separate follow-up scopes:
 * public error translation across existing Domain failures;
 * broader field-level enforcement outside the implemented Application and
   bounded public Root Result/actual-artifact boundaries;
-* GUI or browser UI and direct online-platform adapters;
+* Session GUI or browser UI and direct online-platform adapters;
 * browser extensions, website scraping, and automatic cloud synchronization;
 * distributed locking, encryption/key management, and automatic backup policy;
 * unrelated pre-v1 Search, Claim, Settlement, and Coaching gaps.

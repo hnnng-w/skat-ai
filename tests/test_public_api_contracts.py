@@ -149,7 +149,7 @@ def test_api_constants_are_exact_and_independent_from_package_version() -> None:
         "root_result_without_field_provenance",
         "artifact_document",
     )
-    assert pyproject["project"]["version"] == "0.14.0"
+    assert pyproject["project"]["version"] == "0.15.0"
     assert str(PUBLIC_API_CONTRACT_VERSION) != pyproject["project"]["version"]
 
 
@@ -415,7 +415,7 @@ def test_packaging_and_cli_add_no_public_api_exports() -> None:
 
     assert forbidden.isdisjoint(api_v1.__all__)
     assert all(not hasattr(api_v1, name) for name in forbidden)
-    assert skat_ai.__version__ == "0.14.0"
+    assert skat_ai.__version__ == "0.15.0"
     assert importlib.util.find_spec("skat_ai.__main__") is not None
     assert pyproject["build-system"]["build-backend"] == "setuptools.build_meta"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}

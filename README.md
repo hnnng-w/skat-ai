@@ -273,8 +273,8 @@ confidentiality or authenticated authorship.
 
 ### Local Match Capture interface
 
-The functionally complete but unreleased `v0.15.0` milestone targets usable
-manual post-game capture of one
+The prepared `v0.15.0` Package milestone provides usable manual post-game capture
+of one
 EuroSkat 36er Standard Match from a video source. Issue #160 adds internal
 immutable version-1 Match source, media-timecode, tournament-format,
 participant, optional Player-statistics snapshot, identity, and perspective
@@ -386,10 +386,11 @@ materialization, Historical, unpartitioned Training-source, list-input, and list
 aggregation JSON where available. The browser never displays absolute paths,
 fingerprints, tokens, raw persistence JSON, or stack traces.
 
-Issue #168 completes the functional `v0.15.0` local Match Capture milestone, but
-does not release or publish it. Package version and the published stable Release
-remain `0.14.0`; all seven Root workflows, 63 Schemas, six Session examples, and
-85 generated scenarios remain unchanged. There is still no Public Match API,
+Issue #168 completes the functional `v0.15.0` local Match Capture milestone, and
+Issue #169 prepares Package version `0.15.0` and Release documentation for manual
+publication. The published stable Release remains `v0.14.0`; all seven Root
+workflows, 63 Schemas, six Session examples, and 85 generated scenarios remain
+unchanged. There is still no Public Match API,
 Match Schema/data workflow, Match Root workflow, Match CLI export, automatic
 analysis, persisted Workspace report, global Player Catalog, communication-aware
 Dataset workflow, database/remote deployment, YouTube integration, or EuroSkat
@@ -1105,18 +1106,21 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 The current published stable GitHub Release is `v0.14.0`, with release theme
 "End-to-end Live and Retrospective Session capture" and GitHub Release title
 "v0.14.0 — End-to-end Live and Retrospective Session capture". It points to
-commit `d5589f8`. Package version `0.14.0` requires Python 3.13 or newer, retains
+commit `d5589f8`. That Package version requires Python 3.13 or newer, retains
 Public API contract version `1` and exactly seven Root workflows, contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six Session
 examples, validates 85 deterministic generated-output scenarios, and passes
 5,892 pytest tests. Issues #150 through #157 complete the functional milestone,
 and Issue #158 completed Release preparation. Publication was performed manually
-by the maintainer. GitHub Releases remains authoritative for publication status;
-no Package-index or PyPI publication is claimed.
+by the maintainer, and Issue #159 synchronized its publication status. GitHub
+Releases remains authoritative for publication status; no Package-index or PyPI
+publication is claimed.
 
-The functionally complete but unreleased development milestone is `v0.15.0`,
-targeting usable manual post-game capture of one EuroSkat 36er Standard Match
-from descriptive video evidence. Issue #160 provides the internal immutable
+The current Package baseline is `0.15.0`, with release theme "Local EuroSkat 36er
+Match capture, analysis, and exports" and prepared GitHub Release title
+"v0.15.0 — Local EuroSkat 36er Match capture, analysis, and exports". It targets
+usable manual post-game capture of one EuroSkat 36er Standard Match from
+descriptive video evidence. Issue #160 provides the internal immutable
 Match identity and metadata
 foundation. Issue #161 adds internal evidence-aware observed Games, partial and
 complete Play validation, free-text Decision commentary on any Player, linked
@@ -1137,11 +1141,18 @@ one-Decision Position and strict Historical Application execution,
 existing-behavior eligible Profile application, no-workflow Match
 materialization, deterministic max-eight ephemeral reports, concurrency
 invalidation, and authenticated canonical local downloads. It completes the
-functional milestone without a Release, publication, or Package-version change.
-Public Match API and Schema/data workflow, global Player Catalog,
+functional milestone. Issue #169 changes only the Package version, matching
+version expectations, Changelog, and current-state documentation. The Package
+requires Python 3.13 or newer, retains Public API contract version `1`, exactly
+seven Root workflows, and one `skat-ai = skat_ai.cli:main` Console Script, and
+validates 63 authoritative and packaged Schemas, six Session examples, 85
+generated outputs, and 6,510 pytest tests. Publication remains a manual
+maintainer action; no `v0.15.0` tag, GitHub Release, Package-index publication,
+or PyPI publication is claimed. Public Match API and Schema/data workflow,
+global Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
-work remain open. Package version, persistence, Public APIs, CLI, seven Root
-workflows, 63 Schemas, examples, and 85 generated outputs remain unchanged.
+work remain open. Persistence, Public APIs, CLI contracts, seven Root workflows,
+63 Schemas, examples, and 85 generated outputs remain unchanged.
 
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title
@@ -1245,9 +1256,11 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
-Remaining work includes observed Match Games, annotations, persistence, Public
-Match interfaces and UI; stronger information-set or policy search, tactical
-motif detection and cross-game Coaching, approved settlement nuance, additional
+Remaining work includes Public Match API/Schema/data workflows, canonical Game
+and Player catalogs, multi-Match history, communication-aware Dataset work,
+database/remote deployment, and stronger information-set or policy search,
+tactical motif detection and cross-game Coaching, approved settlement nuance,
+additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
 level provenance enforcement, and GUI/browser or online-platform Session
@@ -1340,8 +1353,9 @@ extensions, website scraping, cloud synchronization, distributed locking,
 encryption/key management, automatic backups, and unrelated pre-v1 gaps remain
 open.
 
-The functionally complete but unreleased `v0.15.0` milestone covers usable
-EuroSkat 36er Standard post-game capture. Issue #160 establishes internal Match
+Issue #159 synchronized the `v0.14.0` publication status. The prepared current
+`v0.15.0` Package milestone covers usable EuroSkat 36er Standard post-game
+capture. Issue #160 establishes internal Match
 metadata, and Issue #161 adds
 internal evidence-aware observed Games and free-text Decision commentary. Issue
 #163 adds private persistent Workspaces, and Issue #164 adds transport-free rapid
@@ -1356,6 +1370,15 @@ Schema/data workflow, global Player Catalog, communication-aware Dataset work,
 database/remote deployment, and broader pre-v1 work remain open. `v1.0.0`
 remains unready after this milestone; its final Issue sequence and implementation
 architecture still require focused scope and traceability review.
+
+The provisional next planning milestone is `v0.16.0 — Learning-ready behavior
+and communication data`. Possible directions include canonical Game and Player
+catalogs, multi-Match Player Snapshot history, Commentary and Response export,
+separate behavior, strategy, and communication targets, Dataset version `2`,
+communication-aware annotations, cross-game behavior summaries, evaluation
+baselines, and derived AI tags kept separate from original human text. The final
+Issue split, architecture, Dataset fields, model design, and release date remain
+undecided; no production model is included.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

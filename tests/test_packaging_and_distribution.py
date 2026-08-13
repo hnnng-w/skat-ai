@@ -22,7 +22,7 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
         "build-backend": "setuptools.build_meta",
     }
     assert pyproject["project"]["name"] == "skat-ai"
-    assert pyproject["project"]["version"] == "0.14.0"
+    assert pyproject["project"]["version"] == "0.15.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["readme"] == "README.md"
     assert pyproject["project"]["dependencies"] == ["jsonschema>=4.0.0"]
@@ -160,8 +160,8 @@ def test_schema_sync_check_is_deterministic_and_does_not_modify_files(
 
 
 def test_package_version_uses_distribution_metadata() -> None:
-    assert importlib.metadata.version("skat-ai") == "0.14.0"
-    assert skat_ai.__version__ == "0.14.0"
+    assert importlib.metadata.version("skat-ai") == "0.15.0"
+    assert skat_ai.__version__ == "0.15.0"
 
 
 def test_source_only_version_fallback_reads_no_repository_file(monkeypatch) -> None:

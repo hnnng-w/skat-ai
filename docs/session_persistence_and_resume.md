@@ -46,8 +46,8 @@ SESSION_PERSISTENCE_ENCODING = utf-8
 SESSION_PERSISTENCE_WRITE_STATUSES = (saved, unchanged, conflict)
 ```
 
-Session Persistence version `1` is independent of Package version `0.14.0`,
-Public API contract version `1`, Application orchestration version `1`, installed
+Session Persistence version `1` is independent of the Package version, Public
+API contract version `1`, Application orchestration version `1`, installed
 CLI contract version `1`, Session and Command version `1`, transition and
 projection version `1`, Request-export versions, Decision-Checkpoint and Lineage
 versions, Provenance versions, and Schema versions.

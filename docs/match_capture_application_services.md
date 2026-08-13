@@ -39,9 +39,9 @@ MATCH_CAPTURE_INFORMATION_POLICY =
     no_hidden_completion
 ```
 
-These versions remain independent from Package version `0.14.0`, Public API,
-Match Capture, observed-Game, Workspace, Session, Historical Game, Dataset,
-Provenance, Schema, and Domain versions.
+These versions remain independent from the Package, Public API, Match Capture,
+observed-Game, Workspace, Session, Historical Game, Dataset, Provenance, Schema,
+and Domain versions.
 
 ## Operations and statuses
 
@@ -305,11 +305,13 @@ Capture CLI with optimistic autosave; this does not change the transport-free
 service contract. Issue #166 adds a separate Match Player Statistics update
 layer that the browser composes alongside, not into, these canonical Capture
 Application operations. These services still perform no Statistics conversion,
-Profile derivation, or Profile application. Future work includes Public Match
-API, Match Schema/data workflow, Profile application, analysis, report export,
-and browser execution controls. Issue #167 adds separate internal Decision,
-Historical, unpartitioned Training-source, and complete fixed-list preparation;
-it is not part of these mutation services and executes no workflow. YouTube and
-EuroSkat integration remain absent. Package version
-`0.14.0`, seven Root workflows, 63 authoritative and packaged Schemas, current
-examples, and 85 generated-output scenarios remain unchanged.
+Profile derivation, or Profile application. Issue #167 adds separate internal
+Decision, Historical, unpartitioned Training-source, and complete fixed-list
+preparation; it is not part of these mutation services and executes no workflow.
+Issue #168 adds separate explicit analysis, existing-behavior Profile
+application, ephemeral reports, authenticated downloads, and browser controls;
+none are part of these mutation services. Public Match API, Match Schema/data
+workflow, YouTube integration, and EuroSkat integration remain absent. The
+prepared Package baseline is `0.15.0`; seven Root workflows, 63 authoritative and
+packaged Schemas, six Session examples, and 85 generated-output scenarios remain
+unchanged.

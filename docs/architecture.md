@@ -60,6 +60,13 @@ Workspace and perform no file or network I/O; the leaf transport alone
 orchestrates private persistence, local HTTP requests, analysis actions, and
 downloads. No YouTube or EuroSkat integration or public Match export occurs.
 
+Issues #160 through #168 form the prepared `v0.15.0` Package baseline, and Issue
+#169 updates only Package/release metadata and documentation. Python remains
+`>=3.13`; Public API, Application, CLI, Match, Session, Provenance, Schema,
+Search, Dataset, list, Coaching, and Settlement contract versions remain
+unchanged. The published stable GitHub Release remains `v0.14.0` until manual
+maintainer publication.
+
 Issue #150 adds a separate internal authoring and control-plane contract before
 the existing Engine workflows:
 
@@ -100,8 +107,9 @@ Load, exact Checkpoint collection, accepted-Log actual-card observation, frozen-
 Request review export, the 12-subcommand Session CLI, explicit existing-
 Application execution, and the phase-aware Assistant. Issue #158 completed
 Release preparation for the functional `v0.14.0` milestone, which the maintainer
-subsequently published manually at commit `d5589f8`; there is still no eighth
-Root workflow or persisted analysis Result.
+subsequently published manually at commit `d5589f8`; Issue #159 synchronized its
+publication status. There is still no eighth Root workflow or persisted analysis
+Result.
 
 The position-analysis flow is:
 
@@ -231,14 +239,15 @@ decision, intermediate-stage, and unredacted attachments remain internal.
 
 | File | Purpose |
 | --- | --- |
-| `src/skat_ai/cli/execution.py` | Package-owned Root compatibility facade and leading-`session` dispatch. |
+| `src/skat_ai/cli/execution.py` | Package-owned Root compatibility facade and leading-`capture` then `session` dispatch. |
+| `src/skat_ai/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
 | `src/skat_ai/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
 | `src/skat_ai/__main__.py` | Module invocation delegation. |
 | `main.py` | Thin Legacy compatibility facade and Root monkeypatch adapter. |
 
 Root parsing, validation, Legacy dependency resolution, Application adaptation,
-dispatch, transport, and presentation are separate focused modules. Session
-parsing, strict JSON input, context/persistence, Checkpoints, operations,
+dispatch, transport, and presentation are separate focused modules. Capture and
+Session parsing, strict JSON input, context/persistence, Checkpoints, operations,
 Application adaptation, and presentation are also separate. CLI is a leaf
 transport: Application, Public API, Match, and observed-Game modules do not
 import it. See [CLI internal architecture](cli_internal_architecture.md).

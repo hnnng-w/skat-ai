@@ -1,17 +1,23 @@
 # Requirements traceability
 
 This document is the authoritative audit of current rule and product support.
-It preserves the published `v0.13.0`, `v0.12.0`, `v0.11.0`, `v0.10.0`, and
+It preserves the published `v0.14.0`, `v0.13.0`, `v0.12.0`, `v0.11.0`, `v0.10.0`, and
 `v0.9.0` release baselines as historical evidence and does not claim complete
-compliance with the official rules. The current published stable GitHub Release
-is `v0.14.0` at commit `d5589f8`. Package version `0.14.0` requires Python
-`>=3.13`, retains Public API contract version `1` and exactly seven Root
-workflows, and contains 63 authoritative Schemas, 63 Packaged Schema Resources,
-six Session examples, 85 deterministic generated-output scenarios, and 5,892
-passing pytest tests. Issues #150 through #157 complete the functional milestone,
-and Issue #158 completed Release preparation. Publication was performed manually
-by the maintainer. GitHub Releases is authoritative; no Package-index or PyPI
-publication is claimed.
+compliance with the official rules. The current Package baseline is `0.15.0`. It
+requires Python `>=3.13`, retains Public API contract version `1` and exactly
+seven Root workflows, and contains 63 authoritative Schemas, 63 Packaged Schema
+Resources, six Session examples, 85 deterministic generated-output scenarios,
+and 6,510 passing pytest tests. Issues #160 through #168 complete the functional
+milestone, and Issue #169 completes Package-version and Release-documentation
+preparation.
+
+The current published stable GitHub Release remains `v0.14.0` at commit
+`d5589f8`. Its baseline has the same 63 authoritative and packaged Schemas, six
+Session examples, and 85 generated-output scenarios, and passed 5,892 pytest
+tests. Issues #150 through #157 complete that functional milestone, Issue #158
+completed Release preparation, and Issue #159 synchronized publication status.
+Publication was performed manually by the maintainer. GitHub Releases is
+authoritative; no Package-index or PyPI publication is claimed.
 
 ## Normative sources
 
@@ -123,14 +129,14 @@ scenarios. The `v0.14.0` Package baseline therefore has 85 generated outputs and
 63 Schemas. The functional milestone is complete, and Issue #158 completed
 Package version `0.14.0` and Release-documentation preparation without changing
 product behavior. The maintainer subsequently published `v0.14.0` manually at
-commit `d5589f8`. GUI or
+commit `d5589f8`. Session GUI or
 browser UI, online-platform adapters, browser extensions, website scraping,
 cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open.
 
-The functionally complete but unreleased development milestone is `v0.15.0`,
-targeting usable manual post-game capture of one EuroSkat 36er Standard Match
-from descriptive video evidence. Issue #160 begins that milestone with internal
+The prepared current Package milestone is `v0.15.0`, targeting usable manual
+post-game capture of one EuroSkat 36er Standard Match from descriptive video
+evidence. Issue #160 begins that milestone with internal
 immutable Match source,
 timecode, format-registry, participant, optional statistics-snapshot, identity,
 perspective, and serialization contracts. Issue #161 adds internal immutable
@@ -156,11 +162,19 @@ adds explicit one-Decision Position and strict Historical execution through the
 existing Application, bounded eligible Profile application through existing
 behavior, no-workflow Match materialization, deterministic max-eight ephemeral
 reports, concurrency invalidation, and authenticated canonical local downloads.
-It completes the functional milestone without a Release, publication, or
-Package-version change. Public Match API and Schema/data workflow, global Player
+It completes the functional milestone. Issue #169 changes only the Package
+version, current version expectations, Changelog, and release-state
+documentation. Public Match API and Schema/data workflow, global Player
 Catalog, communication-aware Dataset work, database/remote deployment,
 YouTube/EuroSkat integration, and broader pre-v1 work remain open. `v1.0.0`
 remains unready.
+
+The provisional next planning milestone is `v0.16.0 — Learning-ready behavior
+and communication data`. Its candidate catalogs, multi-Match Snapshot history,
+Commentary/Response export, target separation, Dataset version `2`, annotations,
+cross-game summaries, evaluation baselines, and separate derived AI tags are not
+finalized implementation scope. No final Issue split, architecture, Dataset field
+list, model design, release date, or production model is defined.
 
 ## Status vocabulary
 
@@ -493,8 +507,8 @@ maintainer's manual publication. See
 | Persistent EuroSkat Match Workspace | skat-ai product | Not applicable | `partially_supported` | Issue #163 defines exact 36-Slot persistence; Issues #165 and #166 add one-file CAS autosave and Snapshot updates. Issue #168 derives reports without changing persisted bytes. | One exact Match definition, optional observed Games/passed deals/Snapshots, exact revisions, one explicit existing-parent file path, and retained fingerprint. | Structural completion does not imply Historical materializability. Reports are process-local, max-eight, revision-scoped, and not Workspace-persisted. No Public Match API/Schema, distributed lock, retry/merge, remote/cloud/encryption/backup exists. | Retain persistence bytes, one operation/at-most-one Save, no context replacement on conflict, explicit Reload, report invalidation/concurrency discard, and private path/fingerprint omission. | v0.15.0 functional local persistence complete | Yes |
 | Rapid post-game Match Capture Application services | skat-ai product | Not applicable | `partially_supported` | Issue #164 defines transport-free rapid-entry services; Issue #165 maps browser mutations to them. Issues #166 through #168 remain separate Statistics, preparation, analysis, report, and export layers. | One loaded Workspace, selected position, exact revision, and operation-specific observed evidence. | Capture services themselves still perform no I/O, analysis, or downstream preparation. Bounded Card candidates do not assert ownership or legality. Public Match API/Schema/data workflow, tactical interpretation, and AI commentary remain absent. | Retain service identities, direct mutation delegation, conflict precedence, atomic batches, automatic actors/indexes, no hidden completion, and import direction. | v0.15.0 functional local transport complete | Yes |
 | Match review and materialization preparation | skat-ai product | Not applicable | `supported` | Issue #167 defines information-safe Decision preparation, strict normal-completion Historical materialization, unpartitioned Training sources, and complete fixed-list aggregation. Issue #168 exposes explicit private preparation reports and canonical downloads while materialization itself executes no workflow. | One validated Workspace; exact acting hand per Decision; strict complete Deal for Historical/Training; complete 36-Slot evidence for list aggregation; optional exact lot order. | Preparation itself applies no policy and executes no workflow. No Dataset Plan/partition/sample, list comparison, persisted report, Public Match export/API/Schema, or media-offset timestamp derivation exists. | Retain Decision/Historical evidence separation, actual-Card cutoff, Skat/Ouvert visibility, canonical round trips, Match time, Passed Deals, Commentary isolation, counts, standings, unresolved lot, and twelve round ends. | v0.15.0 bounded internal preparation complete | Yes |
-| Match analysis and private exports | skat-ai product | Not applicable | `supported` | Issue #168 adds explicit one-Decision Immediate/Search/Auto Position execution from prepared snapshots; strict selected-mode Historical execution; eligible actor-relative Profile application through existing supported behavior; one exact Application invocation; deterministic SHA-256 reports capped at eight; and authenticated canonical Root/Historical/Training/list downloads. | Explicit authenticated action, exact expected revision, selected preparable Decision or strict Historical Game, deterministic options/seeds, and optional eligible Match Statistics. | No automatic analysis, Workspace report persistence, Profile weighting of Search, Profile effect on Coaching, Commentary in Coaching, Public Match API/Schema/Root/CLI, calibrated ML, optimal hidden-information Search, or full official-rule claim. | Retain normal unavailability, actor exclusion, disabled/nonactionable Profile behavior, one-call execution, no-workflow materialization, privacy, canonical bytes/names, stale/concurrent invalidation, and bounded/Strategy Fusion/noncausal limitations. | v0.15.0 functional local milestone complete, unreleased | Yes |
-| Local Match Capture browser and CLI transport | skat-ai product | Not applicable | `supported` | Issues #165 and #166 add the private Web/Protocol/Capture CLI and 19 capture/statistics operations. Issue #168 appends three explicit analysis/materialization operations for 22 total, curated report pages, ephemeral report navigation, and authenticated downloads under Web Protocol version `1`. | One explicit Workspace path with existing parent, startup token/cookie, exact local origin, selected position, expected revision, and operation form or JSON body. | Private local transport only. No remote bind, account/encryption claim, external request, Public Match API/Schema/Root workflow, new Capture CLI option, global Player Catalog, database/cloud/backup, or source integration. | Retain versions/routes/options, no-JavaScript forms, 36 positions, all capture/Statistics/analysis flows, explicit-only execution, autosave/conflicts/Reload, security/privacy, one Console Script, and unchanged 0.14.0/63/85 baselines. | v0.15.0 functional local interface complete, unreleased | Yes |
+| Match analysis and private exports | skat-ai product | Not applicable | `supported` | Issue #168 adds explicit one-Decision Immediate/Search/Auto Position execution from prepared snapshots; strict selected-mode Historical execution; eligible actor-relative Profile application through existing supported behavior; one exact Application invocation; deterministic SHA-256 reports capped at eight; and authenticated canonical Root/Historical/Training/list downloads. | Explicit authenticated action, exact expected revision, selected preparable Decision or strict Historical Game, deterministic options/seeds, and optional eligible Match Statistics. | No automatic analysis, Workspace report persistence, Profile weighting of Search, Profile effect on Coaching, Commentary in Coaching, Public Match API/Schema/Root/CLI, calibrated ML, optimal hidden-information Search, or full official-rule claim. | Retain normal unavailability, actor exclusion, disabled/nonactionable Profile behavior, one-call execution, no-workflow materialization, privacy, canonical bytes/names, stale/concurrent invalidation, and bounded/Strategy Fusion/noncausal limitations. | v0.15.0 Package baseline prepared; manual publication pending | Yes |
+| Local Match Capture browser and CLI transport | skat-ai product | Not applicable | `supported` | Issues #165 and #166 add the private Web/Protocol/Capture CLI and 19 capture/statistics operations. Issue #168 appends three explicit analysis/materialization operations for 22 total, curated report pages, ephemeral report navigation, and authenticated downloads under Web Protocol version `1`. | One explicit Workspace path with existing parent, startup token/cookie, exact local origin, selected position, expected revision, and operation form or JSON body. | Private local transport only. No remote bind, account/encryption claim, external request, Public Match API/Schema/Root workflow, new Capture CLI option, global Player Catalog, database/cloud/backup, or source integration. | Retain versions/routes/options, no-JavaScript forms, 36 positions, all capture/Statistics/analysis flows, explicit-only execution, autosave/conflicts/Reload, security/privacy, one Console Script, and current 0.15.0/63/85 baselines. | v0.15.0 Package baseline prepared; manual publication pending | Yes |
 | Public Session APIs | skat-ai product | Not applicable | `supported` | Stable `skat_ai.api.v1.session` version `1` preserves the first 52 exports and appends Decision Observation, Checkpoint Review Export, and `files`; twelve one-call in-memory operations, strict Command parsing, typed Results, optional complete returned-value provenance, and standalone Schema validation are implemented. Stable `skat_ai.api.v1.session.files` version `1` exposes exact path-free Save/Load Results over strict persistence. | Existing typed Session values or strict JSON-object Command/persistence mappings; caller-supplied file path and expected fingerprint for Save. | No Session Root workflow, automatic analysis after every Command, persisted analysis Result, default path, GUI, platform adapter, cloud synchronization, distributed lock, encryption, or automatic backup. | Retain exact export order/identity, operation/value pairs, observation/review isolation, file Result discrimination, normal statuses, one-call delegation, default provenance omission, strict Schema, 63-Schema parity, and clean-install execution. | v0.14.0 bounded public interface complete | Yes |
 | Stable public Python and installed CLI contract | skat-ai product | Not applicable | `supported` | API contract version `1` defines seven Root workflows. Installed, module, and Legacy forms preserve Root parity, the 12-subcommand Session parser, and Issue #165 leading private `capture` dispatch through one Console Script. Capture stays internal and outside `WorkflowV1` and public exports. | Root JSON; explicit Session path/documents; or one explicit Match Workspace path for Capture. | Broader Domain-error migration, license selection, publication, hosted/platform/cloud/encryption integration, and end-to-end field enforcement remain open. | Retain `capture -> session -> Root`, exact existing Root/Session parsers, seven workflows, 12 Session subcommands, one Console Script, public exports, Legacy seams, import direction, clean installs, 63 Schemas, and 85 scenarios. | v0.14.0 public interface plus v0.15.0 private Capture transport | Yes |
 | Field-level information provenance | skat-ai product | Not applicable | `partially_supported` | Internal contract version `1` defines RFC 6901 paths, immutable ledgers, exact coverage, dependencies, Information Use Context, redaction, serialization, and Confidence separation. All seven workflows have complete non-legacy Root Result ledgers. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts, uses scopes `root_result_without_field_provenance` and `artifact_document`, and requires complete recomputed coverage. | A supported Application invocation with matching retained sidecars; public exposure additionally requires API or CLI opt-in. | Public consumed-input, decision, intermediate-stage, and unredacted attachments are intentionally absent. Broader loading and end-to-end field enforcement remain incomplete; Confidence and specialized source provenance remain separate. | Retain internal enforcement plus public immutable types, seven Result mappings, actual-artifact mapping, redaction and coverage recomputation, strict Schema, default omission, API/CLI parity, privacy rejection, and 77 generated outputs. | v0.13.0 bounded public contract complete; broader v1.0 enforcement open | Yes |

@@ -1,6 +1,6 @@
 # Match capture contracts
 
-Issue #160 begins the active `v0.15.0` milestone with internal immutable
+Issue #160 began the `v0.15.0` milestone with internal immutable
 identity and metadata contracts for manual post-game capture of one EuroSkat
 36er Standard Match from a video or manual observation source. These contracts
 do not themselves make Match capture executable through a Public API, CLI, or
@@ -26,9 +26,9 @@ MATCH_PERSPECTIVE_POLICY =
     one_declared_match_player
 ```
 
-These values are independent from Package version `0.14.0`, Public API,
-Session, Historical Game, fixed-list, Opponent Statistics, Provenance, and
-Schema versions. Issue #160 changes none of those existing contracts.
+These values are independent from the Package, Public API, Session, Historical
+Game, fixed-list, Opponent Statistics, Provenance, and Schema versions. Issue
+#160 changes none of those existing contracts.
 
 ## Game platform and media source
 
@@ -237,10 +237,13 @@ replacement, and persistence without changing this contract. See
 Issue #167 adds a separate internal preparation layer that can build information-
 safe Decision snapshots and, with complete exact Deal evidence, existing
 Historical, unpartitioned Training-source, and fixed-list values without changing
-this contract. There is still no Match Root workflow, Public Match API, Match
-Schema/data workflow, example, generated scenario, global Player Statistics
-history, Profile application, analysis execution, Session/report materialization,
-browser control, or public export. YouTube and EuroSkat integration remain absent.
-The Package remains
-`0.14.0` with seven Root workflows, 63 authoritative and packaged Schemas, and
-85 generated-output scenarios.
+this contract. Issue #168 separately adds explicit private Position/Historical
+execution, eligible Profile application through existing behavior, no-workflow
+materialization, ephemeral reports, and authenticated local downloads without
+changing the Match definition. There is still no Match Root workflow, Public
+Match API, Match Schema/data workflow, example, generated scenario, global
+Player Catalog, public Match export, YouTube integration, or EuroSkat
+integration. The prepared Package baseline is `0.15.0`; seven Root workflows, 63
+authoritative and packaged Schemas, six Session examples, and 85 generated-output
+scenarios remain unchanged. The published stable Release remains `v0.14.0` until
+manual maintainer publication.

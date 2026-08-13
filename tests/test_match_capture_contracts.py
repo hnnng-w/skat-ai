@@ -764,5 +764,5 @@ def test_existing_internal_public_package_and_count_contracts_are_unchanged() ->
     pyproject = tomllib.loads(
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )
-    assert pyproject["project"]["version"] == "0.14.0"
-    assert skat_ai.__version__ == "0.14.0"
+    assert pyproject["project"]["version"] == "0.15.0"
+    assert skat_ai.__version__ == "0.15.0"

@@ -23,7 +23,7 @@ SESSION_REPLAY_POLICY = full_accepted_log_before_apply
 ```
 
 Existing Session contract version `1` and Command version `1` are unchanged.
-Package version is `0.14.0`. Public API, Application, CLI, Provenance,
+Package version is `0.15.0`. Public API, Application, CLI, Provenance,
 Schema, Historical Game, and other Domain versions remain independent.
 Session Persistence version `1` is also independent of the transition and
 projection versions.

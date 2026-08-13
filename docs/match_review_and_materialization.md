@@ -42,10 +42,11 @@ MATCH_COMMENTARY_MATERIALIZATION_POLICY =
 ```
 
 These contracts remain internal. Issue #168 consumes them through explicit
-private browser analysis and download actions without changing Package version
-`0.14.0`, Public API contract version `1`, the seven Root workflows, the Root,
-Session, or Capture CLI, Workspace persistence, Historical Game version `1`,
-Training Dataset version `1`, fixed-list version `1`, or any public export.
+private browser analysis and download actions without itself changing the then-
+current Package version, Public API contract version `1`, the seven Root
+workflows, the Root, Session, or Capture CLI contracts, Workspace persistence,
+Historical Game version `1`, Training Dataset version `1`, fixed-list version
+`1`, or any public export.
 
 ## Two evidence boundaries
 
@@ -327,16 +328,17 @@ are not persisted in the Workspace; downloads are caller-initiated responses,
 not server-side report files.
 
 There is still no Match Root workflow, Public Match API, Match Schema or JSON/data
-workflow, Capture CLI option, public Match export, example, or generated
-scenario. Materialization does not execute Dataset conversion, Dataset
+workflow, additional Capture CLI option, public Match export, example, or
+generated scenario. Materialization does not execute Dataset conversion, Dataset
 partitioning, list Root workflow, list comparison, or any analysis.
 
 The unchanged baselines are:
 
 ```text
-Package version: 0.14.0
+Package version: 0.15.0
 Root workflows: 7
 Authoritative and packaged Schemas: 63
+Session examples: 6
 Generated-output scenarios: 85
 ```
 
@@ -344,9 +346,10 @@ Existing examples, Public API and CLI exports, Historical, Dataset, fixed-list,
 Profile, Provenance, Session, Match Capture, and Workspace contract versions are
 unchanged.
 
-Issue #168 completes the functional `v0.15.0` local Match Capture milestone
-without a release, publication, or version bump. Public Match contracts, Match
-Schema and JSON/data workflow, a global Player Catalog, communication-aware
-Dataset work, database/remote deployment, and broader pre-v1 work remain open.
-YouTube and EuroSkat integration also remain absent. Persistent Workspace reports
-are intentionally not added.
+Issue #168 completes the functional `v0.15.0` local Match Capture milestone.
+Issue #169 prepares Package version `0.15.0` and release documentation without
+product behavior changes. Manual publication remains pending. Public Match
+contracts, Match Schema and JSON/data workflow, a global Player Catalog,
+communication-aware Dataset work, database/remote deployment, and broader pre-v1
+work remain open. YouTube and EuroSkat integration also remain absent. Persistent
+Workspace reports are intentionally not added.

@@ -6,11 +6,12 @@ Historical Application workflows and to the Issue #167 materialization layer.
 Execution remains explicit. Capture mutations, ordinary page rendering, state
 inspection, and Workspace Resume never trigger analysis automatically.
 
-This is an internal local capability. It does not change Package version
-`0.14.0`, Public API contract version `1`, the seven Root workflows, the 63
-authoritative and packaged Schemas, the six Session examples, or the 85 generated-
-output scenarios. It is not a `v0.15.0` release, publication, or version bump.
-The published stable Release remains `v0.14.0` at commit `d5589f8`.
+This is an internal local capability. Issue #168 itself changed no Package
+version, Public API contract version `1`, seven Root workflows, 63 authoritative
+and packaged Schemas, six Session examples, or 85 generated-output scenarios.
+Issue #169 prepares Package version `0.15.0` and release documentation without
+changing this capability. The published stable Release remains `v0.14.0` at
+commit `d5589f8` until manual maintainer publication.
 
 ## Contract identity
 
@@ -153,12 +154,14 @@ Unchanged operations and revision or persistence conflicts do not clear them.
 A report from a different current revision is stale and cannot be viewed or
 downloaded as current.
 
-Analysis captures the Match ID, Workspace revision, and retained content
-fingerprint under the context lock, then releases the lock for potentially long
-workflow execution. It reacquires the lock before publishing. If the Workspace
-changed meanwhile, the stale result is discarded, HTTP `409` is returned, and
-there is no retry. An already mismatched expected revision also returns `409`
-without execution.
+Analysis captures the Match ID, Workspace revision, retained content fingerprint,
+and private report-store generation under the context lock, then releases the
+lock for potentially long workflow execution. It reacquires the lock before
+publishing. If the Workspace or report-store generation changed meanwhile, the
+stale result is discarded, HTTP `409` is returned, and there is no retry. This
+ensures Reload or another invalidation discards in-flight work even if revision
+and fingerprint alone would otherwise match. An already mismatched expected
+revision also returns `409` without execution.
 
 ## Authenticated local downloads
 
@@ -176,9 +179,10 @@ downloads for:
 * the existing fixed-three-player historical-list Root input, when available;
 * the existing fixed-list aggregation, when available.
 
-Exports use deterministic filenames and canonical UTF-8 JSON with two-space
-indentation, LF line endings, ASCII escaping, and exactly one trailing LF. These
-are private browser downloads, not Public API artifacts or new Root workflows.
+Exports use deterministic ASCII-safe filenames and canonical UTF-8 JSON with
+two-space indentation, LF line endings, ASCII escaping, and exactly one trailing
+LF. These are private browser downloads, not Public API artifacts or new Root
+workflows.
 
 ## Privacy and product boundaries
 
@@ -199,8 +203,8 @@ late-game determinization subject to Strategy Fusion; sampled worlds are not
 calibrated probability, and timeout behavior is machine-dependent.
 
 Issue #168 completes the functional local Match Capture scope planned for
-`v0.15.0`, but release preparation and publication are separate human-controlled
-work. Public Match API and Schema/data workflow, a global Player Catalog,
-communication-aware Dataset work, database or remote deployment, YouTube and
-EuroSkat integration, and broader pre-v1 rules, Search, Coaching, Settlement, and
-Provenance work remain open.
+`v0.15.0`. Issue #169 prepares Package/release metadata and documentation;
+publication remains separate human-controlled work. Public Match API and
+Schema/data workflow, a global Player Catalog, communication-aware Dataset work,
+database or remote deployment, YouTube and EuroSkat integration, and broader
+pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.

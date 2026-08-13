@@ -62,9 +62,8 @@ The persistence document kind is:
 skat_ai_match_workspace
 ```
 
-These versions are independent from Package version `0.14.0`, Public API,
-Session, Match Capture, observed-Game, fixed-list, Historical, Provenance, and
-Schema versions.
+These versions are independent from the Package, Public API, Session, Match
+Capture, observed-Game, fixed-list, Historical, Provenance, and Schema versions.
 
 ## Workspace and Slots
 
@@ -363,10 +362,14 @@ aggregation, Progression, standings, and external-lot behavior. Commentary and
 Response Links remain Workspace sidecars. See
 [Match review and materialization](match_review_and_materialization.md).
 
-Profile application, actual workflow execution, browser/public materialization
-or export, Public Match API, Match Schema/data workflow, and analysis remain
-future `v0.15.0` work. YouTube and EuroSkat integration remain absent.
+Issue #168 separately derives ephemeral reports and private downloads without
+changing Workspace fields or persistence bytes. It adds explicit private
+Position/Historical execution and existing-behavior eligible Profile application;
+reports remain process-local and are never persisted. Public Match API, Match
+Schema/data workflow, public Match export, YouTube integration, and EuroSkat
+integration remain absent.
 
-Package version `0.14.0`, seven Root workflows, Public APIs and CLI, 63
-authoritative and packaged Schemas, all existing examples, and 85 generated-
-output scenarios remain unchanged.
+The prepared Package baseline is `0.15.0`; seven Root workflows, Public API and
+CLI contracts, 63 authoritative and packaged Schemas, six Session examples, and
+85 generated-output scenarios remain unchanged. Manual publication remains
+pending.

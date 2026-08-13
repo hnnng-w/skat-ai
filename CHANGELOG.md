@@ -1,5 +1,88 @@
 # Changelog
 
+## v0.15.0
+
+**Release theme: Local EuroSkat 36er Match capture, analysis, and exports**
+
+### Match metadata and observed-game evidence
+
+* Add immutable internal Match source, media-timecode, EuroSkat 36er Standard
+  format, exactly-three-participant, optional Statistics Snapshot, and one
+  Perspective Player contracts without platform integration (Issue #160).
+* Add evidence-aware observed Games with bounded partial and exact complete Play
+  traces, optional Perspective hand, original Skat and Discards, free-text
+  Commentary on any Player Decision, linked later Responses, and no hidden
+  completion (Issue #161).
+
+### CLI modularization and persistent Match Workspaces
+
+* Modularize the existing Root and Session CLI transports behind compatibility
+  facades while preserving installed, module, and Legacy behavior, one Console
+  Script, and all seven Root workflows (Issue #162).
+* Add private persistent 36-position Workspaces with exact rotation, Passed
+  Deals, immutable revisions, evidence-derived Progress, deterministic
+  fingerprints, strict Resume, and optimistic atomic Save (Issue #163).
+
+### Rapid capture services and local browser interface
+
+* Add transport-free rapid capture services with UI-ready Position Views,
+  automatic Player and Decision derivation, exact or bounded selectable Cards,
+  atomic Play append, correction, annotation editing, and Passed Deal wrappers
+  (Issue #164).
+* Add the private Capture CLI and local no-JSON browser with one explicit
+  Workspace path, packaged local assets, loopback-only token and same-origin
+  protection, compare-and-swap autosave, and explicit conflict Reload (Issue
+  #165).
+
+### Match-bound Player Statistics and Profile preparation
+
+* Add editable Match-bound Player Statistics Snapshots with deterministic IDs,
+  strict `captured_at < played_at` eligibility, existing Profile derivation,
+  canonical eligible preparation, and private Add, Replace, and Clear forms
+  without policy application (Issue #166).
+
+### Decision review and strict downstream materialization
+
+* Add information-safe acting-own-hand Decision preparation without future-
+  opponent leakage, strict normal-completion Historical materialization,
+  unpartitioned Training source Records, and complete fixed-list construction
+  and aggregation without workflow execution (Issue #167).
+
+### Explicit Match analysis, reports, and exports
+
+* Add explicit one-Decision Immediate, bounded Search, or Auto Position
+  execution; selected strict Historical Review, Search Review, and Replay
+  Coaching; and eligible relative Profile application through existing supported
+  behavior (Issue #168).
+* Add deterministic max-eight revision-scoped ephemeral reports, no-workflow
+  Match materialization, concurrency invalidation, and private authenticated
+  canonical Root, Historical, Training-source, list, and aggregation downloads
+  (Issue #168).
+
+### Information safety, determinism, and compatibility
+
+* Keep Workspace files, process-local reports, and downloads private and
+  unredacted; add no encryption, secure-storage, cloud, remote-access, backup,
+  hidden-ownership inference, actual-Card optimal-label, Commentary
+  interpretation, Search-world exposure, persisted report, or external-network
+  claim. Capture and ordinary page rendering perform no automatic analysis.
+* Preserve Python `>=3.13`, Public API contract version `1`, exactly seven Root
+  workflows, one `skat-ai = skat_ai.cli:main` Console Script, Root and Session
+  compatibility, all non-Package contract versions, and existing Root and
+  Session input/output contracts. Existing Root and Session callers require no
+  migration. Capture remains an additive private transport; Workspace
+  persistence remains private internal version `1`, reports remain ephemeral,
+  and no Public Match API, Match Schema, or eighth Root workflow is added.
+
+### Validation
+
+* Validate 63 authoritative and byte-identical Packaged Schema Resources, six
+  unchanged Session examples, 85 unchanged deterministic generated outputs, and
+  6,510 pytest tests on Python 3.13.
+* Validate Ruff, Schema/example/generated-output checks, Wheel and sdist
+  metadata, clean-install API and installed/module Root, Session, and Capture
+  CLI behavior, exact `0.15.0` version output, and Legacy Capture help.
+
 ## v0.14.0
 
 **Release theme: End-to-end Live and Retrospective Session capture**

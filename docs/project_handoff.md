@@ -143,6 +143,10 @@ The project focuses on:
   unpartitioned Training source Records, and complete existing fixed-three-
   player list plus aggregation materialization with Passed Deals and Commentary
   retained as Workspace sidecars, without workflow execution
+* internal explicit one-Decision Position and strict Historical Application
+  execution, existing-behavior eligible Profile application, no-workflow Match
+  materialization, deterministic max-eight ephemeral reports, and authenticated
+  canonical local downloads
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1301,6 +1305,7 @@ Main documentation files:
 * `docs/local_match_capture_interface.md`
 * `docs/match_player_statistics.md`
 * `docs/match_review_and_materialization.md`
+* `docs/match_analysis_and_exports.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1315,7 +1320,15 @@ Main documentation files:
 
 Current published stable GitHub Release: `v0.14.0`.
 
-Current Package version: `0.14.0`.
+Current Package version: `0.15.0`.
+
+Current Package baseline: `v0.15.0`.
+
+Prepared Release theme: "Local EuroSkat 36er Match capture, analysis, and
+exports".
+
+Prepared GitHub Release title: "v0.15.0 — Local EuroSkat 36er Match capture,
+analysis, and exports".
 
 Current published baseline: `v0.14.0`.
 
@@ -1332,12 +1345,11 @@ authoritative Schemas and 63 Packaged Schema Resources, includes six Session
 examples, validates 85 deterministic generated-output scenarios, and passes
 5,892 pytest tests. Functional Issues #150 through #157 implement the milestone,
 and Issue #158 completed Release preparation. Publication was performed manually
-by the maintainer. GitHub Releases remains authoritative; no Package-index or
-PyPI publication is claimed.
+by the maintainer, and Issue #159 synchronized its publication status. GitHub
+Releases remains authoritative; no Package-index or PyPI publication is claimed.
 
-Completed functional development milestone: unreleased `v0.15.0`, targeting
-usable manual post-game capture of one EuroSkat 36er Standard Match from
-descriptive video evidence.
+Prepared Package milestone: `v0.15.0`, targeting usable manual post-game capture
+of one EuroSkat 36er Standard Match from descriptive video evidence.
 Issues #160 and #161 implement the internal immutable Match identity/metadata and
 observed single-Game/commentary foundations. Issue #163 adds persistent internal
 36-position Workspaces. Issue #164 adds internal transport-free rapid-entry
@@ -1350,10 +1362,13 @@ execution. Issue #168 adds explicit one-Decision Position and strict Historical
 Application execution, existing-behavior eligible Profile application,
 no-workflow Match materialization, deterministic max-eight revision-scoped
 reports, concurrency invalidation, and authenticated canonical local downloads.
-It completes the functional milestone without release preparation, publication,
-or a Package-version change. These changes preserve Package version `0.14.0`,
-Workspace persistence, seven Root workflows, Public APIs and CLI, 63 Schemas,
-examples, and 85 generated outputs.
+It completes the functional milestone. Issue #169 updates only the Package
+version, matching assertions, Changelog, and release-state documentation. The
+prepared baseline requires Python `>=3.13`, retains Public API contract version
+`1`, seven Root workflows, one Console Script, Workspace persistence, Public APIs
+and CLI contracts, 63 Schemas, six Session examples, and 85 generated outputs,
+and passes 6,510 pytest tests. Manual publication remains pending; no `v0.15.0`
+tag, GitHub Release, Package-index publication, or PyPI publication is claimed.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1599,7 +1614,7 @@ publication.
 
 ## Current implementation baseline
 
-**Current development after published v0.14.0: functionally complete unreleased v0.15.0 local Match Capture**
+**Current Package baseline after published v0.14.0: prepared v0.15.0 local Match Capture**
 
 Completed implementation scope:
 
@@ -1777,7 +1792,7 @@ Completed implementation scope:
   review export, automatic Checkpoint collection, all 12 CLI subcommands,
   explicit Position/Historical execution, the Assistant, examples, and generated
   outputs are implemented. Export-only operations execute no workflow, and the
-  reusable Application still has only seven Root workflows. GUI/browser UI,
+  reusable Application still has only seven Root workflows. Session GUI/browser UI,
   online-platform adapters, cloud synchronization, distributed locking,
   encryption/key management, and automatic backups remain open.
 * Opponent behavior and confidence remain heuristic and rule-based; behavioral evaluation does not prove stronger play.
@@ -1801,12 +1816,18 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Treat Issue #168 as the functional completion of the unreleased `v0.15.0` local
-Match Capture milestone. Release preparation/publication remains a separate
-human-controlled decision. Continue the broader pre-v1 audit, including Public
-Match API and Schema/data workflow, global Player Catalog, communication-aware
-Dataset work, and the requirements below. YouTube and EuroSkat integration are
-not required before `v1.0.0`.
+Treat Issues #160 through #168 as the functional `v0.15.0` local Match Capture
+milestone and Issue #169 as its Package-version and release-documentation
+preparation. Manual tag and GitHub Release creation remain human-controlled.
+The provisional next planning milestone is `v0.16.0 — Learning-ready behavior
+and communication data`; its Issue split, architecture, Dataset fields, model
+design, and release date are not finalized. Candidate directions include
+canonical Game and Player catalogs, multi-Match Player Snapshot history,
+Commentary and Response export, separate behavior, strategy, and communication
+targets, Dataset version `2`, communication-aware annotations, cross-game
+behavior summaries, evaluation baselines, and derived AI tags separate from
+original human text. No production model is planned. Continue the broader pre-v1
+audit below; YouTube and EuroSkat integration are not required before `v1.0.0`.
 
 The audit should cover:
 

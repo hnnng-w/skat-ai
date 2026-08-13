@@ -315,7 +315,7 @@ def test_help_and_version_exit_without_loading_or_execution(
         cli.run_cli(["--version"], invocation_style=style)
     version_output = capsys.readouterr()
     assert version_exit.value.code == 0
-    assert version_output.out == "skat-ai 0.14.0\n"
+    assert version_output.out == "skat-ai 0.15.0\n"
     assert version_output.err == ""
 
 
@@ -332,7 +332,7 @@ def test_module_entry_point_and_package_cli_do_not_import_root_main() -> None:
     assert imported.returncode == 0
     assert json.loads(imported.stdout) == {"root_loaded": False, "callable": True}
     assert module_version.returncode == 0
-    assert module_version.stdout == "skat-ai 0.14.0\n"
+    assert module_version.stdout == "skat-ai 0.15.0\n"
     assert module_version.stderr == ""
 
 

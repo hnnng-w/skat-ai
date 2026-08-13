@@ -441,7 +441,7 @@ Save/Load, installed and module Session help, `new`/`apply`/`show`, Session-
 triggered Position analysis, observation/review, Retrospective finalization, and
 an injected-I/O Assistant smoke flow. Legacy parity is validated from the
 repository checkout. There is still exactly one Console Script, and Package
-version is `0.14.0`.
+version is `0.15.0`.
 
 Issue #157 adds no GUI or browser UI, online-platform adapter, browser extension,
 website scraping, cloud synchronization, distributed lock, collaborative merge,
@@ -450,9 +450,10 @@ or natural-language rule inference. Broader provenance, Search, Claim,
 Settlement, and Coaching gaps remain open independently.
 
 Issue #160's internal Match Capture metadata foundation adds no Match subcommand
-and does not alter this 12-subcommand Session CLI. Match persistence, observed
-Games, Session materialization, Public Match APIs, and browser UI remain later
-`v0.15.0` work.
+and does not alter this 12-subcommand Session CLI. Later Issues #161 through #168
+add separate internal Match persistence, observed Games, private local browser,
+materialization, analysis, and export layers without changing this Session CLI.
+Public Match APIs remain absent.
 
 Issue #162 modularizes the internal Session transport without changing this
 contract. `skat_ai.cli.session` remains the compatibility facade; focused modules

@@ -2,7 +2,7 @@
 
 This document tracks completed areas, known limitations, and planned improvements for `skat-ai`.
 
-## Completed functional milestone: v0.15.0 (unreleased)
+## Prepared Package milestone: v0.15.0
 
 `v0.15.0` targets usable manual post-game capture of one EuroSkat 36er Standard
 Match from a descriptive video source. Issue #160 establishes the internal
@@ -116,8 +116,10 @@ Issue #168 completes the functional local Match Capture milestone:
 * authenticated loopback canonical Root Result, materialization, Historical,
   unpartitioned Training-source, list-input, and list-aggregation downloads.
 
-This functional completion is not a Release, publication, or Package-version
-change. Public Match API and Schema/data workflow, global Player Catalog,
+Issue #168 completed the functional milestone without changing the Package.
+Issue #169 prepares Package version `0.15.0`, matching version assertions,
+Changelog, and current-state documentation for manual publication. Public Match
+API and Schema/data workflow, global Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
 work remain open. No YouTube or EuroSkat integration, ranking,
 qualification, prize, fee, or bonus behavior is implemented.
@@ -217,8 +219,8 @@ exact immutable contract exposure, strict Command parsing, typed Result
 serialization, all ten transport-free in-memory operations, optional complete
 redacted Session Provenance, strict standalone Session Schema, 63-Schema Package
 parity, and clean-install validation. Issue #157 appends two public Session
-operations and the `files` module without changing the first 52 exports. Package
-version is `0.14.0`; the published baseline has 85 generated outputs, six
+operations and the `files` module without changing the first 52 exports. That
+published Package version is `0.14.0`; its baseline has 85 generated outputs, six
 Session examples, 63 Schemas, and 5,892 passing pytest tests. The historical
 published `v0.13.0` baseline remains 62 Schemas and 77 scenarios.
 
@@ -242,7 +244,7 @@ Implemented:
 * Lazy Package Resource Root input/output/artifact schema validation with RFC
   6901 errors and stable boundary translation
 * Explicit Setuptools build metadata, `skat_ai*` discovery, Package Data, and the
-  current `0.14.0` Package version
+  current `0.15.0` Package version
 * Byte-identical private Schema resources with deterministic synchronization and
   local/CI parity checks
 * PEP 561 `py.typed`, Package-Root version metadata, one Wheel and one sdist,
@@ -816,6 +818,25 @@ Implemented:
 
 ## Release baselines
 
+### v0.15.0: Local EuroSkat 36er Match capture, analysis, and exports
+
+The prepared `v0.15.0` Package baseline completes functional Issues #160 through
+#168. Issue #169 changes only Package version `0.15.0`, current version
+assertions, Changelog, and current-state documentation. It requires Python 3.13
+or newer, retains Public API contract version `1`, exactly seven Root workflows,
+and one Console Script, contains 63 authoritative and packaged Schemas, includes
+six unchanged Session examples, validates 85 unchanged deterministic generated-
+output scenarios, and passes 6,510 pytest tests.
+
+The milestone provides Match metadata and observed evidence, persistent
+36-position Workspaces, transport-free rapid capture, the private local browser
+and Capture CLI, Match-bound Statistics and time-safe Profile preparation,
+information-safe Decision preparation, strict Historical and downstream
+materialization, explicit Position and Historical analysis, ephemeral reports,
+and private authenticated exports. Publication remains a manual maintainer
+action. No `v0.15.0` tag, GitHub Release, Package-index publication, or PyPI
+publication is claimed; the published stable Release remains `v0.14.0`.
+
 ### v0.14.0: End-to-end Live and Retrospective Session capture
 
 The published `v0.14.0` Release completes functional Issues #150 through #157.
@@ -836,8 +857,9 @@ Decision Observation and isolated review, automatic Checkpoints, all 12 Session
 CLI subcommands, explicit existing-Application execution, and the phase-aware
 Assistant.
 
-Publication was performed manually by the maintainer. GitHub Releases remains
-authoritative, and no Package-index or PyPI publication is claimed.
+Publication was performed manually by the maintainer, and Issue #159 synchronized
+its publication status. GitHub Releases remains authoritative, and no Package-
+index or PyPI publication is claimed.
 
 ### v0.13.0: Stable API, installable tooling, and public field provenance
 
@@ -959,6 +981,18 @@ The documented `v0.6.0` issue scope is complete:
 No `v0.6.0` commit, merge, tag, publication, release, or issue-closeout action
 remains pending.
 
+## Provisional next planning milestone: v0.16.0
+
+`v0.16.0 — Learning-ready behavior and communication data` is a provisional
+planning direction, not finalized implementation scope. Candidate areas include
+canonical Game and Player catalogs, multi-Match Player Snapshot history,
+Commentary and Response export, separate behavior, strategy, and communication
+targets, Dataset version `2`, communication-aware annotations, cross-game
+behavior summaries, evaluation baselines, and derived AI tags kept separate from
+original human text. No final Issue titles, Issue count, architecture, Dataset
+field list, model architecture, or release date is defined, and no production
+model is planned for this milestone.
+
 ## Later planning milestone: v1.0.0
 
 The [requirements traceability matrix](requirements_traceability.md) is the
@@ -966,8 +1000,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` remains not ready after the functionally complete but unreleased
-`v0.15.0` Match Capture work through internal Match metadata, observed-Game and
+`v1.0.0` remains not ready after the prepared `v0.15.0` Match Capture Package
+baseline through internal Match metadata, observed-Game and
 commentary, persistent Workspace, rapid-entry Application, private local browser
 and autosave transport, Match-bound Statistics editing and time-safe Profile
 preparation, Decision/Historical/Training-source/fixed-list materialization,
@@ -1100,14 +1134,16 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current published `v0.14.0` baseline, unreleased `v0.15.0`
+should distinguish the current `v0.15.0` Package baseline, the published stable
+`v0.14.0` Release,
 Match Capture work through internal Issues #160, #161, #163, and #164 plus
 private browser/Statistics Issues #165 and #166 and internal materialization
 Issue #167 and functional completion Issue #168, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
-release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,
-and 5,892-test published baseline, unreleased `v0.15.0` capture work, requirements
-explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows, and
-unconditional exclusions. The final `v1.0.0` Issue split and implementation
-architecture remain undecided pending the focused repository audit.
+release-preparation Issue #158 and publication-synchronization Issue #159, the
+63-Schema, six-Session-example, 85-scenario, and 5,892-test published baseline,
+Issue #169 release preparation, the provisional `v0.16.0` direction, requirements
+explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
+and unconditional exclusions. The final `v0.16.0` and `v1.0.0` Issue splits and
+implementation architectures remain undecided pending focused review.
