@@ -9,9 +9,10 @@ inspection, and Workspace Resume never trigger analysis automatically.
 This is an internal local capability. Issue #168 itself changed no Package
 version, Public API contract version `1`, seven Root workflows, 63 authoritative
 and packaged Schemas, six Session examples, or 85 generated-output scenarios.
-Issue #169 prepares Package version `0.15.0` and release documentation without
-changing this capability. The published stable Release remains `v0.14.0` at
-commit `d5589f8` until manual maintainer publication.
+Issue #169 completed Package version `0.15.0` and release-documentation
+preparation without changing this capability. The maintainer published the
+Release manually at commit `ec1c154`, and Issue #170 synchronizes publication
+status.
 
 ## Contract identity
 
@@ -203,8 +204,9 @@ late-game determinization subject to Strategy Fusion; sampled worlds are not
 calibrated probability, and timeout behavior is machine-dependent.
 
 Issue #168 completes the functional local Match Capture scope planned for
-`v0.15.0`. Issue #169 prepares Package/release metadata and documentation;
-publication remains separate human-controlled work. Public Match API and
+`v0.15.0`. Issue #169 completed Package/release metadata and documentation
+preparation, and Issue #170 records the subsequent manual publication. Public
+Match API and
 Schema/data workflow, a global Player Catalog, communication-aware Dataset work,
 database or remote deployment, YouTube and EuroSkat integration, and broader
 pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.

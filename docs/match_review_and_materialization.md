@@ -347,8 +347,10 @@ Profile, Provenance, Session, Match Capture, and Workspace contract versions are
 unchanged.
 
 Issue #168 completes the functional `v0.15.0` local Match Capture milestone.
-Issue #169 prepares Package version `0.15.0` and release documentation without
-product behavior changes. Manual publication remains pending. Public Match
+Issue #169 completed Package version `0.15.0` and release-documentation
+preparation without product behavior changes. The maintainer published the
+Release manually at commit `ec1c154`, and Issue #170 synchronizes publication
+status. Public Match
 contracts, Match Schema and JSON/data workflow, a global Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
 work remain open. YouTube and EuroSkat integration also remain absent. Persistent

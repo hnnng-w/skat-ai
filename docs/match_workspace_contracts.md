@@ -369,7 +369,8 @@ reports remain process-local and are never persisted. Public Match API, Match
 Schema/data workflow, public Match export, YouTube integration, and EuroSkat
 integration remain absent.
 
-The prepared Package baseline is `0.15.0`; seven Root workflows, Public API and
+The published Package baseline is `0.15.0`; seven Root workflows, Public API and
 CLI contracts, 63 authoritative and packaged Schemas, six Session examples, and
-85 generated-output scenarios remain unchanged. Manual publication remains
-pending.
+85 generated-output scenarios remain unchanged. The maintainer published
+`v0.15.0` manually at commit `ec1c154`, and Issue #170 synchronizes publication
+status.

@@ -221,6 +221,6 @@ coverage. Issue #165 adds installed/module Capture help, exact packaged browser
 resources, and one in-process create/start/declare/Card/persist/shutdown smoke
 flow in the same clean environments. Package version `0.14.0`, seven Root
 workflows, 12 Session subcommands, 63 authoritative and packaged Schemas, and 85
-generated-output scenarios remain unchanged by Issue #165. The prepared current
-Package version is `0.15.0`; the workflow, subcommand, Schema, scenario, and one-
-Console-Script baselines remain unchanged.
+generated-output scenarios remain unchanged by Issue #165. The current Package
+version is `0.15.0`; the workflow, subcommand, Schema, scenario, and one-Console-
+Script baselines remain unchanged.

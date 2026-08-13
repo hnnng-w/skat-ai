@@ -234,10 +234,13 @@ and Issue #158 completed Release preparation before manual maintainer
 publication. GitHub Releases remains authoritative; no Package-index or PyPI
 publication is claimed.
 
-The prepared `v0.15.0` Package baseline keeps the same 63 authoritative and 63
-packaged Schemas, six Session examples, and 85 deterministic generated outputs,
-and passes 6,510 pytest tests. Issue #169 changes no Schema, example, or generated
-scenario file. Manual `v0.15.0` publication remains pending.
+The current published `v0.15.0` Package baseline at commit `ec1c154` keeps the
+same 63 authoritative and 63 packaged Schemas, six Session examples, and 85
+deterministic generated outputs, and passes 6,510 pytest tests. Issue #169
+completed Release preparation without changing any Schema, example, or generated
+scenario file, and Issue #170 synchronizes publication status. Publication was
+performed manually by the maintainer. GitHub Releases remains authoritative; no
+Package-index or PyPI publication is claimed.
 
 The historical published `v0.13.0` baseline at commit `abd1ad3` contains 62
 authoritative Schemas and 62 Packaged Schema Resources and validates 77
@@ -294,8 +297,9 @@ session_retrospective_finalize
 Their semantic checks cover fingerprints, accepted-Log replay, canonical
 Checkpoint equality/lineage/deduplication, observed Card/revision, frozen Request
 isolation, conflict-without-replacement, execution boundaries, and Position
-privacy. The current `v0.15.0` and published `v0.14.0` Package matrices both have
-85 scenarios, while the historical published `v0.13.0` facts remain 77.
+privacy. The current published `v0.15.0` and historical published `v0.14.0`
+Package matrices both have 85 scenarios, while the historical published
+`v0.13.0` facts remain 77.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON

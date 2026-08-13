@@ -243,7 +243,7 @@ materialization, ephemeral reports, and authenticated local downloads without
 changing the Match definition. There is still no Match Root workflow, Public
 Match API, Match Schema/data workflow, example, generated scenario, global
 Player Catalog, public Match export, YouTube integration, or EuroSkat
-integration. The prepared Package baseline is `0.15.0`; seven Root workflows, 63
+integration. The published Package baseline is `0.15.0`; seven Root workflows, 63
 authoritative and packaged Schemas, six Session examples, and 85 generated-output
-scenarios remain unchanged. The published stable Release remains `v0.14.0` until
-manual maintainer publication.
+scenarios remain unchanged. The maintainer published `v0.15.0` manually at commit
+`ec1c154`, and Issue #170 synchronizes publication status.

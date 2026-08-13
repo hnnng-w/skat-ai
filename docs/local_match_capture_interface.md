@@ -276,7 +276,7 @@ are private local artifacts.
 
 Match Capture Web, Web Protocol, and Capture CLI are independent internal
 version-1 contracts. `capture` is a transport command family, not an eighth Root
-workflow. The prepared Package baseline is `0.15.0`; the seven Root workflows,
+workflow. The published Package baseline is `0.15.0`; the seven Root workflows,
 Public APIs, 63 Schemas, six Session examples, and 85 generated-output scenarios
 are unchanged.
 
@@ -289,9 +289,9 @@ synchronization, encryption, backup, YouTube integration, or EuroSkat
 integration. Commentary and Response Links remain outside Search and Coaching.
 
 Issue #168 completes the functional `v0.15.0` local Match Capture milestone.
-Issue #169 prepares Package/release metadata and documentation without product
-behavior changes. The published stable Release remains `v0.14.0` until manual
-maintainer publication; no `v0.15.0` tag, GitHub Release, Package-index
-publication, or PyPI publication is claimed.
+Issue #169 completed Package/release metadata and documentation preparation
+without product behavior changes. The maintainer published `v0.15.0` manually at
+commit `ec1c154`, and Issue #170 synchronizes publication status. GitHub Releases
+remains authoritative; no Package-index or PyPI publication is claimed.
 See [Match review and materialization](match_review_and_materialization.md) and
 [Match analysis and exports](match_analysis_and_exports.md).

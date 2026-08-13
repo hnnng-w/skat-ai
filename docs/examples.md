@@ -24,17 +24,20 @@ Run the full project check:
 .\scripts\check.ps1
 ```
 
-The published `v0.14.0` baseline at commit `d5589f8` contains 63 authoritative
-Schemas and 63 Packaged Schema Resources, includes six strict Session examples,
-validates 85 deterministic generated-output scenarios, and passes 5,892 pytest
-tests. Issues #150 through #157 complete the functional milestone, and Issue #158
-completed Release preparation before manual maintainer publication. GitHub
-Releases remains authoritative; no Package-index or PyPI publication is claimed.
+The current published `v0.15.0` baseline at commit `ec1c154` contains 63
+authoritative Schemas and 63 Packaged Schema Resources, includes six strict
+Session examples, validates 85 deterministic generated-output scenarios, and
+passes 6,510 pytest tests. Issues #160 through #168 complete the functional
+milestone, Issue #169 completed Release preparation without changing any example
+or generated scenario file, and Issue #170 synchronizes publication status.
+Publication was performed manually by the maintainer. GitHub Releases remains
+authoritative; no Package-index or PyPI publication is claimed.
 
-The prepared `v0.15.0` Package baseline keeps the same 63 authoritative and 63
-packaged Schemas, six strict Session examples, and 85 deterministic generated-
-output scenarios, and passes 6,510 pytest tests. Issue #169 changes no example or
-generated scenario file; manual publication remains pending.
+The historical published `v0.14.0` baseline at commit `d5589f8` contains the same
+63 authoritative and packaged Schemas, six Session examples, and 85 scenarios,
+and passes 5,892 pytest tests. Issues #150 through #157 complete its functional
+milestone, Issue #158 completed Release preparation, and Issue #159 synchronized
+publication status.
 
 The historical published `v0.13.0` baseline at commit `abd1ad3` contains 62
 authoritative Schemas and 62 Packaged Schema Resources, validates 77 deterministic
@@ -650,8 +653,8 @@ artifact provenance.
 Eight Issue #157 scenarios then append Live creation, apply/resume, analysis with
 automatic Checkpoint, observed-card review, Undo/partial Correction, persistence
 conflict, Retrospective export, and Retrospective finalization. The first 77
-remain unchanged and both the published `v0.14.0` and current `v0.15.0` totals
-are 85. Session operation JSON
+remain unchanged and both the historical published `v0.14.0` and current
+published `v0.15.0` totals are 85. Session operation JSON
 uses `session.schema.json`; executed Position/Historical output uses
 `output.schema.json`.
 The behavioral match

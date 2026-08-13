@@ -4,21 +4,21 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current Package baseline is `0.15.0`. It requires Python 3.13 or newer,
-retains Public API contract version `1` and exactly seven Root workflows, and
-contains 63 authoritative Schemas, 63 Packaged Schema Resources, six Session
-examples, 85 deterministic generated-output scenarios, and 6,510 passing pytest
-tests. Issues #160 through #168 complete the functional milestone, and Issue #169
-completes Package-version and Release-documentation preparation. Manual tag and
-GitHub Release creation remain pending.
+The current published stable and latest stable GitHub Release is `v0.15.0` at
+commit `ec1c154`. Package version `0.15.0` requires Python 3.13 or newer, retains
+Public API contract version `1` and exactly seven Root workflows, and contains 63
+authoritative Schemas, 63 Packaged Schema Resources, six Session examples, 85
+deterministic generated-output scenarios, and 6,510 passing pytest tests. Issues
+#160 through #168 complete the functional milestone, Issue #169 completed
+Release preparation, and Issue #170 synchronizes publication status. Publication
+was performed manually by the maintainer. GitHub Releases is authoritative; no
+Package-index or PyPI publication is claimed.
 
-The current published stable GitHub Release remains `v0.14.0` at commit
-`d5589f8`. Its Package baseline contains the same 63 authoritative and packaged
-Schemas, six Session examples, and 85 generated-output scenarios, and passed
-5,892 pytest tests. Issues #150 through #157 complete that functional milestone,
-Issue #158 completed Release preparation, and Issue #159 synchronized publication
-status. GitHub Releases is authoritative; no Package-index or PyPI publication
-is claimed.
+The historical published `v0.14.0` Release points to commit `d5589f8`. Its
+Package baseline contains the same 63 authoritative and packaged Schemas, six
+Session examples, and 85 generated-output scenarios, and passed 5,892 pytest
+tests. Issues #150 through #157 complete that functional milestone, Issue #158
+completed Release preparation, and Issue #159 synchronized publication status.
 
 The historical published `v0.13.0` baseline at commit `abd1ad3` contains 62
 authoritative Schemas and 62 Packaged Schema Resources, validates 77
@@ -109,7 +109,7 @@ adapters, browser
 extensions, website scraping, cloud synchronization, distributed locking,
 encryption/key management, and automatic backup policy remain open.
 
-The prepared current Package milestone is `v0.15.0`, targeting usable manual
+The published `v0.15.0` milestone provides usable manual
 post-game capture of one EuroSkat 36er Standard Match from descriptive video
 evidence. Issue #160 supplies the internal immutable
 Match identity and metadata
@@ -134,8 +134,10 @@ adds explicit one-Decision Position and strict Historical Application execution,
 existing-behavior eligible Profile application, no-workflow Match
 materialization, deterministic max-eight ephemeral reports, concurrency
 invalidation, and authenticated canonical local downloads. It completes the
-functional local Match Capture milestone. Issue #169 prepares the Package
-version and Release documentation without changing product behavior. Public
+functional local Match Capture milestone. Issue #169 completed Package-version
+and Release-documentation preparation without changing product behavior. The
+maintainer published the Release manually at commit `ec1c154`, and Issue #170
+synchronizes publication status. Public
 Match API and Schema/data
 workflow, global Player Catalog, communication-aware Dataset work,
 database/remote deployment, and broader pre-v1 work remain open. `v1.0.0`
@@ -143,7 +145,7 @@ remains unready, and its final planning still
 requires a separate audit of this document and
 [Requirements traceability](requirements_traceability.md).
 
-The provisional next planning milestone is `v0.16.0 — Learning-ready behavior
+The active next planning milestone is `v0.16.0 — Learning-ready behavior
 and communication data`. Possible directions include canonical Game and Player
 catalogs, multi-Match Player Snapshot history, Commentary and Response export,
 separate behavior, strategy, and communication targets, Dataset version `2`,
@@ -425,7 +427,7 @@ GUI/platform/cloud/encryption layers remain open.
 
 | Area | Observable completion condition |
 | --- | --- |
-| Match capture | Issues #160 through #167 retain exact internal metadata, observed Games, 36-Slot Workspace/persistence, rapid-entry services, private no-JSON browser/autosave transport, Match-bound Statistics, information-safe Decision preparation, strict Historical and unpartitioned Training-source materialization, and complete fixed-list aggregation. Issue #168 adds explicit one-Decision Immediate/Search/Auto and strict Historical execution through one existing Application invocation, existing-behavior eligible Profile application, no-workflow materialization, deterministic max-eight ephemeral reports, concurrency invalidation, and authenticated canonical downloads. The functional local `v0.15.0` Package baseline is prepared; manual publication remains pending. Public Match API, Match Schema/data workflow, global Player Catalog, communication-aware Dataset work, and database/remote deployment remain open; YouTube and EuroSkat integration are not required before v1.0. |
+| Match capture | Issues #160 through #167 retain exact internal metadata, observed Games, 36-Slot Workspace/persistence, rapid-entry services, private no-JSON browser/autosave transport, Match-bound Statistics, information-safe Decision preparation, strict Historical and unpartitioned Training-source materialization, and complete fixed-list aggregation. Issue #168 adds explicit one-Decision Immediate/Search/Auto and strict Historical execution through one existing Application invocation, existing-behavior eligible Profile application, no-workflow materialization, deterministic max-eight ephemeral reports, concurrency invalidation, and authenticated canonical downloads. The functional local `v0.15.0` Package baseline is published at commit `ec1c154`. Public Match API, Match Schema/data workflow, global Player Catalog, communication-aware Dataset work, and database/remote deployment remain open; YouTube and EuroSkat integration are not required before v1.0. |
 | Rules and settlement coverage | Every ISkO row marked required before v1.0 in the traceability matrix is `supported`, or has an explicitly approved bounded interpretation; a normative table-driven suite covers winning, losing, achieved/announced levels, overbid, impossible Null, claim, concession, and incomplete-evidence outcomes. |
 | Supported contract variants | Input validation accepts every legal Suit, Grand, Null, Hand, and ouvert variant in the documented v1 contract; rejects every documented illegal modifier dependency; and produces tested game values and settlement for each accepted variant. |
 | Live-position analysis | Every canonical three-player turn phase is either analyzed when the local player acts or advances through a documented opponent-preparation path; unsupported states fail explicitly without mutating the supplied position. |
@@ -451,9 +453,9 @@ GUI/platform/cloud/encryption layers remain open.
 | Session history editing | Version-1 contracts and behavior provide four Undo statuses, five Correction statuses, four Checkpoint relationships, strict-prefix reconstruction, exact suffix reporting, valid partial States, and deterministic replay. Public wrappers and CLI Undo/Correction with CAS Save and automatic resulting-State Checkpoints are implemented. Automatic Redo, arbitrary Log surgery, branching, and merge remain open. |
 | Private Session persistence and resume | The private version-1 document/codec/file boundary provides deterministic State/content fingerprints, strict typed reconstruction and accepted-Log replay, canonical Checkpoints, recomputed lineage, canonical UTF-8 files, optimistic outcomes, and atomic replacement. Stable public Save/Load and all-three-form CLI orchestration preserve those semantics and omit paths from Results. Distributed locking, migration, merge/retry, encryption, cloud sync, and automatic backup remain open. |
 | Examples | Examples cover each supported Root contract family and six strict Session creation/Command/correction/persistence documents; every example passes its applicable Schema and semantic validation. |
-| Generated-output validation | The current `v0.15.0` Package matrix and published `v0.14.0` matrix both have 85 scenarios: the historical published `v0.13.0` first 77 remain unchanged, followed by eight Session scenarios. Historical published `v0.12.0` evidence remains 70. |
+| Generated-output validation | The current published `v0.15.0` Package matrix and historical published `v0.14.0` matrix both have 85 scenarios: the historical published `v0.13.0` first 77 remain unchanged, followed by eight Session scenarios. Historical published `v0.12.0` evidence remains 70. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
-| Regression testing | Ruff, 63-Schema packaged parity, Root and Session example validation, 85-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, and Capture CLI validation, and all 6,510 pytest tests pass for the current `v0.15.0` Package baseline. The published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
+| Regression testing | Ruff, 63-Schema packaged parity, Root and Session example validation, 85-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, and Capture CLI validation, and all 6,510 pytest tests pass for the current published `v0.15.0` Package baseline. The published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 

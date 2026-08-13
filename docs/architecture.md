@@ -60,12 +60,13 @@ Workspace and perform no file or network I/O; the leaf transport alone
 orchestrates private persistence, local HTTP requests, analysis actions, and
 downloads. No YouTube or EuroSkat integration or public Match export occurs.
 
-Issues #160 through #168 form the prepared `v0.15.0` Package baseline, and Issue
-#169 updates only Package/release metadata and documentation. Python remains
+Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
+#169 updated only Package/release metadata and documentation to complete Release
+preparation. Issue #170 synchronizes the subsequent manual publication at commit
+`ec1c154`. Python remains
 `>=3.13`; Public API, Application, CLI, Match, Session, Provenance, Schema,
 Search, Dataset, list, Coaching, and Settlement contract versions remain
-unchanged. The published stable GitHub Release remains `v0.14.0` until manual
-maintainer publication.
+unchanged.
 
 Issue #150 adds a separate internal authoring and control-plane contract before
 the existing Engine workflows:

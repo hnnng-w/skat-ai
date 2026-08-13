@@ -312,6 +312,6 @@ Issue #168 adds separate explicit analysis, existing-behavior Profile
 application, ephemeral reports, authenticated downloads, and browser controls;
 none are part of these mutation services. Public Match API, Match Schema/data
 workflow, YouTube integration, and EuroSkat integration remain absent. The
-prepared Package baseline is `0.15.0`; seven Root workflows, 63 authoritative and
+published Package baseline is `0.15.0`; seven Root workflows, 63 authoritative and
 packaged Schemas, six Session examples, and 85 generated-output scenarios remain
 unchanged.

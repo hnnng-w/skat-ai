@@ -1318,37 +1318,45 @@ Main documentation files:
 
 ## Release status
 
-Current published stable GitHub Release: `v0.14.0`.
+Current published stable and latest stable GitHub Release: `v0.15.0`.
 
 Current Package version: `0.15.0`.
 
 Current Package baseline: `v0.15.0`.
 
-Prepared Release theme: "Local EuroSkat 36er Match capture, analysis, and
+Published Release theme: "Local EuroSkat 36er Match capture, analysis, and
 exports".
 
-Prepared GitHub Release title: "v0.15.0 — Local EuroSkat 36er Match capture,
+Published GitHub Release title: "v0.15.0 — Local EuroSkat 36er Match capture,
 analysis, and exports".
 
-Current published baseline: `v0.14.0`.
+Published Release commit: `ec1c154`.
 
-Published Release theme: "End-to-end Live and Retrospective Session capture".
-
-Published GitHub Release title: "v0.14.0 — End-to-end Live and Retrospective
-Session capture".
-
-Published Release commit: `d5589f8`.
-
-The Package requires Python `>=3.13` and retains Public API contract version `1`
-and exactly seven Root workflows. The published baseline contains 63
+The Package requires Python `>=3.13` and retains Public API contract version `1`,
+exactly seven Root workflows, and the one
+`skat-ai = skat_ai.cli:main` Console Script. The published baseline contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six Session
 examples, validates 85 deterministic generated-output scenarios, and passes
-5,892 pytest tests. Functional Issues #150 through #157 implement the milestone,
-and Issue #158 completed Release preparation. Publication was performed manually
-by the maintainer, and Issue #159 synchronized its publication status. GitHub
+6,510 pytest tests. Functional Issues #160 through #168 implement the milestone,
+Issue #169 completed Release preparation, and Issue #170 synchronizes
+publication status. Publication was performed manually by the maintainer. GitHub
 Releases remains authoritative; no Package-index or PyPI publication is claimed.
 
-Prepared Package milestone: `v0.15.0`, targeting usable manual post-game capture
+Historical published `v0.14.0` Release theme: "End-to-end Live and Retrospective
+Session capture".
+
+Historical GitHub Release title: "v0.14.0 — End-to-end Live and Retrospective
+Session capture".
+
+Historical Release commit: `d5589f8`.
+
+The historical `v0.14.0` baseline contains 63 authoritative Schemas and 63
+Packaged Schema Resources, six Session examples, 85 generated-output scenarios,
+and 5,892 passing pytest tests. Issues #150 through #157 implement its functional
+milestone, Issue #158 completed Release preparation, and Issue #159 synchronized
+publication status after manual maintainer publication.
+
+Published Package milestone: `v0.15.0`, providing usable manual post-game capture
 of one EuroSkat 36er Standard Match from descriptive video evidence.
 Issues #160 and #161 implement the internal immutable Match identity/metadata and
 observed single-Game/commentary foundations. Issue #163 adds persistent internal
@@ -1362,13 +1370,10 @@ execution. Issue #168 adds explicit one-Decision Position and strict Historical
 Application execution, existing-behavior eligible Profile application,
 no-workflow Match materialization, deterministic max-eight revision-scoped
 reports, concurrency invalidation, and authenticated canonical local downloads.
-It completes the functional milestone. Issue #169 updates only the Package
-version, matching assertions, Changelog, and release-state documentation. The
-prepared baseline requires Python `>=3.13`, retains Public API contract version
-`1`, seven Root workflows, one Console Script, Workspace persistence, Public APIs
-and CLI contracts, 63 Schemas, six Session examples, and 85 generated outputs,
-and passes 6,510 pytest tests. Manual publication remains pending; no `v0.15.0`
-tag, GitHub Release, Package-index publication, or PyPI publication is claimed.
+It completes the functional milestone. Issue #169 updated only the Package
+version, matching assertions, Changelog, and release-state documentation to
+complete Release preparation. The maintainer published `v0.15.0` manually at
+commit `ec1c154`, and Issue #170 synchronizes that publication status.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1614,7 +1619,7 @@ publication.
 
 ## Current implementation baseline
 
-**Current Package baseline after published v0.14.0: prepared v0.15.0 local Match Capture**
+**Current published v0.15.0 local Match Capture baseline**
 
 Completed implementation scope:
 
@@ -1816,40 +1821,34 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Treat Issues #160 through #168 as the functional `v0.15.0` local Match Capture
-milestone and Issue #169 as its Package-version and release-documentation
-preparation. Manual tag and GitHub Release creation remain human-controlled.
-The provisional next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`; its Issue split, architecture, Dataset fields, model
-design, and release date are not finalized. Candidate directions include
-canonical Game and Player catalogs, multi-Match Player Snapshot history,
-Commentary and Response export, separate behavior, strategy, and communication
-targets, Dataset version `2`, communication-aware annotations, cross-game
-behavior summaries, evaluation baselines, and derived AI tags separate from
-original human text. No production model is planned. Continue the broader pre-v1
-audit below; YouTube and EuroSkat integration are not required before `v1.0.0`.
+Run a focused repository audit for the active next planning milestone,
+`v0.16.0 — Learning-ready behavior and communication data`. The audit should
+define decision boundaries and evidence needed for planning without selecting the
+final architecture, final Issue titles or count, Dataset-v2 fields,
+communication taxonomy, target labels, model architecture, production training
+workflow, or Release date.
 
 The audit should cover:
 
-* remaining Claims and Settlement gaps;
-* remaining historical end reasons and their evidence boundaries;
-* information-set and complete-contract Search requirements, including current
-  Strategy Fusion limitations;
-* tactical and cross-game Coaching;
-* Player Ratings;
-* broader field-Provenance enforcement plus Provenance and Confidence
-  boundaries;
-* Public API and Schema freeze requirements;
-* compatibility, Deprecation, and migration requirements;
-* performance and latency baselines;
-* installation and distribution evidence;
-* final example and generated-output coverage;
-* remaining documentation and traceability mismatches.
+* canonical Game identity and Game Catalog boundaries;
+* stable Player identity and Player Catalog boundaries;
+* multi-Match Player Statistics history and temporal Snapshot selection;
+* Commentary and Response export while preserving original free text;
+* separation of behavior, strategy, and communication targets;
+* Dataset version `2` and compatibility with existing Dataset split policies;
+* communication-aware annotations and partner-signal/response relationships;
+* derived AI tags as artifacts separate from original human text;
+* cross-game behavior summaries;
+* Known-player and unseen-player evaluation boundaries;
+* annotation Provenance and Confidence boundaries;
+* privacy and redaction requirements;
+* source-of-truth decisions across captured, derived, and curated data;
+* local-file, database, and future remote-storage boundaries;
+* Public API, Schema, CLI, and browser boundaries.
 
-The audit should end with one closed provisional Issue sequence for `v1.0.0`,
-but it must not preselect final Issue titles, count, Release theme,
-implementation architecture, or unresolved product semantics before the audit
-evidence is complete.
+The audit should end with one closed provisional Issue sequence for `v0.16.0`,
+while leaving the final Issue decomposition and implementation architecture
+undecided until the audit evidence is complete. No production model is planned.
 
 ## Open future topics
 

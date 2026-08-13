@@ -272,6 +272,7 @@ Issue #168 can explicitly analyze one safely prepared Decision or one strict
 Historical Game and can present private materialization/download actions without
 changing this observed-Game contract. There is still no Public Match API, Root
 workflow, Match Schema/data workflow, example, generated scenario, or public
-Match export. The prepared Package baseline is `0.15.0`; seven Root workflows,
+Match export. The published Package baseline is `0.15.0`; seven Root workflows,
 63 authoritative and packaged Schemas, six Session examples, and 85 generated-
-output scenarios remain unchanged. Manual publication remains pending.
+output scenarios remain unchanged. The maintainer published `v0.15.0` manually
+at commit `ec1c154`, and Issue #170 synchronizes publication status.

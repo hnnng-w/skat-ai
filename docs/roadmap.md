@@ -2,9 +2,9 @@
 
 This document tracks completed areas, known limitations, and planned improvements for `skat-ai`.
 
-## Prepared Package milestone: v0.15.0
+## Published milestone: v0.15.0
 
-`v0.15.0` targets usable manual post-game capture of one EuroSkat 36er Standard
+`v0.15.0` provides usable manual post-game capture of one EuroSkat 36er Standard
 Match from a descriptive video source. Issue #160 establishes the internal
 immutable version-1 Match metadata foundation:
 
@@ -117,8 +117,10 @@ Issue #168 completes the functional local Match Capture milestone:
   unpartitioned Training-source, list-input, and list-aggregation downloads.
 
 Issue #168 completed the functional milestone without changing the Package.
-Issue #169 prepares Package version `0.15.0`, matching version assertions,
-Changelog, and current-state documentation for manual publication. Public Match
+Issue #169 completed Package version `0.15.0`, matching version assertions,
+Changelog, and current-state documentation as Release preparation. The
+maintainer published `v0.15.0` manually at commit `ec1c154`, and Issue #170
+synchronizes publication status. Public Match
 API and Schema/data workflow, global Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
 work remain open. No YouTube or EuroSkat integration, ranking,
@@ -820,9 +822,13 @@ Implemented:
 
 ### v0.15.0: Local EuroSkat 36er Match capture, analysis, and exports
 
-The prepared `v0.15.0` Package baseline completes functional Issues #160 through
-#168. Issue #169 changes only Package version `0.15.0`, current version
-assertions, Changelog, and current-state documentation. It requires Python 3.13
+The published `v0.15.0` Release completes functional Issues #160 through #168.
+Issue #169 completed Release preparation, and Issue #170 synchronizes
+publication status. It is the latest stable GitHub Release, with Release theme
+"Local EuroSkat 36er Match capture, analysis, and exports". The GitHub Release
+title is
+"v0.15.0 — Local EuroSkat 36er Match capture, analysis, and exports", and the
+Release points to commit `ec1c154`. Package version `0.15.0` requires Python 3.13
 or newer, retains Public API contract version `1`, exactly seven Root workflows,
 and one Console Script, contains 63 authoritative and packaged Schemas, includes
 six unchanged Session examples, validates 85 unchanged deterministic generated-
@@ -833,9 +839,9 @@ The milestone provides Match metadata and observed evidence, persistent
 and Capture CLI, Match-bound Statistics and time-safe Profile preparation,
 information-safe Decision preparation, strict Historical and downstream
 materialization, explicit Position and Historical analysis, ephemeral reports,
-and private authenticated exports. Publication remains a manual maintainer
-action. No `v0.15.0` tag, GitHub Release, Package-index publication, or PyPI
-publication is claimed; the published stable Release remains `v0.14.0`.
+and private authenticated exports. Publication was performed manually by the
+maintainer. GitHub Releases remains authoritative, and no Package-index or PyPI
+publication is claimed.
 
 ### v0.14.0: End-to-end Live and Retrospective Session capture
 
@@ -981,10 +987,10 @@ The documented `v0.6.0` issue scope is complete:
 No `v0.6.0` commit, merge, tag, publication, release, or issue-closeout action
 remains pending.
 
-## Provisional next planning milestone: v0.16.0
+## Active next planning milestone: v0.16.0
 
-`v0.16.0 — Learning-ready behavior and communication data` is a provisional
-planning direction, not finalized implementation scope. Candidate areas include
+`v0.16.0 — Learning-ready behavior and communication data` is the active next
+planning milestone, not finalized implementation scope. Candidate areas include
 canonical Game and Player catalogs, multi-Match Player Snapshot history,
 Commentary and Response export, separate behavior, strategy, and communication
 targets, Dataset version `2`, communication-aware annotations, cross-game
@@ -1000,7 +1006,7 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` remains not ready after the prepared `v0.15.0` Match Capture Package
+`v1.0.0` remains not ready after the published `v0.15.0` Match Capture Package
 baseline through internal Match metadata, observed-Game and
 commentary, persistent Workspace, rapid-entry Application, private local browser
 and autosave transport, Match-bound Statistics editing and time-safe Profile
@@ -1134,16 +1140,19 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current `v0.15.0` Package baseline, the published stable
-`v0.14.0` Release,
+should distinguish the current published stable `v0.15.0` Release from the
+historical published `v0.14.0` Release,
 Match Capture work through internal Issues #160, #161, #163, and #164 plus
 private browser/Statistics Issues #165 and #166 and internal materialization
 Issue #167 and functional completion Issue #168, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
 release-preparation Issue #158 and publication-synchronization Issue #159, the
-63-Schema, six-Session-example, 85-scenario, and 5,892-test published baseline,
-Issue #169 release preparation, the provisional `v0.16.0` direction, requirements
+historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
+baseline, functional Issues #160 through #168, completed Release-preparation
+Issue #169, publication-synchronization Issue #170, the published 63-Schema,
+six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the active
+`v0.16.0` planning direction, requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
 and unconditional exclusions. The final `v0.16.0` and `v1.0.0` Issue splits and
 implementation architectures remain undecided pending focused review.

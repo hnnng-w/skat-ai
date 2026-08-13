@@ -282,8 +282,9 @@ distributed locking, encryption/key management, or automatic backup policy is
 added. The Issue #165 browser is a private loopback-only local transport; it is
 not a hosted GUI or Public Match API. Issue #168 completes the functional
 `v0.15.0` local Match Capture milestone without itself changing the Package.
-Issue #169 prepares Package version `0.15.0`, matching assertions, Changelog, and
-release-state documentation without product behavior changes. The published
-stable Release remains `v0.14.0` until manual maintainer publication; Public
+Issue #169 completed Package version `0.15.0`, matching assertions, Changelog,
+and release-state documentation as Release preparation without product behavior
+changes. The maintainer published `v0.15.0` manually at commit `ec1c154`, and
+Issue #170 synchronizes publication status. Public
 Match API and Schema/data workflow, database/remote deployment, and public Match
 exports remain open. No Package-index or PyPI publication is claimed.
