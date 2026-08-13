@@ -229,7 +229,15 @@ this historical-list source and aggregation workflow. It reuses only
 empty/observed/passed Slots, media timecodes, revisions, Progress, and private
 persistence do not change list Entry types, Played Game or Passed Deal semantics,
 SkWO scoring, standings, comparison, ranking, or commercial tournament rules.
-No Workspace-to-list materialization exists yet.
+Issue #167 adds internal Workspace-to-list materialization only when all 36
+positions are classified and every observed Game can first materialize one
+strict normal-completion Historical Game. Passed Deals remain existing
+`passed_deal` entries with no synthetic Game; deterministic list/Entry IDs,
+Match-level `played_at`, the existing builder, aggregation, Progression,
+standings, unresolved `lot_required`, and optional external lot behavior are
+reused unchanged. It does not execute this public Root workflow, list comparison,
+browser action, or public export. See
+[Match review and materialization](match_review_and_materialization.md).
 
 Automatic Training Dataset preparation is now a separate root-selected workflow
 and does not consume or change this historical-list contract.

@@ -16,6 +16,7 @@ from skat_ai.observed_game_commentary import (
     canonicalize_observed_annotations_v1,
 )
 from skat_ai.observed_game_trace import (
+    ObservedGameTraceSummaryV1,
     ObservedPlayV1,
     _require_version,
     canonicalize_observed_cards_v1,
@@ -185,17 +186,14 @@ def _reconcile_complete_cards(
             and perspective_initial_hand != playable_hands[perspective_player_id]
         ):
             raise ValueError(
-                "Known perspective initial hand must equal the complete Hand-game "
-                "playable hand."
+                "Known perspective initial hand must equal the complete Hand-game playable hand."
             )
         return
 
     if discarded_cards is not None and discarded_cards != unplayed_cards:
         raise ValueError("Known non-Hand Discards must equal the unplayed Cards.")
     if original_skat is not None:
-        declarer_available = set(playable_hands[declarer_player_id]) | set(
-            unplayed_cards
-        )
+        declarer_available = set(playable_hands[declarer_player_id]) | set(unplayed_cards)
         if not set(original_skat) <= declarer_available:
             raise ValueError(
                 "Known original Skat conflicts with the complete Declarer playable hand."
@@ -301,9 +299,7 @@ class ObservedGameRecordV1:
             "game_id": self.game_id,
             "match_id": self.match_id,
             "match_position": self.match_position,
-            "game_timecode": (
-                None if self.game_timecode is None else self.game_timecode.to_dict()
-            ),
+            "game_timecode": (None if self.game_timecode is None else self.game_timecode.to_dict()),
             "players": [player.to_dict() for player in self.players],
             "perspective_player_id": self.perspective_player_id,
             "perspective_initial_hand": (
@@ -317,9 +313,7 @@ class ObservedGameRecordV1:
                 if self.declaration is None
                 else build_serializable_game_declaration(self.declaration)
             ),
-            "original_skat": (
-                None if self.original_skat is None else list(self.original_skat)
-            ),
+            "original_skat": (None if self.original_skat is None else list(self.original_skat)),
             "discarded_cards": (
                 None if self.discarded_cards is None else list(self.discarded_cards)
             ),
@@ -329,7 +323,7 @@ class ObservedGameRecordV1:
         }
 
 
-def build_observed_game_record_v1(
+def _build_observed_game_record_v1(
     match_definition: MatchCaptureDefinitionV1,
     *,
     game_id: str,
@@ -344,8 +338,9 @@ def build_observed_game_record_v1(
     plays: tuple[ObservedPlayV1, ...],
     commentaries: tuple[ObservedDecisionCommentaryV1, ...],
     response_links: tuple[ObservedDecisionResponseLinkV1, ...],
+    _validated_trace_output: list[ObservedGameTraceSummaryV1] | None = None,
 ) -> ObservedGameRecordV1:
-    """Builds one evidence-safe observed Game from one exact Match definition."""
+    """Builds one observed Game and optionally returns its validated trace."""
     if not isinstance(match_definition, MatchCaptureDefinitionV1):
         raise ValueError("match_definition must be MatchCaptureDefinitionV1.")
     validate_stable_list_entry_identifier(game_id, "game_id")
@@ -353,9 +348,7 @@ def build_observed_game_record_v1(
         type(match_position) is not int
         or not 1 <= match_position <= match_definition.tournament_format.game_count
     ):
-        raise ValueError(
-            "match_position must be an integer from 1 through the Match game_count."
-        )
+        raise ValueError("match_position must be an integer from 1 through the Match game_count.")
     retained_game_timecode = copy_observed_timecode_v1(game_timecode, "game_timecode")
     validate_observed_timecode_containment_v1(
         retained_game_timecode,
@@ -444,15 +437,15 @@ def build_observed_game_record_v1(
             discarded_cards=retained_discards,
         )
 
-    canonical_commentaries, canonical_response_links = (
-        canonicalize_observed_annotations_v1(
-            commentaries=commentaries,
-            response_links=response_links,
-            plays=trace.plays,
-            game_player_ids=player_ids,
-            game_timecode=retained_game_timecode,
-        )
+    canonical_commentaries, canonical_response_links = canonicalize_observed_annotations_v1(
+        commentaries=commentaries,
+        response_links=response_links,
+        plays=trace.plays,
+        game_player_ids=player_ids,
+        game_timecode=retained_game_timecode,
     )
+    if _validated_trace_output is not None:
+        _validated_trace_output.append(trace)
     return ObservedGameRecordV1._from_validated(
         game_id=game_id,
         match_id=match_definition.match_id,
@@ -468,4 +461,38 @@ def build_observed_game_record_v1(
         plays=trace.plays,
         commentaries=canonical_commentaries,
         response_links=canonical_response_links,
+    )
+
+
+def build_observed_game_record_v1(
+    match_definition: MatchCaptureDefinitionV1,
+    *,
+    game_id: str,
+    match_position: int,
+    game_timecode: MediaTimecodeV1 | None,
+    seat_order_player_ids: tuple[str, str, str],
+    perspective_initial_hand: tuple[str, ...] | None,
+    declarer_player_id: str | None,
+    declaration: GameDeclaration | None,
+    original_skat: tuple[str, ...] | None,
+    discarded_cards: tuple[str, ...] | None,
+    plays: tuple[ObservedPlayV1, ...],
+    commentaries: tuple[ObservedDecisionCommentaryV1, ...],
+    response_links: tuple[ObservedDecisionResponseLinkV1, ...],
+) -> ObservedGameRecordV1:
+    """Builds one evidence-safe observed Game from one exact Match definition."""
+    return _build_observed_game_record_v1(
+        match_definition,
+        game_id=game_id,
+        match_position=match_position,
+        game_timecode=game_timecode,
+        seat_order_player_ids=seat_order_player_ids,
+        perspective_initial_hand=perspective_initial_hand,
+        declarer_player_id=declarer_player_id,
+        declaration=declaration,
+        original_skat=original_skat,
+        discarded_cards=discarded_cards,
+        plays=plays,
+        commentaries=commentaries,
+        response_links=response_links,
     )

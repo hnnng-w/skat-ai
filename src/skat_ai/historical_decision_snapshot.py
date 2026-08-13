@@ -62,7 +62,7 @@ class HistoricalSnapshotDeclaration:
     schneider_announced: bool
     schwarz_announced: bool
     matadors: int | None
-    bid_value: int
+    bid_value: int | None
 
 
 @dataclass(frozen=True)
@@ -128,83 +128,82 @@ def _serialize_completed_trick(
     }
 
 
+def build_serializable_historical_decision_snapshot(
+    snapshot: HistoricalDecisionSnapshot,
+) -> dict[str, Any]:
+    """Builds the stable JSON representation of one historical Decision."""
+    visible_state = snapshot.visible_state
+    declaration = visible_state.declaration
+    result = {
+        "source_game_id": snapshot.source_game_id,
+        "decision_index": snapshot.decision_index,
+        "trick_number": snapshot.trick_number,
+        "play_index": snapshot.play_index,
+        "acting_player_id": snapshot.acting_player_id,
+        "acting_seat": snapshot.acting_seat,
+        "acting_side": snapshot.acting_side,
+        "actual_card_played": snapshot.actual_card_played,
+        "information_cutoff": snapshot.information_cutoff,
+        "relative_player_map": snapshot.relative_player_map.copy(),
+        "visible_state": {
+            "game_type": visible_state.game_type,
+            "declaration": {
+                "hand_game": declaration.hand_game,
+                "ouvert": declaration.ouvert,
+                "schneider_announced": declaration.schneider_announced,
+                "schwarz_announced": declaration.schwarz_announced,
+                "matadors": declaration.matadors,
+                "bid_value": declaration.bid_value,
+            },
+            "own_hand": list(visible_state.own_hand),
+            "legal_cards": list(visible_state.legal_cards),
+            "skat_visibility": visible_state.skat_visibility,
+            "known_skat_cards": list(visible_state.known_skat_cards),
+            "public_exposed_cards": [
+                {
+                    "player_id": exposure.player_id,
+                    "cards": list(exposure.cards),
+                }
+                for exposure in visible_state.public_exposed_cards
+            ],
+            "completed_tricks": [
+                _serialize_completed_trick(trick) for trick in visible_state.completed_tricks
+            ],
+            "current_trick": [_serialize_play(play) for play in visible_state.current_trick],
+            "declarer_trick_points": visible_state.declarer_trick_points,
+            "defender_trick_points": visible_state.defender_trick_points,
+            "opponent_hand_sizes": [
+                {
+                    "relative_player": opponent.relative_player,
+                    "player_id": opponent.player_id,
+                    "remaining_card_count": opponent.remaining_card_count,
+                }
+                for opponent in visible_state.opponent_hand_sizes
+            ],
+        },
+    }
+    if snapshot.source_played_at is not None:
+        result["source_played_at"] = snapshot.source_played_at
+    return result
+
+
 def build_serializable_historical_decision_snapshot_summary(
     summary: HistoricalDecisionSnapshotSummary,
 ) -> dict[str, Any]:
     """Builds the stable JSON representation of historical decision snapshots."""
-    snapshots = []
-    for snapshot in summary.snapshots:
-        visible_state = snapshot.visible_state
-        declaration = visible_state.declaration
-        snapshots.append(
-            {
-                "source_game_id": snapshot.source_game_id,
-                "decision_index": snapshot.decision_index,
-                "trick_number": snapshot.trick_number,
-                "play_index": snapshot.play_index,
-                "acting_player_id": snapshot.acting_player_id,
-                "acting_seat": snapshot.acting_seat,
-                "acting_side": snapshot.acting_side,
-                "actual_card_played": snapshot.actual_card_played,
-                "information_cutoff": snapshot.information_cutoff,
-                "relative_player_map": snapshot.relative_player_map.copy(),
-                "visible_state": {
-                    "game_type": visible_state.game_type,
-                    "declaration": {
-                        "hand_game": declaration.hand_game,
-                        "ouvert": declaration.ouvert,
-                        "schneider_announced": declaration.schneider_announced,
-                        "schwarz_announced": declaration.schwarz_announced,
-                        "matadors": declaration.matadors,
-                        "bid_value": declaration.bid_value,
-                    },
-                    "own_hand": list(visible_state.own_hand),
-                    "legal_cards": list(visible_state.legal_cards),
-                    "skat_visibility": visible_state.skat_visibility,
-                    "known_skat_cards": list(visible_state.known_skat_cards),
-                    "public_exposed_cards": [
-                        {
-                            "player_id": exposure.player_id,
-                            "cards": list(exposure.cards),
-                        }
-                        for exposure in visible_state.public_exposed_cards
-                    ],
-                    "completed_tricks": [
-                        _serialize_completed_trick(trick)
-                        for trick in visible_state.completed_tricks
-                    ],
-                    "current_trick": [
-                        _serialize_play(play) for play in visible_state.current_trick
-                    ],
-                    "declarer_trick_points": visible_state.declarer_trick_points,
-                    "defender_trick_points": visible_state.defender_trick_points,
-                    "opponent_hand_sizes": [
-                        {
-                            "relative_player": opponent.relative_player,
-                            "player_id": opponent.player_id,
-                            "remaining_card_count": opponent.remaining_card_count,
-                        }
-                        for opponent in visible_state.opponent_hand_sizes
-                    ],
-                },
-            }
-        )
-        if snapshot.source_played_at is not None:
-            snapshots[-1]["source_played_at"] = snapshot.source_played_at
-
     return {
         "schema_version": summary.schema_version,
         "information_policy": summary.information_policy,
         "snapshot_count": summary.snapshot_count,
-        "snapshots": snapshots,
+        "snapshots": [
+            build_serializable_historical_decision_snapshot(snapshot)
+            for snapshot in summary.snapshots
+        ],
     }
 
 
 def _build_playable_hands(record: dict[str, Any]) -> dict[str, list[str]]:
-    hands = {
-        player["player_id"]: list(player["initial_hand"])
-        for player in record["players"]
-    }
+    hands = {player["player_id"]: list(player["initial_hand"]) for player in record["players"]}
     declaration = record["declaration"]
     if not declaration["hand_game"]:
         declarer_hand = hands[record["declarer_player_id"]]
@@ -253,8 +252,7 @@ def _infer_visible_matadors(
             )
         ),
         public_hands=tuple(
-            (exposure.player_id, exposure.cards)
-            for exposure in public_exposed_cards
+            (exposure.player_id, exposure.cards) for exposure in public_exposed_cards
         ),
     )
 
@@ -285,13 +283,10 @@ def build_historical_decision_snapshots(
     cardinality = derive_historical_decision_cardinality(historical_game_result)
     declaration = record["declaration"]
     declarer_player_id = record["declarer_player_id"]
-    players_by_id = {
-        player["player_id"]: player for player in record["players"]
-    }
+    players_by_id = {player["player_id"]: player for player in record["players"]}
     players_by_seat = {player["seat"]: player for player in record["players"]}
     seat_order_player_ids = [
-        players_by_seat[seat]["player_id"]
-        for seat in ("forehand", "middlehand", "rearhand")
+        players_by_seat[seat]["player_id"] for seat in ("forehand", "middlehand", "rearhand")
     ]
     hands = _build_playable_hands(record)
     completed_tricks: list[HistoricalSnapshotCompletedTrick] = []
@@ -342,9 +337,7 @@ def build_historical_decision_snapshots(
                 if is_declarer and not declaration["hand_game"]
                 else []
             )
-            skat_visibility: SkatVisibility = (
-                "known_to_declarer" if known_skat_cards else "unknown"
-            )
+            skat_visibility: SkatVisibility = "known_to_declarer" if known_skat_cards else "unknown"
             exposures = []
             if declaration["ouvert"]:
                 exposures.append(
@@ -358,22 +351,15 @@ def build_historical_decision_snapshots(
                 and decision_index > continuation_event["after_play_count"]
             ):
                 if continuation_event["kind"] == "defender_open_play_continuation":
-                    exposing_player_id = continuation_event[
-                        "exposing_defender_player_id"
-                    ]
+                    exposing_player_id = continuation_event["exposing_defender_player_id"]
                     exposed_cards = continuation_event["exposed_cards"]
                 else:
                     exposing_player_id = declarer_player_id
                     exposed_cards = continuation_event["public_declarer_cards"]
                 remaining_exposed_cards = tuple(
-                    card
-                    for card in exposed_cards
-                    if card in hands[exposing_player_id]
+                    card for card in exposed_cards if card in hands[exposing_player_id]
                 )
-                if not any(
-                    exposure.player_id == exposing_player_id
-                    for exposure in exposures
-                ):
+                if not any(exposure.player_id == exposing_player_id for exposure in exposures):
                     exposures.append(
                         HistoricalSnapshotExposedCards(
                             player_id=exposing_player_id,
@@ -381,8 +367,7 @@ def build_historical_decision_snapshots(
                         )
                     )
             player_order = {
-                player_id: index
-                for index, player_id in enumerate(seat_order_player_ids)
+                player_id: index for index, player_id in enumerate(seat_order_player_ids)
             }
             public_exposed_cards = tuple(
                 sorted(
@@ -419,12 +404,8 @@ def build_historical_decision_snapshots(
                         declaration=HistoricalSnapshotDeclaration(
                             hand_game=declaration["hand_game"],
                             ouvert=declaration["ouvert"],
-                            schneider_announced=declaration.get(
-                                "schneider_announced", False
-                            ),
-                            schwarz_announced=declaration.get(
-                                "schwarz_announced", False
-                            ),
+                            schneider_announced=declaration.get("schneider_announced", False),
+                            schwarz_announced=declaration.get("schwarz_announced", False),
                             matadors=visible_matadors,
                             bid_value=declaration["bid_value"],
                         ),
@@ -441,16 +422,12 @@ def build_historical_decision_snapshots(
                             HistoricalSnapshotOpponentHandSize(
                                 relative_player="left",
                                 player_id=relative_player_map["left"],
-                                remaining_card_count=len(
-                                    hands[relative_player_map["left"]]
-                                ),
+                                remaining_card_count=len(hands[relative_player_map["left"]]),
                             ),
                             HistoricalSnapshotOpponentHandSize(
                                 relative_player="right",
                                 player_id=relative_player_map["right"],
-                                remaining_card_count=len(
-                                    hands[relative_player_map["right"]]
-                                ),
+                                remaining_card_count=len(hands[relative_player_map["right"]]),
                             ),
                         ),
                     ),

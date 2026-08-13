@@ -3,13 +3,15 @@
 Issue #163 adds persistent internal Workspaces for one
 `euroskat_36_standard_v1` Match. A Workspace is the authoritative local capture
 container for exactly 36 Match positions. It can retain empty positions, partial
-or complete observed Games, and explicit passed deals without materializing a
+or complete observed Games, and explicit passed deals without persisting a
 Historical Game, list, report, Dataset, or analysis Result.
 
 The implementation remains internal. Issue #164 now wraps its unchanged
 operations with transport-free rapid-entry Application services. Issue #165
 adds the private local browser/Capture CLI and autosave orchestration without
-changing the Workspace contracts or persisted bytes. There is still no Public
+changing the Workspace contracts or persisted bytes. Issue #167 derives
+internal preparation/materialization values from an already loaded Workspace
+without adding a Workspace field or persistence byte. There is still no Public
 Match API, Root workflow, Match Schema/data workflow, example, or generated
 scenario.
 
@@ -351,9 +353,19 @@ CAS Save, unchanged/conflict no-write behavior, and explicit Reload. See
 Issue #166 adds Match-bound Snapshot editing and time-safe eligible Statistics
 preparation without applying a Profile. See
 [Match Player Statistics](match_player_statistics.md).
-Profile application, Historical/list/report/Dataset materialization, Public
-Match API, Match Schema/data workflow, and analysis remain future
-`v0.15.0` work. YouTube and EuroSkat integration remain absent.
+Issue #167 adds a separate internal traversal over all 36 authoritative Slots.
+It reports materialization status `empty`, `partial`, or `complete`; exact
+Decision, skipped, Historical, Training-source, Passed Deal, Commentary, and
+Response-Link counts; and one per-Slot value. Strict Historical Games require
+normal-completion complete-Deal evidence. Passed Deals create no synthetic Game,
+and a complete materializable Workspace reuses the existing fixed-list builder,
+aggregation, Progression, standings, and external-lot behavior. Commentary and
+Response Links remain Workspace sidecars. See
+[Match review and materialization](match_review_and_materialization.md).
+
+Profile application, actual workflow execution, browser/public materialization
+or export, Public Match API, Match Schema/data workflow, and analysis remain
+future `v0.15.0` work. YouTube and EuroSkat integration remain absent.
 
 Package version `0.14.0`, seven Root workflows, Public APIs and CLI, 63
 authoritative and packaged Schemas, all existing examples, and 85 generated-

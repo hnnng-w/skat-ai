@@ -6,9 +6,9 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
-Issues #160, #161, #163, #164, #165, and #166 add internal Match, observed-Game,
-persistent Workspace, transport-free Capture Application, and private local
-browser transport layers:
+Issues #160, #161, #163, #164, #165, #166, and #167 add internal Match,
+observed-Game, persistent Workspace, transport-free Capture Application, private
+local browser transport, and downstream preparation/materialization layers:
 
 ```text
 descriptive video or manual source metadata
@@ -34,18 +34,23 @@ descriptive video or manual source metadata
     -> editable Match-bound Statistics snapshots
     -> strict-before-Match Context and canonical eligible preparation
     -> existing normalized Profile conversion and derivation without application
-    -> later materialization and Public Match API/Schema/data workflow
+    -> information-safe acting-own-hand Decision preparation
+    -> strict normal-completion Historical and unpartitioned Training sources
+    -> complete existing fixed-list construction and aggregation
+    -> later workflow execution and Public Match API/Schema/data workflow
 ```
 
 The game platform is separate from the media source, and the perspective Player
 is separate from the application user. Observed facts remain distinct from
 derived trace and evidence values: missing original Skat or Discards are not
 completed from the deck complement. No YouTube or EuroSkat integration,
-workflow execution, or Historical, Session, list, report, or Dataset
-materialization occurs in these layers. Capture Application operations receive
-an already loaded Workspace and perform no file or network I/O; the Issue #165
-leaf transport alone orchestrates the existing private persistence functions and
-local HTTP requests.
+workflow execution, public materialization/export, or report materialization
+occurs in these layers. Issue #167 can internally prepare Decision snapshots,
+strict existing Historical Games, unpartitioned Training source Records, and a
+complete existing fixed list plus aggregation. Capture Application operations
+receive an already loaded Workspace and perform no file or network I/O; the Issue
+#165 leaf transport alone orchestrates the existing private persistence functions
+and local HTTP requests.
 
 Issue #150 adds a separate internal authoring and control-plane contract before
 the existing Engine workflows:
@@ -357,6 +362,11 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
 | `src/skat_ai/match_capture_application.py` | Conflict-first orchestration over existing Workspace operations without persistence or analysis. |
+| `src/skat_ai/match_observed_reconstruction.py` | One validated observed trace plus only its exactly reconstructable playable hands and evidence summary. |
+| `src/skat_ai/match_decision_review_preparation.py` | Information-safe acting-own-hand Decision snapshots, actual-Card cutoff, skipped reasons, and relative eligible Profile bindings without application. |
+| `src/skat_ai/match_historical_materialization.py` | Strict complete-Deal normal-completion Historical availability, construction, canonical round trip, and Match-level played-time policy. |
+| `src/skat_ai/match_training_source_materialization.py` | Existing unpartitioned Training source Records and ordered available/unavailable collection without Plans, partitions, or samples. |
+| `src/skat_ai/match_workspace_materialization.py` | Exact 36-Slot preparation, counts/status, Passed Deals, Commentary sidecars, and existing complete-list construction plus aggregation without workflow execution. |
 | `src/skat_ai/capture_web/` | Private Web/Protocol contracts, timecode presentation, locked context, browser-safe state, direct operation delegation, rendering, security, Standard Library server, and packaged assets. |
 | `src/skat_ai/cli/capture_parser.py` | Exact three-option Capture parser and command identity. |
 | `src/skat_ai/cli/capture.py` | Startup, browser open, loopback server lifecycle, interrupt, and Exit Code transport. |
@@ -370,7 +380,8 @@ integration, or tournament-management behavior. See
 [Match Workspace contracts](match_workspace_contracts.md), and
 [Match Capture Application services](match_capture_application_services.md),
 [Local Match Capture interface](local_match_capture_interface.md), and
-[Match Player Statistics](match_player_statistics.md).
+[Match Player Statistics](match_player_statistics.md), and
+[Match review and materialization](match_review_and_materialization.md).
 
 Validation is split between JSON Schema and Python validation:
 

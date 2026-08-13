@@ -234,10 +234,13 @@ validation, normalized Profile conversion, Profile derivation, definition
 replacement, and persistence without changing this contract. See
 [Match Player Statistics](match_player_statistics.md).
 
-There is still no Match Root workflow, Public Match API, Match Schema/data
-workflow, example, generated scenario, global Player Statistics history, Profile
-application, analysis, or materialization into existing Historical, Session,
-list, report, or Dataset values. YouTube and EuroSkat integration remain absent.
+Issue #167 adds a separate internal preparation layer that can build information-
+safe Decision snapshots and, with complete exact Deal evidence, existing
+Historical, unpartitioned Training-source, and fixed-list values without changing
+this contract. There is still no Match Root workflow, Public Match API, Match
+Schema/data workflow, example, generated scenario, global Player Statistics
+history, Profile application, analysis execution, Session/report materialization,
+browser control, or public export. YouTube and EuroSkat integration remain absent.
 The Package remains
 `0.14.0` with seven Root workflows, 63 authoritative and packaged Schemas, and
 85 generated-output scenarios.

@@ -133,6 +133,16 @@ The project focuses on:
   with one explicit Workspace file, loopback token/same-origin protection,
   no-JSON creation and rapid entry, packaged assets, compare-and-swap autosave,
   and explicit conflict Reload
+* editable Match-bound Player Statistics Snapshots with deterministic IDs,
+  strict-before-Match eligibility, existing Profile derivation, canonical
+  eligible preparation, and private browser forms
+* internal evidence-aware Match Decision preparation with acting-own-hand
+  reconstruction, actual-Card cutoff, no future-opponent leakage, Skat/Ouvert
+  visibility, and time-safe relative Profile bindings without application
+* internal strict normal-completion Historical Game materialization,
+  unpartitioned Training source Records, and complete existing fixed-three-
+  player list plus aggregation materialization with Passed Deals and Commentary
+  retained as Workspace sidecars, without workflow execution
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1031,6 +1041,19 @@ Implemented:
   `match_capture_application.py`
   * transport-free Capture contracts, UI-ready View derivation, defensive Game
     rebuilding, automatic Play/annotation updates, and revision orchestration
+* `match_observed_reconstruction.py` and
+  `match_decision_review_preparation.py`
+  * validated exact playable-hand reconstruction, information-safe Decision
+    snapshots, skipped reasons, actual-Card cutoff, and relative eligible Profile
+    bindings without application
+* `match_historical_materialization.py` and
+  `match_training_source_materialization.py`
+  * strict existing normal-completion Historical Games, Match-level played time,
+    and unpartitioned Training source Records without Plans or samples
+* `match_workspace_materialization.py`
+  * exact 36-Slot status/count reconciliation, Passed Deals, Commentary sidecars,
+    and complete existing fixed-list construction plus aggregation without
+    workflow execution
 
 ### Interactive Session contracts
 
@@ -1277,6 +1300,7 @@ Main documentation files:
 * `docs/match_capture_application_services.md`
 * `docs/local_match_capture_interface.md`
 * `docs/match_player_statistics.md`
+* `docs/match_review_and_materialization.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1318,9 +1342,12 @@ observed single-Game/commentary foundations. Issue #163 adds persistent internal
 36-position Workspaces. Issue #164 adds internal transport-free rapid-entry
 Application services over those Workspaces. Issue #165 adds the private local
 browser/Capture CLI with loopback security and optimistic autosave. Issue #166
-adds Match-bound Snapshot editing and time-safe Profile preparation. They preserve
-Package version `0.14.0`, seven Root workflows, Public APIs, 63 Schemas, and 85
-generated outputs.
+adds Match-bound Snapshot editing and time-safe Profile preparation. Issue #167
+adds internal Decision preparation and strict Historical, unpartitioned
+Training-source, and complete fixed-list materialization without workflow
+execution. They preserve Package version `0.14.0`, Workspace persistence, seven
+Root workflows, Public APIs and CLI, 63 Schemas, examples, and 85 generated
+outputs.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1666,6 +1693,18 @@ Completed implementation scope:
   with deterministic Snapshot IDs, immutable set/clear, strict-before-Match
   eligibility, existing normalized Profile derivation, canonical eligible input,
   browser Add/Replace/Clear, and unchanged optimistic persistence
+* internal Match Decision Review Preparation version `1` with partial
+  Perspective-only or complete all-Player acting-own-hand reconstruction,
+  information-safe before-actual-Card snapshots, Skat/Ouvert visibility, and
+  relative eligible Profile bindings without policy application
+* internal Match Historical Game Materialization and Training Source Collection
+  version `1` with strict complete-Deal normal-completion availability,
+  Match-level `played_at`, and existing unpartitioned Records without Plans,
+  partitions, samples, or workflow execution
+* internal Match Workspace Materialization version `1` with exactly 36 Slot
+  values, `empty`/`partial`/`complete` status, reconciled Decision/Historical/
+  Training/Passed/Commentary counts, and complete fixed-list construction plus
+  existing aggregation and external-lot behavior
 
 ## Current high-priority limitations
 
@@ -1732,18 +1771,21 @@ Completed implementation scope:
   commentary, persistent internal 36-position Workspaces, transport-free
   rapid-entry Application services, and the private local browser/Capture CLI
   with autosave. Match-bound Player Statistics editing and time-safe Profile
-  preparation are implemented without policy application. Materialization,
-  Public Match API, Match Schema/data workflow, actual Profile application, and
-  analysis remain later `v0.15.0` work;
+  preparation are implemented without policy application. Internal Decision
+  preparation and strict Historical, unpartitioned Training-source, and complete
+  fixed-list materialization are implemented without workflow execution.
+  Browser execution/export, Public Match API, Match Schema/data workflow, actual
+  Profile application, and analysis remain later `v0.15.0` work;
   YouTube and EuroSkat integration remain absent. No hosted website, remote
   browser deployment, browser extension, or online-platform adapter exists.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Continue the active `v0.15.0` milestone from the Issue #160 through #166 usable
-local manual-capture foundation toward materialization boundaries, Public Match
-API and Schema/data workflow, actual Profile application, and analysis.
+Continue the active `v0.15.0` milestone from the Issue #160 through #167 usable
+local manual-capture and internal materialization foundation toward explicit
+workflow execution, browser controls and report export, Public Match API and
+Schema/data workflow, and actual Profile application.
 YouTube and EuroSkat integration are not required before `v1.0.0`.
 
 The audit should cover:

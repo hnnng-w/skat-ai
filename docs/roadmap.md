@@ -80,9 +80,27 @@ Issue #166 adds editable Match-bound Player Statistics preparation:
   presentation, temporal warnings, prepared Profile presentation, and unchanged
   optimistic autosave.
 
-Historical/list/report/Dataset materialization, Public Match API, Match Schema
-and data workflow, actual Profile application, and analysis remain later
-`v0.15.0` work. No YouTube or EuroSkat integration, ranking,
+Issue #167 adds internal evidence-aware review and materialization preparation:
+
+* partial Perspective-only and complete all-Player acting-own-hand Decision
+  reconstruction without future-opponent leakage;
+* before-actual-Card snapshots with existing Skat and declared-Ouvert semantics;
+* time-safe relative left/right Profile bindings without application;
+* strict complete-Deal normal-completion Historical Game materialization using
+  Match-level `played_at` without media-offset-derived absolute times;
+* existing unpartitioned Training source Records without Plans, partitions, or
+  samples;
+* exact 36-Slot `empty`, `partial`, or `complete` Workspace summaries and counts;
+* complete fixed-list construction with Passed Deals, existing aggregation,
+  Progression, standings, and external-lot behavior;
+* Commentary and Response Links retained only as Workspace sidecars;
+* no workflow execution and no persistence, browser, public, Schema, example,
+  generated-output, CLI, or Package-version change.
+
+Actual Position/Historical/list workflow execution, browser materialization and
+analysis controls, public materialization/export, Public Match API, Match Schema
+and data workflow, and actual Profile application remain later `v0.15.0` work.
+No YouTube or EuroSkat integration, ranking,
 qualification, prize, fee, or bonus behavior is implemented.
 
 Issue #162 characterizes and modularizes the existing Root and Session CLI
@@ -932,7 +950,8 @@ implementation details, and testable completion gates.
 `v1.0.0` remains not ready after the active focused `v0.15.0` Match Capture
 work through the internal Match metadata, observed-Game/commentary, persistent
 Workspace, rapid-entry Application, private local browser/autosave transport,
-and Match-bound Statistics editing/time-safe Profile preparation.
+Match-bound Statistics editing/time-safe Profile preparation, and internal
+Decision/Historical/Training-source/fixed-list materialization without execution.
 A separate audit of both documents must precede its final Issue sequence or
 implementation architecture.
 
@@ -1063,7 +1082,8 @@ Recommended cleanup areas:
 Issue tracking should continue to use small, focused follow-ups. New issues
 should distinguish the current published `v0.14.0` baseline, active `v0.15.0`
 Match Capture work through internal Issues #160, #161, #163, and #164 plus
-private browser/Statistics Issues #165 and #166, historical
+private browser/Statistics Issues #165 and #166 and internal materialization
+Issue #167, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
 release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,

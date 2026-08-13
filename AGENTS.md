@@ -51,6 +51,9 @@ The project focuses on:
 * editable Match-bound Player Statistics Snapshots with deterministic IDs,
   strict-before-Match eligibility, existing Profile derivation, canonical
   eligible preparation, and private browser Add, Replace, and Clear forms
+* internal evidence-aware Match Decision preparation and strict existing-
+  contract Historical, unpartitioned Training-source, and complete fixed-list
+  materialization without workflow execution
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -156,6 +159,7 @@ Before larger changes, read the relevant documentation:
 * `docs/match_capture_contracts.md`
 * `docs/match_workspace_contracts.md`
 * `docs/local_match_capture_interface.md`
+* `docs/match_review_and_materialization.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -299,9 +303,13 @@ loopback token and same-origin protection, no-JSON creation and strict Resume,
 the 36-position browser interface, packaged assets, and optimistic autosave with
 explicit conflict Reload. Issue #166 adds Match-bound Snapshot editing,
 deterministic IDs, strict-before-Match Context/Preparation, existing Profile
-derivation, and private browser forms without policy application.
-Materialization, Public Match API, Match Schema/data workflow, actual Profile
-application, analysis, YouTube integration, and EuroSkat integration remain
+derivation, and private browser forms without policy application. Issue #167
+adds internal information-safe Decision preparation, strict normal-completion
+Historical materialization, unpartitioned Training source Records, and complete
+36-position list construction with existing aggregation and external-lot
+behavior. Actual workflow execution, browser materialization/analysis controls,
+public materialization/export, Public Match API, Match Schema/data workflow,
+actual Profile application, YouTube integration, and EuroSkat integration remain
 absent. `v1.0.0` remains unready after this focused milestone.
 
 Major completed areas include:
@@ -441,6 +449,13 @@ Major completed areas include:
 * editable Match-bound Player Statistics Snapshots with deterministic IDs,
   strict-before-Match Context and canonical Preparation, existing normalized
   Profile derivation, and private browser Add, Replace, and Clear forms
+* internal evidence-aware Match Decision preparation with acting-own-hand
+  reconstruction, actual-Card cutoff, no future-opponent leakage, Skat/Ouvert
+  visibility, and time-safe relative Profile bindings without application
+* internal strict normal-completion Historical Game materialization,
+  unpartitioned Training source Records, and complete existing fixed-three-
+  player list plus aggregation materialization with Passed Deals and Commentary
+  retained as Workspace sidecars, without workflow execution
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -472,9 +487,12 @@ Match Capture now contains identity/metadata, individual evidence-aware observed
 Games and commentary, persistent internal 36-position Workspaces,
 transport-free rapid-entry Application services, and the private local no-JSON
 browser/CLI with autosave. Match-bound Player Statistics editing and time-safe
-Profile preparation are implemented. Materialization, Public Match API, Match
-Schema/data workflow, actual Profile application, and analysis remain later `v0.15.0`
-work; YouTube and EuroSkat integration remain absent.
+Profile preparation are implemented. Internal Decision review preparation and
+strict existing-contract Historical, unpartitioned Training-source, and complete
+fixed-list materialization are implemented without workflow execution. Browser
+execution controls, public materialization/export, Public Match API, Match
+Schema/data workflow, actual Profile application, and analysis remain later
+`v0.15.0` work; YouTube and EuroSkat integration remain absent.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,

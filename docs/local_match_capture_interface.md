@@ -236,9 +236,13 @@ APIs, 63 Schemas, existing examples, and 85 generated-output scenarios are
 unchanged.
 
 Version 1 performs no Position or Historical analysis, Search, review, Replay
-Coaching, materialization, list/report/Dataset generation, Player Profile
-application, YouTube integration, EuroSkat integration, database
+Coaching, browser materialization, list/report/Dataset generation, Player
+Profile application, YouTube integration, EuroSkat integration, database
 persistence, remote serving, cloud synchronization, encryption, or backup.
 Public Match API, Match Schema, Match JSON/data CLI workflow, Player Statistics
-global history, and downstream Historical/list/report/Dataset materialization
-remain future work.
+global history, analysis controls, and public materialization/export remain
+future work. Issue #167's internal Decision, strict Historical, unpartitioned
+Training-source, and complete fixed-list preparation is not exposed by this
+browser and changes no Web operation, CLI option, Workspace persistence byte,
+Schema, example, or generated output. See
+[Match review and materialization](match_review_and_materialization.md).

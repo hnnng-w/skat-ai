@@ -231,8 +231,11 @@ complete trace with the reconstruction formula.
 `complete_initial_deal_reconstructable` is true only for a complete legal trace,
 known original Skat, and exact known Discard evidence. For Hand, exact Discard
 evidence is the retained empty array. The summary describes evidence capability;
-it does not claim that Historical, Session, review, or Dataset materialization
-has occurred.
+it does not itself claim that Historical, Session, review, or Dataset
+materialization has occurred. Issue #167 consumes these capabilities in a
+separate internal layer: Decision preparation needs only the acting Player's
+exact current playable hand, while strict Historical materialization additionally
+needs the complete initial Deal.
 
 ## Serialization and boundaries
 
@@ -256,7 +259,18 @@ Issue #165 transports those exact operations through private browser forms and
 autosave without changing any observed-Game value, validation, or serialization.
 See [Local Match Capture interface](local_match_capture_interface.md).
 
+Issue #167 can use a partial trace to prepare only exact acting-own-hand
+Decisions, or a complete trace to prepare all 30 Decisions. Future Plays may
+reconstruct only the acting Player's own hand; future opponent ownership and
+future public state remain excluded, and `actual_card_played` is attached only
+after the Decision-time visible state. Existing Skat and declared-Ouvert
+visibility semantics remain authoritative. Strict normal-completion Historical
+materialization separately requires original Skat, exact Discards, and complete-
+Deal reconstruction. Commentary and Response Links remain Workspace sidecars.
+See [Match review and materialization](match_review_and_materialization.md).
+
 There is still no Public Match API, Root workflow, Match Schema/data workflow,
-example, generated scenario, analysis, or downstream materialization.
+example, generated scenario, browser materialization action, or analysis
+execution.
 The Package remains `0.14.0` with seven Root workflows, 63 authoritative and
 packaged Schemas, and 85 generated-output scenarios.

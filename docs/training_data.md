@@ -21,10 +21,14 @@ Declared-Ouvert records expose the exact shrinking declarer hand from decision 1
 through the same feature.
 
 Issue #161 observed-Game evidence summaries may state that perspective or
-all-Player Decision samples are reconstructable. That capability flag does not
-create this version-1 Dataset input or any sample. Observed Games have no Dataset
-materialization in this issue, and free-text commentary is not a version-1
-feature, target, label, category, or quality value.
+all-Player Decision samples are reconstructable. Issue #167 can internally
+prepare those information-safe snapshots and, only after strict normal-
+completion Historical materialization, create existing unpartitioned Training
+source Records in Match-position order. It creates no version-1 Dataset input,
+partition, Plan, audit, feature, label, or sample. Free-text Commentary and
+Response Links remain Workspace sidecars and are not version-1 features, targets,
+labels, categories, or quality values. See
+[Match review and materialization](match_review_and_materialization.md).
 
 ## Dataset input
 

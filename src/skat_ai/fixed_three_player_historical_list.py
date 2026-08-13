@@ -70,8 +70,7 @@ class FixedThreePlayerHistoricalPassedDealEntry:
 
 
 type FixedThreePlayerHistoricalListEntry = (
-    FixedThreePlayerHistoricalPlayedGameEntry
-    | FixedThreePlayerHistoricalPassedDealEntry
+    FixedThreePlayerHistoricalPlayedGameEntry | FixedThreePlayerHistoricalPassedDealEntry
 )
 
 
@@ -160,9 +159,7 @@ def _build_players(value: Any) -> tuple[FixedThreePlayerHistoricalListPlayer, ..
         raise ValueError("historical_list.players contains duplicate player_id values.")
     places = tuple(player.table_place for player in players)
     if places != FIXED_THREE_PLAYER_LIST_TABLE_PLACES:
-        raise ValueError(
-            "historical_list.players must cover all table places in canonical order."
-        )
+        raise ValueError("historical_list.players must cover all table places in canonical order.")
     return tuple(players)
 
 
@@ -203,9 +200,7 @@ def _build_entries(value: Any) -> tuple[FixedThreePlayerHistoricalListEntry, ...
                 FixedThreePlayerHistoricalPlayedGameEntry(
                     entry_id=entry_id,
                     entry_kind=entry_kind,
-                    historical_game=build_historical_game_record(
-                        raw_entry["historical_game"]
-                    ),
+                    historical_game=build_historical_game_record(raw_entry["historical_game"]),
                 )
             )
             continue
@@ -263,8 +258,7 @@ def _validate_entry_ids(entries: tuple[FixedThreePlayerHistoricalListEntry, ...]
     )
     if duplicate_entry_ids:
         raise ValueError(
-            f"historical_list.entries contains duplicate entry_id values: "
-            f"{duplicate_entry_ids}."
+            f"historical_list.entries contains duplicate entry_id values: {duplicate_entry_ids}."
         )
 
     game_ids = [
@@ -277,8 +271,7 @@ def _validate_entry_ids(entries: tuple[FixedThreePlayerHistoricalListEntry, ...]
     )
     if duplicate_game_ids:
         raise ValueError(
-            "historical_list.entries contains duplicate historical game IDs: "
-            f"{duplicate_game_ids}."
+            f"historical_list.entries contains duplicate historical game IDs: {duplicate_game_ids}."
         )
 
 
@@ -310,10 +303,12 @@ def _validate_timestamp_order(
         previous_entry_number = entry_number
 
 
-def build_fixed_three_player_historical_list(
+def _build_fixed_three_player_historical_list(
     data: dict[str, Any],
+    *,
+    _entry_facts_output: list[tuple[FixedThreePlayerHistoricalListEntryFact, ...]] | None = None,
 ) -> FixedThreePlayerHistoricalList:
-    """Builds and fully validates one internal version-1 historical list."""
+    """Builds one list and optionally returns its already-derived Entry Facts."""
     if not isinstance(data, dict):
         raise ValueError("historical_list must be an object.")
     _require_exact_fields(
@@ -341,8 +336,17 @@ def build_fixed_three_player_historical_list(
         entries=entries,
     )
     _validate_timestamp_order(entries)
-    build_fixed_three_player_historical_list_entry_facts(result)
+    facts = build_fixed_three_player_historical_list_entry_facts(result)
+    if _entry_facts_output is not None:
+        _entry_facts_output.append(facts)
     return result
+
+
+def build_fixed_three_player_historical_list(
+    data: dict[str, Any],
+) -> FixedThreePlayerHistoricalList:
+    """Builds and fully validates one internal version-1 historical list."""
+    return _build_fixed_three_player_historical_list(data)
 
 
 def _extract_played_game_facts(
@@ -361,9 +365,7 @@ def _extract_played_game_facts(
             f"fixed list players; missing={missing}, additional={additional}."
         )
 
-    player_id_by_seat = {
-        player.seat: player.player_id for player in historical_game.players
-    }
+    player_id_by_seat = {player.seat: player.player_id for player in historical_game.players}
     expected_player_id_by_seat = dict(
         zip(
             HISTORICAL_SEATS,
@@ -376,9 +378,7 @@ def _extract_played_game_facts(
         )
     )
     if tuple(player_id_by_seat) != HISTORICAL_SEATS:
-        player_id_by_seat = {
-            seat: player_id_by_seat[seat] for seat in HISTORICAL_SEATS
-        }
+        player_id_by_seat = {seat: player_id_by_seat[seat] for seat in HISTORICAL_SEATS}
     if player_id_by_seat != expected_player_id_by_seat:
         raise ValueError(
             f"Historical game {historical_game.game_id!r} seats do not match the "
@@ -387,9 +387,7 @@ def _extract_played_game_facts(
 
     summary = build_historical_game_summary(historical_game)
     if summary.get("status") != "complete":
-        raise ValueError(
-            f"Historical game {historical_game.game_id!r} summary must be complete."
-        )
+        raise ValueError(f"Historical game {historical_game.game_id!r} summary must be complete.")
     settlement = summary.get("final_settlement_summary")
     if not isinstance(settlement, dict) or settlement.get("is_complete") is not True:
         raise ValueError(
@@ -491,8 +489,7 @@ def _reconcile_entry_facts(
         raise ValueError("Historical list facts must cover exactly twelve rounds.")
     dealer_counts = Counter(fact.dealer_player_id for fact in facts)
     if any(
-        dealer_counts[player_id] != FIXED_THREE_PLAYER_LIST_ROUND_COUNT
-        for player_id in player_ids
+        dealer_counts[player_id] != FIXED_THREE_PLAYER_LIST_ROUND_COUNT for player_id in player_ids
     ):
         raise ValueError("Every fixed list player must deal exactly twelve entries.")
 
@@ -520,8 +517,7 @@ def _reconcile_entry_facts(
 
         expected_bonus_count = 2 if fact.entry_outcome == "declarer_loss" else 0
         actual_bonus_count = sum(
-            item.opponent_loss_bonus_points
-            == ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE
+            item.opponent_loss_bonus_points == ISKO_COUNTERPARTY_LOSS_BONUS_THREE_PLAYER_TABLE
             for item in contributions
         )
         if actual_bonus_count != expected_bonus_count:
@@ -538,10 +534,8 @@ def _reconcile_entry_facts(
             )
             if (
                 item.own_game_bonus_points != expected_points["own_game_bonus_points"]
-                or item.opponent_loss_bonus_points
-                != expected_points["opponent_loss_bonus_points"]
-                or item.total_performance_points
-                != expected_points["total_performance_points"]
+                or item.opponent_loss_bonus_points != expected_points["opponent_loss_bonus_points"]
+                or item.total_performance_points != expected_points["total_performance_points"]
             ):
                 raise ValueError("A per-entry contribution does not match the performance formula.")
 
@@ -565,9 +559,7 @@ def build_serializable_fixed_three_player_historical_list_entry(
         return {
             "entry_id": entry.entry_id,
             "entry_kind": entry.entry_kind,
-            "historical_game": build_serializable_historical_record(
-                entry.historical_game
-            ),
+            "historical_game": build_serializable_historical_record(entry.historical_game),
         }
     return {
         "entry_id": entry.entry_id,
@@ -627,6 +619,5 @@ def build_serializable_fixed_three_player_historical_list_entry_facts(
 ) -> list[dict[str, Any]]:
     """Serializes authoritative entry facts without adding totals or ranks."""
     return [
-        build_serializable_fixed_three_player_historical_list_entry_fact(fact)
-        for fact in facts
+        build_serializable_fixed_three_player_historical_list_entry_fact(fact) for fact in facts
     ]

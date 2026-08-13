@@ -7,6 +7,7 @@ from skat_ai.observed_game_contracts import (
     _reconcile_complete_cards,
 )
 from skat_ai.observed_game_trace import (
+    ObservedGameTraceSummaryV1,
     _require_version,
     validate_observed_game_trace_v1,
 )
@@ -35,9 +36,7 @@ class ObservedGameEvidenceSummaryV1:
     response_link_count: int
 
     def __init__(self, *_args: object, **_kwargs: object) -> None:
-        raise TypeError(
-            "ObservedGameEvidenceSummaryV1 must be constructed by its focused builder."
-        )
+        raise TypeError("ObservedGameEvidenceSummaryV1 must be constructed by its focused builder.")
 
     @classmethod
     def _from_validated(
@@ -116,8 +115,7 @@ class ObservedGameEvidenceSummaryV1:
             if type(getattr(self, field_name)) is not bool:
                 raise ValueError(f"{field_name} must be a boolean.")
         if self.current_trick_play_count > 2 or (
-            self.completed_trick_count * 3 + self.current_trick_play_count
-            != self.play_count
+            self.completed_trick_count * 3 + self.current_trick_play_count != self.play_count
         ):
             raise ValueError("Trick counts must reconcile with play_count.")
         if self.all_player_decision_samples_reconstructable != self.complete_play_trace:
@@ -136,9 +134,7 @@ class ObservedGameEvidenceSummaryV1:
         ):
             raise ValueError("Discard review requires known original Skat and Discards.")
         if self.complete_initial_deal_reconstructable and not (
-            self.complete_play_trace
-            and self.original_skat_known
-            and self.discarded_cards_known
+            self.complete_play_trace and self.original_skat_known and self.discarded_cards_known
         ):
             raise ValueError(
                 "Complete initial Deal reconstruction requires complete Play, Skat, "
@@ -162,9 +158,7 @@ class ObservedGameEvidenceSummaryV1:
                 self.all_player_decision_samples_reconstructable
             ),
             "discard_review_reconstructable": self.discard_review_reconstructable,
-            "complete_initial_deal_reconstructable": (
-                self.complete_initial_deal_reconstructable
-            ),
+            "complete_initial_deal_reconstructable": (self.complete_initial_deal_reconstructable),
             "commentary_count": self.commentary_count,
             "response_link_count": self.response_link_count,
         }
@@ -196,6 +190,22 @@ def build_observed_game_evidence_summary_v1(
         discarded_cards=record.discarded_cards,
         game_timecode=record.game_timecode,
     )
+    return build_observed_game_evidence_summary_from_trace_v1(record, trace)
+
+
+def build_observed_game_evidence_summary_from_trace_v1(
+    record: ObservedGameRecordV1,
+    trace: ObservedGameTraceSummaryV1,
+) -> ObservedGameEvidenceSummaryV1:
+    """Builds evidence capabilities from one already validated retained trace."""
+    if not isinstance(record, ObservedGameRecordV1):
+        raise ValueError("record must be ObservedGameRecordV1.")
+    if not isinstance(trace, ObservedGameTraceSummaryV1):
+        raise ValueError("trace must be ObservedGameTraceSummaryV1.")
+    if tuple(play.to_dict() for play in trace.plays) != tuple(
+        play.to_dict() for play in record.plays
+    ):
+        raise ValueError("trace must describe the exact observed Game Plays.")
     complete_play_trace = trace.complete_play_trace
     if complete_play_trace:
         assert record.declarer_player_id is not None
@@ -216,10 +226,7 @@ def build_observed_game_evidence_summary_v1(
         perspective_hand_transformation_known = (
             record.perspective_player_id != record.declarer_player_id
             or record.declaration.hand_game
-            or (
-                record.original_skat is not None
-                and record.discarded_cards is not None
-            )
+            or (record.original_skat is not None and record.discarded_cards is not None)
         )
     perspective_samples = complete_play_trace or perspective_hand_transformation_known
 
@@ -237,9 +244,7 @@ def build_observed_game_evidence_summary_v1(
 
     discarded_cards_known = record.discarded_cards is not None
     complete_initial_deal = (
-        complete_play_trace
-        and record.original_skat is not None
-        and discarded_cards_known
+        complete_play_trace and record.original_skat is not None and discarded_cards_known
     )
     return ObservedGameEvidenceSummaryV1._from_validated(
         play_count=play_count,

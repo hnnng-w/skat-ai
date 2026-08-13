@@ -85,7 +85,11 @@ The prepared `OpponentStatisticsInput` contains only eligible records in the
 same canonical order. The Perspective Player is retained when eligible.
 `eligible_player_ids` and `actionable_player_ids` preserve that order. No acting
 Player is removed, no relative side is bound, and no Profile or policy is
-applied. A later per-Decision workflow must perform those information-safe steps.
+applied. Issue #167's internal Decision preparation centers the stable circular
+map on each acting Player, excludes that Player from opponent slots, and reports
+eligible left/right Profiles and actionable presets per prepared Decision. It
+still applies no Profile, preset, or policy. See
+[Match review and materialization](match_review_and_materialization.md).
 
 Metadata correction recomputes all Contexts and the Preparation when
 `played_at` changes. That time correction does not alter Snapshot content and
@@ -140,11 +144,13 @@ merge, or automatic Reload.
 Snapshots are private local Workspace data and receive no public redaction. This
 feature performs no external request, global history lookup, profile learning,
 Profile policy application, Match analysis, Position/Historical execution,
-Search, Review, Coaching, materialization, Session operation, Root Application
-execution, or Public API execution.
+Search, Review, Coaching, Session operation, Root Application execution, or
+Public API execution. Issue #167 may consume the unchanged Preparation for
+relative Decision bindings and include it in an internal Workspace
+materialization summary, but performs no analysis or policy application.
 
 Package version remains `0.14.0`. Public exports, seven Root workflows, Capture
 CLI options, the one Console Script, 63 authoritative and packaged Schemas,
 examples, and 85 generated-output scenarios are unchanged. Match analysis,
-actual Profile application, materialization, Public Match APIs and Schemas, and
-global Player history remain future work.
+actual Profile application, browser/public materialization or export, Public
+Match APIs and Schemas, and global Player history remain future work.

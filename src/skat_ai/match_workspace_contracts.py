@@ -8,9 +8,10 @@ from skat_ai.match_player_snapshot import MatchParticipantV1
 from skat_ai.match_source_metadata import MatchSourceMetadataV1, MediaTimecodeV1
 from skat_ai.observed_game_contracts import (
     ObservedGameRecordV1,
-    build_observed_game_record_v1,
+    _build_observed_game_record_v1,
 )
 from skat_ai.observed_game_trace import (
+    ObservedGameTraceSummaryV1,
     copy_observed_timecode_v1,
     validate_observed_timecode_containment_v1,
 )
@@ -95,10 +96,11 @@ def _copy_observed_game_record_v1(
     value: ObservedGameRecordV1,
     *,
     match_definition: MatchCaptureDefinitionV1,
+    validated_trace_output: list[ObservedGameTraceSummaryV1] | None = None,
 ) -> ObservedGameRecordV1:
     if type(value) is not ObservedGameRecordV1:
         raise ValueError("observed_game must be an ObservedGameRecordV1.")
-    copied = build_observed_game_record_v1(
+    copied = _build_observed_game_record_v1(
         match_definition,
         game_id=value.game_id,
         match_position=value.match_position,
@@ -112,6 +114,7 @@ def _copy_observed_game_record_v1(
         plays=value.plays,
         commentaries=value.commentaries,
         response_links=value.response_links,
+        _validated_trace_output=validated_trace_output,
     )
     if copied.to_dict() != value.to_dict():
         raise ValueError("observed_game must be in canonical form.")
@@ -140,9 +143,7 @@ class MatchPassedDealV1:
     def to_dict(self) -> dict[str, Any]:
         return {
             "match_passed_deal_version": self.match_passed_deal_version,
-            "game_timecode": (
-                None if self.game_timecode is None else self.game_timecode.to_dict()
-            ),
+            "game_timecode": (None if self.game_timecode is None else self.game_timecode.to_dict()),
         }
 
 
@@ -189,21 +190,13 @@ class MatchWorkspaceSlotV1:
         )
         _require_match_position(self.match_position)
         if self.slot_kind not in MATCH_WORKSPACE_SLOT_KINDS:
-            raise ValueError(
-                f"slot_kind must be one of {list(MATCH_WORKSPACE_SLOT_KINDS)}."
-            )
+            raise ValueError(f"slot_kind must be one of {list(MATCH_WORKSPACE_SLOT_KINDS)}.")
         if self.slot_kind == "empty":
             valid = self.observed_game is None and self.passed_deal is None
         elif self.slot_kind == "observed_game":
-            valid = (
-                type(self.observed_game) is ObservedGameRecordV1
-                and self.passed_deal is None
-            )
+            valid = type(self.observed_game) is ObservedGameRecordV1 and self.passed_deal is None
         else:
-            valid = (
-                self.observed_game is None
-                and type(self.passed_deal) is MatchPassedDealV1
-            )
+            valid = self.observed_game is None and type(self.passed_deal) is MatchPassedDealV1
         if not valid:
             raise ValueError("slot_kind and Slot payloads are inconsistent.")
 
@@ -212,12 +205,8 @@ class MatchWorkspaceSlotV1:
             "match_workspace_slot_version": self.match_workspace_slot_version,
             "match_position": self.match_position,
             "slot_kind": self.slot_kind,
-            "observed_game": (
-                None if self.observed_game is None else self.observed_game.to_dict()
-            ),
-            "passed_deal": (
-                None if self.passed_deal is None else self.passed_deal.to_dict()
-            ),
+            "observed_game": (None if self.observed_game is None else self.observed_game.to_dict()),
+            "passed_deal": (None if self.passed_deal is None else self.passed_deal.to_dict()),
         }
 
 
@@ -282,9 +271,7 @@ class MatchWorkspacePositionFactV1:
         if type(self.round_number) is not int or self.round_number != expected_round:
             raise ValueError("round_number must match the canonical Match position.")
         if self.slot_kind not in MATCH_WORKSPACE_SLOT_KINDS:
-            raise ValueError(
-                f"slot_kind must be one of {list(MATCH_WORKSPACE_SLOT_KINDS)}."
-            )
+            raise ValueError(f"slot_kind must be one of {list(MATCH_WORKSPACE_SLOT_KINDS)}.")
         player_ids = (
             self.dealer_player_id,
             self.forehand_player_id,
@@ -292,21 +279,22 @@ class MatchWorkspacePositionFactV1:
             self.rearhand_player_id,
         )
         if any(
-            not isinstance(player_id, str)
-            or not player_id
-            or player_id != player_id.strip()
+            not isinstance(player_id, str) or not player_id or player_id != player_id.strip()
             for player_id in player_ids
         ):
             raise ValueError("Position Fact Player IDs must be non-empty strings.")
         if self.dealer_player_id != self.rearhand_player_id:
             raise ValueError("The Dealer must equal Rearhand.")
-        if len(
-            {
-                self.forehand_player_id,
-                self.middlehand_player_id,
-                self.rearhand_player_id,
-            }
-        ) != 3:
+        if (
+            len(
+                {
+                    self.forehand_player_id,
+                    self.middlehand_player_id,
+                    self.rearhand_player_id,
+                }
+            )
+            != 3
+        ):
             raise ValueError("Historical seats must contain three distinct Players.")
         _require_non_negative_integer(self.play_count, "play_count")
         if self.play_count > 30:
@@ -323,9 +311,7 @@ class MatchWorkspacePositionFactV1:
         elif self.game_id is not None or self.play_count != 0 or self.complete_play_trace:
             raise ValueError("Non-Game Position Facts cannot contain Game evidence.")
         if self.complete_play_trace != (self.play_count == 30):
-            raise ValueError(
-                "complete_play_trace must be true exactly when play_count is 30."
-            )
+            raise ValueError("complete_play_trace must be true exactly when play_count is 30.")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -384,6 +370,7 @@ def _build_match_workspace_v1(
     revision: int,
     match_definition: MatchCaptureDefinitionV1,
     slots: tuple[MatchWorkspaceSlotV1, ...] | list[MatchWorkspaceSlotV1],
+    validated_traces: list[tuple[int, ObservedGameTraceSummaryV1]] | None = None,
 ) -> MatchWorkspaceV1:
     _require_non_negative_integer(revision, "revision")
     copied_definition = _copy_match_definition_v1(match_definition)
@@ -392,9 +379,7 @@ def _build_match_workspace_v1(
         tournament_format.format_id != _EUROSKAT_36_STANDARD_FORMAT_ID
         or tournament_format.game_count != _MATCH_POSITION_COUNT
     ):
-        raise ValueError(
-            "Match Workspaces require exact canonical euroskat_36_standard_v1."
-        )
+        raise ValueError("Match Workspaces require exact canonical euroskat_36_standard_v1.")
     if isinstance(slots, (str, bytes)) or not isinstance(slots, (list, tuple)):
         raise ValueError("slots must be an ordered array.")
     if len(slots) != _MATCH_POSITION_COUNT:
@@ -412,14 +397,33 @@ def _build_match_workspace_v1(
         source_slot._validate_relationships()
         if source_slot.match_position != expected_position:
             raise ValueError("Slot positions must be exactly 1 through 36 in order.")
-        copied_slot = _build_match_workspace_slot_v1(
-            match_position=source_slot.match_position,
-            slot_kind=source_slot.slot_kind,
-            observed_game=source_slot.observed_game,
-            passed_deal=source_slot.passed_deal,
-            match_definition=copied_definition,
-        )
+        trace_output: list[ObservedGameTraceSummaryV1] = []
+        if source_slot.slot_kind == "observed_game":
+            copied_game = _copy_observed_game_record_v1(
+                source_slot.observed_game,
+                match_definition=copied_definition,
+                validated_trace_output=trace_output,
+            )
+            copied_slot = MatchWorkspaceSlotV1._from_validated(
+                match_position=source_slot.match_position,
+                slot_kind=source_slot.slot_kind,
+                observed_game=copied_game,
+                passed_deal=None,
+            )
+        else:
+            copied_slot = _build_match_workspace_slot_v1(
+                match_position=source_slot.match_position,
+                slot_kind=source_slot.slot_kind,
+                observed_game=source_slot.observed_game,
+                passed_deal=source_slot.passed_deal,
+                match_definition=copied_definition,
+            )
         copied_slots.append(copied_slot)
+        if trace_output:
+            if len(trace_output) != 1:
+                raise ValueError("Observed Game validation must produce exactly one trace.")
+            if validated_traces is not None:
+                validated_traces.append((expected_position, trace_output[0]))
         assignment = build_match_workspace_seat_assignment_v1(
             copied_definition,
             expected_position,
@@ -469,9 +473,7 @@ def _build_match_workspace_v1(
             previous_present_start = timecode.start_offset_ms
 
     if revision < occupied_slot_count:
-        raise ValueError(
-            "revision must be at least the number of currently occupied Slots."
-        )
+        raise ValueError("revision must be at least the number of currently occupied Slots.")
 
     return MatchWorkspaceV1._from_validated(
         revision=revision,
@@ -482,6 +484,13 @@ def _build_match_workspace_v1(
 
 def validate_match_workspace_v1(workspace: MatchWorkspaceV1) -> None:
     """Validates the complete canonical Workspace and all retained nested facts."""
+    _validate_match_workspace_with_traces_v1(workspace)
+
+
+def _validate_match_workspace_with_traces_v1(
+    workspace: MatchWorkspaceV1,
+) -> tuple[tuple[int, ObservedGameTraceSummaryV1], ...]:
+    """Validates one Workspace and returns its already-validated observed traces."""
     if type(workspace) is not MatchWorkspaceV1:
         raise ValueError("workspace must be a MatchWorkspaceV1.")
     _require_version(
@@ -489,13 +498,16 @@ def validate_match_workspace_v1(workspace: MatchWorkspaceV1) -> None:
         MATCH_WORKSPACE_CONTRACT_VERSION,
         "match_workspace_contract_version",
     )
+    validated_traces: list[tuple[int, ObservedGameTraceSummaryV1]] = []
     rebuilt = _build_match_workspace_v1(
         revision=workspace.revision,
         match_definition=workspace.match_definition,
         slots=workspace.slots,
+        validated_traces=validated_traces,
     )
     if rebuilt.to_dict() != workspace.to_dict():
         raise ValueError("workspace must be in canonical form.")
+    return tuple(validated_traces)
 
 
 def create_match_workspace_v1(

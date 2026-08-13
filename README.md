@@ -334,6 +334,25 @@ Only `captured_at < played_at` enters canonical Match-wide preparation. Missing
 Match time and equal or later captures remain descriptive, and prepared Profiles
 are not yet applied to Match analysis.
 
+Issue #167 adds an internal evidence-aware review and materialization layer.
+Partial traces can prepare only Decisions whose acting own hand is exact; a
+complete legal trace can prepare all 30 acting own hands without exposing future
+opponent ownership. The actual Card remains a retrospective attachment after the
+Decision-time state, and Skat and declared-Ouvert visibility retain existing
+Historical semantics. Eligible Match-bound Profiles are bound to relative left
+and right opponents without applying a Profile or Policy.
+
+Strict Historical materialization remains narrower: it requires one complete
+legal trace, original Skat, exact Discards, and a reconstructable complete Deal,
+and creates only an existing normal-completion Historical Game. Available Games
+can become unpartitioned Training source Records. A fully classified Workspace
+can become the existing fixed-three-player 36-position list and aggregation only
+when every played position is strictly materializable; Passed Deals remain
+Passed Deals, external-lot behavior is unchanged, and Commentary/Response Links
+remain Workspace sidecars. Materialized Games and Passed Deals conservatively
+use Match-level `played_at`, never media-offset-derived absolute times. No
+analysis, Dataset partition/sample generation, or Root workflow executes.
+
 Every accepted mutation uses the exact Workspace revision and retained content
 fingerprint for one compare-and-swap atomic Save before success is shown.
 Unchanged and revision-conflict operations do not write. Persistence conflicts
@@ -344,15 +363,17 @@ loopback transport. No external network request is made.
 
 Workspace files are private local data and receive no public redaction. Protect
 them accordingly. The browser never displays absolute paths, fingerprints,
-tokens, raw persistence JSON, or stack traces. It adds no materialization,
-Public Match API, Match Schema, Match Root workflow, example, generated scenario,
-analysis, YouTube integration, or EuroSkat integration.
+tokens, raw persistence JSON, or stack traces. It adds no materialization or
+analysis controls. The internal Issue #167 layer is not exposed through the
+browser, Public Match API, Match Schema, Match Root workflow, examples, generated
+scenarios, YouTube integration, or EuroSkat integration.
 See [Match capture contracts](docs/match_capture_contracts.md),
 [Observed Game capture contracts](docs/observed_game_capture_contracts.md),
 [Match Workspace contracts](docs/match_workspace_contracts.md), and
 [Match Capture Application services](docs/match_capture_application_services.md),
 [Local Match Capture interface](docs/local_match_capture_interface.md), and
-[Match Player Statistics](docs/match_player_statistics.md).
+[Match Player Statistics](docs/match_player_statistics.md), and
+[Match review and materialization](docs/match_review_and_materialization.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -907,6 +928,7 @@ Detailed documentation is split into topic-specific files:
 * [Match Capture Application services](docs/match_capture_application_services.md)
 * [Local Match Capture interface](docs/local_match_capture_interface.md)
 * [Match Player Statistics](docs/match_player_statistics.md)
+* [Match review and materialization](docs/match_review_and_materialization.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1076,11 +1098,14 @@ annotation editing. Issue #165 adds the private local no-JSON browser and Captur
 CLI with loopback protection, packaged assets, compare-and-swap autosave, and
 explicit conflict Reload. Issue #166 adds editable Match-bound Statistics
 Snapshots, strict-before-Match eligibility, existing normalized Profile
-derivation, and canonical eligible preparation without policy application.
-Materialization, Public Match API, Match Schema/data workflow, actual Player
-Profile application, and analysis remain later milestone work. Package version,
-Public APIs, seven Root workflows, 63 Schemas, and 85
-generated outputs remain unchanged.
+derivation, and canonical eligible preparation without policy application. Issue
+#167 adds internal information-safe Decision preparation and strict existing-
+contract Historical, unpartitioned Training-source, and complete fixed-list
+materialization without workflow execution. Browser execution/export, Public
+Match API, Match Schema/data workflow, actual Player Profile application, and
+analysis remain later milestone work. Package version, persistence, Public APIs,
+CLI, seven Root workflows, 63 Schemas, examples, and 85 generated outputs remain
+unchanged.
 
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title
@@ -1285,8 +1310,10 @@ internal evidence-aware observed Games and free-text Decision commentary. Issue
 #163 adds private persistent Workspaces, and Issue #164 adds transport-free rapid
 entry over those Workspaces. Issue #165 adds the private local browser/Capture
 CLI and autosave transport. Issue #166 adds Match-bound Snapshot editing and
-time-safe Profile preparation. Public Match API, Match Schema/data workflow,
-actual Profile application, analysis, and materialization remain open.
+time-safe Profile preparation. Issue #167 adds internal Decision preparation and
+strict Historical, unpartitioned Training-source, and complete fixed-list
+materialization without execution. Public Match API, Match Schema/data workflow,
+browser/public export, actual Profile application, and analysis remain open.
 `v1.0.0` remains unready after this milestone; its final Issue sequence and
 implementation architecture still require focused scope and traceability review.
 

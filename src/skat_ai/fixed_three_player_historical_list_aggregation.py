@@ -855,14 +855,17 @@ def validate_fixed_three_player_historical_list_aggregation(
     )
 
 
-def build_fixed_three_player_historical_list_aggregation(
+def _build_fixed_three_player_historical_list_aggregation(
     historical_list: FixedThreePlayerHistoricalList,
     *,
     lot_order: Any = None,
+    _validated_entry_facts: tuple[FixedThreePlayerHistoricalListEntryFact, ...] | None = None,
 ) -> FixedThreePlayerHistoricalListAggregation:
-    """Builds cumulative progression and final standings from one validated list."""
+    """Builds one aggregation with optional already-validated Entry Facts."""
     _validate_historical_list_source(historical_list)
-    facts = build_fixed_three_player_historical_list_entry_facts(historical_list)
+    facts = _validated_entry_facts
+    if facts is None:
+        facts = build_fixed_three_player_historical_list_entry_facts(historical_list)
     progression = _build_progression(historical_list, facts)
     player_totals = progression[-1].cumulative_player_totals
     standings_result = build_fixed_three_player_historical_list_standings(
@@ -896,6 +899,18 @@ def build_fixed_three_player_historical_list_aggregation(
     )
     validate_fixed_three_player_historical_list_aggregation(result)
     return result
+
+
+def build_fixed_three_player_historical_list_aggregation(
+    historical_list: FixedThreePlayerHistoricalList,
+    *,
+    lot_order: Any = None,
+) -> FixedThreePlayerHistoricalListAggregation:
+    """Builds cumulative progression and final standings from one validated list."""
+    return _build_fixed_three_player_historical_list_aggregation(
+        historical_list,
+        lot_order=lot_order,
+    )
 
 
 def build_serializable_fixed_three_player_historical_list_player_totals(
