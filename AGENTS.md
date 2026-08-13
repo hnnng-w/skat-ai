@@ -54,6 +54,9 @@ The project focuses on:
 * internal evidence-aware Match Decision preparation and strict existing-
   contract Historical, unpartitioned Training-source, and complete fixed-list
   materialization without workflow execution
+* explicit private Match Decision and strict Historical Application execution,
+  ephemeral revision-scoped reports, no-workflow Match materialization, and
+  authenticated canonical loopback downloads
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -160,6 +163,7 @@ Before larger changes, read the relevant documentation:
 * `docs/match_workspace_contracts.md`
 * `docs/local_match_capture_interface.md`
 * `docs/match_review_and_materialization.md`
+* `docs/match_analysis_and_exports.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -285,8 +289,9 @@ Online-platform adapters, browser extensions, website scraping, cloud
 synchronization, distributed locking, encryption/key management, and automatic
 backup policy remain open.
 
-The active development milestone is `v0.15.0`, targeting usable manual post-game
-capture of one EuroSkat 36er Standard Match from descriptive video evidence.
+The functionally complete but unreleased development milestone is `v0.15.0`,
+targeting usable manual post-game capture of one EuroSkat 36er Standard Match
+from descriptive video evidence.
 Issue #160 begins it with internal Match source, timecode, tournament-format,
 participant, optional statistics-snapshot, identity, perspective, and
 deterministic serialization contracts. Issue #161 adds internal evidence-aware
@@ -307,10 +312,15 @@ derivation, and private browser forms without policy application. Issue #167
 adds internal information-safe Decision preparation, strict normal-completion
 Historical materialization, unpartitioned Training source Records, and complete
 36-position list construction with existing aggregation and external-lot
-behavior. Actual workflow execution, browser materialization/analysis controls,
-public materialization/export, Public Match API, Match Schema/data workflow,
-actual Profile application, YouTube integration, and EuroSkat integration remain
-absent. `v1.0.0` remains unready after this focused milestone.
+behavior. Issue #168 adds explicit private one-Decision Position and strict
+Historical execution through the existing Application, eligible relative Profile
+application through existing supported behavior, no-workflow Match
+materialization, ephemeral revision-scoped reports, and authenticated canonical
+loopback downloads. It completes the functional `v0.15.0` local Match Capture
+milestone without a Release, publication, or Package-version change. Public Match
+API, Match Schema/data workflow, global Player Catalog, communication-aware
+Dataset work, database/remote deployment, YouTube integration, and EuroSkat
+integration remain absent. `v1.0.0` remains unready.
 
 Major completed areas include:
 
@@ -456,6 +466,11 @@ Major completed areas include:
   unpartitioned Training source Records, and complete existing fixed-three-
   player list plus aggregation materialization with Passed Deals and Commentary
   retained as Workspace sidecars, without workflow execution
+* internal Match analysis and export contracts with explicit one-Decision
+  Immediate/Search/Auto Position execution, strict selected-mode Historical
+  execution, eligible actor-relative Profile application through existing
+  behavior, deterministic max-eight ephemeral reports, concurrency invalidation,
+  and authenticated canonical browser downloads
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -489,10 +504,12 @@ transport-free rapid-entry Application services, and the private local no-JSON
 browser/CLI with autosave. Match-bound Player Statistics editing and time-safe
 Profile preparation are implemented. Internal Decision review preparation and
 strict existing-contract Historical, unpartitioned Training-source, and complete
-fixed-list materialization are implemented without workflow execution. Browser
-execution controls, public materialization/export, Public Match API, Match
-Schema/data workflow, actual Profile application, and analysis remain later
-`v0.15.0` work; YouTube and EuroSkat integration remain absent.
+fixed-list materialization are implemented. Explicit browser analysis,
+existing-behavior Profile application, ephemeral reports, and authenticated
+local downloads are also implemented, while materialization itself executes no
+workflow. Public Match API/export, Match Schema/data workflow, global Player
+Catalog, communication-aware Dataset work, database/remote deployment, YouTube
+integration, and EuroSkat integration remain absent.
 Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,

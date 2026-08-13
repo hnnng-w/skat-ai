@@ -89,7 +89,13 @@ Profile, scoped Confidence, Classification, derivation status, recommended and
 actionable presets, and explanations from the existing Profile derivation. Only
 `source.captured_at < match.played_at` is eligible. Missing Match time, equal
 instants including different offsets, and later captures remain descriptive.
-Prepared Profiles are not applied to Match analysis.
+Issue #168 can explicitly apply eligible Profiles through the existing Position
+or Historical Application behavior. Eligibility alone does not force a policy:
+the selected analysis form must enable Profile Presets, and nonactionable
+derivations remain descriptive. Decision analysis remaps eligible Players to the
+acting Player's left/right opponents and never binds the actor as an opponent.
+Historical Profile application is limited to enabled Immediate Review; there is
+no claim that Profiles alter Search Review or Replay Coaching.
 
 ## Timecodes
 
@@ -213,6 +219,42 @@ These controls protect the accidental local transport surface; they are not an
 account system, encryption, secure storage, authenticated authorship, remote
 deployment, cloud protection, or access-control claim.
 
+## Analysis, materialization, and downloads
+
+Issue #168 adds three explicit ordinary-HTML operations under the unchanged
+private Web Protocol version `1`:
+
+* analyze one selected prepared Decision through Immediate, bounded Search, or
+  `auto`;
+* analyze one strictly materializable Historical Game with selected Snapshots,
+  Immediate Review, Search Review, and/or Replay Coaching;
+* prepare one Match-wide materialization report without workflow execution.
+
+Decision execution works from any retained Decision whose acting own hand is
+exactly preparable, including supported partial traces. The actual Card is
+retrospective evidence attached after the Decision-time state, not an optimal
+label. Historical execution retains the stricter complete-Deal normal-completion
+boundary. Each available analysis action invokes the corresponding existing
+Application workflow exactly once; normal unavailable results invoke none.
+
+The materialization report shows reconciled Decision/Historical/Training counts,
+fixed-list availability, standings, unresolved lot state, and the twelve round-
+end Progression snapshots when available. It executes no Root workflow.
+
+Reports have deterministic SHA-256 IDs, are scoped to the current Workspace
+revision, remain process-local, and are capped at eight. Applied mutations,
+Reload, and server shutdown clear them. Analysis runs outside the context lock;
+if revision or content changes before publication, the stale result is discarded
+with no retry.
+
+Authenticated loopback downloads provide exact executed Root Result JSON and,
+from a current materialization report, canonical materialization, Historical
+collection, unpartitioned Training source, historical-list input, and list-
+aggregation JSON. Downloads use fixed local filenames and never accept a server
+path. They may contain private Cards, Results, Statistics, and Profile details
+and receive no public redaction. See
+[Match analysis and exports](match_analysis_and_exports.md).
+
 ## Source links and private data
 
 A retained source URL appears only as an explicit user-clicked link with
@@ -225,7 +267,9 @@ the selected Workspace, including Player identifiers, Perspective hand, Skat,
 Discards, Plays, Commentary, and Response Links. Protect the Workspace file as
 private local data. Browser state and HTML omit absolute paths, fingerprints,
 transport tokens, persistence JSON, internal trace structures, stack traces,
-Search Worlds, simulation ownership, and Analysis Results.
+Search Worlds, and simulation ownership. Selected report pages expose curated
+Analysis Results only after an explicit action; exact authenticated downloads
+are private local artifacts.
 
 ## Current boundaries
 
@@ -235,14 +279,17 @@ workflow. Package version remains `0.14.0`; the seven Root workflows, Public
 APIs, 63 Schemas, existing examples, and 85 generated-output scenarios are
 unchanged.
 
-Version 1 performs no Position or Historical analysis, Search, review, Replay
-Coaching, browser materialization, list/report/Dataset generation, Player
-Profile application, YouTube integration, EuroSkat integration, database
-persistence, remote serving, cloud synchronization, encryption, or backup.
-Public Match API, Match Schema, Match JSON/data CLI workflow, Player Statistics
-global history, analysis controls, and public materialization/export remain
-future work. Issue #167's internal Decision, strict Historical, unpartitioned
-Training-source, and complete fixed-list preparation is not exposed by this
-browser and changes no Web operation, CLI option, Workspace persistence byte,
-Schema, example, or generated output. See
-[Match review and materialization](match_review_and_materialization.md).
+Issue #168 exposes explicit private Position/Historical analysis and
+materialization/download controls while preserving the no-automatic-analysis
+rule and unchanged Workspace persistence. It adds no Public Match API, Match
+Schema, Match JSON/data CLI workflow, Capture CLI option, global Player Catalog,
+communication-aware Dataset workflow, database, remote serving, cloud
+synchronization, encryption, backup, YouTube integration, or EuroSkat
+integration. Commentary and Response Links remain outside Search and Coaching.
+
+Issue #168 completes the functional `v0.15.0` local Match Capture milestone, but
+does not release or publish it. Package version remains `0.14.0`; the published
+stable Release remains `v0.14.0`, and the seven Root workflows, Public APIs, 63
+Schemas, six Session examples, and 85 generated-output scenarios are unchanged.
+See [Match review and materialization](match_review_and_materialization.md) and
+[Match analysis and exports](match_analysis_and_exports.md).

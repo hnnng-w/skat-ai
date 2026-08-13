@@ -23,6 +23,13 @@ Historical Search Review coaching analysis to add prioritized decisions,
 Turning Points, one-game patterns, recommendations, scope summaries, and isolated
 retrospective outcome context without changing either existing review shape.
 
+Issue #168 exposes these existing modes through one private local Match Capture
+Historical action only after strict normal-completion materialization succeeds.
+The caller selects at least one of Decision Snapshots, Immediate Review, Search
+Review, or Replay Coaching, and the browser makes one exact Historical
+Application invocation. This private transport does not add a new Historical
+workflow or public Match contract.
+
 ## CLI
 
 Use the historical-only flag with an optional sample count and base seed:
@@ -201,6 +208,13 @@ explicit policy precedence, but it does not evaluate policy effects. The output
 is not a training or evaluation dataset record. The separate training-data workflow
 uses decision snapshots directly; recommendation cards, candidate reports, and
 decision-quality values are never training features or labels.
+
+For Issue #168, eligible Match-bound Profiles are injected only when Immediate
+Review and Profile Presets are enabled. Their actor-relative application uses the
+existing Historical review path and excludes the actor from opponent slots.
+Search Review and Replay Coaching do not receive Profile policy inputs, so no
+Profile effect is claimed for either. Workspace Commentary and Response Links
+also remain outside Historical analysis and Coaching.
 
 Issue #104 preserves the review seed rule, decision count, recommendation
 objective, policy behavior, and quality classification while adding the optional

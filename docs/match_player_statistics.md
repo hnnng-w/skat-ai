@@ -83,13 +83,15 @@ Snapshot is temporally eligible and otherwise `unavailable`.
 
 The prepared `OpponentStatisticsInput` contains only eligible records in the
 same canonical order. The Perspective Player is retained when eligible.
-`eligible_player_ids` and `actionable_player_ids` preserve that order. No acting
-Player is removed, no relative side is bound, and no Profile or policy is
-applied. Issue #167's internal Decision preparation centers the stable circular
-map on each acting Player, excludes that Player from opponent slots, and reports
-eligible left/right Profiles and actionable presets per prepared Decision. It
-still applies no Profile, preset, or policy. See
-[Match review and materialization](match_review_and_materialization.md).
+`eligible_player_ids` and `actionable_player_ids` preserve that order. Preparation
+itself removes no actor, binds no relative side, and applies no Profile or policy.
+Issue #167's Decision preparation centers the stable circular map on each actor,
+excludes that Player from opponent slots, and reports eligible left/right
+Profiles and actionable presets. Issue #168 can pass those exact bindings into
+one explicit existing Position Application invocation. Disabled Profile Presets
+retain the binding but apply no preset; eligible nonactionable derivations also
+change no policy. See [Match review and materialization](match_review_and_materialization.md)
+and [Match analysis and exports](match_analysis_and_exports.md).
 
 Metadata correction recomputes all Contexts and the Preparation when
 `played_at` changes. That time correction does not alter Snapshot content and
@@ -142,15 +144,16 @@ merge, or automatic Reload.
 ## Boundaries
 
 Snapshots are private local Workspace data and receive no public redaction. This
-feature performs no external request, global history lookup, profile learning,
-Profile policy application, Match analysis, Position/Historical execution,
-Search, Review, Coaching, Session operation, Root Application execution, or
-Public API execution. Issue #167 may consume the unchanged Preparation for
-relative Decision bindings and include it in an internal Workspace
-materialization summary, but performs no analysis or policy application.
+feature performs no external request, global history lookup, or profile learning.
+Issue #168 can explicitly consume eligible records through the existing Position
+or Historical Application behavior. Position execution uses actor-relative
+opponent bindings. Historical injection requires enabled Immediate Review and
+Profile Presets. Neither path claims that Profiles alter bounded Search,
+Historical Search Review, or Replay Coaching.
 
 Package version remains `0.14.0`. Public exports, seven Root workflows, Capture
 CLI options, the one Console Script, 63 authoritative and packaged Schemas,
-examples, and 85 generated-output scenarios are unchanged. Match analysis,
-actual Profile application, browser/public materialization or export, Public
-Match APIs and Schemas, and global Player history remain future work.
+examples, and 85 generated-output scenarios are unchanged. Private browser
+analysis and authenticated local downloads are implemented; Public Match APIs
+and Schemas, public Match exports, a global Player Catalog, and learned Profiles
+remain future work.

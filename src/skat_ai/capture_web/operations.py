@@ -53,7 +53,10 @@ from skat_ai.match_workspace_operations import (
 from skat_ai.opponent_statistics import build_opponent_statistics_input
 
 from .context import MatchCaptureWebContextV1
-from .contracts import MATCH_CAPTURE_WEB_OPERATIONS, MatchCaptureWebResultV1
+from .contracts import (
+    MATCH_CAPTURE_WEB_MUTATION_OPERATIONS,
+    MatchCaptureWebResultV1,
+)
 from .state import build_match_capture_web_state_v1
 from .timecodes import build_presentation_timecode_v1
 
@@ -559,6 +562,7 @@ def _state(
         workspace_filename=context.workspace_filename,
         selected_position=selected_position,
         statistics_preparation=statistics_preparation,
+        report_store=context.report_store,
     )
 
 
@@ -629,6 +633,7 @@ def _persist_change(
             ),
             selected_position=selected_position,
         )
+    context.report_store.clear()
     effects = ""
     if removed_commentary_ids:
         effects += " Removed Commentary: " + ", ".join(removed_commentary_ids) + "."
@@ -693,7 +698,7 @@ def apply_match_capture_web_operation_v1(
     values: Mapping[str, object],
 ) -> MatchCaptureWebResultV1:
     operation = _text(values, "operation", required=True)
-    if operation not in MATCH_CAPTURE_WEB_OPERATIONS[2:]:
+    if operation not in MATCH_CAPTURE_WEB_MUTATION_OPERATIONS:
         raise ValueError("operation must identify one supported Workspace mutation.")
     position = _integer(values, "match_position", minimum=1)
     if position > 36:

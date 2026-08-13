@@ -494,6 +494,16 @@ def test_unknown_transport_and_provenance_workflow_options_are_rejected(
         )
 
 
+def test_private_match_decision_option_is_not_publicly_selectable() -> None:
+    with pytest.raises(SkatAIWorkflowError, match="unsupported"):
+        execute_document(
+            load_example("grand_second_position.json"),
+            options=ExecutionOptionsV1(
+                workflow_options={"match_decision_review": True}
+            ),
+        )
+
+
 def test_fields_from_another_workflow_and_simple_workflow_options_are_rejected() -> None:
     with pytest.raises(SkatAIWorkflowError, match="unsupported"):
         execute_document(

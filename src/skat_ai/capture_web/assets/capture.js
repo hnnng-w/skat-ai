@@ -17,9 +17,26 @@
     document.querySelector("#capture-app").replaceWith(replacement);
     document.title = next.title;
     if (pushHistory && response.url) history.pushState({}, "", response.url);
+    replacement.querySelectorAll("[data-analysis-method-form]").forEach(updateSearchSettings);
     restoreFocus();
   };
   restoreFocus();
+
+  const updateSearchSettings = (form) => {
+    const method = form.querySelector("[data-analysis-method]");
+    const settings = form.querySelector("[data-search-settings]");
+    if (!method || !settings) return;
+    const visible = method.value !== "immediate_expected_value";
+    settings.hidden = !visible;
+    const seed = settings.querySelector('[name="search_random_seed"]');
+    if (seed) seed.required = visible;
+  };
+  document.querySelectorAll("[data-analysis-method-form]").forEach(updateSearchSettings);
+
+  document.addEventListener("change", (event) => {
+    const form = event.target.closest("[data-analysis-method-form]");
+    if (form) updateSearchSettings(form);
+  });
 
   document.addEventListener("submit", async (event) => {
     const confirmation = event.target.dataset.confirm;
@@ -27,6 +44,7 @@
       event.preventDefault();
       return;
     }
+    if (event.target.matches("[data-native-submit]")) return;
     const active = document.activeElement;
     if (active && active.name) {
       const valueSelector = active.value
@@ -59,7 +77,7 @@
   });
 
   document.addEventListener("click", async (event) => {
-    const link = event.target.closest("a.position-card");
+    const link = event.target.closest("a.position-card, a[data-report-link]");
     if (!link || event.ctrlKey || event.metaKey || event.shiftKey) return;
     event.preventDefault();
     try {

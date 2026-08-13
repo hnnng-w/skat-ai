@@ -39,6 +39,29 @@ MATCH_CAPTURE_WEB_OPERATIONS: Final[tuple[str, ...]] = (
     "clear_position",
     "set_player_statistics_snapshot",
     "clear_player_statistics_snapshot",
+    "prepare_materialization",
+    "analyze_decision",
+    "analyze_historical_game",
+)
+
+MATCH_CAPTURE_WEB_MUTATION_OPERATIONS: Final[tuple[str, ...]] = (
+    "update_match_metadata",
+    "start_game",
+    "set_game_timecode",
+    "set_perspective_hand",
+    "set_declaration",
+    "set_original_skat",
+    "set_discarded_cards",
+    "append_plays",
+    "truncate_plays",
+    "set_commentary",
+    "remove_commentary",
+    "set_response_link",
+    "remove_response_link",
+    "mark_passed_deal",
+    "clear_position",
+    "set_player_statistics_snapshot",
+    "clear_player_statistics_snapshot",
 )
 
 MATCH_CAPTURE_WEB_RESULT_STATUSES: Final[tuple[str, ...]] = (

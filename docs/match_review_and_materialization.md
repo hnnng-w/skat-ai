@@ -41,10 +41,11 @@ MATCH_COMMENTARY_MATERIALIZATION_POLICY =
     remain_workspace_sidecar_without_analysis_influence
 ```
 
-These contracts remain internal. They do not change Package version `0.14.0`,
-Public API contract version `1`, the seven Root workflows, the Root, Session, or
-Capture CLI, Workspace persistence, Historical Game version `1`, Training
-Dataset version `1`, fixed-list version `1`, or any public export.
+These contracts remain internal. Issue #168 consumes them through explicit
+private browser analysis and download actions without changing Package version
+`0.14.0`, Public API contract version `1`, the seven Root workflows, the Root,
+Session, or Capture CLI, Workspace persistence, Historical Game version `1`,
+Training Dataset version `1`, fixed-list version `1`, or any public export.
 
 ## Two evidence boundaries
 
@@ -288,18 +289,47 @@ settings, Historical Result or Settlement, Training Dataset version `1`, or the
 fixed-list contract. No Commentary text is copied into Historical Games or
 Training source Records.
 
+## Issue #168 execution boundary
+
+Issue #168 selects one prepared snapshot and executes the existing Position
+Application once with explicit Immediate, bounded Search, or `auto` settings.
+The resulting flat Position is nonterminal post-game review: the observed Card
+is attached as retrospective evidence after the Decision-time state, not as an
+optimal label. A partial preparation can therefore support one Decision even
+when strict Historical materialization is unavailable.
+
+Eligible relative Profile bindings enter only the existing Application path.
+The acting Player is excluded from opponent bindings; disabled Profile Presets
+and eligible but nonactionable derivations change no policy. Profiles are not
+Search-world weights and do not alter bounded Search.
+
+For one strictly available Historical Game, Issue #168 executes the existing
+Historical Application once with at least one selected Snapshot, Immediate
+Review, Search Review, or Replay Coaching mode. Historical Profiles are injected
+only for enabled Immediate Review and existing Profile-Preset behavior. This is
+not a claim that Profiles affect Search Review or Coaching. Commentary and
+Response Links remain outside all analysis inputs and Coaching.
+
+The Match-wide materialization browser action still invokes no Root workflow. It
+prepares the existing 36-Slot materialization once and presents counts,
+Historical unavailability, Training sources, fixed-list standings, unresolved
+lot state, and twelve round ends. Canonical private browser downloads expose the
+materialization, available Historical collection, Training source collection,
+and available list input/aggregation. See
+[Match analysis and exports](match_analysis_and_exports.md).
+
 ## Execution and public boundaries
 
-Issue #167 performs no file Load or Save and changes no Workspace persistence
-bytes. It executes no Position Analysis, Immediate Analysis, bounded Search,
-Historical Review, Historical Search Review, Replay Coaching, Dataset conversion,
-Dataset partition generation, list Root workflow, list comparison, Opponent
-Policy application, Root Application, or Public API path.
+Issue #167 itself still performs no file Load/Save or workflow execution and
+changes no Workspace persistence bytes. Issue #168 adds a separate explicit
+private browser execution layer over those values. Reports remain ephemeral and
+are not persisted in the Workspace; downloads are caller-initiated responses,
+not server-side report files.
 
-There is no Match Root workflow, Public Match API, Match Schema or JSON workflow,
-Capture CLI option, browser materialization or analysis action, report
-persistence, report export, example, or generated scenario. The local Capture
-browser continues to capture and persist only the unchanged Workspace.
+There is still no Match Root workflow, Public Match API, Match Schema or JSON/data
+workflow, Capture CLI option, public Match export, example, or generated
+scenario. Materialization does not execute Dataset conversion, Dataset
+partitioning, list Root workflow, list comparison, or any analysis.
 
 The unchanged baselines are:
 
@@ -314,8 +344,9 @@ Existing examples, Public API and CLI exports, Historical, Dataset, fixed-list,
 Profile, Provenance, Session, Match Capture, and Workspace contract versions are
 unchanged.
 
-Remaining `v0.15.0` work includes explicit Position and Historical workflow
-execution from prepared values, actual Profile application, browser analysis or
-materialization controls, report persistence/export, Public Match contracts,
-Match Schema and JSON/data workflow, and communication-aware Dataset work.
-Global Player history and YouTube or EuroSkat integration also remain absent.
+Issue #168 completes the functional `v0.15.0` local Match Capture milestone
+without a release, publication, or version bump. Public Match contracts, Match
+Schema and JSON/data workflow, a global Player Catalog, communication-aware
+Dataset work, database/remote deployment, and broader pre-v1 work remain open.
+YouTube and EuroSkat integration also remain absent. Persistent Workspace reports
+are intentionally not added.

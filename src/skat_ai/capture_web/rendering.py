@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from html import escape
 from importlib.resources import files
 from string import Template
@@ -17,6 +18,29 @@ def load_match_capture_web_template_v1() -> str:
 
 def _e(value: object) -> str:
     return escape("" if value is None else str(value), quote=True)
+
+
+def _label(value: object) -> str:
+    if value is None:
+        return "None"
+    if type(value) is bool:
+        return "yes" if value else "no"
+    return str(value).replace("_", " ")
+
+
+def _facts(rows: tuple[tuple[str, object], ...]) -> str:
+    return '<dl class="report-facts">' + "".join(
+        f"<div><dt>{_e(label)}</dt><dd>{_e(_label(value))}</dd></div>"
+        for label, value in rows
+    ) + "</dl>"
+
+
+def _curated_json(value: object) -> str:
+    return (
+        '<pre class="curated-json">'
+        + _e(json.dumps(value, ensure_ascii=True, indent=2))
+        + "</pre>"
+    )
 
 
 def _hidden(state: dict[str, Any], operation: str) -> str:
@@ -334,7 +358,7 @@ def _player_statistics(state: dict[str, Any]) -> str:
           <p class="eyebrow">Private Match metadata</p>
           <h2>Player Statistics</h2>
           <p>Each participant may retain one immutable Match-bound Snapshot. A later Match may retain another Snapshot for the same stable Player.</p>
-          <p>Only captures strictly before Match start enter the canonical eligible input. Missing Match time and equal or later captures remain descriptive. Prepared Profiles are not yet applied to Match analysis.</p>
+          <p>Only captures strictly before Match start enter the canonical eligible input. Missing Match time and equal or later captures remain descriptive. Eligible prepared Profiles can now be explicitly applied by Decision or Historical analysis forms.</p>
           <p><strong>Preparation:</strong> {_e(preparation['status'])}; eligible Players: {_e(', '.join(preparation['eligible_player_ids']) or 'None')}; actionable Profiles: {_e(', '.join(preparation['actionable_player_ids']) or 'None')}.</p>
         </div>
         <div class="statistics-grid">{''.join(_statistics_card(state, player) for player in state['participants'])}</div>
@@ -661,6 +685,498 @@ def _later_decision_options(
     )
 
 
+def _report_navigation(state: dict[str, Any]) -> str:
+    reports = state["reports"]
+    links = "".join(
+        f'<a class="report-link{" selected" if report["selected"] else ""}" '
+        f'href="/reports/{report["report_id"]}" data-report-link>'
+        f'<strong>{_e(report["report_kind"].replace("_", " ").title())}</strong>'
+        f'<span>{_e(report["status"].replace("_", " "))}</span>'
+        f'<small>{_e(report["report_id"][:12])}</small></a>'
+        for report in reports
+    )
+    return f"""
+      <section class="panel reports-navigation">
+        <div class="section-heading">
+          <p class="eyebrow">Ephemeral current-revision reports</p>
+          <h2>Analysis reports</h2>
+          <p>Reports stay in memory only and disappear after an applied change, Reload, or server stop.</p>
+        </div>
+        <div class="report-links">{links or '<p>No reports prepared for this revision.</p>'}</div>
+      </section>
+    """
+
+
+def _download_warning() -> str:
+    return (
+        '<p class="private-warning"><strong>Private local download:</strong> '
+        "downloaded analysis may contain exact hands, historical results, and "
+        "Player Profile application details. Store it accordingly.</p>"
+    )
+
+
+def _decision_report(state: dict[str, Any], report: dict[str, Any]) -> str:
+    details = report["details"]
+    if details["status"] == "unavailable":
+        content = f"""
+          <p class="normal-unavailable">Decision analysis is normally unavailable: {_e(_label(details['unavailable_reason']))}.</p>
+          {f'<p>Preparation reason: {_e(_label(details["skipped_reason"]))}.</p>' if details['skipped_reason'] else ''}
+        """
+    else:
+        method = details["recommendation_method"]
+        recommendation = details["recommendation"] or {}
+        review = details["post_game_review"] or {}
+        search_review = details["search_post_game_review"]
+        immediate_rows = "".join(
+            f"<tr><td>{_e(item.get('card'))}</td><td>{_e(item.get('expected_point_swing'))}</td>"
+            f"<td>{_e(item.get('win_rate'))}</td><td>{_e(_label(item.get('is_recommended')))}</td></tr>"
+            for item in details["immediate_candidate_values"]
+        )
+        search = details["bounded_search"]
+        search_html = '<p>No bounded Search was requested.</p>'
+        if search is not None:
+            candidate_rows = "".join(
+                f"<tr><td>{_e(item.get('rank'))}</td><td>{_e(item.get('card'))}</td>"
+                f"<td>{_e(item.get('local_contract_success_rate'))}</td>"
+                f"<td>{_e(item.get('mean_local_side_game_score'))}</td>"
+                f"<td>{_e(item.get('mean_local_side_card_point_margin'))}</td></tr>"
+                for item in search["candidate_results"]
+            )
+            search_html = f"""
+              {_facts((
+                  ('Status', search['status']),
+                  ('Stop reason', search['stop_reason']),
+                  ('World coverage', search['world_coverage']),
+                  ('Solution claim', search['solution_claim']),
+                  ('Selected worlds', search['selected_world_count']),
+                  ('Completed worlds', search['completed_world_count']),
+                  ('Fallback used', search['fallback_used']),
+                  ('Fallback method', search['fallback_method']),
+              ))}
+              <table><thead><tr><th>Rank</th><th>Card</th><th>Contract success</th><th>Mean settlement</th><th>Mean point margin</th></tr></thead>
+              <tbody>{candidate_rows or '<tr><td colspan="5">No completed candidate aggregates.</td></tr>'}</tbody></table>
+              <p class="bounded-note">Bounded compatible-world determinization aggregates do not claim a perfect or optimal imperfect-information policy.</p>
+            """
+        profile_cards = "".join(
+            f"""
+            <article class="profile-application-card">
+              <h4>{side.title()} opponent: {_e(profile['opponent_player_id'])}</h4>
+              {_facts((
+                  ('Temporal status', profile['temporal_status']),
+                  ('Profile available', profile['profile_available']),
+                  ('Actionable preset', profile['actionable_policy_preset']),
+                  ('Application status', profile['application_status']),
+                  ('Not applied reason', profile['not_applied_reason']),
+                  ('Applied preset', profile['applied_policy_preset']),
+                  ('Effective lead policy', profile['effective_lead_policy']),
+                  ('Effective response policy', profile['effective_response_policy']),
+              ))}
+            </article>
+            """
+            for side, profile in details["profiles"].items()
+        )
+        content = f"""
+          {_facts((
+              ('Acting Player', details['acting_player_id']),
+              ('Actual Card', details['actual_card']),
+              ('Requested method', method.get('requested_method')),
+              ('Effective method', method.get('effective_method')),
+              ('Fallback used', method.get('fallback_used')),
+              ('Recommended Card', recommendation.get('card')),
+              ('Review available', review.get('is_available')),
+              ('Decision quality', review.get('decision_quality')),
+              ('Review status', review.get('reason')),
+          ))}
+          <h3>Recommendation</h3>
+          <p><strong>Reason:</strong> {_e(recommendation.get('reason'))}</p>
+          <p><strong>Legal Cards:</strong> {_e(', '.join(details['legal_cards']) or 'None')}</p>
+          <p><strong>Strategic summary:</strong> {_e(details['strategic_summary'])}</p>
+          <p><strong>Retrospective actual-Card review:</strong> {_e(review.get('decision_explanation'))}</p>
+          {('<p>No bounded Search actual-Card comparison.</p>' if search_review is None else '<h4>Bounded Search actual-Card comparison</h4>' + _curated_json(search_review))}
+          <h3>Immediate candidate values</h3>
+          <table><thead><tr><th>Card</th><th>Expected point swing</th><th>Win rate</th><th>Recommended</th></tr></thead>
+          <tbody>{immediate_rows or '<tr><td colspan="4">No Immediate candidate values in this result.</td></tr>'}</tbody></table>
+          <h3>Bounded Search</h3>{search_html}
+          <h3>Eligible Profile binding and application</h3>
+          <div class="profile-application-grid">{profile_cards}</div>
+        """
+    download = (
+        f'<a class="download-link" href="/api/v1/reports/{report["report_id"]}.json">Download exact cached Root Result JSON</a>'
+        if state["download_availability"]["report_result"]
+        else "<p>This unavailable report has no Root Result download.</p>"
+    )
+    return f"""
+      <section class="panel selected-report decision-report">
+        <p class="eyebrow">Decision Analysis report</p>
+        <h2>Position {details['match_position']}, Decision {details['decision_index']}</h2>
+        {_facts((('Match', report['match_id']), ('Game', details['game_id']), ('Report ID', report['report_id'])))}
+        {content}
+        {_download_warning()}{download}
+      </section>
+    """
+
+
+def _historical_report(state: dict[str, Any], report: dict[str, Any]) -> str:
+    details = report["details"]
+    if details["status"] == "unavailable":
+        content = (
+            '<p class="normal-unavailable">Strict Historical analysis is normally '
+            f'unavailable: {_e(_label(details["unavailable_reason"]))}.</p>'
+        )
+    else:
+        declaration = details["declaration"] or {}
+        settlement = details["settlement"] or {}
+        game_result = details["game_result"] or {}
+        game_value = details["game_value"] or {}
+        overbid = details["overbid"] or {}
+        snapshots = details["decision_snapshots"]
+        review = details["immediate_review"]
+        search = details["search_review"]
+        coaching = details["replay_coaching"]
+        profile = details["profile_application"]
+        review_html = "<p>Not requested.</p>"
+        if review is not None:
+            quality = review.get("quality_counts") or {}
+            review_html = _facts(
+                (
+                    ("Decision count", review.get("decision_count")),
+                    ("Reviewed", review.get("reviewed_decision_count")),
+                    ("Unavailable", review.get("unavailable_decision_count")),
+                    ("Optimal", quality.get("optimal")),
+                    ("Acceptable", quality.get("acceptable")),
+                    ("Suboptimal", quality.get("suboptimal")),
+                    ("Mistake", quality.get("mistake")),
+                )
+            )
+        search_html = "<p>Not requested.</p>"
+        if search is not None:
+            counts = search.get("decision_counts") or {}
+            statuses = search.get("status_counts") or {}
+            coverage = search.get("coverage") or {}
+            agreement = search.get("search_vs_immediate_agreement") or {}
+            quality = search.get("quality_gate") or {}
+            actual = search.get("actual_card_agreement") or {}
+            performance = search.get("performance") or {}
+            search_html = _facts(
+                (
+                    ("Decisions attempted", counts.get("search_attempted_count")),
+                    ("Search recommendations", counts.get("search_recommendation_count")),
+                    ("Complete", statuses.get("complete")),
+                    ("Partial", statuses.get("partial")),
+                    ("Timeout", statuses.get("timeout")),
+                    ("Unavailable", statuses.get("unavailable")),
+                    ("Exact coverage", coverage.get("exact_coverage_decision_count")),
+                    ("Sampled coverage", coverage.get("sampled_coverage_decision_count")),
+                    ("No coverage", coverage.get("no_coverage_decision_count")),
+                    ("Same recommendation rate", agreement.get("same_recommended_card_rate")),
+                    ("Quality gate passed", quality.get("quality_gate_passed")),
+                    ("Quality violations", quality.get("quality_violation_count")),
+                    ("Actual Card top-1 rate", actual.get("actual_top_1_rate")),
+                    ("Nodes expanded total", (performance.get("nodes_expanded") or {}).get("total")),
+                    ("Completed worlds total", (performance.get("completed_world_count") or {}).get("total")),
+                    ("Fallback count", performance.get("fallback_count")),
+                )
+            )
+        coaching_html = "<p>Not requested.</p>"
+        if coaching is not None:
+            coverage = coaching.get("coverage_summary") or {}
+            prioritization = coaching.get("prioritization") or {}
+            guidance = coaching.get("guidance") or {}
+            outcome = coaching.get("outcome_context") or {}
+            key_decisions = prioritization.get("key_decisions", [])
+            turning_points = prioritization.get("turning_points", [])
+            decision_recommendations = guidance.get("decision_recommendations", [])
+            pattern_recommendations = guidance.get("pattern_recommendations", [])
+            coaching_html = f"""
+              {_facts((
+                  ('Method', coaching.get('report_method')),
+                  ('Assessable Decisions', coverage.get('assessable_decision_count')),
+                  ('Not assessable', coverage.get('not_assessable_count')),
+                  ('High-impact Decisions', coverage.get('high_impact_decision_count')),
+                  ('Recorded winner', (outcome.get('game_result_summary') or {}).get('winner')),
+                  ('Recorded settlement', (outcome.get('final_settlement_summary') or {}).get('settlement_score')),
+              ))}
+              <h4>Key Decisions</h4>{_curated_json(key_decisions)}
+              <h4>Turning Points</h4>{_curated_json(turning_points)}
+              <h4>Decision Recommendations</h4>{_curated_json(decision_recommendations)}
+              <h4>Pattern Recommendations</h4>{_curated_json(pattern_recommendations)}
+              <p><strong>Limitations:</strong> {_e(', '.join(coaching.get('limitations') or []) or 'None')}</p>
+            """
+        profile_html = "<p>No eligible Match Profile input was applied.</p>"
+        if profile is not None:
+            participant_rows = "".join(
+                f"<tr><td>{_e(item.get('player_id'))}</td>"
+                f"<td>{_e(_label(item.get('match_status')))}</td>"
+                f"<td>{_e(_label(item.get('temporal_status')))}</td>"
+                f"<td>{_e(_label(item.get('derivation_status')))}</td>"
+                f"<td>{_e(_label(item.get('actionable_policy_preset')))}</td></tr>"
+                for item in profile.get("participant_matches", [])
+            )
+            profile_html = f"""
+              {_facts((
+                  ('Temporal rule', profile.get('temporal_rule')),
+                  ('Matched Players', profile.get('matched_player_count')),
+                  ('Unmatched Players', ', '.join(profile.get('unmatched_player_ids') or []) or 'None'),
+              ))}
+              <table><thead><tr><th>Player</th><th>Match status</th><th>Temporal status</th><th>Derivation</th><th>Actionable preset</th></tr></thead>
+              <tbody>{participant_rows}</tbody></table>
+            """
+        content = f"""
+          {_facts((
+              ('Declarer', details['declarer_player_id']),
+              ('Game type', declaration.get('game_type')),
+              ('Hand', declaration.get('hand_game')),
+              ('Ouvert', declaration.get('ouvert')),
+              ('Bid', declaration.get('bid_value')),
+              ('Historical status', details['status']),
+              ('Winner', details['winner']),
+              ('Declarer points', details['declarer_points']),
+              ('Defender points', details['defender_points']),
+              ('Result winner', game_result.get('winner')),
+              ('Game value', game_value.get('game_value')),
+              ('Overbid status', overbid.get('status')),
+              ('Settlement score', settlement.get('settlement_score')),
+              ('Settlement complete', settlement.get('is_complete')),
+          ))}
+          <h3>Decision Snapshot coverage</h3>
+          {('<p>Not requested.</p>' if snapshots is None else _facts((('Snapshot count', snapshots['snapshot_count']), ('Game-end reason', snapshots['game_end_reason']))))}
+          <h3>Immediate Review coverage and agreement</h3>
+          {review_html}
+          <h3>Historical bounded Search Review</h3>
+          {search_html}
+          <p class="bounded-note">Search coverage may be complete, partial, timeout, or unavailable. It remains bounded determinization evidence, not a perfect-play claim.</p>
+          <h3>Replay Coaching</h3>
+          {coaching_html}
+          <p class="bounded-note">Coaching is retrospective and non-causal. It does not infer that Commentary caused a later Decision.</p>
+          <h3>Historical Profile application</h3>
+          {profile_html}
+        """
+    download = (
+        f'<a class="download-link" href="/api/v1/reports/{report["report_id"]}.json">Download exact cached Historical Root Result JSON</a>'
+        if state["download_availability"]["report_result"]
+        else "<p>This unavailable report has no Root Result download.</p>"
+    )
+    return f"""
+      <section class="panel selected-report historical-report">
+        <p class="eyebrow">Historical Analysis report</p>
+        <h2>Position {details['match_position']}: {_e(details['game_id'] or 'Unavailable Game')}</h2>
+        {_facts((('Match', report['match_id']), ('Report ID', report['report_id'])))}
+        {content}
+        {_download_warning()}{download}
+      </section>
+    """
+
+
+def _materialization_report(state: dict[str, Any], report: dict[str, Any]) -> str:
+    details = report["details"]
+    historical_rows = "".join(
+        f"<tr><td>{item['match_position']}</td><td>{_e(_label(item['reason']))}</td></tr>"
+        for item in details["historical_unavailable"]
+    )
+    list_value = details["historical_list"]
+    standings = "".join(
+        f"<tr><td>{standing['rank']}</td><td>{_e(standing['player_totals']['player_id'])}</td>"
+        f"<td>{standing['player_totals']['total_performance_points']}</td>"
+        f"<td>{standing['player_totals']['player_game_points']}</td>"
+        f"<td>{standing['player_totals']['own_games_won']}</td>"
+        f"<td>{standing['player_totals']['own_games_lost']}</td></tr>"
+        for standing in list_value["final_standings"]
+    )
+    progression_rows = []
+    for item in list_value["round_end_progression"]:
+        standings_text = ", ".join(
+            f"rank {standing['rank']} "
+            f"{standing['player_totals']['player_id']} "
+            f"{standing['player_totals']['total_performance_points']}"
+            for standing in item["provisional_standings"]
+        )
+        progression_rows.append(
+            f"<tr><td>{item['entry_fact']['round_number']}</td>"
+            f"<td>{item['entry_fact']['entry_number']}</td>"
+            f"<td>{_e(standings_text)}</td></tr>"
+        )
+    progression = "".join(progression_rows)
+    downloads = [
+        ("materialization", "materialization.json", "Materialization summary"),
+        ("historical_games", "historical-games.json", "Historical Games"),
+        ("training_sources", "training-sources.json", "Training sources"),
+        ("historical_list_input", "historical-list-input.json", "Historical list input"),
+        ("historical_list_aggregation", "historical-list-aggregation.json", "Historical list aggregation"),
+    ]
+    links = "".join(
+        f'<a class="download-link" href="/api/v1/exports/{path}">Download {_e(label)} JSON</a>'
+        for key, path, label in downloads
+        if state["download_availability"][key]
+    )
+    return f"""
+      <section class="panel selected-report materialization-report">
+        <p class="eyebrow">Prepared Match summary</p>
+        <h2>{_e(report['match_id'])}, revision {report['workspace_revision']}</h2>
+        {_facts((
+            ('Status', details['status']),
+            ('Occupied Slots', details['occupied_slot_count']),
+            ('Empty Slots', details['empty_slot_count']),
+            ('Observed Games', details['observed_game_count']),
+            ('Passed Deals', details['passed_deal_count']),
+            ('Prepared Decisions', details['prepared_decision_count']),
+            ('Skipped Decisions', details['skipped_decision_count']),
+            ('Strict Historical Games', details['historical_game_count']),
+            ('Training source Records', details['training_record_count']),
+            ('Commentary count', details['commentary_count']),
+            ('Response Link count', details['response_link_count']),
+        ))}
+        <h3>Strict Historical unavailability</h3>
+        <table><thead><tr><th>Position</th><th>Reason</th></tr></thead><tbody>{historical_rows or '<tr><td colspan="2">None.</td></tr>'}</tbody></table>
+        <h3>Fixed 36-position list</h3>
+        {_facts((
+            ('Availability', list_value['status']),
+            ('Unavailable reason', list_value['unavailable_reason']),
+            ('Ranking status', list_value['ranking_status']),
+            ('Lot required Players', ', '.join(list_value['lot_required_player_ids']) or 'None'),
+            ('Applied lot order', None if list_value['applied_lot_order'] is None else ', '.join(list_value['applied_lot_order'])),
+        ))}
+        <h3>Final standings</h3>
+        <table><thead><tr><th>Rank</th><th>Player</th><th>Performance points</th><th>Game points</th><th>Own wins</th><th>Own losses</th></tr></thead>
+        <tbody>{standings or '<tr><td colspan="6">Unavailable until the complete list materializes.</td></tr>'}</tbody></table>
+        <h3>Round-end Progression</h3>
+        <table><thead><tr><th>Round</th><th>Entry</th><th>Provisional standings</th></tr></thead>
+        <tbody>{progression or '<tr><td colspan="3">Unavailable until the complete list materializes.</td></tr>'}</tbody></table>
+        {_download_warning()}<div class="download-links">{links}</div>
+      </section>
+    """
+
+
+def _selected_report(state: dict[str, Any]) -> str:
+    report = state["selected_report"]
+    if report is None:
+        return ""
+    if report["report_kind"] == "decision_analysis":
+        content = _decision_report(state, report)
+    elif report["report_kind"] == "historical_analysis":
+        content = _historical_report(state, report)
+    else:
+        content = _materialization_report(state, report)
+    position = report["match_position"] or state["selected_position"]
+    return f"""
+      <nav class="report-back"><a href="/position/{position}">Back to current position</a></nav>
+      {content}
+    """
+
+
+def _materialization_controls(state: dict[str, Any]) -> str:
+    return f"""
+      <section class="panel analysis-control materialization-control">
+        <p class="eyebrow">Explicit preparation, no workflow execution</p>
+        <h2>Match materialization</h2>
+        <p>Prepare one revision-scoped summary of Decision coverage, strict Historical Games, Training sources, and fixed-list availability.</p>
+        <form method="post" action="/api/v1/analysis" data-native-submit>
+          {_hidden(state, 'prepare_materialization')}
+          <button type="submit" class="primary">Prepare Match summary</button>
+        </form>
+      </section>
+    """
+
+
+def _decision_analysis_controls(state: dict[str, Any]) -> str:
+    preparation = state["decision_preparation"]
+    if state["game"] is None:
+        return ""
+    rows = "".join(
+        f"<tr><td>{item['decision_index']}</td><td>{_e(item['acting_player_id'])}</td>"
+        f"<td>{_e(item['actual_card'])}</td><td>{_e(item['state'])}</td>"
+        f"<td>{_e(_label(item['reason']))}</td></tr>"
+        for item in preparation["decisions"]
+    )
+    options = "".join(
+        f'<option value="{item["decision_index"]}">#{item["decision_index"]} '
+        f'{_e(item["acting_player_id"])} - {_e(item["actual_card"])}</option>'
+        for item in preparation["decisions"]
+        if item["state"] == "prepared"
+    )
+    return f"""
+      <section class="panel analysis-control decision-analysis-control">
+        <p class="eyebrow">Explicit post-game Decision analysis</p>
+        <h2>Observed Game Decisions</h2>
+        {_facts((
+            ('Preparation status', preparation['status']),
+            ('Source Plays', preparation['source_play_count']),
+            ('Prepared Decisions', preparation['prepared_decision_count']),
+            ('Skipped Decisions', preparation['skipped_decision_count']),
+        ))}
+        <table><thead><tr><th>Decision</th><th>Actor</th><th>Actual Card</th><th>State</th><th>Reason</th></tr></thead>
+        <tbody>{rows or '<tr><td colspan="5">No retained Plays.</td></tr>'}</tbody></table>
+        <form method="post" action="/api/v1/analysis" class="form-grid analysis-form" data-analysis-method-form data-native-submit>
+          {_hidden(state, 'analyze_decision')}
+          <label>Prepared Decision <select name="decision_index" required>{options}</select></label>
+          <label>Recommendation method
+            <select name="recommendation_method" data-analysis-method>
+              <option value="immediate_expected_value">Immediate expected value</option>
+              <option value="bounded_search">Bounded Search</option>
+              <option value="auto">Auto Search with Immediate fallback</option>
+            </select>
+          </label>
+          <label>Immediate sample count <input type="number" min="1" max="100000" name="immediate_sample_count" value="100" required></label>
+          <label>Immediate random seed <input type="number" name="immediate_random_seed" value="0" required></label>
+          <div class="search-settings" data-search-settings>
+            <label>Search random seed <input type="number" name="search_random_seed" value="0"></label>
+            <label>Bounded Search budget profile
+              <select name="search_budget_profile">
+                <option value="historical_review_v1">Historical review</option>
+                <option value="interactive_v1">Interactive</option>
+              </select>
+            </label>
+          </div>
+          <label class="checkbox-label"><input type="checkbox" name="use_profile_presets" value="true" checked> Use eligible Player Profile Presets</label>
+          <p class="analysis-warning">The actual Card is retrospective evidence, not an optimal-label assertion. Bounded Search is determinization-based and may be unavailable, partial, or time out normally.</p>
+          <button type="submit" class="primary"{' disabled' if not options else ''}>Analyze selected Decision</button>
+        </form>
+      </section>
+    """
+
+
+def _historical_analysis_controls(state: dict[str, Any]) -> str:
+    materialization = state["historical_materialization"]
+    if not materialization["available"]:
+        return f"""
+          <section class="panel analysis-control historical-analysis-control">
+            <p class="eyebrow">Strict Historical evidence</p>
+            <h2>Historical Game Analysis unavailable</h2>
+            <p class="normal-unavailable">Canonical reason: {_e(_label(materialization['unavailable_reason']))}.</p>
+          </section>
+        """
+    return f"""
+      <section class="panel analysis-control historical-analysis-control">
+        <p class="eyebrow">Explicit strict Historical analysis</p>
+        <h2>Historical Game Analysis</h2>
+        <p>Strict Historical materialization is available for {_e(materialization['game_id'])}.</p>
+        <form method="post" action="/api/v1/analysis" class="form-grid analysis-form" data-historical-analysis-form data-native-submit>
+          {_hidden(state, 'analyze_historical_game')}
+          <fieldset class="analysis-modes">
+            <legend>Analysis modes, select at least one</legend>
+            <label><input type="checkbox" name="decision_snapshots" value="true"> Decision Snapshots</label>
+            <label><input type="checkbox" name="immediate_review" value="true" checked> Immediate Review</label>
+            <label><input type="checkbox" name="search_review" value="true"> Search Review</label>
+            <label><input type="checkbox" name="replay_coaching" value="true"> Replay Coaching</label>
+          </fieldset>
+          <label>Immediate sample count <input type="number" min="1" max="100000" name="immediate_sample_count" value="100" required></label>
+          <label>Immediate random seed <input type="number" name="immediate_random_seed" value="0" required></label>
+          <div class="search-settings">
+            <label>Search random seed <input type="number" name="search_random_seed" value="0"></label>
+            <label>Search budget profile
+              <select name="search_budget_profile">
+                <option value="historical_review_v1">Historical review</option>
+                <option value="interactive_v1">Interactive</option>
+              </select>
+            </label>
+          </div>
+          <label class="checkbox-label"><input type="checkbox" name="use_profile_presets" value="true" checked> Use eligible Player Profile Presets</label>
+          <p class="analysis-warning">Historical Search Review and Replay Coaching may take substantially longer. Their conclusions are bounded and retrospective, not perfect-play or causal claims.</p>
+          <button type="submit" class="primary">Analyze strict Historical Game</button>
+        </form>
+      </section>
+    """
+
+
 def _workspace(state: dict[str, Any]) -> str:
     match = state["match"]
     source = state["source"]
@@ -736,6 +1252,9 @@ def _workspace(state: dict[str, Any]) -> str:
       </section>
       {_metadata_form(state)}
       {_player_statistics(state)}
+      {_report_navigation(state)}
+      {_selected_report(state)}
+      {_materialization_controls(state)}
       <section class="overview"><h2>Match overview</h2>{_overview(state)}</section>
       <section class="position-head panel">
         <p class="eyebrow">Round {view['round_number']} | Position {view['match_position']}</p>
@@ -763,6 +1282,8 @@ def _workspace(state: dict[str, Any]) -> str:
       {_palette(state) if state['game'] is not None else ''}
       {_play_history(state)}
       {_annotations(state)}
+      {_decision_analysis_controls(state)}
+      {_historical_analysis_controls(state)}
       <section class="panel danger-zone">
         <h3>Position correction</h3>
         <form method="post" action="/api/v1/operation" data-confirm="Replace all retained Game evidence with a Passed Deal?">

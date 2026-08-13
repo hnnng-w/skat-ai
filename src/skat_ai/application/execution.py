@@ -458,6 +458,8 @@ def _position_handler(
     root: dict[str, Any],
     invocation: ApplicationInvocation,
     dependencies: ApplicationWorkflowDependencies,
+    *,
+    match_decision_review: bool = False,
 ) -> tuple[
     dict[str, Any],
     tuple[ApplicationArtifact, ...],
@@ -489,6 +491,7 @@ def _position_handler(
         opponent_statistics_reference=(
             invocation.external_documents.opponent_statistics_reference
         ),
+        match_decision_review=match_decision_review,
         provenance_collector=provenance_collector,
         dependencies=dependencies.position,
     )
@@ -690,12 +693,12 @@ _HANDLERS: dict[WorkflowV1, _Handler] = {
 }
 
 
-def execute_application_invocation(
+def _execute_application_invocation(
     invocation: ApplicationInvocation,
     *,
     dependencies: ApplicationWorkflowDependencies | None = None,
+    match_decision_review: bool = False,
 ) -> ApplicationExecutionResult:
-    """Validates, dispatches, and executes exactly one in-memory Root workflow."""
     validate_application_invocation(invocation)
     workflow = invocation.request.workflow
     try:
@@ -707,11 +710,24 @@ def execute_application_invocation(
     request_data = invocation.request.to_dict()["document"]
     if not isinstance(request_data, dict):
         raise SkatAIInvariantError("RequestDocumentV1 did not thaw to an object.")
-    result_document, artifacts, provenance = handler(
-        request_data,
-        invocation,
-        dependencies or ApplicationWorkflowDependencies(),
-    )
+    effective_dependencies = dependencies or ApplicationWorkflowDependencies()
+    if match_decision_review:
+        if workflow is not WorkflowV1.POSITION_ANALYSIS:
+            raise SkatAIInvariantError(
+                "Match Decision execution requires Position Analysis."
+            )
+        result_document, artifacts, provenance = _position_handler(
+            request_data,
+            invocation,
+            effective_dependencies,
+            match_decision_review=True,
+        )
+    else:
+        result_document, artifacts, provenance = handler(
+            request_data,
+            invocation,
+            effective_dependencies,
+        )
     result = ResultDocumentV1(
         workflow=workflow,
         document=result_document,
@@ -724,4 +740,26 @@ def execute_application_invocation(
         result=result,
         artifacts=artifacts,
         provenance=provenance,
+    )
+
+
+def execute_application_invocation(
+    invocation: ApplicationInvocation,
+    *,
+    dependencies: ApplicationWorkflowDependencies | None = None,
+) -> ApplicationExecutionResult:
+    """Validates, dispatches, and executes exactly one in-memory Root workflow."""
+    return _execute_application_invocation(invocation, dependencies=dependencies)
+
+
+def _execute_match_decision_application_invocation(
+    invocation: ApplicationInvocation,
+    *,
+    dependencies: ApplicationWorkflowDependencies | None = None,
+) -> ApplicationExecutionResult:
+    """Executes one private flat Match Decision through the Position Application."""
+    return _execute_application_invocation(
+        invocation,
+        dependencies=dependencies,
+        match_decision_review=True,
     )

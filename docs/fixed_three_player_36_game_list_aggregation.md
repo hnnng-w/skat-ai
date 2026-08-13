@@ -147,6 +147,14 @@ The CLI prints complete final standings and exactly the twelve round-end
 snapshots at entries `3, 6, ..., 36`. It describes performance facts and tie
 state without player-quality, skill, rating, or cross-list claims.
 
+Issue #168's private Match materialization report reuses the same aggregation
+when all 36 Slots are classified and every played Game is strictly
+materializable. The browser shows final standings, `lot_required` or applied-lot
+state, and exactly those twelve round-end snapshots. Authenticated local
+downloads can return the existing list Root input and exact aggregation. Preparing
+or downloading them executes no list Root workflow, generates no random lot, and
+adds no Public Match export contract.
+
 Issue #145 adds internal complete aggregation provenance. Every progression
 snapshot depends only on its current and earlier Entries. External lots affect
 only final tied order, ranks, and lot state; they never affect progression or

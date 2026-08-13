@@ -41,6 +41,15 @@ live-position recommendation, flat post-game Search review, opt-in local Multi-
 Step and Policy Comparison decisions, Historical Search Review, and bounded-
 Search dataset evaluation.
 
+Issue #168 also allows the private local Match Capture browser to run strict
+`bounded_search` or Search-first `auto` for one selected prepared Decision. The
+adapter supplies the same information-safe flat nonterminal post-game Position
+view and attaches the observed Card only for retrospective comparison. It accepts
+`interactive_v1` or `historical_review_v1`, requires an explicit Search seed,
+and makes exactly one existing Position Application invocation. Partial Match
+evidence is sufficient only when the acting own hand and required public hand are
+exactly preparable.
+
 ## Search information
 
 `SearchInformationView` is frozen and uses canonical immutable tuples. Its
@@ -563,6 +572,11 @@ These are retrospective aggregate comparisons, not proof that Search selected
 an optimal imperfect-information policy. Zero completed worlds or a missing
 aligned candidate produces an explicit unavailable reason rather than invented
 metrics.
+
+Match-bound Profiles may affect the independent existing Immediate behavior when
+eligible, actionable, and enabled, but they are not compatible-world weights and
+do not alter Search candidate aggregates, coverage, or solution claims. The
+actual observed Match Card remains behavior evidence, not an optimal label.
 
 ## Named budget profiles
 

@@ -273,7 +273,8 @@ confidentiality or authenticated authorship.
 
 ### Local Match Capture interface
 
-The active `v0.15.0` milestone targets usable manual post-game capture of one
+The functionally complete but unreleased `v0.15.0` milestone targets usable
+manual post-game capture of one
 EuroSkat 36er Standard Match from a video source. Issue #160 adds internal
 immutable version-1 Match source, media-timecode, tournament-format,
 participant, optional Player-statistics snapshot, identity, and perspective
@@ -331,8 +332,7 @@ provenance; loaded historical aggregations remain read-only except for clear or
 replacement. The browser presents source percentages and optional exact Counts,
 the existing normalized Profile and derivation, and strict temporal eligibility.
 Only `captured_at < played_at` enters canonical Match-wide preparation. Missing
-Match time and equal or later captures remain descriptive, and prepared Profiles
-are not yet applied to Match analysis.
+Match time and equal or later captures remain descriptive.
 
 Issue #167 adds an internal evidence-aware review and materialization layer.
 Partial traces can prepare only Decisions whose acting own hand is exact; a
@@ -340,7 +340,7 @@ complete legal trace can prepare all 30 acting own hands without exposing future
 opponent ownership. The actual Card remains a retrospective attachment after the
 Decision-time state, and Skat and declared-Ouvert visibility retain existing
 Historical semantics. Eligible Match-bound Profiles are bound to relative left
-and right opponents without applying a Profile or Policy.
+and right opponents without applying a Profile or Policy during preparation.
 
 Strict Historical materialization remains narrower: it requires one complete
 legal trace, original Skat, exact Discards, and a reconstructable complete Deal,
@@ -353,6 +353,21 @@ remain Workspace sidecars. Materialized Games and Passed Deals conservatively
 use Match-level `played_at`, never media-offset-derived absolute times. No
 analysis, Dataset partition/sample generation, or Root workflow executes.
 
+Issue #168 explicitly connects these prepared values to the private browser.
+One selected prepared Decision can execute the existing Position Application
+once through Immediate, bounded Search, or `auto`, even when only a partial trace
+supports that Decision. The actual Card remains retrospective evidence, not an
+optimal label. Eligible Profile bindings exclude the actor and enter only the
+existing side-specific Application behavior; disabled or nonactionable Profiles
+change no policy, and Profiles do not alter Search.
+
+One strictly materializable Game can execute the existing Historical Application
+once with selected Decision Snapshots, Immediate Review, Search Review, and/or
+Replay Coaching. Historical Profile application is limited to enabled existing
+Immediate Review behavior; it is not claimed for Search or Coaching. A separate
+Match-wide materialization action executes no workflow and presents counts,
+standings, unresolved lot state, and all twelve round ends.
+
 Every accepted mutation uses the exact Workspace revision and retained content
 fingerprint for one compare-and-swap atomic Save before success is shown.
 Unchanged and revision-conflict operations do not write. Persistence conflicts
@@ -361,19 +376,32 @@ Strict cookie, same-origin mutation checks, Host validation, restrictive browser
 headers, a one-MiB request cap, and allowlisted packaged local assets protect the
 loopback transport. No external network request is made.
 
-Workspace files are private local data and receive no public redaction. Protect
-them accordingly. The browser never displays absolute paths, fingerprints,
-tokens, raw persistence JSON, or stack traces. It adds no materialization or
-analysis controls. The internal Issue #167 layer is not exposed through the
-browser, Public Match API, Match Schema, Match Root workflow, examples, generated
-scenarios, YouTube integration, or EuroSkat integration.
+Workspace files, ephemeral analysis reports, and downloaded artifacts are
+private local data and receive no public redaction. Reports use deterministic
+SHA-256 IDs, are current-revision process memory only, retain at most eight
+entries, and are cleared by applied mutations, Reload, or server shutdown.
+Concurrent Workspace changes discard stale analysis without retry.
+Authenticated loopback downloads expose exact Root Results and canonical
+materialization, Historical, unpartitioned Training-source, list-input, and list-
+aggregation JSON where available. The browser never displays absolute paths,
+fingerprints, tokens, raw persistence JSON, or stack traces.
+
+Issue #168 completes the functional `v0.15.0` local Match Capture milestone, but
+does not release or publish it. Package version and the published stable Release
+remain `0.14.0`; all seven Root workflows, 63 Schemas, six Session examples, and
+85 generated scenarios remain unchanged. There is still no Public Match API,
+Match Schema/data workflow, Match Root workflow, Match CLI export, automatic
+analysis, persisted Workspace report, global Player Catalog, communication-aware
+Dataset workflow, database/remote deployment, YouTube integration, or EuroSkat
+integration.
 See [Match capture contracts](docs/match_capture_contracts.md),
 [Observed Game capture contracts](docs/observed_game_capture_contracts.md),
 [Match Workspace contracts](docs/match_workspace_contracts.md), and
 [Match Capture Application services](docs/match_capture_application_services.md),
 [Local Match Capture interface](docs/local_match_capture_interface.md), and
 [Match Player Statistics](docs/match_player_statistics.md), and
-[Match review and materialization](docs/match_review_and_materialization.md).
+[Match review and materialization](docs/match_review_and_materialization.md), and
+[Match analysis and exports](docs/match_analysis_and_exports.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -514,7 +542,8 @@ The same `capture` family is available through `python -m skat_ai` and
 `python main.py`. It has no default path and always binds to loopback. See
 [Local Match Capture interface](docs/local_match_capture_interface.md) for
 Workspace creation and Resume, forms, rapid Card entry, autosave, conflicts,
-local security, and privacy.
+explicit analysis and materialization, authenticated local downloads, local
+security, and privacy.
 
 Run the default analysis from the repository root. This reads the root
 `input_position.json` quick-start fixture:
@@ -929,6 +958,7 @@ Detailed documentation is split into topic-specific files:
 * [Local Match Capture interface](docs/local_match_capture_interface.md)
 * [Match Player Statistics](docs/match_player_statistics.md)
 * [Match review and materialization](docs/match_review_and_materialization.md)
+* [Match analysis and exports](docs/match_analysis_and_exports.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1084,9 +1114,10 @@ and Issue #158 completed Release preparation. Publication was performed manually
 by the maintainer. GitHub Releases remains authoritative for publication status;
 no Package-index or PyPI publication is claimed.
 
-The active development milestone is `v0.15.0`, targeting usable manual
-post-game capture of one EuroSkat 36er Standard Match from descriptive video
-evidence. Issue #160 provides the internal immutable Match identity and metadata
+The functionally complete but unreleased development milestone is `v0.15.0`,
+targeting usable manual post-game capture of one EuroSkat 36er Standard Match
+from descriptive video evidence. Issue #160 provides the internal immutable
+Match identity and metadata
 foundation. Issue #161 adds internal evidence-aware observed Games, partial and
 complete Play validation, free-text Decision commentary on any Player, linked
 later responses, and deterministic evidence summaries. Issue #163 adds persistent
@@ -1101,11 +1132,16 @@ Snapshots, strict-before-Match eligibility, existing normalized Profile
 derivation, and canonical eligible preparation without policy application. Issue
 #167 adds internal information-safe Decision preparation and strict existing-
 contract Historical, unpartitioned Training-source, and complete fixed-list
-materialization without workflow execution. Browser execution/export, Public
-Match API, Match Schema/data workflow, actual Player Profile application, and
-analysis remain later milestone work. Package version, persistence, Public APIs,
-CLI, seven Root workflows, 63 Schemas, examples, and 85 generated outputs remain
-unchanged.
+materialization without workflow execution. Issue #168 adds explicit private
+one-Decision Position and strict Historical Application execution,
+existing-behavior eligible Profile application, no-workflow Match
+materialization, deterministic max-eight ephemeral reports, concurrency
+invalidation, and authenticated canonical local downloads. It completes the
+functional milestone without a Release, publication, or Package-version change.
+Public Match API and Schema/data workflow, global Player Catalog,
+communication-aware Dataset work, database/remote deployment, and broader pre-v1
+work remain open. Package version, persistence, Public APIs, CLI, seven Root
+workflows, 63 Schemas, examples, and 85 generated outputs remain unchanged.
 
 The historical published `v0.13.0` release has release theme "Stable API,
 installable tooling, and public field provenance" and GitHub Release title
@@ -1304,18 +1340,22 @@ extensions, website scraping, cloud synchronization, distributed locking,
 encryption/key management, automatic backups, and unrelated pre-v1 gaps remain
 open.
 
-The active milestone is `v0.15.0` for usable EuroSkat 36er Standard post-game
-capture. Issue #160 establishes internal Match metadata, and Issue #161 adds
+The functionally complete but unreleased `v0.15.0` milestone covers usable
+EuroSkat 36er Standard post-game capture. Issue #160 establishes internal Match
+metadata, and Issue #161 adds
 internal evidence-aware observed Games and free-text Decision commentary. Issue
 #163 adds private persistent Workspaces, and Issue #164 adds transport-free rapid
 entry over those Workspaces. Issue #165 adds the private local browser/Capture
 CLI and autosave transport. Issue #166 adds Match-bound Snapshot editing and
 time-safe Profile preparation. Issue #167 adds internal Decision preparation and
 strict Historical, unpartitioned Training-source, and complete fixed-list
-materialization without execution. Public Match API, Match Schema/data workflow,
-browser/public export, actual Profile application, and analysis remain open.
-`v1.0.0` remains unready after this milestone; its final Issue sequence and
-implementation architecture still require focused scope and traceability review.
+materialization without execution. Issue #168 adds explicit private analysis,
+existing-behavior Profile application, ephemeral reports, and authenticated
+local downloads while materialization remains no-workflow. Public Match API and
+Schema/data workflow, global Player Catalog, communication-aware Dataset work,
+database/remote deployment, and broader pre-v1 work remain open. `v1.0.0`
+remains unready after this milestone; its final Issue sequence and implementation
+architecture still require focused scope and traceability review.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

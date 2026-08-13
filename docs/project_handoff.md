@@ -1335,8 +1335,9 @@ and Issue #158 completed Release preparation. Publication was performed manually
 by the maintainer. GitHub Releases remains authoritative; no Package-index or
 PyPI publication is claimed.
 
-Active development milestone: `v0.15.0`, targeting usable manual post-game
-capture of one EuroSkat 36er Standard Match from descriptive video evidence.
+Completed functional development milestone: unreleased `v0.15.0`, targeting
+usable manual post-game capture of one EuroSkat 36er Standard Match from
+descriptive video evidence.
 Issues #160 and #161 implement the internal immutable Match identity/metadata and
 observed single-Game/commentary foundations. Issue #163 adds persistent internal
 36-position Workspaces. Issue #164 adds internal transport-free rapid-entry
@@ -1345,9 +1346,14 @@ browser/Capture CLI with loopback security and optimistic autosave. Issue #166
 adds Match-bound Snapshot editing and time-safe Profile preparation. Issue #167
 adds internal Decision preparation and strict Historical, unpartitioned
 Training-source, and complete fixed-list materialization without workflow
-execution. They preserve Package version `0.14.0`, Workspace persistence, seven
-Root workflows, Public APIs and CLI, 63 Schemas, examples, and 85 generated
-outputs.
+execution. Issue #168 adds explicit one-Decision Position and strict Historical
+Application execution, existing-behavior eligible Profile application,
+no-workflow Match materialization, deterministic max-eight revision-scoped
+reports, concurrency invalidation, and authenticated canonical local downloads.
+It completes the functional milestone without release preparation, publication,
+or a Package-version change. These changes preserve Package version `0.14.0`,
+Workspace persistence, seven Root workflows, Public APIs and CLI, 63 Schemas,
+examples, and 85 generated outputs.
 
 Historical published `v0.13.0` Release theme: "Stable API, installable tooling,
 and public field provenance".
@@ -1593,7 +1599,7 @@ publication.
 
 ## Current implementation baseline
 
-**Current development after published v0.14.0: v0.15.0 local Match Capture**
+**Current development after published v0.14.0: functionally complete unreleased v0.15.0 local Match Capture**
 
 Completed implementation scope:
 
@@ -1705,6 +1711,15 @@ Completed implementation scope:
   values, `empty`/`partial`/`complete` status, reconciled Decision/Historical/
   Training/Passed/Commentary counts, and complete fixed-list construction plus
   existing aggregation and external-lot behavior
+* internal Match analysis contracts with one explicit prepared-Decision
+  Immediate/Search/Auto Position execution, strict selected-mode Historical
+  execution, one exact existing Application invocation, normal unavailability,
+  and existing-behavior eligible relative Profile application
+* private browser Match materialization with no workflow execution, counts,
+  standings, unresolved lot state, and twelve round ends
+* deterministic SHA-256 revision-scoped process-local reports capped at eight,
+  mutation/reload/shutdown invalidation, concurrent-change discard without retry,
+  and authenticated canonical Root/Historical/Training/list downloads
 
 ## Current high-priority limitations
 
@@ -1771,22 +1786,27 @@ Completed implementation scope:
   commentary, persistent internal 36-position Workspaces, transport-free
   rapid-entry Application services, and the private local browser/Capture CLI
   with autosave. Match-bound Player Statistics editing and time-safe Profile
-  preparation are implemented without policy application. Internal Decision
-  preparation and strict Historical, unpartitioned Training-source, and complete
-  fixed-list materialization are implemented without workflow execution.
-  Browser execution/export, Public Match API, Match Schema/data workflow, actual
-  Profile application, and analysis remain later `v0.15.0` work;
-  YouTube and EuroSkat integration remain absent. No hosted website, remote
-  browser deployment, browser extension, or online-platform adapter exists.
+  preparation are implemented. Internal Decision preparation and strict
+  Historical, unpartitioned Training-source, and complete fixed-list
+  materialization are implemented. Explicit one-Decision and Historical
+  Application execution, existing-behavior eligible Profile application,
+  no-workflow materialization reports, and authenticated local downloads complete
+  the functional `v0.15.0` local milestone. Reports are ephemeral and Commentary
+  does not enter Coaching. Public Match API/export, Match Schema/data workflow,
+  global Player Catalog, communication-aware Dataset work, database/remote
+  deployment, YouTube integration, and EuroSkat integration remain absent. No
+  hosted website, remote browser deployment, browser extension, or online-
+  platform adapter exists.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Continue the active `v0.15.0` milestone from the Issue #160 through #167 usable
-local manual-capture and internal materialization foundation toward explicit
-workflow execution, browser controls and report export, Public Match API and
-Schema/data workflow, and actual Profile application.
-YouTube and EuroSkat integration are not required before `v1.0.0`.
+Treat Issue #168 as the functional completion of the unreleased `v0.15.0` local
+Match Capture milestone. Release preparation/publication remains a separate
+human-controlled decision. Continue the broader pre-v1 audit, including Public
+Match API and Schema/data workflow, global Player Catalog, communication-aware
+Dataset work, and the requirements below. YouTube and EuroSkat integration are
+not required before `v1.0.0`.
 
 The audit should cover:
 

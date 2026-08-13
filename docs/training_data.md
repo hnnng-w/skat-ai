@@ -30,6 +30,14 @@ Response Links remain Workspace sidecars and are not version-1 features, targets
 labels, categories, or quality values. See
 [Match review and materialization](match_review_and_materialization.md).
 
+Issue #168 can prepare that Match materialization explicitly in the private
+browser and download the exact unpartitioned Training source collection. This
+still runs no Training Dataset Root workflow and creates no Dataset identity,
+partition, Plan, audit, sample, feature, or label. The retained historical actual
+Card remains behavior evidence and the existing version-1 target only after a
+separate Dataset workflow; Match Decision analysis does not reinterpret it as an
+optimal label. See [Match analysis and exports](match_analysis_and_exports.md).
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:

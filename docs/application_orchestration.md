@@ -57,6 +57,15 @@ operations execute no Application workflow. None of this adds an eighth workflow
 or handler, changes orchestration version `1`, or merges Session Provenance with
 `ApplicationProvenanceBundle` or public Root Result provenance.
 
+Issue #168 adds another private caller before Application. Match Decision
+analysis constructs one validated flat nonterminal retrospective Position
+Request from one prepared snapshot and calls the existing Position handler once.
+Strict Match Historical analysis calls the existing Historical handler once with
+the selected Snapshot/Immediate/Search/Coaching modes. Normal unavailable Match
+evidence calls no handler, and Match materialization calls no handler. This adds
+no workflow, changes no Application contract, and does not make Match contracts
+public.
+
 ## Contracts
 
 The main contract values are frozen, slotted, keyword-only dataclasses:
@@ -152,8 +161,11 @@ is executed or attached.
 
 Opponent Statistics may be injected only into Position Analysis and Historical
 Game invocations. The Application layer receives the already loaded Root
-document and an opaque descriptive reference. Position Analysis still requires
-valid live stable-ID bindings and effective Profile Preset opt-in. Historical
+document and an opaque descriptive reference. Position Analysis requires valid
+stable-ID bindings. Live Decision injection also requires effective Profile
+Preset opt-in; the private flat nonterminal post-game Decision path used by Issue
+#168 may retain bindings while omitting the stable Root Profile summary and
+reporting disabled application only in its private Match report. Historical
 Game injection still requires Immediate Historical Review, effective Profile
 Preset opt-in, and the existing strict pre-game temporal checks.
 
@@ -168,6 +180,14 @@ The artifact is the existing reusable export document. It is deliberately kept
 outside the primary result document and has no output path. A transport adapter
 decides whether and where to write it. Duplicate or unknown artifact names are
 rejected.
+
+Issue #168 supplies eligible Match-bound Statistics as an existing injected
+Opponent Statistics document. Decision execution binds only the acting Player's
+relative left/right opponents and excludes the actor. Historical injection is
+limited to enabled Immediate Review plus effective Profile Preset opt-in. The
+existing Application remains authoritative for disabled, nonactionable, and
+policy-precedence behavior. Profiles are not passed to bounded Search or Replay
+Coaching, so Match execution does not claim a Profile effect there.
 
 ## No-I/O boundary
 
@@ -211,6 +231,11 @@ Only explicit `analyze`, available `review`, and available `finalize` operations
 export an existing Request and call the matching Application handler once. The
 phase-aware Assistant follows the same rule: analysis occurs only after an
 explicit caller action. Existing Root parsing and dispatch remain unchanged.
+
+Leading `capture` remains a separate leaf transport. Issue #168's browser action
+invokes one matching Application handler only after an explicit authenticated
+form or protocol request. Ordinary rendering, Workspace mutation, report
+navigation, materialization, and downloads do not dispatch a Root workflow.
 
 Issue #162 separates the Package-owned transport into focused Root parser,
 validation, Legacy compatibility, Application-adapter, dispatch, transport, and

@@ -348,7 +348,7 @@ def test_state_and_html_present_all_temporal_profile_and_form_boundaries(
     assert "A later Match may retain another Snapshot" in html
     assert "Missing Match time" in html
     assert "equal or later captures remain descriptive" in html
-    assert "Prepared Profiles are not yet applied to Match analysis" in html
+    assert "Eligible prepared Profiles can now be explicitly applied" in html
     assert "Add Snapshot" in html
     assert state["player_statistics_preparation"]["status"] == "unavailable"
 

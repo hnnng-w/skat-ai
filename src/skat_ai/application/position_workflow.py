@@ -40,7 +40,7 @@ from skat_ai.game_continuation import (
     build_game_continuation_summary,
     resolve_game_continuation,
 )
-from skat_ai.game_declaration import build_serializable_game_declaration
+from skat_ai.game_declaration import GameDeclaration, build_serializable_game_declaration
 from skat_ai.game_end import apply_remaining_points_assignment
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_result import build_game_result_summary_from_score_summary
@@ -296,6 +296,7 @@ def _build_position_analysis_result(
     options: PositionAnalysisApplicationOptions,
     effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
     opponent_profile_application_summary: dict[str, Any] | None = None,
+    match_decision_review: bool = False,
     provenance_collector: PositionProvenanceCollector | None = None,
     dependencies: PositionWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
@@ -338,9 +339,24 @@ def _build_position_analysis_result(
             if constraint is not None
         )
     )
-    game_declaration = get_game_declaration_from_input(
-        data if game_shortening is not None else local_data
-    )
+    declaration_data = data if game_shortening is not None else local_data
+    if match_decision_review:
+        nested_declaration = declaration_data.get("game_declaration")
+        if not isinstance(nested_declaration, dict):
+            raise SkatAIWorkflowError(
+                "Match Decision review requires one complete nested game_declaration."
+            )
+        game_declaration = GameDeclaration(
+            game_type=declaration_data["game_type"],
+            hand_game=nested_declaration["hand_game"],
+            ouvert=nested_declaration["ouvert"],
+            schneider_announced=nested_declaration["schneider_announced"],
+            schwarz_announced=nested_declaration["schwarz_announced"],
+            matadors=nested_declaration["matadors"],
+            bid_value=nested_declaration["bid_value"],
+        )
+    else:
+        game_declaration = get_game_declaration_from_input(declaration_data)
     impossible_null_selection = get_impossible_null_settlement_from_input(data)
     performance_rating_system = get_performance_rating_system_from_input(data)
     list_performance_input = get_list_performance_input_from_input(data)
@@ -746,6 +762,8 @@ def _validate_live_profile_options(
     data: dict[str, Any],
     options: PositionAnalysisApplicationOptions,
     has_statistics: bool,
+    *,
+    match_decision_review: bool = False,
 ) -> None:
     left_id = options.left_opponent_player_id
     right_id = options.right_opponent_player_id
@@ -759,24 +777,39 @@ def _validate_live_profile_options(
         raise SkatAIWorkflowError(
             "Injected opponent statistics require at least one opponent player ID."
         )
-    if data.get("analysis_mode", "live_decision") != "live_decision":
+    analysis_mode = data.get("analysis_mode", "live_decision")
+    is_flat_decision_review = (
+        match_decision_review
+        and analysis_mode == "post_game_review"
+        and data.get("actual_card_played") is not None
+        and data.get("game_end_reason", "not_ended") == "not_ended"
+    )
+    if analysis_mode != "live_decision" and not is_flat_decision_review:
         raise SkatAIWorkflowError(
-            "Injected opponent statistics are supported only for "
-            "analysis_mode='live_decision'."
+            "Injected opponent statistics require a live Decision or flat "
+            "nonterminal post-game Decision review with an actual Card."
         )
     unsupported_fields = {
+        "game_shortening",
+        "game_continuation",
         "list_performance_input",
         "list_game_contributions",
         "list_analysis_results",
         "list_standings_input",
         "impossible_null_settlement",
     }.intersection(data)
+    if analysis_mode == "post_game_review":
+        unsupported_fields.update(
+            {
+                "performance_rating_system",
+            }.intersection(data)
+        )
     if unsupported_fields:
         raise SkatAIWorkflowError(
             "Injected opponent statistics are not supported for this non-live "
             f"analysis workflow: {', '.join(sorted(unsupported_fields))}."
         )
-    if not (
+    if analysis_mode == "live_decision" and not (
         data.get("use_profile_presets") is True
         or options.use_profile_presets_override
     ):
@@ -792,11 +825,22 @@ def execute_position_analysis_workflow(
     options: PositionAnalysisApplicationOptions,
     opponent_statistics_document: dict[str, Any] | None = None,
     opponent_statistics_reference: str | None = None,
+    match_decision_review: bool = False,
     provenance_collector: PositionProvenanceCollector | None = None,
     dependencies: PositionWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Executes all selected Position Analysis sub-workflows without transport I/O."""
     data = build_position_from_document(root_document)
+    if match_decision_review and (
+        data.get("analysis_mode") != "post_game_review"
+        or data.get("actual_card_played") is None
+        or data.get("game_end_reason", "not_ended") != "not_ended"
+        or options.multi_step_count is not None
+        or options.compare_policies
+    ):
+        raise SkatAIWorkflowError(
+            "match_decision_review requires one flat nonterminal post-game Decision."
+        )
     if "game_shortening" in data and (
         options.multi_step_count is not None or options.compare_policies
     ):
@@ -822,6 +866,7 @@ def execute_position_analysis_workflow(
         data,
         options,
         opponent_statistics_document is not None,
+        match_decision_review=match_decision_review,
     )
 
     analysis_metadata = get_analysis_metadata_from_input(data)
@@ -875,7 +920,15 @@ def execute_position_analysis_workflow(
         effective_live_profiles,
     )
     profile_summary = None
-    if bindings is not None and effective_live_profiles is not None:
+    use_profile_presets = (
+        data.get("use_profile_presets") is True
+        or options.use_profile_presets_override
+    )
+    if (
+        bindings is not None
+        and effective_live_profiles is not None
+        and use_profile_presets
+    ):
         profile_summary = build_opponent_profile_application_summary(
             statistics_input_file=opponent_statistics_reference,
             use_profile_presets=True,
@@ -890,6 +943,7 @@ def execute_position_analysis_workflow(
         options=options,
         effective_opponent_policy_settings=effective_settings,
         opponent_profile_application_summary=profile_summary,
+        match_decision_review=match_decision_review,
         provenance_collector=provenance_collector,
         dependencies=dependencies,
     )

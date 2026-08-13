@@ -15,6 +15,8 @@ from skat_ai.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
 
+from .report_store import MatchAnalysisReportStoreV1
+
 
 @dataclass(slots=True)
 class MatchCaptureWebContextV1:
@@ -23,6 +25,10 @@ class MatchCaptureWebContextV1:
     workspace_path: Path
     workspace: MatchWorkspaceV1 | None
     content_fingerprint: str | None
+    report_store: MatchAnalysisReportStoreV1 = field(
+        default_factory=MatchAnalysisReportStoreV1,
+        repr=False,
+    )
     lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
 
     @property
@@ -59,9 +65,11 @@ class MatchCaptureWebContextV1:
             except FileNotFoundError:
                 self.workspace = None
                 self.content_fingerprint = None
+                self.report_store.clear()
                 return None
             self.workspace = resumed.document.workspace
             self.content_fingerprint = resumed.document.content_fingerprint
+            self.report_store.clear()
             return self.workspace
 
     def save_candidate(self, workspace: MatchWorkspaceV1) -> str:

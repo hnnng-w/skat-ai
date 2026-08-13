@@ -2,7 +2,7 @@
 
 This document tracks completed areas, known limitations, and planned improvements for `skat-ai`.
 
-## Active milestone: v0.15.0
+## Completed functional milestone: v0.15.0 (unreleased)
 
 `v0.15.0` targets usable manual post-game capture of one EuroSkat 36er Standard
 Match from a descriptive video source. Issue #160 establishes the internal
@@ -97,10 +97,29 @@ Issue #167 adds internal evidence-aware review and materialization preparation:
 * no workflow execution and no persistence, browser, public, Schema, example,
   generated-output, CLI, or Package-version change.
 
-Actual Position/Historical/list workflow execution, browser materialization and
-analysis controls, public materialization/export, Public Match API, Match Schema
-and data workflow, and actual Profile application remain later `v0.15.0` work.
-No YouTube or EuroSkat integration, ranking,
+Issue #168 completes the functional local Match Capture milestone:
+
+* one explicit prepared-Decision Position execution through Immediate, bounded
+  Search, or `auto`, including supported partial snapshots;
+* retrospective actual-Card attachment without an optimal-label claim;
+* eligible actor-relative Profile binding and application only through existing
+  supported Position behavior, including disabled and nonactionable outcomes;
+* strict Historical availability plus selected Snapshot, Immediate Review,
+  Search Review, and Replay Coaching modes through one existing Application
+  invocation;
+* Historical Profile application only through existing enabled Immediate Review
+  behavior, with no claimed Profile effect on Search or Coaching;
+* no-workflow Match materialization with counts, standings, unresolved lot state,
+  and twelve round ends;
+* deterministic SHA-256, revision-scoped, process-local reports capped at eight,
+  cleared or discarded under the documented mutation/reload/concurrency rules;
+* authenticated loopback canonical Root Result, materialization, Historical,
+  unpartitioned Training-source, list-input, and list-aggregation downloads.
+
+This functional completion is not a Release, publication, or Package-version
+change. Public Match API and Schema/data workflow, global Player Catalog,
+communication-aware Dataset work, database/remote deployment, and broader pre-v1
+work remain open. No YouTube or EuroSkat integration, ranking,
 qualification, prize, fee, or bonus behavior is implemented.
 
 Issue #162 characterizes and modularizes the existing Root and Session CLI
@@ -947,11 +966,12 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` remains not ready after the active focused `v0.15.0` Match Capture
-work through the internal Match metadata, observed-Game/commentary, persistent
-Workspace, rapid-entry Application, private local browser/autosave transport,
-Match-bound Statistics editing/time-safe Profile preparation, and internal
-Decision/Historical/Training-source/fixed-list materialization without execution.
+`v1.0.0` remains not ready after the functionally complete but unreleased
+`v0.15.0` Match Capture work through internal Match metadata, observed-Game and
+commentary, persistent Workspace, rapid-entry Application, private local browser
+and autosave transport, Match-bound Statistics editing and time-safe Profile
+preparation, Decision/Historical/Training-source/fixed-list materialization,
+explicit analysis, ephemeral reports, and authenticated local downloads.
 A separate audit of both documents must precede its final Issue sequence or
 implementation architecture.
 
@@ -1080,14 +1100,14 @@ Recommended cleanup areas:
 ## GitHub issue status
 
 Issue tracking should continue to use small, focused follow-ups. New issues
-should distinguish the current published `v0.14.0` baseline, active `v0.15.0`
+should distinguish the current published `v0.14.0` baseline, unreleased `v0.15.0`
 Match Capture work through internal Issues #160, #161, #163, and #164 plus
 private browser/Statistics Issues #165 and #166 and internal materialization
-Issue #167, historical
+Issue #167 and functional completion Issue #168, historical
 `v0.13.0`, `v0.12.0`, and older Release evidence, the authoritative publication
 state shown by GitHub Releases, functional Issues #150 through #157 and completed
 release-preparation Issue #158, the 63-Schema, six-Session-example, 85-scenario,
-and 5,892-test published baseline, later `v0.15.0` capture work, requirements
+and 5,892-test published baseline, unreleased `v0.15.0` capture work, requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows, and
 unconditional exclusions. The final `v1.0.0` Issue split and implementation
 architecture remain undecided pending the focused repository audit.

@@ -30,6 +30,9 @@ UNAVAILABLE_SMOKE_EXAMPLE = (
 HISTORICAL_SESSION_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "historical_grand_declarer_concession.json"
 )
+HISTORICAL_MATCH_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+)
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.14.0"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 63
@@ -707,9 +710,38 @@ from skat_ai.api.v1.session.files.execution import (
     serialize_session_file_result as execution_serialize_session_file_result,
 )
 from skat_ai.cli.session_assistant import run_session_assistant
+from skat_ai.capture_web.analysis import execute_match_capture_web_analysis_v1
 from skat_ai.capture_web.context import MatchCaptureWebContextV1
 from skat_ai.capture_web.server import start_match_capture_web_server_v1
+from skat_ai.game_declaration import GameDeclaration
+from skat_ai.match_analysis_contracts import (
+    MatchDecisionAnalysisOptionsV1,
+    MatchHistoricalAnalysisOptionsV1,
+    build_match_analysis_report_v1,
+)
+from skat_ai.match_analysis_exports import (
+    build_match_historical_game_collection_export_v1,
+    build_match_materialization_summary_export_v1,
+    build_match_report_result_export_v1,
+)
+from skat_ai.match_capture_contracts import MatchCaptureDefinitionV1
+from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
+from skat_ai.match_decision_review_preparation import (
+    build_match_decision_review_preparation_v1,
+)
+from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
+from skat_ai.match_player_snapshot import (
+    MatchParticipantV1,
+    MatchPlayerStatisticsSnapshotV1,
+)
+from skat_ai.match_source_metadata import MatchSourceMetadataV1
+from skat_ai.match_tournament_format import get_match_tournament_format_v1
 from skat_ai.match_workspace_persistence import load_match_workspace_file_v1
+from skat_ai.match_workspace_contracts import create_match_workspace_v1
+from skat_ai.match_workspace_operations import set_match_workspace_observed_game_v1
+from skat_ai.observed_game_contracts import build_observed_game_record_v1
+from skat_ai.observed_game_trace import ObservedPlayV1
+from skat_ai.opponent_statistics import build_opponent_statistics_input
 from skat_ai.session_persistence_contracts import (
     SessionPersistenceWriteResultV1 as InternalSessionPersistenceWriteResultV1,
     SessionResumeResultV1 as InternalSessionResumeResultV1,
@@ -905,6 +937,318 @@ try:
     assert capture_game.plays[0].player_id == "player-b"
     assert capture_game.plays[0].card == "CA"
     assert capture_loaded.document.workspace.revision == revision + 5
+
+    historical_input = json.loads(
+        (cwd / "match-analysis-historical.json").read_text(encoding="utf-8")
+    )["historical_game_input"]
+    statistics_records = build_opponent_statistics_input(
+        {
+            "schema_version": 1,
+            "records": [
+                {
+                    "player_id": player["player_id"],
+                    "source": {
+                        "source_type": "manual_entry",
+                        "source_name": "Distribution Match profile",
+                        "captured_at": "2026-07-20T10:00:00Z",
+                    },
+                    "games_played": 1000,
+                    "statistics": {
+                        "solo_games_played_percent": 42,
+                        "solo_games_won_percent": 61,
+                        "solo_hand_percent": 12,
+                        "suit_games_percent": 55,
+                        "grand_games_percent": 35,
+                        "null_games_percent": 10,
+                        "defender_games_played_percent": 58,
+                        "defender_games_won_percent": 65,
+                    },
+                }
+                for player in historical_input["players"]
+            ],
+        }
+    ).records
+    analysis_definition = MatchCaptureDefinitionV1(
+        match_id="distribution-analysis-match",
+        title="Distribution Analysis Match",
+        game_platform="EuroSkat",
+        external_match_id=None,
+        played_at=historical_input["played_at"],
+        tournament_format=get_match_tournament_format_v1(
+            "euroskat_36_standard_v1"
+        ),
+        source=MatchSourceMetadataV1(
+            source_kind="manual_observation",
+            source_url=None,
+            source_title="Distribution analysis fixture",
+            source_channel_name=None,
+            match_timecode=None,
+        ),
+        participants=tuple(
+            MatchParticipantV1(
+                player_id=player["player_id"],
+                player_label=player.get("player_label"),
+                platform_player_id=None,
+                table_place=f"place_{index}",
+                statistics_snapshot=(
+                    None
+                    if index == 1
+                    else MatchPlayerStatisticsSnapshotV1(
+                        snapshot_id=f"distribution-{player['player_id']}-snapshot",
+                        observed_at="2026-07-20T10:00:00Z",
+                        statistics_record=statistics_record,
+                    )
+                ),
+            )
+            for index, (player, statistics_record) in enumerate(
+                zip(
+                    historical_input["players"],
+                    statistics_records,
+                    strict=True,
+                ),
+                start=1,
+            )
+        ),
+        perspective_player_id="player-a",
+    )
+    historical_declaration = historical_input["declaration"]
+    declaration = GameDeclaration(
+        game_type=historical_declaration["game_type"],
+        hand_game=historical_declaration.get("hand_game", False),
+        ouvert=historical_declaration.get("ouvert", False),
+        schneider_announced=historical_declaration.get(
+            "schneider_announced", False
+        ),
+        schwarz_announced=historical_declaration.get("schwarz_announced", False),
+        matadors=historical_declaration.get("matadors"),
+        bid_value=historical_declaration.get("bid_value"),
+    )
+    observed_plays = tuple(
+        ObservedPlayV1(
+            decision_index=decision_index,
+            player_id=play["player_id"],
+            card=play["card"],
+            decision_timecode=None,
+        )
+        for decision_index, play in enumerate(
+            (
+                play
+                for trick in historical_input["tricks"]
+                for play in trick["plays"]
+            ),
+            start=1,
+        )
+    )
+    perspective_hand = next(
+        player["initial_hand"]
+        for player in historical_input["players"]
+        if player["player_id"] == analysis_definition.perspective_player_id
+    )
+
+    def analysis_workspace(play_count):
+        observed_game = build_observed_game_record_v1(
+            analysis_definition,
+            game_id=historical_input["game_id"],
+            match_position=3,
+            game_timecode=None,
+            seat_order_player_ids=tuple(
+                player["player_id"] for player in historical_input["players"]
+            ),
+            perspective_initial_hand=tuple(perspective_hand),
+            declarer_player_id=historical_input["declarer_player_id"],
+            declaration=declaration,
+            original_skat=tuple(historical_input["skat"]),
+            discarded_cards=tuple(historical_input["discarded_cards"]),
+            plays=observed_plays[:play_count],
+            commentaries=(),
+            response_links=(),
+        )
+        workspace = create_match_workspace_v1(analysis_definition)
+        changed = set_match_workspace_observed_game_v1(
+            workspace,
+            observed_game,
+            expected_revision=workspace.revision,
+        )
+        assert changed.status == "applied"
+        return changed.workspace
+
+    partial_workspace = analysis_workspace(6)
+    partial_preparation = build_match_decision_review_preparation_v1(
+        partial_workspace,
+        match_position=3,
+    )
+    assert partial_preparation.status == "partial"
+    assert partial_preparation.source_play_count == 6
+    immediate_analysis = execute_match_decision_analysis_v1(
+        partial_workspace,
+        match_position=3,
+        decision_index=1,
+        options=MatchDecisionAnalysisOptionsV1(
+            immediate_sample_count=1,
+            immediate_random_seed=0,
+            use_profile_presets=True,
+        ),
+    )
+    assert immediate_analysis.status == "executed"
+    immediate_document = immediate_analysis.result.to_dict()["document"]
+    assert immediate_document["recommendation_method_summary"]["requested_method"] == (
+        "immediate_expected_value"
+    )
+    profile_summary = immediate_document["opponent_profile_application_summary"]
+    assert {
+        profile_summary["left"]["bound_player_id"],
+        profile_summary["right"]["bound_player_id"],
+    } == {"player-b", "player-c"}
+    assert profile_summary["left"]["application_status"] == "applied"
+    assert profile_summary["right"]["application_status"] == "applied"
+
+    complete_workspace = analysis_workspace(30)
+    search_analysis = execute_match_decision_analysis_v1(
+        complete_workspace,
+        match_position=3,
+        decision_index=22,
+        options=MatchDecisionAnalysisOptionsV1(
+            recommendation_method="bounded_search",
+            immediate_sample_count=1,
+            immediate_random_seed=0,
+            search_random_seed=0,
+            search_budget_profile="interactive_v1",
+            use_profile_presets=True,
+        ),
+    )
+    assert search_analysis.status == "executed"
+    search_document = search_analysis.result.to_dict()["document"]
+    search_result = search_document["bounded_search_result"]
+    assert search_result["requested_budget"]["wall_clock_timeout_ms"] == 1000
+    assert search_result["requested_budget"]["max_nodes"] == 500000
+    assert search_result["status"] in {"complete", "partial", "timeout"}
+
+    historical_analysis = execute_match_historical_analysis_v1(
+        complete_workspace,
+        match_position=3,
+        options=MatchHistoricalAnalysisOptionsV1(
+            decision_snapshots=False,
+            immediate_review=True,
+            search_review=False,
+            replay_coaching=False,
+            immediate_sample_count=1,
+            immediate_random_seed=0,
+            use_profile_presets=True,
+        ),
+    )
+    assert historical_analysis.status == "executed"
+    historical_document = historical_analysis.result.to_dict()["document"]
+    historical_review = historical_document["historical_game_summary"][
+        "historical_game_review_summary"
+    ]
+    assert historical_review["decision_count"] == 30
+    assert historical_review["reviewed_decision_count"] == 30
+
+    assert capture_context.save_candidate(complete_workspace) == "saved"
+    materialization_response = execute_match_capture_web_analysis_v1(
+        capture_context,
+        {
+            "operation": "prepare_materialization",
+            "match_position": 3,
+            "expected_revision": complete_workspace.revision,
+        },
+    )
+    assert materialization_response.status == "applied"
+    materialization_report = capture_context.report_store.list()[-1]
+    materialization = materialization_report.value.materialization
+    assert materialization.historical_game_count == 1
+    assert materialization.training_record_count == 1
+
+    search_report = build_match_analysis_report_v1(search_analysis)
+    historical_report = build_match_analysis_report_v1(historical_analysis)
+    capture_context.report_store.add(search_report)
+    capture_context.report_store.add(historical_report)
+
+    status, _, content = capture_request(
+        "GET",
+        "/position/3",
+        headers=get_headers,
+    )
+    assert status == 200
+    for control in (
+        b"Match materialization",
+        b"Prepare Match summary",
+        b"Observed Game Decisions",
+        b"Analyze selected Decision",
+        b"Historical Game Analysis",
+        b"Analyze strict Historical Game",
+    ):
+        assert control in content
+
+    root_path = f"/api/v1/reports/{search_report.report_id}.json"
+    status, _, _ = capture_request(
+        "GET",
+        root_path,
+        headers={"Host": host},
+    )
+    assert status == 403
+    status, headers, content = capture_request(
+        "GET",
+        root_path,
+        headers=get_headers,
+    )
+    expected_root_export = build_match_report_result_export_v1(search_report)
+    assert status == 200
+    assert headers["Content-Disposition"] == (
+        f'attachment; filename="{expected_root_export.filename}"'
+    )
+    assert content == expected_root_export.to_bytes()
+    assert json.loads(content) == search_document
+
+    materialization_path = "/api/v1/exports/materialization.json"
+    status, _, content = capture_request(
+        "GET",
+        materialization_path,
+        headers=get_headers,
+    )
+    expected_materialization_export = build_match_materialization_summary_export_v1(
+        materialization_report.value
+    )
+    assert status == 200
+    assert content == expected_materialization_export.to_bytes()
+
+    historical_collection_path = "/api/v1/exports/historical-games.json"
+    status, _, _ = capture_request(
+        "GET",
+        historical_collection_path,
+        headers={"Host": host},
+    )
+    assert status == 403
+    status, headers, content = capture_request(
+        "GET",
+        historical_collection_path,
+        headers=get_headers,
+    )
+    expected_historical_collection = (
+        build_match_historical_game_collection_export_v1(materialization)
+    )
+    assert status == 200
+    assert headers["Content-Disposition"] == (
+        f'attachment; filename="{expected_historical_collection.filename}"'
+    )
+    assert content == expected_historical_collection.to_bytes()
+    assert json.loads(content)["available_game_count"] == 1
+
+    invalidation = capture_operation(
+        "truncate_plays",
+        match_position=3,
+        target_play_count=29,
+    )
+    assert invalidation["status"] == "applied"
+    assert capture_context.report_store.list() == ()
+    status, _, _ = capture_request("GET", root_path, headers=get_headers)
+    assert status == 404
+    status, _, _ = capture_request(
+        "GET",
+        historical_collection_path,
+        headers=get_headers,
+    )
+    assert status == 404
 finally:
     capture_server.shutdown()
     capture_server.server_close()
@@ -1173,6 +1517,27 @@ print(json.dumps({
             "review": session_review,
             "finalize": session_finalize,
         },
+        "match_analysis": {
+            "partial_preparation_status": partial_preparation.status,
+            "partial_immediate_status": immediate_analysis.status,
+            "profile_application_statuses": [
+                profile_summary["left"]["application_status"],
+                profile_summary["right"]["application_status"],
+            ],
+            "bounded_search_executed": search_analysis.status == "executed",
+            "bounded_search_timeout_ms": search_result["requested_budget"][
+                "wall_clock_timeout_ms"
+            ],
+            "historical_review_decision_count": historical_review[
+                "decision_count"
+            ],
+            "materialized_historical_game_count": (
+                materialization.historical_game_count
+            ),
+            "authenticated_root_download_exact": True,
+            "authenticated_historical_collection_count": 1,
+            "applied_mutation_invalidated_reports": True,
+        },
     },
     "schema_names": resource_names,
     "schema_ids": schema_ids,
@@ -1254,6 +1619,13 @@ def _install_and_smoke(
     )
     (consumer_directory / "historical-session.json").write_text(
         json.dumps(historical_session_document, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    historical_match_document = json.loads(
+        HISTORICAL_MATCH_SMOKE_EXAMPLE.read_text(encoding="utf-8")
+    )
+    (consumer_directory / "match-analysis-historical.json").write_text(
+        json.dumps(historical_match_document, separators=(",", ":")),
         encoding="utf-8",
     )
     (consumer_directory / "session-create.json").write_text(
@@ -1644,8 +2016,10 @@ def _install_and_smoke(
 
     smoke_environment = environment.copy()
     smoke_environment["SKAT_AI_REPOSITORY_ROOT"] = str(PROJECT_ROOT)
+    smoke_program_path = consumer_directory / "installed-smoke.py"
+    smoke_program_path.write_text(SMOKE_PROGRAM, encoding="utf-8")
     completed = _run(
-        [str(python), "-I", "-c", SMOKE_PROGRAM],
+        [str(python), "-I", str(smoke_program_path)],
         cwd=consumer_directory,
         environment=smoke_environment,
     )

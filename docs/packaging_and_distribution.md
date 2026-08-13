@@ -66,6 +66,9 @@ adds no second Console Script and no eighth Engine Root workflow; explicit
 analysis reuses the existing Position or Historical Application handler once.
 Issue #165 adds leading `capture` dispatch before Session and Root, using the
 same Console Script for the loopback-only one-Workspace browser transport.
+Issue #168 extends that already packaged private browser with explicit analysis,
+ephemeral reports, and authenticated local downloads. It adds no Console Script,
+CLI option, Root workflow, public import, Schema resource, or Package Data kind.
 
 ## Building artifacts
 
@@ -148,6 +151,9 @@ The private Capture Web transport also loads its HTML template, CSS, and vanilla
 JavaScript through `importlib.resources`. Assets are lazy, current-working-
 directory independent, locally packaged, and contain no external dependency,
 CDN, font, image, or build-system requirement.
+Issue #168 uses the same packaged assets and discovered Python Package modules;
+reports remain process memory and downloads are HTTP responses, not Package Data
+or installed writable files.
 
 ## Typing and version metadata
 
@@ -224,6 +230,12 @@ verifies:
   Match-bound Player Statistics Snapshot, starts a Game, sets a Declaration,
   appends one automatically attributed Card, strictly reloads the file, and
   shuts down cleanly;
+* installed Match analysis imports prepare a partial safe Decision, execute
+  Immediate and bounded Search Position paths, execute strict Historical Review,
+  apply eligible actor-relative Profiles through existing behavior, prepare
+  materialization, render the explicit browser controls, authenticate exact Root,
+  materialization, and Historical-collection downloads, and invalidate reports
+  after an applied mutation;
 * installed, module, and Public Session API results have parity where
   applicable;
 * a valid unavailable Dataset Preparation Result remains successful;
@@ -268,4 +280,8 @@ file paths are caller-selected; no default directory, second Console Script,
 remote browser deployment, online-platform adapter, cloud synchronization,
 distributed locking, encryption/key management, or automatic backup policy is
 added. The Issue #165 browser is a private loopback-only local transport; it is
-not a hosted GUI or Public Match API.
+not a hosted GUI or Public Match API. Issue #168 completes the functional
+`v0.15.0` local Match Capture milestone without a Package-version, Release, or
+publication change. The published stable remains `v0.14.0`; Public Match API and
+Schema/data workflow, database/remote deployment, and public Match exports remain
+open.

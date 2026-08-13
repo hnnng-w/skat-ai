@@ -687,6 +687,23 @@ registered in `schemas/output.schema.json` through
 `schemas/historical_replay_coaching.schema.json`; omitted coaching remains
 backward-compatible and emits no new field.
 
+## Match Capture integration
+
+Issue #168 can request Replay Coaching as one selected mode of an explicitly
+executed strict Match Historical Game. The Match adapter calls the existing
+Historical Application once and displays a curated subset of the resulting
+report; an authenticated private download can return the exact existing
+Historical Root Result. It does not define a Match-specific Coaching contract or
+rerun Coaching during rendering or download.
+
+Match-bound Profiles are injected only through enabled existing Immediate
+Historical Review behavior. They are not inputs to Replay Coaching or its
+bounded Search pass. Workspace Commentary and Response Links are not Coaching
+evidence, factors, patterns, recommendations, or causal context. The Match
+integration therefore preserves the observed-Card-not-ground-truth, bounded
+late-game, Strategy Fusion, sampled-world, non-tactical, and non-causal
+limitations above.
+
 ## Remaining Replay Coaching work
 
 The public information-safe version-1 one-game Replay Coaching workflow is

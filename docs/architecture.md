@@ -6,9 +6,10 @@ This document describes the project structure and main modules.
 
 `skat-ai` is organized as a small rule-based analysis engine around a JSON input/output workflow.
 
-Issues #160, #161, #163, #164, #165, #166, and #167 add internal Match,
+Issues #160, #161, #163, #164, #165, #166, #167, and #168 add internal Match,
 observed-Game, persistent Workspace, transport-free Capture Application, private
-local browser transport, and downstream preparation/materialization layers:
+local browser transport, downstream preparation/materialization, and explicit
+analysis/report/export layers:
 
 ```text
 descriptive video or manual source metadata
@@ -33,24 +34,31 @@ descriptive video or manual source metadata
     -> loopback-only token/same-origin browser and Capture CLI
     -> editable Match-bound Statistics snapshots
     -> strict-before-Match Context and canonical eligible preparation
-    -> existing normalized Profile conversion and derivation without application
+    -> existing normalized Profile conversion and derivation
     -> information-safe acting-own-hand Decision preparation
     -> strict normal-completion Historical and unpartitioned Training sources
     -> complete existing fixed-list construction and aggregation
-    -> later workflow execution and Public Match API/Schema/data workflow
+    -> explicit one-Decision Position or strict Historical Application execution
+    -> existing eligible relative Profile application where supported
+    -> ephemeral revision-scoped reports and authenticated local downloads
+    -> later Public Match API/Schema/data workflow
 ```
 
 The game platform is separate from the media source, and the perspective Player
 is separate from the application user. Observed facts remain distinct from
 derived trace and evidence values: missing original Skat or Discards are not
-completed from the deck complement. No YouTube or EuroSkat integration,
-workflow execution, public materialization/export, or report materialization
-occurs in these layers. Issue #167 can internally prepare Decision snapshots,
-strict existing Historical Games, unpartitioned Training source Records, and a
-complete existing fixed list plus aggregation. Capture Application operations
-receive an already loaded Workspace and perform no file or network I/O; the Issue
-#165 leaf transport alone orchestrates the existing private persistence functions
-and local HTTP requests.
+completed from the deck complement. Issue #167 internally prepares Decision
+snapshots, strict existing Historical Games, unpartitioned Training source
+Records, and a complete existing fixed list plus aggregation. Issue #168
+explicitly executes one existing Position or Historical Application invocation
+when the selected value is available; materialization still executes no workflow.
+It retains at most eight deterministic SHA-256 reports in process memory and
+serves authenticated canonical local downloads without server paths. Capture
+mutations perform no automatic analysis, and reports are never persisted in the
+Workspace. Capture Application operations still receive an already loaded
+Workspace and perform no file or network I/O; the leaf transport alone
+orchestrates private persistence, local HTTP requests, analysis actions, and
+downloads. No YouTube or EuroSkat integration or public Match export occurs.
 
 Issue #150 adds a separate internal authoring and control-plane contract before
 the existing Engine workflows:
@@ -367,7 +375,11 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_historical_materialization.py` | Strict complete-Deal normal-completion Historical availability, construction, canonical round trip, and Match-level played-time policy. |
 | `src/skat_ai/match_training_source_materialization.py` | Existing unpartitioned Training source Records and ordered available/unavailable collection without Plans, partitions, or samples. |
 | `src/skat_ai/match_workspace_materialization.py` | Exact 36-Slot preparation, counts/status, Passed Deals, Commentary sidecars, and existing complete-list construction plus aggregation without workflow execution. |
-| `src/skat_ai/capture_web/` | Private Web/Protocol contracts, timecode presentation, locked context, browser-safe state, direct operation delegation, rendering, security, Standard Library server, and packaged assets. |
+| `src/skat_ai/match_analysis_contracts.py` | Explicit Match analysis options/results, normal unavailability, no-workflow materialization reports, deterministic report IDs, and bounded report-store/export policies. |
+| `src/skat_ai/match_decision_analysis.py` | One prepared Decision to one validated flat Position Request and exact existing Application execution with actor-relative eligible Profiles. |
+| `src/skat_ai/match_historical_analysis.py` | Strict Historical availability, selected existing modes, bounded Profile injection, one exact Application invocation, and Result reconciliation. |
+| `src/skat_ai/match_analysis_exports.py` | Canonical private Root Result, materialization, Historical, Training-source, list-input, and list-aggregation download documents. |
+| `src/skat_ai/capture_web/` | Private Web/Protocol contracts, timecode presentation, locked context, browser-safe state, direct operation delegation, explicit analysis, max-eight report store, rendering, security, Standard Library server, downloads, and packaged assets. |
 | `src/skat_ai/cli/capture_parser.py` | Exact three-option Capture parser and command identity. |
 | `src/skat_ai/cli/capture.py` | Startup, browser open, loopback server lifecycle, interrupt, and Exit Code transport. |
 
@@ -381,7 +393,8 @@ integration, or tournament-management behavior. See
 [Match Capture Application services](match_capture_application_services.md),
 [Local Match Capture interface](local_match_capture_interface.md), and
 [Match Player Statistics](match_player_statistics.md), and
-[Match review and materialization](match_review_and_materialization.md).
+[Match review and materialization](match_review_and_materialization.md), and
+[Match analysis and exports](match_analysis_and_exports.md).
 
 Validation is split between JSON Schema and Python validation:
 

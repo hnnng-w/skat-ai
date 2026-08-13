@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 import threading
 from collections.abc import Mapping
 from http import HTTPStatus
@@ -9,8 +11,22 @@ from importlib.resources import files
 from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
-from skat_ai.errors import SkatAIError
+from skat_ai.errors import SkatAIError, SkatAIInvariantError
+from skat_ai.match_analysis_exports import (
+    MatchArtifactExportV1,
+    build_match_historical_game_collection_export_v1,
+    build_match_historical_list_aggregation_export_v1,
+    build_match_historical_list_input_export_v1,
+    build_match_materialization_summary_export_v1,
+    build_match_report_result_export_v1,
+    build_match_training_source_collection_export_v1,
+)
 
+from .analysis import (
+    execute_match_capture_web_analysis_v1,
+    get_current_match_analysis_report_v1,
+    get_current_materialization_report_v1,
+)
 from .context import MatchCaptureWebContextV1
 from .contracts import (
     MATCH_CAPTURE_WEB_API_PREFIX,
@@ -41,6 +57,86 @@ _POST_ROUTES = {
     f"{MATCH_CAPTURE_WEB_API_PREFIX}/create",
     f"{MATCH_CAPTURE_WEB_API_PREFIX}/reload",
     f"{MATCH_CAPTURE_WEB_API_PREFIX}/operation",
+    f"{MATCH_CAPTURE_WEB_API_PREFIX}/analysis",
+}
+_REPORT_PAGE_PATTERN = re.compile(r"^/reports/([0-9a-f]{64})$")
+_REPORT_JSON_PATTERN = re.compile(
+    rf"^{re.escape(MATCH_CAPTURE_WEB_API_PREFIX)}/reports/([0-9a-f]{{64}})\.json$"
+)
+_EXPORT_BUILDERS = {
+    f"{MATCH_CAPTURE_WEB_API_PREFIX}/exports/materialization.json": (
+        build_match_materialization_summary_export_v1
+    ),
+    f"{MATCH_CAPTURE_WEB_API_PREFIX}/exports/historical-games.json": (
+        build_match_historical_game_collection_export_v1
+    ),
+    f"{MATCH_CAPTURE_WEB_API_PREFIX}/exports/training-sources.json": (
+        build_match_training_source_collection_export_v1
+    ),
+    f"{MATCH_CAPTURE_WEB_API_PREFIX}/exports/historical-list-input.json": (
+        build_match_historical_list_input_export_v1
+    ),
+    f"{MATCH_CAPTURE_WEB_API_PREFIX}/exports/historical-list-aggregation.json": (
+        build_match_historical_list_aggregation_export_v1
+    ),
+}
+_JSON_INTEGER_FIELDS = {
+    "expected_revision",
+    "match_position",
+    "games_played",
+    "solo_games_played",
+    "solo_games_won",
+    "solo_hand_games",
+    "suit_games",
+    "grand_games",
+    "null_games",
+    "defender_games_played",
+    "defender_games_won",
+    "matadors",
+    "bid_value",
+    "target_play_count",
+    "decision_index",
+    "response_decision_index",
+    "immediate_sample_count",
+    "immediate_random_seed",
+    "search_random_seed",
+}
+_JSON_NULLABLE_INTEGER_FIELDS = {
+    "solo_games_played",
+    "solo_games_won",
+    "solo_hand_games",
+    "suit_games",
+    "grand_games",
+    "null_games",
+    "defender_games_played",
+    "defender_games_won",
+    "matadors",
+    "bid_value",
+    "search_random_seed",
+}
+_JSON_NUMBER_FIELDS = {
+    "solo_games_played_percent",
+    "solo_games_won_percent",
+    "solo_hand_percent",
+    "suit_games_percent",
+    "grand_games_percent",
+    "null_games_percent",
+    "defender_games_played_percent",
+    "defender_games_won_percent",
+}
+_JSON_BOOLEAN_FIELDS = {
+    "hand_game",
+    "ouvert",
+    "schneider_announced",
+    "schwarz_announced",
+    "confirm_replace",
+    "confirm_clear",
+    "confirm_clear_snapshot",
+    "decision_snapshots",
+    "immediate_review",
+    "search_review",
+    "replay_coaching",
+    "use_profile_presets",
 }
 
 
@@ -57,6 +153,48 @@ def _reject_duplicate_json_keys(
 
 def _reject_non_finite_json_number(value: str) -> object:
     raise ValueError(f"Non-finite JSON number {value!r} is not allowed.")
+
+
+def _validate_request_value_types(
+    values: Mapping[str, object],
+    *,
+    wants_json: bool,
+) -> None:
+    """Keeps form text coercion separate from strict native JSON scalar types."""
+    for name, value in values.items():
+        if not wants_json:
+            valid_form_value = isinstance(value, str) or (
+                name == "cards"
+                and isinstance(value, list)
+                and all(isinstance(item, str) for item in value)
+            )
+            if not valid_form_value:
+                raise ValueError(f"{name} must be form text.")
+            continue
+        if name in _JSON_INTEGER_FIELDS:
+            if value is None and name in _JSON_NULLABLE_INTEGER_FIELDS:
+                continue
+            if type(value) is not int:
+                raise ValueError(f"{name} must be a JSON integer.")
+        elif name in _JSON_NUMBER_FIELDS:
+            if type(value) not in {int, float} or (
+                type(value) is float and not math.isfinite(value)
+            ):
+                raise ValueError(f"{name} must be a JSON number.")
+        elif name in _JSON_BOOLEAN_FIELDS:
+            if type(value) is not bool:
+                raise ValueError(f"{name} must be a JSON boolean.")
+        elif name == "cards":
+            if not (
+                isinstance(value, str)
+                or (
+                    isinstance(value, list)
+                    and all(isinstance(item, str) for item in value)
+                )
+            ):
+                raise ValueError("cards must be JSON text or an array of text values.")
+        elif not isinstance(value, str):
+            raise ValueError(f"{name} must be JSON text.")
 
 
 class MatchCaptureWebServerV1(ThreadingHTTPServer):
@@ -106,6 +244,11 @@ class MatchCaptureWebServerV1(ThreadingHTTPServer):
             notice = self.capture_notice
             self.capture_notice = None
             return notice
+
+    def server_close(self) -> None:
+        with self.capture_context.lock:
+            self.capture_context.report_store.clear()
+        super().server_close()
 
 
 class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
@@ -231,7 +374,12 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
             return False
         return True
 
-    def _state(self, position: int) -> dict[str, Any]:
+    def _state(
+        self,
+        position: int,
+        *,
+        selected_report_id: str | None = None,
+    ) -> dict[str, Any]:
         with self.server.capture_context.lock:
             return build_match_capture_web_state_v1(
                 self.server.capture_context.workspace,
@@ -239,6 +387,8 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
                     self.server.capture_context.workspace_filename
                 ),
                 selected_position=position,
+                report_store=self.server.capture_context.report_store,
+                selected_report_id=selected_report_id,
             )
 
     def _parse_body(self) -> tuple[dict[str, object], bool]:
@@ -302,6 +452,68 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
             return None
         return position if 1 <= position <= 36 else None
 
+    def _send_artifact(self, filename: str, content: bytes) -> None:
+        self._send_bytes(
+            HTTPStatus.OK,
+            content,
+            content_type="application/json; charset=utf-8",
+            extra_headers=(
+                (
+                    "Content-Disposition",
+                    f'attachment; filename="{filename}"',
+                ),
+            ),
+        )
+
+    def _report_status(self, report_id: str):
+        status, report = get_current_match_analysis_report_v1(
+            self.server.capture_context,
+            report_id,
+        )
+        if status == "missing":
+            self._send_text(HTTPStatus.NOT_FOUND, "Not found")
+            return None
+        if status == "stale":
+            self._send_text(HTTPStatus.CONFLICT, "Report revision is stale")
+            return None
+        return report
+
+    def _materialization_report(self):
+        status, report = get_current_materialization_report_v1(
+            self.server.capture_context
+        )
+        if status == "missing":
+            self._send_text(HTTPStatus.NOT_FOUND, "Artifact unavailable")
+            return None
+        if status == "stale":
+            self._send_text(HTTPStatus.CONFLICT, "Report revision is stale")
+            return None
+        return report
+
+    def _build_materialization_export(
+        self,
+        path: str,
+        report,
+    ) -> MatchArtifactExportV1:
+        materialization = report.value.materialization
+        source = (
+            report.value
+            if path.endswith("/exports/materialization.json")
+            else materialization
+        )
+        return _EXPORT_BUILDERS[path](source)
+
+    def _is_get_route(self, path: str) -> bool:
+        return (
+            path == "/"
+            or path in _ASSETS
+            or path == f"{MATCH_CAPTURE_WEB_API_PREFIX}/state"
+            or path in _EXPORT_BUILDERS
+            or self._position_from_path(path) is not None
+            or _REPORT_PAGE_PATTERN.fullmatch(path) is not None
+            or _REPORT_JSON_PATTERN.fullmatch(path) is not None
+        )
+
     def do_GET(self) -> None:
         parsed = urlsplit(self.path)
         path = parsed.path
@@ -310,6 +522,52 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
         try:
             if path in _POST_ROUTES:
                 self._method_not_allowed()
+                return
+            report_page = _REPORT_PAGE_PATTERN.fullmatch(path)
+            if report_page is not None:
+                with self.server.capture_context.lock:
+                    report = self._report_status(report_page.group(1))
+                    if report is None:
+                        return
+                    position = report.match_position or 1
+                    state = self._state(
+                        position,
+                        selected_report_id=report.report_id,
+                    )
+                self._send_text(
+                    HTTPStatus.OK,
+                    render_match_capture_web_page_v1(state),
+                    content_type="text/html; charset=utf-8",
+                )
+                return
+            report_json = _REPORT_JSON_PATTERN.fullmatch(path)
+            if report_json is not None:
+                with self.server.capture_context.lock:
+                    report = self._report_status(report_json.group(1))
+                    if report is None:
+                        return
+                    try:
+                        artifact = build_match_report_result_export_v1(report)
+                        filename = artifact.filename
+                        content = artifact.to_bytes()
+                    except ValueError:
+                        self._send_text(HTTPStatus.NOT_FOUND, "Artifact unavailable")
+                        return
+                self._send_artifact(filename, content)
+                return
+            if path in _EXPORT_BUILDERS:
+                with self.server.capture_context.lock:
+                    report = self._materialization_report()
+                    if report is None:
+                        return
+                    try:
+                        artifact = self._build_materialization_export(path, report)
+                        filename = artifact.filename
+                        content = artifact.to_bytes()
+                    except ValueError:
+                        self._send_text(HTTPStatus.NOT_FOUND, "Artifact unavailable")
+                        return
+                self._send_artifact(filename, content)
                 return
             if path in _ASSETS:
                 resource_name, content_type = _ASSETS[path]
@@ -356,18 +614,16 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
             self._send_text(HTTPStatus.FORBIDDEN, "Forbidden")
             return
         if parsed.path not in _POST_ROUTES:
-            if (
-                parsed.path == "/"
-                or parsed.path in _ASSETS
-                or parsed.path == f"{MATCH_CAPTURE_WEB_API_PREFIX}/state"
-                or self._position_from_path(parsed.path) is not None
-            ):
+            if self._is_get_route(parsed.path):
                 self._method_not_allowed()
                 return
             self._send_text(HTTPStatus.NOT_FOUND, "Not found")
             return
         try:
             values, wants_json = self._parse_body()
+            _validate_request_value_types(values, wants_json=wants_json)
+            if parsed.path.endswith("/reload") and set(values) - {"match_position"}:
+                raise ValueError("Reload accepts only match_position.")
         except OverflowError:
             self._send_text(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request body is too large")
             return
@@ -382,21 +638,42 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
                 )
             elif parsed.path.endswith("/reload"):
                 selected = values.get("match_position", 1)
-                position = int(selected) if isinstance(selected, (int, str)) else 1
+                try:
+                    position = int(selected)
+                except (TypeError, ValueError) as error:
+                    raise ValueError("match_position must be an integer.") from error
+                if not 1 <= position <= 36:
+                    raise ValueError(
+                        "match_position must be an integer from 1 through 36."
+                    )
                 result = reload_match_capture_workspace_v1(
                     self.server.capture_context,
                     selected_position=position,
                 )
-            else:
+            elif parsed.path.endswith("/operation"):
                 result = apply_match_capture_web_operation_v1(
                     self.server.capture_context,
                     values,
+                )
+            else:
+                result = execute_match_capture_web_analysis_v1(
+                    self.server.capture_context,
+                    values,
+                    browser_form=not wants_json,
                 )
             if wants_json:
                 self._send_json(result.http_status, result.to_dict())
                 return
             notice_kind = "warning" if result.http_status == 409 else "info"
             if result.http_status == 200:
+                if parsed.path.endswith("/analysis"):
+                    report_id = result.state["selected_report_id"]
+                    self._send_text(
+                        HTTPStatus.SEE_OTHER,
+                        "",
+                        extra_headers=(("Location", f"/reports/{report_id}"),),
+                    )
+                    return
                 self.server.set_notice(result.message, notice_kind)
                 selected_position = result.state["selected_position"]
                 location = (
@@ -419,7 +696,35 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
                 ),
                 content_type="text/html; charset=utf-8",
             )
-        except (SkatAIError, TypeError, ValueError) as error:
+        except SkatAIInvariantError:
+            self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+        except SkatAIError as error:
+            if parsed.path.endswith("/analysis"):
+                self._send_text(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
+                return
+            if wants_json:
+                self._send_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {"error": "validation_error", "message": str(error)},
+                )
+                return
+            position_value = values.get("match_position", 1)
+            try:
+                position = int(position_value)
+            except (TypeError, ValueError):
+                position = 1
+            if not 1 <= position <= 36:
+                position = 1
+            self._send_text(
+                HTTPStatus.BAD_REQUEST,
+                render_match_capture_web_page_v1(
+                    self._state(position),
+                    notice=str(error),
+                    notice_kind="error",
+                ),
+                content_type="text/html; charset=utf-8",
+            )
+        except (TypeError, ValueError) as error:
             if wants_json:
                 self._send_json(
                     HTTPStatus.BAD_REQUEST,

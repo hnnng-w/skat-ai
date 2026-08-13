@@ -16,6 +16,7 @@ from skat_ai.capture_web.contracts import (
     MATCH_CAPTURE_WEB_ASSET_POLICY,
     MATCH_CAPTURE_WEB_BIND_HOST,
     MATCH_CAPTURE_WEB_MAX_REQUEST_BYTES,
+    MATCH_CAPTURE_WEB_MUTATION_OPERATIONS,
     MATCH_CAPTURE_WEB_NETWORK_POLICY,
     MATCH_CAPTURE_WEB_OPERATIONS,
     MATCH_CAPTURE_WEB_PERSISTENCE_POLICY,
@@ -161,7 +162,11 @@ def test_web_versions_operations_policies_and_result_contract_are_exact() -> Non
         "clear_position",
         "set_player_statistics_snapshot",
         "clear_player_statistics_snapshot",
+        "prepare_materialization",
+        "analyze_decision",
+        "analyze_historical_game",
     )
+    assert MATCH_CAPTURE_WEB_MUTATION_OPERATIONS == MATCH_CAPTURE_WEB_OPERATIONS[2:-3]
     assert MATCH_CAPTURE_WEB_WORKSPACE_POLICY == (
         "one_explicit_workspace_file_per_server"
     )
@@ -995,6 +1000,82 @@ def test_json_transport_and_duplicate_json_keys(running_server) -> None:
     )
     assert status == 400
     assert b"Duplicate JSON object key" in body
+
+
+@pytest.mark.parametrize(
+    "path,body",
+    (
+        (
+            "/api/v1/operation",
+            {
+                "operation": "start_game",
+                "match_position": "1",
+                "expected_revision": 0,
+            },
+        ),
+        (
+            "/api/v1/operation",
+            {
+                "operation": "start_game",
+                "match_position": 1,
+                "expected_revision": True,
+            },
+        ),
+        ("/api/v1/reload", {"match_position": "1"}),
+        ("/api/v1/reload", {"match_position": True}),
+        ("/api/v1/reload", {"match_position": None}),
+        ("/api/v1/reload", {"match_position": 1.0}),
+        ("/api/v1/reload", {"match_position": []}),
+        ("/api/v1/reload", {"match_position": {}}),
+    ),
+)
+def test_json_transport_rejects_non_native_integer_scalars(
+    running_server,
+    path: str,
+    body: dict[str, object],
+) -> None:
+    server, context = running_server
+    _get_headers, post_headers = _bootstrap(server)
+    if context.workspace is None:
+        create_match_capture_workspace_v1(context, _creation_values())
+    status, _headers, _body = _request(
+        server,
+        "POST",
+        path,
+        headers={**post_headers, "Content-Type": "application/json"},
+        body=json.dumps(body).encode(),
+    )
+    assert status == 400
+
+
+@pytest.mark.parametrize("cards", ([1], [True], [{}]))
+def test_json_transport_rejects_non_text_card_array_items(
+    running_server,
+    cards: list[object],
+) -> None:
+    server, context = running_server
+    _get_headers, post_headers = _bootstrap(server)
+    create_match_capture_workspace_v1(context, _creation_values())
+    apply_match_capture_web_operation_v1(
+        context,
+        _operation_values(context, "start_game"),
+    )
+    status, _headers, _body = _request(
+        server,
+        "POST",
+        "/api/v1/operation",
+        headers={**post_headers, "Content-Type": "application/json"},
+        body=json.dumps(
+            {
+                "operation": "append_plays",
+                "match_position": 1,
+                "expected_revision": context.workspace.revision,
+                "cards": cards,
+                "decision_timecode": "",
+            }
+        ).encode(),
+    )
+    assert status == 400
 
 
 def test_repeated_card_form_fields_support_setup_palette(running_server) -> None:
