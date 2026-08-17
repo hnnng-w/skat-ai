@@ -399,6 +399,9 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_corpus_human_evidence.py` | Minimized Human Evidence contracts, exact source fingerprints, Snapshot-scoped IDs, collection reconciliation, and privacy policies. |
 | `src/skat_ai/learning_corpus_human_evidence_builder.py` | One-pass Current-Snapshot source/reference reconciliation and factual Commentary/Response behavior derivation without analysis or I/O. |
 | `src/skat_ai/learning_corpus_human_evidence_export.py` | Builder-independent private export identity and canonical in-memory JSON bytes. |
+| `src/skat_ai/learning_corpus_strategy_teacher.py` | Exact Decision Report source bindings, immutable minimized method-bound Evidence, collection counts, and domain-separated identities. |
+| `src/skat_ai/learning_corpus_strategy_teacher_builder.py` | Current-Snapshot/Game/Decision closure, one exact Request rebuild, retained Result validation, and strategy-field extraction without analysis execution. |
+| `src/skat_ai/learning_corpus_strategy_teacher_export.py` | Builder-independent private Strategy Teacher export identity and canonical path-free JSON bytes. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -431,7 +434,8 @@ integration, or tournament-management behavior. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
-and [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
+[Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
+and [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
 
 Validation is split between JSON Schema and Python validation:
 

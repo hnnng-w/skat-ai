@@ -6,7 +6,9 @@ contracts. It adds no CLI, browser operation, Public API, Root workflow, Schema,
 example, generated scenario, Dataset version `2`, or Player Catalog. Issue #173
 adds a separate derived Player Catalog without changing this persistence layer.
 Issue #174 adds a separate in-memory Human Evidence collection/export without
-adding a persisted object, file, field, or byte change.
+adding a persisted object, file, field, or byte change. Issue #175 adds a separate
+in-memory Strategy Teacher Evidence collection/export over explicit Current
+Snapshots and caller-supplied Reports, also without a persistence change.
 
 ## Source-of-truth boundary
 
@@ -210,10 +212,11 @@ are not interpreted as objects.
 An orphan is never automatically added, selected, deleted, moved, rewritten, or
 repaired. No garbage-collection operation exists in version `1`.
 
-The exact path-free Store Resume Result is also the sole in-memory source for the
-Issue #173 Player Catalog and Issue #174 Human Evidence builders. A shared narrow
-resolver strictly revalidates the Store, resolves only explicit Current
-selections, performs no second file load, and persists nothing.
+The exact path-free Store Resume Result is also the sole in-memory Corpus source
+for the Issue #173 Player Catalog, Issue #174 Human Evidence, and Issue #175
+Strategy Teacher Evidence builders. A shared narrow resolver strictly revalidates
+the Store, resolves only explicit Current selections, performs no second file
+load, and persists nothing.
 
 ## Pure Catalog operations
 
@@ -320,8 +323,8 @@ authenticated authorship.
 Deletion, garbage collection, orphan cleanup, recovery UI, Player Catalog
 persistence, persisted aliases/assertions, merge/split operations, all-revision
 history browsing or named selections beyond Current,
-Human Evidence persistence or transport, Match Analysis Report import,
-strategy-teacher evidence, Derived Tags, Dataset version `2`,
+Human or Strategy Teacher Evidence persistence or transport, automatic Match
+Analysis Report capture, Historical Report import, Derived Tags, Dataset version `2`,
 Dataset samples/partitions/splits, cross-game summaries, browser workflows, CLI,
 Public API, Schema, examples, generated scenarios, and model training remain
 open.

@@ -97,6 +97,14 @@ Confidence, or Provenance ledger is added, and Human Evidence does not influence
 analysis or Training Dataset version `1`. Future derived annotations must remain
 separate artifacts referencing immutable Commentary Evidence IDs.
 
+Issue #175 adds separate private, non-persisted Strategy Teacher Evidence from
+exact executed Decision Analysis Reports. Exact source Report, Request, and
+Result fingerprints identify copied analysis evidence; the semantic Teacher
+fingerprint excludes elapsed wall-clock time but is not a field-level Provenance
+ledger, Confidence claim, optimality proof, or authorship proof. The builder
+reuses validated source Results and Current-Snapshot References without changing
+Root Result provenance or Training Dataset version `1`.
+
 ## Sidecar design
 
 Provenance is an immutable sidecar ledger for a JSON-compatible document. It

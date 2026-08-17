@@ -162,6 +162,10 @@ The project focuses on:
   Evidence, Response Evidence, and Human Evidence Export version-1 contracts
   with Current-Snapshot-only minimized exact human source evidence, deterministic
   identities, and canonical in-memory bytes
+* internal Learning Corpus Strategy Teacher Source, Evidence, Collection, and
+  Export version-1 contracts with exact executed Decision Report binding,
+  Current-Snapshot/Reference closure, no-execution Request/Result reconciliation,
+  method-bound Immediate/Search/Auto evidence, and canonical in-memory bytes
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1782,6 +1786,11 @@ Completed implementation scope:
   Response Evidence, and Export version `1`, with exact Current-Snapshot-only
   human text and observed linked behavior, minimized private fields, deterministic
   fingerprints, and no persistence or public transport
+* internal Learning Corpus Strategy Teacher Source, Evidence, Collection, and
+  Export version `1`, with exact executed Decision Analysis Reports bound to
+  Current Snapshots, one no-execution Request rebuild, validated retained Results,
+  exact and semantic identities, deterministic coverage, and no persistence or
+  public transport
 
 ## Current high-priority limitations
 
@@ -1859,32 +1868,38 @@ Completed implementation scope:
   deployment, YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
-* Issues #171 through #174 provide private Learning Corpus source identity, exact
+* Issues #171 through #175 provide private Learning Corpus source identity, exact
   Match Snapshots, closed references, Catalog entries/current selections,
   deterministic fixed-root persistence, strict Store Resume and orphan reporting,
   pure Catalog mutation, strict Workspace import, and persisted selection
   changes, plus a derived exact Player Catalog and time-safe Statistics history
-  and minimized exact human Commentary/linked Response evidence export.
+  and separate minimized human Commentary/linked Response and method-bound
+  Strategy Teacher Evidence exports. Strategy Teacher sources accept only exact
+  executed Decision Analysis Reports, rebuild no-execution Requests, validate
+  retained Results, and make no optimality or preferred-Teacher claim.
   Deletion, garbage collection, recovery UI, persisted aliases/assertions,
   merge/split operations, all-revision Player views, Human Evidence persistence
-  and transport, report import, teacher evidence, Dataset version `2`, summaries,
-  browser workflows, and public exposure remain open.
+  and transport, Strategy Teacher persistence and transport, Historical Report
+  import, Dataset version `2`, summaries, browser workflows, and public exposure
+  remain open.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
 Continue the active `v0.16.0 - Learning-ready behavior and communication data`
-milestone from Issues #171 through #174's internal identity, Catalog,
-persistence, Workspace-import, derived Player-history, and Human Evidence export
-foundations. The next focused decision should keep immutable
+milestone from Issues #171 through #175's internal identity, Catalog,
+persistence, Workspace-import, derived Player-history, Human Evidence, and
+Strategy Teacher Evidence export foundations. The next focused decision should
+keep immutable
 imported Workspace Snapshots separate from future derived artifacts and Dataset
 exports while defining one currently open boundary such as persisted identity
 assertions or separate behavior/strategy/communication targets.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,
-report import, teacher labels, Dataset version `2`, browser workflow, or public
-exposure from Issues #171 through #174. Those areas require separate acceptance
+Strategy Teacher persistence, Historical Report import, ground-truth teacher
+labels, Dataset version `2`, browser workflow, or public exposure from Issues
+#171 through #175. Those areas require separate acceptance
 criteria. No production model is
 planned.
 

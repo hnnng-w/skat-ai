@@ -23,6 +23,13 @@ Current selections. It changes no Issue #171 identity, Reference, Snapshot, or
 Catalog contract. See
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
 
+Issue #175 derives a separate non-persisted method-bound Strategy Teacher
+Evidence collection and canonical in-memory export from explicit caller-bound
+executed Decision Analysis Reports. Sources must bind the same explicit Current
+selections, but no Issue #171 identity, Reference, Snapshot, or Catalog contract
+changes. See
+[Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+
 ## Source-of-truth boundary
 
 The exact source and derived-data relationships are:
@@ -43,7 +50,10 @@ Learning Corpus Player Catalog:
 Statistics Selection:
     derived strict as-of Result, not persisted
 
-future analysis and annotation artifacts:
+Strategy Teacher Evidence:
+    separate Current-Snapshot-bound derived Report evidence, not persisted
+
+future annotation artifacts:
     separate derived objects
 
 future Dataset v2:
@@ -326,9 +336,9 @@ current selection, and every selection references an entry for that same Match.
 The Catalog never infers the newest revision or changes a selection. Empty
 Catalog creation produces revision zero with no entries or selections. Issue
 #171 defines no Catalog mutation, persistence, deletion, or garbage collection.
-The explicit Current selections are the complete source set for Issues #173 and
-#174; non-current entries and orphan objects do not enter the derived Player or
-Human Evidence views.
+The explicit Current selections are the complete source set for Issues #173
+through #175; non-current entries and orphan objects do not enter the derived
+Player, Human Evidence, or Strategy Teacher Evidence views.
 
 ## Snapshot classification
 
@@ -371,11 +381,14 @@ publication, and optimistic Catalog Save. Issue #173 adds a derived
 Current-Snapshot Player Catalog, exact observed aliases/conflicts, and retained
 time-safe multi-Match Statistics history. Player Catalog persistence, persisted
 alias assertions, merge/split operations, all-revision views, deletion, garbage
-collection, and report import remain open. Issue #174 supplies the separate
+collection, and automatic Report capture remain open. Issue #174 supplies the separate
 private minimized Commentary/Response Evidence collection and in-memory export.
-Its persistence, browser/CLI/API/Schema transport, derived tags, strategy-teacher
-evidence, Dataset version `2` integration, split generation, cross-game summaries,
-examples, generated scenarios, and model training remain open.
+Issue #175 supplies separate exact executed Decision Report Strategy Teacher
+Evidence and an in-memory export without changing Corpus persistence. Human and
+Strategy Teacher Evidence persistence, browser/CLI/API/Schema transport, derived
+tags, Historical Report import, Dataset version `2` integration, split generation,
+cross-game summaries, examples, generated scenarios, and model training remain
+open.
 
 Package version remains `0.15.0`. Public API contract version `1`, the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

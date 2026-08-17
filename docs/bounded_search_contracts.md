@@ -496,6 +496,15 @@ Search settings seed controls compatible-world selection. Exact enumeration
 consumes no random draws, changing only the Immediate seed cannot change a
 successful Search, and no derived child seed is serialized.
 
+Issue #175's private Strategy Teacher Evidence preserves these exact existing
+strict Search and Auto relationships from executed Decision Analysis Reports. It
+copies aggregate status, stop reason, coverage, claim, requested/consumed budget,
+compatible-world count, Candidate results, recommendation, fallback, actual-Card
+comparison, and Search-versus-Immediate comparison without reconstructing Worlds
+or rerunning Search. Operational `wall_clock_elapsed_ms` remains in exact source
+identity but is excluded from semantic Teacher identity. See
+[Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+
 ## Multi-Step and Policy Comparison
 
 The four legacy local policies remain `first_legal`, `lowest_point`,

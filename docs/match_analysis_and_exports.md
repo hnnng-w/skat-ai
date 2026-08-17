@@ -213,9 +213,9 @@ pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.
 
 Issue #171's separate private Learning Corpus Match Snapshot and Catalog
 contracts import no Match Analysis report and execute no analysis. Reports remain
-ephemeral process-local values under this document's unchanged behavior. Future
-report import, derived annotations, teacher evidence, and Dataset version `2`
-remain separate open objects rather than Match Snapshot or Catalog fields. See
+ephemeral process-local values under this document's unchanged behavior. Derived
+annotations and Dataset version `2` remain separate open objects rather than
+Match Snapshot or Catalog fields. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
 
 Issue #172 persists and imports only exact Workspace Match Snapshots. It imports
@@ -233,3 +233,12 @@ serializing that export executes no Match Analysis, Search, Historical Review,
 Replay Coaching, Profile application, or Training Dataset workflow and changes no
 report or Application input. See
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
+
+Issue #175 accepts caller-supplied exact executed Decision Analysis Reports as
+non-persisted Strategy Teacher sources. It binds each Report to one explicit
+Current Match Snapshot, rebuilds and compares one Position Request without
+execution, validates the retained Result, and preserves exact Immediate/Search/
+Auto method evidence plus actual-Card comparisons and Profile/policy context. It
+does not change this document's Report Store lifetime, automatically capture a
+Report, execute analysis, or import Historical Analysis Reports. See
+[Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).

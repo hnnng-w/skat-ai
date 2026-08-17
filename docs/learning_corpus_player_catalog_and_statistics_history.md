@@ -247,10 +247,15 @@ generated outputs, and Training Dataset version `1` target
 
 Persisted aliases/assertions, Player merge/split operations, Catalog persistence,
 all-revision Player views, canonical labels, Human Evidence persistence or
-transport, report import, strategy-teacher evidence, Dataset version `2`, split
-generation, cross-game summaries, browser/CLI/API/Schema exposure, and model
-training remain open.
+transport, Strategy Teacher Evidence persistence or transport, automatic Report
+capture, Historical Report import, Dataset version `2`, split generation,
+cross-game summaries, browser/CLI/API/Schema exposure, and model training remain
+open.
 
 The private Current-Snapshot-only minimized Commentary/Response Evidence export
 itself is implemented separately by Issue #174. See
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
+
+The private Current-Snapshot-bound exact Decision Report Strategy Teacher
+Evidence export is implemented separately by Issue #175. See
+[Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).

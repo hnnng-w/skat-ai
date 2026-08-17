@@ -65,6 +65,10 @@ The project focuses on:
 * private internal Current-Snapshot-only minimized human Commentary and linked
   Response Evidence with exact source fingerprints, factual observed behavior,
   reconciled collection identity, and canonical in-memory export
+* private internal Current-Snapshot-bound method-specific Strategy Teacher
+  Evidence from exact executed Decision Analysis Reports with exact Request
+  reconstruction, retained Result validation, deterministic identities/counts,
+  and canonical in-memory export
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -350,16 +354,19 @@ aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Issues #171 through #174 implement private immutable Match
+and communication data`. Issues #171 through #175 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
 persisted explicit Current-selection changes, plus a derived Current-Snapshot
 Player Catalog, exact alias conflicts, retained Statistics history, and time-safe
 selection, plus minimized exact human Commentary and linked Response Evidence
-export. Candidate later directions include canonical Game catalogs, persisted
+export, plus exact executed Decision Report Strategy Teacher Evidence with
+Current-Snapshot reconciliation and canonical export. Candidate later directions
+include canonical Game catalogs, persisted
 Player aliases/assertions, merge/split operations, and all-revision Player views,
-Human Evidence persistence/transport, separate behavior, strategy, and
-communication targets, Dataset version `2`, communication-aware annotations, cross-game
+Human and Strategy Teacher Evidence persistence/transport, separate behavior and
+communication targets, Historical Report import, Dataset version `2`,
+communication-aware annotations, cross-game
 behavior summaries, evaluation baselines, and derived AI tags kept separate from
 original human text. Their Issue split, architecture, Dataset fields, model
 design, and release date are not finalized, and no production model is planned.
@@ -529,6 +536,11 @@ Major completed areas include:
   Current Match Snapshots only, with exact original text and commentator identity,
   observed subject/response Cards and timecodes, noncausal links, minimized Game
   context, source/evidence/collection/export identities, and canonical bytes
+* deterministic private Learning Corpus Strategy Teacher Source, Evidence,
+  Collection, and Export version `1` from exact executed Decision Analysis Reports
+  explicitly bound to Current Match Snapshots, with one no-execution Request
+  rebuild, retained Result validation, exact and semantic fingerprints,
+  method-bound Immediate/Search/Auto evidence, and canonical bytes
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -572,10 +584,12 @@ integration, and EuroSkat integration remain absent.
 Learning Corpus persistence and Workspace import are private internal operations
 with no CLI, browser, Public API, Schema, example, or generated scenario.
 The derived Player Catalog and Statistics history are also private and
-non-persisted. Human Evidence is private and non-persisted as well. Deletion,
+non-persisted. Human and Strategy Teacher Evidence are private and non-persisted
+as well. Deletion,
 garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
-Human Evidence browser/CLI/API transport, report import, Dataset version `2`,
+Human or Strategy Teacher Evidence browser/CLI/API transport, Historical Report
+import, Dataset version `2`,
 split generation, cross-game summaries, and model training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,

@@ -71,6 +71,15 @@ labels, samples, partitions, Plans, audits, or evaluation. Feature generation
 remains version `1` and the only version-1 target remains `actual_card_played`.
 See [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
 
+Issue #175 separately exports method-bound Strategy Teacher Evidence from exact
+executed Decision Analysis Reports reconciled to Current Match Snapshots. Exact
+Immediate/Search/Auto recommendations, Candidates, budgets, statuses, fallback,
+comparisons, and Profile/policy context remain evidence, not ground-truth labels.
+They do not enter Training Dataset version `1` Records, metadata, Features,
+Targets, samples, partitions, Plans, audits, or evaluation. Feature generation
+remains version `1` and the only version-1 target remains `actual_card_played`.
+See [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:
