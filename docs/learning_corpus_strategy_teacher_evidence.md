@@ -184,10 +184,12 @@ associations, or complete Statistics records. Fingerprints provide deterministic
 identity, not confidentiality, authenticated authorship, encryption, access
 control, backup, or secure deletion.
 
-Human Evidence remains a separate factual communication artifact. The two
-families may later join through the same Decision Reference, but Issue #175 does
-not interpret Commentary, infer communication meaning, or claim agreement
-between a human and the engine.
+Human Evidence remains a separate factual communication artifact. Issue #176
+joins both exact supplied families through the same Decision Reference while
+retaining separate normalized pools and Record ID references. It preserves every
+Teacher in source order and still does not interpret Commentary, infer
+communication meaning, select a preferred Teacher, or claim agreement between a
+human and the engine. See [Learning Dataset version 2](learning_dataset_v2.md).
 
 ## Compatibility and open work
 
@@ -200,5 +202,5 @@ target `actual_card_played` remain unchanged.
 
 Strategy Teacher persistence, Corpus object storage, browser/CLI transport,
 Public API, Schema, Historical Report import, Replay Coaching evidence import,
-Teacher consensus/ranking, Dataset version `2`, samples, partitions, splits,
-cross-game summaries, and model training remain open.
+Teacher consensus/ranking, Dataset-v2 persistence and task/partition builders,
+splits, cross-game summaries, and model training remain open.

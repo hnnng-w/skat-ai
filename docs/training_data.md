@@ -6,6 +6,11 @@ It stores provenance and explicit partitions and derives one information-safe
 sample for every historical card play. It does not train, select, evaluate, or
 deploy a machine-learning model.
 
+This document primarily describes public Training Dataset version `1`. Issue
+#176's private Learning Dataset version `2` is a separate unpartitioned,
+task-neutral evidence contract. It does not alter version `1` or define a
+universal target. See [Learning Dataset version 2](learning_dataset_v2.md).
+
 Training-data representation remains `partially_supported`. Version 1 accepts
 normal completion, declarer concession, defender concession, accepted
 declarer-card exposure, defender open play, and open-card throwing. Normal
@@ -43,8 +48,8 @@ immutable Match Snapshot retains one exact validated Workspace source copy and
 derives Snapshot-scoped Game, Decision, Commentary, and Response References.
 This does not create a Training Dataset record, feature, target, partition,
 sample, Plan, or export. Commentary text and Response Links remain original
-Workspace source facts, not version-1 model features or labels. Dataset version
-`2` and any communication-aware export remain open. See
+Workspace source facts, not version-1 model features or labels. The separate
+Dataset version `2` is implemented later by Issue #176. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
 
 Issue #172 persists and explicitly imports those exact Match Snapshots without
@@ -58,8 +63,8 @@ Issue #173 Player Catalog derivation and Statistics selection create no Dataset
 Record, feature, target, sample, partition, Plan, or export. Player IDs, labels,
 aliases, conflicts, Statistics observations, and selection Results do not enter
 Dataset version `1`. Feature generation remains version `1`, target remains
-`actual_card_played`, and Dataset version `2` plus communication-aware export
-remain open. See
+`actual_card_played`, and Issue #176 later consumes the exact supplied Player
+Catalog without changing this behavior. See
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
 
 Issue #174 separately exports minimized exact human Commentary and explicitly
@@ -79,6 +84,18 @@ They do not enter Training Dataset version `1` Records, metadata, Features,
 Targets, samples, partitions, Plans, audits, or evaluation. Feature generation
 remains version `1` and the only version-1 target remains `actual_card_played`.
 See [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+
+Issue #176 builds one separate private Learning Dataset version `2` directly from
+the exact strict Store, supplied Player Catalog, Human Evidence collection, and
+Strategy Teacher collection. It does not require strict Historical
+materialization. Every observed Decision becomes one information-safe Record or
+one explicit Issue #167 skipped Decision. The actual Card remains sibling
+observed behavior; Player Context preserves strict latest-unambiguous prior
+Statistics selection; Teacher, Commentary, and linked Response values remain
+separate exact evidence families. Version `2` is unpartitioned and defines no
+default Feature, target, label, reward, class, Teacher winner, communication tag,
+or model task. Training Dataset version `1`, feature generation version `1`, and
+target `actual_card_played` remain unchanged.
 
 ## Dataset input
 

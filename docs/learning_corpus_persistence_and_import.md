@@ -8,7 +8,9 @@ adds a separate derived Player Catalog without changing this persistence layer.
 Issue #174 adds a separate in-memory Human Evidence collection/export without
 adding a persisted object, file, field, or byte change. Issue #175 adds a separate
 in-memory Strategy Teacher Evidence collection/export over explicit Current
-Snapshots and caller-supplied Reports, also without a persistence change.
+Snapshots and caller-supplied Reports, also without a persistence change. Issue
+#176 adds a separate in-memory Learning Dataset version `2` and canonical export
+without adding an object kind, Catalog field, file, path, or byte change.
 
 ## Source-of-truth boundary
 
@@ -29,6 +31,9 @@ valid unreferenced Match Snapshot object:
 
 derived Player Catalog and Statistics Selection:
     rebuilt from the strict Store, never persisted
+
+derived Human/Strategy Evidence and Learning Dataset v2:
+    rebuilt from exact matching Current sources, never persisted
 ```
 
 Import never mutates the source Workspace file. Catalog changes never mutate or
@@ -213,8 +218,9 @@ An orphan is never automatically added, selected, deleted, moved, rewritten, or
 repaired. No garbage-collection operation exists in version `1`.
 
 The exact path-free Store Resume Result is also the sole in-memory Corpus source
-for the Issue #173 Player Catalog, Issue #174 Human Evidence, and Issue #175
-Strategy Teacher Evidence builders. A shared narrow resolver strictly revalidates
+for the Issue #173 Player Catalog, Issue #174 Human Evidence, Issue #175 Strategy
+Teacher Evidence, and Issue #176 Learning Dataset builders. A shared narrow
+resolver strictly revalidates
 the Store, resolves only explicit Current selections, performs no second file
 load, and persists nothing.
 
@@ -324,8 +330,8 @@ Deletion, garbage collection, orphan cleanup, recovery UI, Player Catalog
 persistence, persisted aliases/assertions, merge/split operations, all-revision
 history browsing or named selections beyond Current,
 Human or Strategy Teacher Evidence persistence or transport, automatic Match
-Analysis Report capture, Historical Report import, Derived Tags, Dataset version `2`,
-Dataset samples/partitions/splits, cross-game summaries, browser workflows, CLI,
+Analysis Report capture, Historical Report import, Derived Tags, Dataset-v2
+persistence, task builders, partitions/splits, cross-game summaries, browser workflows, CLI,
 Public API, Schema, examples, generated scenarios, and model training remain
 open.
 

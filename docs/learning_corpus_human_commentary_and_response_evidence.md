@@ -272,8 +272,16 @@ examples, 85 generated outputs, and Training Dataset version `1` target
 Human Evidence never enters Match Analysis, Search, Historical Review, Replay
 Coaching, Profile application, or Training Dataset version `1`. Human Evidence
 persistence, browser/CLI download, Public API, Schema, derived human or AI tags,
-Dataset version `2`, samples, partitions, splits, cross-game summaries,
+Dataset-v2 persistence, task builders, partitions, splits, cross-game summaries,
 evaluation, and model training remain open. Issue #175's separate Strategy
 Teacher Evidence may share a Decision Reference but copies no Commentary or
 Response association and makes no human-engine agreement claim. See
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+
+Issue #176 consumes the exact supplied Human Evidence collection without
+rebuilding it. Commentary joins a safe subject Record in source order. Commentary
+on a skipped subject is reported unjoined and attached to that skipped Decision.
+A Response joins only when its Commentary and both Decisions have Records; its ID
+is outgoing on the subject and incoming on the response Record. Other Responses
+are explicitly unjoined. Text and Response values remain exact and uninterpreted.
+See [Learning Dataset version 2](learning_dataset_v2.md).

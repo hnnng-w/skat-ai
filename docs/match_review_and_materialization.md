@@ -114,6 +114,14 @@ required_public_hand_unavailable
 The summary retains source Play, prepared, and skipped counts; snapshots,
 skipped Decisions, and Profile bindings preserve Decision order.
 
+Issue #176 extracts the narrow private
+`_build_match_decision_states_from_reconstruction_v1()` seam from this traversal.
+It accepts one already validated observed-Game reconstruction and returns the
+same safe snapshots, skipped Decisions, and source count without Statistics or
+Profile derivation. The existing preparation builder composes that seam and then
+derives its unchanged Profile bindings. Learning Dataset version `2` reuses only
+the safe state/skip seam.
+
 ### Decision-time cutoff
 
 Each prepared snapshot represents the state immediately before the observed
@@ -290,6 +298,11 @@ settings, Historical Result or Settlement, Training Dataset version `1`, or the
 fixed-list contract. No Commentary text is copied into Historical Games or
 Training source Records.
 
+Issue #176 may join the separately derived exact Human Evidence values into the
+private Learning Dataset version `2` Commentary and Response families. Those
+siblings never alter Play validation, Decision State, analysis, Coaching,
+Historical materialization, or Training Dataset version `1`.
+
 ## Issue #168 execution boundary
 
 Issue #168 selects one prepared snapshot and executes the existing Position
@@ -352,6 +365,7 @@ preparation without product behavior changes. The maintainer published the
 Release manually at commit `ec1c154`, and Issue #170 synchronizes publication
 status. Public Match
 contracts, Match Schema and JSON/data workflow, a public/persisted Player Catalog,
-communication-aware Dataset work, database/remote deployment, and broader pre-v1
-work remain open. YouTube and EuroSkat integration also remain absent. Persistent
+public or task-specific communication Dataset workflows, Dataset-v2 persistence
+and partition preparation, database/remote deployment, and broader pre-v1 work
+remain open. YouTube and EuroSkat integration also remain absent. Persistent
 Workspace reports are intentionally not added.

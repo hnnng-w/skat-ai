@@ -48,6 +48,10 @@ descriptive video or manual source metadata
     -> strict source-preserving Workspace import and optimistic Catalog Save
     -> derived Current-Snapshot-only Player Catalog and exact alias conflicts
     -> retained exact Statistics history and strict time-safe selection
+    -> minimized Current-Snapshot-only Human Commentary/Response Evidence
+    -> method-bound Current-Snapshot Strategy Teacher Evidence
+    -> private unpartitioned task-neutral Learning Dataset version 2
+    -> separate Decision State, observed behavior, Player Context, and evidence pools
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -402,6 +406,9 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_corpus_strategy_teacher.py` | Exact Decision Report source bindings, immutable minimized method-bound Evidence, collection counts, and domain-separated identities. |
 | `src/skat_ai/learning_corpus_strategy_teacher_builder.py` | Current-Snapshot/Game/Decision closure, one exact Request rebuild, retained Result validation, and strategy-field extraction without analysis execution. |
 | `src/skat_ai/learning_corpus_strategy_teacher_export.py` | Builder-independent private Strategy Teacher export identity and canonical path-free JSON bytes. |
+| `src/skat_ai/learning_dataset_v2_contracts.py` | Private task-neutral Dataset-v2 contracts, statuses, separated evidence families, immutable values, counts, and domain-separated identities. |
+| `src/skat_ai/learning_dataset_v2_builder.py` | Exact four-source reconciliation, Current-only safe/skipped Decision derivation, cached Statistics Contexts, strict evidence joins, and normalized pools without execution or I/O. |
+| `src/skat_ai/learning_dataset_v2_export.py` | Builder-independent Dataset export identity and canonical path-free JSON bytes. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -435,7 +442,8 @@ integration, or tournament-management behavior. See
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
-and [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+[Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
+and [Learning Dataset version 2](learning_dataset_v2.md).
 
 Validation is split between JSON Schema and Python validation:
 

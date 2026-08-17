@@ -69,6 +69,10 @@ The project focuses on:
   Evidence from exact executed Decision Analysis Reports with exact Request
   reconstruction, retained Result validation, deterministic identities/counts,
   and canonical in-memory export
+* private internal Current-Snapshot-only unpartitioned Learning Dataset version
+  `2` with information-safe Decision State, separate observed behavior, time-safe
+  Player Context, exact Teacher/Commentary/Response joins, skipped and unjoined
+  evidence, deterministic identities, and canonical in-memory export
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -176,6 +180,7 @@ Before larger changes, read the relevant documentation:
 * `docs/local_match_capture_interface.md`
 * `docs/match_review_and_materialization.md`
 * `docs/match_analysis_and_exports.md`
+* `docs/learning_dataset_v2.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -354,18 +359,22 @@ aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Issues #171 through #175 implement private immutable Match
+and communication data`. Issues #171 through #176 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
 persisted explicit Current-selection changes, plus a derived Current-Snapshot
 Player Catalog, exact alias conflicts, retained Statistics history, and time-safe
 selection, plus minimized exact human Commentary and linked Response Evidence
 export, plus exact executed Decision Report Strategy Teacher Evidence with
-Current-Snapshot reconciliation and canonical export. Candidate later directions
+Current-Snapshot reconciliation and canonical export, plus one Current-Snapshot-
+only unpartitioned task-neutral Learning Dataset version `2` with separate
+Decision State, observed behavior, Player Context, Strategy Teacher, Commentary,
+and linked Response families. Candidate later directions
 include canonical Game catalogs, persisted
 Player aliases/assertions, merge/split operations, and all-revision Player views,
 Human and Strategy Teacher Evidence persistence/transport, separate behavior and
-communication targets, Historical Report import, Dataset version `2`,
+communication task builders, Historical Report import, Dataset-v2 persistence
+and partition preparation,
 communication-aware annotations, cross-game
 behavior summaries, evaluation baselines, and derived AI tags kept separate from
 original human text. Their Issue split, architecture, Dataset fields, model
@@ -541,6 +550,10 @@ Major completed areas include:
   explicitly bound to Current Match Snapshots, with one no-execution Request
   rebuild, retained Result validation, exact and semantic fingerprints,
   method-bound Immediate/Search/Auto evidence, and canonical bytes
+* deterministic private unpartitioned Learning Dataset version `2` over exact
+  Current Corpus sources, with safe/skipped Decision coverage, separate evidence
+  families, time-safe Statistics selection, normalized exact pools, strict joins,
+  stable Record IDs, enriched content fingerprints, and canonical export bytes
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -579,7 +592,8 @@ fixed-list materialization are implemented. Explicit browser analysis,
 existing-behavior Profile application, ephemeral reports, and authenticated
 local downloads are also implemented, while materialization itself executes no
 workflow. Public Match API/export, Match Schema/data workflow, public/persisted Player
-Catalog, communication-aware Dataset work, database/remote deployment, YouTube
+Catalog, public or task-specific communication Dataset workflows,
+database/remote deployment, YouTube
 integration, and EuroSkat integration remain absent.
 Learning Corpus persistence and Workspace import are private internal operations
 with no CLI, browser, Public API, Schema, example, or generated scenario.
@@ -589,8 +603,8 @@ as well. Deletion,
 garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
 Human or Strategy Teacher Evidence browser/CLI/API transport, Historical Report
-import, Dataset version `2`,
-split generation, cross-game summaries, and model training remain open. Session State itself contains no path
+import, Dataset-v2 persistence, partition and task builders, split generation,
+cross-game summaries, and model training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,
 remote browser deployment, four-player support, or claim of complete official

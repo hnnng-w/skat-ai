@@ -139,7 +139,8 @@ and Release-documentation preparation without changing product behavior. The
 maintainer published the Release manually at commit `ec1c154`, and Issue #170
 synchronizes publication status. Public
 Match API and Schema/data
-workflow, public/persisted Player Catalog, communication-aware Dataset work,
+workflow, public/persisted Player Catalog, public/task-specific Dataset workflows,
+Dataset-v2 persistence/partitioning,
 database/remote deployment, and broader pre-v1 work remain open. `v1.0.0`
 remains unready, and its final planning still
 requires a separate audit of this document and
@@ -163,11 +164,16 @@ Dataset generation, persistence, or public exposure. Issue #175 adds private
 Current-Snapshot-bound method-specific Strategy Teacher Evidence from exact
 executed Decision Analysis Reports, with one no-execution Request rebuild,
 retained Result validation, exact and semantic identities, and canonical in-memory
-export. Deletion and
+export. Issue #176 adds a private Current-Snapshot-only unpartitioned Learning
+Dataset version `2` with safe/skipped Decision coverage, separate Decision State,
+observed behavior, Player Context, Strategy Teacher, Commentary, and linked
+Response families, deterministic identities, normalized pools, and canonical
+path-free export. Deletion and
 garbage collection, Player Catalog persistence, persisted identity assertions,
 merge/split operations, all-revision Player views, Human or Strategy Teacher
-Evidence persistence, Historical Report import,
-separate behavior/strategy/communication targets, Dataset version `2`,
+Evidence persistence, Historical Report import, Dataset-v2 persistence and
+partition preparation, separate task-specific behavior/strategy/communication
+Features and Targets,
 annotations, cross-game summaries, evaluation baselines, derived AI tags,
 browser workflows, and public exposure remain open. No production model is
 planned.
@@ -200,6 +206,7 @@ must not be presented as official-rule requirements.
 | Observed Game capture | Internal immutable Match-linked Game facts, exact historical seats, optional perspective hand/original Skat/Discards, zero through 30 public Plays, free-text commentary on any Player Decision, linked later responses, and deterministic evidence capabilities. | Issue #168 can analyze one safely prepared Decision or one strict Historical Game. The actual Card remains retrospective behavior evidence, not an optimal label; Commentary and Response Links remain outside analysis and Coaching. Public Match API/CLI/Schema and tactical interpretation remain absent. |
 | Private Match Workspace | Internal immutable exact 36-position EuroSkat Workspace with fixed rotation, revisions, Progress, fingerprints, strict Resume, and optimistic atomic local files. | Issue #168 derives max-eight process-local revision-scoped reports without persisting them. Applied mutation, Reload, shutdown, stale revision, and concurrent-change behavior is explicit. No distributed lock, retry/merge, remote/cloud/encryption/backup, public materialization, or Public Match API/Schema exists. |
 | Private Learning Corpus identity, Catalog, persistence, Workspace import, derived Player history, Human Evidence, and Strategy Teacher Evidence | Internal immutable content-addressed Match Snapshots built only from exact strictly resumed Workspace persistence documents, with exact closed References, lightweight entries, explicit Current selections, one fixed explicit local Store, strict Resume, valid orphan reporting, pure Catalog changes, no-clobber objects, optimistic atomic Catalog Save, source-preserving Workspace import, one non-persisted Current-Snapshot Player Catalog with time-safe Statistics selection, one minimized exact Human Commentary/linked Response Evidence export, and one deterministic collection/export of Current-Snapshot-bound method-specific Immediate/Search/Auto Strategy Teacher Evidence from explicitly bound exact executed Decision Analysis Reports, with one no-execution Request rebuild and retained Result validation per source plus exact and semantic identities. | Issues #171 through #174 keep Match Workspaces as editable authority, imported Snapshot objects immutable, `catalog.json` authoritative, valid unreferenced objects as reported orphans, and both Player history and Human Evidence derived from explicit Current selections only. Issue #175 binds exact executed Decision Analysis Reports to explicit Current Match Snapshots and deterministically derives method-bound Strategy Teacher Evidence without execution or persistence. Human text remains exact, observed Cards remain behavior, and Response Links remain caller associations. Human and Strategy Teacher Evidence remain distinct; method-bound Strategy Teacher evidence is not ground truth. Other future analysis/annotation artifacts and Dataset version `2` remain separate. No deletion, garbage collection, Player Catalog persistence, Human or Strategy Teacher Evidence persistence/transport, persisted aliases/assertions, merge/split, all-revision view, automatic Report capture, Historical Report import, Teacher ranking/consensus, browser, CLI, Public API, Schema, derived tags, or model training exists. See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md), [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md), [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md), [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md), and [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md). |
+| Private Learning Dataset version 2 | One Current-Snapshot-only unpartitioned task-neutral Dataset with exact information-safe Decision State, separate observed behavior, latest-unambiguous time-safe Player Context, all exact method-bound Teachers, exact Commentary, joined outgoing/incoming Responses, explicit skipped Decisions, unjoined Human Evidence, normalized pools, deterministic identities, and canonical path-free export. | Issue #176 defines no universal target, label, Feature list, task, Teacher winner, communication tag, partition, persistence, CLI, browser, Public API, Schema, example, generated scenario, or model training. Future partitioning must keep each `match_snapshot_id` indivisible. Training Dataset version `1` remains separate and unchanged. |
 | Match Capture Application services | Internal transport-free rapid-entry operations over one loaded Workspace, with UI-ready Views, exact/bounded Cards, automatic Player/Decision derivation, truncation cleanup, annotations, and revisioned Results. | Browser mutations still compose these no-I/O/no-analysis services directly. Issues #167 and #168 remain separate preparation and analysis/report/export layers. Public Match API/Schema/data workflow and tactical interpretation remain absent. |
 | Match review and materialization preparation | Internal evidence-aware acting-own-hand Decision snapshots, strict complete-Deal normal-completion Historical Games, unpartitioned Training source Records, and complete fixed-three-player list plus aggregation materialization. | Issue #167 preserves the actual-Card cutoff, excludes future-opponent leakage, retains Skat/Ouvert semantics, prepares relative Profile bindings without application, uses Match-level `played_at`, preserves Passed Deals and Commentary sidecars, and executes no workflow. Issue #168 exposes explicit private preparation reports and canonical downloads; materialization still executes no workflow. See [Match review and materialization](match_review_and_materialization.md). |
 | Match analysis and private exports | Internal explicit one-Decision Immediate/Search/Auto Position execution, strict selected-mode Historical execution, existing-behavior eligible Profile application, ephemeral reports, and authenticated local downloads. | One available selection invokes the existing matching Application exactly once. Actor exclusion, disabled/nonactionable Profiles, strict Historical availability, no Profile effect on Search/Coaching, no Commentary in Coaching, no-workflow materialization, deterministic SHA-256/max-eight reports, and stale/concurrent invalidation are retained. It adds no Public Match API/Schema/Root/CLI or persisted report. See [Match analysis and exports](match_analysis_and_exports.md). |
@@ -364,13 +371,14 @@ The following directions are required for `v1.0.0`:
   one-Decision and strict Historical execution, existing-behavior eligible
   Profile application, no-workflow materialization reports, and authenticated
   local downloads, completing the functional local milestone. Issues #171 through
-  #175 subsequently add separate private immutable Learning Corpus Snapshot/
+  #176 subsequently add separate private immutable Learning Corpus Snapshot/
   reference and lightweight Catalog identity, deterministic persistence, and
   Workspace-import foundations plus derived Player/Statistics history, Human
-  Evidence, and exact Decision Report Strategy Teacher Evidence without changing
+  Evidence, exact Decision Report Strategy Teacher Evidence, and one
+  unpartitioned task-neutral Learning Dataset version `2` without changing
   Workspace authority. Public Match API, Match Schema/data workflow,
-  public/persisted Player Catalog, communication-aware Dataset
-  work, and database/remote deployment remain open.
+  public/persisted Player Catalog, public/task-specific Dataset workflows,
+  Dataset-v2 persistence/partitioning, and database/remote deployment remain open.
   YouTube and EuroSkat integration are not required before v1.0.
 * Provide a stable library API and installed CLI/package interface. Public API
   contract version `1`, immutable JSON documents, compatibility metadata, stable

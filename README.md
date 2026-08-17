@@ -463,13 +463,22 @@ and a wall-clock-normalized semantic Teacher fingerprint keep distinct source
 Reports separate. The collection and path-free canonical export are private and
 non-persisted.
 
-Issues #171 through #175 add no Dataset version `2`, workflow,
-CLI, browser operation, Public API, Schema, example, or generated scenario. See
+Issue #176 adds a separate private unpartitioned Learning Dataset version `2`.
+It reconciles the exact Store, Player Catalog, Human Evidence, and Strategy
+Teacher collections; reuses the Issue #167 safe Decision-state seam; separates
+observed behavior, time-safe Player Context, all method-bound Teachers, exact
+Commentary, and joined outgoing/incoming Responses; reports skipped Decisions
+and unjoined Human Evidence; and provides stable Record identities plus one
+canonical path-free export. It defines no universal target, label, task, or
+partition and changes no Training Dataset version `1` behavior. Issues #171
+through #176 add no workflow, CLI, browser operation, Public API, Schema,
+example, or generated scenario. See
 [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md),
 [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md),
 [Learning Corpus human Commentary and Response evidence](docs/learning_corpus_human_commentary_and_response_evidence.md),
-and [Learning Corpus Strategy Teacher Evidence](docs/learning_corpus_strategy_teacher_evidence.md).
+[Learning Corpus Strategy Teacher Evidence](docs/learning_corpus_strategy_teacher_evidence.md),
+and [Learning Dataset version 2](docs/learning_dataset_v2.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -1032,6 +1041,7 @@ Detailed documentation is split into topic-specific files:
 * [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md)
 * [Learning Corpus human Commentary and Response evidence](docs/learning_corpus_human_commentary_and_response_evidence.md)
 * [Learning Corpus Strategy Teacher Evidence](docs/learning_corpus_strategy_teacher_evidence.md)
+* [Learning Dataset version 2](docs/learning_dataset_v2.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1217,7 +1227,8 @@ functional milestone. Issue #169 changed only the Package version, matching
 version expectations, Changelog, and current-state documentation to complete
 Release preparation. Issue #170 records the subsequent manual publication.
 Public Match API and Schema/data workflow, public/persisted Player Catalog,
-communication-aware Dataset work, database/remote deployment, and broader pre-v1
+public/task-specific Dataset workflows, Dataset-v2 persistence/partitioning,
+database/remote deployment, and broader pre-v1
 work remain open. Persistence, Public APIs, CLI contracts, seven Root workflows,
 63 Schemas, examples, and 85 generated outputs remain unchanged.
 
@@ -1334,7 +1345,8 @@ opt-in, so existing omitted-method workflows require no migration.
 
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
-Player Catalog persistence and public exposure, communication-aware Dataset work,
+Player Catalog persistence and public exposure, public/task-specific Dataset
+workflows, Dataset-v2 persistence and partition preparation,
 database/remote deployment, and stronger information-set or policy search,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
@@ -1443,7 +1455,7 @@ strict Historical, unpartitioned Training-source, and complete fixed-list
 materialization without execution. Issue #168 adds explicit private analysis,
 existing-behavior Profile application, ephemeral reports, and authenticated
 local downloads while materialization remains no-workflow. Public Match API and
-Schema/data workflow, public/persisted Player Catalog, communication-aware Dataset work,
+Schema/data workflow, public/persisted Player Catalog, public/task-specific Dataset workflows,
 database/remote deployment, and broader pre-v1 work remain open. `v1.0.0`
 remains unready after this milestone; its final Issue sequence and implementation
 architecture still require focused scope and traceability review.
@@ -1466,12 +1478,16 @@ Snapshots only, plus deterministic canonical in-memory export. Issue #175 adds
 Current-Snapshot-bound method-specific Strategy Teacher Evidence from exact
 executed Decision Analysis Reports, with exact source and semantic identities,
 strict no-execution reconciliation, deterministic counts, and canonical in-memory
-export. Deletion and
+export. Issue #176 adds the private Current-Snapshot-only, unpartitioned,
+task-neutral Learning Dataset version `2`, with information-safe Decision State,
+separate observed behavior and Player Context, exact Teacher/Commentary/Response
+joins, skipped and unjoined evidence reporting, deterministic identities, and a
+canonical path-free export. Deletion and
 garbage collection, persisted alias assertions, Player merge/split operations,
 all-revision Player views, Human Evidence persistence or transport, separate
-behavior and communication targets, Strategy Teacher persistence/transport,
-Historical Report import, Dataset version
-`2`, communication-aware annotations, cross-game behavior summaries, evaluation
+behavior and communication task builders, Strategy Teacher persistence/transport,
+Historical Report import, Dataset-v2 persistence and partition preparation,
+communication-aware annotations, cross-game behavior summaries, evaluation
 baselines, derived AI tags, browser/CLI/API/Schema exposure, and model training
 remain open. No production model is included.
 

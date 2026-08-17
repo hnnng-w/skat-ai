@@ -229,6 +229,11 @@ the selected stable Player. A strictly earlier observation is returned exactly.
 This mode can resolve same-instant content ambiguity but cannot bypass equality
 or a later capture. No combined Statistics record is created.
 
+Issue #176 uses only `latest_unambiguous` at each Match `played_at` value, caches
+one selection per distinct Player/target-time pair, preserves every selection
+status/reason/ID field, and embeds every referenced exact Observation once. It
+introduces no explicit override, Profile, Policy, merge, weighting, or averaging.
+
 ## Privacy and compatibility
 
 The Player Catalog is private local unredacted derived data. It may retain stable
@@ -248,7 +253,8 @@ generated outputs, and Training Dataset version `1` target
 Persisted aliases/assertions, Player merge/split operations, Catalog persistence,
 all-revision Player views, canonical labels, Human Evidence persistence or
 transport, Strategy Teacher Evidence persistence or transport, automatic Report
-capture, Historical Report import, Dataset version `2`, split generation,
+capture, Historical Report import, Dataset-v2 persistence and task/partition
+builders, split generation,
 cross-game summaries, browser/CLI/API/Schema exposure, and model training remain
 open.
 
@@ -259,3 +265,7 @@ itself is implemented separately by Issue #174. See
 The private Current-Snapshot-bound exact Decision Report Strategy Teacher
 Evidence export is implemented separately by Issue #175. See
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+
+The private unpartitioned task-neutral Dataset version `2` consumes the supplied
+exact Player Catalog without rebuilding it. See
+[Learning Dataset version 2](learning_dataset_v2.md).

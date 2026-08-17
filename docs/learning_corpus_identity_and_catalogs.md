@@ -30,6 +30,12 @@ selections, but no Issue #171 identity, Reference, Snapshot, or Catalog contract
 changes. See
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
 
+Issue #176 derives a separate non-persisted, unpartitioned, task-neutral Learning
+Dataset version `2` from the exact Store and supplied Current-Snapshot Player,
+Human, and Strategy Teacher sources. It changes no Issue #171 identity,
+Reference, Snapshot, Catalog, object-kind, or persistence contract. See
+[Learning Dataset version 2](learning_dataset_v2.md).
+
 ## Source-of-truth boundary
 
 The exact source and derived-data relationships are:
@@ -56,8 +62,8 @@ Strategy Teacher Evidence:
 future annotation artifacts:
     separate derived objects
 
-future Dataset v2:
-    separate export
+Learning Dataset v2:
+    separate Current-Snapshot-derived task-neutral export, not persisted
 
 Human Commentary and Response Evidence:
     separate minimized Current-Snapshot-derived export
@@ -337,8 +343,8 @@ The Catalog never infers the newest revision or changes a selection. Empty
 Catalog creation produces revision zero with no entries or selections. Issue
 #171 defines no Catalog mutation, persistence, deletion, or garbage collection.
 The explicit Current selections are the complete source set for Issues #173
-through #175; non-current entries and orphan objects do not enter the derived
-Player, Human Evidence, or Strategy Teacher Evidence views.
+through #176; non-current entries and orphan objects do not enter the derived
+Player, Human Evidence, Strategy Teacher Evidence, or Learning Dataset views.
 
 ## Snapshot classification
 
@@ -386,9 +392,10 @@ private minimized Commentary/Response Evidence collection and in-memory export.
 Issue #175 supplies separate exact executed Decision Report Strategy Teacher
 Evidence and an in-memory export without changing Corpus persistence. Human and
 Strategy Teacher Evidence persistence, browser/CLI/API/Schema transport, derived
-tags, Historical Report import, Dataset version `2` integration, split generation,
-cross-game summaries, examples, generated scenarios, and model training remain
-open.
+tags, Historical Report import, Dataset-v2 persistence, partition/task builders,
+split generation, cross-game summaries, examples, generated scenarios, and model
+training remain open. Issue #176's in-memory Dataset/export changes no Corpus
+persistence bytes.
 
 Package version remains `0.15.0`. Public API contract version `1`, the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

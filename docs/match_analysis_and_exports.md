@@ -207,16 +207,19 @@ Issue #168 completes the functional local Match Capture scope planned for
 `v0.15.0`. Issue #169 completed Package/release metadata and documentation
 preparation, and Issue #170 records the subsequent manual publication. Public
 Match API and
-Schema/data workflow, a public/persisted Player Catalog, communication-aware Dataset work,
+Schema/data workflow, a public/persisted Player Catalog, public/task-specific
+Dataset workflows and Dataset-v2 persistence/partitioning,
 database or remote deployment, YouTube and EuroSkat integration, and broader
 pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.
 
 Issue #171's separate private Learning Corpus Match Snapshot and Catalog
 contracts import no Match Analysis report and execute no analysis. Reports remain
 ephemeral process-local values under this document's unchanged behavior. Derived
-annotations and Dataset version `2` remain separate open objects rather than
-Match Snapshot or Catalog fields. See
-[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
+annotations remain separate open objects rather than Match Snapshot or Catalog
+fields. Issue #176's separate in-memory Dataset version `2` also remains outside
+Match Snapshot, Catalog, and report persistence. See
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md)
+and [Learning Dataset version 2](learning_dataset_v2.md).
 
 Issue #172 persists and imports only exact Workspace Match Snapshots. It imports
 no Match Analysis report, and Corpus initialization, Resume, import, and Current-

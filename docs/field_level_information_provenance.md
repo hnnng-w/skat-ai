@@ -105,6 +105,16 @@ ledger, Confidence claim, optimality proof, or authorship proof. The builder
 reuses validated source Results and Current-Snapshot References without changing
 Root Result provenance or Training Dataset version `1`.
 
+Issue #176 adds a private, non-persisted Learning Dataset version `2`. Its
+domain-separated Source Context, Decision State, observed behavior, Record,
+Dataset, and export fingerprints are deterministic content identities, not
+field-level Provenance ledgers. Decision State is reconstructed historical source
+state before the actual Play; observed behavior remains a separate retrospective
+attachment. Exact Statistics, Human, and Strategy Teacher values retain their
+source identities in normalized sibling pools. No new Provenance contract,
+Confidence value, public ledger, redaction path, or Training Dataset version `1`
+field is added.
+
 ## Sidecar design
 
 Provenance is an immutable sidecar ledger for a JSON-compatible document. It

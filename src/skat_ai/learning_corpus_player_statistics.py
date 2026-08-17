@@ -541,6 +541,24 @@ def select_learning_corpus_player_statistics_as_of_v1(
     if type(player_catalog) is not LearningCorpusPlayerCatalogV1:
         raise ValueError("player_catalog must be an exact LearningCorpusPlayerCatalogV1.")
     _validate_learning_corpus_player_catalog_v1(player_catalog)
+    return _select_learning_corpus_player_statistics_as_of_validated_v1(
+        player_catalog,
+        player_id=player_id,
+        target_played_at=target_played_at,
+        selection_mode=selection_mode,
+        statistics_observation_id=statistics_observation_id,
+    )
+
+
+def _select_learning_corpus_player_statistics_as_of_validated_v1(
+    player_catalog: LearningCorpusPlayerCatalogV1,
+    *,
+    player_id: str,
+    target_played_at: str | None,
+    selection_mode: str,
+    statistics_observation_id: str | None = None,
+) -> LearningCorpusPlayerStatisticsSelectionV1:
+    """Selects from one already validated exact Player Catalog."""
     _require_identifier(player_id, "player_id")
     if selection_mode not in LEARNING_CORPUS_PLAYER_STATISTICS_SELECTION_MODES:
         raise ValueError("selection_mode must be one canonical Statistics selection mode.")

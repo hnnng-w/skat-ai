@@ -300,12 +300,16 @@ def _build_profile_binding(
     )
 
 
-def _build_match_decision_review_preparation_from_reconstruction_v1(
+def _build_match_decision_states_from_reconstruction_v1(
     reconstruction: MatchObservedGameReconstructionV1,
     *,
     source_played_at: str | None,
-    statistics_preparation: MatchPlayerStatisticsPreparationV1,
-) -> MatchDecisionReviewPreparationV1:
+) -> tuple[
+    tuple[HistoricalDecisionSnapshot, ...],
+    tuple[MatchSkippedDecisionV1, ...],
+    int,
+]:
+    """Builds safe Decision states without Statistics or Profile derivation."""
     game = reconstruction.observed_game
     trace = reconstruction.trace
     declaration = game.declaration
@@ -316,9 +320,6 @@ def _build_match_decision_review_preparation_from_reconstruction_v1(
     seats_by_player_id = {player.player_id: player.seat for player in game.players}
     remaining_hands = {player_id: list(cards) for player_id, cards in reconstruction.playable_hands}
     prior_play_counts = {player_id: 0 for player_id in seat_order_player_ids}
-    contexts_by_player_id = {
-        context.player_id: context for context in statistics_preparation.participant_contexts
-    }
     completed_tricks: list[HistoricalSnapshotCompletedTrick] = []
     current_trick: list[HistoricalSnapshotPlay] = []
     declarer_trick_points = 0
@@ -326,7 +327,6 @@ def _build_match_decision_review_preparation_from_reconstruction_v1(
     completed_trick_index = 0
     snapshots: list[HistoricalDecisionSnapshot] = []
     skipped: list[MatchSkippedDecisionV1] = []
-    bindings: list[MatchDecisionOpponentProfileBindingV1] = []
 
     for play in trace.plays:
         acting_hand = remaining_hands.get(play.player_id)
@@ -447,7 +447,6 @@ def _build_match_decision_review_preparation_from_reconstruction_v1(
                 ),
             )
             snapshots.append(snapshot)
-            bindings.append(_build_profile_binding(snapshot, contexts_by_player_id))
 
         if play.player_id in remaining_hands:
             remaining_hands[play.player_id].remove(play.card)
@@ -471,8 +470,27 @@ def _build_match_decision_review_preparation_from_reconstruction_v1(
             completed_trick_index += 1
             current_trick = []
 
+    return tuple(snapshots), tuple(skipped), len(trace.plays)
+
+
+def _build_match_decision_review_preparation_from_reconstruction_v1(
+    reconstruction: MatchObservedGameReconstructionV1,
+    *,
+    source_played_at: str | None,
+    statistics_preparation: MatchPlayerStatisticsPreparationV1,
+) -> MatchDecisionReviewPreparationV1:
+    game = reconstruction.observed_game
+    snapshots, skipped, source_count = _build_match_decision_states_from_reconstruction_v1(
+        reconstruction,
+        source_played_at=source_played_at,
+    )
+    contexts_by_player_id = {
+        context.player_id: context for context in statistics_preparation.participant_contexts
+    }
+    bindings = tuple(
+        _build_profile_binding(snapshot, contexts_by_player_id) for snapshot in snapshots
+    )
     prepared_count = len(snapshots)
-    source_count = len(trace.plays)
     status = (
         "available"
         if source_count > 0 and prepared_count == source_count
@@ -489,9 +507,9 @@ def _build_match_decision_review_preparation_from_reconstruction_v1(
         source_play_count=source_count,
         prepared_decision_count=prepared_count,
         skipped_decision_count=len(skipped),
-        snapshots=tuple(snapshots),
-        skipped_decisions=tuple(skipped),
-        profile_bindings=tuple(bindings),
+        snapshots=snapshots,
+        skipped_decisions=skipped,
+        profile_bindings=bindings,
     )
 
 
