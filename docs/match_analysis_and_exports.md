@@ -207,7 +207,7 @@ Issue #168 completes the functional local Match Capture scope planned for
 `v0.15.0`. Issue #169 completed Package/release metadata and documentation
 preparation, and Issue #170 records the subsequent manual publication. Public
 Match API and
-Schema/data workflow, a global Player Catalog, communication-aware Dataset work,
+Schema/data workflow, a public/persisted Player Catalog, communication-aware Dataset work,
 database or remote deployment, YouTube and EuroSkat integration, and broader
 pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.
 
@@ -222,3 +222,7 @@ Issue #172 persists and imports only exact Workspace Match Snapshots. It imports
 no Match Analysis report, and Corpus initialization, Resume, import, and Current-
 selection changes execute no analysis or materialization workflow. See
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
+
+Issue #173 derives only Player, exact alias, and Match-bound Statistics history
+from explicit Current Match Snapshots. It imports no report and executes no
+analysis. See [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).

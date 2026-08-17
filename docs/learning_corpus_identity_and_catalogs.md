@@ -12,6 +12,11 @@ Workspace-file import layer over these unchanged values. It does not change any
 Issue #171 identity, reference, Catalog, ordering, or classification behavior.
 See [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
 
+Issue #173 derives a separate non-persisted Player Catalog and time-safe
+Statistics history from only the explicit Current selections. It changes no
+Issue #171 identity or Catalog contract. See
+[Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
+
 ## Source-of-truth boundary
 
 The exact source and derived-data relationships are:
@@ -25,6 +30,12 @@ Learning Corpus Match Snapshot:
 
 Catalog:
     lightweight identity/current-selection manifest
+
+Learning Corpus Player Catalog:
+    derived current-Snapshot Player and Statistics view, not persisted
+
+Statistics Selection:
+    derived strict as-of Result, not persisted
 
 future analysis and annotation artifacts:
     separate derived objects
@@ -200,8 +211,9 @@ statistics_snapshot_id
 ```
 
 Player IDs use exact case-sensitive equality. Labels, aliases, and platform IDs
-are not merged. The Corpus does not choose a global canonical label and does not
-define a Player Catalog.
+are not merged. Issue #171 does not choose a global canonical label or itself
+define a Player Catalog; Issue #173 separately derives one without changing
+these source observations.
 
 ## Game and Decision references
 
@@ -305,6 +317,8 @@ current selection, and every selection references an entry for that same Match.
 The Catalog never infers the newest revision or changes a selection. Empty
 Catalog creation produces revision zero with no entries or selections. Issue
 #171 defines no Catalog mutation, persistence, deletion, or garbage collection.
+The explicit Current selections are the complete source set for Issue #173;
+non-current entries and orphan objects do not enter its derived Player view.
 
 ## Snapshot classification
 
@@ -343,9 +357,11 @@ deletion claim.
 Issue #172 implements fixed-root Corpus persistence, immutable object storage,
 strict Workspace-file import, pure Catalog import, explicit Current-selection
 updates, strict Store Resume, valid orphan reporting, no-clobber object
-publication, and optimistic Catalog Save. Snapshot-history selection beyond one
-explicit Current value, deletion, garbage collection, a Player Catalog, aliases,
-report import, Commentary export, strategy-teacher evidence, derived tags,
+publication, and optimistic Catalog Save. Issue #173 adds a derived
+Current-Snapshot Player Catalog, exact observed aliases/conflicts, and retained
+time-safe multi-Match Statistics history. Player Catalog persistence, persisted
+alias assertions, merge/split operations, all-revision views, deletion, garbage
+collection, report import, Commentary export, strategy-teacher evidence, derived tags,
 Dataset version `2`, split generation, cross-game summaries, browser workflows,
 CLI, Public API, Schemas, examples, generated scenarios, and model training remain
 open.

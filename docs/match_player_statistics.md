@@ -9,9 +9,11 @@ versions or persisted shape.
 ## Match-bound history
 
 Each Match participant retains at most one optional immutable Snapshot. A later
-Match may retain a separate Snapshot for the same stable Player. There is no
-global Player Catalog, multiple-Snapshot Match history, automatic newest
-selection, source merge, weighting, or platform lookup.
+Match may retain a separate Snapshot for the same stable Player. The Workspace
+still has no multiple-Snapshot history, automatic newest selection, source merge,
+weighting, or platform lookup. Issue #173 separately derives a private
+Current-Corpus multi-Match history and latest-unambiguous selector without
+changing the Workspace shape.
 
 The browser can add or replace one Snapshot from `manual_entry` or
 `online_platform` form data and can clear any retained Snapshot. It derives the
@@ -67,6 +69,9 @@ Both values are parsed as aware RFC 3339 instants. Equality, including equivalen
 instants written with different offsets, and later capture are ineligible.
 Missing Match time is ineligible. Every valid ineligible Snapshot remains
 unchanged as descriptive Match metadata; there is no tolerance or bypass.
+The Context builder and Issue #173 observations share the pure temporal-status
+helper. A Snapshot ineligible for its source Match may still be strictly before
+a later target and eligible for that later as-of query.
 
 Every retained Snapshot is normalized through the existing
 `build_player_profile_from_opponent_statistics()` and derived through the
@@ -145,6 +150,8 @@ merge, or automatic Reload.
 
 Snapshots are private local Workspace data and receive no public redaction. This
 feature performs no external request, global history lookup, or profile learning.
+Issue #173 consumes exact retained copies only in a separate derived local
+Catalog and derives no Profile or policy.
 Issue #168 can explicitly consume eligible records through the existing Position
 or Historical Application behavior. Position execution uses actor-relative
 opponent bindings. Historical injection requires enabled Immediate Review and
@@ -156,6 +163,6 @@ Capture CLI options, the one Console Script, 63 authoritative and packaged
 Schemas, six Session examples, and 85 generated-output scenarios are unchanged.
 The maintainer published `v0.15.0` manually at commit `ec1c154`, and Issue #170
 synchronizes publication status. Private browser analysis and authenticated
-local downloads are implemented; Public Match APIs
-and Schemas, public Match exports, a global Player Catalog, and learned Profiles
-remain future work.
+local downloads are implemented; Public Match APIs and Schemas, public Match
+exports, Player Catalog persistence/UI/API, persisted aliases, merge/split
+operations, and learned Profiles remain future work.

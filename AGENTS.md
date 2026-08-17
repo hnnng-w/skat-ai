@@ -342,16 +342,18 @@ assertions, Changelog, and release-state documentation to complete Release
 preparation. The maintainer published the Release manually at commit `ec1c154`,
 and Issue #170 synchronizes that publication status. No Package-index or PyPI
 publication is claimed. Public
-Match API, Match Schema/data workflow, global Player Catalog, communication-
+Match API, Match Schema/data workflow, public/persisted Player Catalog, communication-
 aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Issues #171 and #172 implement private immutable Match
+and communication data`. Issues #171 through #173 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
-persisted explicit Current-selection changes. Candidate later directions include
-canonical Game and Player catalogs, multi-Match Player Snapshot history,
+persisted explicit Current-selection changes, plus a derived Current-Snapshot
+Player Catalog, exact alias conflicts, retained Statistics history, and time-safe
+selection. Candidate later directions include canonical Game catalogs, persisted
+Player aliases/assertions, merge/split operations, and all-revision Player views,
 Commentary and Response export, separate behavior, strategy, and communication
 targets, Dataset version `2`, communication-aware annotations, cross-game
 behavior summaries, evaluation baselines, and derived AI tags kept separate from
@@ -515,6 +517,10 @@ Major completed areas include:
   immutable no-clobber object publication, optimistic atomic Catalog Save,
   strict source-preserving Workspace-file import, object-before-Catalog conflict
   orphans, and persisted explicit selection updates
+* deterministic non-persisted Learning Corpus Player Catalog version `1` from
+  explicit Current Match Snapshots only, with exact stable-ID aggregation, label
+  history, platform aliases/conflicts, retained exact Statistics history, and
+  strict latest-unambiguous or explicit-observation selection
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -552,14 +558,16 @@ strict existing-contract Historical, unpartitioned Training-source, and complete
 fixed-list materialization are implemented. Explicit browser analysis,
 existing-behavior Profile application, ephemeral reports, and authenticated
 local downloads are also implemented, while materialization itself executes no
-workflow. Public Match API/export, Match Schema/data workflow, global Player
+workflow. Public Match API/export, Match Schema/data workflow, public/persisted Player
 Catalog, communication-aware Dataset work, database/remote deployment, YouTube
 integration, and EuroSkat integration remain absent.
 Learning Corpus persistence and Workspace import are private internal operations
 with no CLI, browser, Public API, Schema, example, or generated scenario.
-Deletion, garbage collection, Player Catalog, Commentary/Response export, report
-import, Dataset version `2`, split generation, cross-game summaries, and model
-training remain open. Session State itself contains no path
+The derived Player Catalog and Statistics history are also private and
+non-persisted. Deletion, garbage collection, Player Catalog persistence,
+persisted aliases/assertions, merge/split operations, all-revision views,
+Commentary/Response export, report import, Dataset version `2`, split generation,
+cross-game summaries, and model training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,
 remote browser deployment, four-player support, or claim of complete official

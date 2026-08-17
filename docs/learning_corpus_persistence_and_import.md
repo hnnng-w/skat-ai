@@ -3,7 +3,8 @@
 Issue #172 adds the private deterministic persistence and explicit Match
 Workspace import layer for the Issue #171 Learning Corpus identity and Catalog
 contracts. It adds no CLI, browser operation, Public API, Root workflow, Schema,
-example, generated scenario, Dataset version `2`, or Player Catalog.
+example, generated scenario, Dataset version `2`, or Player Catalog. Issue #173
+adds a separate derived Player Catalog without changing this persistence layer.
 
 ## Source-of-truth boundary
 
@@ -21,6 +22,9 @@ catalog.json:
 
 valid unreferenced Match Snapshot object:
     orphaned immutable content, not Catalog state
+
+derived Player Catalog and Statistics Selection:
+    rebuilt from the strict Store, never persisted
 ```
 
 Import never mutates the source Workspace file. Catalog changes never mutate or
@@ -204,6 +208,11 @@ are not interpreted as objects.
 An orphan is never automatically added, selected, deleted, moved, rewritten, or
 repaired. No garbage-collection operation exists in version `1`.
 
+The exact path-free Store Resume Result is also the sole in-memory source for the
+Issue #173 Player Catalog builder. That builder strictly revalidates the Store,
+resolves only explicit Current selections, performs no second file load, and
+persists nothing.
+
 ## Pure Catalog operations
 
 `apply_learning_corpus_match_snapshot_import_v1()` and
@@ -306,8 +315,9 @@ selection values. No public redaction is applied. Fingerprints provide
 deterministic identity and consistency verification, not confidentiality or
 authenticated authorship.
 
-Deletion, garbage collection, orphan cleanup, recovery UI, Player Catalog,
-aliases, Snapshot-history browsing or named selections beyond Current,
+Deletion, garbage collection, orphan cleanup, recovery UI, Player Catalog
+persistence, persisted aliases/assertions, merge/split operations, all-revision
+history browsing or named selections beyond Current,
 Commentary/Response export, Match Analysis
 Report import, strategy-teacher evidence, Derived Tags, Dataset version `2`,
 Dataset samples/partitions/splits, cross-game summaries, browser workflows, CLI,

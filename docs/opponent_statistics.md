@@ -54,6 +54,12 @@ The workflow does not scrape platforms, merge captures, or maintain statistics
 history. Multiple captures for one player require future versioning or history
 functionality and cannot appear as duplicate IDs in one input.
 
+Issue #173 separately retains exact Match-bound records in a private derived
+Learning Corpus history. The complete canonical record, including provenance, is
+fingerprinted without Profile derivation. Only an `online_platform` source with
+a non-null source Player ID creates a platform alias; manual-entry and
+historical-games source IDs do not.
+
 `historical_games` requires `source_player_id` equal to the record's
 `player_id` and a version-1 `historical_aggregation` object. That object contains
 dataset ID/version, canonical non-empty partitions, equally sized non-empty
@@ -221,9 +227,11 @@ bound to live sides or automatically matched to historical participants for
 review. Historical matches require every matched `captured_at` instant to be
 strictly before the target game's `played_at`; only actionable presets enter the
 existing policy resolver. Aggregation itself does not apply a policy. The
-workflow does not persist or automatically select among multiple captures,
+public workflow does not persist or automatically select among multiple captures,
 weight or merge sources, assess strategic quality, or train a model. A separate
-rolling evaluation can compare existing profile policies with a fixed baseline
+Issue #173 current-Snapshot-only selector is non-persisted and does not alter
+normalization or Profile application. A separate rolling evaluation can compare
+existing profile policies with a fixed baseline
 on observed known-player cards, but it does not change this conversion or apply
 profiles to recommendations. The deterministic classification is a bounded
 rule-based description, not a learned profile. See

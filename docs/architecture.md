@@ -46,6 +46,8 @@ descriptive video or manual source metadata
     -> one explicit fixed-root private Store and strict full Resume
     -> immutable no-clobber objects and valid orphan reporting
     -> strict source-preserving Workspace import and optimistic Catalog Save
+    -> derived Current-Snapshot-only Player Catalog and exact alias conflicts
+    -> retained exact Statistics history and strict time-safe selection
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -390,6 +392,9 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_corpus_catalog_operations.py` | Pure conflict-first Snapshot import and explicit Current-selection changes. |
 | `src/skat_ai/learning_corpus_persistence.py` | Fixed layout initialization, strict Store Resume, orphan scan, immutable object publication, and atomic Catalog Save. |
 | `src/skat_ai/learning_corpus_import.py` | Strict Workspace-file import and persisted Current-selection orchestration. |
+| `src/skat_ai/learning_corpus_player_catalog.py` | Derived Current-Snapshot Player observations, exact stable-ID entries, reconciled counts, and one deterministic Catalog fingerprint. |
+| `src/skat_ai/learning_corpus_player_aliases.py` | Exact participant/source alias observations, conflict reporting, and pure resolution without merge. |
+| `src/skat_ai/learning_corpus_player_statistics.py` | Exact Statistics fingerprints/history and strict latest-unambiguous or explicit-observation as-of selection without Profile derivation. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -420,7 +425,8 @@ integration, or tournament-management behavior. See
 [Match review and materialization](match_review_and_materialization.md), and
 [Match analysis and exports](match_analysis_and_exports.md),
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
-and [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
+[Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
+and [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
 
 Validation is split between JSON Schema and Python validation:
 

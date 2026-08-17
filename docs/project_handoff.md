@@ -155,6 +155,9 @@ The project focuses on:
   Workspace Import version-1 contracts with one explicit root, strict Resume,
   valid orphan reporting, immutable object publication, optimistic atomic
   Catalog Save, strict Workspace import, and persisted Current-selection changes
+* internal derived Learning Corpus Player Catalog, Player Match Observation,
+  Platform Alias, Player Statistics Observation, and Statistics Selection
+  version-1 contracts with Current-Snapshot-only history and no persistence
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1071,6 +1074,11 @@ Implemented:
   * private canonical identity domains, exact immutable Workspace source copies,
     closed Snapshot-scoped references, lightweight Catalog entries, explicit
     current selections, and non-mutating duplicate/revision classification
+* `learning_corpus_player_catalog.py`, `learning_corpus_player_aliases.py`, and
+  `learning_corpus_player_statistics.py`
+  * derived Current-Snapshot Player entries, exact aliases/conflicts, complete
+    Match-bound Statistics history, and strict time-safe selection without merge
+    or Profile derivation
 
 ### Interactive Session contracts
 
@@ -1320,6 +1328,8 @@ Main documentation files:
 * `docs/match_review_and_materialization.md`
 * `docs/match_analysis_and_exports.md`
 * `docs/learning_corpus_identity_and_catalogs.md`
+* `docs/learning_corpus_persistence_and_import.md`
+* `docs/learning_corpus_player_catalog_and_statistics_history.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1761,6 +1771,9 @@ Completed implementation scope:
   Import version `1`, with fixed-root canonical files, strict Store Resume,
   valid orphan reporting, no-clobber objects, optimistic atomic Catalog Save,
   source-preserving Workspace import, and no public surface
+* internal Learning Corpus Player Catalog, Player Match Observation, Platform
+  Alias, Player Statistics Observation, and Statistics Selection version `1`,
+  with exact Current-Snapshot-only derivation and no persistence
 
 ## Current high-priority limitations
 
@@ -1834,32 +1847,35 @@ Completed implementation scope:
   no-workflow materialization reports, and authenticated local downloads complete
   the functional `v0.15.0` local milestone. Reports are ephemeral and Commentary
   does not enter Coaching. Public Match API/export, Match Schema/data workflow,
-  global Player Catalog, communication-aware Dataset work, database/remote
+  public/persisted Player Catalog, communication-aware Dataset work, database/remote
   deployment, YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
-* Issues #171 and #172 provide private Learning Corpus source identity, exact
+* Issues #171 through #173 provide private Learning Corpus source identity, exact
   Match Snapshots, closed references, Catalog entries/current selections,
   deterministic fixed-root persistence, strict Store Resume and orphan reporting,
   pure Catalog mutation, strict Workspace import, and persisted selection
-  changes. Deletion, garbage collection, recovery UI, Player history, Commentary
-  export, report import, teacher evidence, Dataset version `2`, summaries,
-  browser workflows, and public exposure remain open.
+  changes, plus a derived exact Player Catalog and time-safe Statistics history.
+  Deletion, garbage collection, recovery UI, persisted aliases/assertions,
+  merge/split operations, all-revision Player views, Commentary export, report
+  import, teacher evidence, Dataset version `2`, summaries, browser workflows,
+  and public exposure remain open.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
 Continue the active `v0.16.0 - Learning-ready behavior and communication data`
-milestone from Issues #171 and #172's internal identity, Catalog, persistence,
-and Workspace-import foundations. The next focused decision should keep immutable
+milestone from Issues #171 through #173's internal identity, Catalog,
+persistence, Workspace-import, and derived Player-history foundations. The next
+focused decision should keep immutable
 imported Workspace Snapshots separate from future derived artifacts and Dataset
-exports while defining one currently open boundary such as Player history or
-original Commentary/Response export.
+exports while defining one currently open boundary such as original
+Commentary/Response export or persisted identity assertions.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, report import, teacher labels,
-Dataset version `2`, browser workflow, or public exposure from Issues #171 and
-#172. Those areas require separate acceptance criteria. No production model is
+Dataset version `2`, browser workflow, or public exposure from Issues #171
+through #173. Those areas require separate acceptance criteria. No production model is
 planned.
 
 ## Open future topics

@@ -392,9 +392,9 @@ Issue #169 completed Package version `0.15.0` and Release-documentation
 preparation. The maintainer published the Release manually at commit `ec1c154`,
 and Issue #170 synchronizes publication status. All seven Root workflows, 63
 Schemas, six Session examples, and 85 generated scenarios remain unchanged.
-There is still no Public Match API,
+The published baseline has no Public Match API,
 Match Schema/data workflow, Match Root workflow, Match CLI export, automatic
-analysis, persisted Workspace report, global Player Catalog, communication-aware
+analysis, persisted Workspace report, public/persisted Player Catalog, communication-aware
 Dataset workflow, database/remote deployment, YouTube integration, or EuroSkat
 integration.
 See [Match capture contracts](docs/match_capture_contracts.md),
@@ -406,7 +406,7 @@ See [Match capture contracts](docs/match_capture_contracts.md),
 [Match review and materialization](docs/match_review_and_materialization.md), and
 [Match analysis and exports](docs/match_analysis_and_exports.md).
 
-### Private Learning Corpus identity, persistence, and Workspace import
+### Private Learning Corpus identity, persistence, Player Catalog, and Statistics history
 
 Issue #171 begins the active `v0.16.0 - Learning-ready behavior and communication
 data` milestone with internal immutable Learning Corpus identity and Catalog
@@ -434,10 +434,19 @@ Catalog publication, so a Catalog conflict intentionally leaves a valid reported
 orphan that later import can reuse. No automatic latest selection, repair,
 deletion, or garbage collection occurs.
 
-Issues #171 and #172 add no Player Catalog, report import, Dataset version `2`,
-workflow, CLI, browser operation, Public API, Schema, example, or generated
-scenario. See [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md)
-and [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md).
+Issue #173 adds a separate deterministic derived Player Catalog over only the
+explicit Current Match Snapshots. It groups exact case-sensitive stable Player
+IDs, retains label and exact platform-alias observations, reports alias conflicts,
+retains every Match-bound exact Statistics record, and supports strict
+latest-unambiguous or explicit-observation as-of selection. Non-current revisions
+and orphans do not contribute. The Player Catalog is not persisted, performs no
+Player merge or Profile derivation, and changes no Issue #171/#172 bytes.
+
+Issues #171 through #173 add no report import, Dataset version `2`, workflow,
+CLI, browser operation, Public API, Schema, example, or generated scenario. See
+[Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md),
+[Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md),
+and [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -997,6 +1006,7 @@ Detailed documentation is split into topic-specific files:
 * [Match analysis and exports](docs/match_analysis_and_exports.md)
 * [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md)
 * [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md)
+* [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1181,7 +1191,7 @@ invalidation, and authenticated canonical local downloads. It completes the
 functional milestone. Issue #169 changed only the Package version, matching
 version expectations, Changelog, and current-state documentation to complete
 Release preparation. Issue #170 records the subsequent manual publication.
-Public Match API and Schema/data workflow, global Player Catalog,
+Public Match API and Schema/data workflow, public/persisted Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
 work remain open. Persistence, Public APIs, CLI contracts, seven Root workflows,
 63 Schemas, examples, and 85 generated outputs remain unchanged.
@@ -1297,8 +1307,9 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
-Remaining work includes Public Match API/Schema/data workflows, a Player Catalog,
-multi-Match Player history, communication-aware Dataset work,
+Remaining work includes Public Match API/Schema/data workflows, persisted Player
+aliases/assertions, Player merge/split operations, all-revision Player views,
+Player Catalog persistence and public exposure, communication-aware Dataset work,
 database/remote deployment, and stronger information-set or policy search,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
@@ -1407,7 +1418,7 @@ strict Historical, unpartitioned Training-source, and complete fixed-list
 materialization without execution. Issue #168 adds explicit private analysis,
 existing-behavior Profile application, ephemeral reports, and authenticated
 local downloads while materialization remains no-workflow. Public Match API and
-Schema/data workflow, global Player Catalog, communication-aware Dataset work,
+Schema/data workflow, public/persisted Player Catalog, communication-aware Dataset work,
 database/remote deployment, and broader pre-v1 work remain open. `v1.0.0`
 remains unready after this milestone; its final Issue sequence and implementation
 architecture still require focused scope and traceability review.
@@ -1422,9 +1433,12 @@ reference, lightweight Catalog, explicit current-selection, and duplicate/
 revision-classification foundation. Issue #172 adds deterministic private Corpus
 persistence, strict Store Resume and orphan reporting, immutable no-clobber
 objects, optimistic atomic Catalog Save, strict Workspace-file import, and
-persisted explicit Current-selection updates. Deletion and garbage collection, a
-Player Catalog, multi-Match Player Snapshot history, Commentary and Response
-export, separate behavior, strategy, and communication targets, Dataset version
+persisted explicit Current-selection updates. Issue #173 adds the private
+derived Current-Snapshot-only Player Catalog, exact alias conflicts, retained
+multi-Match Statistics history, and strict time-safe as-of selection. Deletion
+and garbage collection, persisted alias assertions, Player merge/split operations,
+all-revision Player views, Commentary and Response export, separate behavior,
+strategy, and communication targets, Dataset version
 `2`, communication-aware annotations, cross-game behavior summaries, evaluation
 baselines, derived AI tags, browser/CLI/API/Schema exposure, and model training
 remain open. No production model is included.

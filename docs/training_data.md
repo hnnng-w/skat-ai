@@ -54,6 +54,14 @@ Training Dataset version `1`, feature generation version `1`, and target
 `actual_card_played` are unchanged. See
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
 
+Issue #173 Player Catalog derivation and Statistics selection create no Dataset
+Record, feature, target, sample, partition, Plan, or export. Player IDs, labels,
+aliases, conflicts, Statistics observations, and selection Results do not enter
+Dataset version `1`. Feature generation remains version `1`, target remains
+`actual_card_played`, and Dataset version `2` plus communication-aware export
+remain open. See
+[Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:

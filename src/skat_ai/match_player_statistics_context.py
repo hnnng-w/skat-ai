@@ -41,6 +41,19 @@ _RELATIVE_PLAYER_IDS = frozenset({"me", "left", "right"})
 _CONFIDENCE_SCOPES = ("overall", "declarer", "defender")
 
 
+def classify_match_player_statistics_temporal_status_v1(
+    *,
+    captured_at: str,
+    played_at: str | None,
+) -> str:
+    """Classifies source-Match eligibility without deriving a Profile."""
+    captured_instant = parse_rfc3339_datetime(captured_at, "captured_at")
+    if played_at is None:
+        return "match_time_unavailable"
+    played_instant = parse_rfc3339_datetime(played_at, "played_at")
+    return "eligible" if captured_instant < played_instant else "captured_not_before_match"
+
+
 def _serialize_player_profile(profile: PlayerProfile) -> dict[str, int | float | None]:
     return {
         "games_played": profile.games_played,
@@ -227,17 +240,10 @@ def build_match_player_statistics_context_v1(
 
     profile = build_player_profile_from_opponent_statistics(snapshot.statistics_record)
     derivation = derive_opponent_profile(profile)
-    if match_definition.played_at is None:
-        temporal_status = "match_time_unavailable"
-    else:
-        captured_at = parse_rfc3339_datetime(
-            snapshot.statistics_record.source.captured_at,
-            "statistics_record.source.captured_at",
-        )
-        played_at = parse_rfc3339_datetime(match_definition.played_at, "played_at")
-        temporal_status = (
-            "eligible" if captured_at < played_at else "captured_not_before_match"
-        )
+    temporal_status = classify_match_player_statistics_temporal_status_v1(
+        captured_at=snapshot.statistics_record.source.captured_at,
+        played_at=match_definition.played_at,
+    )
     return MatchPlayerStatisticsContextV1(
         player_id=participant.player_id,
         table_place=participant.table_place,

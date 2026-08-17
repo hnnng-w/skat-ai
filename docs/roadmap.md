@@ -121,12 +121,13 @@ Issue #169 completed Package version `0.15.0`, matching version assertions,
 Changelog, and current-state documentation as Release preparation. The
 maintainer published `v0.15.0` manually at commit `ec1c154`, and Issue #170
 synchronizes publication status. Public Match
-API and Schema/data workflow, global Player Catalog,
+API and Schema/data workflow, public/persisted Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
-work remain open. Issues #171 and #172 subsequently add separate private
+work remain open. Issues #171 through #173 subsequently add separate private
 immutable Learning Corpus Snapshot/reference and lightweight Catalog contracts,
 deterministic fixed-root persistence, strict Store Resume and orphan reporting,
-and explicit Workspace import without changing the published `v0.15.0` Package.
+explicit Workspace import, and a derived Current-Snapshot Player/Statistics view
+without changing the published `v0.15.0` Package.
 No YouTube or EuroSkat integration, ranking, qualification, prize, fee, or bonus
 behavior is implemented.
 
@@ -994,7 +995,7 @@ remains pending.
 ## Active milestone: v0.16.0
 
 `v0.16.0 - Learning-ready behavior and communication data` is the active
-milestone. Issues #171 and #172 establish its first internal foundations:
+milestone. Issues #171 through #173 establish its first internal foundations:
 
 * immutable content-addressed copies of exact strictly resumed Match Workspace
   persistence documents;
@@ -1018,6 +1019,12 @@ milestone. Issues #171 and #172 establish its first internal foundations:
   object-before-Catalog conflict orphan behavior;
 * strict source-preserving Workspace-file import and persisted explicit Current-
   selection updates;
+* a deterministic non-persisted Player Catalog over explicit Current Match
+  Snapshots only, excluding retained non-current revisions and orphans;
+* exact stable-ID Player aggregation, observed labels, participant and online-
+  source aliases, and immutable exact alias conflict reporting without merge;
+* complete Match-bound exact Statistics history with shared source-Match temporal
+  status and strict latest-unambiguous or explicit-observation as-of selection;
 * a private local unredacted source boundary with no workflow, API, CLI, browser,
   Schema, example, or generated-output addition.
 
@@ -1026,14 +1033,16 @@ creates a distinct immutable Match Snapshot; Corpus behavior never mutates the
 Workspace. Future analysis and annotation artifacts remain separate derived
 objects, and future Dataset version `2` remains a separate export.
 
-Deletion and garbage collection, recovery UI, a Player Catalog and aliases,
-multi-Match Player Snapshot history, Commentary and Response export, report
-import, strategy-teacher evidence, behavior/strategy/communication target
+Deletion and garbage collection, recovery UI, Player Catalog persistence,
+persisted aliases/assertions, merge/split operations, all-revision Player views,
+Commentary and Response export, report import, strategy-teacher evidence,
+behavior/strategy/communication target
 separation, Dataset version `2`, communication-aware annotations, cross-game
 summaries, evaluation baselines, derived AI tags, browser workflows, and public
 exposure remain open. No production model is planned for this milestone. See
-[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md)
-and [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
+[Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
+and [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
 
 ## Later planning milestone: v1.0.0
 
@@ -1188,8 +1197,8 @@ historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
 baseline, functional Issues #160 through #168, completed Release-preparation
 Issue #169, publication-synchronization Issue #170, the published 63-Schema,
 six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the active
-`v0.16.0` direction and Issues #171/#172 identity, Catalog, persistence, and
-Workspace-import foundations, requirements
+`v0.16.0` direction and Issues #171-#173 identity, Catalog, persistence,
+Workspace-import, Player Catalog, and Statistics-history foundations, requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
 and unconditional exclusions. Remaining `v0.16.0` Issues and the final `v1.0.0`
 Issue split and implementation architecture remain undecided pending focused
