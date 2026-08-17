@@ -151,6 +151,10 @@ The project focuses on:
   with exact strictly resumed Workspace Snapshots, content-addressed revisions,
   Player Observations, Snapshot-scoped Game/Decision/Commentary/Response
   References, explicit current selections, and duplicate/revision classification
+* internal deterministic Learning Corpus Persistence, Store, Catalog Change, and
+  Workspace Import version-1 contracts with one explicit root, strict Resume,
+  valid orphan reporting, immutable object publication, optimistic atomic
+  Catalog Save, strict Workspace import, and persisted Current-selection changes
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1752,7 +1756,11 @@ Completed implementation scope:
   and authenticated canonical Root/Historical/Training/list downloads
 * internal Learning Corpus identity version `1`, Match Snapshot version `1`,
   Reference version `1`, Catalog version `1`, and Snapshot Classification version
-  `1`, with immutable exact Workspace copies and no persistence or public surface
+  `1`, with immutable exact Workspace copies
+* internal Learning Corpus Persistence, Store, Catalog Change, and Workspace
+  Import version `1`, with fixed-root canonical files, strict Store Resume,
+  valid orphan reporting, no-clobber objects, optimistic atomic Catalog Save,
+  source-preserving Workspace import, and no public surface
 
 ## Current high-priority limitations
 
@@ -1830,26 +1838,29 @@ Completed implementation scope:
   deployment, YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
-* Issue #171 provides only private Learning Corpus source identity, exact Match
-  Snapshots, closed references, Catalog entries/current selections, and
-  classification. Corpus persistence/import, Catalog mutation, Player history,
-  Commentary export, report import, teacher evidence, Dataset version `2`,
-  summaries, browser workflows, and public exposure remain open.
+* Issues #171 and #172 provide private Learning Corpus source identity, exact
+  Match Snapshots, closed references, Catalog entries/current selections,
+  deterministic fixed-root persistence, strict Store Resume and orphan reporting,
+  pure Catalog mutation, strict Workspace import, and persisted selection
+  changes. Deletion, garbage collection, recovery UI, Player history, Commentary
+  export, report import, teacher evidence, Dataset version `2`, summaries,
+  browser workflows, and public exposure remain open.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
 Continue the active `v0.16.0 - Learning-ready behavior and communication data`
-milestone from Issue #171's internal identity and Catalog foundation. The next
-focused decision should keep immutable imported Workspace Snapshots separate from
-future derived artifacts and Dataset exports while defining one currently open
-boundary such as Corpus persistence/import, Player history, or original
-Commentary/Response export.
+milestone from Issues #171 and #172's internal identity, Catalog, persistence,
+and Workspace-import foundations. The next focused decision should keep immutable
+imported Workspace Snapshots separate from future derived artifacts and Dataset
+exports while defining one currently open boundary such as Player history or
+original Commentary/Response export.
 
-Do not infer Catalog mutation, automatic newest selection, fuzzy Player merging,
-cross-revision Decision lineage, report import, teacher labels, Dataset version
-`2`, browser workflow, or public exposure from Issue #171. Those areas require
-separate acceptance criteria. No production model is planned.
+Do not infer automatic newest selection, fuzzy Player merging, cross-revision
+Decision lineage, deletion, garbage collection, report import, teacher labels,
+Dataset version `2`, browser workflow, or public exposure from Issues #171 and
+#172. Those areas require separate acceptance criteria. No production model is
+planned.
 
 ## Open future topics
 

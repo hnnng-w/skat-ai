@@ -7,6 +7,11 @@ lightweight Catalog with explicit current selections. It adds no persistence,
 import operation, Dataset version `2`, workflow, CLI, browser operation, Public
 API, Schema, example, or generated output.
 
+Issue #172 adds a separate private deterministic persistence and explicit
+Workspace-file import layer over these unchanged values. It does not change any
+Issue #171 identity, reference, Catalog, ordering, or classification behavior.
+See [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
+
 ## Source-of-truth boundary
 
 The exact source and derived-data relationships are:
@@ -335,12 +340,15 @@ Statistics, source URLs, titles, and timecodes. Issue #171 adds no redaction,
 encryption, access-control, network, remote-storage, cloud, backup, or secure-
 deletion claim.
 
-Corpus persistence, object storage, Workspace-file import, Catalog mutation,
-current-selection updates, Snapshot history selection, deletion, garbage
-collection, a Player Catalog, aliases, report import, Commentary export,
-strategy-teacher evidence, derived tags, Dataset version `2`, split generation,
-cross-game summaries, browser workflows, CLI, Public API, Schemas, examples,
-generated scenarios, and model training remain open.
+Issue #172 implements fixed-root Corpus persistence, immutable object storage,
+strict Workspace-file import, pure Catalog import, explicit Current-selection
+updates, strict Store Resume, valid orphan reporting, no-clobber object
+publication, and optimistic Catalog Save. Snapshot-history selection beyond one
+explicit Current value, deletion, garbage collection, a Player Catalog, aliases,
+report import, Commentary export, strategy-teacher evidence, derived tags,
+Dataset version `2`, split generation, cross-game summaries, browser workflows,
+CLI, Public API, Schemas, examples, generated scenarios, and model training remain
+open.
 
 Package version remains `0.15.0`. Public API contract version `1`, the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

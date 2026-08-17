@@ -123,10 +123,12 @@ maintainer published `v0.15.0` manually at commit `ec1c154`, and Issue #170
 synchronizes publication status. Public Match
 API and Schema/data workflow, global Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
-work remain open. Issue #171 subsequently adds a separate private immutable
-Learning Corpus Snapshot/reference and lightweight Catalog foundation without
-changing the published `v0.15.0` Package. No YouTube or EuroSkat integration, ranking,
-qualification, prize, fee, or bonus behavior is implemented.
+work remain open. Issues #171 and #172 subsequently add separate private
+immutable Learning Corpus Snapshot/reference and lightweight Catalog contracts,
+deterministic fixed-root persistence, strict Store Resume and orphan reporting,
+and explicit Workspace import without changing the published `v0.15.0` Package.
+No YouTube or EuroSkat integration, ranking, qualification, prize, fee, or bonus
+behavior is implemented.
 
 Issue #162 characterizes and modularizes the existing Root and Session CLI
 transport boundaries before those later layers. Compatibility facades preserve
@@ -992,7 +994,7 @@ remains pending.
 ## Active milestone: v0.16.0
 
 `v0.16.0 - Learning-ready behavior and communication data` is the active
-milestone. Issue #171 establishes its first internal foundation:
+milestone. Issues #171 and #172 establish its first internal foundations:
 
 * immutable content-addressed copies of exact strictly resumed Match Workspace
   persistence documents;
@@ -1005,22 +1007,33 @@ milestone. Issue #171 establishes its first internal foundation:
   Snapshot selection for every represented logical Match;
 * non-mutating `new_match`, duplicate, same-revision conflict, newer-revision,
   and older-revision classification;
-* a private local unredacted source boundary with no Corpus persistence, import,
-  workflow, API, CLI, browser, Schema, example, or generated-output addition.
+* one explicit fixed-root private Store with authoritative `catalog.json` and
+  immutable content-addressed Match Snapshot objects;
+* deterministic Catalog and persistence-content fingerprints, strict Catalog
+  and Snapshot reconstruction, and canonical UTF-8/LF files;
+* strict Store Resume requiring every referenced object and reporting valid
+  sorted orphan IDs without automatic repair or deletion;
+* pure revision-conflict-first Catalog import and explicit Current selection;
+* no-clobber object publication, optimistic atomic Catalog Save, and deliberate
+  object-before-Catalog conflict orphan behavior;
+* strict source-preserving Workspace-file import and persisted explicit Current-
+  selection updates;
+* a private local unredacted source boundary with no workflow, API, CLI, browser,
+  Schema, example, or generated-output addition.
 
 Match Workspaces remain editable authoritative capture sources. A correction
 creates a distinct immutable Match Snapshot; Corpus behavior never mutates the
 Workspace. Future analysis and annotation artifacts remain separate derived
 objects, and future Dataset version `2` remains a separate export.
 
-Corpus persistence and Workspace-file import, Catalog mutation and selection
-updates, deletion and garbage collection, a Player Catalog and aliases, multi-
-Match Player Snapshot history, Commentary and Response export, report import,
-strategy-teacher evidence, behavior/strategy/communication target separation,
-Dataset version `2`, communication-aware annotations, cross-game summaries,
-evaluation baselines, derived AI tags, browser workflows, and public exposure
-remain open. No production model is planned for this milestone. See
-[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
+Deletion and garbage collection, recovery UI, a Player Catalog and aliases,
+multi-Match Player Snapshot history, Commentary and Response export, report
+import, strategy-teacher evidence, behavior/strategy/communication target
+separation, Dataset version `2`, communication-aware annotations, cross-game
+summaries, evaluation baselines, derived AI tags, browser workflows, and public
+exposure remain open. No production model is planned for this milestone. See
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md)
+and [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
 
 ## Later planning milestone: v1.0.0
 
@@ -1175,7 +1188,8 @@ historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
 baseline, functional Issues #160 through #168, completed Release-preparation
 Issue #169, publication-synchronization Issue #170, the published 63-Schema,
 six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the active
-`v0.16.0` direction and Issue #171 identity/Catalog foundation, requirements
+`v0.16.0` direction and Issues #171/#172 identity, Catalog, persistence, and
+Workspace-import foundations, requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
 and unconditional exclusions. Remaining `v0.16.0` Issues and the final `v1.0.0`
 Issue split and implementation architecture remain undecided pending focused

@@ -406,7 +406,7 @@ See [Match capture contracts](docs/match_capture_contracts.md),
 [Match review and materialization](docs/match_review_and_materialization.md), and
 [Match analysis and exports](docs/match_analysis_and_exports.md).
 
-### Private Learning Corpus identity and Catalogs
+### Private Learning Corpus identity, persistence, and Workspace import
 
 Issue #171 begins the active `v0.16.0 - Learning-ready behavior and communication
 data` milestone with internal immutable Learning Corpus identity and Catalog
@@ -425,10 +425,19 @@ The separate lightweight Catalog stores Snapshot entries and exactly one explici
 current Snapshot selection per represented logical Match. It permits multiple
 revisions and same-revision content conflicts, performs non-mutating duplicate
 and revision classification, and never chooses a newest revision automatically.
-Issue #171 adds no Corpus persistence/import, Player Catalog, report import,
-Dataset version `2`, workflow, CLI, browser operation, Public API, Schema,
-example, or generated scenario. See
-[Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md).
+Issue #172 adds one explicit private Corpus root with authoritative
+`catalog.json`, immutable content-addressed Match Snapshot objects, deterministic
+Catalog fingerprints, strict full Resume, valid orphan reporting, no-clobber
+object publication, optimistic atomic Catalog Save, strict Workspace-file import,
+and persisted explicit Current-selection changes. Object publication precedes
+Catalog publication, so a Catalog conflict intentionally leaves a valid reported
+orphan that later import can reuse. No automatic latest selection, repair,
+deletion, or garbage collection occurs.
+
+Issues #171 and #172 add no Player Catalog, report import, Dataset version `2`,
+workflow, CLI, browser operation, Public API, Schema, example, or generated
+scenario. See [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md)
+and [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -987,6 +996,7 @@ Detailed documentation is split into topic-specific files:
 * [Match review and materialization](docs/match_review_and_materialization.md)
 * [Match analysis and exports](docs/match_analysis_and_exports.md)
 * [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md)
+* [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1409,11 +1419,15 @@ The active next milestone is `v0.16.0 - Learning-ready behavior and communicatio
 data`. Issue #171 establishes its private internal content-addressed Match
 Snapshot, Player Observation, observed-Game fingerprint, Snapshot-scoped
 reference, lightweight Catalog, explicit current-selection, and duplicate/
-revision-classification foundation. Corpus persistence/import, a Player Catalog,
-multi-Match Player Snapshot history, Commentary and Response export, separate
-behavior, strategy, and communication targets, Dataset version `2`,
-communication-aware annotations, cross-game behavior summaries, evaluation
-baselines, and derived AI tags remain open. No production model is included.
+revision-classification foundation. Issue #172 adds deterministic private Corpus
+persistence, strict Store Resume and orphan reporting, immutable no-clobber
+objects, optimistic atomic Catalog Save, strict Workspace-file import, and
+persisted explicit Current-selection updates. Deletion and garbage collection, a
+Player Catalog, multi-Match Player Snapshot history, Commentary and Response
+export, separate behavior, strategy, and communication targets, Dataset version
+`2`, communication-aware annotations, cross-game behavior summaries, evaluation
+baselines, derived AI tags, browser/CLI/API/Schema exposure, and model training
+remain open. No production model is included.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

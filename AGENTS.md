@@ -57,6 +57,11 @@ The project focuses on:
 * explicit private Match Decision and strict Historical Application execution,
   ephemeral revision-scoped reports, no-workflow Match materialization, and
   authenticated canonical loopback downloads
+* private internal Learning Corpus identity, immutable exact Match Snapshots,
+  closed References, lightweight Catalogs, deterministic fixed-root persistence,
+  strict Store Resume and orphan reporting, immutable object publication,
+  optimistic atomic Catalog Save, explicit Workspace import, and persisted
+  Current-selection changes
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -342,13 +347,16 @@ aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Candidate directions include canonical Game and Player
-catalogs, multi-Match Player Snapshot history, Commentary and Response export,
-separate behavior, strategy, and communication targets, Dataset version `2`,
-communication-aware annotations, cross-game behavior summaries, evaluation
-baselines, and derived AI tags kept separate from original human text. Its Issue
-split, architecture, Dataset fields, model design, and release date are not
-finalized, and no production model is planned for this milestone.
+and communication data`. Issues #171 and #172 implement private immutable Match
+Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
+persistence, strict Resume and orphan reporting, explicit Workspace import, and
+persisted explicit Current-selection changes. Candidate later directions include
+canonical Game and Player catalogs, multi-Match Player Snapshot history,
+Commentary and Response export, separate behavior, strategy, and communication
+targets, Dataset version `2`, communication-aware annotations, cross-game
+behavior summaries, evaluation baselines, and derived AI tags kept separate from
+original human text. Their Issue split, architecture, Dataset fields, model
+design, and release date are not finalized, and no production model is planned.
 
 Major completed areas include:
 
@@ -499,6 +507,14 @@ Major completed areas include:
   execution, eligible actor-relative Profile application through existing
   behavior, deterministic max-eight ephemeral reports, concurrency invalidation,
   and authenticated canonical browser downloads
+* internal Learning Corpus persistence and Store version `1` with one explicit
+  fixed root, deterministic Catalog/content fingerprints, strict Catalog and
+  Match Snapshot reconstruction, full Store Resume, and valid sorted orphan
+  reporting without automatic repair or deletion
+* pure revision-conflict-first Catalog import and Current-selection operations,
+  immutable no-clobber object publication, optimistic atomic Catalog Save,
+  strict source-preserving Workspace-file import, object-before-Catalog conflict
+  orphans, and persisted explicit selection updates
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -539,7 +555,11 @@ local downloads are also implemented, while materialization itself executes no
 workflow. Public Match API/export, Match Schema/data workflow, global Player
 Catalog, communication-aware Dataset work, database/remote deployment, YouTube
 integration, and EuroSkat integration remain absent.
-Session State itself contains no path
+Learning Corpus persistence and Workspace import are private internal operations
+with no CLI, browser, Public API, Schema, example, or generated scenario.
+Deletion, garbage collection, Player Catalog, Commentary/Response export, report
+import, Dataset version `2`, split generation, cross-game summaries, and model
+training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,
 remote browser deployment, four-player support, or claim of complete official

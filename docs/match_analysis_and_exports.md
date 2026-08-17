@@ -217,3 +217,8 @@ ephemeral process-local values under this document's unchanged behavior. Future
 report import, derived annotations, teacher evidence, and Dataset version `2`
 remain separate open objects rather than Match Snapshot or Catalog fields. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
+
+Issue #172 persists and imports only exact Workspace Match Snapshots. It imports
+no Match Analysis report, and Corpus initialization, Resume, import, and Current-
+selection changes execute no analysis or materialization workflow. See
+[Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).

@@ -406,6 +406,14 @@ def build_learning_corpus_match_snapshot_catalog_entry_v1(
 ) -> LearningCorpusMatchSnapshotCatalogEntryV1:
     """Summarizes one validated Snapshot without retaining it in the entry."""
     validate_learning_corpus_match_snapshot_v1(snapshot)
+    return _build_learning_corpus_match_snapshot_catalog_entry_from_validated_v1(
+        snapshot
+    )
+
+
+def _build_learning_corpus_match_snapshot_catalog_entry_from_validated_v1(
+    snapshot: LearningCorpusMatchSnapshotV1,
+) -> LearningCorpusMatchSnapshotCatalogEntryV1:
     workspace = snapshot.workspace
     definition = workspace.match_definition
     observed_game_count = 0

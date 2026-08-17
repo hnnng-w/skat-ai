@@ -374,9 +374,12 @@ retain one exact strictly resumed persistence document as a separate immutable
 content-addressed Learning Corpus Match Snapshot. Corpus construction never
 mutates the Workspace or changes its persistence bytes. Corrected Workspace
 content becomes a distinct Snapshot. The lightweight Corpus Catalog embeds no
-Workspace. Corpus persistence/import, Catalog mutation, report import, Dataset
-version `2`, browser workflows, and public exposure remain separate open work.
-See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
+Workspace. Issue #172 can strictly import one explicit Workspace file into a
+separate fixed-root private Corpus without mutating the source file or changing
+Workspace persistence bytes. Report import, Dataset version `2`, browser
+workflows, and public exposure remain separate open work. See
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md)
+and [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
 
 The published Package baseline is `0.15.0`; seven Root workflows, Public API and
 CLI contracts, 63 authoritative and packaged Schemas, six Session examples, and

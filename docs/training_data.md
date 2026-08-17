@@ -47,6 +47,13 @@ Workspace source facts, not version-1 model features or labels. Dataset version
 `2` and any communication-aware export remain open. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
 
+Issue #172 persists and explicitly imports those exact Match Snapshots without
+running Dataset generation or preparation. Catalog entries and orphan reporting
+do not create Records, samples, features, targets, partitions, Plans, or exports.
+Training Dataset version `1`, feature generation version `1`, and target
+`actual_card_played` are unchanged. See
+[Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:

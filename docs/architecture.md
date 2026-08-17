@@ -41,6 +41,11 @@ descriptive video or manual source metadata
     -> explicit one-Decision Position or strict Historical Application execution
     -> existing eligible relative Profile application where supported
     -> ephemeral revision-scoped reports and authenticated local downloads
+    -> immutable content-addressed Learning Corpus Match Snapshots
+    -> lightweight Catalog entries and explicit Current selections
+    -> one explicit fixed-root private Store and strict full Resume
+    -> immutable no-clobber objects and valid orphan reporting
+    -> strict source-preserving Workspace import and optimistic Catalog Save
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -376,6 +381,15 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_workspace_persistence_contracts.py` | Private Workspace document, Resume, optimistic write, and exact policy contracts. |
 | `src/skat_ai/match_workspace_persistence_codec.py` | Domain-separated fingerprints and strict nested Workspace reconstruction. |
 | `src/skat_ai/match_workspace_persistence.py` | Strict private Load and canonical optimistic same-directory atomic Save transport. |
+| `src/skat_ai/learning_corpus_identity.py` | Finite canonical JSON, object kinds, policies, and domain-separated source/reference identities. |
+| `src/skat_ai/learning_corpus_references.py` | Snapshot-scoped Player, Game, Decision, Commentary, and Response References. |
+| `src/skat_ai/learning_corpus_match_snapshot.py` | Immutable exact Workspace Match Snapshot derivation and closed-reference validation. |
+| `src/skat_ai/learning_corpus_catalog.py` | Lightweight entries, explicit Current selections, canonical Catalogs, and pure classification. |
+| `src/skat_ai/learning_corpus_persistence_contracts.py` | Private persistence, Store, Catalog Change, write, import, and persisted-selection Results plus fixed policies. |
+| `src/skat_ai/learning_corpus_persistence_codec.py` | Catalog/content fingerprints, strict Catalog and Match Snapshot reconstruction, and canonical file bytes. |
+| `src/skat_ai/learning_corpus_catalog_operations.py` | Pure conflict-first Snapshot import and explicit Current-selection changes. |
+| `src/skat_ai/learning_corpus_persistence.py` | Fixed layout initialization, strict Store Resume, orphan scan, immutable object publication, and atomic Catalog Save. |
+| `src/skat_ai/learning_corpus_import.py` | Strict Workspace-file import and persisted Current-selection orchestration. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -404,7 +418,9 @@ integration, or tournament-management behavior. See
 [Local Match Capture interface](local_match_capture_interface.md), and
 [Match Player Statistics](match_player_statistics.md), and
 [Match review and materialization](match_review_and_materialization.md), and
-[Match analysis and exports](match_analysis_and_exports.md).
+[Match analysis and exports](match_analysis_and_exports.md),
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
+and [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md).
 
 Validation is split between JSON Schema and Python validation:
 

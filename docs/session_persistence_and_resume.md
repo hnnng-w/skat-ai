@@ -28,6 +28,11 @@ documents, fingerprints, Resume, public files, CLI behavior, or versions. Match
 Workspace files are not Session files, and no materialization exists between the
 two boundaries.
 
+Issue #172 adds another separate private Learning Corpus persistence boundary.
+It does not import private Session-persistence helpers and does not change
+Session documents, canonical bytes, fingerprints, Resume, public files, CLI, or
+versions. Session files are not Learning Corpus source objects.
+
 ## Contract identity
 
 The exact constants and policies are:
