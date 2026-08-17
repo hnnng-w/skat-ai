@@ -210,3 +210,10 @@ Match API and
 Schema/data workflow, a global Player Catalog, communication-aware Dataset work,
 database or remote deployment, YouTube and EuroSkat integration, and broader
 pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.
+
+Issue #171's separate private Learning Corpus Match Snapshot and Catalog
+contracts import no Match Analysis report and execute no analysis. Reports remain
+ephemeral process-local values under this document's unchanged behavior. Future
+report import, derived annotations, teacher evidence, and Dataset version `2`
+remain separate open objects rather than Match Snapshot or Catalog fields. See
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).

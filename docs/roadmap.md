@@ -123,7 +123,9 @@ maintainer published `v0.15.0` manually at commit `ec1c154`, and Issue #170
 synchronizes publication status. Public Match
 API and Schema/data workflow, global Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
-work remain open. No YouTube or EuroSkat integration, ranking,
+work remain open. Issue #171 subsequently adds a separate private immutable
+Learning Corpus Snapshot/reference and lightweight Catalog foundation without
+changing the published `v0.15.0` Package. No YouTube or EuroSkat integration, ranking,
 qualification, prize, fee, or bonus behavior is implemented.
 
 Issue #162 characterizes and modularizes the existing Root and Session CLI
@@ -987,17 +989,38 @@ The documented `v0.6.0` issue scope is complete:
 No `v0.6.0` commit, merge, tag, publication, release, or issue-closeout action
 remains pending.
 
-## Active next planning milestone: v0.16.0
+## Active milestone: v0.16.0
 
-`v0.16.0 — Learning-ready behavior and communication data` is the active next
-planning milestone, not finalized implementation scope. Candidate areas include
-canonical Game and Player catalogs, multi-Match Player Snapshot history,
-Commentary and Response export, separate behavior, strategy, and communication
-targets, Dataset version `2`, communication-aware annotations, cross-game
-behavior summaries, evaluation baselines, and derived AI tags kept separate from
-original human text. No final Issue titles, Issue count, architecture, Dataset
-field list, model architecture, or release date is defined, and no production
-model is planned for this milestone.
+`v0.16.0 - Learning-ready behavior and communication data` is the active
+milestone. Issue #171 establishes its first internal foundation:
+
+* immutable content-addressed copies of exact strictly resumed Match Workspace
+  persistence documents;
+* exact source Workspace/content fingerprint retention and deterministic Match
+  Snapshot identity;
+* exactly three canonical stable-ID Player Observations;
+* observed-Game content fingerprints and Snapshot-scoped Game, Decision,
+  Commentary, and Response References with closed reconciliation;
+* lightweight Catalog entries with canonical order and one explicit current
+  Snapshot selection for every represented logical Match;
+* non-mutating `new_match`, duplicate, same-revision conflict, newer-revision,
+  and older-revision classification;
+* a private local unredacted source boundary with no Corpus persistence, import,
+  workflow, API, CLI, browser, Schema, example, or generated-output addition.
+
+Match Workspaces remain editable authoritative capture sources. A correction
+creates a distinct immutable Match Snapshot; Corpus behavior never mutates the
+Workspace. Future analysis and annotation artifacts remain separate derived
+objects, and future Dataset version `2` remains a separate export.
+
+Corpus persistence and Workspace-file import, Catalog mutation and selection
+updates, deletion and garbage collection, a Player Catalog and aliases, multi-
+Match Player Snapshot history, Commentary and Response export, report import,
+strategy-teacher evidence, behavior/strategy/communication target separation,
+Dataset version `2`, communication-aware annotations, cross-game summaries,
+evaluation baselines, derived AI tags, browser workflows, and public exposure
+remain open. No production model is planned for this milestone. See
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
 
 ## Later planning milestone: v1.0.0
 
@@ -1152,7 +1175,8 @@ historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
 baseline, functional Issues #160 through #168, completed Release-preparation
 Issue #169, publication-synchronization Issue #170, the published 63-Schema,
 six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the active
-`v0.16.0` planning direction, requirements
+`v0.16.0` direction and Issue #171 identity/Catalog foundation, requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
-and unconditional exclusions. The final `v0.16.0` and `v1.0.0` Issue splits and
-implementation architectures remain undecided pending focused review.
+and unconditional exclusions. Remaining `v0.16.0` Issues and the final `v1.0.0`
+Issue split and implementation architecture remain undecided pending focused
+review.

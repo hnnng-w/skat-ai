@@ -406,6 +406,30 @@ See [Match capture contracts](docs/match_capture_contracts.md),
 [Match review and materialization](docs/match_review_and_materialization.md), and
 [Match analysis and exports](docs/match_analysis_and_exports.md).
 
+### Private Learning Corpus identity and Catalogs
+
+Issue #171 begins the active `v0.16.0 - Learning-ready behavior and communication
+data` milestone with internal immutable Learning Corpus identity and Catalog
+contracts. Match Workspaces remain editable authoritative capture sources. A
+Match Snapshot retains one exact strictly resumed Workspace persistence document
+as an immutable content-addressed source copy; corrected content creates a new
+Snapshot without mutating the source Workspace.
+
+Each Snapshot derives exactly three stable-ID Player Observations plus Snapshot-
+scoped Game, Decision, Commentary, and Response References in canonical source
+order. Empty and Passed Deal Slots create no Game Reference. Original Cards,
+Commentary text, commentator identity, URLs, and timecodes remain in the private
+Workspace copy rather than being duplicated into references.
+
+The separate lightweight Catalog stores Snapshot entries and exactly one explicit
+current Snapshot selection per represented logical Match. It permits multiple
+revisions and same-revision content conflicts, performs non-mutating duplicate
+and revision classification, and never chooses a newest revision automatically.
+Issue #171 adds no Corpus persistence/import, Player Catalog, report import,
+Dataset version `2`, workflow, CLI, browser operation, Public API, Schema,
+example, or generated scenario. See
+[Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md).
+
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
 resources and works from source, Editable, Wheel, and sdist installations. Installed CLI
@@ -962,6 +986,7 @@ Detailed documentation is split into topic-specific files:
 * [Match Player Statistics](docs/match_player_statistics.md)
 * [Match review and materialization](docs/match_review_and_materialization.md)
 * [Match analysis and exports](docs/match_analysis_and_exports.md)
+* [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1262,8 +1287,8 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
-Remaining work includes Public Match API/Schema/data workflows, canonical Game
-and Player catalogs, multi-Match history, communication-aware Dataset work,
+Remaining work includes Public Match API/Schema/data workflows, a Player Catalog,
+multi-Match Player history, communication-aware Dataset work,
 database/remote deployment, and stronger information-set or policy search,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
@@ -1380,14 +1405,15 @@ architecture still require focused scope and traceability review.
 Issue #169 completed Release preparation, the maintainer published `v0.15.0`
 manually at commit `ec1c154`, and Issue #170 synchronized publication status.
 
-The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Possible directions include canonical Game and Player
-catalogs, multi-Match Player Snapshot history, Commentary and Response export,
-separate behavior, strategy, and communication targets, Dataset version `2`,
+The active next milestone is `v0.16.0 - Learning-ready behavior and communication
+data`. Issue #171 establishes its private internal content-addressed Match
+Snapshot, Player Observation, observed-Game fingerprint, Snapshot-scoped
+reference, lightweight Catalog, explicit current-selection, and duplicate/
+revision-classification foundation. Corpus persistence/import, a Player Catalog,
+multi-Match Player Snapshot history, Commentary and Response export, separate
+behavior, strategy, and communication targets, Dataset version `2`,
 communication-aware annotations, cross-game behavior summaries, evaluation
-baselines, and derived AI tags kept separate from original human text. The final
-Issue split, architecture, Dataset fields, model design, and release date remain
-undecided; no production model is included.
+baselines, and derived AI tags remain open. No production model is included.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

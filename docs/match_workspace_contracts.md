@@ -369,6 +369,15 @@ reports remain process-local and are never persisted. Public Match API, Match
 Schema/data workflow, public Match export, YouTube integration, and EuroSkat
 integration remain absent.
 
+Issue #171 keeps the Workspace as editable authoritative capture source and can
+retain one exact strictly resumed persistence document as a separate immutable
+content-addressed Learning Corpus Match Snapshot. Corpus construction never
+mutates the Workspace or changes its persistence bytes. Corrected Workspace
+content becomes a distinct Snapshot. The lightweight Corpus Catalog embeds no
+Workspace. Corpus persistence/import, Catalog mutation, report import, Dataset
+version `2`, browser workflows, and public exposure remain separate open work.
+See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
+
 The published Package baseline is `0.15.0`; seven Root workflows, Public API and
 CLI contracts, 63 authoritative and packaged Schemas, six Session examples, and
 85 generated-output scenarios remain unchanged. The maintainer published

@@ -38,6 +38,15 @@ Card remains behavior evidence and the existing version-1 target only after a
 separate Dataset workflow; Match Decision analysis does not reinterpret it as an
 optimal label. See [Match analysis and exports](match_analysis_and_exports.md).
 
+Issue #171 adds a separate private Learning Corpus identity boundary. An
+immutable Match Snapshot retains one exact validated Workspace source copy and
+derives Snapshot-scoped Game, Decision, Commentary, and Response References.
+This does not create a Training Dataset record, feature, target, partition,
+sample, Plan, or export. Commentary text and Response Links remain original
+Workspace source facts, not version-1 model features or labels. Dataset version
+`2` and any communication-aware export remain open. See
+[Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md).
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:

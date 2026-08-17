@@ -147,6 +147,10 @@ The project focuses on:
   execution, existing-behavior eligible Profile application, no-workflow Match
   materialization, deterministic max-eight ephemeral reports, and authenticated
   canonical local downloads
+* internal immutable Learning Corpus identity and Catalog version-1 contracts
+  with exact strictly resumed Workspace Snapshots, content-addressed revisions,
+  Player Observations, Snapshot-scoped Game/Decision/Commentary/Response
+  References, explicit current selections, and duplicate/revision classification
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1058,6 +1062,11 @@ Implemented:
   * exact 36-Slot status/count reconciliation, Passed Deals, Commentary sidecars,
     and complete existing fixed-list construction plus aggregation without
     workflow execution
+* `learning_corpus_identity.py`, `learning_corpus_references.py`,
+  `learning_corpus_match_snapshot.py`, and `learning_corpus_catalog.py`
+  * private canonical identity domains, exact immutable Workspace source copies,
+    closed Snapshot-scoped references, lightweight Catalog entries, explicit
+    current selections, and non-mutating duplicate/revision classification
 
 ### Interactive Session contracts
 
@@ -1306,6 +1315,7 @@ Main documentation files:
 * `docs/match_player_statistics.md`
 * `docs/match_review_and_materialization.md`
 * `docs/match_analysis_and_exports.md`
+* `docs/learning_corpus_identity_and_catalogs.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1740,6 +1750,9 @@ Completed implementation scope:
 * deterministic SHA-256 revision-scoped process-local reports capped at eight,
   mutation/reload/shutdown invalidation, concurrent-change discard without retry,
   and authenticated canonical Root/Historical/Training/list downloads
+* internal Learning Corpus identity version `1`, Match Snapshot version `1`,
+  Reference version `1`, Catalog version `1`, and Snapshot Classification version
+  `1`, with immutable exact Workspace copies and no persistence or public surface
 
 ## Current high-priority limitations
 
@@ -1817,38 +1830,26 @@ Completed implementation scope:
   deployment, YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
+* Issue #171 provides only private Learning Corpus source identity, exact Match
+  Snapshots, closed references, Catalog entries/current selections, and
+  classification. Corpus persistence/import, Catalog mutation, Player history,
+  Commentary export, report import, teacher evidence, Dataset version `2`,
+  summaries, browser workflows, and public exposure remain open.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Run a focused repository audit for the active next planning milestone,
-`v0.16.0 — Learning-ready behavior and communication data`. The audit should
-define decision boundaries and evidence needed for planning without selecting the
-final architecture, final Issue titles or count, Dataset-v2 fields,
-communication taxonomy, target labels, model architecture, production training
-workflow, or Release date.
+Continue the active `v0.16.0 - Learning-ready behavior and communication data`
+milestone from Issue #171's internal identity and Catalog foundation. The next
+focused decision should keep immutable imported Workspace Snapshots separate from
+future derived artifacts and Dataset exports while defining one currently open
+boundary such as Corpus persistence/import, Player history, or original
+Commentary/Response export.
 
-The audit should cover:
-
-* canonical Game identity and Game Catalog boundaries;
-* stable Player identity and Player Catalog boundaries;
-* multi-Match Player Statistics history and temporal Snapshot selection;
-* Commentary and Response export while preserving original free text;
-* separation of behavior, strategy, and communication targets;
-* Dataset version `2` and compatibility with existing Dataset split policies;
-* communication-aware annotations and partner-signal/response relationships;
-* derived AI tags as artifacts separate from original human text;
-* cross-game behavior summaries;
-* Known-player and unseen-player evaluation boundaries;
-* annotation Provenance and Confidence boundaries;
-* privacy and redaction requirements;
-* source-of-truth decisions across captured, derived, and curated data;
-* local-file, database, and future remote-storage boundaries;
-* Public API, Schema, CLI, and browser boundaries.
-
-The audit should end with one closed provisional Issue sequence for `v0.16.0`,
-while leaving the final Issue decomposition and implementation architecture
-undecided until the audit evidence is complete. No production model is planned.
+Do not infer Catalog mutation, automatic newest selection, fuzzy Player merging,
+cross-revision Decision lineage, report import, teacher labels, Dataset version
+`2`, browser workflow, or public exposure from Issue #171. Those areas require
+separate acceptance criteria. No production model is planned.
 
 ## Open future topics
 
