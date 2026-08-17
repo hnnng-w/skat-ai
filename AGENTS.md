@@ -62,6 +62,9 @@ The project focuses on:
   strict Store Resume and orphan reporting, immutable object publication,
   optimistic atomic Catalog Save, explicit Workspace import, and persisted
   Current-selection changes
+* private internal Current-Snapshot-only minimized human Commentary and linked
+  Response Evidence with exact source fingerprints, factual observed behavior,
+  reconciled collection identity, and canonical in-memory export
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -347,15 +350,16 @@ aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Issues #171 through #173 implement private immutable Match
+and communication data`. Issues #171 through #174 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
 persisted explicit Current-selection changes, plus a derived Current-Snapshot
 Player Catalog, exact alias conflicts, retained Statistics history, and time-safe
-selection. Candidate later directions include canonical Game catalogs, persisted
+selection, plus minimized exact human Commentary and linked Response Evidence
+export. Candidate later directions include canonical Game catalogs, persisted
 Player aliases/assertions, merge/split operations, and all-revision Player views,
-Commentary and Response export, separate behavior, strategy, and communication
-targets, Dataset version `2`, communication-aware annotations, cross-game
+Human Evidence persistence/transport, separate behavior, strategy, and
+communication targets, Dataset version `2`, communication-aware annotations, cross-game
 behavior summaries, evaluation baselines, and derived AI tags kept separate from
 original human text. Their Issue split, architecture, Dataset fields, model
 design, and release date are not finalized, and no production model is planned.
@@ -521,6 +525,10 @@ Major completed areas include:
   explicit Current Match Snapshots only, with exact stable-ID aggregation, label
   history, platform aliases/conflicts, retained exact Statistics history, and
   strict latest-unambiguous or explicit-observation selection
+* deterministic private Learning Corpus Human Evidence version `1` from explicit
+  Current Match Snapshots only, with exact original text and commentator identity,
+  observed subject/response Cards and timecodes, noncausal links, minimized Game
+  context, source/evidence/collection/export identities, and canonical bytes
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -564,10 +572,11 @@ integration, and EuroSkat integration remain absent.
 Learning Corpus persistence and Workspace import are private internal operations
 with no CLI, browser, Public API, Schema, example, or generated scenario.
 The derived Player Catalog and Statistics history are also private and
-non-persisted. Deletion, garbage collection, Player Catalog persistence,
+non-persisted. Human Evidence is private and non-persisted as well. Deletion,
+garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
-Commentary/Response export, report import, Dataset version `2`, split generation,
-cross-game summaries, and model training remain open. Session State itself contains no path
+Human Evidence browser/CLI/API transport, report import, Dataset version `2`,
+split generation, cross-game summaries, and model training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,
 remote browser deployment, four-player support, or claim of complete official

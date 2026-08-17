@@ -406,7 +406,7 @@ See [Match capture contracts](docs/match_capture_contracts.md),
 [Match review and materialization](docs/match_review_and_materialization.md), and
 [Match analysis and exports](docs/match_analysis_and_exports.md).
 
-### Private Learning Corpus identity, persistence, Player Catalog, and Statistics history
+### Private Learning Corpus identity, persistence, Player history, and Human Evidence
 
 Issue #171 begins the active `v0.16.0 - Learning-ready behavior and communication
 data` milestone with internal immutable Learning Corpus identity and Catalog
@@ -442,11 +442,22 @@ latest-unambiguous or explicit-observation as-of selection. Non-current revision
 and orphans do not contribute. The Player Catalog is not persisted, performs no
 Player merge or Profile derivation, and changes no Issue #171/#172 bytes.
 
-Issues #171 through #173 add no report import, Dataset version `2`, workflow,
+Issue #174 adds a separate deterministic minimized Human Evidence collection and
+canonical in-memory export from those same explicit Current Match Snapshots. It
+preserves exact original human Commentary, commentator identity, subject observed
+Card, explicitly linked later Response behavior, source metadata, and timecodes,
+while excluding private deals, unrelated Cards, Statistics, Profiles, analysis,
+recommendations, and derived tags. A Response Link remains a caller association,
+not a causal claim, and an observed Card remains behavior rather than an optimal
+label. Human Evidence is private, non-persisted, and isolated from Match Analysis,
+Coaching, and Training Dataset version `1`.
+
+Issues #171 through #174 add no report import, Dataset version `2`, workflow,
 CLI, browser operation, Public API, Schema, example, or generated scenario. See
 [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md),
-and [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md).
+[Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md),
+and [Learning Corpus human Commentary and Response evidence](docs/learning_corpus_human_commentary_and_response_evidence.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -1007,6 +1018,7 @@ Detailed documentation is split into topic-specific files:
 * [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md)
 * [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md)
 * [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md)
+* [Learning Corpus human Commentary and Response evidence](docs/learning_corpus_human_commentary_and_response_evidence.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1435,10 +1447,12 @@ persistence, strict Store Resume and orphan reporting, immutable no-clobber
 objects, optimistic atomic Catalog Save, strict Workspace-file import, and
 persisted explicit Current-selection updates. Issue #173 adds the private
 derived Current-Snapshot-only Player Catalog, exact alias conflicts, retained
-multi-Match Statistics history, and strict time-safe as-of selection. Deletion
-and garbage collection, persisted alias assertions, Player merge/split operations,
-all-revision Player views, Commentary and Response export, separate behavior,
-strategy, and communication targets, Dataset version
+multi-Match Statistics history, and strict time-safe as-of selection. Issue #174
+adds minimized exact human Commentary and linked Response evidence from Current
+Snapshots only, plus deterministic canonical in-memory export. Deletion and
+garbage collection, persisted alias assertions, Player merge/split operations,
+all-revision Player views, Human Evidence persistence or transport, separate
+behavior, strategy, and communication targets, Dataset version
 `2`, communication-aware annotations, cross-game behavior summaries, evaluation
 baselines, derived AI tags, browser/CLI/API/Schema exposure, and model training
 remain open. No production model is included.

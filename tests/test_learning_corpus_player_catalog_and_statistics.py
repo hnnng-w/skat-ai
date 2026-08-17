@@ -17,6 +17,7 @@ from test_opponent_statistics import (
 import skat_ai
 import skat_ai.api.v1 as api_v1
 import skat_ai.cli as cli
+import skat_ai.learning_corpus_current_snapshots as current_snapshots_module
 import skat_ai.learning_corpus_player_catalog as player_catalog_module
 import skat_ai.learning_corpus_player_statistics as player_statistics_module
 import skat_ai.match_player_statistics_context as context_module
@@ -1352,7 +1353,7 @@ def test_build_is_in_memory_bounded_and_does_not_mutate_source(
     catalog_fingerprint_calls = 0
     original_match_builder = player_catalog_module._build_player_match_observation_v1
     original_store_validation = LearningCorpusStoreResumeResultV1._validate_structure
-    original_document_resume = player_catalog_module.resume_learning_corpus_catalog_document_v1
+    original_document_resume = current_snapshots_module.resume_learning_corpus_catalog_document_v1
     original_statistics_prepare = player_statistics_module._prepare_statistics_record_v1
     original_identifier = player_catalog_module._build_identifier
 
@@ -1393,7 +1394,7 @@ def test_build_is_in_memory_bounded_and_does_not_mutate_source(
         count_store_validation,
     )
     monkeypatch.setattr(
-        player_catalog_module,
+        current_snapshots_module,
         "resume_learning_corpus_catalog_document_v1",
         count_document_resume,
     )
@@ -1432,6 +1433,7 @@ def test_new_modules_have_no_cli_browser_analysis_dataset_or_api_imports() -> No
         "skat_ai.training_dataset",
     )
     paths = (
+        PROJECT_ROOT / "src/skat_ai/learning_corpus_current_snapshots.py",
         PROJECT_ROOT / "src/skat_ai/learning_corpus_player_catalog.py",
         PROJECT_ROOT / "src/skat_ai/learning_corpus_player_aliases.py",
         PROJECT_ROOT / "src/skat_ai/learning_corpus_player_statistics.py",

@@ -5,6 +5,8 @@ multi-Match Statistics history to the active
 `v0.16.0 - Learning-ready behavior and communication data` milestone. The
 Catalog is deterministic derived data. It is not persisted, does not change
 `catalog.json`, and does not change Match Snapshot object files.
+Issue #174 reuses the same narrow Current-Snapshot resolver for a separate Human
+Evidence builder; it does not consume or change this Player Catalog.
 
 ## Source boundary
 
@@ -244,7 +246,11 @@ generated outputs, and Training Dataset version `1` target
 `actual_card_played` remain unchanged.
 
 Persisted aliases/assertions, Player merge/split operations, Catalog persistence,
-all-revision Player views, canonical labels, Commentary/Response evidence export,
-report import, strategy-teacher evidence, Dataset version `2`, split generation,
-cross-game summaries, browser/CLI/API/Schema exposure, and model training remain
-open.
+all-revision Player views, canonical labels, Human Evidence persistence or
+transport, report import, strategy-teacher evidence, Dataset version `2`, split
+generation, cross-game summaries, browser/CLI/API/Schema exposure, and model
+training remain open.
+
+The private Current-Snapshot-only minimized Commentary/Response Evidence export
+itself is implemented separately by Issue #174. See
+[Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).

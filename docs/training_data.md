@@ -62,6 +62,15 @@ Dataset version `1`. Feature generation remains version `1`, target remains
 remain open. See
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
 
+Issue #174 separately exports minimized exact human Commentary and explicitly
+linked observed Response behavior from Current Match Snapshots. The observed
+subject and response Cards remain factual behavior evidence, not optimal labels.
+Human text, commentator identity, Response associations, media metadata, and
+timecodes do not enter Dataset version `1` Records, metadata, Features, Targets,
+labels, samples, partitions, Plans, audits, or evaluation. Feature generation
+remains version `1` and the only version-1 target remains `actual_card_played`.
+See [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:

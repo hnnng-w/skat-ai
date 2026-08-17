@@ -276,3 +276,11 @@ Match export. The published Package baseline is `0.15.0`; seven Root workflows,
 63 authoritative and packaged Schemas, six Session examples, and 85 generated-
 output scenarios remain unchanged. The maintainer published `v0.15.0` manually
 at commit `ec1c154`, and Issue #170 synchronizes publication status.
+
+Issue #174 separately derives a private minimized Current-Snapshot-only Human
+Evidence collection and canonical in-memory export from exact retained Commentary
+and explicitly linked Response Decisions. It preserves original text,
+commentator identity, observed subject/response Cards, source metadata, and
+timecodes without changing this source contract or allowing Commentary to affect
+analysis, Coaching, Profiles, or Training Dataset version `1`. See
+[Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).

@@ -226,3 +226,10 @@ selection changes execute no analysis or materialization workflow. See
 Issue #173 derives only Player, exact alias, and Match-bound Statistics history
 from explicit Current Match Snapshots. It imports no report and executes no
 analysis. See [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
+
+Issue #174 derives a separate minimized exact human Commentary and linked
+Response Evidence export from explicit Current Match Snapshots. Building or
+serializing that export executes no Match Analysis, Search, Historical Review,
+Replay Coaching, Profile application, or Training Dataset workflow and changes no
+report or Application input. See
+[Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).

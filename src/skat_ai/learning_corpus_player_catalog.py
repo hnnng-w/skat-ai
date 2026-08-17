@@ -4,14 +4,14 @@ import hashlib
 from dataclasses import dataclass
 from typing import Any
 
+from skat_ai.learning_corpus_current_snapshots import (
+    resolve_learning_corpus_current_match_snapshots_v1,
+)
 from skat_ai.learning_corpus_identity import (
     LEARNING_CORPUS_PLAYER_IDENTITY_POLICY as _LEARNING_CORPUS_PLAYER_IDENTITY_POLICY,
 )
 from skat_ai.learning_corpus_identity import (
     build_learning_corpus_canonical_json_bytes_v1,
-)
-from skat_ai.learning_corpus_persistence_codec import (
-    resume_learning_corpus_catalog_document_v1,
 )
 from skat_ai.learning_corpus_persistence_contracts import (
     LearningCorpusStoreResumeResultV1,
@@ -683,18 +683,9 @@ def build_learning_corpus_player_catalog_v1(
     store: LearningCorpusStoreResumeResultV1,
 ) -> LearningCorpusPlayerCatalogV1:
     """Derives one deterministic current-Snapshot Player Catalog without I/O."""
-    if type(store) is not LearningCorpusStoreResumeResultV1:
-        raise ValueError("store must be an exact LearningCorpusStoreResumeResultV1.")
-    resumed_document = resume_learning_corpus_catalog_document_v1(store.document.to_dict())
-    if resumed_document != store.document:
-        raise ValueError("Store Catalog document must equal its strict reconstruction.")
-    store._validate_structure(validate_snapshots=True)
+    current_snapshots = resolve_learning_corpus_current_match_snapshots_v1(store)
     source_document = store.document
     source_catalog = source_document.catalog
-    snapshots_by_id = {snapshot.match_snapshot_id: snapshot for snapshot in store.match_snapshots}
-    current_snapshots = tuple(
-        snapshots_by_id[selection.match_snapshot_id] for selection in source_catalog.current_matches
-    )
 
     grouped_matches: dict[str, list[LearningCorpusPlayerMatchObservationV1]] = {}
     grouped_aliases: dict[str, list[LearningCorpusPlatformAliasObservationV1]] = {}

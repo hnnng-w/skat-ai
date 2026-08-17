@@ -88,6 +88,15 @@ content SHA-256 fingerprints provide persistence integrity and optimistic-
 conflict identity, not field-level provenance or authorship. Private persisted
 content receives no public redaction and stores no Session Provenance ledger.
 
+Issue #174 adds a separate private, non-persisted Human Evidence export from
+explicit Current Match Snapshots. Exact caller-authored Commentary text and
+Commentator identities remain validated source copies; observed subject and
+response Cards, seats, roles, indexes, and timecodes remain factual source or
+structural values. No derived communication tag, tactical interpretation,
+Confidence, or Provenance ledger is added, and Human Evidence does not influence
+analysis or Training Dataset version `1`. Future derived annotations must remain
+separate artifacts referencing immutable Commentary Evidence IDs.
+
 ## Sidecar design
 
 Provenance is an immutable sidecar ledger for a JSON-compatible document. It

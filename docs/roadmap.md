@@ -123,11 +123,12 @@ maintainer published `v0.15.0` manually at commit `ec1c154`, and Issue #170
 synchronizes publication status. Public Match
 API and Schema/data workflow, public/persisted Player Catalog,
 communication-aware Dataset work, database/remote deployment, and broader pre-v1
-work remain open. Issues #171 through #173 subsequently add separate private
+work remain open. Issues #171 through #174 subsequently add separate private
 immutable Learning Corpus Snapshot/reference and lightweight Catalog contracts,
 deterministic fixed-root persistence, strict Store Resume and orphan reporting,
 explicit Workspace import, and a derived Current-Snapshot Player/Statistics view
-without changing the published `v0.15.0` Package.
+plus minimized Human Commentary/Response evidence export without changing the
+published `v0.15.0` Package.
 No YouTube or EuroSkat integration, ranking, qualification, prize, fee, or bonus
 behavior is implemented.
 
@@ -995,7 +996,7 @@ remains pending.
 ## Active milestone: v0.16.0
 
 `v0.16.0 - Learning-ready behavior and communication data` is the active
-milestone. Issues #171 through #173 establish its first internal foundations:
+milestone. Issues #171 through #174 establish its first internal foundations:
 
 * immutable content-addressed copies of exact strictly resumed Match Workspace
   persistence documents;
@@ -1025,6 +1026,16 @@ milestone. Issues #171 through #173 establish its first internal foundations:
   source aliases, and immutable exact alias conflict reporting without merge;
 * complete Match-bound exact Statistics history with shared source-Match temporal
   status and strict latest-unambiguous or explicit-observation as-of selection;
+* deterministic minimized Human Commentary and explicitly linked Response
+  Evidence over explicit Current Match Snapshots only;
+* exact original text, commentator identity, subject/response observed Cards,
+  source metadata, and nullable timecodes without normalization or interpretation;
+* content-separated Commentary/Response fingerprints, Snapshot-scoped Evidence
+  IDs, complete child relationships, reconciled collection identity, and
+  canonical in-memory export bytes;
+* exclusion of retained non-current revisions, orphan objects, private deals,
+  unrelated Cards, Statistics, Profiles, analysis, Coaching, Dataset version `1`,
+  and derived tags;
 * a private local unredacted source boundary with no workflow, API, CLI, browser,
   Schema, example, or generated-output addition.
 
@@ -1035,14 +1046,16 @@ objects, and future Dataset version `2` remains a separate export.
 
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
-Commentary and Response export, report import, strategy-teacher evidence,
+Human Evidence persistence and browser/CLI/API transport, report import,
+strategy-teacher evidence,
 behavior/strategy/communication target
 separation, Dataset version `2`, communication-aware annotations, cross-game
 summaries, evaluation baselines, derived AI tags, browser workflows, and public
 exposure remain open. No production model is planned for this milestone. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
-and [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
+[Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
+and [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
 
 ## Later planning milestone: v1.0.0
 
@@ -1197,8 +1210,9 @@ historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
 baseline, functional Issues #160 through #168, completed Release-preparation
 Issue #169, publication-synchronization Issue #170, the published 63-Schema,
 six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the active
-`v0.16.0` direction and Issues #171-#173 identity, Catalog, persistence,
-Workspace-import, Player Catalog, and Statistics-history foundations, requirements
+`v0.16.0` direction and Issues #171-#174 identity, Catalog, persistence,
+Workspace-import, Player Catalog, Statistics-history, and Human Evidence
+foundations, requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
 and unconditional exclusions. Remaining `v0.16.0` Issues and the final `v1.0.0`
 Issue split and implementation architecture remain undecided pending focused

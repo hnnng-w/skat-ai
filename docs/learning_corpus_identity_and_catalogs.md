@@ -17,6 +17,12 @@ Statistics history from only the explicit Current selections. It changes no
 Issue #171 identity or Catalog contract. See
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
 
+Issue #174 derives a separate non-persisted minimized Human Commentary and linked
+Response Evidence collection and canonical in-memory export from the same explicit
+Current selections. It changes no Issue #171 identity, Reference, Snapshot, or
+Catalog contract. See
+[Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
+
 ## Source-of-truth boundary
 
 The exact source and derived-data relationships are:
@@ -42,6 +48,9 @@ future analysis and annotation artifacts:
 
 future Dataset v2:
     separate export
+
+Human Commentary and Response Evidence:
+    separate minimized Current-Snapshot-derived export
 ```
 
 Corpus behavior never mutates a source Workspace. A corrected Workspace
@@ -317,8 +326,9 @@ current selection, and every selection references an entry for that same Match.
 The Catalog never infers the newest revision or changes a selection. Empty
 Catalog creation produces revision zero with no entries or selections. Issue
 #171 defines no Catalog mutation, persistence, deletion, or garbage collection.
-The explicit Current selections are the complete source set for Issue #173;
-non-current entries and orphan objects do not enter its derived Player view.
+The explicit Current selections are the complete source set for Issues #173 and
+#174; non-current entries and orphan objects do not enter the derived Player or
+Human Evidence views.
 
 ## Snapshot classification
 
@@ -361,10 +371,11 @@ publication, and optimistic Catalog Save. Issue #173 adds a derived
 Current-Snapshot Player Catalog, exact observed aliases/conflicts, and retained
 time-safe multi-Match Statistics history. Player Catalog persistence, persisted
 alias assertions, merge/split operations, all-revision views, deletion, garbage
-collection, report import, Commentary export, strategy-teacher evidence, derived tags,
-Dataset version `2`, split generation, cross-game summaries, browser workflows,
-CLI, Public API, Schemas, examples, generated scenarios, and model training remain
-open.
+collection, and report import remain open. Issue #174 supplies the separate
+private minimized Commentary/Response Evidence collection and in-memory export.
+Its persistence, browser/CLI/API/Schema transport, derived tags, strategy-teacher
+evidence, Dataset version `2` integration, split generation, cross-game summaries,
+examples, generated scenarios, and model training remain open.
 
 Package version remains `0.15.0`. Public API contract version `1`, the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

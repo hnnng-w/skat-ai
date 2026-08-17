@@ -392,9 +392,13 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_corpus_catalog_operations.py` | Pure conflict-first Snapshot import and explicit Current-selection changes. |
 | `src/skat_ai/learning_corpus_persistence.py` | Fixed layout initialization, strict Store Resume, orphan scan, immutable object publication, and atomic Catalog Save. |
 | `src/skat_ai/learning_corpus_import.py` | Strict Workspace-file import and persisted Current-selection orchestration. |
+| `src/skat_ai/learning_corpus_current_snapshots.py` | Shared strict in-memory resolution of explicit Current Match Snapshots for derived Corpus views. |
 | `src/skat_ai/learning_corpus_player_catalog.py` | Derived Current-Snapshot Player observations, exact stable-ID entries, reconciled counts, and one deterministic Catalog fingerprint. |
 | `src/skat_ai/learning_corpus_player_aliases.py` | Exact participant/source alias observations, conflict reporting, and pure resolution without merge. |
 | `src/skat_ai/learning_corpus_player_statistics.py` | Exact Statistics fingerprints/history and strict latest-unambiguous or explicit-observation as-of selection without Profile derivation. |
+| `src/skat_ai/learning_corpus_human_evidence.py` | Minimized Human Evidence contracts, exact source fingerprints, Snapshot-scoped IDs, collection reconciliation, and privacy policies. |
+| `src/skat_ai/learning_corpus_human_evidence_builder.py` | One-pass Current-Snapshot source/reference reconciliation and factual Commentary/Response behavior derivation without analysis or I/O. |
+| `src/skat_ai/learning_corpus_human_evidence_export.py` | Builder-independent private export identity and canonical in-memory JSON bytes. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -426,7 +430,8 @@ integration, or tournament-management behavior. See
 [Match analysis and exports](match_analysis_and_exports.md),
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
-and [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md).
+[Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
+and [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md).
 
 Validation is split between JSON Schema and Python validation:
 
