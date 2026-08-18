@@ -292,11 +292,27 @@ storage, authenticated-authorship, or external-request claim. Fingerprints are
 deterministic identities, not secrecy controls.
 
 Issue #176 adds no persistence file, Corpus object kind, Catalog field, Current-
-selection operation, Train/Validation/Test partition, split Plan, leakage audit,
-task-specific Feature or Target builder, derived communication tag, Confidence,
-evaluation, cross-game summary, browser, CLI, Public API, Root workflow, Schema,
-example, generated scenario, or model training. A later partition builder must
-treat one `match_snapshot_id` as an indivisible unit.
+selection operation, task-specific Feature or Target builder, derived
+communication tag, Confidence, evaluation, cross-game summary, browser, CLI,
+Public API, Root workflow, Schema, example, generated scenario, or model training.
+
+Issue #177 adds a separate private preparation layer over this unchanged
+unpartitioned source. It keeps each Match Snapshot indivisible and provides two
+fixed deterministic modes:
+
+* `known_player` uses strict temporal Match blocks, keeps equal timestamps
+  together, and requires every Validation/Test Player to have earlier Train
+  context;
+* `unseen_player` assigns transitive Player-connected Match components and keeps
+  Players disjoint across Train, Validation, and Test.
+
+Both modes use one exact integer Record-primary and Match-secondary objective,
+return complete or explicitly unavailable Plans, and require compliant closure,
+temporal-safety, and mode-specific leakage audits. Complete Plans produce index-
+only lossless partition views and canonical path-free exports. This layer adds no
+task, label, persisted split, public workflow, or Training Dataset version `1`
+change. See
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md).
 
 Package version remains `0.15.0`; Python remains `>=3.13`; Public API contract
 version remains `1`; seven Root workflows, one Console Script, 63 authoritative

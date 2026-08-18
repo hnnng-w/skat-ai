@@ -359,7 +359,7 @@ aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Issues #171 through #176 implement private immutable Match
+and communication data`. Issues #171 through #177 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
 persisted explicit Current-selection changes, plus a derived Current-Snapshot
@@ -369,12 +369,14 @@ export, plus exact executed Decision Report Strategy Teacher Evidence with
 Current-Snapshot reconciliation and canonical export, plus one Current-Snapshot-
 only unpartitioned task-neutral Learning Dataset version `2` with separate
 Decision State, observed behavior, Player Context, Strategy Teacher, Commentary,
-and linked Response families. Candidate later directions
+and linked Response families, plus Match-group-safe deterministic partition
+preparation, temporal Known-player and component-based unseen-player algorithms,
+leakage audits, lossless partition indexes, and canonical export. Candidate
+later directions
 include canonical Game catalogs, persisted
 Player aliases/assertions, merge/split operations, and all-revision Player views,
 Human and Strategy Teacher Evidence persistence/transport, separate behavior and
-communication task builders, Historical Report import, Dataset-v2 persistence
-and partition preparation,
+communication task builders, Historical Report import, Dataset-v2 persistence,
 communication-aware annotations, cross-game
 behavior summaries, evaluation baselines, and derived AI tags kept separate from
 original human text. Their Issue split, architecture, Dataset fields, model
@@ -603,7 +605,7 @@ as well. Deletion,
 garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
 Human or Strategy Teacher Evidence browser/CLI/API transport, Historical Report
-import, Dataset-v2 persistence, partition and task builders, split generation,
+import, Dataset-v2 persistence, task builders, persisted partition artifacts,
 cross-game summaries, and model training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,

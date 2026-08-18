@@ -253,8 +253,8 @@ generated outputs, and Training Dataset version `1` target
 Persisted aliases/assertions, Player merge/split operations, Catalog persistence,
 all-revision Player views, canonical labels, Human Evidence persistence or
 transport, Strategy Teacher Evidence persistence or transport, automatic Report
-capture, Historical Report import, Dataset-v2 persistence and task/partition
-builders, split generation,
+capture, Historical Report import, Dataset-v2 persistence and task builders,
+persisted split artifacts,
 cross-game summaries, browser/CLI/API/Schema exposure, and model training remain
 open.
 

@@ -202,5 +202,5 @@ target `actual_card_played` remain unchanged.
 
 Strategy Teacher persistence, Corpus object storage, browser/CLI transport,
 Public API, Schema, Historical Report import, Replay Coaching evidence import,
-Teacher consensus/ranking, Dataset-v2 persistence and task/partition builders,
+Teacher consensus/ranking, Dataset-v2 persistence and task builders, persisted
 splits, cross-game summaries, and model training remain open.

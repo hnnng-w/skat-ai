@@ -365,7 +365,7 @@ preparation without product behavior changes. The maintainer published the
 Release manually at commit `ec1c154`, and Issue #170 synchronizes publication
 status. Public Match
 contracts, Match Schema and JSON/data workflow, a public/persisted Player Catalog,
-public or task-specific communication Dataset workflows, Dataset-v2 persistence
-and partition preparation, database/remote deployment, and broader pre-v1 work
+public or task-specific communication Dataset workflows, Dataset-v2 persistence,
+database/remote deployment, and broader pre-v1 work
 remain open. YouTube and EuroSkat integration also remain absent. Persistent
 Workspace reports are intentionally not added.

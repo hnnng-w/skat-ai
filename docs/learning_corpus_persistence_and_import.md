@@ -331,7 +331,7 @@ persistence, persisted aliases/assertions, merge/split operations, all-revision
 history browsing or named selections beyond Current,
 Human or Strategy Teacher Evidence persistence or transport, automatic Match
 Analysis Report capture, Historical Report import, Derived Tags, Dataset-v2
-persistence, task builders, partitions/splits, cross-game summaries, browser workflows, CLI,
+persistence, task builders, persisted splits, cross-game summaries, browser workflows, CLI,
 Public API, Schema, examples, generated scenarios, and model training remain
 open.
 

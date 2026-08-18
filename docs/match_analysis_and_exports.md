@@ -208,7 +208,7 @@ Issue #168 completes the functional local Match Capture scope planned for
 preparation, and Issue #170 records the subsequent manual publication. Public
 Match API and
 Schema/data workflow, a public/persisted Player Catalog, public/task-specific
-Dataset workflows and Dataset-v2 persistence/partitioning,
+Dataset workflows and Dataset-v2 persistence,
 database or remote deployment, YouTube and EuroSkat integration, and broader
 pre-v1 rules, Search, Coaching, Settlement, and Provenance work remain open.
 

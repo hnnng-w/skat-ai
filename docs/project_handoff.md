@@ -1103,6 +1103,14 @@ Implemented:
   `learning_dataset_v2_export.py`
   * private unpartitioned task-neutral Decision records, safe/skipped coverage,
     cached Player Context, exact evidence joins/pools, and canonical export
+* `learning_dataset_v2_partition_contracts.py`,
+  `learning_dataset_v2_partition_identity.py`,
+  `learning_dataset_v2_partition_algorithms.py`,
+  `learning_dataset_v2_partition_audit.py`,
+  `learning_dataset_v2_partition_preparation.py`, and
+  `learning_dataset_v2_partition_export.py`
+  * private Match-group-safe Known-player and unseen-player Plans, exact balance
+    identities, leakage audits, lossless partition indexes, and canonical export
 
 ### Interactive Session contracts
 
@@ -1228,6 +1236,12 @@ Implemented:
 * `learning_dataset_v2_contracts.py`
 * `learning_dataset_v2_builder.py`
 * `learning_dataset_v2_export.py`
+* `learning_dataset_v2_partition_contracts.py`
+* `learning_dataset_v2_partition_identity.py`
+* `learning_dataset_v2_partition_algorithms.py`
+* `learning_dataset_v2_partition_audit.py`
+* `learning_dataset_v2_partition_preparation.py`
+* `learning_dataset_v2_partition_export.py`
 * `dataset_partition_policy.py`
 * `dataset_partition_audit.py`
 * `training_dataset_preparation.py`
@@ -1892,44 +1906,45 @@ Completed implementation scope:
   the functional `v0.15.0` local milestone. Reports are ephemeral and Commentary
   does not enter Coaching. Public Match API/export, Match Schema/data workflow,
   public/persisted Player Catalog, public/task-specific communication Dataset
-  workflows, Dataset-v2 persistence/partitioning, database/remote deployment,
+  workflows, Dataset-v2 persistence/task builders, database/remote deployment,
   YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
-* Issues #171 through #176 provide private Learning Corpus source identity, exact
+* Issues #171 through #177 provide private Learning Corpus source identity, exact
   Match Snapshots, closed references, Catalog entries/current selections,
   deterministic fixed-root persistence, strict Store Resume and orphan reporting,
   pure Catalog mutation, strict Workspace import, and persisted selection
   changes, plus a derived exact Player Catalog and time-safe Statistics history
   and separate minimized human Commentary/linked Response and method-bound
   Strategy Teacher Evidence exports plus one Current-only unpartitioned,
-  task-neutral Learning Dataset version `2`. Strategy Teacher sources accept only exact
+  task-neutral Learning Dataset version `2` plus Match-group-safe deterministic
+  partition preparation and leakage audits. Strategy Teacher sources accept only exact
   executed Decision Analysis Reports, rebuild no-execution Requests, validate
   retained Results, and make no optimality or preferred-Teacher claim.
   Deletion, garbage collection, recovery UI, persisted aliases/assertions,
   merge/split operations, all-revision Player views, Human Evidence persistence
   and transport, Strategy Teacher persistence and transport, Historical Report
-  import, Dataset-v2 persistence, partition/task builders, summaries, browser
-  workflows, and public exposure remain open.
+  import, Dataset-v2 persistence, task builders, persisted partition artifacts,
+  summaries, browser workflows, and public exposure remain open.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
 Continue the active `v0.16.0 - Learning-ready behavior and communication data`
-milestone from Issues #171 through #176's internal identity, Catalog,
+milestone from Issues #171 through #177's internal identity, Catalog,
 persistence, Workspace-import, derived Player-history, Human Evidence, and
 Strategy Teacher Evidence and Learning Dataset-v2 export foundations. The next
 focused decision should
 keep immutable imported Workspace Snapshots separate from future persisted or
 task-specific derived artifacts while defining one currently open boundary such
-as persisted identity assertions, Dataset-v2 partitioning, or separate
+as persisted identity assertions, Dataset-v2 persistence, or separate
 behavior/strategy/communication task builders.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,
 Strategy Teacher persistence, Historical Report import, ground-truth teacher
-labels, Dataset-v2 persistence/partitioning/task builders, browser workflow, or
-public exposure from Issues #171 through #176. Those areas require separate acceptance
+labels, Dataset-v2 persistence/task builders, browser workflow, or
+public exposure from Issues #171 through #177. Those areas require separate acceptance
 criteria. No production model is
 planned.
 

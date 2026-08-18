@@ -8,8 +8,11 @@ deploy a machine-learning model.
 
 This document primarily describes public Training Dataset version `1`. Issue
 #176's private Learning Dataset version `2` is a separate unpartitioned,
-task-neutral evidence contract. It does not alter version `1` or define a
-universal target. See [Learning Dataset version 2](learning_dataset_v2.md).
+task-neutral evidence contract. Issue #177 adds a separate private Match-group-
+safe partition-preparation layer with Known-player and unseen-player Plans,
+leakage audits, and lossless index-only views. Neither changes version `1` or
+defines a universal target. See [Learning Dataset version 2](learning_dataset_v2.md)
+and [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md).
 
 Training-data representation remains `partially_supported`. Version 1 accepts
 normal completion, declarer concession, defender concession, accepted
@@ -96,6 +99,12 @@ separate exact evidence families. Version `2` is unpartitioned and defines no
 default Feature, target, label, reward, class, Teacher winner, communication tag,
 or model task. Training Dataset version `1`, feature generation version `1`, and
 target `actual_card_played` remain unchanged.
+
+Issue #177 consumes only the exact Dataset-v2 source plus its exact Player
+Catalog. It derives indivisible active Match groups, keeps inactive Snapshots out
+of all partitions, and emits either a complete audited Plan and lossless index-
+only view or an explicitly unavailable Plan. This adds no Dataset-v1 Record,
+partition policy, sample, Feature, target, workflow, or compatibility alias.
 
 ## Dataset input
 

@@ -272,7 +272,7 @@ examples, 85 generated outputs, and Training Dataset version `1` target
 Human Evidence never enters Match Analysis, Search, Historical Review, Replay
 Coaching, Profile application, or Training Dataset version `1`. Human Evidence
 persistence, browser/CLI download, Public API, Schema, derived human or AI tags,
-Dataset-v2 persistence, task builders, partitions, splits, cross-game summaries,
+Dataset-v2 persistence, task builders, persisted splits, cross-game summaries,
 evaluation, and model training remain open. Issue #175's separate Strategy
 Teacher Evidence may share a Decision Reference but copies no Commentary or
 Response association and makes no human-engine agreement claim. See

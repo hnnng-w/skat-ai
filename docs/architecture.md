@@ -52,6 +52,8 @@ descriptive video or manual source metadata
     -> method-bound Current-Snapshot Strategy Teacher Evidence
     -> private unpartitioned task-neutral Learning Dataset version 2
     -> separate Decision State, observed behavior, Player Context, and evidence pools
+    -> private Match-Snapshot-safe partition Plans and leakage audits
+    -> temporal Known-player or Player-component unseen-player partition indexes
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -409,6 +411,12 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_dataset_v2_contracts.py` | Private task-neutral Dataset-v2 contracts, statuses, separated evidence families, immutable values, counts, and domain-separated identities. |
 | `src/skat_ai/learning_dataset_v2_builder.py` | Exact four-source reconciliation, Current-only safe/skipped Decision derivation, cached Statistics Contexts, strict evidence joins, and normalized pools without execution or I/O. |
 | `src/skat_ai/learning_dataset_v2_export.py` | Builder-independent Dataset export identity and canonical path-free JSON bytes. |
+| `src/skat_ai/learning_dataset_v2_partition_contracts.py` | Private partition vocabulary, immutable group/Plan/audit/view/Result contracts, and strict complete/unavailable invariants. |
+| `src/skat_ai/learning_dataset_v2_partition_identity.py` | Domain-separated source, request, seed, Plan, audit, view, and export identities. |
+| `src/skat_ai/learning_dataset_v2_partition_algorithms.py` | Exact integer objective, temporal Known-player generation, Player-component unseen-player allocation, and strict local improvement. |
+| `src/skat_ai/learning_dataset_v2_partition_audit.py` | Match/Record/evidence closure, Statistics temporal safety, Player overlap, and component local-optimality auditing. |
+| `src/skat_ai/learning_dataset_v2_partition_preparation.py` | Exact source reconciliation, Match-group derivation, complete/unavailable orchestration, summaries, and lossless indexes. |
+| `src/skat_ai/learning_dataset_v2_partition_export.py` | Builder-independent partition Result export identity and canonical path-free JSON bytes. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -443,7 +451,8 @@ integration, or tournament-management behavior. See
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
-and [Learning Dataset version 2](learning_dataset_v2.md).
+[Learning Dataset version 2](learning_dataset_v2.md), and
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md).
 
 Validation is split between JSON Schema and Python validation:
 

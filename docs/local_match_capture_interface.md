@@ -284,7 +284,7 @@ Issue #168 exposes explicit private Position/Historical analysis and
 materialization/download controls while preserving the no-automatic-analysis
 rule and unchanged Workspace persistence. It adds no Public Match API, Match
 Schema, Match JSON/data CLI workflow, Capture CLI option, Player Catalog browser operation,
-public/task-specific Dataset workflow, Dataset-v2 browser/persistence/partition
+public/task-specific Dataset workflow, Dataset-v2 browser or persistence
 operation, database, remote serving, cloud
 synchronization, encryption, backup, YouTube integration, or EuroSkat
 integration. Commentary and Response Links remain outside Search and Coaching.
