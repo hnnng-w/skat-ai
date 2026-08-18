@@ -54,6 +54,8 @@ descriptive video or manual source metadata
     -> separate Decision State, observed behavior, Player Context, and evidence pools
     -> private Match-Snapshot-safe partition Plans and leakage audits
     -> temporal Known-player or Player-component unseen-player partition indexes
+    -> private exact-Count cross-game Match, Player, Communication, and Strategy summaries
+    -> Dataset Coverage and supplied-partition-readiness summaries with path-free export
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -417,6 +419,9 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_dataset_v2_partition_audit.py` | Match/Record/evidence closure, Statistics temporal safety, Player overlap, and component local-optimality auditing. |
 | `src/skat_ai/learning_dataset_v2_partition_preparation.py` | Exact source reconciliation, Match-group derivation, complete/unavailable orchestration, summaries, and lossless indexes. |
 | `src/skat_ai/learning_dataset_v2_partition_export.py` | Builder-independent partition Result export identity and canonical path-free JSON bytes. |
+| `src/skat_ai/learning_dataset_v2_summary_contracts.py` | Private exact-Count primitives, Match/Player/Communication/Strategy/readiness summaries, policies, validation, and domain-separated identities. |
+| `src/skat_ai/learning_dataset_v2_summary_builder.py` | One-pass Dataset/Catalog/evidence aggregation and exact supplied-partition Result reconciliation without Plan generation. |
+| `src/skat_ai/learning_dataset_v2_summary_export.py` | Builder-independent cross-game Summary export identity and canonical path-free JSON bytes. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -452,7 +457,8 @@ integration, or tournament-management behavior. See
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
 [Learning Dataset version 2](learning_dataset_v2.md), and
-[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md).
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md), and
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
 
 Validation is split between JSON Schema and Python validation:
 

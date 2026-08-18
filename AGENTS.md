@@ -73,6 +73,12 @@ The project focuses on:
   `2` with information-safe Decision State, separate observed behavior, time-safe
   Player Context, exact Teacher/Commentary/Response joins, skipped and unjoined
   evidence, deterministic identities, and canonical in-memory export
+* private internal Match-Snapshot-safe Dataset-v2 partition preparation with
+  temporal Known-player and Player-component unseen-player algorithms, leakage
+  audits, lossless indexes, and canonical export
+* private internal Dataset-v2 cross-game Match, Player, Communication, Strategy,
+  Coverage, and supplied-partition-readiness summaries with exact Counts,
+  deterministic identities, and canonical path-free export
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -359,7 +365,7 @@ aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Issues #171 through #177 implement private immutable Match
+and communication data`. Issues #171 through #178 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
 persisted explicit Current-selection changes, plus a derived Current-Snapshot
@@ -371,14 +377,17 @@ only unpartitioned task-neutral Learning Dataset version `2` with separate
 Decision State, observed behavior, Player Context, Strategy Teacher, Commentary,
 and linked Response families, plus Match-group-safe deterministic partition
 preparation, temporal Known-player and component-based unseen-player algorithms,
-leakage audits, lossless partition indexes, and canonical export. Candidate
+leakage audits, lossless partition indexes, and canonical export, plus private
+exact-Count cross-game Match, Player, Communication, Strategy Teacher, Coverage,
+Dataset Readiness, and supplied Partition Readiness summaries with deterministic
+path-free export. Candidate
 later directions
 include canonical Game catalogs, persisted
 Player aliases/assertions, merge/split operations, and all-revision Player views,
 Human and Strategy Teacher Evidence persistence/transport, separate behavior and
 communication task builders, Historical Report import, Dataset-v2 persistence,
-communication-aware annotations, cross-game
-behavior summaries, evaluation baselines, and derived AI tags kept separate from
+Summary persistence/transport/UI, communication-aware annotations, evaluation
+baselines, and derived AI tags kept separate from
 original human text. Their Issue split, architecture, Dataset fields, model
 design, and release date are not finalized, and no production model is planned.
 
@@ -556,6 +565,12 @@ Major completed areas include:
   Current Corpus sources, with safe/skipped Decision coverage, separate evidence
   families, time-safe Statistics selection, normalized exact pools, strict joins,
   stable Record IDs, enriched content fingerprints, and canonical export bytes
+* deterministic private Dataset-v2 partition preparation with Match-Snapshot
+  groups, fixed Known-player and unseen-player algorithms, leakage audits,
+  lossless indexes, and canonical export bytes
+* deterministic private Dataset-v2 cross-game summaries over exact Dataset,
+  Player Catalog, and supplied partition Results, with descriptive Match, Player,
+  Communication, Strategy, Coverage, and readiness Counts plus canonical export
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -606,7 +621,7 @@ garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
 Human or Strategy Teacher Evidence browser/CLI/API transport, Historical Report
 import, Dataset-v2 persistence, task builders, persisted partition artifacts,
-cross-game summaries, and model training remain open. Session State itself contains no path
+Summary persistence/transport/UI, and model training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,
 remote browser deployment, four-player support, or claim of complete official

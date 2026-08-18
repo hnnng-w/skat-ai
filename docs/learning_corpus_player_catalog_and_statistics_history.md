@@ -254,9 +254,8 @@ Persisted aliases/assertions, Player merge/split operations, Catalog persistence
 all-revision Player views, canonical labels, Human Evidence persistence or
 transport, Strategy Teacher Evidence persistence or transport, automatic Report
 capture, Historical Report import, Dataset-v2 persistence and task builders,
-persisted split artifacts,
-cross-game summaries, browser/CLI/API/Schema exposure, and model training remain
-open.
+persisted split artifacts, Summary persistence/transport/UI,
+browser/CLI/API/Schema exposure, and model training remain open.
 
 The private Current-Snapshot-only minimized Commentary/Response Evidence export
 itself is implemented separately by Issue #174. See
@@ -269,3 +268,8 @@ Evidence export is implemented separately by Issue #175. See
 The private unpartitioned task-neutral Dataset version `2` consumes the supplied
 exact Player Catalog without rebuilding it. See
 [Learning Dataset version 2](learning_dataset_v2.md).
+
+Issue #178 consumes that exact supplied Player Catalog without rebuilding it and
+derives descriptive Player and Match summaries without selecting a canonical
+label, rating, or ranking. See
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).

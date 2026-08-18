@@ -271,3 +271,9 @@ taxonomy, derived tag, task-specific builder, or model training. Package version
 remains `0.15.0`; Python remains `>=3.13`; seven Root workflows, one Console
 Script, 63 authoritative and packaged Schemas, six Session examples, 85
 generated outputs, and Training Dataset version `1` remain unchanged.
+
+Issue #178 separately consumes one exact Result for each canonical mode together
+with the exact Dataset and Player Catalog. It reports existing complete or
+unavailable Partition Readiness without regenerating either Plan or changing
+partition preparation. See
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).

@@ -393,9 +393,9 @@ Issue #175 supplies separate exact executed Decision Report Strategy Teacher
 Evidence and an in-memory export without changing Corpus persistence. Human and
 Strategy Teacher Evidence persistence, browser/CLI/API/Schema transport, derived
 tags, Historical Report import, Dataset-v2 persistence, task builders, persisted
-split artifacts, cross-game summaries, examples, generated scenarios, and model
-training remain open. Issues #176 and #177's in-memory Dataset, partition, and
-export values change no Corpus persistence bytes.
+split artifacts, Summary persistence/transport/UI, examples, generated scenarios,
+and model training remain open. Issues #176 through #178's in-memory Dataset,
+partition, Summary, and export values change no Corpus persistence bytes.
 
 Package version remains `0.15.0`. Public API contract version `1`, the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

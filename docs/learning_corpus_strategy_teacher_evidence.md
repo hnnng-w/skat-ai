@@ -203,4 +203,9 @@ target `actual_card_played` remain unchanged.
 Strategy Teacher persistence, Corpus object storage, browser/CLI transport,
 Public API, Schema, Historical Report import, Replay Coaching evidence import,
 Teacher consensus/ranking, Dataset-v2 persistence and task builders, persisted
-splits, cross-game summaries, and model training remain open.
+splits, Summary persistence/transport/UI, and model training remain open.
+
+Issue #178 separately summarizes exact method, status, semantic-duplicate, and
+Recommendation/observed-Card equality Counts without inspecting Candidate metrics
+for grouping or selecting a Teacher. See
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).

@@ -331,9 +331,9 @@ persistence, persisted aliases/assertions, merge/split operations, all-revision
 history browsing or named selections beyond Current,
 Human or Strategy Teacher Evidence persistence or transport, automatic Match
 Analysis Report capture, Historical Report import, Derived Tags, Dataset-v2
-persistence, task builders, persisted splits, cross-game summaries, browser workflows, CLI,
-Public API, Schema, examples, generated scenarios, and model training remain
-open.
+persistence, task builders, persisted splits, Summary persistence/transport/UI,
+browser workflows, CLI, Public API, Schema, examples, generated scenarios, and
+model training remain open.
 
 Package version remains `0.15.0`. Python remains `>=3.13`; the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

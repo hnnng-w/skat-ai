@@ -170,6 +170,12 @@ The project focuses on:
   Observed Behavior, Player Context, Record, skipped Decision, and Export version-
   `1` contracts, with Current-only source reconciliation, separate evidence
   families, deterministic identities, and canonical path-free bytes
+* internal Dataset-v2 partition preparation with Match-Snapshot-indivisible
+  groups, temporal Known-player and Player-component unseen-player modes, leakage
+  audits, lossless indexes, and canonical path-free bytes
+* internal Dataset-v2 exact-Count cross-game Match, Player, Communication,
+  Strategy, Coverage, Dataset Readiness, and supplied Partition Readiness
+  summaries with deterministic identities and canonical path-free bytes
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1111,6 +1117,11 @@ Implemented:
   `learning_dataset_v2_partition_export.py`
   * private Match-group-safe Known-player and unseen-player Plans, exact balance
     identities, leakage audits, lossless partition indexes, and canonical export
+* `learning_dataset_v2_summary_contracts.py`,
+  `learning_dataset_v2_summary_builder.py`, and
+  `learning_dataset_v2_summary_export.py`
+  * private descriptive Match, Player, Communication, Strategy, Coverage, and
+    readiness summaries over exact sources and supplied partition Results
 
 ### Interactive Session contracts
 
@@ -1242,6 +1253,9 @@ Implemented:
 * `learning_dataset_v2_partition_audit.py`
 * `learning_dataset_v2_partition_preparation.py`
 * `learning_dataset_v2_partition_export.py`
+* `learning_dataset_v2_summary_contracts.py`
+* `learning_dataset_v2_summary_builder.py`
+* `learning_dataset_v2_summary_export.py`
 * `dataset_partition_policy.py`
 * `dataset_partition_audit.py`
 * `training_dataset_preparation.py`
@@ -1374,6 +1388,8 @@ Main documentation files:
 * `docs/learning_corpus_human_commentary_and_response_evidence.md`
 * `docs/learning_corpus_strategy_teacher_evidence.md`
 * `docs/learning_dataset_v2.md`
+* `docs/learning_dataset_v2_partition_preparation.md`
+* `docs/learning_dataset_v2_cross_game_summaries.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1831,7 +1847,10 @@ Completed implementation scope:
   four-source Current-Snapshot reconciliation, safe/skipped Decision coverage,
   separate observed behavior/Player/Teacher/Commentary/Response families,
   normalized pools, deterministic Record/content/Dataset/export identities, and
-  no persistence, partition, target, public transport, or model task
+  no persistence, target, public transport, or model task
+* internal Dataset-v2 partition preparation plus exact-Count cross-game Match,
+  Player, Communication, Strategy, Coverage, Dataset Readiness, and supplied
+  Partition Readiness summaries, with deterministic path-free exports
 
 ## Current high-priority limitations
 
@@ -1910,7 +1929,7 @@ Completed implementation scope:
   YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
-* Issues #171 through #177 provide private Learning Corpus source identity, exact
+* Issues #171 through #178 provide private Learning Corpus source identity, exact
   Match Snapshots, closed references, Catalog entries/current selections,
   deterministic fixed-root persistence, strict Store Resume and orphan reporting,
   pure Catalog mutation, strict Workspace import, and persisted selection
@@ -1918,22 +1937,26 @@ Completed implementation scope:
   and separate minimized human Commentary/linked Response and method-bound
   Strategy Teacher Evidence exports plus one Current-only unpartitioned,
   task-neutral Learning Dataset version `2` plus Match-group-safe deterministic
-  partition preparation and leakage audits. Strategy Teacher sources accept only exact
+  partition preparation and leakage audits, plus descriptive cross-game Match,
+  Player, Communication, Strategy Teacher, Coverage, and readiness summaries.
+  Strategy Teacher sources accept only exact
   executed Decision Analysis Reports, rebuild no-execution Requests, validate
   retained Results, and make no optimality or preferred-Teacher claim.
   Deletion, garbage collection, recovery UI, persisted aliases/assertions,
   merge/split operations, all-revision Player views, Human Evidence persistence
   and transport, Strategy Teacher persistence and transport, Historical Report
   import, Dataset-v2 persistence, task builders, persisted partition artifacts,
-  summaries, browser workflows, and public exposure remain open.
+  Summary persistence/transport/UI, browser workflows, and public exposure remain
+  open.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
 Continue the active `v0.16.0 - Learning-ready behavior and communication data`
-milestone from Issues #171 through #177's internal identity, Catalog,
+milestone from Issues #171 through #178's internal identity, Catalog,
 persistence, Workspace-import, derived Player-history, Human Evidence, and
-Strategy Teacher Evidence and Learning Dataset-v2 export foundations. The next
+Strategy Teacher Evidence, Learning Dataset-v2 export, partition, and descriptive
+Summary foundations. The next
 focused decision should
 keep immutable imported Workspace Snapshots separate from future persisted or
 task-specific derived artifacts while defining one currently open boundary such
@@ -1944,7 +1967,7 @@ Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,
 Strategy Teacher persistence, Historical Report import, ground-truth teacher
 labels, Dataset-v2 persistence/task builders, browser workflow, or
-public exposure from Issues #171 through #177. Those areas require separate acceptance
+public exposure from Issues #171 through #178. Those areas require separate acceptance
 criteria. No production model is
 planned.
 

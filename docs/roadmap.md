@@ -123,7 +123,7 @@ maintainer published `v0.15.0` manually at commit `ec1c154`, and Issue #170
 synchronizes publication status. Public Match
 API and Schema/data workflow, public/persisted Player Catalog,
 public or task-specific communication Dataset workflows, database/remote
-deployment, and broader pre-v1 work remain open. Issues #171 through #177
+deployment, and broader pre-v1 work remain open. Issues #171 through #178
 subsequently add separate private
 immutable Learning Corpus Snapshot/reference and lightweight Catalog contracts,
 deterministic fixed-root persistence, strict Store Resume and orphan reporting,
@@ -131,6 +131,7 @@ explicit Workspace import, and a derived Current-Snapshot Player/Statistics view
 plus minimized Human Commentary/Response and method-bound Strategy Teacher
 Evidence exports, one unpartitioned task-neutral Learning Dataset version `2`,
 and private Match-group-safe partition preparation with leakage audits
+plus deterministic descriptive cross-game summaries and path-free export
 without changing the published `v0.15.0` Package.
 No YouTube or EuroSkat integration, ranking, qualification, prize, fee, or bonus
 behavior is implemented.
@@ -999,7 +1000,7 @@ remains pending.
 ## Active milestone: v0.16.0
 
 `v0.16.0 - Learning-ready behavior and communication data` is the active
-milestone. Issues #171 through #177 establish its first internal foundations:
+milestone. Issues #171 through #178 establish its first internal foundations:
 
 * immutable content-addressed copies of exact strictly resumed Match Workspace
   persistence documents;
@@ -1061,28 +1062,36 @@ milestone. Issues #171 through #177 establish its first internal foundations:
 * Match-Snapshot-safe partition Plans with strict temporal Known-player blocks,
   transitive Player-connected unseen-player components, exact Record-primary and
   Match-secondary balancing, complete leakage audits, lossless indexes, and
-  canonical path-free export.
+  canonical path-free export;
+* exact Dataset, Player Catalog, and supplied Known-player/unseen-player Result
+  reconciliation without Dataset, Catalog, or Plan regeneration;
+* descriptive exact-Count Match, Player, Communication, Strategy Teacher,
+  evidence Coverage, Dataset Readiness, and Partition Readiness summaries;
+* deterministic sub-summary and final identities plus canonical path-free export
+  without rating, ranking, evaluation, or model-readiness claims.
 
 Match Workspaces remain editable authoritative capture sources. A correction
 creates a distinct immutable Match Snapshot; Corpus behavior never mutates the
 Workspace. Analysis and annotation artifacts remain separate derived objects,
-and Learning Dataset version `2` remains a separate non-persisted export.
+and Learning Dataset version `2` plus its derived Cross-game Summary remain
+separate non-persisted exports.
 
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
 Human Evidence persistence and browser/CLI/API transport, Strategy Teacher
 Evidence persistence and transport, Historical Report import, task-specific
 behavior/strategy/communication Feature and Target builders, Dataset-v2
-persistence, communication-aware annotations, cross-game
-summaries, evaluation baselines, derived AI tags, browser workflows, and public
+persistence, Summary persistence/transport/UI, communication-aware annotations,
+evaluation baselines, derived AI tags, browser workflows, and public
 exposure remain open. No production model is planned for this milestone. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
 [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
 [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
-[Learning Dataset version 2](learning_dataset_v2.md), and
-[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md).
+[Learning Dataset version 2](learning_dataset_v2.md),
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md), and
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
 
 ## Later planning milestone: v1.0.0
 
@@ -1237,9 +1246,10 @@ historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
 baseline, functional Issues #160 through #168, completed Release-preparation
 Issue #169, publication-synchronization Issue #170, the published 63-Schema,
 six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the active
-`v0.16.0` direction and Issues #171-#177 identity, Catalog, persistence,
+`v0.16.0` direction and Issues #171-#178 identity, Catalog, persistence,
 Workspace-import, Player Catalog, Statistics-history, Human Evidence, and
-Strategy Teacher Evidence plus Learning Dataset-v2 and partition foundations,
+Strategy Teacher Evidence plus Learning Dataset-v2, partition, and descriptive
+cross-game Summary foundations,
 requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
 and unconditional exclusions. Remaining `v0.16.0` Issues and the final `v1.0.0`

@@ -10,9 +10,12 @@ This document primarily describes public Training Dataset version `1`. Issue
 #176's private Learning Dataset version `2` is a separate unpartitioned,
 task-neutral evidence contract. Issue #177 adds a separate private Match-group-
 safe partition-preparation layer with Known-player and unseen-player Plans,
-leakage audits, and lossless index-only views. Neither changes version `1` or
-defines a universal target. See [Learning Dataset version 2](learning_dataset_v2.md)
-and [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md).
+leakage audits, and lossless index-only views. Issue #178 adds a separate private
+descriptive cross-game Summary over the exact Dataset, Player Catalog, and
+supplied partition Results. None changes version `1` or defines a universal
+target. See [Learning Dataset version 2](learning_dataset_v2.md),
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md),
+and [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
 
 Training-data representation remains `partially_supported`. Version 1 accepts
 normal completion, declarer concession, defender concession, accepted
@@ -105,6 +108,11 @@ Catalog. It derives indivisible active Match groups, keeps inactive Snapshots ou
 of all partitions, and emits either a complete audited Plan and lossless index-
 only view or an explicitly unavailable Plan. This adds no Dataset-v1 Record,
 partition policy, sample, Feature, target, workflow, or compatibility alias.
+
+Issue #178 consumes the exact Dataset-v2 source, Player Catalog, and both supplied
+partition Results without rebuilding or generating them. Its exact-Count Match,
+Player, Communication, Strategy Teacher, Coverage, and readiness summaries are
+descriptive metadata, not Dataset-v1 evaluation or model training.
 
 ## Dataset input
 

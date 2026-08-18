@@ -115,6 +115,12 @@ source identities in normalized sibling pools. No new Provenance contract,
 Confidence value, public ledger, redaction path, or Training Dataset version `1`
 field is added.
 
+Issues #177 and #178 add separate private partition and descriptive Summary
+identities over that Dataset. Their request, Plan, Coverage, readiness,
+sub-summary, final Summary, and export fingerprints remain deterministic content
+identities, not field-level Provenance ledgers. They add no public attachment,
+redaction path, Confidence value, or Training Dataset version `1` field.
+
 ## Sidecar design
 
 Provenance is an immutable sidecar ledger for a JSON-compatible document. It

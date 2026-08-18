@@ -314,6 +314,14 @@ task, label, persisted split, public workflow, or Training Dataset version `1`
 change. See
 [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md).
 
+Issue #178 adds a separate private descriptive summary layer over this unchanged
+Dataset, its exact Player Catalog, and supplied `known_player` and `unseen_player`
+partition Results. It reports exact Match, Player, Communication, Strategy
+Teacher, Coverage, Dataset Readiness, and Partition Readiness Counts without text
+grouping, rating, ranking, evaluation, or model-readiness claims, and provides a
+canonical path-free export. See
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
+
 Package version remains `0.15.0`; Python remains `>=3.13`; Public API contract
 version remains `1`; seven Root workflows, one Console Script, 63 authoritative
 and packaged Schemas, six Session examples, 85 generated outputs, Corpus/Match

@@ -474,16 +474,21 @@ changes no Training Dataset version `1` behavior. Issue #177 adds separate
 private Match-Snapshot-group-safe partition preparation: strict temporal Known-
 player blocks, transitive Player-disjoint unseen-player components, exact Record-
 primary and Match-secondary balancing, complete leakage audits, lossless index-
-only partitioned views, and canonical path-free export. Issues #171 through #177
-add no workflow, CLI, browser operation, Public API, Schema,
+only partitioned views, and canonical path-free export. Issue #178 adds private
+behavior, Communication, Strategy Teacher, evidence Coverage, Dataset Readiness,
+and supplied `known_player`/`unseen_player` Partition Readiness summaries plus
+canonical path-free export. It adds no rating, ranking, interpretation,
+evaluation, model-readiness claim, persistence, or public surface. Issues #171
+through #178 add no workflow, CLI, browser operation, Public API, Schema,
 example, or generated scenario. See
 [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md),
 [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md),
 [Learning Corpus human Commentary and Response evidence](docs/learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](docs/learning_corpus_strategy_teacher_evidence.md),
-[Learning Dataset version 2](docs/learning_dataset_v2.md), and
-[Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md).
+[Learning Dataset version 2](docs/learning_dataset_v2.md),
+[Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md), and
+[Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -1047,6 +1052,8 @@ Detailed documentation is split into topic-specific files:
 * [Learning Corpus human Commentary and Response evidence](docs/learning_corpus_human_commentary_and_response_evidence.md)
 * [Learning Corpus Strategy Teacher Evidence](docs/learning_corpus_strategy_teacher_evidence.md)
 * [Learning Dataset version 2](docs/learning_dataset_v2.md)
+* [Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md)
+* [Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1489,12 +1496,15 @@ separate observed behavior and Player Context, exact Teacher/Commentary/Response
 joins, skipped and unjoined evidence reporting, deterministic identities, and a
 canonical path-free export. Issue #177 adds internal group-safe Dataset-v2
 partition Plans, fixed Known-player and unseen-player algorithms, leakage
-audits, index-only views, and canonical export. Deletion and
+audits, index-only views, and canonical export. Issue #178 adds private
+deterministic exact-Count cross-game Match, Player, Communication, Strategy
+Teacher, Coverage, Dataset Readiness, and supplied Partition Readiness summaries
+plus canonical path-free export. Deletion and
 garbage collection, persisted alias assertions, Player merge/split operations,
 all-revision Player views, Human Evidence persistence or transport, separate
 behavior and communication task builders, Strategy Teacher persistence/transport,
 Historical Report import, Dataset-v2 persistence and persisted partition artifacts,
-communication-aware annotations, cross-game behavior summaries, evaluation
+Summary persistence/transport/UI, communication-aware annotations, evaluation
 baselines, derived AI tags, browser/CLI/API/Schema exposure, and model training
 remain open. No production model is included.
 

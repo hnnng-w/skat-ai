@@ -90,6 +90,24 @@ def build_learning_dataset_partition_preparation_request_v1(
     _validate_learning_dataset_v2(learning_dataset)
     _validate_learning_corpus_player_catalog_v1(player_catalog)
     _reconcile_partition_sources(learning_dataset, player_catalog)
+    return _build_learning_dataset_partition_preparation_request_from_validated_sources_v1(
+        learning_dataset,
+        player_catalog,
+        mode=mode,
+        base_random_seed=base_random_seed,
+        partition_weights=partition_weights,
+    )
+
+
+def _build_learning_dataset_partition_preparation_request_from_validated_sources_v1(
+    learning_dataset: LearningDatasetV2,
+    player_catalog: LearningCorpusPlayerCatalogV1,
+    *,
+    mode: str,
+    base_random_seed: int,
+    partition_weights: LearningDatasetPartitionWeightsV1,
+) -> LearningDatasetPartitionPreparationRequestV1:
+    """Builds a Request after one caller-owned exact source validation."""
     if mode not in LEARNING_DATASET_PARTITION_MODES:
         raise ValueError(f"mode must be one of {list(LEARNING_DATASET_PARTITION_MODES)}.")
     if type(base_random_seed) is not int:
