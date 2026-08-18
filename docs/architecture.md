@@ -56,6 +56,9 @@ descriptive video or manual source metadata
     -> temporal Known-player or Player-component unseen-player partition indexes
     -> private exact-Count cross-game Match, Player, Communication, and Strategy summaries
     -> Dataset Coverage and supplied-partition-readiness summaries with path-free export
+    -> separate loopback-only Learning Corpus CLI and browser over one explicit root
+    -> strict Workspace/Decision-Report uploads and explicit Current selection
+    -> process-local exact preparation and seven authenticated canonical downloads
     -> later Public Match API/Schema/data workflow
 ```
 
@@ -74,6 +77,17 @@ Workspace. Capture Application operations still receive an already loaded
 Workspace and perform no file or network I/O; the leaf transport alone
 orchestrates private persistence, local HTTP requests, analysis actions, and
 downloads. No YouTube or EuroSkat integration or public Match export occurs.
+
+Issue #179 composes the Issue #171 through #178 private values in a separate leaf
+transport. It strictly initializes or resumes one explicit Corpus root, imports
+caller-uploaded Workspaces and exact executed Decision Report sources, keeps at
+most 2,048 Report sources and all prepared derived artifacts in process memory,
+and explicitly builds Player, Human, Strategy Teacher, Dataset-v2, known-player,
+unseen-player, and Summary values outside the context lock. A generation/source
+check prevents stale publication. The minimized server-rendered dashboard and
+seven authenticated canonical downloads add no derived persistence, Public API,
+Schema, or Root workflow. Package version remains `0.15.0`; functional private
+local `v0.16.0` work is complete and Release preparation remains open.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release
@@ -255,16 +269,18 @@ decision, intermediate-stage, and unredacted attachments remain internal.
 
 | File | Purpose |
 | --- | --- |
-| `src/skat_ai/cli/execution.py` | Package-owned Root compatibility facade and leading-`capture` then `session` dispatch. |
+| `src/skat_ai/cli/execution.py` | Package-owned Root compatibility facade and leading-`corpus`, `capture`, then `session` dispatch. |
+| `src/skat_ai/cli/corpus.py` | Private local Learning Corpus CLI startup, browser opening, shutdown, and Exit Code transport. |
 | `src/skat_ai/cli/capture.py` | Private local Capture CLI startup and Exit Code transport. |
 | `src/skat_ai/cli/session.py` | Session compatibility facade over focused parser and orchestration services. |
 | `src/skat_ai/__main__.py` | Module invocation delegation. |
 | `main.py` | Thin Legacy compatibility facade and Root monkeypatch adapter. |
 
 Root parsing, validation, Legacy dependency resolution, Application adaptation,
-dispatch, transport, and presentation are separate focused modules. Capture and
-Session parsing, strict JSON input, context/persistence, Checkpoints, operations,
-Application adaptation, and presentation are also separate. CLI is a leaf
+dispatch, transport, and presentation are separate focused modules. Corpus,
+Capture, and Session parsing, strict JSON input, context/persistence,
+Checkpoints, operations, Application adaptation, and presentation are also
+separate. CLI is a leaf
 transport: Application, Public API, Match, and observed-Game modules do not
 import it. See [CLI internal architecture](cli_internal_architecture.md).
 
@@ -422,6 +438,9 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_dataset_v2_summary_contracts.py` | Private exact-Count primitives, Match/Player/Communication/Strategy/readiness summaries, policies, validation, and domain-separated identities. |
 | `src/skat_ai/learning_dataset_v2_summary_builder.py` | One-pass Dataset/Catalog/evidence aggregation and exact supplied-partition Result reconciliation without Plan generation. |
 | `src/skat_ai/learning_dataset_v2_summary_export.py` | Builder-independent cross-game Summary export identity and canonical path-free JSON bytes. |
+| `src/skat_ai/match_analysis_report_source_export.py` | Exact executed Decision Report source envelope and canonical private transfer bytes. |
+| `src/skat_ai/match_analysis_report_source_codec.py` | Strict complete Report/Request/Result reconstruction and canonical identity verification for uploads. |
+| `src/skat_ai/corpus_web/` | Private one-root context, strict uploads, optimistic operations, bounded process-local sources, unlocked preparation, minimized rendering, authenticated downloads, security, and HTTP lifecycle. |
 | `src/skat_ai/match_capture_application_contracts.py` | Capture versions/policies, caller Card entries, builder-controlled Position Views, and immutable Application Results. |
 | `src/skat_ai/match_capture_position_view.py` | Current Slot/Trick/Player, exact or bounded selectable Cards, blockers, evidence, and Progress derivation. |
 | `src/skat_ai/match_capture_game_updates.py` | Defensive complete-Game rebuilding, deterministic IDs, automatic Play derivation, truncation cleanup, and annotation updates. |
@@ -458,7 +477,8 @@ integration, or tournament-management behavior. See
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
 [Learning Dataset version 2](learning_dataset_v2.md), and
 [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md), and
-[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
+[Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md), and
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 Validation is split between JSON Schema and Python validation:
 

@@ -1,7 +1,8 @@
 # CLI internal architecture
 
 Issue #162 characterizes and modularizes the internal Root and Session CLI
-boundaries without changing their observable contracts. The refactor adds no
+boundaries without changing their observable contracts. Issue #179 later adds a
+separate private Learning Corpus leaf transport. The refactor adds no
 Root workflow, Session subcommand, option, Match Capture behavior, Schema,
 example, generated scenario, Console Script, Public API export, or Package
 version.
@@ -13,7 +14,7 @@ The intended dependency direction is:
 ```text
 Domain and rules
     <- Application and Public APIs
-        <- Capture Application services
+        <- Capture and Learning Corpus services
             <- CLI and browser transports
 ```
 
@@ -50,8 +51,25 @@ with module invocation identity. Repository-root `main.py` remains a thin
 Legacy compatibility facade and is not included in distributions.
 
 `skat_ai.cli.__all__` remains exactly `("main",)`. Leading dispatch precedence
-is `capture`, then `session`, then the existing Root parser. Both command-family
-imports remain lazy.
+is `corpus`, then `capture`, then `session`, then the existing Root parser. All
+three command-family imports remain lazy.
+
+## Learning Corpus CLI and browser transport
+
+Issue #179 adds `src/skat_ai/cli/corpus_parser.py` for the exact `corpus` command,
+required `--corpus`, optional `--port` default `8766`, and `--no-open`.
+`src/skat_ai/cli/corpus.py` owns one-root startup, browser opening, interrupt
+shutdown, and Exit Code translation. Installed, module, and Legacy forms share
+the same Package implementation and one Console Script.
+
+The internal `src/skat_ai/corpus_web/` package separates strict multipart
+uploads, synchronized one-root context, optimistic import/Current-selection
+operations, a max-2,048 process-local Strategy Teacher source store, source-safe
+unlocked artifact preparation, minimized state/rendering, seven authenticated
+downloads, packaged local assets, security, and Standard Library HTTP lifecycle.
+It composes existing Learning Corpus and Dataset-v2 contracts without executing
+analysis or adding derived persistence, a Public API, Schema, or Root workflow.
+See [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 ## Capture CLI and browser transport
 
@@ -67,8 +85,10 @@ browser-safe state, operation parsing, server rendering, packaged assets,
 security, and Standard Library HTTP lifecycle. Every applied mutation invokes
 one existing operation and at most one CAS Save. Unchanged and revision-conflict
 outcomes do not Save; persistence conflicts retain context and require explicit
-Reload. No Root Application, Session, Search, analysis, materialization, or
-external network path is present.
+Reload. Issue #168 later adds explicit Match analysis and materialization actions
+without moving them into Capture Application services. Issue #179 adds exact
+executed Decision Report-source download for explicit Corpus transfer. Neither
+transport makes an external network request.
 
 ## Root CLI modules
 
@@ -201,7 +221,7 @@ rule interpretation or Match Capture behavior.
 
 Focused tests freeze:
 
-* Root and Session parser action metadata and invocation identities;
+* Root, Session, Capture, and Corpus parser action metadata and invocation identities;
 * compatibility facade names and callable signatures;
 * Legacy patch metadata, default identities, active behavior, and installed
   isolation;
@@ -224,3 +244,9 @@ workflows, 12 Session subcommands, 63 authoritative and packaged Schemas, and 85
 generated-output scenarios remain unchanged by Issue #165. The current Package
 version is `0.15.0`; the workflow, subcommand, Schema, scenario, and one-Console-
 Script baselines remain unchanged.
+Issue #179 adds exact packaged Corpus browser resources,
+installed/module/Legacy Corpus help parity, and a clean-install initialize,
+import, select, prepare, Report-transfer, download, and invalidation smoke flow
+without changing Package version `0.15.0`, seven Root workflows, 12 Session
+subcommands, 63 Schemas, six Session examples, 85 generated outputs, or the one
+Console Script.

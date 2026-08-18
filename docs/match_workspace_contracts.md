@@ -377,11 +377,14 @@ content becomes a distinct Snapshot. The lightweight Corpus Catalog embeds no
 Workspace. Issue #172 can strictly import one explicit Workspace file into a
 separate fixed-root private Corpus without mutating the source file or changing
 Workspace persistence bytes. Issue #176's in-memory Dataset version `2` likewise
-does not mutate Workspace persistence. Dataset persistence/partitioning, Report
-import, browser workflows, and public exposure remain separate open work. See
+does not mutate Workspace persistence. Issue #179 adds private browser import
+and exact executed-Decision Report-source transfer without changing those bytes.
+Derived-artifact persistence, Historical Report import, and public exposure
+remain open. See
 [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md)
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
-and [Learning Dataset version 2](learning_dataset_v2.md).
+[Learning Dataset version 2](learning_dataset_v2.md), and
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 The published Package baseline is `0.15.0`; seven Root workflows, Public API and
 CLI contracts, 63 authoritative and packaged Schemas, six Session examples, and

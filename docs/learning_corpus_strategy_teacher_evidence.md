@@ -200,10 +200,13 @@ seven Root workflows, one Console Script, 63 authoritative and packaged Schemas,
 six Session examples, 85 generated outputs, and Training Dataset version `1`
 target `actual_card_played` remain unchanged.
 
-Strategy Teacher persistence, Corpus object storage, browser/CLI transport,
-Public API, Schema, Historical Report import, Replay Coaching evidence import,
-Teacher consensus/ranking, Dataset-v2 persistence and task builders, persisted
-splits, Summary persistence/transport/UI, and model training remain open.
+Strategy Teacher persistence, Corpus object storage, Public API, Schema,
+Historical Report import, Replay Coaching evidence import, Teacher consensus/
+ranking, Dataset-v2 persistence and task builders, persisted splits, and model
+training remain open. Issue #179 provides explicit private Match Capture source
+download, strict manual Corpus upload, process-local collection preparation, and
+authenticated export download without persistence or automatic Report capture.
+See [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 Issue #178 separately summarizes exact method, status, semantic-duplicate, and
 Recommendation/observed-Card equality Counts without inspecting Candidate metrics

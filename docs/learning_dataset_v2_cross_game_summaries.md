@@ -278,13 +278,18 @@ encryption, access control, backup, or secure storage.
 
 Issue #178 adds no persistence, Corpus object kind, Catalog field, browser, CLI,
 Public API, Root workflow, Schema, example, generated scenario, evaluation, or
-training. Package version remains `0.15.0`; Python remains `>=3.13`; Public API
+training. Issue #179 explicitly builds this Summary last from the exact Dataset,
+Player Catalog, and both just-prepared Results in a private local browser and
+offers a canonical authenticated download. The Summary remains process-local and
+non-persisted; no Public API or Schema is added. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
+Package version remains `0.15.0`; Python remains `>=3.13`; Public API
 contract version remains `1`; seven Root workflows, one Console Script, 63
 authoritative and packaged Schemas, six Session examples, 85 generated outputs,
 Learning Dataset version `2`, and Training Dataset version `1` target
 `actual_card_played` remain unchanged.
 
-Summary and Dataset-v2 persistence, transport and UI, task-specific Feature and
-Target builders, communication taxonomies, derived tags, annotation Confidence,
-Player Ratings and rankings, model evaluation and baselines, and model training
-remain open.
+Summary and Dataset-v2 persistence and public transport, task-specific Feature
+and Target builders, communication taxonomies, derived tags, annotation
+Confidence, Player Ratings and rankings, model evaluation and baselines, and
+model training remain open.

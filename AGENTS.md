@@ -79,6 +79,11 @@ The project focuses on:
 * private internal Dataset-v2 cross-game Match, Player, Communication, Strategy,
   Coverage, and supplied-partition-readiness summaries with exact Counts,
   deterministic identities, and canonical path-free export
+* private loopback-only local Learning Corpus browser workflow with one explicit
+  root, strict Workspace and executed-Decision Report-source uploads, explicit
+  Current selection, bounded process-local sources, exact unlocked artifact
+  preparation, minimized presentation, and seven authenticated canonical
+  downloads without derived persistence or public contracts
 * JSON input/output for regression-friendly testing
 
 The current implementation is not a machine-learning model or a full official
@@ -187,6 +192,7 @@ Before larger changes, read the relevant documentation:
 * `docs/match_review_and_materialization.md`
 * `docs/match_analysis_and_exports.md`
 * `docs/learning_dataset_v2.md`
+* `docs/learning_corpus_browser_workflows.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -365,7 +371,7 @@ aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
 The active next planning milestone is `v0.16.0 — Learning-ready behavior
-and communication data`. Issues #171 through #178 implement private immutable Match
+and communication data`. Issues #171 through #179 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
 persisted explicit Current-selection changes, plus a derived Current-Snapshot
@@ -380,13 +386,18 @@ preparation, temporal Known-player and component-based unseen-player algorithms,
 leakage audits, lossless partition indexes, and canonical export, plus private
 exact-Count cross-game Match, Player, Communication, Strategy Teacher, Coverage,
 Dataset Readiness, and supplied Partition Readiness summaries with deterministic
-path-free export. Candidate
+path-free export. Issue #179 completes the functional private local workflow with
+the separate installed/module/Legacy `corpus` command, strict uploads, explicit
+Current selection, process-local Report sources and prepared values, and seven
+authenticated canonical downloads. Package version remains `0.15.0`; `v0.16.0`
+Release preparation remains open. Candidate
 later directions
 include canonical Game catalogs, persisted
 Player aliases/assertions, merge/split operations, and all-revision Player views,
-Human and Strategy Teacher Evidence persistence/transport, separate behavior and
-communication task builders, Historical Report import, Dataset-v2 persistence,
-Summary persistence/transport/UI, communication-aware annotations, evaluation
+Human and Strategy Teacher Evidence persistence/public transport, separate
+behavior and communication task builders, Historical Report import, Dataset-v2
+persistence, Summary persistence/public transport, communication-aware
+annotations, evaluation
 baselines, and derived AI tags kept separate from
 original human text. Their Issue split, architecture, Dataset fields, model
 design, and release date are not finalized, and no production model is planned.
@@ -571,6 +582,11 @@ Major completed areas include:
 * deterministic private Dataset-v2 cross-game summaries over exact Dataset,
   Player Catalog, and supplied partition Results, with descriptive Match, Player,
   Communication, Strategy, Coverage, and readiness Counts plus canonical export
+* internal local Learning Corpus Web, Protocol, and CLI version `1` with one
+  explicit root, caller-ID initialization, strict 16-MiB uploads, optimistic
+  import/selection, max-2,048 process-local Report sources, explicit source-safe
+  preparation, minimized no-JavaScript presentation, loopback security, and seven
+  canonical downloads without derived persistence
 * updated README, docs, roadmap, and project handoff
 
 Current limitations include general and specific-trick claim verification,
@@ -612,16 +628,17 @@ workflow. Public Match API/export, Match Schema/data workflow, public/persisted 
 Catalog, public or task-specific communication Dataset workflows,
 database/remote deployment, YouTube
 integration, and EuroSkat integration remain absent.
-Learning Corpus persistence and Workspace import are private internal operations
-with no CLI, browser, Public API, Schema, example, or generated scenario.
-The derived Player Catalog and Statistics history are also private and
-non-persisted. Human and Strategy Teacher Evidence are private and non-persisted
-as well. Deletion,
+Learning Corpus persistence, Workspace import, explicit Current selection, exact
+Report-source transfer, Dataset-v2 preparation, summaries, and downloads are now
+available through the private local `corpus` browser workflow. The derived Player
+Catalog and Statistics history, Human and Strategy Teacher Evidence, Dataset-v2,
+partition Results, and Summary remain process-local and non-persisted; there is
+no Public API, Schema, example, or generated scenario. Deletion,
 garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
-Human or Strategy Teacher Evidence browser/CLI/API transport, Historical Report
-import, Dataset-v2 persistence, task builders, persisted partition artifacts,
-Summary persistence/transport/UI, and model training remain open. Session State itself contains no path
+public Human or Strategy Teacher Evidence API transport, automatic Report
+capture, Historical Report import, Dataset-v2 persistence, task builders,
+persisted partition artifacts, and model training remain open. Session State itself contains no path
 or fingerprint; those values belong only to the private persistence boundary.
 No learned model, model-training workflow, hosted website, browser extension,
 remote browser deployment, four-player support, or claim of complete official

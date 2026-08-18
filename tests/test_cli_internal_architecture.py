@@ -183,8 +183,7 @@ HISTORICAL_ACTIONS = (
 
 def _required_output(actions: tuple[tuple[object, ...], ...]) -> tuple[tuple[object, ...], ...]:
     return tuple(
-        (*action[:7], True, action[8]) if action[1] == "output" else action
-        for action in actions
+        (*action[:7], True, action[8]) if action[1] == "output" else action for action in actions
     )
 
 
@@ -547,9 +546,7 @@ def test_capture_web_layering_and_execution_boundaries() -> None:
     for path in capture_paths:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         imported[path.name] = tuple(
-            node.module or ""
-            for node in ast.walk(tree)
-            if isinstance(node, ast.ImportFrom)
+            node.module or "" for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
         )
     assert "skat_ai.match_capture_application" in imported["operations.py"]
     assert all(
@@ -575,6 +572,54 @@ def test_capture_web_layering_and_execution_boundaries() -> None:
     ]
     for path in lower_paths:
         assert "skat_ai.capture_web" not in path.read_text(encoding="utf-8")
+
+
+def test_corpus_web_layering_and_execution_boundaries() -> None:
+    corpus_root = SOURCE_ROOT / "corpus_web"
+    corpus_paths = sorted(corpus_root.glob("*.py"))
+    forbidden = (
+        "skat_ai.application",
+        "skat_ai.api",
+        "skat_ai.match_decision_analysis",
+        "skat_ai.match_historical_analysis",
+        "skat_ai.search",
+        "skat_ai.bounded_search",
+        "skat_ai.replay_coaching",
+        "skat_ai.cli",
+    )
+    violations = []
+    for path in corpus_paths:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported = tuple(alias.name for alias in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                imported = (node.module or "",)
+            else:
+                continue
+            for module_name in imported:
+                if any(
+                    module_name == blocked or module_name.startswith(f"{blocked}.")
+                    for blocked in forbidden
+                ):
+                    violations.append((path.relative_to(PROJECT_ROOT), node.lineno, module_name))
+    assert violations == []
+
+    lower_paths = [
+        *sorted(SOURCE_ROOT.glob("learning_corpus_*.py")),
+        *sorted(SOURCE_ROOT.glob("learning_dataset_v2*.py")),
+        *sorted(SOURCE_ROOT.glob("match_*.py")),
+        *sorted((SOURCE_ROOT / "application").rglob("*.py")),
+        *sorted((SOURCE_ROOT / "api").rglob("*.py")),
+    ]
+    for path in lower_paths:
+        assert "skat_ai.corpus_web" not in path.read_text(encoding="utf-8")
+
+    capture_text = "".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted((SOURCE_ROOT / "capture_web").glob("*.py"))
+    )
+    assert "skat_ai.corpus_web" not in capture_text
 
 
 def test_root_presentation_modules_are_transport_and_execution_free() -> None:
@@ -623,6 +668,7 @@ def test_focused_cli_modules_do_not_import_compatibility_facades() -> None:
         *sorted((SOURCE_ROOT / "cli").glob("root_*.py")),
         *sorted((SOURCE_ROOT / "cli").glob("session_*.py")),
         *sorted((SOURCE_ROOT / "cli").glob("capture*.py")),
+        *sorted((SOURCE_ROOT / "cli").glob("corpus*.py")),
         *sorted((SOURCE_ROOT / "cli" / "presentation").glob("*.py")),
     ]
     violations = []
@@ -634,9 +680,7 @@ def test_focused_cli_modules_do_not_import_compatibility_facades() -> None:
             elif isinstance(node, ast.ImportFrom):
                 imported = (node.module or "",)
                 if node.module == "skat_ai.cli":
-                    imported += tuple(
-                        f"skat_ai.cli.{alias.name}" for alias in node.names
-                    )
+                    imported += tuple(f"skat_ai.cli.{alias.name}" for alias in node.names)
             else:
                 continue
             for module_name in imported:
@@ -644,9 +688,7 @@ def test_focused_cli_modules_do_not_import_compatibility_facades() -> None:
                     "skat_ai.cli.execution",
                     "skat_ai.cli.session",
                 }:
-                    violations.append(
-                        (path.relative_to(PROJECT_ROOT), node.lineno, module_name)
-                    )
+                    violations.append((path.relative_to(PROJECT_ROOT), node.lineno, module_name))
     assert violations == []
 
 
@@ -663,9 +705,7 @@ def test_session_assistant_subcommand_retains_facade_service_seams(monkeypatch) 
         return 23
 
     monkeypatch.setattr(assistant_module, "run_session_assistant", run_assistant)
-    assert session_cli.run_session_cli(
-        ["assistant", "--session", "private-session.json"]
-    ) == 23
+    assert session_cli.run_session_cli(["assistant", "--session", "private-session.json"]) == 23
     assert assistant_module._active_session_assistant_services is None
 
 
@@ -753,11 +793,14 @@ def test_root_dispatch_loads_detects_and_selects_once(
     )
     monkeypatch.setattr(legacy_main, runner_name, run)
 
-    assert root_cli.run_cli(
-        ["--input", "input.json"],
-        invocation_style="legacy",
-        legacy_namespace=legacy_main,
-    ) == 0
+    assert (
+        root_cli.run_cli(
+            ["--input", "input.json"],
+            invocation_style="legacy",
+            legacy_namespace=legacy_main,
+        )
+        == 0
+    )
     assert calls == {"load": 1, "detect": 1, "run": 1}
 
 

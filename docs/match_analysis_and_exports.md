@@ -185,6 +185,15 @@ two-space indentation, LF line endings, ASCII escaping, and exactly one trailing
 LF. These are private browser downloads, not Public API artifacts or new Root
 workflows.
 
+Issue #179 adds one separate private transfer artifact for a current executed
+Decision Analysis report. The Match Capture route
+`/api/v1/reports/<report_id>/strategy-source.json` wraps the complete exact
+canonical Report in source-export version `1` and uses the deterministic Decision
+artifact basename plus `-strategy-source.json`. Unavailable Decision,
+Historical, and materialization Reports remain unsupported. Transfer executes no
+analysis and does not persist or automatically import the Report. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
+
 ## Privacy and product boundaries
 
 Selected browser report pages expose curated summaries, while exact downloads
@@ -243,5 +252,8 @@ Current Match Snapshot, rebuilds and compares one Position Request without
 execution, validates the retained Result, and preserves exact Immediate/Search/
 Auto method evidence plus actual-Card comparisons and Profile/policy context. It
 does not change this document's Report Store lifetime, automatically capture a
-Report, execute analysis, or import Historical Analysis Reports. See
+Report, execute analysis, or import Historical Analysis Reports. Issue #179
+supplies an explicit authenticated Match Capture download and strict manual
+Corpus upload for that existing source contract while preserving the same
+process-local lifetime and no-automatic-capture rule. See
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).

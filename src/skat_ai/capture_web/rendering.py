@@ -805,13 +805,18 @@ def _decision_report(state: dict[str, Any], report: dict[str, Any]) -> str:
         if state["download_availability"]["report_result"]
         else "<p>This unavailable report has no Root Result download.</p>"
     )
+    strategy_source_download = (
+        f'<a class="download-link" href="/api/v1/reports/{report["report_id"]}/strategy-source.json">Download for Learning Corpus</a>'
+        if details["status"] == "executed"
+        else ""
+    )
     return f"""
       <section class="panel selected-report decision-report">
         <p class="eyebrow">Decision Analysis report</p>
         <h2>Position {details['match_position']}, Decision {details['decision_index']}</h2>
         {_facts((('Match', report['match_id']), ('Game', details['game_id']), ('Report ID', report['report_id'])))}
         {content}
-        {_download_warning()}{download}
+        {_download_warning()}{download}{strategy_source_download}
       </section>
     """
 

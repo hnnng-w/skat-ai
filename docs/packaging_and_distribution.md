@@ -21,7 +21,8 @@ Package Data is declared for:
 
 * `skat_ai/py.typed`;
 * every `skat_ai.schema_resources/*.schema.json` resource;
-* `skat_ai.capture_web` HTML, CSS, and JavaScript resources.
+* `skat_ai.capture_web` HTML, CSS, and JavaScript resources;
+* `skat_ai.corpus_web` HTML, CSS, and JavaScript resources.
 
 The Package name remains `skat-ai`, the Package version is `0.15.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
@@ -69,6 +70,10 @@ same Console Script for the loopback-only one-Workspace browser transport.
 Issue #168 extends that already packaged private browser with explicit analysis,
 ephemeral reports, and authenticated local downloads. It adds no Console Script,
 CLI option, Root workflow, public import, Schema resource, or Package Data kind.
+Issue #179 adds leading `corpus` dispatch before Capture, using the same Console
+Script for one explicit private Learning Corpus root. Its local HTML, CSS, and
+JavaScript are Package Data; its process-local Report sources, prepared artifacts,
+and downloads are not. Package version remains `0.15.0`.
 
 ## Building artifacts
 
@@ -147,13 +152,14 @@ The registry:
 
 No schema-loading helper is exported publicly.
 
-The private Capture Web transport also loads its HTML template, CSS, and vanilla
-JavaScript through `importlib.resources`. Assets are lazy, current-working-
-directory independent, locally packaged, and contain no external dependency,
-CDN, font, image, or build-system requirement.
-Issue #168 uses the same packaged assets and discovered Python Package modules;
-reports remain process memory and downloads are HTTP responses, not Package Data
-or installed writable files.
+The private Capture Web and Learning Corpus transports also load their HTML
+templates, CSS, and vanilla JavaScript through `importlib.resources`. Assets are
+lazy, current-working-directory independent, locally packaged, and contain no
+external dependency, CDN, font, image, or build-system requirement.
+Issue #168 uses the Capture assets and discovered Python Package modules; Issue
+#179 uses the separate Corpus assets. Match reports, Corpus Report sources, and
+prepared values remain process memory, and downloads are HTTP responses rather
+than Package Data or installed writable files.
 
 ## Typing and version metadata
 
@@ -184,6 +190,7 @@ Wheel inspection verifies:
 * every `skat_ai` Python module;
 * `py.typed` and all 63 byte-identical schema resources;
 * exact Capture Web template, CSS, and JavaScript resource bytes;
+* exact Corpus Web template, CSS, and JavaScript resource bytes;
 * a valid pure-Python Wheel and RECORD;
 * exact `skat-ai = skat_ai.cli:main` Console Script metadata and
   `skat_ai/__main__.py`;
@@ -192,8 +199,8 @@ Wheel inspection verifies:
 
 sdist inspection verifies:
 
-* `pyproject.toml`, `README.md`, Package sources, `py.typed`, and every schema
-  and Capture Web resource;
+* `pyproject.toml`, `README.md`, Package sources, `py.typed`, and every schema,
+  Capture Web, and Corpus Web resource;
 * build and core metadata sufficient to build and install the same Package;
 * exact Console Script metadata and `src/skat_ai/__main__.py`;
 * absence of a source-authored `setup.py`, root `main.py`, a second command, and
@@ -220,6 +227,8 @@ verifies:
   `python -m skat_ai session --help` succeed;
 * installed `skat-ai capture --help` and module
   `python -m skat_ai capture --help` succeed;
+* installed `skat-ai corpus --help` and module
+  `python -m skat_ai corpus --help` succeed with exact options and default port;
 * Session `new`, `apply`, and `show` operate through a caller-selected file;
 * Session-triggered Position analysis, Checkpoint observation/review, and
   Retrospective finalization reuse the existing Application workflows;
@@ -236,6 +245,11 @@ verifies:
   materialization, render the explicit browser controls, authenticate exact Root,
   materialization, and Historical-collection downloads, and invalidate reports
   after an applied mutation;
+* one in-process loopback Corpus server initializes an explicit root, strictly
+  imports the persisted Match Workspace, preserves explicit Current selection,
+  prepares empty-Teacher Dataset-v2 values, strictly imports the exact executed
+  Decision Report source, prepares the complete seven-artifact set, authenticates
+  byte-exact canonical downloads, and invalidates them after source removal;
 * installed, module, and Public Session API results have parity where
   applicable;
 * a valid unavailable Dataset Preparation Result remains successful;
@@ -245,6 +259,8 @@ verifies:
 
 Wheel and sdist smoke Results must be equal. Legacy Session CLI parity remains a
 repository-checkout gate because root `main.py` is intentionally not installed.
+Legacy Capture and Corpus help parity are repository-checkout gates for the same
+reason.
 
 ## Local and CI gates
 
@@ -288,3 +304,8 @@ changes. The maintainer published `v0.15.0` manually at commit `ec1c154`, and
 Issue #170 synchronizes publication status. Public
 Match API and Schema/data workflow, database/remote deployment, and public Match
 exports remain open. No Package-index or PyPI publication is claimed.
+Issue #179 completes the functional private local Learning Corpus/Dataset-v2
+workflow planned for `v0.16.0` without changing Package version `0.15.0`, the one
+Console Script, seven Root workflows, 63 Schemas/resources, six Session examples,
+or 85 generated outputs. `v0.16.0` Release preparation and publication remain
+open; derived artifacts remain non-persisted and private.

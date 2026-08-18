@@ -43,6 +43,12 @@ CAPTURE_RESOURCE_NAMES = (
     "assets/capture.css",
     "assets/capture.js",
 )
+CORPUS_RESOURCE_PREFIX = "skat_ai/corpus_web/"
+CORPUS_RESOURCE_NAMES = (
+    "templates/page.html",
+    "assets/corpus.css",
+    "assets/corpus.js",
+)
 CONSOLE_SCRIPT_NAME = "skat-ai"
 CONSOLE_SCRIPT_TARGET = "skat_ai.cli:main"
 
@@ -149,10 +155,12 @@ def _expected_module_names() -> set[str]:
 
 def _expected_capture_resource_bytes() -> dict[str, bytes]:
     capture_root = SOURCE_PACKAGE_DIRECTORY / "capture_web"
-    return {
-        name: capture_root.joinpath(name).read_bytes()
-        for name in CAPTURE_RESOURCE_NAMES
-    }
+    return {name: capture_root.joinpath(name).read_bytes() for name in CAPTURE_RESOURCE_NAMES}
+
+
+def _expected_corpus_resource_bytes() -> dict[str, bytes]:
+    corpus_root = SOURCE_PACKAGE_DIRECTORY / "corpus_web"
+    return {name: corpus_root.joinpath(name).read_bytes() for name in CORPUS_RESOURCE_NAMES}
 
 
 def _parse_metadata(content: bytes) -> Message:
@@ -298,6 +306,7 @@ def _inspect_wheel(
     expected_schemas: dict[str, bytes],
     expected_modules: set[str],
     expected_capture_resources: dict[str, bytes],
+    expected_corpus_resources: dict[str, bytes],
 ) -> Message:
     with zipfile.ZipFile(wheel_path) as archive:
         names_list = archive.namelist()
@@ -347,12 +356,20 @@ def _inspect_wheel(
         capture_payload = {
             name.removeprefix(CAPTURE_RESOURCE_PREFIX): archive.read(name)
             for name in names
-            if name.startswith(CAPTURE_RESOURCE_PREFIX)
-            and not name.endswith(".py")
+            if name.startswith(CAPTURE_RESOURCE_PREFIX) and not name.endswith(".py")
         }
         _require(
             capture_payload == expected_capture_resources,
             "Wheel Capture Web resources differ by filename or bytes.",
+        )
+        corpus_payload = {
+            name.removeprefix(CORPUS_RESOURCE_PREFIX): archive.read(name)
+            for name in names
+            if name.startswith(CORPUS_RESOURCE_PREFIX) and not name.endswith(".py")
+        }
+        _require(
+            corpus_payload == expected_corpus_resources,
+            "Wheel Corpus Web resources differ by filename or bytes.",
         )
 
         forbidden_prefixes = ("tests/", "examples/", "outputs/", "generated_outputs/")
@@ -405,6 +422,7 @@ def _inspect_sdist(
     expected_schemas: dict[str, bytes],
     expected_modules: set[str],
     expected_capture_resources: dict[str, bytes],
+    expected_corpus_resources: dict[str, bytes],
 ) -> Message:
     with tarfile.open(sdist_path, "r:gz") as archive:
         root, members = _safe_sdist_members(archive)
@@ -467,6 +485,18 @@ def _inspect_sdist(
         _require(
             capture_payload == expected_capture_resources,
             "sdist Capture Web resources differ by filename or bytes.",
+        )
+        corpus_prefix = f"{root}/src/{CORPUS_RESOURCE_PREFIX}"
+        corpus_payload = {
+            name.removeprefix(corpus_prefix): _tar_bytes(archive, members[name])
+            for name in names
+            if name.startswith(corpus_prefix)
+            and not name.endswith(".py")
+            and members[name].isfile()
+        }
+        _require(
+            corpus_payload == expected_corpus_resources,
+            "sdist Corpus Web resources differ by filename or bytes.",
         )
         _require(f"{root}/setup.py" not in names, "sdist contains setup.py.")
         _require(f"{root}/main.py" not in names, "sdist contains the repository Root main.py.")
@@ -694,6 +724,7 @@ import sys
 import sysconfig
 import threading
 from pathlib import Path
+from urllib.parse import urlencode
 
 import skat_ai
 from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, parse_request, serialize_result
@@ -713,6 +744,8 @@ from skat_ai.cli.session_assistant import run_session_assistant
 from skat_ai.capture_web.analysis import execute_match_capture_web_analysis_v1
 from skat_ai.capture_web.context import MatchCaptureWebContextV1
 from skat_ai.capture_web.server import start_match_capture_web_server_v1
+from skat_ai.corpus_web.context import LearningCorpusWebContextV1
+from skat_ai.corpus_web.server import start_learning_corpus_web_server_v1
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
@@ -723,6 +756,9 @@ from skat_ai.match_analysis_exports import (
     build_match_historical_game_collection_export_v1,
     build_match_materialization_summary_export_v1,
     build_match_report_result_export_v1,
+)
+from skat_ai.match_analysis_report_source_codec import (
+    resume_match_analysis_report_source_export_v1,
 )
 from skat_ai.match_capture_contracts import MatchCaptureDefinitionV1
 from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
@@ -789,6 +825,22 @@ for name in capture_resource_names:
     capture_digest.update(name.encode("utf-8"))
     capture_digest.update(b"\0")
     capture_digest.update(content)
+
+corpus_resource_root = importlib.resources.files("skat_ai.corpus_web")
+corpus_resource_names = (
+    "templates/page.html",
+    "assets/corpus.css",
+    "assets/corpus.js",
+)
+corpus_digest = hashlib.sha256()
+for name in corpus_resource_names:
+    content = corpus_resource_root.joinpath(name).read_bytes()
+    assert content
+    assert b"https://" not in content and b"http://" not in content
+    assert b"eval(" not in content
+    corpus_digest.update(name.encode("utf-8"))
+    corpus_digest.update(b"\0")
+    corpus_digest.update(content)
 
 capture_path = cwd / "capture-workspace.json"
 capture_context = MatchCaptureWebContextV1.open(capture_path)
@@ -1145,6 +1197,7 @@ try:
     assert historical_review["reviewed_decision_count"] == 30
 
     assert capture_context.save_candidate(complete_workspace) == "saved"
+    corpus_workspace_bytes = capture_path.read_bytes()
     materialization_response = execute_match_capture_web_analysis_v1(
         capture_context,
         {
@@ -1200,6 +1253,23 @@ try:
     assert content == expected_root_export.to_bytes()
     assert json.loads(content) == search_document
 
+    strategy_source_path = (
+        f"/api/v1/reports/{search_report.report_id}/strategy-source.json"
+    )
+    status, strategy_source_headers, strategy_source_content = capture_request(
+        "GET",
+        strategy_source_path,
+        headers=get_headers,
+    )
+    assert status == 200
+    assert strategy_source_headers["Content-Disposition"].endswith(
+        'strategy-source.json"'
+    )
+    strategy_source_document = json.loads(strategy_source_content)
+    assert resume_match_analysis_report_source_export_v1(
+        strategy_source_document
+    ).report == search_report
+
     materialization_path = "/api/v1/exports/materialization.json"
     status, _, content = capture_request(
         "GET",
@@ -1253,6 +1323,225 @@ finally:
     capture_server.shutdown()
     capture_server.server_close()
     capture_thread.join(timeout=5)
+
+corpus_root = cwd / "distribution-corpus"
+corpus_context = LearningCorpusWebContextV1.open(corpus_root)
+assert corpus_context.store is None
+corpus_server = start_learning_corpus_web_server_v1(
+    corpus_context,
+    port=0,
+    token="distribution-corpus-token",
+)
+corpus_thread = threading.Thread(target=corpus_server.serve_forever, daemon=True)
+corpus_thread.start()
+
+
+def corpus_request(method, path, *, headers=None, body=None):
+    connection = http.client.HTTPConnection("127.0.0.1", corpus_server.port)
+    connection.request(method, path, headers=headers or {}, body=body)
+    response = connection.getresponse()
+    content = response.read()
+    returned_headers = dict(response.getheaders())
+    connection.close()
+    return response.status, returned_headers, content
+
+
+def corpus_multipart(fields, file_field, content):
+    boundary = "distribution-corpus-boundary"
+    parts = [
+        (
+            f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"'
+            f"\r\n\r\n{value}\r\n"
+        ).encode("utf-8")
+        for name, value in fields.items()
+    ]
+    parts.append(
+        (
+            f'--{boundary}\r\nContent-Disposition: form-data; name="{file_field}"; '
+            'filename="ignored-caller-name.json"\r\n'
+            "Content-Type: application/json\r\n\r\n"
+        ).encode("utf-8")
+        + content
+        + b"\r\n"
+    )
+    parts.append(f"--{boundary}--\r\n".encode("ascii"))
+    return b"".join(parts), f"multipart/form-data; boundary={boundary}"
+
+
+try:
+    corpus_host = f"127.0.0.1:{corpus_server.port}"
+    status, headers, content = corpus_request(
+        "GET",
+        "/?token=distribution-corpus-token",
+        headers={"Host": corpus_host},
+    )
+    assert status == 303 and content == b""
+    corpus_cookie = headers["Set-Cookie"].split(";", 1)[0]
+    corpus_get_headers = {"Host": corpus_host, "Cookie": corpus_cookie}
+    corpus_post_headers = {
+        **corpus_get_headers,
+        "Origin": f"http://{corpus_host}",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+
+    status, _, content = corpus_request("GET", "/", headers=corpus_get_headers)
+    assert status == 200 and b"Initialize the Learning Corpus" in content
+    initialization_body = urlencode({
+        "operation": "initialize_corpus",
+        "corpus_id": "distribution-corpus",
+    }).encode("utf-8")
+    status, _, content = corpus_request(
+        "POST",
+        "/api/v1/operations",
+        headers=corpus_post_headers,
+        body=initialization_body,
+    )
+    assert status == 200 and b"Learning Corpus initialized" in content
+
+    workspace_body, workspace_content_type = corpus_multipart(
+        {
+            "operation": "import_match_workspace",
+            "selection_mode": "select_imported",
+            "same_revision_resolution": "reject",
+            "expected_catalog_revision": 0,
+        },
+        "workspace_file",
+        corpus_workspace_bytes,
+    )
+    status, _, content = corpus_request(
+        "POST",
+        "/api/v1/operations",
+        headers={
+            **corpus_get_headers,
+            "Origin": f"http://{corpus_host}",
+            "Content-Type": workspace_content_type,
+        },
+        body=workspace_body,
+    )
+    assert status == 200 and b"Match Workspace imported" in content
+    assert corpus_context.store is not None
+    current_selection = corpus_context.store.document.catalog.current_matches[0]
+
+    unchanged_selection_body = urlencode({
+        "operation": "select_current_snapshot",
+        "match_id": current_selection.match_id,
+        "match_snapshot_id": current_selection.match_snapshot_id,
+        "expected_catalog_revision": 1,
+    }).encode("utf-8")
+    status, _, content = corpus_request(
+        "POST",
+        "/api/v1/operations",
+        headers=corpus_post_headers,
+        body=unchanged_selection_body,
+    )
+    assert status == 200 and b"no Corpus change" in content
+
+    preparation_values = {
+        "operation": "prepare_learning_artifacts",
+        "dataset_id": "distribution-learning-dataset-v2",
+        "known_player_seed": 0,
+        "unseen_player_seed": 0,
+        "train_weight": 70,
+        "validation_weight": 15,
+        "test_weight": 15,
+    }
+    status, _, content = corpus_request(
+        "POST",
+        "/api/v1/operations",
+        headers=corpus_post_headers,
+        body=urlencode(preparation_values).encode("utf-8"),
+    )
+    assert status == 200 and b"Learning artifacts prepared" in content
+    assert corpus_context.prepared_artifacts is not None
+    assert corpus_context.prepared_artifacts.strategy_teacher_evidence.evidence_count == 0
+    assert corpus_context.prepared_artifacts.known_player_partition_result.status == (
+        "unavailable"
+    )
+    assert corpus_context.prepared_artifacts.unseen_player_partition_result.status == (
+        "unavailable"
+    )
+
+    report_body, report_content_type = corpus_multipart(
+        {
+            "operation": "import_strategy_teacher_report",
+            "match_snapshot_id": current_selection.match_snapshot_id,
+        },
+        "report_source_file",
+        strategy_source_content,
+    )
+    status, _, content = corpus_request(
+        "POST",
+        "/api/v1/operations",
+        headers={
+            **corpus_get_headers,
+            "Origin": f"http://{corpus_host}",
+            "Content-Type": report_content_type,
+        },
+        body=report_body,
+    )
+    assert status == 200 and b"Report source added" in content
+    assert corpus_context.prepared_artifacts is None
+    assert len(corpus_context.strategy_source_store.sources) == 1
+
+    status, _, content = corpus_request(
+        "POST",
+        "/api/v1/operations",
+        headers=corpus_post_headers,
+        body=urlencode(preparation_values).encode("utf-8"),
+    )
+    assert status == 200 and b"Learning artifacts prepared" in content
+    prepared = corpus_context.prepared_artifacts
+    assert prepared is not None
+    assert prepared.strategy_teacher_evidence.evidence_count == 1
+
+    corpus_download_routes = (
+        "/downloads/player-catalog.json",
+        "/downloads/human-evidence.json",
+        "/downloads/strategy-teacher-evidence.json",
+        "/downloads/learning-dataset-v2.json",
+        "/downloads/known-player-partitions.json",
+        "/downloads/unseen-player-partitions.json",
+        "/downloads/cross-game-summary.json",
+    )
+    files_before_download = sorted(path.relative_to(corpus_root) for path in corpus_root.rglob("*"))
+    for route in corpus_download_routes:
+        status, download_headers, content = corpus_request(
+            "GET",
+            route,
+            headers=corpus_get_headers,
+        )
+        assert status == 200 and content.endswith(b"\n") and b"\r" not in content
+        assert download_headers["Content-Disposition"].startswith(
+            'attachment; filename="'
+        )
+        assert isinstance(json.loads(content), dict)
+    assert sorted(path.relative_to(corpus_root) for path in corpus_root.rglob("*")) == (
+        files_before_download
+    )
+
+    source_binding_id = corpus_context.strategy_source_store.source_binding_ids[0]
+    remove_body = urlencode({
+        "operation": "remove_strategy_teacher_report",
+        "source_binding_id": source_binding_id,
+    }).encode("utf-8")
+    status, _, content = corpus_request(
+        "POST",
+        "/api/v1/operations",
+        headers=corpus_post_headers,
+        body=remove_body,
+    )
+    assert status == 200 and b"source removed" in content
+    assert corpus_context.prepared_artifacts is None
+    for route in corpus_download_routes:
+        status, _, _ = corpus_request("GET", route, headers=corpus_get_headers)
+        assert status == 404
+finally:
+    corpus_server.shutdown()
+    corpus_server.server_close()
+    corpus_thread.join(timeout=5)
+
+assert corpus_context.strategy_source_store.sources == ()
+assert corpus_context.prepared_artifacts is None
 
 assert session.files is session_files
 assert session_files.__all__ == (
@@ -1538,12 +1827,26 @@ print(json.dumps({
             "authenticated_historical_collection_count": 1,
             "applied_mutation_invalidated_reports": True,
         },
+        "learning_corpus": {
+            "initialized": True,
+            "workspace_imported": True,
+            "explicit_current_selection_unchanged": True,
+            "strategy_source_transfer_exact": True,
+            "empty_strategy_preparation": True,
+            "strategy_evidence_count": prepared.strategy_teacher_evidence.evidence_count,
+            "known_player_partition_status": prepared.known_player_partition_result.status,
+            "unseen_player_partition_status": prepared.unseen_player_partition_result.status,
+            "download_count": len(corpus_download_routes),
+            "source_removal_invalidated_downloads": True,
+        },
     },
     "schema_names": resource_names,
     "schema_ids": schema_ids,
     "schema_digest": schema_digest.hexdigest(),
     "capture_resource_names": capture_resource_names,
     "capture_resource_digest": capture_digest.hexdigest(),
+    "corpus_resource_names": corpus_resource_names,
+    "corpus_resource_digest": corpus_digest.hexdigest(),
     "version": skat_ai.__version__,
     "installed_module_count": len(loaded_paths),
 }, sort_keys=True))
@@ -1607,9 +1910,7 @@ def _install_and_smoke(
         json.dumps(document, separators=(",", ":")),
         encoding="utf-8",
     )
-    unavailable_document = json.loads(
-        UNAVAILABLE_SMOKE_EXAMPLE.read_text(encoding="utf-8")
-    )
+    unavailable_document = json.loads(UNAVAILABLE_SMOKE_EXAMPLE.read_text(encoding="utf-8"))
     (consumer_directory / "unavailable.json").write_text(
         json.dumps(unavailable_document, separators=(",", ":")),
         encoding="utf-8",
@@ -1751,6 +2052,30 @@ def _install_and_smoke(
                 forbidden_option not in capture_help_result.stdout,
                 f"{label} {command_name} capture --help exposes {forbidden_option!r}.",
             )
+        corpus_help_result = _run_cli_check(
+            [*prefix, "corpus", "--help"],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not corpus_help_result.stderr,
+            f"{label} {command_name} corpus --help wrote stderr.",
+        )
+        _require(
+            f"usage: {command_name} corpus" in corpus_help_result.stdout,
+            f"{label} {command_name} corpus --help used the wrong command identity.",
+        )
+        for option in ("--corpus PATH", "--port INTEGER", "--no-open"):
+            _require(
+                option in corpus_help_result.stdout,
+                f"{label} {command_name} corpus --help omits {option!r}.",
+            )
+        for forbidden_option in ("--host", "--force", "--daemon", "--workspace"):
+            _require(
+                forbidden_option not in corpus_help_result.stdout,
+                f"{label} {command_name} corpus --help exposes {forbidden_option!r}.",
+            )
         for subcommand in (
             "new",
             "show",
@@ -1773,6 +2098,27 @@ def _install_and_smoke(
         _require(
             version_result.stdout == "skat-ai 0.15.0\n" and not version_result.stderr,
             f"{label} {command_name} --version output changed.",
+        )
+
+    legacy_directory = temporary_root / f"legacy-{label}"
+    legacy_directory.mkdir()
+    legacy_main = legacy_directory / "main.py"
+    shutil.copy2(PROJECT_ROOT / "main.py", legacy_main)
+    legacy_corpus_help = _run_cli_check(
+        [str(python), str(legacy_main), "corpus", "--help"],
+        cwd=legacy_directory,
+        environment=environment,
+        expected_returncode=0,
+    )
+    _require(
+        not legacy_corpus_help.stderr
+        and "usage: python main.py corpus" in legacy_corpus_help.stdout,
+        f"{label} Legacy corpus --help used the wrong command identity.",
+    )
+    for option in ("--corpus PATH", "--port INTEGER", "--no-open"):
+        _require(
+            option in legacy_corpus_help.stdout,
+            f"{label} Legacy corpus --help omits {option!r}.",
         )
 
     for prefix, default_output_name, provenance_output_name in (
@@ -2038,6 +2384,7 @@ def validate_distribution_artifacts() -> None:
     expected_schemas = _expected_schema_bytes()
     expected_modules = _expected_module_names()
     expected_capture_resources = _expected_capture_resource_bytes()
+    expected_corpus_resources = _expected_corpus_resource_bytes()
     _require(
         len(expected_schemas) == EXPECTED_SCHEMA_RESOURCE_COUNT,
         f"Expected {EXPECTED_SCHEMA_RESOURCE_COUNT} authoritative schemas, "
@@ -2081,12 +2428,14 @@ def validate_distribution_artifacts() -> None:
             expected_schemas,
             expected_modules,
             expected_capture_resources,
+            expected_corpus_resources,
         )
         sdist_metadata = _inspect_sdist(
             sdists[0],
             expected_schemas,
             expected_modules,
             expected_capture_resources,
+            expected_corpus_resources,
         )
         _require(
             wheel_metadata["Name"] == sdist_metadata["Name"]

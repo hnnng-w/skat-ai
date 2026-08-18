@@ -30,6 +30,7 @@ include = ["skat_ai*"]
 skat_ai = ["py.typed"]
 "skat_ai.schema_resources" = ["*.schema.json"]
 "skat_ai.capture_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
+"skat_ai.corpus_web" = ["templates/*.html", "assets/*.css", "assets/*.js"]
 
 [tool.ruff]
 line-length = 100

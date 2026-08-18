@@ -272,6 +272,15 @@ Search Worlds, and simulation ownership. Selected report pages expose curated
 Analysis Results only after an explicit action; exact authenticated downloads
 are private local artifacts.
 
+Issue #179 adds one additional authenticated download only on a current executed
+Decision Analysis report page: `Download for Learning Corpus`. It serializes the
+complete canonical executed Decision Report into the strict private source
+envelope at `/api/v1/reports/<report_id>/strategy-source.json`. Unavailable
+Decision, Historical, and materialization reports expose no such link. Download
+is an explicit file transfer; it does not contact, discover, or mutate a Learning
+Corpus and does not persist the Report. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
+
 ## Current boundaries
 
 Match Capture Web, Web Protocol, and Capture CLI are independent internal
@@ -283,9 +292,10 @@ are unchanged.
 Issue #168 exposes explicit private Position/Historical analysis and
 materialization/download controls while preserving the no-automatic-analysis
 rule and unchanged Workspace persistence. It adds no Public Match API, Match
-Schema, Match JSON/data CLI workflow, Capture CLI option, Player Catalog browser operation,
-public/task-specific Dataset workflow, Dataset-v2 browser or persistence
-operation, database, remote serving, cloud
+Schema, Match JSON/data CLI workflow, Capture CLI option, or public/task-specific
+Dataset workflow. Issue #179 separately adds a private local Learning Corpus and
+Dataset-v2 browser without adding derived persistence, a Public API, or Schema.
+Database, remote serving, cloud
 synchronization, encryption, backup, YouTube integration, or EuroSkat
 integration. Commentary and Response Links remain outside Search and Coaching.
 

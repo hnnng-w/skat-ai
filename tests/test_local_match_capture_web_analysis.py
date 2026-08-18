@@ -16,6 +16,7 @@ from test_match_workspace_contracts import _definition
 from test_match_workspace_materialization import _all_passed_workspace
 
 import skat_ai.capture_web.analysis as analysis_module
+import skat_ai.capture_web.server as server_module
 from skat_ai.api.v1.contracts import ResultDocumentV1
 from skat_ai.capture_web.analysis import execute_match_capture_web_analysis_v1
 from skat_ai.capture_web.context import MatchCaptureWebContextV1
@@ -31,8 +32,16 @@ from skat_ai.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
     MatchHistoricalAnalysisOptionsV1,
     build_match_analysis_report_v1,
+    prepare_match_materialization_report_v1,
 )
 from skat_ai.match_analysis_exports import build_match_materialization_summary_export_v1
+from skat_ai.match_analysis_report_source_codec import (
+    resume_match_analysis_report_source_export_v1,
+)
+from skat_ai.match_analysis_report_source_export import (
+    build_match_analysis_report_source_export_v1,
+    serialize_match_analysis_report_source_export_v1,
+)
 from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
 from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
 from skat_ai.match_workspace_contracts import MatchWorkspaceV1, create_match_workspace_v1
@@ -164,6 +173,10 @@ def test_analysis_state_is_curated_and_execution_does_not_save(
     assert context.workspace is before_workspace
     assert context.workspace_path.read_bytes() == before_bytes
     assert len(context.report_store) == 1
+    html = render_match_capture_web_page_v1(result.to_dict()["state"])
+    report_id = result.state["selected_report_id"]
+    assert "Download for Learning Corpus" in html
+    assert f"/api/v1/reports/{report_id}/strategy-source.json" in html
 
 
 def test_selected_report_state_recursively_allows_only_rendered_fields() -> None:
@@ -209,9 +222,7 @@ def test_selected_report_state_recursively_allows_only_rendered_fields() -> None
     )
     historical_document = historical.result.to_dict()["document"]
     summary = historical_document["historical_game_summary"]
-    summary["historical_game_review_summary"]["quality_counts"][
-        "private_decisions"
-    ] = ["CA"]
+    summary["historical_game_review_summary"]["quality_counts"]["private_decisions"] = ["CA"]
     summary["historical_search_review_summary"] = {
         "decision_counts": {"private_count": 1},
         "status_counts": {"private_status": 1},
@@ -540,7 +551,7 @@ def test_browser_analysis_forms_and_materialization_downloads_are_no_js(
         assert b"actual Card is retrospective evidence" in body
         assert b"Historical Game Analysis unavailable" in body
         assert b'name="decision_index"' in body
-        assert body.count(b'data-native-submit') == 2
+        assert body.count(b"data-native-submit") == 2
         assert b'<option value="1">#1' in body
         assert b"acting hand unavailable" in body
 
@@ -551,7 +562,7 @@ def test_browser_analysis_forms_and_materialization_downloads_are_no_js(
             headers=get_headers,
         )
         assert status == 200
-        native_guard = script.index(b'[data-native-submit]')
+        native_guard = script.index(b"[data-native-submit]")
         assert native_guard < script.index(b"event.preventDefault();", native_guard)
         assert native_guard < script.index(b"fetch(event.target.action")
 
@@ -582,9 +593,10 @@ def test_browser_analysis_forms_and_materialization_downloads_are_no_js(
         assert status == 200
         assert b"Prepared Match summary" in body
         assert b"Private local download" in body
-        assert context.workspace_path.parent.joinpath(
-            f"{report_url.rsplit('/', 1)[-1]}.json"
-        ).exists() is False
+        assert (
+            context.workspace_path.parent.joinpath(f"{report_url.rsplit('/', 1)[-1]}.json").exists()
+            is False
+        )
         assert tuple(context.workspace_path.parent.glob("*report*.json")) == ()
 
         state_status, _state_headers, state_body = _request(
@@ -612,15 +624,18 @@ def test_browser_analysis_forms_and_materialization_downloads_are_no_js(
             'materialization.json"'
         )
         report = context.report_store.list()[-1]
-        assert body == (
-            json.dumps(
-                report.value.materialization.to_dict(),
-                ensure_ascii=True,
-                allow_nan=False,
-                indent=2,
-            )
-            + "\n"
-        ).encode()
+        assert (
+            body
+            == (
+                json.dumps(
+                    report.value.materialization.to_dict(),
+                    ensure_ascii=True,
+                    allow_nan=False,
+                    indent=2,
+                )
+                + "\n"
+            ).encode()
+        )
 
         status, headers, body = _request(
             server,
@@ -669,6 +684,7 @@ def test_report_json_auth_bytes_filename_stale_and_invalidation(tmp_path: Path) 
         assert status == 200
         report_id = json.loads(body)["state"]["selected_report_id"]
         path = f"/api/v1/reports/{report_id}.json"
+        strategy_path = f"/api/v1/reports/{report_id}/strategy-source.json"
         status, _headers, _body = _request(
             server,
             "GET",
@@ -676,16 +692,59 @@ def test_report_json_auth_bytes_filename_stale_and_invalidation(tmp_path: Path) 
             headers={"Host": f"127.0.0.1:{server.port}"},
         )
         assert status == 403
+        status, _headers, _body = _request(
+            server,
+            "GET",
+            strategy_path,
+            headers={"Host": f"127.0.0.1:{server.port}"},
+        )
+        assert status == 403
         status, headers, body = _request(server, "GET", path, headers=get_headers)
         assert status == 200
         assert headers["content-disposition"] == (
             f'attachment; filename="{context.workspace.match_definition.match_id}-'
-            'position-03-decision-01-'
+            "position-03-decision-01-"
             'immediate_expected_value.json"'
         )
         report = context.report_store.get(report_id)
         assert json.loads(body) == report.value.result.to_dict()["document"]
         assert body.endswith(b"\n") and not body.endswith(b"\n\n")
+        root_result_body = body
+        files_before = {
+            item.name: item.read_bytes()
+            for item in context.workspace_path.parent.iterdir()
+            if item.is_file()
+        }
+        status, headers, body = _request(
+            server,
+            "GET",
+            strategy_path,
+            headers=get_headers,
+        )
+        assert status == 200
+        assert headers["content-disposition"] == (
+            f'attachment; filename="{context.workspace.match_definition.match_id}-'
+            'position-03-decision-01-immediate_expected_value-strategy-source.json"'
+        )
+        assert headers["content-disposition"].isascii()
+        source_export = build_match_analysis_report_source_export_v1(report)
+        assert body == serialize_match_analysis_report_source_export_v1(source_export)
+        assert resume_match_analysis_report_source_export_v1(json.loads(body)).report == report
+        assert {
+            item.name: item.read_bytes()
+            for item in context.workspace_path.parent.iterdir()
+            if item.is_file()
+        } == files_before
+        status, _headers, body = _request(server, "GET", path, headers=get_headers)
+        assert status == 200
+        assert body == root_result_body
+        status, _headers, _body = _request(
+            server,
+            "GET",
+            f"/api/v1/reports/{'f' * 64}/strategy-source.json",
+            headers=get_headers,
+        )
+        assert status == 404
 
         with context.lock:
             context.workspace = MatchWorkspaceV1._from_validated(
@@ -694,6 +753,8 @@ def test_report_json_auth_bytes_filename_stale_and_invalidation(tmp_path: Path) 
                 slots=context.workspace.slots,
             )
         status, _headers, _body = _request(server, "GET", path, headers=get_headers)
+        assert status == 409
+        status, _headers, _body = _request(server, "GET", strategy_path, headers=get_headers)
         assert status == 409
         with context.lock:
             context.workspace = MatchWorkspaceV1._from_validated(
@@ -719,6 +780,8 @@ def test_report_json_auth_bytes_filename_stale_and_invalidation(tmp_path: Path) 
         )
         assert status == 200
         status, _headers, _body = _request(server, "GET", path, headers=get_headers)
+        assert status == 404
+        status, _headers, _body = _request(server, "GET", strategy_path, headers=get_headers)
         assert status == 404
     finally:
         server.shutdown()
@@ -803,9 +866,7 @@ def test_export_serialization_value_error_is_artifact_unavailable(
     monkeypatch.setattr(
         server_module,
         builder_name,
-        lambda *args, **kwargs: (
-            original_builder(*args, **kwargs) and BrokenArtifact()
-        ),
+        lambda *args, **kwargs: original_builder(*args, **kwargs) and BrokenArtifact(),
     )
     if path == "materialization":
         monkeypatch.setitem(
@@ -878,9 +939,7 @@ def test_download_serialization_linearizes_before_report_invalidation(
 
         def mutate():
             mutation_started.set()
-            mutation_result.append(
-                apply_match_capture_web_operation_v1(context, mutation_values)
-            )
+            mutation_result.append(apply_match_capture_web_operation_v1(context, mutation_values))
             mutation_finished.set()
 
         download.start()
@@ -906,7 +965,7 @@ def test_download_serialization_linearizes_before_report_invalidation(
 
 @pytest.mark.parametrize(
     "match_id",
-    ("opaque/match", 'opaque\"match\r\nheader', "opaque-match-ä"),
+    ("opaque/match", 'opaque"match\r\nheader', "opaque-match-ä"),
 )
 def test_opaque_match_id_download_header_is_ascii_safe(
     tmp_path: Path,
@@ -1025,9 +1084,7 @@ def test_disabled_profile_presets_are_private_report_only(tmp_path: Path) -> Non
     )
     report = context.report_store.get(result.state["selected_report_id"])
     assert report is not None
-    assert "opponent_profile_application_summary" not in (
-        report.value.result.to_dict()["document"]
-    )
+    assert "opponent_profile_application_summary" not in (report.value.result.to_dict()["document"])
     profiles = result.to_dict()["state"]["selected_report"]["details"]["profiles"]
     assert profiles["left"]["not_applied_reason"] == "profile_presets_disabled"
     assert profiles["right"]["not_applied_reason"] == "profile_presets_disabled"
@@ -1152,6 +1209,13 @@ def test_analysis_validation_security_method_and_unknown_report(tmp_path: Path) 
             headers=get_headers,
         )
         assert status == 404
+        status, _headers, _body = _request(
+            server,
+            "GET",
+            f"/api/v1/reports/{unknown}/strategy-source.json",
+            headers=get_headers,
+        )
+        assert status == 404
         status, headers, _body = _request(
             server,
             "POST",
@@ -1167,6 +1231,107 @@ def test_analysis_validation_security_method_and_unknown_report(tmp_path: Path) 
             headers=get_headers,
         )
         assert status == 403
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_strategy_source_route_rejects_unsupported_current_report_kinds_and_status(
+    tmp_path: Path,
+) -> None:
+    context = _workspace_context(
+        tmp_path,
+        _strict_workspace(),
+        "unsupported-strategy-sources.json",
+    )
+    workspace = context.workspace
+    materialization = build_match_analysis_report_v1(
+        prepare_match_materialization_report_v1(workspace)
+    )
+    unavailable_decision = build_match_analysis_report_v1(
+        execute_match_decision_analysis_v1(
+            workspace,
+            match_position=3,
+            decision_index=99,
+            options=MatchDecisionAnalysisOptionsV1(immediate_sample_count=1),
+        )
+    )
+    historical = build_match_analysis_report_v1(
+        execute_match_historical_analysis_v1(
+            workspace,
+            match_position=3,
+            options=MatchHistoricalAnalysisOptionsV1(immediate_sample_count=1),
+        )
+    )
+    for report in (materialization, unavailable_decision, historical):
+        context.report_store.add(report)
+
+    server, thread = _start_server(context)
+    try:
+        get_headers, _post_headers = _bootstrap_analysis(server)
+        for report in (materialization, unavailable_decision, historical):
+            status, _headers, body = _request(
+                server,
+                "GET",
+                f"/api/v1/reports/{report.report_id}/strategy-source.json",
+                headers=get_headers,
+            )
+            assert status == 404
+            assert body == b"Artifact unavailable"
+            state = build_match_capture_web_state_v1(
+                workspace,
+                workspace_filename=context.workspace_filename,
+                selected_position=report.match_position or 1,
+                report_store=context.report_store,
+                selected_report_id=report.report_id,
+            )
+            assert "Download for Learning Corpus" not in (render_match_capture_web_page_v1(state))
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_strategy_source_serialization_failure_is_generic_internal_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    context = _partial_context(tmp_path)
+    result = execute_match_capture_web_analysis_v1(
+        context,
+        _analysis_values(
+            context,
+            "analyze_decision",
+            decision_index="1",
+            immediate_sample_count="1",
+            immediate_random_seed="0",
+            recommendation_method="immediate_expected_value",
+            search_random_seed="",
+            search_budget_profile="historical_review_v1",
+            use_profile_presets="false",
+        ),
+        browser_form=True,
+    )
+    assert result.status == "applied"
+    report = context.report_store.list()[0]
+    monkeypatch.setattr(
+        server_module,
+        "serialize_match_analysis_report_source_export_v1",
+        lambda _export: (_ for _ in ()).throw(ValueError("private serialization")),
+    )
+    server, thread = _start_server(context)
+    try:
+        get_headers, _post_headers = _bootstrap_analysis(server)
+        status, _headers, body = _request(
+            server,
+            "GET",
+            f"/api/v1/reports/{report.report_id}/strategy-source.json",
+            headers=get_headers,
+        )
+        assert status == 500
+        assert body == b"Internal server error"
+        assert b"private serialization" not in body
     finally:
         server.shutdown()
         server.server_close()
@@ -1275,9 +1440,7 @@ def test_complete_materialization_renders_standings_lot_and_twelve_rounds(
         ),
     )
     selected = result.to_dict()["state"]["selected_report"]
-    assert len(
-        selected["details"]["historical_list"]["round_end_progression"]
-    ) == 12
+    assert len(selected["details"]["historical_list"]["round_end_progression"]) == 12
     html = render_match_capture_web_page_v1(result.to_dict()["state"])
     assert "Final standings" in html
     assert "lot required" in html.lower()
@@ -1299,9 +1462,7 @@ def test_complete_materialization_serves_all_cached_export_kinds(tmp_path: Path)
         expected = {
             "training-sources.json": f"{match_id}-training-sources.json",
             "historical-list-input.json": f"{match_id}-historical-list-input.json",
-            "historical-list-aggregation.json": (
-                f"{match_id}-historical-list-aggregation.json"
-            ),
+            "historical-list-aggregation.json": (f"{match_id}-historical-list-aggregation.json"),
         }
         for route, filename in expected.items():
             status, headers, body = _request(
@@ -1311,9 +1472,7 @@ def test_complete_materialization_serves_all_cached_export_kinds(tmp_path: Path)
                 headers=get_headers,
             )
             assert status == 200
-            assert headers["content-disposition"] == (
-                f'attachment; filename="{filename}"'
-            )
+            assert headers["content-disposition"] == (f'attachment; filename="{filename}"')
             assert json.loads(body)
             assert body.endswith(b"\n") and not body.endswith(b"\n\n")
     finally:

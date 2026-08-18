@@ -12,6 +12,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
 from skat_ai.errors import SkatAIError, SkatAIInvariantError
+from skat_ai.match_analysis_contracts import MatchDecisionAnalysisResultV1
 from skat_ai.match_analysis_exports import (
     MatchArtifactExportV1,
     build_match_historical_game_collection_export_v1,
@@ -20,6 +21,10 @@ from skat_ai.match_analysis_exports import (
     build_match_materialization_summary_export_v1,
     build_match_report_result_export_v1,
     build_match_training_source_collection_export_v1,
+)
+from skat_ai.match_analysis_report_source_export import (
+    build_match_analysis_report_source_export_v1,
+    serialize_match_analysis_report_source_export_v1,
 )
 
 from .analysis import (
@@ -62,6 +67,10 @@ _POST_ROUTES = {
 _REPORT_PAGE_PATTERN = re.compile(r"^/reports/([0-9a-f]{64})$")
 _REPORT_JSON_PATTERN = re.compile(
     rf"^{re.escape(MATCH_CAPTURE_WEB_API_PREFIX)}/reports/([0-9a-f]{{64}})\.json$"
+)
+_REPORT_STRATEGY_SOURCE_PATTERN = re.compile(
+    rf"^{re.escape(MATCH_CAPTURE_WEB_API_PREFIX)}/reports/"
+    r"([0-9a-f]{64})/strategy-source\.json$"
 )
 _EXPORT_BUILDERS = {
     f"{MATCH_CAPTURE_WEB_API_PREFIX}/exports/materialization.json": (
@@ -187,10 +196,7 @@ def _validate_request_value_types(
         elif name == "cards":
             if not (
                 isinstance(value, str)
-                or (
-                    isinstance(value, list)
-                    and all(isinstance(item, str) for item in value)
-                )
+                or (isinstance(value, list) and all(isinstance(item, str) for item in value))
             ):
                 raise ValueError("cards must be JSON text or an array of text values.")
         elif not isinstance(value, str):
@@ -226,10 +232,7 @@ class MatchCaptureWebServerV1(ThreadingHTTPServer):
 
     @property
     def bootstrap_url(self) -> str:
-        return (
-            f"http://{MATCH_CAPTURE_WEB_BIND_HOST}:{self.port}/"
-            f"?token={self.capture_token}"
-        )
+        return f"http://{MATCH_CAPTURE_WEB_BIND_HOST}:{self.port}/?token={self.capture_token}"
 
     @property
     def origin(self) -> str:
@@ -349,9 +352,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
                     ("Location", "/"),
                     (
                         "Set-Cookie",
-                        build_match_capture_web_cookie_v1(
-                            self.server.capture_token
-                        ),
+                        build_match_capture_web_cookie_v1(self.server.capture_token),
                     ),
                 ),
             )
@@ -383,9 +384,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
         with self.server.capture_context.lock:
             return build_match_capture_web_state_v1(
                 self.server.capture_context.workspace,
-                workspace_filename=(
-                    self.server.capture_context.workspace_filename
-                ),
+                workspace_filename=(self.server.capture_context.workspace_filename),
                 selected_position=position,
                 report_store=self.server.capture_context.report_store,
                 selected_report_id=selected_report_id,
@@ -421,8 +420,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
             return value, True
         if media_type != "application/x-www-form-urlencoded":
             raise ValueError(
-                "Content-Type must be application/json or "
-                "application/x-www-form-urlencoded."
+                "Content-Type must be application/json or application/x-www-form-urlencoded."
             )
         try:
             decoded = raw_body.decode("utf-8")
@@ -430,9 +428,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
             raise ValueError("Form request body must be valid UTF-8.") from error
         parsed = parse_qs(decoded, keep_blank_values=True, strict_parsing=True)
         duplicates = sorted(
-            name
-            for name, items in parsed.items()
-            if name != "cards" and len(items) != 1
+            name for name, items in parsed.items() if name != "cards" and len(items) != 1
         )
         if duplicates:
             raise ValueError(f"Form fields must not repeat: {', '.join(duplicates)}.")
@@ -479,9 +475,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
         return report
 
     def _materialization_report(self):
-        status, report = get_current_materialization_report_v1(
-            self.server.capture_context
-        )
+        status, report = get_current_materialization_report_v1(self.server.capture_context)
         if status == "missing":
             self._send_text(HTTPStatus.NOT_FOUND, "Artifact unavailable")
             return None
@@ -496,11 +490,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
         report,
     ) -> MatchArtifactExportV1:
         materialization = report.value.materialization
-        source = (
-            report.value
-            if path.endswith("/exports/materialization.json")
-            else materialization
-        )
+        source = report.value if path.endswith("/exports/materialization.json") else materialization
         return _EXPORT_BUILDERS[path](source)
 
     def _is_get_route(self, path: str) -> bool:
@@ -512,6 +502,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
             or self._position_from_path(path) is not None
             or _REPORT_PAGE_PATTERN.fullmatch(path) is not None
             or _REPORT_JSON_PATTERN.fullmatch(path) is not None
+            or _REPORT_STRATEGY_SOURCE_PATTERN.fullmatch(path) is not None
         )
 
     def do_GET(self) -> None:
@@ -539,6 +530,27 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
                     render_match_capture_web_page_v1(state),
                     content_type="text/html; charset=utf-8",
                 )
+                return
+            strategy_source = _REPORT_STRATEGY_SOURCE_PATTERN.fullmatch(path)
+            if strategy_source is not None:
+                with self.server.capture_context.lock:
+                    report = self._report_status(strategy_source.group(1))
+                    if report is None:
+                        return
+                    if (
+                        report.report_kind != "decision_analysis"
+                        or type(report.value) is not MatchDecisionAnalysisResultV1
+                        or report.value.status != "executed"
+                    ):
+                        self._send_text(HTTPStatus.NOT_FOUND, "Artifact unavailable")
+                        return
+                    root_artifact = build_match_report_result_export_v1(report)
+                    export = build_match_analysis_report_source_export_v1(report)
+                    filename = (
+                        f"{root_artifact.filename.removesuffix('.json')}-strategy-source.json"
+                    )
+                    content = serialize_match_analysis_report_source_export_v1(export)
+                self._send_artifact(filename, content)
                 return
             report_json = _REPORT_JSON_PATTERN.fullmatch(path)
             if report_json is not None:
@@ -643,9 +655,7 @@ class MatchCaptureWebRequestHandlerV1(BaseHTTPRequestHandler):
                 except (TypeError, ValueError) as error:
                     raise ValueError("match_position must be an integer.") from error
                 if not 1 <= position <= 36:
-                    raise ValueError(
-                        "match_position must be an integer from 1 through 36."
-                    )
+                    raise ValueError("match_position must be an integer from 1 through 36.")
                 result = reload_match_capture_workspace_v1(
                     self.server.capture_context,
                     selected_position=position,

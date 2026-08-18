@@ -107,9 +107,7 @@ def _require_mapping(
     if value is None and allow_absent:
         return None
     if not isinstance(value, Mapping):
-        raise SkatAIInvariantError(
-            f"Strategy Teacher source Result requires {field_name}."
-        )
+        raise SkatAIInvariantError(f"Strategy Teacher source Result requires {field_name}.")
     return value
 
 
@@ -119,9 +117,7 @@ def _require_sequence(
 ) -> Sequence[object]:
     value = document.get(field_name)
     if isinstance(value, (str, bytes)) or not isinstance(value, Sequence):
-        raise SkatAIInvariantError(
-            f"Strategy Teacher source Result requires {field_name}."
-        )
+        raise SkatAIInvariantError(f"Strategy Teacher source Result requires {field_name}.")
     return value
 
 
@@ -131,9 +127,7 @@ def _require_exact_fields(
     field_name: str,
 ) -> None:
     if set(value) != expected_fields:
-        raise SkatAIInvariantError(
-            f"Strategy Teacher source {field_name} fields must be exact."
-        )
+        raise SkatAIInvariantError(f"Strategy Teacher source {field_name} fields must be exact.")
 
 
 def _validate_minimized_open_schema_fields(
@@ -197,9 +191,7 @@ def _validate_minimized_open_schema_fields(
         )
         for field_name, field_value in profile.items():
             if field_name in _PLAYER_PROFILE_COUNT_FIELDS:
-                valid = field_value is None or (
-                    type(field_value) is int and field_value >= 0
-                )
+                valid = field_value is None or (type(field_value) is int and field_value >= 0)
             else:
                 valid = field_value is None or (
                     type(field_value) in {int, float}
@@ -208,17 +200,13 @@ def _validate_minimized_open_schema_fields(
                 )
             if not valid:
                 raise SkatAIInvariantError(
-                    "Strategy Teacher analysis metadata contains an invalid "
-                    f"{side} Profile value."
+                    f"Strategy Teacher analysis metadata contains an invalid {side} Profile value."
                 )
     recommended_presets = cast(
         Mapping[str, object],
         analysis_metadata["recommended_opponent_policy_presets"],
     )
-    if any(
-        value not in _PROFILE_POLICY_PRESETS
-        for value in recommended_presets.values()
-    ):
+    if any(value not in _PROFILE_POLICY_PRESETS for value in recommended_presets.values()):
         raise SkatAIInvariantError(
             "Strategy Teacher analysis metadata contains an invalid policy preset."
         )
@@ -257,9 +245,7 @@ def _reconcile_snapshot_source(
         or value.workspace_revision != snapshot.workspace_revision
         or workspace.revision != snapshot.workspace_revision
     ):
-        raise ValueError(
-            "Strategy Teacher source must match its explicit Current Snapshot."
-        )
+        raise ValueError("Strategy Teacher source must match its explicit Current Snapshot.")
     match_position = cast(int, report.match_position)
     decision_index = cast(int, report.decision_index)
     slot = workspace.slots[match_position - 1]
@@ -270,54 +256,41 @@ def _reconcile_snapshot_source(
         or game.match_position != match_position
         or value.game_id != game.game_id
     ):
-        raise ValueError(
-            "Strategy Teacher source must resolve to its exact observed Game."
-        )
+        raise ValueError("Strategy Teacher source must resolve to its exact observed Game.")
     game_references = tuple(
         reference
         for reference in snapshot.game_references
         if reference.match_position == match_position
     )
     if len(game_references) != 1:
-        raise ValueError(
-            "Strategy Teacher source must resolve to one exact Game Reference."
-        )
+        raise ValueError("Strategy Teacher source must resolve to one exact Game Reference.")
     game_reference = game_references[0]
     if (
         game_reference.match_snapshot_id != snapshot.match_snapshot_id
         or game_reference.match_id != snapshot.match_id
         or game_reference.game_id != game.game_id
     ):
-        raise ValueError(
-            "Strategy Teacher Game Reference must close to the Current Snapshot."
-        )
+        raise ValueError("Strategy Teacher Game Reference must close to the Current Snapshot.")
     decision_references = tuple(
         reference
         for reference in snapshot.decision_references
         if reference.game_reference_id == game_reference.game_reference_id
         and reference.decision_index == decision_index
     )
-    plays = tuple(
-        play for play in game.plays if play.decision_index == decision_index
-    )
+    plays = tuple(play for play in game.plays if play.decision_index == decision_index)
     if len(decision_references) != 1 or len(plays) != 1:
-        raise ValueError(
-            "Strategy Teacher source must resolve to one exact Decision Reference."
-        )
+        raise ValueError("Strategy Teacher source must resolve to one exact Decision Reference.")
     decision_reference = decision_references[0]
     play = plays[0]
     if (
-        decision_reference.decision_reference_id
-        not in game_reference.decision_reference_ids
+        decision_reference.decision_reference_id not in game_reference.decision_reference_ids
         or decision_reference.match_snapshot_id != snapshot.match_snapshot_id
         or decision_reference.match_id != snapshot.match_id
         or decision_reference.game_id != game.game_id
         or decision_reference.match_position != match_position
         or decision_reference.acting_player_id != play.player_id
     ):
-        raise ValueError(
-            "Strategy Teacher Decision Reference must close to the observed Play."
-        )
+        raise ValueError("Strategy Teacher Decision Reference must close to the observed Play.")
     return game_reference, decision_reference, play.player_id, play.card
 
 
@@ -362,9 +335,7 @@ def _rebuild_and_validate_source(
     result_document = result.to_dict()["document"]
     validate_output_document(result_document)
     if result_document.get("input_file") != prepared.input_reference:
-        raise SkatAIInvariantError(
-            "Strategy Teacher source Result changed the input reference."
-        )
+        raise SkatAIInvariantError("Strategy Teacher source Result changed the input reference.")
     result_settings = result_document.get("settings")
     expected_settings = {
         field_name: (
@@ -374,13 +345,8 @@ def _rebuild_and_validate_source(
         )
         for field_name in _SETTINGS_FIELDS
     }
-    if (
-        not isinstance(result_settings, Mapping)
-        or result_settings != expected_settings
-    ):
-        raise SkatAIInvariantError(
-            "Strategy Teacher Result changed rebuilt Request settings."
-        )
+    if not isinstance(result_settings, Mapping) or result_settings != expected_settings:
+        raise SkatAIInvariantError("Strategy Teacher Result changed rebuilt Request settings.")
     _reconcile_profile_summary(result_document, prepared)
     review = _require_mapping(result_document, "post_game_review_summary")
     if (
@@ -388,10 +354,30 @@ def _rebuild_and_validate_source(
         or review is None
         or review.get("actual_card_played") != actual_card_played
     ):
-        raise SkatAIInvariantError(
-            "Strategy Teacher source changed the observed actual Card."
-        )
+        raise SkatAIInvariantError("Strategy Teacher source changed the observed actual Card.")
     return value, result_document
+
+
+def validate_learning_corpus_strategy_teacher_report_source_v1(
+    store: LearningCorpusStoreResumeResultV1,
+    source: LearningCorpusStrategyTeacherReportSourceV1,
+) -> None:
+    """Reconciles one exact source with its selected Current Snapshot."""
+    if type(store) is not LearningCorpusStoreResumeResultV1:
+        raise ValueError("store must be an exact LearningCorpusStoreResumeResultV1.")
+    if type(source) is not LearningCorpusStrategyTeacherReportSourceV1:
+        raise ValueError("source must be an exact LearningCorpusStrategyTeacherReportSourceV1.")
+    source._validate(verify_identities=True, validate_report=True)
+    current_snapshots = resolve_learning_corpus_current_match_snapshots_v1(store)
+    matches = tuple(
+        snapshot
+        for snapshot in current_snapshots
+        if snapshot.match_snapshot_id == source.match_snapshot_id
+    )
+    if len(matches) != 1:
+        raise ValueError("Strategy Teacher source must bind one explicit Current Match Snapshot.")
+    snapshot = matches[0]
+    _extract_evidence(source, snapshot)
 
 
 def _extract_evidence(
@@ -457,9 +443,7 @@ def _extract_evidence(
         immediate_candidates=immediate_candidates,
         expected_strategic_metadata={
             "analysis_mode": "post_game_review",
-            "skat_visibility": cast(RequestDocumentV1, value.request).document[
-                "skat_visibility"
-            ],
+            "skat_visibility": cast(RequestDocumentV1, value.request).document["skat_visibility"],
             "game_end_reason": "not_ended",
         },
     )
@@ -482,19 +466,14 @@ def _extract_evidence(
     if (
         requested_method != value.options.recommendation_method
         or settings.get("recommendation_method") != requested_method
-        or profile_preset_settings.get("use_profile_presets")
-        != value.options.use_profile_presets
+        or profile_preset_settings.get("use_profile_presets") != value.options.use_profile_presets
     ):
-        raise SkatAIInvariantError(
-            "Strategy Teacher Result settings differ from source options."
-        )
+        raise SkatAIInvariantError("Strategy Teacher Result settings differ from source options.")
     if (
         settings.get("sample_count") != value.options.immediate_sample_count
         or settings.get("random_seed") != value.options.immediate_random_seed
     ):
-        raise SkatAIInvariantError(
-            "Strategy Teacher Result changed Immediate analysis options."
-        )
+        raise SkatAIInvariantError("Strategy Teacher Result changed Immediate analysis options.")
     search_attempted = recommendation_method_summary.get("search_attempted")
     if search_attempted is True:
         if search is None or search_review is None:
@@ -515,9 +494,7 @@ def _extract_evidence(
         solution_claim = cast(str, search.get("solution_claim"))
         requested_budget = cast(Mapping[str, object], search.get("requested_budget"))
         consumed_budget = cast(Mapping[str, object], search.get("consumed_budget"))
-        search_candidate_results = cast(
-            Sequence[object], search.get("candidate_results")
-        )
+        search_candidate_results = cast(Sequence[object], search.get("candidate_results"))
         if (
             not isinstance(requested_budget, Mapping)
             or not isinstance(consumed_budget, Mapping)
@@ -543,9 +520,7 @@ def _extract_evidence(
         )
     strategic_summary = result.get("strategic_summary")
     if not isinstance(strategic_summary, str):
-        raise SkatAIInvariantError(
-            "Strategy Teacher source Result requires strategic_summary."
-        )
+        raise SkatAIInvariantError("Strategy Teacher source Result requires strategic_summary.")
     effective_method = recommendation_method_summary.get("effective_method")
     status = (
         "recommendation_available"
@@ -554,9 +529,7 @@ def _extract_evidence(
     )
     profile_binding = value.profile_binding
     if profile_binding is None:
-        raise SkatAIInvariantError(
-            "Strategy Teacher source omitted the executed Profile binding."
-        )
+        raise SkatAIInvariantError("Strategy Teacher source omitted the executed Profile binding.")
     return _build_strategy_teacher_evidence_v1(
         source_binding_id=source.source_binding_id,
         source_report_id=source.source_report_id,
@@ -632,21 +605,16 @@ def build_learning_corpus_strategy_teacher_evidence_collection_v1(
         raise ValueError("sources must be an immutable tuple.")
     for source in sources:
         if type(source) is not LearningCorpusStrategyTeacherReportSourceV1:
-            raise ValueError(
-                "sources must contain exact Strategy Teacher Report Sources."
-            )
+            raise ValueError("sources must contain exact Strategy Teacher Report Sources.")
         source._validate(verify_identities=True, validate_report=True)
     source_binding_ids = tuple(source.source_binding_id for source in sources)
     if len(source_binding_ids) != len(set(source_binding_ids)):
         raise ValueError("Strategy Teacher source-binding IDs must be unique.")
     report_keys = tuple(
-        (source.match_snapshot_id, source.source_report_fingerprint)
-        for source in sources
+        (source.match_snapshot_id, source.source_report_fingerprint) for source in sources
     )
     if len(report_keys) != len(set(report_keys)):
-        raise ValueError(
-            "Each exact source Report may occur once per Match Snapshot."
-        )
+        raise ValueError("Each exact source Report may occur once per Match Snapshot.")
 
     current_snapshots = resolve_learning_corpus_current_match_snapshots_v1(store)
     current_by_match_id = {snapshot.match_id: snapshot for snapshot in current_snapshots}
@@ -658,9 +626,7 @@ def build_learning_corpus_strategy_teacher_evidence_collection_v1(
                 "Strategy Teacher sources must bind the explicit Current Match Snapshot."
             )
         evidences.append(_extract_evidence(source, snapshot))
-    ordered_evidences = tuple(
-        sorted(evidences, key=_strategy_teacher_evidence_sort_key_v1)
-    )
+    ordered_evidences = tuple(sorted(evidences, key=_strategy_teacher_evidence_sort_key_v1))
     source_catalog = store.document.catalog
     current_snapshot_ids = tuple(
         selection.match_snapshot_id for selection in source_catalog.current_matches

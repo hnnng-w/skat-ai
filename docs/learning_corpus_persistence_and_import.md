@@ -11,6 +11,11 @@ in-memory Strategy Teacher Evidence collection/export over explicit Current
 Snapshots and caller-supplied Reports, also without a persistence change. Issue
 #176 adds a separate in-memory Learning Dataset version `2` and canonical export
 without adding an object kind, Catalog field, file, path, or byte change.
+Issue #179 exposes initialization, strict Workspace import, and explicit Current
+selection through one private local browser while reusing this persistence layer
+unchanged. Derived Player/Human/Strategy/Dataset/partition/Summary values and
+Report sources remain process-local and are not added to the fixed layout. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 ## Source-of-truth boundary
 
@@ -329,11 +334,12 @@ authenticated authorship.
 Deletion, garbage collection, orphan cleanup, recovery UI, Player Catalog
 persistence, persisted aliases/assertions, merge/split operations, all-revision
 history browsing or named selections beyond Current,
-Human or Strategy Teacher Evidence persistence or transport, automatic Match
-Analysis Report capture, Historical Report import, Derived Tags, Dataset-v2
-persistence, task builders, persisted splits, Summary persistence/transport/UI,
-browser workflows, CLI, Public API, Schema, examples, generated scenarios, and
-model training remain open.
+Human or Strategy Teacher Evidence persistence or public transport, automatic
+Match Analysis Report capture, Historical Report import, Derived Tags,
+Dataset-v2 persistence, task builders, persisted splits, Public API, Schema,
+examples, generated scenarios, and model training remain open. Issue #179
+provides only explicit private browser upload/preparation/download transport; it
+does not persist those derived values or change canonical Corpus files.
 
 Package version remains `0.15.0`. Python remains `>=3.13`; the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

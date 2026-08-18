@@ -12,6 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIRECTORY = PROJECT_ROOT / "schemas"
 PACKAGED_SCHEMA_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "schema_resources"
 CAPTURE_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "capture_web"
+CORPUS_RESOURCE_DIRECTORY = PROJECT_ROOT / "src" / "skat_ai" / "corpus_web"
 
 
 def test_build_metadata_package_discovery_and_package_data_are_explicit() -> None:
@@ -40,6 +41,11 @@ def test_build_metadata_package_discovery_and_package_data_are_explicit() -> Non
         "skat_ai": ["py.typed"],
         "skat_ai.schema_resources": ["*.schema.json"],
         "skat_ai.capture_web": [
+            "templates/*.html",
+            "assets/*.css",
+            "assets/*.js",
+        ],
+        "skat_ai.corpus_web": [
             "templates/*.html",
             "assets/*.css",
             "assets/*.js",
@@ -110,8 +116,27 @@ def test_capture_web_resources_are_local_package_data() -> None:
         assert resource.is_file()
         assert resource.read_bytes() == source.read_bytes()
     combined = b"".join(
-        CAPTURE_RESOURCE_DIRECTORY.joinpath(name).read_bytes()
-        for name in sorted(expected)
+        CAPTURE_RESOURCE_DIRECTORY.joinpath(name).read_bytes() for name in sorted(expected)
+    )
+    assert b"https://" not in combined
+    assert b"http://" not in combined
+    assert b"eval(" not in combined
+
+
+def test_corpus_web_resources_are_local_package_data() -> None:
+    resources = importlib.resources.files("skat_ai.corpus_web")
+    expected = {
+        "templates/page.html",
+        "assets/corpus.css",
+        "assets/corpus.js",
+    }
+    for name in expected:
+        resource = resources.joinpath(name)
+        source = CORPUS_RESOURCE_DIRECTORY.joinpath(name)
+        assert resource.is_file()
+        assert resource.read_bytes() == source.read_bytes()
+    combined = b"".join(
+        CORPUS_RESOURCE_DIRECTORY.joinpath(name).read_bytes() for name in sorted(expected)
     )
     assert b"https://" not in combined
     assert b"http://" not in combined

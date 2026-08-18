@@ -479,8 +479,23 @@ behavior, Communication, Strategy Teacher, evidence Coverage, Dataset Readiness,
 and supplied `known_player`/`unseen_player` Partition Readiness summaries plus
 canonical path-free export. It adds no rating, ranking, interpretation,
 evaluation, model-readiness claim, persistence, or public surface. Issues #171
-through #178 add no workflow, CLI, browser operation, Public API, Schema,
-example, or generated scenario. See
+through #178 add no Root workflow, Public API, Schema, example, or generated
+scenario.
+
+Issue #179 completes the planned private local Learning Corpus/Dataset-v2
+workflow through a separate installed/module/Legacy `corpus` command, one
+explicit Corpus root, strict Workspace and executed-Decision Report-source
+uploads, explicit Current selection, process-local Strategy Teacher sources and
+artifact preparation, a minimized no-JavaScript-capable dashboard, and seven
+authenticated canonical downloads. Preparation builds Player Catalog, Human
+Evidence, Strategy Teacher Evidence, Learning Dataset v2, known-player and
+unseen-player partition Results, then the Cross-game Summary without analysis
+execution. Derived artifacts remain non-persisted and no public contract or
+Schema is added. Package version remains `0.15.0`; functional private local
+`v0.16.0` work is complete, while Release preparation remains open. Start it with
+`skat-ai corpus --corpus CORPUS_ROOT`,
+`python -m skat_ai corpus --corpus CORPUS_ROOT`, or
+`python main.py corpus --corpus CORPUS_ROOT`. See
 [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md),
 [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md),
@@ -488,7 +503,8 @@ example, or generated scenario. See
 [Learning Corpus Strategy Teacher Evidence](docs/learning_corpus_strategy_teacher_evidence.md),
 [Learning Dataset version 2](docs/learning_dataset_v2.md),
 [Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md), and
-[Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md).
+[Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md), and
+[Learning Corpus browser workflows](docs/learning_corpus_browser_workflows.md).
 
 The facade executes already loaded Root documents without caller transport I/O
 and preserves Root JSON output by default. Its lazy schema backend uses packaged
@@ -1054,6 +1070,7 @@ Detailed documentation is split into topic-specific files:
 * [Learning Dataset version 2](docs/learning_dataset_v2.md)
 * [Learning Dataset version 2 partition preparation](docs/learning_dataset_v2_partition_preparation.md)
 * [Learning Dataset version 2 cross-game summaries](docs/learning_dataset_v2_cross_game_summaries.md)
+* [Learning Corpus browser workflows](docs/learning_corpus_browser_workflows.md)
 * [Incremental Session transitions](docs/incremental_session_transitions.md)
 * [Retrospective Session export](docs/retrospective_session_export.md)
 * [Session Position export and Decision checkpoints](docs/live_session_position_export.md)
@@ -1499,14 +1516,19 @@ partition Plans, fixed Known-player and unseen-player algorithms, leakage
 audits, index-only views, and canonical export. Issue #178 adds private
 deterministic exact-Count cross-game Match, Player, Communication, Strategy
 Teacher, Coverage, Dataset Readiness, and supplied Partition Readiness summaries
-plus canonical path-free export. Deletion and
+plus canonical path-free export. Issue #179 completes the functional private
+local workflow with the separate `corpus` CLI/browser, strict Workspace and
+executed-Decision Report-source uploads, explicit Current selection, bounded
+process-local sources, exact no-execution artifact preparation, minimized
+presentation, and seven authenticated canonical downloads. Package version
+remains `0.15.0`, and `v0.16.0` Release preparation remains open. Deletion and
 garbage collection, persisted alias assertions, Player merge/split operations,
-all-revision Player views, Human Evidence persistence or transport, separate
-behavior and communication task builders, Strategy Teacher persistence/transport,
-Historical Report import, Dataset-v2 persistence and persisted partition artifacts,
-Summary persistence/transport/UI, communication-aware annotations, evaluation
-baselines, derived AI tags, browser/CLI/API/Schema exposure, and model training
-remain open. No production model is included.
+all-revision Player views, Human and Strategy Teacher Evidence persistence/public
+transport, automatic Report capture, Historical Report import, Dataset-v2
+persistence and persisted partition artifacts, separate behavior and
+communication task builders, communication-aware annotations, evaluation,
+ratings, derived AI tags, public API/Schema exposure, and model training remain
+open. No production model is included.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

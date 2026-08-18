@@ -176,6 +176,11 @@ The project focuses on:
 * internal Dataset-v2 exact-Count cross-game Match, Player, Communication,
   Strategy, Coverage, Dataset Readiness, and supplied Partition Readiness
   summaries with deterministic identities and canonical path-free bytes
+* internal private local Learning Corpus Web, Protocol, and CLI version `1` with
+  one explicit root, strict Workspace and executed-Decision Report uploads,
+  explicit Current selection, max-2,048 process-local sources, unlocked exact
+  Player/Human/Strategy/Dataset/partition/Summary preparation, minimized
+  no-JavaScript presentation, and seven authenticated canonical downloads
 * public immutable version-1 fixed-three-player 36-position historical-list
   contracts with passed deals, rotating historical seats, settlement-derived
   per-entry contribution facts, cumulative player totals, 36-position
@@ -1122,6 +1127,12 @@ Implemented:
   `learning_dataset_v2_summary_export.py`
   * private descriptive Match, Player, Communication, Strategy, Coverage, and
     readiness summaries over exact sources and supplied partition Results
+* `match_analysis_report_source_export.py` and
+  `match_analysis_report_source_codec.py`
+  * exact executed Decision Report transfer bytes and strict complete reconstruction
+* `cli/corpus_parser.py`, `cli/corpus.py`, and `corpus_web/`
+  * private one-root CLI/HTTP transport, strict uploads, process-local sources
+    and prepared artifacts, minimized rendering, security, and seven downloads
 
 ### Interactive Session contracts
 
@@ -1390,6 +1401,7 @@ Main documentation files:
 * `docs/learning_dataset_v2.md`
 * `docs/learning_dataset_v2_partition_preparation.md`
 * `docs/learning_dataset_v2_cross_game_summaries.md`
+* `docs/learning_corpus_browser_workflows.md`
 * `docs/opponent_profile_derivation.md`
 * `docs/live_opponent_profiles.md`
 * `docs/historical_opponent_statistics.md`
@@ -1439,6 +1451,13 @@ Packaged Schema Resources, six Session examples, 85 generated-output scenarios,
 and 5,892 passing pytest tests. Issues #150 through #157 implement its functional
 milestone, Issue #158 completed Release preparation, and Issue #159 synchronized
 publication status after manual maintainer publication.
+
+The active planned `v0.16.0 - Learning-ready behavior and communication data`
+milestone is functionally complete through Issue #179's private local Learning
+Corpus/Dataset-v2 workflow. Package version remains `0.15.0`; `v0.16.0` Release
+preparation and publication remain open. This work adds no Root workflow, Public
+API, Schema, example, generated output, second Console Script, derived-artifact
+persistence, or Package-index/PyPI publication claim.
 
 Published Package milestone: `v0.15.0`, providing usable manual post-game capture
 of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -1851,6 +1870,10 @@ Completed implementation scope:
 * internal Dataset-v2 partition preparation plus exact-Count cross-game Match,
   Player, Communication, Strategy, Coverage, Dataset Readiness, and supplied
   Partition Readiness summaries, with deterministic path-free exports
+* internal private Learning Corpus browser/CLI with one explicit root, strict
+  16-MiB uploads, optimistic import/selection, process-local exact Report sources
+  and prepared artifacts, no-JavaScript forms, loopback security, and seven
+  canonical downloads without derived persistence or public contracts
 
 ## Current high-priority limitations
 
@@ -1929,7 +1952,7 @@ Completed implementation scope:
   YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
-* Issues #171 through #178 provide private Learning Corpus source identity, exact
+* Issues #171 through #179 provide private Learning Corpus source identity, exact
   Match Snapshots, closed references, Catalog entries/current selections,
   deterministic fixed-root persistence, strict Store Resume and orphan reporting,
   pure Catalog mutation, strict Workspace import, and persisted selection
@@ -1938,26 +1961,28 @@ Completed implementation scope:
   Strategy Teacher Evidence exports plus one Current-only unpartitioned,
   task-neutral Learning Dataset version `2` plus Match-group-safe deterministic
   partition preparation and leakage audits, plus descriptive cross-game Match,
-  Player, Communication, Strategy Teacher, Coverage, and readiness summaries.
+  Player, Communication, Strategy Teacher, Coverage, and readiness summaries,
+  plus one private local workflow for strict source upload, explicit Current
+  selection, exact preparation, minimized inspection, and canonical download.
   Strategy Teacher sources accept only exact
   executed Decision Analysis Reports, rebuild no-execution Requests, validate
   retained Results, and make no optimality or preferred-Teacher claim.
   Deletion, garbage collection, recovery UI, persisted aliases/assertions,
   merge/split operations, all-revision Player views, Human Evidence persistence
-  and transport, Strategy Teacher persistence and transport, Historical Report
-  import, Dataset-v2 persistence, task builders, persisted partition artifacts,
-  Summary persistence/transport/UI, browser workflows, and public exposure remain
-  open.
+  and public transport, Strategy Teacher persistence and public transport,
+  Dataset-v2 persistence, task builders, persisted partition artifacts, derived
+  artifact persistence, automatic Report capture, Historical Report import, and
+  public exposure remain open. Database/remote/cloud/collaboration,
+  evaluation, ratings, and model training also remain open.
 * The product supports fixed three-player tables only; four-player tables are unconditionally out of scope.
 
 ## Next recommended action
 
-Continue the active `v0.16.0 - Learning-ready behavior and communication data`
-milestone from Issues #171 through #178's internal identity, Catalog,
-persistence, Workspace-import, derived Player-history, Human Evidence, and
-Strategy Teacher Evidence, Learning Dataset-v2 export, partition, and descriptive
-Summary foundations. The next
-focused decision should
+Prepare the completed functional private local `v0.16.0 - Learning-ready
+behavior and communication data` milestone from Issues #171 through #179 for a
+future Release, while keeping Package version `0.15.0` until that separate
+release-preparation work is explicitly approved. The next focused product
+decision should
 keep immutable imported Workspace Snapshots separate from future persisted or
 task-specific derived artifacts while defining one currently open boundary such
 as persisted identity assertions, Dataset-v2 persistence, or separate
@@ -1966,8 +1991,8 @@ behavior/strategy/communication task builders.
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,
 Strategy Teacher persistence, Historical Report import, ground-truth teacher
-labels, Dataset-v2 persistence/task builders, browser workflow, or
-public exposure from Issues #171 through #178. Those areas require separate acceptance
+labels, Dataset-v2 persistence/task builders, automatic Report capture, or
+public exposure from Issues #171 through #179. Those areas require separate acceptance
 criteria. No production model is
 planned.
 

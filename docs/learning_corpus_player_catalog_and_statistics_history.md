@@ -39,6 +39,10 @@ I/O.
 
 Changing an explicit Current selection changes the next derived Player Catalog.
 Version 1 has no all-revisions mode and never infers a newest Snapshot.
+Issue #179 can trigger that derivation explicitly in the private local browser
+and download the exact process-local Catalog. It does not persist the Catalog,
+select a canonical label, or change the derivation contract. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 ## Versions and policies
 
@@ -252,10 +256,11 @@ generated outputs, and Training Dataset version `1` target
 
 Persisted aliases/assertions, Player merge/split operations, Catalog persistence,
 all-revision Player views, canonical labels, Human Evidence persistence or
-transport, Strategy Teacher Evidence persistence or transport, automatic Report
-capture, Historical Report import, Dataset-v2 persistence and task builders,
-persisted split artifacts, Summary persistence/transport/UI,
-browser/CLI/API/Schema exposure, and model training remain open.
+public API/Schema transport, Strategy Teacher Evidence persistence or public
+API/Schema transport, automatic Report capture, Historical Report import,
+Dataset-v2 persistence and task builders, persisted split artifacts, and model
+training remain open. Issue #179's private process-local browser preparation and
+download add no public exposure.
 
 The private Current-Snapshot-only minimized Commentary/Response Evidence export
 itself is implemented separately by Issue #174. See

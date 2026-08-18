@@ -277,3 +277,10 @@ with the exact Dataset and Player Catalog. It reports existing complete or
 unavailable Partition Readiness without regenerating either Plan or changing
 partition preparation. See
 [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
+
+Issue #179's browser requires explicit seeds and positive weights, with displayed
+defaults `0`, `0`, and `70`/`15`/`15`; those are submitted browser values, not
+defaults added to this Request contract. It prepares `known_player` before
+`unseen_player`, retains complete or unavailable Results process-locally, and
+offers canonical authenticated downloads without persisting a split. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).

@@ -271,9 +271,11 @@ examples, 85 generated outputs, and Training Dataset version `1` target
 
 Human Evidence never enters Match Analysis, Search, Historical Review, Replay
 Coaching, Profile application, or Training Dataset version `1`. Human Evidence
-persistence, browser/CLI download, Public API, Schema, derived human or AI tags,
-Dataset-v2 persistence, task builders, persisted splits, Summary persistence or
-transport, evaluation, and model training remain open. Issue #175's separate Strategy
+persistence, Public API, Schema, derived human or AI tags, Dataset-v2
+persistence, task builders, persisted splits, evaluation, and model training
+remain open. Issue #179 can explicitly rebuild and download the exact private
+process-local export through the local Corpus browser; this adds no persistence
+or public contract. Issue #175's separate Strategy
 Teacher Evidence may share a Decision Reference but copies no Commentary or
 Response association and makes no human-engine agreement claim. See
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
@@ -285,6 +287,10 @@ A Response joins only when its Commentary and both Decisions have Records; its I
 is outgoing on the subject and incoming on the response Record. Other Responses
 are explicitly unjoined. Text and Response values remain exact and uninterpreted.
 See [Learning Dataset version 2](learning_dataset_v2.md).
+
+See [Learning Corpus browser workflows](learning_corpus_browser_workflows.md) for
+the private explicit preparation, invalidation, and authenticated download
+boundary.
 
 Issue #178 summarizes only joined structural Commentary/Response Evidence plus
 explicit unjoined Counts. It never reads, groups, or emits Commentary text or

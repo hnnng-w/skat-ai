@@ -322,6 +322,13 @@ grouping, rating, ranking, evaluation, or model-readiness claims, and provides a
 canonical path-free export. See
 [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
 
+Issue #179 explicitly builds this Dataset after the exact Player, Human, and
+Strategy Teacher sources in the private local Corpus browser, then prepares
+known-player and unseen-player Results and the Summary. The Dataset and all
+derived artifacts remain process-local; authenticated canonical download adds no
+persistence, Public API, Schema, task, or model claim. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
+
 Package version remains `0.15.0`; Python remains `>=3.13`; Public API contract
 version remains `1`; seven Root workflows, one Console Script, 63 authoritative
 and packaged Schemas, six Session examples, 85 generated outputs, Corpus/Match

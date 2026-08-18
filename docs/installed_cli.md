@@ -89,15 +89,29 @@ Its exact options are required `--workspace PATH`, optional `--port INTEGER`
 defaulting to `0`, and `--no-open`. It has no host, remote-bind, force,
 authentication-disable, daemon, default-path, or output-file option.
 
+Issue #179 adds the separate private local Learning Corpus family with equal
+installed, module, and Legacy behavior:
+
+```powershell
+skat-ai corpus --corpus CORPUS_ROOT
+python -m skat_ai corpus --corpus CORPUS_ROOT
+python main.py corpus --corpus CORPUS_ROOT
+```
+
+Its exact options are required `--corpus PATH`, optional `--port INTEGER` from
+`1` through `65535` defaulting to `8766`, and `--no-open`. It has no host,
+remote-bind, Workspace, force, generate, daemon, default-root, or output option.
+
 ## Options and execution
 
 All three forms share canonical parsers and the same option names, aliases,
 destinations, actions, defaults, choices, repeatability, and semantic validation.
 Issue #142 added `--version`; Issue #147 added Root `--include-provenance`;
 Issue #157 delegates a leading `session` token to the separate Session parser.
-Issue #165 adds leading `capture` dispatch before Session. Every other invocation
-preserves the existing Root parser. The full current option lists are available
-through `--help`, `session --help`, and `capture --help`.
+Issue #165 adds leading `capture` dispatch before Session. Issue #179 adds leading
+`corpus` dispatch before Capture. Every other invocation preserves the existing
+Root parser. The full current option lists are available through `--help`,
+`session --help`, `capture --help`, and `corpus --help`.
 
 The CLI preserves this transport sequence:
 
@@ -126,8 +140,17 @@ This does not add an Engine workflow.
 Capture transport is private and internal. It strictly resumes or creates one
 explicit Match Workspace, binds only to `127.0.0.1`, and delegates one browser
 operation at a time to existing Match Capture services followed by optimistic
-atomic Save. It does not execute the Root Application, Public API, Session,
-analysis, or materialization.
+atomic Save. Ordinary capture operations do not execute analysis. Issue #168's
+separate explicit analysis actions invoke the existing Position or Historical
+Application once; materialization executes no workflow.
+
+Corpus transport is private and internal. It strictly resumes one explicit
+non-empty Corpus or presents caller-ID initialization for an absent/empty root,
+then composes existing Corpus import/selection and Dataset-v2 builders through
+explicit browser actions. Strategy Teacher Report sources and prepared derived
+artifacts are process-local. It executes no analysis and adds no Root workflow,
+Public API, Schema, or derived persistence. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 ## Input and output
 
@@ -231,6 +254,12 @@ bind, or filesystem failures use Code `1`; a normal `Ctrl+C` shutdown uses Code
 `404`, unsupported method `405`, revision or persistence conflict `409`, request
 limit `413`, and generic internal failure `500`.
 
+Corpus parser misuse uses Code `2`; invalid root/Store, missing parent, bind, or
+filesystem failures use Code `1`; normal `Ctrl+C` uses Code `0`. Corpus browser
+validation uses HTTP `400`, security rejection `403`, unavailable download `404`,
+unsupported method `405`, revision/persistence/source-change conflict `409`,
+request limit `413`, and generic internal failure `500`.
+
 ## Compatibility
 
 The canonical implementation is under `skat_ai.cli`. Root `main.py` is a thin
@@ -267,18 +296,25 @@ resources, installed/module Capture help, loopback token bootstrap, browser
 creation, Game start, Declaration, Card append, strict persistence Resume, and
 clean shutdown. Legacy Capture parity remains a repository-checkout gate. The
 local full check and CI invoke that validator once.
+Issue #179 additionally verifies Corpus Web resource bytes, installed/module and
+Legacy Corpus help, one-root initialization, strict Workspace import, explicit
+Current selection, exact Match Report-source transfer, explicit Dataset-v2
+preparation, all seven canonical downloads, invalidation, and shutdown. It adds
+no second Console Script or 64th Schema.
 
 ## Boundaries
 
-Issue #165 changes no Package version, Root workflow, Root parser meaning,
+Issues #165 and #179 change no current Package version, Root workflow, Root parser meaning,
 second Console Script, publication state, default Session path, Public API,
 Schema, example, or generated scenario. Session persistence
 files and explicit JSON outputs remain private caller-controlled data; concise
 human output does not print complete private hands, full Skat, frozen Requests,
-fingerprints, provenance entries, or file contents by default. The Match browser
-is private loopback-only local transport. Session GUI/browser UI, hosted or
-remote browser deployment, online-platform integration, cloud synchronization,
+fingerprints, provenance entries, or file contents by default. The Match and
+Learning Corpus browsers are private loopback-only local transports. Session
+GUI/browser UI, hosted or remote browser deployment, online-platform integration,
+cloud synchronization,
 distributed locking,
 encryption/key management, and automatic backups remain open.
 See [Local Match Capture interface](local_match_capture_interface.md) and
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md) and
 [Public field provenance](public_field_provenance.md).

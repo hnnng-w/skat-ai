@@ -36,6 +36,12 @@ Human, and Strategy Teacher sources. It changes no Issue #171 identity,
 Reference, Snapshot, Catalog, object-kind, or persistence contract. See
 [Learning Dataset version 2](learning_dataset_v2.md).
 
+Issue #179 composes these unchanged contracts in a private one-root local browser
+with explicit import, Current selection, process-local preparation, and canonical
+downloads. It adds no object kind, Catalog field, derived persistence, Public
+API, or Schema. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
+
 ## Source-of-truth boundary
 
 The exact source and derived-data relationships are:
@@ -391,11 +397,11 @@ collection, and automatic Report capture remain open. Issue #174 supplies the se
 private minimized Commentary/Response Evidence collection and in-memory export.
 Issue #175 supplies separate exact executed Decision Report Strategy Teacher
 Evidence and an in-memory export without changing Corpus persistence. Human and
-Strategy Teacher Evidence persistence, browser/CLI/API/Schema transport, derived
-tags, Historical Report import, Dataset-v2 persistence, task builders, persisted
-split artifacts, Summary persistence/transport/UI, examples, generated scenarios,
-and model training remain open. Issues #176 through #178's in-memory Dataset,
-partition, Summary, and export values change no Corpus persistence bytes.
+Strategy Teacher Evidence persistence, public API/Schema transport, derived tags,
+automatic Report capture, Historical Report import, Dataset-v2 persistence, task
+builders, persisted split artifacts, examples, generated scenarios, and model
+training remain open. Issues #176 through #179's in-memory Dataset, partition,
+Summary, browser, and export values change no Corpus persistence bytes.
 
 Package version remains `0.15.0`. Public API contract version `1`, the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session

@@ -1,0 +1,122 @@
+from __future__ import annotations
+
+import os
+import stat
+import threading
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from skat_ai.learning_corpus_persistence import load_learning_corpus_directory_v1
+from skat_ai.learning_corpus_persistence_contracts import (
+    LearningCorpusStoreResumeResultV1,
+)
+
+from .contracts import LearningCorpusPreparedArtifactsV1
+from .source_store import LearningCorpusStrategyTeacherSourceStoreV1
+
+
+@dataclass(slots=True)
+class LearningCorpusWebContextV1:
+    """Synchronized state for one explicit private Learning Corpus root."""
+
+    corpus_root: Path
+    store: LearningCorpusStoreResumeResultV1 | None
+    strategy_source_store: LearningCorpusStrategyTeacherSourceStoreV1 = field(
+        default_factory=LearningCorpusStrategyTeacherSourceStoreV1,
+        repr=False,
+    )
+    prepared_artifacts: LearningCorpusPreparedArtifactsV1 | None = field(
+        default=None,
+        repr=False,
+    )
+    generation: int = 0
+    lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
+    _prepared_store: LearningCorpusStoreResumeResultV1 | None = field(
+        default=None,
+        init=False,
+        repr=False,
+    )
+    _prepared_generation: int | None = field(default=None, init=False, repr=False)
+    _prepared_source_revision: int | None = field(
+        default=None,
+        init=False,
+        repr=False,
+    )
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.corpus_root, Path):
+            raise ValueError("corpus_root must be an explicit Path.")
+        if self.store is not None and type(self.store) is not LearningCorpusStoreResumeResultV1:
+            raise ValueError("store must be null or an exact Learning Corpus Store.")
+        if type(self.strategy_source_store) is not LearningCorpusStrategyTeacherSourceStoreV1:
+            raise ValueError("strategy_source_store must use the exact bounded store.")
+        if type(self.generation) is not int or self.generation < 0:
+            raise ValueError("generation must be a non-negative integer.")
+
+    @classmethod
+    def open(
+        cls,
+        root_path: str | os.PathLike[str],
+    ) -> LearningCorpusWebContextV1:
+        path = Path(root_path).expanduser()
+        parent_mode = os.stat(path.parent).st_mode
+        if not stat.S_ISDIR(parent_mode):
+            raise NotADirectoryError("Learning Corpus parent must be an existing directory.")
+        try:
+            root_mode = os.stat(path).st_mode
+        except FileNotFoundError:
+            return cls(corpus_root=path, store=None)
+        if not stat.S_ISDIR(root_mode):
+            raise NotADirectoryError("Learning Corpus root must be a directory.")
+        with os.scandir(path) as scanned:
+            if next(scanned, None) is None:
+                return cls(corpus_root=path, store=None)
+        return cls(
+            corpus_root=path,
+            store=load_learning_corpus_directory_v1(path),
+        )
+
+    def _invalidate_prepared_locked(self) -> None:
+        self.prepared_artifacts = None
+        self._prepared_store = None
+        self._prepared_generation = None
+        self._prepared_source_revision = None
+
+    def invalidate_prepared(self) -> None:
+        with self.lock:
+            self._invalidate_prepared_locked()
+
+    def source_changed(self) -> None:
+        with self.lock:
+            self._invalidate_prepared_locked()
+            self.generation += 1
+
+    def publish_prepared(
+        self,
+        artifacts: LearningCorpusPreparedArtifactsV1,
+        *,
+        store: LearningCorpusStoreResumeResultV1,
+        source_revision: int,
+        generation: int,
+    ) -> None:
+        if type(artifacts) is not LearningCorpusPreparedArtifactsV1:
+            raise ValueError("artifacts must be exact Prepared Artifacts.")
+        self.prepared_artifacts = artifacts
+        self._prepared_store = store
+        self._prepared_source_revision = source_revision
+        self._prepared_generation = generation
+
+    def reload(self) -> LearningCorpusStoreResumeResultV1:
+        """Strictly loads once and replaces context only after complete success."""
+        with self.lock:
+            store = load_learning_corpus_directory_v1(self.corpus_root)
+            self.store = store
+            self._invalidate_prepared_locked()
+            self.generation += 1
+            return store
+
+    def shutdown(self) -> None:
+        with self.lock:
+            self.strategy_source_store.clear()
+            self._invalidate_prepared_locked()
+            self.generation += 1
