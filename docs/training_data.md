@@ -114,6 +114,12 @@ partition Results without rebuilding or generating them. Its exact-Count Match,
 Player, Communication, Strategy Teacher, Coverage, and readiness summaries are
 descriptive metadata, not Dataset-v1 evaluation or model training.
 
+Issue #179 composes these separate private values in the local `corpus` browser,
+keeps Report sources and all prepared artifacts process-local, and provides seven
+authenticated canonical downloads. It does not change public Training Dataset
+version `1`, its target, its workflow, or its Schema. See
+[Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
+
 ## Dataset input
 
 The top-level input contains only `training_dataset_input`:

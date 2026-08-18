@@ -411,7 +411,7 @@ attach a separate optional complete provenance sidecar without changing internal
 State serialization. Issue #157 preserves the seven Root workflows while adding
 installed/module/Legacy Session CLI parity, six Session examples, and eight
 append-only Session scenarios. The published `v0.14.0` baseline has 63 Schemas
-and 85 generated-output scenarios; the current Package version is `0.15.0`.
+and 85 generated-output scenarios; the current Package version is `0.16.0`.
 
 Internal canonical Retrospective Historical Request export is implemented. It
 returns an immutable available/unavailable result, replays once, invokes no

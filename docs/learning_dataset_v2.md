@@ -329,8 +329,9 @@ derived artifacts remain process-local; authenticated canonical download adds no
 persistence, Public API, Schema, task, or model claim. See
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
-Package version remains `0.15.0`; Python remains `>=3.13`; Public API contract
-version remains `1`; seven Root workflows, one Console Script, 63 authoritative
+Issue #180 changes only Package version and Release expectations to `0.16.0`;
+Python remains `>=3.13`; Public API contract version remains `1`; seven Root
+workflows, one Console Script, 63 authoritative
 and packaged Schemas, six Session examples, 85 generated outputs, Corpus/Match
 Workspace/Session persistence bytes, and Training Dataset version `1` target
 `actual_card_played` remain unchanged.

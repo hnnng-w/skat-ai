@@ -408,8 +408,8 @@ See [Match capture contracts](docs/match_capture_contracts.md),
 
 ### Private Learning Corpus identity, Player history, and evidence
 
-Issue #171 begins the active `v0.16.0 - Learning-ready behavior and communication
-data` milestone with internal immutable Learning Corpus identity and Catalog
+Issue #171 begins the `v0.16.0 - Learning-ready behavior and communication data`
+milestone with internal immutable Learning Corpus identity and Catalog
 contracts. Match Workspaces remain editable authoritative capture sources. A
 Match Snapshot retains one exact strictly resumed Workspace persistence document
 as an immutable content-addressed source copy; corrected content creates a new
@@ -491,8 +491,10 @@ authenticated canonical downloads. Preparation builds Player Catalog, Human
 Evidence, Strategy Teacher Evidence, Learning Dataset v2, known-player and
 unseen-player partition Results, then the Cross-game Summary without analysis
 execution. Derived artifacts remain non-persisted and no public contract or
-Schema is added. Package version remains `0.15.0`; functional private local
-`v0.16.0` work is complete, while Release preparation remains open. Start it with
+Schema is added. Issue #180 prepares Package version `0.16.0` and current Release
+documentation without changing product behavior; publication remains a manual
+maintainer action, and the current published stable Release remains `v0.15.0`.
+Start it with
 `skat-ai corpus --corpus CORPUS_ROOT`,
 `python -m skat_ai corpus --corpus CORPUS_ROOT`, or
 `python main.py corpus --corpus CORPUS_ROOT`. See
@@ -1214,6 +1216,19 @@ The test suite also validates JSON files in `examples/`. If an example contains 
 
 ## Project status
 
+The current Package baseline is `v0.16.0`, with Release theme "Learning-ready
+behavior and communication data" and planned GitHub Release title
+"v0.16.0 — Learning-ready behavior and communication data". It requires Python
+3.13 or newer, retains Public API contract version `1`, exactly seven Root
+workflows, and the one `skat-ai = skat_ai.cli:main` Console Script, contains 63
+authoritative Schemas and 63 Packaged Schema Resources, includes six Session
+examples, validates 85 deterministic generated-output scenarios, and passes
+6,925 pytest tests. Issues #171 through #179 complete the functional milestone,
+and Issue #180 completes Release preparation without product behavior changes.
+The tag and GitHub Release have not been created; publication remains a manual
+maintainer action. GitHub Releases remains authoritative, and no Package-index or
+PyPI publication is claimed.
+
 The current published stable and latest stable GitHub Release is `v0.15.0`, with
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
 GitHub Release title
@@ -1492,8 +1507,8 @@ architecture still require focused scope and traceability review.
 Issue #169 completed Release preparation, the maintainer published `v0.15.0`
 manually at commit `ec1c154`, and Issue #170 synchronized publication status.
 
-The active next milestone is `v0.16.0 - Learning-ready behavior and communication
-data`. Issue #171 establishes its private internal content-addressed Match
+The prepared current Package milestone is `v0.16.0 - Learning-ready behavior and
+communication data`. Issue #171 establishes its private internal content-addressed Match
 Snapshot, Player Observation, observed-Game fingerprint, Snapshot-scoped
 reference, lightweight Catalog, explicit current-selection, and duplicate/
 revision-classification foundation. Issue #172 adds deterministic private Corpus
@@ -1520,8 +1535,9 @@ plus canonical path-free export. Issue #179 completes the functional private
 local workflow with the separate `corpus` CLI/browser, strict Workspace and
 executed-Decision Report-source uploads, explicit Current selection, bounded
 process-local sources, exact no-execution artifact preparation, minimized
-presentation, and seven authenticated canonical downloads. Package version
-remains `0.15.0`, and `v0.16.0` Release preparation remains open. Deletion and
+presentation, and seven authenticated canonical downloads. Issue #180 changes
+only Package version and current expectations, Changelog, and Release-state
+documentation to prepare `v0.16.0`; publication remains open. Deletion and
 garbage collection, persisted alias assertions, Player merge/split operations,
 all-revision Player views, Human and Strategy Teacher Evidence persistence/public
 transport, automatic Report capture, Historical Report import, Dataset-v2
@@ -1529,6 +1545,15 @@ persistence and persisted partition artifacts, separate behavior and
 communication task builders, communication-aware annotations, evaluation,
 ratings, derived AI tags, public API/Schema exposure, and model training remain
 open. No production model is included.
+
+The provisional next planning milestone is `v0.17.0 - Rules, Search, Coaching,
+and performance closure`. It may cover remaining approved Claims and Settlement,
+additional historical endings, stronger information-set Search and Strategy
+Fusion mitigation, tactical and cross-game Coaching, carefully bounded Player
+Ratings where approved, broader Provenance and Confidence integration,
+performance and latency evidence, and the remaining pre-v1 scope audit. Its final
+Issue titles, count, architecture, solver design, Rating contract, Coaching
+taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product

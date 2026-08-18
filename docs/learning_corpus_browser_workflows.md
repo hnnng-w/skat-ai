@@ -8,13 +8,15 @@ canonical downloads. It does not add an eighth Root workflow, another Console
 Script, a Public API, a Schema, derived-artifact persistence, or automatic
 analysis.
 
-Package version remains `0.15.0`; Python remains `>=3.13`; Public API contract
+Issue #180 prepares Package version `0.16.0` and current Release documentation
+without changing product behavior. Python remains `>=3.13`; Public API contract
 version `1`, seven Root workflows, the one `skat-ai = skat_ai.cli:main` Console
 Script, 63 authoritative Schemas, 63 Packaged Schema Resources, six Session
 examples, 85 generated outputs, Training Dataset version `1`, and Learning
 Dataset version `2` remain unchanged. Functional private local `v0.16.0` work is
-complete through Issue #179, but `v0.16.0` release preparation and publication
-remain open. No Package-index or PyPI publication is claimed.
+complete through Issue #179, and Release preparation is complete through Issue
+#180. Publication remains a manual maintainer action; `v0.16.0` is not yet tagged
+or published. No Package-index or PyPI publication is claimed.
 
 ## CLI startup
 
@@ -421,6 +423,8 @@ locking, encryption/key management, and automatic backup remain open as well.
 
 See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),
+[Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md),
+[Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md),
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md),
 [Learning Dataset version 2](learning_dataset_v2.md),
 [Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md),

@@ -1,7 +1,7 @@
 # Learning Corpus Strategy Teacher Evidence
 
 Issue #175 adds private internal method-bound Strategy Teacher Evidence for the
-active `v0.16.0 - Learning-ready behavior and communication data` milestone. It
+`v0.16.0 - Learning-ready behavior and communication data` milestone. It
 imports no report into Corpus persistence and creates no training label. It
 derives one minimized immutable evidence value from each explicitly supplied
 exact executed Decision Analysis Report.
@@ -195,7 +195,8 @@ human and the engine. See [Learning Dataset version 2](learning_dataset_v2.md).
 
 Issue #175 adds no Corpus object kind, Catalog field, persisted report, file
 format, browser operation, CLI, Public API, Root workflow, Schema, example, or
-generated scenario. Package version remains `0.15.0`; Python remains `>=3.13`;
+generated scenario. Issue #180 changes only Package version and Release
+expectations to `0.16.0`; Python remains `>=3.13`;
 seven Root workflows, one Console Script, 63 authoritative and packaged Schemas,
 six Session examples, 85 generated outputs, and Training Dataset version `1`
 target `actual_card_played` remain unchanged.

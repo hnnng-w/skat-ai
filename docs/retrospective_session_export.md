@@ -19,7 +19,7 @@ SESSION_EXPORT_STATUSES = (available, unavailable)
 
 This version does not change Session, Command, transition, projection,
 Historical Game, Public API, Application, CLI, Schema, or Provenance versions.
-Package version is `0.15.0`. Session Persistence version `1` is separately
+Package version is `0.16.0`. Session Persistence version `1` is separately
 versioned and does not change this export contract.
 
 ## Immutable export result

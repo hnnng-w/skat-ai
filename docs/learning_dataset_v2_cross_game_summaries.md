@@ -283,7 +283,8 @@ Player Catalog, and both just-prepared Results in a private local browser and
 offers a canonical authenticated download. The Summary remains process-local and
 non-persisted; no Public API or Schema is added. See
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
-Package version remains `0.15.0`; Python remains `>=3.13`; Public API
+Issue #180 changes only Package version and Release expectations to `0.16.0`;
+Python remains `>=3.13`; Public API
 contract version remains `1`; seven Root workflows, one Console Script, 63
 authoritative and packaged Schemas, six Session examples, 85 generated outputs,
 Learning Dataset version `2`, and Training Dataset version `1` target

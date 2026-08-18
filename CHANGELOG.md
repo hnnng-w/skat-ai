@@ -1,5 +1,112 @@
 # Changelog
 
+## v0.16.0
+
+**Release theme: Learning-ready behavior and communication data**
+
+### Learning Corpus identity, Catalogs, and persistence
+
+* Add private immutable content-addressed Match Snapshots from exact strictly
+  resumed editable Workspaces, Snapshot-scoped closed References, exact stable
+  Player Observations, lightweight Catalog entries, and explicit Current
+  selections without changing source Workspaces (Issue #171).
+* Add one deterministic fixed-root Store with authoritative `catalog.json`,
+  immutable no-clobber object files, strict full Resume, valid orphan reporting,
+  strict source-preserving Workspace import, and optimistic atomic Catalog Save
+  without automatic repair, selection, deletion, or garbage collection (Issue
+  #172).
+
+### Player Catalog and time-safe Statistics history
+
+* Add a deterministic non-persisted Player Catalog derived only from explicit
+  Current Match Snapshots, excluding non-current revisions and orphans while
+  retaining exact stable Player identity, non-canonical label history, platform
+  aliases, and explicit alias conflicts (Issue #173).
+* Retain exact Match-bound Statistics history and require
+  `captured_at < target_played_at` for strict latest-unambiguous or explicit
+  selection, without merge, weighting, averaging, Profile derivation, or
+  persistence (Issue #173).
+
+### Human Commentary and Strategy Teacher evidence
+
+* Add private minimized Human Evidence with exact original Commentary,
+  commentator identity, subject and explicitly linked Response Decisions,
+  observed Cards, source metadata, and timecodes, without text processing,
+  causal interpretation, derived tags, or Confidence (Issue #174).
+* Add private method-bound Strategy Teacher Evidence from exact executed Decision
+  Analysis Reports explicitly bound to Current Snapshots, with one no-execution
+  Request rebuild, retained Result validation, Immediate/Search/Auto method,
+  fallback, budget, status, coverage, Profile, and policy evidence (Issue #175).
+* Preserve multiple Reports per Decision through exact and wall-clock-normalized
+  semantic identities without choosing a preferred Teacher or claiming human or
+  engine ground truth (Issue #175).
+
+### Learning Dataset version 2
+
+* Add one private Current-Snapshot-only, unpartitioned, task-neutral Learning
+  Dataset version `2` with information-safe Decision State, separate observed
+  behavior, time-safe Player Context, exact Teacher and Human joins, outgoing and
+  incoming Responses, safe and skipped Decisions, and joined and unjoined
+  evidence (Issue #176).
+* Add stable Record IDs, normalized evidence pools, evidence-sensitive content
+  fingerprints, and canonical path-free export without a default Target, Label,
+  Feature list, or model task. Public Training Dataset version `1` remains
+  unchanged (Issue #176).
+
+### Group-safe partition preparation and leakage audits
+
+* Add Match-Snapshot-indivisible partition preparation with strict temporal
+  Known-player blocks and earlier Train Player coverage, plus transitive Player-
+  connected unseen-player components with Player disjointness (Issue #177).
+* Add exact Record-primary and Match-secondary balancing, complete or unavailable
+  Plans with no fallback, complete closure and leakage audits, lossless ID-only
+  partition views, and canonical path-free export (Issue #177).
+
+### Cross-game summaries and local Corpus workflows
+
+* Add deterministic descriptive exact-Count Match, Player, observed-behavior,
+  forced-choice, Player-Context, Communication, Strategy method/status, exact-
+  Card-equality, Coverage, Dataset Readiness, and supplied Partition Readiness
+  summaries without Ratings, rankings, accuracy, evaluation, or model-readiness
+  claims (Issue #178).
+* Add the separate installed/module/Legacy `corpus` command and loopback-only
+  local browser over one explicit root with initialization, strict uploads,
+  Workspace import, Current selection, Reload, Match Capture Report-source
+  transfer, bounded process-local sources, explicit one-pass preparation,
+  generation-safe publication, deterministic invalidation, and seven private
+  canonical downloads (Issue #179).
+* Add a minimized no-JavaScript-capable dashboard, packaged local assets,
+  authenticated token/cookie/Host/origin/CSP protection, and no external network
+  request while keeping Report sources and prepared artifacts process-local
+  (Issue #179).
+
+### Information safety, determinism, and compatibility
+
+* Keep Corpus and Dataset source values and exact exports private and unredacted;
+  keep ordinary dashboard state minimized without exposing paths or tokens; and
+  add no encryption, secure-storage, cloud, remote-access, automatic-backup, or
+  public-redaction claim.
+* Keep observed behavior separate from labels, method-bound Teacher evidence
+  separate from ground truth, human text uninterpreted, Response Links noncausal,
+  and Search Worlds and private Search state absent from exports.
+* Preserve Python `>=3.13`, Public API contract version `1`, exactly seven Root
+  workflows, one `skat-ai = skat_ai.cli:main` Console Script, Root/Session/Capture
+  and non-Corpus compatibility, every non-Package contract version, existing Root
+  input/output and Session/Match Workspace persistence contracts, and Training
+  Dataset version `1`. Corpus remains an additive private transport family with
+  no eighth Root workflow and no Public Corpus or Dataset-v2 API or Schema.
+
+### Validation
+
+* Validate 63 authoritative and byte-identical Packaged Schema Resources, six
+  unchanged Session examples, 85 unchanged deterministic generated outputs, and
+  6,925 pytest tests on Python 3.13.
+* Validate Ruff, Schema/example/generated-output checks, Wheel and sdist
+  metadata, exact `0.16.0` installed metadata and all three Root CLI version
+  forms, installed/module/Legacy Session, Capture, and Corpus help, clean-install
+  Root/Session/Capture/Corpus behavior, and packaged Capture and Corpus browser
+  assets.
+
 ## v0.15.0
 
 **Release theme: Local EuroSkat 36er Match capture, analysis, and exports**

@@ -257,7 +257,7 @@ Implemented:
 * Lazy Package Resource Root input/output/artifact schema validation with RFC
   6901 errors and stable boundary translation
 * Explicit Setuptools build metadata, `skat_ai*` discovery, Package Data, and the
-  current `0.15.0` Package version
+  current `0.16.0` Package version
 * Byte-identical private Schema resources with deterministic synchronization and
   local/CI parity checks
 * PEP 561 `py.typed`, Package-Root version metadata, one Wheel and one sdist,
@@ -831,6 +831,26 @@ Implemented:
 
 ## Release baselines
 
+### v0.16.0: Learning-ready behavior and communication data
+
+The prepared current Package baseline completes functional Issues #171 through
+#179 and Release-preparation Issue #180. Its Release theme is "Learning-ready
+behavior and communication data", and its planned GitHub Release title is
+"v0.16.0 — Learning-ready behavior and communication data". Package version
+`0.16.0` requires Python 3.13 or newer, retains Public API contract version `1`,
+exactly seven Root workflows, and one Console Script, contains 63 authoritative
+and packaged Schemas, includes six unchanged Session examples, validates 85
+unchanged generated-output scenarios, and passes 6,925 pytest tests.
+
+The Package baseline provides private content-addressed Learning Corpus identity
+and persistence, a derived Current-Snapshot Player Catalog and time-safe
+Statistics history, Human and Strategy Teacher Evidence, Learning Dataset version
+`2`, group-safe partition preparation and leakage audits, descriptive cross-game
+summaries, and the separate private local Corpus CLI/browser workflow. Issue #180
+changes no product behavior. Tagging and publication remain manual maintainer
+actions; the current published stable Release is still `v0.15.0`, and no Package-
+index or PyPI publication is claimed.
+
 ### v0.15.0: Local EuroSkat 36er Match capture, analysis, and exports
 
 The published `v0.15.0` Release completes functional Issues #160 through #168.
@@ -998,10 +1018,10 @@ The documented `v0.6.0` issue scope is complete:
 No `v0.6.0` commit, merge, tag, publication, release, or issue-closeout action
 remains pending.
 
-## Active milestone: v0.16.0
+## Prepared Package milestone: v0.16.0
 
-`v0.16.0 - Learning-ready behavior and communication data` is the active
-milestone. Issues #171 through #179 establish and connect its private internal
+`v0.16.0 - Learning-ready behavior and communication data` is the prepared
+Package milestone. Issues #171 through #179 establish and connect its private internal
 foundations:
 
 * immutable content-addressed copies of exact strictly resumed Match Workspace
@@ -1096,8 +1116,10 @@ and Learning Dataset version `2` plus its derived Cross-game Summary remain
 separate non-persisted exports.
 
 Issue #179 completes the functional private local Learning Corpus/Dataset-v2
-workflow. Package version remains `0.15.0`; `v0.16.0` Release preparation and
-publication remain open.
+workflow. Issue #180 updates only Package version, matching expectations,
+Changelog, and Release-state documentation to complete Release preparation. The
+Package remains unpublished and preserves 63 authoritative and packaged Schemas,
+six Session examples, 85 generated outputs, and 6,925 pytest tests.
 
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
@@ -1119,6 +1141,17 @@ exposure remain open. No production model is planned for this milestone. See
 [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md), and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
+## Provisional next planning milestone: v0.17.0
+
+`v0.17.0 - Rules, Search, Coaching, and performance closure` is provisional. It
+may cover remaining approved Claims and Settlement, additional historical
+endings, stronger information-set Search and Strategy Fusion mitigation,
+tactical and cross-game Coaching, carefully bounded Player Ratings where
+approved, broader Provenance and Confidence integration, performance and latency
+evidence, and the remaining pre-v1 scope audit. Final Issue titles, count,
+architecture, solver design, Rating contract, Coaching taxonomy, and Release date
+are not finalized. `v1.0.0` remains unready.
+
 ## Later planning milestone: v1.0.0
 
 The [requirements traceability matrix](requirements_traceability.md) is the
@@ -1126,8 +1159,8 @@ authoritative audit of current ISkO, SkWO, and skat-ai product support. The
 [v1.0 scope](v1_scope.md) defines required product directions, unresolved
 implementation details, and testable completion gates.
 
-`v1.0.0` remains not ready after the published `v0.15.0` Match Capture Package
-baseline through internal Match metadata, observed-Game and
+`v1.0.0` remains not ready after the prepared `v0.16.0` Package baseline through
+internal Match metadata, observed-Game and
 commentary, persistent Workspace, rapid-entry Application, private local browser
 and autosave transport, Match-bound Statistics editing and time-safe Profile
 preparation, Decision/Historical/Training-source/fixed-list materialization,
@@ -1271,14 +1304,15 @@ release-preparation Issue #158 and publication-synchronization Issue #159, the
 historical 63-Schema, six-Session-example, 85-scenario, and 5,892-test `v0.14.0`
 baseline, functional Issues #160 through #168, completed Release-preparation
 Issue #169, publication-synchronization Issue #170, the published 63-Schema,
-six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the active
-`v0.16.0` direction and Issues #171-#179 identity, Catalog, persistence,
+six-Session-example, 85-scenario, and 6,510-test `v0.15.0` baseline, the prepared
+`v0.16.0` Package and Issues #171-#179 identity, Catalog, persistence,
 Workspace-import, Player Catalog, Statistics-history, Human Evidence, and
 Strategy Teacher Evidence plus Learning Dataset-v2, partition, descriptive
 cross-game Summary, and functional private local browser workflow,
 requirements
 explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows,
 and unconditional exclusions. Functional private local `v0.16.0` work is
-complete through Issue #179, while Release preparation remains open. The final
+complete through Issue #179, Issue #180 completes Release preparation, and
+publication remains manual. The provisional `v0.17.0` direction and final
 `v1.0.0` Issue split and implementation architecture remain undecided pending
 focused review.

@@ -267,8 +267,9 @@ encryption, access control, backup, or secure storage.
 Issue #177 adds no Dataset-v2 persistence, Corpus object kind, Catalog field,
 Current-selection change, browser, CLI, Public API, Root workflow, Schema,
 example, generated scenario, evaluation, cross-game summary, communication
-taxonomy, derived tag, task-specific builder, or model training. Package version
-remains `0.15.0`; Python remains `>=3.13`; seven Root workflows, one Console
+taxonomy, derived tag, task-specific builder, or model training. Issue #180
+changes only Package version and Release expectations to `0.16.0`; Python remains
+`>=3.13`; seven Root workflows, one Console
 Script, 63 authoritative and packaged Schemas, six Session examples, 85
 generated outputs, and Training Dataset version `1` remain unchanged.
 

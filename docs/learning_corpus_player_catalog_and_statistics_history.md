@@ -1,7 +1,7 @@
 # Learning Corpus Player Catalog and Statistics history
 
 Issue #173 adds a private internal version-1 Player Catalog and time-safe
-multi-Match Statistics history to the active
+multi-Match Statistics history to the
 `v0.16.0 - Learning-ready behavior and communication data` milestone. The
 Catalog is deterministic derived data. It is not persisted, does not change
 `catalog.json`, and does not change Match Snapshot object files.
@@ -248,8 +248,9 @@ encryption, access-control, cloud, or backup claim is added.
 
 Issue #173 adds no persistence file, Catalog field, object kind, workflow, CLI,
 browser operation, Public API, Schema, example, generated scenario, Dataset
-sample, Profile derivation, Policy application, or Match Analysis. Package
-version remains `0.15.0`; Python remains `>=3.13`; seven Root workflows, one
+sample, Profile derivation, Policy application, or Match Analysis. Issue #180
+changes only Package version and Release expectations to `0.16.0`; Python remains
+`>=3.13`; seven Root workflows, one
 Console Script, 63 authoritative and packaged Schemas, six Session examples, 85
 generated outputs, and Training Dataset version `1` target
 `actual_card_played` remain unchanged.

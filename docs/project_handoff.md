@@ -1416,9 +1416,14 @@ Main documentation files:
 
 Current published stable and latest stable GitHub Release: `v0.15.0`.
 
-Current Package version: `0.15.0`.
+Current Package version: `0.16.0`.
 
-Current Package baseline: `v0.15.0`.
+Current Package baseline: `v0.16.0`.
+
+Prepared Release theme: "Learning-ready behavior and communication data".
+
+Prepared GitHub Release title: "v0.16.0 — Learning-ready behavior and
+communication data".
 
 Published Release theme: "Local EuroSkat 36er Match capture, analysis, and
 exports".
@@ -1452,12 +1457,23 @@ and 5,892 passing pytest tests. Issues #150 through #157 implement its functiona
 milestone, Issue #158 completed Release preparation, and Issue #159 synchronized
 publication status after manual maintainer publication.
 
-The active planned `v0.16.0 - Learning-ready behavior and communication data`
-milestone is functionally complete through Issue #179's private local Learning
-Corpus/Dataset-v2 workflow. Package version remains `0.15.0`; `v0.16.0` Release
-preparation and publication remain open. This work adds no Root workflow, Public
-API, Schema, example, generated output, second Console Script, derived-artifact
-persistence, or Package-index/PyPI publication claim.
+The prepared current `v0.16.0 - Learning-ready behavior and communication data`
+Package milestone is functionally complete through Issue #179's private local
+Learning Corpus/Dataset-v2 workflow. Issue #180 changes only Package version,
+matching expectations, Changelog, and Release-state documentation to complete
+Release preparation without product behavior changes. The Package retains 63
+authoritative and packaged Schemas, six Session examples, 85 generated outputs,
+and 6,925 pytest tests. Publication remains open and is a manual maintainer
+action; no Package-index or PyPI publication is claimed.
+
+The provisional next planning milestone is `v0.17.0 - Rules, Search, Coaching,
+and performance closure`. Candidate directions include remaining approved Claims
+and Settlement, additional historical endings, stronger information-set Search
+and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
+bounded Player Ratings where approved, broader Provenance and Confidence
+integration, performance and latency evidence, and the remaining pre-v1 scope
+audit. Final Issue titles, count, architecture, solver design, Rating contract,
+Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 
 Published Package milestone: `v0.15.0`, providing usable manual post-game capture
 of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -1722,7 +1738,7 @@ publication.
 
 ## Current implementation baseline
 
-**Current published v0.15.0 local Match Capture baseline**
+**Current prepared v0.16.0 Package baseline**
 
 Completed implementation scope:
 
@@ -1978,15 +1994,14 @@ Completed implementation scope:
 
 ## Next recommended action
 
-Prepare the completed functional private local `v0.16.0 - Learning-ready
-behavior and communication data` milestone from Issues #171 through #179 for a
-future Release, while keeping Package version `0.15.0` until that separate
-release-preparation work is explicitly approved. The next focused product
-decision should
-keep immutable imported Workspace Snapshots separate from future persisted or
-task-specific derived artifacts while defining one currently open boundary such
-as persisted identity assertions, Dataset-v2 persistence, or separate
-behavior/strategy/communication task builders.
+The maintainer can publish the prepared `v0.16.0 - Learning-ready behavior and
+communication data` Package baseline after reviewing the successful release
+checks; tagging and GitHub Release creation remain manual. Subsequent planning
+should use the provisional `v0.17.0 - Rules, Search, Coaching, and performance
+closure` direction while keeping immutable imported Workspace Snapshots separate
+from future persisted or task-specific derived artifacts. Final Issue titles,
+count, architecture, solver design, Rating contract, Coaching taxonomy, and
+Release date remain undecided.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,

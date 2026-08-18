@@ -441,7 +441,7 @@ Save/Load, installed and module Session help, `new`/`apply`/`show`, Session-
 triggered Position analysis, observation/review, Retrospective finalization, and
 an injected-I/O Assistant smoke flow. Legacy parity is validated from the
 repository checkout. There is still exactly one Console Script, and Package
-version is `0.15.0`.
+version is `0.16.0`.
 
 Issue #157 adds no GUI or browser UI, online-platform adapter, browser extension,
 website scraping, cloud synchronization, distributed lock, collaborative merge,

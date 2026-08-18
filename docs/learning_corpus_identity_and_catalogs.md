@@ -1,6 +1,6 @@
 # Learning Corpus identity and Catalogs
 
-Issue #171 establishes the first internal foundation for the active
+Issue #171 establishes the first internal foundation for the
 `v0.16.0 - Learning-ready behavior and communication data` milestone. It defines
 immutable content-addressed Match Snapshots, Snapshot-closed references, and a
 lightweight Catalog with explicit current selections. It adds no persistence,
@@ -35,6 +35,14 @@ Dataset version `2` from the exact Store and supplied Current-Snapshot Player,
 Human, and Strategy Teacher sources. It changes no Issue #171 identity,
 Reference, Snapshot, Catalog, object-kind, or persistence contract. See
 [Learning Dataset version 2](learning_dataset_v2.md).
+
+Issue #177 adds separate non-persisted Match-Snapshot-safe partition preparation
+with fixed Known-player and unseen-player algorithms, leakage audits, and
+lossless indexes. Issue #178 adds separate non-persisted descriptive cross-game
+summaries. Neither changes Issue #171 identity, Reference, Snapshot, Catalog,
+object-kind, or persistence contracts. See
+[Learning Dataset version 2 partition preparation](learning_dataset_v2_partition_preparation.md)
+and [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_game_summaries.md).
 
 Issue #179 composes these unchanged contracts in a private one-root local browser
 with explicit import, Current selection, process-local preparation, and canonical
@@ -403,7 +411,8 @@ builders, persisted split artifacts, examples, generated scenarios, and model
 training remain open. Issues #176 through #179's in-memory Dataset, partition,
 Summary, browser, and export values change no Corpus persistence bytes.
 
-Package version remains `0.15.0`. Public API contract version `1`, the seven Root
+Issue #180 changes only Package version and Release expectations to `0.16.0`.
+Public API contract version `1`, the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session
 examples, 85 generated outputs, existing Workspace persistence bytes, Match
 Analysis report behavior, and Training Dataset version `1` target

@@ -1455,7 +1455,7 @@ def test_new_modules_have_no_cli_browser_analysis_dataset_or_api_imports() -> No
 
 def test_compatibility_baselines_and_public_boundaries_remain_unchanged() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
-    assert pyproject["project"]["version"] == "0.15.0"
+    assert pyproject["project"]["version"] == "0.16.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
     assert LEARNING_CORPUS_PERSISTENCE_VERSION == 1

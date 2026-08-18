@@ -7,7 +7,7 @@ field-provenance language and Application sidecar contracts.
 Issue #146 propagation remains internal. Issue #147 uses these complete Root
 Result ledgers as the source for bounded public-safe exposure through API, Root
 JSON, strict Schema, CLI, and generated-output scenarios. Package version remains
-independent and is currently `0.15.0`.
+independent and is currently `0.16.0`.
 
 ## Contract identity
 

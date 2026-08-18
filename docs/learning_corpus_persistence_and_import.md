@@ -341,7 +341,8 @@ examples, generated scenarios, and model training remain open. Issue #179
 provides only explicit private browser upload/preparation/download transport; it
 does not persist those derived values or change canonical Corpus files.
 
-Package version remains `0.15.0`. Python remains `>=3.13`; the seven Root
+Issue #180 changes only Package version and Release expectations to `0.16.0`.
+Python remains `>=3.13`; the seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session
 examples, 85 generated outputs, Match Workspace and Session persistence bytes,
 and Training Dataset version `1` target `actual_card_played` are unchanged.

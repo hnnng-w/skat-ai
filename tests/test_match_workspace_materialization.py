@@ -339,8 +339,8 @@ def test_public_package_schema_and_scenario_boundaries_remain_unchanged() -> Non
     packaged_schemas = tuple(
         (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")
     )
-    assert pyproject["project"]["version"] == "0.15.0"
-    assert skat_ai.__version__ == "0.15.0"
+    assert pyproject["project"]["version"] == "0.16.0"
+    assert skat_ai.__version__ == "0.16.0"
     assert len(authoritative_schemas) == 63
     assert len(packaged_schemas) == 63
     assert len(SCENARIOS) == 85

@@ -2,7 +2,7 @@
 
 Issue #174 adds a private internal deterministic export of minimized original
 human Commentary and explicitly linked observed Response behavior. It is the
-Human Evidence foundation for the active
+Human Evidence foundation for the
 `v0.16.0 - Learning-ready behavior and communication data` milestone.
 
 The export is derived data. It does not change Match Snapshots, Catalog fields,
@@ -264,7 +264,8 @@ authorship claim. Fingerprints provide deterministic content identity only.
 
 Issue #174 adds no Corpus object kind, Catalog field, persistence file, browser
 operation, CLI, Public API, Root workflow, Schema, example, or generated
-scenario. Package version remains `0.15.0`; Python remains `>=3.13`; seven Root
+scenario. Issue #180 changes only Package version and Release expectations to
+`0.16.0`; Python remains `>=3.13`; seven Root
 workflows, one Console Script, 63 authoritative and packaged Schemas, six Session
 examples, 85 generated outputs, and Training Dataset version `1` target
 `actual_card_played` remain unchanged.

@@ -41,9 +41,9 @@ CONCESSION_EXAMPLE_PATH = (
 )
 
 
-def test_package_version_is_0_15_0() -> None:
+def test_package_version_is_0_16_0() -> None:
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.15.0"' in pyproject
+    assert 'version = "0.16.0"' in pyproject
 
 
 def load_historical_data(path: Path = NORMAL_EXAMPLE_PATH) -> dict:

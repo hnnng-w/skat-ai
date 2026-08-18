@@ -14,7 +14,7 @@ root `python main.py` is the Legacy compatibility interface and remains supporte
 through at least `v1.0.0`.
 
 Issue #147 adds the same optional `--include-provenance` transport flag to all
-three forms. The Package version is `0.15.0`.
+three forms. The Package version is `0.16.0`.
 
 Issues #150 through #156 establish the Session contracts, replay, export,
 Checkpoint, history-edit, persistence, Public API, Provenance, and standalone
@@ -54,7 +54,7 @@ python -m skat_ai --version
 The exact installed version output is:
 
 ```text
-skat-ai 0.15.0
+skat-ai 0.16.0
 ```
 
 The source-only fallback, when distribution metadata is unavailable, is:
@@ -304,9 +304,11 @@ no second Console Script or 64th Schema.
 
 ## Boundaries
 
-Issues #165 and #179 change no current Package version, Root workflow, Root parser meaning,
-second Console Script, publication state, default Session path, Public API,
-Schema, example, or generated scenario. Session persistence
+Functional Issues #165 and #179 themselves changed no Package version, Root
+workflow, Root parser meaning, second Console Script, publication state, default
+Session path, Public API, Schema, example, or generated scenario. Issue #180
+changes only Package version and matching release expectations to `0.16.0`.
+Session persistence
 files and explicit JSON outputs remain private caller-controlled data; concise
 human output does not print complete private hands, full Skat, frozen Requests,
 fingerprints, provenance entries, or file contents by default. The Match and

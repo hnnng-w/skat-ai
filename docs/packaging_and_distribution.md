@@ -24,7 +24,7 @@ Package Data is declared for:
 * `skat_ai.capture_web` HTML, CSS, and JavaScript resources;
 * `skat_ai.corpus_web` HTML, CSS, and JavaScript resources.
 
-The Package name remains `skat-ai`, the Package version is `0.15.0`, the
+The Package name remains `skat-ai`, the Package version is `0.16.0`, the
 Python requirement remains `>=3.13`, and `jsonschema` remains the runtime
 dependency. The `dev` extra includes `build`, pytest, and Ruff.
 
@@ -73,7 +73,8 @@ CLI option, Root workflow, public import, Schema resource, or Package Data kind.
 Issue #179 adds leading `corpus` dispatch before Capture, using the same Console
 Script for one explicit private Learning Corpus root. Its local HTML, CSS, and
 JavaScript are Package Data; its process-local Report sources, prepared artifacts,
-and downloads are not. Package version remains `0.15.0`.
+and downloads are not. Issue #180 changes only Package version and matching
+release expectations to `0.16.0`.
 
 ## Building artifacts
 
@@ -173,7 +174,7 @@ distributions resolve it through:
 importlib.metadata.version("skat-ai")
 ```
 
-The current value is `0.15.0`. A source-only environment without installed
+The current value is `0.16.0`. A source-only environment without installed
 distribution metadata returns `0+unknown` without reading `pyproject.toml` or
 another repository file. Package version remains independent of API contract,
 Application, Schema, Provenance, and Domain versions. It is not added to API
@@ -211,7 +212,7 @@ installs from an external working directory with `PYTHONPATH` removed, and
 verifies:
 
 * imports resolve from that environment's `site-packages`;
-* `skat_ai.__version__ == "0.15.0"`;
+* `skat_ai.__version__ == "0.16.0"`;
 * `py.typed` is locatable;
 * every installed schema has exact repository filename and byte parity, valid
   UTF-8 and JSON, and its unchanged `$id`;
@@ -305,7 +306,9 @@ Issue #170 synchronizes publication status. Public
 Match API and Schema/data workflow, database/remote deployment, and public Match
 exports remain open. No Package-index or PyPI publication is claimed.
 Issue #179 completes the functional private local Learning Corpus/Dataset-v2
-workflow planned for `v0.16.0` without changing Package version `0.15.0`, the one
-Console Script, seven Root workflows, 63 Schemas/resources, six Session examples,
-or 85 generated outputs. `v0.16.0` Release preparation and publication remain
-open; derived artifacts remain non-persisted and private.
+workflow planned for `v0.16.0` without changing the then-current Package version
+`0.15.0`, the one Console Script, seven Root workflows, 63 Schemas/resources, six
+Session examples, or 85 generated outputs. Issue #180 prepares Package `0.16.0`,
+matching assertions, Changelog, and Release-state documentation without product
+behavior changes. Publication remains open; derived artifacts remain non-
+persisted and private.

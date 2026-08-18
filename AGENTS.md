@@ -370,7 +370,7 @@ Match API, Match Schema/data workflow, public/persisted Player Catalog, communic
 aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
-The active next planning milestone is `v0.16.0 — Learning-ready behavior
+The prepared current Package milestone is `v0.16.0 — Learning-ready behavior
 and communication data`. Issues #171 through #179 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
@@ -389,18 +389,23 @@ Dataset Readiness, and supplied Partition Readiness summaries with deterministic
 path-free export. Issue #179 completes the functional private local workflow with
 the separate installed/module/Legacy `corpus` command, strict uploads, explicit
 Current selection, process-local Report sources and prepared values, and seven
-authenticated canonical downloads. Package version remains `0.15.0`; `v0.16.0`
-Release preparation remains open. Candidate
-later directions
-include canonical Game catalogs, persisted
-Player aliases/assertions, merge/split operations, and all-revision Player views,
-Human and Strategy Teacher Evidence persistence/public transport, separate
-behavior and communication task builders, Historical Report import, Dataset-v2
-persistence, Summary persistence/public transport, communication-aware
-annotations, evaluation
-baselines, and derived AI tags kept separate from
-original human text. Their Issue split, architecture, Dataset fields, model
-design, and release date are not finalized, and no production model is planned.
+authenticated canonical downloads. Issue #180 changes only Package version and
+current version expectations, Changelog, and Release-state documentation to
+prepare `v0.16.0` without product behavior changes. The Package version is
+`0.16.0`; it retains 63 authoritative and packaged Schemas, six Session examples,
+85 generated outputs, and 6,925 pytest tests. Publication remains a manual
+maintainer action; the current published stable Release remains `v0.15.0`, and no
+Package-index or PyPI publication is claimed.
+
+The provisional next planning milestone is `v0.17.0 — Rules, Search, Coaching,
+and performance closure`. Candidate directions include remaining approved Claims
+and Settlement, additional historical endings, stronger information-set Search
+and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
+bounded Player Ratings where approved, broader Provenance and Confidence
+integration, performance and latency evidence, and the remaining pre-v1 scope
+audit. Its final Issue titles, count, architecture, solver design, Rating
+contract, Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains
+unready, and no production model is planned.
 
 Major completed areas include:
 
@@ -613,8 +618,8 @@ cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open. The historical published `v0.14.0` baseline
 has 63 authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
-scenarios. The published `v0.15.0` baseline preserves the 63-Schema, six-Session-
-example, and 85-scenario sets.
+scenarios. The published `v0.15.0` baseline and current prepared `v0.16.0`
+Package preserve the 63-Schema, six-Session-example, and 85-scenario sets.
 Match Capture now contains identity/metadata, individual evidence-aware observed
 Games and commentary, persistent internal 36-position Workspaces,
 transport-free rapid-entry Application services, and the private local no-JSON
