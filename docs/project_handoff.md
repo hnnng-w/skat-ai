@@ -1414,34 +1414,45 @@ Main documentation files:
 
 ## Release status
 
-Current published stable and latest stable GitHub Release: `v0.15.0`.
+Current published stable and latest stable GitHub Release: `v0.16.0`.
 
 Current Package version: `0.16.0`.
 
 Current Package baseline: `v0.16.0`.
 
-Prepared Release theme: "Learning-ready behavior and communication data".
+Published Release theme: "Learning-ready behavior and communication data".
 
-Prepared GitHub Release title: "v0.16.0 — Learning-ready behavior and
+Published GitHub Release title: "v0.16.0 — Learning-ready behavior and
 communication data".
 
-Published Release theme: "Local EuroSkat 36er Match capture, analysis, and
-exports".
+Published Release commit: `91b1360`.
 
-Published GitHub Release title: "v0.15.0 — Local EuroSkat 36er Match capture,
-analysis, and exports".
-
-Published Release commit: `ec1c154`.
+Publication date: 2026-08-18.
 
 The Package requires Python `>=3.13` and retains Public API contract version `1`,
 exactly seven Root workflows, and the one
-`skat-ai = skat_ai.cli:main` Console Script. The published baseline contains 63
-authoritative Schemas and 63 Packaged Schema Resources, includes six Session
-examples, validates 85 deterministic generated-output scenarios, and passes
-6,510 pytest tests. Functional Issues #160 through #168 implement the milestone,
-Issue #169 completed Release preparation, and Issue #170 synchronizes
-publication status. Publication was performed manually by the maintainer. GitHub
-Releases remains authoritative; no Package-index or PyPI publication is claimed.
+`skat-ai = skat_ai.cli:main` Console Script. The current published baseline
+contains 63 authoritative Schemas and 63 Packaged Schema Resources, includes six
+Session examples, validates 85 deterministic generated-output scenarios, and
+passes 6,925 pytest tests in 1083.48s. Functional Issues #171 through #179
+implement the milestone, Issue #180 completed Release preparation, and Issue
+#181 synchronizes publication status after manual maintainer publication and
+does not change product behavior. GitHub Releases is the authoritative
+publication record; no Package-index or PyPI publication is claimed.
+
+Historical published `v0.15.0` Release theme: "Local EuroSkat 36er Match
+capture, analysis, and exports".
+
+Historical GitHub Release title: "v0.15.0 — Local EuroSkat 36er Match capture,
+analysis, and exports".
+
+Historical Release commit: `ec1c154`.
+
+The historical `v0.15.0` baseline contains 63 authoritative Schemas and 63
+Packaged Schema Resources, six Session examples, 85 generated-output scenarios,
+and 6,510 passing pytest tests. Issues #160 through #168 implement its functional
+milestone, Issue #169 completed Release preparation, and Issue #170 synchronized
+publication status after manual maintainer publication.
 
 Historical published `v0.14.0` Release theme: "End-to-end Live and Retrospective
 Session capture".
@@ -1457,26 +1468,27 @@ and 5,892 passing pytest tests. Issues #150 through #157 implement its functiona
 milestone, Issue #158 completed Release preparation, and Issue #159 synchronized
 publication status after manual maintainer publication.
 
-The prepared current `v0.16.0 - Learning-ready behavior and communication data`
+The current published `v0.16.0 — Learning-ready behavior and communication data`
 Package milestone is functionally complete through Issue #179's private local
-Learning Corpus/Dataset-v2 workflow. Issue #180 changes only Package version,
+Learning Corpus/Dataset-v2 workflow. Issue #180 changed only Package version,
 matching expectations, Changelog, and Release-state documentation to complete
 Release preparation without product behavior changes. The Package retains 63
 authoritative and packaged Schemas, six Session examples, 85 generated outputs,
-and 6,925 pytest tests. Publication remains open and is a manual maintainer
-action; no Package-index or PyPI publication is claimed.
+and 6,925 pytest tests. The maintainer published the Release manually on
+2026-08-18 at commit `91b1360`, and Issue #181 synchronizes publication status.
+No Package-index or PyPI publication is claimed.
 
-The provisional next planning milestone is `v0.17.0 - Rules, Search, Coaching,
+The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
 and performance closure`. Candidate directions include remaining approved Claims
 and Settlement, additional historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
-audit. Final Issue titles, count, architecture, solver design, Rating contract,
+audit. Final Issue titles, count, architecture, solver design, Rating boundary,
 Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 
-Published Package milestone: `v0.15.0`, providing usable manual post-game capture
-of one EuroSkat 36er Standard Match from descriptive video evidence.
+Historical published Package milestone: `v0.15.0`, providing usable manual post-
+game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
 Issues #160 and #161 implement the internal immutable Match identity/metadata and
 observed single-Game/commentary foundations. Issue #163 adds persistent internal
 36-position Workspaces. Issue #164 adds internal transport-free rapid-entry
@@ -1738,7 +1750,7 @@ publication.
 
 ## Current implementation baseline
 
-**Current prepared v0.16.0 Package baseline**
+**Current published v0.16.0 Package baseline**
 
 Completed implementation scope:
 
@@ -1994,14 +2006,11 @@ Completed implementation scope:
 
 ## Next recommended action
 
-The maintainer can publish the prepared `v0.16.0 - Learning-ready behavior and
-communication data` Package baseline after reviewing the successful release
-checks; tagging and GitHub Release creation remain manual. Subsequent planning
-should use the provisional `v0.17.0 - Rules, Search, Coaching, and performance
-closure` direction while keeping immutable imported Workspace Snapshots separate
-from future persisted or task-specific derived artifacts. Final Issue titles,
-count, architecture, solver design, Rating contract, Coaching taxonomy, and
-Release date remain undecided.
+Planning should use the active `v0.17.0 — Rules, Search, Coaching, and
+performance closure` milestone while keeping immutable imported Workspace
+Snapshots separate from future persisted or task-specific derived artifacts.
+Final Issue titles, count, architecture, solver design, Rating boundary, Coaching
+taxonomy, and Release date remain undecided. `v1.0.0` remains unready.
 
 Do not infer automatic newest selection, fuzzy Player merging, cross-revision
 Decision lineage, deletion, garbage collection, Human Evidence persistence,

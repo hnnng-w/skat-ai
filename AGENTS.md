@@ -204,9 +204,22 @@ Do not assume old behavior if documentation or tests say otherwise.
 
 ## Current release state
 
-The current published stable and latest stable GitHub Release is `v0.15.0`, with
-release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
-GitHub Release title
+The current published stable and latest stable GitHub Release is `v0.16.0`, with
+release theme "Learning-ready behavior and communication data" and GitHub
+Release title "v0.16.0 — Learning-ready behavior and communication data". It was
+published manually by the maintainer on 2026-08-18 at commit `91b1360`. Package
+version `0.16.0` requires Python `>=3.13`, retains Public API contract version
+`1`, exactly seven Engine Root workflows, and the one
+`skat-ai = skat_ai.cli:main` Console Script, and contains 63 authoritative
+Schemas, 63 Packaged Schema Resources, six Session examples, 85 deterministic
+generated-output scenarios, and 6,925 passing pytest tests in 1083.48s. Issues
+#171 through #179 complete the functional milestone, Issue #180 completed
+Release preparation, and Issue #181 synchronizes publication status without
+changing product behavior. GitHub Releases is the authoritative publication
+record; no Package-index or PyPI publication is claimed.
+
+The historical published `v0.15.0` GitHub Release has release theme "Local
+EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
 "v0.15.0 — Local EuroSkat 36er Match capture, analysis, and exports". It points
 to commit `ec1c154`. Package version `0.15.0` requires Python `>=3.13`, retains
 Public API contract version `1`, exactly seven Engine Root workflows, and the one
@@ -214,7 +227,7 @@ Public API contract version `1`, exactly seven Engine Root workflows, and the on
 Schemas, 63 Packaged Schema Resources, six Session examples, 85 deterministic
 generated-output scenarios, and 6,510 passing pytest tests. Issues #160 through
 #168 complete the functional milestone, Issue #169 completed Release
-preparation, and Issue #170 synchronizes publication status. Publication was
+preparation, and Issue #170 synchronized publication status. Publication was
 performed manually by the maintainer. GitHub Releases remains authoritative for
 publication status; no Package-index or PyPI publication is claimed.
 
@@ -370,7 +383,7 @@ Match API, Match Schema/data workflow, public/persisted Player Catalog, communic
 aware Dataset work, database/remote deployment, YouTube integration, and
 EuroSkat integration remain absent. `v1.0.0` remains unready.
 
-The prepared current Package milestone is `v0.16.0 — Learning-ready behavior
+The published `v0.16.0` milestone is `v0.16.0 — Learning-ready behavior
 and communication data`. Issues #171 through #179 implement private immutable Match
 Snapshot identity, closed References, lightweight Catalogs, deterministic Corpus
 persistence, strict Resume and orphan reporting, explicit Workspace import, and
@@ -393,18 +406,19 @@ authenticated canonical downloads. Issue #180 changes only Package version and
 current version expectations, Changelog, and Release-state documentation to
 prepare `v0.16.0` without product behavior changes. The Package version is
 `0.16.0`; it retains 63 authoritative and packaged Schemas, six Session examples,
-85 generated outputs, and 6,925 pytest tests. Publication remains a manual
-maintainer action; the current published stable Release remains `v0.15.0`, and no
-Package-index or PyPI publication is claimed.
+85 generated outputs, and 6,925 pytest tests. The maintainer published the
+Release manually on 2026-08-18 at commit `91b1360`, and Issue #181 synchronizes
+that publication status. GitHub Releases is the authoritative publication
+record; no Package-index or PyPI publication is claimed.
 
-The provisional next planning milestone is `v0.17.0 — Rules, Search, Coaching,
+The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
 and performance closure`. Candidate directions include remaining approved Claims
 and Settlement, additional historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
 audit. Its final Issue titles, count, architecture, solver design, Rating
-contract, Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains
+boundary, Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains
 unready, and no production model is planned.
 
 Major completed areas include:
@@ -618,8 +632,9 @@ cloud synchronization, distributed locking, encryption/key management, and
 automatic backup policy remain open. The historical published `v0.14.0` baseline
 has 63 authoritative and byte-identical packaged Schemas and 85 generated-output
 scenarios; the historical published `v0.13.0` baseline remains 62 Schemas and 77
-scenarios. The published `v0.15.0` baseline and current prepared `v0.16.0`
-Package preserve the 63-Schema, six-Session-example, and 85-scenario sets.
+scenarios. The historical published `v0.15.0` baseline and current published
+`v0.16.0` Package preserve the 63-Schema, six-Session-example, and 85-scenario
+sets.
 Match Capture now contains identity/metadata, individual evidence-aware observed
 Games and commentary, persistent internal 36-position Workspaces,
 transport-free rapid-entry Application services, and the private local no-JSON

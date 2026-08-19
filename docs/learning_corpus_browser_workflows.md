@@ -8,15 +8,17 @@ canonical downloads. It does not add an eighth Root workflow, another Console
 Script, a Public API, a Schema, derived-artifact persistence, or automatic
 analysis.
 
-Issue #180 prepares Package version `0.16.0` and current Release documentation
+Issue #180 prepared Package version `0.16.0` and current Release documentation
 without changing product behavior. Python remains `>=3.13`; Public API contract
 version `1`, seven Root workflows, the one `skat-ai = skat_ai.cli:main` Console
 Script, 63 authoritative Schemas, 63 Packaged Schema Resources, six Session
 examples, 85 generated outputs, Training Dataset version `1`, and Learning
 Dataset version `2` remain unchanged. Functional private local `v0.16.0` work is
 complete through Issue #179, and Release preparation is complete through Issue
-#180. Publication remains a manual maintainer action; `v0.16.0` is not yet tagged
-or published. No Package-index or PyPI publication is claimed.
+#180. The maintainer published `v0.16.0` manually on 2026-08-18 at commit
+`91b1360`, and Issue #181 synchronizes publication status without product
+functionality. GitHub Releases is the authoritative publication record; no
+Package-index or PyPI publication is claimed.
 
 ## CLI startup
 

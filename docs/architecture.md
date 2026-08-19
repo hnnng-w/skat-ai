@@ -87,9 +87,12 @@ unseen-player, and Summary values outside the context lock. A generation/source
 check prevents stale publication. The minimized server-rendered dashboard and
 seven authenticated canonical downloads add no derived persistence, Public API,
 Schema, or Root workflow. Issue #179 completed the functional private local
-`v0.16.0` work without changing Package `0.15.0`; Issue #180 then prepares
-Package `0.16.0` and Release documentation without product behavior changes.
-Publication remains open.
+`v0.16.0` work without changing Package `0.15.0`; Issue #180 then prepared
+Package `0.16.0` and Release documentation without product behavior changes. The
+maintainer published `v0.16.0` manually on 2026-08-18 at commit `91b1360`, and
+Issue #181 synchronizes publication status without product functionality. GitHub
+Releases is the authoritative publication record; no Package-index or PyPI
+publication is claimed.
 
 Issues #160 through #168 form the published `v0.15.0` Package baseline, and Issue
 #169 updated only Package/release metadata and documentation to complete Release

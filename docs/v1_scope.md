@@ -4,24 +4,28 @@ This document defines the product requirements and observable completion gates
 for `skat-ai` `v1.0.0`. Current implementation status remains in
 [Requirements traceability](requirements_traceability.md).
 
-The current published stable and latest stable GitHub Release is `v0.15.0` at
-commit `ec1c154`. Package version `0.15.0` requires Python 3.13 or newer, retains
-Public API contract version `1` and exactly seven Root workflows, and contains 63
-authoritative Schemas, 63 Packaged Schema Resources, six Session examples, 85
-deterministic generated-output scenarios, and 6,510 passing pytest tests. Issues
-#160 through #168 complete the functional milestone, Issue #169 completed
-Release preparation, and Issue #170 synchronizes publication status. Publication
-was performed manually by the maintainer. GitHub Releases is authoritative; no
-Package-index or PyPI publication is claimed.
+The current published stable and latest stable GitHub Release is `v0.16.0`, with
+release theme "Learning-ready behavior and communication data" and GitHub
+Release title "v0.16.0 — Learning-ready behavior and communication data". It was
+published manually by the maintainer on 2026-08-18 at commit `91b1360`. Package
+version `0.16.0` requires Python 3.13 or newer, retains Public API contract
+version `1`, exactly seven Root workflows, and the one
+`skat-ai = skat_ai.cli:main` Console Script. It contains 63 authoritative
+Schemas, 63 Packaged Schema Resources, six Session examples, 85 deterministic
+generated-output scenarios, and 6,925 passing pytest tests in 1083.48s. Issues
+#171 through #179 complete the functional milestone, Issue #180 completed
+Release preparation without product behavior changes, and Issue #181
+synchronizes publication status without changing product behavior. GitHub
+Releases is the authoritative publication record; no Package-index or PyPI
+publication is claimed.
 
-The prepared current Package baseline is `v0.16.0 - Learning-ready behavior and
-communication data`. Issues #171 through #179 complete its functional private
-Learning Corpus and Dataset-v2 milestone, and Issue #180 completes Package-version
-and Release-documentation preparation without product behavior changes. Package
-version `0.16.0` preserves Python 3.13 or newer, Public API contract version `1`,
-seven Root workflows, 63 authoritative and packaged Schemas, six Session examples,
-and 85 generated outputs, and passes 6,925 pytest tests. Publication remains a
-manual maintainer action; `v0.16.0` is not yet tagged or published.
+The historical published `v0.15.0` Release points to commit `ec1c154`. Package
+version `0.15.0` requires Python 3.13 or newer, retains Public API contract
+version `1` and exactly seven Root workflows, and contains 63 authoritative
+Schemas, 63 Packaged Schema Resources, six Session examples, 85 deterministic
+generated-output scenarios, and 6,510 passing pytest tests. Issues #160 through
+#168 complete the functional milestone, Issue #169 completed Release
+preparation, and Issue #170 synchronized publication status.
 
 The historical published `v0.14.0` Release points to commit `d5589f8`. Its
 Package baseline contains the same 63 authoritative and packaged Schemas, six
@@ -155,7 +159,7 @@ remains unready, and its final planning still
 requires a separate audit of this document and
 [Requirements traceability](requirements_traceability.md).
 
-The prepared current Package milestone is `v0.16.0 - Learning-ready behavior and
+The current published Package milestone is `v0.16.0 — Learning-ready behavior and
 communication data`. Issue #171 defines its first private internal foundation: immutable
 content-addressed copies of exact Workspace persistence documents, exact Player
 Observations, observed-Game fingerprints, Snapshot-scoped closed references,
@@ -195,21 +199,23 @@ workflow with a separate installed/module/Legacy `corpus` command, one explicit
 root, strict Workspace and executed-Decision Report-source uploads, explicit
 Current selection, bounded process-local sources, exact no-execution artifact
 preparation, minimized loopback presentation, and seven authenticated canonical
-downloads. Issue #180 prepares Package version `0.16.0` and current Release
-documentation without product behavior changes; publication remains open. No
+downloads. Issue #180 prepared Package version `0.16.0` and current Release
+documentation without product behavior changes. The maintainer published the
+Release manually on 2026-08-18 at commit `91b1360`, and Issue #181 synchronizes
+publication status without product functionality. No
 Public API, Schema, Root workflow, derived-artifact
 persistence, automatic Report capture, Historical Report import, database/
 remote/cloud/collaboration, task builder, taxonomy/tag, evaluation, rating, or
 training is added. See
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
-The provisional next planning milestone is `v0.17.0 - Rules, Search, Coaching,
+The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
 and performance closure`. Candidate directions include remaining approved Claims
 and Settlement, additional historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
-audit. Final Issue titles, count, architecture, solver design, Rating contract,
+audit. Final Issue titles, count, architecture, solver design, Rating boundary,
 Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
@@ -241,7 +247,7 @@ must not be presented as official-rule requirements.
 | Private Match Workspace | Internal immutable exact 36-position EuroSkat Workspace with fixed rotation, revisions, Progress, fingerprints, strict Resume, and optimistic atomic local files. | Issue #168 derives max-eight process-local revision-scoped reports without persisting them. Applied mutation, Reload, shutdown, stale revision, and concurrent-change behavior is explicit. No distributed lock, retry/merge, remote/cloud/encryption/backup, public materialization, or Public Match API/Schema exists. |
 | Private Learning Corpus identity, Catalog, persistence, Workspace import, derived Player history, Human Evidence, and Strategy Teacher Evidence | Internal immutable content-addressed Match Snapshots built only from exact strictly resumed Workspace persistence documents, with exact closed References, lightweight entries, explicit Current selections, one fixed explicit local Store, strict Resume, valid orphan reporting, pure Catalog changes, no-clobber objects, optimistic atomic Catalog Save, source-preserving Workspace import, one non-persisted Current-Snapshot Player Catalog with time-safe Statistics selection, one minimized exact Human Commentary/linked Response Evidence export, and one deterministic collection/export of Current-Snapshot-bound method-specific Immediate/Search/Auto Strategy Teacher Evidence from explicitly bound exact executed Decision Analysis Reports, with one no-execution Request rebuild and retained Result validation per source plus exact and semantic identities. | Issues #171 through #174 keep Match Workspaces as editable authority, imported Snapshot objects immutable, `catalog.json` authoritative, valid unreferenced objects as reported orphans, and both Player history and Human Evidence derived from explicit Current selections only. Issue #175 binds exact executed Decision Analysis Reports to explicit Current Match Snapshots and deterministically derives method-bound Strategy Teacher Evidence without execution or persistence. Human text remains exact, observed Cards remain behavior, and Response Links remain caller associations. Human and Strategy Teacher Evidence remain distinct; method-bound Strategy Teacher evidence is not ground truth. Other future analysis/annotation artifacts remain separate. Dataset version `2` is implemented as the separate private contract below. Issue #179 adds only private process-local browser upload, preparation, and download transport. No deletion, garbage collection, Player Catalog persistence, Human or Strategy Teacher Evidence persistence/public transport, persisted aliases/assertions, merge/split, all-revision view, automatic Report capture, Historical Report import, Teacher ranking/consensus, Public API, Schema, derived tags, or model training exists. See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md), [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md), [Learning Corpus Player Catalog and Statistics history](learning_corpus_player_catalog_and_statistics_history.md), [Learning Corpus human Commentary and Response evidence](learning_corpus_human_commentary_and_response_evidence.md), [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md), and [Learning Corpus browser workflows](learning_corpus_browser_workflows.md). |
 | Private Learning Dataset version 2 | One Current-Snapshot-only unpartitioned task-neutral Dataset with exact information-safe Decision State, separate observed behavior, latest-unambiguous time-safe Player Context, all exact method-bound Teachers, exact Commentary, joined outgoing/incoming Responses, explicit skipped Decisions, unjoined Human Evidence, normalized pools, deterministic identities, canonical path-free export, separate Match-Snapshot-group-safe partition preparation, and deterministic exact-Count descriptive cross-game Match, Player, Communication, Strategy, Coverage, and supplied-partition-readiness summaries with canonical path-free export. | Issue #176 defines the unchanged source Dataset. Issue #177 adds complete/unavailable temporal Known-player and component-based unseen-player Plans, leakage audits, and lossless index-only views. Issue #178 consumes the exact Dataset, Player Catalog, and supplied Results without regeneration and adds no rating, ranking, interpretation, evaluation, model-readiness claim, persistence, CLI, browser, Public API, Schema, example, generated scenario, or model training. Training Dataset version `1` remains separate and unchanged. |
-| Private Learning Corpus browser workflow | Separate internal version-1 installed/module/Legacy `corpus` transport over one explicit root, with strict initialization/Resume/Reload, strict 16-MiB Workspace and exact executed-Decision Report-source uploads, optimistic import, explicit Current selection, max-2,048 process-local sources, exact unlocked Player/Human/Strategy/Dataset-v2/known/unseen/Summary preparation, minimized no-JavaScript-capable presentation, and seven authenticated canonical downloads. | Issue #179 completes the functional private local workflow without adding a Root workflow, Public API, Schema, derived persistence, automatic Report capture, Historical Report import, remote/cloud/collaboration, task builder, evaluation, rating, or training. Issue #180 prepares Package `0.16.0`; publication remains open. |
+| Private Learning Corpus browser workflow | Separate internal version-1 installed/module/Legacy `corpus` transport over one explicit root, with strict initialization/Resume/Reload, strict 16-MiB Workspace and exact executed-Decision Report-source uploads, optimistic import, explicit Current selection, max-2,048 process-local sources, exact unlocked Player/Human/Strategy/Dataset-v2/known/unseen/Summary preparation, minimized no-JavaScript-capable presentation, and seven authenticated canonical downloads. | Issue #179 completes the functional private local workflow without adding a Root workflow, Public API, Schema, derived persistence, automatic Report capture, Historical Report import, remote/cloud/collaboration, task builder, evaluation, rating, or training. Issue #180 prepared Package `0.16.0`, and Issue #181 synchronizes publication status without product functionality. |
 | Match Capture Application services | Internal transport-free rapid-entry operations over one loaded Workspace, with UI-ready Views, exact/bounded Cards, automatic Player/Decision derivation, truncation cleanup, annotations, and revisioned Results. | Browser mutations still compose these no-I/O/no-analysis services directly. Issues #167 and #168 remain separate preparation and analysis/report/export layers. Public Match API/Schema/data workflow and tactical interpretation remain absent. |
 | Match review and materialization preparation | Internal evidence-aware acting-own-hand Decision snapshots, strict complete-Deal normal-completion Historical Games, unpartitioned Training source Records, and complete fixed-three-player list plus aggregation materialization. | Issue #167 preserves the actual-Card cutoff, excludes future-opponent leakage, retains Skat/Ouvert semantics, prepares relative Profile bindings without application, uses Match-level `played_at`, preserves Passed Deals and Commentary sidecars, and executes no workflow. Issue #168 exposes explicit private preparation reports and canonical downloads; materialization still executes no workflow. See [Match review and materialization](match_review_and_materialization.md). |
 | Match analysis and private exports | Internal explicit one-Decision Immediate/Search/Auto Position execution, strict selected-mode Historical execution, existing-behavior eligible Profile application, ephemeral reports, and authenticated local downloads. | One available selection invokes the existing matching Application exactly once. Actor exclusion, disabled/nonactionable Profiles, strict Historical availability, no Profile effect on Search/Coaching, no Commentary in Coaching, no-workflow materialization, deterministic SHA-256/max-eight reports, and stale/concurrent invalidation are retained. It adds no Public Match API/Schema/Root/CLI or persisted report. See [Match analysis and exports](match_analysis_and_exports.md). |
@@ -524,9 +530,9 @@ GUI/platform/cloud/encryption layers remain open.
 | Session history editing | Version-1 contracts and behavior provide four Undo statuses, five Correction statuses, four Checkpoint relationships, strict-prefix reconstruction, exact suffix reporting, valid partial States, and deterministic replay. Public wrappers and CLI Undo/Correction with CAS Save and automatic resulting-State Checkpoints are implemented. Automatic Redo, arbitrary Log surgery, branching, and merge remain open. |
 | Private Session persistence and resume | The private version-1 document/codec/file boundary provides deterministic State/content fingerprints, strict typed reconstruction and accepted-Log replay, canonical Checkpoints, recomputed lineage, canonical UTF-8 files, optimistic outcomes, and atomic replacement. Stable public Save/Load and all-three-form CLI orchestration preserve those semantics and omit paths from Results. Distributed locking, migration, merge/retry, encryption, cloud sync, and automatic backup remain open. |
 | Examples | Examples cover each supported Root contract family and six strict Session creation/Command/correction/persistence documents; every example passes its applicable Schema and semantic validation. |
-| Generated-output validation | The prepared current `v0.16.0`, current published `v0.15.0`, and historical published `v0.14.0` Package matrices all have 85 scenarios: the historical published `v0.13.0` first 77 remain unchanged, followed by eight Session scenarios. Historical published `v0.12.0` evidence remains 70. |
+| Generated-output validation | The current published `v0.16.0` and historical published `v0.15.0` and `v0.14.0` Package matrices all have 85 scenarios: the historical published `v0.13.0` first 77 remain unchanged, followed by eight Session scenarios. Historical published `v0.12.0` evidence remains 70. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
-| Regression testing | Ruff, 63-Schema packaged parity, Root and Session example validation, 85-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the current gates. The prepared `v0.16.0` Package passes 6,925 pytest tests. The published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
+| Regression testing | Ruff, 63-Schema packaged parity, Root and Session example validation, 85-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the current gates. The current published `v0.16.0` Package passes 6,925 pytest tests. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 

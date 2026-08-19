@@ -285,9 +285,10 @@ Corpus and does not persist the Report. See
 
 Match Capture Web, Web Protocol, and Capture CLI are independent internal
 version-1 contracts. `capture` is a transport command family, not an eighth Root
-workflow. The published Package baseline is `0.15.0`; the seven Root workflows,
+workflow. The historical published Match Capture Package baseline is `0.15.0`;
+the current published Package baseline is `0.16.0`. The seven Root workflows,
 Public APIs, 63 Schemas, six Session examples, and 85 generated-output scenarios
-are unchanged.
+are unchanged across those baselines.
 
 Issue #168 exposes explicit private Position/Historical analysis and
 materialization/download controls while preserving the no-automatic-analysis

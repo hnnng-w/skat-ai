@@ -308,7 +308,10 @@ exports remain open. No Package-index or PyPI publication is claimed.
 Issue #179 completes the functional private local Learning Corpus/Dataset-v2
 workflow planned for `v0.16.0` without changing the then-current Package version
 `0.15.0`, the one Console Script, seven Root workflows, 63 Schemas/resources, six
-Session examples, or 85 generated outputs. Issue #180 prepares Package `0.16.0`,
+Session examples, or 85 generated outputs. Issue #180 prepared Package `0.16.0`,
 matching assertions, Changelog, and Release-state documentation without product
-behavior changes. Publication remains open; derived artifacts remain non-
+behavior changes. The maintainer published `v0.16.0` manually on 2026-08-18 at
+commit `91b1360`, and Issue #181 synchronizes publication status without product
+functionality. GitHub Releases is the authoritative publication record; no
+Package-index or PyPI publication is claimed. Derived artifacts remain non-
 persisted and private.

@@ -234,20 +234,21 @@ and Issue #158 completed Release preparation before manual maintainer
 publication. GitHub Releases remains authoritative; no Package-index or PyPI
 publication is claimed.
 
-The current published `v0.15.0` Package baseline at commit `ec1c154` keeps the
+The current published `v0.16.0` Package baseline at commit `91b1360` keeps the
 same 63 authoritative and 63 packaged Schemas, six Session examples, and 85
+deterministic generated outputs, and passes 6,925 pytest tests in 1083.48s. Issue
+#180 completed Release preparation without changing any Schema, example, or
+generated scenario file. The maintainer published the Release manually on
+2026-08-18, and Issue #181 synchronizes publication status. GitHub Releases is
+the authoritative publication record; no Package-index or PyPI publication is
+claimed.
+
+The historical published `v0.15.0` Package baseline at commit `ec1c154` keeps
+the same 63 authoritative and 63 packaged Schemas, six Session examples, and 85
 deterministic generated outputs, and passes 6,510 pytest tests. Issue #169
 completed Release preparation without changing any Schema, example, or generated
-scenario file, and Issue #170 synchronizes publication status. Publication was
-performed manually by the maintainer. GitHub Releases remains authoritative; no
-Package-index or PyPI publication is claimed.
-
-The prepared current `v0.16.0` Package baseline keeps the same 63 authoritative
-and 63 packaged Schemas, six Session examples, and 85 deterministic generated
-outputs, and passes 6,925 pytest tests. Issue #180 completes Package-version and
-Release-documentation preparation without changing any Schema, example, or
-generated scenario file. Publication remains a manual maintainer action;
-`v0.16.0` is not yet tagged or published.
+scenario file, and Issue #170 synchronized publication status. Publication was
+performed manually by the maintainer.
 
 The historical published `v0.13.0` baseline at commit `abd1ad3` contains 62
 authoritative Schemas and 62 Packaged Schema Resources and validates 77
@@ -304,8 +305,8 @@ session_retrospective_finalize
 Their semantic checks cover fingerprints, accepted-Log replay, canonical
 Checkpoint equality/lineage/deduplication, observed Card/revision, frozen Request
 isolation, conflict-without-replacement, execution boundaries, and Position
-privacy. The prepared current `v0.16.0`, current published `v0.15.0`, and
-historical published `v0.14.0` Package matrices all have 85 scenarios, while the historical published
+privacy. The current published `v0.16.0` and historical published `v0.15.0` and
+`v0.14.0` Package matrices all have 85 scenarios, while the historical published
 `v0.13.0` facts remain 77.
 
 The scenario matrix is intentionally bounded. It covers representative
