@@ -62,6 +62,9 @@ official Skat rules arbitration.
 * Continued play with the exact public declarer hand after rejected shortening under ISkO 4.4.4
 * Bounded exact defender open-play adjudication under ISkO 4.4.5 for up to five unresolved tricks
 * Continued play with the exposing defender's exact returned public hand under ISkO 4.4.5 and 4.1.6
+* Internal Settlement Normative Matrix version `2` with 61 preserved cases, one
+  approved bounded Retrospective party-wide Claim direction for later
+  implementation, and durable v1 exclusions without new Runtime behavior
 * Legacy claim/concession remaining-point assignment
 * Adjusted game-result summaries
 * Final single-game settlement summaries
@@ -1179,6 +1182,8 @@ Detailed documentation is split into topic-specific files:
 * [Schema validation](docs/schema_validation.md)
 * [Scoring and settlement](docs/scoring.md)
 * [Game-end handling](docs/game_end.md)
+* [Claim and Settlement v1 boundaries](docs/claim_and_settlement_v1_boundaries.md)
+* [Settlement Normative Matrix](docs/settlement_normative_matrix.md)
 * [Overbid handling](docs/overbid.md)
 * [Performance rating](docs/performance_rating.md)
 * [Examples](docs/examples.md)
@@ -1402,10 +1407,12 @@ dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
 level provenance enforcement, and GUI/browser or online-platform Session
 integration beyond the completed local end-to-end Issue #150 through #157
-capture milestone. General
-and specific-trick claims, defender-open-play proof beyond five unresolved
-tricks, multiple continuation events, arbitrary event streams, and historical
-end reasons outside the supported set remain unsupported. Current
+capture milestone. Runtime contracts, exact proof, Historical integration, and
+Settlement reuse for the approved party-wide all-remaining-Tricks Claim remain
+open. Specific future-Trick Claims, defender-open-play proof beyond five
+unresolved Tricks, multiple continuation events, arbitrary event streams, and
+the other documented durable v1 Claim exclusions are `not_supported_v1`.
+Historical end reasons outside the supported set remain unsupported. Current
 recommendations, opponent policies, and confidence are heuristic; no learned
 model or model-training workflow is included. The product supports fixed
 three-player tables only; four-player tables are excluded, and complete official
@@ -1553,7 +1560,12 @@ ratings, derived AI tags, public API/Schema exposure, and model training remain
 open. No production model is included.
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. It may cover remaining approved Claims and Settlement,
+and performance closure`. Issue #182 is its first completed planning and contract-
+audit Issue. It closes the Claim product-decision gate through Settlement
+Normative Matrix version `2` without adding Runtime behavior: exactly one bounded
+party-wide all-remaining-Tricks Claim is approved for later implementation, and
+all other current Claim boundaries are durable v1 exclusions. The milestone may
+also cover remaining approved Claim and Settlement implementation,
 additional historical endings, stronger information-set Search and Strategy
 Fusion mitigation, tactical and cross-game Coaching, carefully bounded Player
 Ratings where approved, broader Provenance and Confidence integration,

@@ -240,8 +240,13 @@ task builders/taxonomies/tags, evaluation, ratings, and training remain open.
 See [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Candidate directions include remaining approved Claims
-and Settlement, additional historical endings, stronger information-set Search
+and performance closure`. Issue #182 is its first completed planning and
+contract-audit Issue. It closes the v1 Claim product-decision gate through
+Settlement Normative Matrix version `2`, preserving all 61 case IDs and approving
+one bounded Retrospective party-wide all-remaining-Tricks Claim direction for
+later implementation while classifying all other current Claim boundaries as
+`not_supported_v1`. Candidate directions include that approved Runtime and
+Settlement work, additional historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -283,26 +288,28 @@ An output field alone is not evidence of support.
 | Overbid handling | ISkO | 3.5.6; 3.6.1; 3.6.3-3.6.4 | `partially_supported` | Suit/Grand comparison and the smallest base-value multiple covering the bid drive a doubled loss, including complete normal-play pickup and Hand records. | Bid, game value, base value, and complete result. | Pre-first-trick impossibility and rule-violation interactions remain incomplete; historical overbid Null uses the separate impossible-Null workflow and is rejected here. | Retain pickup, Hand, matador-in-skat, announcement, and rule-interaction cases against approved interpretations. | v1.0 | Yes |
 | Impossible Null declarations | ISkO and International Skat Court decision collection | 3.6.2; inquiries 1-3 | `supported` | A post-game-only immediate loss preserves the original Null declaration and calculates a separately supplied Suit/Grand replacement from its base value, matadors, inherited Hand status, and final bid. | Final bid, original Null Hand/ouvert flags, and optional external replacement selection with contract-specific matadors. | The engine records the supplied favorable selection but does not optimize across alternatives or infer every alternative's matadors. | Retain all Null variants, replacement bases/bounds, rounding, Hand/ouvert, immediate-loss, incomplete-metadata, schema, CLI, example, and generated-output tests. | v1.0 | Yes |
 | Normal game completion | ISkO | 3.2.6; 4.1.1; 4.3.1-4.3.2; 4.4.1 | `partially_supported` | The historical branch validates a complete 32-card deal and all 30 legal plays, derives ten winners, assigns the applicable skat, totals 120 points, and completes Suit, Grand, or Null settlement. | Complete versioned historical record, or legacy complete points/trick evidence in the position workflow. | Legacy positions can still represent completion without a full deal; shortened terminal records are covered by separate bounded rows. | Retain complete normal-play contract, point, winner, settlement, and unchanged serialization tests. | v1.0 | Yes |
-| Claims | ISkO | 4.4.4-4.4.6; bounded 4.1.3-4.1.6 | `partially_supported` | Flat positions support both 4.4.4 declarer-exposure branches, bounded exact final 4.4.5 defender open play, non-adjudicating 4.4.5/4.1.6 continuation, and final 4.4.6 open-card throw for either party. Historical games support all five terminal shortenings, timed non-terminal continuation for either public-hand branch, and the bounded sequence of at most one continuation before one terminal shortening. Existing terminal adjudicators remain authoritative. Normative matrix version 1 classifies every current structured branch and approved boundary. | Concrete parties, final declaration/value, complete applicable public current or thrown hand or exact three-hand adjudication evidence, reliable ownership, hand-size, current-trick, turn, and skat reconciliation, and an incomplete neutral game. | Party-wide and specific-trick claims, generalized non-jack exclusion, and generalized correction require product decisions. Unlimited proof, simultaneous throws, multiple non-terminal events, arbitrary event streams, natural-language interpretation, generative adjudication, and unclassified conduct are outside `v0.11.0`. | Retain exposure, returned/thrown-hand, exact-state, event-boundary, quantifier, follow-suit, trick/point assignment, jack exclusion, privacy, no-proof paths, preexisting decisions, Suit/Grand/Null, schema, CLI, example, generated-output, and normative runtime-kind coverage tests. | v1.0 bounded 4.4.4 through 4.4.6 branches | Yes |
+| Claims | ISkO | 4.4.4-4.4.6; bounded 4.1.3-4.1.6 | `partially_supported` | Flat positions support both 4.4.4 declarer-exposure branches, bounded exact final 4.4.5 defender open play, non-adjudicating 4.4.5/4.1.6 continuation, and final 4.4.6 open-card throw for either party. Historical games support all five terminal shortenings, timed non-terminal continuation for either public-hand branch, and the bounded sequence of at most one continuation before one terminal shortening. Existing terminal adjudicators remain authoritative. Matrix version `2` preserves those cases and approves one structured party-wide all-remaining-Tricks Claim for later implementation. | Existing Runtime paths require concrete parties, final declaration/value, complete applicable public current or thrown hand or exact three-hand adjudication evidence, reliable ownership, hand size, current Trick, turn, and Skat reconciliation. The future Claim additionally requires one exact claimant Player and party, the exact play prefix and current Trick, complete remaining hands, and Retrospective-only complete-world evidence. | The approved Claim has no Runtime contract, exact proof, Historical ending, or Settlement integration yet. Specific future-Trick Claims, generalized non-jack exclusion, generalized correction, free text, natural language, simultaneous throws, arbitrary streams, unlimited proof, generative adjudication, unclassified conduct, multiple non-terminal events, and defender proof beyond five unresolved Tricks are `not_supported_v1`. | Retain existing Runtime behavior and add matrix identity/status-group, exact Claim policy/quantifier/five-Trick, invalid/unavailable no-outcome, Generic Search separation, legacy, Runtime/Historical coverage, and compatibility tests. | v1.0 bounded approved Claim implementation remains open | Yes |
 | Concessions | ISkO | 4.4.1-4.4.3; bounded 4.1.3-4.1.5 | `partially_supported` | The version-1 flat-position union adjudicates accepted declarer concessions and one concrete defender concession. Historical version 1 records exact-prefix declarer and defender concessions with stable IDs, shared settlement, one information-safe decision artifact per actual play, one game-level statistics contribution, and actual-play rolling evaluation. Defender joint liability needs no partner consent; the normative matrix keeps the three simplified remaining-point reasons explicitly legacy-only. | Post-game flat position or complete-deal historical prefix, valid final declaration/value, concrete parties or stable IDs, incomplete play, and supported overbid valuation. | Concession-choice prediction, disputes, language interpretation, historical continued play, and general solver proof are not modeled. | Retain party, consent, prefix ownership/order/follow, cardinality, feature safety, game weighting, rolling safety, boundary, evidence, Suit/Grand/Null, matador, overbid, flat parity, no-assignment, schema, CLI, example, privacy, isolation, and legacy-only matrix tests. | v1.0 | Yes |
-| Final settlement | ISkO | 2.5.1-2.5.11; 3.6.1-3.6.4; bounded 4.1.3-4.1.6 | `partially_supported` | `final_settlement.py` covers existing paths plus historical/flat declarer-concession and accepted-exposure parity, exact defender-open-play assignment, open-card-throw opposing-party assignment, all Null variants, mandatory levels, supported overbid requirements, achieved levels, and settlement basis separation. A historical continuation before shortening delegates settlement unchanged to the selected terminal case. | Complete or adjudicated result, valid declaration, game value, bid, and reliable trick ownership, exact historical prefix, bounded proof, or validated open-throw evidence where required. | General settlement remains explicitly partial; later corrected play, unlimited solving, unsupported end reasons, and violations leave gaps. A continuation has no immediate settlement. | Retain normative table coverage, shortening parity, assignment, continuation no-settlement, mandatory-versus-achieved-versus-rule-level, Null, overbid, theoretical-exclusion, unsafe-evidence, and no-leakage tests. | v1.0 | Yes |
+| Final settlement | ISkO | 2.5.1-2.5.11; 3.6.1-3.6.4; bounded 4.1.3-4.1.6 | `partially_supported` | `final_settlement.py` covers existing paths plus historical/flat declarer-concession and accepted-exposure parity, exact defender-open-play assignment, open-card-throw opposing-party assignment, all Null variants, mandatory levels, supported overbid requirements, achieved levels, and settlement basis separation. A historical continuation before shortening delegates settlement unchanged to the selected terminal case. Issue #182 changes no Settlement Runtime. | Complete or adjudicated result, valid declaration, game value, bid, and reliable Trick ownership, exact Historical prefix, bounded proof, or validated open-throw evidence where required. | General Settlement remains explicitly partial. Existing behavior does not settle the approved future party-wide Claim; invalid or unavailable future proof must create no Settlement. Unsupported endings and rule violations remain gaps. A continuation has no immediate Settlement. | Retain normative table coverage, shortening parity, assignment, continuation no-settlement, mandatory-versus-achieved-versus-rule-level, Null, overbid, theoretical-exclusion, unsafe-evidence, no-leakage, and future Claim no-outcome boundaries. | v1.0 | Yes |
 
 Immutable [settlement normative matrix](settlement_normative_matrix.md) version
-`1` now provides the required contract/level/outcome classification without
-changing runtime behavior. It keeps Claims, Concessions, and Final Settlement
+`2` provides the required contract/level/outcome classification without changing
+Runtime behavior. It keeps Claims, Concessions, and Final Settlement
 `partially_supported`; distinguishes direct rules, approved bounded behavior,
-legacy compatibility, approved later implementation, undecided cases, and
-`v0.11.0` exclusions; and adds table-driven coverage for every current
+legacy compatibility, one approved later implementation, and durable v1
+exclusions; and retains table-driven coverage for every current
 shortening, historical terminal and continuation kind, legacy end reason, normal
 completion, and impossible Null. The approved historical extension is at most
 one supported non-terminal continuation followed by at most one supported
 terminal shortening, with `supported_as_is` status and delegation to existing
-terminal cases. Party-wide and
-specific-trick claims, generalized non-jack exclusion, and generalized rule-
-violation correction remain `decision_required`. Multiple non-terminal events,
-arbitrary event streams, free-text or natural-language claims, simultaneous
-throws, unlimited proof, generative adjudication, and unclassified conduct are
-outside `v0.11.0`.
+terminal cases. The party-wide all-remaining-Tricks Claim is the only
+`implementation_required` Claim case. It is Retrospective-only, complete-world,
+party-existential/opponent-universal, bounded to five unresolved Tricks, and
+module-free until later Runtime work. Invalid or unavailable proof creates no
+terminal outcome or Settlement. Every other current Claim boundary is
+`not_supported_v1`; no canonical case remains `decision_required` or uses the
+historical `out_of_scope_v0_11` status. See
+[Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
 
 ## SkWO list and competition matrix
 
@@ -624,9 +631,12 @@ maintainer's manual publication. See
   opposing-party assignment with jack-only theoretical exclusion are supported.
   One continuation followed by one supported terminal shortening is implemented
   by delegating to the existing terminal semantics. Multiple non-terminal
-  events, arbitrary event streams, simultaneous throws, and unlimited proof are
-  outside `v0.11.0`; generalized non-jack theoretical solving and isolated,
-  party-wide, or specific-trick claims require separate product decisions.
+  events, arbitrary event streams, simultaneous throws, unlimited proof,
+  generalized non-jack theoretical solving, and specific future-Trick Claims are
+  `not_supported_v1`. Issue #182 approves only the separate structured party-wide
+  all-remaining-Tricks Claim for later bounded Retrospective implementation; its
+  Runtime, exact proof, Historical ending, and Settlement integration remain
+  open.
 * Ten cards per player and three cards per trick imply ten normal tricks, while
   ISkO 4.4.1 says games are generally played to the end. The numbered rules do
   not provide one standalone `normal_completion` data definition; the v1.0

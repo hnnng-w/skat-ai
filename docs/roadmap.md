@@ -442,10 +442,9 @@ Implemented:
 * Supported Suit/Grand overbid detection
 * Supported Suit/Grand overbid settlement loss handling
 * Bounded impossible Null settlement from an externally supplied Suit or Grand replacement
-* Immutable [version-1 normative settlement matrix](settlement_normative_matrix.md)
-  with direct-rule,
-  approved-bounded, legacy, implementation-required, decision-required, and
-  `v0.11.0` exclusion classifications
+* Immutable [version-2 Settlement Normative Matrix](settlement_normative_matrix.md)
+  with all 61 case IDs preserved, direct-rule, approved-bounded, legacy, one
+  implementation-required Claim, and durable `not_supported_v1` classifications
 
 ### Game-end handling
 
@@ -656,7 +655,8 @@ Implemented:
 * Topic-specific documentation split into `docs/`
 * Project handoff documentation
 * Authoritative requirements traceability and testable `v1.0.0` scope
-* Version-1 settlement normative matrix and table-driven runtime-kind coverage
+* Version-2 Settlement Normative Matrix with 61 preserved case IDs, exact v1
+  Claim status groups, and table-driven Runtime-kind coverage
 * Exact public API export, immutable-document, compatibility, error, and legacy CLI tests
 * Focused public facade parsing, schema, option mapping, all-workflow execution,
   artifacts, parity, no-I/O, error translation, and normal-state tests
@@ -756,13 +756,18 @@ Implemented:
   source, Editable, Wheel, and sdist installations.
 * Full official settlement nuance coverage is not complete.
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
-* The engine verifies only bounded ISkO 4.4.5 defender rest-trick claims; no general claim-verification protocol exists.
+* The engine verifies only bounded ISkO 4.4.5 defender rest-Trick Claims. Issue
+  #182 approves one separate bounded party-wide Claim direction, but its Runtime
+  contract, exact proof, Historical integration, and Settlement reuse remain open.
 * Structured declarer concession models accepted defender consent; structured defender concession applies joint liability without partner consent. Disputes are not modeled.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
 * Matador inference uses currently known declarer-card context and safe concrete-declarer completed-trick ownership facts; it does not reconstruct all possible matador information from complete historical trick ownership in every scenario.
 * Historical records support normal completion and all five terminal shortenings with at most one optional timed defender-open-play or declarer-card-exposure continuation. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons are not represented there.
-* Historical corrected play and isolated or specific-trick claims remain incomplete; unlimited proof, simultaneous throws, and arbitrary event streams are outside `v0.11.0`; general settlement coverage is incomplete.
+* Specific future-Trick Claims, generalized correction and non-jack exclusion,
+  unlimited proof, simultaneous throws, arbitrary event streams, and the other
+  documented durable v1 Claim exclusions are `not_supported_v1`; general
+  Settlement coverage remains incomplete.
 * Dataset, Preparation, Opponent, Profile, list, comparison, live Position,
   retrospective Review/Coaching, and complete Position/Historical Root Results
   have internal provenance. Public output exposes only the bounded redacted Root
@@ -1149,8 +1154,12 @@ exposure remain open. No production model is planned for this milestone. See
 ## Active next planning milestone: v0.17.0
 
 `v0.17.0 — Rules, Search, Coaching, and performance closure` is the active next
-planning milestone. It
-may cover remaining approved Claims and Settlement, additional historical
+planning milestone. Issue #182 is its first completed planning and contract-audit
+Issue. It closes the v1 Claim product-decision gate through Matrix version `2`
+without Runtime behavior: exactly one bounded Retrospective party-wide all-
+remaining-Tricks Claim is approved for later implementation, and every other
+current Claim boundary is `not_supported_v1`. The milestone may cover that
+approved Claim and Settlement implementation, additional historical
 endings, stronger information-set Search and Strategy Fusion mitigation,
 tactical and cross-game Coaching, carefully bounded Player Ratings where
 approved, broader Provenance and Confidence integration, performance and latency
@@ -1183,8 +1192,8 @@ subcommands, and the Assistant. The executable
 public facade, internal Application layer, installable library distributions,
 and stable installed CLI interface are implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
-metadata, and stable public errors are implemented. General claim verification
-and historical end reasons outside the
+metadata, and stable public errors are implemented. The approved party-wide Claim
+Runtime and historical end reasons outside the
 supported bounded set also remain incomplete. Structured concessions and
 exposures, bounded defender open play, open-card throwing, supported historical
 terminal and continuation events, variable-length workflows, Ouvert-aware
@@ -1193,7 +1202,8 @@ already implemented.
 The approved [settlement matrix](settlement_normative_matrix.md) defines their
 normative scope, and the bounded continuation-plus-terminal-shortening sequence
 is implemented through delegation to the existing terminal cases. Claims,
-Concessions, and Final Settlement remain partially supported.
+Concessions, and Final Settlement remain partially supported. See
+[Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
 
 Full auction modeling, learned opponent profiles, machine-learning card-decision
 models, and online-platform, hosted-browser, or browser-extension adapters are
@@ -1320,5 +1330,6 @@ explicitly required for `v1.0.0`, planned post-v1.0 work, not-required workflows
 and unconditional exclusions. Functional private local `v0.16.0` work is
 complete through Issue #179, Issue #180 completed Release preparation, and Issue
 #181 synchronizes the manual publication at commit `91b1360`. The active
-`v0.17.0` direction and final `v1.0.0` Issue split and implementation
-architecture remain undecided pending focused review.
+`v0.17.0` direction begins with Issue #182's completed Claim and Settlement
+boundary audit. Later Runtime implementation and the final `v1.0.0` Issue split
+and architecture remain open.

@@ -412,8 +412,13 @@ that publication status. GitHub Releases is the authoritative publication
 record; no Package-index or PyPI publication is claimed.
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Candidate directions include remaining approved Claims
-and Settlement, additional historical endings, stronger information-set Search
+and performance closure`. Issue #182 is its first completed planning and
+contract-audit Issue: Settlement Normative Matrix version `2` preserves all 61
+case IDs, approves one bounded Retrospective party-wide all-remaining-Tricks
+Claim direction for later implementation, and classifies every other current
+Claim boundary as `not_supported_v1` without Runtime behavior. Candidate
+directions include the approved Claim and Settlement implementation, additional
+historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -476,7 +481,8 @@ Major completed areas include:
 * exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, and common-prefix aggregation
 * strict Search, Search-first auto, Multi-Step, Policy Comparison, flat post-game, Historical Search Review, and dataset-evaluation integration
 * immutable Search budget profiles, strict-improvement and convergence fixtures, and measured reference performance
-* immutable 61-case normative settlement matrix and bounded continuation-before-shortening historical chains
+* immutable 61-case Settlement Normative Matrix version `2`, closed v1 Claim
+  product decisions, and bounded continuation-before-shortening historical chains
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -608,8 +614,11 @@ Major completed areas include:
   canonical downloads without derived persistence
 * updated README, docs, roadmap, and project handoff
 
-Current limitations include general and specific-trick claim verification,
-defender-open-play proof beyond five unresolved tricks, multiple historical
+Current limitations include Runtime contracts, exact proof, Historical
+integration, and Settlement reuse for the approved party-wide Claim; specific-
+Trick Claims and the other durable v1 Claim exclusions are not supported before
+v1. Other limitations include defender-open-play proof beyond five unresolved
+tricks, multiple historical
 continuations, historical end reasons beyond the supported bounded set,
 incomplete settlement nuance, no additional preparation algorithms, algorithm
 overrides, fallback or partial plans, global optimization, ratio guarantees,

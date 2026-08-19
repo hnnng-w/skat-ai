@@ -2,20 +2,21 @@
 
 ## Version and purpose
 
-`src/skat_ai/settlement_normative_matrix.py` defines immutable settlement
-normative matrix version `1` with 61 canonical cases. It records current support,
-interpretation scope, approved future semantics, undecided product boundaries,
-and `v0.11.0` exclusions in deterministic case-ID order.
+`src/skat_ai/settlement_normative_matrix.py` defines immutable Settlement
+Normative Matrix version `2` with the same 61 canonical case IDs in the same
+order as version `1`. It records current support, interpretation scope, one
+approved future Claim, and durable v1 exclusions in deterministic case-ID order.
 
 The matrix is an internal specification and validation artifact. It is not a
 stable package-root API, does not inspect runtime game state, and is not imported
 by adjudication, settlement, Search, simulation, historical parsing, schemas,
-CLI, examples, or generated-output paths. Issue #118 changes no runtime
+CLI, examples, or generated-output paths. Issue #182 changes no Runtime
 adjudication or public serialized contract.
 
 The matrix does not claim complete official-rule, claim, concession, or
-settlement coverage. General Claims, Concessions, and Final Settlement remain
-partially supported beyond the documented bounded cases.
+Settlement coverage. Claims and Final Settlement remain partially supported
+beyond the documented bounded cases. The closed v1 Claim decision is documented
+in [Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
 
 ## Normative source hierarchy
 
@@ -41,7 +42,11 @@ case. `docs/requirements_traceability.md` remains the broader product audit.
 | `supported_as_is` | Current behavior is executable and names at least one implementation module. |
 | `implementation_required` | Semantics are approved, but runtime implementation is still required. |
 | `decision_required` | A separate product decision is required; no implementation-ready outcome is defined. |
-| `out_of_scope_v0_11` | The behavior is excluded from `v0.11.0` and has no implementation module. |
+| `not_supported_v1` | The behavior is not supported before v1, defines no approved outcome, and has no implementation module. |
+
+`decision_required` remains available for future audits, but no canonical
+version-2 case uses it. No canonical version-2 case uses the historical
+`out_of_scope_v0_11` milestone classification.
 
 ## Interpretation scopes
 
@@ -140,6 +145,7 @@ Proof policy values:
 * `none`
 * `defender_open_play_v1`
 * `open_throw_jack_exclusion_v1`
+* `party_wide_all_remaining_tricks_claim_v1`
 * `decision_required`
 * `not_approved`
 
@@ -190,8 +196,9 @@ kinds.
 | Historical normal and five terminal kinds | `supported_as_is` | Exact replay adapters retain the corresponding current terminal policy. |
 | Both historical continuation kinds | `supported_as_is`, `product_boundary` | One non-terminal event followed by independently settled normal completion or one supported terminal shortening. |
 | One continuation then one terminal shortening | `supported_as_is`, `product_boundary` | The subsequent supported terminal kind retains its existing policy. |
-| New general or specific claims | `decision_required`, `product_boundary` | No definitive outcome is approved. |
-| Milestone exclusions | `out_of_scope_v0_11`, `product_boundary` | No implementation or adjudication policy. |
+| Party-wide all-remaining-Tricks Claim | `implementation_required`, `approved_bounded` | Retrospective complete-world five-Trick proof is approved but not executable. |
+| Specific and generalized excluded Claims | `not_supported_v1`, `product_boundary` | No implementation or adjudication policy before v1. |
+| Previous milestone exclusions | `not_supported_v1`, `product_boundary` | Durable v1 exclusion with no implementation or adjudication policy. |
 | Incomplete or contradictory evidence | `supported_as_is`, `not_applicable` | Winner, assignment, level, overbid, and settlement remain unresolved. |
 
 Within these families, declarer concession retains the existing `9..10` cards
@@ -215,35 +222,48 @@ They retain simplified remaining-card-point assignment and do not prove actual
 remaining trick ownership. They are not silently reinterpreted as structured
 claims or concessions.
 
-## Decisions required
+## Closed v1 Claim decision
 
-No definitive outcome or implementation-ready semantics are approved for:
+Issue #182 closes the remaining Claim product-decision gate. Exactly one case is
+`implementation_required`:
 
-* a new party-wide all-remaining-tricks claim;
-* a specific future-trick-count claim;
-* a specific future-trick-identity claim;
+```text
+claim_boundary.decision.party_wide_all_remaining_tricks_claim
+```
+
+It approves a structured post-game and Retrospective-only complete-world proof,
+bounded to five unresolved Tricks, with claiming-party existential and opposing-
+party universal legal choices. A valid proof will assign every unresolved Trick
+to the claiming party and reuse existing result and Settlement behavior. Invalid
+or unavailable proof will create no terminal outcome or Settlement, and there is
+no opposing-party or Generic Search fallback. Runtime implementation remains
+open.
+
+The following former decision cases are `not_supported_v1`:
+
+* specific future-Trick-count Claims;
+* specific future-Trick-identity Claims;
 * generalized non-jack open-throw theoretical exclusion;
 * generalized rule-violation correction.
 
-These cases use `implementation_status = decision_required` and unresolved
-outcome policies.
+## Durable v1 exclusions
 
-## v0.11.0 exclusions
-
-The following are `out_of_scope_v0_11`:
+The previous `v0.11.0` milestone exclusions now use `not_supported_v1`:
 
 * free-text claims;
 * natural-language interpretation;
 * simultaneous throws;
-* arbitrary-length event streams;
+* arbitrary event streams;
 * defender-open-play proof beyond five unresolved tricks;
 * multiple non-terminal continuation events;
 * unlimited proof;
 * generative adjudication;
 * unclassified conduct.
 
-These are milestone exclusions, not unconditional product exclusions. Four-player
-tables remain the repository's only unconditional exclusion.
+Together with the four former decision cases, these form the exact 13-case
+`V1_NOT_SUPPORTED_CLAIM_CASE_IDS` tuple. They are durable v1 exclusions, not
+unconditional permanent exclusions or post-v1 implementation promises.
+Four-player tables remain the repository's only unconditional exclusion.
 
 ## Proof boundaries
 
@@ -261,6 +281,20 @@ five unresolved tricks.
 `open_throw_jack_exclusion_v1` is only the existing jack-ownership theoretical
 Schwarz exclusion. It is not arbitrary-card theoretical solving and is not an
 exact rest-play proof.
+
+`party_wide_all_remaining_tricks_claim_v1` is approved for later implementation
+with these exact quantifiers:
+
+| Party | Quantifier |
+| --- | --- |
+| claiming party | existential |
+| opposing party | universal |
+
+It requires complete Retrospective evidence and is bounded to at most five
+unresolved Tricks. It remains module-free and unavailable with reason
+`party_wide_claim_not_implemented` until a dedicated Runtime proof exists. A
+valid proof assigns all unresolved Tricks to the claiming party; invalid and
+unavailable proof create no terminal outcome or Settlement.
 
 Perfect-Information Minimax, compatible-world Minimax, and Search aggregation are
 not generic claim proofs. Search remains separate from claim adjudication.
@@ -284,8 +318,7 @@ at most one subsequent supported terminal shortening
 Its matrix status is `supported_as_is`. The runtime keeps the continuation in
 `game_events[0]` and the optional terminal shortening in top-level
 `game_end_reason` plus `game_end`, with both schema versions unchanged at `1`.
-Multiple non-terminal events and arbitrary event streams remain outside
-`v0.11.0`.
+Multiple non-terminal events and arbitrary event streams are `not_supported_v1`.
 
 The sequence case delegates by immutable case ID to every currently supported
 terminal shortening subcase. Its own winner, assignment, level, and overbid
@@ -297,10 +330,12 @@ supported terminal shortening cases and still requires all five terminal kinds.
 ## Validation
 
 Internal helpers return all cases, look up one stable case ID, and validate the
-matrix. Validation covers unique IDs, canonical order, value vocabularies,
-required references, status-policy compatibility, continuation non-settlement,
-Null level exclusion, unsafe evidence, proof scope, implementation-module
-ownership, undecided cases, exclusions, and the legacy-only boundary.
+matrix. Validation covers the exact 61 version-2 IDs and order, value
+vocabularies, exact approved and excluded Claim tuples, required references,
+status-policy compatibility, continuation non-settlement, Null level exclusion,
+unsafe evidence, exact proof quantifiers and bounds, implementation-module
+ownership, zero canonical decision-required and old-milestone cases, durable
+exclusions, and the legacy-only boundary.
 
 Focused tests import current runtime constants and require matrix coverage for
 every `GameShortening` union member, every historical terminal kind, both

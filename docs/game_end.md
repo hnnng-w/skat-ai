@@ -307,6 +307,22 @@ declaration remains binding, requesting continuation adds no optional Schneider
 or Schwarz obligation, and actual later play determines achieved levels and the
 result. See [Defender open play continuation](defender_open_play_continuation.md).
 
+## Approved future party-wide Claim
+
+Issue #182 approves one separate structured party-wide all-remaining-Tricks
+Claim direction for later v1 implementation. It will be post-game and
+Retrospective only, require complete remaining hands plus the exact current Trick
+and play prefix, and use a dedicated exact proof bounded to five unresolved
+Tricks. The claiming party has existential legal choices and the opposing party
+has universal legal responses.
+
+That direction is not executable yet. A future valid proof will assign every
+unresolved Trick to the claiming party, preserve a preexisting winner, and
+otherwise reuse existing result and Settlement behavior. Invalid or unavailable
+proof will create no terminal outcome, opposing-party assignment, or Settlement.
+Generic Search is not a Claim proof and provides no fallback. See
+[Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
+
 ## Legacy claims and concessions
 
 The three legacy reasons are modeled by assigning all remaining card points to
@@ -396,10 +412,13 @@ For example:
 * Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, bounded exact defender open play, and bounded open card throw.
 * Flat continued declarer exposure and bounded defender-open-play continuation are separate ongoing workflows.
 * Multiple continuation events, arbitrary event streams, simultaneous throws,
-  specific-trick assertions, unlimited exact solving, and isolated-card claims
-  remain unsupported.
+  specific future-Trick Claims, free-text or natural-language Claims, unlimited
+  exact solving, generalized correction, generalized non-jack exclusion, and
+  defender-open-play proof beyond five unresolved Tricks are
+  `not_supported_v1`.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.
 * Claims and Final Settlement remain partially supported beyond the approved
   bounded cases. This document does not claim complete official-rule, claim,
   concession, or settlement coverage; see the
-  [settlement normative matrix](settlement_normative_matrix.md).
+  [Settlement Normative Matrix](settlement_normative_matrix.md) and
+  [Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).

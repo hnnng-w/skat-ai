@@ -39,7 +39,8 @@ The project focuses on:
   three examples, and generated-output coverage
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
-* immutable version-1 normative settlement and approved claim-boundary matrix
+* immutable version-2 Settlement Normative Matrix with 61 preserved cases, one
+  approved future party-wide Claim, and durable v1 Claim exclusions
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * deterministic Replay Coaching Key Decisions, Turning Points, one-game patterns, and actionable recommendations
 * complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
@@ -651,9 +652,9 @@ Implemented:
 * supported Suit/Grand overbid detection
 * supported Suit/Grand overbid settlement loss handling
 * bounded impossible Null settlement from an externally supplied Suit or Grand replacement
-* immutable version-1 normative settlement matrix covering current support,
-  bounded interpretations, legacy compatibility, approved later semantics,
-  decision-required claims, and `v0.11.0` exclusions
+* immutable version-2 Settlement Normative Matrix covering current support,
+  bounded interpretations, legacy compatibility, one approved later Claim, and
+  durable `not_supported_v1` boundaries
 
 Known remaining areas:
 
@@ -672,8 +673,10 @@ Implemented:
 * open-card throwing with bounded jack-only theoretical Schwarz exclusion
 * preexisting-result preservation, mandatory-level handling, supported overbid settlement, and privacy-safe summaries
 
-General claims, specific-trick claims, defender-open-play proof beyond five
-unresolved tricks, and broader settlement nuance remain unsupported.
+The approved party-wide Claim Runtime, exact proof, Historical integration, and
+Settlement reuse remain open. Specific future-Trick Claims, defender-open-play
+proof beyond five unresolved Tricks, and the other durable v1 Claim exclusions
+are `not_supported_v1`; broader Settlement nuance remains incomplete.
 The normative boundaries and implemented one-continuation-plus-one-terminal-
 shortening historical sequence are defined in
 [Settlement normative matrix](settlement_normative_matrix.md).
@@ -1408,6 +1411,7 @@ Main documentation files:
 * `docs/opponent_policy_evaluation.md`
 * `docs/requirements_traceability.md`
 * `docs/settlement_normative_matrix.md`
+* `docs/claim_and_settlement_v1_boundaries.md`
 * `docs/v1_scope.md`
 * `docs/roadmap.md`
 * `docs/project_handoff.md`
@@ -1479,8 +1483,13 @@ and 6,925 pytest tests. The maintainer published the Release manually on
 No Package-index or PyPI publication is claimed.
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Candidate directions include remaining approved Claims
-and Settlement, additional historical endings, stronger information-set Search
+and performance closure`. Issue #182 is its first completed planning and
+contract-audit Issue. Matrix version `2` preserves all 61 cases, approves one
+bounded Retrospective party-wide all-remaining-Tricks Claim direction for later
+implementation, and makes all other current Claim boundaries durable v1
+exclusions without Runtime behavior. Candidate directions include the approved
+Claim and Settlement implementation, additional historical endings, stronger
+information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -1768,8 +1777,9 @@ Completed implementation scope:
 * exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, retained duplicate weighting, and common-prefix aggregation
 * live, Multi-Step, Policy Comparison, post-game, Historical Search Review, and dataset-evaluation integration
 * immutable budget profiles, quality and convergence fixtures, and deterministic measured reference performance
-* immutable 61-case normative settlement matrix with direct, bounded, legacy,
-  undecided, and excluded scope classifications
+* immutable 61-case Settlement Normative Matrix version `2` with direct,
+  bounded, legacy, one implementation-required Claim, and durable v1 exclusion
+  classifications
 * one supported non-terminal continuation before normal completion or one
   supported terminal shortening, delegated to unchanged terminal adjudicators
 * information-safe one-game Replay Coaching evidence, impact, Key Decisions,
@@ -1905,9 +1915,10 @@ Completed implementation scope:
 
 ## Current high-priority limitations
 
-* Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. Multiple non-terminal events, arbitrary event streams, other claims, and other end reasons remain unsupported.
+* Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. The approved party-wide Claim still lacks a Runtime and Historical contract. Multiple non-terminal events, arbitrary event streams, specific future-Trick Claims, and the other durable v1 Claim exclusions are `not_supported_v1`; other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
-* General claim verification, concession disputes, and approved settlement completeness remain incomplete.
+* Exact proof and Settlement integration for the approved party-wide Claim,
+  concession disputes, and approved Settlement completeness remain incomplete.
 * All seven Root workflows have complete internal Root Result provenance,
   including base Historical execution. Bounded public Result and actual-artifact
   exposure is implemented, but consumed-input, decision, intermediate-stage,
@@ -2007,8 +2018,11 @@ Completed implementation scope:
 ## Next recommended action
 
 Planning should use the active `v0.17.0 — Rules, Search, Coaching, and
-performance closure` milestone while keeping immutable imported Workspace
-Snapshots separate from future persisted or task-specific derived artifacts.
+performance closure` milestone. Issue #182 closes the Claim product-decision
+gate; next Claim work must implement the approved dedicated Runtime sequence
+without broadening the durable v1 exclusions. Continue keeping immutable imported
+Workspace Snapshots separate from future persisted or task-specific derived
+artifacts.
 Final Issue titles, count, architecture, solver design, Rating boundary, Coaching
 taxonomy, and Release date remain undecided. `v1.0.0` remains unready.
 
