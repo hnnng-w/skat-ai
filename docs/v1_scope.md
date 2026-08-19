@@ -210,13 +210,13 @@ training is added. See
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 is its first completed planning and
-contract-audit Issue. Settlement Normative Matrix version `2` preserves the 61
-case IDs, closes the Claim product-decision gate, approves one bounded
-Retrospective party-wide all-remaining-Tricks Claim direction for later
-implementation, and classifies every other current Claim boundary as
-`not_supported_v1`. Candidate directions include the approved Runtime and
-Settlement work, additional historical endings, stronger information-set Search
+and performance closure`. Issue #182 closes the Claim product-decision gate, and
+Settlement Normative Matrix version `2` preserves the 61 case IDs. Issue #183
+adds private structured Claim, complete Evidence, exact-state, Proof Request/
+preparation, assignment, diagnostic-line, and Result contracts without proof or
+Runtime execution. Every other current Claim boundary remains
+`not_supported_v1`. Candidate directions include proof, adjudication, Historical
+and Settlement work, additional historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -302,8 +302,9 @@ The following directions are required for `v1.0.0`:
   support normal completion, all five exact-prefix shortened terminal reasons,
   and one timed non-terminal defender-open-play or declarer-card-exposure
   continuation before normal completion or one supported terminal shortening.
-  The approved party-wide Claim still requires a Runtime contract, exact proof,
-  Historical ending, and Settlement integration.
+  The approved party-wide Claim now has private contracts and exact-state
+  preparation but still requires proof execution, adjudication, a
+  Runtime/Historical ending, and Settlement integration.
 * Complete the approved
   [normative settlement matrix](settlement_normative_matrix.md), including
   structured claim and concession outcomes, while preserving the bounded impossible Null
@@ -519,7 +520,7 @@ GUI/platform/cloud/encryption layers remain open.
 | Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Application propagation enforces complete live and retrospective decision/stage ledgers and complete non-legacy Root Results across all seven workflows. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts under scopes `root_result_without_field_provenance` and `artifact_document`, with complete recomputed coverage and no consumed-input, decision, intermediate-stage, or unredacted exposure. Completion still requires broader loading, matador, review, serialization, and end-to-end enforcement. |
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 now exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Tactical motifs, cross-game coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
-| Complete-game historical representation | A versioned schema and Runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, Skat pickup/discards or Hand state, every play, structured Claims/concessions and approved additional end reasons, final result, and Settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. Matrix version `2` closes the Claim decision gate, but the approved party-wide Claim still needs its structured Retrospective contract, exact five-Trick proof, Historical integration, and Settlement reuse. |
+| Complete-game historical representation | A versioned schema and Runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, Skat pickup/discards or Hand state, every play, structured Claims/concessions and approved additional end reasons, final result, and Settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. Matrix version `2` closes the Claim decision gate, and private party-wide Claim contracts plus exact-state preparation exist; exact five-Trick proof execution, adjudication, Historical integration, and Settlement reuse remain open. |
 | Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. Public version-1 unpartitioned requests add explicit weights, split-safe facts, deterministic fingerprints/seeds, complete/unavailable Plans, strict temporal or player-disjoint proof, exact Record-count arithmetic, lossless materialization, exact temporal Known-opponent assignment generation, and deterministic locally optimized whole-component unseen-player assignment. Strict root input/output schemas, fixed mode dispatch, file-only CLI options, three examples, and complete/unavailable generated scenarios cover the bounded workflow without generating samples, training a model, or automatically evaluating it. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Public Session interface | The stable Session subnamespace preserves the first 52 names exactly and appends six observation/review names plus `files`; twelve operation/value pairs, persistence mappings, optional provenance, and complete Results validate through the standalone packaged Session Schema. The independently versioned file subnamespace exposes exact path-free Save/Load Results. Export and review-export wrappers execute no analysis. |
@@ -614,8 +615,10 @@ Bounded flat post-game open card throw under 4.4.6 supports either party, one
 concrete complete thrown hand, empty through two-card current tricks, opposing-
 party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
-This does not close broader v1 gates for the approved party-wide Claim Runtime,
-exact proof, Historical integration, or complete Settlement coverage. Specific
+Private version-1 party-wide Claim contracts and one exact-state preparation now
+exist outside these Runtime paths. This does not close broader v1 gates for proof
+execution, adjudication, Runtime/Historical integration, public exposure, or
+complete Settlement coverage. Specific
 future-Trick Claims, generalized corrected play, generalized non-jack theoretical
 exclusion, multiple non-terminal events, arbitrary event streams, simultaneous
 throws, unlimited proof, free-text or natural-language interpretation, generative

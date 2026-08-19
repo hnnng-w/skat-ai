@@ -5,13 +5,15 @@
 `src/skat_ai/settlement_normative_matrix.py` defines immutable Settlement
 Normative Matrix version `2` with the same 61 canonical case IDs in the same
 order as version `1`. It records current support, interpretation scope, one
-approved future Claim, and durable v1 exclusions in deterministic case-ID order.
+approved but non-executable Claim, and durable v1 exclusions in deterministic
+case-ID order.
 
 The matrix is an internal specification and validation artifact. It is not a
 stable package-root API, does not inspect runtime game state, and is not imported
 by adjudication, settlement, Search, simulation, historical parsing, schemas,
-CLI, examples, or generated-output paths. Issue #182 changes no Runtime
-adjudication or public serialized contract.
+CLI, examples, or generated-output paths. Issue #183 adds separate private Claim
+contracts and exact-state preparation without changing Runtime adjudication or a
+public serialized contract.
 
 The matrix does not claim complete official-rule, claim, concession, or
 Settlement coverage. Claims and Final Settlement remain partially supported
@@ -196,7 +198,7 @@ kinds.
 | Historical normal and five terminal kinds | `supported_as_is` | Exact replay adapters retain the corresponding current terminal policy. |
 | Both historical continuation kinds | `supported_as_is`, `product_boundary` | One non-terminal event followed by independently settled normal completion or one supported terminal shortening. |
 | One continuation then one terminal shortening | `supported_as_is`, `product_boundary` | The subsequent supported terminal kind retains its existing policy. |
-| Party-wide all-remaining-Tricks Claim | `implementation_required`, `approved_bounded` | Retrospective complete-world five-Trick proof is approved but not executable. |
+| Party-wide all-remaining-Tricks Claim | `implementation_required`, `approved_bounded` | Private structured contracts and exact-state preparation exist; the Retrospective complete-world five-Trick proof is not executable. |
 | Specific and generalized excluded Claims | `not_supported_v1`, `product_boundary` | No implementation or adjudication policy before v1. |
 | Previous milestone exclusions | `not_supported_v1`, `product_boundary` | Durable v1 exclusion with no implementation or adjudication policy. |
 | Incomplete or contradictory evidence | `supported_as_is`, `not_applicable` | Winner, assignment, level, overbid, and settlement remain unresolved. |
@@ -236,7 +238,9 @@ bounded to five unresolved Tricks, with claiming-party existential and opposing-
 party universal legal choices. A valid proof will assign every unresolved Trick
 to the claiming party and reuse existing result and Settlement behavior. Invalid
 or unavailable proof will create no terminal outcome or Settlement, and there is
-no opposing-party or Generic Search fallback. Runtime implementation remains
+no opposing-party or Generic Search fallback. Issue #183 defines private
+contracts and one untraversed exact-state preparation; proof execution,
+adjudication, Historical and Settlement integration, and public exposure remain
 open.
 
 The following former decision cases are `not_supported_v1`:
@@ -282,8 +286,8 @@ five unresolved tricks.
 Schwarz exclusion. It is not arbitrary-card theoretical solving and is not an
 exact rest-play proof.
 
-`party_wide_all_remaining_tricks_claim_v1` is approved for later implementation
-with these exact quantifiers:
+`party_wide_all_remaining_tricks_claim_v1` has private version-1 contracts and
+these exact quantifiers:
 
 | Party | Quantifier |
 | --- | --- |
@@ -291,10 +295,12 @@ with these exact quantifiers:
 | opposing party | universal |
 
 It requires complete Retrospective evidence and is bounded to at most five
-unresolved Tricks. It remains module-free and unavailable with reason
-`party_wide_claim_not_implemented` until a dedicated Runtime proof exists. A
-valid proof assigns all unresolved Tricks to the claiming party; invalid and
-unavailable proof create no terminal outcome or Settlement.
+unresolved Tricks. The Matrix case remains Runtime-module-free and unavailable
+with reason `party_wide_claim_not_implemented` until a dedicated proof and
+adjudicator exist; the separate private contract modules do not enter
+`implementation_modules`. A valid supplied Result assigns all unresolved Tricks
+to the claiming party; invalid and unavailable Results create no terminal
+outcome or Settlement.
 
 Perfect-Information Minimax, compatible-world Minimax, and Search aggregation are
 not generic claim proofs. Search remains separate from claim adjudication.

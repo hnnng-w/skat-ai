@@ -445,6 +445,9 @@ Implemented:
 * Immutable [version-2 Settlement Normative Matrix](settlement_normative_matrix.md)
   with all 61 case IDs preserved, direct-rule, approved-bounded, legacy, one
   implementation-required Claim, and durable `not_supported_v1` classifications
+* Private version-1 structured party-wide Claim, complete Evidence, exact-state,
+  Proof Request/preparation, assignment, diagnostic Move, and Result contracts
+  without proof traversal or Runtime execution
 
 ### Game-end handling
 
@@ -756,9 +759,10 @@ Implemented:
   source, Editable, Wheel, and sdist installations.
 * Full official settlement nuance coverage is not complete.
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
-* The engine verifies only bounded ISkO 4.4.5 defender rest-Trick Claims. Issue
-  #182 approves one separate bounded party-wide Claim direction, but its Runtime
-  contract, exact proof, Historical integration, and Settlement reuse remain open.
+* The engine verifies only bounded ISkO 4.4.5 defender rest-Trick Claims. The
+  separate bounded party-wide Claim now has private contracts and exact-state
+  preparation, but proof traversal, adjudication, Runtime/Historical integration,
+  Settlement reuse, and public exposure remain open.
 * Structured declarer concession models accepted defender consent; structured defender concession applies joint liability without partner consent. Disputes are not modeled.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
@@ -1154,12 +1158,13 @@ exposure remain open. No production model is planned for this milestone. See
 ## Active next planning milestone: v0.17.0
 
 `v0.17.0 — Rules, Search, Coaching, and performance closure` is the active next
-planning milestone. Issue #182 is its first completed planning and contract-audit
-Issue. It closes the v1 Claim product-decision gate through Matrix version `2`
-without Runtime behavior: exactly one bounded Retrospective party-wide all-
-remaining-Tricks Claim is approved for later implementation, and every other
-current Claim boundary is `not_supported_v1`. The milestone may cover that
-approved Claim and Settlement implementation, additional historical
+planning milestone. Issue #182 closes the v1 Claim product-decision gate through
+Matrix version `2`. Issue #183 adds private structured Claim and exact-proof
+contracts plus one untraversed exact-state preparation without Runtime behavior.
+The one bounded Retrospective party-wide all-remaining-Tricks Claim remains
+non-executable, and every other current Claim boundary is `not_supported_v1`.
+The milestone may cover proof execution, adjudication, Historical and Settlement
+integration, additional historical
 endings, stronger information-set Search and Strategy Fusion mitigation,
 tactical and cross-game Coaching, carefully bounded Player Ratings where
 approved, broader Provenance and Confidence integration, performance and latency
@@ -1192,9 +1197,11 @@ subcommands, and the Assistant. The executable
 public facade, internal Application layer, installable library distributions,
 and stable installed CLI interface are implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
-metadata, and stable public errors are implemented. The approved party-wide Claim
-Runtime and historical end reasons outside the
-supported bounded set also remain incomplete. Structured concessions and
+metadata, and stable public errors are implemented. The approved party-wide
+Claim has private contracts and exact-state preparation, while proof execution,
+adjudication, Runtime/Historical integration, Settlement reuse, public exposure,
+and historical end reasons outside the supported bounded set remain incomplete.
+Structured concessions and
 exposures, bounded defender open play, open-card throwing, supported historical
 terminal and continuation events, variable-length workflows, Ouvert-aware
 recommendation, coherent hidden worlds, and bounded structural inference are
@@ -1331,5 +1338,6 @@ and unconditional exclusions. Functional private local `v0.16.0` work is
 complete through Issue #179, Issue #180 completed Release preparation, and Issue
 #181 synchronizes the manual publication at commit `91b1360`. The active
 `v0.17.0` direction begins with Issue #182's completed Claim and Settlement
-boundary audit. Later Runtime implementation and the final `v1.0.0` Issue split
-and architecture remain open.
+boundary audit and Issue #183's private contracts and exact-state preparation.
+Proof execution, adjudication, later Runtime integration, and the final `v1.0.0`
+Issue split and architecture remain open.

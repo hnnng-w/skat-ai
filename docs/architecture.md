@@ -543,7 +543,10 @@ insufficient.
 | `src/skat_ai/ouvert_simulation.py` | Declared-Ouvert exact-hand validation, construction, and deterministic multi-source constraint resolution. |
 | `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
 | `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
-| `src/skat_ai/settlement_normative_matrix.py` | Internal immutable version-2 policy matrix with 61 preserved cases, one approved future Claim, and durable v1 exclusions. |
+| `src/skat_ai/settlement_normative_matrix.py` | Internal immutable version-2 policy matrix with 61 preserved cases, one approved non-executable Claim, and durable v1 exclusions. |
+| `src/skat_ai/party_wide_claim_contracts.py` | Private structured Claim identity, party reconciliation, exact policies, and deterministic serialization. |
+| `src/skat_ai/party_wide_claim_evidence.py` | Private complete-world Evidence, one Historical-prefix replay, stable/flat mapping, and one untraversed exact-state preparation. |
+| `src/skat_ai/party_wide_claim_proof_contracts.py` | Private Proof Request/preparation, assignment, diagnostic Move, and supplied valid/invalid/unavailable Result invariants without execution. |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
 | `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
 | `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
@@ -571,15 +574,20 @@ and applies only the jack-only theoretical Schwarz assessment. It does not impor
 or call the exact proof engine, simulation, or opponent policy. Only the thrown
 hand becomes public; no second complete hand is serialized.
 
-Issue #182 changes only the internal matrix contract and documentation. The one
-approved future party-wide all-remaining-Tricks Claim remains module-free and
-non-executable. A later dedicated Retrospective proof may reuse
+Issue #183 adds private version-1 structured Claim, complete Evidence,
+stable-to-flat exact-state, Proof Request/preparation, assignment, diagnostic
+Move, and Result contracts. It prepares one `ExactSearchState` through the
+existing Historical replay and exact-state validators but does not traverse it.
+The approved party-wide all-remaining-Tricks Claim remains non-executable, and
+the Matrix `implementation_modules` tuple remains empty until Runtime work. A
+later dedicated Retrospective proof may reuse
 `ExactSearchState`, `get_exact_search_legal_cards()`,
 `apply_exact_search_card()`, and existing Trick helpers for at most five
 unresolved Tricks. It must not route through Generic Search, compatible-world
-aggregation, or an information-set policy. Invalid and unavailable proof will
-create no terminal outcome or Settlement. See
-[Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
+aggregation, or an information-set policy. Invalid and unavailable proof create
+no terminal outcome or Settlement. See [Party-wide Claim
+contracts](party_wide_claim_contracts.md) and [Claim and Settlement v1
+boundaries](claim_and_settlement_v1_boundaries.md).
 
 ## Simulation
 

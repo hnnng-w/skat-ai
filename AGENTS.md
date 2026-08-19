@@ -412,12 +412,14 @@ that publication status. GitHub Releases is the authoritative publication
 record; no Package-index or PyPI publication is claimed.
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 is its first completed planning and
-contract-audit Issue: Settlement Normative Matrix version `2` preserves all 61
-case IDs, approves one bounded Retrospective party-wide all-remaining-Tricks
-Claim direction for later implementation, and classifies every other current
-Claim boundary as `not_supported_v1` without Runtime behavior. Candidate
-directions include the approved Claim and Settlement implementation, additional
+and performance closure`. Issue #182 closes the Claim product-decision gate:
+Settlement Normative Matrix version `2` preserves all 61 case IDs, approves one
+bounded Retrospective party-wide all-remaining-Tricks Claim, and classifies every
+other current Claim boundary as `not_supported_v1`. Issue #183 adds private
+version-1 structured Claim, complete Evidence, exact-state, Proof Request,
+preparation, assignment, diagnostic-line, and Result contracts without proof or
+Runtime execution. Candidate directions include the approved proof,
+adjudication, Historical and Settlement implementation, additional
 historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
@@ -483,6 +485,9 @@ Major completed areas include:
 * immutable Search budget profiles, strict-improvement and convergence fixtures, and measured reference performance
 * immutable 61-case Settlement Normative Matrix version `2`, closed v1 Claim
   product decisions, and bounded continuation-before-shortening historical chains
+* private immutable version-1 party-wide Claim, complete Evidence, exact-state,
+  Proof Request/preparation, assignment, diagnostic-line, and Result contracts
+  without proof traversal, adjudication, or Runtime integration
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -614,8 +619,9 @@ Major completed areas include:
   canonical downloads without derived persistence
 * updated README, docs, roadmap, and project handoff
 
-Current limitations include Runtime contracts, exact proof, Historical
-integration, and Settlement reuse for the approved party-wide Claim; specific-
+Current limitations include proof traversal, adjudication, Runtime/Historical
+integration, Settlement reuse, and public exposure for the approved party-wide
+Claim; its private contracts and exact-state preparation now exist. Specific-
 Trick Claims and the other durable v1 Claim exclusions are not supported before
 v1. Other limitations include defender-open-play proof beyond five unresolved
 tricks, multiple historical

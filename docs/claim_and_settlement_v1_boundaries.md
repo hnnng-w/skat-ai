@@ -3,16 +3,17 @@
 ## Decision status
 
 Issue #182 closes the remaining v1 product-decision gate for Claims and updates
-the internal Settlement Normative Matrix to version `2`. It approves exactly one
-bounded Claim direction for later v1 implementation and classifies every other
-currently known unresolved Claim boundary as `not_supported_v1`.
+the internal Settlement Normative Matrix to version `2`. Issue #183 implements
+private version-1 structured Claim, exact Evidence, exact-state, Proof Request,
+preparation, assignment, diagnostic-line, and Result contracts for that one
+approved direction. Every other currently known unresolved Claim boundary
+remains `not_supported_v1`.
 
-This is a product contract audit, not Runtime implementation. The repository
-still has no party-wide Claim input, Runtime union member, Historical Claim
-record, proof executor, Schema, Public API, CLI option, example, or generated
-scenario. Claims and Final Settlement remain `partially_supported` until later
-Issues implement and validate the approved Runtime path. Complete official-rule,
-Claim, concession, or Settlement coverage is not claimed.
+The repository still has no party-wide Claim Runtime union member, proof
+executor, adjudication, Historical Claim record, Settlement integration, Schema,
+Public API, CLI option, example, or generated scenario. Claims and Final
+Settlement remain `partially_supported`. Complete official-rule, Claim,
+concession, or Settlement coverage is not claimed.
 
 ## Approved Claim
 
@@ -33,7 +34,7 @@ proof_maximum_unresolved_tricks: 5
 stable_unavailable_reason: party_wide_claim_not_implemented
 ```
 
-The future structured Claim means exactly:
+The structured Claim means exactly:
 
 ```text
 The claiming party can force ownership of every unresolved Trick.
@@ -41,35 +42,36 @@ The claiming party can force ownership of every unresolved Trick.
 
 It does not cover a specified count or identified subset of future Tricks.
 
-## Future structured input
+## Private structured contracts
 
-A later Runtime contract must use structured Retrospective input. It must retain
+The private Issue #183 contracts use structured Retrospective values and retain
 and reconcile all of the following:
 
 * one exact `claimant_player_id`;
 * one exact `claiming_party`, either `declarer` or `defenders`;
 * the exact three retained Game participants and Declarer identity;
 * the complete observed legal play prefix;
-* the exact current Trick, including attributed Cards and turn state;
+* the exact current Trick state, optionally empty at a completed-Trick boundary,
+  including attributed Cards and turn state;
 * the complete remaining hand of every Player;
 * the original Skat and Discards or Hand-game ownership needed to reconcile the
   complete world;
-* the existing declaration, game type, Matadors, bid, required value, completed
-  Trick ownership, and point state needed by existing result and Settlement
-  behavior.
+* the existing declaration, game type, Matadors, and bid plus completed-Trick
+  ownership and point facts needed to validate and later derive existing value,
+  Overbid, result, and Settlement behavior.
 
-The claimant Player must belong to the declared claiming party. All Cards,
+The claimant Player belongs to the declared claiming party. All Cards,
 hands, the current Trick, the play prefix, completed Tricks, Skat, and Discards
-must reconcile as one exact legal Game state. The approved contract does not
-define the eventual field layout, Schema version, public identifier, transport,
-or serialization shape; those remain implementation work for later Issues.
+reconcile as one exact legal Game state. The private values serialize
+deterministically but define no public Schema, identifier, or transport. See
+[Party-wide Claim contracts](party_wide_claim_contracts.md).
 
 ## Evidence scope
 
 The Claim is post-game and Retrospective only. It is unavailable for Live
-adjudication. Proof requires complete remaining-hand evidence and one exact
-current Trick and play prefix. No hidden ownership is inferred, sampled, or
-aggregated.
+adjudication. Proof requires complete remaining-hand evidence, the exact optional
+current incomplete Trick state, and one exact play prefix. No hidden ownership is
+inferred, sampled, or aggregated.
 
 The approved contract covers Suit, Grand, Null, Null Hand, Null Ouvert, and Null
 Hand Ouvert. It is a bounded perfect-information proof over the retained complete
@@ -102,10 +104,15 @@ The proof does not establish:
 
 ## Valid proof
 
-A future valid proof may create one terminal shortening. It must:
+A current supplied valid Result is complete, satisfies the Claim, retains one
+diagnostic successful line, and has exact proof-level facts that:
 
 * assign every unresolved Trick to the claiming party;
 * assign every unresolved Card and card point consistently with those Tricks;
+
+A later adjudicator may create one terminal shortening from a complete valid
+proof. That future integration must:
+
 * preserve an already established winner;
 * otherwise derive the winner from the fully assigned result;
 * preserve the existing declaration, bid, and required value;
@@ -144,8 +151,9 @@ no fallback to:
 * legacy remaining-point assignment;
 * generative adjudication.
 
-While Runtime implementation is absent, the approved matrix case uses stable
-reason `party_wide_claim_not_implemented`.
+The current private Result for an available but unexecuted request uses
+`party_wide_claim_proof_not_executed`. The separate approved Matrix case retains
+stable Runtime reason `party_wide_claim_not_implemented`.
 
 ## Search separation
 
@@ -159,12 +167,15 @@ apply_exact_search_card()
 existing trick-winner and point helpers
 ```
 
-That reuse does not make Perfect-Information Minimax, compatible-world Minimax,
+Issue #183 prepares one `ExactSearchState` but calls none of those transition or
+proof functions. Later reuse does not make Perfect-Information Minimax,
+compatible-world Minimax,
 Search aggregation, or bounded Search a Claim proof. The Claim contract has no
 Search budget, cache, Recommendation, Search Result, compatible-world selection,
-or information-set fallback. Issue #182 adds no imports between the matrix and
-Search and changes neither exact-state nor Search Runtime behavior. The approved
-proof is neither a Recommendation nor a Coaching contract.
+or information-set fallback. The private modules import only the neutral exact-
+state builder, not Generic/bounded Search, Minimax, or proof traversal. They
+change neither exact-state nor Search Runtime behavior. The approved proof is
+neither a Recommendation nor a Coaching contract.
 
 ## Legacy separation
 
@@ -216,7 +227,8 @@ Later Issues must keep the implementation steps explicit and independently
 reviewable:
 
 1. Define private structured Claim request, evidence, proof Result, and stable
-   unavailable contracts without extending a public surface.
+   unavailable contracts without extending a public surface. Issue #183
+   completes this step, including one untraversed exact-state preparation.
 2. Build the dedicated five-Trick party-wide exact proof over the existing legal-
    transition kernel and test Suit, Grand, and all four Null variants.
 3. Add terminal adjudication only for a valid proof, with complete unresolved
@@ -227,5 +239,6 @@ reviewable:
    then separately decide any Schema, Public API, CLI, Session, Match Capture,
    example, generated-output, or Provenance exposure.
 
-Until those steps are implemented, tested, and documented, the approved case is
-non-executable and Claims and Final Settlement remain partially supported.
+Until steps 2 through 5 are implemented, tested, and documented, the approved
+case is non-executable and Claims and Final Settlement remain partially
+supported.

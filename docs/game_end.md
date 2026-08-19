@@ -307,21 +307,24 @@ declaration remains binding, requesting continuation adds no optional Schneider
 or Schwarz obligation, and actual later play determines achieved levels and the
 result. See [Defender open play continuation](defender_open_play_continuation.md).
 
-## Approved future party-wide Claim
+## Private party-wide Claim contracts
 
-Issue #182 approves one separate structured party-wide all-remaining-Tricks
-Claim direction for later v1 implementation. It will be post-game and
-Retrospective only, require complete remaining hands plus the exact current Trick
-and play prefix, and use a dedicated exact proof bounded to five unresolved
-Tricks. The claiming party has existential legal choices and the opposing party
-has universal legal responses.
+Issue #183 implements private structured party-wide all-remaining-Tricks Claim,
+complete Evidence, exact-state, Proof Request/preparation, assignment,
+diagnostic-line, and Result contracts. They are post-game and Retrospective only,
+require the complete Deal, exact play prefix, and optional current incomplete
+Trick state, and preserve the Matrix five-unresolved-Trick bound. The claiming
+party has existential legal choices and the opposing party has universal legal
+responses.
 
-That direction is not executable yet. A future valid proof will assign every
-unresolved Trick to the claiming party, preserve a preexisting winner, and
-otherwise reuse existing result and Settlement behavior. Invalid or unavailable
-proof will create no terminal outcome, opposing-party assignment, or Settlement.
-Generic Search is not a Claim proof and provides no fallback. See
-[Claim and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
+The contracts prepare one strict `ExactSearchState` but do not execute proof or
+create an ending. A later valid proof and adjudicator may assign every unresolved
+Trick to the claiming party, preserve a preexisting winner, and otherwise reuse
+existing result and Settlement behavior. Invalid or unavailable proof creates no
+terminal outcome, opposing-party assignment, or Settlement. Generic Search is
+not a Claim proof and provides no fallback. See [Party-wide Claim
+contracts](party_wide_claim_contracts.md) and [Claim and Settlement v1
+boundaries](claim_and_settlement_v1_boundaries.md).
 
 ## Legacy claims and concessions
 
@@ -417,6 +420,9 @@ For example:
   defender-open-play proof beyond five unresolved Tricks are
   `not_supported_v1`.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.
+* Private party-wide Claim contracts and exact-state preparation exist, but
+  proof traversal, adjudication, Runtime/Historical integration, Settlement
+  reuse, and public exposure remain open.
 * Claims and Final Settlement remain partially supported beyond the approved
   bounded cases. This document does not claim complete official-rule, claim,
   concession, or settlement coverage; see the
