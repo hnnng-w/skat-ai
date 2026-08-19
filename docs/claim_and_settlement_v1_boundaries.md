@@ -6,14 +6,15 @@ Issue #182 closes the remaining v1 product-decision gate for Claims and updates
 the internal Settlement Normative Matrix to version `2`. Issue #183 implements
 private version-1 structured Claim, exact Evidence, exact-state, Proof Request,
 preparation, assignment, diagnostic-line, and Result contracts for that one
-approved direction. Every other currently known unresolved Claim boundary
-remains `not_supported_v1`.
+approved direction. Issue #184 implements its separate private bounded exhaustive
+exact AND/OR proof executor. Every other currently known unresolved Claim
+boundary remains `not_supported_v1`.
 
-The repository still has no party-wide Claim Runtime union member, proof
-executor, adjudication, Historical Claim record, Settlement integration, Schema,
-Public API, CLI option, example, or generated scenario. Claims and Final
-Settlement remain `partially_supported`. Complete official-rule, Claim,
-concession, or Settlement coverage is not claimed.
+The repository still has no party-wide Claim Runtime union member, adjudication,
+Historical Claim record, Settlement integration, Schema, Public API, CLI option,
+example, or generated scenario. Claims and Final Settlement remain
+`partially_supported`. Complete official-rule, Claim, concession, or Settlement
+coverage is not claimed.
 
 ## Approved Claim
 
@@ -104,7 +105,7 @@ The proof does not establish:
 
 ## Valid proof
 
-A current supplied valid Result is complete, satisfies the Claim, retains one
+An executor-produced valid Result is complete, satisfies the Claim, retains one
 diagnostic successful line, and has exact proof-level facts that:
 
 * assign every unresolved Trick to the claiming party;
@@ -127,7 +128,9 @@ contract.
 
 ## Invalid proof
 
-An invalid proof creates no terminal outcome. In particular, it creates no:
+An executor-produced invalid Result is a complete proof with one decisive
+counterexample line and no assignment. It creates no terminal outcome. In
+particular, it creates no:
 
 * automatic assignment of unresolved Tricks or points to the opposing party;
 * forced winner;
@@ -151,13 +154,14 @@ no fallback to:
 * legacy remaining-point assignment;
 * generative adjudication.
 
-The current private Result for an available but unexecuted request uses
-`party_wide_claim_proof_not_executed`. The separate approved Matrix case retains
-stable Runtime reason `party_wide_claim_not_implemented`.
+An unavailable preparation passes through without execution. A caller that
+deliberately declines to invoke the executor for an available request may still
+use `party_wide_claim_proof_not_executed`. The separate approved Matrix case
+retains stable Runtime reason `party_wide_claim_not_implemented`.
 
 ## Search separation
 
-The future dedicated Claim proof may reuse the neutral exact legal-transition
+The dedicated Issue #184 Claim proof reuses the neutral exact legal-transition
 kernel:
 
 ```text
@@ -168,14 +172,16 @@ existing trick-winner and point helpers
 ```
 
 Issue #183 prepares one `ExactSearchState` but calls none of those transition or
-proof functions. Later reuse does not make Perfect-Information Minimax,
-compatible-world Minimax,
-Search aggregation, or bounded Search a Claim proof. The Claim contract has no
-Search budget, cache, Recommendation, Search Result, compatible-world selection,
-or information-set fallback. The private modules import only the neutral exact-
-state builder, not Generic/bounded Search, Minimax, or proof traversal. They
-change neither exact-state nor Search Runtime behavior. The approved proof is
-neither a Recommendation nor a Coaching contract.
+proof functions. Issue #184 traverses only the retained state through canonical
+legal Cards and immutable exact transitions. This does not make Perfect-
+Information Minimax, compatible-world Minimax, Search aggregation, or bounded
+Search a Claim proof. The Claim executor has no Search budget, Recommendation,
+Search Result, compatible-world selection, or information-set fallback. Its memo
+is invocation-local exact-state proof data, not a Search cache. The contract
+modules remain non-executing, and the executor changes neither exact-state nor
+Search Runtime behavior. The approved proof is neither a Recommendation nor a
+Coaching contract. See [Party-wide Claim proof
+executor](party_wide_claim_proof_executor.md).
 
 ## Legacy separation
 
@@ -230,7 +236,8 @@ reviewable:
    unavailable contracts without extending a public surface. Issue #183
    completes this step, including one untraversed exact-state preparation.
 2. Build the dedicated five-Trick party-wide exact proof over the existing legal-
-   transition kernel and test Suit, Grand, and all four Null variants.
+   transition kernel and test Suit, Grand, and all four Null variants. Issue #184
+   completes this step.
 3. Add terminal adjudication only for a valid proof, with complete unresolved
    Trick/Card/point assignment and preexisting-winner preservation.
 4. Integrate existing result, level, overbid, and Final Settlement behavior while
@@ -239,6 +246,6 @@ reviewable:
    then separately decide any Schema, Public API, CLI, Session, Match Capture,
    example, generated-output, or Provenance exposure.
 
-Until steps 2 through 5 are implemented, tested, and documented, the approved
-case is non-executable and Claims and Final Settlement remain partially
-supported.
+Until steps 3 through 5 are implemented, tested, and documented, the approved
+case remains unavailable to Runtime and Claims and Final Settlement remain
+partially supported.

@@ -16,9 +16,10 @@ only, and private. It is not accepted by an existing Runtime input, Historical
 ending, Public API, Schema, CLI, Session, Match Capture, example, or generated
 scenario.
 
-Issue #183 does not traverse the prepared state. Proof execution, adjudication,
-Historical integration, Final Settlement integration, and any public exposure
-remain open. Claims and Final Settlement remain partially supported.
+Issue #184 adds a separate private bounded exhaustive exact proof executor over
+the prepared state. Adjudication, Runtime and Historical integration, Final
+Settlement integration, and any public exposure remain open. Claims and Final
+Settlement remain partially supported.
 
 ## Independent versions
 
@@ -37,6 +38,12 @@ These versions do not change Package version `0.16.0`, Public API contract
 version `1`, Matrix version `2`, Historical version `1`, Search, Dataset,
 Provenance, Schema, or other Domain versions.
 
+The separate executor has independent version:
+
+```text
+PARTY_WIDE_CLAIM_PROOF_EXECUTOR_VERSION = 1
+```
+
 The exact stable tuples are:
 
 ```text
@@ -49,7 +56,7 @@ No partial, timeout, Search, or Recommendation status is reused.
 
 ## Policy metadata
 
-The private contracts retain these exact non-executable policy labels:
+The private contracts retain these exact policy labels:
 
 ```text
 structured_retrospective_complete_world_only
@@ -65,8 +72,9 @@ dedicated_exact_claim_proof_without_search_fallback
 private_internal_contract_without_public_surface
 ```
 
-The labels describe scope and invariants. They execute no proof or Settlement
-and make no information-set-consistent team-strategy claim.
+The contract labels describe scope and invariants. Issue #184 executes the proof
+under the matching party quantifiers, while no label or executor invokes
+Settlement or makes an information-set-consistent team-strategy claim.
 
 ## Structured Claim
 
@@ -183,9 +191,10 @@ external source evidence without silently catching malformed direct inputs.
 ## Result contracts
 
 `PartyWideClaimProofResultV1` defines `valid`, `invalid`, and `unavailable`
-relationships for a later executor. Issue #183 produces no valid or invalid
-Result automatically. An available preparation can currently be wrapped only
-as unavailable with reason `party_wide_claim_proof_not_executed`.
+relationships. Issue #184 produces a valid or invalid Result from every available
+preparation. A caller that deliberately does not invoke the executor may still
+wrap an available preparation as unavailable with reason
+`party_wide_claim_proof_not_executed`.
 
 A valid supplied Result is complete, satisfies the Claim, has no unavailable
 reason or counterexample, evaluates at least one terminal state, and retains an
@@ -212,8 +221,8 @@ valid and invalid Results retain one chronological legal representative line.
 The line is diagnostic. One successful line is not the complete quantified
 strategy certificate for existential claiming-party choices against universal
 opposing responses. One counterexample line is not a complete negated-strategy
-certificate. The later executor must establish the complete quantified Result
-independently.
+certificate. The executor establishes the complete quantified Result
+independently through exhaustive memoized traversal.
 
 ## Search, Runtime, and privacy boundaries
 
@@ -225,8 +234,9 @@ fallbacks and do not establish this Claim.
 
 The Matrix case remains `implementation_required`, has empty
 `implementation_modules`, and retains Matrix unavailable reason
-`party_wide_claim_not_implemented`. The private contract modules do not make the
-case executable. `GameShortening`, Historical endings/events, Game Result, Final
+`party_wide_claim_not_implemented`. The private contract and executor modules do
+not make the Runtime case executable. The executor is not a Matrix implementation
+module. `GameShortening`, Historical endings/events, Game Result, Final
 Settlement, Public API, CLI, Schemas, examples, generated scenarios, Search,
 Coaching, Provenance, and Package metadata remain unchanged.
 
@@ -237,11 +247,15 @@ redaction or export contract is added.
 
 ## Remaining work
 
+Issue #184 completes exhaustive party-wide proof traversal and memoization.
 Later independently reviewed work must:
 
-1. implement exhaustive party-wide proof traversal and memoization;
-2. adjudicate only complete valid proof;
-3. integrate a Historical Claim ending;
-4. reuse existing result, level, Overbid, and Final Settlement behavior;
-5. separately decide any Public API, Schema, CLI, Session, Match Capture,
+1. adjudicate only complete valid proof;
+2. integrate a Historical Claim ending;
+3. reuse existing result, level, Overbid, and Final Settlement behavior;
+4. separately decide any Public API, Schema, CLI, Session, Match Capture,
    example, generated-output, or Provenance exposure.
+
+See [Party-wide Claim proof executor](party_wide_claim_proof_executor.md) for the
+execution method, terminal ordering, quantifiers, memoization, counters,
+Representative Lines, and compatibility boundaries.

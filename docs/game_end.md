@@ -317,14 +317,22 @@ Trick state, and preserve the Matrix five-unresolved-Trick bound. The claiming
 party has existential legal choices and the opposing party has universal legal
 responses.
 
-The contracts prepare one strict `ExactSearchState` but do not execute proof or
-create an ending. A later valid proof and adjudicator may assign every unresolved
-Trick to the claiming party, preserve a preexisting winner, and otherwise reuse
-existing result and Settlement behavior. Invalid or unavailable proof creates no
-terminal outcome, opposing-party assignment, or Settlement. Generic Search is
-not a Claim proof and provides no fallback. See [Party-wide Claim
-contracts](party_wide_claim_contracts.md) and [Claim and Settlement v1
-boundaries](claim_and_settlement_v1_boundaries.md).
+Issue #184 executes an available preparation through the retained strict
+`ExactSearchState`, canonical legal Cards, immutable exact transitions, party-
+level AND/OR quantifiers, and invocation-local exact-state memoization. It returns
+exactly one existing complete `valid` or `invalid` proof Result; an unavailable
+preparation passes through without execution. A valid proof has an exact proof-
+level assignment, while an invalid proof has no assignment and stops its
+diagnostic line at the first opposing-party Trick.
+
+Proof execution creates no ending, winner, level, Overbid result, Game Result,
+or Settlement. Later adjudication may consume a complete valid proof, preserve a
+preexisting winner, and otherwise reuse existing result and Settlement behavior.
+Invalid or unavailable proof creates no terminal outcome, opposing-party
+assignment, or Settlement. Generic Search is not a Claim proof and provides no
+fallback. See [Party-wide Claim contracts](party_wide_claim_contracts.md),
+[Party-wide Claim proof executor](party_wide_claim_proof_executor.md), and [Claim
+and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
 
 ## Legacy claims and concessions
 
@@ -420,9 +428,9 @@ For example:
   defender-open-play proof beyond five unresolved Tricks are
   `not_supported_v1`.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.
-* Private party-wide Claim contracts and exact-state preparation exist, but
-  proof traversal, adjudication, Runtime/Historical integration, Settlement
-  reuse, and public exposure remain open.
+* Private party-wide Claim contracts, exact-state preparation, and bounded
+  exhaustive proof execution exist, but adjudication, Runtime/Historical
+  integration, Settlement reuse, and public exposure remain open.
 * Claims and Final Settlement remain partially supported beyond the approved
   bounded cases. This document does not claim complete official-rule, claim,
   concession, or settlement coverage; see the

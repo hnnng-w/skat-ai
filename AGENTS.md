@@ -418,7 +418,8 @@ bounded Retrospective party-wide all-remaining-Tricks Claim, and classifies ever
 other current Claim boundary as `not_supported_v1`. Issue #183 adds private
 version-1 structured Claim, complete Evidence, exact-state, Proof Request,
 preparation, assignment, diagnostic-line, and Result contracts without proof or
-Runtime execution. Candidate directions include the approved proof,
+Runtime execution. Issue #184 adds private bounded exhaustive exact AND/OR proof
+execution without adjudication or Runtime behavior. Candidate directions include
 adjudication, Historical and Settlement implementation, additional
 historical endings, stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
@@ -487,7 +488,8 @@ Major completed areas include:
   product decisions, and bounded continuation-before-shortening historical chains
 * private immutable version-1 party-wide Claim, complete Evidence, exact-state,
   Proof Request/preparation, assignment, diagnostic-line, and Result contracts
-  without proof traversal, adjudication, or Runtime integration
+  plus bounded exhaustive exact AND/OR proof execution, without adjudication or
+  Runtime integration
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -619,9 +621,10 @@ Major completed areas include:
   canonical downloads without derived persistence
 * updated README, docs, roadmap, and project handoff
 
-Current limitations include proof traversal, adjudication, Runtime/Historical
-integration, Settlement reuse, and public exposure for the approved party-wide
-Claim; its private contracts and exact-state preparation now exist. Specific-
+Current limitations include adjudication, Runtime/Historical integration,
+Settlement reuse, and public exposure for the approved party-wide Claim; its
+private contracts, exact-state preparation, and bounded proof execution now
+exist. Specific-
 Trick Claims and the other durable v1 Claim exclusions are not supported before
 v1. Other limitations include defender-open-play proof beyond five unresolved
 tricks, multiple historical
