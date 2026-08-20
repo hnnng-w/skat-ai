@@ -121,6 +121,13 @@ sub-summary, final Summary, and export fingerprints remain deterministic content
 identities, not field-level Provenance ledgers. They add no public attachment,
 redaction path, Confidence value, or Training Dataset version `1` field.
 
+Issue #187 adds private, non-routed information-set Search contracts and
+Preparation only. Exact selected states, actor Observations, and controlled
+Policies remain engine-private and gain no Provenance ledger, public attachment,
+redaction path, Confidence value, Schema, Dataset field, or Match/Corpus export.
+Any future executor or workflow integration must define its separate Provenance
+boundary before these values can influence a public Result.
+
 ## Sidecar design
 
 Provenance is an immutable sidecar ledger for a JSON-compatible document. It

@@ -703,11 +703,18 @@ routing can consume it.
 Both executable methods remain limited to late Suit, Grand, and supported normal
 Null play. Overbid Null remains unavailable because search does not select an
 impossible-Null replacement. Compatible-world Minimax is an internal
-determinization aggregate, not information-set search or an optimal policy
-proof. Flat post-game review, Historical Search Review, dataset Search-versus-
+determinization aggregate, not information-set Search or an optimal policy
+proof. Issue #187 separately defines private three-Trick actor Observation,
+World State, fixed-Policy, Budget, Request, Preparation, and Result contracts
+that can prevent controlled-Player Strategy Fusion, but it adds no Policy Search
+executor or route. Flat post-game review, Historical Search Review, dataset Search-versus-
 Immediate evaluation, immutable internal profiles, quality fixtures, and a
 bounded performance baseline now exist. They do not add calibrated sampled-
-quality estimates, a latency guarantee, adaptive sampling, information-set
-search, Expectimax, strategy-fusion correction, complete-contract solving, or a
+quality estimates, a latency guarantee, adaptive sampling, executable
+information-set Search, Expectimax, complete Strategy-Fusion correction,
+complete-contract solving, or a
 stable package-root API. Existing omitted-method Immediate behavior is unchanged.
 The stronger-search v1.0 completion gate therefore remains open.
+
+See [Information-set Search contracts](information_set_search_contracts.md) for
+the separate no-execution foundation and its narrower policy-consistency claim.

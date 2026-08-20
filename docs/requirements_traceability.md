@@ -261,12 +261,15 @@ creates no outcome. Issue #186 updates Matrix version `3` and completes the
 approved bounded Claim and Final Settlement runtime slice through Historical Game
 input only, with strict public diagnostic output and downstream compatibility.
 All other current Claim boundaries remain `not_supported_v1`. Session, Match
-Capture, and Corpus Claim entry remain open. Stronger information-set Search
-and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
+Capture, and Corpus Claim entry remain open. Issue #187 adds the private
+information-set Search contracts, actor observations, pure transitions, fixed
+Policies, and no-execution three-Trick Preparation foundation. Policy Search
+execution and integration, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
-audit. Final Issue titles, count, architecture, solver design, Rating boundary,
-Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
+audit remain open. Final Issue titles, count, architecture, solver design,
+Rating boundary, Coaching taxonomy, and Release date are not finalized.
+`v1.0.0` remains unready.
 
 ## Status vocabulary
 
@@ -358,9 +361,11 @@ remains `partially_supported`; Issue #115 does not close every stronger-solver
 requirement for v1.0.
 
 The `v0.10.0` milestone is complete, but the general v1.0 stronger-solver
-direction remains only partially supported. Its open requirements include
-information-set policy Search, Strategy Fusion correction, complete-contract
-solving, calibrated sampled probabilities, and latency guarantees.
+direction remains only partially supported. Its open requirements include an
+information-set Policy Search executor and integration, complete Strategy Fusion
+correction beyond the controlled root Player, complete-contract solving,
+calibrated sampled probabilities, and latency guarantees. Issue #187 defines the
+private controlled-root foundation but executes no Search.
 
 Issue #120 adds internal Replay Coaching contract version `1`. It separates
 decision-time evidence from retrospective observed-card attachment, reuses one

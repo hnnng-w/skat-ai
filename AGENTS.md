@@ -431,13 +431,15 @@ adjudication and existing Final Settlement composition. Issue #186 updates
 Settlement Normative Matrix version `3` while preserving all 61 case IDs and
 completes the approved bounded Claim and Final Settlement runtime slice through
 Historical Game input only. Session, Match Capture, and Corpus Claim entry remain
-open. Stronger information-set Search
-and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
+open. Issue #187 defines private information-set Search World State, actor
+Observation, fixed Policy, Budget, Request, Preparation, controlled-Policy, and
+Result contracts without execution. The bounded Policy Search executor and
+integration remain open, along with tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
-audit. Its final Issue titles, count, architecture, solver design, Rating
-boundary, Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains
-unready, and no production model is planned.
+audit. These areas remain open. The final Issue titles, count, architecture,
+solver design, Rating boundary, Coaching taxonomy, and Release date are not
+finalized. `v1.0.0` remains unready, and no production model is planned.
 
 Major completed areas include:
 
@@ -503,6 +505,10 @@ Major completed areas include:
   adjudication, and existing Final Settlement composition with Historical-only
   runtime integration, strict diagnostic output, Provenance, CLI,
   Review/Coaching, Dataset, list, and statistics compatibility
+* private version-1 information-set Search World State, actor Observation,
+  deterministic fixed-Player Policy, Budget, Request, Preparation, controlled-
+  Policy, consumed-budget, and Result contracts with ordered Compatible-world
+  reuse, pure exact transitions, and no Policy Search execution or integration
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -653,8 +659,8 @@ inference. Search remains bounded late-game determinization subject to Strategy
 Fusion, not an optimal imperfect-information policy or complete-contract Search;
 exact world counts do not identify the real deal, sampled ownership is not
 calibrated probability, measured timings are not latency guarantees, and timeout
-activation is machine-dependent. Overbid Null replacement selection,
-information-set Search, tactical motif detection, cross-game Coaching, causal
+activation is machine-dependent. Overbid Null replacement selection, executable
+information-set Search and its integration, tactical motif detection, cross-game Coaching, causal
 attribution, player ratings, and complete field-level information provenance
 remain open before `v1.0.0`. End-to-end local Live and Retrospective Session
 capture is implemented through public file Save/Load, automatic Checkpoints,

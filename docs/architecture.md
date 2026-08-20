@@ -325,6 +325,10 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/historical_search_review.py` | Decision-time bounded Search plus independent Immediate analysis, stable private seed derivation, and reconciled historical aggregates. |
 | `src/skat_ai/training_dataset.py` | Typed dataset/provenance records, duplicate and partition validation, historical replay reuse, sample generation, and count reconciliation. |
 | `src/skat_ai/bounded_search_evaluation.py` | Canonical dataset selection, stable global decision-prefix evaluation, zero-decision preservation, and aggregate Search quality output. |
+| `src/skat_ai/information_set_search_contracts.py` | Private versioned method, Policy, Budget, Request, controlled-Decision, consumed-budget, and Result contracts without execution. |
+| `src/skat_ai/information_set_search_state.py` | Exact-world/public-history reconciliation, actor Information Sets, shrinking public hands, public voids, and pure exact-transition delegation. |
+| `src/skat_ai/information_set_search_policy.py` | Deterministic information-safe fixed-Player Policy validation and canonical action selection. |
+| `src/skat_ai/information_set_search_preparation.py` | Three-Trick eligibility, existing Compatible-world selection reuse, ordered World State construction, and equal-root reconciliation without Policy Search. |
 | `src/skat_ai/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
 | `src/skat_ai/dataset_partition_audit.py` | Deterministic partition, membership, overlap, known-opponent coverage, and unseen-player compliance auditing. |
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
@@ -705,6 +709,18 @@ calibrated latency. Search remains limited to late positions and compatible-
 world determinization; sampled aggregate evidence is not an optimal policy proof.
 See [Bounded search contracts](bounded_search_contracts.md) and
 [Bounded Search performance](bounded_search_performance.md).
+
+The separate Issue #187 information-set Search foundation remains private and
+non-executable. It controls only root `me`; `left` and `right` remain separate
+fixed information-safe actors, including a Defender partner. Selected exact
+states are paired with complete public history, and actor Observations expose an
+exact own hand plus legitimate out-of-play visibility and public facts only.
+Structural equality defines an Information Set, so selected-world identity and
+sample multiplicity cannot split equal observations. Preparation reuses existing
+ordered Compatible-world enumeration or IID sampling, preserves duplicate draws,
+and is limited to three unresolved Tricks. No existing method, profile, route,
+Recommendation, Public API, CLI, Schema, or performance claim changes. See
+[Information-set Search contracts](information_set_search_contracts.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the

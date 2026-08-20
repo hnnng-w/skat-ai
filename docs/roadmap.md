@@ -1184,12 +1184,16 @@ Issue #186 updates Matrix version `3` without changing its 61 cases and complete
 the one bounded Retrospective party-wide all-remaining-Tricks Claim through
 Historical Game input only. Every other current Claim boundary remains
 `not_supported_v1`; Session, Match Capture, and Corpus Claim entry remain open.
-Stronger information-set Search and Strategy Fusion mitigation,
-tactical and cross-game Coaching, carefully bounded Player Ratings where
+Stronger information-set Search and Strategy Fusion mitigation begins with
+Issue #187's private version-1 World State, actor Observation, deterministic
+fixed-Player Policy, Budget, Request, Preparation, controlled-Policy, and Result
+contracts. It reuses ordered Compatible-world selection, preserves sampled
+duplicates, and performs no Policy Search or public integration. The executor,
+tactical and cross-game Coaching, and carefully bounded Player Ratings where
 approved, broader Provenance and Confidence integration, performance and latency
-evidence, and the remaining pre-v1 scope audit. Final Issue titles, count,
-architecture, solver design, Rating boundary, Coaching taxonomy, and Release date
-are not finalized. `v1.0.0` remains unready.
+evidence, and the remaining pre-v1 scope audit remain open. Final Issue titles,
+count, architecture, solver design, Rating boundary, Coaching taxonomy, and
+Release date are not finalized. `v1.0.0` remains unready.
 
 ## Later planning milestone: v1.0.0
 
@@ -1255,9 +1259,10 @@ are implemented; opt-in Multi-Step and Policy Comparison, flat post-game review,
 Historical Search Review, and Search-versus-Immediate dataset evaluation are also
 integrated. Immutable work profiles, independent quality fixtures, sampled
 convergence checks, and a reproducible performance corpus provide bounded
-evidence. They do not provide calibrated sample quality, a latency guarantee,
-information-set policy search, or complete-contract solving, so the stronger-
-search completion gate is not closed.
+evidence. They do not provide calibrated sample quality or a latency guarantee.
+Issue #187 adds a private three-Trick information-set Policy Search foundation
+without an executor, comparison, or routing, so the stronger-search completion
+gate remains open.
 
 The published `v0.11.0` milestone is complete through functional Issue #124, and
 Issue #125 completed release preparation. The milestone establishes the
@@ -1362,6 +1367,7 @@ complete through Issue #179, Issue #180 completed Release preparation, and Issue
 boundary audit, Issue #183's private contracts and exact-state preparation, and
 Issue #184's bounded exhaustive proof execution. Issue #185 adds private
 adjudication and existing Final Settlement composition. Issue #186 adds the
-Historical-only approved Claim runtime slice. Stronger information-set Search is
-the next functional area; the final `v1.0.0` Issue split and architecture remain
-open.
+Historical-only approved Claim runtime slice. Issue #187 adds the private
+information-set Search contracts and no-execution Preparation foundation. Its
+executor and integration remain next; the final `v1.0.0` Issue split and
+architecture remain open.

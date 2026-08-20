@@ -185,6 +185,7 @@ def choose_basic_defender_response_card(
         game_type=game_type,
         player_index=player_index,
         partner_currently_winning=partner_currently_winning,
+        partner_index=0,
         legal_cards=legal_cards,
     )[0]
 
@@ -212,6 +213,7 @@ def _get_basic_defender_response_preferred_cards(
     game_type: str,
     player_index: int,
     partner_currently_winning: bool,
+    partner_index: int,
     legal_cards: list[str],
 ) -> list[str]:
     if partner_currently_winning:
@@ -219,7 +221,7 @@ def _get_basic_defender_response_preferred_cards(
             hand=hand,
             current_trick=current_trick,
             game_type=game_type,
-            partner_index=0,
+            partner_index=partner_index,
         )
 
         if partner_safe_cards:
@@ -307,6 +309,7 @@ def get_preferred_opponent_cards_by_policy(
     player_index: int,
     policy: str,
     partner_currently_winning: bool = False,
+    partner_index: int = 0,
 ) -> list[str]:
     """Returns equally preferred deterministic policy cards in legal-hand order."""
     validate_opponent_card_policy(policy)
@@ -346,6 +349,7 @@ def get_preferred_opponent_cards_by_policy(
             game_type=game_type,
             player_index=player_index,
             partner_currently_winning=partner_currently_winning,
+            partner_index=partner_index,
             legal_cards=legal_cards,
         )
     return _get_basic_trick_play_preferred_cards(

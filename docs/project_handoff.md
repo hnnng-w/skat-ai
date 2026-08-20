@@ -1961,7 +1961,12 @@ Completed implementation scope:
   unredacted, and broader end-to-end enforcement remain unavailable.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
-  general stronger search remain incomplete. Compatible-world Minimax now
+  general stronger Search remain incomplete. Issue #187 now defines private
+  three-Trick information-set World State, actor Observation, deterministic fixed-
+  Player Policy, Budget, Request, Preparation, controlled-Policy, and Result
+  contracts. It preserves ordered Compatible-world selection and sampled
+  duplicate weight and prevents conflicting actions for equal controlled-player
+  Observations, but executes no Policy Search and changes no route. Compatible-world Minimax
   evaluates the frozen selected sequence and aggregates one exact common prefix,
   but it is determinization-based and subject to strategy fusion. It is not an
   optimal imperfect-information policy proof. Explicit live methods, opt-in
@@ -2059,7 +2064,9 @@ gate, Issue #183 completes the private contracts and exact-state preparation,
 Issue #184 completes dedicated bounded proof traversal, and Issue #185 completes
 private adjudication and Settlement composition. Issue #186 completes the
 Historical-only runtime integration without broadening the durable v1
-exclusions. Stronger information-set Search is the next functional area.
+exclusions. Issue #187 defines the private information-set Search foundation;
+the bounded Policy Search executor and later integration are the next functional
+steps.
 Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived
 artifacts.

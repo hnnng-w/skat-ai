@@ -231,12 +231,16 @@ through Historical Game input only. It remains absent from Runtime
 `GameShortening`, flat Position, Session, Match Capture, and Corpus entry, and
 every other current Claim boundary remains `not_supported_v1`. Claims and Final
 Settlement remain `partially_supported` beyond the bounded implemented slice.
-Stronger information-set Search
-and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
+Issue #187 defines the private information-set Search World State, actor
+Observation, fixed Policy, Budget, Request, Preparation, controlled-Policy, and
+Result foundation without executing Policy Search. Its bounded executor,
+Strategy-Fusion comparison, integration, and performance evidence remain open,
+along with tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
-audit. Final Issue titles, count, architecture, solver design, Rating boundary,
-Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
+audit remain open. Final Issue titles, count, architecture, solver design,
+Rating boundary, Coaching taxonomy, and Release date are not finalized.
+`v1.0.0` remains unready.
 
 The November 2022 ISkO and SkWO publication is the normative source for official
 rules and competition behavior. Product capabilities such as simulation,

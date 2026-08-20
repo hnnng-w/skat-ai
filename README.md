@@ -1414,6 +1414,17 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
+Issue #187 adds a separate private three-remaining-Trick foundation for future
+information-set-consistent Search. It pairs selected exact worlds with complete
+public history, derives actor-own-hand/public-fact Observations, preserves
+shrinking public hands and public void evidence, fixes `left` and `right` to
+separate deterministic information-safe Policies, reuses ordered Compatible-
+world selection including sampled duplicates, and defines Budget, Request,
+Preparation, controlled-Policy, consumed-budget, and Result invariants. Equal
+`me` Observations cannot select conflicting actions. No Policy Search executor,
+Recommendation routing, Public API, CLI, Schema, example, or generated scenario
+is added. See [Information-set Search contracts](docs/information_set_search_contracts.md).
+
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
@@ -1593,12 +1604,14 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   Matrix version `3` without changing its 61 cases and completes the Historical-
   only approved Claim and Final Settlement runtime slice. All other current Claim
   boundaries remain durable v1 exclusions. Session, Match Capture, and Corpus
-  Claim entry remain open. Stronger information-set Search and Strategy
-Fusion mitigation, tactical and cross-game Coaching, carefully bounded Player
-Ratings where approved, broader Provenance and Confidence integration,
-performance and latency evidence, and the remaining pre-v1 scope audit. Its final
-Issue titles, count, architecture, solver design, Rating boundary, Coaching
-taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
+  Claim entry remain open. Issue #187 defines the private information-set Search
+  contracts and no-execution Preparation foundation; its Policy Search executor,
+  integration, and performance evidence remain open. Tactical and cross-game
+  Coaching, carefully bounded Player Ratings where approved, broader Provenance
+  and Confidence integration, performance and latency evidence, and the remaining
+  pre-v1 scope audit also remain open. The final Issue titles, count,
+  architecture, solver design, Rating boundary, Coaching taxonomy, and Release
+  date are not finalized. `v1.0.0` remains unready.
 
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
