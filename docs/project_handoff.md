@@ -43,8 +43,9 @@ The project focuses on:
   approved party-wide Claim, and durable v1 Claim exclusions
 * private immutable version-1 structured party-wide Claim, complete Evidence,
   exact-state, Proof Request/preparation, assignment, diagnostic-line, and Result
-  contracts plus bounded exhaustive exact AND/OR proof execution without
-  adjudication or Runtime integration
+  contracts plus bounded exhaustive exact AND/OR proof execution, private
+  valid-proof adjudication, and existing Final Settlement composition without
+  Runtime integration
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * deterministic Replay Coaching Key Decisions, Turning Points, one-game patterns, and actionable recommendations
 * complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
@@ -663,6 +664,9 @@ Implemented:
   Request/preparation, assignment, diagnostic Move, and Result contracts
 * private bounded exhaustive exact AND/OR Claim proof execution with canonical
   legal Cards, exact transitions, invocation-local memoization, and stable lines
+* private valid-proof-only Claim adjudication with complete point/Trick
+  assignment, preexisting-winner preservation, Suit/Grand/Null semantics, and
+  existing Final Settlement composition
 
 Known remaining areas:
 
@@ -681,9 +685,10 @@ Implemented:
 * open-card throwing with bounded jack-only theoretical Schwarz exclusion
 * preexisting-result preservation, mandatory-level handling, supported overbid settlement, and privacy-safe summaries
 
-The approved party-wide Claim contracts, exact-state preparation, and bounded
-proof execution exist. Adjudication, Runtime/Historical integration, Settlement
-reuse, and public exposure remain open. Specific future-Trick Claims, defender-open-play
+The approved party-wide Claim contracts, exact-state preparation, bounded proof
+execution, valid-proof adjudication, and existing Final Settlement composition
+exist. Runtime/Historical integration and public exposure remain open. Specific
+future-Trick Claims, defender-open-play
 proof beyond five unresolved Tricks, and the other durable v1 Claim exclusions
 are `not_supported_v1`; broader Settlement nuance remains incomplete.
 The normative boundaries and implemented one-continuation-plus-one-terminal-
@@ -1503,8 +1508,9 @@ Issue #183 adds private structured Claim and exact-proof contracts plus one
 untraversed exact-state preparation. Issue #184 adds private bounded exhaustive
 exact AND/OR proof execution. Matrix version `2` preserves all 61 cases, keeps
 the approved Claim unavailable to Runtime, and makes all other current Claim
-boundaries durable v1 exclusions. Candidate directions include adjudication,
-Historical and Settlement integration, additional historical endings, stronger
+boundaries durable v1 exclusions. Issue #185 adds private valid-proof
+adjudication and existing Final Settlement composition. Candidate directions
+include Runtime/Historical Claim integration, additional historical endings, stronger
 information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
@@ -1797,7 +1803,9 @@ Completed implementation scope:
   bounded, legacy, one implementation-required Claim, and durable v1 exclusion
   classifications
 * private version-1 party-wide Claim contracts, exact-state preparation, and
-  bounded exhaustive exact AND/OR proof execution without Runtime integration
+  bounded exhaustive exact AND/OR proof execution plus private valid-proof
+  adjudication and existing Final Settlement composition without Runtime
+  integration
 * one supported non-terminal continuation before normal completion or one
   supported terminal shortening, delegated to unchanged terminal adjudicators
 * information-safe one-game Replay Coaching evidence, impact, Key Decisions,
@@ -1933,10 +1941,11 @@ Completed implementation scope:
 
 ## Current high-priority limitations
 
-* Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. The approved party-wide Claim has private contracts, exact-state preparation, and bounded proof execution but still lacks adjudication and a Runtime/Historical ending. Multiple non-terminal events, arbitrary event streams, specific future-Trick Claims, and the other durable v1 Claim exclusions are `not_supported_v1`; other end reasons remain unsupported.
+* Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. The approved party-wide Claim has private contracts, exact-state preparation, bounded proof execution, valid-proof adjudication, and existing Final Settlement composition but still lacks a Runtime/Historical ending. Multiple non-terminal events, arbitrary event streams, specific future-Trick Claims, and the other durable v1 Claim exclusions are `not_supported_v1`; other end reasons remain unsupported.
 * Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
-* Adjudication and Settlement integration for the approved party-wide Claim,
-  concession disputes, and approved Settlement completeness remain incomplete.
+* Runtime/Historical integration and public exposure for the approved party-wide
+  Claim, concession disputes, and approved Settlement completeness remain
+  incomplete.
 * All seven Root workflows have complete internal Root Result provenance,
   including base Historical execution. Bounded public Result and actual-artifact
   exposure is implemented, but consumed-input, decision, intermediate-stage,
@@ -2038,8 +2047,9 @@ Completed implementation scope:
 Planning should use the active `v0.17.0 — Rules, Search, Coaching, and
 performance closure` milestone. Issue #182 closes the Claim product-decision
 gate, Issue #183 completes the private contracts and exact-state preparation,
-and Issue #184 completes dedicated bounded proof traversal; next Claim work must
-implement adjudication without broadening the durable v1 exclusions. Continue keeping immutable imported
+Issue #184 completes dedicated bounded proof traversal, and Issue #185 completes
+private adjudication and Settlement composition; next Claim work must add the
+Runtime/Historical ending without broadening the durable v1 exclusions. Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived
 artifacts.
 Final Issue titles, count, architecture, solver design, Rating boundary, Coaching

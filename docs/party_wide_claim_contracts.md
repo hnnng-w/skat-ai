@@ -17,9 +17,10 @@ ending, Public API, Schema, CLI, Session, Match Capture, example, or generated
 scenario.
 
 Issue #184 adds a separate private bounded exhaustive exact proof executor over
-the prepared state. Adjudication, Runtime and Historical integration, Final
-Settlement integration, and any public exposure remain open. Claims and Final
-Settlement remain partially supported.
+the prepared state. Issue #185 adds separate private valid-proof adjudication and
+existing Final Settlement composition. Runtime and Historical integration and
+any public exposure remain open. Claims and Final Settlement remain partially
+supported.
 
 ## Independent versions
 
@@ -42,6 +43,13 @@ The separate executor has independent version:
 
 ```text
 PARTY_WIDE_CLAIM_PROOF_EXECUTOR_VERSION = 1
+```
+
+The separate Issue #185 adjudication contracts have independent versions:
+
+```text
+PARTY_WIDE_CLAIM_ADJUDICATION_FACTS_VERSION = 1
+PARTY_WIDE_CLAIM_ADJUDICATION_RESULT_VERSION = 1
 ```
 
 The exact stable tuples are:
@@ -212,6 +220,13 @@ An unavailable Result is incomplete, has null Claim satisfaction, one canonical
 reason, no assignment, no representative line, no counterexample, and zero
 state counters. It creates no terminal outcome or Settlement.
 
+Issue #185 retains this Proof Result unchanged inside a separate
+`PartyWideClaimAdjudicationResultV1`. Valid proof receives exact completed point
+and Trick assignment, preexisting-winner preservation, a private completed Game
+Result, and one existing Final Settlement build. Invalid and unavailable proof
+produce `no_outcome` with no Facts, Game Result, or Settlement. See [Party-wide
+Claim adjudication](party_wide_claim_adjudication.md).
+
 ## Diagnostic representative lines
 
 `PartyWideClaimProofMoveV1` retains one stable acting Player, Card, and both
@@ -234,11 +249,12 @@ fallbacks and do not establish this Claim.
 
 The Matrix case remains `implementation_required`, has empty
 `implementation_modules`, and retains Matrix unavailable reason
-`party_wide_claim_not_implemented`. The private contract and executor modules do
-not make the Runtime case executable. The executor is not a Matrix implementation
-module. `GameShortening`, Historical endings/events, Game Result, Final
-Settlement, Public API, CLI, Schemas, examples, generated scenarios, Search,
-Coaching, Provenance, and Package metadata remain unchanged.
+`party_wide_claim_not_implemented`. The private contract, executor, and
+adjudication modules do not make the Runtime case executable and are not Matrix
+implementation modules. `GameShortening`, Historical endings/events, public Game
+Result and Final Settlement contracts, Public API, CLI, Schemas, examples,
+generated scenarios, Search, Coaching, Provenance, and Package metadata remain
+unchanged.
 
 Evidence and exact-state serialization is deterministic, defensive, and
 private. It intentionally contains the complete Deal and ownership required by
@@ -247,13 +263,12 @@ redaction or export contract is added.
 
 ## Remaining work
 
-Issue #184 completes exhaustive party-wide proof traversal and memoization.
-Later independently reviewed work must:
+Issues #184 and #185 complete exhaustive party-wide proof traversal, private
+valid-proof adjudication, and existing Final Settlement composition. Later
+independently reviewed work must:
 
-1. adjudicate only complete valid proof;
-2. integrate a Historical Claim ending;
-3. reuse existing result, level, Overbid, and Final Settlement behavior;
-4. separately decide any Public API, Schema, CLI, Session, Match Capture,
+1. integrate a Runtime Claim and Historical Claim ending;
+2. separately decide any Public API, Schema, CLI, Session, Match Capture,
    example, generated-output, or Provenance exposure.
 
 See [Party-wide Claim proof executor](party_wide_claim_proof_executor.md) for the

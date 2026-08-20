@@ -7,11 +7,12 @@ the internal Settlement Normative Matrix to version `2`. Issue #183 implements
 private version-1 structured Claim, exact Evidence, exact-state, Proof Request,
 preparation, assignment, diagnostic-line, and Result contracts for that one
 approved direction. Issue #184 implements its separate private bounded exhaustive
-exact AND/OR proof executor. Every other currently known unresolved Claim
-boundary remains `not_supported_v1`.
+exact AND/OR proof executor. Issue #185 implements private valid-proof
+adjudication and existing Final Settlement composition. Every other currently
+known unresolved Claim boundary remains `not_supported_v1`.
 
-The repository still has no party-wide Claim Runtime union member, adjudication,
-Historical Claim record, Settlement integration, Schema, Public API, CLI option,
+The repository still has no party-wide Claim Runtime union member, Historical
+Claim record, Runtime Settlement integration, Schema, Public API, CLI option,
 example, or generated scenario. Claims and Final Settlement remain
 `partially_supported`. Complete official-rule, Claim, concession, or Settlement
 coverage is not claimed.
@@ -111,8 +112,7 @@ diagnostic successful line, and has exact proof-level facts that:
 * assign every unresolved Trick to the claiming party;
 * assign every unresolved Card and card point consistently with those Tricks;
 
-A later adjudicator may create one terminal shortening from a complete valid
-proof. That future integration must:
+Issue #185's private adjudicator composes one complete valid proof by:
 
 * preserve an already established winner;
 * otherwise derive the winner from the fully assigned result;
@@ -121,6 +121,10 @@ proof. That future integration must:
   behavior;
 * apply no Schneider or Schwarz level to a Null contract;
 * keep complete private proof hands out of public output.
+
+It records complete immutable Facts and a private completed Game Result, then
+uses an ephemeral normal-completion projection to call the existing Final
+Settlement builder once. This does not create a Runtime or Historical ending.
 
 The proof assigns the unresolved Game state to the claiming party. It does not
 invent a different declaration, corrected play sequence, or replacement
@@ -239,13 +243,14 @@ reviewable:
    transition kernel and test Suit, Grand, and all four Null variants. Issue #184
    completes this step.
 3. Add terminal adjudication only for a valid proof, with complete unresolved
-   Trick/Card/point assignment and preexisting-winner preservation.
+   Trick/Card/point assignment and preexisting-winner preservation. Issue #185
+   completes this private step.
 4. Integrate existing result, level, overbid, and Final Settlement behavior while
-   retaining no-outcome semantics for invalid and unavailable proof.
+   retaining no-outcome semantics for invalid and unavailable proof. Issue #185
+   completes this private composition step.
 5. Add the exact Retrospective Historical ending and information-safe output,
    then separately decide any Schema, Public API, CLI, Session, Match Capture,
    example, generated-output, or Provenance exposure.
 
-Until steps 3 through 5 are implemented, tested, and documented, the approved
-case remains unavailable to Runtime and Claims and Final Settlement remain
-partially supported.
+Step 5 remains open. The approved case remains unavailable to Runtime and Claims
+and Final Settlement remain partially supported.

@@ -205,10 +205,13 @@ six Session examples, and 85 generated outputs remain unchanged.
 
 Separate later work is still required for:
 
-1. valid-proof adjudication;
-2. Runtime Claim input and GameShortening integration;
-3. a Retrospective Historical Claim ending;
-4. existing Game Result, level, Overbid, and Final Settlement reuse;
-5. any Public API, CLI, Schema, Session, Match Capture, Corpus, example,
+1. Runtime Claim input and GameShortening integration;
+2. a Retrospective Historical Claim ending;
+3. any Public API, CLI, Schema, Session, Match Capture, Corpus, example,
    generated-output, Provenance, Confidence, Recommendation, or Coaching
    exposure.
+
+Issue #185 separately completes private valid-proof adjudication and existing
+Game Result, level, Overbid, and Final Settlement composition. It does not change
+this executor or execute proof again. See [Party-wide Claim
+adjudication](party_wide_claim_adjudication.md).

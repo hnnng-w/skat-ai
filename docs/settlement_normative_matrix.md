@@ -15,7 +15,9 @@ CLI, examples, or generated-output paths. Issue #183 adds separate private Claim
 contracts and exact-state preparation without changing Runtime adjudication or a
 public serialized contract. Issue #184 adds a separate private bounded exhaustive
 proof executor without changing Matrix membership, Runtime adjudication, or a
-public serialized contract.
+public serialized contract. Issue #185 adds private valid-proof adjudication and
+existing Final Settlement composition without changing Matrix membership,
+Runtime availability, or a public serialized contract.
 
 The matrix does not claim complete official-rule, claim, concession, or
 Settlement coverage. Claims and Final Settlement remain partially supported
@@ -200,7 +202,7 @@ kinds.
 | Historical normal and five terminal kinds | `supported_as_is` | Exact replay adapters retain the corresponding current terminal policy. |
 | Both historical continuation kinds | `supported_as_is`, `product_boundary` | One non-terminal event followed by independently settled normal completion or one supported terminal shortening. |
 | One continuation then one terminal shortening | `supported_as_is`, `product_boundary` | The subsequent supported terminal kind retains its existing policy. |
-| Party-wide all-remaining-Tricks Claim | `implementation_required`, `approved_bounded` | The private Retrospective complete-world five-Trick proof executes; Runtime adjudication and integration remain required. |
+| Party-wide all-remaining-Tricks Claim | `implementation_required`, `approved_bounded` | Private five-Trick proof, valid-proof adjudication, and Settlement composition exist; Runtime and Historical integration remain required. |
 | Specific and generalized excluded Claims | `not_supported_v1`, `product_boundary` | No implementation or adjudication policy before v1. |
 | Previous milestone exclusions | `not_supported_v1`, `product_boundary` | Durable v1 exclusion with no implementation or adjudication policy. |
 | Incomplete or contradictory evidence | `supported_as_is`, `not_applicable` | Winner, assignment, level, overbid, and settlement remain unresolved. |
@@ -242,8 +244,10 @@ the claiming party. Invalid or unavailable proof creates no terminal outcome or
 Settlement, and there is no opposing-party or Generic Search fallback. Issue #183
 defines private contracts and one untraversed exact-state preparation. Issue #184
 adds private exhaustive execution with canonical exact transitions,
-memoization, counters, and diagnostic lines. Adjudication, Historical and
-Settlement integration, and public exposure remain open.
+memoization, counters, and diagnostic lines. Issue #185 adds private
+valid-proof-only adjudication, exact completed assignment, and existing Final
+Settlement composition. Runtime/Historical integration and public exposure
+remain open.
 
 The following former decision cases are `not_supported_v1`:
 
@@ -298,12 +302,13 @@ these exact quantifiers:
 
 It requires complete Retrospective evidence and is bounded to at most five
 unresolved Tricks. The Matrix case remains Runtime-module-free and unavailable
-with reason `party_wide_claim_not_implemented` until Runtime adjudication exists;
-the separate private contract and executor modules do not enter
-`implementation_modules`. A valid executed Result assigns all unresolved Tricks
-to the claiming party; invalid and unavailable Results create no terminal
+with reason `party_wide_claim_not_implemented` until Runtime integration exists;
+the separate private contract, executor, and adjudication modules do not enter
+`implementation_modules`. A valid executed Result can now be privately
+adjudicated and settled; invalid and unavailable Results create no terminal
 outcome or Settlement. See [Party-wide Claim proof
-executor](party_wide_claim_proof_executor.md).
+executor](party_wide_claim_proof_executor.md) and [Party-wide Claim
+adjudication](party_wide_claim_adjudication.md).
 
 Perfect-Information Minimax, compatible-world Minimax, and Search aggregation are
 not generic claim proofs. Search remains separate from claim adjudication.

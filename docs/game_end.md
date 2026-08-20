@@ -325,14 +325,20 @@ preparation passes through without execution. A valid proof has an exact proof-
 level assignment, while an invalid proof has no assignment and stops its
 diagnostic line at the first opposing-party Trick.
 
-Proof execution creates no ending, winner, level, Overbid result, Game Result,
-or Settlement. Later adjudication may consume a complete valid proof, preserve a
-preexisting winner, and otherwise reuse existing result and Settlement behavior.
-Invalid or unavailable proof creates no terminal outcome, opposing-party
-assignment, or Settlement. Generic Search is not a Claim proof and provides no
-fallback. See [Party-wide Claim contracts](party_wide_claim_contracts.md),
-[Party-wide Claim proof executor](party_wide_claim_proof_executor.md), and [Claim
-and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
+Proof execution itself creates no ending, winner, level, Overbid result, Game
+Result, or Settlement. Issue #185's separate private adjudicator consumes one
+retained Proof Result. A valid proof receives complete unresolved point and Trick
+assignment, preexisting-winner preservation, completed Suit/Grand/Null semantics,
+and one existing Final Settlement build through a private normal-completion
+projection. Invalid or unavailable proof creates a normal no-outcome Result with
+no opposing-party assignment or Settlement. Generic Search is not a Claim proof
+and provides no fallback.
+
+The private Claim end kind remains absent from Runtime and Historical unions. See
+[Party-wide Claim contracts](party_wide_claim_contracts.md), [Party-wide Claim
+proof executor](party_wide_claim_proof_executor.md), [Party-wide Claim
+adjudication](party_wide_claim_adjudication.md), and [Claim and Settlement v1
+boundaries](claim_and_settlement_v1_boundaries.md).
 
 ## Legacy claims and concessions
 
@@ -428,9 +434,10 @@ For example:
   defender-open-play proof beyond five unresolved Tricks are
   `not_supported_v1`.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.
-* Private party-wide Claim contracts, exact-state preparation, and bounded
-  exhaustive proof execution exist, but adjudication, Runtime/Historical
-  integration, Settlement reuse, and public exposure remain open.
+* Private party-wide Claim contracts, exact-state preparation, bounded
+  exhaustive proof execution, valid-proof adjudication, and existing Final
+  Settlement composition exist, but Runtime/Historical integration and public
+  exposure remain open.
 * Claims and Final Settlement remain partially supported beyond the approved
   bounded cases. This document does not claim complete official-rule, claim,
   concession, or settlement coverage; see the

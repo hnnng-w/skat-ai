@@ -447,8 +447,9 @@ Implemented:
   implementation-required Claim, and durable `not_supported_v1` classifications
 * Private version-1 structured party-wide Claim, complete Evidence, exact-state,
   Proof Request/preparation, assignment, diagnostic Move, and Result contracts,
-  plus bounded exhaustive exact AND/OR proof execution without adjudication or
-  Runtime integration
+  plus bounded exhaustive exact AND/OR proof execution, private valid-proof
+  adjudication, and existing Final Settlement composition without Runtime
+  integration
 
 ### Game-end handling
 
@@ -664,6 +665,9 @@ Implemented:
 * Focused party-wide Claim executor metadata, unavailable passthrough, Request
   reconciliation, AND/OR quantifiers, exact transitions, memoization, counters,
   representative lines, assignments, determinism, and compatibility tests
+* Focused party-wide Claim adjudication versions, vocabularies, no-outcome
+  behavior, exact point/Trick assignment, winner and level semantics, Settlement
+  projection/reuse, call counts, privacy, and compatibility tests
 * Exact public API export, immutable-document, compatibility, error, and legacy CLI tests
 * Focused public facade parsing, schema, option mapping, all-workflow execution,
   artifacts, parity, no-I/O, error translation, and normal-state tests
@@ -765,9 +769,9 @@ Implemented:
 * Legacy claim and concession reasons assign remaining points; the first three structured shortening kinds preserve them as unplayed, bounded defender open play records exact rule assignment, and open card throw records unconditional opposing-party rule assignment.
 * The engine verifies only bounded ISkO 4.4.5 defender rest-Trick Claims. The
   separate bounded party-wide Claim now has private contracts and exact-state
-  preparation plus bounded proof execution, but adjudication,
-  Runtime/Historical integration, Settlement reuse, and public exposure remain
-  open.
+  preparation, bounded proof execution, valid-proof adjudication, and existing
+  Final Settlement composition, but Runtime/Historical integration and public
+  exposure remain open.
 * Structured declarer concession models accepted defender consent; structured defender concession applies joint liability without partner consent. Disputes are not modeled.
 * Multi-Step intentionally does not auto-complete every opponent-only continuation; valid phases where the local player has already acted stop with `unsupported_turn_phase`.
 * Impossible Null settlement requires an external Suit or Grand replacement selection; it remains incomplete when that selection or its required matadors are unavailable.
@@ -1167,10 +1171,12 @@ planning milestone. Issue #182 closes the v1 Claim product-decision gate through
 Matrix version `2`. Issue #183 adds private structured Claim and exact-proof
 contracts plus one untraversed exact-state preparation without Runtime behavior.
 Issue #184 adds the private bounded exhaustive exact AND/OR executor without
-adjudication or Runtime behavior. The one bounded Retrospective party-wide all-
-remaining-Tricks Claim remains unavailable to Runtime, and every other current
-Claim boundary is `not_supported_v1`. The milestone may cover adjudication,
-Historical and Settlement integration, additional historical
+Runtime behavior. Issue #185 adds private valid-proof adjudication and existing
+Final Settlement composition, with no outcome for invalid or unavailable proof.
+The one bounded Retrospective party-wide all-remaining-Tricks Claim remains
+unavailable to Runtime, and every other current Claim boundary is
+`not_supported_v1`. The milestone may cover Runtime/Historical Claim integration,
+additional historical
 endings, stronger information-set Search and Strategy Fusion mitigation,
 tactical and cross-game Coaching, carefully bounded Player Ratings where
 approved, broader Provenance and Confidence integration, performance and latency
@@ -1205,9 +1211,9 @@ and stable installed CLI interface are implemented. API contract
 version `1`, exact public namespaces, immutable document wrappers, compatibility
 metadata, and stable public errors are implemented. The approved party-wide
 Claim has private contracts, exact-state preparation, and bounded proof
-execution, while adjudication, Runtime/Historical integration, Settlement reuse,
-public exposure, and historical end reasons outside the supported bounded set
-remain incomplete.
+execution plus private valid-proof adjudication and existing Final Settlement
+composition, while Runtime/Historical integration, public exposure, and
+historical end reasons outside the supported bounded set remain incomplete.
 Structured concessions and
 exposures, bounded defender open play, open-card throwing, supported historical
 terminal and continuation events, variable-length workflows, Ouvert-aware
@@ -1346,5 +1352,6 @@ complete through Issue #179, Issue #180 completed Release preparation, and Issue
 #181 synchronizes the manual publication at commit `91b1360`. The active
 `v0.17.0` direction begins with Issue #182's completed Claim and Settlement
 boundary audit, Issue #183's private contracts and exact-state preparation, and
-Issue #184's bounded exhaustive proof execution. Adjudication, later Runtime
-integration, and the final `v1.0.0` Issue split and architecture remain open.
+Issue #184's bounded exhaustive proof execution. Issue #185 adds private
+adjudication and existing Final Settlement composition. Later Runtime/Historical
+integration and the final `v1.0.0` Issue split and architecture remain open.

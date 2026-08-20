@@ -64,7 +64,8 @@ official Skat rules arbitration.
 * Continued play with the exposing defender's exact returned public hand under ISkO 4.4.5 and 4.1.6
 * Internal Settlement Normative Matrix version `2` with 61 preserved cases, one
   approved bounded Retrospective party-wide Claim, private version-1 structured
-  Claim/Evidence/Proof contracts, and bounded exhaustive exact proof execution
+  Claim/Evidence/Proof contracts, bounded exhaustive exact proof execution, and
+  private valid-proof adjudication with existing Final Settlement composition
   without new Runtime behavior, plus durable v1 exclusions
 * Legacy claim/concession remaining-point assignment
 * Adjusted game-result summaries
@@ -1410,11 +1411,12 @@ dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
 level provenance enforcement, and GUI/browser or online-platform Session
 integration beyond the completed local end-to-end Issue #150 through #157
-capture milestone. Private structured Claim, complete Evidence, Proof
-Request/Result, exact-state preparation, and bounded exhaustive proof execution
-now exist for the approved party-wide all-remaining-Tricks Claim. Adjudication,
-Runtime/Historical integration, Settlement reuse, and public exposure remain
-open. Specific future-Trick Claims, defender-open-play proof beyond five
+  capture milestone. Private structured Claim, complete Evidence, Proof
+  Request/Result, exact-state preparation, bounded exhaustive proof execution,
+  valid-proof adjudication, and existing Final Settlement composition now exist
+  for the approved party-wide all-remaining-Tricks Claim. Runtime/Historical
+  integration and public exposure remain open. Specific future-Trick Claims,
+  defender-open-play proof beyond five
 unresolved Tricks, multiple continuation events, arbitrary event streams, and
 the other documented durable v1 Claim exclusions are `not_supported_v1`.
 Historical end reasons outside the supported set remain unsupported. Current
@@ -1570,9 +1572,11 @@ through Settlement Normative Matrix version `2`. Issue #183 adds private
 version-1 structured Claim, exact Evidence, exact-state, Proof Request,
 preparation, assignment, diagnostic-line, and Result contracts without proof or
 Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
-proof executor without adjudication or Runtime behavior. All other current Claim
-boundaries remain durable v1 exclusions. The milestone may also cover
-adjudication, Historical and Settlement implementation,
+  proof executor without Runtime behavior. Issue #185 adds private valid-proof
+  adjudication and existing Final Settlement composition while preserving normal
+  no-outcome Results for invalid and unavailable proofs. All other current Claim
+  boundaries remain durable v1 exclusions. The milestone may also cover
+  Runtime/Historical Claim integration,
 additional historical endings, stronger information-set Search and Strategy
 Fusion mitigation, tactical and cross-game Coaching, carefully bounded Player
 Ratings where approved, broader Provenance and Confidence integration,
@@ -1584,8 +1588,9 @@ Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
 scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
 The private boundary is documented in [Party-wide Claim
-contracts](docs/party_wide_claim_contracts.md) and the [Party-wide Claim proof
-executor](docs/party_wide_claim_proof_executor.md).
+  contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof
+  executor](docs/party_wide_claim_proof_executor.md), and [Party-wide Claim
+  adjudication](docs/party_wide_claim_adjudication.md).
 
 ## Disclaimer
 

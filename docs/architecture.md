@@ -548,6 +548,8 @@ insufficient.
 | `src/skat_ai/party_wide_claim_evidence.py` | Private complete-world Evidence, one Historical-prefix replay, stable/flat mapping, and one untraversed exact-state preparation. |
 | `src/skat_ai/party_wide_claim_proof_contracts.py` | Private Proof Request/preparation, assignment, diagnostic Move, and supplied valid/invalid/unavailable Result invariants without execution. |
 | `src/skat_ai/party_wide_claim_proof_executor.py` | Private bounded exhaustive exact AND/OR traversal, invocation-local memoization, counters, canonical decisive lines, and existing Result construction. |
+| `src/skat_ai/party_wide_claim_adjudication_contracts.py` | Private immutable adjudication Facts/Result, exact statuses, policies, no-outcome relationships, and defensive serialization. |
+| `src/skat_ai/party_wide_claim_adjudication.py` | Strict retained-Proof reconciliation, exact assignment composition, preexisting-winner preservation, completed private Result, and existing Final Settlement reuse. |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
 | `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
 | `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
@@ -585,12 +587,19 @@ separate private bounded exhaustive exact AND/OR executor. It reuses
 Tricks, with claiming-party existential and opposing-party universal choices,
 exact-state memoization, canonical short-circuiting, and stable diagnostic lines.
 It does not route through Generic Search, compatible-world aggregation, or an
-information-set policy. The approved Claim remains unavailable to Runtime, and
-the Matrix `implementation_modules` tuple remains empty until adjudication and
-Runtime work. Invalid and unavailable proof create no terminal outcome or
-Settlement. See [Party-wide Claim contracts](party_wide_claim_contracts.md),
-[Party-wide Claim proof executor](party_wide_claim_proof_executor.md), and [Claim
-and Settlement v1 boundaries](claim_and_settlement_v1_boundaries.md).
+information-set policy. Issue #185 consumes one retained Proof Result in a
+separate private adjudicator. A valid proof assigns every unresolved Trick,
+Card, and point to the claiming party, preserves a preexisting winner, otherwise
+derives the completed Suit, Grand, or Null result, and composes one complete
+Settlement through the existing normal-completion builder. Invalid and
+unavailable proof create normal no-outcome Results without scoring work.
+
+The approved Claim remains unavailable to Runtime, and the Matrix
+`implementation_modules` tuple remains empty until Runtime work. See [Party-wide
+Claim contracts](party_wide_claim_contracts.md), [Party-wide Claim proof
+executor](party_wide_claim_proof_executor.md), [Party-wide Claim
+adjudication](party_wide_claim_adjudication.md), and [Claim and Settlement v1
+boundaries](claim_and_settlement_v1_boundaries.md).
 
 ## Simulation
 
