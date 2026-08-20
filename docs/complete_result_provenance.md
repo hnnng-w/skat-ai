@@ -96,7 +96,8 @@ The complete Historical ledger covers:
 * observed, unresolved, assigned, and final point accounting;
 * raw and adjudicated Result facts, Game Value, Overbid, and Settlement;
 * both timed continuation events and their exact public-hand boundaries;
-* all five supported terminal endings and their public proof metadata;
+* all six supported terminal endings and their public proof metadata, including
+  the Historical-only party-wide Claim;
 * the existing Snapshot, Immediate Review, Search Review, Replay Coaching,
   Outcome Context, and historical Profile application branches.
 
@@ -106,6 +107,12 @@ trick. Full private deal facts remain post-game-only and never become
 decision-time evidence. A continuation event has no immediate Result or
 Settlement dependency; later terminal adjudication remains a separate game-end
 stage.
+
+For the party-wide Claim, claimant and claiming party depend on exact Historical
+input. Proof status, assignment, counters, adjudicated winner, levels, and
+Settlement use exact derived origins. The diagnostic Representative Line is
+post-game-only. Complete Evidence and `ExactSearchState` stay engine-private,
+and public redaction preserves complete coverage without exposing those sources.
 
 ## Dependency direction
 

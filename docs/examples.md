@@ -34,6 +34,13 @@ status after manual maintainer publication on 2026-08-18. GitHub Releases is the
 authoritative publication record; no Package-index or PyPI publication is
 claimed.
 
+The current unreleased working baseline keeps Package version `0.16.0`, Public
+API contract version `1`, seven Root workflows, one Console Script, and six
+Session examples. Issue #186 adds two authoritative and packaged Historical
+Claim Schemas plus three append-only generated-output scenarios, bringing the
+working totals to 65 Schemas and 88 scenarios without changing the published
+`v0.16.0` facts above.
+
 The historical published `v0.15.0` baseline at commit `ec1c154` contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six strict
 Session examples, validates 85 deterministic generated-output scenarios, and
@@ -232,6 +239,12 @@ python main.py --input examples/historical_grand_defender_open_play.json
 
 ```powershell
 python main.py --input examples/historical_grand_open_card_throw.json
+```
+
+Validate the Historical-only bounded party-wide Claim:
+
+```powershell
+python main.py --input examples/historical_party_wide_claim.json
 ```
 
 Validate a normal historical Grand with timed defender-open-play continuation:
@@ -516,6 +529,7 @@ right's response is simulated before the local third-hand decision.
 | `historical_grand_declarer_card_exposure_continuation.json` | Complete normal Grand, exact timed public declarer hand, one stable defender continuation response, 30 actual plays, and ordinary settlement. |
 | `historical_grand_defender_open_play.json` | Complete deal, exact 24-play Grand prefix, stable exposing defender, exact valid two-trick proof, privacy-safe assignment, and settlement. |
 | `historical_grand_open_card_throw.json` | Complete deal, exact 24-play Grand prefix, stable defender throw, confirmed canonical hand, opposing-party assignment, and shared settlement. |
+| `historical_party_wide_claim.json` | Complete deal, exact five-Trick Spades prefix, stable Declarer claimant, bounded exact valid party-wide Proof, diagnostic public summary, and reused Final Settlement. |
 | `historical_grand_defender_open_play_continuation.json` | Complete normal Grand with one timed exact returned defender hand and 30 actual plays. |
 | `historical_grand_defender_open_play_continuation_declarer_concession.json` | Timed public defender hand after play 12, two later plays with exact hand shrinkage, then delegated declarer concession. |
 | `historical_grand_declarer_card_exposure_continuation_defender_concession.json` | Public declarer hand after play 14 followed immediately by delegated defender concession with no post-event card decision. |
@@ -524,8 +538,10 @@ right's response is simulated before the local third-hand decision.
 This is a separate historical-game workflow, not a reconstructed local
 post-game position. Dedicated generated-output scenarios cover the base
 `historical_game_summary`, its optional decision-time snapshots, and the
-seeded complete Immediate and Search reviews. Five scenarios cover the supported shortened
-base outputs. Snapshot-only generation does not run recommendation or
+seeded complete Immediate and Search reviews. Five scenarios cover the earlier
+shortened base outputs. Three Issue #186 scenarios cover a Declarer Suit Claim, a
+Defender Null Claim during an incomplete Trick, and one continuation before a
+terminal Claim; at least one includes public Provenance. Snapshot-only generation does not run recommendation or
 simulation. Review uses the normal and Grand Ouvert examples with 20 samples and
 base seed 42; Ouvert rows are reviewed with the exact public declarer hand.
 Historical Search Review uses an explicit Search seed and records eligible late
@@ -801,6 +817,10 @@ throw with joint liability. Eight observed declarer tricks remain separate from
 two rule-assigned tricks; all 63 outstanding points go to the declarer and create
 open-throw Schneider and Schwarz after a deterministic non-excluded jack-only
 assessment. The non-throwing local hand is redacted.
+The `historical_party_wide_claim.json` example is separate from flat
+`game_shortening`. It supplies one complete Historical world and a terminal
+stable-ID Claim, executes one bounded exact Proof, accepts only a valid Result,
+and emits no private exact state or complete proof tree.
 
 Run the continuation example:
 
@@ -856,9 +876,11 @@ because ended game reasons are post-game review information.
 | `grand_defenders_conceded_remaining_tricks.json` | Defenders concede remaining tricks. |
 
 Each structured flat example has deterministic generated-output and quiet JSON
-coverage. Each of the five supported terminal historical shortened kinds has one
-separate generated scenario. Both historical continuation kinds have dedicated
-snapshot-transition scenarios.
+coverage. The five earlier terminal Historical shortened kinds retain one
+separate generated scenario each. The Historical party-wide Claim adds three
+append-only scenarios, including incomplete-Trick and continuation coverage.
+Both historical continuation kinds retain dedicated snapshot-transition
+scenarios.
 
 ## Overbid examples
 

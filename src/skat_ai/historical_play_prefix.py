@@ -37,9 +37,7 @@ class HistoricalReplayState:
 
     def remaining_hand_for(self, player_id: str) -> tuple[str, ...]:
         return next(
-            cards
-            for candidate_id, cards in self.remaining_hands
-            if candidate_id == player_id
+            cards for candidate_id, cards in self.remaining_hands if candidate_id == player_id
         )
 
 
@@ -86,8 +84,7 @@ def replay_historical_play_prefix(record: Any) -> HistoricalReplayState:
             )
         if trick.leader_player_id != expected_leader:
             raise ValueError(
-                f"{trick_name} must be led by '{expected_leader}', got "
-                f"'{trick.leader_player_id}'."
+                f"{trick_name} must be led by '{expected_leader}', got '{trick.leader_player_id}'."
             )
         expected_order = _get_player_order_from_leader(
             trick.leader_player_id, seat_order_player_ids
@@ -96,7 +93,7 @@ def replay_historical_play_prefix(record: Any) -> HistoricalReplayState:
         if supplied_order != expected_order[: len(trick.plays)]:
             raise ValueError(
                 f"{trick_name} play order must start with "
-                f"{expected_order[:len(trick.plays)]}, got {supplied_order}."
+                f"{expected_order[: len(trick.plays)]}, got {supplied_order}."
             )
 
         trick_cards = []
@@ -126,8 +123,7 @@ def replay_historical_play_prefix(record: Any) -> HistoricalReplayState:
             )
             if play.card not in legal_cards:
                 raise ValueError(
-                    f"{play_name} illegally plays '{play.card}'; legal cards are "
-                    f"{legal_cards}."
+                    f"{play_name} illegally plays '{play.card}'; legal cards are {legal_cards}."
                 )
             hands[play.player_id].remove(play.card)
             trick_cards.append(play.card)
@@ -158,9 +154,7 @@ def replay_historical_play_prefix(record: Any) -> HistoricalReplayState:
                 plays=serialized_plays,
                 winner_player_id=winner_player_id,
                 winner_side=(
-                    "declarer"
-                    if winner_player_id == record.declarer_player_id
-                    else "defenders"
+                    "declarer" if winner_player_id == record.declarer_player_id else "defenders"
                 ),
                 trick_points=get_trick_points(trick_cards),
             )
@@ -221,15 +215,90 @@ def replay_historical_state_at_play_boundary(
     return replay_historical_play_prefix(replace(record, tricks=tuple(prefix_tricks)))
 
 
+def derive_historical_state_at_play_boundary_from_retained_replay(
+    record: Any,
+    final_replay: HistoricalReplayState,
+    after_play_count: int,
+) -> HistoricalReplayState:
+    """Derives an earlier boundary after one retained full-prefix replay."""
+    total_play_count = sum(len(trick.plays) for trick in record.tricks)
+    if (
+        not isinstance(final_replay, HistoricalReplayState)
+        or final_replay.played_card_count != total_play_count
+    ):
+        raise ValueError("final_replay must match the complete recorded play prefix.")
+    if (
+        isinstance(after_play_count, bool)
+        or not isinstance(after_play_count, int)
+        or not 0 <= after_play_count <= total_play_count
+    ):
+        raise ValueError(
+            f"Historical game '{record.game_id}': play boundary must be an integer "
+            f"from 0 to {total_play_count}."
+        )
+
+    completed_by_number = {trick.trick_number: trick for trick in final_replay.completed_tricks}
+    hands = _build_playable_hands(record)
+    player_by_seat = {player.seat: player.player_id for player in record.players}
+    seat_order = tuple(player_by_seat[seat] for seat in HISTORICAL_SEATS)
+    completed_tricks = []
+    current_trick = None
+    remaining_count = after_play_count
+    next_player_id = seat_order[0]
+
+    for trick in record.tricks:
+        if remaining_count == 0:
+            break
+        selected_count = min(remaining_count, len(trick.plays))
+        selected_plays = trick.plays[:selected_count]
+        for play in selected_plays:
+            hands[play.player_id].remove(play.card)
+        serialized_plays = tuple((play.player_id, play.card) for play in selected_plays)
+        leader_index = seat_order.index(trick.leader_player_id)
+        player_order = tuple(
+            seat_order[(leader_index + offset) % len(seat_order)]
+            for offset in range(len(seat_order))
+        )
+        if selected_count < 3:
+            next_player_id = player_order[selected_count]
+            current_trick = HistoricalIncompleteTrick(
+                trick_number=trick.trick_number,
+                leader_player_id=trick.leader_player_id,
+                plays=serialized_plays,
+                next_player_id=next_player_id,
+            )
+            remaining_count = 0
+            break
+        try:
+            completed = completed_by_number[trick.trick_number]
+        except KeyError as error:
+            raise ValueError("final_replay does not contain a recorded completed Trick.") from error
+        if completed.plays != serialized_plays:
+            raise ValueError("final_replay does not match the recorded play prefix.")
+        completed_tricks.append(completed)
+        next_player_id = completed.winner_player_id
+        remaining_count -= selected_count
+
+    if remaining_count != 0:
+        raise ValueError(
+            f"Historical game '{record.game_id}': play boundary exceeds supplied plays."
+        )
+    return HistoricalReplayState(
+        completed_tricks=tuple(completed_tricks),
+        current_trick=current_trick,
+        remaining_hands=tuple((player_id, tuple(hands[player_id])) for player_id in seat_order),
+        next_player_id=next_player_id,
+        played_card_count=after_play_count,
+    )
+
+
 def build_serializable_derived_trick(
     trick: HistoricalDerivedCompletedTrick,
 ) -> dict[str, Any]:
     return {
         "trick_number": trick.trick_number,
         "leader_player_id": trick.leader_player_id,
-        "plays": [
-            {"player_id": player_id, "card": card} for player_id, card in trick.plays
-        ],
+        "plays": [{"player_id": player_id, "card": card} for player_id, card in trick.plays],
         "winner_player_id": trick.winner_player_id,
         "winner_side": trick.winner_side,
         "trick_points": trick.trick_points,
@@ -242,8 +311,6 @@ def build_serializable_incomplete_trick(
     return {
         "trick_number": trick.trick_number,
         "leader_player_id": trick.leader_player_id,
-        "plays": [
-            {"player_id": player_id, "card": card} for player_id, card in trick.plays
-        ],
+        "plays": [{"player_id": player_id, "card": card} for player_id, card in trick.plays],
         "next_player_id": trick.next_player_id,
     }

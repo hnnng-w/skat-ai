@@ -17,7 +17,7 @@ SESSION_EXAMPLE_NAMES = {
 }
 
 
-def test_issue_182_preserves_package_api_cli_and_artifact_baselines() -> None:
+def test_issue_186_preserves_package_api_cli_and_updates_artifact_baselines() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     project = pyproject["project"]
 
@@ -27,16 +27,12 @@ def test_issue_182_preserves_package_api_cli_and_artifact_baselines() -> None:
     assert api_v1.PUBLIC_API_CONTRACT_VERSION == 1
     assert len(WorkflowV1) == 7
     assert "PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1" not in api_v1.__all__
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 63
-    assert len(
-        tuple(
-            (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
-                "*.schema.json"
-            )
-        )
-    ) == 63
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
+    assert (
+        len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
+        == 65
+    )
     assert {
-        path.name
-        for path in (PROJECT_ROOT / "examples").glob("session_*.json")
+        path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")
     } == SESSION_EXAMPLE_NAMES
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88

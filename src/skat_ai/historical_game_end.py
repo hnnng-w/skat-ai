@@ -23,6 +23,10 @@ from skat_ai.open_card_throw import (
     SPECIFIC_TRICK_ASSERTION_KEYS,
     VALID_STATEMENT_CLASSIFICATIONS,
 )
+from skat_ai.party_wide_claim_contracts import (
+    PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_KIND,
+    PARTY_WIDE_CLAIMING_PARTIES,
+)
 
 HISTORICAL_GAME_END_SCHEMA_VERSION = 1
 HISTORICAL_NORMAL_COMPLETION = "normal_completion"
@@ -31,6 +35,8 @@ HISTORICAL_DEFENDER_CONCESSION = DEFENDER_CONCESSION_KIND
 HISTORICAL_DECLARER_CARD_EXPOSURE = DECLARER_CARD_EXPOSURE_KIND
 HISTORICAL_DEFENDER_OPEN_PLAY = DEFENDER_OPEN_PLAY_KIND
 HISTORICAL_OPEN_CARD_THROW = OPEN_CARD_THROW_KIND
+HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM = PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_KIND
+HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_VERSION = 1
 HISTORICAL_GAME_END_REASONS = {
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_DECLARER_CONCESSION,
@@ -38,6 +44,7 @@ HISTORICAL_GAME_END_REASONS = {
     HISTORICAL_DECLARER_CARD_EXPOSURE,
     HISTORICAL_DEFENDER_OPEN_PLAY,
     HISTORICAL_OPEN_CARD_THROW,
+    HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM,
 }
 
 
@@ -120,18 +127,27 @@ class HistoricalOpenCardThrow:
     statement_classification: str
 
 
+@dataclass(frozen=True)
+class HistoricalPartyWideAllRemainingTricksClaim:
+    """Version-1 Historical party-wide all-remaining-Tricks Claim."""
+
+    schema_version: int
+    kind: str
+    claimant_player_id: str
+    claiming_party: str
+
+
 type HistoricalGameEnd = (
     HistoricalDeclarerConcession
     | HistoricalDefenderConcession
     | HistoricalDeclarerCardExposure
     | HistoricalDefenderOpenPlay
     | HistoricalOpenCardThrow
+    | HistoricalPartyWideAllRemainingTricksClaim
 )
 
 
-def _require_exact_fields(
-    data: dict[str, Any], required_fields: set[str], field_name: str
-) -> None:
+def _require_exact_fields(data: dict[str, Any], required_fields: set[str], field_name: str) -> None:
     missing_fields = sorted(required_fields - data.keys())
     if missing_fields:
         raise ValueError(f"{field_name} is missing required fields: {missing_fields}.")
@@ -148,9 +164,7 @@ def _require_stable_defender_id(
     seat_order_player_ids: tuple[str, ...],
 ) -> str:
     if not isinstance(value, str) or not value or value != value.strip():
-        raise ValueError(
-            f"{field_name} must be a non-empty, non-padded stable player ID."
-        )
+        raise ValueError(f"{field_name} must be a non-empty, non-padded stable player ID.")
     if value in {"me", "left", "right"}:
         raise ValueError(f"{field_name} must not use a relative player identity.")
     if value not in seat_order_player_ids or value == declarer_player_id:
@@ -170,8 +184,7 @@ def build_historical_game_end(
     field_name = f"Historical game '{game_id}' game_end"
     if game_end_reason not in HISTORICAL_GAME_END_REASONS:
         raise ValueError(
-            f"Historical game '{game_id}': unsupported game_end_reason "
-            f"'{game_end_reason}'."
+            f"Historical game '{game_id}': unsupported game_end_reason '{game_end_reason}'."
         )
     if game_end_reason == HISTORICAL_NORMAL_COMPLETION:
         if value is not None:
@@ -187,6 +200,64 @@ def build_historical_game_end(
         )
     if not isinstance(value, dict):
         raise ValueError(f"{field_name} must be an object.")
+
+    if game_end_reason == HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM:
+        relative_player_ids = sorted(
+            set(seat_order_player_ids).intersection({"me", "left", "right"})
+        )
+        if relative_player_ids:
+            raise ValueError(
+                f"{field_name} requires stable historical player IDs and must not "
+                f"use relative identities: {relative_player_ids}."
+            )
+        _require_exact_fields(
+            value,
+            {"schema_version", "kind", "claimant_player_id", "claiming_party"},
+            field_name,
+        )
+        if (
+            not is_strict_integer(value["schema_version"])
+            or value["schema_version"] != HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_VERSION
+        ):
+            raise ValueError(
+                f"{field_name}.schema_version must be exactly "
+                f"{HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_VERSION}."
+            )
+        if value["kind"] != HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM:
+            raise ValueError(
+                f"{field_name}.kind must match game_end_reason "
+                f"'{HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM}'."
+            )
+        claimant_player_id = value["claimant_player_id"]
+        if (
+            not isinstance(claimant_player_id, str)
+            or not claimant_player_id
+            or claimant_player_id != claimant_player_id.strip()
+        ):
+            raise ValueError(
+                f"{field_name}.claimant_player_id must be a non-empty, non-padded stable player ID."
+            )
+        if claimant_player_id in {"me", "left", "right"}:
+            raise ValueError(
+                f"{field_name}.claimant_player_id must not use a relative player identity."
+            )
+        if claimant_player_id not in seat_order_player_ids:
+            raise ValueError(
+                f"{field_name}.claimant_player_id must reference one exact stable participant ID."
+            )
+        claiming_party = value["claiming_party"]
+        if claiming_party not in PARTY_WIDE_CLAIMING_PARTIES:
+            raise ValueError(f"{field_name}.claiming_party must be 'declarer' or 'defenders'.")
+        if claiming_party == "declarer" and claimant_player_id != declarer_player_id:
+            raise ValueError("A Declarer Claim must be asserted by the Declarer.")
+        if claiming_party == "defenders" and claimant_player_id == declarer_player_id:
+            raise ValueError("A Defender Claim must be asserted by one of the two Defenders.")
+        return HistoricalPartyWideAllRemainingTricksClaim(
+            schema_version=HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_VERSION,
+            kind=HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM,
+            claimant_player_id=claimant_player_id,
+            claiming_party=claiming_party,
+        )
 
     if game_end_reason == HISTORICAL_OPEN_CARD_THROW:
         relative_player_ids = sorted(
@@ -217,8 +288,7 @@ def build_historical_game_end(
             raise ValueError(f"{field_name}.schema_version must be exactly 1.")
         if value["kind"] != HISTORICAL_OPEN_CARD_THROW:
             raise ValueError(
-                f"{field_name}.kind must match game_end_reason "
-                f"'{HISTORICAL_OPEN_CARD_THROW}'."
+                f"{field_name}.kind must match game_end_reason '{HISTORICAL_OPEN_CARD_THROW}'."
             )
         throwing_player_id = value["throwing_player_id"]
         if (
@@ -227,8 +297,7 @@ def build_historical_game_end(
             or throwing_player_id != throwing_player_id.strip()
         ):
             raise ValueError(
-                f"{field_name}.throwing_player_id must be a non-empty, non-padded "
-                "stable player ID."
+                f"{field_name}.throwing_player_id must be a non-empty, non-padded stable player ID."
             )
         if throwing_player_id in {"me", "left", "right"}:
             raise ValueError(
@@ -236,24 +305,19 @@ def build_historical_game_end(
             )
         if throwing_player_id not in seat_order_player_ids:
             raise ValueError(
-                f"{field_name}.throwing_player_id must reference one exact stable "
-                "participant ID."
+                f"{field_name}.throwing_player_id must reference one exact stable participant ID."
             )
         raw_cards = value["thrown_cards"]
         if not isinstance(raw_cards, list):
             raise ValueError(f"{field_name}.thrown_cards must be an array.")
         if not 1 <= len(raw_cards) <= 10:
-            raise ValueError(
-                f"{field_name}.thrown_cards must contain between 1 and 10 cards."
-            )
+            raise ValueError(f"{field_name}.thrown_cards must contain between 1 and 10 cards.")
         valid_cards = set(get_full_deck())
         invalid_cards = [
             card for card in raw_cards if not isinstance(card, str) or card not in valid_cards
         ]
         if invalid_cards:
-            raise ValueError(
-                f"{field_name}.thrown_cards contains invalid cards: {invalid_cards}."
-            )
+            raise ValueError(f"{field_name}.thrown_cards contains invalid cards: {invalid_cards}.")
         if len(raw_cards) != len(set(raw_cards)):
             raise ValueError(f"{field_name}.thrown_cards must not contain duplicates.")
         statement_classification = value["statement_classification"]
@@ -295,8 +359,7 @@ def build_historical_game_end(
             raise ValueError(f"{field_name}.schema_version must be exactly 1.")
         if value["kind"] != HISTORICAL_DEFENDER_OPEN_PLAY:
             raise ValueError(
-                f"{field_name}.kind must match game_end_reason "
-                f"'{HISTORICAL_DEFENDER_OPEN_PLAY}'."
+                f"{field_name}.kind must match game_end_reason '{HISTORICAL_DEFENDER_OPEN_PLAY}'."
             )
         exposing_defender_player_id = _require_stable_defender_id(
             value["exposing_defender_player_id"],
@@ -308,17 +371,13 @@ def build_historical_game_end(
         if not isinstance(raw_cards, list):
             raise ValueError(f"{field_name}.exposed_cards must be an array.")
         if not 1 <= len(raw_cards) <= 5:
-            raise ValueError(
-                f"{field_name}.exposed_cards must contain between 1 and 5 cards."
-            )
+            raise ValueError(f"{field_name}.exposed_cards must contain between 1 and 5 cards.")
         valid_cards = set(get_full_deck())
         invalid_cards = [
             card for card in raw_cards if not isinstance(card, str) or card not in valid_cards
         ]
         if invalid_cards:
-            raise ValueError(
-                f"{field_name}.exposed_cards contains invalid cards: {invalid_cards}."
-            )
+            raise ValueError(f"{field_name}.exposed_cards contains invalid cards: {invalid_cards}.")
         if len(raw_cards) != len(set(raw_cards)):
             raise ValueError(f"{field_name}.exposed_cards must not contain duplicates.")
         card_order = {card: index for index, card in enumerate(get_full_deck())}
@@ -330,9 +389,7 @@ def build_historical_game_end(
                 "non-terminal game_events contract."
             )
         if declarer_response != "accept_adjudication":
-            raise ValueError(
-                f"{field_name}.declarer_response must be 'accept_adjudication'."
-            )
+            raise ValueError(f"{field_name}.declarer_response must be 'accept_adjudication'.")
         return HistoricalDefenderOpenPlay(
             schema_version=HISTORICAL_GAME_END_SCHEMA_VERSION,
             kind=HISTORICAL_DEFENDER_OPEN_PLAY,
@@ -356,8 +413,7 @@ def build_historical_game_end(
             raise ValueError(f"{field_name}.schema_version must be exactly 1.")
         if value["kind"] != HISTORICAL_DEFENDER_CONCESSION:
             raise ValueError(
-                f"{field_name}.kind must match game_end_reason "
-                f"'{HISTORICAL_DEFENDER_CONCESSION}'."
+                f"{field_name}.kind must match game_end_reason '{HISTORICAL_DEFENDER_CONCESSION}'."
             )
         conceding_player_id = value["conceding_defender_player_id"]
         if (
@@ -418,9 +474,7 @@ def build_historical_game_end(
             raise ValueError(f"{exposure_field} must be an object.")
         exposure_form = exposure_value.get("form")
         if exposure_form not in VALID_EXPOSURE_FORMS:
-            raise ValueError(
-                f"{exposure_field}.form must be 'laid_open' or 'shown_to_defender'."
-            )
+            raise ValueError(f"{exposure_field}.form must be 'laid_open' or 'shown_to_defender'.")
         exposure_fields = {"form", "exposed_cards"}
         if exposure_form == "shown_to_defender":
             exposure_fields.add("shown_to_defender_player_id")
@@ -430,9 +484,7 @@ def build_historical_game_end(
         if not isinstance(raw_cards, list):
             raise ValueError(f"{exposure_field}.exposed_cards must be an array.")
         if not 1 <= len(raw_cards) <= 10:
-            raise ValueError(
-                f"{exposure_field}.exposed_cards must contain between 1 and 10 cards."
-            )
+            raise ValueError(f"{exposure_field}.exposed_cards must contain between 1 and 10 cards.")
         valid_cards = set(get_full_deck())
         invalid_cards = [
             card for card in raw_cards if not isinstance(card, str) or card not in valid_cards
@@ -458,15 +510,13 @@ def build_historical_game_end(
         claimed_play_level = value["claimed_play_level"]
         if claimed_play_level not in VALID_CLAIMED_PLAY_LEVELS:
             raise ValueError(
-                f"{field_name}.claimed_play_level must be 'simple', 'schneider', "
-                "or 'schwarz'."
+                f"{field_name}.claimed_play_level must be 'simple', 'schneider', or 'schwarz'."
             )
 
         raw_responses = value["defender_responses"]
         if not isinstance(raw_responses, list) or len(raw_responses) != 2:
             raise ValueError(
-                f"{field_name}.defender_responses must contain exactly two defender "
-                "acceptances."
+                f"{field_name}.defender_responses must contain exactly two defender acceptances."
             )
         responses_by_player: dict[str, HistoricalDefenderExposureResponse] = {}
         for index, raw_response in enumerate(raw_responses):
@@ -486,8 +536,7 @@ def build_historical_game_end(
             )
             if defender_player_id in responses_by_player:
                 raise ValueError(
-                    f"{field_name}.defender_responses must identify each defender "
-                    "exactly once."
+                    f"{field_name}.defender_responses must identify each defender exactly once."
                 )
             if raw_response["response"] != "accept":
                 raise ValueError(
@@ -497,8 +546,7 @@ def build_historical_game_end(
             acceptance_form = raw_response["form"]
             if acceptance_form not in VALID_ACCEPTANCE_FORMS:
                 raise ValueError(
-                    f"{response_field}.form must be 'explicit' or "
-                    "'unambiguous_conduct'."
+                    f"{response_field}.form must be 'explicit' or 'unambiguous_conduct'."
                 )
             responses_by_player[defender_player_id] = HistoricalDefenderExposureResponse(
                 defender_player_id=defender_player_id,
@@ -506,14 +554,11 @@ def build_historical_game_end(
                 form=acceptance_form,
             )
         defender_ids = {
-            player_id
-            for player_id in seat_order_player_ids
-            if player_id != declarer_player_id
+            player_id for player_id in seat_order_player_ids if player_id != declarer_player_id
         }
         if set(responses_by_player) != defender_ids:
             raise ValueError(
-                f"{field_name}.defender_responses must identify each stable defender "
-                "exactly once."
+                f"{field_name}.defender_responses must identify each stable defender exactly once."
             )
         ordered_responses = tuple(
             responses_by_player[player_id]
@@ -546,17 +591,14 @@ def build_historical_game_end(
         raise ValueError(f"{field_name}.schema_version must be exactly 1.")
     if value["kind"] != HISTORICAL_DECLARER_CONCESSION:
         raise ValueError(
-            f"{field_name}.kind must match game_end_reason "
-            f"'{HISTORICAL_DECLARER_CONCESSION}'."
+            f"{field_name}.kind must match game_end_reason '{HISTORICAL_DECLARER_CONCESSION}'."
         )
 
     hand_count = value["declarer_hand_cards_remaining"]
     if not is_strict_integer(hand_count):
         raise ValueError(f"{field_name}.declarer_hand_cards_remaining must be an integer.")
     if not 1 <= hand_count <= 10:
-        raise ValueError(
-            f"{field_name}.declarer_hand_cards_remaining must be between 1 and 10."
-        )
+        raise ValueError(f"{field_name}.declarer_hand_cards_remaining must be between 1 and 10.")
 
     consent_field = f"{field_name}.defender_consent"
     consent_value = value["defender_consent"]
@@ -590,9 +632,7 @@ def build_historical_game_end(
             f"{consent_field}.consenting_defender_player_ids must reference exact stable "
             f"defender IDs; invalid={invalid_ids}."
         )
-    ordered_ids = tuple(
-        player_id for player_id in seat_order_player_ids if player_id in raw_ids
-    )
+    ordered_ids = tuple(player_id for player_id in seat_order_player_ids if player_id in raw_ids)
     if hand_count >= 9:
         if status != "not_required" or ordered_ids:
             raise ValueError(
@@ -620,6 +660,13 @@ def build_serializable_historical_game_end(
     game_end: HistoricalGameEnd,
 ) -> dict[str, Any]:
     """Serializes one historical game-end union member deterministically."""
+    if isinstance(game_end, HistoricalPartyWideAllRemainingTricksClaim):
+        return {
+            "schema_version": game_end.schema_version,
+            "kind": game_end.kind,
+            "claimant_player_id": game_end.claimant_player_id,
+            "claiming_party": game_end.claiming_party,
+        }
     if isinstance(game_end, HistoricalOpenCardThrow):
         return {
             "schema_version": game_end.schema_version,
@@ -649,9 +696,7 @@ def build_serializable_historical_game_end(
             "exposed_cards": list(game_end.exposure.exposed_cards),
         }
         if game_end.exposure.shown_to_defender_player_id is not None:
-            exposure["shown_to_defender_player_id"] = (
-                game_end.exposure.shown_to_defender_player_id
-            )
+            exposure["shown_to_defender_player_id"] = game_end.exposure.shown_to_defender_player_id
         return {
             "schema_version": game_end.schema_version,
             "kind": game_end.kind,

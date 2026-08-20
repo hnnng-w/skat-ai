@@ -7,10 +7,11 @@ available `PartyWideClaimProofPreparationV1`. It proves whether the complete
 claiming party can force ownership of every unresolved Trick in the one exact
 complete world retained by Issue #183.
 
-The executor is not a Runtime Claim, Historical ending, Game Result, Settlement,
-Search workflow, Public API, CLI, Schema, example, generated scenario, or Corpus
-value. It creates no game end or public output. Claims and Final Settlement
-remain partially supported.
+The executor itself is not a Runtime Claim, Historical ending, Game Result,
+Settlement, Search workflow, Public API, CLI, Schema, example, generated
+scenario, or Corpus value. It creates no game end or public output. Issue #186's
+focused Historical adapter calls it once for an available terminal Historical
+Claim and maps only its privacy-bounded diagnostic Result.
 
 ## Version and policies
 
@@ -190,28 +191,29 @@ exposing Defender is existential while the Declarer and non-exposing Defender
 are universal. The party-wide executor does not wrap, redirect, or reinterpret
 that event-specific proof.
 
-Settlement Normative Matrix version `2` retains all 61 cases. The approved Claim
-case remains `implementation_required`, Runtime-module-free, and unavailable to
-Runtime as `party_wide_claim_not_implemented`. The executor is not added to the
-Matrix module tuple.
+Settlement Normative Matrix version `3` retains all 61 cases and classifies the
+approved Claim as `supported_as_is`. Its implementation-module tuple names this
+executor with the private contract/adjudication and focused Historical adapter
+modules. The executor remains independent from Historical parsing, output,
+Provenance, and Settlement.
 
-Complete Evidence and proof Results remain private Retrospective values and may
-contain the exact complete Deal. No private Card is attached to an existing
-public value. Package version `0.16.0`, Public API contract version `1`, seven
-Root workflows, one Console Script, 63 Schemas and Packaged Schema Resources,
-six Session examples, and 85 generated outputs remain unchanged.
+Complete Evidence and private proof Results remain Retrospective values and may
+contain the exact complete Deal. The Historical output exposes only assignment,
+counters, and one diagnostic decisive line, without remaining hands, exact state,
+memo table, or complete proof tree. Package version `0.16.0`, Public API contract
+version `1`, seven Root workflows, one Console Script, and six Session examples
+remain unchanged. The unreleased working baseline has 65 authoritative and
+packaged Schemas and 88 generated outputs; the published `v0.16.0` baseline
+remains 63 and 85 respectively.
 
-## Remaining work
-
-Separate later work is still required for:
-
-1. Runtime Claim input and GameShortening integration;
-2. a Retrospective Historical Claim ending;
-3. any Public API, CLI, Schema, Session, Match Capture, Corpus, example,
-   generated-output, Provenance, Confidence, Recommendation, or Coaching
-   exposure.
+## Integration boundary
 
 Issue #185 separately completes private valid-proof adjudication and existing
-Game Result, level, Overbid, and Final Settlement composition. It does not change
-this executor or execute proof again. See [Party-wide Claim
-adjudication](party_wide_claim_adjudication.md).
+Game Result, level, Overbid, and Final Settlement composition. Issue #186 adds
+the Retrospective Historical ending, strict Schemas, diagnostic public summary,
+Provenance, CLI/example/generated-output coverage, and downstream Historical
+compatibility without changing this executor or executing proof again.
+
+Flat `GameShortening`, live Position, Session, Match Capture, and Corpus Claim
+entry remain absent. See [Party-wide Claim adjudication](party_wide_claim_adjudication.md)
+and [Historical party-wide Claim](historical_party_wide_claim.md).

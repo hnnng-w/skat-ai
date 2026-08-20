@@ -1,8 +1,9 @@
 # Game-end handling
 
 This document explains normal completion, structured concessions and exposure,
-bounded defender open play, open-card throwing, continuation chains, legacy
-claim/concession assignment, and impossible Null.
+bounded defender open play, open-card throwing, the Historical-only party-wide
+Claim, continuation chains, legacy claim/concession assignment, and impossible
+Null.
 
 ## Purpose
 
@@ -148,7 +149,7 @@ from the complete deal, confirms the declarer hand count, applies the same
 consent matrix and adjudicator, and preserves observed plus unresolved points.
 Snapshots, review, external-profile review, training conversion, and partition
 audits follow the exact played-card count. Statistics aggregation and rolling
-evaluation support normal completion and all five historical shortened kinds. Statistics count
+evaluation support normal completion and all six historical shortened kinds. Statistics count
 the completed record once; rolling targets evaluate only actual cards. See
 [Historical declarer concessions](historical_declarer_concessions.md).
 
@@ -200,7 +201,7 @@ declaration, overbid, Null, and settlement behavior. It does not create a
 Version 1 permits at most one non-terminal
 `declarer_card_exposure_continuation` or
 `defender_open_play_continuation` in `game_events[0]`, followed by normal
-completion or one of the five existing terminal reasons in top-level
+completion or one of the six supported terminal reasons in top-level
 `game_end_reason` and `game_end`. The terminal object is never copied into
 `game_events`, and both schema versions remain `1`.
 
@@ -307,15 +308,15 @@ declaration remains binding, requesting continuation adds no optional Schneider
 or Schwarz obligation, and actual later play determines achieved levels and the
 result. See [Defender open play continuation](defender_open_play_continuation.md).
 
-## Private party-wide Claim contracts
+## Historical party-wide Claim
 
-Issue #183 implements private structured party-wide all-remaining-Tricks Claim,
-complete Evidence, exact-state, Proof Request/preparation, assignment,
-diagnostic-line, and Result contracts. They are post-game and Retrospective only,
-require the complete Deal, exact play prefix, and optional current incomplete
-Trick state, and preserve the Matrix five-unresolved-Trick bound. The claiming
-party has existential legal choices and the opposing party has universal legal
-responses.
+Issue #186 implements `party_wide_all_remaining_tricks_claim` only through the
+existing Historical Game workflow. Its strict event contains one stable claimant
+Player ID and claiming party `declarer` or `defenders`. It is post-game and
+Retrospective only, requires the complete Deal, exact play prefix, and optional
+current incomplete Trick state, and preserves the Matrix five-unresolved-Trick
+bound. The claiming party has existential legal choices and the opposing party
+has universal legal responses.
 
 Issue #184 executes an available preparation through the retained strict
 `ExactSearchState`, canonical legal Cards, immutable exact transitions, party-
@@ -325,17 +326,20 @@ preparation passes through without execution. A valid proof has an exact proof-
 level assignment, while an invalid proof has no assignment and stops its
 diagnostic line at the first opposing-party Trick.
 
-Proof execution itself creates no ending, winner, level, Overbid result, Game
-Result, or Settlement. Issue #185's separate private adjudicator consumes one
-retained Proof Result. A valid proof receives complete unresolved point and Trick
+The Historical path performs one replay, builds Evidence from that retained
+replay, prepares and executes proof once when available, and adjudicates exactly
+one valid Result. A valid proof receives complete unresolved point and Trick
 assignment, preexisting-winner preservation, completed Suit/Grand/Null semantics,
-and one existing Final Settlement build through a private normal-completion
-projection. Invalid or unavailable proof creates a normal no-outcome Result with
-no opposing-party assignment or Settlement. Generic Search is not a Claim proof
-and provides no fallback.
+and one existing Final Settlement build through the private adjudicator. Invalid
+or unavailable proof rejects the asserted terminal record with no opposing-party
+assignment, Settlement, alternate ending, or Generic Search fallback.
 
-The private Claim end kind remains absent from Runtime and Historical unions. See
-[Party-wide Claim contracts](party_wide_claim_contracts.md), [Party-wide Claim
+The public Historical summary contains only a diagnostic decisive line,
+assignment and proof counters, and a bounded adjudication summary. Exact
+remaining hands, exact state, memo tables, and the complete AND/OR tree remain
+private. The Claim remains absent from flat `game_shortening`, live Position,
+Session, Match Capture, and Corpus entry. See [Historical party-wide
+Claim](historical_party_wide_claim.md), [Party-wide Claim contracts](party_wide_claim_contracts.md), [Party-wide Claim
 proof executor](party_wide_claim_proof_executor.md), [Party-wide Claim
 adjudication](party_wide_claim_adjudication.md), and [Claim and Settlement v1
 boundaries](claim_and_settlement_v1_boundaries.md).
@@ -391,6 +395,7 @@ Rules:
 * historical defender-open-play continuation is not a `game_end_reason`; it is a timed non-terminal `game_events` member before normal completion or one supported terminal shortening.
 * historical declarer-card-exposure continuation is likewise a timed non-terminal `game_events` member with both stable defender responses and the exact public declarer hand.
 * a shortened chain requires the continuation boundary to be no later than the final recorded play, permits equality, and reconciles the shrinking public hand with its owner's exact terminal hand.
+* a Historical party-wide Claim requires a matching strict Claim object, one through five unresolved Tricks, complete-world Evidence, and one valid exact Proof; invalid or unavailable proof rejects the record.
 * open card throw requires one concrete throwing player, the complete nonempty current thrown hand, deterministic hand-size and turn reconciliation, and neutral `not_ended` state.
 * structured game shortening cannot coexist with an active legacy end reason,
   impossible Null, list workflows, or historical workflows.
@@ -426,7 +431,7 @@ For example:
 ## Current limitations
 
 * Legacy claims and concessions still assign remaining points.
-* Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, bounded exact defender open play, and bounded open card throw.
+* Structured support covers bounded declarer and defender concessions, unanimously accepted declarer card exposure, bounded exact defender open play, bounded open card throw, and the Historical-only bounded party-wide Claim.
 * Flat continued declarer exposure and bounded defender-open-play continuation are separate ongoing workflows.
 * Multiple continuation events, arbitrary event streams, simultaneous throws,
   specific future-Trick Claims, free-text or natural-language Claims, unlimited
@@ -434,10 +439,9 @@ For example:
   defender-open-play proof beyond five unresolved Tricks are
   `not_supported_v1`.
 * Defender open play proves a bounded final adjudication; it does not simulate or create continued play.
-* Private party-wide Claim contracts, exact-state preparation, bounded
-  exhaustive proof execution, valid-proof adjudication, and existing Final
-  Settlement composition exist, but Runtime/Historical integration and public
-  exposure remain open.
+* The approved party-wide Claim and Final Settlement runtime slice is complete
+  only through Historical Game input. Flat `game_shortening`, live Position,
+  Session, Match Capture, and Corpus Claim entry remain open.
 * Claims and Final Settlement remain partially supported beyond the approved
   bounded cases. This document does not claim complete official-rule, claim,
   concession, or settlement coverage; see the

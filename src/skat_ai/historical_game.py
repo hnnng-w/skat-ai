@@ -33,6 +33,7 @@ from skat_ai.historical_game_end import (
     HISTORICAL_DEFENDER_OPEN_PLAY,
     HISTORICAL_NORMAL_COMPLETION,
     HISTORICAL_OPEN_CARD_THROW,
+    HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM,
     HistoricalGameEnd,
     build_historical_game_end,
     build_serializable_historical_game_end,
@@ -168,19 +169,13 @@ def _build_players(value: Any, game_id: str) -> tuple[HistoricalPlayer, ...]:
             optional_fields={"player_label"},
             field_name=field_name,
         )
-        player_id = _require_identifier(
-            player_data["player_id"], f"{field_name}.player_id"
-        )
+        player_id = _require_identifier(player_data["player_id"], f"{field_name}.player_id")
         player_label = player_data.get("player_label")
         if player_label is not None:
-            player_label = _require_identifier(
-                player_label, f"{field_name}.player_label"
-            )
+            player_label = _require_identifier(player_label, f"{field_name}.player_label")
         seat = player_data["seat"]
         if seat not in HISTORICAL_SEATS:
-            raise ValueError(
-                f"{field_name}.seat must be one of {list(HISTORICAL_SEATS)}."
-            )
+            raise ValueError(f"{field_name}.seat must be one of {list(HISTORICAL_SEATS)}.")
         initial_hand = _require_card_array(
             player_data["initial_hand"],
             f"{field_name}.initial_hand",
@@ -246,9 +241,7 @@ def _build_declaration(
     )
 
     game_type = declaration_data["game_type"]
-    declarer = next(
-        player for player in players if player.player_id == declarer_player_id
-    )
+    declarer = next(player for player in players if player.player_id == declarer_player_id)
     defender_cards = [
         card
         for player in players
@@ -266,23 +259,15 @@ def _build_declaration(
         "schneider_announced",
         "schwarz_announced",
     }
-    supplied_null_excluded_fields = sorted(
-        null_excluded_fields.intersection(declaration_data)
-    )
+    supplied_null_excluded_fields = sorted(null_excluded_fields.intersection(declaration_data))
     if game_type == "null" and supplied_null_excluded_fields:
         raise ValueError(
-            f"{field_name} does not allow Null metadata fields: "
-            f"{supplied_null_excluded_fields}."
+            f"{field_name} does not allow Null metadata fields: {supplied_null_excluded_fields}."
         )
     if game_type != "null":
         if inferred_matadors is None:
-            raise ValueError(
-                f"{field_name}.matadors could not be inferred from the complete deal."
-            )
-        if (
-            "matadors" in declaration_data
-            and declaration_data["matadors"] != inferred_matadors
-        ):
+            raise ValueError(f"{field_name}.matadors could not be inferred from the complete deal.")
+        if "matadors" in declaration_data and declaration_data["matadors"] != inferred_matadors:
             raise ValueError(
                 f"{field_name}.matadors={declaration_data['matadors']} conflicts with "
                 f"inferred matadors={inferred_matadors}."
@@ -310,13 +295,18 @@ def _build_tricks(
         raise ValueError(f"Historical game '{game_id}': tricks must be an array.")
     if game_end_reason == HISTORICAL_NORMAL_COMPLETION and len(value) != 10:
         raise ValueError(f"Historical game '{game_id}': tricks must contain exactly ten tricks.")
-    if game_end_reason in {
-        HISTORICAL_DECLARER_CARD_EXPOSURE,
-        HISTORICAL_DECLARER_CONCESSION,
-        HISTORICAL_DEFENDER_CONCESSION,
-        HISTORICAL_DEFENDER_OPEN_PLAY,
-        HISTORICAL_OPEN_CARD_THROW,
-    } and len(value) > 10:
+    if (
+        game_end_reason
+        in {
+            HISTORICAL_DECLARER_CARD_EXPOSURE,
+            HISTORICAL_DECLARER_CONCESSION,
+            HISTORICAL_DEFENDER_CONCESSION,
+            HISTORICAL_DEFENDER_OPEN_PLAY,
+            HISTORICAL_OPEN_CARD_THROW,
+            HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM,
+        }
+        and len(value) > 10
+    ):
         raise ValueError(
             f"Historical game '{game_id}': a shortened play prefix may "
             "contain at most ten trick entries."
@@ -340,24 +330,20 @@ def _build_tricks(
             or supplied_trick_number != trick_number
         ):
             raise ValueError(
-                f"{field_name}.trick_number must be {trick_number}, "
-                f"got {supplied_trick_number}."
+                f"{field_name}.trick_number must be {trick_number}, got {supplied_trick_number}."
             )
         leader_player_id = _require_identifier(
             trick_data["leader_player_id"], f"{field_name}.leader_player_id"
         )
         raw_plays = trick_data["plays"]
-        expected_play_counts = (
-            {3} if game_end_reason == HISTORICAL_NORMAL_COMPLETION else {1, 2, 3}
-        )
+        expected_play_counts = {3} if game_end_reason == HISTORICAL_NORMAL_COMPLETION else {1, 2, 3}
         if not isinstance(raw_plays, list) or len(raw_plays) not in expected_play_counts:
             if game_end_reason == HISTORICAL_NORMAL_COMPLETION:
                 raise ValueError(f"{field_name}.plays must contain exactly three plays.")
             raise ValueError(f"{field_name}.plays must contain one, two, or three plays.")
         if len(raw_plays) < 3 and trick_index != len(value) - 1:
             raise ValueError(
-                f"{field_name} is incomplete; only the final historical trick may "
-                "be incomplete."
+                f"{field_name} is incomplete; only the final historical trick may be incomplete."
             )
 
         plays = []
@@ -370,12 +356,10 @@ def _build_tricks(
                 optional_fields=set(),
                 field_name=play_field,
             )
-            player_id = _require_identifier(
-                play_data["player_id"], f"{play_field}.player_id"
-            )
-            card = _require_card_array(
-                [play_data["card"]], f"{play_field}.card", expected_count=1
-            )[0]
+            player_id = _require_identifier(play_data["player_id"], f"{play_field}.player_id")
+            card = _require_card_array([play_data["card"]], f"{play_field}.card", expected_count=1)[
+                0
+            ]
             plays.append(HistoricalPlay(player_id=player_id, card=card))
 
         tricks.append(
@@ -388,7 +372,11 @@ def _build_tricks(
     return tuple(tricks)
 
 
-def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
+def build_historical_game_record(
+    data: dict[str, Any],
+    *,
+    validate_game_event_chain: bool = True,
+) -> HistoricalGameRecord:
     """Builds and validates one canonical complete historical game record."""
     _require_exact_fields(
         data,
@@ -421,9 +409,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         played_at = _require_identifier(played_at, f"Historical game '{game_id}' played_at")
         parse_rfc3339_datetime(played_at, f"Historical game '{game_id}' played_at")
     players = _build_players(data["players"], game_id)
-    skat = _require_card_array(
-        data["skat"], f"Historical game '{game_id}' skat", expected_count=2
-    )
+    skat = _require_card_array(data["skat"], f"Historical game '{game_id}' skat", expected_count=2)
     _validate_complete_deal(players, skat, game_id)
 
     declarer_player_id = _require_identifier(
@@ -441,9 +427,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
     discarded_cards = _require_card_array(
         data["discarded_cards"], f"Historical game '{game_id}' discarded_cards"
     )
-    declarer = next(
-        player for player in players if player.player_id == declarer_player_id
-    )
+    declarer = next(player for player in players if player.player_id == declarer_player_id)
     if declaration.hand_game:
         if discarded_cards:
             raise ValueError(
@@ -452,8 +436,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
     else:
         if len(discarded_cards) != 2:
             raise ValueError(
-                f"Historical game '{game_id}': non-Hand games require exactly two "
-                "discarded_cards."
+                f"Historical game '{game_id}': non-Hand games require exactly two discarded_cards."
             )
         available_to_declarer = set((*declarer.initial_hand, *skat))
         unavailable_discards = sorted(set(discarded_cards) - available_to_declarer)
@@ -499,7 +482,7 @@ def build_historical_game_record(data: dict[str, Any]) -> HistoricalGameRecord:
         game_events=game_events,
         tricks=tricks,
     )
-    if record.game_events:
+    if record.game_events and validate_game_event_chain:
         build_historical_game_event_chain_context(record)
     return record
 
@@ -541,10 +524,7 @@ def build_serializable_historical_record(
             {
                 "trick_number": trick.trick_number,
                 "leader_player_id": trick.leader_player_id,
-                "plays": [
-                    {"player_id": play.player_id, "card": play.card}
-                    for play in trick.plays
-                ],
+                "plays": [{"player_id": play.player_id, "card": play.card} for play in trick.plays],
             }
             for trick in record.tricks
         ],
@@ -553,8 +533,7 @@ def build_serializable_historical_record(
         result["game_end"] = build_serializable_historical_game_end(record.game_end)
     if record.game_events:
         result["game_events"] = [
-            build_serializable_historical_game_event(event)
-            for event in record.game_events
+            build_serializable_historical_game_event(event) for event in record.game_events
         ]
     if record.played_at is not None:
         result["played_at"] = record.played_at
@@ -565,9 +544,7 @@ def _derive_tricks(
     record: HistoricalGameRecord,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     replay = replay_historical_play_prefix(record)
-    derived_tricks = [
-        build_serializable_derived_trick(trick) for trick in replay.completed_tricks
-    ]
+    derived_tricks = [build_serializable_derived_trick(trick) for trick in replay.completed_tricks]
     scoring_tricks = [
         {
             "cards": [card for _, card in trick.plays],
@@ -596,16 +573,19 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         HISTORICAL_DEFENDER_CONCESSION,
         HISTORICAL_DEFENDER_OPEN_PLAY,
         HISTORICAL_OPEN_CARD_THROW,
+        HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM,
     }:
         replay = replay_historical_play_prefix(record)
-        if replay.played_card_count >= 30:
+        if (
+            replay.played_card_count >= 30
+            and record.game_end_reason != HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM
+        ):
             raise ValueError(
                 f"Historical game '{record.game_id}': a shortened event cannot "
                 "occur after all 30 playable cards were played."
             )
         derived_tricks = [
-            build_serializable_derived_trick(trick)
-            for trick in replay.completed_tricks
+            build_serializable_derived_trick(trick) for trick in replay.completed_tricks
         ]
         chain_context = None
         if record.game_events:
@@ -621,6 +601,12 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
             adjudicated_end = adjudicate_historical_defender_open_play(record, replay)
         elif record.game_end_reason == HISTORICAL_OPEN_CARD_THROW:
             adjudicated_end = adjudicate_historical_open_card_throw(record, replay)
+        elif record.game_end_reason == HISTORICAL_PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM:
+            from skat_ai.historical_party_wide_claim import (
+                adjudicate_historical_party_wide_claim,
+            )
+
+            adjudicated_end = adjudicate_historical_party_wide_claim(record, replay)
         else:
             adjudicated_end = adjudicate_historical_declarer_card_exposure(record, replay)
         result = {
@@ -634,24 +620,18 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         if record.played_at is not None:
             result["played_at"] = record.played_at
         if chain_context is not None:
-            result["historical_game_events_summary"] = (
-                build_historical_game_events_summary(
-                    record,
-                    chain_context=chain_context,
-                )
+            result["historical_game_events_summary"] = build_historical_game_events_summary(
+                record,
+                chain_context=chain_context,
             )
         return result
 
     derived_tricks, scoring_tricks = _derive_tricks(record)
     declarer_trick_points = sum(
-        trick["trick_points"]
-        for trick in derived_tricks
-        if trick["winner_side"] == "declarer"
+        trick["trick_points"] for trick in derived_tricks if trick["winner_side"] == "declarer"
     )
     defender_trick_points = sum(
-        trick["trick_points"]
-        for trick in derived_tricks
-        if trick["winner_side"] == "defenders"
+        trick["trick_points"] for trick in derived_tricks if trick["winner_side"] == "defenders"
     )
     final_skat = record.skat if record.declaration.hand_game else record.discarded_cards
     skat_points = sum(get_card_points(card) for card in final_skat)
@@ -702,14 +682,10 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
 
     is_null_game = record.declaration.game_type == "null"
     schneider_status = (
-        "not_applicable"
-        if is_null_game
-        else game_result_summary["effective_schneider_status"]
+        "not_applicable" if is_null_game else game_result_summary["effective_schneider_status"]
     )
     schwarz_status = (
-        "not_applicable"
-        if is_null_game
-        else get_completed_trick_schwarz_status(scoring_tricks)
+        "not_applicable" if is_null_game else get_completed_trick_schwarz_status(scoring_tricks)
     )
 
     result = {
@@ -732,9 +708,7 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
         "final_settlement_summary": final_settlement_summary,
     }
     if record.game_events:
-        result["historical_game_events_summary"] = (
-            build_historical_game_events_summary(record)
-        )
+        result["historical_game_events_summary"] = build_historical_game_events_summary(record)
     if record.played_at is not None:
         result["played_at"] = record.played_at
     return result
@@ -742,4 +716,6 @@ def build_historical_game_summary(record: HistoricalGameRecord) -> dict[str, Any
 
 def build_historical_game_summary_from_input(data: dict[str, Any]) -> dict[str, Any]:
     """Builds one historical summary directly from the nested public input object."""
-    return build_historical_game_summary(build_historical_game_record(data))
+    return build_historical_game_summary(
+        build_historical_game_record(data, validate_game_event_chain=False)
+    )

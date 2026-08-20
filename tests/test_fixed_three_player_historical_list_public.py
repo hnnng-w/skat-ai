@@ -96,6 +96,7 @@ SCHEMAS = {
         "historical_declarer_card_exposure.schema.json",
         "historical_defender_open_play.schema.json",
         "historical_open_card_throw.schema.json",
+        "historical_party_wide_claim.schema.json",
         "historical_defender_open_play_continuation_event.schema.json",
         "historical_declarer_card_exposure_continuation_event.schema.json",
     )
@@ -456,7 +457,7 @@ def test_public_list_cli_rejects_each_non_file_option(
 
 
 def test_generated_output_matrix_appends_exactly_three_list_scenarios() -> None:
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88
     assert tuple(scenario.name for scenario in SCENARIOS[64:67]) == (
         "fixed_three_player_historical_list_mixed",
         "fixed_three_player_historical_list_all_passed",

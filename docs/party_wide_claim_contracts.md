@@ -3,24 +3,24 @@
 ## Status and scope
 
 Issue #183 implements private immutable version-1 contracts and exact-state
-preparation for the one Claim approved by Settlement Normative Matrix version
-`2`:
+preparation for the one Claim approved by the Settlement Normative Matrix:
 
 ```text
 party_wide_all_remaining_tricks_claim
 ```
 
 The Claim means that the complete claiming party can force ownership of every
-unresolved Trick. It is structured, Retrospective, complete-world, post-game
-only, and private. It is not accepted by an existing Runtime input, Historical
-ending, Public API, Schema, CLI, Session, Match Capture, example, or generated
-scenario.
+unresolved Trick. It is structured, Retrospective, complete-world, and post-game
+only. Issue #186 accepts its strict public event only as a terminal Historical
+Game ending and exposes a privacy-bounded diagnostic result through the existing
+Historical Root workflow.
 
 Issue #184 adds a separate private bounded exhaustive exact proof executor over
 the prepared state. Issue #185 adds separate private valid-proof adjudication and
-existing Final Settlement composition. Runtime and Historical integration and
-any public exposure remain open. Claims and Final Settlement remain partially
-supported.
+existing Final Settlement composition. Issue #186 composes those unchanged
+private layers exactly once from one retained Historical replay. Flat Position,
+Session, Match Capture, and Corpus Claim entry remain absent. Claims and Final
+Settlement remain partially supported beyond the approved bounded case.
 
 ## Independent versions
 
@@ -36,8 +36,9 @@ PARTY_WIDE_CLAIM_PROOF_RESULT_VERSION = 1
 ```
 
 These versions do not change Package version `0.16.0`, Public API contract
-version `1`, Matrix version `2`, Historical version `1`, Search, Dataset,
-Provenance, Schema, or other Domain versions.
+version `1`, Historical version `1`, Search, Dataset, Provenance, or other Domain
+versions. Issue #186 updates the independent Matrix to version `3` and adds
+independent Historical Claim input and summary version `1` contracts.
 
 The separate executor has independent version:
 
@@ -119,11 +120,13 @@ It validates and retains:
 * no Discards for Hand or exactly two legal Declarer Discards for non-Hand;
 * zero through 30 chronological observed Plays as exact Historical Tricks.
 
-The builder calls `replay_historical_play_prefix()` exactly once. That existing
-replay remains authoritative for ownership, play order, Bedienpflicht,
-completed-Trick winners and points, the current incomplete Trick, next Player,
-remaining hands, played-Card count, and complete Card accounting. No Historical
-Game ending is required or created.
+The standalone Issue #183 builder calls `replay_historical_play_prefix()` exactly
+once. Issue #186's focused Historical adapter instead receives the one replay
+already retained by the Historical workflow and builds the same validated
+Evidence without replaying. The retained replay remains authoritative for
+ownership, play order, Bedienpflicht, completed-Trick winners and points, the
+current incomplete Trick, next Player, remaining hands, played-Card count, and
+complete Card accounting.
 
 The Evidence derives:
 
@@ -239,7 +242,7 @@ opposing responses. One counterexample line is not a complete negated-strategy
 certificate. The executor establishes the complete quantified Result
 independently through exhaustive memoized traversal.
 
-## Search, Runtime, and privacy boundaries
+## Search, Historical Runtime, and privacy boundaries
 
 The dedicated proof policy is
 `dedicated_exact_claim_proof_without_search_fallback`. Generic Search,
@@ -247,30 +250,29 @@ Compatible Worlds, hidden-card inference, Immediate Analysis, Recommendation,
 Coaching, legacy remaining-point assignment, and generative adjudication are not
 fallbacks and do not establish this Claim.
 
-The Matrix case remains `implementation_required`, has empty
-`implementation_modules`, and retains Matrix unavailable reason
-`party_wide_claim_not_implemented`. The private contract, executor, and
-adjudication modules do not make the Runtime case executable and are not Matrix
-implementation modules. `GameShortening`, Historical endings/events, public Game
-Result and Final Settlement contracts, Public API, CLI, Schemas, examples,
-generated scenarios, Search, Coaching, Provenance, and Package metadata remain
-unchanged.
+Matrix version `3` classifies the case as `supported_as_is`, names the private and
+Historical integration modules, and has no Runtime unavailable reason.
+`GameShortening`, flat Position input, Search, and Package metadata remain
+unchanged. The existing Historical Root workflow owns the strict public event,
+diagnostic output, Provenance, CLI, example, generated scenarios, Review,
+Coaching, Dataset, list, and statistics integration.
 
 Evidence and exact-state serialization is deterministic, defensive, and
 private. It intentionally contains the complete Deal and ownership required by
-the contract. No existing public value receives those Cards, and no public
-redaction or export contract is added.
+the contract. Public Historical output does not duplicate exact remaining hands,
+exact state, memo tables, or the complete AND/OR tree outside the caller-supplied
+canonical record.
 
-## Remaining work
+## Integration status
 
 Issues #184 and #185 complete exhaustive party-wide proof traversal, private
-valid-proof adjudication, and existing Final Settlement composition. Later
-independently reviewed work must:
-
-1. integrate a Runtime Claim and Historical Claim ending;
-2. separately decide any Public API, Schema, CLI, Session, Match Capture,
-   example, generated-output, or Provenance exposure.
+valid-proof adjudication, and existing Final Settlement composition. Issue #186
+completes the approved bounded Historical runtime slice. Session Claim Commands,
+Session Historical export, Match Capture/Workspace entry, automatic capture, and
+Learning Corpus Claim sources remain open. Broader Claim boundaries remain
+`not_supported_v1`, and complete official Claim coverage is not claimed.
 
 See [Party-wide Claim proof executor](party_wide_claim_proof_executor.md) for the
 execution method, terminal ordering, quantifiers, memoization, counters,
-Representative Lines, and compatibility boundaries.
+Representative Lines, and compatibility boundaries. See [Historical party-wide
+Claim](historical_party_wide_claim.md) for the public Historical contract.

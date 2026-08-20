@@ -74,8 +74,8 @@ from skat_ai.party_wide_claim_proof_contracts import (
 from skat_ai.party_wide_claim_proof_executor import execute_party_wide_claim_proof_v1
 from skat_ai.rules import get_card_points
 from skat_ai.settlement_normative_matrix import (
-    IMPLEMENTATION_REQUIRED,
     SETTLEMENT_NORMATIVE_MATRIX_VERSION,
+    SUPPORTED_AS_IS,
     V1_NOT_SUPPORTED_CLAIM_CASE_IDS,
     get_normative_settlement_case,
     get_normative_settlement_cases,
@@ -1381,16 +1381,21 @@ def test_no_proof_search_io_logging_or_public_surface_is_added() -> None:
     assert not hasattr(skat_ai, "PartyWideClaimAdjudicationResultV1")
 
 
-def test_matrix_runtime_historical_public_and_artifact_boundaries_are_unchanged() -> None:
+def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() -> None:
     cases = get_normative_settlement_cases()
     claim_case = get_normative_settlement_case(
         "claim_boundary.decision.party_wide_all_remaining_tricks_claim"
     )
-    assert SETTLEMENT_NORMATIVE_MATRIX_VERSION == 2
+    assert SETTLEMENT_NORMATIVE_MATRIX_VERSION == 3
     assert len(cases) == 61
-    assert claim_case.implementation_status == IMPLEMENTATION_REQUIRED
-    assert claim_case.implementation_modules == ()
-    assert claim_case.stable_unavailable_reason == "party_wide_claim_not_implemented"
+    assert claim_case.implementation_status == SUPPORTED_AS_IS
+    assert claim_case.implementation_modules == (
+        "skat_ai.historical_game_end",
+        "skat_ai.historical_party_wide_claim",
+        "skat_ai.party_wide_claim_proof_executor",
+        "skat_ai.party_wide_claim_adjudication",
+    )
+    assert claim_case.stable_unavailable_reason is None
     assert len(V1_NOT_SUPPORTED_CLAIM_CASE_IDS) == 13
     assert _runtime_union_kinds(GameShortening) == {
         "declarer_card_exposure",
@@ -1404,17 +1409,17 @@ def test_matrix_runtime_historical_public_and_artifact_boundaries_are_unchanged(
         "defender_open_play_continuation",
     }
     assert "party_wide_all_remaining_tricks_claim" not in VALID_GAME_END_REASONS
-    assert "party_wide_all_remaining_tricks_claim" not in HISTORICAL_GAME_END_REASONS
+    assert "party_wide_all_remaining_tricks_claim" in HISTORICAL_GAME_END_REASONS
     assert len(tuple(WorkflowV1)) == 7
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 63
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
     assert (
         len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
-        == 63
+        == 65
     )
     assert {path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")} == (
         SESSION_EXAMPLE_NAMES
     )
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88
     with (PROJECT_ROOT / "pyproject.toml").open("rb") as file:
         project = tomllib.load(file)["project"]
     assert project["version"] == skat_ai.__version__ == "0.16.0"

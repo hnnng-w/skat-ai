@@ -2,24 +2,28 @@
 
 ## Decision status
 
-Issue #182 closes the remaining v1 product-decision gate for Claims and updates
-the internal Settlement Normative Matrix to version `2`. Issue #183 implements
+Issue #182 closes the remaining v1 product-decision gate for Claims. Issue #183 implements
 private version-1 structured Claim, exact Evidence, exact-state, Proof Request,
 preparation, assignment, diagnostic-line, and Result contracts for that one
 approved direction. Issue #184 implements its separate private bounded exhaustive
 exact AND/OR proof executor. Issue #185 implements private valid-proof
-adjudication and existing Final Settlement composition. Every other currently
-known unresolved Claim boundary remains `not_supported_v1`.
+adjudication and existing Final Settlement composition. Issue #186 updates the
+Settlement Normative Matrix to version `3` and integrates the approved Claim as
+one terminal Historical Game ending with strict input/output Schemas, complete
+Provenance, CLI presentation, Review/Coaching, Dataset, list, and statistics
+compatibility. Every other currently known unresolved Claim boundary remains
+`not_supported_v1`.
 
-The repository still has no party-wide Claim Runtime union member, Historical
-Claim record, Runtime Settlement integration, Schema, Public API, CLI option,
-example, or generated scenario. Claims and Final Settlement remain
-`partially_supported`. Complete official-rule, Claim, concession, or Settlement
+The approved structured Claim and Final Settlement runtime slice is complete
+through the existing `historical_game` Root workflow. It remains absent from
+flat `game_shortening`, live Position input, Session, Match Capture, and Learning
+Corpus entry. Claims and Final Settlement remain `partially_supported` beyond
+this bounded case. Complete official-rule, Claim, concession, or Settlement
 coverage is not claimed.
 
 ## Approved Claim
 
-The only implementation-required Claim case is:
+The only v1-supported Claim case is:
 
 ```text
 claim_boundary.decision.party_wide_all_remaining_tricks_claim
@@ -28,12 +32,12 @@ claim_boundary.decision.party_wide_all_remaining_tricks_claim
 Its matrix contract is:
 
 ```text
-implementation_status: implementation_required
+implementation_status: supported_as_is
 interpretation_scope: approved_bounded
 evidence_class: bounded_exact_proof
 proof_policy: party_wide_all_remaining_tricks_claim_v1
 proof_maximum_unresolved_tricks: 5
-stable_unavailable_reason: party_wide_claim_not_implemented
+stable_unavailable_reason: null
 ```
 
 The structured Claim means exactly:
@@ -65,8 +69,10 @@ and reconcile all of the following:
 The claimant Player belongs to the declared claiming party. All Cards,
 hands, the current Trick, the play prefix, completed Tricks, Skat, and Discards
 reconcile as one exact legal Game state. The private values serialize
-deterministically but define no public Schema, identifier, or transport. See
-[Party-wide Claim contracts](party_wide_claim_contracts.md).
+deterministically and remain engine-private. Issue #186 exposes only strict
+Historical Claim input and privacy-bounded output summaries. See [Party-wide
+Claim contracts](party_wide_claim_contracts.md) and [Historical party-wide
+Claim](historical_party_wide_claim.md).
 
 ## Evidence scope
 
@@ -124,7 +130,8 @@ Issue #185's private adjudicator composes one complete valid proof by:
 
 It records complete immutable Facts and a private completed Game Result, then
 uses an ephemeral normal-completion projection to call the existing Final
-Settlement builder once. This does not create a Runtime or Historical ending.
+Settlement builder once. Issue #186 reuses those retained values directly in the
+terminal Historical output and does not build Settlement again.
 
 The proof assigns the unresolved Game state to the claiming party. It does not
 invent a different declaration, corrected play sequence, or replacement
@@ -159,9 +166,10 @@ no fallback to:
 * generative adjudication.
 
 An unavailable preparation passes through without execution. A caller that
-deliberately declines to invoke the executor for an available request may still
-use `party_wide_claim_proof_not_executed`. The separate approved Matrix case
-retains stable Runtime reason `party_wide_claim_not_implemented`.
+deliberately declines to invoke the executor for an available private request may
+still use `party_wide_claim_proof_not_executed`. The Historical terminal path
+does not permit that choice: unavailable preparation rejects the record, and an
+available preparation executes proof exactly once.
 
 ## Search separation
 
@@ -231,7 +239,7 @@ These are durable v1 exclusions, not unconditional permanent exclusions and not
 post-v1 implementation promises. A later post-v1 audit may reconsider them.
 Four-player tables remain the repository's only unconditional exclusion.
 
-## Later implementation sequence
+## Implemented sequence
 
 Later Issues must keep the implementation steps explicit and independently
 reviewable:
@@ -248,9 +256,11 @@ reviewable:
 4. Integrate existing result, level, overbid, and Final Settlement behavior while
    retaining no-outcome semantics for invalid and unavailable proof. Issue #185
    completes this private composition step.
-5. Add the exact Retrospective Historical ending and information-safe output,
-   then separately decide any Schema, Public API, CLI, Session, Match Capture,
-   example, generated-output, or Provenance exposure.
+5. Add the exact Retrospective Historical ending, strict Schemas,
+   information-safe output, public Provenance, CLI/example/generated-output
+   coverage, and downstream Historical compatibility. Issue #186 completes this
+   step without adding flat Position, Session, Match Capture, or Corpus entry.
 
-Step 5 remains open. The approved case remains unavailable to Runtime and Claims
-and Final Settlement remain partially supported.
+The approved bounded v1 Claim and Final Settlement runtime slice is complete.
+Claims and Final Settlement remain partially supported only beyond this bounded
+case. See [Historical party-wide Claim](historical_party_wide_claim.md).

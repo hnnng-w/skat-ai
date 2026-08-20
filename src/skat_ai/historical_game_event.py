@@ -19,14 +19,13 @@ from skat_ai.historical_defender_open_play_continuation import (
 )
 from skat_ai.historical_play_prefix import (
     HistoricalReplayState,
+    derive_historical_state_at_play_boundary_from_retained_replay,
     replay_historical_play_prefix,
-    replay_historical_state_at_play_boundary,
 )
 
 HISTORICAL_GAME_EVENTS_SCHEMA_VERSION = 1
 type HistoricalGameEvent = (
-    HistoricalDefenderOpenPlayContinuationEvent
-    | HistoricalDeclarerCardExposureContinuationEvent
+    HistoricalDefenderOpenPlayContinuationEvent | HistoricalDeclarerCardExposureContinuationEvent
 )
 
 
@@ -59,8 +58,7 @@ def build_historical_game_events(
         return ()
     if not isinstance(value, list) or len(value) != 1:
         raise ValueError(
-            f"Historical game '{game_id}': game_events must contain exactly one "
-            "event when present."
+            f"Historical game '{game_id}': game_events must contain exactly one event when present."
         )
     if (game_end_reason == "normal_completion") == has_game_end:
         raise ValueError(
@@ -91,8 +89,7 @@ def build_historical_game_events(
             ),
         )
     raise ValueError(
-        f"Historical game '{game_id}': unsupported historical game event kind "
-        f"'{event_kind}'."
+        f"Historical game '{game_id}': unsupported historical game event kind '{event_kind}'."
     )
 
 
@@ -123,8 +120,9 @@ def build_historical_game_event_chain_context(
             f"{final_play_count}."
         )
 
-    continuation_replay = replay_historical_state_at_play_boundary(
+    continuation_replay = derive_historical_state_at_play_boundary_from_retained_replay(
         record,
+        replay,
         event.after_play_count,
     )
     all_plays = tuple(
@@ -202,9 +200,7 @@ def build_serializable_historical_game_event(
         }
     exposure = {"form": event.exposure.form}
     if event.exposure.shown_to_defender_player_id is not None:
-        exposure["shown_to_defender_player_id"] = (
-            event.exposure.shown_to_defender_player_id
-        )
+        exposure["shown_to_defender_player_id"] = event.exposure.shown_to_defender_player_id
     return {
         "schema_version": event.schema_version,
         "kind": event.kind,

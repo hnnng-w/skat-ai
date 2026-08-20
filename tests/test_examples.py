@@ -71,6 +71,7 @@ def get_position_example_json_files() -> list[Path]:
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
             "historical_null_replay_coaching.json",
+            "historical_party_wide_claim.json",
             "historical_opponent_policy_evaluation_dataset.json",
             "historical_opponent_statistics.json",
             "opponent_statistics.json",
@@ -92,7 +93,7 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88
     assert tuple(scenario.name for scenario in SCENARIOS[:70]) == (
         "normal_local_live",
         "quiet_json_output",
@@ -179,7 +180,7 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
         "field_provenance_fixed_three_player_historical_list",
         "field_provenance_fixed_three_player_historical_list_comparison",
     )
-    assert tuple(scenario.name for scenario in SCENARIOS[77:]) == (
+    assert tuple(scenario.name for scenario in SCENARIOS[77:85]) == (
         "session_live_create",
         "session_live_apply_and_resume",
         "session_live_analyze_with_checkpoint",
@@ -189,12 +190,18 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
         "session_retrospective_export",
         "session_retrospective_finalize",
     )
+    assert tuple(scenario.name for scenario in SCENARIOS[85:]) == (
+        "historical_party_wide_claim_declarer_suit",
+        "historical_party_wide_claim_defenders_null_incomplete_trick",
+        "historical_continuation_then_party_wide_claim",
+    )
     assert all(not scenario.include_provenance for scenario in SCENARIOS[:70])
     assert all(scenario.include_provenance for scenario in SCENARIOS[70:77])
     assert all(scenario.session_orchestration is None for scenario in SCENARIOS[:77])
-    assert all(
-        scenario.session_orchestration is not None for scenario in SCENARIOS[77:]
-    )
+    assert all(scenario.session_orchestration is not None for scenario in SCENARIOS[77:85])
+    assert all(scenario.session_orchestration is None for scenario in SCENARIOS[85:])
+    assert SCENARIOS[85].include_provenance is True
+    assert all(not scenario.include_provenance for scenario in SCENARIOS[86:])
 
 
 def test_examples_folder_contains_json_files() -> None:
@@ -204,11 +211,7 @@ def test_examples_folder_contains_json_files() -> None:
 
 
 def test_examples_folder_contains_exactly_six_session_examples() -> None:
-    names = {
-        path.name
-        for path in get_example_json_files()
-        if path.name.startswith("session_")
-    }
+    names = {path.name for path in get_example_json_files() if path.name.startswith("session_")}
 
     assert names == SESSION_EXAMPLE_NAMES
 
@@ -245,6 +248,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "historical_grand_normal_completion.json",
             "historical_grand_ouvert_review.json",
             "historical_null_replay_coaching.json",
+            "historical_party_wide_claim.json",
         }:
             record = load_historical_game_from_json(str(example_file))
             assert record.game_id.startswith("historical-")
@@ -270,9 +274,7 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "training_dataset_preparation_unseen_player.json",
             "training_dataset_preparation_unavailable.json",
         }:
-            request = load_training_dataset_preparation_request_from_json(
-                str(example_file)
-            )
+            request = load_training_dataset_preparation_request_from_json(str(example_file))
             assert request.preparation_version == 1
             continue
         if example_file.name in {
@@ -286,16 +288,12 @@ def test_all_example_json_files_can_be_loaded_and_validated() -> None:
             "fixed_three_player_historical_list_mixed.json",
             "fixed_three_player_historical_list_all_passed.json",
         }:
-            request = load_fixed_three_player_historical_list_request_from_json(
-                str(example_file)
-            )
+            request = load_fixed_three_player_historical_list_request_from_json(str(example_file))
             assert len(request.historical_list.entries) == 36
             continue
         if example_file.name == "fixed_three_player_historical_list_comparison.json":
-            request = (
-                load_fixed_three_player_historical_list_comparison_request_from_json(
-                    str(example_file)
-                )
+            request = load_fixed_three_player_historical_list_comparison_request_from_json(
+                str(example_file)
             )
             assert len(request.lists) == 2
             continue
@@ -496,9 +494,7 @@ def test_variable_length_training_dataset_example_builds_fourteen_samples() -> N
     assert summary["record_count"] == 1
     assert summary["sample_count"] == 14
     assert summary["records"][0]["sample_count"] == 14
-    assert summary["records"][0]["historical_game"]["game_end_reason"] == (
-        "declarer_concession"
-    )
+    assert summary["records"][0]["historical_game"]["game_end_reason"] == ("declarer_concession")
     assert [sample["sample_id"] for sample in summary["records"][0]["samples"]] == [
         f"concession-record-001:{index}" for index in range(1, 15)
     ]

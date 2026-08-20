@@ -74,9 +74,11 @@ EXPECTED_CASE_IDS = (
     "structured_shortening.open_card_throw.undecided_uncovered_requirement",
 )
 
-EXPECTED_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS = (
+EXPECTED_SUPPORTED_CLAIM_CASE_IDS = (
     "claim_boundary.decision.party_wide_all_remaining_tricks_claim",
 )
+
+EXPECTED_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS: tuple[str, ...] = ()
 
 EXPECTED_NOT_SUPPORTED_CLAIM_CASE_IDS = (
     "claim_boundary.decision.generalized_non_jack_open_throw_exclusion",
@@ -123,7 +125,7 @@ def test_matrix_version_order_identity_and_lookup_are_stable() -> None:
     cases = matrix.get_normative_settlement_cases()
     case_ids = tuple(case.case_id for case in cases)
 
-    assert matrix.SETTLEMENT_NORMATIVE_MATRIX_VERSION == 2
+    assert matrix.SETTLEMENT_NORMATIVE_MATRIX_VERSION == 3
     assert cases is matrix.get_normative_settlement_cases()
     assert case_ids == EXPECTED_CASE_IDS
     assert case_ids == tuple(sorted(case_ids))
@@ -172,9 +174,7 @@ def test_every_enum_like_value_is_stable_and_represented(
     field_name: str,
     valid_values: frozenset[str],
 ) -> None:
-    represented = {
-        getattr(case, field_name) for case in matrix.get_normative_settlement_cases()
-    }
+    represented = {getattr(case, field_name) for case in matrix.get_normative_settlement_cases()}
 
     assert represented <= valid_values
     assert represented
@@ -252,12 +252,8 @@ def test_invalid_status_policy_combinations_are_rejected() -> None:
         "claim_boundary.decision.specific_future_trick_count_claim": {
             "winner_policy": matrix.FORCE_DECLARER
         },
-        "claim_boundary.excluded.free_text_claims": {
-            "implementation_modules": ("skat_ai.future",)
-        },
-        "completion.normal.null.plain": {
-            "level_policy": matrix.NORMAL_ACHIEVED_LEVELS
-        },
+        "claim_boundary.excluded.free_text_claims": {"implementation_modules": ("skat_ai.future",)},
+        "completion.normal.null.plain": {"level_policy": matrix.NORMAL_ACHIEVED_LEVELS},
         "ongoing.not_ended": {"settlement_policy": matrix.NORMAL_SETTLEMENT},
         "structured_shortening.defender_open_play_continuation": {
             "terminal_effect": matrix.TERMINAL
@@ -266,9 +262,7 @@ def test_invalid_status_policy_combinations_are_rejected() -> None:
             "proof_policy": matrix.DEFENDER_OPEN_PLAY_V1,
             "proof_quantifiers": matrix.DEFENDER_OPEN_PLAY_V1_QUANTIFIERS,
         },
-        "legacy.declarer_claimed_remaining_tricks": {
-            "interpretation_scope": matrix.DIRECT_RULE
-        },
+        "legacy.declarer_claimed_remaining_tricks": {"interpretation_scope": matrix.DIRECT_RULE},
         "structured_shortening.defender_concession.preexisting": {
             "winner_policy": matrix.FORCE_DECLARER
         },
@@ -297,8 +291,9 @@ def test_every_runtime_game_shortening_kind_has_a_supported_matrix_case() -> Non
 def test_every_historical_terminal_kind_has_a_supported_matrix_case() -> None:
     represented = {
         case.game_end_kind
-        for case in _cases_for_family("historical_terminal")
+        for case in matrix.get_normative_settlement_cases()
         if case.implementation_status == matrix.SUPPORTED_AS_IS
+        and case.game_end_kind in HISTORICAL_GAME_END_REASONS
     }
 
     assert represented == HISTORICAL_GAME_END_REASONS
@@ -347,9 +342,7 @@ def test_normal_completion_and_impossible_null_are_explicit() -> None:
         "null_hand_ouvert",
     }
     assert all(case.game_end_kind == "normal_completion" for case in normal_cases)
-    assert {
-        case.overbid_policy for case in impossible_cases
-    } == {
+    assert {case.overbid_policy for case in impossible_cases} == {
         matrix.IMPOSSIBLE_NULL_EXTERNAL_REPLACEMENT,
         matrix.UNSUPPORTED_WITHOUT_REQUIRED_INPUT,
     }
@@ -381,14 +374,10 @@ def test_proof_policies_are_unique_to_their_approved_boundaries() -> None:
         if case.proof_policy != matrix.NO_PROOF
     )
     defender_proofs = tuple(
-        case
-        for case in proof_cases
-        if case.proof_policy == matrix.DEFENDER_OPEN_PLAY_V1
+        case for case in proof_cases if case.proof_policy == matrix.DEFENDER_OPEN_PLAY_V1
     )
     open_throw_proofs = tuple(
-        case
-        for case in proof_cases
-        if case.proof_policy == matrix.OPEN_THROW_JACK_EXCLUSION_V1
+        case for case in proof_cases if case.proof_policy == matrix.OPEN_THROW_JACK_EXCLUSION_V1
     )
     party_wide_proofs = tuple(
         case
@@ -399,7 +388,8 @@ def test_proof_policies_are_unique_to_their_approved_boundaries() -> None:
     assert defender_proofs
     assert all("defender_open_play" in case.game_end_kind for case in defender_proofs)
     assert all(
-        case.proof_quantifiers == (
+        case.proof_quantifiers
+        == (
             ("exposing_defender", "existential"),
             ("declarer", "universal"),
             ("non_exposing_defender", "universal"),
@@ -416,13 +406,9 @@ def test_proof_policies_are_unique_to_their_approved_boundaries() -> None:
         ("opposing_party", "universal"),
     )
     assert party_wide_proofs[0].proof_maximum_unresolved_tricks == 5
-    assert not any(
-        case.proof_policy == matrix.PROOF_DECISION_REQUIRED for case in proof_cases
-    )
+    assert not any(case.proof_policy == matrix.PROOF_DECISION_REQUIRED for case in proof_cases)
     assert {
-        case.game_end_kind
-        for case in proof_cases
-        if case.proof_policy == matrix.PROOF_NOT_APPROVED
+        case.game_end_kind for case in proof_cases if case.proof_policy == matrix.PROOF_NOT_APPROVED
     } == {
         "defender_open_play_beyond_five_unresolved_tricks",
         "generalized_non_jack_open_throw_theoretical_exclusion",
@@ -528,12 +514,12 @@ def test_bounded_historical_sequence_is_supported_by_terminal_delegation() -> No
         matrix.get_normative_settlement_case(case_id)
         for case_id in case.delegated_terminal_case_ids
     )
-    assert {
-        delegated.game_end_kind for delegated in delegated_cases
-    } == _runtime_union_kinds(GameShortening)
+    assert {delegated.game_end_kind for delegated in delegated_cases} == (
+        _runtime_union_kinds(GameShortening) | {"party_wide_all_remaining_tricks_claim"}
+    )
     assert all(
         delegated.implementation_status == matrix.SUPPORTED_AS_IS
-        and delegated.scenario_family == "structured_shortening"
+        and delegated.scenario_family in {"approved_claim", "structured_shortening"}
         and delegated.terminal_effect == matrix.TERMINAL
         for delegated in delegated_cases
     )
@@ -543,19 +529,22 @@ def test_bounded_historical_sequence_is_supported_by_terminal_delegation() -> No
 
 def test_v1_claim_status_groups_are_exact_disjoint_and_complete() -> None:
     cases = matrix.get_normative_settlement_cases()
+    supported_ids = tuple(
+        case.case_id for case in cases if case.case_id in matrix.V1_SUPPORTED_CLAIM_CASE_IDS
+    )
     implementation_required_ids = tuple(
         case.case_id
         for case in cases
         if case.implementation_status == matrix.IMPLEMENTATION_REQUIRED
     )
     not_supported_ids = tuple(
-        case.case_id
-        for case in cases
-        if case.implementation_status == matrix.NOT_SUPPORTED_V1
+        case.case_id for case in cases if case.implementation_status == matrix.NOT_SUPPORTED_V1
     )
 
-    assert matrix.V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS == (
-        EXPECTED_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS
+    assert matrix.V1_SUPPORTED_CLAIM_CASE_IDS == EXPECTED_SUPPORTED_CLAIM_CASE_IDS
+    assert (
+        matrix.V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS
+        == EXPECTED_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS
     )
     assert matrix.V1_NOT_SUPPORTED_CLAIM_CASE_IDS == EXPECTED_NOT_SUPPORTED_CLAIM_CASE_IDS
     assert matrix.VALID_IMPLEMENTATION_STATUSES == frozenset(
@@ -566,6 +555,7 @@ def test_v1_claim_status_groups_are_exact_disjoint_and_complete() -> None:
             matrix.NOT_SUPPORTED_V1,
         }
     )
+    assert supported_ids == EXPECTED_SUPPORTED_CLAIM_CASE_IDS
     assert implementation_required_ids == EXPECTED_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS
     assert not_supported_ids == EXPECTED_NOT_SUPPORTED_CLAIM_CASE_IDS
     assert set(implementation_required_ids).isdisjoint(not_supported_ids)
@@ -573,7 +563,7 @@ def test_v1_claim_status_groups_are_exact_disjoint_and_complete() -> None:
     assert not any(case.implementation_status == "out_of_scope_v0_11" for case in cases)
 
 
-def test_approved_party_wide_claim_boundary_is_exact_and_non_executable() -> None:
+def test_approved_party_wide_claim_boundary_is_exact_and_executable() -> None:
     case = matrix.get_normative_settlement_case(
         "claim_boundary.decision.party_wide_all_remaining_tricks_claim"
     )
@@ -582,7 +572,7 @@ def test_approved_party_wide_claim_boundary_is_exact_and_non_executable() -> Non
     assert case.game_end_kind == "party_wide_all_remaining_tricks_claim"
     assert case.contract_scope == "all_supported_contracts"
     assert case.pre_end_decision_state == "undecided_or_preexisting"
-    assert case.implementation_status == matrix.IMPLEMENTATION_REQUIRED
+    assert case.implementation_status == matrix.SUPPORTED_AS_IS
     assert case.interpretation_scope == matrix.APPROVED_BOUNDED
     assert case.evidence_class == matrix.BOUNDED_EXACT_PROOF
     assert case.winner_policy == matrix.PROOF_DEPENDENT
@@ -596,14 +586,16 @@ def test_approved_party_wide_claim_boundary_is_exact_and_non_executable() -> Non
         ("claiming_party", "existential"),
         ("opposing_party", "universal"),
     )
-    assert (
-        case.proof_quantifiers
-        == matrix.PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1_QUANTIFIERS
-    )
+    assert case.proof_quantifiers == matrix.PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1_QUANTIFIERS
     assert case.proof_maximum_unresolved_tricks == 5
     assert case.terminal_effect == matrix.TERMINAL
-    assert case.implementation_modules == ()
-    assert case.stable_unavailable_reason == "party_wide_claim_not_implemented"
+    assert case.implementation_modules == (
+        "skat_ai.historical_game_end",
+        "skat_ai.historical_party_wide_claim",
+        "skat_ai.party_wide_claim_proof_executor",
+        "skat_ai.party_wide_claim_adjudication",
+    )
+    assert case.stable_unavailable_reason is None
     notes = " ".join(case.notes)
     assert "Retrospective-only complete-world evidence" in notes
     assert "maximum of five unresolved Tricks" in notes
@@ -621,9 +613,7 @@ def test_every_durable_v1_exclusion_is_unresolved_and_module_free() -> None:
         for case_id in EXPECTED_NOT_SUPPORTED_CLAIM_CASE_IDS
     )
 
-    assert {
-        case.game_end_kind for case in cases
-    } == {
+    assert {case.game_end_kind for case in cases} == {
         "arbitrary_length_event_streams",
         "defender_open_play_beyond_five_unresolved_tricks",
         "free_text_claim",
@@ -699,7 +689,7 @@ def test_claim_group_mutations_are_rejected() -> None:
     by_id = {case.case_id: index for index, case in enumerate(cases)}
     mutations = (
         (
-            EXPECTED_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS[0],
+            EXPECTED_SUPPORTED_CLAIM_CASE_IDS[0],
             {"implementation_status": matrix.NOT_SUPPORTED_V1},
         ),
         (

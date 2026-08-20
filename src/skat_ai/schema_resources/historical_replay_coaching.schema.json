@@ -150,7 +150,8 @@
         "defender_concession",
         "declarer_card_exposure",
         "defender_open_play",
-        "open_card_throw"
+        "open_card_throw",
+        "party_wide_all_remaining_tricks_claim"
       ]
     },
     "party": {"enum": ["declarer", "defenders"]},
@@ -345,7 +346,13 @@
         "remaining_trick_count": {"type": "integer", "minimum": 1, "maximum": 10},
         "assigned_card_count": {"type": "integer", "minimum": 1, "maximum": 30},
         "assigned_card_points": {"type": "integer", "minimum": 0, "maximum": 120},
-        "source": {"enum": ["defender_open_play_adjudication", "open_card_throw"]}
+        "source": {
+          "enum": [
+            "defender_open_play_adjudication",
+            "open_card_throw",
+            "party_wide_claim_proof_assignment"
+          ]
+        }
       }
     },
     "game_result_summary": {
@@ -386,7 +393,8 @@
             "defender_concession",
             "declarer_card_exposure",
             "defender_open_play",
-            "open_card_throw"
+            "open_card_throw",
+            "party_wide_all_remaining_tricks_claim"
           ]
         },
         "outcome_source": {"$ref": "#/$defs/non_empty_string"},
@@ -445,7 +453,10 @@
           "maximum": 10
         },
         "remaining_points_recipient": {"$ref": "#/$defs/nullable_party"},
-        "remaining_points_assigned": {"type": "integer", "minimum": 0, "maximum": 120}
+        "remaining_points_assigned": {"type": "integer", "minimum": 0, "maximum": 120},
+        "party_wide_claim_proof_status": {"const": "valid"},
+        "claimant_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "claiming_party": {"$ref": "#/$defs/party"}
       }
     },
     "null_game_value_details": {
@@ -890,6 +901,71 @@
         "event_during_incomplete_trick": {"type": "boolean"}
       }
     },
+    "party_wide_claim_end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "kind", "normative_matrix_case_id", "claimant_player_id",
+        "claiming_party", "declarer_player_id", "defender_player_ids",
+        "event_after_play_count", "event_after_completed_trick_count",
+        "event_during_incomplete_trick", "remaining_trick_count", "proof_policy",
+        "proof_quantifiers", "proof_maximum_unresolved_tricks", "adjudication",
+        "settlement_applied"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "party_wide_all_remaining_tricks_claim"},
+        "normative_matrix_case_id": {
+          "const": "claim_boundary.decision.party_wide_all_remaining_tricks_claim"
+        },
+        "claimant_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "claiming_party": {"$ref": "#/$defs/party"},
+        "declarer_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "defender_player_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/stable_identifier"},
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "event_after_play_count": {"type": "integer", "minimum": 15, "maximum": 29},
+        "event_after_completed_trick_count": {"type": "integer", "minimum": 5, "maximum": 9},
+        "event_during_incomplete_trick": {"type": "boolean"},
+        "remaining_trick_count": {"type": "integer", "minimum": 1, "maximum": 5},
+        "proof_policy": {"const": "party_wide_all_remaining_tricks_claim_v1"},
+        "proof_quantifiers": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["actor", "quantifier"],
+              "properties": {
+                "actor": {"const": "claiming_party"},
+                "quantifier": {"const": "existential"}
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["actor", "quantifier"],
+              "properties": {
+                "actor": {"const": "opposing_party"},
+                "quantifier": {"const": "universal"}
+              }
+            }
+          ],
+          "items": false
+        },
+        "proof_maximum_unresolved_tricks": {"const": 5},
+        "adjudication": {
+          "$ref": "https://example.local/skat-ai/historical_party_wide_claim_output.schema.json#/$defs/adjudication"
+        },
+        "settlement_applied": {"const": true}
+      }
+    },
     "continuation_response": {
       "type": "object",
       "additionalProperties": false,
@@ -1061,7 +1137,8 @@
             {"$ref": "#/$defs/defender_concession_end"},
             {"$ref": "#/$defs/declarer_card_exposure_end"},
             {"$ref": "#/$defs/defender_open_play_end"},
-            {"$ref": "#/$defs/open_card_throw_end"}
+            {"$ref": "#/$defs/open_card_throw_end"},
+            {"$ref": "#/$defs/party_wide_claim_end"}
           ]
         }
       },
@@ -1126,6 +1203,23 @@
           "then": {
             "properties": {
               "historical_game_end_summary": {"$ref": "#/$defs/open_card_throw_end"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "game_end_reason": {
+                "const": "party_wide_all_remaining_tricks_claim"
+              }
+            },
+            "required": ["game_end_reason"]
+          },
+          "then": {
+            "properties": {
+              "historical_game_end_summary": {
+                "$ref": "#/$defs/party_wide_claim_end"
+              }
             }
           }
         }

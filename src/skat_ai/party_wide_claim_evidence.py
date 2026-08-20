@@ -9,6 +9,7 @@ from skat_ai.historical_game import HistoricalPlay, HistoricalPlayer, Historical
 from skat_ai.historical_play_prefix import (
     HistoricalDerivedCompletedTrick,
     HistoricalIncompleteTrick,
+    HistoricalReplayState,
     build_serializable_derived_trick,
     build_serializable_incomplete_trick,
     replay_historical_play_prefix,
@@ -25,7 +26,7 @@ from skat_ai.party_wide_claim_contracts import (
     _require_stable_player_id,
     validate_party_wide_claim_against_evidence_v1,
 )
-from skat_ai.rules import get_card_points
+from skat_ai.rules import get_card_points, get_trick_points, get_trick_winner
 
 PARTY_WIDE_CLAIM_EVIDENCE_VERSION = 1
 PARTY_WIDE_CLAIM_EXACT_STATE_CONTEXT_VERSION = 1
@@ -320,7 +321,7 @@ class PartyWideClaimEvidenceV1:
         }
 
 
-def build_party_wide_claim_evidence_v1(
+def _build_party_wide_claim_historical_source(
     *,
     game_id: str,
     players: tuple[HistoricalPlayer, ...],
@@ -329,7 +330,7 @@ def build_party_wide_claim_evidence_v1(
     declaration: GameDeclaration,
     discarded_cards: tuple[str, ...],
     tricks: tuple[HistoricalTrick, ...],
-) -> PartyWideClaimEvidenceV1:
+) -> _PartyWideClaimHistoricalSource:
     game_id = _require_identifier(game_id, "game_id")
     normalized_players = _copy_players(players, game_id)
     normalized_skat = _canonicalize_cards(skat, "skat", expected_count=2)
@@ -371,7 +372,7 @@ def build_party_wide_claim_evidence_v1(
         game_id=game_id,
         participant_ids=participant_ids,
     )
-    source = _PartyWideClaimHistoricalSource(
+    return _PartyWideClaimHistoricalSource(
         game_id=game_id,
         players=normalized_players,
         skat=(normalized_skat[0], normalized_skat[1]),
@@ -380,8 +381,15 @@ def build_party_wide_claim_evidence_v1(
         discarded_cards=normalized_discards,
         tricks=normalized_tricks,
     )
-    replay = replay_historical_play_prefix(source)
 
+
+def _build_party_wide_claim_evidence_from_replay_v1(
+    source: _PartyWideClaimHistoricalSource,
+    replay: HistoricalReplayState,
+) -> PartyWideClaimEvidenceV1:
+    if not isinstance(replay, HistoricalReplayState):
+        raise ValueError("replay must be a HistoricalReplayState.")
+    _validate_retained_replay_matches_source(source, replay)
     completed_tricks = tuple(
         HistoricalDerivedCompletedTrick(
             trick_number=trick.trick_number,
@@ -407,7 +415,7 @@ def build_party_wide_claim_evidence_v1(
         (player_id, _canonicalize_cards(cards, f"remaining hand for '{player_id}'"))
         for player_id, cards in replay.remaining_hands
     )
-    out_of_play = normalized_skat if normalized_declaration.hand_game else normalized_discards
+    out_of_play = source.skat if source.declaration.hand_game else source.discarded_cards
     current_trick_cards = (
         tuple(card for _, card in current_trick.plays) if current_trick is not None else ()
     )
@@ -438,13 +446,13 @@ def build_party_wide_claim_evidence_v1(
 
     return PartyWideClaimEvidenceV1._from_validated(
         party_wide_claim_evidence_version=PARTY_WIDE_CLAIM_EVIDENCE_VERSION,
-        game_id=game_id,
-        players=normalized_players,
-        skat=(normalized_skat[0], normalized_skat[1]),
-        declarer_player_id=declarer_player_id,
-        declaration=normalized_declaration,
-        discarded_cards=normalized_discards,
-        tricks=normalized_tricks,
+        game_id=source.game_id,
+        players=source.players,
+        skat=source.skat,
+        declarer_player_id=source.declarer_player_id,
+        declaration=source.declaration,
+        discarded_cards=source.discarded_cards,
+        tricks=source.tricks,
         completed_tricks=completed_tricks,
         current_trick=current_trick,
         remaining_hands=remaining_hands,
@@ -459,6 +467,138 @@ def build_party_wide_claim_evidence_v1(
         unresolved_card_points=unresolved_card_points,
         remaining_trick_count=remaining_trick_count,
     )
+
+
+def _validate_retained_replay_matches_source(
+    source: _PartyWideClaimHistoricalSource,
+    replay: HistoricalReplayState,
+) -> None:
+    seat_order = tuple(
+        next(player.player_id for player in source.players if player.seat == seat)
+        for seat in HISTORICAL_SEATS
+    )
+    expected_hands = {player.player_id: list(player.initial_hand) for player in source.players}
+    if not source.declaration.hand_game:
+        declarer_hand = expected_hands[source.declarer_player_id]
+        declarer_hand.extend(source.skat)
+        for card in source.discarded_cards:
+            declarer_hand.remove(card)
+
+    expected_completed = []
+    expected_current = None
+    expected_next_player = seat_order[0]
+    expected_played_count = 0
+    for trick in source.tricks:
+        serialized_plays = tuple((play.player_id, play.card) for play in trick.plays)
+        for play in trick.plays:
+            if play.card not in expected_hands[play.player_id]:
+                raise ValueError("Retained Claim replay does not match its Historical record.")
+            expected_hands[play.player_id].remove(play.card)
+            expected_played_count += 1
+        leader_index = seat_order.index(trick.leader_player_id)
+        player_order = tuple(
+            seat_order[(leader_index + offset) % len(seat_order)]
+            for offset in range(len(seat_order))
+        )
+        if len(trick.plays) < 3:
+            expected_next_player = player_order[len(trick.plays)]
+            expected_current = HistoricalIncompleteTrick(
+                trick_number=trick.trick_number,
+                leader_player_id=trick.leader_player_id,
+                plays=serialized_plays,
+                next_player_id=expected_next_player,
+            )
+            continue
+        cards = [play.card for play in trick.plays]
+        winner_index = get_trick_winner(cards, source.declaration.game_type)
+        winner_player_id = trick.plays[winner_index].player_id
+        expected_completed.append(
+            HistoricalDerivedCompletedTrick(
+                trick_number=trick.trick_number,
+                leader_player_id=trick.leader_player_id,
+                plays=serialized_plays,
+                winner_player_id=winner_player_id,
+                winner_side=(
+                    "declarer" if winner_player_id == source.declarer_player_id else "defenders"
+                ),
+                trick_points=get_trick_points(cards),
+            )
+        )
+        expected_next_player = winner_player_id
+
+    expected_remaining_hands = tuple(
+        (
+            player_id,
+            _canonicalize_cards(
+                expected_hands[player_id],
+                f"expected remaining hand for '{player_id}'",
+            ),
+        )
+        for player_id in seat_order
+    )
+    normalized_replay = HistoricalReplayState(
+        completed_tricks=replay.completed_tricks,
+        current_trick=replay.current_trick,
+        remaining_hands=tuple(
+            (
+                player_id,
+                _canonicalize_cards(cards, f"remaining hand for '{player_id}'"),
+            )
+            for player_id, cards in replay.remaining_hands
+        ),
+        next_player_id=replay.next_player_id,
+        played_card_count=replay.played_card_count,
+    )
+    if normalized_replay != HistoricalReplayState(
+        completed_tricks=tuple(expected_completed),
+        current_trick=expected_current,
+        remaining_hands=expected_remaining_hands,
+        next_player_id=expected_next_player,
+        played_card_count=expected_played_count,
+    ):
+        raise ValueError("Retained Claim replay does not match its Historical record.")
+
+
+def build_party_wide_claim_evidence_v1(
+    *,
+    game_id: str,
+    players: tuple[HistoricalPlayer, ...],
+    skat: tuple[str, ...],
+    declarer_player_id: str,
+    declaration: GameDeclaration,
+    discarded_cards: tuple[str, ...],
+    tricks: tuple[HistoricalTrick, ...],
+) -> PartyWideClaimEvidenceV1:
+    source = _build_party_wide_claim_historical_source(
+        game_id=game_id,
+        players=players,
+        skat=skat,
+        declarer_player_id=declarer_player_id,
+        declaration=declaration,
+        discarded_cards=discarded_cards,
+        tricks=tricks,
+    )
+    return _build_party_wide_claim_evidence_from_replay_v1(
+        source,
+        replay_historical_play_prefix(source),
+    )
+
+
+def build_party_wide_claim_evidence_from_historical_replay_v1(
+    record: Any,
+    replay: HistoricalReplayState,
+) -> PartyWideClaimEvidenceV1:
+    """Builds exact Claim Evidence from one already-retained Historical replay."""
+    source = _build_party_wide_claim_historical_source(
+        game_id=record.game_id,
+        players=record.players,
+        skat=record.skat,
+        declarer_player_id=record.declarer_player_id,
+        declaration=record.declaration,
+        discarded_cards=record.discarded_cards,
+        tricks=record.tricks,
+    )
+    return _build_party_wide_claim_evidence_from_replay_v1(source, replay)
 
 
 def _serialize_exact_state(state: ExactSearchState) -> dict[str, Any]:

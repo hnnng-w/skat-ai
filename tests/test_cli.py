@@ -44,15 +44,14 @@ HISTORICAL_DEFENDER_OPEN_PLAY_INPUT_PATH = (
 HISTORICAL_OPEN_CARD_THROW_INPUT_PATH = (
     PROJECT_ROOT / "examples" / "historical_grand_open_card_throw.json"
 )
+HISTORICAL_PARTY_WIDE_CLAIM_INPUT_PATH = (
+    PROJECT_ROOT / "examples" / "historical_party_wide_claim.json"
+)
 HISTORICAL_DEFENDER_OPEN_PLAY_CONTINUATION_INPUT_PATH = (
-    PROJECT_ROOT
-    / "examples"
-    / "historical_grand_defender_open_play_continuation.json"
+    PROJECT_ROOT / "examples" / "historical_grand_defender_open_play_continuation.json"
 )
 HISTORICAL_DECLARER_CARD_EXPOSURE_CONTINUATION_INPUT_PATH = (
-    PROJECT_ROOT
-    / "examples"
-    / "historical_grand_declarer_card_exposure_continuation.json"
+    PROJECT_ROOT / "examples" / "historical_grand_declarer_card_exposure_continuation.json"
 )
 HISTORICAL_DEFENDER_CONTINUATION_CONCESSION_INPUT_PATH = (
     PROJECT_ROOT
@@ -303,9 +302,7 @@ def test_cli_historical_defender_concession_prints_joint_liability_summary() -> 
 
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
-    assert "Historical game: historical-grand-defender-concession-001" in (
-        completed_process.stdout
-    )
+    assert "Historical game: historical-grand-defender-concession-001" in (completed_process.stdout)
     assert "End reason: defender concession" in completed_process.stdout
     assert "Conceding defender: player-a" in completed_process.stdout
     assert "Joint liability: yes" in completed_process.stdout
@@ -326,6 +323,22 @@ def test_cli_historical_open_card_throw_prints_stable_rule_summary() -> None:
     assert "Joint liability: yes" in completed_process.stdout
     assert "Statement: attempted_level_limitation" in completed_process.stdout
     assert "Unresolved points assigned: yes" in completed_process.stdout
+
+
+def test_cli_historical_party_wide_claim_prints_privacy_bounded_summary() -> None:
+    completed_process = run_cli("--input", HISTORICAL_PARTY_WIDE_CLAIM_INPUT_PATH)
+
+    assert completed_process.returncode == 0
+    assert completed_process.stderr == ""
+    assert "End reason: party-wide all-remaining-Tricks Claim" in completed_process.stdout
+    assert "Claimant: player-b" in completed_process.stdout
+    assert "Claiming party: declarer" in completed_process.stdout
+    assert "Exact proof: valid" in completed_process.stdout
+    assert "Proof states evaluated: 115" in completed_process.stdout
+    assert "Result: declarer won" in completed_process.stdout
+    assert "Settlement: 33" in completed_process.stdout
+    assert "representative" not in completed_process.stdout.lower()
+    assert "initial_hand" not in completed_process.stdout
 
 
 def test_cli_historical_declarer_card_exposure_prints_stable_accepted_summary() -> None:
@@ -398,14 +411,9 @@ def test_cli_historical_declarer_exposure_continuation_prints_timed_summary() ->
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
     assert "End reason: normal completion" in completed_process.stdout
-    assert (
-        "Non-terminal event: declarer card-exposure continuation"
-        in completed_process.stdout
-    )
+    assert "Non-terminal event: declarer card-exposure continuation" in completed_process.stdout
     assert "Event after played cards: 12" in completed_process.stdout
-    assert "Exposure: declarer showed 6 remaining cards to player-a" in (
-        completed_process.stdout
-    )
+    assert "Exposure: declarer showed 6 remaining cards to player-a" in (completed_process.stdout)
     assert "Continuing defender: player-c" in completed_process.stdout
     assert "Claimed play level: Schneider" in completed_process.stdout
     assert "Claimed level applied immediately: no" in completed_process.stdout
@@ -425,9 +433,7 @@ def test_cli_historical_chain_prints_continuation_and_terminal_summary() -> None
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
     assert "End reason: declarer concession" in completed_process.stdout
-    assert "Non-terminal event: defender open-play continuation" in (
-        completed_process.stdout
-    )
+    assert "Non-terminal event: defender open-play continuation" in (completed_process.stdout)
     assert "Event after played cards: 12" in completed_process.stdout
     assert "Actual plays after the event: 2" in completed_process.stdout
     assert "Historical decision snapshots: 14" in completed_process.stdout
@@ -535,9 +541,7 @@ def test_cli_zero_decision_concession_prints_empty_workflow_wording(tmp_path) ->
     assert completed_process.returncode == 0
     assert completed_process.stderr == ""
     assert "Historical decision snapshots: 0" in completed_process.stdout
-    assert "No card decisions occurred before the terminal event." in (
-        completed_process.stdout
-    )
+    assert "No card decisions occurred before the terminal event." in (completed_process.stdout)
     assert "Historical game review: 0 decisions" in completed_process.stdout
     assert "Reviewed decisions: 0" in completed_process.stdout
     assert "Unavailable decisions: 0" in completed_process.stdout
@@ -829,9 +833,7 @@ def test_cli_shortened_opponent_workflows_support_aggregation_export_and_rolling
     assert export_path.exists()
     assert rolling.returncode == 0
     assert rolling.stderr == ""
-    assert "Rolling opponent-policy evaluation: 1 target games, 14 decisions." in (
-        rolling.stdout
-    )
+    assert "Rolling opponent-policy evaluation: 1 target games, 14 decisions." in (rolling.stdout)
     assert "concession" not in rolling.stdout.lower()
 
 
@@ -1189,9 +1191,7 @@ def test_historical_replay_coaching_combines_public_workflows_in_one_pass(
         calls["immediate"] += 1
         return _historical_fake_immediate(**kwargs)
 
-    monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
-    )
+    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
         "skat_ai.historical_search_review.recommend_card_by_expected_value",
         immediate,
@@ -2395,8 +2395,7 @@ def test_cli_prints_open_card_throw_summary_without_hidden_hands() -> None:
     assert completed_process.stderr == ""
     assert "Open card throw: left threw 2 remaining cards." in completed_process.stdout
     assert (
-        "The defending party keeps its 0 completed tricks and 0 points."
-        in completed_process.stdout
+        "The defending party keeps its 0 completed tricks and 0 points." in completed_process.stdout
     )
     assert (
         "All 2 unresolved tricks and 63 outstanding points go to the declarer party."

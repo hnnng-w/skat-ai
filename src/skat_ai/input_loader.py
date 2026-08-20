@@ -149,6 +149,7 @@ def build_historical_game_from_document(
     data: dict[str, Any],
     *,
     validate_workflow: bool = True,
+    validate_game_event_chain: bool = True,
 ) -> HistoricalGameRecord:
     """Builds one Historical Game record from an in-memory Root document."""
     if validate_workflow and get_input_workflow(data) != "historical_game":
@@ -157,7 +158,10 @@ def build_historical_game_from_document(
     historical_data = data["historical_game_input"]
     if not isinstance(historical_data, dict):
         raise ValueError("historical_game_input must be an object.")
-    return build_historical_game_record(historical_data)
+    return build_historical_game_record(
+        historical_data,
+        validate_game_event_chain=validate_game_event_chain,
+    )
 
 
 def load_training_dataset_from_json(file_path: str) -> TrainingDatasetInput:
@@ -183,9 +187,7 @@ def load_training_dataset_preparation_request_from_json(
     file_path: str,
 ) -> TrainingDatasetPreparationRequest:
     """Loads one strict unpartitioned automatic Dataset preparation request."""
-    return build_training_dataset_preparation_request_from_document(
-        load_json_object(file_path)
-    )
+    return build_training_dataset_preparation_request_from_document(load_json_object(file_path))
 
 
 def build_training_dataset_preparation_request_from_document(
@@ -195,9 +197,7 @@ def build_training_dataset_preparation_request_from_document(
 ) -> TrainingDatasetPreparationRequest:
     """Builds one automatic Dataset preparation request from a Root document."""
     if validate_workflow and get_input_workflow(data) != "training_dataset_preparation":
-        raise ValueError(
-            "Input file does not contain training_dataset_preparation_input."
-        )
+        raise ValueError("Input file does not contain training_dataset_preparation_input.")
     request_data = data["training_dataset_preparation_input"]
     if not isinstance(request_data, dict):
         raise ValueError("training_dataset_preparation_input must be an object.")

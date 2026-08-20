@@ -43,6 +43,9 @@ HISTORICAL_DEFENDER_OPEN_PLAY_SCHEMA_PATH = (
 HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_open_card_throw.schema.json"
 )
+HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_party_wide_claim.schema.json"
+)
 TRAINING_DATASET_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "training_dataset.schema.json"
 TRAINING_DATASET_PREPARATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_preparation.schema.json"
@@ -128,6 +131,12 @@ with HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH.open(
     "r", encoding="utf-8"
 ) as historical_open_card_throw_file:
     HISTORICAL_OPEN_CARD_THROW_SCHEMA = json.load(historical_open_card_throw_file)
+with HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as historical_party_wide_claim_file:
+    HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA = json.load(
+        historical_party_wide_claim_file
+    )
 with TRAINING_DATASET_SCHEMA_PATH.open("r", encoding="utf-8") as training_schema_file:
     TRAINING_DATASET_SCHEMA = json.load(training_schema_file)
 with TRAINING_DATASET_PREPARATION_SCHEMA_PATH.open(
@@ -203,6 +212,10 @@ INPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             HISTORICAL_OPEN_CARD_THROW_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_OPEN_CARD_THROW_SCHEMA),
+        ),
+        (
+            HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA),
         ),
         (
             TRAINING_DATASET_SCHEMA["$id"],

@@ -77,6 +77,12 @@ HISTORICAL_OPEN_CARD_THROW_SCHEMA_PATH = (
 HISTORICAL_OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_open_card_throw_output.schema.json"
 )
+HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_party_wide_claim.schema.json"
+)
+HISTORICAL_PARTY_WIDE_CLAIM_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_party_wide_claim_output.schema.json"
+)
 TRAINING_DATASET_OUTPUT_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "training_dataset_output.schema.json"
 )
@@ -2082,6 +2088,56 @@ def check_historical_open_card_throw(data: dict[str, Any]) -> list[str]:
         errors.append("private hands and exact future-play proof must not be emitted")
     if any(identity in serialized for identity in ('"me"', '"left"', '"right"')):
         errors.append("historical output must use only stable player IDs")
+    return errors
+
+
+def check_historical_party_wide_claim(data: dict[str, Any]) -> list[str]:
+    """Checks exact Historical Claim proof, adjudication, and privacy."""
+    if set(data) != {"input_file", "historical_game_summary"}:
+        return ["expected only the historical-game top-level output branch"]
+    summary = data["historical_game_summary"]
+    end = summary["historical_game_end_summary"]
+    proof = end["exact_proof"]
+    adjudication = end["adjudication"]
+    points = summary["point_accounting"]
+    errors = []
+    if summary["record"]["game_end_reason"] != (
+        "party_wide_all_remaining_tricks_claim"
+    ):
+        errors.append("expected Historical party-wide Claim record")
+    if proof["status"] != "valid" or proof["claim_satisfied"] is not True:
+        errors.append("expected one complete valid exact Claim proof")
+    if proof["representative_line_scope"] != (
+        "diagnostic_decisive_branch_only"
+    ):
+        errors.append("expected diagnostic representative-line scope")
+    if proof["assignment"]["recipient_party"] != end["claiming_party"]:
+        errors.append("expected exact assignment to the claiming party")
+    if adjudication["remaining_points_recipient"] != end["claiming_party"]:
+        errors.append("expected adjudicated remaining points for the claiming party")
+    if points["final_declarer_points"] + points["final_defender_points"] != 120:
+        errors.append("expected final Claim points to total 120")
+    if adjudication["final_declarer_tricks"] + adjudication["final_defender_tricks"] != 10:
+        errors.append("expected final Claim Trick ownership to total ten")
+    current = summary.get("incomplete_current_trick", {}).get("plays", [])
+    current_cards = {play["card"] for play in current}
+    line_cards = {move["card"] for move in proof["representative_line"]}
+    if current_cards.intersection(line_cards):
+        errors.append("current-Trick Cards must not repeat in the representative line")
+    serialized_end = json.dumps(end)
+    for private_field in (
+        "remaining_hands",
+        "exact_state",
+        "memo_table",
+        "universal_branch_certificate",
+    ):
+        if private_field in serialized_end:
+            errors.append(f"Claim output must not expose {private_field}")
+    events = summary.get("historical_game_events_summary")
+    if events is not None and events["events"][0]["final_game_end_reason"] != (
+        "party_wide_all_remaining_tricks_claim"
+    ):
+        errors.append("expected continuation to delegate to the final Claim")
     return errors
 
 
@@ -5028,6 +5084,46 @@ SCENARIOS = (
         include_provenance=True,
         session_orchestration="retrospective_finalize",
     ),
+    Scenario(
+        name="historical_party_wide_claim_declarer_suit",
+        input_path=PROJECT_ROOT / "examples" / "historical_party_wide_claim.json",
+        branch="valid declarer Suit party-wide Claim with exact adjudication",
+        cli_args=("--quiet",),
+        check_output=check_historical_party_wide_claim,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="historical_party_wide_claim_defenders_null_incomplete_trick",
+        input_path=(
+            PROJECT_ROOT
+            / "tests"
+            / "fixtures"
+            / "generated_output_schema"
+            / "historical_party_wide_claim_defenders_null_incomplete_trick.json"
+        ),
+        branch="valid defender Null Claim during an incomplete final Trick",
+        cli_args=("--quiet",),
+        check_output=check_historical_party_wide_claim,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="historical_continuation_then_party_wide_claim",
+        input_path=(
+            PROJECT_ROOT
+            / "tests"
+            / "fixtures"
+            / "generated_output_schema"
+            / "historical_continuation_then_party_wide_claim.json"
+        ),
+        branch="one defender-open-play continuation before a valid final Claim",
+        cli_args=("--quiet",),
+        check_output=check_historical_party_wide_claim,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -5084,6 +5180,12 @@ def validate_generated_outputs() -> list[str]:
     )
     historical_open_card_throw_output_schema = load_json_file(
         HISTORICAL_OPEN_CARD_THROW_OUTPUT_SCHEMA_PATH
+    )
+    historical_party_wide_claim_schema = load_json_file(
+        HISTORICAL_PARTY_WIDE_CLAIM_SCHEMA_PATH
+    )
+    historical_party_wide_claim_output_schema = load_json_file(
+        HISTORICAL_PARTY_WIDE_CLAIM_OUTPUT_SCHEMA_PATH
     )
     training_dataset_output_schema = load_json_file(TRAINING_DATASET_OUTPUT_SCHEMA_PATH)
     training_dataset_schema = load_json_file(TRAINING_DATASET_SCHEMA_PATH)
@@ -5224,6 +5326,14 @@ def validate_generated_outputs() -> list[str]:
             (
                 historical_open_card_throw_output_schema["$id"],
                 Resource.from_contents(historical_open_card_throw_output_schema),
+            ),
+            (
+                historical_party_wide_claim_schema["$id"],
+                Resource.from_contents(historical_party_wide_claim_schema),
+            ),
+            (
+                historical_party_wide_claim_output_schema["$id"],
+                Resource.from_contents(historical_party_wide_claim_output_schema),
             ),
             (
                 training_dataset_output_schema["$id"],

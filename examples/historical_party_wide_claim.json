@@ -1,0 +1,88 @@
+{
+  "historical_game_input": {
+    "schema_version": 1,
+    "game_id": "historical-party-wide-claim-declarer-suit",
+    "players": [
+      {
+        "player_id": "player-a",
+        "player_label": "Alice",
+        "seat": "forehand",
+        "initial_hand": ["C8", "C9", "HQ", "D8", "HK", "HJ", "HA", "H9", "C7", "S7"]
+      },
+      {
+        "player_id": "player-b",
+        "seat": "middlehand",
+        "initial_hand": ["D10", "CA", "DK", "CJ", "C10", "CQ", "DJ", "DA", "DQ", "S9"]
+      },
+      {
+        "player_id": "player-c",
+        "player_label": "Carol",
+        "seat": "rearhand",
+        "initial_hand": ["CK", "S10", "SJ", "D9", "H7", "D7", "SQ", "H8", "H10", "S8"]
+      }
+    ],
+    "skat": ["SK", "SA"],
+    "declarer_player_id": "player-b",
+    "declaration": {
+      "game_type": "spades",
+      "hand_game": false,
+      "bid_value": 18
+    },
+    "discarded_cards": ["D10", "CA"],
+    "game_end_reason": "party_wide_all_remaining_tricks_claim",
+    "tricks": [
+      {
+        "trick_number": 1,
+        "leader_player_id": "player-a",
+        "plays": [
+          {"player_id": "player-a", "card": "C8"},
+          {"player_id": "player-b", "card": "C10"},
+          {"player_id": "player-c", "card": "CK"}
+        ]
+      },
+      {
+        "trick_number": 2,
+        "leader_player_id": "player-b",
+        "plays": [
+          {"player_id": "player-b", "card": "DK"},
+          {"player_id": "player-c", "card": "D9"},
+          {"player_id": "player-a", "card": "D8"}
+        ]
+      },
+      {
+        "trick_number": 3,
+        "leader_player_id": "player-b",
+        "plays": [
+          {"player_id": "player-b", "card": "CJ"},
+          {"player_id": "player-c", "card": "S10"},
+          {"player_id": "player-a", "card": "HJ"}
+        ]
+      },
+      {
+        "trick_number": 4,
+        "leader_player_id": "player-b",
+        "plays": [
+          {"player_id": "player-b", "card": "CQ"},
+          {"player_id": "player-c", "card": "SJ"},
+          {"player_id": "player-a", "card": "C9"}
+        ]
+      },
+      {
+        "trick_number": 5,
+        "leader_player_id": "player-c",
+        "plays": [
+          {"player_id": "player-c", "card": "H7"},
+          {"player_id": "player-a", "card": "HQ"},
+          {"player_id": "player-b", "card": "DJ"}
+        ]
+      }
+    ],
+    "played_at": "2026-08-20T18:30:00+02:00",
+    "game_end": {
+      "schema_version": 1,
+      "kind": "party_wide_all_remaining_tricks_claim",
+      "claimant_player_id": "player-b",
+      "claiming_party": "declarer"
+    }
+  }
+}

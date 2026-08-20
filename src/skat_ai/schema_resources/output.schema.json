@@ -561,7 +561,7 @@
       "$ref": "#/$defs/game_result_summary"
     },
     "adjusted_game_result_summary": {
-      "$ref": "#/$defs/adjusted_game_result_summary"
+      "$ref": "#/$defs/position_adjusted_game_result_summary"
     },
     "game_shortening_summary": {
       "oneOf": [
@@ -848,6 +848,24 @@
         "declarer_card_exposure",
         "defender_open_play",
         "open_card_throw"
+      ]
+    },
+    "historical_game_end_reason": {
+      "type": "string",
+      "enum": [
+        "normal_completion",
+        "declarer_concession",
+        "defender_concession",
+        "declarer_card_exposure",
+        "defender_open_play",
+        "open_card_throw",
+        "party_wide_all_remaining_tricks_claim"
+      ]
+    },
+    "adjusted_game_end_reason": {
+      "oneOf": [
+        {"$ref": "#/$defs/game_end_reason"},
+        {"const": "party_wide_all_remaining_tricks_claim"}
       ]
     },
     "overbid_status": {
@@ -1266,6 +1284,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/historical_open_card_throw_output.schema.json#/$defs/game_end_summary"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/historical_party_wide_claim_output.schema.json#/$defs/game_end_summary"
             }
           ]
         }
@@ -1416,6 +1437,83 @@
               },
               "historical_game_end_summary": {
                 "$ref": "https://example.local/skat-ai/historical_open_card_throw_output.schema.json#/$defs/game_end_summary"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "record": {
+                "properties": {
+                  "game_end_reason": {
+                    "const": "party_wide_all_remaining_tricks_claim"
+                  }
+                },
+                "required": ["game_end_reason"]
+              }
+            },
+            "required": ["record"]
+          },
+          "then": {
+            "properties": {
+              "point_accounting": {
+                "$ref": "https://example.local/skat-ai/historical_party_wide_claim_output.schema.json#/$defs/point_accounting"
+              },
+              "historical_game_end_summary": {
+                "$ref": "https://example.local/skat-ai/historical_party_wide_claim_output.schema.json#/$defs/game_end_summary"
+              },
+              "game_result_summary": {
+                "allOf": [
+                  {"$ref": "#/$defs/adjusted_game_result_summary"},
+                  {
+                    "type": "object",
+                    "required": [
+                      "game_end_reason",
+                      "game_end_kind",
+                      "outcome_source",
+                      "winner_basis",
+                      "party_wide_claim_proof_status",
+                      "claimant_player_id",
+                      "claiming_party",
+                      "rest_trick_assignment"
+                    ],
+                    "properties": {
+                      "game_end_reason": {
+                        "const": "party_wide_all_remaining_tricks_claim"
+                      },
+                      "game_end_kind": {
+                        "const": "party_wide_all_remaining_tricks_claim"
+                      },
+                      "party_wide_claim_proof_status": {"const": "valid"},
+                      "rest_trick_assignment": {
+                        "$ref": "https://example.local/skat-ai/historical_party_wide_claim_output.schema.json#/$defs/game_result_assignment"
+                      }
+                    },
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "outcome_source": {
+                            "const": "exact_party_wide_claim_adjudication"
+                          },
+                          "winner_basis": {
+                            "const": "completed_claim_assignment"
+                          }
+                        }
+                      },
+                      {
+                        "properties": {
+                          "outcome_source": {
+                            "const": "preexisting_game_decision"
+                          },
+                          "winner_basis": {
+                            "const": "preexisting_game_decision"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }
@@ -1732,7 +1830,7 @@
           "enum": ["declarer", "defenders", "undecided"]
         },
         "game_end_reason": {
-          "$ref": "#/$defs/game_end_reason"
+          "$ref": "#/$defs/adjusted_game_end_reason"
         },
         "remaining_points_recipient": {
           "type": ["string", "null"],
@@ -1748,7 +1846,8 @@
             "defender_concession",
             "declarer_card_exposure",
             "defender_open_play",
-            "open_card_throw"
+            "open_card_throw",
+            "party_wide_all_remaining_tricks_claim"
           ]
         },
         "outcome_source": {
@@ -1757,7 +1856,8 @@
             "adjudicated",
             "exact_adjudication",
             "rule_adjudication",
-            "preexisting_game_decision"
+            "preexisting_game_decision",
+            "exact_party_wide_claim_adjudication"
           ]
         },
         "winner_basis": {
@@ -1771,7 +1871,8 @@
             "invalid_defender_open_play",
             "open_card_throw_rule_state",
             "failed_mandatory_level",
-            "theoretically_excluded_required_schwarz"
+            "theoretically_excluded_required_schwarz",
+            "completed_claim_assignment"
           ]
         },
         "decision_state_before_game_end": {
@@ -1842,6 +1943,9 @@
             },
             {
               "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/rest_trick_assignment"
+            },
+            {
+              "$ref": "https://example.local/skat-ai/historical_party_wide_claim_output.schema.json#/$defs/game_result_assignment"
             }
           ]
         },
@@ -1876,8 +1980,72 @@
         "overbid_required_level": {
           "type": ["string", "null"],
           "enum": ["schneider", "schwarz", null]
-        }
+        },
+        "party_wide_claim_proof_status": {"const": "valid"},
+        "claimant_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "claiming_party": {"enum": ["declarer", "defenders"]}
       }
+    },
+    "position_adjusted_game_result_summary": {
+      "allOf": [
+        {"$ref": "#/$defs/adjusted_game_result_summary"},
+        {
+          "type": "object",
+          "properties": {
+            "game_end_reason": {"$ref": "#/$defs/game_end_reason"},
+            "game_end_kind": {
+              "type": "string",
+              "enum": [
+                "declarer_concession",
+                "defender_concession",
+                "declarer_card_exposure",
+                "defender_open_play",
+                "open_card_throw"
+              ]
+            },
+            "outcome_source": {
+              "type": "string",
+              "enum": [
+                "adjudicated",
+                "exact_adjudication",
+                "rule_adjudication",
+                "preexisting_game_decision"
+              ]
+            },
+            "winner_basis": {
+              "type": "string",
+              "enum": [
+                "defender_concession",
+                "accepted_declarer_card_exposure",
+                "preexisting_game_decision",
+                "uncovered_overbid_requirement",
+                "valid_defender_open_play",
+                "invalid_defender_open_play",
+                "open_card_throw_rule_state",
+                "failed_mandatory_level",
+                "theoretically_excluded_required_schwarz"
+              ]
+            },
+            "rest_trick_assignment": {
+              "oneOf": [
+                {
+                  "$ref": "https://example.local/skat-ai/defender_open_play_output.schema.json#/$defs/rest_trick_assignment"
+                },
+                {
+                  "$ref": "https://example.local/skat-ai/open_card_throw_output.schema.json#/$defs/rest_trick_assignment"
+                }
+              ]
+            }
+          },
+          "not": {
+            "anyOf": [
+              {"required": ["party_wide_claim_proof_status"]},
+              {"required": ["claimant_player_id"]},
+              {"required": ["claiming_party"]}
+            ]
+          }
+        }
+      ]
     },
     "final_settlement_summary": {
       "type": "object",

@@ -62,11 +62,11 @@ official Skat rules arbitration.
 * Continued play with the exact public declarer hand after rejected shortening under ISkO 4.4.4
 * Bounded exact defender open-play adjudication under ISkO 4.4.5 for up to five unresolved tricks
 * Continued play with the exposing defender's exact returned public hand under ISkO 4.4.5 and 4.1.6
-* Internal Settlement Normative Matrix version `2` with 61 preserved cases, one
-  approved bounded Retrospective party-wide Claim, private version-1 structured
-  Claim/Evidence/Proof contracts, bounded exhaustive exact proof execution, and
-  private valid-proof adjudication with existing Final Settlement composition
-  without new Runtime behavior, plus durable v1 exclusions
+* Internal Settlement Normative Matrix version `3` with 61 preserved cases, one
+  supported bounded Retrospective party-wide Claim, private version-1 structured
+  Claim/Evidence/Proof contracts, bounded exhaustive exact proof execution,
+  valid-proof adjudication, and Historical-only existing Final Settlement reuse,
+  plus durable v1 exclusions
 * Legacy claim/concession remaining-point assignment
 * Adjusted game-result summaries
 * Final single-game settlement summaries
@@ -76,7 +76,7 @@ official Skat rules arbitration.
 * SkWO 6.3.1 shared ranks for unresolved standings ties and optional external lot order
 * Public fixed-three-player historical 36-position list aggregation with Played Games, Passed Deals, progression, final standings, and optional external lot application
 * Compact comparison of two or more independent completed lists with one reference, final deltas, and resolved-only rank movement
-* Versioned complete historical-game records for normal play and five supported shortened terminal events
+* Versioned complete historical-game records for normal play and six supported shortened terminal events, including the Historical-only party-wide Claim
 * Two timed non-terminal historical continuation events with exact public-hand boundaries
 * Bounded historical chains with at most one continuation followed by normal completion or one supported terminal shortening
 * Full deal, pickup/discard, Hand, ownership, play-order, and follow-rule validation
@@ -912,15 +912,16 @@ requires `played_at`, historical review, profile-preset opt-in, at least one exa
 participant match, and captures strictly older than the game. Live-only relative
 binding IDs are rejected. `--samples` and `--seed` are accepted only with review.
 Historical declarer and defender concessions, accepted declarer-card exposure,
-and terminal defender open play support snapshots, review, time-safe external
-profiles, variable training samples, and record/player partition audits for every
-actual supplied play. The terminal event is not reviewed or used as a target.
+terminal defender open play, open-card throwing, and a valid party-wide Claim
+support snapshots, review, time-safe external profiles, variable training
+samples, and record/player partition audits for every actual supplied play. The
+terminal event is not reviewed or used as a target.
 Either timed continuation may precede normal completion or one supported terminal
 shortening; only post-event card decisions receive the exact shrinking public
 defender or declarer hand, and the terminal action is never a decision target.
 Historical opponent statistics, reusable export, rolling profile construction,
-and rolling policy evaluation support normal completion and all five shortened
-terminal events, including open-card throwing.
+and rolling policy evaluation support normal completion and all six shortened
+terminal events, including open-card throwing and the party-wide Claim.
 Normal-completion event details add no statistic or profile signal.
 Each source record has one game of statistics weight, while targets contribute
 only actual card decisions, including valid zero-decision targets. See
@@ -1153,6 +1154,8 @@ Detailed documentation is split into topic-specific files:
 * [Historical defender-open-play output schema](schemas/historical_defender_open_play_output.schema.json)
 * [Historical open-card-throw input schema](schemas/historical_open_card_throw.schema.json)
 * [Historical open-card-throw output schema](schemas/historical_open_card_throw_output.schema.json)
+* [Historical party-wide Claim input schema](schemas/historical_party_wide_claim.schema.json)
+* [Historical party-wide Claim output schema](schemas/historical_party_wide_claim_output.schema.json)
 * [Historical game-event schema](schemas/historical_game_event.schema.json)
 * [Historical declarer-card-exposure continuation event schema](schemas/historical_declarer_card_exposure_continuation_event.schema.json)
 * [Historical declarer-card-exposure continuation output schema](schemas/historical_declarer_card_exposure_continuation_event_output.schema.json)
@@ -1185,8 +1188,10 @@ Detailed documentation is split into topic-specific files:
 * [Scoring and settlement](docs/scoring.md)
 * [Game-end handling](docs/game_end.md)
 * [Claim and Settlement v1 boundaries](docs/claim_and_settlement_v1_boundaries.md)
+* [Historical party-wide Claim](docs/historical_party_wide_claim.md)
 * [Party-wide Claim contracts](docs/party_wide_claim_contracts.md)
 * [Party-wide Claim proof executor](docs/party_wide_claim_proof_executor.md)
+* [Party-wide Claim adjudication](docs/party_wide_claim_adjudication.md)
 * [Settlement Normative Matrix](docs/settlement_normative_matrix.md)
 * [Overbid handling](docs/overbid.md)
 * [Performance rating](docs/performance_rating.md)
@@ -1242,6 +1247,14 @@ synchronizes publication status without changing product behavior. GitHub
 Releases is the authoritative publication record; no Package-index or PyPI
 publication is claimed.
 
+The current unreleased working baseline keeps Package version `0.16.0`, Python
+`>=3.13`, Public API contract version `1`, exactly seven Root workflows, one
+Console Script, and six Session examples. Issue #186 updates the Settlement
+Normative Matrix to version `3` with the same 61 cases, adds the Historical-only
+bounded party-wide Claim, and brings the working tree to 65 authoritative and
+packaged Schemas and 88 generated-output scenarios. The published `v0.16.0`
+counts above remain unchanged Release facts.
+
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
 GitHub Release title
@@ -1286,8 +1299,9 @@ Release preparation. Issue #170 records the subsequent manual publication.
 Public Match API and Schema/data workflow, public/persisted Player Catalog,
 public/task-specific Dataset workflows, Dataset-v2 persistence,
 database/remote deployment, and broader pre-v1
-work remain open. Persistence, Public APIs, CLI contracts, seven Root workflows,
-63 Schemas, examples, and 85 generated outputs remain unchanged.
+work remain open. That published `v0.15.0` baseline keeps Persistence, Public
+APIs, CLI contracts, seven Root workflows, 63 Schemas, examples, and 85 generated
+outputs unchanged.
 
 The historical published `v0.14.0` Release has release theme "End-to-end Live
 and Retrospective Session capture" and GitHub Release title
@@ -1411,12 +1425,13 @@ dataset-preparation algorithms or overrides, global optimization, guaranteed
 ratios, Sample- or Player-count balancing, component splitting, broader field-
 level provenance enforcement, and GUI/browser or online-platform Session
 integration beyond the completed local end-to-end Issue #150 through #157
-  capture milestone. Private structured Claim, complete Evidence, Proof
-  Request/Result, exact-state preparation, bounded exhaustive proof execution,
-  valid-proof adjudication, and existing Final Settlement composition now exist
-  for the approved party-wide all-remaining-Tricks Claim. Runtime/Historical
-  integration and public exposure remain open. Specific future-Trick Claims,
-  defender-open-play proof beyond five
+  capture milestone. The approved party-wide all-remaining-Tricks Claim now has
+  private structured contracts, complete Evidence, exact-state preparation,
+  bounded exhaustive proof execution, valid-proof adjudication, and Historical-
+  only Final Settlement runtime integration with strict public diagnostic output,
+  Provenance, CLI, Review/Coaching, Dataset, list, and statistics compatibility.
+  Flat Position, Session, Match Capture, and Corpus Claim entry remain open.
+  Specific future-Trick Claims, defender-open-play proof beyond five
 unresolved Tricks, multiple continuation events, arbitrary event streams, and
 the other documented durable v1 Claim exclusions are `not_supported_v1`.
 Historical end reasons outside the supported set remain unsupported. Current
@@ -1567,17 +1582,18 @@ ratings, derived AI tags, public API/Schema exposure, and model training remain
 open. No production model is included.
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
-and performance closure`. Issue #182 closes the Claim product-decision gate
-through Settlement Normative Matrix version `2`. Issue #183 adds private
+and performance closure`. Issue #182 closes the Claim product-decision gate.
+Issue #183 adds private
 version-1 structured Claim, exact Evidence, exact-state, Proof Request,
 preparation, assignment, diagnostic-line, and Result contracts without proof or
 Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   proof executor without Runtime behavior. Issue #185 adds private valid-proof
   adjudication and existing Final Settlement composition while preserving normal
-  no-outcome Results for invalid and unavailable proofs. All other current Claim
-  boundaries remain durable v1 exclusions. The milestone may also cover
-  Runtime/Historical Claim integration,
-additional historical endings, stronger information-set Search and Strategy
+  no-outcome Results for invalid and unavailable proofs. Issue #186 updates
+  Matrix version `3` without changing its 61 cases and completes the Historical-
+  only approved Claim and Final Settlement runtime slice. All other current Claim
+  boundaries remain durable v1 exclusions. Session, Match Capture, and Corpus
+  Claim entry remain open. Stronger information-set Search and Strategy
 Fusion mitigation, tactical and cross-game Coaching, carefully bounded Player
 Ratings where approved, broader Provenance and Confidence integration,
 performance and latency evidence, and the remaining pre-v1 scope audit. Its final
@@ -1587,7 +1603,8 @@ taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 Current support and known limitations are tracked in the
 [requirements traceability matrix](docs/requirements_traceability.md). Product
 scope and completion gates are defined in the [v1.0 scope](docs/v1_scope.md).
-The private boundary is documented in [Party-wide Claim
+The Historical integration is documented in [Historical party-wide
+  Claim](docs/historical_party_wide_claim.md). The private boundary is documented in [Party-wide Claim
   contracts](docs/party_wide_claim_contracts.md), the [Party-wide Claim proof
   executor](docs/party_wide_claim_proof_executor.md), and [Party-wide Claim
   adjudication](docs/party_wide_claim_adjudication.md).

@@ -3,21 +3,20 @@
 ## Version and purpose
 
 `src/skat_ai/settlement_normative_matrix.py` defines immutable Settlement
-Normative Matrix version `2` with the same 61 canonical case IDs in the same
-order as version `1`. It records current support, interpretation scope, one
-approved but Runtime-unimplemented Claim, and durable v1 exclusions in
+Normative Matrix version `3` with the same 61 canonical case IDs in the same
+order as versions `1` and `2`. It records current support, interpretation scope,
+the approved bounded Historical party-wide Claim, and durable v1 exclusions in
 deterministic case-ID order.
 
 The matrix is an internal specification and validation artifact. It is not a
-stable package-root API, does not inspect runtime game state, and is not imported
-by adjudication, settlement, Search, simulation, historical parsing, schemas,
-CLI, examples, or generated-output paths. Issue #183 adds separate private Claim
-contracts and exact-state preparation without changing Runtime adjudication or a
-public serialized contract. Issue #184 adds a separate private bounded exhaustive
-proof executor without changing Matrix membership, Runtime adjudication, or a
-public serialized contract. Issue #185 adds private valid-proof adjudication and
-existing Final Settlement composition without changing Matrix membership,
-Runtime availability, or a public serialized contract.
+stable package-root API and does not inspect runtime game state. The focused
+Historical Claim adapter imports only the approved proof-policy metadata; the
+matrix does not execute adjudication, Settlement, Search, simulation, parsing,
+Schema, CLI, example, or generated-output work. Issues #183 through #185 add separate
+private Claim contracts, exact-state preparation, bounded exhaustive proof, and
+valid-proof adjudication with existing Final Settlement composition. Issue #186
+adds the focused Historical adapter and changes only the approved Claim case and
+continuation delegation metadata; no case ID is added, removed, or reordered.
 
 The matrix does not claim complete official-rule, claim, concession, or
 Settlement coverage. Claims and Final Settlement remain partially supported
@@ -51,7 +50,7 @@ case. `docs/requirements_traceability.md` remains the broader product audit.
 | `not_supported_v1` | The behavior is not supported before v1, defines no approved outcome, and has no implementation module. |
 
 `decision_required` remains available for future audits, but no canonical
-version-2 case uses it. No canonical version-2 case uses the historical
+version-3 case uses it. No canonical version-3 case uses the historical
 `out_of_scope_v0_11` milestone classification.
 
 ## Interpretation scopes
@@ -175,6 +174,7 @@ The following are currently executable structured behaviors:
 * `defender_open_play`
 * `defender_open_play_continuation`
 * `open_card_throw`
+* `party_wide_all_remaining_tricks_claim` through Historical Game input only
 
 The matrix also covers normal completion, achieved and announced levels,
 supported Suit/Grand overbid, all four normal Null variants, bounded impossible
@@ -199,10 +199,10 @@ kinds.
 | Defender-open-play continuation | `supported_as_is`, `approved_bounded` | Returned public hand, no proof, assignment, winner, level, or settlement. |
 | Open card throw | `supported_as_is`, `approved_bounded` | Opposing-party assignment, preexisting-winner preservation, and jack-only exclusion. |
 | Legacy remaining-point reasons | `supported_as_is`, `legacy_compatibility` | Existing simplified point assignment only; no rest-trick proof. |
-| Historical normal and five terminal kinds | `supported_as_is` | Exact replay adapters retain the corresponding current terminal policy. |
+| Historical normal and six terminal kinds | `supported_as_is` | Exact replay adapters retain the corresponding current terminal policy, including valid-proof-only party-wide Claim adjudication. |
 | Both historical continuation kinds | `supported_as_is`, `product_boundary` | One non-terminal event followed by independently settled normal completion or one supported terminal shortening. |
 | One continuation then one terminal shortening | `supported_as_is`, `product_boundary` | The subsequent supported terminal kind retains its existing policy. |
-| Party-wide all-remaining-Tricks Claim | `implementation_required`, `approved_bounded` | Private five-Trick proof, valid-proof adjudication, and Settlement composition exist; Runtime and Historical integration remain required. |
+| Party-wide all-remaining-Tricks Claim | `supported_as_is`, `approved_bounded` | Historical-only complete-world proof, valid-proof adjudication, and existing Settlement composition are executable for at most five unresolved Tricks. |
 | Specific and generalized excluded Claims | `not_supported_v1`, `product_boundary` | No implementation or adjudication policy before v1. |
 | Previous milestone exclusions | `not_supported_v1`, `product_boundary` | Durable v1 exclusion with no implementation or adjudication policy. |
 | Incomplete or contradictory evidence | `supported_as_is`, `not_applicable` | Winner, assignment, level, overbid, and settlement remain unresolved. |
@@ -230,11 +230,30 @@ claims or concessions.
 
 ## Closed v1 Claim decision
 
-Issue #182 closes the remaining Claim product-decision gate. Exactly one case is
-`implementation_required`:
+Issue #182 closes the remaining Claim product-decision gate. Issue #186 makes
+the one approved case executable and records it in
+`V1_SUPPORTED_CLAIM_CASE_IDS`:
 
 ```text
 claim_boundary.decision.party_wide_all_remaining_tricks_claim
+```
+
+Its version-3 policies are:
+
+```text
+implementation_status: supported_as_is
+interpretation_scope: approved_bounded
+evidence_class: bounded_exact_proof
+winner_policy: proof_dependent
+remaining_assignment_policy: proof_dependent
+level_policy: normal_achieved_levels
+null_level_policy: not_applicable
+overbid_policy: preserve_required_value
+settlement_policy: existing_shortening_settlement
+proof_policy: party_wide_all_remaining_tricks_claim_v1
+terminal_effect: terminal
+proof_maximum_unresolved_tricks: 5
+runtime_unavailable_reason: null
 ```
 
 It approves a structured post-game and Retrospective-only complete-world proof,
@@ -246,8 +265,10 @@ defines private contracts and one untraversed exact-state preparation. Issue #18
 adds private exhaustive execution with canonical exact transitions,
 memoization, counters, and diagnostic lines. Issue #185 adds private
 valid-proof-only adjudication, exact completed assignment, and existing Final
-Settlement composition. Runtime/Historical integration and public exposure
-remain open.
+Settlement composition. Issue #186 adds the Historical-only adapter, strict
+Schemas, public diagnostic output, Provenance, CLI/example/scenario coverage, and
+downstream Historical compatibility. `V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS`
+is empty.
 
 The following former decision cases are `not_supported_v1`:
 
@@ -301,12 +322,13 @@ these exact quantifiers:
 | opposing party | universal |
 
 It requires complete Retrospective evidence and is bounded to at most five
-unresolved Tricks. The Matrix case remains Runtime-module-free and unavailable
-with reason `party_wide_claim_not_implemented` until Runtime integration exists;
-the separate private contract, executor, and adjudication modules do not enter
-`implementation_modules`. A valid executed Result can now be privately
-adjudicated and settled; invalid and unavailable Results create no terminal
-outcome or Settlement. See [Party-wide Claim proof
+unresolved Tricks. The Matrix case names exactly the Historical game-end,
+Historical Claim adapter, Proof Executor, and adjudication modules and has no
+Runtime unavailable reason. The wider workflow separately integrates Evidence,
+Provenance, and CLI presentation. A valid executed Result is adjudicated and
+settled through Historical Game input; invalid and unavailable proof reject that
+asserted terminal ending and create no terminal output. See
+[Historical party-wide Claim](historical_party_wide_claim.md), [Party-wide Claim proof
 executor](party_wide_claim_proof_executor.md) and [Party-wide Claim
 adjudication](party_wide_claim_adjudication.md).
 
@@ -317,7 +339,8 @@ not generic claim proofs. Search remains separate from claim adjudication.
 
 Current version-1 historical records support at most one timed non-terminal
 declarer-card-exposure or defender-open-play continuation followed by normal
-completion or one supported terminal shortening. The continuation event itself
+completion or one supported terminal shortening, including the Historical-only
+party-wide Claim. The continuation event itself
 has no winner, assignment, level, proof, or terminal settlement effect; later
 normal play or the independently delegated terminal case determines settlement.
 
@@ -339,12 +362,12 @@ terminal shortening subcase. Its own winner, assignment, level, and overbid
 dimensions remain unresolved until one delegated terminal kind is selected;
 that terminal case then supplies the existing approved policy and settlement.
 Matrix validation permits this supported chain to delegate only to existing
-supported terminal shortening cases and still requires all five terminal kinds.
+supported terminal shortening cases and still requires all six terminal kinds.
 
 ## Validation
 
 Internal helpers return all cases, look up one stable case ID, and validate the
-matrix. Validation covers the exact 61 version-2 IDs and order, value
+matrix. Validation covers the exact 61 version-3 IDs and order, value
 vocabularies, exact approved and excluded Claim tuples, required references,
 status-policy compatibility, continuation non-settlement, Null level exclusion,
 unsafe evidence, exact proof quantifiers and bounds, implementation-module

@@ -83,17 +83,13 @@ def _collect_keys(value) -> set[str]:
 
 
 def _analyze(monkeypatch, data: dict, *, search=_historical_fake_search):
-    monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
-    )
+    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
         "skat_ai.historical_search_review.recommend_card_by_expected_value",
         _historical_fake_immediate,
     )
     record = build_historical_game_record(data)
-    snapshots = build_historical_decision_snapshots(
-        build_historical_game_summary(record)
-    )
+    snapshots = build_historical_decision_snapshots(build_historical_game_summary(record))
     analysis = build_historical_search_review_coaching_analysis(
         snapshots,
         record,
@@ -112,9 +108,7 @@ def test_report_constants_and_canonical_limitations_are_stable() -> None:
     assert REPLAY_COACHING_REPORT_VERSION == 1
     assert REPLAY_COACHING_REPORT_METHOD == "historical_replay_coaching_v1"
     assert REPLAY_COACHING_OUTCOME_CONTEXT_POLICY == "final_context_after_coaching"
-    assert REPLAY_COACHING_INFORMATION_POLICY == (
-        "decision_time_then_retrospective_attachment"
-    )
+    assert REPLAY_COACHING_INFORMATION_POLICY == ("decision_time_then_retrospective_attachment")
     assert REPLAY_COACHING_REPORT_LIMITATIONS == (
         "outcome_context_not_decision_evidence",
         "single_recorded_game_only",
@@ -137,6 +131,7 @@ def test_report_constants_and_canonical_limitations_are_stable() -> None:
         "declarer_card_exposure": "historical_game_end_summary",
         "defender_open_play": "historical_game_end_summary",
         "open_card_throw": "historical_game_end_summary",
+        "party_wide_all_remaining_tricks_claim": "historical_game_end_summary",
     }
 
 
@@ -335,9 +330,7 @@ def test_outcome_context_supports_continuation_before_normal_completion(
     monkeypatch,
     continuation_kind: str,
 ) -> None:
-    data = add_continuation(
-        TERMINAL_BUILDERS["defender_concession"](), continuation_kind
-    )
+    data = add_continuation(TERMINAL_BUILDERS["defender_concession"](), continuation_kind)
     normal = build_historical_input()
     normal["game_events"] = data["game_events"]
     _, _, report = _report(monkeypatch, normal)
@@ -434,9 +427,7 @@ def test_incomplete_assessment_coverage_adds_conditional_limitations(
         recommended_card=None,
         unavailable_reason="immediate_analysis_unavailable",
         game_type=original_evidence.game_type,
-        player_role=(
-            "declarer" if original_evidence.local_side == "declarer" else "defender"
-        ),
+        player_role=("declarer" if original_evidence.local_side == "declarer" else "defender"),
     )
     search_vs_immediate = build_search_vs_immediate_comparison(
         unavailable_search,
@@ -451,9 +442,7 @@ def test_incomplete_assessment_coverage_adds_conditional_limitations(
         bounded_search_result=unavailable_search,
         search_vs_immediate_comparison=search_vs_immediate,
     )
-    search_actual = build_search_actual_card_comparison(
-        unavailable_search, original.actual_card
-    )
+    search_actual = build_search_actual_card_comparison(unavailable_search, original.actual_card)
     unavailable_assessment = build_replay_coaching_decision_assessment(
         decision_time_evidence=evidence,
         actual_card=original.actual_card,
@@ -505,10 +494,9 @@ def test_coverage_and_all_scope_dimensions_reconcile(monkeypatch) -> None:
     assert dict(coverage.search_status_counts) == dict(
         analysis.public_review_summary["status_counts"]
     )
-    assert coverage.search_recommendation_count == (
-        analysis.public_review_summary["decision_counts"][
-            "search_recommendation_count"
-        ]
+    assert (
+        coverage.search_recommendation_count
+        == (analysis.public_review_summary["decision_counts"]["search_recommendation_count"])
     )
     assert tuple(summary.scope_value for summary in report.player_summaries) == tuple(
         next(player.player_id for player in record.players if player.seat == seat)
@@ -523,9 +511,7 @@ def test_coverage_and_all_scope_dimensions_reconcile(monkeypatch) -> None:
         "middle",
         "endgame",
     )
-    assert tuple(summary.scope_value for summary in report.contract_summaries) == (
-        "grand",
-    )
+    assert tuple(summary.scope_value for summary in report.contract_summaries) == ("grand",)
     for summaries in (
         report.player_summaries,
         report.role_summaries,
@@ -533,24 +519,26 @@ def test_coverage_and_all_scope_dimensions_reconcile(monkeypatch) -> None:
         report.contract_summaries,
     ):
         assert sum(summary.decision_count for summary in summaries) == 30
-        assert sum(
-            summary.assessable_decision_count for summary in summaries
-        ) == coverage.assessable_decision_count
-        assert sum(
-            summary.strictly_below_best_count for summary in summaries
-        ) == coverage.strictly_below_best_count
+        assert (
+            sum(summary.assessable_decision_count for summary in summaries)
+            == coverage.assessable_decision_count
+        )
+        assert (
+            sum(summary.strictly_below_best_count for summary in summaries)
+            == coverage.strictly_below_best_count
+        )
         assert sum(summary.key_decision_count for summary in summaries) == (
             coverage.key_decision_count
         )
         assert sum(summary.turning_point_count for summary in summaries) == (
             coverage.turning_point_count
         )
-        assert sum(
-            summary.decision_recommendation_count for summary in summaries
-        ) == coverage.decision_recommendation_count
+        assert (
+            sum(summary.decision_recommendation_count for summary in summaries)
+            == coverage.decision_recommendation_count
+        )
         assert all(
-            summary.decision_indices
-            == tuple(sorted(summary.decision_indices))
+            summary.decision_indices == tuple(sorted(summary.decision_indices))
             for summary in summaries
         )
 
@@ -658,9 +646,7 @@ def test_report_rejects_noncanonical_contexts_settings_and_scope_indices(
         )
 
     changed_public = _plain(analysis.public_review_summary)
-    changed_public["decisions"][0]["immediate_baseline"]["recommendation"][
-        "card"
-    ] = "XX"
+    changed_public["decisions"][0]["immediate_baseline"]["recommendation"]["card"] = "XX"
     changed_analysis = HistoricalSearchReviewCoachingAnalysis(
         public_review_summary=changed_public,
         assessments=analysis.assessments,
@@ -770,12 +756,8 @@ def test_final_outcome_differences_do_not_change_coaching_or_scope_quality(
     assert first_analysis.guidance.pattern_recommendations == (
         second_analysis.guidance.pattern_recommendations
     )
-    assert _decision_quality_counts(first_report) == _decision_quality_counts(
-        second_report
-    )
-    assert first_report.game_context.game_end_reason != (
-        second_report.game_context.game_end_reason
-    )
+    assert _decision_quality_counts(first_report) == _decision_quality_counts(second_report)
+    assert first_report.game_context.game_end_reason != (second_report.game_context.game_end_reason)
     assert first_report.outcome_context.final_settlement_summary != (
         second_report.outcome_context.final_settlement_summary
     )
@@ -795,16 +777,12 @@ def test_report_ignores_private_ownership_for_zero_decision_coaching(monkeypatch
     assert original_analysis.prioritization == changed_analysis.prioritization
     assert original_analysis.guidance == changed_analysis.guidance
     assert original_report.coverage_summary == changed_report.coverage_summary
-    assert _decision_quality_counts(original_report) == _decision_quality_counts(
-        changed_report
-    )
+    assert _decision_quality_counts(original_report) == _decision_quality_counts(changed_report)
 
 
 def test_one_pass_wrapper_preserves_public_review_and_call_counts(monkeypatch) -> None:
     record = build_historical_game_record(build_historical_input())
-    snapshots = build_historical_decision_snapshots(
-        build_historical_game_summary(record)
-    )
+    snapshots = build_historical_decision_snapshots(build_historical_game_summary(record))
     calls = {"search": 0, "immediate": 0}
 
     def search(**kwargs):
@@ -815,9 +793,7 @@ def test_one_pass_wrapper_preserves_public_review_and_call_counts(monkeypatch) -
         calls["immediate"] += 1
         return _historical_fake_immediate(**kwargs)
 
-    monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
-    )
+    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
         "skat_ai.historical_search_review.recommend_card_by_expected_value",
         immediate,
@@ -851,9 +827,7 @@ def test_one_pass_wrapper_preserves_public_review_and_call_counts(monkeypatch) -
 
 def test_public_builder_serializes_both_summaries_from_one_pass(monkeypatch) -> None:
     record = build_historical_game_record(build_historical_input())
-    snapshots = build_historical_decision_snapshots(
-        build_historical_game_summary(record)
-    )
+    snapshots = build_historical_decision_snapshots(build_historical_game_summary(record))
     calls = {"search": 0, "immediate": 0}
 
     def search(**kwargs):
@@ -864,9 +838,7 @@ def test_public_builder_serializes_both_summaries_from_one_pass(monkeypatch) -> 
         calls["immediate"] += 1
         return _historical_fake_immediate(**kwargs)
 
-    monkeypatch.setattr(
-        "skat_ai.historical_search_review.solve_compatible_world_minimax", search
-    )
+    monkeypatch.setattr("skat_ai.historical_search_review.solve_compatible_world_minimax", search)
     monkeypatch.setattr(
         "skat_ai.historical_search_review.recommend_card_by_expected_value",
         immediate,

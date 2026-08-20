@@ -17,6 +17,9 @@
     },
     {
       "$ref": "https://example.local/skat-ai/historical_open_card_throw.schema.json"
+    },
+    {
+      "$ref": "https://example.local/skat-ai/historical_party_wide_claim.schema.json"
     }
   ]
 }

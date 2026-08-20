@@ -31,9 +31,10 @@ Its alternative `historical_game_input`, `training_dataset_input`,
 `fixed_three_player_historical_list_input`, and
 `fixed_three_player_historical_list_comparison_input` branches reference focused
 versioned schemas. The
-validation script registers the focused historical, shortening, continuation,
-training-dataset, partition-policy, opponent-statistics, and all five fixed-list
-schemas locally; it does not fetch schema definitions over the network.
+validation script registers the focused historical, Historical party-wide Claim,
+shortening, continuation, training-dataset, partition-policy,
+opponent-statistics, and all five fixed-list schemas locally; it does not fetch
+schema definitions over the network.
 
 It validates example input files in `examples/`.
 
@@ -51,7 +52,7 @@ The project check script also runs this validation:
 
 ## Packaged schema resources
 
-The repository `schemas/` directory remains authoritative. Every one of its 63
+The repository `schemas/` directory remains authoritative. Every one of its 65
 `*.schema.json` files is mirrored byte-for-byte into the private Package Resource
 namespace:
 
@@ -181,7 +182,7 @@ The output schema checks the main output structure, including:
 * optional `recommendation_method_summary` plus `bounded_search_result` through the registered strict standalone bounded-Search schema
 * optional flat `bounded_search_post_game_review_summary` through its strict focused schema
 * the separate `historical_game_summary` branch
-* versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, terminal open-card-throw, and both timed continuation input/output schemas
+* versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, terminal open-card-throw, terminal party-wide Claim, and both timed continuation input/output schemas
 * optional versioned historical decision snapshots through the focused referenced schema
 * optional versioned complete historical game review through its focused referenced schema
 * optional versioned Historical Search Review through its strict focused schema
@@ -243,6 +244,14 @@ generated scenario file. The maintainer published the Release manually on
 the authoritative publication record; no Package-index or PyPI publication is
 claimed.
 
+The current unreleased working baseline adds strict
+`historical_party_wide_claim.schema.json` and
+`historical_party_wide_claim_output.schema.json` resources. It has 65
+authoritative and byte-identical packaged Schemas, six unchanged Session
+examples, and 88 generated-output scenarios. Package version `0.16.0`, Public API
+contract version `1`, seven Root workflows, and one Console Script remain
+unchanged; the published counts above remain historical Release facts.
+
 The historical published `v0.15.0` Package baseline at commit `ec1c154` keeps
 the same 63 authoritative and 63 packaged Schemas, six Session examples, and 85
 deterministic generated outputs, and passes 6,510 pytest tests. Issue #169
@@ -267,7 +276,8 @@ scenarios. The historical published `v0.9.0` baseline passes 3,558 pytest tests
 and covers 52 scenarios. Position scenarios use CLI settings such as
 `--samples 20` and `--seed 42`, plus
 scenario-specific mode arguments where needed. Historical-game scenarios,
-including all five shortened kinds, omit position-only overrides. It is separate from input-example schema validation: input validation
+including the five earlier shortened kinds and the Historical-only party-wide
+Claim, omit position-only overrides. It is separate from input-example schema validation: input validation
 checks the example JSON files, while generated-output validation checks the
 production JSON output emitted from those inputs.
 
@@ -308,6 +318,18 @@ isolation, conflict-without-replacement, execution boundaries, and Position
 privacy. The current published `v0.16.0` and historical published `v0.15.0` and
 `v0.14.0` Package matrices all have 85 scenarios, while the historical published
 `v0.13.0` facts remain 77.
+
+Issue #186 preserves those first 85 scenarios in order and appends exactly:
+
+```text
+historical_party_wide_claim_declarer_suit
+historical_party_wide_claim_defenders_null_incomplete_trick
+historical_continuation_then_party_wide_claim
+```
+
+The current unreleased matrix therefore has 88 scenarios. These additions cover
+valid-only terminal Claim acceptance, an incomplete current Trick, one supported
+continuation before the Claim, strict public summaries, and opt-in Provenance.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
@@ -491,6 +513,12 @@ replay verifies the exact event boundary, owner-only hand shrinkage, and exact
 final public hand. A later terminal shortening reuses its existing input and
 output schema and adjudicator; all historical and event schema versions remain
 `1`.
+Historical party-wide Claim input and output use the separate strict version-1
+schemas. Runtime validation remains authoritative for claimant/party membership,
+complete-world reconciliation, the one-through-five unresolved-Trick bound,
+valid-only acceptance, single-pass proof/adjudication, final point/Trick
+accounting, and private-state exclusion. Flat `game_shortening.schema.json`
+remains unchanged.
 Declared Ouvert reuses the public-hand constraint schema with source
 `declared_ouvert`. Runtime validation is authoritative for concrete declarer
 identity, local-hand equality, opponent hand size, known-card contradictions,

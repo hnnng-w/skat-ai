@@ -19,6 +19,14 @@ synchronizes publication status without changing product behavior. GitHub
 Releases is the authoritative publication record; no Package-index or PyPI
 publication is claimed.
 
+The current unreleased working baseline keeps Package version `0.16.0`, Python
+`>=3.13`, Public API contract version `1`, seven Root workflows, one Console
+Script, and six Session examples. Issue #186 updates the Settlement Normative
+Matrix to version `3` with the same 61 cases, completes the approved Claim
+through Historical Game input only, and brings the working totals to 65
+authoritative and packaged Schemas and 88 generated-output scenarios. The
+published `v0.16.0` facts above remain unchanged.
+
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python 3.13 or newer, retains Public API contract
 version `1` and exactly seven Root workflows, and contains 63 authoritative
@@ -211,20 +219,19 @@ training is added. See
 
 The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
 and performance closure`. Issue #182 closes the Claim product-decision gate, and
-Settlement Normative Matrix version `2` preserves the 61 case IDs. Issue #183
+Issue #183
 adds private structured Claim, complete Evidence, exact-state, Proof Request/
 preparation, assignment, diagnostic-line, and Result contracts without proof or
 Runtime execution. Issue #184 adds private bounded exhaustive exact AND/OR proof
 execution without Runtime behavior. Issue #185 adds private valid-proof-only
 adjudication, complete assignment and Game Result, and composition through the
 existing Final Settlement; invalid or unavailable proof creates no outcome. The
-61-case Matrix version `2` Runtime boundary is unchanged: the approved Claim
-remains absent from Runtime `GameShortening`, the Historical ending/builder,
-Public API, CLI, Schema, examples, and generated outputs, and every other current
-Claim boundary remains `not_supported_v1`. Claims and Final Settlement remain
-`partially_supported`. Candidate directions include Runtime and Historical Claim
-integration, additional Settlement coverage and historical endings, stronger
-information-set Search
+61-case Matrix version `3` marks the approved bounded Claim `supported_as_is`
+through Historical Game input only. It remains absent from Runtime
+`GameShortening`, flat Position, Session, Match Capture, and Corpus entry, and
+every other current Claim boundary remains `not_supported_v1`. Claims and Final
+Settlement remain `partially_supported` beyond the bounded implemented slice.
+Stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -307,22 +314,24 @@ The following directions are required for `v1.0.0`:
 * Represent complete historical games with structured claims, concessions, and
   approved additional game-end reasons, then analyze rules, result, approved
   settlement, and eligible decisions retrospectively. Current complete records
-  support normal completion, all five exact-prefix shortened terminal reasons,
-  and one timed non-terminal defender-open-play or declarer-card-exposure
+  support normal completion, all six exact-prefix shortened terminal reasons,
+  including the Historical-only party-wide Claim, and one timed non-terminal defender-open-play or declarer-card-exposure
   continuation before normal completion or one supported terminal shortening.
   The approved party-wide Claim now has private contracts, exact-state
   preparation, bounded proof execution, valid-proof-only adjudication, complete
-  assignment and Game Result, and existing Final Settlement composition. Invalid
-  or unavailable proof creates no outcome. Runtime `GameShortening` and the
-  Historical ending/builder remain absent.
+  assignment and Game Result, and existing Final Settlement composition through
+  the Historical workflow. Invalid or unavailable proof rejects the asserted
+  terminal record and creates no outcome. Runtime `GameShortening` remains
+  absent.
 * Complete the approved
   [normative settlement matrix](settlement_normative_matrix.md), including
   structured claim and concession outcomes, while preserving the bounded impossible Null
   interpretation from the International Skat Court decision collection. Matrix
-  version `2` defines the approved classifications and policy boundaries. The
-  party-wide all-remaining-Tricks Claim is the only `implementation_required`
-  Claim; no canonical case remains `decision_required`, and every other current
-  Claim boundary is `not_supported_v1`.
+  version `3` defines the approved classifications and policy boundaries. The
+  party-wide all-remaining-Tricks Claim is the only supported v1 Claim;
+  `V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS` is empty, no canonical case remains
+  `decision_required`, and every other current Claim boundary is
+  `not_supported_v1`.
 * Represent complete historical games as validated training and evaluation data
   without requiring model training.
 * Preserve versioned external and exact historically aggregated opponent
@@ -330,7 +339,7 @@ The following directions are required for `v1.0.0`:
   profiles, actionable gating, explicit live stable-ID bindings, strict time-safe
   historical application, and rolling known-opponent behavioral evaluation.
   These bounded requirements are implemented for normal completion and all
-  five shortened kinds, including zero-play source games and variable-cardinality rolling
+  six shortened kinds, including zero-play source games and variable-cardinality rolling
   targets; profiles remain rule-based and confidence remains heuristic.
 * Preserve optional known-opponent and unseen-player dataset policies, exact
   stable-player overlap audits, and strict declared unseen-player disjointness.
@@ -530,7 +539,7 @@ GUI/platform/cloud/encryption layers remain open.
 | Live information control | Internal field-provenance contract version `1` defines RFC 6901 paths, immutable entries and sidecar ledgers, deterministic coverage auditing, dependency and temporal validation, Information Use Context, engine-private redaction, safe serialization, and Confidence separation. Application propagation enforces complete live and retrospective decision/stage ledgers and complete non-legacy Root Results across all seven workflows. Public version `1` exposes one explicitly mapped redacted Root Result plus actual artifacts under scopes `root_result_without_field_provenance` and `artifact_document`, with complete recomputed coverage and no consumed-input, decision, intermediate-stage, or unredacted exposure. Completion still requires broader loading, matador, review, serialization, and end-to-end enforcement. |
 | Post-game analysis | A legal actual card can be compared with all legal alternatives for Suit, Grand, and Null from declarer and defender perspectives; unavailable and invalid cases have stable schema-valid output and focused tests. |
 | Complete-game retrospective analysis and coaching | A complete historical record can be replayed in order, each eligible decision is reconstructed using only information available then, rule/result/settlement summaries and actionable coaching explanations are produced, and end-to-end tests detect future-information leakage and event-order corruption. Public Replay Coaching version 1 now exposes information-safe evidence, prioritization, patterns, recommendations, scope summaries, and isolated outcome context through a strict schema and CLI. Tactical motifs, cross-game coaching, stronger Search, ratings, and causal attribution remain absent, so this bounded one-game report does not close the broader gate. |
-| Complete-game historical representation | A versioned schema and Runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, Skat pickup/discards or Hand state, every play, structured Claims/concessions and approved additional end reasons, final result, and Settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. Matrix version `2` closes the Claim decision gate. Private party-wide Claim contracts, exact-state preparation, bounded exhaustive five-Trick proof execution, valid-proof-only adjudication, complete assignment and Game Result, and existing Final Settlement composition exist; invalid or unavailable proof creates no outcome. Runtime `GameShortening`, the Historical ending/builder, Public API, CLI, Schema, examples, and generated outputs remain absent. Claims and Final Settlement remain `partially_supported`. |
+| Complete-game historical representation | A versioned schema and Runtime model represent stable game/player IDs, fixed seats, initial deal, final bid/declaration facts, Skat pickup/discards or Hand state, every play, structured Claims/concessions and approved additional end reasons, final result, and Settlement; valid records round-trip and inconsistent ownership, order, legality, totals, or outcomes are rejected. Matrix version `3` preserves all 61 cases and marks the approved bounded party-wide Claim `supported_as_is`. Historical Game input, strict Schemas, valid-proof-only execution, diagnostic public output, Provenance, CLI, Review/Coaching, Dataset, list, and statistics integration are implemented; invalid or unavailable proof rejects the terminal record. Runtime `GameShortening`, flat Position, Session, Match Capture, and Corpus Claim entry remain absent. Claims and Final Settlement remain `partially_supported` beyond this bounded slice. |
 | Training-data representation | A versioned schema links a complete historical game to provenance, labels/targets, feature-generation version, explicit training/evaluation partition, and optional partition policy; conversion and exact-player overlap audits are deterministic, and tests reject duplicates, missing provenance, invalid labels, partition leakage, and declared unseen-player overlap. Public version-1 unpartitioned requests add explicit weights, split-safe facts, deterministic fingerprints/seeds, complete/unavailable Plans, strict temporal or player-disjoint proof, exact Record-count arithmetic, lossless materialization, exact temporal Known-opponent assignment generation, and deterministic locally optimized whole-component unseen-player assignment. Strict root input/output schemas, fixed mode dispatch, file-only CLI options, three examples, and complete/unavailable generated scenarios cover the bounded workflow without generating samples, training a model, or automatically evaluating it. |
 | Input validation | JSON Schema and runtime validation agree on public types, bounds, enums, and cross-field requirements for every stable input branch; parity tests cover malformed and contradictory records. |
 | Public Session interface | The stable Session subnamespace preserves the first 52 names exactly and appends six observation/review names plus `files`; twelve operation/value pairs, persistence mappings, optional provenance, and complete Results validate through the standalone packaged Session Schema. The independently versioned file subnamespace exposes exact path-free Save/Load Results. Export and review-export wrappers execute no analysis. |
@@ -545,20 +554,21 @@ GUI/platform/cloud/encryption layers remain open.
 | Automatic Training Dataset preparation | Root `training_dataset_preparation_input` selects workflow `training_dataset_preparation`; mode alone selects `temporal_known_opponent_v1` or `component_balanced_unseen_player_v1`. Complete output under `training_dataset_preparation_summary` losslessly materializes the existing version-1 dataset and a matching audit. Unavailable output succeeds with an explicit reason, null dataset/audit, and no partial assignments or summaries. The request has no algorithm field or default weights; the CLI accepts only `--input`, `--output`, `--quiet`, and the cross-workflow `--include-provenance` option; Plan and CLI output are card-free while the complete nested reusable dataset retains source cards. |
 | List and standings functionality | Every documented totals, contribution, local-result, and explicit three-player standings input mode produces SkWO 6.3.1 performance totals from validated inputs; complete historical records aggregate into fixed-three-player 36-position lists; standings use more own wins, fewer own losses, then an explicit unresolved or executed lot; tests reconcile every supplied game contribution and tie case. Contracts version `1` supply the immutable played/passed representation, rotation, settlement-derived Entry Facts, cumulative totals, one standings snapshot per position, final standings, exact external-lot application, and independent completed-list comparison with one reference, stable-ID alignment, all fourteen final player-total deltas, and resolved-only rank movement. Strict root input/output schemas, runtime validation, concise CLI output, exactly three examples, recursive privacy checks, one-pass source execution, and three appended generated-output scenarios complete the bounded public workflow. It adds no series rollup, ratings, winner analysis, tournament management, or official reporting. |
 | Interactive input and session capture | Issues #150 through #156 provide immutable fixed-three-player Session contracts, replay/transitions, readiness, information-safe Position and canonical Historical export, frozen Checkpoints, history editing, strict persistence, Public API/Provenance, and Schema. Issue #157 adds stable files, accepted-Log observation, isolated review, automatic exact Checkpoints, all 12 installed/module/Legacy subcommands, explicit existing-Application execution, Assistant capture, six examples, and eight scenarios. Export-only operations and ordinary mutations execute no analysis; no eighth Root workflow exists. |
-| Stable installed interface | API contract version `1` exposes seven Root workflows and stable errors/results; installed, module, and Legacy forms preserve Root parity and share the additive Session parser, 12 subcommands, private Capture and Corpus command families, explicit paths, privacy-safe output, CAS persistence, and Exit Codes through one Console Script. Wheel/sdist clean installs verify 63 packaged Schemas, public Session files, Session workflows, exact Capture/Corpus resources and help, and both local browser smoke flows. No Package-index publication is implied. |
+| Stable installed interface | API contract version `1` exposes seven Root workflows and stable errors/results; installed, module, and Legacy forms preserve Root parity and share the additive Session parser, 12 subcommands, private Capture and Corpus command families, explicit paths, privacy-safe output, CAS persistence, and Exit Codes through one Console Script. Wheel/sdist clean installs verify 65 packaged Schemas, public Session files, Historical Claim execution, Session workflows, exact Capture/Corpus resources and help, and both local browser smoke flows. No Package-index publication is implied. |
 | Session history editing | Version-1 contracts and behavior provide four Undo statuses, five Correction statuses, four Checkpoint relationships, strict-prefix reconstruction, exact suffix reporting, valid partial States, and deterministic replay. Public wrappers and CLI Undo/Correction with CAS Save and automatic resulting-State Checkpoints are implemented. Automatic Redo, arbitrary Log surgery, branching, and merge remain open. |
 | Private Session persistence and resume | The private version-1 document/codec/file boundary provides deterministic State/content fingerprints, strict typed reconstruction and accepted-Log replay, canonical Checkpoints, recomputed lineage, canonical UTF-8 files, optimistic outcomes, and atomic replacement. Stable public Save/Load and all-three-form CLI orchestration preserve those semantics and omit paths from Results. Distributed locking, migration, merge/retry, encryption, cloud sync, and automatic backup remain open. |
 | Examples | Examples cover each supported Root contract family and six strict Session creation/Command/correction/persistence documents; every example passes its applicable Schema and semantic validation. |
-| Generated-output validation | The current published `v0.16.0` and historical published `v0.15.0` and `v0.14.0` Package matrices all have 85 scenarios: the historical published `v0.13.0` first 77 remain unchanged, followed by eight Session scenarios. Historical published `v0.12.0` evidence remains 70. |
+| Generated-output validation | The current unreleased matrix has 88 scenarios: the published `v0.16.0` and historical published `v0.15.0` and `v0.14.0` 85 remain unchanged and are followed by three Issue #186 Historical Claim scenarios. The historical published `v0.13.0` first 77 and historical published `v0.12.0` 70 remain Release evidence. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
-| Regression testing | Ruff, 63-Schema packaged parity, Root and Session example validation, 85-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the current gates. The current published `v0.16.0` Package passes 6,925 pytest tests. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
+| Regression testing | Ruff, 65-Schema packaged parity, Root and Session example validation, 88-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the current unreleased gates. The current published `v0.16.0` Package passes 6,925 pytest tests with its historical 63-Schema and 85-scenario baseline. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 
 The historical-game workflow satisfies deal-through-settlement for
 `normal_completion`, exact-prefix declarer and defender concessions,
 unanimously accepted declarer-card exposure, bounded terminal defender open
-play, and terminal open-card throwing. Any supported final reason may contain at
+play, terminal open-card throwing, and a valid bounded party-wide Claim. Any
+supported final reason may contain at
 most one timed non-terminal defender-open-play or declarer-card-exposure
 continuation. Normal completion retains all ten tricks and 30 actual plays; a
 terminal chain ends after zero through 29 plays. Every supported terminal record can reconstruct one
@@ -567,7 +577,7 @@ records. Continuation public hands are visible only after their event boundary,
 and declared-Ouvert hands are visible from decision 1. Bounded review and
 versioned provenance-aware training/evaluation records use that same actual-play
 cardinality.
-Training-data representation supports normal completion and all five shortened kinds
+Training-data representation supports normal completion and all six shortened kinds
 with one sample per actual play. Optional partition intent, exact overlap audits,
 and strict declared unseen-player disjointness are implemented. Public complete
 and unavailable Plan handling, lossless materialization, temporal Known-opponent
@@ -579,7 +589,7 @@ evaluation remain absent. General automatic splitting and unseen-player model
 evaluation are not v1 requirements. Bounded
 declared-Ouvert recommendation analysis is implemented; approved later end
 reasons remain open. Historical statistics and rolling policy evaluation support
-normal completion and all five shortened terminal reasons with game-level
+normal completion and all six shortened terminal reasons with game-level
 source weighting, actual-play target weighting, and strict as-of safety. The
 bounded flat 4.4.4 continuation hand constraint and bounded flat 4.4.5/4.1.6 returned-defender-hand
 constraint are implemented for flat and timed historical play. At most one
@@ -627,12 +637,13 @@ party assignment, preexisting decisions, all four Null variants, and jack-only
 theoretical Schwarz exclusion without exact proof or simulation.
 Private version-1 party-wide Claim contracts, one exact-state preparation,
 bounded exhaustive proof execution, valid-proof-only adjudication, complete
-assignment and Game Result, and existing Final Settlement composition now exist
-outside these Runtime paths. Invalid or unavailable proof creates no outcome.
-The 61-case Matrix version `2` Runtime boundary is unchanged. Runtime
-`GameShortening`, the Historical ending/builder, Public API, CLI, Schema,
-examples, and generated outputs remain absent, and complete Settlement coverage
-remains open. Claims and Final Settlement remain `partially_supported`. Specific
+assignment and Game Result, and existing Final Settlement composition are
+integrated through Historical Game input. Invalid or unavailable proof rejects
+the asserted terminal record and creates no outcome. The 61-case Matrix version
+`3` marks that bounded case `supported_as_is`. Runtime `GameShortening`, flat
+Position, Session, Match Capture, and Corpus entry remain absent, and complete
+Settlement coverage remains open. Claims and Final Settlement remain
+`partially_supported` beyond this bounded slice. Specific
 future-Trick Claims, generalized corrected play, generalized non-jack theoretical
 exclusion, multiple non-terminal events, arbitrary event streams, simultaneous
 throws, unlimited proof, free-text or natural-language interpretation, generative

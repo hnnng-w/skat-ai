@@ -543,13 +543,14 @@ insufficient.
 | `src/skat_ai/ouvert_simulation.py` | Declared-Ouvert exact-hand validation, construction, and deterministic multi-source constraint resolution. |
 | `src/skat_ai/game_decision.py`       | Shared bounded pre-game-end decision state for defender concession and declarer card exposure.                |
 | `src/skat_ai/game_shortening.py`    | Runtime dispatcher for the version-1 structured game-shortening union.                                        |
-| `src/skat_ai/settlement_normative_matrix.py` | Internal immutable version-2 policy matrix with 61 preserved cases, one approved Runtime-unimplemented Claim, and durable v1 exclusions. |
+| `src/skat_ai/settlement_normative_matrix.py` | Internal immutable version-3 policy matrix with 61 preserved cases, one supported bounded Historical Claim, and durable v1 exclusions. |
 | `src/skat_ai/party_wide_claim_contracts.py` | Private structured Claim identity, party reconciliation, exact policies, and deterministic serialization. |
 | `src/skat_ai/party_wide_claim_evidence.py` | Private complete-world Evidence, one Historical-prefix replay, stable/flat mapping, and one untraversed exact-state preparation. |
 | `src/skat_ai/party_wide_claim_proof_contracts.py` | Private Proof Request/preparation, assignment, diagnostic Move, and supplied valid/invalid/unavailable Result invariants without execution. |
 | `src/skat_ai/party_wide_claim_proof_executor.py` | Private bounded exhaustive exact AND/OR traversal, invocation-local memoization, counters, canonical decisive lines, and existing Result construction. |
 | `src/skat_ai/party_wide_claim_adjudication_contracts.py` | Private immutable adjudication Facts/Result, exact statuses, policies, no-outcome relationships, and defensive serialization. |
 | `src/skat_ai/party_wide_claim_adjudication.py` | Strict retained-Proof reconciliation, exact assignment composition, preexisting-winner preservation, completed private Result, and existing Final Settlement reuse. |
+| `src/skat_ai/historical_party_wide_claim.py` | Focused one-replay Historical Claim adaptation, one Proof/adjudication pipeline, privacy-bounded output mapping, and retained Settlement reuse. |
 | `src/skat_ai/overbid.py`            | Bid-value comparison, overbid detection, and required game-value calculation.                                 |
 | `src/skat_ai/final_settlement.py`   | Simplified single-game settlement scoring, including supported Suit/Grand overbid loss handling.              |
 | `src/skat_ai/performance_rating.py` | Performance layer, partial fixed-three-player SkWO scoring, and separation from settlement. |
@@ -594,8 +595,12 @@ derives the completed Suit, Grand, or Null result, and composes one complete
 Settlement through the existing normal-completion builder. Invalid and
 unavailable proof create normal no-outcome Results without scoring work.
 
-The approved Claim remains unavailable to Runtime, and the Matrix
-`implementation_modules` tuple remains empty until Runtime work. See [Party-wide
+Issue #186 dispatches the approved Claim only from the Historical workflow after
+one retained replay. The focused adapter builds Evidence without a second replay,
+executes one available Proof, accepts only `valid`, adjudicates once, and reuses
+the resulting Settlement. Matrix version `3` marks the case `supported_as_is`.
+Flat `game_shortening`, live Position, Session, Match Capture, and Corpus Claim
+entry remain absent. See [Historical party-wide Claim](historical_party_wide_claim.md), [Party-wide
 Claim contracts](party_wide_claim_contracts.md), [Party-wide Claim proof
 executor](party_wide_claim_proof_executor.md), [Party-wide Claim
 adjudication](party_wide_claim_adjudication.md), and [Claim and Settlement v1

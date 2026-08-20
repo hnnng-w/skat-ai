@@ -53,9 +53,9 @@ from skat_ai.party_wide_claim_proof_executor import (
     execute_party_wide_claim_proof_v1,
 )
 from skat_ai.settlement_normative_matrix import (
-    IMPLEMENTATION_REQUIRED,
     PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1,
     SETTLEMENT_NORMATIVE_MATRIX_VERSION,
+    SUPPORTED_AS_IS,
     get_normative_settlement_case,
     get_normative_settlement_cases,
 )
@@ -272,17 +272,13 @@ def test_executor_metadata_and_policies_are_exact() -> None:
 
 
 @pytest.mark.parametrize("reason", PARTY_WIDE_CLAIM_PROOF_UNAVAILABLE_REASONS)
-def test_unavailable_preparation_passes_through_without_execution(
-    reason: str, monkeypatch
-) -> None:
+def test_unavailable_preparation_passes_through_without_execution(reason: str, monkeypatch) -> None:
     evidence, _ = _build_evidence(play_count=27)
     claim = _claim_for_party(evidence, "declarer")
     preparation = build_unavailable_party_wide_claim_proof_preparation_v1(
         claim=claim,
         unavailable_reason=reason,
-        evidence=(
-            None if reason in PARTY_WIDE_CLAIM_PROOF_UNAVAILABLE_REASONS[:2] else evidence
-        ),
+        evidence=(None if reason in PARTY_WIDE_CLAIM_PROOF_UNAVAILABLE_REASONS[:2] else evidence),
     )
 
     def unexpected(*_args, **_kwargs):
@@ -851,13 +847,13 @@ def test_executor_has_no_budget_time_random_search_settlement_or_direct_rule_pat
         "seed",
         "timeout",
     }
-    runtime_names = {
-        node.id for node in ast.walk(tree) if isinstance(node, ast.Name)
-    } | {node.arg for node in ast.walk(tree) if isinstance(node, ast.arg)}
+    runtime_names = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)} | {
+        node.arg for node in ast.walk(tree) if isinstance(node, ast.arg)
+    }
     assert forbidden_runtime_names.isdisjoint(runtime_names)
 
 
-def test_existing_defender_proof_and_runtime_matrix_boundaries_are_unchanged() -> None:
+def test_existing_defender_proof_and_runtime_matrix_boundaries_are_current() -> None:
     from skat_ai.exact_rest_trick_proof import prove_defender_rest_tricks
 
     valid = prove_defender_rest_tricks(
@@ -882,11 +878,16 @@ def test_existing_defender_proof_and_runtime_matrix_boundaries_are_unchanged() -
     approved = get_normative_settlement_case(
         "claim_boundary.decision.party_wide_all_remaining_tricks_claim"
     )
-    assert SETTLEMENT_NORMATIVE_MATRIX_VERSION == 2
+    assert SETTLEMENT_NORMATIVE_MATRIX_VERSION == 3
     assert len(cases) == 61
-    assert approved.implementation_status == IMPLEMENTATION_REQUIRED
-    assert approved.implementation_modules == ()
-    assert approved.stable_unavailable_reason == "party_wide_claim_not_implemented"
+    assert approved.implementation_status == SUPPORTED_AS_IS
+    assert approved.implementation_modules == (
+        "skat_ai.historical_game_end",
+        "skat_ai.historical_party_wide_claim",
+        "skat_ai.party_wide_claim_proof_executor",
+        "skat_ai.party_wide_claim_adjudication",
+    )
+    assert approved.stable_unavailable_reason is None
     assert approved.proof_policy == PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1
     assert _runtime_union_kinds(GameShortening) == {
         "declarer_card_exposure",
@@ -899,7 +900,8 @@ def test_existing_defender_proof_and_runtime_matrix_boundaries_are_unchanged() -
         "declarer_card_exposure_continuation",
         "defender_open_play_continuation",
     }
-    assert len(HISTORICAL_GAME_END_REASONS) == len(VALID_GAME_END_REASONS) == 6
+    assert len(HISTORICAL_GAME_END_REASONS) == 7
+    assert len(VALID_GAME_END_REASONS) == 6
 
 
 def test_public_cli_schema_example_generated_and_package_boundaries_are_unchanged() -> None:
@@ -922,16 +924,19 @@ def test_public_cli_schema_example_generated_and_package_boundaries_are_unchange
         if path != EXECUTOR_PATH
         if "party_wide_claim_proof_executor" in path.read_text(encoding="utf-8")
     )
-    assert external_executor_references == ()
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 63
+    assert external_executor_references == (
+        PROJECT_ROOT / "src" / "skat_ai" / "historical_party_wide_claim.py",
+        PROJECT_ROOT / "src" / "skat_ai" / "settlement_normative_matrix.py",
+    )
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
     assert (
         len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
-        == 63
+        == 65
     )
     assert {
         path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")
     } == SESSION_EXAMPLE_NAMES
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
@@ -964,6 +969,4 @@ def test_result_reuses_existing_contract_without_new_public_fields() -> None:
             "winner",
         }
     )
-    assert inspect.signature(execute_party_wide_claim_proof_v1).parameters.keys() == {
-        "preparation"
-    }
+    assert inspect.signature(execute_party_wide_claim_proof_v1).parameters.keys() == {"preparation"}

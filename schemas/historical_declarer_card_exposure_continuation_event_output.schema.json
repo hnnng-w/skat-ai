@@ -93,7 +93,8 @@
         "defender_concession",
         "declarer_card_exposure",
         "defender_open_play",
-        "open_card_throw"
+        "open_card_throw",
+        "party_wide_all_remaining_tricks_claim"
       ]
     },
     "final_outcome_source": {

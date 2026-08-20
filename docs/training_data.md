@@ -19,15 +19,18 @@ and [Learning Dataset version 2 cross-game summaries](learning_dataset_v2_cross_
 
 Training-data representation remains `partially_supported`. Version 1 accepts
 normal completion, declarer concession, defender concession, accepted
-declarer-card exposure, defender open play, and open-card throwing. Normal
-records produce 30 samples; shortened records produce zero through 29 samples
-from their actual play prefix, subject to event prerequisites. Historical end
-reasons beyond this bounded set remain unsupported.
+declarer-card exposure, defender open play, open-card throwing, and a valid
+Historical party-wide Claim. Normal records produce 30 samples; shortened
+records produce zero through 29 samples from their actual play prefix, subject
+to event prerequisites. Historical end reasons beyond this bounded set remain
+unsupported.
 
-A normal-completion record may contain one timed defender-open-play or declarer-
-card-exposure continuation and still produces exactly 30 samples. Samples before
-the boundary contain no event information; later samples use the existing
-relative `public_exposed_cards` feature for the shrinking public hand.
+A normal-completion or valid party-wide-Claim record may contain one timed
+defender-open-play or declarer-card-exposure continuation. Normal completion
+still produces exactly 30 samples; a Claim record produces one sample per actual
+play. Samples before the boundary contain no event information; later samples
+use the existing relative `public_exposed_cards` feature for the shrinking
+public hand.
 Declared-Ouvert records expose the exact shrinking declarer hand from decision 1
 through the same feature.
 
@@ -257,6 +260,9 @@ Each accepted record is replayed once through the existing historical-game
 implementation. The validated result is passed to the existing decision
 snapshot generator, producing one sample per actual play in `decision_index` order.
 No recommender, recommendation simulation, or historical review is run.
+The terminal party-wide Claim event is not a play and produces no Snapshot,
+sample, feature, or target. Its private Evidence, Proof state, assignment, and
+Settlement never enter the decision-time sample.
 
 Dataset sample order is record input order followed by consecutive one-based
 decision indices.
@@ -307,8 +313,8 @@ achieved future Schneider/Schwarz result, final game value, overbid outcome,
 settlement, recommendation, or decision-quality value.
 The terminal event, defender consent, unresolved points, and the fact that a
 concession will occur are also absent from model-facing features.
-The continuation event, claim, and responses are not targets or direct features;
-only the rule-authorized post-event public hand is represented.
+Continuation events, terminal Claims, and responses are not targets or direct
+features; only a rule-authorized post-event public hand is represented.
 Declared-Ouvert cards are ordinary decision-time information, not an Ouvert or
 exposure prediction target. Feature-generation version `1`, target
 `actual_card_played`, and stable sample IDs remain unchanged.
@@ -434,8 +440,10 @@ meanings. Samples, seeds, review, simulation, comparison, policy, profile, and
 binding options are rejected. Without the aggregation flag, sample conversion is
 unchanged.
 Aggregation accepts exactly normal completion, declarer concession, defender
-concession, declarer-card exposure, defender open play, and open card throw; zero-
-sample shortened records remain full game-level evidence.
+concession, declarer-card exposure, defender open play, open card throw, and a
+valid party-wide Claim; zero-sample shortened records remain full game-level
+evidence. Claim-ending Games reuse the existing final Settlement and add no
+Claim-specific statistic or weight.
 
 With `--evaluate-opponent-policy-profiles`, the dataset instead feeds the
 separate known-opponent rolling behavioral evaluation. It accepts unspecified

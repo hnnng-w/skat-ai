@@ -72,6 +72,7 @@ SCHEMAS = {
         "historical_declarer_card_exposure.schema.json",
         "historical_defender_open_play.schema.json",
         "historical_open_card_throw.schema.json",
+        "historical_party_wide_claim.schema.json",
         "historical_defender_open_play_continuation_event.schema.json",
         "historical_declarer_card_exposure_continuation_event.schema.json",
     )
@@ -445,7 +446,7 @@ def test_preparation_cli_rejects_every_non_file_option(
 def test_generated_output_matrix_appends_three_preparation_scenarios() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88
     assert tuple(scenario.name for scenario in SCENARIOS[67:70]) == (
         "training_dataset_preparation_known_opponent",
         "training_dataset_preparation_unseen_player",

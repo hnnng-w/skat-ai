@@ -277,15 +277,15 @@ def test_persistence_and_import_remain_private_compatibility_additions_only() ->
     assert len(WorkflowV1) == 7
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
     assert pyproject["project"]["version"] == "0.16.0"
     assert pyproject["project"]["requires-python"] == ">=3.13"
     assert pyproject["project"]["scripts"] == {"skat-ai": "skat_ai.cli:main"}
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 63
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
     assert len(
         tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))
-    ) == 63
+    ) == 65
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert not tuple((PROJECT_ROOT / "schemas").glob("*learning_corpus*.schema.json"))
     assert not tuple((PROJECT_ROOT / "examples").glob("*learning_corpus*.json"))

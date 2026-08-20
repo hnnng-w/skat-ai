@@ -19,7 +19,7 @@ The project focuses on:
 * game result and settlement summaries
 * automatic matador inference where supported by known declarer-card context and safe concrete-declarer completed-trick ownership
 * post-game review support
-* complete normal-play and five supported exact-prefix shortened historical-game records
+* complete normal-play and six supported exact-prefix shortened historical-game records
 * two supported timed non-terminal historical continuation events
 * information-safe variable-length historical decision snapshots and complete-game review
 * versioned training and evaluation dataset records
@@ -39,13 +39,13 @@ The project focuses on:
   three examples, and generated-output coverage
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
-* immutable version-2 Settlement Normative Matrix with 61 preserved cases, one
-  approved party-wide Claim, and durable v1 Claim exclusions
+* immutable version-3 Settlement Normative Matrix with 61 preserved cases, one
+  supported bounded Historical party-wide Claim, and durable v1 Claim exclusions
 * private immutable version-1 structured party-wide Claim, complete Evidence,
   exact-state, Proof Request/preparation, assignment, diagnostic-line, and Result
   contracts plus bounded exhaustive exact AND/OR proof execution, private
-  valid-proof adjudication, and existing Final Settlement composition without
-  Runtime integration
+  valid-proof adjudication, and existing Final Settlement composition with
+  Historical-only runtime integration and privacy-bounded public output
 * immutable version-1 Replay Coaching decision-time evidence and retrospective impact contracts
 * deterministic Replay Coaching Key Decisions, Turning Points, one-game patterns, and actionable recommendations
 * complete public version-1 Replay Coaching Report with strict schema, CLI, human-readable presentation, and generated-output coverage
@@ -443,7 +443,7 @@ Implemented by Issue #157:
 * explicit Position analysis, Checkpoint review, and Historical finalization
   through the existing Application once when export is available
 * deterministic phase-aware Assistant, six examples, and eight append-only
-  generated scenarios for an active total of 85
+  generated scenarios for the published `v0.14.0` total of 85
 
 Issue #158 completed Release preparation for the functional `v0.14.0` milestone,
 which the maintainer subsequently published manually at commit `d5589f8`. GUI
@@ -640,7 +640,7 @@ Implemented:
 * Schneider/Schwarz status summaries
 * versioned complete normal-play historical-game records
 * complete deal, pickup or Hand, discard, ownership, play-order, follow-rule, winner, point, and settlement replay validation
-* exact legal prefixes and remaining-hand reconstruction for all five supported shortened terminal events
+* exact legal prefixes and remaining-hand reconstruction for all six supported shortened terminal events
 * one optional timed defender-open-play or declarer-card-exposure continuation before normal completion or one supported terminal shortening
 * variable-length snapshots, review decisions, and training samples based on actual play count
 
@@ -657,9 +657,9 @@ Implemented:
 * supported Suit/Grand overbid detection
 * supported Suit/Grand overbid settlement loss handling
 * bounded impossible Null settlement from an externally supplied Suit or Grand replacement
-* immutable version-2 Settlement Normative Matrix covering current support,
-  bounded interpretations, legacy compatibility, one approved Runtime-unimplemented
-  Claim, and durable `not_supported_v1` boundaries
+* immutable version-3 Settlement Normative Matrix covering current support,
+  bounded interpretations, legacy compatibility, one supported bounded
+  Historical Claim, and durable `not_supported_v1` boundaries
 * private version-1 party-wide Claim, complete Evidence, exact-state, Proof
   Request/preparation, assignment, diagnostic Move, and Result contracts
 * private bounded exhaustive exact AND/OR Claim proof execution with canonical
@@ -667,6 +667,9 @@ Implemented:
 * private valid-proof-only Claim adjudication with complete point/Trick
   assignment, preexisting-winner preservation, Suit/Grand/Null semantics, and
   existing Final Settlement composition
+* focused Historical-only Claim integration with one retained replay, one
+  available Proof execution, valid-only acceptance, strict diagnostic output,
+  Provenance, CLI, Review/Coaching, Dataset, list, and statistics compatibility
 
 Known remaining areas:
 
@@ -687,7 +690,8 @@ Implemented:
 
 The approved party-wide Claim contracts, exact-state preparation, bounded proof
 execution, valid-proof adjudication, and existing Final Settlement composition
-exist. Runtime/Historical integration and public exposure remain open. Specific
+are integrated through Historical Game input only. Flat Position, Session, Match
+Capture, and Corpus Claim entry remain open. Specific
 future-Trick Claims, defender-open-play
 proof beyond five unresolved Tricks, and the other durable v1 Claim exclusions
 are `not_supported_v1`; broader Settlement nuance remains incomplete.
@@ -1464,6 +1468,13 @@ implement the milestone, Issue #180 completed Release preparation, and Issue
 does not change product behavior. GitHub Releases is the authoritative
 publication record; no Package-index or PyPI publication is claimed.
 
+The current unreleased working baseline keeps Package version `0.16.0`, Python
+`>=3.13`, Public API contract version `1`, seven Root workflows, one Console
+Script, and six Session examples. Issue #186 updates the Matrix to version `3`
+with the same 61 cases and brings the working totals to 65 authoritative and
+packaged Schemas and 88 generated-output scenarios. The published `v0.16.0`
+counts above remain unchanged Release facts.
+
 Historical published `v0.15.0` Release theme: "Local EuroSkat 36er Match
 capture, analysis, and exports".
 
@@ -1506,12 +1517,12 @@ The active next planning milestone is `v0.17.0 — Rules, Search, Coaching,
 and performance closure`. Issue #182 closes the Claim product-decision gate, and
 Issue #183 adds private structured Claim and exact-proof contracts plus one
 untraversed exact-state preparation. Issue #184 adds private bounded exhaustive
-exact AND/OR proof execution. Matrix version `2` preserves all 61 cases, keeps
-the approved Claim unavailable to Runtime, and makes all other current Claim
-boundaries durable v1 exclusions. Issue #185 adds private valid-proof
-adjudication and existing Final Settlement composition. Candidate directions
-include Runtime/Historical Claim integration, additional historical endings, stronger
-information-set Search
+exact AND/OR proof execution. Issue #185 adds private valid-proof adjudication
+and existing Final Settlement composition. Issue #186 updates Matrix version `3`
+without changing its 61 cases and completes the approved bounded Claim and Final
+Settlement runtime slice through Historical Game input only. All other current
+Claim boundaries remain durable v1 exclusions. Session, Match Capture, and Corpus
+Claim entry remain open. Stronger information-set Search
 and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -1781,14 +1792,14 @@ publication.
 
 ## Current implementation baseline
 
-**Current published v0.16.0 Package baseline**
+**Current unreleased working baseline over published v0.16.0**
 
 Completed implementation scope:
 
 * all bounded `v0.8.0` opponent-intelligence workflows remain supported
 * five structured flat terminal endings and two exact-public-hand continuation paths
-* exact-prefix records for all five supported historical shortened terminal events
-* variable-length historical decision artifacts for normal completion and all five shortened kinds
+* exact-prefix records for all six supported historical shortened terminal events
+* variable-length historical decision artifacts for normal completion and all six shortened kinds
 * shortened-game historical statistics, export, and rolling evaluation
 * timed continuation with an exact shrinking public defender or declarer hand before normal completion or one supported terminal shortening
 * declared-Ouvert exact public-hand constraints in Immediate Analysis, supported Multi-Step, Policy Comparison, flat review, and historical review
@@ -1799,13 +1810,12 @@ Completed implementation scope:
 * exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, retained duplicate weighting, and common-prefix aggregation
 * live, Multi-Step, Policy Comparison, post-game, Historical Search Review, and dataset-evaluation integration
 * immutable budget profiles, quality and convergence fixtures, and deterministic measured reference performance
-* immutable 61-case Settlement Normative Matrix version `2` with direct,
-  bounded, legacy, one implementation-required Claim, and durable v1 exclusion
-  classifications
-* private version-1 party-wide Claim contracts, exact-state preparation, and
-  bounded exhaustive exact AND/OR proof execution plus private valid-proof
-  adjudication and existing Final Settlement composition without Runtime
-  integration
+* immutable 61-case Settlement Normative Matrix version `3` with direct,
+  bounded, legacy, one supported bounded Historical Claim, and durable v1
+  exclusion classifications
+* private version-1 party-wide Claim contracts, exact-state preparation, bounded
+  exhaustive exact AND/OR proof execution, valid-proof adjudication, and existing
+  Final Settlement composition with Historical-only runtime integration
 * one supported non-terminal continuation before normal completion or one
   supported terminal shortening, delegated to unchanged terminal adjudicators
 * information-safe one-game Replay Coaching evidence, impact, Key Decisions,
@@ -1864,7 +1874,7 @@ Completed implementation scope:
   complete default-omitted Session Provenance
 * installed/module/Legacy 12-subcommand Session CLI parity, explicit Position
   and Historical execution, phase-aware Assistant, six examples, and eight
-  append-only scenarios for an active total of 85
+  append-only scenarios for the published `v0.14.0` total of 85
 * internal immutable Match Capture, source metadata, Media Timecode, named
   tournament-format registry, Match Participant, optional Player Statistics
   Snapshot, exact perspective, and deterministic serialization contracts
@@ -1941,11 +1951,10 @@ Completed implementation scope:
 
 ## Current high-priority limitations
 
-* Historical records support normal completion or one of five terminal shortenings, optionally after one timed continuation kind. The approved party-wide Claim has private contracts, exact-state preparation, bounded proof execution, valid-proof adjudication, and existing Final Settlement composition but still lacks a Runtime/Historical ending. Multiple non-terminal events, arbitrary event streams, specific future-Trick Claims, and the other durable v1 Claim exclusions are `not_supported_v1`; other end reasons remain unsupported.
-* Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all five shortened terminal reasons; other end reasons remain unsupported.
-* Runtime/Historical integration and public exposure for the approved party-wide
-  Claim, concession disputes, and approved Settlement completeness remain
-  incomplete.
+* Historical records support normal completion or one of six terminal shortenings, optionally after one timed continuation kind. The approved party-wide Claim has Historical-only runtime integration, strict public diagnostic output, and downstream Review/Dataset/list/statistics support. Multiple non-terminal events, arbitrary event streams, specific future-Trick Claims, and the other durable v1 Claim exclusions are `not_supported_v1`; other end reasons remain unsupported.
+* Historical opponent-statistics aggregation and rolling policy evaluation support normal completion and all six shortened terminal reasons; other end reasons remain unsupported.
+* Flat Position, Session, Match Capture, and Corpus Claim entry, concession
+  disputes, and broader Settlement completeness remain incomplete.
 * All seven Root workflows have complete internal Root Result provenance,
   including base Historical execution. Bounded public Result and actual-artifact
   exposure is implemented, but consumed-input, decision, intermediate-stage,
@@ -2048,8 +2057,10 @@ Planning should use the active `v0.17.0 — Rules, Search, Coaching, and
 performance closure` milestone. Issue #182 closes the Claim product-decision
 gate, Issue #183 completes the private contracts and exact-state preparation,
 Issue #184 completes dedicated bounded proof traversal, and Issue #185 completes
-private adjudication and Settlement composition; next Claim work must add the
-Runtime/Historical ending without broadening the durable v1 exclusions. Continue keeping immutable imported
+private adjudication and Settlement composition. Issue #186 completes the
+Historical-only runtime integration without broadening the durable v1
+exclusions. Stronger information-set Search is the next functional area.
+Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived
 artifacts.
 Final Issue titles, count, architecture, solver design, Rating boundary, Coaching

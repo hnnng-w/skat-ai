@@ -92,6 +92,15 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
                 "Theoretical Schwarz:",
                 game_end_summary["theoretical_schwarz_status"],
             )
+        elif end_kind == "party_wide_all_remaining_tricks_claim":
+            print("End reason: party-wide all-remaining-Tricks Claim")
+            print("Claimant:", game_end_summary["claimant_player_id"])
+            print("Claiming party:", game_end_summary["claiming_party"])
+            print("Exact proof:", game_end_summary["exact_proof"]["status"])
+            print(
+                "Proof states evaluated:",
+                game_end_summary["exact_proof"]["evaluated_state_count"],
+            )
         else:
             print("End reason: accepted declarer card exposure")
             print("Exposure form:", game_end_summary["exposure_form"])
@@ -132,12 +141,27 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
                 game_end_summary["decision_state_before_shortening"],
             )
             print(f"Result: {summary['winner']} won")
+        elif end_kind == "party_wide_all_remaining_tricks_claim":
+            print(
+                "Decision before Claim:",
+                game_end_summary["adjudication"]["decision_state_before_claim"],
+            )
+            print(f"Result: {summary['winner']} won")
         else:
             print("Decision before exposure:", game_end_summary["decision_state_before_shortening"])
             print(f"Result: {summary['winner']} won")
         print(
             "Unresolved points assigned:",
-            "yes" if end_kind in {"defender_open_play", "open_card_throw"} else "no",
+            (
+                "yes"
+                if end_kind
+                in {
+                    "defender_open_play",
+                    "open_card_throw",
+                    "party_wide_all_remaining_tricks_claim",
+                }
+                else "no"
+            ),
         )
         print("Settlement:", settlement["settlement_score"])
         if game_events_summary is not None:

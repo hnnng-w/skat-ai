@@ -31,6 +31,9 @@ BOUNDED_SEARCH_SCHEMA_PATH = PROJECT_ROOT / "schemas" / "bounded_search_result.s
 HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "historical_search_review.schema.json"
 )
+HISTORICAL_PARTY_WIDE_CLAIM_OUTPUT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_party_wide_claim_output.schema.json"
+)
 
 
 def _load_schema(path: Path) -> dict:
@@ -42,6 +45,9 @@ SCHEMA = _load_schema(SCHEMA_PATH)
 BOUNDED_SEARCH_SCHEMA = _load_schema(BOUNDED_SEARCH_SCHEMA_PATH)
 HISTORICAL_SEARCH_REVIEW_SCHEMA = _load_schema(
     HISTORICAL_SEARCH_REVIEW_SCHEMA_PATH
+)
+HISTORICAL_PARTY_WIDE_CLAIM_OUTPUT_SCHEMA = _load_schema(
+    HISTORICAL_PARTY_WIDE_CLAIM_OUTPUT_SCHEMA_PATH
 )
 
 
@@ -58,6 +64,10 @@ SCHEMA_REGISTRY = Registry(retrieve=_reject_remote_retrieval).with_resources(
         (
             HISTORICAL_SEARCH_REVIEW_SCHEMA["$id"],
             Resource.from_contents(HISTORICAL_SEARCH_REVIEW_SCHEMA),
+        ),
+        (
+            HISTORICAL_PARTY_WIDE_CLAIM_OUTPUT_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_PARTY_WIDE_CLAIM_OUTPUT_SCHEMA),
         ),
     ]
 )

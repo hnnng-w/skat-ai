@@ -74,10 +74,10 @@ from skat_ai.party_wide_claim_proof_contracts import (
 )
 from skat_ai.rules import get_legal_cards, get_trick_points, get_trick_winner
 from skat_ai.settlement_normative_matrix import (
-    IMPLEMENTATION_REQUIRED,
     PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1,
     PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1_QUANTIFIERS,
     SETTLEMENT_NORMATIVE_MATRIX_VERSION,
+    SUPPORTED_AS_IS,
     V1_NOT_SUPPORTED_CLAIM_CASE_IDS,
     get_normative_settlement_case,
     get_normative_settlement_cases,
@@ -1115,16 +1115,21 @@ def _runtime_union_kinds(union_alias) -> set[str]:
     return kinds
 
 
-def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_unchanged() -> None:
+def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_current() -> None:
     cases = get_normative_settlement_cases()
     approved = get_normative_settlement_case(
         "claim_boundary.decision.party_wide_all_remaining_tricks_claim"
     )
-    assert SETTLEMENT_NORMATIVE_MATRIX_VERSION == 2
+    assert SETTLEMENT_NORMATIVE_MATRIX_VERSION == 3
     assert len(cases) == 61
-    assert approved.implementation_status == IMPLEMENTATION_REQUIRED
-    assert approved.implementation_modules == ()
-    assert approved.stable_unavailable_reason == "party_wide_claim_not_implemented"
+    assert approved.implementation_status == SUPPORTED_AS_IS
+    assert approved.implementation_modules == (
+        "skat_ai.historical_game_end",
+        "skat_ai.historical_party_wide_claim",
+        "skat_ai.party_wide_claim_proof_executor",
+        "skat_ai.party_wide_claim_adjudication",
+    )
+    assert approved.stable_unavailable_reason is None
     assert approved.proof_policy == PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1
     assert approved.proof_maximum_unresolved_tricks == 5
     assert len(V1_NOT_SUPPORTED_CLAIM_CASE_IDS) == 13
@@ -1135,7 +1140,7 @@ def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_unch
         "defender_open_play",
         "open_card_throw",
     }
-    assert len(HISTORICAL_GAME_END_REASONS) == 6
+    assert len(HISTORICAL_GAME_END_REASONS) == 7
     assert len(VALID_GAME_END_REASONS) == 6
     assert skat_ai.__all__ == ("api", "errors", "__version__")
     for name in (
@@ -1146,15 +1151,15 @@ def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_unch
     ):
         assert name not in api_v1.__all__
     assert len(WorkflowV1) == 7
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 63
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
     assert (
         len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
-        == 63
+        == 65
     )
     assert {
         path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")
     } == SESSION_EXAMPLE_NAMES
-    assert len(SCENARIOS) == 85
+    assert len(SCENARIOS) == 88
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]

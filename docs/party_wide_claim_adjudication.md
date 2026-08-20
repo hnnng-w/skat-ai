@@ -17,11 +17,12 @@ This layer does not execute proof. It consumes one retained Proof Result and
 does not replay Historical play, rebuild the exact state, traverse future play,
 run Search, or call a Recommendation workflow.
 
-The Claim remains unavailable through Runtime, Historical records, Root JSON,
-Public API, CLI, Schemas, examples, Session, Match Capture, and Learning Corpus.
-The Settlement Normative Matrix remains version `2` with 61 cases, an empty
-Runtime implementation-module tuple for this Claim, and unavailable reason
-`party_wide_claim_not_implemented`.
+Issue #186 calls this layer exactly once after one valid Proof in the focused
+Historical adapter. The existing `historical_game` Root workflow then reuses its
+complete Result and Settlement in strict public output. The Claim remains absent
+from flat Position and `GameShortening`, Session, Match Capture, and Learning
+Corpus entry. Settlement Normative Matrix version `3` retains 61 cases and marks
+the approved bounded Claim `supported_as_is`.
 
 ## Versions and results
 
@@ -84,6 +85,11 @@ final_settlement_summary
 No winner, assignment, opposing-party fallback, legacy remaining-point
 assignment, or Settlement is created. No Game-value, Overbid, Game Result, or
 Final Settlement builder runs on these paths.
+
+These remain valid private no-outcome contracts. The Issue #186 Historical
+terminal adapter does not serialize them as successful output: unavailable
+preparation is rejected before execution, and an invalid Proof rejects the
+asserted terminal record before adjudication.
 
 ## Point accounting
 
@@ -202,8 +208,9 @@ The Result uses `final_decided` when preserving a preexisting winner and
 awarded. The completed assignment either satisfies or fails the existing
 requirement.
 
-This private kind is not added to any Runtime validator, `GameShortening`,
-Historical ending union, public Game Result contract, or Schema.
+This private kind is now adapted into the Historical ending union and strict
+Historical Claim input/output Schemas. It remains absent from `GameShortening`
+and flat Position validation; the private Result contract itself is unchanged.
 
 ## Settlement composition
 
@@ -234,17 +241,19 @@ random value, process value, logging, file I/O, network I/O, or background work
 enters adjudication.
 
 The private Result retains the private Proof Result and therefore may indirectly
-contain the complete Deal. It has no public export or redaction contract.
+contain the complete Deal. Issue #186 exports only a strict bounded Historical
+summary and redacts private Evidence, exact state, memo tables, and the complete
+proof tree.
 
-## Remaining work
+## Integration boundary
 
-Separate work is still required for:
+Issue #186 completes the approved bounded v1 Claim and Final Settlement runtime
+slice through the Historical workflow, including public diagnostic output,
+Provenance, CLI/example/generated-output coverage, Review/Coaching, Dataset,
+list, and statistics compatibility. It does not change this adjudicator or build
+Settlement a second time.
 
-1. Runtime Claim input and `GameShortening` integration.
-2. A Retrospective Historical Claim ending and Builder integration.
-3. Information-safe public output and any redaction decision.
-4. Any Public API, CLI, Schema, example, generated scenario, Session, Match
-   Capture, Learning Corpus, Provenance, Recommendation, or Coaching exposure.
-
-Claims and Final Settlement remain partially supported. Complete official-rule,
-Claim, concession, or Settlement coverage is not claimed.
+Flat `GameShortening`, live Position, Session, Match Capture, and Learning Corpus
+Claim entry remain absent. Broader Claim boundaries remain `not_supported_v1`.
+Complete official-rule, Claim, concession, or Settlement coverage is not
+claimed. See [Historical party-wide Claim](historical_party_wide_claim.md).

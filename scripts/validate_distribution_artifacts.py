@@ -33,9 +33,10 @@ HISTORICAL_SESSION_SMOKE_EXAMPLE = (
 HISTORICAL_MATCH_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
 )
+HISTORICAL_CLAIM_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "historical_party_wide_claim.json"
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.16.0"
-EXPECTED_SCHEMA_RESOURCE_COUNT = 63
+EXPECTED_SCHEMA_RESOURCE_COUNT = 65
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
 CAPTURE_RESOURCE_NAMES = (
@@ -795,7 +796,7 @@ resource_names = sorted(
 )
 expected_names = sorted(path.name for path in expected_schema_root.glob("*.schema.json"))
 assert resource_names == expected_names
-assert len(resource_names) == 63
+assert len(resource_names) == 65
 
 schema_ids = []
 schema_digest = hashlib.sha256()
@@ -1727,6 +1728,26 @@ assert execution.field_provenance.result.attachment_name == "opponent_statistics
 assert execution.field_provenance.result.ledger["status"] == "complete"
 assert execution.field_provenance.result.coverage_summary["provenance_complete"] is True
 assert execution.field_provenance.artifacts == ()
+claim_document = json.loads((cwd / "historical-claim.json").read_text(encoding="utf-8"))
+claim_request = parse_request(claim_document)
+claim_execution = execute_document(
+    claim_document,
+    options=ExecutionOptionsV1(validate_output=True, include_provenance=True),
+    input_reference="historical-claim.json",
+)
+claim_serialized = serialize_result(claim_execution)
+claim_summary = claim_serialized["document"]["historical_game_summary"]
+assert claim_request.workflow.value == "historical_game"
+assert claim_summary["status"] == "complete"
+assert claim_summary["historical_game_end_summary"]["exact_proof"]["status"] == "valid"
+assert claim_summary["final_settlement_summary"]["is_complete"] is True
+assert claim_execution.field_provenance is not None
+assert claim_execution.field_provenance.result.ledger["status"] == "complete"
+assert claim_execution.field_provenance.result.coverage_summary["provenance_complete"] is True
+installed_claim = json.loads((cwd / "installed-claim.json").read_text(encoding="utf-8"))
+module_claim = json.loads((cwd / "module-claim.json").read_text(encoding="utf-8"))
+legacy_claim = json.loads((cwd / "legacy-claim.json").read_text(encoding="utf-8"))
+assert installed_claim == module_claim == legacy_claim == claim_serialized["document"]
 installed_cli_document = json.loads((cwd / "installed-cli-result.json").read_text(encoding="utf-8"))
 module_cli_document = json.loads((cwd / "module-cli-result.json").read_text(encoding="utf-8"))
 assert installed_cli_document == module_cli_document == serialized["document"]
@@ -1927,6 +1948,13 @@ def _install_and_smoke(
     )
     (consumer_directory / "match-analysis-historical.json").write_text(
         json.dumps(historical_match_document, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    historical_claim_document = json.loads(
+        HISTORICAL_CLAIM_SMOKE_EXAMPLE.read_text(encoding="utf-8")
+    )
+    (consumer_directory / "historical-claim.json").write_text(
+        json.dumps(historical_claim_document, separators=(",", ":")),
         encoding="utf-8",
     )
     (consumer_directory / "session-create.json").write_text(
@@ -2337,6 +2365,29 @@ def _install_and_smoke(
         not unavailable_result.stdout and not unavailable_result.stderr,
         f"{label} unavailable Result was not a quiet success.",
     )
+    for prefix, output_name, command_name in (
+        (installed_prefix, "installed-claim.json", "installed"),
+        (module_prefix, "module-claim.json", "module"),
+        ([str(python), str(legacy_main)], "legacy-claim.json", "Legacy"),
+    ):
+        claim_result = _run_cli_check(
+            [
+                *prefix,
+                "--input",
+                "historical-claim.json",
+                "--output",
+                output_name,
+                "--include-provenance",
+                "--quiet",
+            ],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not claim_result.stdout and not claim_result.stderr,
+            f"{label} {command_name} Historical Claim was not a quiet success.",
+        )
     unknown_result = _run_cli_check(
         [*installed_prefix, "--not-an-option"],
         cwd=consumer_directory,

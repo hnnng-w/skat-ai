@@ -56,7 +56,8 @@
         "defender_concession",
         "declarer_card_exposure",
         "defender_open_play",
-        "open_card_throw"
+        "open_card_throw",
+        "party_wide_all_remaining_tricks_claim"
       ]
     },
     "game_end": {
@@ -165,6 +166,29 @@
         "properties": {
           "game_end": {
             "$ref": "https://example.local/skat-ai/historical_open_card_throw.schema.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "game_end_reason": {
+            "const": "party_wide_all_remaining_tricks_claim"
+          }
+        },
+        "required": ["game_end_reason"]
+      },
+      "then": {
+        "properties": {
+          "game_end": {
+            "$ref": "https://example.local/skat-ai/historical_party_wide_claim.schema.json"
+          },
+          "tricks": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/trick"},
+            "minItems": 5,
+            "maxItems": 10
           }
         }
       }

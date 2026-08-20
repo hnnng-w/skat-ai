@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 
-SETTLEMENT_NORMATIVE_MATRIX_VERSION = 2
+SETTLEMENT_NORMATIVE_MATRIX_VERSION = 3
 
 SUPPORTED_AS_IS = "supported_as_is"
 IMPLEMENTATION_REQUIRED = "implementation_required"
@@ -185,9 +185,10 @@ PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1_QUANTIFIERS = (
     ("opposing_party", "universal"),
 )
 
-V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS = (
+V1_SUPPORTED_CLAIM_CASE_IDS = (
     "claim_boundary.decision.party_wide_all_remaining_tricks_claim",
 )
+V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS: tuple[str, ...] = ()
 V1_NOT_SUPPORTED_CLAIM_CASE_IDS = (
     "claim_boundary.decision.generalized_non_jack_open_throw_exclusion",
     "claim_boundary.decision.generalized_rule_violation_correction",
@@ -299,6 +300,7 @@ _HISTORICAL_TERMINAL_KINDS = frozenset(
         "defender_open_play",
         "normal_completion",
         "open_card_throw",
+        "party_wide_all_remaining_tricks_claim",
     }
 )
 _HISTORICAL_CONTINUATION_KINDS = frozenset(
@@ -466,7 +468,7 @@ SETTLEMENT_NORMATIVE_MATRIX = (
         contract_scope="all_supported_contracts",
         pre_end_decision_state="undecided_or_preexisting",
         evidence_class=BOUNDED_EXACT_PROOF,
-        implementation_status=IMPLEMENTATION_REQUIRED,
+        implementation_status=SUPPORTED_AS_IS,
         interpretation_scope=APPROVED_BOUNDED,
         winner_policy=PROOF_DEPENDENT,
         remaining_assignment_policy=REMAINING_PROOF_DEPENDENT,
@@ -475,7 +477,12 @@ SETTLEMENT_NORMATIVE_MATRIX = (
         settlement_policy=EXISTING_SHORTENING_SETTLEMENT,
         proof_policy=PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1,
         terminal_effect=TERMINAL,
-        stable_unavailable_reason="party_wide_claim_not_implemented",
+        implementation_modules=(
+            "skat_ai.historical_game_end",
+            "skat_ai.historical_party_wide_claim",
+            "skat_ai.party_wide_claim_proof_executor",
+            "skat_ai.party_wide_claim_adjudication",
+        ),
         proof_quantifiers=PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1_QUANTIFIERS,
         proof_maximum_unresolved_tricks=5,
         notes=_PARTY_WIDE_CLAIM_NOTES,
@@ -889,6 +896,7 @@ SETTLEMENT_NORMATIVE_MATRIX = (
             "skat_ai.historical_game_event",
         ),
         delegated_terminal_case_ids=(
+            "claim_boundary.decision.party_wide_all_remaining_tricks_claim",
             "structured_shortening.declarer_card_exposure.accepted_preexisting",
             "structured_shortening.declarer_card_exposure.accepted_undecided",
             "structured_shortening.declarer_card_exposure.accepted_undecided_uncovered",
@@ -1562,7 +1570,7 @@ SETTLEMENT_NORMATIVE_MATRIX = (
 
 
 def get_normative_settlement_cases() -> tuple[NormativeSettlementCase, ...]:
-    """Returns the immutable canonical version-2 matrix."""
+    """Returns the immutable canonical version-3 matrix."""
     return SETTLEMENT_NORMATIVE_MATRIX
 
 
@@ -1588,11 +1596,12 @@ def validate_normative_settlement_matrix(
         raise ValueError("Normative settlement cases must use canonical case_id order.")
     if case_ids != CANONICAL_SETTLEMENT_NORMATIVE_CASE_IDS:
         raise ValueError(
-            "Normative settlement matrix version 2 must retain the exact 61 canonical case IDs."
+            "Normative settlement matrix version 3 must retain the exact 61 canonical case IDs."
         )
     cases_by_id = {case.case_id: case for case in cases}
 
     for group_name, group in (
+        ("V1_SUPPORTED_CLAIM_CASE_IDS", V1_SUPPORTED_CLAIM_CASE_IDS),
         (
             "V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS",
             V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS,
@@ -1605,10 +1614,17 @@ def validate_normative_settlement_matrix(
             raise ValueError(f"{group_name} must contain unique case IDs.")
         if any(case_id not in cases_by_id for case_id in group):
             raise ValueError(f"{group_name} contains an unknown case ID.")
-    if set(V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS).intersection(
-        V1_NOT_SUPPORTED_CLAIM_CASE_IDS
+    claim_groups = (
+        set(V1_SUPPORTED_CLAIM_CASE_IDS),
+        set(V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS),
+        set(V1_NOT_SUPPORTED_CLAIM_CASE_IDS),
+    )
+    if any(
+        left.intersection(right)
+        for index, left in enumerate(claim_groups)
+        for right in claim_groups[index + 1 :]
     ):
-        raise ValueError("The approved and not-supported v1 Claim groups must be disjoint.")
+        raise ValueError("The supported, pending, and excluded v1 Claim groups must be disjoint.")
 
     allowed_values = (
         ("implementation_status", VALID_IMPLEMENTATION_STATUSES),
@@ -1684,7 +1700,8 @@ def validate_normative_settlement_matrix(
                 ) from error
             if any(
                 delegated.implementation_status != SUPPORTED_AS_IS
-                or delegated.scenario_family != "structured_shortening"
+                or delegated.scenario_family
+                not in {"structured_shortening", "approved_claim"}
                 or delegated.terminal_effect != TERMINAL
                 for delegated in delegated_cases
             ):
@@ -1698,6 +1715,7 @@ def validate_normative_settlement_matrix(
                 "declarer_card_exposure",
                 "defender_open_play",
                 "open_card_throw",
+                "party_wide_all_remaining_tricks_claim",
             }:
                 raise ValueError(
                     f"{case.case_id} must delegate every supported terminal shortening kind."
@@ -1769,7 +1787,7 @@ def validate_normative_settlement_matrix(
             if case.proof_maximum_unresolved_tricks is not None:
                 raise ValueError(f"{case.case_id} must not define a rest-play proof bound.")
         elif case.proof_policy == PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1:
-            if case.case_id != V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS[0]:
+            if case.case_id != V1_SUPPORTED_CLAIM_CASE_IDS[0]:
                 raise ValueError(f"{case.case_id} has unrelated party-wide Claim proof.")
             if (
                 case.proof_quantifiers
@@ -1827,7 +1845,7 @@ def validate_normative_settlement_matrix(
         "specific_future_trick_identity_claim",
         "unlimited_claim_proof",
     }:
-        raise ValueError("Version 2 must retain the exact not-approved proof boundaries.")
+        raise ValueError("Version 3 must retain the exact not-approved proof boundaries.")
 
     implementation_required_ids = tuple(
         case.case_id
@@ -1835,18 +1853,26 @@ def validate_normative_settlement_matrix(
         if case.implementation_status == IMPLEMENTATION_REQUIRED
     )
     if implementation_required_ids != V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS:
-        raise ValueError("Version 2 must contain exactly one implementation-required Claim case.")
+        raise ValueError("Version 3 cannot retain an implementation-required Claim case.")
+    supported_claim_ids = tuple(
+        case.case_id
+        for case in cases
+        if case.scenario_family == "approved_claim"
+        and case.implementation_status == SUPPORTED_AS_IS
+    )
+    if supported_claim_ids != V1_SUPPORTED_CLAIM_CASE_IDS:
+        raise ValueError("Version 3 must contain exactly one supported bounded Claim case.")
     not_supported_ids = tuple(
         case.case_id for case in cases if case.implementation_status == NOT_SUPPORTED_V1
     )
     if not_supported_ids != V1_NOT_SUPPORTED_CLAIM_CASE_IDS:
-        raise ValueError("Version 2 must retain the exact durable v1 Claim exclusions.")
+        raise ValueError("Version 3 must retain the exact durable v1 Claim exclusions.")
     if any(case.implementation_status == DECISION_REQUIRED for case in cases):
-        raise ValueError("Version 2 cannot contain a canonical decision-required case.")
+        raise ValueError("Version 3 cannot contain a canonical decision-required case.")
     if any(case.implementation_status == "out_of_scope_v0_11" for case in cases):
-        raise ValueError("Version 2 cannot use the historical out-of-scope-v0.11 status.")
+        raise ValueError("Version 3 cannot use the historical out-of-scope-v0.11 status.")
 
-    approved_claim = cases_by_id[V1_IMPLEMENTATION_REQUIRED_CLAIM_CASE_IDS[0]]
+    approved_claim = cases_by_id[V1_SUPPORTED_CLAIM_CASE_IDS[0]]
     approved_contract = (
         approved_claim.scenario_family,
         approved_claim.official_rule_references,
@@ -1880,7 +1906,7 @@ def validate_normative_settlement_matrix(
         "all_supported_contracts",
         "undecided_or_preexisting",
         BOUNDED_EXACT_PROOF,
-        IMPLEMENTATION_REQUIRED,
+        SUPPORTED_AS_IS,
         APPROVED_BOUNDED,
         PROOF_DEPENDENT,
         REMAINING_PROOF_DEPENDENT,
@@ -1890,8 +1916,13 @@ def validate_normative_settlement_matrix(
         EXISTING_SHORTENING_SETTLEMENT,
         PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1,
         TERMINAL,
-        "party_wide_claim_not_implemented",
-        (),
+        None,
+        (
+            "skat_ai.historical_game_end",
+            "skat_ai.historical_party_wide_claim",
+            "skat_ai.party_wide_claim_proof_executor",
+            "skat_ai.party_wide_claim_adjudication",
+        ),
         PARTY_WIDE_ALL_REMAINING_TRICKS_CLAIM_V1_QUANTIFIERS,
         5,
         (),
@@ -2000,7 +2031,7 @@ def validate_normative_settlement_matrix(
     represented_historical_terminal_kinds = {
         case.game_end_kind
         for case in cases
-        if case.scenario_family == "historical_terminal"
+        if case.scenario_family in {"historical_terminal", "approved_claim"}
         and case.implementation_status == SUPPORTED_AS_IS
     }
     if represented_historical_terminal_kinds != _HISTORICAL_TERMINAL_KINDS:

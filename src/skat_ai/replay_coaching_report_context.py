@@ -4,13 +4,17 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any
 
+from skat_ai.final_settlement import build_final_settlement_summary
 from skat_ai.game_declaration import build_serializable_game_declaration
+from skat_ai.game_value import build_game_value_summary
 from skat_ai.historical_game import (
     HISTORICAL_GAME_END_REASON,
     HISTORICAL_SEATS,
     HistoricalGameRecord,
     build_historical_game_summary,
+    build_serializable_historical_record,
 )
+from skat_ai.overbid import build_overbid_summary
 
 REPLAY_COACHING_PLAYER_SIDES = ("declarer", "defenders")
 REPLAY_COACHING_TERMINAL_SUMMARY_FIELD_BY_END_REASON = MappingProxyType(
@@ -21,6 +25,7 @@ REPLAY_COACHING_TERMINAL_SUMMARY_FIELD_BY_END_REASON = MappingProxyType(
         "declarer_card_exposure": "historical_game_end_summary",
         "defender_open_play": "historical_game_end_summary",
         "open_card_throw": "historical_game_end_summary",
+        "party_wide_all_remaining_tricks_claim": "historical_game_end_summary",
     }
 )
 
@@ -134,6 +139,24 @@ _TERMINAL_SUMMARY_FIELDS = {
         "event_after_completed_trick_count",
         "event_during_incomplete_trick",
     ),
+    "party_wide_all_remaining_tricks_claim": (
+        "schema_version",
+        "kind",
+        "normative_matrix_case_id",
+        "claimant_player_id",
+        "claiming_party",
+        "declarer_player_id",
+        "defender_player_ids",
+        "event_after_play_count",
+        "event_after_completed_trick_count",
+        "event_during_incomplete_trick",
+        "remaining_trick_count",
+        "proof_policy",
+        "proof_quantifiers",
+        "proof_maximum_unresolved_tricks",
+        "adjudication",
+        "settlement_applied",
+    ),
 }
 
 _EVENT_SUMMARY_FIELDS = (
@@ -235,6 +258,9 @@ _GAME_RESULT_SUMMARY_FIELDS = (
     "rule_assigned_declarer_trick_count",
     "remaining_points_recipient",
     "remaining_points_assigned",
+    "party_wide_claim_proof_status",
+    "claimant_player_id",
+    "claiming_party",
 )
 _GAME_VALUE_SUMMARY_FIELDS = (
     "game_type",
@@ -299,9 +325,7 @@ _PRIVATE_CONTEXT_FIELDS = {
 
 def _freeze_json_value(value: Any) -> Any:
     if isinstance(value, Mapping):
-        return MappingProxyType(
-            {key: _freeze_json_value(item) for key, item in value.items()}
-        )
+        return MappingProxyType({key: _freeze_json_value(item) for key, item in value.items()})
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_json_value(item) for item in value)
     return value
@@ -319,9 +343,7 @@ def _copy_allowed_fields(
     source: Mapping[str, Any],
     allowed_fields: tuple[str, ...],
 ) -> Mapping[str, Any]:
-    return _freeze_json_value(
-        {field: source[field] for field in allowed_fields if field in source}
-    )
+    return _freeze_json_value({field: source[field] for field in allowed_fields if field in source})
 
 
 def _validate_json_value(value: Any, field_name: str) -> None:
@@ -413,10 +435,7 @@ class ReplayCoachingGameContext:
         if len({player.player_id for player in self.players}) != 3:
             raise ValueError("player contexts must have unique player IDs.")
         declarers = tuple(player for player in self.players if player.side == "declarer")
-        if (
-            len(declarers) != 1
-            or declarers[0].player_id != self.declarer_player_id
-        ):
+        if len(declarers) != 1 or declarers[0].player_id != self.declarer_player_id:
             raise ValueError("player sides must identify the source declarer.")
         if not isinstance(self.declaration, Mapping):
             raise ValueError("declaration must be a mapping.")
@@ -433,9 +452,7 @@ class ReplayCoachingGameContext:
             raise ValueError("Recorded plays and coaching decisions must reconcile.")
         object.__setattr__(self, "players", tuple(self.players))
         object.__setattr__(self, "declaration", _freeze_json_value(self.declaration))
-        object.__setattr__(
-            self, "continuation_event_kinds", tuple(self.continuation_event_kinds)
-        )
+        object.__setattr__(self, "continuation_event_kinds", tuple(self.continuation_event_kinds))
 
 
 @dataclass(frozen=True)
@@ -458,9 +475,7 @@ class ReplayCoachingOutcomeContext:
         )
         if self.game_end_reason not in REPLAY_COACHING_TERMINAL_SUMMARY_FIELD_BY_END_REASON:
             raise ValueError("Unsupported historical game-end reason.")
-        if (self.historical_game_end_summary is None) != (
-            expected_terminal_field is None
-        ):
+        if (self.historical_game_end_summary is None) != (expected_terminal_field is None):
             raise ValueError("Terminal summary presence must match the game-end reason.")
         for field_name in (
             "game_result_summary",
@@ -503,8 +518,7 @@ class ReplayCoachingOutcomeContext:
                     ):
                         raise ValueError("Historical event summaries are invalid.")
                 elif any(
-                    key not in _TERMINAL_SUMMARY_FIELDS[self.game_end_reason]
-                    for key in value
+                    key not in _TERMINAL_SUMMARY_FIELDS[self.game_end_reason] for key in value
                 ):
                     raise ValueError("Historical terminal summary fields are invalid.")
                 object.__setattr__(self, field_name, _freeze_json_value(value))
@@ -554,18 +568,122 @@ def _build_safe_events_summary(summary: Mapping[str, Any]) -> Mapping[str, Any]:
             "schema_version": summary["schema_version"],
             "event_count": summary["event_count"],
             "events": [
-                dict(_copy_allowed_fields(event, _EVENT_SUMMARY_FIELDS))
-                for event in events
+                dict(_copy_allowed_fields(event, _EVENT_SUMMARY_FIELDS)) for event in events
             ],
         }
     )
 
 
+def _validate_retained_historical_summary(
+    record: HistoricalGameRecord,
+    summary: Mapping[str, Any],
+) -> None:
+    serialized_record = build_serializable_historical_record(record)
+    if (
+        summary.get("game_id") != record.game_id
+        or summary.get("status") != "complete"
+        or summary.get("record") != serialized_record
+    ):
+        raise ValueError("Retained Historical summary does not match the source game.")
+    game_result = summary.get("game_result_summary")
+    overbid = summary.get("overbid_summary")
+    settlement = summary.get("final_settlement_summary")
+    if (
+        not isinstance(game_result, Mapping)
+        or not isinstance(overbid, Mapping)
+        or not isinstance(settlement, Mapping)
+    ):
+        raise ValueError("Retained Historical summary has incomplete outcome values.")
+    if (
+        game_result.get("game_end_reason") != record.game_end_reason
+        or game_result.get("winner") != summary.get("winner")
+        or game_result.get("declarer_points") != summary.get("declarer_points")
+        or game_result.get("defender_points") != summary.get("defender_points")
+        or settlement.get("is_complete") is not True
+        or settlement.get("winner") != summary.get("winner")
+        or settlement.get("bid_value") != overbid.get("bid_value")
+    ):
+        raise ValueError("Retained Historical summary outcome values do not reconcile.")
+    if record.game_end_reason != "party_wide_all_remaining_tricks_claim":
+        return
+    terminal = summary.get("historical_game_end_summary")
+    if not isinstance(terminal, Mapping):
+        raise ValueError("Retained Historical Claim summary is missing.")
+    adjudication = terminal.get("adjudication")
+    if not isinstance(adjudication, Mapping):
+        raise ValueError("Retained Historical Claim adjudication is missing.")
+    if (
+        terminal.get("kind") != record.game_end_reason
+        or terminal.get("claimant_player_id") != record.game_end.claimant_player_id
+        or terminal.get("claiming_party") != record.game_end.claiming_party
+        or adjudication.get("adjudicated_winner") != summary.get("winner")
+        or adjudication.get("final_declarer_points") != summary.get("declarer_points")
+        or adjudication.get("final_defender_points") != summary.get("defender_points")
+    ):
+        raise ValueError("Retained Historical Claim outcome values do not reconcile.")
+    proof = terminal.get("exact_proof")
+    assignment = proof.get("assignment") if isinstance(proof, Mapping) else None
+    rest_assignment = game_result.get("rest_trick_assignment")
+    if not isinstance(assignment, Mapping) or not isinstance(rest_assignment, Mapping):
+        raise ValueError("Retained Historical Claim assignment is missing.")
+    if (
+        game_result.get("game_end_kind") != record.game_end_reason
+        or game_result.get("party_wide_claim_proof_status") != "valid"
+        or game_result.get("claimant_player_id") != record.game_end.claimant_player_id
+        or game_result.get("claiming_party") != record.game_end.claiming_party
+        or proof.get("status") != "valid"
+        or adjudication.get("status") != "adjudicated"
+        or adjudication.get("reason") != "valid_proof"
+        or adjudication.get("final_declarer_tricks", 0)
+        + adjudication.get("final_defender_tricks", 0)
+        != 10
+        or adjudication.get("remaining_points_recipient")
+        != game_result.get("remaining_points_recipient")
+        or adjudication.get("remaining_points_assigned")
+        != game_result.get("remaining_points_assigned")
+        or assignment.get("recipient_party") != rest_assignment.get("recipient")
+        or assignment.get("assigned_trick_count") != rest_assignment.get("remaining_trick_count")
+        or assignment.get("assigned_card_count") != rest_assignment.get("assigned_card_count")
+        or assignment.get("assigned_card_points") != rest_assignment.get("assigned_card_points")
+        or rest_assignment.get("source") != "party_wide_claim_proof_assignment"
+        or adjudication.get("outcome_source") != game_result.get("outcome_source")
+        or adjudication.get("winner_basis") != game_result.get("winner_basis")
+        or adjudication.get("achieved_schneider_status")
+        != game_result.get("effective_schneider_status")
+        or adjudication.get("achieved_schwarz_status")
+        != game_result.get("effective_schwarz_status")
+    ):
+        raise ValueError("Retained Historical Claim assignment values do not reconcile.")
+    expected_game_value = build_game_value_summary(record.declaration)
+    expected_overbid = build_overbid_summary(
+        expected_game_value,
+        record.declaration.bid_value,
+        record.game_end_reason,
+    )
+    expected_settlement = build_final_settlement_summary(
+        expected_game_value,
+        dict(game_result),
+        expected_overbid,
+    )
+    if (
+        summary.get("game_value_summary") != expected_game_value
+        or overbid != expected_overbid
+        or settlement != expected_settlement
+    ):
+        raise ValueError("Retained Historical Claim Settlement does not reconcile.")
+
+
 def build_replay_coaching_outcome_context(
     record: HistoricalGameRecord,
+    historical_game_summary: Mapping[str, Any] | None = None,
 ) -> ReplayCoachingOutcomeContext:
     """Builds the explicit privacy-safe final-context allowlist."""
-    summary = build_historical_game_summary(record)
+    summary = (
+        build_historical_game_summary(record)
+        if historical_game_summary is None
+        else historical_game_summary
+    )
+    _validate_retained_historical_summary(record, summary)
     terminal_field = REPLAY_COACHING_TERMINAL_SUMMARY_FIELD_BY_END_REASON.get(
         record.game_end_reason
     )
@@ -580,9 +698,7 @@ def build_replay_coaching_outcome_context(
         )
     raw_events = summary.get("historical_game_events_summary")
     events_summary = (
-        _build_safe_events_summary(raw_events)
-        if isinstance(raw_events, Mapping)
-        else None
+        _build_safe_events_summary(raw_events) if isinstance(raw_events, Mapping) else None
     )
     return ReplayCoachingOutcomeContext(
         source_game_id=record.game_id,
@@ -594,9 +710,7 @@ def build_replay_coaching_outcome_context(
         game_value_summary=_copy_allowed_fields(
             summary["game_value_summary"], _GAME_VALUE_SUMMARY_FIELDS
         ),
-        overbid_summary=_copy_allowed_fields(
-            summary["overbid_summary"], _OVERBID_SUMMARY_FIELDS
-        ),
+        overbid_summary=_copy_allowed_fields(summary["overbid_summary"], _OVERBID_SUMMARY_FIELDS),
         final_settlement_summary=_copy_allowed_fields(
             summary["final_settlement_summary"],
             _FINAL_SETTLEMENT_SUMMARY_FIELDS,
@@ -624,8 +738,7 @@ def build_serializable_replay_coaching_game_context(
         "source_game_id": context.source_game_id,
         "played_at": context.played_at,
         "players": [
-            build_serializable_replay_coaching_player_context(player)
-            for player in context.players
+            build_serializable_replay_coaching_player_context(player) for player in context.players
         ],
         "declarer_player_id": context.declarer_player_id,
         "game_type": context.game_type,
@@ -647,19 +760,13 @@ def build_serializable_replay_coaching_outcome_context(
         "game_result_summary": _thaw_json_value(context.game_result_summary),
         "game_value_summary": _thaw_json_value(context.game_value_summary),
         "overbid_summary": _thaw_json_value(context.overbid_summary),
-        "final_settlement_summary": _thaw_json_value(
-            context.final_settlement_summary
-        ),
+        "final_settlement_summary": _thaw_json_value(context.final_settlement_summary),
     }
     if context.historical_game_events_summary is not None:
         result["historical_game_events_summary"] = _thaw_json_value(
             context.historical_game_events_summary
         )
-    terminal_field = REPLAY_COACHING_TERMINAL_SUMMARY_FIELD_BY_END_REASON[
-        context.game_end_reason
-    ]
+    terminal_field = REPLAY_COACHING_TERMINAL_SUMMARY_FIELD_BY_END_REASON[context.game_end_reason]
     if terminal_field is not None:
-        result[terminal_field] = _thaw_json_value(
-            context.historical_game_end_summary
-        )
+        result[terminal_field] = _thaw_json_value(context.historical_game_end_summary)
     return result
