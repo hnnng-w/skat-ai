@@ -1188,7 +1188,12 @@ Stronger information-set Search and Strategy Fusion mitigation begins with
 Issue #187's private version-1 World State, actor Observation, deterministic
 fixed-Player Policy, Budget, Request, Preparation, controlled-Policy, and Result
 contracts. It reuses ordered Compatible-world selection, preserves sampled
-duplicates, and performs no Policy Search or public integration. The executor,
+duplicates, and performs no public integration. Issue #188 adds the private
+bounded exhaustive selected-world best-response executor with strict retained-
+Preparation validation, fixed-player rollout, controlled Information-set
+grouping, existing terminal utility and Candidate ranking, complete contingent
+Policy retention, bounded partial/timeout semantics, and invocation-local World
+and bundle memoization. Comparison, routing, integration,
 tactical and cross-game Coaching, and carefully bounded Player Ratings where
 approved, broader Provenance and Confidence integration, performance and latency
 evidence, and the remaining pre-v1 scope audit remain open. Final Issue titles,
@@ -1260,9 +1265,9 @@ Historical Search Review, and Search-versus-Immediate dataset evaluation are als
 integrated. Immutable work profiles, independent quality fixtures, sampled
 convergence checks, and a reproducible performance corpus provide bounded
 evidence. They do not provide calibrated sample quality or a latency guarantee.
-Issue #187 adds a private three-Trick information-set Policy Search foundation
-without an executor, comparison, or routing, so the stronger-search completion
-gate remains open.
+Issues #187 and #188 add a private three-Trick information-set Policy Search
+foundation and bounded executor without comparison or routing, so the stronger-
+search completion gate remains open.
 
 The published `v0.11.0` milestone is complete through functional Issue #124, and
 Issue #125 completed release preparation. The milestone establishes the
@@ -1368,6 +1373,6 @@ boundary audit, Issue #183's private contracts and exact-state preparation, and
 Issue #184's bounded exhaustive proof execution. Issue #185 adds private
 adjudication and existing Final Settlement composition. Issue #186 adds the
 Historical-only approved Claim runtime slice. Issue #187 adds the private
-information-set Search contracts and no-execution Preparation foundation. Its
-executor and integration remain next; the final `v1.0.0` Issue split and
-architecture remain open.
+information-set Search contracts and no-execution Preparation foundation. Issue
+#188 adds the private bounded executor. Comparison, routing, integration, and the
+final `v1.0.0` Issue split and architecture remain open.

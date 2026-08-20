@@ -1414,22 +1414,26 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
-Issue #187 adds a separate private three-remaining-Trick foundation for future
-information-set-consistent Search. It pairs selected exact worlds with complete
-public history, derives actor-own-hand/public-fact Observations, preserves
-shrinking public hands and public void evidence, fixes `left` and `right` to
-separate deterministic information-safe Policies, reuses ordered Compatible-
-world selection including sampled duplicates, and defines Budget, Request,
+Issues #187 and #188 add a separate private three-remaining-Trick foundation and
+bounded executor for information-set-consistent Search. They pair selected exact
+worlds with complete public history, derive actor-own-hand/public-fact
+Observations, preserve shrinking public hands and public void evidence, fix `left` and `right` to
+separate deterministic information-safe Policies, reuse ordered Compatible-
+world selection including sampled duplicates, and define Budget, Request,
 Preparation, controlled-Policy, consumed-budget, and Result invariants. Equal
-`me` Observations cannot select conflicting actions. No Policy Search executor,
-Recommendation routing, Public API, CLI, Schema, example, or generated scenario
-is added. See [Information-set Search contracts](docs/information_set_search_contracts.md).
+`me` Observations receive one common action. The executor exhaustively evaluates
+canonical controlled actions over ordered selected World bundles, reuses exact
+terminal utility and Candidate ranking, and retains a complete contingent Policy
+against fixed Players. No Recommendation routing, Public API, CLI, Schema,
+example, generated scenario, or performance claim is added. See [Information-
+set Search contracts](docs/information_set_search_contracts.md) and the
+[Information-set Search executor](docs/information_set_search_executor.md).
 
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
 workflows, Dataset-v2 persistence and persisted partition artifacts,
-database/remote deployment, and stronger information-set or policy search,
+database/remote deployment, and information-set Search comparison and routing,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
@@ -1605,8 +1609,9 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   only approved Claim and Final Settlement runtime slice. All other current Claim
   boundaries remain durable v1 exclusions. Session, Match Capture, and Corpus
   Claim entry remain open. Issue #187 defines the private information-set Search
-  contracts and no-execution Preparation foundation; its Policy Search executor,
-  integration, and performance evidence remain open. Tactical and cross-game
+  contracts and no-execution Preparation foundation, and Issue #188 adds its
+  private bounded executor. Comparison, routing, integration, and performance
+  evidence remain open. Tactical and cross-game
   Coaching, carefully bounded Player Ratings where approved, broader Provenance
   and Confidence integration, performance and latency evidence, and the remaining
   pre-v1 scope audit also remain open. The final Issue titles, count,

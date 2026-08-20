@@ -706,15 +706,17 @@ impossible-Null replacement. Compatible-world Minimax is an internal
 determinization aggregate, not information-set Search or an optimal policy
 proof. Issue #187 separately defines private three-Trick actor Observation,
 World State, fixed-Policy, Budget, Request, Preparation, and Result contracts
-that can prevent controlled-Player Strategy Fusion, but it adds no Policy Search
-executor or route. Flat post-game review, Historical Search Review, dataset Search-versus-
+that can prevent controlled-Player Strategy Fusion. Issue #188 adds the private
+bounded exhaustive selected-world best-response executor, but no existing Search
+method or route. Flat post-game review, Historical Search Review, dataset Search-versus-
 Immediate evaluation, immutable internal profiles, quality fixtures, and a
 bounded performance baseline now exist. They do not add calibrated sampled-
-quality estimates, a latency guarantee, adaptive sampling, executable
+quality estimates, a latency guarantee, adaptive sampling, routed
 information-set Search, Expectimax, complete Strategy-Fusion correction,
 complete-contract solving, or a
 stable package-root API. Existing omitted-method Immediate behavior is unchanged.
 The stronger-search v1.0 completion gate therefore remains open.
 
-See [Information-set Search contracts](information_set_search_contracts.md) for
-the separate no-execution foundation and its narrower policy-consistency claim.
+See [Information-set Search contracts](information_set_search_contracts.md) and
+the [Information-set Search executor](information_set_search_executor.md) for
+the separate private controlled-Player policy-consistency claim.

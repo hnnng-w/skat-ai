@@ -263,8 +263,11 @@ input only, with strict public diagnostic output and downstream compatibility.
 All other current Claim boundaries remain `not_supported_v1`. Session, Match
 Capture, and Corpus Claim entry remain open. Issue #187 adds the private
 information-set Search contracts, actor observations, pure transitions, fixed
-Policies, and no-execution three-Trick Preparation foundation. Policy Search
-execution and integration, tactical and cross-game Coaching, carefully
+Policies, and no-execution three-Trick Preparation foundation. Issue #188 adds
+the private bounded exhaustive selected-world best-response executor, strict
+retained-Preparation reconciliation, invocation-local memoization, complete
+contingent controlled Policies, and conservative partial/timeout Results.
+Comparison and workflow integration, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
 audit remain open. Final Issue titles, count, architecture, solver design,
@@ -362,10 +365,11 @@ requirement for v1.0.
 
 The `v0.10.0` milestone is complete, but the general v1.0 stronger-solver
 direction remains only partially supported. Its open requirements include an
-information-set Policy Search executor and integration, complete Strategy Fusion
-correction beyond the controlled root Player, complete-contract solving,
+information-set Policy Search comparison and integration, complete Strategy
+Fusion correction beyond the controlled root Player, complete-contract solving,
 calibrated sampled probabilities, and latency guarantees. Issue #187 defines the
-private controlled-root foundation but executes no Search.
+private controlled-root foundation, and Issue #188 adds its private bounded
+executor without changing existing routes.
 
 Issue #120 adds internal Replay Coaching contract version `1`. It separates
 decision-time evidence from retrospective observed-card attachment, reuses one

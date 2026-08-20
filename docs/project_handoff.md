@@ -1523,7 +1523,9 @@ without changing its 61 cases and completes the approved bounded Claim and Final
 Settlement runtime slice through Historical Game input only. All other current
 Claim boundaries remain durable v1 exclusions. Session, Match Capture, and Corpus
 Claim entry remain open. Stronger information-set Search
-and Strategy Fusion mitigation, tactical and cross-game Coaching, carefully
+and Strategy Fusion mitigation now include Issue #187's private contracts and
+Issue #188's bounded selected-world controlled-Player executor. Comparison,
+routing, workflow integration, tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
 audit. Final Issue titles, count, architecture, solver design, Rating boundary,
@@ -1961,12 +1963,16 @@ Completed implementation scope:
   unredacted, and broader end-to-end enforcement remain unavailable.
 * Evidence-constrained sampling does not infer the real deal or provide exhaustive search.
 * Hidden-card inference beyond confirmed structural decision-time evidence and
-  general stronger Search remain incomplete. Issue #187 now defines private
+  general stronger Search remain incomplete. Issue #187 defines private
   three-Trick information-set World State, actor Observation, deterministic fixed-
   Player Policy, Budget, Request, Preparation, controlled-Policy, and Result
   contracts. It preserves ordered Compatible-world selection and sampled
   duplicate weight and prevents conflicting actions for equal controlled-player
-  Observations, but executes no Policy Search and changes no route. Compatible-world Minimax
+  Observations. Issue #188 adds the private bounded executor with fixed-player
+  rollout, equal-Observation grouping, exhaustive canonical controlled actions,
+  existing exact terminal utility and Candidate ranking, complete contingent
+  controlled Policies, conservative partial/timeout Results, and invocation-
+  local World and ordered-bundle memoization. It changes no route. Compatible-world Minimax
   evaluates the frozen selected sequence and aggregates one exact common prefix,
   but it is determinization-based and subject to strategy fusion. It is not an
   optimal imperfect-information policy proof. Explicit live methods, opt-in
@@ -2065,8 +2071,9 @@ Issue #184 completes dedicated bounded proof traversal, and Issue #185 completes
 private adjudication and Settlement composition. Issue #186 completes the
 Historical-only runtime integration without broadening the durable v1
 exclusions. Issue #187 defines the private information-set Search foundation;
-the bounded Policy Search executor and later integration are the next functional
-steps.
+Issue #188 adds the bounded Policy Search executor. PIMC and Immediate
+comparison, recommendation routing, later workflow integration, and performance
+evidence are the next functional steps.
 Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived
 artifacts.

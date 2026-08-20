@@ -301,6 +301,7 @@ def test_consumed_budget_rejects_booleans_and_invalid_count_relationships() -> N
         {"sampled_world_count": 4},
         {"unique_sampled_world_count": 6},
         {"controlled_policy_decisions": 8},
+        {"controlled_policy_decisions": 5, "fixed_policy_decisions": 0},
     ):
         with pytest.raises(ValueError):
             InformationSetSearchConsumedBudgetV1(**(valid | changes))
@@ -398,8 +399,7 @@ def test_new_modules_have_no_solver_public_transport_or_io_imports() -> None:
         calls = {
             node.func.id if isinstance(node.func, ast.Name) else node.func.attr
             for node in ast.walk(tree)
-            if isinstance(node, ast.Call)
-            and isinstance(node.func, (ast.Name, ast.Attribute))
+            if isinstance(node, ast.Call) and isinstance(node.func, (ast.Name, ast.Attribute))
         }
         assert forbidden_calls.isdisjoint(calls)
 
@@ -433,20 +433,14 @@ def test_public_package_schema_example_and_scenario_baselines_are_unchanged() ->
     assert len(WorkflowV1) == 7
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
     assert (
-        len(
-            tuple(
-                (PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob(
-                    "*.schema.json"
-                )
-            )
-        )
+        len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
         == 65
     )
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
     assert len(SCENARIOS) == 88
-    project = tomllib.loads(
-        (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    )["project"]
+    project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+        "project"
+    ]
     assert project["version"] == skat_ai.__version__ == "0.16.0"
     assert project["requires-python"] == ">=3.13"
     assert project["scripts"] == {"skat-ai": "skat_ai.cli:main"}

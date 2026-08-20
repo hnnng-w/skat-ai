@@ -77,8 +77,7 @@ def _declaration(*, hand_game: bool = False) -> GameDeclaration:
 def _initial_hands() -> dict[str, tuple[str, ...]]:
     deck = tuple(get_full_deck())
     return {
-        player: deck[index * 10 : (index + 1) * 10]
-        for index, player in enumerate(CONCRETE_PLAYERS)
+        player: deck[index * 10 : (index + 1) * 10] for index, player in enumerate(CONCRETE_PLAYERS)
     }
 
 
@@ -182,8 +181,7 @@ def _find_view(
             known_out_of_play=known_out_of_play,
         )
         if exact_state.next_player == actor and (
-            current_trick_size is None
-            or len(exact_state.current_trick) == current_trick_size
+            current_trick_size is None or len(exact_state.current_trick) == current_trick_size
         ):
             return view, exact_state
     raise AssertionError("The deterministic fixture did not reach the requested actor.")
@@ -272,9 +270,7 @@ def _candidate(
         local_contract_success_count=completed_world_count,
         local_contract_success_rate=(1.0 if completed_world_count else None),
         mean_local_side_game_score=(12.0 if completed_world_count else None),
-        mean_local_side_card_point_margin=(
-            margin if completed_world_count else None
-        ),
+        mean_local_side_card_point_margin=(margin if completed_world_count else None),
     )
 
 
@@ -303,9 +299,7 @@ def test_world_state_reconciles_exact_public_facts_and_serializes_privately() ->
     serialized = world_state.to_dict()
     assert "world_index" not in serialized
     assert "fingerprint" not in serialized
-    assert serialized["exact_state"]["hands"]["left"] == list(
-        exact_state.hand_for("left")
-    )
+    assert serialized["exact_state"]["hands"]["left"] == list(exact_state.hand_for("left"))
     assert world_state.to_dict() is not serialized
     json.dumps(serialized, allow_nan=False)
     with pytest.raises(FrozenInstanceError):
@@ -358,21 +352,15 @@ def test_world_transition_delegates_once_shrinks_public_hand_and_appends_trick(
     assert len(calls) == 1
     assert world_state.to_dict() == original_serialized
     assert child.exact_state != world_state.exact_state
-    parent_public = {
-        item.player: item.cards for item in world_state.public_hand_constraints
-    }
+    parent_public = {item.player: item.cards for item in world_state.public_hand_constraints}
     child_public = {item.player: item.cards for item in child.public_hand_constraints}
-    assert child_public["left"] == tuple(
-        held for held in parent_public["left"] if held != card
-    )
+    assert child_public["left"] == tuple(held for held in parent_public["left"] if held != card)
     assert len(child.public_completed_tricks) == len(world_state.public_completed_tricks)
 
     completing_card = get_exact_search_legal_cards(child.exact_state)[0]
     completed = apply_information_set_search_card_v1(child, completing_card)
     assert len(calls) == 2
-    assert len(completed.public_completed_tricks) == (
-        len(world_state.public_completed_tricks) + 1
-    )
+    assert len(completed.public_completed_tricks) == (len(world_state.public_completed_tricks) + 1)
     exact_completed = original_apply(child.exact_state, completing_card).completed_trick
     assert exact_completed is not None
     retained = completed.public_completed_tricks[-1]
@@ -401,9 +389,7 @@ def test_world_transition_adds_only_public_failure_to_follow_evidence() -> None:
         card,
         exact_state.declaration.game_type,
     )
-    before = next(
-        item for item in world_state.public_void_constraints if item.player == "left"
-    )
+    before = next(item for item in world_state.public_void_constraints if item.player == "left")
     child = apply_information_set_search_card_v1(world_state, card)
     after = next(item for item in child.public_void_constraints if item.player == "left")
     expected = set(before.forbidden_effective_categories)
@@ -492,9 +478,7 @@ def test_out_of_play_visibility_is_actor_specific() -> None:
         )
     )
     assert declarer_observation.actor_side == "declarer"
-    assert declarer_observation.visible_out_of_play_cards == (
-        declarer_state.out_of_play_cards
-    )
+    assert declarer_observation.visible_out_of_play_cards == (declarer_state.out_of_play_cards)
 
 
 def test_hidden_world_ownership_does_not_split_equal_root_information_sets() -> None:
@@ -577,14 +561,7 @@ def test_visible_discards_and_own_hand_split_information_sets() -> None:
         **(values | {"own_remaining_hand": observation.own_remaining_hand[:-1]})
     )
     different_current_trick = InformationSetSearchObservationV1._from_validated(
-        **(
-            values
-            | {
-                "current_trick": (
-                    SearchPublicPlay(player="left", card="D7"),
-                )
-            }
-        )
+        **(values | {"current_trick": (SearchPublicPlay(player="left", card="D7"),)})
     )
     different_history = InformationSetSearchObservationV1._from_validated(
         **(values | {"public_completed_tricks": observation.public_completed_tricks[:-1]})
@@ -669,16 +646,13 @@ def test_fixed_policy_selection_reuses_preference_once_and_public_partner_fact(
     assert len(calls) == 1
     assert selected == observation.legal_cards[0]
     assert calls[0]["hand"] == list(observation.own_remaining_hand)
-    assert calls[0]["current_trick"] == [
-        play.card for play in observation.current_trick
-    ]
+    assert calls[0]["current_trick"] == [play.card for play in observation.current_trick]
     winner_index = determine_current_trick_winner_index(
         calls[0]["current_trick"],
         observation.game_type,
     )
     expected_partner_winning = (
-        observation.current_trick[winner_index].player
-        != observation.declarer_player
+        observation.current_trick[winner_index].player != observation.declarer_player
     )
     assert calls[0]["partner_currently_winning"] is expected_partner_winning
     assert calls[0]["partner_index"] == winner_index
@@ -755,9 +729,7 @@ def test_preparation_reuses_exact_selection_and_builds_one_equal_root_set() -> N
         actor="me",
         public_players=("left", "right"),
     )
-    preparation = prepare_information_set_search_v1(
-        _request(view, max_selected_worlds=1)
-    )
+    preparation = prepare_information_set_search_v1(_request(view, max_selected_worlds=1))
     assert preparation.status == "available"
     assert preparation.unavailable_reason is None
     assert preparation.eligibility.eligible is True
@@ -780,11 +752,7 @@ def test_preparation_reuses_exact_selection_and_builds_one_equal_root_set() -> N
         declarer_player=view.declarer_player,
         hand=list(view.local_remaining_hand),
         current_trick=[play.card for play in view.current_trick],
-        trick_leader=(
-            view.current_trick[0].player
-            if view.current_trick
-            else view.next_player
-        ),
+        trick_leader=(view.current_trick[0].player if view.current_trick else view.next_player),
         completed_tricks=[
             {
                 "cards": [play.card for play in trick.plays],
@@ -810,9 +778,7 @@ def test_preparation_reuses_exact_selection_and_builds_one_equal_root_set() -> N
             public_hand_constraints=view.public_hand_constraints,
         )
     )
-    historical = prepare_information_set_search_v1(
-        _request(historical_view, max_selected_worlds=1)
-    )
+    historical = prepare_information_set_search_v1(_request(historical_view, max_selected_worlds=1))
     assert historical.status == "available"
     assert historical.root_information_set == preparation.root_information_set
 
@@ -876,9 +842,7 @@ def test_preparation_calls_world_build_and_selection_once(
         return original_select(**kwargs)
 
     original_state = preparation_module.build_information_set_search_world_state_v1
-    original_observation = (
-        preparation_module.build_information_set_search_observation_v1
-    )
+    original_observation = preparation_module.build_information_set_search_observation_v1
 
     def counted_state(**kwargs):
         calls["state"] += 1
@@ -908,9 +872,7 @@ def test_preparation_calls_world_build_and_selection_once(
         "build_information_set_search_observation_v1",
         counted_observation,
     )
-    preparation = prepare_information_set_search_v1(
-        _request(view, max_selected_worlds=4)
-    )
+    preparation = prepare_information_set_search_v1(_request(view, max_selected_worlds=4))
     assert preparation.status == "available"
     assert calls == {
         "build": 1,
@@ -932,9 +894,7 @@ def test_preparation_reports_bounded_policy_model_and_world_unavailability(
         actor="me",
         known_out_of_play=False,
     )
-    missing_discards = prepare_information_set_search_v1(
-        _request(missing_discards_view)
-    )
+    missing_discards = prepare_information_set_search_v1(_request(missing_discards_view))
     assert missing_discards.unavailable_reason == "information_set_model_unavailable"
 
     defender_view, _ = _find_view(
@@ -974,9 +934,7 @@ def test_preparation_reports_bounded_policy_model_and_world_unavailability(
         "build_compatible_search_world_space",
         lambda _view: pytest.fail("ineligible preparation built a world space"),
     )
-    assert prepare_information_set_search_v1(_request(four_trick_view)).status == (
-        "unavailable"
-    )
+    assert prepare_information_set_search_v1(_request(four_trick_view)).status == ("unavailable")
 
 
 def test_observation_field_order_defines_the_information_set_key() -> None:
@@ -1030,10 +988,13 @@ def test_observation_field_order_defines_the_information_set_key() -> None:
             }
         )
         assert altered != observation
-    assert get_player_side(
-        observation.actor_player,
-        observation.declarer_player,
-    ) == observation.actor_side
+    assert (
+        get_player_side(
+            observation.actor_player,
+            observation.declarer_player,
+        )
+        == observation.actor_side
+    )
 
 
 def test_complete_partial_timeout_and_unavailable_results_are_strict() -> None:
@@ -1101,7 +1062,7 @@ def test_complete_partial_timeout_and_unavailable_results_are_strict() -> None:
         controlled_policy_decisions=1,
         fixed_policy_decisions=2,
         selected_world_count=2,
-        completed_world_count=1,
+        completed_world_count=0,
         sampled_world_count=0,
         unique_sampled_world_count=0,
         wall_clock_elapsed_ms=2,
@@ -1120,19 +1081,27 @@ def test_complete_partial_timeout_and_unavailable_results_are_strict() -> None:
         requested_budget=request.requested_budget,
         consumed_budget=partial_consumed,
         compatible_world_count=2,
-        candidate_results=(
-            _candidate(
-                selected_card,
-                completed_world_count=1,
-                recommended=False,
-            ),
-        ),
+        candidate_results=(),
         recommended_card=None,
         controlled_policy=(replace(decision, reached_world_count=2),),
         fixed_policy_settings=request.policy_settings,
     )
     assert partial.recommended_card is None
     assert partial.policy_claim == "common_policy_prefix"
+    assert partial.candidate_results == ()
+
+    started_unresolved = InformationSetSearchResultV1(
+        **{
+            field.name: (
+                replace(partial.consumed_budget, information_sets_evaluated=2)
+                if field.name == "consumed_budget"
+                else getattr(partial, field.name)
+            )
+            for field in fields(partial)
+        }
+    )
+    assert len(started_unresolved.controlled_policy) == 1
+    assert started_unresolved.consumed_budget.information_sets_evaluated == 2
 
     partial_values = {field.name: getattr(partial, field.name) for field in fields(partial)}
     with pytest.raises(ValueError, match="every selected world"):
@@ -1170,7 +1139,7 @@ def test_complete_partial_timeout_and_unavailable_results_are_strict() -> None:
         controlled_policy_decisions=0,
         fixed_policy_decisions=2,
         selected_world_count=2,
-        completed_world_count=1,
+        completed_world_count=0,
         sampled_world_count=2,
         unique_sampled_world_count=2,
         wall_clock_elapsed_ms=5,
@@ -1189,13 +1158,7 @@ def test_complete_partial_timeout_and_unavailable_results_are_strict() -> None:
         requested_budget=timeout_budget,
         consumed_budget=timeout_consumed,
         compatible_world_count=6,
-        candidate_results=(
-            _candidate(
-                selected_card,
-                completed_world_count=1,
-                recommended=False,
-            ),
-        ),
+        candidate_results=(),
         recommended_card=None,
         controlled_policy=(),
         fixed_policy_settings=request.policy_settings,
@@ -1235,7 +1198,7 @@ def test_result_rejects_strategy_fusion_and_noncomplete_recommendations() -> Non
     consumed = InformationSetSearchConsumedBudgetV1(
         depth_reached=1,
         state_nodes_evaluated=4,
-        information_sets_evaluated=1,
+        information_sets_evaluated=2,
         controlled_policy_decisions=2,
         fixed_policy_decisions=2,
         selected_world_count=1,
@@ -1274,6 +1237,7 @@ def test_result_rejects_strategy_fusion_and_noncomplete_recommendations() -> Non
 
     single_consumed = replace(
         consumed,
+        information_sets_evaluated=1,
         controlled_policy_decisions=1,
     )
     with pytest.raises(ValueError, match="depth-zero"):
@@ -1302,20 +1266,20 @@ def test_result_rejects_strategy_fusion_and_noncomplete_recommendations() -> Non
             )
         )
 
-    with pytest.raises(ValueError, match="minimum comparable worlds"):
-        InformationSetSearchResultV1(
-            **(
-                common
-                | {
-                    "requested_budget": replace(
-                        request.requested_budget,
-                        minimum_comparable_worlds=2,
-                    ),
-                    "consumed_budget": single_consumed,
-                    "controlled_policy": (decisions[0],),
-                }
-            )
+    below_requested_minimum = InformationSetSearchResultV1(
+        **(
+            common
+            | {
+                "requested_budget": replace(
+                    request.requested_budget,
+                    minimum_comparable_worlds=2,
+                ),
+                "consumed_budget": single_consumed,
+                "controlled_policy": (decisions[0],),
+            }
         )
+    )
+    assert below_requested_minimum.status == "complete"
 
     complete_two_worlds = replace(
         single_consumed,
@@ -1342,14 +1306,10 @@ def test_result_rejects_strategy_fusion_and_noncomplete_recommendations() -> Non
         )
 
     observation_values = {
-        field.name: getattr(information_set, field.name)
-        for field in fields(information_set)
+        field.name: getattr(information_set, field.name) for field in fields(information_set)
     }
     changed_declaration = InformationSetSearchObservationV1._from_validated(
-        **(
-            observation_values
-            | {"declaration": GameDeclaration("grand", matadors=2, bid_value=24)}
-        )
+        **(observation_values | {"declaration": GameDeclaration("grand", matadors=2, bid_value=24)})
     )
     changed_context_decision = InformationSetControlledPolicyDecisionV1(
         information_set=changed_declaration,
@@ -1373,11 +1333,11 @@ def test_result_rejects_strategy_fusion_and_noncomplete_recommendations() -> Non
 
     defender_information_set = InformationSetSearchObservationV1._from_validated(
         **(
-                observation_values
-                | {
-                    "declarer_player": "left",
-                    "actor_side": "defenders",
-                }
+            observation_values
+            | {
+                "declarer_player": "left",
+                "actor_side": "defenders",
+            }
         )
     )
     defender_decision = InformationSetControlledPolicyDecisionV1(
@@ -1393,9 +1353,7 @@ def test_result_rejects_strategy_fusion_and_noncomplete_recommendations() -> Non
                 | {
                     "consumed_budget": single_consumed,
                     "controlled_policy": (defender_decision,),
-                    "fixed_policy_settings": _settings(
-                        left_lead="basic_defender_lead"
-                    ),
+                    "fixed_policy_settings": _settings(left_lead="basic_defender_lead"),
                 }
             )
         )
@@ -1442,20 +1400,20 @@ def test_null_result_ranking_has_no_card_point_margin() -> None:
     )
     consumed = InformationSetSearchConsumedBudgetV1(
         depth_reached=1,
-        state_nodes_evaluated=request.requested_budget.max_state_nodes,
+        state_nodes_evaluated=2,
         information_sets_evaluated=1,
         controlled_policy_decisions=1,
         fixed_policy_decisions=1,
         selected_world_count=2,
-        completed_world_count=1,
+        completed_world_count=2,
         sampled_world_count=0,
         unique_sampled_world_count=0,
         wall_clock_elapsed_ms=1,
     )
     candidate = _candidate(
         information_set.legal_cards[0],
-        completed_world_count=1,
-        recommended=False,
+        completed_world_count=2,
+        recommended=True,
         margin=None,
     )
     result = InformationSetSearchResultV1(
@@ -1463,17 +1421,17 @@ def test_null_result_ranking_has_no_card_point_margin() -> None:
         analysis_method=INFORMATION_SET_SEARCH_ANALYSIS_METHOD,
         search_method=BOUNDED_INFORMATION_SET_POLICY_SEARCH_METHOD,
         game_type="null",
-        status="partial",
-        stop_reason="state_node_budget_exhausted",
+        status="complete",
+        stop_reason="completed",
         world_coverage="all_compatible_worlds",
-        policy_claim="common_policy_prefix",
+        policy_claim="exact_selected_world_policy",
         policy_consistency="controlled_player_information_set_consistent",
         terminal_utility_version=TERMINAL_UTILITY_VERSION,
         requested_budget=request.requested_budget,
         consumed_budget=consumed,
         compatible_world_count=2,
         candidate_results=(candidate,),
-        recommended_card=None,
+        recommended_card=information_set.legal_cards[0],
         controlled_policy=(decision,),
         fixed_policy_settings=request.policy_settings,
     )
@@ -1523,9 +1481,7 @@ def test_malformed_view_is_rejected_before_preparation() -> None:
         _request(replace(view, hidden_card_constraints=mutable_hidden))
 
     private_opponent_constraints = tuple(
-        replace(item, exact_cards=exact_state.hand_for("left"))
-        if item.player == "left"
-        else item
+        replace(item, exact_cards=exact_state.hand_for("left")) if item.player == "left" else item
         for item in view.hidden_card_constraints
     )
     with pytest.raises(ValueError, match="authorized public hand"):
@@ -1588,9 +1544,7 @@ def test_shared_eligibility_reasons_remain_normal_preparation_outcomes() -> None
         view,
         declaration=GameDeclaration("grand", matadors=None, bid_value=24),
     )
-    missing_utility = prepare_information_set_search_v1(
-        _request(missing_utility_view)
-    )
+    missing_utility = prepare_information_set_search_v1(_request(missing_utility_view))
     assert missing_utility.unavailable_reason == "missing_terminal_utility_inputs"
 
     no_cards_view = replace(

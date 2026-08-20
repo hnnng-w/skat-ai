@@ -233,8 +233,10 @@ every other current Claim boundary remains `not_supported_v1`. Claims and Final
 Settlement remain `partially_supported` beyond the bounded implemented slice.
 Issue #187 defines the private information-set Search World State, actor
 Observation, fixed Policy, Budget, Request, Preparation, controlled-Policy, and
-Result foundation without executing Policy Search. Its bounded executor,
-Strategy-Fusion comparison, integration, and performance evidence remain open,
+Result foundation. Issue #188 adds its private bounded exhaustive selected-world
+best-response executor and prevents Strategy Fusion for controlled Player `me`
+over the selected sequence. PIMC and Immediate comparison, routing, integration,
+broader Strategy-Fusion correction, and performance evidence remain open,
 along with tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -364,11 +366,15 @@ The following directions are required for `v1.0.0`:
   Policy Comparison routing are implemented. Flat post-game Search, Historical
   Search Review, bounded dataset Search-versus-Immediate evaluation, immutable
   versioned work profiles, deterministic quality/convergence regressions, and a
-  reproducible local performance baseline are also implemented. Calibrated
-  sampled quality, an optimal imperfect-information policy, a latency guarantee,
+  reproducible local performance baseline are also implemented. Issues #187 and
+  #188 add a separate private three-Trick selected-world information-set
+  foundation and controlled-Player best-response executor without comparison,
+  routing, or performance evidence. Calibrated sampled quality, broader optimal
+  imperfect-information policy solving, and a latency guarantee
   remain open. The functional `v0.10.0` milestone is complete, but these broader
   stronger-solver requirements are not. See
-  [Bounded search contracts](bounded_search_contracts.md).
+  [Bounded search contracts](bounded_search_contracts.md) and the
+  [Information-set Search executor](information_set_search_executor.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
   execution-consistency requirement; stronger search remains a separate open

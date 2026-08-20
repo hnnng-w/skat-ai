@@ -3,8 +3,8 @@
 ## Purpose
 
 Issue #187 defines the private version-1 foundation for bounded
-information-set-consistent Search. It adds no Search executor and changes no
-existing recommendation route.
+information-set-consistent Search. Issue #188 adds its separate private bounded
+executor without changing any existing recommendation route.
 
 The existing `compatible_world_minimax_v1` method evaluates each selected exact
 Compatible World separately. A future action can therefore differ between two
@@ -39,8 +39,8 @@ process identity, path, or unordered iteration is retained.
 
 Version 1 controls exactly `me`, the root
 `SearchInformationView.perspective_player`. Equal future observations for `me`
-must select one equal action. The intended future solver is a best response for
-this root Player against supplied fixed Policies, not a three-player equilibrium
+select one equal action. The executor is a best response for this root Player
+against supplied fixed Policies, not a three-player equilibrium
 or joint Defender-team optimization.
 
 `left` and `right` remain separate fixed-policy actors. This remains true when
@@ -190,10 +190,16 @@ Information Set, and canonical legal Cards. An unavailable Preparation retains a
 canonical reason and no World States or root Information Set. Malformed direct
 inputs and exact/public contradictions remain validation errors.
 
+Issue #188 adds strict retained-Preparation reconciliation before execution. It
+validates the retained Request, eligibility, selection counts and order, sampled
+duplicate multiplicity, exact/public World facts, root Observation and legal
+Cards, fixed-policy roles, and three-Trick eligibility without rebuilding or
+reselecting Worlds.
+
 ## Result semantics
 
-`InformationSetSearchResultV1` defines future executor invariants while Issue
-#187 constructs no non-unavailable runtime Result. It reuses
+`InformationSetSearchResultV1` is now constructed by the private Issue-#188
+executor. It reuses
 `AggregateSearchCandidateResult` and `rank_search_candidate_results()` unchanged.
 Ranking remains:
 
@@ -210,11 +216,13 @@ Status semantics are:
   claim is `exact_selected_world_policy`, and equal controlled observations use
   one action; the recommendation equals the one depth-zero controlled decision,
   which reaches every selected world;
-* `partial`: a structural budget ended one common comparable prefix, the claim
-  is `common_policy_prefix`, the named structural limit exactly matches its
-  consumed count, and version 1 emits no recommendation;
+* `partial`: a structural budget ended execution, the claim is
+  `common_policy_prefix`, the named structural limit exactly matches its
+  consumed count, only fully resolved controlled Decisions are retained, and
+  version 1 emits no Candidates, completed Worlds, or recommendation;
 * `timeout`: a requested wall-clock cutoff activated, no Policy claim or
-  recommendation is retained;
+  Candidates, controlled Policy, completed Worlds, or recommendation are
+  retained;
 * `unavailable`: coverage and claims are `none`, candidates and controlled
   Policy are empty, recommendation is null, and consumed counts are zero.
 
@@ -223,22 +231,28 @@ sequence under the supplied fixed-policy model. With sampled coverage it is not
 exact over every Compatible World. It makes no equilibrium, Nash, perfect-play,
 global-optimality, complete-contract, or calibrated-probability claim.
 
-Whenever controlled-player consistency is claimed, the retained controlled
-Policy contains exactly one Decision for every evaluated controlled Information
-Set. Duplicate Information Sets and omitted evaluated Information Sets are
-invalid, so a Result cannot hide a conflicting action in an unretained subset.
+For complete execution, the retained controlled Policy count equals both fully
+resolved controlled Decisions and evaluated Information Sets. For partial
+execution, its count equals fully resolved Decisions and may be lower than
+started Information Sets. Duplicate Information Sets and conflicting actions
+remain invalid.
 All retained controlled Information Sets share one Declaration, Declarer, and
 cutoff, and supplied fixed Policies remain valid for those Player roles.
 
-## Boundaries and next work
+## Executor boundary and next work
 
-The four private modules import no Minimax executor, coherent Multi-Step world,
+The five private modules import no Minimax executor, coherent Multi-Step world,
 Public API, CLI, or file/network transport. Preparation does not evaluate
 terminal utility, aggregate Candidates, rank recommendations, or use fallback.
+The executor uses exact transitions, actor Observations, fixed Policies, existing
+terminal utility, existing Candidate aggregation, and deterministic ranking. It
+retains invocation-local World and ordered-bundle caches and performs no I/O.
 
-The next functional step is a separately reviewed bounded Policy Search executor
-that consumes an available Preparation and enforces one controlled action per
-equal Information Set. Executor budgets, performance evidence, comparison with
-PIMC, recommendation routing, Multi-Step and Policy Comparison integration,
+Performance evidence, comparison with PIMC and Immediate, recommendation
+routing, Multi-Step and Policy Comparison integration,
 Historical Review, Dataset and Coaching use, Provenance, Public API, CLI,
 Schemas, examples, and generated scenarios remain open.
+
+See [Information-set Search executor](information_set_search_executor.md) for
+the Issue-#188 algorithm, memoization, counter, Policy, and incomplete-Result
+semantics.

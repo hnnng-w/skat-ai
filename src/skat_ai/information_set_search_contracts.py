@@ -48,9 +48,7 @@ INFORMATION_SET_SEARCH_REQUEST_VERSION = 1
 INFORMATION_SET_SEARCH_PREPARATION_VERSION = 1
 INFORMATION_SET_SEARCH_RESULT_VERSION = 1
 
-BOUNDED_INFORMATION_SET_POLICY_SEARCH_METHOD = (
-    "bounded_information_set_policy_search_v1"
-)
+BOUNDED_INFORMATION_SET_POLICY_SEARCH_METHOD = "bounded_information_set_policy_search_v1"
 INFORMATION_SET_SEARCH_CONTROLLED_PLAYERS = ("me",)
 INFORMATION_SET_SEARCH_CONTROL_SCOPES = ("root_perspective_only",)
 INFORMATION_SET_SEARCH_MAXIMUM_REMAINING_TRICKS = 3
@@ -106,28 +104,16 @@ _DEFENDER_ONLY_POLICY_NAMES = {
     "basic_defender_lead",
 }
 
-INFORMATION_SET_SEARCH_SOURCE_POLICY = (
-    "existing_information_view_and_selected_compatible_worlds"
-)
+INFORMATION_SET_SEARCH_SOURCE_POLICY = "existing_information_view_and_selected_compatible_worlds"
 INFORMATION_SET_SEARCH_WORLD_STATE_POLICY = "exact_state_plus_complete_public_history"
-INFORMATION_SET_SEARCH_OBSERVATION_POLICY = (
-    "actor_own_hand_private_facts_and_public_history_only"
-)
-INFORMATION_SET_SEARCH_EQUIVALENCE_POLICY = (
-    "equal_actor_observations_define_one_information_set"
-)
-INFORMATION_SET_SEARCH_CONTROLLED_POLICY = (
-    "optimize_root_perspective_policy_over_information_sets"
-)
+INFORMATION_SET_SEARCH_OBSERVATION_POLICY = "actor_own_hand_private_facts_and_public_history_only"
+INFORMATION_SET_SEARCH_EQUIVALENCE_POLICY = "equal_actor_observations_define_one_information_set"
+INFORMATION_SET_SEARCH_CONTROLLED_POLICY = "optimize_root_perspective_policy_over_information_sets"
 INFORMATION_SET_SEARCH_FIXED_PLAYER_POLICY = (
     "non_controlled_players_use_fixed_information_safe_policies"
 )
-INFORMATION_SET_SEARCH_PARTNER_POLICY = (
-    "defender_partner_remains_separate_fixed_policy_actor"
-)
-INFORMATION_SET_SEARCH_OUT_OF_PLAY_POLICY = (
-    "exact_discards_visible_only_to_non_hand_declarer"
-)
+INFORMATION_SET_SEARCH_PARTNER_POLICY = "defender_partner_remains_separate_fixed_policy_actor"
+INFORMATION_SET_SEARCH_OUT_OF_PLAY_POLICY = "exact_discards_visible_only_to_non_hand_declarer"
 INFORMATION_SET_SEARCH_PUBLIC_HAND_POLICY = (
     "authorized_public_hands_visible_to_all_and_shrink_with_play"
 )
@@ -135,22 +121,16 @@ INFORMATION_SET_SEARCH_VOID_POLICY = "confirmed_voids_derive_from_public_play_on
 INFORMATION_SET_SEARCH_WORLD_WEIGHT_POLICY = (
     "selected_world_order_and_sampled_duplicate_weight_are_preserved"
 )
-INFORMATION_SET_SEARCH_FIXED_POLICY_TIE_POLICY = (
-    "first_canonical_preferred_card"
-)
+INFORMATION_SET_SEARCH_FIXED_POLICY_TIE_POLICY = "first_canonical_preferred_card"
 INFORMATION_SET_SEARCH_UTILITY_POLICY = "existing_local_side_terminal_utility"
-INFORMATION_SET_SEARCH_STRATEGY_FUSION_POLICY = (
-    "one_controlled_action_per_equal_information_set"
-)
+INFORMATION_SET_SEARCH_STRATEGY_FUSION_POLICY = "one_controlled_action_per_equal_information_set"
 INFORMATION_SET_SEARCH_CLAIM_POLICY = (
     "best_response_to_fixed_policies_not_equilibrium_or_general_optimality"
 )
 INFORMATION_SET_SEARCH_EXECUTION_POLICY = (
     "contracts_and_preparation_without_policy_search_execution"
 )
-INFORMATION_SET_SEARCH_PUBLIC_POLICY = (
-    "private_internal_without_public_schema_or_routing"
-)
+INFORMATION_SET_SEARCH_PUBLIC_POLICY = "private_internal_without_public_schema_or_routing"
 
 INFORMATION_SET_SEARCH_ANALYSIS_METHOD = "information_set_search"
 _STRUCTURAL_STOP_REASONS = (
@@ -190,10 +170,7 @@ def _serialize_information_view(view: SearchInformationView) -> dict[str, Any]:
         ],
         "completed_tricks": [
             {
-                "plays": [
-                    {"player": play.player, "card": play.card}
-                    for play in trick.plays
-                ],
+                "plays": [{"player": play.player, "card": play.card} for play in trick.plays],
                 "winner_player": trick.winner_player,
                 "winner_side": trick.winner_side,
                 "trick_points": trick.trick_points,
@@ -216,9 +193,7 @@ def _serialize_information_view(view: SearchInformationView) -> dict[str, Any]:
         "hidden_card_constraints": [
             {
                 "player": item.player,
-                "forbidden_effective_categories": list(
-                    item.forbidden_effective_categories
-                ),
+                "forbidden_effective_categories": list(item.forbidden_effective_categories),
                 "exact_cards": list(item.exact_cards),
             }
             for item in view.hidden_card_constraints
@@ -236,9 +211,7 @@ def _serialize_candidate(candidate: AggregateSearchCandidateResult) -> dict[str,
         "local_contract_success_count": candidate.local_contract_success_count,
         "local_contract_success_rate": candidate.local_contract_success_rate,
         "mean_local_side_game_score": candidate.mean_local_side_game_score,
-        "mean_local_side_card_point_margin": (
-            candidate.mean_local_side_card_point_margin
-        ),
+        "mean_local_side_card_point_margin": (candidate.mean_local_side_card_point_margin),
     }
 
 
@@ -274,10 +247,7 @@ def _validate_information_view_structure(view: SearchInformationView) -> None:
     for cards, field_name, maximum in card_tuples:
         if not isinstance(cards, tuple):
             raise TypeError(f"{field_name} must be a tuple.")
-        if any(
-            not isinstance(card, str) or card not in _FULL_DECK_SET
-            for card in cards
-        ):
+        if any(not isinstance(card, str) or card not in _FULL_DECK_SET for card in cards):
             raise ValueError(f"{field_name} contains an invalid Card.")
         if len(cards) != len(set(cards)) or len(cards) > maximum:
             raise ValueError(f"{field_name} contains invalid Card cardinality.")
@@ -316,27 +286,20 @@ def _validate_information_view_structure(view: SearchInformationView) -> None:
             raise ValueError("A completed Trick has an invalid winner side.")
         _require_non_negative_integer(trick.trick_points, "trick_points")
 
-    if any(
-        not isinstance(item, SearchRemainingHandSize)
-        for item in view.remaining_hand_sizes
-    ):
+    if any(not isinstance(item, SearchRemainingHandSize) for item in view.remaining_hand_sizes):
         raise ValueError("remaining_hand_sizes contain an invalid value.")
-    if tuple(item.player for item in view.remaining_hand_sizes) != tuple(
-        CONCRETE_PLAYERS
-    ):
+    if tuple(item.player for item in view.remaining_hand_sizes) != tuple(CONCRETE_PLAYERS):
         raise ValueError("remaining_hand_sizes must cover all Players canonically.")
     for item in view.remaining_hand_sizes:
         _require_non_negative_integer(item.card_count, "remaining card_count")
         if item.card_count > 10:
             raise ValueError("A remaining hand cannot exceed ten Cards.")
     if not isinstance(view.public_hand_constraints, tuple) or any(
-        not isinstance(item, PublicHandConstraint)
-        for item in view.public_hand_constraints
+        not isinstance(item, PublicHandConstraint) for item in view.public_hand_constraints
     ):
         raise ValueError("public_hand_constraints contain an invalid value.")
     if not isinstance(view.hidden_card_constraints, tuple) or any(
-        not isinstance(item, PlayerHiddenCardConstraints)
-        for item in view.hidden_card_constraints
+        not isinstance(item, PlayerHiddenCardConstraints) for item in view.hidden_card_constraints
     ):
         raise ValueError("hidden_card_constraints contain an invalid value.")
     for field_name in (
@@ -372,18 +335,14 @@ def _validate_information_view_structure(view: SearchInformationView) -> None:
             raise TypeError("Public hand Cards must be a tuple.")
         if any(card not in _FULL_DECK_SET for card in constraint.cards):
             raise ValueError("A public hand contains an invalid Card.")
-        if (
-            len(constraint.cards) != len(set(constraint.cards))
-            or constraint.cards != canonicalize_cards(constraint.cards)
-        ):
+        if len(constraint.cards) != len(
+            set(constraint.cards)
+        ) or constraint.cards != canonicalize_cards(constraint.cards):
             raise ValueError("Public hand Cards must be unique and canonical.")
         if constraint.visibility_scope != PUBLIC_HAND_VISIBILITY_SCOPE:
             raise ValueError("A public hand must be visible to all Players.")
         if constraint.source == DECLARED_OUVERT_SOURCE:
-            if (
-                not view.declaration.ouvert
-                or constraint.player != view.declarer_player
-            ):
+            if not view.declaration.ouvert or constraint.player != view.declarer_player:
                 raise ValueError("Declared-Ouvert public-hand authorization is invalid.")
         elif constraint.source == DECLARER_EXPOSURE_CONTINUATION_SOURCE:
             if constraint.player != view.declarer_player:
@@ -405,21 +364,16 @@ def _validate_information_view_structure(view: SearchInformationView) -> None:
             any(category not in EFFECTIVE_CATEGORY_ORDER for category in categories)
             or len(categories) != len(set(categories))
             or categories
-            != tuple(
-                category
-                for category in EFFECTIVE_CATEGORY_ORDER
-                if category in categories
-            )
+            != tuple(category for category in EFFECTIVE_CATEGORY_ORDER if category in categories)
         ):
             raise ValueError("Forbidden effective categories must be unique and canonical.")
         if not isinstance(constraint.exact_cards, tuple):
             raise TypeError("Exact constraint Cards must be a tuple.")
         if any(card not in _FULL_DECK_SET for card in constraint.exact_cards):
             raise ValueError("Exact constraints contain an invalid Card.")
-        if (
-            len(constraint.exact_cards) != len(set(constraint.exact_cards))
-            or constraint.exact_cards != canonicalize_cards(constraint.exact_cards)
-        ):
+        if len(constraint.exact_cards) != len(
+            set(constraint.exact_cards)
+        ) or constraint.exact_cards != canonicalize_cards(constraint.exact_cards):
             raise ValueError("Exact constraint Cards must be unique and canonical.")
         if constraint.player == "me":
             if constraint.exact_cards != view.local_remaining_hand:
@@ -508,9 +462,7 @@ class InformationSetSearchPolicySettingsV1:
             ),
             "controlled_player": self.controlled_player,
             "control_scope": self.control_scope,
-            "fixed_player_policies": [
-                item.to_dict() for item in self.fixed_player_policies
-            ],
+            "fixed_player_policies": [item.to_dict() for item in self.fixed_player_policies],
         }
 
 
@@ -552,15 +504,11 @@ class InformationSetSearchBudgetV1:
         if self.max_sampled_worlds > self.max_selected_worlds:
             raise ValueError("max_sampled_worlds cannot exceed max_selected_worlds.")
         if self.minimum_comparable_worlds > self.max_selected_worlds:
-            raise ValueError(
-                "minimum_comparable_worlds cannot exceed max_selected_worlds."
-            )
+            raise ValueError("minimum_comparable_worlds cannot exceed max_selected_worlds.")
 
     def to_dict(self) -> dict[str, int | None]:
         return {
-            "information_set_search_budget_version": (
-                self.information_set_search_budget_version
-            ),
+            "information_set_search_budget_version": (self.information_set_search_budget_version),
             "max_remaining_tricks": self.max_remaining_tricks,
             "max_depth_plies": self.max_depth_plies,
             "max_state_nodes": self.max_state_nodes,
@@ -586,9 +534,7 @@ class InformationSetSearchRequestV1:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "information_set_search_request_version": (
-                self.information_set_search_request_version
-            ),
+            "information_set_search_request_version": (self.information_set_search_request_version),
             "search_method": self.search_method,
             "information_view": _serialize_information_view(self.information_view),
             "requested_budget": self.requested_budget.to_dict(),
@@ -619,9 +565,7 @@ def validate_information_set_search_request_v1(
     ):
         raise ValueError("world_selection_seed must be an integer, not a boolean.")
     if not isinstance(request.policy_settings, InformationSetSearchPolicySettingsV1):
-        raise ValueError(
-            "policy_settings must be an InformationSetSearchPolicySettingsV1."
-        )
+        raise ValueError("policy_settings must be an InformationSetSearchPolicySettingsV1.")
 
 
 def build_information_set_search_request_v1(
@@ -654,9 +598,7 @@ class InformationSetControlledPolicyDecisionV1:
         )
 
         if not isinstance(self.information_set, InformationSetSearchObservationV1):
-            raise ValueError(
-                "information_set must be an InformationSetSearchObservationV1."
-            )
+            raise ValueError("information_set must be an InformationSetSearchObservationV1.")
         if self.information_set.actor_player != "me":
             raise ValueError("Controlled Policy Decisions must belong to me.")
         if self.selected_card not in self.information_set.legal_cards:
@@ -702,6 +644,10 @@ class InformationSetSearchConsumedBudgetV1:
             _require_non_negative_integer(getattr(self, field_name), field_name)
         if self.information_sets_evaluated > self.state_nodes_evaluated:
             raise ValueError("Information-set count cannot exceed evaluated state nodes.")
+        if self.controlled_policy_decisions > self.information_sets_evaluated:
+            raise ValueError(
+                "Controlled Policy Decisions cannot exceed evaluated Information Sets."
+            )
         if (
             self.controlled_policy_decisions + self.fixed_policy_decisions
             > self.state_nodes_evaluated
@@ -733,8 +679,7 @@ class InformationSetSearchConsumedBudgetV1:
         }
 
 
-def build_zero_information_set_search_consumed_budget_v1(
-) -> InformationSetSearchConsumedBudgetV1:
+def build_zero_information_set_search_consumed_budget_v1() -> InformationSetSearchConsumedBudgetV1:
     return InformationSetSearchConsumedBudgetV1(
         depth_reached=0,
         state_nodes_evaluated=0,
@@ -812,9 +757,7 @@ class InformationSetSearchResultV1:
         if not isinstance(self.requested_budget, InformationSetSearchBudgetV1):
             raise ValueError("requested_budget must be an InformationSetSearchBudgetV1.")
         if not isinstance(self.consumed_budget, InformationSetSearchConsumedBudgetV1):
-            raise ValueError(
-                "consumed_budget must be an InformationSetSearchConsumedBudgetV1."
-            )
+            raise ValueError("consumed_budget must be an InformationSetSearchConsumedBudgetV1.")
         if self.compatible_world_count is not None:
             _require_non_negative_integer(
                 self.compatible_world_count,
@@ -823,8 +766,7 @@ class InformationSetSearchResultV1:
         if not isinstance(self.candidate_results, tuple):
             raise TypeError("candidate_results must be a tuple.")
         if any(
-            not isinstance(item, AggregateSearchCandidateResult)
-            for item in self.candidate_results
+            not isinstance(item, AggregateSearchCandidateResult) for item in self.candidate_results
         ):
             raise ValueError("candidate_results contain an invalid value.")
         if not isinstance(self.controlled_policy, tuple):
@@ -889,10 +831,13 @@ class InformationSetSearchResultV1:
             self.candidate_results
             and self.consumed_budget.completed_world_count
             < self.requested_budget.minimum_comparable_worlds
-        ):
-            raise ValueError(
-                "Candidate Results require the requested minimum comparable worlds."
+            and not (
+                self.status == "complete"
+                and self.consumed_budget.completed_world_count
+                == self.consumed_budget.selected_world_count
             )
+        ):
+            raise ValueError("Candidate Results require the requested minimum comparable worlds.")
         cards = tuple(item.card for item in self.candidate_results)
         if len(cards) != len(set(cards)):
             raise ValueError("Candidate Cards must be unique.")
@@ -904,9 +849,7 @@ class InformationSetSearchResultV1:
                 recommend=recommend,
             )
             if expected != self.candidate_results:
-                raise ValueError(
-                    "Candidate Results do not use existing deterministic ranking."
-                )
+                raise ValueError("Candidate Results do not use existing deterministic ranking.")
         for candidate in self.candidate_results:
             if candidate.completed_world_count != self.consumed_budget.completed_world_count:
                 raise ValueError("Candidate Results must share the completed-world prefix.")
@@ -922,11 +865,7 @@ class InformationSetSearchResultV1:
         if self.recommended_card is None:
             if marked:
                 raise ValueError("No Candidate may be recommended without recommended_card.")
-        elif (
-            len(marked) != 1
-            or marked[0].rank != 1
-            or marked[0].card != self.recommended_card
-        ):
+        elif len(marked) != 1 or marked[0].rank != 1 or marked[0].card != self.recommended_card:
             raise ValueError("recommended_card must identify the marked rank-1 Candidate.")
 
     def _validate_controlled_policy(self) -> None:
@@ -934,17 +873,10 @@ class InformationSetSearchResultV1:
         declaration_context: tuple[GameDeclaration, str, str] | None = None
         for decision in self.controlled_policy:
             if decision.information_set in selected_by_information_set:
-                if (
-                    selected_by_information_set[decision.information_set]
-                    != decision.selected_card
-                ):
-                    raise ValueError(
-                        "Equal Information Sets cannot select different Cards."
-                    )
+                if selected_by_information_set[decision.information_set] != decision.selected_card:
+                    raise ValueError("Equal Information Sets cannot select different Cards.")
                 raise ValueError("A controlled Policy cannot repeat an Information Set.")
-            selected_by_information_set[decision.information_set] = (
-                decision.selected_card
-            )
+            selected_by_information_set[decision.information_set] = decision.selected_card
             if decision.depth_plies > self.consumed_budget.depth_reached:
                 raise ValueError("Controlled Policy depth exceeds consumed depth.")
             if decision.reached_world_count > self.consumed_budget.selected_world_count:
@@ -959,9 +891,7 @@ class InformationSetSearchResultV1:
             if declaration_context is None:
                 declaration_context = decision_context
             elif decision_context != declaration_context:
-                raise ValueError(
-                    "Controlled Policy Information Sets must share one game context."
-                )
+                raise ValueError("Controlled Policy Information Sets must share one game context.")
         if len(self.controlled_policy) > self.consumed_budget.controlled_policy_decisions:
             raise ValueError("Retained Policy Decisions exceed consumed decisions.")
         if len(selected_by_information_set) > self.consumed_budget.information_sets_evaluated:
@@ -972,21 +902,20 @@ class InformationSetSearchResultV1:
         if len(root_decisions) > 1:
             raise ValueError("A controlled Policy cannot retain multiple root Decisions.")
         if root_decisions and (
-            root_decisions[0].reached_world_count
-            != self.consumed_budget.selected_world_count
+            root_decisions[0].reached_world_count != self.consumed_budget.selected_world_count
+        ):
+            raise ValueError("A controlled root Decision must reach every selected world.")
+        if self.status == "complete" and (
+            len(self.controlled_policy) != self.consumed_budget.controlled_policy_decisions
+            or len(self.controlled_policy) != self.consumed_budget.information_sets_evaluated
         ):
             raise ValueError(
-                "A controlled root Decision must reach every selected world."
+                "A complete controlled Policy must retain every evaluated Information Set."
             )
-        if self.policy_consistency == "controlled_player_information_set_consistent" and (
-            len(self.controlled_policy)
-            != self.consumed_budget.controlled_policy_decisions
-            or len(self.controlled_policy)
-            != self.consumed_budget.information_sets_evaluated
+        if self.status == "partial" and len(self.controlled_policy) != (
+            self.consumed_budget.controlled_policy_decisions
         ):
-            raise ValueError(
-                "A consistent controlled Policy must retain every evaluated Information Set."
-            )
+            raise ValueError("A partial controlled Policy must retain every resolved Decision.")
         if declaration_context is not None:
             declarer_player = declaration_context[1]
             for setting in self.fixed_policy_settings.fixed_player_policies:
@@ -994,9 +923,7 @@ class InformationSetSearchResultV1:
                     setting.lead_policy in _DEFENDER_ONLY_POLICY_NAMES
                     or setting.response_policy in _DEFENDER_ONLY_POLICY_NAMES
                 ):
-                    raise ValueError(
-                        "A Declarer cannot use a Defender-only fixed Policy."
-                    )
+                    raise ValueError("A Declarer cannot use a Defender-only fixed Policy.")
 
     def _validate_status(self) -> None:
         consumed = self.consumed_budget
@@ -1017,14 +944,9 @@ class InformationSetSearchResultV1:
             if not self.controlled_policy:
                 raise ValueError("Complete Search requires one controlled Policy.")
             root_decisions = tuple(
-                decision
-                for decision in self.controlled_policy
-                if decision.depth_plies == 0
+                decision for decision in self.controlled_policy if decision.depth_plies == 0
             )
-            if (
-                len(root_decisions) != 1
-                or root_decisions[0].selected_card != self.recommended_card
-            ):
+            if len(root_decisions) != 1 or root_decisions[0].selected_card != self.recommended_card:
                 raise ValueError(
                     "The complete recommendation must match one full-coverage "
                     "depth-zero Policy Decision."
@@ -1048,24 +970,36 @@ class InformationSetSearchResultV1:
                 ),
             }
             if exhausted[self.stop_reason][0] != exhausted[self.stop_reason][1]:
-                raise ValueError(
-                    "A structural stop reason must match its consumed budget limit."
-                )
+                raise ValueError("A structural stop reason must match its consumed budget limit.")
             if self.policy_claim != "common_policy_prefix":
                 raise ValueError("Partial Search requires a common-Policy-prefix claim.")
             if self.policy_consistency != "controlled_player_information_set_consistent":
                 raise ValueError("Partial Search requires controlled Policy consistency.")
-            if self.recommended_card is not None:
-                raise ValueError("Partial Search cannot recommend a Card in version 1.")
+            if self.candidate_results or self.recommended_card is not None:
+                raise ValueError(
+                    "Partial Search cannot retain Candidates or recommend a Card in version 1."
+                )
+            if consumed.completed_world_count != 0:
+                raise ValueError("Partial Search cannot retain completed Worlds in version 1.")
         elif self.status == "timeout":
             if self.stop_reason != "wall_clock_timeout":
                 raise ValueError("Timeout Search requires wall_clock_timeout.")
             if self.requested_budget.wall_clock_timeout_ms is None:
                 raise ValueError("Timeout Search requires a requested wall-clock cutoff.")
+            if consumed.wall_clock_elapsed_ms < (self.requested_budget.wall_clock_timeout_ms):
+                raise ValueError("Timeout Search must reach its wall-clock cutoff.")
             if self.policy_claim != "none" or self.policy_consistency != "not_assessed":
                 raise ValueError("Timeout Search cannot retain a Policy claim.")
-            if self.controlled_policy or self.recommended_card is not None:
-                raise ValueError("Timeout Search cannot retain a Policy or recommendation.")
+            if (
+                self.candidate_results
+                or self.controlled_policy
+                or self.recommended_card is not None
+            ):
+                raise ValueError(
+                    "Timeout Search cannot retain Candidates, a Policy, or a recommendation."
+                )
+            if consumed.completed_world_count != 0:
+                raise ValueError("Timeout Search cannot retain completed Worlds.")
         else:
             if self.stop_reason not in INFORMATION_SET_SEARCH_UNAVAILABLE_REASONS:
                 raise ValueError("Unavailable Search requires a canonical unavailable reason.")
@@ -1081,10 +1015,7 @@ class InformationSetSearchResultV1:
                 raise ValueError("Unavailable Search cannot recommend a Card.")
             if any(self.consumed_budget.to_dict().values()):
                 raise ValueError("Unavailable Search must consume a zero budget.")
-            if (
-                self.stop_reason == "incompatible_world_space"
-                and self.compatible_world_count != 0
-            ):
+            if self.stop_reason == "incompatible_world_space" and self.compatible_world_count != 0:
                 raise ValueError("Incompatible world space requires zero Compatible Worlds.")
             return
         if self.world_coverage == "none":
@@ -1097,9 +1028,7 @@ class InformationSetSearchResultV1:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "information_set_search_result_version": (
-                self.information_set_search_result_version
-            ),
+            "information_set_search_result_version": (self.information_set_search_result_version),
             "analysis_method": self.analysis_method,
             "search_method": self.search_method,
             "game_type": self.game_type,
