@@ -194,6 +194,7 @@ Before larger changes, read the relevant documentation:
 * `docs/learning_dataset_v2.md`
 * `docs/learning_corpus_browser_workflows.md`
 * `docs/information_set_search_workflows.md`
+* `docs/information_set_search_multi_step_and_policy_comparison.md`
 * `docs/installed_cli.md`
 * `docs/public_field_provenance.md`
 * `docs/examples.md`
@@ -224,9 +225,11 @@ The current unreleased working baseline keeps Package version `0.16.0`, Python
 Console Script, and six Session examples. Issue #186 updates the Settlement
 Normative Matrix to version `3` with the same 61 cases and implements the approved
 Claim through Historical Game input only. Issue #189 adds four Information-set
-Search Schemas, one example, and four generated-output scenarios, bringing the
-working tree to 69 authoritative and packaged Schemas and 92 scenarios. The
-published `v0.16.0` counts above remain unchanged Release facts.
+Search Schemas, one example, and four generated-output scenarios. Issue #190
+adds strict Information-set Search Multi-Step and Policy Comparison integration,
+one example, and two scenarios without adding a Schema, bringing the working tree
+to 69 authoritative and packaged Schemas and 94 scenarios. The published
+`v0.16.0` counts above remain unchanged Release facts.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -443,10 +446,15 @@ local memoization. Issue #189 adds strict flat `information_set_search`,
 same-selection PIMC plus independently seeded Immediate retrospective comparison,
 separate Historical Review and Training Dataset evaluation, safe public Results,
 retained-stage Provenance, CLI, four Schemas, one example, and four generated
-scenarios. Existing `auto` is unchanged. Multi-Step, Policy Comparison, Match
-Capture, Strategy Teacher, Replay Coaching classification, and performance
-evidence remain open for Issue #190 or later work, along with tactical and cross-
-game Coaching, carefully
+scenarios. Issue #190 adds strict Multi-Step and Policy Comparison integration
+version `1`: fresh public-state Search with domain-separated child seeds at each
+local decision, private independent coherent execution Worlds, no Search World or
+Policy reuse, no-recommendation stopping without fallback, safe nested Results,
+16-field diagnostics, shared-root independent comparison paths, append-once-last
+ordering, stopped-row ineligibility, and retained-Result complete Provenance.
+Existing `auto` is unchanged. Match Capture, Match Analysis Reports, Strategy
+Teacher, Replay Coaching classification, and performance evidence remain open,
+along with tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
 audit. These areas remain open. The final Issue titles, count, architecture,
@@ -527,7 +535,9 @@ Major completed areas include:
   ordered-bundle memoization, plus strict flat routing, safe aggregate output,
   same-selection retrospective comparison, separate Historical Review and
   Training Dataset evaluation, retained-stage Provenance, CLI, Schemas, example,
-  and generated-output coverage without broader workflow integration
+  and generated-output coverage, plus strict Multi-Step and Policy Comparison
+  integration with per-decision Search isolation, safe Decisions/diagnostics,
+  no fallback, shared coherent comparison setup, and complete Provenance
 * information-safe one-game Replay Coaching evidence, prioritization, patterns, deterministic recommendations, complete report, public schema, JSON, CLI, examples, and generated-output coverage
 * fixed-three-player 36-position historical-list contracts, aggregation, progression, standings, exact external-lot application, independent-list comparison, public JSON/schema/CLI workflows, examples, and generated-output coverage
 * deterministic public automatic Training Dataset preparation with temporal Known-opponent and Player-disjoint unseen-player assignment, complete or unavailable Plans, lossless materialization, strict schemas, CLI, examples, and generated-output coverage
@@ -681,9 +691,11 @@ Strategy Fusion only for controlled Player `me` over its selected sequence;
 exact world counts do not identify the real deal, sampled ownership is not
 calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Flat, Historical Review, and Training Dataset
-evaluation routing are implemented, but Multi-Step, Policy Comparison, Match
-Capture, Strategy Teacher, and Replay Coaching classification integration remain
-open for Issue #190 or later work. Overbid Null replacement selection, tactical
+evaluation routing plus strict Multi-Step and Policy Comparison integration are
+implemented. Match Capture, Match Analysis Reports, Strategy Teacher, Replay
+Coaching classification, and performance integration remain open. There is no
+cross-decision global Policy, equilibrium, global optimality, or calibrated
+probability claim. Overbid Null replacement selection, tactical
 motif detection, cross-game Coaching, causal
 attribution, player ratings, and complete field-level information provenance
 remain open before `v1.0.0`. End-to-end local Live and Retrospective Session

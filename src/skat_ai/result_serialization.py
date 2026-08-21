@@ -2,6 +2,11 @@ from typing import Any
 
 from skat_ai.bounded_search_result import build_serializable_bounded_search_result
 from skat_ai.game_state import GameState
+from skat_ai.information_set_search_multi_step import (
+    InformationSetSearchMultiStepDecisionV1,
+    SearchAwareMultiStepDecision,
+    build_serializable_information_set_search_multi_step_decision_v1,
+)
 from skat_ai.multi_step_recommendation import MultiStepRecommendationDecision
 from skat_ai.opponent_sequence import build_serializable_opponent_sequence_result
 
@@ -30,11 +35,16 @@ def build_serializable_game_state(
 
 
 def build_serializable_multi_step_recommendation_decision(
-    decision: MultiStepRecommendationDecision,
+    decision: SearchAwareMultiStepDecision,
     *,
     executed_card: str | None,
 ) -> dict[str, Any]:
     """Serializes one aggregate-only Search-aware Multi-Step decision."""
+    if type(decision) is InformationSetSearchMultiStepDecisionV1:
+        return build_serializable_information_set_search_multi_step_decision_v1(
+            decision,
+            executed_card=executed_card,
+        )
     if not isinstance(decision, MultiStepRecommendationDecision):
         raise ValueError("Invalid Multi-Step recommendation decision.")
     if decision.recommendation_card != executed_card:

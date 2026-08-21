@@ -35,4 +35,4 @@ def test_issue_186_preserves_package_api_cli_and_updates_artifact_baselines() ->
     assert {
         path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")
     } == SESSION_EXAMPLE_NAMES
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94

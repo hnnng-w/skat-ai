@@ -16,8 +16,10 @@ selected_world_information_set_best_response_v1
 
 The implementation remains private in
 `src/skat_ai/information_set_search_executor.py`. Issue #189 calls it through a
-new strict flat method and separate retrospective workflows without changing its
-algorithm, contracts, or Package version.
+new strict flat method and separate retrospective workflows. Issue #190 calls the
+same executor freshly at each Multi-Step local decision and in one appended
+Policy Comparison path. Neither integration changes its algorithm, contracts, or
+Package version.
 
 ## Selected-world best response
 
@@ -186,7 +188,14 @@ four Schemas, one example, and four generated scenarios. Live execution has no
 PIMC or Immediate baseline and no fallback. Existing `auto` remains PIMC first
 with its existing Immediate fallback.
 
-Multi-Step, Policy Comparison, Match Capture, Strategy Teacher Evidence, Replay
-Coaching classification, and performance baselines remain separate. Issue #190
-owns the next integration work. See
-[Information-set Search workflows](information_set_search_workflows.md).
+Issue #190 adds strict Multi-Step and Policy Comparison integration. Each local
+decision derives a domain-separated child selection seed, prepares a fresh
+public-state Request, and executes independently of the coherent path World. No
+selected World, controlled Policy, cache, or memoized bundle is reused across
+decisions. A no-recommendation Result stops before local play with no fallback.
+
+Match Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
+classification, and performance baselines remain separate. There is no cross-
+decision global Policy, equilibrium, global-optimality, or calibrated-probability
+claim. See [Information-set Search workflows](information_set_search_workflows.md)
+and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).

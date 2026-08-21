@@ -24,10 +24,7 @@ from skat_ai.effective_opponent_policy import (
 )
 from skat_ai.input_loader import load_position_from_json
 from skat_ai.opponent_profile_application import EffectiveLiveOpponentProfiles
-from skat_ai.recommendation_workflow import (
-    SEARCH_RECOMMENDATION_METHODS,
-    RecommendationMethodConfiguration,
-)
+from skat_ai.recommendation_workflow import RecommendationMethodConfiguration
 
 IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
     "Immediate analysis is unavailable because the local player is not next."
@@ -208,7 +205,8 @@ def resolve_multi_step_card_selection_policy(
     """Resolves CLI policy omission and explicit Search-method precedence."""
     configured_search_method = (
         recommendation_configuration.requested_method
-        if recommendation_configuration.requested_method in SEARCH_RECOMMENDATION_METHODS
+        if recommendation_configuration.requested_method
+        in SEARCH_AWARE_MULTI_STEP_POLICIES
         else None
     )
     if configured_search_method is not None:
@@ -221,7 +219,7 @@ def resolve_multi_step_card_selection_policy(
     if explicit_policy in SEARCH_AWARE_MULTI_STEP_POLICIES:
         raise ValueError(
             "A Search-aware --card-policy requires matching recommendation_method "
-            "and bounded_search_settings."
+            "and its matching Search settings."
         )
     return explicit_policy or "first_legal"
 

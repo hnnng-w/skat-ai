@@ -25,6 +25,10 @@ from skat_ai.coherent_hidden_world import (
 )
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+    InformationSetSearchSettings,
+)
 from skat_ai.input_loader import (
     build_local_game_state_from_input,
     get_analysis_metadata_from_input,
@@ -75,6 +79,22 @@ def _configuration(
     *,
     budget: RequestedSearchBudget | None = None,
 ) -> RecommendationMethodConfiguration:
+    if method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        return RecommendationMethodConfiguration(
+            explicitly_supplied=True,
+            requested_method=method,
+            information_set_search_settings=InformationSetSearchSettings(
+                random_seed=113,
+                max_remaining_tricks=1,
+                max_depth_plies=3,
+                max_state_nodes=1000,
+                max_information_sets=1000,
+                max_selected_worlds=2,
+                max_sampled_worlds=2,
+                minimum_comparable_worlds=1,
+                wall_clock_timeout_ms=None,
+            ),
+        )
     return RecommendationMethodConfiguration(
         explicitly_supplied=True,
         requested_method=method,
@@ -224,7 +244,11 @@ def test_policy_registries_keep_legacy_execution_separate() -> None:
         "highest_point",
         "highest_expected_value",
     ]
-    assert SEARCH_AWARE_MULTI_STEP_POLICIES == ["bounded_search", "auto"]
+    assert SEARCH_AWARE_MULTI_STEP_POLICIES == [
+        "bounded_search",
+        "auto",
+        "information_set_search",
+    ]
     assert VALID_MULTI_STEP_POLICIES == [
         *LEGACY_CARD_SELECTION_POLICIES,
         *SEARCH_AWARE_MULTI_STEP_POLICIES,

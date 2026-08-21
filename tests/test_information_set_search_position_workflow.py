@@ -244,7 +244,7 @@ def test_post_game_position_runs_pre_actual_stages_in_order_on_retained_selectio
     assert result["recommendation_method_summary"]["fallback_method"] is None
 
 
-def test_information_set_method_is_not_forwarded_to_multi_step_or_policy_comparison(
+def test_information_set_method_is_forwarded_to_multi_step_and_policy_comparison(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     observed: dict[str, dict] = {}
@@ -282,8 +282,19 @@ def test_information_set_method_is_not_forwarded_to_multi_step_or_policy_compari
     )
 
     assert INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD not in (SEARCH_RECOMMENDATION_METHODS)
-    assert observed["multi_step"]["card_selection_policy"] == "first_legal"
-    assert observed["multi_step"]["recommendation_configuration"] is None
-    assert observed["policy_comparison"]["recommendation_configuration"] is None
+    assert observed["multi_step"]["card_selection_policy"] == (
+        INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+    )
+    assert observed["multi_step"]["recommendation_configuration"].requested_method == (
+        INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+    )
+    assert observed["multi_step"]["effective_opponent_policy_settings"] is (
+        observed["policy_comparison"]["effective_opponent_policy_settings"]
+    )
+    assert observed[
+        "policy_comparison"
+    ]["recommendation_configuration"].requested_method == (
+        INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+    )
     assert result["multi_step_result"] == {"kind": "multi_step"}
     assert result["policy_comparison_result"] == {"kind": "policy_comparison"}

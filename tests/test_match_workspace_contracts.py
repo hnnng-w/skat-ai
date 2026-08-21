@@ -984,5 +984,5 @@ def test_public_api_cli_schema_output_and_package_boundaries_remain_unchanged() 
             )
         )
     ) == 69
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     assert all("match_workspace" not in scenario.name for scenario in SCENARIOS)

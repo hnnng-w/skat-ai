@@ -437,7 +437,7 @@ def test_public_package_schema_example_and_scenario_baselines_are_unchanged() ->
         == 69
     )
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]

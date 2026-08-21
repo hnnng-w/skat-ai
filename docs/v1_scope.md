@@ -24,9 +24,11 @@ The current unreleased working baseline keeps Package version `0.16.0`, Python
 Script, and six Session examples. Issue #186 updates the Settlement Normative
 Matrix to version `3` with the same 61 cases, completes the approved Claim
 through Historical Game input only. Issue #189 adds four Information-set Search
-Schemas, one example, and four generated-output scenarios, bringing the working
-totals to 69 authoritative and packaged Schemas and 92 scenarios. The published
-`v0.16.0` facts above remain unchanged.
+Schemas, one example, and four generated-output scenarios. Issue #190 adds strict
+Multi-Step and Policy Comparison integration, one example, and two scenarios
+without adding a Schema, bringing the working totals to 69 authoritative and
+packaged Schemas and 94 scenarios. The published `v0.16.0` facts above remain
+unchanged.
 
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python 3.13 or newer, retains Public API contract
@@ -240,9 +242,12 @@ over the selected sequence. Issue #189 adds strict flat routing, same-selection
 PIMC plus independently seeded Immediate retrospective comparison, separate
 Historical Review and Training Dataset evaluation, safe aggregate Results,
 retained-stage Provenance, CLI, four Schemas, one example, and four scenarios.
-Existing `auto` remains unchanged. Multi-Step, Policy Comparison, Match Capture,
-Strategy Teacher, Replay Coaching classification, broader Strategy-Fusion
-correction, and performance evidence remain open for Issue #190 or later work.
+Issue #190 adds strict Multi-Step and Policy Comparison integration with fresh
+per-decision public-state Search, private independent coherent execution, no
+Search World or Policy reuse, no fallback, safe Results and diagnostics, existing
+ranking, and complete Provenance. Existing `auto` remains unchanged. Match
+Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching classification,
+broader Strategy-Fusion correction, and performance evidence remain open.
 Tactical and cross-game Coaching, carefully bounded Player Ratings where
 approved, broader Provenance and Confidence integration, performance and latency
 evidence, and the remaining pre-v1 scope audit also remain open. Final Issue
@@ -377,14 +382,16 @@ The following directions are required for `v1.0.0`:
   strict flat routing, safe aggregate output, descriptive same-selection PIMC and
   independent Immediate retrospective comparison, separate Historical Review
   and Training Dataset evaluation, retained-stage Provenance, CLI, four Schemas,
-  one example, and four scenarios. Multi-Step, Policy Comparison, Match Capture,
-  Strategy Teacher, Replay Coaching classification, calibrated sampled quality,
-  broader optimal imperfect-information policy solving, performance evidence,
-  and a latency guarantee
+  one example, and four scenarios. Issue #190 completes strict Multi-Step and
+  Policy Comparison integration with per-decision Search isolation and unchanged
+  `auto`. Match Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching
+  classification, calibrated sampled quality, broader optimal imperfect-
+  information policy solving, performance evidence, and a latency guarantee
   remain open. The functional `v0.10.0` milestone is complete, but these broader
   stronger-solver requirements are not. See
   [Bounded search contracts](bounded_search_contracts.md) and the
-  [Information-set Search workflows](information_set_search_workflows.md).
+  [Information-set Search workflows](information_set_search_workflows.md), plus
+  [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
 * Preserve one coherent hidden-world assignment across each simulated path.
   Multi-Step and shared-root Policy Comparison now satisfy this bounded
   execution-consistency requirement; stronger search remains a separate open
@@ -540,6 +547,14 @@ the determinization aggregate is not an optimal imperfect-information policy,
 and measured wall time is not a latency guarantee. The functional `v0.10.0`
 milestone is complete, but the stronger-search gate is not closed.
 
+Issue #190 completes only strict Information-set Search Multi-Step and Policy
+Comparison integration. It adds fresh per-decision public-state Search, private
+independent coherent execution, no Search World or controlled-Policy reuse, no
+fallback, safe Results and diagnostics, unchanged ranking, and complete
+Provenance. Match Capture, Match Analysis Reports, Strategy Teacher, Replay
+Coaching classification, performance evidence, and the broader solver gate remain
+open.
+
 Issues #156 and #157 supersede older rows below that call the Public Session API,
 Session Provenance/Schema, public file transport, automatic/actual-card
 Checkpoints, CLI, examples/generated outputs, or end-to-end local capture absent.
@@ -565,8 +580,8 @@ GUI/platform/cloud/encryption layers remain open.
 | Public Session interface | The stable Session subnamespace preserves the first 52 names exactly and appends six observation/review names plus `files`; twelve operation/value pairs, persistence mappings, optional provenance, and complete Results validate through the standalone packaged Session Schema. The independently versioned file subnamespace exposes exact path-free Save/Load Results. Export and review-export wrappers execute no analysis. |
 | Structured output stability | Every stable output branch has a documented versioned schema, deterministic serialization, explicit unavailable/incomplete states, and compatibility tests; public `field_provenance` is strict, opt-in, versioned independently, and omitted by default; intentional breaking changes are recorded before release. |
 | Simulation behavior | Seeded immediate and multi-step simulations are reproducible, play only legal cards, preserve one coherent hidden-card ownership assignment across a simulated path, never reuse cards, maintain point/trick ownership exactly once, and terminate every canonical phase with a documented reason. Multi-Step now preserves one immutable private root per path with owner-aware removals and a fixed hypothetical skat; Policy Comparison uses one shared root with equal independent immutable path copies. Unsupported phases remain explicit. |
-| Search and hidden-card inference | The stronger-search portion remains open. Version-1 contracts and `perfect_information_minimax_v1` reproducibly solve one fully specified non-terminal Suit, Grand, or normal non-overbid Null exact state for the current actor, limited by the lower of five remaining tricks and the request. All four Null variants use exact completed-trick ownership, fixed-value settlement, no card-point secondary objective, and require a bid no greater than the fixed value; overbid Null replacement selection remains unsupported. Canonical full-window root values, deterministic below-root Alpha-Beta, invocation-local exact-only cache reuse, declarer-versus-cooperating-defenders utility, existing settlement reuse, explicit node/depth/timeout outcomes, and complete-versus-zero-completion claims are implemented without partial direct-world recommendations. Private Search spaces count structural compatible worlds with or without void evidence, canonically enumerate bounded complete spaces, deterministically sample larger spaces IID with replacement while retaining duplicates, materialize strict exact states, and freeze one common legal-root order. `compatible_world_minimax_v1` evaluates that order with the shared exact evaluator, one global node budget, per-world depth reset and cache, one global post-selection timeout, and first-incomplete-world common-prefix aggregation. Duplicate draws retain equal repeated weight. Complete exhaustive coverage is exact across all compatible worlds; sampled completion is exact only per selected sample, and partial results are exact only over their completed prefix. The method is determinization-based, is subject to strategy fusion, and does not prove an optimal imperfect-information policy. Explicit flat ongoing live routing implements `immediate_expected_value`, strict `bounded_search`, and Search-first `auto` fallback, with input/output schemas, CLI summaries, report and Immediate/Search seed separation, attributed-history and declared-Ouvert/continuation public-hand authorization, and privacy-safe deterministic examples. Remaining Search work is Multi-Step, Policy Comparison, flat post-game review, Historical Review, Search-versus-Heuristic evaluation, default/production budgets, latency/performance, and release preparation. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
-| Information-set Search | Issue #189 provides strict flat `information_set_search` with exactly nine settings, no Live baseline or fallback, safe aggregate Results, descriptive same-selection PIMC and independently seeded Immediate retrospective comparison, separate Historical Review and Training Dataset evaluation, retained-stage Provenance, CLI, Schemas, example, and generated scenarios. Fixed left/right Policies derive from existing effective settings; `random_legal` and role-invalid Policies are unavailable. Exact Worlds, hidden hands, Observations, controlled Policy tables, caches, and derived seeds remain private. This is a bounded selected-world best response, not equilibrium, global optimality, calibrated probability, or complete-contract solving. Multi-Step, Policy Comparison, Match Capture, Strategy Teacher, Replay Coaching classification, and performance evidence remain open for Issue #190 or later work. |
+| Search and hidden-card inference | The stronger-search portion remains open. Version-1 contracts and `perfect_information_minimax_v1` reproducibly solve one fully specified non-terminal Suit, Grand, or normal non-overbid Null exact state for the current actor, limited by the lower of five remaining tricks and the request. All four Null variants use exact completed-trick ownership, fixed-value settlement, no card-point secondary objective, and require a bid no greater than the fixed value; overbid Null replacement selection remains unsupported. Canonical full-window root values, deterministic below-root Alpha-Beta, invocation-local exact-only cache reuse, declarer-versus-cooperating-defenders utility, existing settlement reuse, explicit node/depth/timeout outcomes, and complete-versus-zero-completion claims are implemented without partial direct-world recommendations. Private Search spaces count structural compatible worlds with or without void evidence, canonically enumerate bounded complete spaces, deterministically sample larger spaces IID with replacement while retaining duplicates, materialize strict exact states, and freeze one common legal-root order. `compatible_world_minimax_v1` evaluates that order with the shared exact evaluator, one global node budget, per-world depth reset and cache, one global post-selection timeout, and first-incomplete-world common-prefix aggregation. Duplicate draws retain equal repeated weight. Complete exhaustive coverage is exact across all compatible worlds; sampled completion is exact only per selected sample, and partial results are exact only over their completed prefix. The method is determinization-based, is subject to strategy fusion, and does not prove an optimal imperfect-information policy. Explicit flat ongoing live routing implements `immediate_expected_value`, strict `bounded_search`, and Search-first `auto` fallback, with input/output schemas, CLI summaries, report and Immediate/Search seed separation, attributed-history and declared-Ouvert/continuation public-hand authorization, and privacy-safe deterministic examples. Remaining Search work includes Match Capture and Match Analysis Report integration, Strategy Teacher and Replay Coaching classification, default/production budgets, latency/performance evidence, broader Strategy-Fusion correction, and release preparation. The bounded inference portion is implemented: only local/exact public ownership, legitimate skat, attributed public play, and confirmed legal failure to follow constrain exact compatible assignments; chronology, contradiction rejection, DP counts/marginals, uniform sampling, uncalibrated confidence, historical leakage controls, and privacy-safe output are tested. |
+| Information-set Search | Issue #189 provides strict flat `information_set_search` with exactly nine settings, no Live baseline or fallback, safe aggregate Results, descriptive same-selection PIMC and independently seeded Immediate retrospective comparison, separate Historical Review and Training Dataset evaluation, retained-stage Provenance, CLI, Schemas, example, and generated scenarios. Issue #190 completes strict Multi-Step and Policy Comparison version `1`: every local decision derives a domain-separated child seed, runs fresh public-state Search independently of the private coherent execution World, reuses no Search World or controlled Policy, and stops without fallback; safe Decisions, nested Results, exact 16-field diagnostics, append-once-last ordering, shared-root independent path copies, stopped-row ineligibility, existing ranking, and retained-Result complete Provenance are implemented. Fixed left/right Policies derive from existing effective settings; `random_legal` and role-invalid Policies are unavailable. Existing `auto` is unchanged and no `information_set_auto` exists. Exact Worlds, hidden hands, Observations, controlled Policy tables, caches, and derived seeds remain private. This is not a cross-decision global Policy, equilibrium, global optimality, calibrated probability, or complete-contract solving. Match Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching classification, and performance evidence remain open. |
 | Ouvert-aware simulation | Historical and live Ouvert analysis uses legitimately exposed cards in recommendation simulation, never treats unexposed cards as public, and has deterministic contract- and perspective-specific tests. |
 | Recommendation behavior | Recommendations always select from legal candidates, use the documented Suit/Grand or Null objective, preserve player-side perspective, expose enough evidence to reproduce ranking, and have deterministic tie behavior under fixed settings. |
 | Opponent modeling | Every supported global and left/right rule-based policy has documented semantics, precedence, and controlled tests proving its effect in each analysis path where it is claimed to apply; no policy is described as learned. External and historical statistics preserve stable identity and provenance, and strict time-safe historical application never uses a capture from the target game or later. |
@@ -579,9 +594,9 @@ GUI/platform/cloud/encryption layers remain open.
 | Session history editing | Version-1 contracts and behavior provide four Undo statuses, five Correction statuses, four Checkpoint relationships, strict-prefix reconstruction, exact suffix reporting, valid partial States, and deterministic replay. Public wrappers and CLI Undo/Correction with CAS Save and automatic resulting-State Checkpoints are implemented. Automatic Redo, arbitrary Log surgery, branching, and merge remain open. |
 | Private Session persistence and resume | The private version-1 document/codec/file boundary provides deterministic State/content fingerprints, strict typed reconstruction and accepted-Log replay, canonical Checkpoints, recomputed lineage, canonical UTF-8 files, optimistic outcomes, and atomic replacement. Stable public Save/Load and all-three-form CLI orchestration preserve those semantics and omit paths from Results. Distributed locking, migration, merge/retry, encryption, cloud sync, and automatic backup remain open. |
 | Examples | Examples cover each supported Root contract family and six strict Session creation/Command/correction/persistence documents; every example passes its applicable Schema and semantic validation. |
-| Generated-output validation | The current unreleased matrix has 92 scenarios: the published `v0.16.0` and historical published `v0.15.0` and `v0.14.0` 85 remain unchanged, followed by three Issue #186 Historical Claim scenarios and four Issue #189 Information-set Search scenarios. The historical published `v0.13.0` first 77 and historical published `v0.12.0` 70 remain Release evidence. |
+| Generated-output validation | The current unreleased matrix has 94 scenarios: the published `v0.16.0` and historical published `v0.15.0` and `v0.14.0` 85 remain unchanged, followed by three Issue #186 Historical Claim scenarios, four Issue #189 Information-set Search scenarios, and two Issue #190 Multi-Step/Policy Comparison scenarios. The historical published `v0.13.0` first 77 and historical published `v0.12.0` 70 remain Release evidence. |
 | Python 3.13 | `pyproject.toml` requires Python 3.13 or newer, Ruff targets `py313`, GitHub Actions uses Python 3.13, Editable, Wheel, and sdist installation succeed on Python 3.13, and the full check passes there without a version matrix. |
-| Regression testing | Ruff, 69-Schema packaged parity, Root and Session example validation, 92-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the current unreleased gates. The current published `v0.16.0` Package passes 6,925 pytest tests with its historical 63-Schema and 85-scenario baseline. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
+| Regression testing | Ruff, 69-Schema packaged parity, Root and Session example validation, 94-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the current unreleased gates. The current published `v0.16.0` Package passes 6,925 pytest tests with its historical 63-Schema and 85-scenario baseline. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
 
@@ -720,6 +735,16 @@ local performance baseline are implemented. Calibrated sampled quality, a true
 imperfect-information policy, and guaranteed latency remain open, so this is
 evidence toward, not completion of, the stronger-search gate. See
 [Bounded search contracts](bounded_search_contracts.md).
+
+Issue #190 applies the separate controlled-Player Information-set executor at
+each Multi-Step public decision with a domain-separated child seed. Its Search
+Worlds and private controlled Policy are decision-local and independent of the
+coherent execution World. Policy Comparison appends the method exactly once and
+last to the default four paths, keeps one shared coherent root through independent
+copies, retains stopped rows as visible but ineligible, and preserves existing
+ranking. It emits safe nested Results and exact 16-field diagnostics, with no
+fallback and no change to `auto`, flat, Historical, or Dataset behavior. See
+[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
 
 ## Release decision rule
 

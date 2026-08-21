@@ -518,7 +518,7 @@ def test_public_package_schema_and_generated_output_boundaries_are_unchanged() -
             )
         )
     ) == 69
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     pyproject = tomllib.loads(
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )

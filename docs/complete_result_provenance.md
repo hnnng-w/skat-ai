@@ -138,6 +138,18 @@ caches, memoization, and derived seeds remain engine-private. Public opt-in stil
 selects only the redacted complete Root Result attachment, not the retained
 intermediate-stage attachments.
 
+Issue #190 extends the existing live Position boundary to strict Information-set
+Search Multi-Step and Policy Comparison. Every attempted local decision has one
+current-public-state decision attachment. Its retained Decision and private
+Result when present supply complete entries for the safe nested
+`information_set_search_result`; an executed Decision is tied to its candidate
+Card, and a stopped Decision remains covered without inventing a fallback. Policy
+Comparison diagnostics are mapped from the retained per-decision values across
+all 16 compact fields. The complete
+`position_result` ledger covers the resulting Multi-Step and Policy Comparison
+branches. Provenance construction does not rerun Search, rebuild Worlds, or reuse
+a controlled Policy.
+
 ## Dependency direction
 
 Focused validators enforce these forward-only chains:

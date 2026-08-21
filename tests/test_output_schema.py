@@ -1255,6 +1255,65 @@ def test_schema_accepts_search_aware_stopped_decision(tmp_path: Path) -> None:
     assert_schema_invalid(invalid_stop)
 
 
+def test_schema_accepts_information_set_multi_step_and_strict_diagnostics(
+    tmp_path: Path,
+) -> None:
+    from main import run_json_position_analysis
+
+    output_path = tmp_path / "information-set-multi-step.json"
+    run_json_position_analysis(
+        file_path=str(PROJECT_ROOT / "examples" / "information_set_search.json"),
+        output_path=str(output_path),
+        multi_step_count=1,
+        compare_policies=True,
+        quiet=True,
+    )
+    data = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert_schema_valid(data)
+    decision = data["multi_step_result"]["steps"][0]["recommendation_decision"]
+    assert "information_set_search_result" in decision
+    assert "bounded_search_result" not in decision
+
+    private_decision = copy.deepcopy(data)
+    private_decision["multi_step_result"]["steps"][0]["recommendation_decision"][
+        "information_set_search_result"
+    ]["controlled_policy"] = []
+    assert_schema_invalid(private_decision)
+
+    cross_method = copy.deepcopy(data)
+    cross_method["multi_step_result"]["steps"][0]["recommendation_decision"][
+        "requested_method"
+    ] = "bounded_search"
+    assert_schema_invalid(cross_method)
+
+    private_diagnostic = copy.deepcopy(data)
+    search_row = next(
+        row
+        for row in private_diagnostic["policy_comparison_result"]["policy_results"]
+        if row["policy"] == "information_set_search"
+    )
+    search_row["search_decision_diagnostics"][0]["controlled_policy"] = []
+    assert_schema_invalid(private_diagnostic)
+
+    missing_search_row = copy.deepcopy(data)
+    missing_search_row["policy_comparison_result"]["policy_results"] = [
+        row
+        for row in missing_search_row["policy_comparison_result"]["policy_results"]
+        if row["policy"] != "information_set_search"
+    ]
+    assert_schema_invalid(missing_search_row)
+
+    reordered_search_policy = copy.deepcopy(data)
+    policies = reordered_search_policy["policy_comparison_result"]["policies"]
+    policies.insert(0, policies.pop())
+    assert_schema_invalid(reordered_search_policy)
+
+    orphan_search_row = copy.deepcopy(data)
+    orphan_search_row["policy_comparison_result"]["policies"].pop()
+    assert_schema_invalid(orphan_search_row)
+
+
 def build_valid_historical_output() -> dict[str, object]:
     input_path = PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
     record = load_historical_game_from_json(str(input_path))

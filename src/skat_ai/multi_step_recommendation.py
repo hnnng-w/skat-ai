@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
 from skat_ai.bounded_search_result import BoundedSearchResult
-from skat_ai.card_selection import SEARCH_AWARE_MULTI_STEP_POLICIES
 from skat_ai.recommendation_workflow import (
     AUTO_METHOD,
     BOUNDED_SEARCH_METHOD,
     COMPATIBLE_WORLD_MINIMAX_METHOD,
     IMMEDIATE_EXPECTED_VALUE_METHOD,
     NONE_EFFECTIVE_METHOD,
+    SEARCH_RECOMMENDATION_METHODS,
     RecommendationWorkflowResult,
 )
 
@@ -34,7 +34,7 @@ class MultiStepRecommendationDecision:
     def __post_init__(self) -> None:
         if self.step_index < 0:
             raise ValueError("Recommendation decision step_index must not be negative.")
-        if self.requested_method not in SEARCH_AWARE_MULTI_STEP_POLICIES:
+        if self.requested_method not in SEARCH_RECOMMENDATION_METHODS:
             raise ValueError("Recommendation decision requires a Search-aware method.")
         if self.effective_method not in {
             COMPATIBLE_WORLD_MINIMAX_METHOD,

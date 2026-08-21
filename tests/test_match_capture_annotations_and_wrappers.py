@@ -700,7 +700,7 @@ def test_public_cli_package_schema_output_and_persistence_boundaries_are_unchang
         len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
         == 69
     )
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     with (PROJECT_ROOT / "pyproject.toml").open("rb") as file:
         assert tomllib.load(file)["project"]["version"] == "0.16.0"
 

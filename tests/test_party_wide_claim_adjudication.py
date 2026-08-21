@@ -1419,7 +1419,7 @@ def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() 
     assert {path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")} == (
         SESSION_EXAMPLE_NAMES
     )
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     with (PROJECT_ROOT / "pyproject.toml").open("rb") as file:
         project = tomllib.load(file)["project"]
     assert project["version"] == skat_ai.__version__ == "0.16.0"

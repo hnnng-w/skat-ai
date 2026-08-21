@@ -166,7 +166,28 @@ mapping. Public Result and provenance attachments omit the private controlled
 Policy table, Observations, exact Worlds and hands, selected assignments, caches,
 memoization, and derived seeds.
 
-## Schemas, example, and scenarios
+## Multi-Step and Policy Comparison
+
+Issue #190 adds version-1 strict Multi-Step and Policy Comparison routing without
+changing the flat, Historical Review, or Training Dataset behavior above. Every
+local decision derives a child of the explicit Information-set Search seed,
+executes a fresh Search from the current public state, and then executes any
+recommended Card in the separate private coherent World. Search Worlds and the
+private controlled Policy are not reused across decisions.
+
+A Result without a recommendation stops before local play with
+`local_policy_no_recommendation`; there is no fallback. Safe output retains one
+Decision with the existing aggregate Result nested beneath it. Policy Comparison
+retains the default four policies and appends `information_set_search` exactly
+once and last. All paths use independent copies of one shared coherent root; a
+stopped Search row remains visible but ineligible under the existing ranking.
+The row exposes exact 16-field compact diagnostics and no private World or Policy
+table. Existing `auto` remains unchanged, and there is no `information_set_auto`.
+
+See [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
+for the seed, Decision, diagnostics, provenance, and stop contracts.
+
+## Schemas, examples, and scenarios
 
 Issue #189 adds exactly four authoritative schemas with byte-identical Packaged
 Schema Resources:
@@ -176,19 +197,20 @@ Schema Resources:
 * `historical_information_set_search_review.schema.json`; and
 * `information_set_search_evaluation.schema.json`.
 
-`examples/information_set_search.json` is the one added input example. Four
-append-only generated-output scenarios cover complete Live routing, flat
-Post-game comparison, Historical Information-set Search Review, and Training
-Dataset evaluation. The current unreleased totals are therefore 69 authoritative
-and packaged Schemas, six unchanged Session examples, and 92 generated-output
+`examples/information_set_search.json` is the Issue #189 flat input example.
+Issue #190 adds `examples/information_set_search_multi_step.json`. Four Issue
+#189 generated-output scenarios cover complete Live routing, flat Post-game
+comparison, Historical Information-set Search Review, and Training Dataset
+evaluation. Two appended Issue #190 scenarios cover Multi-Step and Policy
+Comparison. The current unreleased totals are therefore 69 authoritative and
+packaged Schemas, six unchanged Session examples, and 94 generated-output
 scenarios. The published `v0.16.0` totals remain historical Release facts.
 
 ## Integration boundary
 
-Issue #189 does not route Information-set Search into Multi-Step, Policy
-Comparison, Match Capture, Strategy Teacher Evidence, Replay Coaching
-classification, or `auto`. Those paths retain their existing method sets and
-semantics. The next integration work is tracked separately as Issue #190.
+Issue #190 completes only Multi-Step and Policy Comparison integration. Match
+Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
+classification, performance integration, and `auto` remain unchanged.
 
 The implementation remains limited to at most three unresolved Tricks and to the
 selected Compatible-world sequence under supplied fixed Policies. Exact

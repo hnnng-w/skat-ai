@@ -18,12 +18,21 @@ from skat_ai.coherent_hidden_world import (
     reconcile_hidden_world_with_state,
     validate_coherent_hidden_world,
 )
+from skat_ai.effective_opponent_policy import EffectiveOpponentPolicySettings
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
 from skat_ai.hidden_card_inference import (
     HiddenCardInferenceModel,
     build_hidden_card_inference_model,
     build_hidden_card_inference_summary,
+)
+from skat_ai.information_set_search_multi_step import (
+    build_information_set_search_multi_step_decision_v1,
+    derive_information_set_search_multi_step_configuration_v1,
+    validate_information_set_search_multi_step_inputs_v1,
+)
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
 )
 from skat_ai.multi_step_recommendation import (
     LOCAL_POLICY_NO_RECOMMENDATION,
@@ -43,6 +52,7 @@ from skat_ai.public_hand_constraint import (
 )
 from skat_ai.recommendation_workflow import (
     RecommendationMethodConfiguration,
+    build_serializable_information_set_search_settings,
     execute_recommendation_workflow,
 )
 from skat_ai.rules import get_legal_cards
@@ -182,10 +192,19 @@ def _validate_search_policy_inputs(
     game_declaration: GameDeclaration | None,
     recommendation_configuration: RecommendationMethodConfiguration | None,
     strategic_metadata: StrategicMetadata | None,
+    effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None,
 ) -> None:
     if card_selection_policy not in VALID_MULTI_STEP_POLICIES:
         raise ValueError(f"Invalid card selection policy: {card_selection_policy}")
     if card_selection_policy in LEGACY_CARD_SELECTION_POLICIES:
+        return
+    if card_selection_policy == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        validate_information_set_search_multi_step_inputs_v1(
+            game_declaration=game_declaration,
+            recommendation_configuration=recommendation_configuration,
+            strategic_metadata=strategic_metadata,
+            effective_opponent_policy_settings=effective_opponent_policy_settings,
+        )
         return
     if not isinstance(game_declaration, GameDeclaration):
         raise ValueError("Search-aware Multi-Step requires a normalized game declaration.")
@@ -228,6 +247,7 @@ def simulate_multiple_steps(
     initial_hidden_card_inference_model: HiddenCardInferenceModel | None = None,
     game_declaration: GameDeclaration | None = None,
     recommendation_configuration: RecommendationMethodConfiguration | None = None,
+    effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
     decision_provenance_hook: DecisionProvenanceHook | None = None,
 ) -> dict[str, Any]:
     """
@@ -244,7 +264,30 @@ def simulate_multiple_steps(
         game_declaration,
         recommendation_configuration,
         strategic_metadata,
+        effective_opponent_policy_settings,
     )
+    if card_selection_policy == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        assert effective_opponent_policy_settings is not None
+        opponent_lead_policy = effective_opponent_policy_settings.global_lead_policy
+        opponent_response_policy = (
+            effective_opponent_policy_settings.global_response_policy
+        )
+        left_opponent_policy_settings = {
+            "opponent_lead_policy": effective_opponent_policy_settings.left_lead_policy,
+            "opponent_response_policy": (
+                effective_opponent_policy_settings.left_response_policy
+            ),
+        }
+        right_opponent_policy_settings = {
+            "opponent_lead_policy": effective_opponent_policy_settings.right_lead_policy,
+            "opponent_response_policy": (
+                effective_opponent_policy_settings.right_response_policy
+            ),
+        }
+        opponent_response_policy_by_player = {
+            "left": effective_opponent_policy_settings.left_response_policy,
+            "right": effective_opponent_policy_settings.right_response_policy,
+        }
     if decision_provenance_hook is not None and (
         strategic_metadata is None or game_declaration is None
     ):
@@ -403,6 +446,25 @@ def simulate_multiple_steps(
         if decision_provenance_hook is not None:
             assert strategic_metadata is not None
             assert game_declaration is not None
+            selection_settings = build_safe_selection_settings(
+                sample_count=expected_value_sample_count,
+                use_basic_opponent_strategy=use_basic_opponent_strategy,
+                opponent_response_policy_by_player=(
+                    opponent_response_policy_by_player or {}
+                ),
+                requested_search_budget=(
+                    recommendation_configuration.requested_search_budget
+                    if recommendation_configuration is not None
+                    else None
+                ),
+            )
+            if card_selection_policy == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+                assert recommendation_configuration is not None
+                selection_settings["information_set_search_settings"] = (
+                    build_serializable_information_set_search_settings(
+                        recommendation_configuration
+                    )
+                )
             decision_provenance_hook(
                 state=prepared_state,
                 left_hand_size=prepared_left_hand_size,
@@ -412,18 +474,7 @@ def simulate_multiple_steps(
                 game_declaration=game_declaration,
                 decision_index=step_index,
                 selection_method=card_selection_policy,
-                selection_settings=build_safe_selection_settings(
-                    sample_count=expected_value_sample_count,
-                    use_basic_opponent_strategy=use_basic_opponent_strategy,
-                    opponent_response_policy_by_player=(
-                        opponent_response_policy_by_player or {}
-                    ),
-                    requested_search_budget=(
-                        recommendation_configuration.requested_search_budget
-                        if recommendation_configuration is not None
-                        else None
-                    ),
-                ),
+                selection_settings=selection_settings,
             )
         prepared_inference_model = build_hidden_card_inference_model(
             prepared_state,
@@ -452,14 +503,22 @@ def simulate_multiple_steps(
         if card_selection_policy in SEARCH_AWARE_MULTI_STEP_POLICIES:
             if game_declaration is None or recommendation_configuration is None:
                 raise ValueError("Search-aware Multi-Step configuration is missing.")
-            decision_configuration = replace(
-                recommendation_configuration,
-                search_random_seed=derive_simulation_child_seed(
-                    recommendation_configuration.search_random_seed,
-                    MULTI_STEP_BOUNDED_SEARCH_DECISION_STREAM,
-                    child_index=step_index,
-                ),
-            )
+            if card_selection_policy == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+                decision_configuration = (
+                    derive_information_set_search_multi_step_configuration_v1(
+                        recommendation_configuration,
+                        step_index=step_index,
+                    )
+                )
+            else:
+                decision_configuration = replace(
+                    recommendation_configuration,
+                    search_random_seed=derive_simulation_child_seed(
+                        recommendation_configuration.search_random_seed,
+                        MULTI_STEP_BOUNDED_SEARCH_DECISION_STREAM,
+                        child_index=step_index,
+                    ),
+                )
             recommendation_workflow = execute_recommendation_workflow(
                 configuration=decision_configuration,
                 state=prepared_state,
@@ -475,10 +534,24 @@ def simulate_multiple_steps(
                 public_hand_constraints=prepared_constraints,
                 skat_visibility=strategic_metadata.skat_visibility,
                 immediate_unavailable_reason=None,
+                effective_opponent_policy_settings=(
+                    effective_opponent_policy_settings
+                    if card_selection_policy
+                    == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+                    else None
+                ),
             )
-            recommendation_decision = build_multi_step_recommendation_decision(
-                step_index,
-                recommendation_workflow,
+            recommendation_decision = (
+                build_information_set_search_multi_step_decision_v1(
+                    step_index=step_index,
+                    workflow=recommendation_workflow,
+                )
+                if card_selection_policy
+                == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+                else build_multi_step_recommendation_decision(
+                    step_index,
+                    recommendation_workflow,
+                )
             )
             candidate_card = recommendation_decision.recommendation_card
             if candidate_card is None:

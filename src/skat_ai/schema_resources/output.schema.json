@@ -972,7 +972,7 @@
     },
     "search_aware_multi_step_policy": {
       "type": "string",
-      "enum": ["bounded_search", "auto"]
+      "enum": ["bounded_search", "auto", "information_set_search"]
     },
     "multi_step_policy": {
       "type": "string",
@@ -982,7 +982,8 @@
         "highest_point",
         "highest_expected_value",
         "bounded_search",
-        "auto"
+        "auto",
+        "information_set_search"
       ]
     },
     "game_end_reason": {
@@ -3119,10 +3120,14 @@
         {
           "if": {"properties": {"requested_method": {"const": "bounded_search"}}},
           "then": {"properties": {"immediate_fallbacks_used": {"const": 0}}}
+        },
+        {
+          "if": {"properties": {"requested_method": {"const": "information_set_search"}}},
+          "then": {"properties": {"immediate_fallbacks_used": {"const": 0}}}
         }
       ]
     },
-    "multi_step_recommendation_decision": {
+    "bounded_search_multi_step_recommendation_decision": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -3138,7 +3143,10 @@
       ],
       "properties": {
         "step_index": {"$ref": "#/$defs/non_negative_integer"},
-        "requested_method": {"$ref": "#/$defs/search_aware_multi_step_policy"},
+        "requested_method": {
+          "type": "string",
+          "enum": ["bounded_search", "auto"]
+        },
         "effective_method": {
           "type": "string",
           "enum": ["compatible_world_minimax_v1", "immediate_expected_value", "none"]
@@ -3237,6 +3245,77 @@
             }
           }
         }
+      ]
+    },
+    "information_set_search_multi_step_recommendation_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "step_index",
+        "requested_method",
+        "effective_method",
+        "search_attempted",
+        "recommendation_card",
+        "recommendation_reason",
+        "fallback_used",
+        "fallback_method",
+        "information_set_search_result"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "step_index": {"$ref": "#/$defs/non_negative_integer"},
+        "requested_method": {"const": "information_set_search"},
+        "effective_method": {
+          "type": "string",
+          "enum": ["bounded_information_set_policy_search_v1", "none"]
+        },
+        "search_attempted": {"const": true},
+        "recommendation_card": {
+          "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+        },
+        "recommendation_reason": {"type": "string", "minLength": 1},
+        "fallback_used": {"const": false},
+        "fallback_method": {"type": "null"},
+        "information_set_search_result": {
+          "$ref": "https://example.local/skat-ai/information_set_search_result.schema.json"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "effective_method": {
+                "const": "bounded_information_set_policy_search_v1"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "recommendation_card": {"$ref": "#/$defs/card"},
+              "information_set_search_result": {
+                "properties": {"recommended_card": {"$ref": "#/$defs/card"}}
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"effective_method": {"const": "none"}}},
+          "then": {
+            "properties": {
+              "recommendation_card": {"type": "null"},
+              "information_set_search_result": {
+                "properties": {"recommended_card": {"type": "null"}}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "multi_step_recommendation_decision": {
+      "oneOf": [
+        {"$ref": "#/$defs/bounded_search_multi_step_recommendation_decision"},
+        {"$ref": "#/$defs/information_set_search_multi_step_recommendation_decision"}
       ]
     },
     "multi_step_detailed_result": {
@@ -3338,6 +3417,37 @@
             }
           },
           "else": {"properties": {"recommendation_decision": false}}
+        },
+        {
+          "if": {
+            "properties": {
+              "card_selection_policy": {"const": "information_set_search"}
+            }
+          },
+          "then": {
+            "properties": {
+              "recommendation_decision": {
+                "$ref": "#/$defs/information_set_search_multi_step_recommendation_decision"
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "card_selection_policy": {
+                  "type": "string",
+                  "enum": ["bounded_search", "auto"]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "recommendation_decision": {
+                  "$ref": "#/$defs/bounded_search_multi_step_recommendation_decision"
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -3439,6 +3549,25 @@
               "stop_reason": {"const": "local_policy_no_recommendation"}
             }
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "card_selection_policy": {"const": "information_set_search"}
+            }
+          },
+          "then": {
+            "properties": {
+              "stopped_recommendation_decision": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/information_set_search_multi_step_recommendation_decision"
+                  },
+                  {"properties": {"recommendation_card": {"type": "null"}}}
+                ]
+              }
+            }
+          }
         }
       ]
     },
@@ -3466,7 +3595,7 @@
         }
       }
     },
-    "compact_search_decision_diagnostic": {
+    "bounded_search_compact_decision_diagnostic": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -3516,6 +3645,96 @@
         },
         "fallback_used": {"type": "boolean"}
       }
+    },
+    "information_set_search_compact_decision_diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_index",
+        "requested_method",
+        "effective_method",
+        "search_method",
+        "search_status",
+        "search_stop_reason",
+        "world_coverage",
+        "policy_claim",
+        "policy_consistency",
+        "selected_world_count",
+        "completed_world_count",
+        "information_sets_evaluated",
+        "controlled_policy_decision_count",
+        "fixed_policy_decision_count",
+        "recommendation_card",
+        "fallback_used"
+      ],
+      "properties": {
+        "step_index": {"$ref": "#/$defs/non_negative_integer"},
+        "requested_method": {"const": "information_set_search"},
+        "effective_method": {
+          "type": "string",
+          "enum": ["bounded_information_set_policy_search_v1", "none"]
+        },
+        "search_method": {"const": "bounded_information_set_policy_search_v1"},
+        "search_status": {
+          "type": "string",
+          "enum": ["complete", "partial", "timeout", "unavailable"]
+        },
+        "search_stop_reason": {
+          "type": "string",
+          "enum": [
+            "completed",
+            "state_node_budget_exhausted",
+            "information_set_budget_exhausted",
+            "depth_budget_exhausted",
+            "wall_clock_timeout",
+            "unsupported_game_type",
+            "unsupported_turn_phase",
+            "unsupported_perspective",
+            "local_player_not_to_act",
+            "missing_concrete_declarer",
+            "remaining_trick_limit_exceeded",
+            "incompatible_world_space",
+            "missing_terminal_utility_inputs",
+            "game_already_complete",
+            "no_legal_cards",
+            "unsupported_fixed_policy",
+            "nondeterministic_fixed_policy",
+            "information_set_model_unavailable"
+          ]
+        },
+        "world_coverage": {
+          "type": "string",
+          "enum": ["none", "all_compatible_worlds", "sampled_compatible_worlds"]
+        },
+        "policy_claim": {
+          "type": "string",
+          "enum": ["none", "common_policy_prefix", "exact_selected_world_policy"]
+        },
+        "policy_consistency": {
+          "type": "string",
+          "enum": [
+            "not_assessed",
+            "controlled_player_information_set_consistent"
+          ]
+        },
+        "selected_world_count": {"$ref": "#/$defs/non_negative_integer"},
+        "completed_world_count": {"$ref": "#/$defs/non_negative_integer"},
+        "information_sets_evaluated": {"$ref": "#/$defs/non_negative_integer"},
+        "controlled_policy_decision_count": {
+          "$ref": "#/$defs/non_negative_integer"
+        },
+        "fixed_policy_decision_count": {"$ref": "#/$defs/non_negative_integer"},
+        "recommendation_card": {
+          "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+        },
+        "fallback_used": {"const": false}
+      }
+    },
+    "compact_search_decision_diagnostic": {
+      "oneOf": [
+        {"$ref": "#/$defs/bounded_search_compact_decision_diagnostic"},
+        {"$ref": "#/$defs/information_set_search_compact_decision_diagnostic"}
+      ]
     },
     "policy_comparison_policy_result": {
       "type": "object",
@@ -3598,6 +3817,43 @@
           "if": {"properties": {"eligible_for_recommendation": {"const": false}}},
           "then": {"properties": {"ineligible_reason": {"const": "local_policy_no_recommendation"}}},
           "else": {"properties": {"ineligible_reason": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"policy": {"const": "information_set_search"}}},
+          "then": {
+            "properties": {
+              "recommendation_summary": {
+                "properties": {
+                  "requested_method": {"const": "information_set_search"},
+                  "immediate_fallbacks_used": {"const": 0}
+                }
+              },
+              "search_decision_diagnostics": {
+                "items": {
+                  "$ref": "#/$defs/information_set_search_compact_decision_diagnostic"
+                }
+              }
+            }
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "policy": {
+                  "type": "string",
+                  "enum": ["bounded_search", "auto"]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "search_decision_diagnostics": {
+                  "items": {
+                    "$ref": "#/$defs/bounded_search_compact_decision_diagnostic"
+                  }
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -3716,6 +3972,40 @@
           "if": {
             "properties": {
               "policies": {
+                "contains": {"const": "information_set_search"}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policies": {
+                "prefixItems": [
+                  {"const": "first_legal"},
+                  {"const": "lowest_point"},
+                  {"const": "highest_point"},
+                  {"const": "highest_expected_value"},
+                  {"const": "information_set_search"}
+                ],
+                "minItems": 5,
+                "maxItems": 5
+              },
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "information_set_search"}
+                  }
+                },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "policies": {
                 "contains": {"$ref": "#/$defs/search_aware_multi_step_policy"}
               }
             }
@@ -3729,6 +4019,35 @@
                     "ineligible_reason"
                   ]
                 }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "information_set_search"}
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policies": {
+                "prefixItems": [
+                  {"const": "first_legal"},
+                  {"const": "lowest_point"},
+                  {"const": "highest_point"},
+                  {"const": "highest_expected_value"},
+                  {"const": "information_set_search"}
+                ],
+                "minItems": 5,
+                "maxItems": 5
               }
             }
           }
@@ -3870,6 +4189,30 @@
                   "required": ["policy"],
                   "properties": {
                     "policy": {"const": "auto"},
+                    "eligible_for_recommendation": {"const": true}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "recommended_policy": {
+                "type": "object",
+                "required": ["policy"],
+                "properties": {"policy": {"const": "information_set_search"}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_results": {
+                "contains": {
+                  "required": ["policy"],
+                  "properties": {
+                    "policy": {"const": "information_set_search"},
                     "eligible_for_recommendation": {"const": true}
                   }
                 }

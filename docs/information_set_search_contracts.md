@@ -6,6 +6,7 @@ Issue #187 defines the private version-1 foundation for bounded
 information-set-consistent Search. Issue #188 adds its separate private bounded
 executor. Issue #189 integrates those retained values through strict flat,
 retrospective, Historical Review, and Training Dataset evaluation boundaries.
+Issue #190 adds strict Multi-Step and Policy Comparison integration version `1`.
 
 The existing `compatible_world_minimax_v1` method evaluates each selected exact
 Compatible World separately. A future action can therefore differ between two
@@ -21,9 +22,11 @@ bounded_information_set_policy_search_v1
 
 It remains separate from `BOUNDED_SEARCH_METHODS`, `bounded_search`, and `auto`.
 Issue #189 exposes it as flat `information_set_search`, a separate Historical
-Information-set Search Review, and a separate Training Dataset evaluation. It is
-not integrated into Multi-Step, Policy Comparison, Match Capture, Strategy
-Teacher Evidence, or Replay Coaching classification.
+Information-set Search Review, and a separate Training Dataset evaluation. Issue
+#190 routes the same strict method through Multi-Step and Policy Comparison; it
+adds no `information_set_auto`. Match Capture, Match Analysis Reports, Strategy
+Teacher Evidence, Replay Coaching classification, and performance integration
+remain absent.
 
 ## Versioned values
 
@@ -243,7 +246,7 @@ remain invalid.
 All retained controlled Information Sets share one Declaration, Declarer, and
 cutoff, and supplied fixed Policies remain valid for those Player roles.
 
-## Workflow boundary and next work
+## Workflow boundary and integration
 
 The private contracts and executor still import no PIMC executor, coherent
 Multi-Step world, Public API, CLI, or file/network transport. Preparation does
@@ -257,12 +260,20 @@ Issue #189 adds strict flat routing without baseline or fallback; retrospective
 same-selection PIMC plus independent Immediate comparison; separate Historical
 Review and Training Dataset evaluation; safe public serialization; retained-
 stage internal and opt-in public Provenance; four strict Schemas; one example;
-and four generated scenarios. Multi-Step, Policy Comparison, Match Capture,
-Strategy Teacher Evidence, Replay Coaching classification, and performance
-evidence remain outside this integration. Issue #190 owns the next integration
-work.
+and four generated scenarios. Issue #190 adds fresh strict public-state Search at
+each Multi-Step local decision, domain-separated child seeds, no Search World or
+controlled-Policy reuse, strict no-recommendation stopping, safe nested Decision
+Results, and one appended Policy Comparison row with compact diagnostics. It
+does not change the contracts or executor algorithm described above.
+
+Match Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
+classification, and performance evidence remain outside this integration. There
+is no cross-decision global Policy, equilibrium, global optimality, or calibrated-
+probability claim.
 
 See [Information-set Search executor](information_set_search_executor.md) for
 the Issue-#188 algorithm, memoization, counter, Policy, and incomplete-Result
 semantics. See [Information-set Search workflows](information_set_search_workflows.md)
 for Issue #189 routing, comparison, privacy, Provenance, CLI, and Schema behavior.
+See [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
+for the Issue-#190 integration boundary.

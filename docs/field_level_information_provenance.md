@@ -129,6 +129,16 @@ Information-set Result, same-selection PIMC, independent Immediate, observed
 Card, descriptive comparison, and aggregate Result only when each stage is
 retained. Provenance construction reruns none of those operations.
 
+Issue #190 applies the same unchanged provenance language to strict Multi-Step
+and Policy Comparison. One decision-time attachment captures each current public
+boundary. The retained Decision and its private Search Result when present
+completely map the safe nested Result, including the stopped no-recommendation
+shape, while retained per-decision values map all 16 compact Policy Comparison
+diagnostic fields. The complete Position Result ledger covers both serialized
+branches. No Search,
+World selection, coherent-root construction, or controlled-Policy reconstruction
+is rerun for provenance.
+
 Exact selected states, hidden hands, actor Observations, selected assignments,
 controlled Policies, caches, memoization, and derived seeds remain engine-private.
 They gain no public attachment, Confidence value, Dataset field, or Match/Corpus

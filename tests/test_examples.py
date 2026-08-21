@@ -93,7 +93,7 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     assert tuple(scenario.name for scenario in SCENARIOS[:70]) == (
         "normal_local_live",
         "quiet_json_output",
@@ -195,11 +195,15 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
         "historical_party_wide_claim_defenders_null_incomplete_trick",
         "historical_continuation_then_party_wide_claim",
     )
-    assert tuple(scenario.name for scenario in SCENARIOS[88:]) == (
+    assert tuple(scenario.name for scenario in SCENARIOS[88:92]) == (
         "information_set_search_live_complete",
         "information_set_search_post_game_comparison",
         "historical_information_set_search_review",
         "training_dataset_information_set_search_evaluation",
+    )
+    assert tuple(scenario.name for scenario in SCENARIOS[92:]) == (
+        "information_set_search_multi_step",
+        "information_set_search_policy_comparison",
     )
     assert all(not scenario.include_provenance for scenario in SCENARIOS[:70])
     assert all(scenario.include_provenance for scenario in SCENARIOS[70:77])
@@ -209,7 +213,9 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     assert SCENARIOS[85].include_provenance is True
     assert all(not scenario.include_provenance for scenario in SCENARIOS[86:88])
     assert SCENARIOS[88].include_provenance is True
-    assert all(not scenario.include_provenance for scenario in SCENARIOS[89:])
+    assert all(not scenario.include_provenance for scenario in SCENARIOS[89:92])
+    assert SCENARIOS[92].include_provenance is True
+    assert SCENARIOS[93].include_provenance is False
 
 
 def test_examples_folder_contains_json_files() -> None:

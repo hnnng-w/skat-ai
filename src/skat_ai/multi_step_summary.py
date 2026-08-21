@@ -2,6 +2,12 @@ from typing import Any
 
 from skat_ai.game_history import build_score_summary
 from skat_ai.game_state import GameState
+from skat_ai.information_set_search_multi_step import (
+    InformationSetSearchMultiStepDecisionV1,
+)
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_EFFECTIVE_METHOD,
+)
 from skat_ai.multi_step_recommendation import MultiStepRecommendationDecision
 from skat_ai.recommendation_workflow import (
     AUTO_METHOD,
@@ -68,6 +74,7 @@ def build_multi_step_summary(
     if multi_step_result["card_selection_policy"] in {
         BOUNDED_SEARCH_METHOD,
         AUTO_METHOD,
+        "information_set_search",
     }:
         decisions = [
             step["recommendation_decision"] for step in multi_step_result["steps"]
@@ -75,7 +82,16 @@ def build_multi_step_summary(
         stopped_decision = multi_step_result.get("stopped_recommendation_decision")
         if stopped_decision is not None:
             decisions.append(stopped_decision)
-        if not all(isinstance(item, MultiStepRecommendationDecision) for item in decisions):
+        if not all(
+            isinstance(
+                item,
+                (
+                    MultiStepRecommendationDecision,
+                    InformationSetSearchMultiStepDecisionV1,
+                ),
+            )
+            for item in decisions
+        ):
             raise ValueError("Search-aware Multi-Step decisions have an invalid type.")
         if any(
             item.requested_method != multi_step_result["card_selection_policy"]
@@ -84,7 +100,11 @@ def build_multi_step_summary(
             raise ValueError("Search-aware decision methods must match the path policy.")
         decisions_executed = len(multi_step_result["steps"])
         search_recommendations_used = sum(
-            item.effective_method == COMPATIBLE_WORLD_MINIMAX_METHOD
+            item.effective_method
+            in {
+                COMPATIBLE_WORLD_MINIMAX_METHOD,
+                INFORMATION_SET_SEARCH_EFFECTIVE_METHOD,
+            }
             for item in decisions
         )
         immediate_fallbacks_used = sum(item.fallback_used for item in decisions)
@@ -113,6 +133,14 @@ def build_multi_step_summary(
             immediate_fallbacks_used
         ):
             raise ValueError("Only auto may report Immediate fallback.")
+        if multi_step_result["card_selection_policy"] == "information_set_search" and not all(
+            type(item) is InformationSetSearchMultiStepDecisionV1 for item in decisions
+        ):
+            raise ValueError("Information-set Multi-Step decisions have an invalid type.")
+        if multi_step_result["card_selection_policy"] != "information_set_search" and not all(
+            isinstance(item, MultiStepRecommendationDecision) for item in decisions
+        ):
+            raise ValueError("Bounded Search Multi-Step decisions have an invalid type.")
         summary.update(
             {
                 "requested_method": multi_step_result["card_selection_policy"],

@@ -284,7 +284,7 @@ def _resolve_multi_step_card_selection_policy(
     configured_search_method = (
         recommendation_configuration.requested_method
         if recommendation_configuration.requested_method
-        in SEARCH_RECOMMENDATION_METHODS
+        in SEARCH_AWARE_MULTI_STEP_POLICIES
         else None
     )
     if configured_search_method is not None:
@@ -297,7 +297,7 @@ def _resolve_multi_step_card_selection_policy(
     if explicit_policy in SEARCH_AWARE_MULTI_STEP_POLICIES:
         raise ValueError(
             "A Search-aware --card-policy requires matching recommendation_method "
-            "and bounded_search_settings."
+            "and its matching Search settings."
         )
     return explicit_policy or "first_legal"
 
@@ -1142,6 +1142,7 @@ def execute_position_analysis_workflow(
             if effective_card_policy in SEARCH_AWARE_MULTI_STEP_POLICIES
             else None
         ),
+        effective_opponent_policy_settings=effective_settings,
         decision_provenance_hook=(
             live_provenance_collector.capture_multi_step_decision
             if live_provenance_collector is not None
@@ -1181,9 +1182,10 @@ def execute_position_analysis_workflow(
             recommendation_configuration=(
                 recommendation_configuration
                 if recommendation_configuration.requested_method
-                in SEARCH_RECOMMENDATION_METHODS
+                in SEARCH_AWARE_MULTI_STEP_POLICIES
                 else None
             ),
+            effective_opponent_policy_settings=effective_settings,
             decision_provenance_hook=(
                 live_provenance_collector.capture_policy_comparison_decision
                 if live_provenance_collector is not None

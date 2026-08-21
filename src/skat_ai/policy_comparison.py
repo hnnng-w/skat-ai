@@ -10,11 +10,16 @@ from skat_ai.coherent_hidden_world import (
     copy_coherent_hidden_world,
     derive_simulation_child_seed,
 )
+from skat_ai.effective_opponent_policy import EffectiveOpponentPolicySettings
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
 from skat_ai.hidden_card_inference import (
     build_hidden_card_inference_model,
     build_hidden_card_inference_summary,
+)
+from skat_ai.information_set_search_multi_step import (
+    InformationSetSearchMultiStepDecisionV1,
+    build_compact_information_set_search_decision_diagnostic_v1,
 )
 from skat_ai.multi_step_recommendation import (
     LOCAL_POLICY_NO_RECOMMENDATION,
@@ -23,10 +28,7 @@ from skat_ai.multi_step_recommendation import (
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.objective_utility import calculate_null_horizon_utility_from_states
 from skat_ai.public_hand_constraint import PublicHandConstraint
-from skat_ai.recommendation_workflow import (
-    SEARCH_RECOMMENDATION_METHODS,
-    RecommendationMethodConfiguration,
-)
+from skat_ai.recommendation_workflow import RecommendationMethodConfiguration
 from skat_ai.simulation_provenance import (
     DecisionProvenanceHook,
     RecommendationDecisionObserver,
@@ -53,6 +55,7 @@ def compare_multi_step_policies(
     public_hand_constraints: tuple[PublicHandConstraint, ...] = (),
     game_declaration: GameDeclaration | None = None,
     recommendation_configuration: RecommendationMethodConfiguration | None = None,
+    effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
     decision_provenance_hook: DecisionProvenanceHook | None = None,
     recommendation_decision_observer: RecommendationDecisionObserver | None = None,
 ) -> dict[str, Any]:
@@ -69,7 +72,8 @@ def compare_multi_step_policies(
     search_policy = None
     if (
         recommendation_configuration is not None
-        and recommendation_configuration.requested_method in SEARCH_RECOMMENDATION_METHODS
+        and recommendation_configuration.requested_method
+        in SEARCH_AWARE_MULTI_STEP_POLICIES
     ):
         search_policy = recommendation_configuration.requested_method
         if game_declaration is None:
@@ -135,6 +139,9 @@ def compare_multi_step_policies(
             recommendation_configuration=(
                 recommendation_configuration if policy == search_policy else None
             ),
+            effective_opponent_policy_settings=(
+                effective_opponent_policy_settings if policy == search_policy else None
+            ),
             decision_provenance_hook=decision_provenance_hook,
         )
 
@@ -185,7 +192,13 @@ def compare_multi_step_policies(
                 for decision in decisions:
                     recommendation_decision_observer(policy, decision)
             policy_result["search_decision_diagnostics"] = [
-                build_compact_search_decision_diagnostic(decision)
+                (
+                    build_compact_information_set_search_decision_diagnostic_v1(
+                        decision
+                    )
+                    if type(decision) is InformationSetSearchMultiStepDecisionV1
+                    else build_compact_search_decision_diagnostic(decision)
+                )
                 for decision in decisions
             ]
 

@@ -108,7 +108,7 @@ The input schema checks things such as:
 * fixed three-player `list_standings_input` structure
 * canonical opponent policy and policy-preset values
 * basic `actual_card_played` type and card notation
-* the three recommendation methods and strict complete bounded-Search settings object
+* the four recommendation methods and their strict complete bounded-Search or Information-set Search settings object
 * Search-only flat live/post-game, not-ended, actual-card, attributed-history, and workflow constraints
 * optional exact `public_declarer_cards` card-array structure for declared Ouvert
 * top-level and optional nested `game_declaration` declaration field types
@@ -181,6 +181,8 @@ The output schema checks the main output structure, including:
 * optional `hidden_card_inference_summary` through its strict focused version-1 schema at position, Multi-Step, Policy Comparison, and historical-review decision locations
 * optional `recommendation_method_summary` plus `bounded_search_result` through the registered strict standalone bounded-Search schema
 * optional flat `bounded_search_post_game_review_summary` through its strict focused schema
+* optional safe aggregate `information_set_search_result` and flat Post-game comparison through their strict focused schemas
+* Information-set Search executed or stopped Multi-Step Decisions and exact 16-field Policy Comparison diagnostics within the existing output schema
 * the separate `historical_game_summary` branch
 * versioned historical game-end and non-terminal game-event unions plus declarer-concession, defender-concession, declarer-card-exposure, terminal defender-open-play, terminal open-card-throw, terminal party-wide Claim, and both timed continuation input/output schemas
 * optional versioned historical decision snapshots through the focused referenced schema
@@ -256,7 +258,7 @@ information_set_search_evaluation.schema.json
 ```
 
 It has 69 authoritative and byte-identical packaged Schemas, six unchanged
-Session examples, and 92 generated-output scenarios. Package version `0.16.0`,
+Session examples, and 94 generated-output scenarios. Package version `0.16.0`,
 Public API contract version `1`, seven Root workflows, and one Console Script
 remain unchanged; the published counts above remain historical Release facts.
 
@@ -348,10 +350,22 @@ historical_information_set_search_review
 training_dataset_information_set_search_evaluation
 ```
 
-The current unreleased matrix therefore has 92 scenarios. These additions cover
+The Issue #189 matrix therefore reached 92 scenarios. These additions cover
 complete strict Live Information-set Search with opt-in Provenance, descriptive
 same-selection flat Post-game comparison, decision-time Historical Review, and
 Training Dataset-v1 evaluation without training.
+
+Issue #190 preserves those first 92 scenarios in order and appends exactly:
+
+```text
+information_set_search_multi_step
+information_set_search_policy_comparison
+```
+
+The current unreleased matrix therefore has 94 scenarios. The additions cover
+one strict public-state Multi-Step decision with opt-in Provenance and one
+five-row shared-root Policy Comparison with `information_set_search` exactly once
+and last.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
@@ -413,6 +427,14 @@ Observations, controlled Policy tables, caches, and derived seeds are rejected
 from public output. Runtime validation remains authoritative for the exact nine
 settings, Policy eligibility, same-selection reconciliation, counters, and
 cross-stage Card and denominator relationships.
+
+The Issue #190 scenarios reuse the existing 69 Schemas. The output schema
+requires the safe nested Information-set Result for executed and stopped
+Multi-Step Decisions, exact strict no-fallback shapes, Search-aware summary
+reconciliation, and exactly 16 compact diagnostic fields. Runtime validation
+remains authoritative for per-decision child-seed derivation, fresh Search,
+coherent-world independence, no World or Policy reuse, append-once-last ordering,
+stopped-row ineligibility, and existing ranking.
 
 Two further deterministic scenarios cover Search-aware Multi-Step execution and
 Search-inclusive Policy Comparison. The schema references the standalone bounded-

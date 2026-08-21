@@ -3442,6 +3442,109 @@ def check_information_set_search_evaluation(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def check_information_set_search_multi_step(data: dict[str, Any]) -> list[str]:
+    errors = check_information_set_search_live_complete(data)
+    multi_step = data.get("multi_step_result")
+    if not isinstance(multi_step, dict):
+        return [*errors, "expected information-set Search multi_step_result"]
+    summary = multi_step.get("summary")
+    expected_summary = {
+        "requested_method": "information_set_search",
+        "decisions_attempted": 1,
+        "decisions_executed": 1,
+        "search_recommendations_used": 1,
+        "immediate_fallbacks_used": 0,
+        "no_recommendation_count": 0,
+    }
+    if not isinstance(summary, dict) or any(
+        summary.get(key) != value for key, value in expected_summary.items()
+    ):
+        errors.append("expected exact information-set Multi-Step recommendation counts")
+    if multi_step.get("card_selection_policy") != "information_set_search":
+        errors.append("expected information_set_search Multi-Step policy")
+    steps = multi_step.get("steps")
+    if not isinstance(steps, list) or len(steps) != 1:
+        return [*errors, "expected one Information-set Multi-Step step"]
+    step = steps[0]
+    decision = step.get("recommendation_decision")
+    if not isinstance(decision, dict):
+        return [*errors, "expected one Information-set Multi-Step Decision"]
+    errors.extend(_check_information_set_public_surface(decision))
+    nested = decision.get("information_set_search_result")
+    if not isinstance(nested, dict):
+        errors.append("expected nested safe information-set Search Result")
+    else:
+        errors.extend(_check_information_set_public_surface(nested))
+    if "bounded_search_result" in decision:
+        errors.append("Information-set Multi-Step Decision exposed bounded Search")
+    if (
+        decision.get("recommendation_card") != "D7"
+        or step.get("candidate_card") != "D7"
+    ):
+        errors.append("expected D7 recommendation and execution equality")
+    if decision.get("fallback_used") is not False:
+        errors.append("Information-set Multi-Step Decision must not use fallback")
+    if "world_selection_seed" in _collect_property_names(decision):
+        errors.append("Information-set Multi-Step Decision exposed its child seed")
+    return errors
+
+
+def check_information_set_search_policy_comparison(
+    data: dict[str, Any],
+) -> list[str]:
+    errors = check_information_set_search_multi_step(data)
+    comparison = data.get("policy_comparison_result")
+    if not isinstance(comparison, dict):
+        return [*errors, "expected information-set Search policy comparison"]
+    errors.extend(_check_information_set_public_surface(comparison))
+    expected_policies = [
+        "first_legal",
+        "lowest_point",
+        "highest_point",
+        "highest_expected_value",
+        "information_set_search",
+    ]
+    if comparison.get("policies") != expected_policies:
+        errors.append("expected Information-set Search exactly once and last")
+    rows = comparison.get("policy_results")
+    if not isinstance(rows, list):
+        return [*errors, "expected Policy Comparison rows"]
+    search_rows = [row for row in rows if row.get("policy") == "information_set_search"]
+    if len(search_rows) != 1:
+        return [*errors, "expected exactly one Information-set Search row"]
+    row = search_rows[0]
+    if row.get("eligible_for_recommendation") is not True:
+        errors.append("expected eligible Information-set Search comparison row")
+    if row.get("ineligible_reason") is not None:
+        errors.append("expected no Information-set Search ineligible reason")
+    diagnostics = row.get("search_decision_diagnostics")
+    if not isinstance(diagnostics, list) or len(diagnostics) != 1:
+        return [*errors, "expected one compact Information-set diagnostic"]
+    expected_fields = {
+        "step_index",
+        "requested_method",
+        "effective_method",
+        "search_method",
+        "search_status",
+        "search_stop_reason",
+        "world_coverage",
+        "policy_claim",
+        "policy_consistency",
+        "selected_world_count",
+        "completed_world_count",
+        "information_sets_evaluated",
+        "controlled_policy_decision_count",
+        "fixed_policy_decision_count",
+        "recommendation_card",
+        "fallback_used",
+    }
+    if set(diagnostics[0]) != expected_fields:
+        errors.append("expected exact compact Information-set diagnostic fields")
+    if diagnostics[0].get("fallback_used") is not False:
+        errors.append("Information-set comparison diagnostic must not use fallback")
+    return errors
+
+
 def _find_forbidden_list_output_key(value: Any) -> str | None:
     forbidden_keys = {
         "historical_game",
@@ -5309,6 +5412,27 @@ SCENARIOS = (
         check_output=check_information_set_search_evaluation,
         expect_quiet_stdout=True,
         include_position_overrides=False,
+    ),
+    Scenario(
+        name="information_set_search_multi_step",
+        input_path=(
+            PROJECT_ROOT / "examples" / "information_set_search_multi_step.json"
+        ),
+        branch="fresh strict information-set Search in one Multi-Step decision",
+        cli_args=("--multi-step", "1", "--quiet"),
+        check_output=check_information_set_search_multi_step,
+        expect_quiet_stdout=True,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="information_set_search_policy_comparison",
+        input_path=(
+            PROJECT_ROOT / "examples" / "information_set_search_multi_step.json"
+        ),
+        branch="Information-set Search appended last to coherent Policy Comparison",
+        cli_args=("--multi-step", "1", "--compare-policies", "--quiet"),
+        check_output=check_information_set_search_policy_comparison,
+        expect_quiet_stdout=True,
     ),
 )
 

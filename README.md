@@ -36,8 +36,9 @@ official Skat rules arbitration.
 * Multi-step simulation
 * Configurable card-selection policies
 * Policy comparison across card-selection strategies
-* Opt-in bounded Search or `auto` at every Multi-Step local decision
+* Opt-in bounded Search, `auto`, or strict `information_set_search` at every Multi-Step local decision
 * Optional five-policy comparison with one configured Search method appended last
+* Safe nested Information-set Search Decisions and 16-field compact Policy Comparison diagnostics
 * Declared-Ouvert exact public-hand ownership in Immediate Analysis, supported Multi-Step paths, and Policy Comparison
 * Opponent lead and response simulation
 * Opponent policy presets
@@ -690,37 +691,46 @@ progression, Historical Game Records, series rollup, ratings, or winner claim.
 
 The existing Immediate expected-value recommendation remains the default. JSON
 input may explicitly select `immediate_expected_value`, strict `bounded_search`,
-or `auto`. Search methods require a complete `bounded_search_settings` object and
-support ongoing `live_decision` positions plus bounded flat
+`auto`, or strict `information_set_search`. Bounded Search and `auto` require a
+complete `bounded_search_settings` object; Information-set Search requires its
+exact nine-field `information_set_search_settings` object. These methods support
+ongoing `live_decision` positions plus their documented bounded flat
 `post_game_review` positions with `actual_card_played`:
 
 ```powershell
 python main.py --input examples/grand_bounded_search_exhaustive.json
 python main.py --input examples/grand_auto_search_fallback.json
 python main.py --input examples/grand_bounded_search_post_game_review.json
+python main.py --input examples/information_set_search.json
 ```
 
 Strict Search never falls back. `auto` runs Immediate only when Search returns a
 valid result without a recommendation, and marks fallback only when Immediate
 returns a card. Search uses its own required seed; the existing top-level seed
 continues to control Immediate and auto fallback. No CLI method override is
-provided.
+provided. `information_set_search` has no fallback and does not change `auto`;
+there is no `information_set_auto`.
 
 The same configured Search method becomes the local Multi-Step policy when
 `--multi-step` is supplied and `--card-policy` is omitted. An explicit
 `--card-policy` must match that Search method; a legacy policy conflict, a
-strict/auto mismatch, or a Search card policy without matching JSON settings is
-rejected. Legacy inputs still default to `first_legal`.
+Search-method mismatch, or a Search card policy without matching JSON settings
+is rejected. Legacy inputs still default to `first_legal`.
 
 ```powershell
 python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1
 python main.py --input examples/grand_bounded_search_exhaustive.json --multi-step 1 --compare-policies
+python main.py --input examples/information_set_search_multi_step.json --multi-step 1
+python main.py --input examples/information_set_search_multi_step.json --multi-step 1 --compare-policies
 ```
 
 Search is rerun from the prepared public state at every local decision. Each
 decision receives the full configured budget freshly and a deterministic child
 of the explicit Search seed. Search never receives the coherent execution root;
 the selected public recommendation is executed separately in that root.
+Information-set Search also retains no Search World or controlled Policy across
+decisions and stops before local play without fallback when no recommendation is
+available.
 
 Run Historical Search Review with an explicit Search seed. It uses the immutable
 `historical_review_v1` profile by default and runs an independent Immediate
@@ -1254,9 +1264,11 @@ The current unreleased working baseline keeps Package version `0.16.0`, Python
 Console Script, and six Session examples. Issue #186 updates the Settlement
 Normative Matrix to version `3` with the same 61 cases and adds the Historical-
 only bounded party-wide Claim. Issue #189 adds four Information-set Search
-Schemas, one example, and four generated-output scenarios, bringing the working
-tree to 69 authoritative and packaged Schemas and 92 scenarios. The published
-`v0.16.0` counts above remain unchanged Release facts.
+Schemas, one example, and four generated-output scenarios. Issue #190 adds strict
+Information-set Search Multi-Step and Policy Comparison integration, one example,
+and two scenarios without adding a Schema, bringing the working tree to 69
+authoritative and packaged Schemas and 94 scenarios. The published `v0.16.0`
+counts above remain unchanged Release facts.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1437,11 +1449,24 @@ Observations, the controlled Policy table, caches, and derived seeds. Existing
 the [Information-set Search executor](docs/information_set_search_executor.md),
 and [Information-set Search workflows](docs/information_set_search_workflows.md).
 
+Issue #190 adds strict Multi-Step and Policy Comparison integration version `1`.
+Each local decision derives a domain-separated child seed, executes fresh Search
+from current public state, and keeps the coherent execution World private and
+independent. Search Worlds and controlled Policies are never reused across
+decisions. A no-recommendation Result stops without fallback. Policy Comparison
+appends the method exactly once and last to the default four policies, preserves
+one shared coherent root with independent path copies, keeps a stopped row
+visible but ineligible under existing ranking, and exposes only safe nested
+Results and 16-field compact diagnostics. Existing `auto`, flat, Historical, and
+Dataset behavior is unchanged. See [Information-set Search Multi-Step and Policy
+Comparison](docs/information_set_search_multi_step_and_policy_comparison.md).
+
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
 workflows, Dataset-v2 persistence and persisted partition artifacts,
-database/remote deployment, and broader information-set Search integration,
+database/remote deployment, and remaining Match/Teacher/Coaching/performance
+information-set Search integration,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
@@ -1621,9 +1646,10 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   private bounded executor. Issue #189 adds strict flat routing, descriptive
   retained-selection Post-game comparison, separate Historical Review and
   Training Dataset evaluation, safe output, Provenance, CLI, four Schemas, one
-  example, and four scenarios. Multi-Step, Policy Comparison, Match Capture,
-  Strategy Teacher, Replay Coaching classification, and performance evidence
-  remain open for Issue #190 or later work. Tactical and cross-game
+  example, and four scenarios. Issue #190 adds strict Multi-Step and Policy
+  Comparison integration, one example, and two scenarios. Match Capture, Match
+  Analysis Reports, Strategy Teacher, Replay Coaching classification, and
+  performance evidence remain open. Tactical and cross-game
   Coaching, carefully bounded Player Ratings where approved, broader Provenance
   and Confidence integration, performance and latency evidence, and the remaining
   pre-v1 scope audit also remain open. The final Issue titles, count,

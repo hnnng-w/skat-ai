@@ -40,8 +40,9 @@ Session examples. Issue #186 adds two authoritative and packaged Historical
 Claim Schemas plus three append-only generated-output scenarios, bringing the
 working totals to 65 Schemas and 88 scenarios. Issue #189 adds four authoritative
 and packaged Information-set Search Schemas, one input example, and four append-
-only generated-output scenarios, bringing the totals to 69 Schemas and 92
-scenarios without changing the published `v0.16.0` facts above.
+only generated-output scenarios. Issue #190 adds one Multi-Step input example
+and two append-only scenarios without adding a Schema, bringing the totals to 69
+Schemas and 94 scenarios without changing the published `v0.16.0` facts above.
 
 The historical published `v0.15.0` baseline at commit `ec1c154` contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six strict
@@ -176,6 +177,21 @@ Observations, controlled Policy tables, caches, and derived seeds.
 The four Issue #189 generated scenarios cover this complete Live result with
 Provenance, flat Post-game same-selection comparison, Historical Review, and
 Training Dataset evaluation.
+
+Run strict Information-set Search through one Multi-Step decision and the
+five-policy comparison:
+
+```powershell
+python main.py --input examples/information_set_search_multi_step.json --multi-step 1
+python main.py --input examples/information_set_search_multi_step.json --multi-step 1 --compare-policies
+```
+
+Each local decision starts fresh Search from public state with a domain-separated
+child seed. The coherent execution World remains private and independent; Search
+Worlds and controlled Policies are not reused. A missing recommendation stops
+without fallback. Policy Comparison appends `information_set_search` exactly once
+and last, retains stopped rows as visible but ineligible, and emits the safe
+nested Result plus 16 compact diagnostics.
 
 Write structured JSON output:
 
@@ -501,6 +517,7 @@ Live decision examples must not include post-game-only information such as `know
 | `grand_bounded_search_exhaustive.json`     | One legal late Grand card, one compatible world, exact exhaustive Search completion, and a direct Search recommendation. |
 | `grand_auto_search_fallback.json`          | The same late Grand information state with a one-node Search budget, a valid below-threshold partial result, and explicit Immediate fallback. |
 | `information_set_search.json`              | One legal late Grand defender Card, one selected World, strict complete Information-set Search, exact nine settings, and safe aggregate output. |
+| `information_set_search_multi_step.json`   | One legal late Grand defender Card for strict Information-set Search Multi-Step and five-policy comparison with no fallback. |
 | `hearts_leading.json`                      | Suit game example.                                                                                                           |
 | `null_second_position.json`                | Null game example.                                                                                                           |
 
@@ -722,6 +739,11 @@ remain unchanged and the current published `v0.16.0` and historical published
 `v0.15.0` and `v0.14.0` totals are 85. Session operation JSON
 uses `session.schema.json`; executed Position/Historical output uses
 `output.schema.json`.
+Issue #186 appends three Historical Claim scenarios, Issue #189 appends four
+flat/Historical/Dataset Information-set Search scenarios, and Issue #190 appends
+`information_set_search_multi_step` and
+`information_set_search_policy_comparison`. The current unreleased total is 94;
+the published 85-scenario facts remain unchanged.
 The behavioral match
 comparison does not evaluate recommendation quality or strategic strength.
 
@@ -1159,6 +1181,9 @@ Historical Information-set Search Review is nested under
 `historical_game_summary` as
 `historical_information_set_search_review_summary`; its Dataset evaluation uses
 the separate `information_set_search_evaluation_summary` branch.
+Information-set Search Multi-Step nests the existing safe aggregate Result under
+each executed or stopped recommendation Decision; Policy Comparison exposes only
+the corresponding 16-field compact diagnostics.
 Training-dataset aggregation instead uses
 `historical_opponent_statistics_aggregation_summary`.
 Fixed-three-player historical-list roots instead use the mutually exclusive

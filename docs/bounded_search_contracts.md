@@ -556,6 +556,18 @@ stops. Search-inclusive comparison rows add recommendation eligibility and
 compact ordered decision diagnostics. An ineligible Search row remains visible,
 sorts after eligible rows, and cannot become `recommended_policy`.
 
+Issue #190 extends this Search-aware boundary with strict
+`information_set_search`. Each local decision receives a child world-selection
+seed in domain `multi_step_information_set_search_decision_v1`, executes fresh
+Search from the public state, and shares no Search World, controlled Policy, or
+cache with another decision. The coherent execution World remains private and
+independent. A no-recommendation Result stops before local execution with no
+fallback. Policy Comparison appends the configured Information-set method exactly
+once and last to the four defaults, keeps a stopped row visible but ineligible,
+and emits a safe nested Decision Result plus exactly 16 compact diagnostics.
+Existing ranking and `auto` behavior are unchanged; no `information_set_auto`
+exists.
+
 ## Retrospective comparisons
 
 Flat post-game Search runs the requested Search method first and then runs an
@@ -715,18 +727,23 @@ Issues #187 and #188 separately define and execute the private three-Trick
 Information-set Policy Search. Issue #189 exposes it through strict flat routing,
 same-selection retrospective comparison, separate Historical Review and Training
 Dataset evaluation, safe public output, Provenance, CLI, Schemas, an example, and
-generated scenarios. Live Information-set Search has no baseline or fallback;
-existing `auto` remains PIMC first with Immediate fallback.
+generated scenarios. Issue #190 adds strict Multi-Step and Policy Comparison
+integration with fresh per-decision Search and no fallback. Existing `auto`
+remains PIMC first with Immediate fallback.
 
 The integration does not add calibrated sampled quality, a latency guarantee,
 adaptive sampling, Expectimax, complete Strategy-Fusion correction,
-complete-contract solving, or a stable package-root Domain API. Multi-Step,
-Policy Comparison, Match Capture, Strategy Teacher Evidence, and Replay Coaching
-classification remain unchanged pending Issue #190. The stronger-search v1.0
-completion gate therefore remains open.
+complete-contract solving, or a stable package-root Domain API. Multi-Step and
+Policy Comparison are now integrated only for the bounded strict behavior above.
+Match Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
+classification, performance integration, cross-decision global Policy,
+equilibrium, global optimality, and calibrated probabilities remain absent. The
+stronger-search v1.0 completion gate therefore remains open.
 
 See [Information-set Search contracts](information_set_search_contracts.md) and
 the [Information-set Search executor](information_set_search_executor.md) for
 the private controlled-Player policy-consistency claim, and
 [Information-set Search workflows](information_set_search_workflows.md) for the
-integrated public boundaries.
+integrated public boundaries, and
+[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
+for Issue #190.

@@ -1112,7 +1112,7 @@ def test_private_architecture_and_compatibility_baselines_remain_unchanged() -> 
     assert TRAINING_FEATURE_GENERATION_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
     assert len(WorkflowV1) == 7
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 69
     assert len(tuple((PROJECT_ROOT / "src/skat_ai/schema_resources").glob("*.schema.json"))) == 69
     assert len(tuple((PROJECT_ROOT / "examples").glob("session_*.json"))) == 6

@@ -18,6 +18,8 @@ three forms. The Package version is `0.16.0`.
 
 Issue #189 adds the same Root Information-set Search modes and validation to all
 three forms without adding a Root workflow, command family, or Console Script.
+Issue #190 uses the existing `--multi-step` and `--compare-policies` fields for
+strict Information-set Search integration and adds no CLI flag.
 
 Issues #150 through #156 establish the Session contracts, replay, export,
 Checkpoint, history-edit, persistence, Public API, Provenance, and standalone
@@ -138,6 +140,20 @@ Flat Position input selects
 `information_set_search_settings` fields in JSON. There are no separate flat
 CLI budget overrides. Existing `auto` remains PIMC first with its existing
 Immediate fallback and never silently selects Information-set Search.
+
+The same JSON method and settings now work with existing Multi-Step options:
+
+```powershell
+skat-ai --input position.json --multi-step 1
+skat-ai --input position.json --multi-step 1 --compare-policies
+```
+
+The existing card-policy matching rule applies. Every local decision performs
+fresh strict Search from public state and stops without fallback when no
+recommendation exists. Policy Comparison appends `information_set_search`
+exactly once and last to the default four policies. Existing `--comparison-only`,
+`--quiet`, `--include-provenance`, and human-readable fields are unchanged; no
+`information_set_auto` method or Issue-#190 option exists.
 
 The CLI preserves this transport sequence:
 
@@ -331,6 +347,8 @@ Issue #189 additionally verifies installed/module/Legacy Information-set Search
 help and execution parity, packaged four-Schema loading, strict Live execution,
 Historical Review, and Training Dataset evaluation. It adds no eighth Root
 workflow, second Console Script, or Public API contract version.
+Issue #190 preserves those interfaces while adding Multi-Step and Policy
+Comparison execution through existing options. The Schema count remains 69.
 
 ## Boundaries
 
@@ -347,10 +365,11 @@ GUI/browser UI, hosted or remote browser deployment, online-platform integration
 cloud synchronization,
 distributed locking,
 encryption/key management, and automatic backups remain open.
-Information-set Search remains bounded to its documented flat, Historical Review,
-and Training Dataset evaluation routes. Multi-Step, Policy Comparison, Match
-Capture, Strategy Teacher, and Replay Coaching classification integration remain
-open for Issue #190 or later work.
+Information-set Search remains bounded to its documented flat, Multi-Step, Policy
+Comparison, Historical Review, and Training Dataset evaluation routes. Match
+Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching classification,
+and performance integration remain open.
 See [Local Match Capture interface](local_match_capture_interface.md) and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md) and
-[Public field provenance](public_field_provenance.md).
+[Public field provenance](public_field_provenance.md). See also
+[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).

@@ -316,7 +316,7 @@ def test_catalog_and_snapshot_are_private_internal_compatibility_additions_only(
     assert TRAINING_DATASET_SCHEMA_VERSION == 1
     assert TRAINING_FEATURE_GENERATION_VERSION == 1
     assert TRAINING_TARGET == "actual_card_played"
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
 
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["version"] == "0.16.0"

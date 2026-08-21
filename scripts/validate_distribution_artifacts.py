@@ -35,6 +35,9 @@ HISTORICAL_MATCH_SMOKE_EXAMPLE = (
 )
 HISTORICAL_CLAIM_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "historical_party_wide_claim.json"
 INFORMATION_SET_SEARCH_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "information_set_search.json"
+INFORMATION_SET_SEARCH_MULTI_STEP_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "information_set_search_multi_step.json"
+)
 INFORMATION_SET_SEARCH_POST_GAME_SMOKE_EXAMPLE = (
     PROJECT_ROOT
     / "tests"
@@ -49,6 +52,12 @@ INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
 )
 AUTO_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json"
+BOUNDED_MULTI_STEP_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "grand_bounded_search_exhaustive.json"
+)
+DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "grand_second_position.json"
+)
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.16.0"
 EXPECTED_SCHEMA_RESOURCE_COUNT = 69
@@ -743,7 +752,13 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 import skat_ai
-from skat_ai.api.v1 import ExecutionOptionsV1, execute_document, parse_request, serialize_result
+from skat_ai.api.v1 import (
+    ExecutionOptionsV1,
+    WorkflowV1,
+    execute_document,
+    parse_request,
+    serialize_result,
+)
 from skat_ai.api.v1 import session
 import skat_ai.api.v1.session.files as session_files
 from skat_ai.api.v1.session.files.contracts import (
@@ -805,6 +820,9 @@ document = json.loads((cwd / "opponent_statistics.json").read_text(encoding="utf
 information_set_search_document = json.loads(
     (cwd / "information-set-search.json").read_text(encoding="utf-8")
 )
+information_set_multi_step_document = json.loads(
+    (cwd / "information-set-search-multi-step.json").read_text(encoding="utf-8")
+)
 expected_schema_root = cwd / "expected_schemas"
 resource_root = importlib.resources.files("skat_ai.schema_resources")
 resource_names = sorted(
@@ -815,6 +833,7 @@ resource_names = sorted(
 expected_names = sorted(path.name for path in expected_schema_root.glob("*.schema.json"))
 assert resource_names == expected_names
 assert len(resource_names) == 69
+assert len(WorkflowV1) == 7
 
 schema_ids = []
 schema_digest = hashlib.sha256()
@@ -1763,6 +1782,26 @@ assert information_set_result["search_method"] == (
 assert information_set_document["bounded_search_result"] is None
 assert information_set_execution.field_provenance is not None
 assert information_set_execution.field_provenance.result.ledger["status"] == "complete"
+information_set_multi_step_execution = execute_document(
+    information_set_multi_step_document,
+    options=ExecutionOptionsV1(
+        validate_output=True,
+        include_provenance=True,
+        workflow_options={"multi_step_count": 1, "compare_policies": True},
+    ),
+    input_reference="information-set-search-multi-step.json",
+)
+information_set_multi_step_result = information_set_multi_step_execution.result.document
+assert information_set_multi_step_result["multi_step_result"]["summary"][
+    "requested_method"
+] == "information_set_search"
+assert information_set_multi_step_result["policy_comparison_result"]["policies"][-1] == (
+    "information_set_search"
+)
+assert information_set_multi_step_execution.field_provenance is not None
+assert information_set_multi_step_execution.field_provenance.result.coverage_summary[
+    "provenance_complete"
+] is True
 
 
 def collect_property_names(value):
@@ -1813,11 +1852,24 @@ module_information_set = json.loads(
 legacy_information_set = json.loads(
     (cwd / "legacy-information-set-search.json").read_text(encoding="utf-8")
 )
+
+
+def without_wall_clock_elapsed(value):
+    if isinstance(value, dict):
+        return {
+            key: (0 if key == "wall_clock_elapsed_ms" else without_wall_clock_elapsed(item))
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [without_wall_clock_elapsed(item) for item in value]
+    return value
+
+
 assert (
-    installed_information_set
-    == module_information_set
-    == legacy_information_set
-    == information_set_document
+    without_wall_clock_elapsed(installed_information_set)
+    == without_wall_clock_elapsed(module_information_set)
+    == without_wall_clock_elapsed(legacy_information_set)
+    == without_wall_clock_elapsed(information_set_document)
 )
 installed_cli_document = json.loads((cwd / "installed-cli-result.json").read_text(encoding="utf-8"))
 module_cli_document = json.loads((cwd / "module-cli-result.json").read_text(encoding="utf-8"))
@@ -2036,6 +2088,13 @@ def _install_and_smoke(
         json.dumps(information_set_search_document, separators=(",", ":")),
         encoding="utf-8",
     )
+    information_set_multi_step_document = json.loads(
+        INFORMATION_SET_SEARCH_MULTI_STEP_SMOKE_EXAMPLE.read_text(encoding="utf-8")
+    )
+    (consumer_directory / "information-set-search-multi-step.json").write_text(
+        json.dumps(information_set_multi_step_document, separators=(",", ":")),
+        encoding="utf-8",
+    )
     for source, destination in (
         (
             INFORMATION_SET_SEARCH_POST_GAME_SMOKE_EXAMPLE,
@@ -2050,6 +2109,8 @@ def _install_and_smoke(
             "information-set-search-evaluation.json",
         ),
         (AUTO_SMOKE_EXAMPLE, "auto-search.json"),
+        (BOUNDED_MULTI_STEP_SMOKE_EXAMPLE, "bounded-multi-step.json"),
+        (DEFAULT_POLICY_COMPARISON_SMOKE_EXAMPLE, "default-policy-comparison.json"),
     ):
         source_document = json.loads(source.read_text(encoding="utf-8"))
         (consumer_directory / destination).write_text(
@@ -2521,6 +2582,109 @@ def _install_and_smoke(
             "information_set_search_result" in information_set_document
             and "field_provenance" in information_set_document,
             f"{label} {command_name} information-set Search omitted its safe Result or provenance.",
+        )
+
+    for prefix, command_name in (
+        (installed_prefix, "installed"),
+        (module_prefix, "module"),
+        ([str(python), str(legacy_main)], "Legacy"),
+    ):
+        for output_stem, extra_args in (
+            (
+                "information-set-multi-step",
+                ("--multi-step", "1", "--include-provenance"),
+            ),
+            (
+                "information-set-policy-comparison",
+                (
+                    "--multi-step",
+                    "1",
+                    "--compare-policies",
+                    "--include-provenance",
+                ),
+            ),
+        ):
+            output_name = f"{command_name.lower()}-{output_stem}.json"
+            simulation_result = _run_cli_check(
+                [
+                    *prefix,
+                    "--input",
+                    "information-set-search-multi-step.json",
+                    "--output",
+                    output_name,
+                    *extra_args,
+                    "--quiet",
+                ],
+                cwd=consumer_directory,
+                environment=environment,
+                expected_returncode=0,
+            )
+            _require(
+                not simulation_result.stdout and not simulation_result.stderr,
+                f"{label} {command_name} {output_stem} was not a quiet success.",
+            )
+            simulation_document = json.loads(
+                (consumer_directory / output_name).read_text(encoding="utf-8")
+            )
+            multi_step = simulation_document.get("multi_step_result")
+            valid = isinstance(multi_step, dict) and (
+                multi_step.get("card_selection_policy") == "information_set_search"
+            )
+            if output_stem == "information-set-policy-comparison":
+                comparison = simulation_document.get("policy_comparison_result")
+                valid = valid and isinstance(comparison, dict) and (
+                    comparison.get("policies", [])[-1:] == ["information_set_search"]
+                )
+            _require(
+                valid and "field_provenance" in simulation_document,
+                f"{label} {command_name} {output_stem} omitted its safe Result or provenance.",
+            )
+
+    for input_name, output_name, extra_args, expected_policy in (
+        (
+            "bounded-multi-step.json",
+            "unchanged-bounded-multi-step.json",
+            ("--multi-step", "1"),
+            "bounded_search",
+        ),
+        (
+            "auto-search.json",
+            "unchanged-auto-multi-step.json",
+            ("--multi-step", "1"),
+            "auto",
+        ),
+        (
+            "default-policy-comparison.json",
+            "unchanged-default-policy-comparison.json",
+            ("--multi-step", "1", "--compare-policies"),
+            "first_legal",
+        ),
+    ):
+        compatibility_result = _run_cli_check(
+            [
+                *installed_prefix,
+                "--input",
+                input_name,
+                "--output",
+                output_name,
+                *extra_args,
+                "--quiet",
+            ],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not compatibility_result.stdout and not compatibility_result.stderr,
+            f"{label} unchanged {expected_policy} simulation was not a quiet success.",
+        )
+        compatibility_document = json.loads(
+            (consumer_directory / output_name).read_text(encoding="utf-8")
+        )
+        _require(
+            compatibility_document["multi_step_result"]["card_selection_policy"]
+            == expected_policy,
+            f"{label} unchanged {expected_policy} simulation changed policy routing.",
         )
 
     information_set_workflow_smokes = (

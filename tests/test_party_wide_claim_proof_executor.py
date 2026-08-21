@@ -936,7 +936,7 @@ def test_public_cli_schema_example_generated_and_package_boundaries_are_unchange
     assert {
         path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")
     } == SESSION_EXAMPLE_NAMES
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]

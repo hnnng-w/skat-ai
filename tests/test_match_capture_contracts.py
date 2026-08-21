@@ -760,7 +760,7 @@ def test_existing_internal_public_package_and_count_contracts_are_unchanged() ->
             )
         )
     ) == 69
-    assert len(SCENARIOS) == 92
+    assert len(SCENARIOS) == 94
     pyproject = tomllib.loads(
         (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )

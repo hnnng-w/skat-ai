@@ -6,7 +6,7 @@ from typing import Protocol
 from skat_ai.bounded_search_result import RequestedSearchBudget
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
-from skat_ai.multi_step_recommendation import MultiStepRecommendationDecision
+from skat_ai.information_set_search_multi_step import SearchAwareMultiStepDecision
 from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.strategic_metadata import StrategicMetadata
 
@@ -35,7 +35,7 @@ class RecommendationDecisionObserver(Protocol):
     def __call__(
         self,
         policy: str,
-        decision: MultiStepRecommendationDecision,
+        decision: SearchAwareMultiStepDecision,
     ) -> None: ...
 
 

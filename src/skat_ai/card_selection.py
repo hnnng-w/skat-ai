@@ -19,7 +19,11 @@ LEGACY_CARD_SELECTION_POLICIES = [
     "highest_point",
     "highest_expected_value",
 ]
-SEARCH_AWARE_MULTI_STEP_POLICIES = ["bounded_search", "auto"]
+SEARCH_AWARE_MULTI_STEP_POLICIES = [
+    "bounded_search",
+    "auto",
+    "information_set_search",
+]
 VALID_MULTI_STEP_POLICIES = [
     *LEGACY_CARD_SELECTION_POLICIES,
     *SEARCH_AWARE_MULTI_STEP_POLICIES,

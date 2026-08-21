@@ -407,6 +407,7 @@ Implemented:
 * Executable `compatible_world_minimax_v1` with shared exact-world recursion, frozen-order common-prefix scheduling, global nodes, per-world depth and exact-only cache, one post-selection timeout window, equal duplicate-sample weighting, aggregate ranking, and threshold-gated partial or timeout recommendations
 * Explicit flat live `immediate_expected_value`, strict `bounded_search`, and Search-first `auto` recommendation methods with validated budgets, separate seeds, explicit fallback, report separation, schema output, CLI summaries, and privacy-safe examples
 * Opt-in Search-aware Multi-Step and Policy Comparison with public-state re-search at every local decision, fresh per-decision budgets, domain-separated child seeds, coherent execution-world separation, strict stopping, auto fallback, eligibility-aware ranking, and compact privacy-safe diagnostics
+* Strict Information-set Search Multi-Step and Policy Comparison version `1` with fresh public-state Search, per-decision child seeds, no Search World or Policy reuse, no fallback, safe nested Results, exact 16-field diagnostics, append-once-last ordering, stopped-row ineligibility, and retained-Result complete Provenance
 * Flat post-game bounded Search with an independently executed Immediate baseline plus actual-card and Search-versus-Immediate aggregate comparisons
 * Historical Search Review over every decision-time snapshot with stable private per-decision seeds and reconciled status, coverage, agreement, quality, and performance summaries
 * Bounded-Search dataset evaluation over canonical validation/test defaults, optional stable global decision-prefix caps, and preserved zero-decision records
@@ -799,6 +800,11 @@ Implemented:
   Search-versus-Immediate dataset evaluation now use immutable versioned work
   profiles. Search remains bounded late-game determinization, sampled quality is
   not calibrated, and measured performance provides no latency guarantee.
+* Information-set Search is integrated into strict Multi-Step and Policy
+  Comparison with a private independent coherent execution World and no cross-
+  decision Search World or controlled-Policy reuse. It does not provide a global
+  Policy, equilibrium, global optimality, calibrated probabilities, Match or
+  Teacher/Coaching integration, or performance evidence.
 * Complete Known-opponent and unseen-player plans can be generated, validated,
   and losslessly materialized through the public mode-derived workflow. It has no
   new algorithms, algorithm selector or override, default weights, CLI overrides,
@@ -1149,9 +1155,10 @@ The current unreleased working baseline keeps Package version `0.16.0`, Public
 API contract version `1`, seven Root workflows, one Console Script, and six
 Session examples. Issue #186 updates the Matrix to version `3` with the same 61
 cases. Issue #189 adds four Information-set Search Schemas, one example, and four
-generated outputs, bringing the working totals to 69 authoritative and packaged
-Schemas and 92 generated outputs. The published `v0.16.0` facts above remain
-unchanged.
+generated outputs. Issue #190 adds strict Multi-Step and Policy Comparison
+integration, one example, and two generated outputs without adding a Schema,
+bringing the working totals to 69 authoritative and packaged Schemas and 94
+generated outputs. The published `v0.16.0` facts above remain unchanged.
 
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
@@ -1199,12 +1206,17 @@ and bundle memoization. Issue #189 adds strict flat `information_set_search`,
 safe aggregate Results, same-selection PIMC plus independently seeded Immediate
 retrospective comparison, separate Historical Review and Training Dataset
 evaluation, retained-stage Provenance, CLI, four Schemas, one example, and four
-generated scenarios. Existing `auto` remains unchanged. Multi-Step, Policy
-Comparison, Match Capture, Strategy Teacher, Replay Coaching classification, and
-performance evidence remain open for Issue #190 or later work. Tactical and
+generated scenarios. Issue #190 adds strict Multi-Step and Policy Comparison
+integration with per-decision child seeds and fresh public-state Search, private
+independent coherent execution, no Search World or Policy reuse, no fallback,
+safe nested Results and 16-field diagnostics, existing ranking, and complete
+Provenance. Existing `auto` remains unchanged. Match Capture, Match Analysis
+Reports, Strategy Teacher, Replay Coaching classification, and performance
+evidence remain open. Tactical and
 cross-game Coaching, carefully bounded Player Ratings where approved, broader
 Provenance and Confidence integration, and the remaining pre-v1 scope audit also
-remain open. See [Information-set Search workflows](information_set_search_workflows.md).
+remain open. See [Information-set Search workflows](information_set_search_workflows.md)
+and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
 Final Issue titles, count, architecture, solver design, Rating boundary, Coaching
 taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 
@@ -1276,10 +1288,11 @@ evidence. They do not provide calibrated sample quality or a latency guarantee.
 Issues #187 and #188 add a private three-Trick information-set Policy Search
 foundation and bounded executor. Issue #189 adds strict flat routing, descriptive
 retrospective comparison, separate Historical Review and Training Dataset
-evaluation, safe output, Provenance, CLI, Schemas, example, and scenarios. Broader
-workflow integration, complete Strategy-Fusion correction, calibrated quality,
-and performance evidence remain open, so the stronger-search completion gate is
-not closed.
+evaluation, safe output, Provenance, CLI, Schemas, example, and scenarios.
+Multi-Step and Policy Comparison integration is completed by Issue #190. Match
+Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching classification,
+complete Strategy-Fusion correction, calibrated quality, and performance evidence
+remain open, so the stronger-search completion gate is not closed.
 
 The published `v0.11.0` milestone is complete through functional Issue #124, and
 Issue #125 completed release preparation. The milestone establishes the
@@ -1389,5 +1402,6 @@ information-set Search contracts and no-execution Preparation foundation. Issue
 #188 adds the private bounded executor. Issue #189 adds strict flat routing,
 descriptive retrospective comparison, separate Historical Review and Training
 Dataset evaluation, safe output, Provenance, CLI, Schemas, example, and scenario
-coverage. Broader integration, performance evidence, and the final `v1.0.0`
-Issue split and architecture remain open for Issue #190 or later work.
+coverage. Issue #190 adds strict Multi-Step and Policy Comparison integration.
+Remaining integration, performance evidence, and the final `v1.0.0` Issue split
+and architecture remain open.

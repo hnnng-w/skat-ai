@@ -33,6 +33,10 @@ from skat_ai.game_declaration import (
     build_serializable_game_declaration,
 )
 from skat_ai.game_state import GameState
+from skat_ai.information_set_search_multi_step import (
+    InformationSetSearchMultiStepDecisionV1,
+    SearchAwareMultiStepDecision,
+)
 from skat_ai.information_set_search_provenance import (
     build_information_set_search_provenance_entries,
     information_set_settings_reference,
@@ -66,7 +70,10 @@ from skat_ai.recommendation_workflow import (
     SEARCH_RECOMMENDATION_METHODS,
     RecommendationWorkflowResult,
 )
-from skat_ai.result_serialization import build_serializable_game_state
+from skat_ai.result_serialization import (
+    build_serializable_game_state,
+    build_serializable_information_set_search_multi_step_decision_v1,
+)
 from skat_ai.search_provenance import build_bounded_search_provenance_entries
 from skat_ai.strategic_metadata import StrategicMetadata, validate_strategic_metadata
 
@@ -817,7 +824,19 @@ def _generic_result_entry(
         diagnostic = _find_mapping_ancestor(result, path, "search_decision_diagnostics")
         origin = "search_derived"
         derivation = "direct"
-        references = (_reference("algorithm", "compatible_world_minimax_v1"),)
+        information_set_search = isinstance(diagnostic, Mapping) and diagnostic.get(
+            "requested_method"
+        ) == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+        references = (
+            _reference(
+                "algorithm",
+                (
+                    "bounded_information_set_policy_search_v1"
+                    if information_set_search
+                    else "compatible_world_minimax_v1"
+                ),
+            ),
+        )
         if isinstance(diagnostic, Mapping) and diagnostic.get("fallback_used") is True:
             if tokens[-1] == "recommendation_card":
                 origin = "heuristic_analysis"
@@ -829,6 +848,9 @@ def _generic_result_entry(
         )
         requested_method = (
             decision.get("requested_method") if isinstance(decision, Mapping) else None
+        )
+        information_set_search = (
+            requested_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
         )
         uses_immediate_evidence = effective_method == IMMEDIATE_EXPECTED_VALUE_METHOD or (
             requested_method == AUTO_METHOD and effective_method == NONE_EFFECTIVE_METHOD
@@ -852,7 +874,16 @@ def _generic_result_entry(
         else:
             origin = "search_derived"
             derivation = "direct"
-            references = (_reference("algorithm", "compatible_world_minimax_v1"),)
+            references = (
+                _reference(
+                    "algorithm",
+                    (
+                        "bounded_information_set_policy_search_v1"
+                        if information_set_search
+                        else "compatible_world_minimax_v1"
+                    ),
+                ),
+            )
     elif (
         top == "multi_step_result"
         and "summary" in tokens
@@ -868,7 +899,22 @@ def _generic_result_entry(
     ) or (top == "policy_comparison_result" and "recommendation_summary" in tokens):
         origin = "search_derived"
         derivation = "direct"
-        references = (_reference("algorithm", "compatible_world_minimax_v1"),)
+        summary = _find_mapping_ancestor(result, path, "recommendation_summary")
+        if summary is None and top == "multi_step_result":
+            summary = _find_mapping_ancestor(result, path, "summary")
+        information_set_search = isinstance(summary, Mapping) and summary.get(
+            "requested_method"
+        ) == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+        references = (
+            _reference(
+                "algorithm",
+                (
+                    "bounded_information_set_policy_search_v1"
+                    if information_set_search
+                    else "compatible_world_minimax_v1"
+                ),
+            ),
+        )
     elif top in {"multi_step_result", "policy_comparison_result"}:
         origin = "simulation_derived"
         references = (_reference("algorithm", "multi_step_simulation"),)
@@ -882,6 +928,15 @@ def _generic_result_entry(
                     origin = "search_derived"
                     derivation = "deterministic_rule"
                     references = (_reference("algorithm", "compatible_world_minimax_v1"),)
+                elif decision.get("effective_method") == INFORMATION_SET_SEARCH_EFFECTIVE_METHOD:
+                    origin = "search_derived"
+                    derivation = "deterministic_rule"
+                    references = (
+                        _reference(
+                            "algorithm",
+                            "bounded_information_set_policy_search_v1",
+                        ),
+                    )
                 elif decision.get("effective_method") == IMMEDIATE_EXPECTED_VALUE_METHOD:
                     origin = "heuristic_analysis"
                     derivation = "heuristic"
@@ -1021,7 +1076,7 @@ class LiveAnalysisProvenanceCollector:
         self._attachments: list[ApplicationProvenanceAttachment] = []
         self._search_entries_by_path: dict[str, FieldProvenanceEntry] = {}
         self._policy_recommendation_decisions: list[
-            tuple[str, MultiStepRecommendationDecision]
+            tuple[str, SearchAwareMultiStepDecision]
         ] = []
 
     def _capture(
@@ -1131,6 +1186,15 @@ class LiveAnalysisProvenanceCollector:
                     decision.bounded_search_result,
                     decision_index=decision.step_index,
                 )
+            elif type(decision) is InformationSetSearchMultiStepDecisionV1:
+                self._register_information_set_decision(
+                    (
+                        f"/multi_step_result/steps/{output_index}/"
+                        "recommendation_decision"
+                    ),
+                    decision,
+                    executed_card=step.get("candidate_card"),
+                )
         stopped = result.get("stopped_recommendation_decision")
         if isinstance(stopped, MultiStepRecommendationDecision):
             self._register_search_result(
@@ -1138,15 +1202,118 @@ class LiveAnalysisProvenanceCollector:
                 stopped.bounded_search_result,
                 decision_index=stopped.step_index,
             )
+        elif type(stopped) is InformationSetSearchMultiStepDecisionV1:
+            self._register_information_set_decision(
+                "/multi_step_result/stopped_recommendation_decision",
+                stopped,
+                executed_card=None,
+            )
 
     def retain_policy_comparison_recommendation_decision(
         self,
         policy: str,
-        decision: MultiStepRecommendationDecision,
+        decision: SearchAwareMultiStepDecision,
     ) -> None:
-        if not isinstance(decision, MultiStepRecommendationDecision):
+        if not isinstance(
+            decision,
+            (
+                MultiStepRecommendationDecision,
+                InformationSetSearchMultiStepDecisionV1,
+            ),
+        ):
             raise ValueError("Policy Comparison observer requires a recommendation decision.")
         self._policy_recommendation_decisions.append((policy, decision))
+
+    def _register_information_set_decision(
+        self,
+        path: str,
+        decision: InformationSetSearchMultiStepDecisionV1,
+        *,
+        executed_card: object,
+    ) -> None:
+        public_decision = (
+            build_serializable_information_set_search_multi_step_decision_v1(
+                decision,
+                executed_card=(executed_card if isinstance(executed_card, str) else None),
+            )
+        )
+        result_path = f"{path}/information_set_search_result"
+        for entry in build_information_set_search_provenance_entries(
+            public_decision["information_set_search_result"],
+            retained_result=decision.information_set_search_result,
+            field_path=result_path,
+            decision_index=decision.step_index,
+            perspective_player_id="me",
+            settings_reference=information_set_settings_reference(
+                "request",
+                "position_analysis_request",
+                field_path="/information_set_search_settings",
+            ),
+            fixed_policy_reference=information_set_settings_reference(
+                "algorithm",
+                "effective_opponent_policy",
+            ),
+        ):
+            if entry.field_path in self._search_entries_by_path:
+                raise ValueError(
+                    f"Duplicate Information-set Search provenance path: {entry.field_path}"
+                )
+            self._search_entries_by_path[entry.field_path] = entry
+
+        for field_name in (
+            "schema_version",
+            "step_index",
+            "requested_method",
+            "effective_method",
+            "search_attempted",
+            "recommendation_card",
+            "recommendation_reason",
+            "fallback_used",
+            "fallback_method",
+        ):
+            field_path = f"{path}/{field_name}"
+            origin = "search_derived"
+            derivation = "direct"
+            references = (
+                _reference(
+                    "algorithm",
+                    "bounded_information_set_policy_search_v1",
+                ),
+            )
+            if field_name == "requested_method":
+                origin = "validated_copy"
+                derivation = "validated"
+                references = (
+                    _reference(
+                        "request",
+                        "position_analysis_request",
+                        field_path="/recommendation_method",
+                    ),
+                )
+            elif field_name in {
+                "schema_version",
+                "step_index",
+                "search_attempted",
+                "fallback_used",
+                "fallback_method",
+            }:
+                origin = "rule_derived"
+                derivation = "deterministic_rule"
+                references = (
+                    _reference(
+                        "rule_contract",
+                        "information_set_search_multi_step_decision_v1",
+                    ),
+                )
+            self._search_entries_by_path[field_path] = _entry(
+                field_path,
+                origin=origin,
+                visibility="public",
+                derivation=derivation,
+                decision_index=decision.step_index,
+                source_references=references,
+                coverage_kind="field",
+            )
 
     def _register_search_result(
         self,
@@ -1174,7 +1341,7 @@ class LiveAnalysisProvenanceCollector:
         policy_results = comparison.get("policy_results")
         if not isinstance(policy_results, (list, tuple)):
             return
-        decisions_by_policy: dict[str, list[MultiStepRecommendationDecision]] = {}
+        decisions_by_policy: dict[str, list[SearchAwareMultiStepDecision]] = {}
         for policy, decision in self._policy_recommendation_decisions:
             decisions_by_policy.setdefault(policy, []).append(decision)
         for policy_index, policy_result in enumerate(policy_results):
@@ -1194,20 +1361,33 @@ class LiveAnalysisProvenanceCollector:
                     f"/policy_comparison_result/policy_results/{policy_index}/"
                     f"search_decision_diagnostics/{diagnostic_index}"
                 )
-                search = decision.bounded_search_result
+                information_set_search = (
+                    type(decision) is InformationSetSearchMultiStepDecisionV1
+                )
+                if information_set_search:
+                    public_search = decision.information_set_search_public_result
+                    search_method = public_search["search_method"]
+                    consumed = public_search["consumed_budget"]
+                    completed_world_count = consumed["completed_world_count"]
+                    world_coverage = public_search["world_coverage"]
+                else:
+                    search = decision.bounded_search_result
+                    search_method = search.search_method
+                    completed_world_count = search.consumed_budget.completed_world_count
+                    world_coverage = search.world_coverage
                 for relative_path in enumerate_json_leaf_paths(diagnostic):
                     path = f"{prefix}{relative_path}"
                     field_name = parse_json_pointer(relative_path)[-1]
                     origin = "search_derived"
                     derivation = "direct"
-                    references = (_reference("algorithm", search.search_method),)
+                    references = (_reference("algorithm", search_method),)
                     if field_name in {"selected_world_count", "completed_world_count"} and (
-                        search.consumed_budget.completed_world_count > 0
+                        completed_world_count > 0
                     ):
                         origin = "compatible_world_aggregate"
                         derivation = (
                             "sampled_aggregate"
-                            if search.world_coverage == "sampled_compatible_worlds"
+                            if world_coverage == "sampled_compatible_worlds"
                             else "exact_aggregate"
                         )
                     elif (
@@ -1223,7 +1403,7 @@ class LiveAnalysisProvenanceCollector:
                         origin = "heuristic_analysis"
                         derivation = "heuristic"
                         references = (
-                            _reference("algorithm", search.search_method),
+                            _reference("algorithm", search_method),
                             _reference("algorithm", "immediate_expected_value"),
                         )
                     self._search_entries_by_path[path] = _entry(

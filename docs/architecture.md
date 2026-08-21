@@ -343,6 +343,7 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/information_set_search_workflow.py` | Strict flat routing, exact nine-field settings, effective left/right fixed-Policy mapping, and no-fallback execution. |
 | `src/skat_ai/information_set_search_public.py` | Safe aggregate public Result projection without Worlds, Observations, or the private controlled Policy table. |
 | `src/skat_ai/information_set_search_comparison.py` | Retained same-selection PIMC and independent Immediate comparison with post-analysis actual-Card attachment. |
+| `src/skat_ai/information_set_search_multi_step.py` | Version-1 Multi-Step Decision, domain-separated child settings, safe serialization, and compact Policy Comparison diagnostics. |
 | `src/skat_ai/historical_information_set_search_review.py` | Information-safe Historical Decision execution, deterministic seeds, descriptive metrics, and breakdowns. |
 | `src/skat_ai/information_set_search_evaluation.py` | Stable Dataset-v1 validation/test selection, global Decision cap, and no-training aggregate evaluation. |
 | `src/skat_ai/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
@@ -637,7 +638,7 @@ boundaries](claim_and_settlement_v1_boundaries.md).
 | `src/skat_ai/simulation_step.py`       | Single simulation-step handling.                       |
 | `src/skat_ai/state_transition.py`      | Applies card plays and transitions game state.         |
 | `src/skat_ai/multi_step_simulation.py` | Multi-step simulation orchestration.                   |
-| `src/skat_ai/multi_step_recommendation.py` | Immutable privacy-safe Search decision and compact comparison diagnostics. |
+| `src/skat_ai/multi_step_recommendation.py` | Immutable privacy-safe compatible-world Search decision and compact comparison diagnostics. |
 | `src/skat_ai/multi_step_summary.py`    | Serializable multi-step result summaries.              |
 | `src/skat_ai/search_budget_profiles.py` | Immutable versioned Search budgets for interactive, historical-review, and evaluation workflows. |
 | `src/skat_ai/retrospective_search_comparison.py` | Search actual-card and Search-versus-Immediate aggregate comparisons. |
@@ -692,6 +693,13 @@ ordinary coherent transition. Search runs again at every local decision with a
 fresh copy of the requested budget and a child of
 `multi_step_bounded_search_decision_v1`.
 
+Issue #190 adds strict `information_set_search` through the same public decision
+boundary. Each local call changes only the world-selection seed through
+`multi_step_information_set_search_decision_v1`, constructs fresh Search Worlds,
+and retains no selected World or controlled Policy for another step. A missing
+recommendation stops before local play with no fallback. The coherent execution
+World stays private and independent of every Search selection.
+
 Seeded root sampling, opponent actions, and per-step expected-value samples use
 stable separate derived streams. Policy Comparison samples one shared root and
 gives equal independent immutable copies to all policy paths. Serialization
@@ -702,9 +710,12 @@ root. See [Hidden-card inference](hidden_card_inference.md) and
 [Coherent hidden-world simulation](coherent_hidden_world_simulation.md).
 
 Policy Comparison retains the four legacy defaults. Explicit Search appends
-exactly the configured strict or auto method last. Every result remains visible,
-but a Search path stopped without a recommendation is marked ineligible, sorted
-after eligible paths, and excluded from the recommended-policy selection.
+exactly the configured `bounded_search`, `auto`, or `information_set_search`
+method last. Every result remains visible, but a Search path stopped without a
+recommendation is marked ineligible, sorted after eligible paths, and excluded
+from the recommended-policy selection. All paths receive independent copies of
+one shared coherent root; the Information-set path still performs fresh public-
+state Search and emits only its safe Decision Result and 16-field diagnostics.
 
 Flat post-game Search retains the normal Search recommendation but reruns
 Immediate independently from the same public position. The existing Immediate
@@ -746,12 +757,14 @@ Historical Review, and Training Dataset evaluation run PIMC only on the exact
 retained selection, run Immediate independently, and attach the actual Card
 afterward. Existing `auto` remains compatible-world PIMC followed by its existing
 Immediate fallback. Public output and opt-in Provenance omit private Worlds,
-Observations, hands, controlled Policy tables, caches, and seeds. Multi-Step,
-Policy Comparison, Match Capture, Strategy Teacher Evidence, and Replay Coaching
-classification remain unchanged pending Issue #190. See [Information-set Search
-contracts](information_set_search_contracts.md), the [Information-set Search
-executor](information_set_search_executor.md), and [Information-set Search
-workflows](information_set_search_workflows.md).
+Observations, hands, controlled Policy tables, caches, and seeds. Issue #190 adds
+strict Multi-Step and Policy Comparison integration with retained-Result complete
+provenance, without changing `auto`. Match Capture, Match Analysis Reports,
+Strategy Teacher Evidence, Replay Coaching classification, and performance
+integration remain open. See [Information-set Search contracts](information_set_search_contracts.md),
+the [Information-set Search executor](information_set_search_executor.md),
+[Information-set Search workflows](information_set_search_workflows.md), and
+[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the

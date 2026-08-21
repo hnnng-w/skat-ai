@@ -1,8 +1,60 @@
 """Multi-step and policy-comparison presentation."""
 
+from collections.abc import Mapping
 from typing import Any
 
 from skat_ai.cli.presentation.common import print_hidden_card_inference_summary
+
+
+def _search_decision_details(
+    decision: object,
+) -> tuple[str, str, str, str, int, int, bool, str | None, str | None]:
+    if isinstance(decision, dict):
+        search = decision.get("bounded_search_result") or decision.get(
+            "information_set_search_result"
+        )
+        if not isinstance(search, dict):
+            raise ValueError("Search-aware decision has no safe Search Result.")
+        consumed = search["consumed_budget"]
+        return (
+            decision["requested_method"],
+            decision["effective_method"],
+            search["status"],
+            search["stop_reason"],
+            consumed["completed_world_count"],
+            consumed["selected_world_count"],
+            decision["fallback_used"],
+            decision["fallback_method"],
+            decision["recommendation_card"],
+        )
+
+    search = getattr(decision, "bounded_search_result", None)
+    if search is not None:
+        consumed = search.consumed_budget
+        search_status = search.status
+        search_stop_reason = search.stop_reason
+        completed_world_count = consumed.completed_world_count
+        selected_world_count = consumed.selected_world_count
+    else:
+        public_search = getattr(decision, "information_set_search_public_result", None)
+        if not isinstance(public_search, Mapping):
+            raise ValueError("Search-aware decision has no safe Search Result.")
+        consumed = public_search["consumed_budget"]
+        search_status = public_search["status"]
+        search_stop_reason = public_search["stop_reason"]
+        completed_world_count = consumed["completed_world_count"]
+        selected_world_count = consumed["selected_world_count"]
+    return (
+        decision.requested_method,
+        decision.effective_method,
+        search_status,
+        search_stop_reason,
+        completed_world_count,
+        selected_world_count,
+        decision.fallback_used,
+        decision.fallback_method,
+        decision.recommendation_card,
+    )
 
 
 def print_multi_step_result(result: dict[str, Any]) -> None:
@@ -66,30 +118,17 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
 
         decision = step.get("recommendation_decision")
         if decision is not None:
-            if isinstance(decision, dict):
-                search = decision["bounded_search_result"]
-                consumed = search["consumed_budget"]
-                requested_method = decision["requested_method"]
-                effective_method = decision["effective_method"]
-                search_status = search["status"]
-                search_stop_reason = search["stop_reason"]
-                completed_world_count = consumed["completed_world_count"]
-                selected_world_count = consumed["selected_world_count"]
-                fallback_used = decision["fallback_used"]
-                fallback_method = decision["fallback_method"]
-                recommendation_card = decision["recommendation_card"]
-            else:
-                search = decision.bounded_search_result
-                consumed = search.consumed_budget
-                requested_method = decision.requested_method
-                effective_method = decision.effective_method
-                search_status = search.status
-                search_stop_reason = search.stop_reason
-                completed_world_count = consumed.completed_world_count
-                selected_world_count = consumed.selected_world_count
-                fallback_used = decision.fallback_used
-                fallback_method = decision.fallback_method
-                recommendation_card = decision.recommendation_card
+            (
+                requested_method,
+                effective_method,
+                search_status,
+                search_stop_reason,
+                completed_world_count,
+                selected_world_count,
+                fallback_used,
+                fallback_method,
+                recommendation_card,
+            ) = _search_decision_details(decision)
             print("Requested recommendation method:", requested_method)
             print("Effective recommendation method:", effective_method)
             print("Search status:", search_status)
@@ -124,26 +163,22 @@ def print_multi_step_result(result: dict[str, Any]) -> None:
 
     stopped_decision = result.get("stopped_recommendation_decision")
     if stopped_decision is not None:
-        if isinstance(stopped_decision, dict):
-            search = stopped_decision["bounded_search_result"]
-            consumed = search["consumed_budget"]
-            step_index = stopped_decision["step_index"]
-            requested_method = stopped_decision["requested_method"]
-            effective_method = stopped_decision["effective_method"]
-            search_status = search["status"]
-            search_stop_reason = search["stop_reason"]
-            completed_world_count = consumed["completed_world_count"]
-            selected_world_count = consumed["selected_world_count"]
-        else:
-            search = stopped_decision.bounded_search_result
-            consumed = search.consumed_budget
-            step_index = stopped_decision.step_index
-            requested_method = stopped_decision.requested_method
-            effective_method = stopped_decision.effective_method
-            search_status = search.status
-            search_stop_reason = search.stop_reason
-            completed_world_count = consumed.completed_world_count
-            selected_world_count = consumed.selected_world_count
+        step_index = (
+            stopped_decision["step_index"]
+            if isinstance(stopped_decision, dict)
+            else stopped_decision.step_index
+        )
+        (
+            requested_method,
+            effective_method,
+            search_status,
+            search_stop_reason,
+            completed_world_count,
+            selected_world_count,
+            _fallback_used,
+            _fallback_method,
+            _recommendation_card,
+        ) = _search_decision_details(stopped_decision)
         print()
         print("Stopped recommendation decision:", step_index)
         print("Requested recommendation method:", requested_method)
@@ -260,6 +295,13 @@ def print_multi_step_score_summary(summary: dict[str, Any]) -> None:
     print("Stop reason:", summary["stop_reason"])
     print("Card selection policy:", summary["card_selection_policy"])
     print("Strict context:", summary["strict_context"])
+    if "requested_method" in summary:
+        print("Requested recommendation method:", summary["requested_method"])
+        print("Recommendation decisions attempted:", summary["decisions_attempted"])
+        print("Recommendation decisions executed:", summary["decisions_executed"])
+        print("Search recommendations used:", summary["search_recommendations_used"])
+        print("Immediate fallbacks used:", summary["immediate_fallbacks_used"])
+        print("No-recommendation decisions:", summary["no_recommendation_count"])
     print("Initial declarer points:", score_summary["initial_declarer_points"])
     print("Initial defender points:", score_summary["initial_defender_points"])
     print("Final declarer points:", score_summary["final_declarer_points"])

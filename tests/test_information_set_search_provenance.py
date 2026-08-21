@@ -10,6 +10,7 @@ from skat_ai.api.v1 import ExecutionOptionsV1, execute_document
 from skat_ai.application import (
     ApplicationExecutionOptions,
     HistoricalGameApplicationOptions,
+    PositionAnalysisApplicationOptions,
     TrainingDatasetApplicationOptions,
     build_application_invocation,
     execute_application_invocation,
@@ -347,6 +348,80 @@ def test_public_opt_in_provenance_is_additive_and_omission_is_unchanged() -> Non
             "root_information_set",
             "own_remaining_hand",
         }.isdisjoint(_all_keys(opted_in.field_provenance.to_dict()))
+
+
+def test_multi_step_and_policy_comparison_use_retained_safe_search_provenance() -> None:
+    source = _position(post_game=False)
+    execution = execute_application_invocation(
+        build_application_invocation(
+            source,
+            input_reference="memory://information-set-multi-step-provenance",
+            options=ApplicationExecutionOptions(
+                position_analysis=PositionAnalysisApplicationOptions(
+                    multi_step_count=1,
+                    compare_policies=True,
+                )
+            ),
+        )
+    )
+    _assert_complete_bundle(execution)
+    root = _attachment(execution, "position_result")
+    multi_step_input = _attachment(execution, "multi_step_decision/0")
+    information_policy_input = next(
+        attachment
+        for attachment in execution.provenance.attachments
+        if attachment.name.startswith("policy_comparison_decision/")
+        and "/information_set_search/" in attachment.name
+    )
+
+    assert multi_step_input.document["selection"]["settings"][
+        "information_set_search_settings"
+    ] == INFORMATION_SET_SETTINGS
+    assert information_policy_input.document["selection"]["settings"][
+        "information_set_search_settings"
+    ] == INFORMATION_SET_SETTINGS
+
+    multi_status = _entry(
+        root,
+        (
+            "/multi_step_result/steps/0/recommendation_decision/"
+            "information_set_search_result/status"
+        ),
+    )
+    requested_method = _entry(
+        root,
+        "/multi_step_result/steps/0/recommendation_decision/requested_method",
+    )
+    diagnostic_status = next(
+        entry
+        for entry in root.ledger.entries
+        if entry.field_path.startswith(
+            "/policy_comparison_result/policy_results/"
+        )
+        and entry.field_path.endswith("/search_decision_diagnostics/0/search_status")
+    )
+    assert multi_status.source_references[0].reference_id == (
+        "bounded_information_set_policy_search_v1"
+    )
+    assert requested_method.origin == "validated_copy"
+    assert requested_method.source_references[0].field_path == "/recommendation_method"
+    assert diagnostic_status.source_references[0].reference_id == (
+        "bounded_information_set_policy_search_v1"
+    )
+
+    private_names = {
+        "controlled_policy",
+        "information_set",
+        "observation",
+        "world_states",
+        "root_information_set",
+        "own_remaining_hand",
+        "world_selection_seed",
+    }
+    assert private_names.isdisjoint(_all_keys(execution.result.to_dict()["document"]))
+    public = build_public_field_provenance_bundle(execution)
+    assert public.result.coverage_summary["provenance_complete"] is True
+    assert private_names.isdisjoint(_all_keys(public.to_dict()))
 
 
 def test_historical_review_provenance_uses_retained_summary_without_rerun() -> None:
