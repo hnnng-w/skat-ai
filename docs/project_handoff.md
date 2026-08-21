@@ -39,6 +39,8 @@ The project focuses on:
   three examples, and generated-output coverage
 * JSON input/output for regression-friendly testing
 * bounded Search post-game, historical-review, and dataset-evaluation workflows
+* strict flat Information-set Search plus descriptive same-selection post-game,
+  Historical Review, and Training Dataset evaluation workflows
 * immutable version-3 Settlement Normative Matrix with 61 preserved cases, one
   supported bounded Historical party-wide Claim, and durable v1 Claim exclusions
 * private immutable version-1 structured party-wide Claim, complete Evidence,
@@ -1471,8 +1473,9 @@ publication record; no Package-index or PyPI publication is claimed.
 The current unreleased working baseline keeps Package version `0.16.0`, Python
 `>=3.13`, Public API contract version `1`, seven Root workflows, one Console
 Script, and six Session examples. Issue #186 updates the Matrix to version `3`
-with the same 61 cases and brings the working totals to 65 authoritative and
-packaged Schemas and 88 generated-output scenarios. The published `v0.16.0`
+with the same 61 cases. Issue #189 adds four Information-set Search Schemas, one
+example, and four generated-output scenarios, bringing the working totals to 69
+authoritative and packaged Schemas and 92 scenarios. The published `v0.16.0`
 counts above remain unchanged Release facts.
 
 Historical published `v0.15.0` Release theme: "Local EuroSkat 36er Match
@@ -1524,12 +1527,17 @@ Settlement runtime slice through Historical Game input only. All other current
 Claim boundaries remain durable v1 exclusions. Session, Match Capture, and Corpus
 Claim entry remain open. Stronger information-set Search
 and Strategy Fusion mitigation now include Issue #187's private contracts and
-Issue #188's bounded selected-world controlled-Player executor. Comparison,
-routing, workflow integration, tactical and cross-game Coaching, carefully
+Issue #188's bounded selected-world controlled-Player executor. Issue #189 adds
+strict flat routing, same-selection PIMC plus independently seeded Immediate
+retrospective comparison, separate Historical Review and Training Dataset
+evaluation, safe public Results, retained-stage Provenance, CLI, Schemas, an
+example, and generated scenarios. Multi-Step, Policy Comparison, Match Capture,
+Strategy Teacher, Replay Coaching classification, and performance evidence remain
+open for Issue #190 or later work. Tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
-integration, performance and latency evidence, and the remaining pre-v1 scope
-audit. Final Issue titles, count, architecture, solver design, Rating boundary,
-Coaching taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
+integration, and the remaining pre-v1 scope audit also remain open. Final Issue
+titles, count, architecture, solver design, Rating boundary, Coaching taxonomy,
+and Release date are not finalized. `v1.0.0` remains unready.
 
 Historical published Package milestone: `v0.15.0`, providing usable manual post-
 game capture of one EuroSkat 36er Standard Match from descriptive video evidence.
@@ -1812,6 +1820,10 @@ Completed implementation scope:
 * exact compatible-world counting, canonical enumeration, deterministic IID sampling with replacement, retained duplicate weighting, and common-prefix aggregation
 * live, Multi-Step, Policy Comparison, post-game, Historical Search Review, and dataset-evaluation integration
 * immutable budget profiles, quality and convergence fixtures, and deterministic measured reference performance
+* private bounded Information-set Policy Search with strict flat routing, safe
+  aggregate Results, same-selection PIMC and independent Immediate retrospective
+  comparison, separate Historical Review and Training Dataset evaluation,
+  retained-stage Provenance, CLI, four Schemas, one example, and four scenarios
 * immutable 61-case Settlement Normative Matrix version `3` with direct,
   bounded, legacy, one supported bounded Historical Claim, and durable v1
   exclusion classifications
@@ -1972,13 +1984,15 @@ Completed implementation scope:
   rollout, equal-Observation grouping, exhaustive canonical controlled actions,
   existing exact terminal utility and Candidate ranking, complete contingent
   controlled Policies, conservative partial/timeout Results, and invocation-
-  local World and ordered-bundle memoization. It changes no route. Compatible-world Minimax
-  evaluates the frozen selected sequence and aggregates one exact common prefix,
-  but it is determinization-based and subject to strategy fusion. It is not an
-  optimal imperfect-information policy proof. Explicit live methods, opt-in
-  Multi-Step and Policy Comparison, flat post-game review, Historical Search
-  Review, and bounded dataset evaluation are connected. Overbid Null replacement
-  selection remains outside it.
+  local World and ordered-bundle memoization. Issue #189 routes strict flat
+  Information-set Search and adds descriptive same-selection post-game,
+  Historical Review, and Training Dataset evaluation. Multi-Step, Policy
+  Comparison, Match Capture, Strategy Teacher, and Replay Coaching classification
+  integration remain open. Compatible-world Minimax evaluates the frozen selected
+  sequence and aggregates one exact common prefix, but it is determinization-based
+  and subject to strategy fusion. Neither method is an optimal imperfect-
+  information policy proof. Overbid Null replacement selection remains outside
+  both methods.
 * The immutable fixed-three-player 36-position historical-list contracts now
   include Passed Deals, cumulative aggregation, progression, final SkWO
   standings, unresolved ties, exact external-lot application, and independent-
@@ -2071,9 +2085,12 @@ Issue #184 completes dedicated bounded proof traversal, and Issue #185 completes
 private adjudication and Settlement composition. Issue #186 completes the
 Historical-only runtime integration without broadening the durable v1
 exclusions. Issue #187 defines the private information-set Search foundation;
-Issue #188 adds the bounded Policy Search executor. PIMC and Immediate
-comparison, recommendation routing, later workflow integration, and performance
-evidence are the next functional steps.
+Issue #188 adds the bounded Policy Search executor. Issue #189 adds strict flat
+routing, descriptive PIMC and Immediate comparison, separate Historical Review
+and Training Dataset evaluation, safe output, Provenance, CLI, Schemas, example,
+and scenario coverage. Issue #190 or later work should decide Multi-Step, Policy
+Comparison, Match Capture, Strategy Teacher, Replay Coaching classification, and
+performance evidence integration without changing existing `auto` implicitly.
 Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived
 artifacts.

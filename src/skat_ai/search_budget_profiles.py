@@ -2,6 +2,10 @@ from types import MappingProxyType
 from typing import Final
 
 from skat_ai.bounded_search_result import RequestedSearchBudget
+from skat_ai.information_set_search_contracts import (
+    INFORMATION_SET_SEARCH_BUDGET_VERSION,
+    InformationSetSearchBudgetV1,
+)
 
 INTERACTIVE_SEARCH_BUDGET_PROFILE = "interactive_v1"
 HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE = "historical_review_v1"
@@ -54,3 +58,31 @@ def get_search_budget_profile(profile_identifier: str) -> RequestedSearchBudget:
         raise ValueError(
             f"Unknown Search budget profile: {profile_identifier}"
         ) from exc
+
+
+def convert_requested_search_budget_to_information_set_search_budget_v1(
+    budget: RequestedSearchBudget,
+) -> InformationSetSearchBudgetV1:
+    """Applies the version-1 structural retrospective budget mapping."""
+    if type(budget) is not RequestedSearchBudget:
+        raise ValueError("budget must be a RequestedSearchBudget.")
+    return InformationSetSearchBudgetV1(
+        information_set_search_budget_version=INFORMATION_SET_SEARCH_BUDGET_VERSION,
+        max_remaining_tricks=min(3, budget.max_remaining_tricks),
+        max_depth_plies=min(9, budget.max_depth_plies),
+        max_state_nodes=budget.max_nodes,
+        max_information_sets=budget.max_nodes,
+        max_selected_worlds=budget.max_selected_worlds,
+        max_sampled_worlds=budget.max_sampled_worlds,
+        minimum_comparable_worlds=budget.minimum_comparable_worlds,
+        wall_clock_timeout_ms=budget.wall_clock_timeout_ms,
+    )
+
+
+def get_information_set_search_budget_profile(
+    profile_identifier: str,
+) -> InformationSetSearchBudgetV1:
+    """Converts one existing named profile without adding or changing profiles."""
+    return convert_requested_search_budget_to_information_set_search_budget_v1(
+        get_search_budget_profile(profile_identifier)
+    )

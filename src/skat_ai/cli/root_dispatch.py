@@ -17,6 +17,10 @@ from skat_ai.errors import (
     CLI_EXIT_CODE_SUCCESS,
     CLI_EXIT_CODE_USAGE,
 )
+from skat_ai.information_set_search_evaluation import (
+    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS,
+    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PROFILE,
+)
 from skat_ai.rolling_opponent_policy_evaluation import (
     DEFAULT_EVALUATION_PARTITIONS,
     DEFAULT_SOURCE_PARTITIONS,
@@ -43,27 +47,19 @@ def _run_cli(
         input_data = _legacy_patch_value("load_json_object")(args.input)
         workflow = _legacy_patch_value("get_input_workflow")(input_data)
         if workflow == "training_dataset_preparation":
-            _legacy_patch_value("validate_training_dataset_preparation_cli_arguments")(
-                args
-            )
+            _legacy_patch_value("validate_training_dataset_preparation_cli_arguments")(args)
         else:
             _legacy_patch_value("validate_cli_arguments")(args, workflow=workflow)
         if workflow == "fixed_three_player_historical_list_comparison":
-            _legacy_patch_value(
-                "validate_fixed_three_player_historical_list_cli_arguments"
-            )(args)
-            _legacy_patch_value(
-                "run_json_fixed_three_player_historical_list_comparison"
-            )(
+            _legacy_patch_value("validate_fixed_three_player_historical_list_cli_arguments")(args)
+            _legacy_patch_value("run_json_fixed_three_player_historical_list_comparison")(
                 file_path=args.input,
                 output_path=args.output,
                 quiet=args.quiet,
                 include_provenance=args.include_provenance,
             )
         elif workflow == "fixed_three_player_historical_list":
-            _legacy_patch_value(
-                "validate_fixed_three_player_historical_list_cli_arguments"
-            )(args)
+            _legacy_patch_value("validate_fixed_three_player_historical_list_cli_arguments")(args)
             _legacy_patch_value("run_json_fixed_three_player_historical_list_analysis")(
                 file_path=args.input,
                 output_path=args.output,
@@ -87,7 +83,24 @@ def _run_cli(
             )
         elif workflow == "training_dataset":
             _legacy_patch_value("validate_training_dataset_cli_arguments")(args)
-            if args.evaluate_bounded_search:
+            if args.information_set_search_evaluation:
+                _legacy_patch_value("run_json_information_set_search_evaluation")(
+                    file_path=args.input,
+                    search_seed=args.search_seed,
+                    partitions=tuple(
+                        args.search_evaluation_partition
+                        or DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS
+                    ),
+                    search_budget_profile=(
+                        args.search_budget_profile
+                        or DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PROFILE
+                    ),
+                    max_decisions=args.search_evaluation_max_decisions,
+                    output_path=args.output,
+                    quiet=args.quiet,
+                    include_provenance=args.include_provenance,
+                )
+            elif args.evaluate_bounded_search:
                 _legacy_patch_value("run_json_bounded_search_evaluation")(
                     file_path=args.input,
                     search_seed=args.search_seed,
@@ -96,8 +109,7 @@ def _run_cli(
                         or DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS
                     ),
                     search_budget_profile=(
-                        args.search_budget_profile
-                        or EVALUATION_SEARCH_BUDGET_PROFILE
+                        args.search_budget_profile or EVALUATION_SEARCH_BUDGET_PROFILE
                     ),
                     max_decisions=args.search_evaluation_max_decisions,
                     output_path=args.output,
@@ -126,9 +138,7 @@ def _run_cli(
                     include_provenance=args.include_provenance,
                 )
             elif args.aggregate_opponent_statistics:
-                _legacy_patch_value(
-                    "run_json_historical_opponent_statistics_aggregation"
-                )(
+                _legacy_patch_value("run_json_historical_opponent_statistics_aggregation")(
                     file_path=args.input,
                     included_partitions=(
                         tuple(args.opponent_statistics_partition)
@@ -158,11 +168,13 @@ def _run_cli(
                 historical_decision_snapshots=args.historical_decision_snapshots,
                 historical_game_review=args.historical_game_review,
                 historical_search_review=args.historical_search_review,
+                historical_information_set_search_review=(
+                    args.historical_information_set_search_review
+                ),
                 historical_replay_coaching=args.historical_replay_coaching,
                 search_seed=args.search_seed,
                 search_budget_profile=(
-                    args.search_budget_profile
-                    or HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
+                    args.search_budget_profile or HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
                 ),
                 sample_count=args.samples,
                 base_random_seed=args.seed,
@@ -183,13 +195,13 @@ def _run_cli(
             if args.historical_game_review:
                 raise CliUsageError("--historical-game-review requires historical-game input.")
             if args.historical_search_review:
+                raise CliUsageError("--historical-search-review requires historical-game input.")
+            if args.historical_information_set_search_review:
                 raise CliUsageError(
-                    "--historical-search-review requires historical-game input."
+                    "--historical-information-set-search-review requires historical-game input."
                 )
             if args.historical_replay_coaching:
-                raise CliUsageError(
-                    "--historical-replay-coaching requires historical-game input."
-                )
+                raise CliUsageError("--historical-replay-coaching requires historical-game input.")
             _legacy_patch_value("run_json_position_analysis")(
                 file_path=args.input,
                 sample_count_override=args.samples,

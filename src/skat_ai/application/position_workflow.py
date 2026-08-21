@@ -12,6 +12,9 @@ from skat_ai.bounded_search_post_game_review import (
 )
 from skat_ai.bounded_search_result import build_serializable_bounded_search_result
 from skat_ai.card_selection import SEARCH_AWARE_MULTI_STEP_POLICIES
+from skat_ai.compatible_world_minimax import (
+    solve_compatible_world_minimax_on_selection_v1,
+)
 from skat_ai.declarer_card_exposure import (
     DeclarerCardExposure,
     adjudicate_accepted_declarer_card_exposure,
@@ -54,6 +57,15 @@ from skat_ai.impossible_null_settlement import (
     build_serializable_impossible_null_settlement_summary,
 )
 from skat_ai.information_policy import build_information_policy_summary
+from skat_ai.information_set_search_comparison import (
+    attach_actual_card_to_information_set_search_comparison_v1,
+    build_information_set_search_comparison_pre_actual_analysis_v1,
+    build_serializable_information_set_search_comparison_v1,
+)
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+    convert_information_set_search_budget_to_requested_search_budget_v1,
+)
 from skat_ai.information_view import build_local_analysis_input
 from skat_ai.input_loader import (
     build_game_state_from_input,
@@ -111,6 +123,7 @@ from skat_ai.recommendation_workflow import (
     RecommendationMethodConfiguration,
     build_recommendation_method_summary,
     build_serializable_bounded_search_settings,
+    build_serializable_information_set_search_settings,
     execute_recommendation_workflow,
 )
 from skat_ai.recommender import recommend_card_by_expected_value
@@ -316,7 +329,13 @@ def _build_position_analysis_result(
     opponent_response_policy_by_player = (
         effective_opponent_policy_settings.immediate_response_policy_by_player
     )
-    actual_card_played = get_actual_card_played_from_input(data)
+    is_information_set_search = (
+        recommendation_configuration.requested_method
+        == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+    )
+    actual_card_played = (
+        None if is_information_set_search else get_actual_card_played_from_input(data)
+    )
     game_shortening = get_game_shortening_from_input(data)
     game_continuation = get_game_continuation_from_input(data)
     continuation_context = (
@@ -405,6 +424,24 @@ def _build_position_analysis_result(
     )
 
     if provenance_collector is not None:
+        selection_settings = build_safe_selection_settings(
+            sample_count=settings["sample_count"],
+            use_basic_opponent_strategy=settings[
+                "use_basic_opponent_strategy"
+            ],
+            opponent_response_policy_by_player=(
+                opponent_response_policy_by_player
+            ),
+            requested_search_budget=(
+                recommendation_configuration.requested_search_budget
+            ),
+        )
+        if is_information_set_search:
+            selection_settings["information_set_search_settings"] = (
+                build_serializable_information_set_search_settings(
+                    recommendation_configuration
+                )
+            )
         provenance_collector.capture_flat_decision(
             state=state,
             left_hand_size=settings["left_hand_size"],
@@ -414,18 +451,7 @@ def _build_position_analysis_result(
             game_declaration=game_declaration,
             decision_index=0,
             selection_method=recommendation_configuration.requested_method,
-            selection_settings=build_safe_selection_settings(
-                sample_count=settings["sample_count"],
-                use_basic_opponent_strategy=settings[
-                    "use_basic_opponent_strategy"
-                ],
-                opponent_response_policy_by_player=(
-                    opponent_response_policy_by_player
-                ),
-                requested_search_budget=(
-                    recommendation_configuration.requested_search_budget
-                ),
-            ),
+            selection_settings=selection_settings,
         )
 
     recommendation_workflow = execute_recommendation_workflow(
@@ -447,6 +473,7 @@ def _build_position_analysis_result(
         report_builder=dependencies.report_builder,
         summary_builder=dependencies.strategic_summary_builder,
         unavailable_summary_builder=dependencies.unavailable_summary_builder,
+        effective_opponent_policy_settings=effective_opponent_policy_settings,
     )
     if provenance_collector is not None:
         provenance_collector.retain_flat_recommendation_result(
@@ -460,7 +487,102 @@ def _build_position_analysis_result(
     hidden_card_inference_model = recommendation_workflow.hidden_card_inference_model
 
     bounded_search_post_game_review_summary = None
+    information_set_search_comparison = None
     immediate_review_report = report
+    if (
+        is_information_set_search
+        and analysis_metadata.strategic_metadata.analysis_mode == "post_game_review"
+    ):
+        information_set_workflow = (
+            recommendation_workflow.information_set_search_workflow
+        )
+        if information_set_workflow is None:
+            raise ValueError(
+                "Post-game Information-set Search requires its retained workflow."
+            )
+        preparation = information_set_workflow.preparation
+        pimc_result = None
+        same_selected_world_sequence = False
+        if (
+            preparation is not None
+            and preparation.world_selection is not None
+            and preparation.world_selection.available
+        ):
+            if information_set_workflow.request is None:
+                raise ValueError(
+                    "Available Information-set Search preparation requires its request."
+                )
+            pimc_result = solve_compatible_world_minimax_on_selection_v1(
+                information_view=information_set_workflow.request.information_view,
+                requested_budget=(
+                    convert_information_set_search_budget_to_requested_search_budget_v1(
+                        information_set_workflow.request.requested_budget
+                    )
+                ),
+                selection=preparation.world_selection,
+            )
+            same_selected_world_sequence = True
+        immediate_baseline = execute_recommendation_workflow(
+            configuration=RecommendationMethodConfiguration(
+                explicitly_supplied=True,
+                requested_method=IMMEDIATE_EXPECTED_VALUE_METHOD,
+            ),
+            state=state,
+            declaration=game_declaration,
+            left_hand_size=settings["left_hand_size"],
+            right_hand_size=settings["right_hand_size"],
+            sample_count=settings["sample_count"],
+            immediate_random_seed=settings["random_seed"],
+            use_basic_opponent_strategy=settings["use_basic_opponent_strategy"],
+            opponent_response_policy_by_player=opponent_response_policy_by_player,
+            public_hand_constraints=public_hand_constraints,
+            skat_visibility=analysis_metadata.strategic_metadata.skat_visibility,
+            immediate_unavailable_reason=immediate_unavailable_reason,
+            legal_cards_builder=get_legal_cards,
+            hidden_model_builder=build_hidden_card_inference_model,
+            immediate_recommender=dependencies.immediate_recommender,
+            report_builder=dependencies.report_builder,
+            summary_builder=dependencies.strategic_summary_builder,
+            unavailable_summary_builder=dependencies.unavailable_summary_builder,
+            effective_opponent_policy_settings=effective_opponent_policy_settings,
+        )
+        immediate_review_report = list(immediate_baseline.analysis_report)
+        retain_baseline = getattr(
+            provenance_collector,
+            "retain_flat_immediate_baseline",
+            None,
+        )
+        if retain_baseline is not None:
+            retain_baseline(immediate_baseline)
+        pre_actual_comparison = (
+            build_information_set_search_comparison_pre_actual_analysis_v1(
+                information_set_result=(
+                    recommendation_workflow.information_set_search_result
+                ),
+                pimc_result=pimc_result,
+                immediate_recommended_card=immediate_baseline.recommendation_card,
+                same_selected_world_sequence=same_selected_world_sequence,
+            )
+        )
+        retain_pre_actual = getattr(
+            provenance_collector,
+            "retain_flat_information_set_search_pre_actual_analysis",
+            None,
+        )
+        if retain_pre_actual is not None:
+            retain_pre_actual(pre_actual_comparison)
+        actual_card_played = get_actual_card_played_from_input(data)
+        retained_information_set_search_comparison = (
+            attach_actual_card_to_information_set_search_comparison_v1(
+                pre_actual_comparison,
+                actual_card_played,
+            )
+        )
+        information_set_search_comparison = (
+            build_serializable_information_set_search_comparison_v1(
+                retained_information_set_search_comparison
+            )
+        )
     if (
         recommendation_configuration.requested_method
         in SEARCH_RECOMMENDATION_METHODS
@@ -531,6 +653,9 @@ def _build_position_analysis_result(
             post_game_review_summary=post_game_review_summary,
             bounded_search_post_game_review_summary=(
                 bounded_search_post_game_review_summary
+            ),
+            information_set_search_comparison=(
+                information_set_search_comparison
             ),
         )
     score_summary = build_score_summary(state)
@@ -701,6 +826,12 @@ def _build_position_analysis_result(
                 recommendation_configuration
             )
         )
+        if is_information_set_search:
+            settings["information_set_search_settings"] = (
+                build_serializable_information_set_search_settings(
+                    recommendation_configuration
+                )
+            )
         result["recommendation_method_summary"] = (
             build_recommendation_method_summary(recommendation_workflow)
         )
@@ -711,9 +842,17 @@ def _build_position_analysis_result(
             if recommendation_workflow.bounded_search_result is not None
             else None
         )
+        if is_information_set_search:
+            result["information_set_search_result"] = (
+                recommendation_workflow.information_set_search_public_result
+            )
     if bounded_search_post_game_review_summary is not None:
         result["bounded_search_post_game_review_summary"] = (
             bounded_search_post_game_review_summary
+        )
+    if information_set_search_comparison is not None:
+        result["information_set_search_comparison"] = (
+            information_set_search_comparison
         )
     if list_performance_summary is not None:
         result["list_performance_summary"] = list_performance_summary

@@ -14,10 +14,10 @@ INFORMATION_SET_SEARCH_EXECUTOR_VERSION = 1
 selected_world_information_set_best_response_v1
 ```
 
-The implementation is private in
-`src/skat_ai/information_set_search_executor.py`. It adds no existing Search
-method, route, fallback, profile, Public API, CLI, Schema, example, generated
-scenario, or Package-version change.
+The implementation remains private in
+`src/skat_ai/information_set_search_executor.py`. Issue #189 calls it through a
+new strict flat method and separate retrospective workflows without changing its
+algorithm, contracts, or Package version.
 
 ## Selected-world best response
 
@@ -173,12 +173,20 @@ joint Defender Policy, cover unselected Worlds, or provide globally optimal or
 complete-contract Skat play.
 
 Existing `compatible_world_minimax_v1` remains unchanged and retains its broader
-per-World Strategy-Fusion limitation. Issue #188 does not compare or route the
-new private Result against PIMC or Immediate.
+per-World Strategy-Fusion limitation. Issue #189 can compare the retained Result
+descriptively with PIMC on the same retained selection and with an independently
+run Immediate baseline; that comparison changes no executor claim.
 
-## Open integration work
+## Integrated and open work
 
-PIMC and Immediate comparison, recommendation routing, `auto`, Multi-Step,
-Policy Comparison, Historical Review, Dataset evaluation, Replay Coaching,
-performance baselines, Provenance, Public API, CLI, Schemas, examples, and
-generated scenarios remain separate future work.
+Issue #189 adds strict flat `information_set_search`, safe aggregate public
+output, flat Post-game comparison, separate Historical Review, separate Training
+Dataset evaluation, retained-stage internal and opt-in public Provenance, CLI,
+four Schemas, one example, and four generated scenarios. Live execution has no
+PIMC or Immediate baseline and no fallback. Existing `auto` remains PIMC first
+with its existing Immediate fallback.
+
+Multi-Step, Policy Comparison, Match Capture, Strategy Teacher Evidence, Replay
+Coaching classification, and performance baselines remain separate. Issue #190
+owns the next integration work. See
+[Information-set Search workflows](information_set_search_workflows.md).

@@ -62,6 +62,7 @@ _HISTORICAL_SUMMARY_KEYS = frozenset(
         "decision_snapshot_summary",
         "historical_game_review_summary",
         "historical_search_review_summary",
+        "historical_information_set_search_review_summary",
         "historical_replay_coaching_summary",
     }
 )
@@ -71,6 +72,7 @@ _REVIEW_BRANCHES = frozenset(
         "decision_snapshot_summary",
         "historical_game_review_summary",
         "historical_search_review_summary",
+        "historical_information_set_search_review_summary",
         "historical_replay_coaching_summary",
     }
 )
@@ -249,6 +251,151 @@ def _review_entry(
     branch = tokens[1]
     decision_index = _review_decision_index(result, tokens)
     is_actual = tokens[-1] in {"actual_card", "actual_card_played"}
+    if branch == "historical_information_set_search_review_summary":
+        field_name = tokens[-1]
+        in_decision = "decisions" in tokens
+        if in_decision and "actual" in field_name:
+            return result_provenance_entry(
+                path,
+                origin="retrospective_attachment",
+                visibility="public",
+                available_from="after_actual_play",
+                derivation="retrospective",
+                source_references=(
+                    result_source_reference(
+                        "retrospective_observation",
+                        "historical_actual_card",
+                    ),
+                ),
+                decision_index=decision_index,
+            )
+        if in_decision and "information_set_search_result" in tokens:
+            if "requested_budget" in tokens:
+                origin = "validated_copy"
+                derivation = "validated"
+                references = (
+                    result_source_reference(
+                        "request",
+                        "historical_review_options",
+                        field_path="/search_budget_profile",
+                    ),
+                )
+            elif "fixed_policy_settings" in tokens:
+                origin = "heuristic_analysis"
+                derivation = "deterministic_rule"
+                references = (
+                    result_source_reference(
+                        "algorithm",
+                        "historical_effective_opponent_policy",
+                    ),
+                )
+            else:
+                origin = "search_derived"
+                derivation = "direct"
+                references = (
+                    result_source_reference(
+                        "algorithm",
+                        "bounded_information_set_policy_search_v1",
+                    ),
+                )
+            return result_provenance_entry(
+                path,
+                origin=origin,
+                visibility="public",
+                available_from="current_decision",
+                derivation=derivation,
+                source_references=references,
+                decision_index=decision_index,
+            )
+        if in_decision and "same_selection_pimc_result" in tokens:
+            return result_provenance_entry(
+                path,
+                origin="search_derived",
+                visibility="public",
+                available_from="current_decision",
+                derivation="direct",
+                source_references=(
+                    result_source_reference(
+                        "algorithm",
+                        "compatible_world_minimax_same_selection_v1",
+                    ),
+                ),
+                decision_index=decision_index,
+            )
+        if in_decision and "immediate_baseline" in tokens:
+            return result_provenance_entry(
+                path,
+                origin="heuristic_analysis",
+                visibility="public",
+                available_from="current_decision",
+                derivation="heuristic",
+                source_references=(
+                    result_source_reference(
+                        "algorithm",
+                        "immediate_expected_value",
+                    ),
+                ),
+                decision_index=decision_index,
+            )
+        if in_decision and "comparison" in tokens:
+            return result_provenance_entry(
+                path,
+                origin="rule_derived",
+                visibility="public",
+                available_from="current_decision",
+                derivation="deterministic_rule",
+                source_references=(
+                    result_source_reference(
+                        "rule_contract",
+                        "information_set_search_comparison_v1",
+                    ),
+                ),
+                decision_index=decision_index,
+            )
+        if "settings" in tokens:
+            option_field = tokens[tokens.index("settings") + 1]
+            option_path = {
+                "base_search_seed": "/search_seed",
+                "search_budget_profile": "/search_budget_profile",
+                "immediate_sample_count": "/immediate_sample_count",
+                "immediate_base_random_seed": "/immediate_base_random_seed",
+                "requested_budget": "/search_budget_profile",
+            }[option_field]
+            return result_provenance_entry(
+                path,
+                origin=(
+                    "rule_derived"
+                    if option_field == "requested_budget"
+                    else "validated_copy"
+                ),
+                visibility="public",
+                available_from="offline_review",
+                derivation=(
+                    "deterministic_rule"
+                    if option_field == "requested_budget"
+                    else "validated"
+                ),
+                source_references=(
+                    result_source_reference(
+                        "request",
+                        "historical_review_options",
+                        field_path=option_path,
+                    ),
+                ),
+            )
+        return result_provenance_entry(
+            path,
+            origin="historical_aggregation",
+            visibility="public",
+            available_from="offline_review",
+            derivation="deterministic_rule",
+            source_references=(
+                result_source_reference(
+                    "aggregate",
+                    "historical_information_set_search_review_summary",
+                ),
+            ),
+        )
     if branch == "historical_replay_coaching_summary":
         if "outcome_context" in tokens:
             context_index = tokens.index("outcome_context")

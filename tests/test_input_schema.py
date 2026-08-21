@@ -311,14 +311,32 @@ def build_search_settings() -> dict[str, object]:
     }
 
 
+def build_information_set_search_settings() -> dict[str, object]:
+    return {
+        "random_seed": 127,
+        "max_remaining_tricks": 3,
+        "max_depth_plies": 9,
+        "max_state_nodes": 1000,
+        "max_information_sets": 1000,
+        "max_selected_worlds": 5,
+        "max_sampled_worlds": 5,
+        "minimum_comparable_worlds": 2,
+        "wall_clock_timeout_ms": None,
+    }
+
+
 @pytest.mark.parametrize(
     "method",
-    ["immediate_expected_value", "bounded_search", "auto"],
+    ["immediate_expected_value", "bounded_search", "auto", "information_set_search"],
 )
 def test_recommendation_methods_match_schema_and_runtime(method: str) -> None:
     data = build_valid_input()
     data["recommendation_method"] = method
-    if method != "immediate_expected_value":
+    if method == "information_set_search":
+        data["information_set_search_settings"] = (
+            build_information_set_search_settings()
+        )
+    elif method != "immediate_expected_value":
         data["bounded_search_settings"] = build_search_settings()
 
     assert_schema_and_runtime_valid(data)
@@ -362,6 +380,36 @@ def test_omitted_recommendation_method_remains_valid() -> None:
 )
 def test_invalid_recommendation_settings_fail_schema_and_runtime(mutation) -> None:
     data = build_valid_input()
+    mutation(data)
+
+    assert_schema_and_runtime_invalid(data)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda data: data.pop("information_set_search_settings"),
+        lambda data: data.update(recommendation_method="bounded_search"),
+        lambda data: data.update(bounded_search_settings=build_search_settings()),
+        lambda data: data["information_set_search_settings"].update(unknown=1),
+        lambda data: data["information_set_search_settings"].pop("max_information_sets"),
+        lambda data: data["information_set_search_settings"].update(random_seed=True),
+        lambda data: data["information_set_search_settings"].update(
+            max_remaining_tricks=4
+        ),
+        lambda data: data["information_set_search_settings"].update(
+            max_state_nodes=0
+        ),
+    ],
+)
+def test_invalid_information_set_search_settings_fail_schema_and_runtime(
+    mutation,
+) -> None:
+    data = build_valid_input()
+    data.update(
+        recommendation_method="information_set_search",
+        information_set_search_settings=build_information_set_search_settings(),
+    )
     mutation(data)
 
     assert_schema_and_runtime_invalid(data)

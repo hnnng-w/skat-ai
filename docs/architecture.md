@@ -190,6 +190,11 @@ Historical Search Review instead builds the same decision-time position, runs
 bounded Search and a separate Immediate baseline before introducing the observed
 card, and emits reconciled decision, status, coverage, agreement, quality, and
 performance summaries.
+Historical Information-set Search Review is a separate conflicting opt-in. It
+runs bounded Information-set Search, PIMC on the exact retained selected-world
+sequence, and an independently seeded Immediate baseline before attaching the
+observed Card. It emits descriptive agreement and aggregate differences without
+an accuracy or truth claim.
 
 The training-dataset flow validates dataset identity, provenance, optional
 known-opponent or unseen-player partition policy, and duplicate protection, then reuses the historical validator/replay and
@@ -203,6 +208,10 @@ partitions, preserves every selected record including zero-decision records,
 and evaluates one stable global decision prefix with the same historical Search
 and independent Immediate comparison. It does not alter training samples or
 partition policy.
+The separate Information-set Search evaluation uses the same stable selection
+boundary, defaults to validation/test, and evaluates Information-set Search,
+same-selection PIMC, and independently seeded Immediate. It changes no Dataset
+Record, Feature, target, label, sample ID, or partition.
 
 The dataset-partition audit flow scans exact stable participant IDs without
 replaying games. It emits deterministic membership, overlap, directed coverage,
@@ -257,6 +266,7 @@ The project is not a machine-learning model. Its behavior is based on Skat rules
 | `src/skat_ai/retrospective_review_provenance.py` | Flat retrospective stage separation and shared complete-attachment construction. |
 | `src/skat_ai/historical_review_provenance.py` | Historical decision, review-summary, Coaching, and complete Result attachment orchestration. |
 | `src/skat_ai/replay_coaching_provenance.py` | Replay Coaching evidence, assessment, prioritization, guidance, and report mapping. |
+| `src/skat_ai/information_set_search_provenance.py` | Privacy-safe retained-stage Information-set Search, same-selection PIMC, Immediate, actual-Card, and comparison provenance entries. |
 | `src/skat_ai/position_result_provenance.py` | Complete Position Root Result mapping and dependency enforcement. |
 | `src/skat_ai/historical_result_provenance.py` | Complete Historical Root Result mapping and dependency enforcement. |
 | `src/skat_ai/settlement_result_provenance.py` | Shared retained Settlement Result entry construction. |
@@ -330,6 +340,11 @@ The internal card-strength values in `rules.py` are comparison values only. They
 | `src/skat_ai/information_set_search_policy.py` | Deterministic information-safe fixed-Player Policy validation and canonical action selection. |
 | `src/skat_ai/information_set_search_preparation.py` | Three-Trick eligibility, existing Compatible-world selection reuse, ordered World State construction, equal-root reconciliation, and strict retained-Preparation validation without reselection. |
 | `src/skat_ai/information_set_search_executor.py` | Private bounded selected-world best response, fixed-player rollout, controlled Information-set grouping, complete contingent Policy retention, exact counters, and invocation-local memoization. |
+| `src/skat_ai/information_set_search_workflow.py` | Strict flat routing, exact nine-field settings, effective left/right fixed-Policy mapping, and no-fallback execution. |
+| `src/skat_ai/information_set_search_public.py` | Safe aggregate public Result projection without Worlds, Observations, or the private controlled Policy table. |
+| `src/skat_ai/information_set_search_comparison.py` | Retained same-selection PIMC and independent Immediate comparison with post-analysis actual-Card attachment. |
+| `src/skat_ai/historical_information_set_search_review.py` | Information-safe Historical Decision execution, deterministic seeds, descriptive metrics, and breakdowns. |
+| `src/skat_ai/information_set_search_evaluation.py` | Stable Dataset-v1 validation/test selection, global Decision cap, and no-training aggregate evaluation. |
 | `src/skat_ai/dataset_partition_policy.py` | Versioned policy parsing, canonical serialization, exact stable-player membership extraction, and unseen-player conflict formatting. |
 | `src/skat_ai/dataset_partition_audit.py` | Deterministic partition, membership, overlap, known-opponent coverage, and unseen-player compliance auditing. |
 | `src/skat_ai/training_feature_view.py` | Information-safe conversion from stable-ID snapshots to relative model-facing features. |
@@ -711,22 +726,32 @@ world determinization; sampled aggregate evidence is not an optimal policy proof
 See [Bounded search contracts](bounded_search_contracts.md) and
 [Bounded Search performance](bounded_search_performance.md).
 
-The separate Issue-#187 information-set Search foundation and Issue-#188
-executor remain private. They control only root `me`; `left` and `right` remain separate
-fixed information-safe actors, including a Defender partner. Selected exact
-states are paired with complete public history, and actor Observations expose an
-exact own hand plus legitimate out-of-play visibility and public facts only.
-Structural equality defines an Information Set, so selected-world identity and
-sample multiplicity cannot split equal observations. Preparation reuses existing
-ordered Compatible-world enumeration or IID sampling, preserves duplicate draws,
-and is limited to three unresolved Tricks. The executor advances fixed actors,
-groups equal controlled Observations, evaluates one common canonical action,
-aggregates existing exact terminal utility over the ordered selected sequence,
-and retains a complete counterfactual controlled Policy with invocation-local
-World and ordered-bundle memoization. No existing method, profile, route,
-Recommendation, Public API, CLI, Schema, or performance claim changes. See
-[Information-set Search contracts](information_set_search_contracts.md) and the
-[Information-set Search executor](information_set_search_executor.md).
+The Issue-#187 information-set Search foundation and Issue-#188 executor control
+only root `me`; `left` and `right` remain separate fixed information-safe actors,
+including a Defender partner. Selected exact states are paired with complete
+public history, and actor Observations expose an exact own hand plus legitimate
+out-of-play visibility and public facts only. Structural equality defines an
+Information Set, so selected-world identity and sample multiplicity cannot split
+equal observations. Preparation reuses ordered Compatible-world enumeration or
+IID sampling, preserves duplicate draws, and is limited to three unresolved
+Tricks. The executor groups equal controlled Observations, evaluates one common
+canonical action, aggregates exact terminal utility, and retains a private
+counterfactual controlled Policy with invocation-local memoization.
+
+Issue #189 adds strict flat `information_set_search` with exactly nine settings.
+Effective fixed Policies derive from existing left/right settings; `random_legal`
+and role-invalid Policies produce explicit unavailability. Live execution runs
+no PIMC or Immediate baseline and has no fallback. Flat Post-game Review,
+Historical Review, and Training Dataset evaluation run PIMC only on the exact
+retained selection, run Immediate independently, and attach the actual Card
+afterward. Existing `auto` remains compatible-world PIMC followed by its existing
+Immediate fallback. Public output and opt-in Provenance omit private Worlds,
+Observations, hands, controlled Policy tables, caches, and seeds. Multi-Step,
+Policy Comparison, Match Capture, Strategy Teacher Evidence, and Replay Coaching
+classification remain unchanged pending Issue #190. See [Information-set Search
+contracts](information_set_search_contracts.md), the [Information-set Search
+executor](information_set_search_executor.md), and [Information-set Search
+workflows](information_set_search_workflows.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the
@@ -872,6 +897,11 @@ Historical review calls the same immediate recommender and builds the report
 from its returned candidate values, avoiding a second simulation pass or a
 second recommendation algorithm.
 
+Flat Information-set Search is a separate recommendation route. In Live mode it
+uses only its own aggregate Result. In Post-game mode its PIMC and Immediate
+baselines are retained separately before the observed Card is read; their
+comparison is descriptive and does not classify accuracy or truth.
+
 Suit and Grand candidate ranking uses expected local card-point swing. Null
 candidate ranking uses an internal contract-objective utility: local declarers
 prefer avoiding declarer-won evaluated tricks, while local defenders prefer
@@ -947,6 +977,10 @@ Output is designed to be regression-friendly and schema-validatable.
 | `schemas/historical_open_card_throw_output.schema.json` | Stable-ID throw, assignment, theoretical assessment, and final rule accounting. |
 | `schemas/historical_decision_snapshot.schema.json` | Versioned historical decision snapshot output structure.             |
 | `schemas/historical_game_review.schema.json` | Versioned complete historical decision-review output structure.             |
+| `schemas/information_set_search_result.schema.json` | Strict safe aggregate Information-set Search Result. |
+| `schemas/information_set_search_comparison.schema.json` | Strict same-selection PIMC, independent Immediate, and actual-Card comparison. |
+| `schemas/historical_information_set_search_review.schema.json` | Strict per-Decision Historical Information-set Search Review and aggregates. |
+| `schemas/information_set_search_evaluation.schema.json` | Strict Training Dataset-v1 Information-set Search evaluation. |
 | `schemas/training_dataset.schema.json`       | Versioned training dataset input, records, provenance, and partitions.      |
 | `schemas/training_dataset_output.schema.json` | Strict training dataset output, metadata, features, labels, and counts.     |
 | `schemas/dataset_partition_policy.schema.json` | Optional version-1 known-opponent or unseen-player dataset policy. |

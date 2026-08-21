@@ -1,0 +1,481 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/information_set_search_result.schema.json",
+  "title": "skat-ai information-set search public result version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "analysis_method",
+    "search_method",
+    "status",
+    "stop_reason",
+    "game_type",
+    "world_coverage",
+    "policy_claim",
+    "policy_consistency",
+    "terminal_utility_version",
+    "requested_budget",
+    "consumed_budget",
+    "compatible_world_count",
+    "candidate_results",
+    "recommended_card",
+    "controlled_policy_decision_count",
+    "fixed_policy_settings"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "analysis_method": {"const": "information_set_search"},
+    "search_method": {"const": "bounded_information_set_policy_search_v1"},
+    "status": {"$ref": "#/$defs/status"},
+    "stop_reason": {"$ref": "#/$defs/stop_reason"},
+    "game_type": {"$ref": "#/$defs/game_type"},
+    "world_coverage": {"$ref": "#/$defs/world_coverage"},
+    "policy_claim": {
+      "enum": ["none", "common_policy_prefix", "exact_selected_world_policy"]
+    },
+    "policy_consistency": {
+      "enum": [
+        "not_assessed",
+        "controlled_player_information_set_consistent"
+      ]
+    },
+    "terminal_utility_version": {"const": 1},
+    "requested_budget": {"$ref": "#/$defs/requested_budget"},
+    "consumed_budget": {"$ref": "#/$defs/consumed_budget"},
+    "compatible_world_count": {"type": ["integer", "null"], "minimum": 0},
+    "candidate_results": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/candidate_result"},
+      "maxItems": 32
+    },
+    "recommended_card": {"$ref": "#/$defs/nullable_card"},
+    "controlled_policy_decision_count": {"type": "integer", "minimum": 0},
+    "fixed_policy_settings": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "allOf": [
+            {"$ref": "#/$defs/fixed_policy_setting"},
+            {"properties": {"player": {"const": "left"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/fixed_policy_setting"},
+            {"properties": {"player": {"const": "right"}}}
+          ]
+        }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "complete"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "stop_reason": {"const": "completed"},
+          "world_coverage": {
+            "enum": ["all_compatible_worlds", "sampled_compatible_worlds"]
+          },
+          "policy_claim": {"const": "exact_selected_world_policy"},
+          "policy_consistency": {
+            "const": "controlled_player_information_set_consistent"
+          },
+          "compatible_world_count": {"type": "integer", "minimum": 1},
+          "candidate_results": {"minItems": 1},
+          "recommended_card": {"$ref": "#/$defs/card"},
+          "controlled_policy_decision_count": {"minimum": 1}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "partial"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "stop_reason": {
+            "enum": [
+              "state_node_budget_exhausted",
+              "information_set_budget_exhausted",
+              "depth_budget_exhausted"
+            ]
+          },
+          "world_coverage": {
+            "enum": ["all_compatible_worlds", "sampled_compatible_worlds"]
+          },
+          "policy_claim": {"const": "common_policy_prefix"},
+          "policy_consistency": {
+            "const": "controlled_player_information_set_consistent"
+          },
+          "compatible_world_count": {"type": "integer", "minimum": 1},
+          "candidate_results": {"maxItems": 0},
+          "recommended_card": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "timeout"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "stop_reason": {"const": "wall_clock_timeout"},
+          "world_coverage": {
+            "enum": ["all_compatible_worlds", "sampled_compatible_worlds"]
+          },
+          "policy_claim": {"const": "none"},
+          "policy_consistency": {"const": "not_assessed"},
+          "compatible_world_count": {"type": "integer", "minimum": 1},
+          "candidate_results": {"maxItems": 0},
+          "recommended_card": {"type": "null"},
+          "controlled_policy_decision_count": {"const": 0},
+          "requested_budget": {
+            "properties": {
+              "wall_clock_timeout_ms": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "unavailable"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "stop_reason": {"$ref": "#/$defs/unavailable_reason"},
+          "world_coverage": {"const": "none"},
+          "policy_claim": {"const": "none"},
+          "policy_consistency": {"const": "not_assessed"},
+          "candidate_results": {"maxItems": 0},
+          "recommended_card": {"type": "null"},
+          "controlled_policy_decision_count": {"const": 0},
+          "consumed_budget": {
+            "properties": {
+              "depth_reached": {"const": 0},
+              "state_nodes_evaluated": {"const": 0},
+              "information_sets_evaluated": {"const": 0},
+              "controlled_policy_decisions": {"const": 0},
+              "fixed_policy_decisions": {"const": 0},
+              "selected_world_count": {"const": 0},
+              "completed_world_count": {"const": 0},
+              "sampled_world_count": {"const": 0},
+              "unique_sampled_world_count": {"const": 0},
+              "wall_clock_elapsed_ms": {"const": 0}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"world_coverage": {"const": "none"}}, "required": ["world_coverage"]},
+      "then": {
+        "properties": {
+          "consumed_budget": {
+            "properties": {
+              "selected_world_count": {"const": 0},
+              "completed_world_count": {"const": 0},
+              "sampled_world_count": {"const": 0},
+              "unique_sampled_world_count": {"const": 0}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"world_coverage": {"const": "all_compatible_worlds"}},
+        "required": ["world_coverage"]
+      },
+      "then": {
+        "properties": {
+          "compatible_world_count": {"type": "integer", "minimum": 1},
+          "consumed_budget": {
+            "properties": {
+              "selected_world_count": {"minimum": 1},
+              "sampled_world_count": {"const": 0},
+              "unique_sampled_world_count": {"const": 0}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"world_coverage": {"const": "sampled_compatible_worlds"}},
+        "required": ["world_coverage"]
+      },
+      "then": {
+        "properties": {
+          "compatible_world_count": {"type": "integer", "minimum": 1},
+          "consumed_budget": {
+            "properties": {
+              "selected_world_count": {"minimum": 1},
+              "sampled_world_count": {"minimum": 1},
+              "unique_sampled_world_count": {"minimum": 1}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"game_type": {"const": "null"}}, "required": ["game_type"]},
+      "then": {
+        "properties": {
+          "candidate_results": {
+            "items": {
+              "properties": {
+                "mean_local_side_card_point_margin": {"type": "null"}
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "candidate_results": {
+            "items": {
+              "if": {
+                "properties": {"completed_world_count": {"minimum": 1}},
+                "required": ["completed_world_count"]
+              },
+              "then": {
+                "properties": {
+                  "mean_local_side_card_point_margin": {"type": "number"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"recommended_card": {"$ref": "#/$defs/card"}},
+        "required": ["recommended_card"]
+      },
+      "then": {
+        "properties": {
+          "candidate_results": {
+            "contains": {
+              "type": "object",
+              "properties": {"is_recommended": {"const": true}},
+              "required": ["is_recommended"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "candidate_results": {
+            "not": {
+              "contains": {
+                "type": "object",
+                "properties": {"is_recommended": {"const": true}},
+                "required": ["is_recommended"]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "card": {"type": "string", "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"},
+    "nullable_card": {
+      "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+    },
+    "game_type": {
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "status": {"enum": ["complete", "partial", "timeout", "unavailable"]},
+    "unavailable_reason": {
+      "enum": [
+        "unsupported_game_type",
+        "unsupported_turn_phase",
+        "unsupported_perspective",
+        "local_player_not_to_act",
+        "missing_concrete_declarer",
+        "remaining_trick_limit_exceeded",
+        "incompatible_world_space",
+        "missing_terminal_utility_inputs",
+        "game_already_complete",
+        "no_legal_cards",
+        "unsupported_fixed_policy",
+        "nondeterministic_fixed_policy",
+        "information_set_model_unavailable"
+      ]
+    },
+    "stop_reason": {
+      "enum": [
+        "completed",
+        "state_node_budget_exhausted",
+        "information_set_budget_exhausted",
+        "depth_budget_exhausted",
+        "wall_clock_timeout",
+        "unsupported_game_type",
+        "unsupported_turn_phase",
+        "unsupported_perspective",
+        "local_player_not_to_act",
+        "missing_concrete_declarer",
+        "remaining_trick_limit_exceeded",
+        "incompatible_world_space",
+        "missing_terminal_utility_inputs",
+        "game_already_complete",
+        "no_legal_cards",
+        "unsupported_fixed_policy",
+        "nondeterministic_fixed_policy",
+        "information_set_model_unavailable"
+      ]
+    },
+    "world_coverage": {
+      "enum": ["none", "all_compatible_worlds", "sampled_compatible_worlds"]
+    },
+    "positive_integer": {"type": "integer", "minimum": 1},
+    "count": {"type": "integer", "minimum": 0},
+    "requested_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_remaining_tricks",
+        "max_depth_plies",
+        "max_state_nodes",
+        "max_information_sets",
+        "max_selected_worlds",
+        "max_sampled_worlds",
+        "minimum_comparable_worlds",
+        "wall_clock_timeout_ms"
+      ],
+      "properties": {
+        "max_remaining_tricks": {"type": "integer", "minimum": 1, "maximum": 3},
+        "max_depth_plies": {"$ref": "#/$defs/positive_integer"},
+        "max_state_nodes": {"$ref": "#/$defs/positive_integer"},
+        "max_information_sets": {"$ref": "#/$defs/positive_integer"},
+        "max_selected_worlds": {"$ref": "#/$defs/positive_integer"},
+        "max_sampled_worlds": {"$ref": "#/$defs/positive_integer"},
+        "minimum_comparable_worlds": {"$ref": "#/$defs/positive_integer"},
+        "wall_clock_timeout_ms": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "versioned_requested_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "information_set_search_budget_version",
+        "max_remaining_tricks",
+        "max_depth_plies",
+        "max_state_nodes",
+        "max_information_sets",
+        "max_selected_worlds",
+        "max_sampled_worlds",
+        "minimum_comparable_worlds",
+        "wall_clock_timeout_ms"
+      ],
+      "properties": {
+        "information_set_search_budget_version": {"const": 1},
+        "max_remaining_tricks": {"type": "integer", "minimum": 1, "maximum": 3},
+        "max_depth_plies": {"$ref": "#/$defs/positive_integer"},
+        "max_state_nodes": {"$ref": "#/$defs/positive_integer"},
+        "max_information_sets": {"$ref": "#/$defs/positive_integer"},
+        "max_selected_worlds": {"$ref": "#/$defs/positive_integer"},
+        "max_sampled_worlds": {"$ref": "#/$defs/positive_integer"},
+        "minimum_comparable_worlds": {"$ref": "#/$defs/positive_integer"},
+        "wall_clock_timeout_ms": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "consumed_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "depth_reached",
+        "state_nodes_evaluated",
+        "information_sets_evaluated",
+        "controlled_policy_decisions",
+        "fixed_policy_decisions",
+        "selected_world_count",
+        "completed_world_count",
+        "sampled_world_count",
+        "unique_sampled_world_count",
+        "wall_clock_elapsed_ms"
+      ],
+      "properties": {
+        "depth_reached": {"$ref": "#/$defs/count"},
+        "state_nodes_evaluated": {"$ref": "#/$defs/count"},
+        "information_sets_evaluated": {"$ref": "#/$defs/count"},
+        "controlled_policy_decisions": {"$ref": "#/$defs/count"},
+        "fixed_policy_decisions": {"$ref": "#/$defs/count"},
+        "selected_world_count": {"$ref": "#/$defs/count"},
+        "completed_world_count": {"$ref": "#/$defs/count"},
+        "sampled_world_count": {"$ref": "#/$defs/count"},
+        "unique_sampled_world_count": {"$ref": "#/$defs/count"},
+        "wall_clock_elapsed_ms": {"$ref": "#/$defs/count"}
+      }
+    },
+    "candidate_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card",
+        "rank",
+        "is_recommended",
+        "completed_world_count",
+        "local_contract_success_count",
+        "local_contract_success_rate",
+        "mean_local_side_game_score",
+        "mean_local_side_card_point_margin"
+      ],
+      "properties": {
+        "card": {"$ref": "#/$defs/card"},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 32},
+        "is_recommended": {"type": "boolean"},
+        "completed_world_count": {"$ref": "#/$defs/count"},
+        "local_contract_success_count": {"$ref": "#/$defs/count"},
+        "local_contract_success_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mean_local_side_game_score": {"type": ["number", "null"]},
+        "mean_local_side_card_point_margin": {"type": ["number", "null"]}
+      },
+      "if": {
+        "properties": {"completed_world_count": {"const": 0}},
+        "required": ["completed_world_count"]
+      },
+      "then": {
+        "properties": {
+          "local_contract_success_count": {"const": 0},
+          "local_contract_success_rate": {"type": "null"},
+          "mean_local_side_game_score": {"type": "null"},
+          "mean_local_side_card_point_margin": {"type": "null"}
+        }
+      },
+      "else": {
+        "properties": {
+          "local_contract_success_rate": {"type": "number"},
+          "mean_local_side_game_score": {"type": "number"}
+        }
+      }
+    },
+    "fixed_policy_name": {
+      "enum": [
+        "lowest_point",
+        "highest_point",
+        "random_legal",
+        "basic_trick_play",
+        "basic_defender_response",
+        "basic_defender_lead"
+      ]
+    },
+    "fixed_policy_setting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player", "lead_policy", "response_policy"],
+      "properties": {
+        "player": {"enum": ["left", "right"]},
+        "lead_policy": {"$ref": "#/$defs/fixed_policy_name"},
+        "response_policy": {"$ref": "#/$defs/fixed_policy_name"}
+      }
+    }
+  }
+}

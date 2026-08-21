@@ -93,7 +93,7 @@ def get_position_example_json_files() -> list[Path]:
 def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 88
+    assert len(SCENARIOS) == 92
     assert tuple(scenario.name for scenario in SCENARIOS[:70]) == (
         "normal_local_live",
         "quiet_json_output",
@@ -190,10 +190,16 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
         "session_retrospective_export",
         "session_retrospective_finalize",
     )
-    assert tuple(scenario.name for scenario in SCENARIOS[85:]) == (
+    assert tuple(scenario.name for scenario in SCENARIOS[85:88]) == (
         "historical_party_wide_claim_declarer_suit",
         "historical_party_wide_claim_defenders_null_incomplete_trick",
         "historical_continuation_then_party_wide_claim",
+    )
+    assert tuple(scenario.name for scenario in SCENARIOS[88:]) == (
+        "information_set_search_live_complete",
+        "information_set_search_post_game_comparison",
+        "historical_information_set_search_review",
+        "training_dataset_information_set_search_evaluation",
     )
     assert all(not scenario.include_provenance for scenario in SCENARIOS[:70])
     assert all(scenario.include_provenance for scenario in SCENARIOS[70:77])
@@ -201,7 +207,9 @@ def test_generated_output_matrix_has_exact_documented_scenario_count() -> None:
     assert all(scenario.session_orchestration is not None for scenario in SCENARIOS[77:85])
     assert all(scenario.session_orchestration is None for scenario in SCENARIOS[85:])
     assert SCENARIOS[85].include_provenance is True
-    assert all(not scenario.include_provenance for scenario in SCENARIOS[86:])
+    assert all(not scenario.include_provenance for scenario in SCENARIOS[86:88])
+    assert SCENARIOS[88].include_provenance is True
+    assert all(not scenario.include_provenance for scenario in SCENARIOS[89:])
 
 
 def test_examples_folder_contains_json_files() -> None:

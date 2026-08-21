@@ -11,6 +11,12 @@ from skat_ai.application.provenance import (
 from skat_ai.field_provenance import FieldProvenanceEntry, FieldProvenanceSourceReference
 from skat_ai.field_provenance_coverage import enumerate_json_leaf_paths
 from skat_ai.field_provenance_policy import InformationUseContext
+from skat_ai.information_set_search_provenance import (
+    build_information_set_search_comparison_provenance_entries,
+    build_information_set_search_provenance_entries,
+    build_serialized_pimc_provenance_entries,
+    information_set_settings_reference,
+)
 from skat_ai.retrospective_review_provenance import (
     _entry,
     _reference,
@@ -650,8 +656,461 @@ def _search_attachments(
     return attachments
 
 
+def _information_set_search_attachments(
+    summary: Mapping[str, object],
+) -> list[ApplicationProvenanceAttachment]:
+    attachments: list[ApplicationProvenanceAttachment] = []
+    records = summary["records"]
+    assert isinstance(records, list)
+    stage_keys = {
+        "actual_card",
+        "information_set_search_result",
+        "same_selection_pimc_result",
+        "immediate_baseline",
+        "comparison",
+    }
+    for record_index, record in enumerate(records):
+        assert isinstance(record, Mapping)
+        decisions = record["decisions"]
+        assert isinstance(decisions, list)
+        for decision in decisions:
+            assert isinstance(decision, Mapping)
+            decision_index = int(decision["decision_index"])
+            player_id = str(decision["acting_player_id"])
+            side = str(decision["acting_role"])
+            game_id = str(decision["source_game_id"])
+            prefix = (
+                f"training_dataset/information_set_search/{record_index}/"
+                f"{decision_index}"
+            )
+            decision_context = _context(
+                "decision_time",
+                player_id=player_id,
+                side=side,
+                decision_index=decision_index,
+            )
+            input_document = {
+                key: value
+                for key, value in decision.items()
+                if key not in stage_keys
+            }
+            attachments.append(
+                build_complete_provenance_attachment(
+                    name=f"{prefix}/input",
+                    document_role="consumed_input",
+                    document=input_document,
+                    information_use_context=decision_context,
+                    entry_builder=_fixed_entry_builder(
+                        origin="historical_replay",
+                        visibility="public",
+                        available_from="current_decision",
+                        derivation="reconstruction",
+                        decision_index=decision_index,
+                        player_id=player_id,
+                        references=(_reference("historical_game", game_id),),
+                    ),
+                )
+            )
+
+            information_result = decision["information_set_search_result"]
+            information_document = (
+                information_result
+                if isinstance(information_result, Mapping)
+                else {"information_set_search_result": None}
+            )
+            information_overrides = (
+                build_information_set_search_provenance_entries(
+                    information_result,
+                    retained_result=None,
+                    field_path="",
+                    decision_index=decision_index,
+                    perspective_player_id=player_id,
+                    settings_reference=information_set_settings_reference(
+                        "request",
+                        "training_dataset_execution_options",
+                        field_path="/information_set_search_budget_profile",
+                    ),
+                    fixed_policy_reference=information_set_settings_reference(
+                        "algorithm",
+                        "historical_effective_opponent_policy",
+                    ),
+                )
+                if isinstance(information_result, Mapping)
+                else ()
+            )
+            attachments.append(
+                build_complete_provenance_attachment(
+                    name=f"{prefix}/information_set",
+                    document_role="result",
+                    document=information_document,
+                    information_use_context=decision_context,
+                    entry_builder=_fixed_entry_builder(
+                        origin="search_derived",
+                        visibility="public",
+                        available_from="current_decision",
+                        derivation="direct",
+                        decision_index=decision_index,
+                        player_id=player_id,
+                        references=(
+                            _reference(
+                                "algorithm",
+                                "bounded_information_set_policy_search_v1",
+                            ),
+                        ),
+                    ),
+                    override_entries=information_overrides,
+                )
+            )
+
+            pimc_result = decision["same_selection_pimc_result"]
+            pimc_document = (
+                pimc_result
+                if isinstance(pimc_result, Mapping)
+                else {"same_selection_pimc_result": None}
+            )
+            pimc_overrides = (
+                build_serialized_pimc_provenance_entries(
+                    pimc_result,
+                    field_path="",
+                    decision_index=decision_index,
+                    perspective_player_id=player_id,
+                    settings_reference=information_set_settings_reference(
+                        "request",
+                        "training_dataset_execution_options",
+                        field_path="/information_set_search_budget_profile",
+                    ),
+                )
+                if isinstance(pimc_result, Mapping)
+                else ()
+            )
+            attachments.append(
+                build_complete_provenance_attachment(
+                    name=f"{prefix}/pimc",
+                    document_role="result",
+                    document=pimc_document,
+                    information_use_context=decision_context,
+                    entry_builder=_fixed_entry_builder(
+                        origin="search_derived",
+                        visibility="public",
+                        available_from="current_decision",
+                        derivation="direct",
+                        decision_index=decision_index,
+                        player_id=player_id,
+                        references=(
+                            _reference(
+                                "algorithm",
+                                "compatible_world_minimax_same_selection_v1",
+                            ),
+                        ),
+                    ),
+                    override_entries=pimc_overrides,
+                )
+            )
+
+            immediate = decision["immediate_baseline"]
+            assert isinstance(immediate, Mapping)
+            attachments.append(
+                build_complete_provenance_attachment(
+                    name=f"{prefix}/immediate",
+                    document_role="result",
+                    document=immediate,
+                    information_use_context=decision_context,
+                    entry_builder=_fixed_entry_builder(
+                        origin="heuristic_analysis",
+                        visibility="public",
+                        available_from="current_decision",
+                        derivation="heuristic",
+                        decision_index=decision_index,
+                        player_id=player_id,
+                        references=(
+                            _reference("algorithm", "immediate_expected_value"),
+                        ),
+                    ),
+                )
+            )
+            actual_context = _context(
+                "after_actual_play",
+                player_id=player_id,
+                side=side,
+                decision_index=decision_index,
+            )
+            attachments.append(
+                build_complete_provenance_attachment(
+                    name=f"{prefix}/actual",
+                    document_role="result",
+                    document={"actual_card": decision["actual_card"]},
+                    information_use_context=actual_context,
+                    entry_builder=_fixed_entry_builder(
+                        origin="retrospective_attachment",
+                        visibility="public",
+                        available_from="after_actual_play",
+                        derivation="retrospective",
+                        decision_index=decision_index,
+                        player_id=player_id,
+                        references=(
+                            _reference(
+                                "retrospective_observation",
+                                f"{game_id}/{decision_index}",
+                            ),
+                        ),
+                    ),
+                )
+            )
+            comparison = decision["comparison"]
+            assert isinstance(comparison, Mapping)
+            attachments.append(
+                build_complete_provenance_attachment(
+                    name=f"{prefix}/comparison",
+                    document_role="result",
+                    document=comparison,
+                    information_use_context=actual_context,
+                    entry_builder=_fixed_entry_builder(
+                        origin="rule_derived",
+                        visibility="public",
+                        available_from="after_actual_play",
+                        derivation="deterministic_rule",
+                        decision_index=decision_index,
+                        player_id=player_id,
+                        references=(
+                            _reference(
+                                "rule_contract",
+                                "information_set_search_comparison_v1",
+                            ),
+                        ),
+                    ),
+                    override_entries=(
+                        build_information_set_search_comparison_provenance_entries(
+                            comparison,
+                            field_path="",
+                            decision_index=decision_index,
+                            perspective_player_id=player_id,
+                            actual_reference_id=f"{game_id}/{decision_index}",
+                        )
+                    ),
+                )
+            )
+    return attachments
+
+
+def _information_set_evaluation_entry(
+    path: str,
+    tokens: tuple[str, ...],
+    summary: Mapping[str, object],
+) -> FieldProvenanceEntry:
+    option_paths = {
+        "base_search_seed": "/information_set_search_seed",
+        "search_budget_profile": "/information_set_search_budget_profile",
+        "partitions": "/information_set_search_partitions",
+        "max_decisions": "/information_set_search_max_decisions",
+    }
+    decision_index = None
+    player_id = None
+    game_id = None
+    if len(tokens) >= 4 and tokens[0] == "records" and "decisions" in tokens:
+        record_index = int(tokens[1])
+        decision_position = tokens.index("decisions")
+        decision = summary["records"][record_index]["decisions"][
+            int(tokens[decision_position + 1])
+        ]
+        decision_index = int(decision["decision_index"])
+        player_id = str(decision["acting_player_id"])
+        game_id = str(decision["source_game_id"])
+        field_name = tokens[-1]
+        if "actual" in field_name:
+            return _entry(
+                path,
+                origin="retrospective_attachment",
+                visibility="public",
+                available_from="after_actual_play",
+                derivation="retrospective",
+                decision_index=decision_index,
+                perspective_player_id=player_id,
+                source_references=(
+                    _reference(
+                        "retrospective_observation",
+                        f"{game_id}/{decision_index}",
+                    ),
+                ),
+            )
+        if "information_set_search_result" in tokens:
+            if "requested_budget" in tokens:
+                origin = "validated_copy"
+                derivation = "validated"
+                references = (
+                    _reference(
+                        "request",
+                        "training_dataset_execution_options",
+                        field_path="/information_set_search_budget_profile",
+                    ),
+                )
+            elif "fixed_policy_settings" in tokens:
+                origin = "heuristic_analysis"
+                derivation = "deterministic_rule"
+                references = (
+                    _reference(
+                        "algorithm",
+                        "historical_effective_opponent_policy",
+                    ),
+                )
+            else:
+                origin = "search_derived"
+                derivation = "direct"
+                references = (
+                    _reference(
+                        "algorithm",
+                        "bounded_information_set_policy_search_v1",
+                    ),
+                )
+        elif "same_selection_pimc_result" in tokens:
+            origin = "search_derived"
+            derivation = "direct"
+            references = (
+                _reference(
+                    "algorithm",
+                    "compatible_world_minimax_same_selection_v1",
+                ),
+            )
+        elif "immediate_baseline" in tokens:
+            origin = "heuristic_analysis"
+            derivation = "heuristic"
+            references = (_reference("algorithm", "immediate_expected_value"),)
+        elif "comparison" in tokens:
+            origin = "rule_derived"
+            derivation = "deterministic_rule"
+            references = (
+                _reference(
+                    "rule_contract",
+                    "information_set_search_comparison_v1",
+                ),
+            )
+        else:
+            origin = "historical_replay"
+            derivation = "reconstruction"
+            references = (_reference("historical_game", game_id),)
+        return _entry(
+            path,
+            origin=origin,
+            visibility="public",
+            available_from="current_decision",
+            derivation=derivation,
+            decision_index=decision_index,
+            perspective_player_id=player_id,
+            source_references=references,
+        )
+
+    if tokens and tokens[0] == "source_dataset":
+        return _entry(
+            path,
+            origin="validated_copy",
+            visibility="post_game_only",
+            available_from="offline_review",
+            derivation="validated",
+            decision_index=None,
+            perspective_player_id=None,
+            source_references=(
+                _reference("request", "training_dataset_input"),
+            ),
+        )
+    if len(tokens) >= 2 and tokens[0] == "settings":
+        option_name = tokens[1]
+        if option_name == "requested_budget":
+            return _entry(
+                path,
+                origin="rule_derived",
+                visibility="post_game_only",
+                available_from="offline_review",
+                derivation="deterministic_rule",
+                decision_index=None,
+                perspective_player_id=None,
+                source_references=(
+                    _reference(
+                        "request",
+                        "training_dataset_execution_options",
+                        field_path="/information_set_search_budget_profile",
+                    ),
+                    _reference(
+                        "rule_contract",
+                        "information_set_budget_profile_conversion_v1",
+                    ),
+                ),
+            )
+        if option_name in {
+            "immediate_sample_count",
+            "immediate_base_random_seed",
+        }:
+            return _entry(
+                path,
+                origin="defaulted",
+                visibility="post_game_only",
+                available_from="offline_review",
+                derivation="direct",
+                decision_index=None,
+                perspective_player_id=None,
+                source_references=(
+                    _reference(
+                        "rule_contract",
+                        "information_set_search_evaluation_defaults_v1",
+                        field_path=f"/{option_name}",
+                    ),
+                ),
+            )
+        return _entry(
+            path,
+            origin="validated_copy",
+            visibility="post_game_only",
+            available_from="offline_review",
+            derivation="validated",
+            decision_index=None,
+            perspective_player_id=None,
+            source_references=(
+                _reference(
+                    "request",
+                    "training_dataset_execution_options",
+                    field_path=option_paths.get(option_name),
+                ),
+            ),
+        )
+    if len(tokens) >= 2 and tokens[0] == "selection" and tokens[1] in {
+        "partitions",
+        "max_decisions",
+    }:
+        return _entry(
+            path,
+            origin="validated_copy",
+            visibility="post_game_only",
+            available_from="offline_review",
+            derivation="validated",
+            decision_index=None,
+            perspective_player_id=None,
+            source_references=(
+                _reference(
+                    "request",
+                    "training_dataset_execution_options",
+                    field_path=option_paths[tokens[1]],
+                ),
+            ),
+        )
+    return _entry(
+        path,
+        origin="historical_aggregation",
+        visibility="post_game_only",
+        available_from="offline_review",
+        derivation="exact_aggregate",
+        decision_index=None,
+        perspective_player_id=None,
+        source_references=(
+            _reference(
+                "aggregate",
+                "information_set_search_evaluation_summary",
+            ),
+        ),
+    )
+
+
 def _operation_entry_builder(operation: str, summary: Mapping[str, object]):
     def build(path: str, tokens: tuple[str, ...]) -> FieldProvenanceEntry:
+        if operation == "information_set_search_evaluation":
+            return _information_set_evaluation_entry(path, tokens, summary)
         origin = "historical_aggregation"
         derivation = "exact_aggregate"
         availability = "offline_review"
@@ -858,6 +1317,9 @@ def _operation_attachment(
         "partition_audit": "partition_audit",
         "rolling_opponent_policy_evaluation": "rolling_evaluation",
         "bounded_search_evaluation": "bounded_search_evaluation",
+        "information_set_search_evaluation": (
+            "information_set_search_evaluation"
+        ),
         "historical_opponent_statistics_aggregation": "opponent_statistics_aggregation",
     }
     return build_complete_provenance_attachment(
@@ -888,6 +1350,12 @@ def _root_attachment(
                 perspective_player_id=None,
                 source_references=(_reference("request", "application_input_reference"),),
             )
+        if operation == "information_set_search_evaluation":
+            return _information_set_evaluation_entry(
+                path,
+                tokens[1:],
+                result[result_key],
+            )
         return _entry(
             path,
             origin="historical_aggregation",
@@ -901,11 +1369,29 @@ def _root_attachment(
             ),
         )
 
+    summary = result[result_key]
+    max_decision_index = None
+    if operation == "information_set_search_evaluation":
+        assert isinstance(summary, Mapping)
+        records = summary.get("records", ())
+        max_decision_index = max(
+            (
+                int(decision["decision_index"])
+                for record in records
+                if isinstance(record, Mapping)
+                for decision in record.get("decisions", ())
+                if isinstance(decision, Mapping)
+            ),
+            default=0,
+        )
     return build_complete_provenance_attachment(
         name="training_dataset_result",
         document_role="result",
         document=result,
-        information_use_context=_context("offline_review"),
+        information_use_context=_context(
+            "offline_review",
+            decision_index=max_decision_index,
+        ),
         entry_builder=build,
     )
 
@@ -968,6 +1454,9 @@ class TrainingDatasetProvenanceCollector:
             attachments.extend(_rolling_attachments(summary))
         elif operation == "bounded_search_evaluation":
             attachments.extend(_search_attachments(summary))
+        elif operation == "information_set_search_evaluation":
+            if "records" in summary:
+                attachments.extend(_information_set_search_attachments(summary))
         attachments.append(_operation_attachment(operation, summary))
         for artifact in artifacts:
             if artifact.name != "opponent_statistics_input":

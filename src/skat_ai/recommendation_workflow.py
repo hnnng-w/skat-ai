@@ -10,11 +10,21 @@ from skat_ai.bounded_search_result import (
     mark_bounded_search_fallback_used,
 )
 from skat_ai.compatible_world_minimax import solve_compatible_world_minimax
+from skat_ai.effective_opponent_policy import EffectiveOpponentPolicySettings
 from skat_ai.game_declaration import GameDeclaration
 from skat_ai.game_state import GameState
 from skat_ai.hidden_card_inference import (
     HiddenCardInferenceModel,
     build_hidden_card_inference_model,
+)
+from skat_ai.information_set_search_contracts import InformationSetSearchResultV1
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_EFFECTIVE_METHOD,
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+    INFORMATION_SET_SEARCH_SETTING_KEYS,
+    InformationSetSearchSettings,
+    InformationSetSearchWorkflowResultV1,
+    execute_live_information_set_search_workflow_v1,
 )
 from skat_ai.public_hand_constraint import PublicHandConstraint
 from skat_ai.recommender import recommend_card_by_expected_value
@@ -32,6 +42,14 @@ VALID_RECOMMENDATION_METHODS = (
     AUTO_METHOD,
 )
 SEARCH_RECOMMENDATION_METHODS = (BOUNDED_SEARCH_METHOD, AUTO_METHOD)
+FLAT_RECOMMENDATION_METHODS = (
+    *VALID_RECOMMENDATION_METHODS,
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+)
+FLAT_SEARCH_RECOMMENDATION_METHODS = (
+    *SEARCH_RECOMMENDATION_METHODS,
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+)
 
 IMMEDIATE_UNAVAILABLE_LOCAL_NOT_NEXT_REASON = (
     "Immediate analysis is unavailable because the local player is not next."
@@ -60,18 +78,41 @@ class RecommendationMethodConfiguration:
     requested_method: str
     search_random_seed: int | None = None
     requested_search_budget: RequestedSearchBudget | None = None
+    information_set_search_settings: InformationSetSearchSettings | None = None
 
     def __post_init__(self) -> None:
-        if self.requested_method not in VALID_RECOMMENDATION_METHODS:
+        if self.requested_method not in FLAT_RECOMMENDATION_METHODS:
             raise ValueError(f"Invalid recommendation_method: {self.requested_method}")
         if self.requested_method in SEARCH_RECOMMENDATION_METHODS:
             if self.search_random_seed is None or self.requested_search_budget is None:
                 raise ValueError(
                     "Search recommendation methods require bounded_search_settings."
                 )
-        elif self.search_random_seed is not None or self.requested_search_budget is not None:
+            if self.information_set_search_settings is not None:
+                raise ValueError(
+                    "Bounded Search recommendation methods cannot contain "
+                    "information-set Search settings."
+                )
+        elif self.requested_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+            if self.information_set_search_settings is None:
+                raise ValueError(
+                    "Information-set Search requires information_set_search_settings."
+                )
+            if type(self.information_set_search_settings) is not InformationSetSearchSettings:
+                raise ValueError(
+                    "information_set_search_settings must be InformationSetSearchSettings."
+                )
+            if self.search_random_seed is not None or self.requested_search_budget is not None:
+                raise ValueError(
+                    "Information-set Search cannot contain bounded Search settings."
+                )
+        elif (
+            self.search_random_seed is not None
+            or self.requested_search_budget is not None
+            or self.information_set_search_settings is not None
+        ):
             raise ValueError(
-                "Immediate recommendation cannot contain bounded Search settings."
+                "Immediate recommendation cannot contain Search settings."
             )
 
 
@@ -91,13 +132,17 @@ class RecommendationWorkflowResult:
     fallback_used: bool
     fallback_method: str | None
     hidden_card_inference_model: HiddenCardInferenceModel | None = None
+    information_set_search_result: InformationSetSearchResultV1 | None = None
+    information_set_search_public_result: dict[str, Any] | None = None
+    information_set_search_workflow: InformationSetSearchWorkflowResultV1 | None = None
 
     def __post_init__(self) -> None:
-        if self.requested_method not in VALID_RECOMMENDATION_METHODS:
+        if self.requested_method not in FLAT_RECOMMENDATION_METHODS:
             raise ValueError("Recommendation workflow has an invalid requested method.")
         if self.effective_method not in {
             IMMEDIATE_EXPECTED_VALUE_METHOD,
             COMPATIBLE_WORLD_MINIMAX_METHOD,
+            INFORMATION_SET_SEARCH_EFFECTIVE_METHOD,
             NONE_EFFECTIVE_METHOD,
         }:
             raise ValueError("Recommendation workflow has an invalid effective method.")
@@ -132,6 +177,40 @@ class RecommendationWorkflowResult:
                 or self.analysis_report_method != IMMEDIATE_EXPECTED_VALUE_METHOD
             ):
                 raise ValueError("Immediate recommendation method metadata is inconsistent.")
+        elif self.requested_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+            if (
+                self.bounded_search_result is not None
+                or self.fallback_used
+                or self.fallback_method is not None
+                or self.analysis_report
+                or self.analysis_report_method != NONE_ANALYSIS_REPORT_METHOD
+                or self.information_set_search_public_result is None
+                or self.information_set_search_workflow is None
+            ):
+                raise ValueError(
+                    "Information-set Search recommendation metadata is inconsistent."
+                )
+            if self.information_set_search_result is not (
+                self.information_set_search_workflow.result
+            ):
+                raise ValueError("Retained Information-set Search Results must match.")
+            if self.information_set_search_public_result is not (
+                self.information_set_search_workflow.public_result
+            ):
+                raise ValueError("Retained public Information-set Results must match.")
+            if self.information_set_search_public_result.get(
+                "recommended_card"
+            ) != self.recommendation_card:
+                raise ValueError(
+                    "Top-level and Information-set Search recommendation Cards must match."
+                )
+            expected_effective = (
+                INFORMATION_SET_SEARCH_EFFECTIVE_METHOD
+                if self.recommendation_card is not None
+                else NONE_EFFECTIVE_METHOD
+            )
+            if self.effective_method != expected_effective:
+                raise ValueError("Information-set Search effective method is inconsistent.")
         elif self.bounded_search_result is None:
             raise ValueError("Search recommendation methods require a Search result.")
         if self.bounded_search_result is not None and (
@@ -166,6 +245,15 @@ class RecommendationWorkflowResult:
                 and self.analysis_report_method != IMMEDIATE_EXPECTED_VALUE_METHOD
             ):
                 raise ValueError("Failed auto fallback requires the Immediate report method.")
+        if self.requested_method != INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD and (
+            self.information_set_search_result is not None
+            or self.information_set_search_public_result is not None
+            or self.information_set_search_workflow is not None
+            or self.effective_method == INFORMATION_SET_SEARCH_EFFECTIVE_METHOD
+        ):
+            raise ValueError(
+                "Only Information-set Search may retain Information-set Search values."
+            )
 
 
 def build_recommendation_method_configuration(
@@ -177,21 +265,57 @@ def build_recommendation_method_configuration(
         "recommendation_method",
         IMMEDIATE_EXPECTED_VALUE_METHOD,
     )
-    if requested_method not in VALID_RECOMMENDATION_METHODS:
+    if requested_method not in FLAT_RECOMMENDATION_METHODS:
         raise ValueError(f"Invalid recommendation_method: {requested_method}")
 
-    settings_supplied = "bounded_search_settings" in data
-    if requested_method not in SEARCH_RECOMMENDATION_METHODS:
-        if settings_supplied:
+    bounded_settings_supplied = "bounded_search_settings" in data
+    information_set_settings_supplied = "information_set_search_settings" in data
+    if requested_method == IMMEDIATE_EXPECTED_VALUE_METHOD:
+        if bounded_settings_supplied or information_set_settings_supplied:
             raise ValueError(
-                "bounded_search_settings is allowed only for bounded_search or auto."
+                "Search settings are allowed only for their matching Search method."
             )
         return RecommendationMethodConfiguration(
             explicitly_supplied=explicitly_supplied,
             requested_method=requested_method,
         )
 
-    if not settings_supplied:
+    if requested_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        if bounded_settings_supplied:
+            raise ValueError(
+                "information_set_search rejects bounded_search_settings."
+            )
+        if not information_set_settings_supplied:
+            raise ValueError(
+                "recommendation_method='information_set_search' requires "
+                "information_set_search_settings."
+            )
+        raw_settings = data["information_set_search_settings"]
+        if not isinstance(raw_settings, dict):
+            raise ValueError("information_set_search_settings must be an object.")
+        missing = sorted(set(INFORMATION_SET_SEARCH_SETTING_KEYS) - set(raw_settings))
+        unknown = sorted(set(raw_settings) - set(INFORMATION_SET_SEARCH_SETTING_KEYS))
+        if missing:
+            raise ValueError(
+                f"information_set_search_settings is missing required keys: {missing}"
+            )
+        if unknown:
+            raise ValueError(
+                f"information_set_search_settings has unsupported keys: {unknown}"
+            )
+        return RecommendationMethodConfiguration(
+            explicitly_supplied=True,
+            requested_method=requested_method,
+            information_set_search_settings=InformationSetSearchSettings(
+                **raw_settings
+            ),
+        )
+
+    if information_set_settings_supplied:
+        raise ValueError(
+            "bounded_search and auto reject information_set_search_settings."
+        )
+    if not bounded_settings_supplied:
         raise ValueError(
             f"recommendation_method='{requested_method}' requires bounded_search_settings."
         )
@@ -231,7 +355,7 @@ def validate_recommendation_method_workflow(
     configuration: RecommendationMethodConfiguration,
 ) -> None:
     """Enforces the flat ongoing decision boundary for Search methods."""
-    if configuration.requested_method not in SEARCH_RECOMMENDATION_METHODS:
+    if configuration.requested_method not in FLAT_SEARCH_RECOMMENDATION_METHODS:
         return
     analysis_mode = data.get("analysis_mode", "live_decision")
     if analysis_mode not in {"live_decision", "post_game_review"}:
@@ -289,6 +413,17 @@ def build_serializable_bounded_search_settings(
         "max_sampled_worlds": budget.max_sampled_worlds,
         "minimum_comparable_worlds": budget.minimum_comparable_worlds,
         "wall_clock_timeout_ms": budget.wall_clock_timeout_ms,
+    }
+
+
+def build_serializable_information_set_search_settings(
+    configuration: RecommendationMethodConfiguration,
+) -> dict[str, int | None] | None:
+    settings = configuration.information_set_search_settings
+    if settings is None:
+        return None
+    return {
+        key: getattr(settings, key) for key in INFORMATION_SET_SEARCH_SETTING_KEYS
     }
 
 
@@ -451,6 +586,48 @@ def build_search_strategic_summary(result: BoundedSearchResult) -> str:
     )
 
 
+def build_information_set_search_recommendation_reason(
+    result: dict[str, Any],
+) -> str:
+    """Builds deterministic privacy-safe wording for strict Information-set Search."""
+    consumed = result["consumed_budget"]
+    details = (
+        f"status {result['status']}, stop reason {result['stop_reason']}, "
+        f"{consumed['completed_world_count']} of "
+        f"{consumed['selected_world_count']} selected worlds completed, "
+        f"coverage {_coverage_text(result['world_coverage'])}"
+    )
+    scope = (
+        "The controlled player uses one action per equal Information Set against "
+        "supplied fixed opponent Policies. Any completion applies only to the "
+        "selected World sequence. Sampling is not calibrated probability, and the "
+        "Result is not an equilibrium or globally optimal Skat-play claim."
+    )
+    card = result["recommended_card"]
+    if card is None:
+        return (
+            f"Information-set Search returned {details}. No recommendation is available. "
+            f"{scope}"
+        )
+    return f"Information-set Search recommends {card}: {details}. {scope}"
+
+
+def build_information_set_search_strategic_summary(
+    result: dict[str, Any],
+) -> str:
+    card = result["recommended_card"]
+    if card is None:
+        return (
+            "Strategic summary: Information-set Search produced no recommendation; "
+            f"status {result['status']}, stop reason {result['stop_reason']}."
+        )
+    return (
+        f"Strategic summary: {card} is recommended by Information-set Search over "
+        "the selected World sequence with one controlled action per equal "
+        "Information Set and supplied fixed opponent Policies."
+    )
+
+
 def build_auto_fallback_reason(
     search_result: BoundedSearchResult,
     immediate_reason: str,
@@ -530,6 +707,10 @@ def execute_recommendation_workflow(
     report_builder: Callable[..., list[dict[str, float | str | bool]]] | None = None,
     summary_builder: Callable[..., str] | None = None,
     unavailable_summary_builder: Callable[[str], str] | None = None,
+    effective_opponent_policy_settings: EffectiveOpponentPolicySettings | None = None,
+    information_set_workflow_executor: Callable[
+        ..., InformationSetSearchWorkflowResultV1
+    ] | None = None,
 ) -> RecommendationWorkflowResult:
     """Executes Immediate, strict Search, or Search-first auto routing."""
     legal_cards_builder = legal_cards_builder or get_legal_cards
@@ -573,6 +754,63 @@ def execute_recommendation_workflow(
             fallback_used=False,
             fallback_method=None,
             hidden_card_inference_model=hidden_model,
+        )
+
+    if configuration.requested_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        settings = configuration.information_set_search_settings
+        if settings is None:
+            raise ValueError("Information-set Search requires settings.")
+        if effective_opponent_policy_settings is None:
+            raise ValueError(
+                "Information-set Search requires resolved effective opponent Policies."
+            )
+        information_view = build_live_search_information_view(
+            state=state,
+            declaration=declaration,
+            left_hand_size=left_hand_size,
+            right_hand_size=right_hand_size,
+            skat_visibility=skat_visibility,
+            public_hand_constraints=public_hand_constraints,
+        )
+        workflow_executor = (
+            information_set_workflow_executor
+            or execute_live_information_set_search_workflow_v1
+        )
+        information_set_workflow = workflow_executor(
+            information_view=information_view,
+            settings=settings,
+            effective_policy_settings=effective_opponent_policy_settings,
+        )
+        public_result = information_set_workflow.public_result
+        card = public_result["recommended_card"]
+        legal_cards = (
+            tuple(legal_cards_builder(state.hand, state.current_trick, state.game_type))
+            if state.next_player == "me"
+            else ()
+        )
+        return RecommendationWorkflowResult(
+            requested_method=configuration.requested_method,
+            effective_method=(
+                INFORMATION_SET_SEARCH_EFFECTIVE_METHOD
+                if card is not None
+                else NONE_EFFECTIVE_METHOD
+            ),
+            recommendation_card=card,
+            recommendation_reason=build_information_set_search_recommendation_reason(
+                public_result
+            ),
+            legal_cards=legal_cards,
+            analysis_report=(),
+            analysis_report_method=NONE_ANALYSIS_REPORT_METHOD,
+            strategic_summary=build_information_set_search_strategic_summary(
+                public_result
+            ),
+            bounded_search_result=None,
+            fallback_used=False,
+            fallback_method=None,
+            information_set_search_result=information_set_workflow.result,
+            information_set_search_public_result=public_result,
+            information_set_search_workflow=information_set_workflow,
         )
 
     if configuration.requested_search_budget is None:
@@ -699,7 +937,10 @@ def build_recommendation_method_summary(
     return {
         "requested_method": result.requested_method,
         "effective_method": result.effective_method,
-        "search_attempted": result.bounded_search_result is not None,
+        "search_attempted": (
+            result.bounded_search_result is not None
+            or result.information_set_search_public_result is not None
+        ),
         "fallback_used": result.fallback_used,
         "fallback_method": result.fallback_method,
         "analysis_report_method": result.analysis_report_method,

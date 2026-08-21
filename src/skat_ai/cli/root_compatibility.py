@@ -30,12 +30,18 @@ from skat_ai.fixed_three_player_historical_list_comparison import (
 )
 from skat_ai.historical_decision_snapshot import build_historical_decision_snapshots
 from skat_ai.historical_game_review import build_historical_game_review_summary
+from skat_ai.historical_information_set_search_review import (
+    build_historical_information_set_search_review_summary_v1,
+)
 from skat_ai.historical_opponent_statistics import (
     aggregate_historical_opponent_statistics,
     build_exportable_opponent_statistics_input,
     build_historical_opponent_statistics_aggregation_summary,
 )
 from skat_ai.historical_search_review import build_historical_search_review_summary
+from skat_ai.information_set_search_evaluation import (
+    evaluate_information_set_search_dataset_v1,
+)
 from skat_ai.input_loader import get_input_workflow, load_opponent_statistics_from_json
 from skat_ai.multi_step_simulation import simulate_multiple_steps
 from skat_ai.opponent_statistics import (
@@ -87,6 +93,9 @@ _DEFAULT_LEGACY_PATCH_VALUES = {
     ),
     "build_historical_decision_snapshots": build_historical_decision_snapshots,
     "build_historical_game_review_summary": build_historical_game_review_summary,
+    "build_historical_information_set_search_review_summary_v1": (
+        build_historical_information_set_search_review_summary_v1
+    ),
     "build_historical_opponent_statistics_aggregation_summary": (
         build_historical_opponent_statistics_aggregation_summary
     ),
@@ -95,12 +104,8 @@ _DEFAULT_LEGACY_PATCH_VALUES = {
     ),
     "build_historical_search_review_summary": build_historical_search_review_summary,
     "build_opponent_statistics_summary": build_opponent_statistics_summary,
-    "build_serializable_dataset_partition_audit": (
-        build_serializable_dataset_partition_audit
-    ),
-    "build_serializable_opponent_statistics_input": (
-        build_serializable_opponent_statistics_input
-    ),
+    "build_serializable_dataset_partition_audit": (build_serializable_dataset_partition_audit),
+    "build_serializable_opponent_statistics_input": (build_serializable_opponent_statistics_input),
     "build_serializable_rolling_opponent_policy_evaluation": (
         build_serializable_rolling_opponent_policy_evaluation
     ),
@@ -108,15 +113,12 @@ _DEFAULT_LEGACY_PATCH_VALUES = {
         build_serializable_training_dataset_preparation_result
     ),
     "build_strategic_summary": build_strategic_summary,
-    "build_training_dataset_preparation_result": (
-        build_training_dataset_preparation_result
-    ),
+    "build_training_dataset_preparation_result": (build_training_dataset_preparation_result),
     "build_training_dataset_summary": build_training_dataset_summary,
     "compare_multi_step_policies": compare_multi_step_policies,
     "evaluate_bounded_search_dataset": evaluate_bounded_search_dataset,
-    "evaluate_rolling_opponent_policy_predictions": (
-        evaluate_rolling_opponent_policy_predictions
-    ),
+    "evaluate_information_set_search_dataset_v1": (evaluate_information_set_search_dataset_v1),
+    "evaluate_rolling_opponent_policy_predictions": (evaluate_rolling_opponent_policy_predictions),
     "get_input_workflow": get_input_workflow,
     "load_opponent_statistics_from_json": load_opponent_statistics_from_json,
     "recommend_card_by_expected_value": recommend_card_by_expected_value,
@@ -134,9 +136,7 @@ def legacy_patch_namespace(namespace: ModuleType):
     previous = _active_legacy_patch_namespace
     facade = sys.modules.get("skat_ai.cli.execution")
     previous_facade = (
-        getattr(facade, "_active_legacy_patch_namespace", None)
-        if facade is not None
-        else None
+        getattr(facade, "_active_legacy_patch_namespace", None) if facade is not None else None
     )
     _active_legacy_patch_namespace = namespace
     if facade is not None:
@@ -186,22 +186,22 @@ def build_legacy_application_dependencies() -> ApplicationWorkflowDependencies:
             build_snapshots=dependency("build_historical_decision_snapshots"),
             build_immediate_review=dependency("build_historical_game_review_summary"),
             build_search_review=dependency("build_historical_search_review_summary"),
-            build_replay_coaching=dependency(
-                "build_historical_replay_coaching_public_summaries"
+            build_information_set_search_review=dependency(
+                "build_historical_information_set_search_review_summary_v1"
             ),
+            build_replay_coaching=dependency("build_historical_replay_coaching_public_summaries"),
         ),
         training_dataset=TrainingDatasetWorkflowDependencies(
             build_summary=dependency("build_training_dataset_summary"),
             resolve_partition_audit_mode=dependency("resolve_dataset_partition_audit_mode"),
             audit_partitions=dependency("audit_training_dataset_partitions"),
-            serialize_partition_audit=dependency(
-                "build_serializable_dataset_partition_audit"
-            ),
+            serialize_partition_audit=dependency("build_serializable_dataset_partition_audit"),
             evaluate_rolling=dependency("evaluate_rolling_opponent_policy_predictions"),
-            serialize_rolling=dependency(
-                "build_serializable_rolling_opponent_policy_evaluation"
-            ),
+            serialize_rolling=dependency("build_serializable_rolling_opponent_policy_evaluation"),
             evaluate_bounded_search=dependency("evaluate_bounded_search_dataset"),
+            evaluate_information_set_search=dependency(
+                "evaluate_information_set_search_dataset_v1"
+            ),
             aggregate_statistics=dependency("aggregate_historical_opponent_statistics"),
             build_aggregation_summary=(
                 dependency("build_historical_opponent_statistics_aggregation_summary")

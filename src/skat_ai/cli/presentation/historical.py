@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from skat_ai.cli.presentation.common import print_information_set_search_metrics
+
 
 def _print_historical_continuation_event(event: dict[str, Any]) -> None:
     if event["kind"] == "defender_open_play_continuation":
@@ -55,13 +57,9 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
             )
             print("Joint liability: yes")
         elif end_kind == "declarer_concession":
-            consent_ids = game_end_summary["defender_consent"][
-                "consenting_defender_player_ids"
-            ]
+            consent_ids = game_end_summary["defender_consent"]["consenting_defender_player_ids"]
             consent_text = (
-                "not required"
-                if not consent_ids
-                else f"granted by {', '.join(consent_ids)}"
+                "not required" if not consent_ids else f"granted by {', '.join(consent_ids)}"
             )
             print("End reason: declarer concession")
         elif end_kind == "defender_open_play":
@@ -116,10 +114,7 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         print("Played cards:", summary["play_prefix_summary"]["played_card_count"])
         if end_kind == "defender_concession":
             print(f"Result: {summary['winner']} won")
-            if (
-                game_end_summary["decision_state_before_concession"]
-                == "defenders_already_won"
-            ):
+            if game_end_summary["decision_state_before_concession"] == "defenders_already_won":
                 print("The defending party had already won before the concession.")
                 print("The later concession did not reverse the existing result.")
         elif end_kind == "declarer_concession":
@@ -244,8 +239,7 @@ def print_historical_game_result(result: dict[str, Any]) -> None:
         print("Reviewed decisions:", review_summary["reviewed_decision_count"])
         print("Unavailable decisions:", review_summary["unavailable_decision_count"])
         inference_decision_count = sum(
-            "hidden_card_inference_summary" in decision
-            for decision in review_summary["decisions"]
+            "hidden_card_inference_summary" in decision for decision in review_summary["decisions"]
         )
         if inference_decision_count:
             print(
@@ -285,6 +279,15 @@ def print_historical_search_review_result(summary: dict[str, Any]) -> None:
         f"{quality['comparable_decision_count']} comparable decisions; "
         f"violations {quality['quality_violation_count']}.",
     )
+
+
+def print_historical_information_set_search_review_result(
+    summary: dict[str, Any],
+) -> None:
+    """Prints only aggregate, information-safe Information-set review metrics."""
+    print()
+    print("Historical Information-set Search Review")
+    print_information_set_search_metrics(summary)
 
 
 def print_historical_replay_coaching_result(summary: dict[str, Any]) -> None:

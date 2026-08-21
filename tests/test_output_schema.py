@@ -181,6 +181,18 @@ HISTORICAL_REPLAY_COACHING_SCHEMA_PATH = (
 BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
 )
+INFORMATION_SET_SEARCH_RESULT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "information_set_search_result.schema.json"
+)
+INFORMATION_SET_SEARCH_COMPARISON_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "information_set_search_comparison.schema.json"
+)
+HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_information_set_search_review.schema.json"
+)
+INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "information_set_search_evaluation.schema.json"
+)
 FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_aggregation.schema.json"
 )
@@ -309,6 +321,16 @@ with HISTORICAL_REPLAY_COACHING_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     HISTORICAL_REPLAY_COACHING_SCHEMA = json.load(file)
 with BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
     BOUNDED_SEARCH_EVALUATION_SCHEMA = json.load(file)
+with INFORMATION_SET_SEARCH_RESULT_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    INFORMATION_SET_SEARCH_RESULT_SCHEMA = json.load(file)
+with INFORMATION_SET_SEARCH_COMPARISON_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    INFORMATION_SET_SEARCH_COMPARISON_SCHEMA = json.load(file)
+with HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA_PATH.open(
+    "r", encoding="utf-8"
+) as file:
+    HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA = json.load(file)
+with INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+    INFORMATION_SET_SEARCH_EVALUATION_SCHEMA = json.load(file)
 with FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH.open(
     "r", encoding="utf-8"
 ) as file:
@@ -522,6 +544,22 @@ OUTPUT_SCHEMA_REGISTRY = Registry().with_resources(
         (
             BOUNDED_SEARCH_EVALUATION_SCHEMA["$id"],
             Resource.from_contents(BOUNDED_SEARCH_EVALUATION_SCHEMA),
+        ),
+        (
+            INFORMATION_SET_SEARCH_RESULT_SCHEMA["$id"],
+            Resource.from_contents(INFORMATION_SET_SEARCH_RESULT_SCHEMA),
+        ),
+        (
+            INFORMATION_SET_SEARCH_COMPARISON_SCHEMA["$id"],
+            Resource.from_contents(INFORMATION_SET_SEARCH_COMPARISON_SCHEMA),
+        ),
+        (
+            HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA["$id"],
+            Resource.from_contents(HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA),
+        ),
+        (
+            INFORMATION_SET_SEARCH_EVALUATION_SCHEMA["$id"],
+            Resource.from_contents(INFORMATION_SET_SEARCH_EVALUATION_SCHEMA),
         ),
         (
             FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA["$id"],

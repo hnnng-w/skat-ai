@@ -235,14 +235,26 @@ def _validate_historical_options(
         options.immediate_sample_count,
         "immediate_sample_count",
     )
-    needs_search = options.search_review or options.replay_coaching
+    if options.information_set_search_review and options.search_review:
+        raise SkatAIWorkflowError(
+            "Information-set Search Review cannot be combined with Search Review."
+        )
+    if options.information_set_search_review and options.replay_coaching:
+        raise SkatAIWorkflowError(
+            "Information-set Search Review cannot be combined with Replay Coaching."
+        )
+    needs_search = (
+        options.search_review
+        or options.information_set_search_review
+        or options.replay_coaching
+    )
     if needs_search and options.search_seed is None:
         raise SkatAIWorkflowError(
-            "Historical Search Review and Replay Coaching require search_seed."
+            "Historical Search operations require search_seed."
         )
     if options.search_seed is not None and not needs_search:
         raise SkatAIWorkflowError(
-            "search_seed requires Search Review or Replay Coaching."
+            "search_seed requires a Historical Search operation."
         )
     if options.search_budget_profile not in SEARCH_BUDGET_PROFILE_IDENTIFIERS:
         raise SkatAIWorkflowError(
@@ -254,11 +266,12 @@ def _validate_historical_options(
         != HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
     ):
         raise SkatAIWorkflowError(
-            "search_budget_profile requires Search Review or Replay Coaching."
+            "search_budget_profile requires a Historical Search operation."
         )
     has_review = (
         options.immediate_review
         or options.search_review
+        or options.information_set_search_review
         or options.replay_coaching
     )
     if (
@@ -270,9 +283,12 @@ def _validate_historical_options(
         )
     has_external = external_documents.opponent_statistics_document is not None
     profile_options = _historical_profile_option_names(options)
-    if has_external and not options.immediate_review:
+    if has_external and not (
+        options.immediate_review or options.information_set_search_review
+    ):
         raise SkatAIWorkflowError(
-            "Injected opponent statistics require Immediate Historical Review."
+            "Injected opponent statistics require Immediate Historical Review or "
+            "Information-set Search Review."
         )
     if has_external and not options.use_profile_presets_override:
         raise SkatAIWorkflowError(
@@ -321,6 +337,10 @@ def _validate_training_dataset_options(
     _validate_partitions(
         options.bounded_search_partitions,
         "bounded_search_partitions",
+    )
+    _validate_partitions(
+        options.information_set_search_partitions,
+        "information_set_search_partitions",
     )
     if options.aggregation_included_partitions is not None:
         _validate_partitions(
@@ -391,6 +411,38 @@ def _validate_training_dataset_options(
     ):
         raise SkatAIWorkflowError(
             "Bounded Search settings require the bounded_search_evaluation operation."
+        )
+    if options.operation == "information_set_search_evaluation":
+        if options.information_set_search_seed is None:
+            raise SkatAIWorkflowError(
+                "information_set_search_evaluation requires "
+                "information_set_search_seed."
+            )
+        if (
+            options.information_set_search_budget_profile
+            not in SEARCH_BUDGET_PROFILE_IDENTIFIERS
+        ):
+            raise SkatAIWorkflowError(
+                "information_set_search_budget_profile must be a supported profile."
+            )
+        if (
+            options.information_set_search_max_decisions is not None
+            and options.information_set_search_max_decisions <= 0
+        ):
+            raise SkatAIWorkflowError(
+                "information_set_search_max_decisions must be positive."
+            )
+    elif (
+        options.information_set_search_seed is not None
+        or options.information_set_search_partitions
+        != defaults.information_set_search_partitions
+        or options.information_set_search_budget_profile
+        != defaults.information_set_search_budget_profile
+        or options.information_set_search_max_decisions is not None
+    ):
+        raise SkatAIWorkflowError(
+            "Information-set Search settings require the "
+            "information_set_search_evaluation operation."
         )
     aggregation_settings_supplied = (
         options.aggregation_included_partitions is not None
@@ -578,7 +630,8 @@ def _training_dataset_handler(
         provenance_collector=provenance_collector,
         dependencies=_dependencies.training_dataset,
     )
-    return result, artifacts, provenance_collector.build_bundle(result, artifacts)
+    provenance = provenance_collector.build_bundle(result, artifacts)
+    return result, artifacts, provenance
 
 
 def _preparation_handler(

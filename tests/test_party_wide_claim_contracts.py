@@ -1151,15 +1151,15 @@ def test_matrix_runtime_public_cli_schema_example_and_package_baselines_are_curr
     ):
         assert name not in api_v1.__all__
     assert len(WorkflowV1) == 7
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 69
     assert (
         len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
-        == 65
+        == 69
     )
     assert {
         path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")
     } == SESSION_EXAMPLE_NAMES
-    assert len(SCENARIOS) == 88
+    assert len(SCENARIOS) == 92
     project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]

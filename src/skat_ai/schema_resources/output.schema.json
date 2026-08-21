@@ -47,6 +47,7 @@
             {"required": ["rolling_opponent_policy_evaluation_summary"]},
             {"required": ["dataset_partition_audit_summary"]},
             {"required": ["bounded_search_evaluation_summary"]},
+            {"required": ["information_set_search_evaluation_summary"]},
             {"required": ["fixed_three_player_historical_list_summary"]},
             {"required": ["fixed_three_player_historical_list_comparison_summary"]}
         ]
@@ -205,6 +206,22 @@
       "additionalProperties": false
     },
     {
+      "required": ["input_file", "information_set_search_evaluation_summary"],
+      "properties": {
+        "input_file": {"type": "string"},
+        "information_set_search_evaluation_summary": {
+          "$ref": "https://example.local/skat-ai/information_set_search_evaluation.schema.json"
+        },
+        "field_provenance": {
+          "allOf": [
+            {"$ref": "https://example.local/skat-ai/field_provenance.schema.json"},
+            {"properties": {"workflow": {"const": "training_dataset"}}}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    {
       "required": ["input_file", "fixed_three_player_historical_list_summary"],
       "properties": {
         "input_file": {"type": "string"},
@@ -302,20 +319,80 @@
         }
       },
       "else": {
-        "properties": {
-          "bounded_search_result": {
-            "allOf": [
-              {
-                "$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"
-              },
-              {
-                "properties": {
-                  "search_method": {"const": "compatible_world_minimax_v1"}
+        "if": {
+          "properties": {
+            "recommendation_method_summary": {
+              "properties": {
+                "requested_method": {"const": "information_set_search"}
+              }
+            }
+          },
+          "required": ["recommendation_method_summary"]
+        },
+        "then": {
+          "required": ["information_set_search_result"],
+          "properties": {
+            "bounded_search_result": {"type": "null"},
+            "information_set_search_result": {
+              "$ref": "https://example.local/skat-ai/information_set_search_result.schema.json"
+            },
+            "settings": {
+              "required": [
+                "recommendation_method",
+                "bounded_search_settings",
+                "information_set_search_settings"
+              ],
+              "properties": {
+                "recommendation_method": {"const": "information_set_search"},
+                "bounded_search_settings": {"type": "null"},
+                "information_set_search_settings": {
+                  "$ref": "#/$defs/information_set_search_settings"
                 }
               }
-            ]
+            }
+          }
+        },
+        "else": {
+          "properties": {
+            "bounded_search_result": {
+              "allOf": [
+                {
+                  "$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"
+                },
+                {
+                  "properties": {
+                    "search_method": {"const": "compatible_world_minimax_v1"}
+                  }
+                }
+              ]
+            }
           }
         }
+      }
+    },
+    {
+      "if": {
+        "required": ["recommendation_method_summary"],
+        "properties": {
+          "recommendation_method_summary": {
+            "properties": {"requested_method": {"const": "information_set_search"}}
+          },
+          "information_policy_summary": {
+            "properties": {"analysis_mode": {"const": "post_game_review"}}
+          }
+        }
+      },
+      "then": {"required": ["information_set_search_comparison"]},
+      "else": {
+        "if": {
+          "required": ["recommendation_method_summary"],
+          "properties": {
+            "recommendation_method_summary": {
+              "properties": {"requested_method": {"const": "information_set_search"}}
+            }
+          }
+        },
+        "then": {"not": {"required": ["information_set_search_comparison"]}}
       }
     },
     {
@@ -469,6 +546,9 @@
     "bounded_search_evaluation_summary": {
       "$ref": "https://example.local/skat-ai/bounded_search_evaluation.schema.json"
     },
+    "information_set_search_evaluation_summary": {
+      "$ref": "https://example.local/skat-ai/information_set_search_evaluation.schema.json"
+    },
     "fixed_three_player_historical_list_summary": {
       "$ref": "https://example.local/skat-ai/fixed_three_player_historical_list_aggregation.schema.json"
     },
@@ -489,11 +569,22 @@
       "properties": {
         "recommendation_method": {
           "type": "string",
-          "enum": ["immediate_expected_value", "bounded_search", "auto"]
+          "enum": [
+            "immediate_expected_value",
+            "bounded_search",
+            "auto",
+            "information_set_search"
+          ]
         },
         "bounded_search_settings": {
           "oneOf": [
             {"$ref": "#/$defs/bounded_search_settings"},
+            {"type": "null"}
+          ]
+        },
+        "information_set_search_settings": {
+          "oneOf": [
+            {"$ref": "#/$defs/information_set_search_settings"},
             {"type": "null"}
           ]
         }
@@ -616,6 +707,12 @@
         {"type": "null"}
       ]
     },
+    "information_set_search_result": {
+      "$ref": "https://example.local/skat-ai/information_set_search_result.schema.json"
+    },
+    "information_set_search_comparison": {
+      "$ref": "https://example.local/skat-ai/information_set_search_comparison.schema.json"
+    },
     "multi_step_result": {
       "$ref": "#/$defs/multi_step_result"
     },
@@ -671,6 +768,36 @@
         "wall_clock_timeout_ms": {"type": ["integer", "null"], "minimum": 1}
       }
     },
+    "information_set_search_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "random_seed",
+        "max_remaining_tricks",
+        "max_depth_plies",
+        "max_state_nodes",
+        "max_information_sets",
+        "max_selected_worlds",
+        "max_sampled_worlds",
+        "minimum_comparable_worlds",
+        "wall_clock_timeout_ms"
+      ],
+      "properties": {
+        "random_seed": {"type": "integer"},
+        "max_remaining_tricks": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "max_depth_plies": {"type": "integer", "minimum": 1},
+        "max_state_nodes": {"type": "integer", "minimum": 1},
+        "max_information_sets": {"type": "integer", "minimum": 1},
+        "max_selected_worlds": {"type": "integer", "minimum": 1},
+        "max_sampled_worlds": {"type": "integer", "minimum": 1},
+        "minimum_comparable_worlds": {"type": "integer", "minimum": 1},
+        "wall_clock_timeout_ms": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
     "recommendation_method_summary": {
       "type": "object",
       "additionalProperties": false,
@@ -685,13 +812,19 @@
       "properties": {
         "requested_method": {
           "type": "string",
-          "enum": ["immediate_expected_value", "bounded_search", "auto"]
+          "enum": [
+            "immediate_expected_value",
+            "bounded_search",
+            "auto",
+            "information_set_search"
+          ]
         },
         "effective_method": {
           "type": "string",
           "enum": [
             "immediate_expected_value",
             "compatible_world_minimax_v1",
+            "bounded_information_set_policy_search_v1",
             "none"
           ]
         },
@@ -771,6 +904,24 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_method": {"const": "information_set_search"}
+            }
+          },
+          "then": {
+            "properties": {
+              "effective_method": {
+                "enum": ["bounded_information_set_policy_search_v1", "none"]
+              },
+              "search_attempted": {"const": true},
+              "fallback_used": {"const": false},
+              "fallback_method": {"type": "null"},
+              "analysis_report_method": {"const": "none"}
+            }
           }
         }
       ]
@@ -1245,6 +1396,9 @@
         },
         "historical_search_review_summary": {
           "$ref": "https://example.local/skat-ai/historical_search_review.schema.json"
+        },
+        "historical_information_set_search_review_summary": {
+          "$ref": "https://example.local/skat-ai/historical_information_set_search_review.schema.json"
         },
         "historical_replay_coaching_summary": {
           "$ref": "https://example.local/skat-ai/historical_replay_coaching.schema.json"

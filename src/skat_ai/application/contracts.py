@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING, Any
 from skat_ai.api.v1.contracts import RequestDocumentV1, ResultDocumentV1
 from skat_ai.bounded_search_evaluation import DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS
 from skat_ai.errors import SkatAIValidationError
+from skat_ai.information_set_search_evaluation import (
+    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS,
+    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PROFILE,
+)
 from skat_ai.rolling_opponent_policy_evaluation import (
     DEFAULT_EVALUATION_PARTITIONS,
     DEFAULT_SOURCE_PARTITIONS,
@@ -30,6 +34,7 @@ TRAINING_DATASET_APPLICATION_OPERATIONS = (
     "partition_audit",
     "rolling_opponent_policy_evaluation",
     "bounded_search_evaluation",
+    "information_set_search_evaluation",
     "historical_opponent_statistics_aggregation",
 )
 APPLICATION_ARTIFACT_NAMES = ("opponent_statistics_input",)
@@ -180,6 +185,7 @@ class HistoricalGameApplicationOptions:
     decision_snapshots: bool = False
     immediate_review: bool = False
     search_review: bool = False
+    information_set_search_review: bool = False
     replay_coaching: bool = False
     search_seed: int | None = None
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
@@ -199,6 +205,7 @@ class HistoricalGameApplicationOptions:
             "decision_snapshots",
             "immediate_review",
             "search_review",
+            "information_set_search_review",
             "replay_coaching",
             "use_profile_presets_override",
         ):
@@ -235,6 +242,14 @@ class TrainingDatasetApplicationOptions:
     bounded_search_partitions: tuple[str, ...] = DEFAULT_BOUNDED_SEARCH_EVALUATION_PARTITIONS
     bounded_search_budget_profile: str = EVALUATION_SEARCH_BUDGET_PROFILE
     bounded_search_max_decisions: int | None = None
+    information_set_search_seed: int | None = None
+    information_set_search_partitions: tuple[str, ...] = (
+        DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS
+    )
+    information_set_search_budget_profile: str = (
+        DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PROFILE
+    )
+    information_set_search_max_decisions: int | None = None
     aggregation_included_partitions: tuple[str, ...] | None = None
     aggregation_before: str | None = None
     export_opponent_statistics: bool = False
@@ -247,6 +262,14 @@ class TrainingDatasetApplicationOptions:
         _validate_optional_int(
             self.bounded_search_max_decisions,
             path="bounded_search_max_decisions",
+        )
+        _validate_optional_int(
+            self.information_set_search_seed,
+            path="information_set_search_seed",
+        )
+        _validate_optional_int(
+            self.information_set_search_max_decisions,
+            path="information_set_search_max_decisions",
         )
         _validate_optional_string(self.aggregation_before, path="aggregation_before")
         _validate_boolean(
@@ -261,10 +284,19 @@ class TrainingDatasetApplicationOptions:
                 "must be a non-empty string.",
                 "bounded_search_budget_profile",
             )
+        if (
+            not isinstance(self.information_set_search_budget_profile, str)
+            or not self.information_set_search_budget_profile
+        ):
+            raise _validation_error(
+                "must be a non-empty string.",
+                "information_set_search_budget_profile",
+            )
         for name in (
             "rolling_source_partitions",
             "rolling_evaluation_partitions",
             "bounded_search_partitions",
+            "information_set_search_partitions",
         ):
             object.__setattr__(
                 self,

@@ -691,6 +691,13 @@ world assignments, coherent roots, ownership-reconstructing fingerprints,
 future historical data, derived Search seeds, or world-specific principal
 variations.
 
+Issue #189 adds separate strict Information-set Search Result, comparison,
+Historical Review, and Training Dataset evaluation schemas. Their public
+serializers likewise omit selected Worlds, exact states and hands, actor
+Observations, the private controlled Policy table, caches, memoization, and
+derived seeds. See
+[Information-set Search workflows](information_set_search_workflows.md).
+
 `fallback_used` and `fallback_method` are consistency checked. They remain false
 for solver-only calls and strict Search; only the caller-owned auto workflow may
 mark `immediate_expected_value` fallback on an otherwise unchanged no-
@@ -700,23 +707,26 @@ routing can consume it.
 
 ## Remaining work
 
-Both executable methods remain limited to late Suit, Grand, and supported normal
-Null play. Overbid Null remains unavailable because search does not select an
-impossible-Null replacement. Compatible-world Minimax is an internal
-determinization aggregate, not information-set Search or an optimal policy
-proof. Issue #187 separately defines private three-Trick actor Observation,
-World State, fixed-Policy, Budget, Request, Preparation, and Result contracts
-that can prevent controlled-Player Strategy Fusion. Issue #188 adds the private
-bounded exhaustive selected-world best-response executor, but no existing Search
-method or route. Flat post-game review, Historical Search Review, dataset Search-versus-
-Immediate evaluation, immutable internal profiles, quality fixtures, and a
-bounded performance baseline now exist. They do not add calibrated sampled-
-quality estimates, a latency guarantee, adaptive sampling, routed
-information-set Search, Expectimax, complete Strategy-Fusion correction,
-complete-contract solving, or a
-stable package-root API. Existing omitted-method Immediate behavior is unchanged.
-The stronger-search v1.0 completion gate therefore remains open.
+Existing bounded Search methods remain limited to late Suit, Grand, and supported
+normal Null play. Overbid Null remains unavailable because Search does not select
+an impossible-Null replacement. Compatible-world Minimax remains a
+determinization aggregate, not an optimal imperfect-information Policy proof.
+Issues #187 and #188 separately define and execute the private three-Trick
+Information-set Policy Search. Issue #189 exposes it through strict flat routing,
+same-selection retrospective comparison, separate Historical Review and Training
+Dataset evaluation, safe public output, Provenance, CLI, Schemas, an example, and
+generated scenarios. Live Information-set Search has no baseline or fallback;
+existing `auto` remains PIMC first with Immediate fallback.
+
+The integration does not add calibrated sampled quality, a latency guarantee,
+adaptive sampling, Expectimax, complete Strategy-Fusion correction,
+complete-contract solving, or a stable package-root Domain API. Multi-Step,
+Policy Comparison, Match Capture, Strategy Teacher Evidence, and Replay Coaching
+classification remain unchanged pending Issue #190. The stronger-search v1.0
+completion gate therefore remains open.
 
 See [Information-set Search contracts](information_set_search_contracts.md) and
 the [Information-set Search executor](information_set_search_executor.md) for
-the separate private controlled-Player policy-consistency claim.
+the private controlled-Player policy-consistency claim, and
+[Information-set Search workflows](information_set_search_workflows.md) for the
+integrated public boundaries.

@@ -17,6 +17,9 @@ from skat_ai.historical_opponent_statistics import (
     build_exportable_opponent_statistics_input,
     build_historical_opponent_statistics_aggregation_summary,
 )
+from skat_ai.information_set_search_evaluation import (
+    evaluate_information_set_search_dataset_v1,
+)
 from skat_ai.input_loader import build_training_dataset_from_document
 from skat_ai.opponent_statistics import build_serializable_opponent_statistics_input
 from skat_ai.rolling_opponent_policy_evaluation import (
@@ -45,6 +48,9 @@ class TrainingDatasetWorkflowDependencies:
         build_serializable_rolling_opponent_policy_evaluation
     )
     evaluate_bounded_search: Callable[..., Any] = evaluate_bounded_search_dataset
+    evaluate_information_set_search: Callable[..., Any] = (
+        evaluate_information_set_search_dataset_v1
+    )
     aggregate_statistics: Callable[..., Any] = (
         aggregate_historical_opponent_statistics
     )
@@ -115,6 +121,21 @@ def execute_training_dataset_workflow(
                 partitions=options.bounded_search_partitions,
                 search_budget_profile=options.bounded_search_budget_profile,
                 max_decisions=options.bounded_search_max_decisions,
+            ),
+        }
+    elif options.operation == "information_set_search_evaluation":
+        result = {
+            "input_file": input_reference,
+            "information_set_search_evaluation_summary": (
+                dependencies.evaluate_information_set_search(
+                    dataset,
+                    base_search_seed=options.information_set_search_seed,
+                    partitions=options.information_set_search_partitions,
+                    search_budget_profile=(
+                        options.information_set_search_budget_profile
+                    ),
+                    max_decisions=options.information_set_search_max_decisions,
+                )
             ),
         }
     else:

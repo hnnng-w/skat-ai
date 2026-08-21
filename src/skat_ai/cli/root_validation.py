@@ -37,6 +37,7 @@ def validate_cli_arguments(
     aggregate_statistics = getattr(args, "aggregate_opponent_statistics", False)
     evaluate_profiles = getattr(args, "evaluate_opponent_policy_profiles", False)
     evaluate_search = getattr(args, "evaluate_bounded_search", False)
+    evaluate_information_set_search = getattr(args, "information_set_search_evaluation", False)
     audit_partitions = getattr(args, "audit_dataset_partitions", False)
     dataset_partition_mode = getattr(args, "dataset_partition_mode", None)
     if dataset_partition_mode is not None and not audit_partitions:
@@ -64,49 +65,80 @@ def validate_cli_arguments(
             "--evaluate-opponent-policy-profiles is supported only for training_dataset_input."
         )
     search_evaluation_options = {
-        "--search-evaluation-partition": getattr(
-            args, "search_evaluation_partition", None
-        )
+        "--search-evaluation-partition": getattr(args, "search_evaluation_partition", None)
         is not None,
-        "--search-evaluation-max-decisions": getattr(
-            args, "search_evaluation_max_decisions", None
-        )
+        "--search-evaluation-max-decisions": getattr(args, "search_evaluation_max_decisions", None)
         is not None,
     }
     supplied_search_evaluation_options = [
         option for option, supplied in search_evaluation_options.items() if supplied
     ]
-    if supplied_search_evaluation_options and not evaluate_search:
+    if evaluate_search and evaluate_information_set_search:
         raise CliUsageError(
-            "Bounded-Search evaluation options require --evaluate-bounded-search: "
+            "--evaluate-bounded-search and --information-set-search-evaluation "
+            "are mutually exclusive."
+        )
+    if supplied_search_evaluation_options and not (
+        evaluate_search or evaluate_information_set_search
+    ):
+        raise CliUsageError(
+            "Search evaluation options require --evaluate-bounded-search or "
+            "--information-set-search-evaluation: "
             f"{', '.join(supplied_search_evaluation_options)}."
         )
     if evaluate_search and workflow != "training_dataset":
         raise CliUsageError(
             "--evaluate-bounded-search is supported only for training_dataset_input."
         )
+    if evaluate_information_set_search and workflow != "training_dataset":
+        raise CliUsageError(
+            "--information-set-search-evaluation is supported only for training_dataset_input."
+        )
     historical_search = getattr(args, "historical_search_review", False)
+    historical_information_set_search = getattr(
+        args, "historical_information_set_search_review", False
+    )
     historical_coaching = getattr(args, "historical_replay_coaching", False)
     search_seed = getattr(args, "search_seed", None)
     search_budget_profile = getattr(args, "search_budget_profile", None)
-    if (historical_search or historical_coaching or evaluate_search) and search_seed is None:
+    if historical_information_set_search and workflow != "historical_game":
         raise CliUsageError(
-            "Historical Search Review, Historical Replay Coaching, and bounded-Search "
-            "evaluation require --search-seed."
+            "--historical-information-set-search-review requires historical-game input."
         )
-    if search_seed is not None and not (
-        historical_search or historical_coaching or evaluate_search
-    ):
+    if historical_information_set_search and historical_search:
+        raise CliUsageError(
+            "--historical-information-set-search-review conflicts with --historical-search-review."
+        )
+    if historical_information_set_search and historical_coaching:
+        raise CliUsageError(
+            "--historical-information-set-search-review conflicts with "
+            "--historical-replay-coaching."
+        )
+    search_operation = (
+        historical_search
+        or historical_information_set_search
+        or historical_coaching
+        or evaluate_search
+        or evaluate_information_set_search
+    )
+    if search_operation and search_seed is None:
+        raise CliUsageError(
+            "Historical Search Review, Historical Information-set Search Review, "
+            "Historical Replay Coaching, and Search evaluation require --search-seed."
+        )
+    if search_seed is not None and not search_operation:
         raise CliUsageError(
             "--search-seed requires --historical-search-review, "
-            "--historical-replay-coaching, or --evaluate-bounded-search."
+            "--historical-information-set-search-review, "
+            "--historical-replay-coaching, --evaluate-bounded-search, or "
+            "--information-set-search-evaluation."
         )
-    if search_budget_profile is not None and not (
-        historical_search or historical_coaching or evaluate_search
-    ):
+    if search_budget_profile is not None and not search_operation:
         raise CliUsageError(
             "--search-budget-profile requires --historical-search-review or "
-            "--historical-replay-coaching or --evaluate-bounded-search."
+            "--historical-information-set-search-review or "
+            "--historical-replay-coaching or --evaluate-bounded-search or "
+            "--information-set-search-evaluation."
         )
     if (
         getattr(args, "search_evaluation_max_decisions", None) is not None
@@ -240,13 +272,19 @@ def validate_live_opponent_profile_options(
 
 def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
     """Rejects position-analysis and simulation overrides for historical games."""
-    historical_profile_review = (
-        args.historical_game_review and args.opponent_statistics_file is not None
+    information_set_review = getattr(
+        args, "historical_information_set_search_review", False
     )
-    if args.opponent_statistics_file is not None and not args.historical_game_review:
+    historical_profile_review = (
+        (args.historical_game_review or information_set_review)
+        and args.opponent_statistics_file is not None
+    )
+    if args.opponent_statistics_file is not None and not (
+        args.historical_game_review or information_set_review
+    ):
         raise CliUsageError(
-            "--opponent-statistics-file requires --historical-game-review for "
-            "historical-game input."
+            "--opponent-statistics-file requires --historical-game-review or "
+            "--historical-information-set-search-review for historical-game input."
         )
     if historical_profile_review and (
         args.left_opponent_player_id is not None or args.right_opponent_player_id is not None
@@ -264,12 +302,14 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         and not (
             args.historical_game_review
             or args.historical_search_review
+            or getattr(args, "historical_information_set_search_review", False)
             or args.historical_replay_coaching
         ),
         "--seed": args.seed is not None
         and not (
             args.historical_game_review
             or args.historical_search_review
+            or getattr(args, "historical_information_set_search_review", False)
             or args.historical_replay_coaching
         ),
         "--opponent-strategy": args.opponent_strategy is not None,
@@ -306,13 +346,12 @@ def validate_historical_game_cli_arguments(args: argparse.Namespace) -> None:
         "--right-opponent-player-id": args.right_opponent_player_id is not None,
         "--aggregate-opponent-statistics": getattr(args, "aggregate_opponent_statistics", False),
         "--evaluate-bounded-search": getattr(args, "evaluate_bounded_search", False),
-        "--search-evaluation-partition": getattr(
-            args, "search_evaluation_partition", None
-        )
+        "--information-set-search-evaluation": getattr(
+            args, "information_set_search_evaluation", False
+        ),
+        "--search-evaluation-partition": getattr(args, "search_evaluation_partition", None)
         is not None,
-        "--search-evaluation-max-decisions": getattr(
-            args, "search_evaluation_max_decisions", None
-        )
+        "--search-evaluation-max-decisions": getattr(args, "search_evaluation_max_decisions", None)
         is not None,
     }
     supplied_options = [
@@ -335,6 +374,9 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
         "--historical-search-review": args.historical_search_review,
+        "--historical-information-set-search-review": getattr(
+            args, "historical_information_set_search_review", False
+        ),
         "--historical-replay-coaching": args.historical_replay_coaching,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
@@ -356,6 +398,9 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
     }
     evaluation_mode = getattr(args, "evaluate_opponent_policy_profiles", False)
     search_evaluation_mode = getattr(args, "evaluate_bounded_search", False)
+    information_set_search_evaluation_mode = getattr(
+        args, "information_set_search_evaluation", False
+    )
     audit_mode = getattr(args, "audit_dataset_partitions", False)
     if audit_mode:
         incompatible_options.update(
@@ -373,6 +418,7 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
                 is not None,
                 "--evaluate-opponent-policy-profiles": evaluation_mode,
                 "--evaluate-bounded-search": search_evaluation_mode,
+                "--information-set-search-evaluation": (information_set_search_evaluation_mode),
             }
         )
     if evaluation_mode:
@@ -389,6 +435,7 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
                 is not None,
                 "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
                 is not None,
+                "--information-set-search-evaluation": (information_set_search_evaluation_mode),
             }
         )
     if search_evaluation_mode:
@@ -399,17 +446,33 @@ def validate_training_dataset_cli_arguments(args: argparse.Namespace) -> None:
                     args, "aggregate_opponent_statistics", False
                 ),
                 "--evaluate-opponent-policy-profiles": evaluation_mode,
+                "--information-set-search-evaluation": (information_set_search_evaluation_mode),
                 "--opponent-statistics-partition": getattr(
                     args, "opponent_statistics_partition", None
                 )
                 is not None,
-                "--opponent-statistics-before": getattr(
-                    args, "opponent_statistics_before", None
+                "--opponent-statistics-before": getattr(args, "opponent_statistics_before", None)
+                is not None,
+                "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
+                is not None,
+            }
+        )
+    if information_set_search_evaluation_mode:
+        incompatible_options.update(
+            {
+                "--audit-dataset-partitions": audit_mode,
+                "--aggregate-opponent-statistics": getattr(
+                    args, "aggregate_opponent_statistics", False
+                ),
+                "--evaluate-opponent-policy-profiles": evaluation_mode,
+                "--evaluate-bounded-search": search_evaluation_mode,
+                "--opponent-statistics-partition": getattr(
+                    args, "opponent_statistics_partition", None
                 )
                 is not None,
-                "--export-opponent-statistics": getattr(
-                    args, "export_opponent_statistics", None
-                )
+                "--opponent-statistics-before": getattr(args, "opponent_statistics_before", None)
+                is not None,
+                "--export-opponent-statistics": getattr(args, "export_opponent_statistics", None)
                 is not None,
             }
         )
@@ -444,10 +507,16 @@ def validate_training_dataset_preparation_cli_arguments(
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
         "--historical-search-review": args.historical_search_review,
+        "--historical-information-set-search-review": getattr(
+            args, "historical_information_set_search_review", False
+        ),
         "--historical-replay-coaching": args.historical_replay_coaching,
         "--search-seed": args.search_seed is not None,
         "--search-budget-profile": args.search_budget_profile is not None,
         "--evaluate-bounded-search": args.evaluate_bounded_search,
+        "--information-set-search-evaluation": getattr(
+            args, "information_set_search_evaluation", False
+        ),
         "--search-evaluation-partition": args.search_evaluation_partition is not None,
         "--search-evaluation-max-decisions": args.search_evaluation_max_decisions is not None,
         "--multi-step": args.multi_step is not None,
@@ -488,20 +557,19 @@ def validate_opponent_statistics_cli_arguments(args: argparse.Namespace) -> None
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
         "--historical-search-review": getattr(args, "historical_search_review", False),
-        "--historical-replay-coaching": getattr(
-            args, "historical_replay_coaching", False
+        "--historical-information-set-search-review": getattr(
+            args, "historical_information_set_search_review", False
         ),
+        "--historical-replay-coaching": getattr(args, "historical_replay_coaching", False),
         "--search-seed": getattr(args, "search_seed", None) is not None,
-        "--search-budget-profile": getattr(args, "search_budget_profile", None)
-        is not None,
+        "--search-budget-profile": getattr(args, "search_budget_profile", None) is not None,
         "--evaluate-bounded-search": getattr(args, "evaluate_bounded_search", False),
-        "--search-evaluation-partition": getattr(
-            args, "search_evaluation_partition", None
-        )
+        "--information-set-search-evaluation": getattr(
+            args, "information_set_search_evaluation", False
+        ),
+        "--search-evaluation-partition": getattr(args, "search_evaluation_partition", None)
         is not None,
-        "--search-evaluation-max-decisions": getattr(
-            args, "search_evaluation_max_decisions", None
-        )
+        "--search-evaluation-max-decisions": getattr(args, "search_evaluation_max_decisions", None)
         is not None,
         "--multi-step": args.multi_step is not None,
         "--card-policy": args.card_policy is not None,
@@ -553,10 +621,16 @@ def validate_fixed_three_player_historical_list_cli_arguments(
         "--historical-decision-snapshots": args.historical_decision_snapshots,
         "--historical-game-review": args.historical_game_review,
         "--historical-search-review": args.historical_search_review,
+        "--historical-information-set-search-review": getattr(
+            args, "historical_information_set_search_review", False
+        ),
         "--historical-replay-coaching": args.historical_replay_coaching,
         "--search-seed": args.search_seed is not None,
         "--search-budget-profile": args.search_budget_profile is not None,
         "--evaluate-bounded-search": args.evaluate_bounded_search,
+        "--information-set-search-evaluation": getattr(
+            args, "information_set_search_evaluation", False
+        ),
         "--search-evaluation-partition": args.search_evaluation_partition is not None,
         "--search-evaluation-max-decisions": args.search_evaluation_max_decisions is not None,
         "--multi-step": args.multi_step is not None,

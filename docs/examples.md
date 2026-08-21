@@ -38,8 +38,10 @@ The current unreleased working baseline keeps Package version `0.16.0`, Public
 API contract version `1`, seven Root workflows, one Console Script, and six
 Session examples. Issue #186 adds two authoritative and packaged Historical
 Claim Schemas plus three append-only generated-output scenarios, bringing the
-working totals to 65 Schemas and 88 scenarios without changing the published
-`v0.16.0` facts above.
+working totals to 65 Schemas and 88 scenarios. Issue #189 adds four authoritative
+and packaged Information-set Search Schemas, one input example, and four append-
+only generated-output scenarios, bringing the totals to 69 Schemas and 92
+scenarios without changing the published `v0.16.0` facts above.
 
 The historical published `v0.15.0` baseline at commit `ec1c154` contains 63
 authoritative Schemas and 63 Packaged Schema Resources, includes six strict
@@ -161,6 +163,19 @@ comparisons:
 ```powershell
 python main.py --input examples/grand_bounded_search_post_game_review.json
 ```
+
+Run strict flat Information-set Search with the example's exact nine settings:
+
+```powershell
+python main.py --input examples/information_set_search.json
+```
+
+Live Information-set Search has no PIMC or Immediate baseline and no fallback.
+Its public Result is aggregate-only and omits exact Worlds, hidden hands,
+Observations, controlled Policy tables, caches, and derived seeds.
+The four Issue #189 generated scenarios cover this complete Live result with
+Provenance, flat Post-game same-selection comparison, Historical Review, and
+Training Dataset evaluation.
 
 Write structured JSON output:
 
@@ -329,6 +344,13 @@ Review a complete Grand Ouvert through the same deterministic path:
 python main.py --input examples/historical_grand_ouvert_review.json --historical-game-review --samples 20 --seed 42
 ```
 
+Run the separate Historical Information-set Search Review. This flag conflicts
+with Historical Search Review and Replay Coaching:
+
+```powershell
+python main.py --input examples/historical_grand_normal_completion.json --historical-information-set-search-review --search-seed 83 --search-budget-profile interactive_v1 --samples 1 --seed 47
+```
+
 Convert the versioned training/evaluation dataset example:
 
 ```powershell
@@ -340,6 +362,14 @@ partitions with one stable global decision-prefix cap:
 
 ```powershell
 python main.py --input examples/training_dataset_normal_play.json --evaluate-bounded-search --search-seed 71 --search-evaluation-max-decisions 10
+```
+
+Evaluate Information-set Search, same-selection PIMC, and independently seeded
+Immediate on the same default validation/test partitions and deterministic
+global prefix:
+
+```powershell
+python main.py --input examples/training_dataset_normal_play.json --information-set-search-evaluation --search-seed 89 --search-evaluation-max-decisions 1
 ```
 
 Audit exact stable-player overlap without generating samples:
@@ -470,6 +500,7 @@ Live decision examples must not include post-game-only information such as `know
 | `grand_hidden_card_inference.json`         | Grand position with attributed failure-to-follow evidence, exact compatible-world count and marginals, privacy-safe inference output, and later Multi-Step evidence progression. |
 | `grand_bounded_search_exhaustive.json`     | One legal late Grand card, one compatible world, exact exhaustive Search completion, and a direct Search recommendation. |
 | `grand_auto_search_fallback.json`          | The same late Grand information state with a one-node Search budget, a valid below-threshold partial result, and explicit Immediate fallback. |
+| `information_set_search.json`              | One legal late Grand defender Card, one selected World, strict complete Information-set Search, exact nine settings, and safe aggregate output. |
 | `hearts_leading.json`                      | Suit game example.                                                                                                           |
 | `null_second_position.json`                | Null game example.                                                                                                           |
 
@@ -549,6 +580,9 @@ decisions alongside early out-of-profile decisions without serializing derived
 per-decision Search seeds. Replay Coaching adds three generated-output scenarios:
 normal Grand with Key Decisions and a Turning Point, normal Null with no margin
 recommendation, and defender-open-play continuation before declarer concession.
+Issue #189 adds a separate Historical Information-set Search Review scenario with
+deterministic decision-time routing, no future leakage, and descriptive
+Information-set/PIMC/Immediate/actual-Card metrics.
 The two chain examples keep the continuation summary
 separate from the reason-specific terminal summary and retain schema versions `1`.
 
@@ -607,6 +641,13 @@ Immediate baseline over selected dataset records. It defaults to validation and
 test partitions, preserves zero-decision records, optionally caps one global
 stable decision prefix, and emits strict aggregate quality and performance
 summaries instead of training samples.
+
+The separate `--information-set-search-evaluation` mode runs Information-set
+Search, PIMC on the exact retained selected-world sequence, and independently
+seeded Immediate before attaching the actual Card. It has the same default
+validation/test ordering and global decision cap. It produces descriptive
+evaluation only; it does not change samples or targets, train a model, or claim a
+ground-truth optimal Card.
 
 ## Opponent-statistics example
 
@@ -1099,6 +1140,8 @@ Generated outputs may include:
 * `recommendation`
 * `recommendation_method_summary` and `bounded_search_result`, only for an explicitly supplied recommendation method
 * `bounded_search_post_game_review_summary`, for an explicit flat post-game Search method
+* `information_set_search_result`, for strict flat Information-set Search
+* `information_set_search_comparison`, for flat Post-game Information-set Search
 * `post_game_review_summary`
 * `multi_step_result`, if multi-step simulation is requested
 * `policy_comparison_result`, if policy comparison is requested
@@ -1112,6 +1155,10 @@ Historical Replay Coaching is nested there as
 `historical_replay_coaching_summary`; bounded-Search dataset evaluation uses the
 separate
 `bounded_search_evaluation_summary` branch.
+Historical Information-set Search Review is nested under
+`historical_game_summary` as
+`historical_information_set_search_review_summary`; its Dataset evaluation uses
+the separate `information_set_search_evaluation_summary` branch.
 Training-dataset aggregation instead uses
 `historical_opponent_statistics_aggregation_summary`.
 Fixed-three-player historical-list roots instead use the mutually exclusive

@@ -34,9 +34,24 @@ HISTORICAL_MATCH_SMOKE_EXAMPLE = (
     PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
 )
 HISTORICAL_CLAIM_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "historical_party_wide_claim.json"
+INFORMATION_SET_SEARCH_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "information_set_search.json"
+INFORMATION_SET_SEARCH_POST_GAME_SMOKE_EXAMPLE = (
+    PROJECT_ROOT
+    / "tests"
+    / "fixtures"
+    / "generated_output_schema"
+    / "information_set_search_post_game_comparison.json"
+)
+HISTORICAL_INFORMATION_SET_SEARCH_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json"
+)
+INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE = (
+    PROJECT_ROOT / "examples" / "training_dataset_normal_play.json"
+)
+AUTO_SMOKE_EXAMPLE = PROJECT_ROOT / "examples" / "grand_auto_search_fallback.json"
 PACKAGE_NAME = "skat-ai"
 PACKAGE_VERSION = "0.16.0"
-EXPECTED_SCHEMA_RESOURCE_COUNT = 65
+EXPECTED_SCHEMA_RESOURCE_COUNT = 69
 SCHEMA_RESOURCE_PREFIX = "skat_ai/schema_resources/"
 CAPTURE_RESOURCE_PREFIX = "skat_ai/capture_web/"
 CAPTURE_RESOURCE_NAMES = (
@@ -787,6 +802,9 @@ from skat_ai.session_persistence_contracts import (
 cwd = Path.cwd().resolve()
 repository_root = Path(os.environ["SKAT_AI_REPOSITORY_ROOT"]).resolve()
 document = json.loads((cwd / "opponent_statistics.json").read_text(encoding="utf-8"))
+information_set_search_document = json.loads(
+    (cwd / "information-set-search.json").read_text(encoding="utf-8")
+)
 expected_schema_root = cwd / "expected_schemas"
 resource_root = importlib.resources.files("skat_ai.schema_resources")
 resource_names = sorted(
@@ -796,7 +814,7 @@ resource_names = sorted(
 )
 expected_names = sorted(path.name for path in expected_schema_root.glob("*.schema.json"))
 assert resource_names == expected_names
-assert len(resource_names) == 65
+assert len(resource_names) == 69
 
 schema_ids = []
 schema_digest = hashlib.sha256()
@@ -1728,6 +1746,44 @@ assert execution.field_provenance.result.attachment_name == "opponent_statistics
 assert execution.field_provenance.result.ledger["status"] == "complete"
 assert execution.field_provenance.result.coverage_summary["provenance_complete"] is True
 assert execution.field_provenance.artifacts == ()
+information_set_request = parse_request(information_set_search_document)
+information_set_execution = execute_document(
+    information_set_search_document,
+    options=ExecutionOptionsV1(validate_output=True, include_provenance=True),
+    input_reference="information-set-search.json",
+)
+information_set_serialized = serialize_result(information_set_execution)
+information_set_document = information_set_serialized["document"]
+information_set_result = information_set_document["information_set_search_result"]
+assert information_set_request.workflow.value == "position_analysis"
+assert information_set_result["status"] == "complete"
+assert information_set_result["search_method"] == (
+    "bounded_information_set_policy_search_v1"
+)
+assert information_set_document["bounded_search_result"] is None
+assert information_set_execution.field_provenance is not None
+assert information_set_execution.field_provenance.result.ledger["status"] == "complete"
+
+
+def collect_property_names(value):
+    if isinstance(value, dict):
+        return set(value).union(
+            *(collect_property_names(child) for child in value.values())
+        )
+    if isinstance(value, list):
+        return set().union(*(collect_property_names(child) for child in value))
+    return set()
+
+
+assert not {
+    "controlled_policy",
+    "policy_table",
+    "observation",
+    "own_hand",
+    "exact_state",
+    "world_identity",
+    "memoization",
+}.intersection(collect_property_names(information_set_result))
 claim_document = json.loads((cwd / "historical-claim.json").read_text(encoding="utf-8"))
 claim_request = parse_request(claim_document)
 claim_execution = execute_document(
@@ -1748,6 +1804,21 @@ installed_claim = json.loads((cwd / "installed-claim.json").read_text(encoding="
 module_claim = json.loads((cwd / "module-claim.json").read_text(encoding="utf-8"))
 legacy_claim = json.loads((cwd / "legacy-claim.json").read_text(encoding="utf-8"))
 assert installed_claim == module_claim == legacy_claim == claim_serialized["document"]
+installed_information_set = json.loads(
+    (cwd / "installed-information-set-search.json").read_text(encoding="utf-8")
+)
+module_information_set = json.loads(
+    (cwd / "module-information-set-search.json").read_text(encoding="utf-8")
+)
+legacy_information_set = json.loads(
+    (cwd / "legacy-information-set-search.json").read_text(encoding="utf-8")
+)
+assert (
+    installed_information_set
+    == module_information_set
+    == legacy_information_set
+    == information_set_document
+)
 installed_cli_document = json.loads((cwd / "installed-cli-result.json").read_text(encoding="utf-8"))
 module_cli_document = json.loads((cwd / "module-cli-result.json").read_text(encoding="utf-8"))
 assert installed_cli_document == module_cli_document == serialized["document"]
@@ -1818,6 +1889,7 @@ print(json.dumps({
         "cli_document": installed_cli_document,
         "default_cli_document": installed_cli_default,
         "unavailable_document": unavailable_document,
+        "information_set_search_document": information_set_document,
         "session": {
             "new": session_new,
             "apply": session_apply,
@@ -1957,6 +2029,33 @@ def _install_and_smoke(
         json.dumps(historical_claim_document, separators=(",", ":")),
         encoding="utf-8",
     )
+    information_set_search_document = json.loads(
+        INFORMATION_SET_SEARCH_SMOKE_EXAMPLE.read_text(encoding="utf-8")
+    )
+    (consumer_directory / "information-set-search.json").write_text(
+        json.dumps(information_set_search_document, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    for source, destination in (
+        (
+            INFORMATION_SET_SEARCH_POST_GAME_SMOKE_EXAMPLE,
+            "information-set-search-post-game.json",
+        ),
+        (
+            HISTORICAL_INFORMATION_SET_SEARCH_SMOKE_EXAMPLE,
+            "historical-information-set-search.json",
+        ),
+        (
+            INFORMATION_SET_SEARCH_EVALUATION_SMOKE_EXAMPLE,
+            "information-set-search-evaluation.json",
+        ),
+        (AUTO_SMOKE_EXAMPLE, "auto-search.json"),
+    ):
+        source_document = json.loads(source.read_text(encoding="utf-8"))
+        (consumer_directory / destination).write_text(
+            json.dumps(source_document, separators=(",", ":")),
+            encoding="utf-8",
+        )
     (consumer_directory / "session-create.json").write_text(
         json.dumps(
             {
@@ -2388,6 +2487,123 @@ def _install_and_smoke(
             not claim_result.stdout and not claim_result.stderr,
             f"{label} {command_name} Historical Claim was not a quiet success.",
         )
+    for prefix, output_name, command_name in (
+        (installed_prefix, "installed-information-set-search.json", "installed"),
+        (module_prefix, "module-information-set-search.json", "module"),
+        (
+            [str(python), str(legacy_main)],
+            "legacy-information-set-search.json",
+            "Legacy",
+        ),
+    ):
+        information_set_result = _run_cli_check(
+            [
+                *prefix,
+                "--input",
+                "information-set-search.json",
+                "--output",
+                output_name,
+                "--include-provenance",
+                "--quiet",
+            ],
+            cwd=consumer_directory,
+            environment=environment,
+            expected_returncode=0,
+        )
+        _require(
+            not information_set_result.stdout and not information_set_result.stderr,
+            f"{label} {command_name} information-set Search was not a quiet success.",
+        )
+        information_set_document = json.loads(
+            (consumer_directory / output_name).read_text(encoding="utf-8")
+        )
+        _require(
+            "information_set_search_result" in information_set_document
+            and "field_provenance" in information_set_document,
+            f"{label} {command_name} information-set Search omitted its safe Result or provenance.",
+        )
+
+    information_set_workflow_smokes = (
+        (
+            "information-set-search-post-game.json",
+            "information-set-search-post-game",
+            (),
+        ),
+        (
+            "historical-information-set-search.json",
+            "historical-information-set-search",
+            (
+                "--historical-information-set-search-review",
+                "--search-seed",
+                "83",
+                "--search-budget-profile",
+                "interactive_v1",
+                "--samples",
+                "1",
+                "--seed",
+                "47",
+            ),
+        ),
+        (
+            "information-set-search-evaluation.json",
+            "information-set-search-evaluation",
+            (
+                "--information-set-search-evaluation",
+                "--search-seed",
+                "89",
+                "--search-evaluation-max-decisions",
+                "1",
+            ),
+        ),
+        ("auto-search.json", "unchanged-auto", ()),
+    )
+    for prefix, command_name in (
+        (installed_prefix, "installed"),
+        (module_prefix, "module"),
+        ([str(python), str(legacy_main)], "Legacy"),
+    ):
+        for input_name, output_stem, workflow_args in information_set_workflow_smokes:
+            output_name = f"{command_name.lower()}-{output_stem}.json"
+            workflow_result = _run_cli_check(
+                [
+                    *prefix,
+                    "--input",
+                    input_name,
+                    "--output",
+                    output_name,
+                    *workflow_args,
+                    "--quiet",
+                ],
+                cwd=consumer_directory,
+                environment=environment,
+                expected_returncode=0,
+            )
+            _require(
+                not workflow_result.stdout and not workflow_result.stderr,
+                f"{label} {command_name} {output_stem} was not a quiet success.",
+            )
+            workflow_document = json.loads(
+                (consumer_directory / output_name).read_text(encoding="utf-8")
+            )
+            if output_stem == "information-set-search-post-game":
+                valid = "information_set_search_comparison" in workflow_document
+            elif output_stem == "historical-information-set-search":
+                historical_summary = workflow_document.get("historical_game_summary")
+                valid = isinstance(historical_summary, dict) and (
+                    "historical_information_set_search_review_summary"
+                    in historical_summary
+                )
+            elif output_stem == "information-set-search-evaluation":
+                valid = "information_set_search_evaluation_summary" in workflow_document
+            else:
+                method_summary = workflow_document.get("recommendation_method_summary")
+                valid = isinstance(method_summary, dict) and (
+                    method_summary.get("requested_method") == "auto"
+                )
+            _require(
+                valid,
+                f"{label} {command_name} {output_stem} omitted its expected Result.",
+            )
     unknown_result = _run_cli_check(
         [*installed_prefix, "--not-an-option"],
         cwd=consumer_directory,

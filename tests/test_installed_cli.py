@@ -88,10 +88,12 @@ EXPECTED_OPTION_STRINGS = (
     ("--historical-decision-snapshots",),
     ("--historical-game-review",),
     ("--historical-search-review",),
+    ("--historical-information-set-search-review",),
     ("--historical-replay-coaching",),
     ("--search-seed",),
     ("--search-budget-profile",),
     ("--evaluate-bounded-search",),
+    ("--information-set-search-evaluation",),
     ("--search-evaluation-partition",),
     ("--search-evaluation-max-decisions",),
     ("--multi-step",),
@@ -122,6 +124,7 @@ LEGACY_NAMES = (
     "run_json_training_dataset_conversion",
     "run_json_training_dataset_preparation",
     "run_json_bounded_search_evaluation",
+    "run_json_information_set_search_evaluation",
     "run_json_dataset_partition_audit",
     "run_json_rolling_opponent_policy_evaluation",
     "run_json_historical_opponent_statistics_aggregation",
@@ -244,10 +247,12 @@ def test_parser_action_contract_is_exactly_equal_for_all_invocation_styles() -> 
         "historical_decision_snapshots",
         "historical_game_review",
         "historical_search_review",
+        "historical_information_set_search_review",
         "historical_replay_coaching",
         "search_seed",
         "search_budget_profile",
         "evaluate_bounded_search",
+        "information_set_search_evaluation",
         "search_evaluation_partition",
         "search_evaluation_max_decisions",
         "multi_step",
@@ -874,7 +879,7 @@ def test_legacy_root_names_signatures_and_patch_points_remain_active(
     assert len(inspect.signature(legacy_main.main).parameters) == 0
     assert len(inspect.signature(legacy_main.parse_arguments).parameters) == 0
     assert len(inspect.signature(cli.main).parameters) == 0
-    for name in LEGACY_NAMES[2:14]:
+    for name in LEGACY_NAMES[2:15]:
         assert inspect.signature(getattr(legacy_main, name)) == inspect.signature(
             getattr(cli, name)
         )

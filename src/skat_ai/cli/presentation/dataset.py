@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from skat_ai.cli.presentation.common import print_information_set_search_metrics
 from skat_ai.training_dataset_preparation import TrainingDatasetPreparationRequest
 from skat_ai.training_dataset_preparation_workflow import (
     TrainingDatasetPreparationResult,
@@ -64,8 +65,7 @@ def print_training_dataset_preparation_result(
     if plan.mode == "known_opponent":
         assert plan.temporal_audit is not None
         boundaries = "; ".join(
-            f"{boundary.partition} {boundary.minimum_played_at} to "
-            f"{boundary.maximum_played_at}"
+            f"{boundary.partition} {boundary.minimum_played_at} to {boundary.maximum_played_at}"
             for boundary in plan.temporal_audit.partition_boundaries
         )
         print("Temporal boundaries:", boundaries)
@@ -98,10 +98,7 @@ def print_training_dataset_preparation_application_result(
     plan = summary["plan"]
     weights = plan["requested_partition_weights"]
     print("Automatic Training Dataset Preparation")
-    print(
-        f"Dataset identity: {request['dataset_id']}, "
-        f"version {request['dataset_version']}"
-    )
+    print(f"Dataset identity: {request['dataset_id']}, version {request['dataset_version']}")
     print("Mode:", plan["mode"])
     print("Algorithm:", plan["algorithm"])
     print("Status:", plan["status"])
@@ -109,13 +106,11 @@ def print_training_dataset_preparation_application_result(
         print("Unavailable reason:", plan["unavailable_reason"])
     print(
         "Source Record and Sample Counts:",
-        f"{plan['source_record_count']} records, "
-        f"{plan['source_sample_count']} samples",
+        f"{plan['source_record_count']} records, {plan['source_sample_count']} samples",
     )
     print(
         "Requested weights:",
-        f"train {weights['train']}, validation {weights['validation']}, "
-        f"test {weights['test']}",
+        f"train {weights['train']}, validation {weights['validation']}, test {weights['test']}",
     )
     print("Plan fingerprint:", plan["plan_fingerprint"])
     if plan["status"] == "unavailable":
@@ -179,6 +174,15 @@ def print_bounded_search_evaluation_result(result: dict[str, Any]) -> None:
         f"{quality['comparable_decision_count']} comparable decisions; "
         f"violations {quality['quality_violation_count']}."
     )
+
+
+def print_information_set_search_evaluation_result(
+    result: dict[str, Any],
+) -> None:
+    """Prints only aggregate, information-safe evaluation metrics."""
+    summary = result["information_set_search_evaluation_summary"]
+    print("Information-set Search evaluation records:", summary["record_count"])
+    print_information_set_search_metrics(summary)
 
 
 def print_dataset_partition_audit_result(result: dict[str, Any]) -> None:

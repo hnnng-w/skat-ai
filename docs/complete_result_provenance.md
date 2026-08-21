@@ -54,8 +54,9 @@ Each Result attachment remains last in canonical Application bundle order.
 
 The complete Position ledger preserves the existing entries for normalized
 Position and settings, Information Policy, Immediate recommendation, Search,
-post-game review, Hidden-card inference, Multi-Step, Policy Comparison, external
-Profile application, and continuation output.
+Information-set Search and its optional Post-game comparison, post-game review,
+Hidden-card inference, Multi-Step, Policy Comparison, external Profile
+application, and continuation output.
 
 Issue #146 adds branch-specific mappings for:
 
@@ -98,8 +99,9 @@ The complete Historical ledger covers:
 * both timed continuation events and their exact public-hand boundaries;
 * all six supported terminal endings and their public proof metadata, including
   the Historical-only party-wide Claim;
-* the existing Snapshot, Immediate Review, Search Review, Replay Coaching,
-  Outcome Context, and historical Profile application branches.
+* the existing Snapshot, Immediate Review, Search Review, Information-set Search
+  Review, Replay Coaching, Outcome Context, and historical Profile application
+  branches.
 
 Historical actual plays become available in exact chronology. A completed trick
 depends only on its matching supplied trick and contract rules, never on a later
@@ -113,6 +115,28 @@ input. Proof status, assignment, counters, adjudicated winner, levels, and
 Settlement use exact derived origins. The diagnostic Representative Line is
 post-game-only. Complete Evidence and `ExactSearchState` stay engine-private,
 and public redaction preserves complete coverage without exposing those sources.
+
+## Information-set Search additions
+
+Issue #189 adds retained-stage internal provenance for every Information-set
+Search stage that actually executes. Flat Live analysis retains input/settings
+and the safe aggregate Search Result. Flat Post-game analysis additionally
+retains same-selection PIMC, independent Immediate, the observed Card, and the
+descriptive comparison in the established input/analysis/assessment order.
+Historical Review uses the same per-Decision stage ordering plus
+`historical_information_set_search_review_summary`. Training Dataset evaluation
+uses canonical attachments for input, Information-set Search, PIMC, Immediate,
+actual Card, comparison, and
+`training_dataset/information_set_search_evaluation`.
+
+The existing complete `position_result`, `historical_game_result`, and
+`training_dataset_result` ledgers cover the corresponding safe public branches.
+Provenance construction maps retained values and never reruns World selection,
+Search, PIMC, Immediate, Historical replay, or Dataset evaluation. Exact Worlds,
+hidden hands, actor Observations, selected assignments, controlled Policy tables,
+caches, memoization, and derived seeds remain engine-private. Public opt-in still
+selects only the redacted complete Root Result attachment, not the retained
+intermediate-stage attachments.
 
 ## Dependency direction
 

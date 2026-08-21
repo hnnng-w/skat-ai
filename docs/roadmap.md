@@ -1148,8 +1148,10 @@ Package preserves 63 authoritative and packaged Schemas, six Session examples,
 The current unreleased working baseline keeps Package version `0.16.0`, Public
 API contract version `1`, seven Root workflows, one Console Script, and six
 Session examples. Issue #186 updates the Matrix to version `3` with the same 61
-cases and brings the working totals to 65 authoritative and packaged Schemas and
-88 generated outputs. The published `v0.16.0` facts above remain unchanged.
+cases. Issue #189 adds four Information-set Search Schemas, one example, and four
+generated outputs, bringing the working totals to 69 authoritative and packaged
+Schemas and 92 generated outputs. The published `v0.16.0` facts above remain
+unchanged.
 
 Deletion and garbage collection, recovery UI, Player Catalog persistence,
 persisted aliases/assertions, merge/split operations, all-revision Player views,
@@ -1193,12 +1195,18 @@ bounded exhaustive selected-world best-response executor with strict retained-
 Preparation validation, fixed-player rollout, controlled Information-set
 grouping, existing terminal utility and Candidate ranking, complete contingent
 Policy retention, bounded partial/timeout semantics, and invocation-local World
-and bundle memoization. Comparison, routing, integration,
-tactical and cross-game Coaching, and carefully bounded Player Ratings where
-approved, broader Provenance and Confidence integration, performance and latency
-evidence, and the remaining pre-v1 scope audit remain open. Final Issue titles,
-count, architecture, solver design, Rating boundary, Coaching taxonomy, and
-Release date are not finalized. `v1.0.0` remains unready.
+and bundle memoization. Issue #189 adds strict flat `information_set_search`,
+safe aggregate Results, same-selection PIMC plus independently seeded Immediate
+retrospective comparison, separate Historical Review and Training Dataset
+evaluation, retained-stage Provenance, CLI, four Schemas, one example, and four
+generated scenarios. Existing `auto` remains unchanged. Multi-Step, Policy
+Comparison, Match Capture, Strategy Teacher, Replay Coaching classification, and
+performance evidence remain open for Issue #190 or later work. Tactical and
+cross-game Coaching, carefully bounded Player Ratings where approved, broader
+Provenance and Confidence integration, and the remaining pre-v1 scope audit also
+remain open. See [Information-set Search workflows](information_set_search_workflows.md).
+Final Issue titles, count, architecture, solver design, Rating boundary, Coaching
+taxonomy, and Release date are not finalized. `v1.0.0` remains unready.
 
 ## Later planning milestone: v1.0.0
 
@@ -1266,8 +1274,12 @@ integrated. Immutable work profiles, independent quality fixtures, sampled
 convergence checks, and a reproducible performance corpus provide bounded
 evidence. They do not provide calibrated sample quality or a latency guarantee.
 Issues #187 and #188 add a private three-Trick information-set Policy Search
-foundation and bounded executor without comparison or routing, so the stronger-
-search completion gate remains open.
+foundation and bounded executor. Issue #189 adds strict flat routing, descriptive
+retrospective comparison, separate Historical Review and Training Dataset
+evaluation, safe output, Provenance, CLI, Schemas, example, and scenarios. Broader
+workflow integration, complete Strategy-Fusion correction, calibrated quality,
+and performance evidence remain open, so the stronger-search completion gate is
+not closed.
 
 The published `v0.11.0` milestone is complete through functional Issue #124, and
 Issue #125 completed release preparation. The milestone establishes the
@@ -1374,5 +1386,8 @@ Issue #184's bounded exhaustive proof execution. Issue #185 adds private
 adjudication and existing Final Settlement composition. Issue #186 adds the
 Historical-only approved Claim runtime slice. Issue #187 adds the private
 information-set Search contracts and no-execution Preparation foundation. Issue
-#188 adds the private bounded executor. Comparison, routing, integration, and the
-final `v1.0.0` Issue split and architecture remain open.
+#188 adds the private bounded executor. Issue #189 adds strict flat routing,
+descriptive retrospective comparison, separate Historical Review and Training
+Dataset evaluation, safe output, Provenance, CLI, Schemas, example, and scenario
+coverage. Broader integration, performance evidence, and the final `v1.0.0`
+Issue split and architecture remain open for Issue #190 or later work.

@@ -12,6 +12,11 @@ from skat_ai.historical_decision_snapshot import (
 )
 from skat_ai.historical_game import build_historical_game_summary
 from skat_ai.historical_game_review import build_historical_game_review_summary
+from skat_ai.historical_information_set_search_review import (
+    HistoricalInformationSetSearchReviewSettingsV1,
+    build_historical_information_set_search_effective_policy_settings_v1,
+    build_historical_information_set_search_review_summary_v1,
+)
 from skat_ai.historical_opponent_profile_binding import (
     HistoricalOpponentProfileBindings,
     resolve_historical_opponent_profile_bindings,
@@ -39,6 +44,9 @@ class HistoricalGameWorkflowDependencies:
     build_snapshots: Callable[..., Any] = build_historical_decision_snapshots
     build_immediate_review: Callable[..., Any] = build_historical_game_review_summary
     build_search_review: Callable[..., Any] = build_historical_search_review_summary
+    build_information_set_search_review: Callable[..., Any] = (
+        build_historical_information_set_search_review_summary_v1
+    )
     build_replay_coaching: Callable[..., Any] = build_historical_replay_coaching_public_summaries
 
 
@@ -77,6 +85,7 @@ def _build_effective_review_provenance_settings(
         "decision_snapshots": options.decision_snapshots,
         "immediate_review": options.immediate_review,
         "search_review": options.search_review,
+        "information_set_search_review": options.information_set_search_review,
         "replay_coaching": options.replay_coaching,
         "immediate_sample_count": (
             options.immediate_sample_count
@@ -85,7 +94,11 @@ def _build_effective_review_provenance_settings(
         ),
         "search_budget_profile": (
             options.search_budget_profile
-            if options.search_review or options.replay_coaching
+            if (
+                options.search_review
+                or options.information_set_search_review
+                or options.replay_coaching
+            )
             else None
         ),
         "opponent_policy_preset_override": options.opponent_policy_preset_override,
@@ -112,6 +125,13 @@ def execute_historical_game_workflow(
     dependencies: HistoricalGameWorkflowDependencies = _DEFAULT_DEPENDENCIES,
 ) -> dict[str, Any]:
     """Executes the complete Historical Game workflow without transport I/O."""
+    if options.information_set_search_review and (
+        options.search_review or options.replay_coaching
+    ):
+        raise ValueError(
+            "Information-set Search Review cannot generate existing Search Review "
+            "or Replay Coaching."
+        )
     record = build_historical_game_from_document(
         root_document,
         validate_workflow=False,
@@ -132,6 +152,7 @@ def execute_historical_game_workflow(
         options.decision_snapshots
         or options.immediate_review
         or options.search_review
+        or options.information_set_search_review
         or options.replay_coaching
     ):
         snapshot_summary = dependencies.build_snapshots(historical_game_summary)
@@ -183,6 +204,81 @@ def execute_historical_game_workflow(
         historical_game_summary["historical_game_review_summary"] = immediate_review_summary
         if provenance_collector is not None:
             provenance_collector.capture_immediate_summary(immediate_review_summary)
+    if options.information_set_search_review:
+        if snapshot_summary is None:
+            raise ValueError("Historical decision snapshots were not generated.")
+        if options.search_seed is None:
+            raise ValueError(
+                "Historical Information-set Search Review requires an explicit "
+                "Search seed."
+            )
+        effective_policy_settings_by_decision = {
+            snapshot.decision_index: (
+                build_historical_information_set_search_effective_policy_settings_v1(
+                    snapshot,
+                    record,
+                    opponent_profile_bindings=opponent_profile_bindings,
+                    opponent_policy_preset_override=(
+                        options.opponent_policy_preset_override
+                    ),
+                    opponent_lead_policy_override=(
+                        options.opponent_lead_policy_override
+                    ),
+                    opponent_response_policy_override=(
+                        options.opponent_response_policy_override
+                    ),
+                    left_opponent_lead_policy_override=(
+                        options.left_opponent_lead_policy_override
+                    ),
+                    left_opponent_response_policy_override=(
+                        options.left_opponent_response_policy_override
+                    ),
+                    right_opponent_lead_policy_override=(
+                        options.right_opponent_lead_policy_override
+                    ),
+                    right_opponent_response_policy_override=(
+                        options.right_opponent_response_policy_override
+                    ),
+                )
+            )
+            for snapshot in snapshot_summary.snapshots
+        }
+        if provenance_collector is not None:
+            for snapshot in snapshot_summary.snapshots:
+                provenance_collector.capture_information_set_search_policy_settings(
+                    snapshot=snapshot,
+                    effective_settings=effective_policy_settings_by_decision[
+                        snapshot.decision_index
+                    ],
+                )
+        information_set_search_review_summary = (
+            dependencies.build_information_set_search_review(
+                snapshot_summary=snapshot_summary,
+                historical_record=record,
+                settings=HistoricalInformationSetSearchReviewSettingsV1(
+                    base_search_seed=options.search_seed,
+                    search_budget_profile=options.search_budget_profile,
+                    immediate_sample_count=(
+                        options.immediate_sample_count
+                        if options.immediate_sample_count is not None
+                        else DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
+                    ),
+                    immediate_base_random_seed=(
+                        options.immediate_base_random_seed
+                    ),
+                ),
+                effective_policy_settings_by_decision=(
+                    effective_policy_settings_by_decision
+                ),
+            )
+        )
+        historical_game_summary[
+            "historical_information_set_search_review_summary"
+        ] = information_set_search_review_summary
+        if provenance_collector is not None:
+            provenance_collector.capture_information_set_search_summary(
+                information_set_search_review_summary
+            )
     if options.replay_coaching:
         if snapshot_summary is None:
             raise ValueError("Historical decision snapshots were not generated.")

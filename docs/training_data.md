@@ -358,9 +358,38 @@ probability or proof of an optimal imperfect-information policy. See
 [Bounded search contracts](bounded_search_contracts.md) and
 [`bounded_search_evaluation.schema.json`](../schemas/bounded_search_evaluation.schema.json).
 
+## Information-set Search evaluation
+
+Issue #189 adds
+`--information-set-search-evaluation --search-seed INTEGER` as a separate
+evaluation-only operation. It is mutually exclusive with bounded-Search
+evaluation and every other Training Dataset operation. It defaults to canonical
+`validation`, then `test`, and profile `evaluation_v1`. Repeatable
+`--search-evaluation-partition` and positive
+`--search-evaluation-max-decisions` retain the same deterministic selection and
+one-global-prefix semantics as bounded-Search evaluation.
+
+Each selected decision runs Information-set Search, PIMC on the exact retained
+selected-world sequence, and an independently seeded Immediate baseline before
+the observed Card is attached. Fixed left/right Policies derive from the existing
+time-safe Historical profile and explicit policy precedence. The strict
+`information_set_search_evaluation_summary` preserves zero-decision Records and
+reconciles status, coverage, selection, recommendation, agreement, and bounded
+breakdown counts.
+
+The comparison is descriptive. It does not establish an optimal or ground-truth
+Card, calibrated probability, equilibrium, or complete-contract solution. It
+does not perform ordinary sample conversion, mutate partitions, generate targets,
+or train a model. Dataset schema version `1`, Feature-generation version `1`,
+target `actual_card_played`, Features, labels, sample IDs, and ordinary sample
+cardinality remain unchanged. Exact Worlds, hidden hands, Observations,
+controlled Policy tables, caches, and derived seeds remain private. See
+[Information-set Search workflows](information_set_search_workflows.md) and
+[`information_set_search_evaluation.schema.json`](../schemas/information_set_search_evaluation.schema.json).
+
 ## Output and counts
 
-The dedicated output branch contains only `input_file` and
+The ordinary conversion output branch contains only `input_file` and
 `training_dataset_summary`. The summary preserves dataset versions, target, and
 supplied partition policy,
 contains canonical historical records and all samples, and reports reconciled

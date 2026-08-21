@@ -1,0 +1,428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/skat-ai/historical_information_set_search_review.schema.json",
+  "title": "skat-ai historical information-set search review version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review_method",
+    "information_policy",
+    "source_game_id",
+    "game_end_reason",
+    "settings",
+    "decision_count",
+    "status_counts",
+    "coverage_counts",
+    "same_selected_world_sequence_count",
+    "selected_world_count_total",
+    "sampled_world_count_total",
+    "comparison_available_count",
+    "comparison_unavailable_count",
+    "information_set_recommendation_count",
+    "pimc_recommendation_count",
+    "immediate_recommendation_count",
+    "information_set_pimc_agreement",
+    "information_set_immediate_agreement",
+    "pimc_immediate_agreement",
+    "information_set_actual_agreement",
+    "pimc_actual_agreement",
+    "immediate_actual_agreement",
+    "breakdowns",
+    "decisions"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "review_method": {
+      "const": "information_set_search_with_same_selection_pimc_and_immediate_v1"
+    },
+    "information_policy": {"const": "decision_time"},
+    "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+    "game_end_reason": {
+      "$ref": "https://example.local/skat-ai/historical_search_review.schema.json#/$defs/game_end_reason"
+    },
+    "settings": {"$ref": "#/$defs/settings"},
+    "decision_count": {"$ref": "#/$defs/metrics/properties/decision_count"},
+    "status_counts": {"$ref": "#/$defs/metrics/properties/status_counts"},
+    "coverage_counts": {"$ref": "#/$defs/metrics/properties/coverage_counts"},
+    "same_selected_world_sequence_count": {
+      "$ref": "#/$defs/metrics/properties/same_selected_world_sequence_count"
+    },
+    "selected_world_count_total": {
+      "$ref": "#/$defs/metrics/properties/selected_world_count_total"
+    },
+    "sampled_world_count_total": {
+      "$ref": "#/$defs/metrics/properties/sampled_world_count_total"
+    },
+    "comparison_available_count": {
+      "$ref": "#/$defs/metrics/properties/comparison_available_count"
+    },
+    "comparison_unavailable_count": {
+      "$ref": "#/$defs/metrics/properties/comparison_unavailable_count"
+    },
+    "information_set_recommendation_count": {
+      "$ref": "#/$defs/metrics/properties/information_set_recommendation_count"
+    },
+    "pimc_recommendation_count": {
+      "$ref": "#/$defs/metrics/properties/pimc_recommendation_count"
+    },
+    "immediate_recommendation_count": {
+      "$ref": "#/$defs/metrics/properties/immediate_recommendation_count"
+    },
+    "information_set_pimc_agreement": {
+      "$ref": "#/$defs/metrics/properties/information_set_pimc_agreement"
+    },
+    "information_set_immediate_agreement": {
+      "$ref": "#/$defs/metrics/properties/information_set_immediate_agreement"
+    },
+    "pimc_immediate_agreement": {
+      "$ref": "#/$defs/metrics/properties/pimc_immediate_agreement"
+    },
+    "information_set_actual_agreement": {
+      "$ref": "#/$defs/metrics/properties/information_set_actual_agreement"
+    },
+    "pimc_actual_agreement": {
+      "$ref": "#/$defs/metrics/properties/pimc_actual_agreement"
+    },
+    "immediate_actual_agreement": {
+      "$ref": "#/$defs/metrics/properties/immediate_actual_agreement"
+    },
+    "breakdowns": {"$ref": "#/$defs/historical_breakdowns"},
+    "decisions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/decision"},
+      "maxItems": 30
+    }
+  },
+  "$defs": {
+    "stable_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+    },
+    "card": {"type": "string", "pattern": "^[CSHD](A|10|K|Q|J|9|8|7)$"},
+    "nullable_card": {
+      "oneOf": [{"$ref": "#/$defs/card"}, {"type": "null"}]
+    },
+    "game_type": {
+      "enum": ["clubs", "spades", "hearts", "diamonds", "grand", "null"]
+    },
+    "count": {"type": "integer", "minimum": 0},
+    "information_set_status": {
+      "enum": ["complete", "partial", "timeout", "unavailable", "not_available"]
+    },
+    "world_coverage": {
+      "enum": [
+        "none",
+        "single_exact_world",
+        "all_compatible_worlds",
+        "sampled_compatible_worlds"
+      ]
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_search_seed",
+        "search_budget_profile",
+        "requested_budget",
+        "immediate_sample_count",
+        "immediate_base_random_seed"
+      ],
+      "properties": {
+        "base_search_seed": {"type": "integer"},
+        "search_budget_profile": {
+          "enum": ["interactive_v1", "historical_review_v1", "evaluation_v1"]
+        },
+        "requested_budget": {
+          "$ref": "https://example.local/skat-ai/information_set_search_result.schema.json#/$defs/versioned_requested_budget"
+        },
+        "immediate_sample_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "immediate_base_random_seed": {"type": ["integer", "null"]}
+      }
+    },
+    "status_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "complete": {"$ref": "#/$defs/count"},
+        "partial": {"$ref": "#/$defs/count"},
+        "timeout": {"$ref": "#/$defs/count"},
+        "unavailable": {"$ref": "#/$defs/count"},
+        "not_available": {"$ref": "#/$defs/count"}
+      }
+    },
+    "coverage_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "none": {"$ref": "#/$defs/count"},
+        "single_exact_world": {"$ref": "#/$defs/count"},
+        "all_compatible_worlds": {"$ref": "#/$defs/count"},
+        "sampled_compatible_worlds": {"$ref": "#/$defs/count"}
+      }
+    },
+    "agreement_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comparable_decision_count",
+        "same_card_count",
+        "different_card_count"
+      ],
+      "properties": {
+        "comparable_decision_count": {"$ref": "#/$defs/count"},
+        "same_card_count": {"$ref": "#/$defs/count"},
+        "different_card_count": {"$ref": "#/$defs/count"}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_count",
+        "status_counts",
+        "coverage_counts",
+        "same_selected_world_sequence_count",
+        "selected_world_count_total",
+        "sampled_world_count_total",
+        "comparison_available_count",
+        "comparison_unavailable_count",
+        "information_set_recommendation_count",
+        "pimc_recommendation_count",
+        "immediate_recommendation_count",
+        "information_set_pimc_agreement",
+        "information_set_immediate_agreement",
+        "pimc_immediate_agreement",
+        "information_set_actual_agreement",
+        "pimc_actual_agreement",
+        "immediate_actual_agreement"
+      ],
+      "properties": {
+        "decision_count": {"$ref": "#/$defs/count"},
+        "status_counts": {"$ref": "#/$defs/status_counts"},
+        "coverage_counts": {"$ref": "#/$defs/coverage_counts"},
+        "same_selected_world_sequence_count": {"$ref": "#/$defs/count"},
+        "selected_world_count_total": {"$ref": "#/$defs/count"},
+        "sampled_world_count_total": {"$ref": "#/$defs/count"},
+        "comparison_available_count": {"$ref": "#/$defs/count"},
+        "comparison_unavailable_count": {"$ref": "#/$defs/count"},
+        "information_set_recommendation_count": {"$ref": "#/$defs/count"},
+        "pimc_recommendation_count": {"$ref": "#/$defs/count"},
+        "immediate_recommendation_count": {"$ref": "#/$defs/count"},
+        "information_set_pimc_agreement": {"$ref": "#/$defs/agreement_counts"},
+        "information_set_immediate_agreement": {"$ref": "#/$defs/agreement_counts"},
+        "pimc_immediate_agreement": {"$ref": "#/$defs/agreement_counts"},
+        "information_set_actual_agreement": {"$ref": "#/$defs/agreement_counts"},
+        "pimc_actual_agreement": {"$ref": "#/$defs/agreement_counts"},
+        "immediate_actual_agreement": {"$ref": "#/$defs/agreement_counts"}
+      }
+    },
+    "immediate_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_random_seed", "recommended_card"],
+      "properties": {
+        "effective_random_seed": {"type": ["integer", "null"]},
+        "recommended_card": {"$ref": "#/$defs/nullable_card"}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_game_id",
+        "decision_index",
+        "trick_number",
+        "play_index",
+        "acting_player_id",
+        "acting_seat",
+        "acting_role",
+        "contract",
+        "decision_phase",
+        "remaining_tricks",
+        "actual_card",
+        "information_set_search_result",
+        "same_selection_pimc_result",
+        "immediate_baseline",
+        "comparison"
+      ],
+      "properties": {
+        "source_game_id": {"$ref": "#/$defs/stable_identifier"},
+        "source_played_at": {"type": "string", "format": "date-time"},
+        "decision_index": {"type": "integer", "minimum": 1, "maximum": 30},
+        "trick_number": {"type": "integer", "minimum": 1, "maximum": 10},
+        "play_index": {"type": "integer", "minimum": 1, "maximum": 3},
+        "acting_player_id": {"$ref": "#/$defs/stable_identifier"},
+        "acting_seat": {"enum": ["forehand", "middlehand", "rearhand"]},
+        "acting_role": {"enum": ["declarer", "defenders"]},
+        "contract": {"$ref": "#/$defs/game_type"},
+        "decision_phase": {"enum": ["lead", "response"]},
+        "remaining_tricks": {"type": "integer", "minimum": 1, "maximum": 10},
+        "actual_card": {"$ref": "#/$defs/card"},
+        "information_set_search_result": {
+          "oneOf": [
+            {
+              "$ref": "https://example.local/skat-ai/information_set_search_result.schema.json"
+            },
+            {"type": "null"}
+          ]
+        },
+        "same_selection_pimc_result": {
+          "oneOf": [
+            {"$ref": "https://example.local/skat-ai/bounded_search_result.schema.json"},
+            {"type": "null"}
+          ]
+        },
+        "immediate_baseline": {"$ref": "#/$defs/immediate_baseline"},
+        "comparison": {
+          "$ref": "https://example.local/skat-ai/information_set_search_comparison.schema.json"
+        }
+      }
+    },
+    "breakdown_metrics_row": {
+      "type": "object",
+      "required": ["metrics"],
+      "properties": {"metrics": {"$ref": "#/$defs/metrics"}}
+    },
+    "contract_breakdown": {
+      "allOf": [
+        {"$ref": "#/$defs/breakdown_metrics_row"},
+        {
+          "type": "object",
+          "required": ["contract"],
+          "properties": {"contract": {"$ref": "#/$defs/game_type"}}
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "role_breakdown": {
+      "allOf": [
+        {"$ref": "#/$defs/breakdown_metrics_row"},
+        {
+          "type": "object",
+          "required": ["acting_role"],
+          "properties": {"acting_role": {"enum": ["declarer", "defenders"]}}
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "seat_breakdown": {
+      "allOf": [
+        {"$ref": "#/$defs/breakdown_metrics_row"},
+        {
+          "type": "object",
+          "required": ["acting_seat"],
+          "properties": {
+            "acting_seat": {"enum": ["forehand", "middlehand", "rearhand"]}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "phase_breakdown": {
+      "allOf": [
+        {"$ref": "#/$defs/breakdown_metrics_row"},
+        {
+          "type": "object",
+          "required": ["decision_phase"],
+          "properties": {"decision_phase": {"enum": ["lead", "response"]}}
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "status_breakdown": {
+      "allOf": [
+        {"$ref": "#/$defs/breakdown_metrics_row"},
+        {
+          "type": "object",
+          "required": ["information_set_status"],
+          "properties": {
+            "information_set_status": {"$ref": "#/$defs/information_set_status"}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "coverage_breakdown": {
+      "allOf": [
+        {"$ref": "#/$defs/breakdown_metrics_row"},
+        {
+          "type": "object",
+          "required": ["world_coverage"],
+          "properties": {"world_coverage": {"$ref": "#/$defs/world_coverage"}}
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "recommendation_agreement_breakdown": {
+      "allOf": [
+        {"$ref": "#/$defs/breakdown_metrics_row"},
+        {
+          "type": "object",
+          "required": ["recommendation_agreement"],
+          "properties": {
+            "recommendation_agreement": {
+              "enum": ["same", "different", "not_available"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "historical_breakdowns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "by_contract",
+        "by_role",
+        "by_seat",
+        "by_phase",
+        "by_status",
+        "by_coverage",
+        "by_recommendation_agreement"
+      ],
+      "properties": {
+        "by_contract": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/contract_breakdown"},
+          "maxItems": 6
+        },
+        "by_role": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/role_breakdown"},
+          "maxItems": 2
+        },
+        "by_seat": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/seat_breakdown"},
+          "maxItems": 3
+        },
+        "by_phase": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/phase_breakdown"},
+          "maxItems": 2
+        },
+        "by_status": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/status_breakdown"},
+          "maxItems": 5
+        },
+        "by_coverage": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/coverage_breakdown"},
+          "maxItems": 4
+        },
+        "by_recommendation_agreement": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/recommendation_agreement_breakdown"},
+          "maxItems": 3
+        }
+      }
+    }
+  }
+}

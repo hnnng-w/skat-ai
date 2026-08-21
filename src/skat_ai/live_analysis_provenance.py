@@ -33,6 +33,15 @@ from skat_ai.game_declaration import (
     build_serializable_game_declaration,
 )
 from skat_ai.game_state import GameState
+from skat_ai.information_set_search_provenance import (
+    build_information_set_search_provenance_entries,
+    information_set_settings_reference,
+)
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_EFFECTIVE_METHOD,
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+    INFORMATION_SET_SEARCH_SETTING_KEYS,
+)
 from skat_ai.information_view import is_skat_visible_to_local_player
 from skat_ai.multi_step_recommendation import MultiStepRecommendationDecision
 from skat_ai.ouvert_simulation import resolve_effective_public_hand_constraints
@@ -167,6 +176,8 @@ def _validated_live_public_hand_constraints(
 
 def _validate_seed_free_selection_settings(
     selection_settings: Mapping[str, object],
+    *,
+    selection_method: str,
 ) -> None:
     expected_keys = {
         "sample_count",
@@ -174,6 +185,8 @@ def _validate_seed_free_selection_settings(
         "opponent_response_policy_by_player",
         "bounded_search_budget",
     }
+    if selection_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        expected_keys.add("information_set_search_settings")
     if set(selection_settings) != expected_keys:
         raise _information_policy_error("/selection/settings")
     budget = selection_settings["bounded_search_budget"]
@@ -194,6 +207,16 @@ def _validate_seed_free_selection_settings(
         raise _information_policy_error(
             "/selection/settings/opponent_response_policy_by_player"
         )
+    if selection_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        information_set_settings = selection_settings[
+            "information_set_search_settings"
+        ]
+        if not isinstance(information_set_settings, Mapping) or set(
+            information_set_settings
+        ) != set(INFORMATION_SET_SEARCH_SETTING_KEYS):
+            raise _information_policy_error(
+                "/selection/settings/information_set_search_settings"
+            )
 
 
 def build_live_decision_provenance_attachment(
@@ -247,13 +270,17 @@ def build_live_decision_provenance_attachment(
     valid_selection_methods = {
         "immediate_expected_value",
         *SEARCH_RECOMMENDATION_METHODS,
+        INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
         *VALID_MULTI_STEP_POLICIES,
     }
     if selection_method not in valid_selection_methods:
         raise _information_policy_error("/selection/method")
     if not isinstance(selection_settings, Mapping):
         raise _information_policy_error("/selection/settings")
-    _validate_seed_free_selection_settings(selection_settings)
+    _validate_seed_free_selection_settings(
+        selection_settings,
+        selection_method=selection_method,
+    )
     public_hand_constraints = _validated_live_public_hand_constraints(
         constraints=public_hand_constraints,
         state=state,
@@ -525,6 +552,9 @@ def _recommendation_origin(result: Mapping[str, object]) -> tuple[str, str]:
         if requested_method == BOUNDED_SEARCH_METHOD or (
             requested_method == AUTO_METHOD
             and effective_method == COMPATIBLE_WORLD_MINIMAX_METHOD
+        ) or (
+            requested_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
+            and effective_method == INFORMATION_SET_SEARCH_EFFECTIVE_METHOD
         ):
             return ("search_derived", "deterministic_rule")
     return ("heuristic_analysis", "heuristic")
@@ -649,7 +679,20 @@ def _generic_result_entry(
     }:
         origin = "validated_copy"
         derivation = "validated"
-        references = (_reference("request", "position_analysis_request"),)
+        source_path = None
+        if (
+            top == "settings"
+            and len(tokens) >= 3
+            and tokens[1] == "information_set_search_settings"
+        ):
+            source_path = build_json_pointer(tokens[1:])
+        references = (
+            _reference(
+                "request",
+                "position_analysis_request",
+                field_path=source_path,
+            ),
+        )
     elif top in {
         "opponent_policy_settings",
         "left_opponent_policy_settings",
@@ -690,35 +733,46 @@ def _generic_result_entry(
         )
     elif top in {"analysis_report", "strategic_summary", "recommendation"}:
         origin, derivation = _recommendation_origin(result)
+        summary = result.get("recommendation_method_summary")
+        information_set_search = isinstance(summary, Mapping) and summary.get(
+            "requested_method"
+        ) == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD
         references = (
             _reference(
                 "algorithm",
                 (
-                    "compatible_world_minimax_v1"
+                    "bounded_information_set_policy_search_v1"
+                    if information_set_search
+                    else "compatible_world_minimax_v1"
                     if origin == "search_derived"
                     else "immediate_expected_value"
                 ),
             ),
         )
         dependencies = visible_dependencies
-        summary = result.get("recommendation_method_summary")
         requested_search = isinstance(summary, Mapping) and summary.get(
             "requested_method"
-        ) in SEARCH_RECOMMENDATION_METHODS
+        ) in {
+            *SEARCH_RECOMMENDATION_METHODS,
+            INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+        }
         if origin == "search_derived" or requested_search:
-            dependencies = tuple(
-                sorted(
-                    set(
-                        (
-                            *dependencies,
-                            *_search_recommendation_dependencies(
-                                result,
-                                leaf_path_set,
-                            ),
-                        )
-                    )
-                )
+            search_dependencies = _search_recommendation_dependencies(
+                result,
+                leaf_path_set,
             )
+            if information_set_search:
+                search_dependencies = tuple(
+                    path
+                    for path in (
+                        "/information_set_search_result/status",
+                        "/information_set_search_result/stop_reason",
+                        "/information_set_search_result/world_coverage",
+                        "/information_set_search_result/recommended_card",
+                    )
+                    if path in leaf_path_set
+                )
+            dependencies = tuple(sorted(set((*dependencies, *search_dependencies))))
     elif top == "recommendation_method_summary":
         origin = "rule_derived"
         derivation = "deterministic_rule"
@@ -729,6 +783,7 @@ def _generic_result_entry(
                 "/settings/recommendation_method",
                 "/recommendation/card",
                 "/bounded_search_result/status",
+                "/information_set_search_result/status",
             )
             if candidate_path in leaf_path_set and candidate_path != path
         )
@@ -736,6 +791,15 @@ def _generic_result_entry(
         origin = "rule_derived"
         derivation = "deterministic_rule"
         references = (_reference("algorithm", "recommendation_method_routing"),)
+    elif top == "information_set_search_result":
+        origin = "search_derived"
+        derivation = "direct"
+        references = (
+            _reference(
+                "algorithm",
+                "bounded_information_set_policy_search_v1",
+            ),
+        )
     elif "hidden_card_inference_summary" in tokens:
         origin = "structural_inference"
         derivation = "exact_aggregate"
@@ -1023,13 +1087,35 @@ class LiveAnalysisProvenanceCollector:
         self,
         result: RecommendationWorkflowResult,
     ) -> None:
-        if result.bounded_search_result is None:
-            return
-        self._register_search_result(
-            "/bounded_search_result",
-            result.bounded_search_result,
-            decision_index=0,
-        )
+        if result.bounded_search_result is not None:
+            self._register_search_result(
+                "/bounded_search_result",
+                result.bounded_search_result,
+                decision_index=0,
+            )
+        if result.information_set_search_public_result is not None:
+            entries = build_information_set_search_provenance_entries(
+                result.information_set_search_public_result,
+                retained_result=result.information_set_search_result,
+                field_path="/information_set_search_result",
+                decision_index=0,
+                perspective_player_id="me",
+                settings_reference=information_set_settings_reference(
+                    "request",
+                    "position_analysis_request",
+                    field_path="/information_set_search_settings",
+                ),
+                fixed_policy_reference=information_set_settings_reference(
+                    "algorithm",
+                    "effective_opponent_policy",
+                ),
+            )
+            for entry in entries:
+                if entry.field_path in self._search_entries_by_path:
+                    raise ValueError(
+                        f"Duplicate Search provenance path: {entry.field_path}"
+                    )
+                self._search_entries_by_path[entry.field_path] = entry
 
     def retain_multi_step_result(self, result: Mapping[str, object]) -> None:
         for output_index, step in enumerate(result.get("steps", ())):

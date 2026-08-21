@@ -70,6 +70,7 @@ def _attachment_sort_key(
         "historical_snapshot_summary": 5,
         "historical_immediate_review_summary": 6,
         "historical_search_review_summary": 7,
+        "historical_information_set_search_review_summary": 7,
         "replay_coaching/prioritization": 8,
         "replay_coaching/guidance": 9,
         "replay_coaching/report": 10,
@@ -86,6 +87,7 @@ def _attachment_sort_key(
         "training_dataset/partition_audit": 18,
         "training_dataset/rolling_evaluation": 18,
         "training_dataset/bounded_search_evaluation": 18,
+        "training_dataset/information_set_search_evaluation": 18,
         "training_dataset/opponent_statistics_aggregation": 18,
         "training_dataset/opponent_statistics_input": 19,
         "training_dataset_result": 20,
@@ -133,6 +135,17 @@ def _attachment_sort_key(
                 "comparison": 3,
                 "actual": 4,
                 "retrospective": 5,
+            },
+        ),
+        "information_set_search": (
+            17,
+            {
+                "input": 0,
+                "information_set": 1,
+                "pimc": 2,
+                "immediate": 3,
+                "actual": 4,
+                "comparison": 5,
             },
         ),
     }

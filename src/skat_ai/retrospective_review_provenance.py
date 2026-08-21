@@ -27,6 +27,14 @@ from skat_ai.field_provenance_policy import (
 )
 from skat_ai.game_declaration import build_serializable_game_declaration
 from skat_ai.hidden_card_inference import build_hidden_card_inference_summary
+from skat_ai.information_set_search_comparison import (
+    InformationSetSearchComparisonPreActualAnalysisV1,
+)
+from skat_ai.information_set_search_provenance import (
+    build_information_set_search_comparison_provenance_entries,
+    build_information_set_search_provenance_entries,
+    information_set_settings_reference,
+)
 from skat_ai.public_hand_constraint import build_serializable_public_hand_constraints
 from skat_ai.recommendation_workflow import (
     RecommendationWorkflowResult,
@@ -64,6 +72,15 @@ _PRIVATE_FIELD_NAMES = {
     "branches",
     "principal_variation",
     "principal_variations",
+    "controlled_policy",
+    "information_set",
+    "observation",
+    "observations",
+    "world_states",
+    "root_information_set",
+    "own_remaining_hand",
+    "memoization",
+    "bundle_cache",
     "private_profile_record",
     "private_sentinel",
 }
@@ -74,11 +91,12 @@ def _reference(
     reference_id: str,
     *,
     visibility: str = "public",
+    field_path: str | None = None,
 ) -> FieldProvenanceSourceReference:
     return FieldProvenanceSourceReference(
         reference_type=reference_type,
         reference_id=reference_id,
-        field_path=None,
+        field_path=field_path,
         visibility=visibility,
     )
 
@@ -372,6 +390,9 @@ class FlatRetrospectiveProvenanceCollector:
         self._analysis_results: dict[str, RecommendationWorkflowResult] = {}
         self._assessment_document: dict[str, object] | None = None
         self._actual_card_available = False
+        self._information_set_pre_actual: (
+            InformationSetSearchComparisonPreActualAnalysisV1 | None
+        ) = None
 
     def capture_flat_decision(self, **kwargs: Any) -> None:
         if self._input_attachment is not None:
@@ -413,12 +434,34 @@ class FlatRetrospectiveProvenanceCollector:
         )
         self._analysis_results["immediate_baseline"] = result
 
+    def retain_flat_information_set_search_pre_actual_analysis(
+        self,
+        analysis: InformationSetSearchComparisonPreActualAnalysisV1,
+    ) -> None:
+        if not isinstance(
+            analysis,
+            InformationSetSearchComparisonPreActualAnalysisV1,
+        ):
+            raise ValueError("Information-set comparison analysis has the wrong type.")
+        if self._analysis_document is None:
+            raise SkatAIInformationPolicyError(
+                "Information-set baseline provenance requires the primary analysis.",
+                path="/flat_retrospective/analysis/same_selection_pimc_result",
+            )
+        self._information_set_pre_actual = analysis
+        self._analysis_document["same_selection_pimc_result"] = (
+            build_serializable_bounded_search_result(analysis.pimc_result)
+            if analysis.pimc_result is not None
+            else None
+        )
+
     def retain_flat_retrospective_assessment(
         self,
         *,
         actual_card_played: str | None,
         post_game_review_summary: Mapping[str, object],
         bounded_search_post_game_review_summary: Mapping[str, object] | None,
+        information_set_search_comparison: Mapping[str, object] | None = None,
     ) -> None:
         if actual_card_played is None:
             return
@@ -440,6 +483,10 @@ class FlatRetrospectiveProvenanceCollector:
         if bounded_search_post_game_review_summary is not None:
             document["bounded_search_post_game_review_summary"] = dict(
                 bounded_search_post_game_review_summary
+            )
+        if information_set_search_comparison is not None:
+            document["information_set_search_comparison"] = dict(
+                information_set_search_comparison
             )
         self._assessment_document = document
 
@@ -466,6 +513,11 @@ class FlatRetrospectiveProvenanceCollector:
                 if result.bounded_search_result is not None
                 else None
             ),
+            "information_set_search_result": (
+                dict(result.information_set_search_public_result)
+                if result.information_set_search_public_result is not None
+                else None
+            ),
             "hidden_card_inference_summary": inference,
         }
         return document
@@ -478,12 +530,44 @@ class FlatRetrospectiveProvenanceCollector:
             )
         overrides: list[FieldProvenanceEntry] = []
         for section_name, retained in self._analysis_results.items():
-            if retained.bounded_search_result is None:
-                continue
+            if retained.bounded_search_result is not None:
+                overrides.extend(
+                    search_entries_for_nested_result(
+                        retained.bounded_search_result,
+                        field_path=f"/{section_name}/bounded_search_result",
+                        decision_index=0,
+                        perspective_player_id="me",
+                    )
+                )
+            if retained.information_set_search_public_result is not None:
+                overrides.extend(
+                    build_information_set_search_provenance_entries(
+                        retained.information_set_search_public_result,
+                        retained_result=retained.information_set_search_result,
+                        field_path=(
+                            f"/{section_name}/information_set_search_result"
+                        ),
+                        decision_index=0,
+                        perspective_player_id="me",
+                        settings_reference=information_set_settings_reference(
+                            "request",
+                            "position_analysis_request",
+                            field_path="/information_set_search_settings",
+                        ),
+                        fixed_policy_reference=information_set_settings_reference(
+                            "algorithm",
+                            "effective_opponent_policy",
+                        ),
+                    )
+                )
+        if (
+            self._information_set_pre_actual is not None
+            and self._information_set_pre_actual.pimc_result is not None
+        ):
             overrides.extend(
                 search_entries_for_nested_result(
-                    retained.bounded_search_result,
-                    field_path=f"/{section_name}/bounded_search_result",
+                    self._information_set_pre_actual.pimc_result,
+                    field_path="/same_selection_pimc_result",
                     decision_index=0,
                     perspective_player_id="me",
                 )
@@ -500,12 +584,25 @@ class FlatRetrospectiveProvenanceCollector:
     def _build_assessment_attachment(self) -> ApplicationProvenanceAttachment | None:
         if self._assessment_document is None:
             return None
+        overrides: tuple[FieldProvenanceEntry, ...] = ()
+        comparison = self._assessment_document.get(
+            "information_set_search_comparison"
+        )
+        if isinstance(comparison, Mapping):
+            overrides = build_information_set_search_comparison_provenance_entries(
+                comparison,
+                field_path="/information_set_search_comparison",
+                decision_index=0,
+                perspective_player_id="me",
+                actual_reference_id="flat_actual_card",
+            )
         return build_complete_provenance_attachment(
             name="flat_retrospective/assessment",
             document_role="result",
             document=self._assessment_document,
             information_use_context=_position_context(stage="after_actual_play"),
             entry_builder=_retrospective_assessment_entry,
+            override_entries=overrides,
         )
 
     def build_bundle(
@@ -537,6 +634,41 @@ class FlatRetrospectiveProvenanceCollector:
                 decision_index=0,
                 perspective_player_id="me",
             )
+        if (
+            primary is not None
+            and primary.information_set_search_public_result is not None
+        ):
+            search_entries = (
+                *search_entries,
+                *build_information_set_search_provenance_entries(
+                    primary.information_set_search_public_result,
+                    retained_result=primary.information_set_search_result,
+                    field_path="/information_set_search_result",
+                    decision_index=0,
+                    perspective_player_id="me",
+                    settings_reference=information_set_settings_reference(
+                        "request",
+                        "position_analysis_request",
+                        field_path="/information_set_search_settings",
+                    ),
+                    fixed_policy_reference=information_set_settings_reference(
+                        "algorithm",
+                        "effective_opponent_policy",
+                    ),
+                ),
+            )
+        comparison_entries: tuple[FieldProvenanceEntry, ...] = ()
+        comparison = result.get("information_set_search_comparison")
+        if isinstance(comparison, Mapping):
+            comparison_entries = (
+                build_information_set_search_comparison_provenance_entries(
+                    comparison,
+                    field_path="/information_set_search_comparison",
+                    decision_index=0,
+                    perspective_player_id="me",
+                    actual_reference_id="flat_actual_card",
+                )
+            )
         result_attachment = build_live_position_result_provenance_attachment(
             result,
             search_entries_by_path={
@@ -545,7 +677,8 @@ class FlatRetrospectiveProvenanceCollector:
             external_reference=external_reference,
             source_document=source_document,
             additional_entries_by_path={
-                entry.field_path: entry for entry in retrospective_entries
+                entry.field_path: entry
+                for entry in (*retrospective_entries, *comparison_entries)
             },
         )
         assessment = self._build_assessment_attachment()

@@ -23,9 +23,7 @@ def _invocation_command(invocation_style: str) -> str:
     try:
         return commands[invocation_style]
     except KeyError as error:
-        raise ValueError(
-            f"invocation_style must be one of {CLI_INVOCATION_STYLES}."
-        ) from error
+        raise ValueError(f"invocation_style must be one of {CLI_INVOCATION_STYLES}.") from error
 
 
 def _invocation_examples(invocation_style: str) -> str:
@@ -210,6 +208,14 @@ def build_argument_parser(
         help="Evaluate every historical decision with bounded Search and Immediate.",
     )
     parser.add_argument(
+        "--historical-information-set-search-review",
+        action="store_true",
+        help=(
+            "Evaluate every historical decision with bounded Information-set Search, "
+            "same-selection Search, and Immediate."
+        ),
+    )
+    parser.add_argument(
         "--historical-replay-coaching",
         action="store_true",
         help="Build the complete Replay Coaching Report for a historical game.",
@@ -219,8 +225,8 @@ def build_argument_parser(
         type=int,
         default=None,
         help=(
-            "Use this explicit base seed for Historical Search Review, Replay Coaching, "
-            "or evaluation."
+            "Use this explicit base seed for Historical Search Review, Information-set "
+            "Search Review, Replay Coaching, or evaluation."
         ),
     )
     parser.add_argument(
@@ -228,8 +234,8 @@ def build_argument_parser(
         choices=SEARCH_BUDGET_PROFILE_IDENTIFIERS,
         default=None,
         help=(
-            "Select a versioned Historical Search Review, Replay Coaching, or evaluation "
-            "budget profile."
+            "Select a versioned Historical Search Review, Information-set Search Review, "
+            "Replay Coaching, or evaluation budget profile."
         ),
     )
     parser.add_argument(
@@ -238,17 +244,25 @@ def build_argument_parser(
         help="Evaluate bounded Search against Immediate on a training dataset.",
     )
     parser.add_argument(
+        "--information-set-search-evaluation",
+        action="store_true",
+        help=(
+            "Evaluate Information-set Search against same-selection Search and Immediate "
+            "on a training dataset."
+        ),
+    )
+    parser.add_argument(
         "--search-evaluation-partition",
         action="append",
         choices=("train", "validation", "test"),
         default=None,
-        help="Select a bounded-Search evaluation partition; may be repeated.",
+        help="Select a Search evaluation partition; may be repeated.",
     )
     parser.add_argument(
         "--search-evaluation-max-decisions",
         type=int,
         default=None,
-        help="Evaluate only this deterministic prefix of selected decisions.",
+        help="Evaluate only this deterministic prefix of selected Search decisions.",
     )
 
     parser.add_argument(

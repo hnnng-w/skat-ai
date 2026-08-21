@@ -15,12 +15,14 @@ from skat_ai.bounded_search_evaluation import (
 from skat_ai.cli.presentation.dataset import (
     print_bounded_search_evaluation_result,
     print_dataset_partition_audit_result,
+    print_information_set_search_evaluation_result,
     print_rolling_opponent_policy_evaluation_result,
     print_training_dataset_preparation_application_result,
     print_training_dataset_result,
 )
 from skat_ai.cli.presentation.historical import (
     print_historical_game_result,
+    print_historical_information_set_search_review_result,
     print_historical_replay_coaching_result,
     print_historical_search_review_result,
 )
@@ -45,6 +47,10 @@ from skat_ai.cli.root_application import (
 from skat_ai.cli.root_compatibility import CliUsageError, _facade_value
 from skat_ai.cli.root_validation import validate_live_opponent_profile_options
 from skat_ai.errors import SkatAIWorkflowError
+from skat_ai.information_set_search_evaluation import (
+    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS,
+    DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PROFILE,
+)
 from skat_ai.input_loader import load_json_object, load_position_from_json
 from skat_ai.output_writer import write_analysis_result_to_json
 from skat_ai.rolling_opponent_policy_evaluation import (
@@ -94,9 +100,7 @@ def run_json_position_analysis(
     if multi_step_count is not None and multi_step_count <= 0:
         raise ValueError("multi_step_count must be a positive integer.")
 
-    position_data = _dependency(
-        "load_position_from_json", load_position_from_json
-    )(file_path)
+    position_data = _dependency("load_position_from_json", load_position_from_json)(file_path)
     if "game_shortening" in position_data and (multi_step_count is not None or compare_policies):
         raise ValueError(
             "Structured game_shortening cannot be combined with multi-step simulation "
@@ -104,8 +108,7 @@ def run_json_position_analysis(
         )
     shortening_value = position_data.get("game_shortening")
     is_open_card_throw = (
-        isinstance(shortening_value, dict)
-        and shortening_value.get("kind") == "open_card_throw"
+        isinstance(shortening_value, dict) and shortening_value.get("kind") == "open_card_throw"
     )
     if is_open_card_throw and any(
         value is not None
@@ -138,9 +141,7 @@ def run_json_position_analysis(
             )(opponent_statistics_file),
             opponent_statistics_reference=opponent_statistics_file,
         )
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         position_data,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -148,31 +149,19 @@ def run_json_position_analysis(
                 sample_count_override=sample_count_override,
                 random_seed_override=random_seed_override,
                 opponent_strategy_override=opponent_strategy_override,
-                left_opponent_lead_policy_override=(
-                    left_opponent_lead_policy_override
-                ),
-                left_opponent_response_policy_override=(
-                    left_opponent_response_policy_override
-                ),
-                right_opponent_lead_policy_override=(
-                    right_opponent_lead_policy_override
-                ),
-                right_opponent_response_policy_override=(
-                    right_opponent_response_policy_override
-                ),
+                left_opponent_lead_policy_override=(left_opponent_lead_policy_override),
+                left_opponent_response_policy_override=(left_opponent_response_policy_override),
+                right_opponent_lead_policy_override=(right_opponent_lead_policy_override),
+                right_opponent_response_policy_override=(right_opponent_response_policy_override),
                 multi_step_count=multi_step_count,
                 card_selection_policy=card_selection_policy,
                 expected_value_sample_count=expected_value_sample_count,
                 strict_context=strict_context,
                 compare_policies=compare_policies,
                 comparison_only=comparison_only,
-                opponent_policy_preset_override=(
-                    opponent_policy_preset_override
-                ),
+                opponent_policy_preset_override=(opponent_policy_preset_override),
                 opponent_lead_policy_override=opponent_lead_policy_override,
-                opponent_response_policy_override=(
-                    opponent_response_policy_override
-                ),
+                opponent_response_policy_override=(opponent_response_policy_override),
                 use_profile_presets_override=use_profile_presets_override,
                 left_opponent_player_id=left_opponent_player_id,
                 right_opponent_player_id=right_opponent_player_id,
@@ -182,17 +171,15 @@ def run_json_position_analysis(
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
     if not comparison_only:
         _dependency("print_analysis_result", print_analysis_result)(result)
     if multi_step_count is not None and not comparison_only:
-        _dependency("print_multi_step_result", print_multi_step_result)(
-            result["multi_step_result"]
-        )
+        _dependency("print_multi_step_result", print_multi_step_result)(result["multi_step_result"])
     if compare_policies:
         _dependency("print_policy_comparison_result", print_policy_comparison_result)(
             result["policy_comparison_result"]
@@ -200,9 +187,7 @@ def run_json_position_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -213,6 +198,7 @@ def run_json_historical_game_analysis(
     historical_decision_snapshots: bool = False,
     historical_game_review: bool = False,
     historical_search_review: bool = False,
+    historical_information_set_search_review: bool = False,
     historical_replay_coaching: bool = False,
     search_seed: int | None = None,
     search_budget_profile: str = HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
@@ -239,9 +225,7 @@ def run_json_historical_game_analysis(
             )(opponent_statistics_file),
             opponent_statistics_reference=opponent_statistics_file,
         )
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -249,42 +233,29 @@ def run_json_historical_game_analysis(
                 decision_snapshots=historical_decision_snapshots,
                 immediate_review=historical_game_review,
                 search_review=historical_search_review,
+                information_set_search_review=(historical_information_set_search_review),
                 replay_coaching=historical_replay_coaching,
                 search_seed=search_seed,
                 search_budget_profile=search_budget_profile,
                 immediate_sample_count=sample_count,
                 immediate_base_random_seed=base_random_seed,
-                opponent_policy_preset_override=(
-                    opponent_policy_preset_override
-                ),
+                opponent_policy_preset_override=(opponent_policy_preset_override),
                 opponent_lead_policy_override=opponent_lead_policy_override,
-                opponent_response_policy_override=(
-                    opponent_response_policy_override
-                ),
-                left_opponent_lead_policy_override=(
-                    left_opponent_lead_policy_override
-                ),
-                left_opponent_response_policy_override=(
-                    left_opponent_response_policy_override
-                ),
-                right_opponent_lead_policy_override=(
-                    right_opponent_lead_policy_override
-                ),
-                right_opponent_response_policy_override=(
-                    right_opponent_response_policy_override
-                ),
-                use_profile_presets_override=(
-                    opponent_statistics_file is not None
-                ),
+                opponent_response_policy_override=(opponent_response_policy_override),
+                left_opponent_lead_policy_override=(left_opponent_lead_policy_override),
+                left_opponent_response_policy_override=(left_opponent_response_policy_override),
+                right_opponent_lead_policy_override=(right_opponent_lead_policy_override),
+                right_opponent_response_policy_override=(right_opponent_response_policy_override),
+                use_profile_presets_override=(opponent_statistics_file is not None),
             )
         ),
         external_documents=external_documents,
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
     _dependency("print_historical_game_result", print_historical_game_result)(result)
@@ -294,6 +265,11 @@ def run_json_historical_game_analysis(
             "print_historical_search_review_result",
             print_historical_search_review_result,
         )(historical_game_summary["historical_search_review_summary"])
+    if historical_information_set_search_review:
+        _dependency(
+            "print_historical_information_set_search_review_result",
+            print_historical_information_set_search_review_result,
+        )(historical_game_summary["historical_information_set_search_review_summary"])
     if historical_replay_coaching:
         _dependency(
             "print_historical_replay_coaching_result",
@@ -302,9 +278,7 @@ def run_json_historical_game_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -316,9 +290,7 @@ def run_json_training_dataset_conversion(
 ) -> None:
     """Runs deterministic training-dataset validation and sample generation."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -327,20 +299,16 @@ def run_json_training_dataset_conversion(
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
-    _dependency("print_training_dataset_result", print_training_dataset_result)(
-        result
-    )
+    _dependency("print_training_dataset_result", print_training_dataset_result)(result)
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -352,17 +320,15 @@ def run_json_training_dataset_preparation(
 ) -> None:
     """Runs one mode-derived automatic Dataset preparation workflow."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
     _dependency(
@@ -372,9 +338,7 @@ def run_json_training_dataset_preparation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -391,9 +355,7 @@ def run_json_bounded_search_evaluation(
 ) -> None:
     """Runs deterministic bounded-Search evaluation on selected dataset records."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -408,9 +370,9 @@ def run_json_bounded_search_evaluation(
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
     _dependency(
@@ -420,9 +382,51 @@ def run_json_bounded_search_evaluation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
+    return
+
+
+def run_json_information_set_search_evaluation(
+    file_path: str,
+    *,
+    search_seed: int,
+    partitions: tuple[str, ...] = (DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PARTITIONS),
+    search_budget_profile: str = (DEFAULT_INFORMATION_SET_SEARCH_EVALUATION_PROFILE),
+    max_decisions: int | None = None,
+    output_path: str | None = None,
+    quiet: bool = False,
+    include_provenance: bool = False,
+) -> None:
+    """Runs Information-set Search evaluation on selected dataset records."""
+    root_document = _dependency("load_json_object", load_json_object)(file_path)
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
+        root_document,
+        input_reference=file_path,
+        options=ApplicationExecutionOptions(
+            training_dataset=TrainingDatasetApplicationOptions(
+                operation="information_set_search_evaluation",
+                information_set_search_seed=search_seed,
+                information_set_search_partitions=partitions,
+                information_set_search_budget_profile=search_budget_profile,
+                information_set_search_max_decisions=max_decisions,
+            )
+        ),
+        include_provenance=include_provenance,
     )
+    if output_path is not None:
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
+    if quiet:
+        return
+    _dependency(
+        "print_information_set_search_evaluation_result",
+        print_information_set_search_evaluation_result,
+    )(result)
+    if output_path is not None:
+        print()
+        print("Output file written:", output_path)
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -436,9 +440,7 @@ def run_json_dataset_partition_audit(
     """Audits training-dataset player overlap without generating samples."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
     try:
-        result, _artifacts = _dependency(
-            "execute_legacy_application", execute_legacy_application
-        )(
+        result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
             root_document,
             input_reference=file_path,
             options=ApplicationExecutionOptions(
@@ -456,20 +458,18 @@ def run_json_dataset_partition_audit(
             raise
         raise CliUsageError(str(error)) from error
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
-    _dependency(
-        "print_dataset_partition_audit_result", print_dataset_partition_audit_result
-    )(result)
+    _dependency("print_dataset_partition_audit_result", print_dataset_partition_audit_result)(
+        result
+    )
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -483,9 +483,7 @@ def run_json_rolling_opponent_policy_evaluation(
 ) -> None:
     """Runs rolling profile-derived behavioral policy evaluation."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -498,9 +496,9 @@ def run_json_rolling_opponent_policy_evaluation(
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
     _dependency(
@@ -510,9 +508,7 @@ def run_json_rolling_opponent_policy_evaluation(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -527,9 +523,7 @@ def run_json_historical_opponent_statistics_aggregation(
 ) -> None:
     """Aggregates historical statistics without generating training samples."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         options=ApplicationExecutionOptions(
@@ -543,13 +537,11 @@ def run_json_historical_opponent_statistics_aggregation(
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if export_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
             output_path=export_path,
             result=artifacts["opponent_statistics_input"],
         )
@@ -564,9 +556,7 @@ def run_json_historical_opponent_statistics_aggregation(
         print("Output file written:", output_path)
     if export_path is not None:
         print("Exported opponent statistics to", f"{export_path}.")
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -578,17 +568,15 @@ def run_json_fixed_three_player_historical_list_analysis(
 ) -> None:
     """Runs one complete historical 36-position list aggregation."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
     _dependency(
@@ -598,9 +586,7 @@ def run_json_fixed_three_player_historical_list_analysis(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -612,17 +598,15 @@ def run_json_fixed_three_player_historical_list_comparison(
 ) -> None:
     """Aggregates each ordered source once and compares it with the first source."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
     _dependency(
@@ -632,9 +616,7 @@ def run_json_fixed_three_player_historical_list_comparison(
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return
 
 
@@ -646,26 +628,20 @@ def run_json_opponent_statistics_conversion(
 ) -> None:
     """Runs deterministic external opponent-statistics validation and normalization."""
     root_document = _dependency("load_json_object", load_json_object)(file_path)
-    result, _artifacts = _dependency(
-        "execute_legacy_application", execute_legacy_application
-    )(
+    result, _artifacts = _dependency("execute_legacy_application", execute_legacy_application)(
         root_document,
         input_reference=file_path,
         include_provenance=include_provenance,
     )
     if output_path is not None:
-        _dependency(
-            "write_analysis_result_to_json", write_analysis_result_to_json
-        )(output_path=output_path, result=result)
+        _dependency("write_analysis_result_to_json", write_analysis_result_to_json)(
+            output_path=output_path, result=result
+        )
     if quiet:
         return
-    _dependency("print_opponent_statistics_result", print_opponent_statistics_result)(
-        result
-    )
+    _dependency("print_opponent_statistics_result", print_opponent_statistics_result)(result)
     if output_path is not None:
         print()
         print("Output file written:", output_path)
-    _dependency("print_field_provenance_summary", print_field_provenance_summary)(
-        result
-    )
+    _dependency("print_field_provenance_summary", print_field_provenance_summary)(result)
     return

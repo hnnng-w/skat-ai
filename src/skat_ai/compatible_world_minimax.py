@@ -227,6 +227,74 @@ def solve_compatible_world_minimax(
             compatible_world_count=0,
         )
 
+    return solve_compatible_world_minimax_on_selection_v1(
+        information_view=information_view,
+        requested_budget=requested_budget,
+        selection=selection,
+    )
+
+
+def solve_compatible_world_minimax_on_selection_v1(
+    *,
+    information_view: SearchInformationView,
+    requested_budget: RequestedSearchBudget,
+    selection: CompatibleSearchWorldSelection,
+) -> BoundedSearchResult:
+    """Solves exactly one retained compatible-world sequence without reselection."""
+    if not isinstance(information_view, SearchInformationView):
+        raise ValueError("information_view must be a SearchInformationView.")
+    if not isinstance(requested_budget, RequestedSearchBudget):
+        raise ValueError("requested_budget must be a RequestedSearchBudget.")
+    if type(selection) is not CompatibleSearchWorldSelection:
+        raise ValueError("selection must be a CompatibleSearchWorldSelection.")
+    selection.__post_init__()
+    if (
+        selection.selected_world_count > requested_budget.max_selected_worlds
+        or selection.sampled_world_count > requested_budget.max_sampled_worlds
+    ):
+        raise ValueError("The retained selection exceeds the requested PIMC budget.")
+    if not selection.available:
+        return _unavailable_result(
+            information_view=information_view,
+            requested_budget=requested_budget,
+            reason="incompatible_world_space",
+            compatible_world_count=selection.compatible_world_count,
+        )
+
+    expected_current_trick = tuple(
+        (play.player, play.card) for play in information_view.current_trick
+    )
+    expected_hand_sizes = tuple(
+        (item.player, item.card_count) for item in information_view.remaining_hand_sizes
+    )
+    for state in selection.exact_states:
+        if (
+            state.declaration != information_view.declaration
+            or state.declarer_player != information_view.declarer_player
+            or state.next_player != information_view.next_player
+            or state.hand_for(information_view.perspective_player)
+            != information_view.local_remaining_hand
+            or tuple((play.player, play.card) for play in state.current_trick)
+            != expected_current_trick
+            or state.declarer_trick_points != information_view.declarer_points
+            or state.defender_trick_points != information_view.defender_points
+            or state.declarer_completed_tricks
+            != information_view.declarer_trick_count
+            or state.defender_completed_tricks
+            != information_view.defender_trick_count
+            or tuple(
+                (player, len(state.hand_for(player)))
+                for player in ("me", "left", "right")
+            )
+            != expected_hand_sizes
+            or not set(information_view.known_skat_cards).issubset(
+                state.out_of_play_cards
+            )
+        ):
+            raise ValueError(
+                "The retained selection does not belong to the information view."
+            )
+
     local_side = get_player_side(
         information_view.perspective_player,
         information_view.declarer_player,

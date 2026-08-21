@@ -162,6 +162,18 @@ HISTORICAL_REPLAY_COACHING_SCHEMA_PATH = (
 BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "bounded_search_evaluation.schema.json"
 )
+INFORMATION_SET_SEARCH_RESULT_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "information_set_search_result.schema.json"
+)
+INFORMATION_SET_SEARCH_COMPARISON_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "information_set_search_comparison.schema.json"
+)
+HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "historical_information_set_search_review.schema.json"
+)
+INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH = (
+    PROJECT_ROOT / "schemas" / "information_set_search_evaluation.schema.json"
+)
 FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH = (
     PROJECT_ROOT / "schemas" / "fixed_three_player_historical_list_aggregation.schema.json"
 )
@@ -619,6 +631,7 @@ def _output_workflow(data: dict[str, Any]) -> str:
             "rolling_opponent_policy_evaluation_summary",
             "dataset_partition_audit_summary",
             "bounded_search_evaluation_summary",
+            "information_set_search_evaluation_summary",
         )
     ):
         return "training_dataset"
@@ -3315,6 +3328,120 @@ def check_bounded_search_evaluation(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+_INFORMATION_SET_PRIVATE_FIELDS = {
+    "controlled_policy",
+    "policy_table",
+    "observation",
+    "observations",
+    "actor_observation",
+    "hand",
+    "own_hand",
+    "state",
+    "exact_state",
+    "world_id",
+    "world_identity",
+    "world_state",
+    "selected_worlds",
+    "memoization",
+    "memoization_cache",
+}
+
+
+def _check_information_set_public_surface(value: Any) -> list[str]:
+    leaked = sorted(
+        _INFORMATION_SET_PRIVATE_FIELDS.intersection(_collect_property_names(value))
+    )
+    return (
+        [f"information-set Search output exposed private fields: {leaked}"]
+        if leaked
+        else []
+    )
+
+
+def check_information_set_search_live_complete(data: dict[str, Any]) -> list[str]:
+    search = data.get("information_set_search_result")
+    if not isinstance(search, dict):
+        return ["expected information_set_search_result"]
+    errors = _check_information_set_public_surface(search)
+    if data.get("bounded_search_result") is not None:
+        errors.append("expected bounded_search_result to remain null")
+    if "information_set_search_comparison" in data:
+        errors.append("live Search must not emit a retrospective comparison")
+    if search["status"] != "complete" or search["stop_reason"] != "completed":
+        errors.append("expected complete information-set Search")
+    if search["world_coverage"] != "all_compatible_worlds":
+        errors.append("expected exhaustive compatible-world coverage")
+    if search["recommended_card"] != data["recommendation"]["card"]:
+        errors.append("expected top-level and information-set recommendations to match")
+    if data["recommendation_method_summary"] != {
+        "requested_method": "information_set_search",
+        "effective_method": "bounded_information_set_policy_search_v1",
+        "search_attempted": True,
+        "fallback_used": False,
+        "fallback_method": None,
+        "analysis_report_method": "none",
+    }:
+        errors.append("expected strict information-set Search method summary")
+    return errors
+
+
+def check_information_set_search_post_game_comparison(
+    data: dict[str, Any],
+) -> list[str]:
+    errors = check_information_set_search_live_complete(data)
+    if "live Search must not emit a retrospective comparison" in errors:
+        errors.remove("live Search must not emit a retrospective comparison")
+    comparison = data.get("information_set_search_comparison")
+    if not isinstance(comparison, dict):
+        return [*errors, "expected information_set_search_comparison"]
+    errors.extend(_check_information_set_public_surface(comparison))
+    if comparison["comparison_status"] != "available":
+        errors.append("expected available same-selection comparison")
+    if comparison["same_selected_world_sequence"] is not True:
+        errors.append("expected one shared selected-world sequence")
+    if comparison["actual_card"] != "D7":
+        errors.append("expected retrospective actual Card D7")
+    if comparison["information_set_pimc_same_card"] is not True:
+        errors.append("expected information-set and PIMC recommendation agreement")
+    return errors
+
+
+def check_historical_information_set_search_review(data: dict[str, Any]) -> list[str]:
+    review = data["historical_game_summary"].get(
+        "historical_information_set_search_review_summary"
+    )
+    if not isinstance(review, dict):
+        return ["expected historical_information_set_search_review_summary"]
+    errors = _check_information_set_public_surface(review)
+    if review["decision_count"] != 30 or len(review["decisions"]) != 30:
+        errors.append("expected all 30 historical decisions")
+    if sum(review["status_counts"].values()) != review["decision_count"]:
+        errors.append("expected exact information-set status reconciliation")
+    if sum(review["coverage_counts"].values()) != review["decision_count"]:
+        errors.append("expected exact information-set coverage reconciliation")
+    if not review["comparison_available_count"]:
+        errors.append("expected at least one available late-game comparison")
+    if not review["comparison_unavailable_count"]:
+        errors.append("expected unavailable early-game comparisons")
+    return errors
+
+
+def check_information_set_search_evaluation(data: dict[str, Any]) -> list[str]:
+    summary = data.get("information_set_search_evaluation_summary")
+    if not isinstance(summary, dict):
+        return ["expected information_set_search_evaluation_summary"]
+    errors = _check_information_set_public_surface(summary)
+    if summary["selection"]["partitions"] != ["validation", "test"]:
+        errors.append("expected default validation/test evaluation partitions")
+    if summary["decision_count"] != 1:
+        errors.append("expected deterministic one-decision evaluation prefix")
+    if summary["record_count"] != 1 or len(summary["records"]) != 1:
+        errors.append("expected one selected Dataset record")
+    if sum(summary["status_counts"].values()) != summary["decision_count"]:
+        errors.append("expected exact evaluation status reconciliation")
+    return errors
+
+
 def _find_forbidden_list_output_key(value: Any) -> str | None:
     forbidden_keys = {
         "historical_game",
@@ -5124,6 +5251,65 @@ SCENARIOS = (
         expect_quiet_stdout=True,
         include_position_overrides=False,
     ),
+    Scenario(
+        name="information_set_search_live_complete",
+        input_path=PROJECT_ROOT / "examples" / "information_set_search.json",
+        branch="complete information-set Search with safe public aggregate output",
+        cli_args=("--quiet",),
+        check_output=check_information_set_search_live_complete,
+        expect_quiet_stdout=True,
+        include_provenance=True,
+    ),
+    Scenario(
+        name="information_set_search_post_game_comparison",
+        input_path=(
+            PROJECT_ROOT
+            / "tests"
+            / "fixtures"
+            / "generated_output_schema"
+            / "information_set_search_post_game_comparison.json"
+        ),
+        branch="retrospective same-selection PIMC and Immediate comparison",
+        cli_args=("--quiet",),
+        check_output=check_information_set_search_post_game_comparison,
+        expect_quiet_stdout=True,
+    ),
+    Scenario(
+        name="historical_information_set_search_review",
+        input_path=PROJECT_ROOT / "examples" / "historical_grand_normal_completion.json",
+        branch="decision-time historical information-set Search review",
+        cli_args=(
+            "--historical-information-set-search-review",
+            "--search-seed",
+            "83",
+            "--search-budget-profile",
+            "interactive_v1",
+            "--samples",
+            "1",
+            "--seed",
+            "47",
+            "--quiet",
+        ),
+        check_output=check_historical_information_set_search_review,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
+    Scenario(
+        name="training_dataset_information_set_search_evaluation",
+        input_path=PROJECT_ROOT / "examples" / "training_dataset_normal_play.json",
+        branch="information-set Search Dataset evaluation without training",
+        cli_args=(
+            "--information-set-search-evaluation",
+            "--search-seed",
+            "89",
+            "--search-evaluation-max-decisions",
+            "1",
+            "--quiet",
+        ),
+        check_output=check_information_set_search_evaluation,
+        expect_quiet_stdout=True,
+        include_position_overrides=False,
+    ),
 )
 
 
@@ -5239,6 +5425,18 @@ def validate_generated_outputs() -> list[str]:
     )
     bounded_search_evaluation_schema = load_json_file(
         BOUNDED_SEARCH_EVALUATION_SCHEMA_PATH
+    )
+    information_set_search_result_schema = load_json_file(
+        INFORMATION_SET_SEARCH_RESULT_SCHEMA_PATH
+    )
+    information_set_search_comparison_schema = load_json_file(
+        INFORMATION_SET_SEARCH_COMPARISON_SCHEMA_PATH
+    )
+    historical_information_set_search_review_schema = load_json_file(
+        HISTORICAL_INFORMATION_SET_SEARCH_REVIEW_SCHEMA_PATH
+    )
+    information_set_search_evaluation_schema = load_json_file(
+        INFORMATION_SET_SEARCH_EVALUATION_SCHEMA_PATH
     )
     historical_list_aggregation_schema = load_json_file(
         FIXED_THREE_PLAYER_HISTORICAL_LIST_AGGREGATION_SCHEMA_PATH
@@ -5446,6 +5644,24 @@ def validate_generated_outputs() -> list[str]:
             (
                 bounded_search_evaluation_schema["$id"],
                 Resource.from_contents(bounded_search_evaluation_schema),
+            ),
+            (
+                information_set_search_result_schema["$id"],
+                Resource.from_contents(information_set_search_result_schema),
+            ),
+            (
+                information_set_search_comparison_schema["$id"],
+                Resource.from_contents(information_set_search_comparison_schema),
+            ),
+            (
+                historical_information_set_search_review_schema["$id"],
+                Resource.from_contents(
+                    historical_information_set_search_review_schema
+                ),
+            ),
+            (
+                information_set_search_evaluation_schema["$id"],
+                Resource.from_contents(information_set_search_evaluation_schema),
             ),
             (
                 historical_list_aggregation_schema["$id"],

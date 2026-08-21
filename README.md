@@ -27,6 +27,8 @@ official Skat rules arbitration.
 * Optional bounded compatible-world Minimax recommendations for eligible late live positions
 * Strict Search and Search-first `auto` routing with explicit Immediate fallback metadata
 * Flat post-game bounded Search with an independently executed Immediate baseline
+* Strict three-Trick flat `information_set_search` with exact settings, safe aggregate output, and no Live fallback
+* Descriptive same-selection PIMC and independent Immediate comparison for Information-set Post-game Review
 * JSON output for regression-friendly analysis
 
 ### Simulation and policy comparison
@@ -1250,10 +1252,11 @@ publication is claimed.
 The current unreleased working baseline keeps Package version `0.16.0`, Python
 `>=3.13`, Public API contract version `1`, exactly seven Root workflows, one
 Console Script, and six Session examples. Issue #186 updates the Settlement
-Normative Matrix to version `3` with the same 61 cases, adds the Historical-only
-bounded party-wide Claim, and brings the working tree to 65 authoritative and
-packaged Schemas and 88 generated-output scenarios. The published `v0.16.0`
-counts above remain unchanged Release facts.
+Normative Matrix to version `3` with the same 61 cases and adds the Historical-
+only bounded party-wide Claim. Issue #189 adds four Information-set Search
+Schemas, one example, and four generated-output scenarios, bringing the working
+tree to 69 authoritative and packaged Schemas and 92 scenarios. The published
+`v0.16.0` counts above remain unchanged Release facts.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1414,26 +1417,31 @@ dependent. Overbid Null remains outside normal Search when no external
 replacement is available. Immediate remains the omitted default and Search is
 opt-in, so existing omitted-method workflows require no migration.
 
-Issues #187 and #188 add a separate private three-remaining-Trick foundation and
-bounded executor for information-set-consistent Search. They pair selected exact
-worlds with complete public history, derive actor-own-hand/public-fact
-Observations, preserve shrinking public hands and public void evidence, fix `left` and `right` to
-separate deterministic information-safe Policies, reuse ordered Compatible-
-world selection including sampled duplicates, and define Budget, Request,
-Preparation, controlled-Policy, consumed-budget, and Result invariants. Equal
-`me` Observations receive one common action. The executor exhaustively evaluates
-canonical controlled actions over ordered selected World bundles, reuses exact
-terminal utility and Candidate ranking, and retains a complete contingent Policy
-against fixed Players. No Recommendation routing, Public API, CLI, Schema,
-example, generated scenario, or performance claim is added. See [Information-
-set Search contracts](docs/information_set_search_contracts.md) and the
-[Information-set Search executor](docs/information_set_search_executor.md).
+Issues #187 and #188 add a separate three-remaining-Trick foundation and bounded
+executor for information-set-consistent Search. They pair selected exact Worlds
+with public history, derive actor-own-hand/public-fact Observations, fix `left`
+and `right` to separate deterministic Policies, preserve sampled duplicates, and
+require one common action for equal `me` Observations.
+
+Issue #189 adds strict flat `information_set_search` with exactly nine settings.
+Effective fixed Policies derive from existing left/right policy settings;
+`random_legal` and role-invalid Policies produce explicit unavailability. Live
+execution has no baseline or fallback. Flat Post-game Review, separate Historical
+Review, and Training Dataset-v1 evaluation compare the retained Result with PIMC
+on the exact same selection and with independently seeded Immediate before the
+actual Card is attached. Comparisons are descriptive, not accuracy or truth
+claims. Public Results and opt-in Provenance omit exact Worlds, private hands,
+Observations, the controlled Policy table, caches, and derived seeds. Existing
+`auto` remains PIMC first with its existing Immediate fallback. See
+[Information-set Search contracts](docs/information_set_search_contracts.md),
+the [Information-set Search executor](docs/information_set_search_executor.md),
+and [Information-set Search workflows](docs/information_set_search_workflows.md).
 
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
 workflows, Dataset-v2 persistence and persisted partition artifacts,
-database/remote deployment, and information-set Search comparison and routing,
+database/remote deployment, and broader information-set Search integration,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
@@ -1610,8 +1618,12 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   boundaries remain durable v1 exclusions. Session, Match Capture, and Corpus
   Claim entry remain open. Issue #187 defines the private information-set Search
   contracts and no-execution Preparation foundation, and Issue #188 adds its
-  private bounded executor. Comparison, routing, integration, and performance
-  evidence remain open. Tactical and cross-game
+  private bounded executor. Issue #189 adds strict flat routing, descriptive
+  retained-selection Post-game comparison, separate Historical Review and
+  Training Dataset evaluation, safe output, Provenance, CLI, four Schemas, one
+  example, and four scenarios. Multi-Step, Policy Comparison, Match Capture,
+  Strategy Teacher, Replay Coaching classification, and performance evidence
+  remain open for Issue #190 or later work. Tactical and cross-game
   Coaching, carefully bounded Player Ratings where approved, broader Provenance
   and Confidence integration, performance and latency evidence, and the remaining
   pre-v1 scope audit also remain open. The final Issue titles, count,

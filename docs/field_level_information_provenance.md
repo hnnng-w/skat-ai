@@ -121,13 +121,19 @@ sub-summary, final Summary, and export fingerprints remain deterministic content
 identities, not field-level Provenance ledgers. They add no public attachment,
 redaction path, Confidence value, or Training Dataset version `1` field.
 
-Issue #187 adds private, non-routed information-set Search contracts and
-Preparation. Issue #188 adds only the private executor and its private Result.
-Exact selected states, actor Observations, controlled Policies, caches, and
-execution counters remain engine-private and gain no Provenance ledger, public
-attachment, redaction path, Confidence value, Schema, Dataset field, or Match/
-Corpus export. Any future workflow integration must define its separate
-Provenance boundary before these values can influence a public Result.
+Issues #187 and #188 add the private information-set Search contracts,
+Preparation, executor, and retained Result. Issue #189 adds strict flat,
+Historical Review, and Training Dataset evaluation integration with complete
+retained-stage internal provenance. It maps input/settings, the safe
+Information-set Result, same-selection PIMC, independent Immediate, observed
+Card, descriptive comparison, and aggregate Result only when each stage is
+retained. Provenance construction reruns none of those operations.
+
+Exact selected states, hidden hands, actor Observations, selected assignments,
+controlled Policies, caches, memoization, and derived seeds remain engine-private.
+They gain no public attachment, Confidence value, Dataset field, or Match/Corpus
+export. Public opt-in continues to expose only the redacted complete Root Result
+mapping, not consumed-input, decision, or intermediate-stage attachments.
 
 ## Sidecar design
 
@@ -492,6 +498,9 @@ specialized contracts:
 | Historical actual card | `retrospective_attachment`, `after_actual_play` |
 | Settlement or list contribution | `rule_derived`, `deterministic_rule` |
 | Compatible-world aggregate | `compatible_world_aggregate`, exact or sampled aggregate |
+| Information-set Search Result | `search_derived` plus exact or sampled compatible-world aggregate leaves |
+| Same-selection PIMC Result | `compatible_world_aggregate` with the retained selection reference |
+| Information-set Search actual Card | `retrospective_attachment`, `after_actual_play` |
 | Replay Coaching recommendation | `search_derived` or `heuristic_analysis` |
 | Training source field | `external_source` |
 | Generated Dataset partition | `dataset_assignment`, `deterministic_rule` |
@@ -506,7 +515,8 @@ and unchanged.
 
 The internal Application boundary carries live and retrospective Position,
 Historical Review, Historical Search Review, Replay Coaching, Dataset,
-Preparation, Opponent, Profile, list, comparison, and complete Result
+Information-set Search Review/evaluation, Preparation, Opponent, Profile, list,
+comparison, and complete Result
 provenance. Every Root Result ledger is complete and non-legacy. Issue #147
 publishes only one redacted Root Result ledger plus actual-artifact ledgers.
 

@@ -95,10 +95,12 @@ Compatible-world Minimax remains bounded late-game determinization subject to
 Strategy Fusion. Even exhaustive enumeration is not an optimal imperfect-
 information policy, and the benchmark is not complete-contract Search evidence.
 The normal Search implementation maximum remains five unresolved tricks.
-Issue #188 executes Issue #187's separate private three-Trick information-set
-Search Preparation, but adds no benchmark profile, timing corpus, quality
-comparison, or latency evidence. This corpus continues to measure only the
-existing routed executable methods.
+Issues #187 and #188 define and execute the separate private three-Trick
+Information-set Search. Issue #189 routes it through flat and retrospective
+workflows and maps the existing named work profiles for Historical Review and
+Training Dataset evaluation, but adds no Information-set benchmark corpus,
+timing measurement, calibrated quality comparison, or latency evidence. This
+corpus continues to measure only `compatible_world_minimax_v1`.
 Overbid Null remains outside normal Search because Search does not select its
 external Suit or Grand replacement.
 No benchmark result changes the project's lack of a machine-learning model,

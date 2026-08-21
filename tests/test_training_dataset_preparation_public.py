@@ -446,7 +446,7 @@ def test_preparation_cli_rejects_every_non_file_option(
 def test_generated_output_matrix_appends_three_preparation_scenarios() -> None:
     from scripts.validate_generated_outputs_schema import SCENARIOS
 
-    assert len(SCENARIOS) == 88
+    assert len(SCENARIOS) == 92
     assert tuple(scenario.name for scenario in SCENARIOS[67:70]) == (
         "training_dataset_preparation_known_opponent",
         "training_dataset_preparation_unseen_player",

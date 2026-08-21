@@ -1411,15 +1411,15 @@ def test_matrix_runtime_historical_public_and_artifact_boundaries_are_current() 
     assert "party_wide_all_remaining_tricks_claim" not in VALID_GAME_END_REASONS
     assert "party_wide_all_remaining_tricks_claim" in HISTORICAL_GAME_END_REASONS
     assert len(tuple(WorkflowV1)) == 7
-    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 65
+    assert len(tuple((PROJECT_ROOT / "schemas").glob("*.schema.json"))) == 69
     assert (
         len(tuple((PROJECT_ROOT / "src" / "skat_ai" / "schema_resources").glob("*.schema.json")))
-        == 65
+        == 69
     )
     assert {path.name for path in (PROJECT_ROOT / "examples").glob("session_*.json")} == (
         SESSION_EXAMPLE_NAMES
     )
-    assert len(SCENARIOS) == 88
+    assert len(SCENARIOS) == 92
     with (PROJECT_ROOT / "pyproject.toml").open("rb") as file:
         project = tomllib.load(file)["project"]
     assert project["version"] == skat_ai.__version__ == "0.16.0"

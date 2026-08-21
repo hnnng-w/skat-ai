@@ -16,6 +16,9 @@ through at least `v1.0.0`.
 Issue #147 adds the same optional `--include-provenance` transport flag to all
 three forms. The Package version is `0.16.0`.
 
+Issue #189 adds the same Root Information-set Search modes and validation to all
+three forms without adding a Root workflow, command family, or Console Script.
+
 Issues #150 through #156 establish the Session contracts, replay, export,
 Checkpoint, history-edit, persistence, Public API, Provenance, and standalone
 Schema foundations. Issue #157 adds Session CLI contract version `1`, stable
@@ -112,6 +115,29 @@ Issue #165 adds leading `capture` dispatch before Session. Issue #179 adds leadi
 `corpus` dispatch before Capture. Every other invocation preserves the existing
 Root parser. The full current option lists are available through `--help`,
 `session --help`, `capture --help`, and `corpus --help`.
+
+The Information-set Search Root additions are:
+
+```text
+--historical-information-set-search-review
+--information-set-search-evaluation
+```
+
+Both require explicit `--search-seed` and reuse
+`--search-budget-profile`. Historical Review also reuses `--samples` and
+`--seed`; its default profile is `historical_review_v1`. It conflicts with
+`--historical-search-review` and `--historical-replay-coaching` rather than
+combining with either. Dataset evaluation is mutually exclusive with
+`--evaluate-bounded-search` and the other Training Dataset operations. It
+defaults to canonical validation/test order and profile `evaluation_v1`;
+repeatable `--search-evaluation-partition` and positive
+`--search-evaluation-max-decisions` retain their existing meanings.
+
+Flat Position input selects
+`recommendation_method: "information_set_search"` and supplies all nine strict
+`information_set_search_settings` fields in JSON. There are no separate flat
+CLI budget overrides. Existing `auto` remains PIMC first with its existing
+Immediate fallback and never silently selects Information-set Search.
 
 The CLI preserves this transport sequence:
 
@@ -286,7 +312,7 @@ flattened Public API envelope.
 The existing single distribution validator builds one Wheel and one sdist. Its
 clean environments verify exact Console Script metadata, module entry-point
 inclusion, Root-main exclusion, help, version, Root JSON parity, normal failure
-boundaries, provenance/quiet behavior, all 63 Schema Resources, and `py.typed`.
+boundaries, provenance/quiet behavior, all 69 Schema Resources, and `py.typed`.
 Issue #157 also verifies the public Session file namespace and Save/Load,
 installed/module Session help, `new`/`apply`/`show`, Position analysis,
 observation/review, Retrospective finalization, and an injected-I/O Assistant
@@ -301,6 +327,10 @@ Legacy Corpus help, one-root initialization, strict Workspace import, explicit
 Current selection, exact Match Report-source transfer, explicit Dataset-v2
 preparation, all seven canonical downloads, invalidation, and shutdown. It adds
 no second Console Script or 64th Schema.
+Issue #189 additionally verifies installed/module/Legacy Information-set Search
+help and execution parity, packaged four-Schema loading, strict Live execution,
+Historical Review, and Training Dataset evaluation. It adds no eighth Root
+workflow, second Console Script, or Public API contract version.
 
 ## Boundaries
 
@@ -317,6 +347,10 @@ GUI/browser UI, hosted or remote browser deployment, online-platform integration
 cloud synchronization,
 distributed locking,
 encryption/key management, and automatic backups remain open.
+Information-set Search remains bounded to its documented flat, Historical Review,
+and Training Dataset evaluation routes. Multi-Step, Policy Comparison, Match
+Capture, Strategy Teacher, and Replay Coaching classification integration remain
+open for Issue #190 or later work.
 See [Local Match Capture interface](local_match_capture_interface.md) and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md) and
 [Public field provenance](public_field_provenance.md).

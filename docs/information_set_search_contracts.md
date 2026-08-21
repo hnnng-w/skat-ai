@@ -4,7 +4,8 @@
 
 Issue #187 defines the private version-1 foundation for bounded
 information-set-consistent Search. Issue #188 adds its separate private bounded
-executor without changing any existing recommendation route.
+executor. Issue #189 integrates those retained values through strict flat,
+retrospective, Historical Review, and Training Dataset evaluation boundaries.
 
 The existing `compatible_world_minimax_v1` method evaluates each selected exact
 Compatible World separately. A future action can therefore differ between two
@@ -18,9 +19,11 @@ The new private method identifier is:
 bounded_information_set_policy_search_v1
 ```
 
-It is not included in `BOUNDED_SEARCH_METHODS`, `bounded_search`, `auto`, Multi-
-Step, Policy Comparison, Historical Review, Dataset evaluation, Match analysis,
-the Public API, CLI, Schemas, examples, or generated scenarios.
+It remains separate from `BOUNDED_SEARCH_METHODS`, `bounded_search`, and `auto`.
+Issue #189 exposes it as flat `information_set_search`, a separate Historical
+Information-set Search Review, and a separate Training Dataset evaluation. It is
+not integrated into Multi-Step, Policy Comparison, Match Capture, Strategy
+Teacher Evidence, or Replay Coaching classification.
 
 ## Versioned values
 
@@ -160,7 +163,8 @@ than a latency promise.
 
 Version 1 allows at most three unresolved Tricks, including a current incomplete
 Trick. Sampling cannot exceed selected worlds and minimum comparable worlds
-cannot exceed selected worlds. No named Information-set Search profile exists.
+cannot exceed selected worlds. Issue #189 maps the existing named Search profiles
+to this Budget for retrospective workflows; it adds no profile identifier.
 
 `InformationSetSearchRequestV1` contains one existing safe
 `SearchInformationView`, the new Budget, an explicit non-boolean integer world-
@@ -239,20 +243,26 @@ remain invalid.
 All retained controlled Information Sets share one Declaration, Declarer, and
 cutoff, and supplied fixed Policies remain valid for those Player roles.
 
-## Executor boundary and next work
+## Workflow boundary and next work
 
-The five private modules import no Minimax executor, coherent Multi-Step world,
-Public API, CLI, or file/network transport. Preparation does not evaluate
-terminal utility, aggregate Candidates, rank recommendations, or use fallback.
-The executor uses exact transitions, actor Observations, fixed Policies, existing
-terminal utility, existing Candidate aggregation, and deterministic ranking. It
-retains invocation-local World and ordered-bundle caches and performs no I/O.
+The private contracts and executor still import no PIMC executor, coherent
+Multi-Step world, Public API, CLI, or file/network transport. Preparation does
+not evaluate terminal utility, aggregate Candidates, rank recommendations, or use
+fallback. The executor uses exact transitions, actor Observations, fixed
+Policies, existing terminal utility, existing Candidate aggregation, and
+deterministic ranking. It retains invocation-local World and ordered-bundle
+caches and performs no I/O.
 
-Performance evidence, comparison with PIMC and Immediate, recommendation
-routing, Multi-Step and Policy Comparison integration,
-Historical Review, Dataset and Coaching use, Provenance, Public API, CLI,
-Schemas, examples, and generated scenarios remain open.
+Issue #189 adds strict flat routing without baseline or fallback; retrospective
+same-selection PIMC plus independent Immediate comparison; separate Historical
+Review and Training Dataset evaluation; safe public serialization; retained-
+stage internal and opt-in public Provenance; four strict Schemas; one example;
+and four generated scenarios. Multi-Step, Policy Comparison, Match Capture,
+Strategy Teacher Evidence, Replay Coaching classification, and performance
+evidence remain outside this integration. Issue #190 owns the next integration
+work.
 
 See [Information-set Search executor](information_set_search_executor.md) for
 the Issue-#188 algorithm, memoization, counter, Policy, and incomplete-Result
-semantics.
+semantics. See [Information-set Search workflows](information_set_search_workflows.md)
+for Issue #189 routing, comparison, privacy, Provenance, CLI, and Schema behavior.

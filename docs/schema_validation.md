@@ -52,7 +52,7 @@ The project check script also runs this validation:
 
 ## Packaged schema resources
 
-The repository `schemas/` directory remains authoritative. Every one of its 65
+The repository `schemas/` directory remains authoritative. Every one of its 69
 `*.schema.json` files is mirrored byte-for-byte into the private Package Resource
 namespace:
 
@@ -246,11 +246,19 @@ claimed.
 
 The current unreleased working baseline adds strict
 `historical_party_wide_claim.schema.json` and
-`historical_party_wide_claim_output.schema.json` resources. It has 65
-authoritative and byte-identical packaged Schemas, six unchanged Session
-examples, and 88 generated-output scenarios. Package version `0.16.0`, Public API
-contract version `1`, seven Root workflows, and one Console Script remain
-unchanged; the published counts above remain historical Release facts.
+`historical_party_wide_claim_output.schema.json` resources, plus:
+
+```text
+information_set_search_result.schema.json
+information_set_search_comparison.schema.json
+historical_information_set_search_review.schema.json
+information_set_search_evaluation.schema.json
+```
+
+It has 69 authoritative and byte-identical packaged Schemas, six unchanged
+Session examples, and 92 generated-output scenarios. Package version `0.16.0`,
+Public API contract version `1`, seven Root workflows, and one Console Script
+remain unchanged; the published counts above remain historical Release facts.
 
 The historical published `v0.15.0` Package baseline at commit `ec1c154` keeps
 the same 63 authoritative and 63 packaged Schemas, six Session examples, and 85
@@ -327,9 +335,23 @@ historical_party_wide_claim_defenders_null_incomplete_trick
 historical_continuation_then_party_wide_claim
 ```
 
-The current unreleased matrix therefore has 88 scenarios. These additions cover
+The Issue #186 additions bring the matrix to 88 scenarios. They cover
 valid-only terminal Claim acceptance, an incomplete current Trick, one supported
 continuation before the Claim, strict public summaries, and opt-in Provenance.
+
+Issue #189 preserves those first 88 scenarios in order and appends exactly:
+
+```text
+information_set_search_live_complete
+information_set_search_post_game_comparison
+historical_information_set_search_review
+training_dataset_information_set_search_evaluation
+```
+
+The current unreleased matrix therefore has 92 scenarios. These additions cover
+complete strict Live Information-set Search with opt-in Provenance, descriptive
+same-selection flat Post-game comparison, decision-time Historical Review, and
+Training Dataset-v1 evaluation without training.
 
 The scenario matrix is intentionally bounded. It covers representative
 user-facing CLI workflows, including explicit-input live recommendation, JSON
@@ -384,6 +406,13 @@ They verify method-summary relationships, report separation, independent seeds,
 fallback metadata, standalone-schema registration, and absence of private Search
 state. Prior generated scenarios remain unchanged because omitted methods emit no
 new fields.
+
+The separate Information-set Search position scenarios validate the strict safe
+aggregate Result and comparison Schemas. Exact Worlds, hidden hands,
+Observations, controlled Policy tables, caches, and derived seeds are rejected
+from public output. Runtime validation remains authoritative for the exact nine
+settings, Policy eligibility, same-selection reconciliation, counters, and
+cross-stage Card and denominator relationships.
 
 Two further deterministic scenarios cover Search-aware Multi-Step execution and
 Search-inclusive Policy Comparison. The schema references the standalone bounded-
