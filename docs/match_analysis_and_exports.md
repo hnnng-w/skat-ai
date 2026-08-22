@@ -14,6 +14,12 @@ preparation without changing this capability. The maintainer published the
 Release manually at commit `ec1c154`, and Issue #170 synchronizes publication
 status.
 
+Issue #191 subsequently adds strict one-Decision `information_set_search` to
+this private path, transfers its exact safe Result through the existing Report-
+source envelope, and carries focused evidence into the existing Learning Corpus
+workflow. It changes no existing Match contract version, operation, persistence
+boundary, Public API, Schema, example, or generated scenario.
+
 ## Contract identity
 
 The private version-1 contracts cover:
@@ -25,6 +31,7 @@ MATCH_HISTORICAL_ANALYSIS_OPTIONS_VERSION = 1
 MATCH_ANALYSIS_REPORT_VERSION = 1
 MATCH_ANALYSIS_REPORT_STORE_VERSION = 1
 MATCH_ARTIFACT_EXPORT_VERSION = 1
+MATCH_INFORMATION_SET_SEARCH_INTEGRATION_VERSION = 1
 ```
 
 The three explicit browser operations are:
@@ -61,13 +68,23 @@ The explicit methods are:
 
 * `immediate_expected_value`;
 * strict `bounded_search`;
-* Search-first `auto` with the existing Immediate fallback semantics.
+* Search-first `auto` with the existing Immediate fallback semantics;
+* strict `information_set_search` without fallback.
 
 Immediate sample count and seed remain separate from the Search seed. Match
 analysis accepts the immutable `interactive_v1` or `historical_review_v1` Search
 budget profile, not a caller-defined budget or `evaluation_v1`. Search may
 normally be complete, partial, timed out, or unavailable. An unavailable Search
 inside a valid Position execution is still an executed Root Result.
+
+Information-set Search requires the explicit Match Search seed and maps the same
+two profiles to its nine existing settings. One Position Application invocation
+contains Information-set Search, same-selection PIMC, independently seeded
+Immediate analysis, and actual-Card comparison. The Match adapter validates safe
+aggregate budgets, Candidate arithmetic and ranking, legal Cards, fixed policies,
+method summary, and derived comparison facts without rerunning analysis. A
+partial, timeout, or unavailable Result remains strict and never activates the
+existing `auto` fallback.
 
 The resulting Application output is schema-validated and reconciled against the
 Match ID, Workspace revision, Match position, Decision index, actual Card, and
@@ -91,7 +108,10 @@ existing `not_actionable` reason and changes no policy. An absent or temporally
 ineligible side is not injected as a bound opponent.
 
 Profiles affect only behavior already supported by the existing Application.
-They are not compatible-world weights and do not alter bounded Search. For a
+They are not compatible-world weights and do not alter World selection. For
+Information-set Search, the effective deterministic left/right policies after
+existing Profile precedence become fixed-player policies; Profile data still
+does not weight Worlds. For a
 strict Historical execution, Match Statistics are injected only when Immediate
 Review and Profile Presets are both enabled, and then use the existing time-safe
 Historical per-Decision behavior. This does not claim that Profiles alter
@@ -194,6 +214,12 @@ Historical, and materialization Reports remain unsupported. Transfer executes no
 analysis and does not persist or automatically import the Report. See
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
+Issue #191 keeps this source-export version `1` and route unchanged. An
+Information-set Decision source transfers the exact options, Request, Result,
+comparison, Profile binding, warnings, and revision identity. Strict Resume
+additionally rejects changed Search settings, invalid safe aggregates, derived
+comparison contradictions, and fixed-policy inconsistencies.
+
 ## Privacy and product boundaries
 
 Selected browser report pages expose curated summaries, while exact downloads
@@ -257,3 +283,10 @@ supplies an explicit authenticated Match Capture download and strict manual
 Corpus upload for that existing source contract while preserving the same
 process-local lifetime and no-automatic-capture rule. See
 [Learning Corpus Strategy Teacher Evidence](learning_corpus_strategy_teacher_evidence.md).
+
+Issue #191 adds a focused builder-only Information-set Strategy Teacher extension
+over those exact sources. It retains the safe aggregate Result and diagnostic
+comparison, propagates through Dataset version `2` and cross-game method counts,
+and uses the existing manual Corpus upload and seven downloads. It adds no
+automatic capture or persistence. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).

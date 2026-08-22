@@ -349,6 +349,9 @@ Historical Review, and Training Dataset evaluation. It adds no eighth Root
 workflow, second Console Script, or Public API contract version.
 Issue #190 preserves those interfaces while adding Multi-Step and Policy
 Comparison execution through existing options. The Schema count remains 69.
+Issue #191 adds no installed CLI flag or command. The existing private `capture`
+and `corpus` browser transports carry strict one-Decision Match Information-set
+Reports and focused Teacher/Dataset artifacts through their existing operations.
 
 ## Boundaries
 
@@ -366,10 +369,11 @@ cloud synchronization,
 distributed locking,
 encryption/key management, and automatic backups remain open.
 Information-set Search remains bounded to its documented flat, Multi-Step, Policy
-Comparison, Historical Review, and Training Dataset evaluation routes. Match
-Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching classification,
-and performance integration remain open.
+Comparison, Historical Review, Training Dataset evaluation, and private one-
+Decision Match/Teacher routes. Match Historical Information-set execution,
+Replay Coaching classification, and performance integration remain open.
 See [Local Match Capture interface](local_match_capture_interface.md) and
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md) and
 [Public field provenance](public_field_provenance.md). See also
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+See also [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).

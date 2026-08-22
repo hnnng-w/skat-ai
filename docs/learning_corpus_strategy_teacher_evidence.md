@@ -54,6 +54,12 @@ every applicable actual-Card copy. Rebuilding performs no Application execution,
 Search, Profile derivation/application, Replay Coaching, Dataset generation, file
 I/O, network request, or Workspace mutation.
 
+Issue #191 extends this reconciliation for `information_set_search`. Exact
+Information-set settings and requested budget, legal Cards, consumed-budget
+relationships, Candidate arithmetic and ranking, method summary, effective fixed
+policies, safe Result, retrospective comparison, and actual Card must agree with
+the rebuilt Match source. Validation still performs no Search rerun.
+
 ## Exact and semantic identities
 
 Source version, Evidence version, Collection version, and Export version are
@@ -88,6 +94,10 @@ reason, completed-world prefix, budgets, Candidate metrics, recommendation,
 fallback, Profile context, and comparisons. Distinct Reports that differ only by
 elapsed time therefore remain distinct source observations while sharing one
 semantic Teacher fingerprint.
+
+The focused Information-set extension follows the same rule: nested
+`wall_clock_elapsed_ms` participates in exact Report, Result, and Evidence
+identity but is normalized out of semantic Teacher identity.
 
 ## Method-bound evidence
 
@@ -126,6 +136,19 @@ non-null and the effective method is not `none`. Otherwise the status is
 `recommendation_unavailable`. Search `partial`, `timeout`, and `unavailable`
 remain valid evidence states.
 
+Issue #191 adds focused
+`LearningCorpusInformationSetStrategyTeacherEvidenceV1`. It retains the complete
+safe aggregate Information-set Result and comparison, including budgets,
+Candidate aggregates, coverage, bounded Policy claims, fixed policies, aggregate
+Policy counts, and Information-set/PIMC/Immediate/actual Cards. Complete,
+partial, timeout, and unavailable outcomes remain strict with no fallback. The
+comparison baselines are diagnostic method evidence, not ground truth or a
+preferred Teacher.
+
+The focused value excludes compatible Worlds, ownership, observations, hidden
+hands, controlled Policy tables, branches, caches, derived seeds, complete
+Statistics Records, Commentary, and Responses.
+
 ## Review, Profile, and policy context
 
 Evidence preserves the existing Immediate actual-Card review and, when Search
@@ -147,6 +170,10 @@ Evidence also preserves:
 No Profile or Statistics value is derived or applied again. Complete Opponent
 Statistics records are not copied.
 
+For Information-set evidence, effective time-safe Profile policies become the
+fixed left/right Search policies through existing Position precedence. Profiles
+do not weight Worlds or alter World selection.
+
 ## Multiple Reports and collection
 
 Several distinct Reports may reference the same Decision Reference. Different
@@ -161,6 +188,10 @@ coverage counts, and canonically ordered evidence. Ordering uses Match ID, Match
 position, Decision index, existing requested-method order, source Report
 fingerprint, and Evidence ID. Empty source input produces a valid empty
 collection.
+
+Canonical ordering now uses all four flat requested methods. The collection
+retains `information_set_search_requested_count` in addition to the existing
+Search-status and evidence counts.
 
 ## Export and privacy
 
@@ -200,6 +231,13 @@ expectations to `0.16.0`; Python remains `>=3.13`;
 seven Root workflows, one Console Script, 63 authoritative and packaged Schemas,
 six Session examples, 85 generated outputs, and Training Dataset version `1`
 target `actual_card_played` remain unchanged.
+
+Issue #191 adds only the focused internal extension version `1`. Existing
+Strategy Teacher source, Evidence, Collection, and Export versions remain `1`;
+Dataset version `2` is unchanged. The current working baseline remains 69
+authoritative and packaged Schemas, six Session examples, and 94 generated-
+output scenarios. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 Strategy Teacher persistence, Corpus object storage, Public API, Schema,
 Historical Report import, Replay Coaching evidence import, Teacher consensus/

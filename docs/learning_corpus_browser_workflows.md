@@ -204,6 +204,11 @@ identity changes, and non-canonical nested Request or Result content. The
 document is canonical UTF-8 JSON with ASCII escaping, two-space indentation, LF
 line endings, and exactly one trailing LF.
 
+Issue #191 keeps source-export version `1` and accepts exact Information-set
+Decision Reports. Resume validates the nested Information-set Request settings,
+safe aggregate Result, retained comparison, and fixed-policy relationships in
+addition to the existing wrapper checks.
+
 The Corpus upload form additionally requires the caller to select one explicit
 Current Match Snapshot. Import constructs one exact Snapshot-to-Report source
 binding and validates Match, revision, Game, Decision, acting Player, observed
@@ -240,6 +245,10 @@ and empty clear are `unchanged` and do not invalidate.
 Sources are never added to `catalog.json`, Match Snapshot objects, the source
 Workspace, or another file. They disappear on server shutdown.
 
+Canonical source ordering now covers all four flat methods, with
+`information_set_search` after the existing Immediate, bounded Search, and
+`auto` methods.
+
 ## Explicit artifact preparation
 
 Preparation is one explicit browser action. Its fields and displayed defaults
@@ -275,6 +284,10 @@ preparation each run once per mode. Empty or insufficient source data can
 produce valid Dataset or partition `empty`/`unavailable` states. Preparation
 does not execute Match Analysis, Position, Historical, Training Dataset,
 Search, Coaching, Profile derivation, or another Root workflow.
+
+The existing Strategy Teacher step carries focused Information-set Evidence
+through the existing Dataset-v2 joins and cross-game Summary. The seven-step
+order and execute-no-workflow rule are unchanged.
 
 Potentially long generation runs outside the synchronized context lock. Before
 publishing, the server reacquires the lock and compares the loaded Store identity,
@@ -422,6 +435,11 @@ Report capture, Historical Report import, task-specific behavior/strategy/
 communication builders, evaluation, ratings, and training remain open. Database,
 remote/hosted deployment, cloud synchronization, collaboration, distributed
 locking, encryption/key management, and automatic backup remain open as well.
+
+Issue #191 uses this unchanged upload, process-local preparation, and seven-
+download workflow. It adds no browser operation, route, download, persisted
+object, Public API, Schema, example, or generated scenario. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 See [Learning Corpus identity and Catalogs](learning_corpus_identity_and_catalogs.md),
 [Learning Corpus persistence and Workspace import](learning_corpus_persistence_and_import.md),

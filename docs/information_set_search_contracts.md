@@ -24,8 +24,10 @@ It remains separate from `BOUNDED_SEARCH_METHODS`, `bounded_search`, and `auto`.
 Issue #189 exposes it as flat `information_set_search`, a separate Historical
 Information-set Search Review, and a separate Training Dataset evaluation. Issue
 #190 routes the same strict method through Multi-Step and Policy Comparison; it
-adds no `information_set_auto`. Match Capture, Match Analysis Reports, Strategy
-Teacher Evidence, Replay Coaching classification, and performance integration
+adds no `information_set_auto`. Issue #191 subsequently adds a bounded private
+one-Decision Match path, exact Report-source transfer, focused Strategy Teacher
+Evidence, Dataset-v2 propagation, Summary counts, and existing local Corpus
+workflow support. Replay Coaching classification and performance integration
 remain absent.
 
 ## Versioned values
@@ -266,8 +268,12 @@ controlled-Policy reuse, strict no-recommendation stopping, safe nested Decision
 Results, and one appended Policy Comparison row with compact diagnostics. It
 does not change the contracts or executor algorithm described above.
 
-Match Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
-classification, and performance evidence remain outside this integration. There
+Issue #191 adds strict one-Decision Match execution and safe diagnostics, exact
+Report-source validation, focused Current-Snapshot Teacher Evidence, Dataset-v2
+joins, cross-game counts, and existing local Corpus preparation without changing
+the algorithm, public Schemas, examples, or generated scenarios. Match Historical
+Information-set execution, Replay Coaching classification, and performance
+evidence remain outside this integration. There
 is no cross-decision global Policy, equilibrium, global optimality, or calibrated-
 probability claim.
 
@@ -276,4 +282,6 @@ the Issue-#188 algorithm, memoization, counter, Policy, and incomplete-Result
 semantics. See [Information-set Search workflows](information_set_search_workflows.md)
 for Issue #189 routing, comparison, privacy, Provenance, CLI, and Schema behavior.
 See [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
-for the Issue-#190 integration boundary.
+for the Issue-#190 integration boundary. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
+for Issue #191.

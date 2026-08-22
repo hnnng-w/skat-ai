@@ -14,6 +14,9 @@ from skat_ai.errors import SkatAIInvariantError
 from skat_ai.learning_corpus_current_snapshots import (
     resolve_learning_corpus_current_match_snapshots_v1,
 )
+from skat_ai.learning_corpus_information_set_strategy_teacher import (
+    build_learning_corpus_information_set_strategy_teacher_evidence_v1,
+)
 from skat_ai.learning_corpus_match_snapshot import LearningCorpusMatchSnapshotV1
 from skat_ai.learning_corpus_persistence_contracts import (
     LearningCorpusStoreResumeResultV1,
@@ -33,6 +36,9 @@ from skat_ai.match_decision_analysis import (
     _reconcile_profile_summary,
     build_match_decision_position_request_v1,
 )
+from skat_ai.match_information_set_search import (
+    reconcile_match_information_set_search_result_v1,
+)
 
 _SETTINGS_FIELDS = {
     "left_hand_size",
@@ -43,6 +49,7 @@ _SETTINGS_FIELDS = {
     "recommendation_method",
     "bounded_search_settings",
 }
+_INFORMATION_SET_SETTINGS_FIELDS = _SETTINGS_FIELDS | {"information_set_search_settings"}
 _ANALYSIS_METADATA_FIELDS = {
     "strategic_metadata",
     "left_player_profile",
@@ -140,8 +147,9 @@ def _validate_minimized_open_schema_fields(
     recommendation: Mapping[str, object],
     immediate_candidates: Sequence[object],
     expected_strategic_metadata: Mapping[str, object],
+    expected_settings_fields: set[str],
 ) -> None:
-    _require_exact_fields(settings, _SETTINGS_FIELDS, "settings")
+    _require_exact_fields(settings, expected_settings_fields, "settings")
     _require_exact_fields(
         analysis_metadata,
         _ANALYSIS_METADATA_FIELDS,
@@ -337,17 +345,28 @@ def _rebuild_and_validate_source(
     if result_document.get("input_file") != prepared.input_reference:
         raise SkatAIInvariantError("Strategy Teacher source Result changed the input reference.")
     result_settings = result_document.get("settings")
+    settings_fields = (
+        _INFORMATION_SET_SETTINGS_FIELDS
+        if value.options.recommendation_method == "information_set_search"
+        else _SETTINGS_FIELDS
+    )
     expected_settings = {
         field_name: (
             request_document.get(field_name)
             if field_name == "bounded_search_settings"
             else request_document[field_name]
         )
-        for field_name in _SETTINGS_FIELDS
+        for field_name in settings_fields
     }
     if not isinstance(result_settings, Mapping) or result_settings != expected_settings:
         raise SkatAIInvariantError("Strategy Teacher Result changed rebuilt Request settings.")
     _reconcile_profile_summary(result_document, prepared)
+    if value.options.recommendation_method == "information_set_search":
+        reconcile_match_information_set_search_result_v1(
+            options=value.options,
+            request_document=request_document,
+            result_document=result_document,
+        )
     review = _require_mapping(result_document, "post_game_review_summary")
     if (
         request_document.get("actual_card_played") != actual_card_played
@@ -446,6 +465,11 @@ def _extract_evidence(
             "skat_visibility": cast(RequestDocumentV1, value.request).document["skat_visibility"],
             "game_end_reason": "not_ended",
         },
+        expected_settings_fields=(
+            _INFORMATION_SET_SETTINGS_FIELDS
+            if value.options.recommendation_method == "information_set_search"
+            else _SETTINGS_FIELDS
+        ),
     )
     profile_summary = _require_mapping(
         result,
@@ -462,6 +486,16 @@ def _extract_evidence(
         "bounded_search_post_game_review_summary",
         allow_absent=True,
     )
+    information_set_search = _require_mapping(
+        result,
+        "information_set_search_result",
+        allow_absent=True,
+    )
+    information_set_comparison = _require_mapping(
+        result,
+        "information_set_search_comparison",
+        allow_absent=True,
+    )
     requested_method = recommendation_method_summary.get("requested_method")
     if (
         requested_method != value.options.recommendation_method
@@ -476,40 +510,85 @@ def _extract_evidence(
         raise SkatAIInvariantError("Strategy Teacher Result changed Immediate analysis options.")
     search_attempted = recommendation_method_summary.get("search_attempted")
     if search_attempted is True:
-        if search is None or search_review is None:
+        if requested_method == "information_set_search":
+            if information_set_search is None or information_set_comparison is None:
+                raise SkatAIInvariantError(
+                    "Strategy Teacher Information-set Search requires safe evidence."
+                )
+            if search is not None or search_review is not None:
+                raise SkatAIInvariantError(
+                    "Strategy Teacher Information-set Search cannot retain bounded Search."
+                )
+            information_set_evidence = (
+                build_learning_corpus_information_set_strategy_teacher_evidence_v1(
+                    information_set_search_result=information_set_search,
+                    information_set_search_comparison=information_set_comparison,
+                    actual_card_played=actual_card_played,
+                )
+            )
+            search_status = information_set_evidence.search_status
+            search_stop_reason = information_set_evidence.search_stop_reason
+            world_coverage = information_set_evidence.world_coverage
+            solution_claim = None
+            policy_claim = information_set_evidence.policy_claim
+            policy_consistency = information_set_evidence.policy_consistency
+            information_sets_evaluated = information_set_evidence.information_sets_evaluated
+            controlled_policy_decision_count = (
+                information_set_evidence.controlled_policy_decision_count
+            )
+            requested_budget = information_set_evidence.requested_budget
+            consumed_budget = information_set_evidence.consumed_budget
+            search_candidate_results = information_set_evidence.candidate_results
+            wall_clock_elapsed_ms = information_set_evidence.wall_clock_elapsed_ms
+        elif search is None or search_review is None:
             raise SkatAIInvariantError(
                 "Strategy Teacher attempted Search requires Search evidence."
             )
-        actual_comparison = search_review.get("search_actual_card_comparison")
-        if (
-            not isinstance(actual_comparison, Mapping)
-            or actual_comparison.get("actual_card") != actual_card_played
-        ):
-            raise SkatAIInvariantError(
-                "Strategy Teacher Search review changed the observed actual Card."
-            )
-        search_status = cast(str, search.get("status"))
-        search_stop_reason = cast(str, search.get("stop_reason"))
-        world_coverage = cast(str, search.get("world_coverage"))
-        solution_claim = cast(str, search.get("solution_claim"))
-        requested_budget = cast(Mapping[str, object], search.get("requested_budget"))
-        consumed_budget = cast(Mapping[str, object], search.get("consumed_budget"))
-        search_candidate_results = cast(Sequence[object], search.get("candidate_results"))
-        if (
-            not isinstance(requested_budget, Mapping)
-            or not isinstance(consumed_budget, Mapping)
-            or isinstance(search_candidate_results, (str, bytes))
-            or not isinstance(search_candidate_results, Sequence)
-        ):
-            raise SkatAIInvariantError(
-                "Strategy Teacher Search evidence is structurally incomplete."
-            )
-        wall_clock_elapsed_ms = consumed_budget.get("wall_clock_elapsed_ms")
+        else:
+            if information_set_search is not None or information_set_comparison is not None:
+                raise SkatAIInvariantError(
+                    "Bounded Search cannot retain Information-set Teacher evidence."
+                )
+            information_set_evidence = None
+            actual_comparison = search_review.get("search_actual_card_comparison")
+            if (
+                not isinstance(actual_comparison, Mapping)
+                or actual_comparison.get("actual_card") != actual_card_played
+            ):
+                raise SkatAIInvariantError(
+                    "Strategy Teacher Search review changed the observed actual Card."
+                )
+            search_status = cast(str, search.get("status"))
+            search_stop_reason = cast(str, search.get("stop_reason"))
+            world_coverage = cast(str, search.get("world_coverage"))
+            solution_claim = cast(str, search.get("solution_claim"))
+            policy_claim = None
+            policy_consistency = None
+            information_sets_evaluated = None
+            controlled_policy_decision_count = None
+            requested_budget = cast(Mapping[str, object], search.get("requested_budget"))
+            consumed_budget = cast(Mapping[str, object], search.get("consumed_budget"))
+            search_candidate_results = cast(Sequence[object], search.get("candidate_results"))
+            if (
+                not isinstance(requested_budget, Mapping)
+                or not isinstance(consumed_budget, Mapping)
+                or isinstance(search_candidate_results, (str, bytes))
+                or not isinstance(search_candidate_results, Sequence)
+            ):
+                raise SkatAIInvariantError(
+                    "Strategy Teacher Search evidence is structurally incomplete."
+                )
+            wall_clock_elapsed_ms = consumed_budget.get("wall_clock_elapsed_ms")
     elif search_attempted is False:
+        information_set_evidence = None
         search_status = "not_attempted"
         search_stop_reason = None
         world_coverage = None
         solution_claim = None
+        policy_claim = None
+        policy_consistency = None
+        information_sets_evaluated = None
+        controlled_policy_decision_count = None
         requested_budget = None
         consumed_budget = None
         search_candidate_results = ()
@@ -563,12 +642,17 @@ def _extract_evidence(
         strategic_summary=strategic_summary,
         immediate_candidate_results=immediate_candidates,
         bounded_search_result=search,
+        information_set_search_evidence=information_set_evidence,
         post_game_review_summary=review,
         bounded_search_post_game_review_summary=search_review,
         search_status=search_status,
         search_stop_reason=search_stop_reason,
         world_coverage=world_coverage,
         solution_claim=solution_claim,
+        policy_claim=policy_claim,
+        policy_consistency=policy_consistency,
+        information_sets_evaluated=information_sets_evaluated,
+        controlled_policy_decision_count=controlled_policy_decision_count,
         requested_budget=requested_budget,
         consumed_budget=consumed_budget,
         search_candidate_results=search_candidate_results,

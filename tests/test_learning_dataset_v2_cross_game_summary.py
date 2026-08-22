@@ -116,7 +116,7 @@ from skat_ai.match_workspace_contracts import create_match_workspace_v1
 from skat_ai.match_workspace_persistence_codec import (
     build_match_workspace_persistence_document_v1,
 )
-from skat_ai.recommendation_workflow import VALID_RECOMMENDATION_METHODS
+from skat_ai.recommendation_workflow import FLAT_RECOMMENDATION_METHODS
 from skat_ai.training_dataset import TRAINING_DATASET_SCHEMA_VERSION, TRAINING_TARGET
 
 
@@ -718,7 +718,7 @@ def test_strategy_summary_retains_methods_statuses_semantic_duplicates_and_equal
     assert strategy.semantic_fingerprint_count == 3
     assert strategy.semantic_duplicate_group_count == 1
     assert [item.category for item in strategy.requested_method_counts] == list(
-        VALID_RECOMMENDATION_METHODS
+        FLAT_RECOMMENDATION_METHODS
     )
     assert [item.category for item in strategy.search_status_counts] == list(
         LEARNING_CORPUS_STRATEGY_TEACHER_SEARCH_STATUSES
@@ -896,8 +896,7 @@ def test_unavailable_teacher_with_retained_card_uses_card_comparison_semantics()
         1,
     )
     assert (
-        strategy.actual_card_match_evidence_count
-        + strategy.actual_card_difference_evidence_count
+        strategy.actual_card_match_evidence_count + strategy.actual_card_difference_evidence_count
     ) == 1
     assert strategy.actual_card_comparison_unavailable_count == 0
 
@@ -1195,8 +1194,7 @@ def test_builder_traverses_each_exact_summary_source_collection_once(
     )
     assert len(traversed) == len(expected)
     assert all(
-        actual is expected_value
-        for actual, expected_value in zip(traversed, expected, strict=True)
+        actual is expected_value for actual, expected_value in zip(traversed, expected, strict=True)
     )
 
 

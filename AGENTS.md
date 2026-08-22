@@ -191,6 +191,7 @@ Before larger changes, read the relevant documentation:
 * `docs/local_match_capture_interface.md`
 * `docs/match_review_and_materialization.md`
 * `docs/match_analysis_and_exports.md`
+* `docs/match_information_set_search_and_strategy_teacher.md`
 * `docs/learning_dataset_v2.md`
 * `docs/learning_corpus_browser_workflows.md`
 * `docs/information_set_search_workflows.md`
@@ -230,6 +231,11 @@ adds strict Information-set Search Multi-Step and Policy Comparison integration,
 one example, and two scenarios without adding a Schema, bringing the working tree
 to 69 authoritative and packaged Schemas and 94 scenarios. The published
 `v0.16.0` counts above remain unchanged Release facts.
+
+Issue #191 adds strict private one-Decision Match Information-set Search, exact
+Report-source transfer, focused Strategy Teacher Evidence, Dataset-v2 joins,
+cross-game counts, and existing Corpus workflow support without changing those
+counts or public/versioned surfaces.
 
 The historical published `v0.15.0` GitHub Release has release theme "Local
 EuroSkat 36er Match capture, analysis, and exports" and GitHub Release title
@@ -453,7 +459,9 @@ Policy reuse, no-recommendation stopping without fallback, safe nested Results,
 16-field diagnostics, shared-root independent comparison paths, append-once-last
 ordering, stopped-row ineligibility, and retained-Result complete Provenance.
 Existing `auto` is unchanged. Match Capture, Match Analysis Reports, Strategy
-Teacher, Replay Coaching classification, and performance evidence remain open,
+Teacher are integrated for the bounded one-Decision path by Issue #191 together
+with Dataset-v2 and Corpus propagation. Match Historical Information-set
+execution, Replay Coaching classification, and performance evidence remain open,
 along with tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, performance and latency evidence, and the remaining pre-v1 scope
@@ -627,7 +635,7 @@ Major completed areas include:
   player list plus aggregation materialization with Passed Deals and Commentary
   retained as Workspace sidecars, without workflow execution
 * internal Match analysis and export contracts with explicit one-Decision
-  Immediate/Search/Auto Position execution, strict selected-mode Historical
+  Immediate/Search/Auto/Information-set Position execution, strict selected-mode Historical
   execution, eligible actor-relative Profile application through existing
   behavior, deterministic max-eight ephemeral reports, concurrency invalidation,
   and authenticated canonical browser downloads
@@ -652,6 +660,9 @@ Major completed areas include:
   explicitly bound to Current Match Snapshots, with one no-execution Request
   rebuild, retained Result validation, exact and semantic fingerprints,
   method-bound Immediate/Search/Auto evidence, and canonical bytes
+* focused private Information-set Strategy Teacher extension version `1` with
+  safe aggregate Result/comparison Evidence, exact fixed-policy reconciliation,
+  and wall-clock-normalized semantic identity
 * deterministic private unpartitioned Learning Dataset version `2` over exact
   Current Corpus sources, with safe/skipped Decision coverage, separate evidence
   families, time-safe Statistics selection, normalized exact pools, strict joins,
@@ -692,8 +703,9 @@ exact world counts do not identify the real deal, sampled ownership is not
 calibrated probability, measured timings are not latency guarantees, and timeout
 activation is machine-dependent. Flat, Historical Review, and Training Dataset
 evaluation routing plus strict Multi-Step and Policy Comparison integration are
-implemented. Match Capture, Match Analysis Reports, Strategy Teacher, Replay
-Coaching classification, and performance integration remain open. There is no
+implemented. Issue #191 adds the bounded one-Decision Match/Report/Teacher/
+Dataset/Corpus path. Match Historical Information-set execution, Replay Coaching
+classification, and performance integration remain open. There is no
 cross-decision global Policy, equilibrium, global optimality, or calibrated
 probability claim. Overbid Null replacement selection, tactical
 motif detection, cross-game Coaching, causal
@@ -718,7 +730,9 @@ strict existing-contract Historical, unpartitioned Training-source, and complete
 fixed-list materialization are implemented. Explicit browser analysis,
 existing-behavior Profile application, ephemeral reports, and authenticated
 local downloads are also implemented, while materialization itself executes no
-workflow. Public Match API/export, Match Schema/data workflow, public/persisted Player
+workflow. Issue #191 adds strict one-Decision Information-set Search, curated
+safe diagnostics, and exact source transfer without changing persistence or
+public boundaries. Public Match API/export, Match Schema/data workflow, public/persisted Player
 Catalog, public or task-specific communication Dataset workflows,
 database/remote deployment, YouTube
 integration, and EuroSkat integration remain absent.
@@ -727,7 +741,9 @@ Report-source transfer, Dataset-v2 preparation, summaries, and downloads are now
 available through the private local `corpus` browser workflow. The derived Player
 Catalog and Statistics history, Human and Strategy Teacher Evidence, Dataset-v2,
 partition Results, and Summary remain process-local and non-persisted; there is
-no Public API, Schema, example, or generated scenario. Deletion,
+no Public API, Schema, example, or generated scenario. Focused Information-set
+Teacher Evidence now propagates through the existing Dataset-v2 joins, Summary
+counts, and seven downloads. Deletion,
 garbage collection, Player Catalog or Human Evidence persistence,
 persisted aliases/assertions, merge/split operations, all-revision views,
 public Human or Strategy Teacher Evidence API transport, automatic Report

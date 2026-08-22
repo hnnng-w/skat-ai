@@ -731,12 +731,17 @@ generated scenarios. Issue #190 adds strict Multi-Step and Policy Comparison
 integration with fresh per-decision Search and no fallback. Existing `auto`
 remains PIMC first with Immediate fallback.
 
+Issue #191 adds the bounded private one-Decision Match path, exact Report-source
+transfer, focused Strategy Teacher Evidence, Dataset-v2 joins, Summary counts,
+and existing local Corpus preparation. It does not change the Search contracts or
+algorithm.
+
 The integration does not add calibrated sampled quality, a latency guarantee,
 adaptive sampling, Expectimax, complete Strategy-Fusion correction,
 complete-contract solving, or a stable package-root Domain API. Multi-Step and
-Policy Comparison are now integrated only for the bounded strict behavior above.
-Match Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
-classification, performance integration, cross-decision global Policy,
+Policy Comparison and one-Decision Match analysis are integrated only for the
+bounded strict behavior above. Match Historical Information-set execution,
+Replay Coaching classification, performance integration, cross-decision global Policy,
 equilibrium, global optimality, and calibrated probabilities remain absent. The
 stronger-search v1.0 completion gate therefore remains open.
 
@@ -746,4 +751,6 @@ the private controlled-Player policy-consistency claim, and
 [Information-set Search workflows](information_set_search_workflows.md) for the
 integrated public boundaries, and
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
-for Issue #190.
+for Issue #190, and
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
+for Issue #191.

@@ -26,7 +26,7 @@ from skat_ai.match_analysis_contracts import (
     MatchMaterializationReportV1,
 )
 from skat_ai.match_workspace_materialization import MatchWorkspaceMaterializationV1
-from skat_ai.recommendation_workflow import VALID_RECOMMENDATION_METHODS
+from skat_ai.recommendation_workflow import FLAT_RECOMMENDATION_METHODS
 
 _SAFE_FILENAME_PATTERN = re.compile(r"^[A-Za-z0-9._~-]+\.json$")
 _SAFE_MATCH_ID_PATTERN = re.compile(r"^[A-Za-z0-9._~-]+$")
@@ -43,9 +43,7 @@ def _freeze_json(value: object) -> object:
     if isinstance(value, Mapping):
         if any(not isinstance(key, str) for key in value):
             raise ValueError("document object keys must be strings.")
-        return MappingProxyType(
-            {key: _freeze_json(item) for key, item in value.items()}
-        )
+        return MappingProxyType({key: _freeze_json(item) for key, item in value.items()})
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_json(item) for item in value)
     raise ValueError("document must contain only JSON-compatible values.")
@@ -76,13 +74,10 @@ class MatchArtifactExportV1:
             or self.match_artifact_export_version != MATCH_ARTIFACT_EXPORT_VERSION
         ):
             raise ValueError(
-                "match_artifact_export_version must equal "
-                f"{MATCH_ARTIFACT_EXPORT_VERSION}."
+                f"match_artifact_export_version must equal {MATCH_ARTIFACT_EXPORT_VERSION}."
             )
         if self.export_kind not in MATCH_ARTIFACT_EXPORT_KINDS:
-            raise ValueError(
-                f"export_kind must be one of {list(MATCH_ARTIFACT_EXPORT_KINDS)}."
-            )
+            raise ValueError(f"export_kind must be one of {list(MATCH_ARTIFACT_EXPORT_KINDS)}.")
         if (
             not isinstance(self.match_id, str)
             or not self.match_id
@@ -182,15 +177,13 @@ def build_match_report_result_export_v1(
             f"{filename_match_id}-position-{value.match_position:02d}-decision-"
             f"{value.decision_index:02d}-{value.options.recommendation_method}.json"
         )
-        if value.options.recommendation_method not in VALID_RECOMMENDATION_METHODS:
+        if value.options.recommendation_method not in FLAT_RECOMMENDATION_METHODS:
             raise ValueError("Decision report has an unsupported recommendation method.")
         document = value.result.to_dict()["document"]
     elif type(value) is MatchHistoricalAnalysisResultV1:
         if value.result is None:
             raise ValueError("Unavailable Historical analysis has no Root Result export.")
-        filename = (
-            f"{filename_match_id}-game-{value.match_position:02d}-historical-analysis.json"
-        )
+        filename = f"{filename_match_id}-game-{value.match_position:02d}-historical-analysis.json"
         document = value.result.to_dict()["document"]
     else:
         raise ValueError("Materialization reports do not contain a Root Result.")
@@ -208,9 +201,7 @@ def build_match_materialization_summary_export_v1(
 ) -> MatchArtifactExportV1:
     """Exports the exact internal Workspace materialization representation."""
     materialization = (
-        source.materialization
-        if type(source) is MatchMaterializationReportV1
-        else source
+        source.materialization if type(source) is MatchMaterializationReportV1 else source
     )
     if type(materialization) is not MatchWorkspaceMaterializationV1:
         raise ValueError("source must contain MatchWorkspaceMaterializationV1.")
@@ -241,9 +232,7 @@ def build_match_historical_game_collection_export_v1(
         games.append(
             {
                 "match_position": slot.match_position,
-                "historical_game_input": build_serializable_historical_record(
-                    historical_game
-                ),
+                "historical_game_input": build_serializable_historical_record(historical_game),
             }
         )
     document = {
@@ -296,9 +285,7 @@ def build_match_historical_list_input_export_v1(
         filename=f"{filename_match_id}-historical-list-input.json",
         document={
             "fixed_three_player_historical_list_input": (
-                build_serializable_fixed_three_player_historical_list(
-                    historical_list
-                )
+                build_serializable_fixed_three_player_historical_list(historical_list)
             )
         },
     )
@@ -319,7 +306,5 @@ def build_match_historical_list_aggregation_export_v1(
         match_id=materialization.match_id,
         workspace_revision=materialization.workspace_revision,
         filename=f"{filename_match_id}-historical-list-aggregation.json",
-        document=build_serializable_fixed_three_player_historical_list_aggregation(
-            aggregation
-        ),
+        document=build_serializable_fixed_three_player_historical_list_aggregation(aggregation),
     )

@@ -675,6 +675,107 @@ def test_selection_non_current_block_reload_and_download_source_mismatch(
     assert context.prepared_artifacts is None
 
 
+def test_information_set_report_upload_prepares_existing_learning_downloads(
+    running_server,
+) -> None:
+    server = running_server
+    context = server.corpus_context
+    cookie = _bootstrap(server)
+    workspace, snapshot, _analysis, report, _source, _store = _source_bundle(
+        recommendation_method="information_set_search",
+        decision_index=30,
+        match_id="match-corpus-information-set",
+        search_random_seed=7,
+        search_budget_profile="interactive_v1",
+    )
+    assert (
+        _post_form(
+            server,
+            cookie,
+            {"operation": "initialize_corpus", "corpus_id": "corpus-information-set"},
+        )[0]
+        == 200
+    )
+    imported = _post_upload(
+        server,
+        cookie,
+        {
+            "operation": "import_match_workspace",
+            "selection_mode": "select_imported",
+            "same_revision_resolution": "reject",
+            "expected_catalog_revision": 0,
+        },
+        file_field="workspace_file",
+        file_content=_workspace_bytes(workspace),
+    )
+    assert imported[0] == 200
+    assert context.strategy_source_store.sources == ()
+
+    report_bytes = serialize_match_analysis_report_source_export_v1(
+        build_match_analysis_report_source_export_v1(report)
+    )
+    uploaded = _post_upload(
+        server,
+        cookie,
+        {
+            "operation": "import_strategy_teacher_report",
+            "match_snapshot_id": snapshot.match_snapshot_id,
+        },
+        file_field="report_source_file",
+        file_content=report_bytes,
+    )
+    assert uploaded[0] == 200
+    assert b"information_set_search" in uploaded[2]
+    assert len(context.strategy_source_store.sources) == 1
+    assert context.prepared_artifacts is None
+
+    prepared = _post_form(
+        server,
+        cookie,
+        {
+            "operation": "prepare_learning_artifacts",
+            "dataset_id": "corpus-information-set-dataset",
+            "known_player_seed": 0,
+            "unseen_player_seed": 0,
+            "train_weight": 70,
+            "validation_weight": 15,
+            "test_weight": 15,
+        },
+    )
+    assert prepared[0] == 200
+    assert context.prepared_artifacts is not None
+
+    for route, markers in (
+        (
+            "/downloads/strategy-teacher-evidence.json",
+            (
+                b'"information_set_search_requested_count": 1',
+                b'"information_set_search_evidence"',
+            ),
+        ),
+        (
+            "/downloads/learning-dataset-v2.json",
+            (b'"information_set_search_evidence"',),
+        ),
+        (
+            "/downloads/cross-game-summary.json",
+            (
+                b'"category": "information_set_search"',
+                b'"category": "bounded_information_set_policy_search_v1"',
+            ),
+        ),
+    ):
+        status, _headers, content = _request(
+            server,
+            "GET",
+            route,
+            headers={"Cookie": cookie},
+        )
+        assert status == 200
+        for marker in markers:
+            assert marker in content
+
+
 def test_generic_unexpected_error_exposes_no_exception_or_path(
     running_server,
     monkeypatch: pytest.MonkeyPatch,

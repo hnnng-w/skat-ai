@@ -15,13 +15,26 @@ from skat_ai.application.execution import (
     ApplicationWorkflowDependencies,
     build_application_invocation,
 )
+from skat_ai.application.position_workflow import (
+    _build_effective_opponent_policy_settings,
+)
 from skat_ai.errors import SkatAIInvariantError
 from skat_ai.game_declaration import (
     GameDeclaration,
     build_serializable_game_declaration,
 )
 from skat_ai.historical_decision_snapshot import HistoricalDecisionSnapshot
-from skat_ai.input_loader import build_position_from_document
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+)
+from skat_ai.input_loader import (
+    build_opponent_statistics_from_document,
+    build_position_from_document,
+    get_analysis_metadata_from_input,
+)
+from skat_ai.live_opponent_profile_binding import (
+    resolve_live_opponent_profile_bindings,
+)
 from skat_ai.match_analysis_contracts import (
     MatchDecisionAnalysisOptionsV1,
     MatchDecisionAnalysisResultV1,
@@ -30,6 +43,10 @@ from skat_ai.match_decision_review_preparation import (
     MatchDecisionOpponentProfileBindingV1,
     MatchDecisionReviewPreparationV1,
     _build_match_decision_review_preparation_from_reconstruction_v1,
+)
+from skat_ai.match_information_set_search import (
+    build_match_information_set_search_request_fields_v1,
+    reconcile_match_information_set_search_result_v1,
 )
 from skat_ai.match_observed_reconstruction import (
     build_match_observed_game_reconstruction_v1,
@@ -43,7 +60,14 @@ from skat_ai.match_workspace_contracts import (
     _require_match_position,
     _validate_match_workspace_with_traces_v1,
 )
-from skat_ai.opponent_statistics import build_serializable_opponent_statistics_input
+from skat_ai.opponent_profile_application import (
+    build_opponent_profile_application_summary,
+    select_effective_live_opponent_profiles,
+)
+from skat_ai.opponent_statistics import (
+    build_opponent_statistics_summary,
+    build_serializable_opponent_statistics_input,
+)
 from skat_ai.recommendation_workflow import (
     SEARCH_RECOMMENDATION_METHODS,
     RecommendationMethodConfiguration,
@@ -79,9 +103,7 @@ class MatchDecisionAnalysisRequestV1:
         if type(self.external_documents) is not ApplicationExternalDocuments:
             raise ValueError("external_documents must be ApplicationExternalDocuments.")
         if type(self.profile_binding) is not MatchDecisionOpponentProfileBindingV1:
-            raise ValueError(
-                "profile_binding must be MatchDecisionOpponentProfileBindingV1."
-            )
+            raise ValueError("profile_binding must be MatchDecisionOpponentProfileBindingV1.")
         if (
             not isinstance(self.input_reference, str)
             or not self.input_reference
@@ -119,9 +141,7 @@ def _select_match_prepared_decision_v1(
     if slot.observed_game is None:
         raise _DecisionUnavailable("slot_not_observed_game", None)
 
-    statistics = build_match_player_statistics_preparation_v1(
-        workspace.match_definition
-    )
+    statistics = build_match_player_statistics_preparation_v1(workspace.match_definition)
     reconstruction = build_match_observed_game_reconstruction_v1(
         slot.observed_game,
         validated_trace=validated_traces[match_position],
@@ -132,27 +152,15 @@ def _select_match_prepared_decision_v1(
         statistics_preparation=statistics,
     )
     snapshot = next(
-        (
-            item
-            for item in preparation.snapshots
-            if item.decision_index == decision_index
-        ),
+        (item for item in preparation.snapshots if item.decision_index == decision_index),
         None,
     )
     binding = next(
-        (
-            item
-            for item in preparation.profile_bindings
-            if item.decision_index == decision_index
-        ),
+        (item for item in preparation.profile_bindings if item.decision_index == decision_index),
         None,
     )
     skipped = next(
-        (
-            item
-            for item in preparation.skipped_decisions
-            if item.decision_index == decision_index
-        ),
+        (item for item in preparation.skipped_decisions if item.decision_index == decision_index),
         None,
     )
     if snapshot is None:
@@ -238,8 +246,7 @@ def _build_position_root(
         ) from error
 
     opponent_sizes = {
-        item.relative_player: item.remaining_card_count
-        for item in visible.opponent_hand_sizes
+        item.relative_player: item.remaining_card_count for item in visible.opponent_hand_sizes
     }
     if set(opponent_sizes) != {"left", "right"}:
         raise SkatAIInvariantError(
@@ -262,9 +269,7 @@ def _build_position_root(
     ]
     current_trick = [play.card for play in visible.current_trick]
     trick_leader = (
-        stable_to_relative[visible.current_trick[0].player_id]
-        if visible.current_trick
-        else "me"
+        stable_to_relative[visible.current_trick[0].player_id] if visible.current_trick else "me"
     )
     declaration = visible.declaration
     game_declaration = GameDeclaration(
@@ -278,9 +283,7 @@ def _build_position_root(
     )
     root: dict[str, Any] = {
         "game_type": visible.game_type,
-        "player_role": (
-            "declarer" if snapshot.acting_side == "declarer" else "defender"
-        ),
+        "player_role": ("declarer" if snapshot.acting_side == "declarer" else "defender"),
         "declarer_player": declarer_player,
         "player_position": snapshot.acting_seat,
         "trick_leader": trick_leader,
@@ -320,18 +323,16 @@ def _build_position_root(
                 "Prepared declared-Ouvert Decision has no public Declarer hand."
             )
         root["public_declarer_cards"] = list(public_declarer.cards)
-    if options.recommendation_method in SEARCH_RECOMMENDATION_METHODS:
+    if options.recommendation_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        root.update(build_match_information_set_search_request_fields_v1(options))
+    elif options.recommendation_method in SEARCH_RECOMMENDATION_METHODS:
         configuration = RecommendationMethodConfiguration(
             explicitly_supplied=True,
             requested_method=options.recommendation_method,
             search_random_seed=options.search_random_seed,
-            requested_search_budget=get_search_budget_profile(
-                options.search_budget_profile
-            ),
+            requested_search_budget=get_search_budget_profile(options.search_budget_profile),
         )
-        root["bounded_search_settings"] = (
-            build_serializable_bounded_search_settings(configuration)
-        )
+        root["bounded_search_settings"] = build_serializable_bounded_search_settings(configuration)
     return root
 
 
@@ -340,9 +341,7 @@ def _external_documents(
     selected: _SelectedDecision,
 ) -> ApplicationExternalDocuments:
     binding = selected.profile_binding
-    bound_opponent_exists = (
-        binding.left_profile_available or binding.right_profile_available
-    )
+    bound_opponent_exists = binding.left_profile_available or binding.right_profile_available
     statistics_input = selected.statistics_preparation.opponent_statistics_input
     if statistics_input is None or not bound_opponent_exists:
         return ApplicationExternalDocuments()
@@ -405,9 +404,7 @@ def _build_match_decision_position_request_from_selected_v1(
             workflow=WorkflowV1.POSITION_ANALYSIS,
             document=validated_root,
         ),
-        application_options=ApplicationExecutionOptions(
-            position_analysis=position_options
-        ),
+        application_options=ApplicationExecutionOptions(position_analysis=position_options),
         external_documents=external_documents,
         profile_binding=binding,
         input_reference=input_reference,
@@ -444,28 +441,75 @@ def _reconcile_profile_summary(
     result_document: dict[str, Any],
     prepared: MatchDecisionAnalysisRequestV1,
 ) -> None:
-    summary = result_document.get("opponent_profile_application_summary")
-    has_external = prepared.external_documents.opponent_statistics_document is not None
+    request_document = prepared.request.to_dict()["document"]
     position_options = prepared.application_options.position_analysis
     if position_options is None:
         raise SkatAIInvariantError("Prepared Match Decision omitted Position options.")
+    analysis_metadata = get_analysis_metadata_from_input(request_document)
+    external_document = prepared.external_documents.opponent_statistics_to_dict()
+    bindings = None
+    effective_profiles = None
+    if external_document is not None:
+        statistics_input = build_opponent_statistics_from_document(external_document)
+        bindings = resolve_live_opponent_profile_bindings(
+            build_opponent_statistics_summary(statistics_input),
+            left_player_id=position_options.left_opponent_player_id,
+            right_player_id=position_options.right_opponent_player_id,
+        )
+        effective_profiles = select_effective_live_opponent_profiles(
+            data=request_document,
+            manual_left_profile=analysis_metadata.left_player_profile,
+            manual_right_profile=analysis_metadata.right_player_profile,
+            bindings=bindings,
+        )
+    effective_settings = _build_effective_opponent_policy_settings(
+        request_document,
+        analysis_metadata,
+        position_options,
+        effective_profiles,
+    )
+    expected_policies = {
+        "opponent_policy_settings": {
+            "opponent_lead_policy": effective_settings.global_lead_policy,
+            "opponent_response_policy": effective_settings.global_response_policy,
+        },
+        "left_opponent_policy_settings": {
+            "opponent_lead_policy": effective_settings.left_lead_policy,
+            "opponent_response_policy": effective_settings.left_response_policy,
+        },
+        "right_opponent_policy_settings": {
+            "opponent_lead_policy": effective_settings.right_lead_policy,
+            "opponent_response_policy": effective_settings.right_response_policy,
+        },
+    }
+    if any(
+        result_document.get(field_name) != expected
+        for field_name, expected in expected_policies.items()
+    ):
+        raise SkatAIInvariantError("Position Result changed effective opponent Policy settings.")
+
+    summary = result_document.get("opponent_profile_application_summary")
+    has_external = external_document is not None
     expects_summary = has_external and position_options.use_profile_presets_override
     if not expects_summary:
         if summary is not None:
-            raise SkatAIInvariantError(
-                "Position Result unexpectedly contains Profile application."
-            )
+            raise SkatAIInvariantError("Position Result unexpectedly contains Profile application.")
         return
-    if not isinstance(summary, dict):
+    if not isinstance(summary, dict) or bindings is None or effective_profiles is None:
         raise SkatAIInvariantError(
             "Position Result omitted the requested Profile application summary."
         )
+    expected_summary = build_opponent_profile_application_summary(
+        statistics_input_file=(prepared.external_documents.opponent_statistics_reference),
+        use_profile_presets=True,
+        bindings=bindings,
+        effective_profiles=effective_profiles,
+        effective_settings=effective_settings,
+    )
     if summary.get("statistics_input_file") != (
         prepared.external_documents.opponent_statistics_reference
     ):
-        raise SkatAIInvariantError(
-            "Position Profile summary changed the statistics reference."
-        )
+        raise SkatAIInvariantError("Position Profile summary changed the statistics reference.")
     binding = prepared.profile_binding
     for side in ("left", "right"):
         side_summary = summary.get(side)
@@ -484,6 +528,8 @@ def _reconcile_profile_summary(
             raise SkatAIInvariantError(
                 "Position Profile summary bound the acting Player as an opponent."
             )
+    if summary != expected_summary:
+        raise SkatAIInvariantError("Position Result changed the Profile application summary.")
 
 
 def execute_match_decision_analysis_v1(
@@ -545,6 +591,12 @@ def execute_match_decision_analysis_v1(
     if result_document.get("input_file") != prepared.input_reference:
         raise SkatAIInvariantError("Match Decision Result changed input identity.")
     _reconcile_profile_summary(result_document, prepared)
+    if options.recommendation_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        reconcile_match_information_set_search_result_v1(
+            options=options,
+            request_document=prepared.request.document,
+            result_document=result_document,
+        )
     return MatchDecisionAnalysisResultV1(
         status="executed",
         match_id=match_id,

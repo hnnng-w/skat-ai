@@ -504,6 +504,14 @@ documentation preparation without changing product behavior. The maintainer
 published `v0.16.0` manually on 2026-08-18 at commit `91b1360`, and Issue #181
 synchronizes publication status. GitHub Releases is the authoritative
 publication record; no Package-index or PyPI publication is claimed.
+
+Issue #191 extends the current unreleased baseline with strict one-Decision Match
+`information_set_search`, safe revision-scoped diagnostics, exact Report-source
+transfer, focused Current-Snapshot Strategy Teacher Evidence, existing Dataset-v2
+joins and cross-game method counts, and the unchanged local Corpus preparation
+and seven-download workflow. It adds no automatic capture, persistence, Public
+API, Schema, example, or generated scenario. See
+[Match Information-set Search and Strategy Teacher Evidence](docs/match_information_set_search_and_strategy_teacher.md).
 Start it with
 `skat-ai corpus --corpus CORPUS_ROOT`,
 `python -m skat_ai corpus --corpus CORPUS_ROOT`, or
@@ -1084,6 +1092,7 @@ Detailed documentation is split into topic-specific files:
 * [Match Player Statistics](docs/match_player_statistics.md)
 * [Match review and materialization](docs/match_review_and_materialization.md)
 * [Match analysis and exports](docs/match_analysis_and_exports.md)
+* [Match Information-set Search and Strategy Teacher Evidence](docs/match_information_set_search_and_strategy_teacher.md)
 * [Learning Corpus identity and Catalogs](docs/learning_corpus_identity_and_catalogs.md)
 * [Learning Corpus persistence and Workspace import](docs/learning_corpus_persistence_and_import.md)
 * [Learning Corpus Player Catalog and Statistics history](docs/learning_corpus_player_catalog_and_statistics_history.md)
@@ -1269,6 +1278,10 @@ Information-set Search Multi-Step and Policy Comparison integration, one example
 and two scenarios without adding a Schema, bringing the working tree to 69
 authoritative and packaged Schemas and 94 scenarios. The published `v0.16.0`
 counts above remain unchanged Release facts.
+
+Issue #191 adds the private Match/Report/Teacher/Dataset/Corpus Information-set
+integration without changing those working counts, Package version, Public API,
+Root workflows, Console Script, or Session examples.
 
 The historical published `v0.15.0` GitHub Release has
 release theme "Local EuroSkat 36er Match capture, analysis, and exports" and
@@ -1461,12 +1474,20 @@ Results and 16-field compact diagnostics. Existing `auto`, flat, Historical, and
 Dataset behavior is unchanged. See [Information-set Search Multi-Step and Policy
 Comparison](docs/information_set_search_multi_step_and_policy_comparison.md).
 
+Issue #191 adds strict one-Decision Match execution through the existing Position
+Application exactly once, exact Report-source transfer, minimized
+Current-Snapshot Strategy Teacher Evidence, Dataset-v2 joins, cross-game method
+counts, and existing local Corpus workflow support. Effective time-safe Profile
+policies become fixed Search policies without weighting Worlds. Partial, timeout,
+and unavailable Results do not fall back. See
+[Match Information-set Search and Strategy Teacher Evidence](docs/match_information_set_search_and_strategy_teacher.md).
+
 Remaining work includes Public Match API/Schema/data workflows, persisted Player
 aliases/assertions, Player merge/split operations, all-revision Player views,
 Player Catalog persistence and public exposure, public/task-specific Dataset
 workflows, Dataset-v2 persistence and persisted partition artifacts,
-database/remote deployment, and remaining Match/Teacher/Coaching/performance
-information-set Search integration,
+database/remote deployment, Match Historical/Replay-Coaching/performance
+Information-set Search integration,
 tactical motif detection and cross-game Coaching, approved settlement nuance,
 additional
 dataset-preparation algorithms or overrides, global optimization, guaranteed
@@ -1647,9 +1668,11 @@ Runtime execution. Issue #184 adds the private bounded exhaustive exact AND/OR
   retained-selection Post-game comparison, separate Historical Review and
   Training Dataset evaluation, safe output, Provenance, CLI, four Schemas, one
   example, and four scenarios. Issue #190 adds strict Multi-Step and Policy
-  Comparison integration, one example, and two scenarios. Match Capture, Match
-  Analysis Reports, Strategy Teacher, Replay Coaching classification, and
-  performance evidence remain open. Tactical and cross-game
+  Comparison integration, one example, and two scenarios. Issue #191 adds strict
+  one-Decision Match Capture and Reports, exact source transfer, focused Strategy
+  Teacher/Dataset evidence, Summary counts, and existing Corpus workflow support
+  without changing those counts. Match Historical Information-set execution,
+  Replay Coaching classification, and performance evidence remain open. Tactical and cross-game
   Coaching, carefully bounded Player Ratings where approved, broader Provenance
   and Confidence integration, performance and latency evidence, and the remaining
   pre-v1 scope audit also remain open. The final Issue titles, count,

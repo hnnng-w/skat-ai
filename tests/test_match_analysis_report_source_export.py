@@ -3,7 +3,7 @@ import json
 from dataclasses import FrozenInstanceError, fields
 
 import pytest
-from test_learning_corpus_strategy_teacher import _source_bundle
+from test_learning_corpus_strategy_teacher import _changed_report, _source_bundle
 
 from skat_ai.errors import SkatAIValidationError
 from skat_ai.match_analysis_contracts import (
@@ -42,9 +42,7 @@ def test_source_export_shape_version_kind_and_defensive_serialization(report_bun
     export = build_match_analysis_report_source_export_v1(report)
 
     assert MATCH_ANALYSIS_REPORT_SOURCE_EXPORT_VERSION == 1
-    assert MATCH_ANALYSIS_REPORT_SOURCE_DOCUMENT_KIND == (
-        "skat_ai_match_analysis_report_source"
-    )
+    assert MATCH_ANALYSIS_REPORT_SOURCE_DOCUMENT_KIND == ("skat_ai_match_analysis_report_source")
     assert tuple(field.name for field in fields(MatchAnalysisReportSourceExportV1)) == (
         "match_analysis_report_source_export_version",
         "document_kind",
@@ -59,9 +57,10 @@ def test_source_export_shape_version_kind_and_defensive_serialization(report_bun
     }
     mutable = export.to_dict()
     mutable["report"]["value"]["options"]["recommendation_method"] = "changed"
-    assert export.to_dict()["report"]["value"]["options"][
-        "recommendation_method"
-    ] == "immediate_expected_value"
+    assert (
+        export.to_dict()["report"]["value"]["options"]["recommendation_method"]
+        == "immediate_expected_value"
+    )
     with pytest.raises(FrozenInstanceError):
         export.report_id = "0" * 64
     with pytest.raises(ValueError, match="version must equal 1"):
@@ -226,10 +225,57 @@ def test_resume_rejects_changed_nested_request_or_result(
     wrapper: str,
 ) -> None:
     _workspace, report = report_bundle
-    document = copy.deepcopy(
-        build_match_analysis_report_source_export_v1(report).to_dict()
-    )
+    document = copy.deepcopy(build_match_analysis_report_source_export_v1(report).to_dict())
     document["report"]["value"][wrapper]["document"]["tampered"] = True
 
     with pytest.raises(SkatAIValidationError, match="identity fields"):
         resume_match_analysis_report_source_export_v1(document)
+
+
+def test_information_set_source_round_trip_and_semantic_tampering() -> None:
+    _workspace, _snapshot, result, report, _source, _store = _source_bundle(
+        recommendation_method="information_set_search",
+        decision_index=30,
+        match_id="match-information-set-source",
+        search_random_seed=7,
+        search_budget_profile="interactive_v1",
+    )
+    document = build_match_analysis_report_source_export_v1(report).to_dict()
+    assert resume_match_analysis_report_source_export_v1(document).to_dict() == document
+
+    request_document = result.request.to_dict()["document"]
+    request_document["information_set_search_settings"]["max_selected_worlds"] = 63
+    changed_request_report = build_match_analysis_report_source_export_v1(
+        _changed_report(result, request_document=request_document)
+    ).to_dict()
+    with pytest.raises(SkatAIValidationError, match="Request changed"):
+        resume_match_analysis_report_source_export_v1(changed_request_report)
+
+    result_document = result.result.to_dict()["document"]
+    result_document["information_set_search_result"]["private_worlds"] = []
+    changed_result_report = build_match_analysis_report_source_export_v1(
+        _changed_report(result, result_document=result_document)
+    ).to_dict()
+    with pytest.raises(SkatAIValidationError):
+        resume_match_analysis_report_source_export_v1(changed_result_report)
+
+    result_document = result.result.to_dict()["document"]
+    result_document["information_set_search_result"]["candidate_results"][0][
+        "local_contract_success_rate"
+    ] = 0.5
+    changed_result_report = build_match_analysis_report_source_export_v1(
+        _changed_report(result, result_document=result_document)
+    ).to_dict()
+    with pytest.raises(SkatAIValidationError, match="aggregate Result"):
+        resume_match_analysis_report_source_export_v1(changed_result_report)
+
+    result_document = result.result.to_dict()["document"]
+    comparison = result_document["information_set_search_comparison"]
+    comparison["information_set_immediate_same_card"] = not comparison[
+        "information_set_immediate_same_card"
+    ]
+    changed_result_report = build_match_analysis_report_source_export_v1(
+        _changed_report(result, result_document=result_document)
+    ).to_dict()
+    with pytest.raises(SkatAIValidationError, match="agreement facts"):
+        resume_match_analysis_report_source_export_v1(changed_result_report)

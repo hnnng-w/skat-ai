@@ -9,7 +9,14 @@ from skat_ai.api.v1.contracts import (
     ResultDocumentV1,
     WorkflowV1,
 )
-from skat_ai.errors import SkatAIValidationError
+from skat_ai.api.v1.schema_validation import (
+    validate_input_document,
+    validate_output_document,
+)
+from skat_ai.errors import SkatAIInvariantError, SkatAIValidationError
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD,
+)
 from skat_ai.match_analysis_contracts import (
     MATCH_ANALYSIS_EXECUTION_VERSION,
     MATCH_ANALYSIS_REPORT_VERSION,
@@ -26,6 +33,9 @@ from skat_ai.match_analysis_report_source_export import (
 )
 from skat_ai.match_decision_review_preparation import (
     MatchDecisionOpponentProfileBindingV1,
+)
+from skat_ai.match_information_set_search import (
+    reconcile_match_information_set_search_result_v1,
 )
 
 _EXPORT_FIELDS = {
@@ -437,6 +447,26 @@ def _resume_report(value: object) -> MatchAnalysisReportV1:
         request=_resume_request(value["request"]),
         result=_resume_result(value["result"]),
     )
+    if rebuilt_value.options.recommendation_method == INFORMATION_SET_SEARCH_RECOMMENDATION_METHOD:
+        assert rebuilt_value.request is not None
+        assert rebuilt_value.result is not None
+        request_document = rebuilt_value.request.to_dict()["document"]
+        result_document = rebuilt_value.result.to_dict()["document"]
+        try:
+            validate_input_document(request_document)
+            validate_output_document(result_document)
+            reconcile_match_information_set_search_result_v1(
+                options=rebuilt_value.options,
+                request_document=request_document,
+                result_document=result_document,
+            )
+        except SkatAIValidationError:
+            raise
+        except SkatAIInvariantError as error:
+            raise SkatAIValidationError(
+                error.message,
+                path=f"{value_path}/result/document",
+            ) from error
     rebuilt_report = _construct(
         build_match_analysis_report_v1,
         path=path,

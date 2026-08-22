@@ -29,6 +29,11 @@ without adding a Schema, bringing the working totals to 69 authoritative and
 packaged Schemas and 94 scenarios. The published `v0.16.0` facts above remain
 unchanged.
 
+Issue #191 adds strict private one-Decision Match Information-set Search, exact
+Report-source transfer, focused Strategy Teacher Evidence, Dataset-v2 joins,
+cross-game counts, and existing Corpus workflow support without changing those
+counts or public/versioned surfaces.
+
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python `>=3.13`, retains Public API contract version
 `1` and exactly seven Root workflows, and contains 63 authoritative Schemas, 63
@@ -279,7 +284,9 @@ integration version `1` with fresh per-decision public-state Search, private
 independent coherent execution, no Search World or Policy reuse, no fallback,
 safe Decisions and 16-field diagnostics, stopped-row ineligibility, existing
 ranking, and retained-Result complete Provenance. Match Capture, Match Analysis
-Reports, Strategy Teacher, Replay Coaching classification, and performance
+Reports, and Strategy Teacher are integrated for the bounded one-Decision path
+by Issue #191 together with Dataset-v2 and Corpus propagation. Match Historical
+Information-set execution, Replay Coaching classification, and performance
 evidence remain open. Tactical and cross-game Coaching, carefully bounded
 Player Ratings where approved, broader Provenance and Confidence integration, and
 the remaining pre-v1 scope audit also remain open. Final Issue titles, count,
@@ -662,6 +669,16 @@ maintainer's manual publication. See
 | Machine-learning model training | skat-ai product | Not applicable | `not_supported` | No training pipeline exists. | Approved dataset, target, evaluation protocol, reproducibility, and artifact policy. | Historical training-data representation does not itself authorize model training. | Define separate post-v1.0 card-decision model acceptance criteria before implementation. | Post-v1.0 | No |
 | Generated-output validation | skat-ai product | Not applicable | `supported` | The current unreleased matrix generates, semantically checks, and schema-validates 94 deterministic scenarios. Issue #186 preserves the published `v0.16.0` first 85 and appends three Historical Claim scenarios; Issue #189 appends four Information-set Search scenarios; Issue #190 appends Multi-Step and Policy Comparison scenarios. Historical published `v0.13.0`, `v0.12.0`, `v0.11.0`, and `v0.10.0` counts remain 77, 70, 64, and 59. | Repository examples/fixtures, 69 schemas, and deterministic Root/Session CLI settings. | The matrix is representative rather than exhaustive; append-only additions do not rewrite historical published Release evidence. | Keep active and published counts explicit; retain prior order and add deterministic coverage for each stable user-facing branch. | v1.0 | Yes |
 | Release and regression checks | skat-ai product | Not applicable | `supported` | `scripts/check.ps1` and CI run Ruff, 69-Schema parity, Root/Session examples, 94 scenarios, Wheel/sdist inspection, clean API/Root/Session/Capture/Corpus CLI and browser smoke, and pytest on Python 3.13. | Development dependencies and supported platform tooling. | Passing checks proves tested behavior, not complete ISkO/SkWO compliance or Package-index publication; GitHub Releases is the authoritative publication record. | Require clean local/CI checks, exact Capture/Corpus resources, one Console Script, installed/module/Legacy/API parity, and human-controlled publication. | v1.0 | Yes |
+
+Issue #191 extends the private Learning Corpus/Strategy Teacher, Dataset-v2,
+Match analysis/export, local Match browser, and Information-set Search rows with
+the bounded one-Decision Match/Report/Teacher/Dataset/Corpus path. The exact
+source, safe Result/comparison, effective fixed policies, Teacher privacy and
+identity, Dataset joins, Summary counts, browser diagnostics, strict no-fallback
+execution, and existing local upload/preparation/download behavior have focused
+validation. Match Historical Information-set execution, Replay Coaching
+classification, and performance evidence remain open. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 ## Interpretations and unresolved rule questions
 

@@ -225,8 +225,8 @@ deployment, cloud protection, or access-control claim.
 Issue #168 adds three explicit ordinary-HTML operations under the unchanged
 private Web Protocol version `1`:
 
-* analyze one selected prepared Decision through Immediate, bounded Search, or
-  `auto`;
+* analyze one selected prepared Decision through Immediate, bounded Search,
+  `auto`, or strict Information-set Search;
 * analyze one strictly materializable Historical Game with selected Snapshots,
   Immediate Review, Search Review, and/or Replay Coaching;
 * prepare one Match-wide materialization report without workflow execution.
@@ -237,6 +237,11 @@ retrospective evidence attached after the Decision-time state, not an optimal
 label. Historical execution retains the stricter complete-Deal normal-completion
 boundary. Each available analysis action invokes the corresponding existing
 Application workflow exactly once; normal unavailable results invoke none.
+Information-set Search uses the existing Match budget-profile selector and an
+explicit seed, defaulting an empty browser seed to `0`. Effective deterministic
+left/right policies become fixed Search policies. Complete, partial, timeout,
+and unavailable Results are retained without fallback. Its report page displays
+only curated aggregate diagnostics and Card-agreement facts.
 
 The materialization report shows reconciled Decision/Historical/Training counts,
 fixed-list availability, standings, unresolved lot state, and the twelve round-
@@ -281,6 +286,11 @@ is an explicit file transfer; it does not contact, discover, or mutate a Learnin
 Corpus and does not persist the Report. See
 [Learning Corpus browser workflows](learning_corpus_browser_workflows.md).
 
+Issue #191 transfers exact Information-set Decision Reports through this same
+version-1 envelope and route. Strict reconstruction validates the nested Request,
+safe aggregate Result, comparison, and fixed-policy relationships. No new route,
+download kind, automatic connection, or persistence is introduced.
+
 ## Current boundaries
 
 Match Capture Web, Web Protocol, and Capture CLI are independent internal
@@ -289,6 +299,14 @@ workflow. The historical published Match Capture Package baseline is `0.15.0`;
 the current published Package baseline is `0.16.0`. The seven Root workflows,
 Public APIs, 63 Schemas, six Session examples, and 85 generated-output scenarios
 are unchanged across those baselines.
+
+The current unreleased working baseline has 69 authoritative and packaged
+Schemas and 94 generated-output scenarios from Issues #189 and #190. Issue #191
+changes neither count and adds no Session example. It adds only the private
+one-Decision Match Information-set path and existing Corpus transfer described
+above. Match Historical Information-set execution, Replay Coaching
+classification, and performance evidence remain open. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 Issue #168 exposes explicit private Position/Historical analysis and
 materialization/download controls while preserving the no-automatic-analysis

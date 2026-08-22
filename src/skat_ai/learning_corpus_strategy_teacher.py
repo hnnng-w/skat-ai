@@ -15,6 +15,9 @@ from skat_ai.api.v1.contracts import (
 from skat_ai.learning_corpus_identity import (
     build_learning_corpus_canonical_json_bytes_v1,
 )
+from skat_ai.learning_corpus_information_set_strategy_teacher import (
+    LearningCorpusInformationSetStrategyTeacherEvidenceV1,
+)
 from skat_ai.match_analysis_contracts import (
     MatchAnalysisReportV1,
     MatchDecisionAnalysisOptionsV1,
@@ -24,7 +27,7 @@ from skat_ai.match_analysis_contracts import (
 from skat_ai.match_decision_review_preparation import (
     MatchDecisionOpponentProfileBindingV1,
 )
-from skat_ai.recommendation_workflow import VALID_RECOMMENDATION_METHODS
+from skat_ai.recommendation_workflow import FLAT_RECOMMENDATION_METHODS
 
 LEARNING_CORPUS_STRATEGY_TEACHER_SOURCE_VERSION = 1
 LEARNING_CORPUS_STRATEGY_TEACHER_EVIDENCE_VERSION = 1
@@ -48,15 +51,11 @@ LEARNING_CORPUS_STRATEGY_TEACHER_SEARCH_STATUSES: Final[tuple[str, ...]] = (
 LEARNING_CORPUS_STRATEGY_TEACHER_SOURCE_POLICY = (
     "explicit_current_match_snapshot_bound_decision_reports"
 )
-LEARNING_CORPUS_STRATEGY_TEACHER_REPORT_POLICY = (
-    "exact_executed_decision_analysis_reports_only"
-)
+LEARNING_CORPUS_STRATEGY_TEACHER_REPORT_POLICY = "exact_executed_decision_analysis_reports_only"
 LEARNING_CORPUS_STRATEGY_TEACHER_RECONCILIATION_POLICY = (
     "rebuild_request_without_analysis_execution"
 )
-LEARNING_CORPUS_STRATEGY_TEACHER_CLAIM_POLICY = (
-    "method_bound_evidence_not_ground_truth"
-)
+LEARNING_CORPUS_STRATEGY_TEACHER_CLAIM_POLICY = "method_bound_evidence_not_ground_truth"
 LEARNING_CORPUS_STRATEGY_TEACHER_ACTUAL_CARD_POLICY = (
     "retrospective_observed_behavior_not_optimal_label"
 )
@@ -66,46 +65,24 @@ LEARNING_CORPUS_STRATEGY_TEACHER_METHOD_POLICY = (
 LEARNING_CORPUS_STRATEGY_TEACHER_MULTIPLE_REPORT_POLICY = (
     "retain_distinct_reports_without_preferred_teacher"
 )
-LEARNING_CORPUS_STRATEGY_TEACHER_SEMANTIC_ID_POLICY = (
-    "exclude_wall_clock_elapsed_time_only"
-)
+LEARNING_CORPUS_STRATEGY_TEACHER_SEMANTIC_ID_POLICY = "exclude_wall_clock_elapsed_time_only"
 LEARNING_CORPUS_STRATEGY_TEACHER_PROFILE_POLICY = (
     "retain_existing_binding_and_application_context_without_rederivation"
 )
-LEARNING_CORPUS_STRATEGY_TEACHER_EXECUTION_POLICY = (
-    "no_analysis_execution_or_rerun"
-)
+LEARNING_CORPUS_STRATEGY_TEACHER_EXECUTION_POLICY = "no_analysis_execution_or_rerun"
 LEARNING_CORPUS_STRATEGY_TEACHER_PRIVACY_POLICY = (
     "private_local_minimized_unredacted_strategy_evidence"
 )
-LEARNING_CORPUS_STRATEGY_TEACHER_EXPORT_POLICY = (
-    "deterministic_path_free_json_document"
-)
-LEARNING_CORPUS_STRATEGY_TEACHER_DATASET_POLICY = (
-    "no_training_dataset_version_1_influence"
-)
+LEARNING_CORPUS_STRATEGY_TEACHER_EXPORT_POLICY = "deterministic_path_free_json_document"
+LEARNING_CORPUS_STRATEGY_TEACHER_DATASET_POLICY = "no_training_dataset_version_1_influence"
 
-_REPORT_FINGERPRINT_DOMAIN = (
-    b"skat-ai\0learning_corpus_strategy_teacher_report_v1\0"
-)
-_REQUEST_FINGERPRINT_DOMAIN = (
-    b"skat-ai\0learning_corpus_strategy_teacher_request_v1\0"
-)
-_RESULT_FINGERPRINT_DOMAIN = (
-    b"skat-ai\0learning_corpus_strategy_teacher_result_v1\0"
-)
-_SOURCE_BINDING_ID_DOMAIN = (
-    b"skat-ai\0learning_corpus_strategy_teacher_source_binding_v1\0"
-)
-_SEMANTIC_FINGERPRINT_DOMAIN = (
-    b"skat-ai\0learning_corpus_strategy_teacher_semantic_v1\0"
-)
-_EVIDENCE_ID_DOMAIN = (
-    b"skat-ai\0learning_corpus_strategy_teacher_evidence_v1\0"
-)
-_COLLECTION_FINGERPRINT_DOMAIN = (
-    b"skat-ai\0learning_corpus_strategy_teacher_collection_v1\0"
-)
+_REPORT_FINGERPRINT_DOMAIN = b"skat-ai\0learning_corpus_strategy_teacher_report_v1\0"
+_REQUEST_FINGERPRINT_DOMAIN = b"skat-ai\0learning_corpus_strategy_teacher_request_v1\0"
+_RESULT_FINGERPRINT_DOMAIN = b"skat-ai\0learning_corpus_strategy_teacher_result_v1\0"
+_SOURCE_BINDING_ID_DOMAIN = b"skat-ai\0learning_corpus_strategy_teacher_source_binding_v1\0"
+_SEMANTIC_FINGERPRINT_DOMAIN = b"skat-ai\0learning_corpus_strategy_teacher_semantic_v1\0"
+_EVIDENCE_ID_DOMAIN = b"skat-ai\0learning_corpus_strategy_teacher_evidence_v1\0"
+_COLLECTION_FINGERPRINT_DOMAIN = b"skat-ai\0learning_corpus_strategy_teacher_collection_v1\0"
 
 _EVIDENCE_MAPPING_FIELDS = (
     "settings",
@@ -138,15 +115,11 @@ _SEMANTIC_SOURCE_IDENTITY_FIELDS = {
     "source_request_fingerprint",
     "source_result_fingerprint",
 }
-_METHOD_ORDER = {
-    method: index for index, method in enumerate(VALID_RECOMMENDATION_METHODS)
-}
+_METHOD_ORDER = {method: index for index, method in enumerate(FLAT_RECOMMENDATION_METHODS)}
 
 
 def _build_identifier(domain: bytes, value: object) -> str:
-    return hashlib.sha256(
-        domain + build_learning_corpus_canonical_json_bytes_v1(value)
-    ).hexdigest()
+    return hashlib.sha256(domain + build_learning_corpus_canonical_json_bytes_v1(value)).hexdigest()
 
 
 def _require_version(value: object, expected: int, field_name: str) -> None:
@@ -166,9 +139,7 @@ def _require_hash(value: object, field_name: str) -> str:
         or len(value) != 64
         or any(character not in "0123456789abcdef" for character in value)
     ):
-        raise ValueError(
-            f"{field_name} must be a lowercase SHA-256 hexadecimal value."
-        )
+        raise ValueError(f"{field_name} must be a lowercase SHA-256 hexadecimal value.")
     return value
 
 
@@ -227,6 +198,8 @@ def _json_value(value: object) -> Any:
         return value.to_dict()
     if type(value) is MatchDecisionOpponentProfileBindingV1:
         return value.to_dict()
+    if type(value) is LearningCorpusInformationSetStrategyTeacherEvidenceV1:
+        return value.to_dict()
     return _thaw_json_value(value)
 
 
@@ -281,9 +254,7 @@ def _strictly_rebuild_decision_report(
         result=rebuilt_result,
     )
     if rebuilt_value != value:
-        raise ValueError(
-            "Source Decision Report must equal its strict nested reconstruction."
-        )
+        raise ValueError("Source Decision Report must equal its strict nested reconstruction.")
     return build_match_analysis_report_v1(rebuilt_value)
 
 
@@ -298,10 +269,8 @@ def _validate_exact_decision_report(report: MatchAnalysisReportV1) -> None:
         raise ValueError("Strategy Teacher sources require an executed Decision Report.")
     if (
         type(report.value.options) is not MatchDecisionAnalysisOptionsV1
-        or type(report.value.profile_binding)
-        is not MatchDecisionOpponentProfileBindingV1
-        or
-        type(report.value.request) is not RequestDocumentV1
+        or type(report.value.profile_binding) is not MatchDecisionOpponentProfileBindingV1
+        or type(report.value.request) is not RequestDocumentV1
         or type(report.value.result) is not ResultDocumentV1
     ):
         raise ValueError(
@@ -385,14 +354,14 @@ class LearningCorpusStrategyTeacherReportSourceV1:
         result = cast(MatchDecisionAnalysisResultV1, self.report.value).result
         if type(request) is not RequestDocumentV1 or type(result) is not ResultDocumentV1:
             raise ValueError("Executed Decision Reports require an exact Request and Result.")
-        source_report_fingerprint = (
-            build_learning_corpus_strategy_teacher_report_fingerprint_v1(self.report)
+        source_report_fingerprint = build_learning_corpus_strategy_teacher_report_fingerprint_v1(
+            self.report
         )
-        source_request_fingerprint = (
-            build_learning_corpus_strategy_teacher_request_fingerprint_v1(request)
+        source_request_fingerprint = build_learning_corpus_strategy_teacher_request_fingerprint_v1(
+            request
         )
-        source_result_fingerprint = (
-            build_learning_corpus_strategy_teacher_result_fingerprint_v1(result)
+        source_result_fingerprint = build_learning_corpus_strategy_teacher_result_fingerprint_v1(
+            result
         )
         source_report_id = self.report.report_id
         source_binding_id = _build_identifier(
@@ -452,14 +421,14 @@ class LearningCorpusStrategyTeacherReportSourceV1:
             result = value.result
             if type(request) is not RequestDocumentV1 or type(result) is not ResultDocumentV1:
                 raise ValueError("Executed Decision Reports require an exact Request and Result.")
-            report_fingerprint = (
-                build_learning_corpus_strategy_teacher_report_fingerprint_v1(self.report)
+            report_fingerprint = build_learning_corpus_strategy_teacher_report_fingerprint_v1(
+                self.report
             )
-            request_fingerprint = (
-                build_learning_corpus_strategy_teacher_request_fingerprint_v1(request)
+            request_fingerprint = build_learning_corpus_strategy_teacher_request_fingerprint_v1(
+                request
             )
-            result_fingerprint = (
-                build_learning_corpus_strategy_teacher_result_fingerprint_v1(result)
+            result_fingerprint = build_learning_corpus_strategy_teacher_result_fingerprint_v1(
+                result
             )
             if (
                 self.source_report_fingerprint != report_fingerprint
@@ -548,12 +517,17 @@ class LearningCorpusStrategyTeacherEvidenceV1:
     strategic_summary: str
     immediate_candidate_results: tuple[object, ...]
     bounded_search_result: Mapping[str, object] | None
+    information_set_search_evidence: LearningCorpusInformationSetStrategyTeacherEvidenceV1 | None
     post_game_review_summary: Mapping[str, object]
     bounded_search_post_game_review_summary: Mapping[str, object] | None
     search_status: str
     search_stop_reason: str | None
     world_coverage: str | None
     solution_claim: str | None
+    policy_claim: str | None
+    policy_consistency: str | None
+    information_sets_evaluated: int | None
+    controlled_policy_decision_count: int | None
     requested_budget: Mapping[str, object] | None
     consumed_budget: Mapping[str, object] | None
     search_candidate_results: tuple[object, ...]
@@ -561,8 +535,7 @@ class LearningCorpusStrategyTeacherEvidenceV1:
 
     def __init__(self, *_args: object, **_kwargs: object) -> None:
         raise TypeError(
-            "LearningCorpusStrategyTeacherEvidenceV1 must be constructed by "
-            "its focused builder."
+            "LearningCorpusStrategyTeacherEvidenceV1 must be constructed by its focused builder."
         )
 
     @classmethod
@@ -650,20 +623,22 @@ class LearningCorpusStrategyTeacherEvidenceV1:
         for field_name in _EVIDENCE_SEQUENCE_FIELDS:
             if type(getattr(self, field_name)) is not tuple:
                 raise ValueError(f"{field_name} must retain an immutable JSON array.")
+        if (
+            self.information_set_search_evidence is not None
+            and type(self.information_set_search_evidence)
+            is not LearningCorpusInformationSetStrategyTeacherEvidenceV1
+        ):
+            raise ValueError(
+                "information_set_search_evidence must be an exact focused value or null."
+            )
         if not isinstance(self.strategic_summary, str):
             raise ValueError("strategic_summary must be a string.")
         if self.actual_card_played not in self.legal_cards:
             raise ValueError("actual_card_played must be one retained legal Card.")
 
-        requested_method = self.recommendation_method_summary.get(
-            "requested_method"
-        )
-        effective_method = self.recommendation_method_summary.get(
-            "effective_method"
-        )
-        search_attempted = self.recommendation_method_summary.get(
-            "search_attempted"
-        )
+        requested_method = self.recommendation_method_summary.get("requested_method")
+        effective_method = self.recommendation_method_summary.get("effective_method")
+        search_attempted = self.recommendation_method_summary.get("search_attempted")
         fallback_used = self.recommendation_method_summary.get("fallback_used")
         if requested_method != self.options.recommendation_method:
             raise ValueError("Requested method must equal the exact source options.")
@@ -681,9 +656,7 @@ class LearningCorpusStrategyTeacherEvidenceV1:
         )
         if self.status != expected_status:
             raise ValueError("Teacher status must match recommendation availability.")
-        if self.post_game_review_summary.get("actual_card_played") != (
-            self.actual_card_played
-        ):
+        if self.post_game_review_summary.get("actual_card_played") != (self.actual_card_played):
             raise ValueError("Post-game review must retain the observed actual Card.")
 
         if search_attempted is False:
@@ -693,44 +666,97 @@ class LearningCorpusStrategyTeacherEvidenceV1:
                 raise ValueError("Non-Search evidence cannot contain bounded Search.")
             if self.bounded_search_post_game_review_summary is not None:
                 raise ValueError("Non-Search evidence cannot contain Search comparison.")
-            if any(
-                value is not None
-                for value in (
-                    self.search_stop_reason,
-                    self.world_coverage,
-                    self.solution_claim,
-                    self.requested_budget,
-                    self.consumed_budget,
-                    self.wall_clock_elapsed_ms,
+            if self.information_set_search_evidence is not None:
+                raise ValueError("Non-Search evidence cannot contain Information-set Search.")
+            if (
+                any(
+                    value is not None
+                    for value in (
+                        self.search_stop_reason,
+                        self.world_coverage,
+                        self.solution_claim,
+                        self.policy_claim,
+                        self.policy_consistency,
+                        self.information_sets_evaluated,
+                        self.controlled_policy_decision_count,
+                        self.requested_budget,
+                        self.consumed_budget,
+                        self.wall_clock_elapsed_ms,
+                    )
                 )
-            ) or self.search_candidate_results:
+                or self.search_candidate_results
+            ):
                 raise ValueError("Non-Search convenience fields must be null or empty.")
         elif search_attempted is True:
             if self.search_status not in LEARNING_CORPUS_STRATEGY_TEACHER_SEARCH_STATUSES[1:]:
                 raise ValueError("Attempted Search must retain an existing Search status.")
-            search = self.bounded_search_result
-            if search is None:
-                raise ValueError("Attempted Search requires bounded_search_result.")
-            if self.bounded_search_post_game_review_summary is None:
-                raise ValueError("Attempted post-game Search requires its comparisons.")
-            expected_consumed = search.get("consumed_budget")
-            if not isinstance(expected_consumed, Mapping):
-                raise ValueError("Bounded Search must retain consumed_budget.")
-            if (
-                self.search_status != search.get("status")
-                or self.search_stop_reason != search.get("stop_reason")
-                or self.world_coverage != search.get("world_coverage")
-                or self.solution_claim != search.get("solution_claim")
-                or self.requested_budget != search.get("requested_budget")
-                or self.consumed_budget != expected_consumed
-                or self.search_candidate_results
-                != tuple(cast(Sequence[object], search.get("candidate_results")))
-                or self.wall_clock_elapsed_ms
-                != expected_consumed.get("wall_clock_elapsed_ms")
-            ):
-                raise ValueError("Search convenience fields must equal bounded Search.")
-            if fallback_used != search.get("fallback_used"):
-                raise ValueError("Search and method fallback state must reconcile.")
+            if requested_method == "information_set_search":
+                focused = self.information_set_search_evidence
+                if focused is None:
+                    raise ValueError("Information-set Search requires focused Teacher evidence.")
+                if (
+                    self.bounded_search_result is not None
+                    or self.bounded_search_post_game_review_summary is not None
+                    or self.solution_claim is not None
+                    or fallback_used is not False
+                ):
+                    raise ValueError(
+                        "Information-set Search cannot contain bounded Search or fallback."
+                    )
+                if (
+                    self.search_status != focused.search_status
+                    or self.search_stop_reason != focused.search_stop_reason
+                    or self.world_coverage != focused.world_coverage
+                    or self.policy_claim != focused.policy_claim
+                    or self.policy_consistency != focused.policy_consistency
+                    or self.information_sets_evaluated != focused.information_sets_evaluated
+                    or self.controlled_policy_decision_count
+                    != focused.controlled_policy_decision_count
+                    or self.requested_budget != focused.requested_budget
+                    or self.consumed_budget != focused.consumed_budget
+                    or self.search_candidate_results != focused.candidate_results
+                    or self.wall_clock_elapsed_ms != focused.wall_clock_elapsed_ms
+                ):
+                    raise ValueError(
+                        "Search convenience fields must equal Information-set evidence."
+                    )
+            else:
+                if self.information_set_search_evidence is not None:
+                    raise ValueError("Bounded Search cannot contain Information-set evidence.")
+                if any(
+                    value is not None
+                    for value in (
+                        self.policy_claim,
+                        self.policy_consistency,
+                        self.information_sets_evaluated,
+                        self.controlled_policy_decision_count,
+                    )
+                ):
+                    raise ValueError(
+                        "Bounded Search cannot contain Information-set convenience fields."
+                    )
+                search = self.bounded_search_result
+                if search is None:
+                    raise ValueError("Attempted Search requires bounded_search_result.")
+                if self.bounded_search_post_game_review_summary is None:
+                    raise ValueError("Attempted post-game Search requires its comparisons.")
+                expected_consumed = search.get("consumed_budget")
+                if not isinstance(expected_consumed, Mapping):
+                    raise ValueError("Bounded Search must retain consumed_budget.")
+                if (
+                    self.search_status != search.get("status")
+                    or self.search_stop_reason != search.get("stop_reason")
+                    or self.world_coverage != search.get("world_coverage")
+                    or self.solution_claim != search.get("solution_claim")
+                    or self.requested_budget != search.get("requested_budget")
+                    or self.consumed_budget != expected_consumed
+                    or self.search_candidate_results
+                    != tuple(cast(Sequence[object], search.get("candidate_results")))
+                    or self.wall_clock_elapsed_ms != expected_consumed.get("wall_clock_elapsed_ms")
+                ):
+                    raise ValueError("Search convenience fields must equal bounded Search.")
+                if fallback_used != search.get("fallback_used"):
+                    raise ValueError("Search and method fallback state must reconcile.")
         else:
             raise ValueError("search_attempted must be a boolean.")
         if type(fallback_used) is not bool:
@@ -754,17 +780,13 @@ class LearningCorpusStrategyTeacherEvidenceV1:
                 _teacher_semantic_material_v1(self.to_dict()),
             )
             if self.teacher_semantic_fingerprint != expected_semantic:
-                raise ValueError(
-                    "teacher_semantic_fingerprint must cover exact semantic evidence."
-                )
+                raise ValueError("teacher_semantic_fingerprint must cover exact semantic evidence.")
             expected_evidence_id = _build_identifier(
                 _EVIDENCE_ID_DOMAIN,
                 _evidence_identity_material_v1(self.to_dict()),
             )
             if self.strategy_teacher_evidence_id != expected_evidence_id:
-                raise ValueError(
-                    "strategy_teacher_evidence_id must cover exact source evidence."
-                )
+                raise ValueError("strategy_teacher_evidence_id must cover exact source evidence.")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -793,35 +815,26 @@ class LearningCorpusStrategyTeacherEvidenceV1:
             "profile_binding": self.profile_binding.to_dict(),
             "settings": _json_value(self.settings),
             "analysis_metadata": _json_value(self.analysis_metadata),
-            "information_policy_summary": _json_value(
-                self.information_policy_summary
-            ),
+            "information_policy_summary": _json_value(self.information_policy_summary),
             "legal_cards": _json_value(self.legal_cards),
-            "opponent_policy_settings": _json_value(
-                self.opponent_policy_settings
-            ),
-            "left_opponent_policy_settings": _json_value(
-                self.left_opponent_policy_settings
-            ),
-            "right_opponent_policy_settings": _json_value(
-                self.right_opponent_policy_settings
-            ),
+            "opponent_policy_settings": _json_value(self.opponent_policy_settings),
+            "left_opponent_policy_settings": _json_value(self.left_opponent_policy_settings),
+            "right_opponent_policy_settings": _json_value(self.right_opponent_policy_settings),
             "profile_preset_settings": _json_value(self.profile_preset_settings),
             "opponent_profile_application_summary": _json_value(
                 self.opponent_profile_application_summary
             ),
-            "recommendation_method_summary": _json_value(
-                self.recommendation_method_summary
-            ),
+            "recommendation_method_summary": _json_value(self.recommendation_method_summary),
             "recommendation": _json_value(self.recommendation),
             "strategic_summary": self.strategic_summary,
-            "immediate_candidate_results": _json_value(
-                self.immediate_candidate_results
-            ),
+            "immediate_candidate_results": _json_value(self.immediate_candidate_results),
             "bounded_search_result": _json_value(self.bounded_search_result),
-            "post_game_review_summary": _json_value(
-                self.post_game_review_summary
+            "information_set_search_evidence": (
+                None
+                if self.information_set_search_evidence is None
+                else self.information_set_search_evidence.to_dict()
             ),
+            "post_game_review_summary": _json_value(self.post_game_review_summary),
             "bounded_search_post_game_review_summary": _json_value(
                 self.bounded_search_post_game_review_summary
             ),
@@ -829,11 +842,13 @@ class LearningCorpusStrategyTeacherEvidenceV1:
             "search_stop_reason": self.search_stop_reason,
             "world_coverage": self.world_coverage,
             "solution_claim": self.solution_claim,
+            "policy_claim": self.policy_claim,
+            "policy_consistency": self.policy_consistency,
+            "information_sets_evaluated": self.information_sets_evaluated,
+            "controlled_policy_decision_count": (self.controlled_policy_decision_count),
             "requested_budget": _json_value(self.requested_budget),
             "consumed_budget": _json_value(self.consumed_budget),
-            "search_candidate_results": _json_value(
-                self.search_candidate_results
-            ),
+            "search_candidate_results": _json_value(self.search_candidate_results),
             "wall_clock_elapsed_ms": self.wall_clock_elapsed_ms,
         }
 
@@ -927,6 +942,7 @@ class LearningCorpusStrategyTeacherEvidenceCollectionV1:
     immediate_requested_count: int
     bounded_search_requested_count: int
     auto_requested_count: int
+    information_set_search_requested_count: int
     search_not_attempted_count: int
     search_attempted_count: int
     search_complete_count: int
@@ -1004,6 +1020,7 @@ class LearningCorpusStrategyTeacherEvidenceCollectionV1:
             "immediate_requested_count",
             "bounded_search_requested_count",
             "auto_requested_count",
+            "information_set_search_requested_count",
             "search_not_attempted_count",
             "search_attempted_count",
             "search_complete_count",
@@ -1034,19 +1051,15 @@ class LearningCorpusStrategyTeacherEvidenceCollectionV1:
             self.evidences
         ):
             raise ValueError("Strategy Teacher Evidence IDs must be unique.")
-        if len({item.source_binding_id for item in self.evidences}) != len(
-            self.evidences
-        ):
+        if len({item.source_binding_id for item in self.evidences}) != len(self.evidences):
             raise ValueError("Strategy Teacher source bindings must be unique.")
         report_keys = {
-            (item.match_snapshot_id, item.source_report_fingerprint)
-            for item in self.evidences
+            (item.match_snapshot_id, item.source_report_fingerprint) for item in self.evidences
         }
         if len(report_keys) != len(self.evidences):
             raise ValueError("Each exact source Report may occur once per Snapshot.")
         if any(
-            item.match_snapshot_id not in self.current_match_snapshot_ids
-            for item in self.evidences
+            item.match_snapshot_id not in self.current_match_snapshot_ids for item in self.evidences
         ):
             raise ValueError("Strategy Teacher Evidence must use Current Snapshots.")
 
@@ -1079,9 +1092,7 @@ class LearningCorpusStrategyTeacherEvidenceCollectionV1:
             "corpus_id": self.corpus_id,
             "source_catalog_revision": self.source_catalog_revision,
             "source_catalog_fingerprint": self.source_catalog_fingerprint,
-            "source_catalog_content_fingerprint": (
-                self.source_catalog_content_fingerprint
-            ),
+            "source_catalog_content_fingerprint": (self.source_catalog_content_fingerprint),
             "current_match_snapshot_ids": list(self.current_match_snapshot_ids),
             "retained_match_snapshot_count": self.retained_match_snapshot_count,
             "current_match_count": self.current_match_count,
@@ -1090,12 +1101,11 @@ class LearningCorpusStrategyTeacherEvidenceCollectionV1:
             "evidence_count": self.evidence_count,
             "distinct_decision_count": self.distinct_decision_count,
             "recommendation_available_count": self.recommendation_available_count,
-            "recommendation_unavailable_count": (
-                self.recommendation_unavailable_count
-            ),
+            "recommendation_unavailable_count": (self.recommendation_unavailable_count),
             "immediate_requested_count": self.immediate_requested_count,
             "bounded_search_requested_count": self.bounded_search_requested_count,
             "auto_requested_count": self.auto_requested_count,
+            "information_set_search_requested_count": (self.information_set_search_requested_count),
             "search_not_attempted_count": self.search_not_attempted_count,
             "search_attempted_count": self.search_attempted_count,
             "search_complete_count": self.search_complete_count,
@@ -1104,9 +1114,7 @@ class LearningCorpusStrategyTeacherEvidenceCollectionV1:
             "search_unavailable_count": self.search_unavailable_count,
             "fallback_count": self.fallback_count,
             "profile_presets_enabled_count": self.profile_presets_enabled_count,
-            "profile_application_summary_count": (
-                self.profile_application_summary_count
-            ),
+            "profile_application_summary_count": (self.profile_application_summary_count),
             "evidences": [item.to_dict() for item in self.evidences],
         }
 
@@ -1132,9 +1140,7 @@ def _strategy_teacher_counts_v1(
         for status in LEARNING_CORPUS_STRATEGY_TEACHER_SEARCH_STATUSES
     }
     return {
-        "distinct_decision_count": len(
-            {item.decision_reference_id for item in evidences}
-        ),
+        "distinct_decision_count": len({item.decision_reference_id for item in evidences}),
         "recommendation_available_count": sum(
             item.status == "recommendation_available" for item in evidences
         ),
@@ -1142,15 +1148,16 @@ def _strategy_teacher_counts_v1(
             item.status == "recommendation_unavailable" for item in evidences
         ),
         "immediate_requested_count": sum(
-            item.options.recommendation_method == "immediate_expected_value"
-            for item in evidences
+            item.options.recommendation_method == "immediate_expected_value" for item in evidences
         ),
         "bounded_search_requested_count": sum(
-            item.options.recommendation_method == "bounded_search"
-            for item in evidences
+            item.options.recommendation_method == "bounded_search" for item in evidences
         ),
         "auto_requested_count": sum(
             item.options.recommendation_method == "auto" for item in evidences
+        ),
+        "information_set_search_requested_count": sum(
+            item.options.recommendation_method == "information_set_search" for item in evidences
         ),
         "search_not_attempted_count": search_counts["not_attempted"],
         "search_attempted_count": len(evidences) - search_counts["not_attempted"],
@@ -1159,16 +1166,13 @@ def _strategy_teacher_counts_v1(
         "search_timeout_count": search_counts["timeout"],
         "search_unavailable_count": search_counts["unavailable"],
         "fallback_count": sum(
-            item.recommendation_method_summary.get("fallback_used") is True
-            for item in evidences
+            item.recommendation_method_summary.get("fallback_used") is True for item in evidences
         ),
         "profile_presets_enabled_count": sum(
-            item.profile_preset_settings.get("use_profile_presets") is True
-            for item in evidences
+            item.profile_preset_settings.get("use_profile_presets") is True for item in evidences
         ),
         "profile_application_summary_count": sum(
-            item.opponent_profile_application_summary is not None
-            for item in evidences
+            item.opponent_profile_application_summary is not None for item in evidences
         ),
     }
 
@@ -1190,7 +1194,6 @@ def _validate_learning_corpus_strategy_teacher_collection_v1(
 ) -> None:
     if type(collection) is not LearningCorpusStrategyTeacherEvidenceCollectionV1:
         raise ValueError(
-            "collection must be an exact "
-            "LearningCorpusStrategyTeacherEvidenceCollectionV1."
+            "collection must be an exact LearningCorpusStrategyTeacherEvidenceCollectionV1."
         )
     collection._validate(verify_fingerprint=True)

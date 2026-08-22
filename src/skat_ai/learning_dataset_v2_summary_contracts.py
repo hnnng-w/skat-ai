@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from typing import Any, Final
 
 from skat_ai.deck import get_full_deck
+from skat_ai.information_set_search_workflow import (
+    INFORMATION_SET_SEARCH_EFFECTIVE_METHOD,
+)
 from skat_ai.learning_corpus_human_evidence import (
     LEARNING_CORPUS_COMMENTATOR_IDENTITY_KINDS,
 )
@@ -27,9 +30,9 @@ from skat_ai.match_decision_review_preparation import (
 )
 from skat_ai.recommendation_workflow import (
     COMPATIBLE_WORLD_MINIMAX_METHOD,
+    FLAT_RECOMMENDATION_METHODS,
     IMMEDIATE_EXPECTED_VALUE_METHOD,
     NONE_EFFECTIVE_METHOD,
-    VALID_RECOMMENDATION_METHODS,
 )
 from skat_ai.rules import GAME_TYPES
 
@@ -99,6 +102,7 @@ LEARNING_DATASET_SUMMARY_EFFECTIVE_METHODS: Final[tuple[str, ...]] = (
     IMMEDIATE_EXPECTED_VALUE_METHOD,
     COMPATIBLE_WORLD_MINIMAX_METHOD,
     NONE_EFFECTIVE_METHOD,
+    INFORMATION_SET_SEARCH_EFFECTIVE_METHOD,
 )
 LEARNING_DATASET_SUMMARY_PLAYER_CONTEXT_UNAVAILABLE_REASONS: Final[tuple[str, ...]] = tuple(
     reason
@@ -958,7 +962,7 @@ class LearningDatasetStrategySummaryV1:
         ):
             raise ValueError("Recommendation availability Counts must cover Teacher Evidence.")
         category_fields = (
-            ("requested_method_counts", tuple(VALID_RECOMMENDATION_METHODS)),
+            ("requested_method_counts", tuple(FLAT_RECOMMENDATION_METHODS)),
             ("effective_method_counts", LEARNING_DATASET_SUMMARY_EFFECTIVE_METHODS),
             ("search_status_counts", LEARNING_CORPUS_STRATEGY_TEACHER_SEARCH_STATUSES),
         )

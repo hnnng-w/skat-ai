@@ -657,13 +657,18 @@ Implemented in the current unreleased baseline:
   `information_set_search` row, with shared-root independent path copies;
 * visible but ineligible stopped rows under unchanged ranking; and
 * retained-Result complete Position provenance without rerunning Search.
+* strict one-Decision Match execution through one existing Position Application,
+  safe browser diagnostics, and exact revision-scoped Report-source transfer;
+* focused Current-Snapshot Strategy Teacher Evidence, Dataset-v2 joins, cross-
+  game method counts, and existing local Corpus workflow support from Issue #191.
 
 Existing `auto` remains PIMC then Immediate, and no `information_set_auto`
-exists. Match Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay
-Coaching classification, and performance integration remain open. There is no
+exists. Match Historical Information-set execution, Replay Coaching
+classification, and performance integration remain open. There is no
 cross-decision global Policy, equilibrium, global-optimality, complete-contract,
 or calibrated-probability claim. See [Information-set Search Multi-Step and
-Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+Policy Comparison](information_set_search_multi_step_and_policy_comparison.md)
+and [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 ### Game history and scoring
 
@@ -1165,6 +1170,7 @@ Implemented:
   `learning_corpus_human_evidence_export.py`
   * exact Current-only Commentary/Response source evidence and canonical export
 * `learning_corpus_strategy_teacher.py`,
+  `learning_corpus_information_set_strategy_teacher.py`,
   `learning_corpus_strategy_teacher_builder.py`, and
   `learning_corpus_strategy_teacher_export.py`
   * exact Current-bound method-specific Teacher evidence and canonical export
@@ -1188,6 +1194,9 @@ Implemented:
 * `match_analysis_report_source_export.py` and
   `match_analysis_report_source_codec.py`
   * exact executed Decision Report transfer bytes and strict complete reconstruction
+* `match_information_set_search.py`
+  * Match profile-to-budget mapping, strict safe Result/comparison reconciliation,
+    and curated Information-set browser diagnostics
 * `cli/corpus_parser.py`, `cli/corpus.py`, and `corpus_web/`
   * private one-root CLI/HTTP transport, strict uploads, process-local sources
     and prepared artifacts, minimized rendering, security, and seven downloads
@@ -1455,6 +1464,7 @@ Main documentation files:
 * `docs/match_player_statistics.md`
 * `docs/match_review_and_materialization.md`
 * `docs/match_analysis_and_exports.md`
+* `docs/match_information_set_search_and_strategy_teacher.md`
 * `docs/learning_corpus_identity_and_catalogs.md`
 * `docs/learning_corpus_persistence_and_import.md`
 * `docs/learning_corpus_player_catalog_and_statistics_history.md`
@@ -1515,6 +1525,10 @@ Schema, bringing the working totals to 69 authoritative and packaged Schemas and
 94 scenarios. The published `v0.16.0` counts above remain unchanged Release
 facts.
 
+Issue #191 adds private one-Decision Match Information-set Search, exact Report-
+source transfer, focused Teacher Evidence, Dataset-v2 joins, Summary counts, and
+existing Corpus workflow support without changing those counts.
+
 Historical published `v0.15.0` Release theme: "Local EuroSkat 36er Match
 capture, analysis, and exports".
 
@@ -1571,7 +1585,9 @@ evaluation, safe public Results, retained-stage Provenance, CLI, Schemas, an
 example, and generated scenarios. Issue #190 adds strict Multi-Step and Policy
 Comparison integration with fresh per-decision Search, safe Results/diagnostics,
 no fallback, existing ranking, and complete Provenance. Match Capture, Match
-Analysis Reports, Strategy Teacher, Replay Coaching classification, and
+Analysis Reports, and Strategy Teacher are integrated for the bounded one-
+Decision path by Issue #191 together with Dataset-v2 and Corpus propagation.
+Match Historical Information-set execution, Replay Coaching classification, and
 performance evidence remain open. Tactical and cross-game Coaching, carefully
 bounded Player Ratings where approved, broader Provenance and Confidence
 integration, and the remaining pre-v1 scope audit also remain open. Final Issue
@@ -1963,7 +1979,7 @@ Completed implementation scope:
   Training/Passed/Commentary counts, and complete fixed-list construction plus
   existing aggregation and external-lot behavior
 * internal Match analysis contracts with one explicit prepared-Decision
-  Immediate/Search/Auto Position execution, strict selected-mode Historical
+  Immediate/Search/Auto/Information-set Position execution, strict selected-mode Historical
   execution, one exact existing Application invocation, normal unavailability,
   and existing-behavior eligible relative Profile application
 * private browser Match materialization with no workflow execution, counts,
@@ -1990,6 +2006,9 @@ Completed implementation scope:
   Current Snapshots, one no-execution Request rebuild, validated retained Results,
   exact and semantic identities, deterministic coverage, and no persistence or
   public transport
+* focused internal Information-set Strategy Teacher extension version `1`, with
+  safe aggregate Result/comparison Evidence and wall-clock-normalized semantic
+  identity
 * internal Learning Dataset version `2` with nested contract versions `1`, exact
   four-source Current-Snapshot reconciliation, safe/skipped Decision coverage,
   separate observed behavior/Player/Teacher/Commentary/Response families,
@@ -2028,7 +2047,8 @@ Completed implementation scope:
   Information-set Search and adds descriptive same-selection post-game,
   Historical Review, and Training Dataset evaluation. Issue #190 adds strict
   Multi-Step and Policy Comparison integration with per-decision Search isolation
-  and unchanged `auto`. Match Capture, Match Analysis Reports, Strategy Teacher,
+  and unchanged `auto`. Issue #191 adds the bounded one-Decision Match/Report/
+  Teacher/Dataset/Corpus path. Match Historical Information-set execution,
   Replay Coaching classification, and performance integration remain open.
   Compatible-world Minimax evaluates the frozen selected
   sequence and aggregates one exact common prefix, but it is determinization-based
@@ -2094,6 +2114,9 @@ Completed implementation scope:
   YouTube integration, and EuroSkat integration remain absent. No
   hosted website, remote browser deployment, browser extension, or online-
   platform adapter exists.
+  Issue #191 adds strict one-Decision Information-set Search, safe aggregate
+  diagnostics, and exact source transfer without changing report persistence or
+  public boundaries.
 * Issues #171 through #179 provide private Learning Corpus source identity, exact
   Match Snapshots, closed references, Catalog entries/current selections,
   deterministic fixed-root persistence, strict Store Resume and orphan reporting,
@@ -2109,6 +2132,9 @@ Completed implementation scope:
   Strategy Teacher sources accept only exact
   executed Decision Analysis Reports, rebuild no-execution Requests, validate
   retained Results, and make no optimality or preferred-Teacher claim.
+  Issue #191 adds focused Information-set Teacher Evidence through those exact
+  sources and carries it through existing Dataset-v2 joins, Summary counts, and
+  seven downloads without derived persistence.
   Deletion, garbage collection, recovery UI, persisted aliases/assertions,
   merge/split operations, all-revision Player views, Human Evidence persistence
   and public transport, Strategy Teacher persistence and public transport,
@@ -2131,8 +2157,9 @@ Issue #188 adds the bounded Policy Search executor. Issue #189 adds strict flat
 routing, descriptive PIMC and Immediate comparison, separate Historical Review
 and Training Dataset evaluation, safe output, Provenance, CLI, Schemas, example,
 and scenario coverage. Issue #190 completes Multi-Step and Policy Comparison
-without changing existing `auto`. Later work should decide Match Capture, Match
-Analysis Reports, Strategy Teacher, Replay Coaching classification, and
+without changing existing `auto`. Issue #191 completes the bounded one-Decision
+Match/Report/Teacher/Dataset/Corpus path. Later work should decide Match
+Historical Information-set execution, Replay Coaching classification, and
 performance evidence integration.
 Continue keeping immutable imported
 Workspace Snapshots separate from future persisted or task-specific derived

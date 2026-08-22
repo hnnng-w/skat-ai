@@ -186,10 +186,18 @@ structure:
 * fallback, Profile-Preset-enabled, and Profile-application-summary Counts;
 * exact observed/Recommendation Card Match, Difference, and unavailable Counts.
 
+Requested-method Counts use the four canonical flat methods and include
+`information_set_search`; effective-method Counts include
+`bounded_information_set_policy_search_v1` when retained. Existing Search-status,
+fallback, Profile, recommendation, and exact Card-equality semantics are
+unchanged.
+
 A semantic duplicate group contains more than one exact Evidence value with the
 same existing semantic fingerprint. Values are not merged. The Summary does not
 average Candidate or Search metrics, select a Teacher, create consensus, vote,
 weight, rank, or call exact Card equality accuracy.
+Information-set Candidate metrics, policy quality, World quality, and comparison
+deltas are not aggregated.
 
 ## Partition readiness
 
@@ -294,3 +302,8 @@ Summary and Dataset-v2 persistence and public transport, task-specific Feature
 and Target builders, communication taxonomies, derived tags, annotation
 Confidence, Player Ratings and rankings, model evaluation and baselines, and
 model training remain open.
+
+Issue #191 extends only the values counted by this existing Summary contract.
+Summary version `1`, Dataset version `2`, fields, persistence, Public API, Schema,
+evaluation, and rating boundaries remain unchanged. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).

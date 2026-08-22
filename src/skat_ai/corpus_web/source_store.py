@@ -9,7 +9,7 @@ from skat_ai.learning_corpus_strategy_teacher import (
     LearningCorpusStrategyTeacherReportSourceV1,
 )
 from skat_ai.match_analysis_contracts import MatchDecisionAnalysisResultV1
-from skat_ai.recommendation_workflow import VALID_RECOMMENDATION_METHODS
+from skat_ai.recommendation_workflow import FLAT_RECOMMENDATION_METHODS
 
 from .contracts import (
     LEARNING_CORPUS_STRATEGY_SOURCE_BINDING_STATUSES,
@@ -17,7 +17,7 @@ from .contracts import (
     LEARNING_CORPUS_WEB_MAX_STRATEGY_TEACHER_SOURCES,
 )
 
-_METHOD_ORDER = {method: index for index, method in enumerate(VALID_RECOMMENDATION_METHODS)}
+_METHOD_ORDER = {method: index for index, method in enumerate(FLAT_RECOMMENDATION_METHODS)}
 
 
 def _require_binding_id(value: object) -> str:

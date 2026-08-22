@@ -203,7 +203,10 @@ Session examples, and 85 scenarios.
 
 Issue #190 does not integrate Information-set Search into Match Capture, Match
 Analysis Reports, Strategy Teacher Evidence, Replay Coaching classification, or
-performance measurement. Those areas remain open.
+performance measurement. Issue #191 subsequently adds only the bounded private
+one-Decision Match/Report/Teacher/Dataset/Corpus path; this Multi-Step integration
+is unchanged. Replay Coaching classification and performance measurement remain
+open.
 
 The integration does not create a cross-decision global Policy, a joint
 Defender-team Policy, an equilibrium, Nash behavior, global optimization, or
@@ -214,4 +217,6 @@ Training Dataset evaluation behavior remains unchanged.
 
 See [Information-set Search contracts](information_set_search_contracts.md), the
 [Information-set Search executor](information_set_search_executor.md), and
-[Information-set Search workflows](information_set_search_workflows.md).
+[Information-set Search workflows](information_set_search_workflows.md). See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md)
+for the later Issue #191 boundary.

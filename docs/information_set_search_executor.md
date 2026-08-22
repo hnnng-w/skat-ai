@@ -194,8 +194,11 @@ public-state Request, and executes independently of the coherent path World. No
 selected World, controlled Policy, cache, or memoized bundle is reused across
 decisions. A no-recommendation Result stops before local play with no fallback.
 
-Match Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
-classification, and performance baselines remain separate. There is no cross-
+Issue #191 subsequently adds strict one-Decision Match Capture and Reports,
+exact source transfer, and focused Strategy Teacher/Dataset/Corpus propagation
+without changing this executor. Match Historical Information-set execution,
+Replay Coaching classification, and performance baselines remain separate. There is no cross-
 decision global Policy, equilibrium, global-optimality, or calibrated-probability
 claim. See [Information-set Search workflows](information_set_search_workflows.md)
-and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+and [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
+plus [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).

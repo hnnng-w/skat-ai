@@ -10,6 +10,7 @@ from test_local_match_capture_web import (
     _operation_values,
     _request,
 )
+from test_match_decision_analysis import _complete_workspace
 from test_match_decision_review_preparation import _workspace_with_partial_game
 from test_match_historical_analysis import _strict_workspace
 from test_match_workspace_contracts import _definition
@@ -177,6 +178,89 @@ def test_analysis_state_is_curated_and_execution_does_not_save(
     report_id = result.state["selected_report_id"]
     assert "Download for Learning Corpus" in html
     assert f"/api/v1/reports/{report_id}/strategy-source.json" in html
+
+
+def test_information_set_analysis_form_and_report_use_safe_diagnostics(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    context = _workspace_context(
+        tmp_path,
+        _complete_workspace(),
+        "information-set-analysis.json",
+    )
+    calls = 0
+    original = analysis_module.execute_match_decision_analysis_v1
+
+    def counted(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(
+        analysis_module,
+        "execute_match_decision_analysis_v1",
+        counted,
+    )
+    initial_state = build_match_capture_web_state_v1(
+        context.workspace,
+        workspace_filename=context.workspace_filename,
+        selected_position=3,
+        report_store=context.report_store,
+    )
+    initial_html = render_match_capture_web_page_v1(initial_state)
+    assert '<option value="information_set_search">' in initial_html
+    assert "Search random seed" in initial_html
+    assert "Immediate sample count" in initial_html
+    assert "Use eligible Player Profile Presets" in initial_html
+    assert "strict without fallback" in initial_html
+
+    result = execute_match_capture_web_analysis_v1(
+        context,
+        _analysis_values(
+            context,
+            "analyze_decision",
+            decision_index="30",
+            recommendation_method="information_set_search",
+            immediate_sample_count="1",
+            immediate_random_seed="3",
+            search_random_seed="7",
+            search_budget_profile="interactive_v1",
+            use_profile_presets=True,
+        ),
+        browser_form=True,
+    )
+    assert calls == 1
+    details = result.state["selected_report"]["details"]
+    information_set = details["information_set_search"]
+    assert information_set["status"] == "complete"
+    assert information_set["policy_consistency"] == ("controlled_player_information_set_consistent")
+    assert information_set["information_set_recommended_card"] is not None
+    state_document = result.to_dict()["state"]
+
+    def keys(value):
+        if isinstance(value, dict):
+            return set(value) | set().union(*(keys(item) for item in value.values()))
+        if isinstance(value, list):
+            return set().union(*(keys(item) for item in value))
+        return set()
+
+    for forbidden in (
+        "controlled_policy",
+        "observations",
+        "world_states",
+        "exact_states",
+        "own_remaining_hand",
+        "candidate_results",
+        "fixed_policy_settings",
+        "wall_clock_elapsed_ms",
+    ):
+        assert forbidden not in keys(state_document)
+    html = render_match_capture_web_page_v1(result.state)
+    assert calls == 1
+    assert "Information-set Search" in html
+    assert "Same-selection PIMC Card" in html
+    assert "not calibrated probability" in html
 
 
 def test_selected_report_state_recursively_allows_only_rendered_fields() -> None:

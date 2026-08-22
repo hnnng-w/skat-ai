@@ -116,6 +116,10 @@ Strategy Teacher Evidence, joined Commentary Evidence, and joined Response
 Evidence once. Records retain IDs only. The complete Player Catalog and source
 collections are not embedded.
 
+Issue #191 carries focused Information-set Strategy Teacher Evidence through the
+same existing normalized Teacher pool and ID references. It introduces no new
+Record sibling, top-level pool, or evidence family.
+
 ### Source Context
 
 `LearningDatasetSourceContextV1` retains exact Match Snapshot, Game Reference,
@@ -208,6 +212,8 @@ Every Strategy Teacher Evidence value joins by exact Decision Reference to one
 Record. Snapshot, Game, Decision, acting Player, and actual Card must reconcile.
 All distinct Teachers remain in source collection order. No preferred Teacher,
 consensus, vote, merge, rank, weight, average, or ground-truth claim is added.
+Information-set evidence uses the same exact Current Snapshot, Game, Decision,
+acting Player, actual-Card, and source-order reconciliation.
 
 Commentary joins by subject Decision Reference only when that Decision has a
 Record. Snapshot, Game, subject identity, and actual Card reconcile. Exact text
@@ -254,6 +260,10 @@ fingerprint covers the complete enriched Record except itself. The Dataset
 fingerprint covers every Dataset field except itself, including caller-supplied
 case-sensitive Dataset ID, source identities, counts, Records, skipped Decisions,
 pools, and unjoined IDs.
+
+Adding Information-set Teacher Evidence therefore preserves the stable Record ID
+while changing the enriched Record content fingerprint and Dataset fingerprint
+as appropriate.
 
 No path, current time, random value, environment value, filesystem metadata, or
 network value participates.
@@ -335,3 +345,9 @@ workflows, one Console Script, 63 authoritative
 and packaged Schemas, six Session examples, 85 generated outputs, Corpus/Match
 Workspace/Session persistence bytes, and Training Dataset version `1` target
 `actual_card_played` remain unchanged.
+
+Issue #191 changes no Dataset version, field, task, label, partition algorithm,
+Schema, or persistence boundary. Its focused Information-set Teacher extension
+propagates transitively through the existing pool and joins and into the existing
+cross-game method counts. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).

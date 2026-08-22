@@ -14,6 +14,7 @@ from skat_ai.match_analysis_contracts import (
 )
 from skat_ai.match_decision_analysis import execute_match_decision_analysis_v1
 from skat_ai.match_historical_analysis import execute_match_historical_analysis_v1
+from skat_ai.recommendation_workflow import FLAT_SEARCH_RECOMMENDATION_METHODS
 from skat_ai.simulation import DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
 
 from .context import MatchCaptureWebContextV1
@@ -108,9 +109,7 @@ def _boolean(
 def _validate_fields(values: Mapping[str, object], operation: str) -> None:
     unexpected = sorted(set(values) - _ANALYSIS_FIELDS[operation])
     if unexpected:
-        raise ValueError(
-            "Unsupported analysis form fields: " + ", ".join(unexpected) + "."
-        )
+        raise ValueError("Unsupported analysis form fields: " + ", ".join(unexpected) + ".")
 
 
 def _position(values: Mapping[str, object]) -> int:
@@ -131,13 +130,12 @@ def _decision_options(
         default="immediate_expected_value",
     )
     supplied_search_seed = _optional_integer(values, "search_random_seed")
+    needs_search = method in FLAT_SEARCH_RECOMMENDATION_METHODS
     if browser_form:
-        search_seed = (
-            supplied_search_seed if method in {"bounded_search", "auto"} else None
-        )
+        search_seed = supplied_search_seed if needs_search else None
     else:
         search_seed = supplied_search_seed
-    if browser_form and method in {"bounded_search", "auto"} and search_seed is None:
+    if browser_form and needs_search and search_seed is None:
         search_seed = 0
     return MatchDecisionAnalysisOptionsV1(
         recommendation_method=method,

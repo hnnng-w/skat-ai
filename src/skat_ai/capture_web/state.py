@@ -17,6 +17,9 @@ from skat_ai.match_decision_review_preparation import (
 from skat_ai.match_historical_materialization import (
     materialize_match_observed_game_historical_v1,
 )
+from skat_ai.match_information_set_search import (
+    build_match_information_set_search_report_view_v1,
+)
 from skat_ai.match_player_statistics_preparation import (
     MatchPlayerStatisticsPreparationV1,
     build_match_player_statistics_preparation_v1,
@@ -60,19 +63,13 @@ def _participant_summary(participant, context) -> dict[str, Any]:
         "player_label": participant.player_label,
         "platform_player_id": participant.platform_player_id,
         "table_place": participant.table_place,
-        "statistics_snapshot": (
-            None
-            if snapshot is None
-            else snapshot.to_dict()
-        ),
-        "statistics_source": None if record is None else snapshot.to_dict()[
-            "statistics_record"
-        ]["source"],
+        "statistics_snapshot": (None if snapshot is None else snapshot.to_dict()),
+        "statistics_source": None
+        if record is None
+        else snapshot.to_dict()["statistics_record"]["source"],
         "statistics_games_played": None if record is None else record.games_played,
         "statistics_percentages": (
-            None
-            if record is None
-            else snapshot.to_dict()["statistics_record"]["statistics"]
+            None if record is None else snapshot.to_dict()["statistics_record"]["statistics"]
         ),
         "statistics_exact_counts": (
             None
@@ -80,34 +77,22 @@ def _participant_summary(participant, context) -> dict[str, Any]:
             else snapshot.to_dict()["statistics_record"]["exact_counts"]
         ),
         "statistics_temporal_status": context.temporal_status,
-        "statistics_eligible_for_match_analysis": (
-            context.eligible_for_match_analysis
-        ),
+        "statistics_eligible_for_match_analysis": (context.eligible_for_match_analysis),
         "normalized_profile": (
-            None
-            if context.normalized_profile is None
-            else context.to_dict()["normalized_profile"]
+            None if context.normalized_profile is None else context.to_dict()["normalized_profile"]
         ),
         "profile_confidence": (
-            None
-            if derivation is None
-            else context.to_dict()["profile_derivation"]["confidence"]
+            None if derivation is None else context.to_dict()["profile_derivation"]["confidence"]
         ),
-        "profile_classification": (
-            None if derivation is None else derivation.classification
-        ),
-        "profile_derivation_status": (
-            None if derivation is None else derivation.derivation_status
-        ),
+        "profile_classification": (None if derivation is None else derivation.classification),
+        "profile_derivation_status": (None if derivation is None else derivation.derivation_status),
         "recommended_policy_preset": (
             None if derivation is None else derivation.recommended_policy_preset
         ),
         "actionable_policy_preset": (
             None if derivation is None else derivation.actionable_policy_preset
         ),
-        "profile_explanations": (
-            [] if derivation is None else list(derivation.explanations)
-        ),
+        "profile_explanations": ([] if derivation is None else list(derivation.explanations)),
     }
 
 
@@ -119,9 +104,7 @@ def _game_summary(game) -> dict[str, Any] | None:
         "game_id": game.game_id,
         "game_timecode": format_media_timecode_v1(game.game_timecode),
         "perspective_initial_hand": (
-            None
-            if game.perspective_initial_hand is None
-            else list(game.perspective_initial_hand)
+            None if game.perspective_initial_hand is None else list(game.perspective_initial_hand)
         ),
         "declarer_player_id": game.declarer_player_id,
         "declaration": (
@@ -138,15 +121,11 @@ def _game_summary(game) -> dict[str, Any] | None:
             }
         ),
         "original_skat": None if game.original_skat is None else list(game.original_skat),
-        "discarded_cards": (
-            None if game.discarded_cards is None else list(game.discarded_cards)
-        ),
+        "discarded_cards": (None if game.discarded_cards is None else list(game.discarded_cards)),
         "plays": [
             {
                 **play.to_dict(),
-                "decision_timecode_text": format_media_timecode_v1(
-                    play.decision_timecode
-                )["start"],
+                "decision_timecode_text": format_media_timecode_v1(play.decision_timecode)["start"],
                 "trick_number": ((play.decision_index - 1) // 3) + 1,
             }
             for play in game.plays
@@ -179,9 +158,7 @@ def _decision_preparation_summary(workspace: MatchWorkspaceV1, position: int) ->
         match_position=position,
     )
     prepared = {item.decision_index for item in preparation.snapshots}
-    skipped = {
-        item.decision_index: item.reason for item in preparation.skipped_decisions
-    }
+    skipped = {item.decision_index: item.reason for item in preparation.skipped_decisions}
     return {
         "status": preparation.status,
         "source_play_count": preparation.source_play_count,
@@ -420,6 +397,7 @@ def _decision_report_details(value: MatchDecisionAnalysisResultV1) -> dict[str, 
                 if isinstance(item, dict)
             ],
             "bounded_search": curated_search,
+            "information_set_search": (build_match_information_set_search_report_view_v1(document)),
             "profiles": {
                 side: _profile_side_summary(
                     binding,
@@ -467,24 +445,16 @@ def _curate_coaching_summary(coaching: dict[str, Any]) -> dict[str, Any]:
     guidance = coaching.get("guidance")
     outcome = coaching.get("outcome_context")
     key_decisions = (
-        []
-        if not isinstance(prioritization, dict)
-        else prioritization.get("key_decisions", [])
+        [] if not isinstance(prioritization, dict) else prioritization.get("key_decisions", [])
     )
     turning_points = (
-        []
-        if not isinstance(prioritization, dict)
-        else prioritization.get("turning_points", [])
+        [] if not isinstance(prioritization, dict) else prioritization.get("turning_points", [])
     )
     decision_recommendations = (
-        []
-        if not isinstance(guidance, dict)
-        else guidance.get("decision_recommendations", [])
+        [] if not isinstance(guidance, dict) else guidance.get("decision_recommendations", [])
     )
     pattern_recommendations = (
-        []
-        if not isinstance(guidance, dict)
-        else guidance.get("pattern_recommendations", [])
+        [] if not isinstance(guidance, dict) else guidance.get("pattern_recommendations", [])
     )
     return {
         "report_method": coaching.get("report_method"),
@@ -508,9 +478,7 @@ def _curate_coaching_summary(coaching: dict[str, Any]) -> dict[str, Any]:
                     "primary_gap": item.get("primary_gap"),
                     "is_high_impact": item.get("is_high_impact"),
                     "turning_point_types": item.get("turning_point_types", []),
-                    "assessment": _coaching_assessment_summary(
-                        item.get("assessment")
-                    ),
+                    "assessment": _coaching_assessment_summary(item.get("assessment")),
                 }
                 for item in key_decisions
                 if isinstance(item, dict)
@@ -574,14 +542,12 @@ def _curate_coaching_summary(coaching: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(outcome, dict)
             else {
                 "game_result_summary": {
-                    "winner": (
-                        outcome.get("game_result_summary") or {}
-                    ).get("winner")
+                    "winner": (outcome.get("game_result_summary") or {}).get("winner")
                 },
                 "final_settlement_summary": {
-                    "settlement_score": (
-                        outcome.get("final_settlement_summary") or {}
-                    ).get("settlement_score")
+                    "settlement_score": (outcome.get("final_settlement_summary") or {}).get(
+                        "settlement_score"
+                    )
                 },
             }
         ),
@@ -679,9 +645,7 @@ def _historical_report_details(value: MatchHistoricalAnalysisResultV1) -> dict[s
             "declarer_points": summary.get("declarer_points"),
             "defender_points": summary.get("defender_points"),
             "game_result": (
-                None
-                if not isinstance(game_result, dict)
-                else {"winner": game_result.get("winner")}
+                None if not isinstance(game_result, dict) else {"winner": game_result.get("winner")}
             ),
             "game_value": (
                 None
@@ -689,9 +653,7 @@ def _historical_report_details(value: MatchHistoricalAnalysisResultV1) -> dict[s
                 else {"game_value": game_value.get("game_value")}
             ),
             "overbid": (
-                None
-                if not isinstance(overbid, dict)
-                else {"status": overbid.get("status")}
+                None if not isinstance(overbid, dict) else {"status": overbid.get("status")}
             ),
             "settlement": (
                 None
@@ -714,12 +676,8 @@ def _historical_report_details(value: MatchHistoricalAnalysisResultV1) -> dict[s
                 if review is None
                 else {
                     "decision_count": review.get("decision_count"),
-                    "reviewed_decision_count": review.get(
-                        "reviewed_decision_count"
-                    ),
-                    "unavailable_decision_count": review.get(
-                        "unavailable_decision_count"
-                    ),
+                    "reviewed_decision_count": review.get("reviewed_decision_count"),
+                    "unavailable_decision_count": review.get("unavailable_decision_count"),
                     "quality_counts": _selected_fields(
                         review.get("quality_counts"),
                         ("optimal", "acceptable", "suboptimal", "mistake"),
@@ -727,23 +685,14 @@ def _historical_report_details(value: MatchHistoricalAnalysisResultV1) -> dict[s
                 }
             ),
             "search_review": (
-                None
-                if search is None
-                else _curate_historical_search_summary(search)
+                None if search is None else _curate_historical_search_summary(search)
             ),
-            "replay_coaching": (
-                None
-                if coaching is None
-                else _curate_coaching_summary(coaching)
-            ),
+            "replay_coaching": (None if coaching is None else _curate_coaching_summary(coaching)),
             "profile_application": (
                 None
-                if document.get("historical_opponent_profile_application_summary")
-                is None
+                if document.get("historical_opponent_profile_application_summary") is None
                 else {
-                    key: document["historical_opponent_profile_application_summary"].get(
-                        key
-                    )
+                    key: document["historical_opponent_profile_application_summary"].get(key)
                     for key in (
                         "game_id",
                         "temporal_rule",
@@ -763,9 +712,9 @@ def _historical_report_details(value: MatchHistoricalAnalysisResultV1) -> dict[s
                                 "actionable_policy_preset",
                             )
                         }
-                        for item in document[
-                            "historical_opponent_profile_application_summary"
-                        ].get("participant_matches", [])
+                        for item in document["historical_opponent_profile_application_summary"].get(
+                            "participant_matches", []
+                        )
                         if isinstance(item, dict)
                     ]
                 }
@@ -788,6 +737,7 @@ def _materialization_report_details(value: MatchMaterializationReportV1) -> dict
     ]
     list_value = materialization.historical_list_materialization.to_dict()
     aggregation = list_value["aggregation"]
+
     def curated_standings(items: object) -> list[dict[str, Any]]:
         if not isinstance(items, list):
             return []
@@ -808,6 +758,7 @@ def _materialization_report_details(value: MatchMaterializationReportV1) -> dict
             for item in items
             if isinstance(item, dict)
         ]
+
     return {
         "status": materialization.status,
         "occupied_slot_count": sum(item.slot_kind != "empty" for item in slots),
@@ -833,9 +784,7 @@ def _materialization_report_details(value: MatchMaterializationReportV1) -> dict
                 None if aggregation is None else aggregation["applied_lot_order"]
             ),
             "final_standings": (
-                []
-                if aggregation is None
-                else curated_standings(aggregation["final_standings"])
+                [] if aggregation is None else curated_standings(aggregation["final_standings"])
             ),
             "round_end_progression": (
                 []
@@ -937,22 +886,14 @@ def build_match_capture_web_state_v1(
 
     definition = workspace.match_definition
     if statistics_preparation is None:
-        statistics_preparation = build_match_player_statistics_preparation_v1(
-            definition
-        )
+        statistics_preparation = build_match_player_statistics_preparation_v1(definition)
     elif (
         type(statistics_preparation) is not MatchPlayerStatisticsPreparationV1
         or statistics_preparation.match_id != definition.match_id
         or statistics_preparation.match_played_at != definition.played_at
-        or tuple(
-            context.player_id
-            for context in statistics_preparation.participant_contexts
-        )
+        or tuple(context.player_id for context in statistics_preparation.participant_contexts)
         != tuple(participant.player_id for participant in definition.participants)
-        or tuple(
-            context.snapshot_id
-            for context in statistics_preparation.participant_contexts
-        )
+        or tuple(context.snapshot_id for context in statistics_preparation.participant_contexts)
         != tuple(
             None
             if participant.statistics_snapshot is None
@@ -960,9 +901,7 @@ def build_match_capture_web_state_v1(
             for participant in definition.participants
         )
     ):
-        raise ValueError(
-            "statistics_preparation must describe the supplied Match definition."
-        )
+        raise ValueError("statistics_preparation must describe the supplied Match definition.")
     progress = build_match_workspace_progress_v1(workspace)
     selected_slot = workspace.slots[selected_position - 1]
     view = build_match_capture_position_view_v1(
@@ -1002,11 +941,7 @@ def build_match_capture_web_state_v1(
         None,
     )
     materialization_report = next(
-        (
-            report
-            for report in reversed(current_reports)
-            if report.report_kind == "materialization"
-        ),
+        (report for report in reversed(current_reports) if report.report_kind == "materialization"),
         None,
     )
     materialization_available = materialization_report is not None
@@ -1031,9 +966,7 @@ def build_match_capture_web_state_v1(
             "source_url": definition.source.source_url,
             "source_title": definition.source.source_title,
             "source_channel_name": definition.source.source_channel_name,
-            "match_timecode": format_media_timecode_v1(
-                definition.source.match_timecode
-            ),
+            "match_timecode": format_media_timecode_v1(definition.source.match_timecode),
         },
         "participants": [
             _participant_summary(participant, context)
@@ -1066,9 +999,7 @@ def build_match_capture_web_state_v1(
             )
             for report in current_reports
         ],
-        "selected_report_id": (
-            None if selected_report is None else selected_report.report_id
-        ),
+        "selected_report_id": (None if selected_report is None else selected_report.report_id),
         "selected_report": (
             None if selected_report is None else _selected_report_details(selected_report)
         ),
@@ -1094,7 +1025,5 @@ def build_match_capture_web_state_v1(
             "historical_list_aggregation": list_available,
         },
         "declaration_options": list(VALID_DECLARATION_GAME_TYPES),
-        "card_palette": [
-            _card_summary(card, selectable) for card in _ORDERED_DECK
-        ],
+        "card_palette": [_card_summary(card, selectable) for card in _ORDERED_DECK],
     }

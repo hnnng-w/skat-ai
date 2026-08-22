@@ -41,6 +41,7 @@ descriptive video or manual source metadata
     -> explicit one-Decision Position or strict Historical Application execution
     -> existing eligible relative Profile application where supported
     -> ephemeral revision-scoped reports and authenticated local downloads
+    -> strict one-Decision Match Information-set Search and exact Report transfer
     -> immutable content-addressed Learning Corpus Match Snapshots
     -> lightweight Catalog entries and explicit Current selections
     -> one explicit fixed-root private Store and strict full Resume
@@ -50,6 +51,7 @@ descriptive video or manual source metadata
     -> retained exact Statistics history and strict time-safe selection
     -> minimized Current-Snapshot-only Human Commentary/Response Evidence
     -> method-bound Current-Snapshot Strategy Teacher Evidence
+    -> focused safe Information-set Strategy Teacher Evidence
     -> private unpartitioned task-neutral Learning Dataset version 2
     -> separate Decision State, observed behavior, Player Context, and evidence pools
     -> private Match-Snapshot-safe partition Plans and leakage audits
@@ -450,6 +452,7 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/learning_corpus_human_evidence_builder.py` | One-pass Current-Snapshot source/reference reconciliation and factual Commentary/Response behavior derivation without analysis or I/O. |
 | `src/skat_ai/learning_corpus_human_evidence_export.py` | Builder-independent private export identity and canonical in-memory JSON bytes. |
 | `src/skat_ai/learning_corpus_strategy_teacher.py` | Exact Decision Report source bindings, immutable minimized method-bound Evidence, collection counts, and domain-separated identities. |
+| `src/skat_ai/learning_corpus_information_set_strategy_teacher.py` | Builder-only minimized safe Information-set Result/comparison Evidence and focused extension policies. |
 | `src/skat_ai/learning_corpus_strategy_teacher_builder.py` | Current-Snapshot/Game/Decision closure, one exact Request rebuild, retained Result validation, and strategy-field extraction without analysis execution. |
 | `src/skat_ai/learning_corpus_strategy_teacher_export.py` | Builder-independent private Strategy Teacher export identity and canonical path-free JSON bytes. |
 | `src/skat_ai/learning_dataset_v2_contracts.py` | Private task-neutral Dataset-v2 contracts, statuses, separated evidence families, immutable values, counts, and domain-separated identities. |
@@ -478,6 +481,7 @@ public files, automatic collection, execution, and Assistant behavior.
 | `src/skat_ai/match_workspace_materialization.py` | Exact 36-Slot preparation, counts/status, Passed Deals, Commentary sidecars, and existing complete-list construction plus aggregation without workflow execution. |
 | `src/skat_ai/match_analysis_contracts.py` | Explicit Match analysis options/results, normal unavailability, no-workflow materialization reports, deterministic report IDs, and bounded report-store/export policies. |
 | `src/skat_ai/match_decision_analysis.py` | One prepared Decision to one validated flat Position Request and exact existing Application execution with actor-relative eligible Profiles. |
+| `src/skat_ai/match_information_set_search.py` | Match budget mapping, strict safe Result/comparison reconciliation, and curated browser diagnostics for one-Decision Information-set Search. |
 | `src/skat_ai/match_historical_analysis.py` | Strict Historical availability, selected existing modes, bounded Profile injection, one exact Application invocation, and Result reconciliation. |
 | `src/skat_ai/match_analysis_exports.py` | Canonical private Root Result, materialization, Historical, Training-source, list-input, and list-aggregation download documents. |
 | `src/skat_ai/capture_web/` | Private Web/Protocol contracts, timecode presentation, locked context, browser-safe state, direct operation delegation, explicit analysis, max-eight report store, rendering, security, Standard Library server, downloads, and packaged assets. |
@@ -759,12 +763,15 @@ afterward. Existing `auto` remains compatible-world PIMC followed by its existin
 Immediate fallback. Public output and opt-in Provenance omit private Worlds,
 Observations, hands, controlled Policy tables, caches, and seeds. Issue #190 adds
 strict Multi-Step and Policy Comparison integration with retained-Result complete
-provenance, without changing `auto`. Match Capture, Match Analysis Reports,
-Strategy Teacher Evidence, Replay Coaching classification, and performance
+provenance, without changing `auto`. Issue #191 adds strict one-Decision Match
+Capture execution, revision-scoped Reports and exact transfer, focused Strategy
+Teacher Evidence, Dataset-v2 propagation, Summary counts, and existing local
+Corpus workflow support. Replay Coaching classification and performance
 integration remain open. See [Information-set Search contracts](information_set_search_contracts.md),
 the [Information-set Search executor](information_set_search_executor.md),
 [Information-set Search workflows](information_set_search_workflows.md), and
-[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+[Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md),
+plus [Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 Immediate Analysis is available only when the normalized input state has
 `next_player = "me"` and the game has not ended. Opponent-turn input keeps the

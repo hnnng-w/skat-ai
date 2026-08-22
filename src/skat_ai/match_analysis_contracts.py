@@ -25,9 +25,9 @@ from skat_ai.match_workspace_materialization import (
     build_match_workspace_materialization_v1,
 )
 from skat_ai.recommendation_workflow import (
+    FLAT_RECOMMENDATION_METHODS,
+    FLAT_SEARCH_RECOMMENDATION_METHODS,
     IMMEDIATE_EXPECTED_VALUE_METHOD,
-    SEARCH_RECOMMENDATION_METHODS,
-    VALID_RECOMMENDATION_METHODS,
 )
 from skat_ai.search_budget_profiles import (
     HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE,
@@ -72,9 +72,7 @@ MATCH_ARTIFACT_EXPORT_KINDS: Final[tuple[str, ...]] = (
 MATCH_ANALYSIS_REPORT_STORE_LIMIT = 8
 
 MATCH_ANALYSIS_EXECUTION_POLICY = "explicit_existing_application_execution_once"
-MATCH_DECISION_ANALYSIS_INFORMATION_POLICY = (
-    "prepared_snapshot_plus_retrospective_actual_card"
-)
+MATCH_DECISION_ANALYSIS_INFORMATION_POLICY = "prepared_snapshot_plus_retrospective_actual_card"
 MATCH_ANALYSIS_PROFILE_POLICY = "eligible_relative_profiles_via_existing_application"
 MATCH_ANALYSIS_REPORT_POLICY = "ephemeral_revision_scoped_not_workspace_persisted"
 MATCH_ANALYSIS_REPORT_ID_POLICY = "sha256_canonical_analysis_report_v1"
@@ -119,9 +117,7 @@ def _require_identifier(value: object, field_name: str) -> None:
 class MatchDecisionAnalysisOptionsV1:
     """Deterministic private options for one prepared Match Decision."""
 
-    match_decision_analysis_options_version: int = (
-        MATCH_DECISION_ANALYSIS_OPTIONS_VERSION
-    )
+    match_decision_analysis_options_version: int = MATCH_DECISION_ANALYSIS_OPTIONS_VERSION
     recommendation_method: str = IMMEDIATE_EXPECTED_VALUE_METHOD
     immediate_sample_count: int = DEFAULT_IMMEDIATE_ANALYSIS_SAMPLE_COUNT
     immediate_random_seed: int = 0
@@ -135,16 +131,17 @@ class MatchDecisionAnalysisOptionsV1:
             MATCH_DECISION_ANALYSIS_OPTIONS_VERSION,
             "match_decision_analysis_options_version",
         )
-        if self.recommendation_method not in VALID_RECOMMENDATION_METHODS:
+        if self.recommendation_method not in FLAT_RECOMMENDATION_METHODS:
             raise ValueError(
-                "recommendation_method must be one of "
-                f"{list(VALID_RECOMMENDATION_METHODS)}."
+                f"recommendation_method must be one of {list(FLAT_RECOMMENDATION_METHODS)}."
             )
         _require_sample_count(self.immediate_sample_count, "immediate_sample_count")
         if type(self.immediate_random_seed) is not int:
             raise ValueError("immediate_random_seed must be an integer.")
-        needs_search = self.recommendation_method in SEARCH_RECOMMENDATION_METHODS
+        needs_search = self.recommendation_method in FLAT_SEARCH_RECOMMENDATION_METHODS
         if needs_search and type(self.search_random_seed) is not int:
+            if self.recommendation_method == "information_set_search":
+                raise ValueError("Information-set Search requires search_random_seed.")
             raise ValueError("Search and Auto require search_random_seed.")
         if not needs_search and self.search_random_seed is not None:
             raise ValueError("Immediate analysis requires search_random_seed to be null.")
@@ -154,12 +151,9 @@ class MatchDecisionAnalysisOptionsV1:
             )
         if (
             not needs_search
-            and self.search_budget_profile
-            != HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
+            and self.search_budget_profile != HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
         ):
-            raise ValueError(
-                "interactive_v1 requires Search or Auto."
-            )
+            raise ValueError("interactive_v1 requires a Search method.")
         if type(self.use_profile_presets) is not bool:
             raise ValueError("use_profile_presets must be a boolean.")
 
@@ -181,9 +175,7 @@ class MatchDecisionAnalysisOptionsV1:
 class MatchHistoricalAnalysisOptionsV1:
     """Deterministic private options for one strict Historical Match Game."""
 
-    match_historical_analysis_options_version: int = (
-        MATCH_HISTORICAL_ANALYSIS_OPTIONS_VERSION
-    )
+    match_historical_analysis_options_version: int = MATCH_HISTORICAL_ANALYSIS_OPTIONS_VERSION
     decision_snapshots: bool = False
     immediate_review: bool = True
     search_review: bool = False
@@ -223,21 +215,16 @@ class MatchHistoricalAnalysisOptionsV1:
         if needs_search and type(self.search_random_seed) is not int:
             raise ValueError("Search Review and Replay Coaching require search_random_seed.")
         if not needs_search and self.search_random_seed is not None:
-            raise ValueError(
-                "search_random_seed requires Search Review or Replay Coaching."
-            )
+            raise ValueError("search_random_seed requires Search Review or Replay Coaching.")
         if self.search_budget_profile not in MATCH_ANALYSIS_SEARCH_BUDGET_PROFILES:
             raise ValueError(
                 "search_budget_profile must be interactive_v1 or historical_review_v1."
             )
         if (
             not needs_search
-            and self.search_budget_profile
-            != HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
+            and self.search_budget_profile != HISTORICAL_REVIEW_SEARCH_BUDGET_PROFILE
         ):
-            raise ValueError(
-                "interactive_v1 requires Historical Search Review or Replay Coaching."
-            )
+            raise ValueError("interactive_v1 requires Historical Search Review or Replay Coaching.")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -281,9 +268,7 @@ class MatchDecisionAnalysisResultV1:
             "match_analysis_execution_version",
         )
         if self.status not in MATCH_ANALYSIS_EXECUTION_STATUSES:
-            raise ValueError(
-                f"status must be one of {list(MATCH_ANALYSIS_EXECUTION_STATUSES)}."
-            )
+            raise ValueError(f"status must be one of {list(MATCH_ANALYSIS_EXECUTION_STATUSES)}.")
         _require_identifier(self.match_id, "match_id")
         _require_non_negative_integer(self.workspace_revision, "workspace_revision")
         if type(self.match_position) is not int or not 1 <= self.match_position <= 36:
@@ -302,8 +287,7 @@ class MatchDecisionAnalysisResultV1:
                 self.game_id is None
                 or self.unavailable_reason is not None
                 or self.skipped_reason is not None
-                or type(self.profile_binding)
-                is not MatchDecisionOpponentProfileBindingV1
+                or type(self.profile_binding) is not MatchDecisionOpponentProfileBindingV1
                 or type(self.request) is not RequestDocumentV1
                 or type(self.result) is not ResultDocumentV1
             ):
@@ -331,25 +315,20 @@ class MatchDecisionAnalysisResultV1:
                     "Executed Decision request and result must retain source identity."
                 )
             review = result_document.get("post_game_review_summary")
-            if (
-                not isinstance(review, Mapping)
-                or review.get("actual_card_played")
-                != request_document.get("actual_card_played")
-            ):
+            if not isinstance(review, Mapping) or review.get(
+                "actual_card_played"
+            ) != request_document.get("actual_card_played"):
                 raise ValueError(
                     "Executed Decision result must retain the retrospective actual Card."
                 )
         else:
             if (
-                self.unavailable_reason
-                not in MATCH_DECISION_ANALYSIS_UNAVAILABLE_REASONS
+                self.unavailable_reason not in MATCH_DECISION_ANALYSIS_UNAVAILABLE_REASONS
                 or self.request is not None
                 or self.result is not None
                 or self.profile_binding is not None
             ):
-                raise ValueError(
-                    "Unavailable Decision analysis requires one canonical reason."
-                )
+                raise ValueError("Unavailable Decision analysis requires one canonical reason.")
             if self.unavailable_reason == "slot_not_observed_game":
                 if self.game_id is not None:
                     raise ValueError("A non-observed Slot cannot contain game_id.")
@@ -361,9 +340,7 @@ class MatchDecisionAnalysisResultV1:
                         "decision_not_preparable requires one canonical skipped_reason."
                     )
             elif self.skipped_reason is not None:
-                raise ValueError(
-                    "skipped_reason is allowed only for decision_not_preparable."
-                )
+                raise ValueError("skipped_reason is allowed only for decision_not_preparable.")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -407,9 +384,7 @@ class MatchHistoricalAnalysisResultV1:
             "match_analysis_execution_version",
         )
         if self.status not in MATCH_ANALYSIS_EXECUTION_STATUSES:
-            raise ValueError(
-                f"status must be one of {list(MATCH_ANALYSIS_EXECUTION_STATUSES)}."
-            )
+            raise ValueError(f"status must be one of {list(MATCH_ANALYSIS_EXECUTION_STATUSES)}.")
         _require_identifier(self.match_id, "match_id")
         _require_non_negative_integer(self.workspace_revision, "workspace_revision")
         if type(self.match_position) is not int or not 1 <= self.match_position <= 36:
@@ -442,25 +417,18 @@ class MatchHistoricalAnalysisResultV1:
                     f"position:{self.match_position}:historical"
                 )
             ):
-                raise ValueError(
-                    "Executed Historical request and result must retain game_id."
-                )
+                raise ValueError("Executed Historical request and result must retain game_id.")
         elif (
-            self.unavailable_reason
-            not in MATCH_HISTORICAL_MATERIALIZATION_UNAVAILABLE_REASONS
+            self.unavailable_reason not in MATCH_HISTORICAL_MATERIALIZATION_UNAVAILABLE_REASONS
             or self.request is not None
             or self.result is not None
         ):
-            raise ValueError(
-                "Unavailable Historical analysis requires one materialization reason."
-            )
+            raise ValueError("Unavailable Historical analysis requires one materialization reason.")
         elif self.unavailable_reason in {"slot_empty", "passed_deal"}:
             if self.game_id is not None:
                 raise ValueError("A non-Game Historical result cannot contain game_id.")
         elif self.game_id is None:
-            raise ValueError(
-                "Unavailable observed-Game Historical analysis requires game_id."
-            )
+            raise ValueError("Unavailable observed-Game Historical analysis requires game_id.")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -505,9 +473,7 @@ class MatchMaterializationReportV1:
 
 
 MatchAnalysisReportValueV1 = (
-    MatchMaterializationReportV1
-    | MatchDecisionAnalysisResultV1
-    | MatchHistoricalAnalysisResultV1
+    MatchMaterializationReportV1 | MatchDecisionAnalysisResultV1 | MatchHistoricalAnalysisResultV1
 )
 
 
@@ -541,9 +507,7 @@ class MatchAnalysisReportV1:
             "match_analysis_report_version",
         )
         if self.report_kind not in MATCH_ANALYSIS_REPORT_KINDS:
-            raise ValueError(
-                f"report_kind must be one of {list(MATCH_ANALYSIS_REPORT_KINDS)}."
-            )
+            raise ValueError(f"report_kind must be one of {list(MATCH_ANALYSIS_REPORT_KINDS)}.")
         _require_identifier(self.match_id, "match_id")
         _require_non_negative_integer(self.workspace_revision, "workspace_revision")
         expected_type = {
@@ -594,9 +558,7 @@ class MatchAnalysisReportV1:
     def to_dict(self) -> dict[str, Any]:
         identity = self._identity_document()
         return {
-            "match_analysis_report_version": identity[
-                "match_analysis_report_version"
-            ],
+            "match_analysis_report_version": identity["match_analysis_report_version"],
             "report_id": self.report_id,
             "report_kind": identity["report_kind"],
             "match_id": identity["match_id"],

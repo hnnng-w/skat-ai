@@ -70,7 +70,7 @@ from skat_ai.learning_dataset_v2_summary_contracts import (
 from skat_ai.match_decision_review_preparation import (
     MATCH_DECISION_REVIEW_SKIP_REASONS,
 )
-from skat_ai.recommendation_workflow import VALID_RECOMMENDATION_METHODS
+from skat_ai.recommendation_workflow import FLAT_RECOMMENDATION_METHODS
 
 
 @dataclass(slots=True)
@@ -273,9 +273,9 @@ def _build_indexes(
         player_entries_by_id[entry.player_id] = entry
         player_aggregates[entry.player_id] = _PlayerAggregate(entry=entry)
         for observation in entry.match_observations:
-            player_aggregates[entry.player_id].perspective_match_count += (
-                observation.perspective_player
-            )
+            player_aggregates[
+                entry.player_id
+            ].perspective_match_count += observation.perspective_player
             _append(
                 match_observations_by_snapshot,
                 observation.match_snapshot_id,
@@ -445,9 +445,7 @@ def _build_indexes(
         if author_id is not None and author_id in player_aggregates:
             player_aggregates[author_id].commentary_authored_count += 1
         communication.commentary_count += 1
-        communication.commented_decision_reference_ids.add(
-            commentary.subject_decision_reference_id
-        )
+        communication.commented_decision_reference_ids.add(commentary.subject_decision_reference_id)
         communication.commentator_identity_kinds[commentary.commentator_identity_kind] += 1
         subject_record = records_by_decision[commentary.subject_decision_reference_id]
         communication.commentary_on_perspective_player_count += (
@@ -603,14 +601,10 @@ def _build_match_summaries(
                 strategy_teacher_evidence_count=aggregate.strategy_teacher_evidence_count,
                 commentary_evidence_count=aggregate.commentary_evidence_count,
                 response_evidence_count=aggregate.response_evidence_count,
-                records_with_strategy_teacher_count=(
-                    aggregate.records_with_strategy_teacher_count
-                ),
+                records_with_strategy_teacher_count=(aggregate.records_with_strategy_teacher_count),
                 records_with_commentary_count=aggregate.records_with_commentary_count,
                 records_with_linked_response_count=aggregate.records_with_linked_response_count,
-                unjoined_commentary_evidence_count=len(
-                    aggregate.unjoined_commentary_evidence_ids
-                ),
+                unjoined_commentary_evidence_count=len(aggregate.unjoined_commentary_evidence_ids),
                 unjoined_response_evidence_count=len(aggregate.unjoined_response_evidence_ids),
             )
         )
@@ -695,9 +689,7 @@ def _build_communication_summary(
             canonical=LEARNING_CORPUS_COMMENTATOR_IDENTITY_KINDS,
             include_zero=True,
         ),
-        commentary_on_perspective_player_count=(
-            aggregate.commentary_on_perspective_player_count
-        ),
+        commentary_on_perspective_player_count=(aggregate.commentary_on_perspective_player_count),
         commentary_on_non_perspective_player_count=(
             aggregate.commentary_count - aggregate.commentary_on_perspective_player_count
         ),
@@ -746,7 +738,7 @@ def _build_communication_summary(
 
 def _build_strategy_summary(indexes: _SummaryIndexes) -> Any:
     aggregate = indexes.strategy
-    if any(item not in VALID_RECOMMENDATION_METHODS for item in aggregate.requested_methods):
+    if any(item not in FLAT_RECOMMENDATION_METHODS for item in aggregate.requested_methods):
         raise ValueError("Teacher requested methods must use the existing vocabulary.")
     if any(
         item not in LEARNING_DATASET_SUMMARY_EFFECTIVE_METHODS
@@ -762,9 +754,7 @@ def _build_strategy_summary(indexes: _SummaryIndexes) -> Any:
         learning_dataset_strategy_summary_version=LEARNING_DATASET_STRATEGY_SUMMARY_VERSION,
         evidence_count=aggregate.evidence_count,
         distinct_decision_count=len(aggregate.decision_counts),
-        multi_teacher_decision_count=sum(
-            count > 1 for count in aggregate.decision_counts.values()
-        ),
+        multi_teacher_decision_count=sum(count > 1 for count in aggregate.decision_counts.values()),
         maximum_teacher_count_per_decision=max(aggregate.decision_counts.values(), default=0),
         semantic_fingerprint_count=len(aggregate.semantic_counts),
         semantic_duplicate_group_count=sum(
@@ -774,7 +764,7 @@ def _build_strategy_summary(indexes: _SummaryIndexes) -> Any:
         recommendation_unavailable_count=aggregate.recommendation_unavailable_count,
         requested_method_counts=_categorical_counts(
             aggregate.requested_methods,
-            canonical=tuple(VALID_RECOMMENDATION_METHODS),
+            canonical=tuple(FLAT_RECOMMENDATION_METHODS),
             include_zero=True,
         ),
         effective_method_counts=_categorical_counts(

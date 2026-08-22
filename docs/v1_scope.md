@@ -30,6 +30,11 @@ without adding a Schema, bringing the working totals to 69 authoritative and
 packaged Schemas and 94 scenarios. The published `v0.16.0` facts above remain
 unchanged.
 
+Issue #191 adds strict private one-Decision Match Information-set Search, exact
+Report-source transfer, focused Strategy Teacher Evidence, Dataset-v2 joins,
+cross-game counts, and existing Corpus workflow support without changing those
+counts or public/versioned surfaces.
+
 The historical published `v0.15.0` Release points to commit `ec1c154`. Package
 version `0.15.0` requires Python 3.13 or newer, retains Public API contract
 version `1` and exactly seven Root workflows, and contains 63 authoritative
@@ -246,8 +251,11 @@ Issue #190 adds strict Multi-Step and Policy Comparison integration with fresh
 per-decision public-state Search, private independent coherent execution, no
 Search World or Policy reuse, no fallback, safe Results and diagnostics, existing
 ranking, and complete Provenance. Existing `auto` remains unchanged. Match
-Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching classification,
-broader Strategy-Fusion correction, and performance evidence remain open.
+Capture, Match Analysis Reports, and Strategy Teacher are integrated for the
+bounded one-Decision path by Issue #191 together with Dataset-v2 and Corpus
+propagation. Match Historical Information-set execution, Replay Coaching
+classification, broader Strategy-Fusion correction, and performance evidence
+remain open.
 Tactical and cross-game Coaching, carefully bounded Player Ratings where
 approved, broader Provenance and Confidence integration, performance and latency
 evidence, and the remaining pre-v1 scope audit also remain open. Final Issue
@@ -384,7 +392,8 @@ The following directions are required for `v1.0.0`:
   and Training Dataset evaluation, retained-stage Provenance, CLI, four Schemas,
   one example, and four scenarios. Issue #190 completes strict Multi-Step and
   Policy Comparison integration with per-decision Search isolation and unchanged
-  `auto`. Match Capture, Match Analysis Reports, Strategy Teacher, Replay Coaching
+  `auto`. Issue #191 adds the bounded one-Decision Match/Report/Teacher/Dataset/
+  Corpus path. Match Historical Information-set execution, Replay Coaching
   classification, calibrated sampled quality, broader optimal imperfect-
   information policy solving, performance evidence, and a latency guarantee
   remain open. The functional `v0.10.0` milestone is complete, but these broader
@@ -551,9 +560,10 @@ Issue #190 completes only strict Information-set Search Multi-Step and Policy
 Comparison integration. It adds fresh per-decision public-state Search, private
 independent coherent execution, no Search World or controlled-Policy reuse, no
 fallback, safe Results and diagnostics, unchanged ranking, and complete
-Provenance. Match Capture, Match Analysis Reports, Strategy Teacher, Replay
-Coaching classification, performance evidence, and the broader solver gate remain
-open.
+Provenance. Issue #191 subsequently adds the bounded one-Decision Match/Report/
+Teacher/Dataset/Corpus path with no new Schema or scenario. Match Historical
+Information-set execution, Replay Coaching classification, performance evidence,
+and the broader solver gate remain open.
 
 Issues #156 and #157 supersede older rows below that call the Public Session API,
 Session Provenance/Schema, public file transport, automatic/actual-card
@@ -599,6 +609,12 @@ GUI/platform/cloud/encryption layers remain open.
 | Regression testing | Ruff, 69-Schema packaged parity, Root and Session example validation, 94-scenario generated-output validation, distribution build and clean-install API/installed/module Root, Session, Capture, and Corpus CLI validation remain the current unreleased gates. The current published `v0.16.0` Package passes 6,925 pytest tests with its historical 63-Schema and 85-scenario baseline. The historical published `v0.15.0` Package baseline passed 6,510 tests, and the published `v0.14.0` baseline remains historical evidence for 5,892 tests. |
 | Documentation | README, public field provenance, installed CLI, packaging, architecture, input/output, scoring, game-end, overbid, performance, examples, schema validation, roadmap, handoff, traceability, and scope documentation agree with behavior, rule ownership, stable fields, limitations, Python baseline, and release baseline. |
 | Release hygiene | The human-reviewed release candidate has only intended changes; package metadata and changelog use the approved v1.0.0 version; `git diff --check` and the full check pass; the tag and GitHub Release are created by a human only after those facts are verified. |
+
+Issue #191 supersedes the final open-work sentence in the Information-set Search
+row for the bounded private one-Decision Match/Report/Teacher/Dataset/Corpus path.
+Match Historical Information-set execution, Replay Coaching classification, and
+performance evidence remain open. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 The historical-game workflow satisfies deal-through-settlement for
 `normal_completion`, exact-prefix declarer and defender concessions,
@@ -745,6 +761,11 @@ copies, retains stopped rows as visible but ineligible, and preserves existing
 ranking. It emits safe nested Results and exact 16-field diagnostics, with no
 fallback and no change to `auto`, flat, Historical, or Dataset behavior. See
 [Information-set Search Multi-Step and Policy Comparison](information_set_search_multi_step_and_policy_comparison.md).
+
+Issue #191 adds the separate strict one-Decision Match/Report path and focused
+Teacher/Dataset/Corpus propagation without changing the Issue #190 Multi-Step
+behavior. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 ## Release decision rule
 

@@ -208,9 +208,14 @@ scenarios. The published `v0.16.0` totals remain historical Release facts.
 
 ## Integration boundary
 
-Issue #190 completes only Multi-Step and Policy Comparison integration. Match
-Capture, Match Analysis Reports, Strategy Teacher Evidence, Replay Coaching
-classification, performance integration, and `auto` remain unchanged.
+Issue #190 completes only Multi-Step and Policy Comparison integration. Issue
+#191 subsequently adds strict one-Decision Match Capture and Analysis Reports,
+exact Report-source transfer, focused Strategy Teacher Evidence, Dataset-v2
+propagation, cross-game Summary counts, and existing local Corpus workflow
+support. It adds no Root workflow, Public API, Schema, example, or generated
+scenario. Match Historical Information-set execution, Replay Coaching
+classification, performance integration, and `auto` remain unchanged. See
+[Match Information-set Search and Strategy Teacher Evidence](match_information_set_search_and_strategy_teacher.md).
 
 The implementation remains limited to at most three unresolved Tricks and to the
 selected Compatible-world sequence under supplied fixed Policies. Exact
